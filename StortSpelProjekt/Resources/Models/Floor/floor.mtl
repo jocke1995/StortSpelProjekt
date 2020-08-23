@@ -1,0 +1,17 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl None
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.800000 0.800000 0.800000
+Ke 0.000000 0.000000 0.000000
+Ns 1.000000
+d 1.000000
+illum 8
+map_Ka floor0_ambient.png
+map_Kd floor0_diffuse.png
+map_Ks floor0_specular.png
+map_Kn floor0_normal.png
+# map_Ke floor0_emissive.png
