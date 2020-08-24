@@ -52,15 +52,18 @@ void TempInputClass::InitDirectInput(HINSTANCE hInstance, HWND hwnd)
 	hr = this->mouse->SetCooperativeLevel(hwnd, DISCL_EXCLUSIVE | DISCL_NOWINKEY | DISCL_FOREGROUND);
 	if (FAILED(hr))
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to SetCooperativeLevel for mouse\n");
+
+	mouseLastState.lX = 0;
+	mouseLastState.lY = 0;
 }
 
 void TempInputClass::DetectInput(
 	double dt,
-	float *mfb,
-	float *mlr,
-	float *mud,
-	float *camYaw,
-	float *camPitch)
+	float* mfb,
+	float* mlr,
+	float* mud,
+	float* camYaw,
+	float* camPitch)
 {
 	DIMOUSESTATE mouseCurrState;
 
@@ -91,12 +94,11 @@ void TempInputClass::DetectInput(
 	if (keyboardState[DIK_F] & 0x80)
 		*mud -= this->movementSpeed * dt;
 
-	if ((mouseCurrState.lX != this->mouseLastState.lX) || (mouseCurrState.lY != this->mouseLastState.lY))
+	if ((mouseCurrState.lX != mouseLastState.lX) || (mouseCurrState.lY != mouseLastState.lY))
 	{
-		*camYaw += this->mouseLastState.lX * 0.001f;
-
+		*camYaw += mouseLastState.lX * 0.001f;
 		*camPitch += mouseCurrState.lY * 0.001f;
 
-		this->mouseLastState = mouseCurrState;
+		mouseLastState = mouseCurrState;
 	}
 }

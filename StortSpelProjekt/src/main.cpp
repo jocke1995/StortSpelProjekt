@@ -25,9 +25,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     // This will be loaded once from disk, then the next time the same function is called (with the same filepath),
     // the function will just return the same pointer to the model that was loaded earlier.
-    std::vector<Mesh*>* floorModel = renderer.LoadModel(L"Resources/Models/Floor/floor.obj");
-    std::vector<Mesh*>* stoneModel = renderer.LoadModel(L"Resources/Models/Rock/rock.obj");
-    std::vector<Mesh*>* cubeModel  = renderer.LoadModel(L"Resources/Models/Cube/crate.obj");
+    std::vector<Mesh*>* floorModel = renderer.LoadModel(L"../Resources/Models/Floor/floor.obj");
+    std::vector<Mesh*>* stoneModel = renderer.LoadModel(L"../Resources/Models/Rock/rock.obj");
+    std::vector<Mesh*>* cubeModel  = renderer.LoadModel(L"../Resources/Models/Cube/crate.obj");
 
 #pragma region CreateScene0
     // Create Scene
@@ -105,8 +105,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc->SetMeshes(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::Blend);
 
-    Texture* ambientDefault = renderer.LoadTexture(L"Resources/Textures/Default/default_ambient.png");
-    Texture* normalDefault = renderer.LoadTexture(L"Resources/Textures/Default/default_normal.png");
+    Texture* ambientDefault = renderer.LoadTexture(L"../Resources/Textures/Default/default_ambient.png");
+    Texture* normalDefault = renderer.LoadTexture(L"../Resources/Textures/Default/default_normal.png");
     mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::AMBIENT , ambientDefault);
     mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::DIFFUSE , ambientDefault);
     mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::SPECULAR, ambientDefault);

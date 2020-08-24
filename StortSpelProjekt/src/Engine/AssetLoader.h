@@ -49,8 +49,8 @@ private:
     //std::map<std::wstring, Mesh*> loadedMaterials;
     std::map<std::wstring, Shader*> loadedShaders;
 
-    const std::wstring filePathShaders = L"src/Engine/HLSL/";
-    const std::wstring filePathDefaultTextures = L"Resources/Textures/Default/";
+    const std::wstring filePathShaders = L"../src/Engine/HLSL/";
+    const std::wstring filePathDefaultTextures = L"../Resources/Textures/Default/";
 };
 
 #endif
