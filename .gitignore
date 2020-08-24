@@ -2,7 +2,7 @@ StortSpelProjekt/x64/Release/*.obj
 StortSpelProjekt/x64/Release/*.iobj
 StortSpelProjekt/x64/Release/*.ipdb
 StortSpelProjekt/x64/Release/*.pch
-StortSpelProjekt/x64/Release/*.tlog
+StortSpelProjekt/x64/Release/*.txt
 
 StortSpelProjekt/x64/Debug/*.obj
 StortSpelProjekt/x64/Debug/*.iobj
@@ -12,7 +12,7 @@ StortSpelProjekt/x64/Debug/*.tlog
 StortSpelProjekt/x64/Debug/*.ilk
 StortSpelProjekt/x64/Debug/*.tlog
 StortSpelProjekt/x64/Debug/*.sarif
-StortSpelProjekt/x64/Debug/*.tlog
+StortSpelProjekt/x64/Debug/*.txt
 
 
 *.tlog
@@ -20,11 +20,9 @@ StortSpelProjekt/x64/Debug/*.tlog
 *.idb
 *.pdb
 *.exe
-*.ilk
 *.db
 *.*~
 \.vs
 \.git
 *.opendb
-testbench-master/uml.png
 
