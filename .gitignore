@@ -27,3 +27,7 @@ StortSpelProjekt/*.user
 \.git
 *.opendb
 
+
+StortSpelProjekt/build/
+
+StortSpelProjekt/bin/
