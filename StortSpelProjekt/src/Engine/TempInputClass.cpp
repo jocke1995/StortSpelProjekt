@@ -52,6 +52,9 @@ void TempInputClass::InitDirectInput(HINSTANCE hInstance, HWND hwnd)
 	hr = this->mouse->SetCooperativeLevel(hwnd, DISCL_EXCLUSIVE | DISCL_NOWINKEY | DISCL_FOREGROUND);
 	if (FAILED(hr))
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to SetCooperativeLevel for mouse\n");
+
+	mouseLastState.lX = 0;
+	mouseLastState.lY = 0;
 }
 
 void TempInputClass::DetectInput(
@@ -62,41 +65,48 @@ void TempInputClass::DetectInput(
 	float *camYaw,
 	float *camPitch)
 {
-	DIMOUSESTATE mouseCurrState;
-
-	// Array of possible keys to be pressed
-	unsigned char keyboardState[256];
-
-	this->keyboard->Acquire();
-	this->mouse->Acquire();	// Takes control over the mouse
-
-	this->mouse->GetDeviceState(sizeof(DIMOUSESTATE), &mouseCurrState);
-	this->keyboard->GetDeviceState(sizeof(keyboardState), (LPVOID)&keyboardState);
-
-	if (keyboardState[DIK_W] & 0x80)
-		*mfb += this->movementSpeed * dt;
-
-	if (keyboardState[DIK_S] & 0x80)
-		*mfb -= this->movementSpeed * dt;
-
-	if (keyboardState[DIK_A] & 0x80)
-		*mlr += this->movementSpeed * dt;
-
-	if (keyboardState[DIK_D] & 0x80)
-		*mlr -= this->movementSpeed * dt;
-
-	if (keyboardState[DIK_R] & 0x80)
-		*mud += this->movementSpeed * dt;
-
-	if (keyboardState[DIK_F] & 0x80)
-		*mud -= this->movementSpeed * dt;
-
-	if ((mouseCurrState.lX != this->mouseLastState.lX) || (mouseCurrState.lY != this->mouseLastState.lY))
+	if (GetFocus())
 	{
-		*camYaw += this->mouseLastState.lX * 0.001f;
+		DIMOUSESTATE mouseCurrState;
 
-		*camPitch += mouseCurrState.lY * 0.001f;
+		// Array of possible keys to be pressed
+		unsigned char keyboardState[256];
 
-		this->mouseLastState = mouseCurrState;
+		this->keyboard->Acquire();
+		this->mouse->Acquire();	// Takes control over the mouse
+
+		this->mouse->GetDeviceState(sizeof(DIMOUSESTATE), &mouseCurrState);
+		this->keyboard->GetDeviceState(sizeof(keyboardState), (LPVOID)&keyboardState);
+
+		if (keyboardState[DIK_W] & 0x80)
+			*mfb += this->movementSpeed * dt;
+
+		if (keyboardState[DIK_S] & 0x80)
+			*mfb -= this->movementSpeed * dt;
+
+		if (keyboardState[DIK_A] & 0x80)
+			*mlr += this->movementSpeed * dt;
+
+		if (keyboardState[DIK_D] & 0x80)
+			*mlr -= this->movementSpeed * dt;
+
+		if (keyboardState[DIK_R] & 0x80)
+			*mud += this->movementSpeed * dt;
+
+		if (keyboardState[DIK_F] & 0x80)
+			*mud -= this->movementSpeed * dt;
+
+		if ((mouseCurrState.lX != mouseLastState.lX) || (mouseCurrState.lY != mouseLastState.lY))
+		{
+			*camYaw += mouseLastState.lX * 0.001f;
+			Log::Print("%f\n", mouseLastState.lX * 0.001f);
+			*camPitch += mouseCurrState.lY * 0.001f;
+
+			mouseLastState = mouseCurrState;
+		}
+	}
+	else
+	{
+
 	}
 }
