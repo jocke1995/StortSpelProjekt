@@ -1,3 +1,0 @@
-C:\Users\joaki\OneDrive\Documents\GitHub\3D-Prog3-Project\StortSpelProjekt\x64\Release\StortSpelProjekt.exe
-C:\Users\joaki\Documents\Github Projects\3D Programming3 Project\StortSpelProjekt\x64\Release\StortSpelProjekt.exe
-C:\Users\joaki\Documents\Github Projects\StortSpelProjekt\StortSpelProjekt\x64\Release\StortSpelProjekt.exe

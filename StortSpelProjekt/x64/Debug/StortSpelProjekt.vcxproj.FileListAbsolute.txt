@@ -1,4 +1,0 @@
-C:\Users\joaki\OneDrive\Documents\GitHub\3D-Prog3-Project\StortSpelProjekt\x64\Debug\StortSpelProjekt.exe
-C:\Users\joaki\OneDrive\Documents\GitHub\3D-Prog3-Project\StortSpelProjekt\x64\Debug\StortSpelProjekt.pdb
-C:\Users\joaki\Documents\Github Projects\StortSpelProjekt\StortSpelProjekt\x64\Debug\StortSpelProjekt.exe
-C:\Users\joaki\Documents\Github Projects\StortSpelProjekt\StortSpelProjekt\x64\Debug\StortSpelProjekt.pdb
