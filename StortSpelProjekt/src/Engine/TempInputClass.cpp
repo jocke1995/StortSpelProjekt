@@ -59,54 +59,46 @@ void TempInputClass::InitDirectInput(HINSTANCE hInstance, HWND hwnd)
 
 void TempInputClass::DetectInput(
 	double dt,
-	float *mfb,
-	float *mlr,
-	float *mud,
-	float *camYaw,
-	float *camPitch)
+	float* mfb,
+	float* mlr,
+	float* mud,
+	float* camYaw,
+	float* camPitch)
 {
-	if (GetFocus())
+	DIMOUSESTATE mouseCurrState;
+
+	// Array of possible keys to be pressed
+	unsigned char keyboardState[256];
+
+	this->keyboard->Acquire();
+	this->mouse->Acquire();	// Takes control over the mouse
+
+	this->mouse->GetDeviceState(sizeof(DIMOUSESTATE), &mouseCurrState);
+	this->keyboard->GetDeviceState(sizeof(keyboardState), (LPVOID)&keyboardState);
+
+	if (keyboardState[DIK_W] & 0x80)
+		*mfb += this->movementSpeed * dt;
+
+	if (keyboardState[DIK_S] & 0x80)
+		*mfb -= this->movementSpeed * dt;
+
+	if (keyboardState[DIK_A] & 0x80)
+		*mlr += this->movementSpeed * dt;
+
+	if (keyboardState[DIK_D] & 0x80)
+		*mlr -= this->movementSpeed * dt;
+
+	if (keyboardState[DIK_R] & 0x80)
+		*mud += this->movementSpeed * dt;
+
+	if (keyboardState[DIK_F] & 0x80)
+		*mud -= this->movementSpeed * dt;
+
+	if ((mouseCurrState.lX != mouseLastState.lX) || (mouseCurrState.lY != mouseLastState.lY))
 	{
-		DIMOUSESTATE mouseCurrState;
+		*camYaw += mouseLastState.lX * 0.001f;
+		*camPitch += mouseCurrState.lY * 0.001f;
 
-		// Array of possible keys to be pressed
-		unsigned char keyboardState[256];
-
-		this->keyboard->Acquire();
-		this->mouse->Acquire();	// Takes control over the mouse
-
-		this->mouse->GetDeviceState(sizeof(DIMOUSESTATE), &mouseCurrState);
-		this->keyboard->GetDeviceState(sizeof(keyboardState), (LPVOID)&keyboardState);
-
-		if (keyboardState[DIK_W] & 0x80)
-			*mfb += this->movementSpeed * dt;
-
-		if (keyboardState[DIK_S] & 0x80)
-			*mfb -= this->movementSpeed * dt;
-
-		if (keyboardState[DIK_A] & 0x80)
-			*mlr += this->movementSpeed * dt;
-
-		if (keyboardState[DIK_D] & 0x80)
-			*mlr -= this->movementSpeed * dt;
-
-		if (keyboardState[DIK_R] & 0x80)
-			*mud += this->movementSpeed * dt;
-
-		if (keyboardState[DIK_F] & 0x80)
-			*mud -= this->movementSpeed * dt;
-
-		if ((mouseCurrState.lX != mouseLastState.lX) || (mouseCurrState.lY != mouseLastState.lY))
-		{
-			*camYaw += mouseLastState.lX * 0.001f;
-			Log::Print("%f\n", mouseLastState.lX * 0.001f);
-			*camPitch += mouseCurrState.lY * 0.001f;
-
-			mouseLastState = mouseCurrState;
-		}
-	}
-	else
-	{
-
+		mouseLastState = mouseCurrState;
 	}
 }
