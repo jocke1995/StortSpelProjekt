@@ -12,9 +12,6 @@ Renderer::~Renderer()
 	Log::Print("----------------------------  Deleting Renderer  ----------------------------------\n");
 	this->WaitForFrame(0);
 
-	this->threadpool->WaitForThreads(FLAG_THREAD::ALL);
-	this->threadpool->ExitThreads();
-
 	SAFE_RELEASE(&this->fenceFrame);
 	if (!CloseHandle(this->eventHandle))
 	{
@@ -45,7 +42,6 @@ Renderer::~Renderer()
 	delete this->wireFrameTask;
 
 	SAFE_RELEASE(&this->device5);
-	delete this->threadpool;
 
 	delete this->mousePicker;
 
@@ -58,8 +54,10 @@ Renderer::~Renderer()
 	delete this->tempCommandInterface;
 }
 
-void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance)
+void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool)
 {
+	this->threadPool = threadPool;
+
 	// Create Device
 	if (!this->CreateDevice())
 	{
@@ -80,11 +78,6 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance)
 
 	// Create Main DepthBuffer
 	this->CreateMainDSV(hwnd);
-
-	// ThreadPool
-	int numCores = std::thread::hardware_concurrency();
-	if (numCores == 0) numCores = 1; // function not supported ej vettig dator
-	this->threadpool = new ThreadPool(numCores); // Set num threads to number of cores of the cpu
 
 	// Picking
 	this->mousePicker = new MousePicker();
@@ -570,7 +563,7 @@ void Renderer::Execute()
 	{
 		renderTask->SetBackBufferIndex(backBufferIndex);
 		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		this->threadpool->AddTask(renderTask, FLAG_THREAD::RENDER);
+		this->threadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 		//renderTask->Execute();	// NON-MULTITHREADED-VERSION 
 	}
 	
@@ -578,11 +571,11 @@ void Renderer::Execute()
 	{
 		this->wireFrameTask->SetBackBufferIndex(backBufferIndex);
 		this->wireFrameTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		this->threadpool->AddTask(this->wireFrameTask, FLAG_THREAD::RENDER);
+		this->threadPool->AddTask(this->wireFrameTask, FLAG_THREAD::RENDER);
 	}
 	
 	// Wait for the threads which records the commandlists to complete
-	this->threadpool->WaitForThreads(FLAG_THREAD::RENDER | FLAG_THREAD::ALL);
+	this->threadPool->WaitForThreads(FLAG_THREAD::RENDER | FLAG_THREAD::ALL);
 	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Wait(this->fenceFrame, copyFenceValue);
 
 	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
@@ -606,11 +599,6 @@ void Renderer::Execute()
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Swapchain Failed to present\n");
 	}
 #endif
-}
-
-ThreadPool* Renderer::GetThreadPool() const
-{
-	return this->threadpool;
 }
 
 void Renderer::SetRenderTasksPrimaryCamera()

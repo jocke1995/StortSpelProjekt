@@ -10,7 +10,7 @@
 // Using the same transform as the models transform
 #include "TransformComponent.h"
 
-#include "../../Engine/BoundingBoxPool.h"
+#include "Engine/Renderer/BoundingBoxPool.h"
 
 namespace component
 {

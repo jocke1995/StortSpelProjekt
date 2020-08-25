@@ -1,7 +1,7 @@
 #include "Window.h"
 
 // Problem med precompiled header eller liknande.. Intellisense problemet
-#include "Engine/stdafx.h"
+#include "Engine/Headers/stdafx.h"
 
 // callback function for windows messages
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

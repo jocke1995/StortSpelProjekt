@@ -1,36 +1,28 @@
-#include "Engine/Renderer.h"
-#include "Engine/Timer.h"
+#include "Engine/Engine.h"
 
-#include "ECS/SceneHandler.h"
+// Helps intellisense to understand that stdafx is included
+#include "Engine/Headers/stdafx.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-    /* ------ Window  ------ */
-    Window w(hInstance, nCmdShow);
-    Window* window = &w; //= new Window(hInstance, nCmdShow);
+    /* ------ Engine  ------ */
+    Engine engine = Engine();
+    engine.Init(hInstance, nCmdShow);
 
-    /* ------ Timer  ------ */
-    Timer t(window);
-    Timer* timer = &t;// = new Timer(window);
-
-    /* ------ Renderer  ------ */
-    Renderer renderer = Renderer();
-    renderer.InitD3D12(window->GetHwnd(), hInstance);
-
-    // Get threadpool so other tasks (physics, gameupdates etc..) can use it 
-    ThreadPool* threadPool = renderer.GetThreadPool();
-
-    // Handler to the scenes, which will be used to create different scenes with entities..
-    SceneHandler s;
-    SceneHandler* sceneHandler = &s;// = new SceneHandler();
+	/*  ------ Get references from engine  ------ */
+	Window* const window = engine.GetWindow();
+	Timer* const timer = engine.GetTimer();
+	ThreadPool* const threadPool = engine.GetThreadPool();
+	SceneHandler* const sceneHandler = engine.GetSceneHandler();
+	Renderer* const renderer = engine.GetRenderer();
 
     // This will be loaded once from disk, then the next time the same function is called (with the same filepath),
     // the function will just return the same pointer to the model that was loaded earlier.
-    std::vector<Mesh*>* floorModel = renderer.LoadModel(L"../Resources/Models/Floor/floor.obj");
-    std::vector<Mesh*>* stoneModel = renderer.LoadModel(L"../Resources/Models/Rock/rock.obj");
-    std::vector<Mesh*>* cubeModel  = renderer.LoadModel(L"../Resources/Models/Cube/crate.obj");
+    std::vector<Mesh*>* floorModel = renderer->LoadModel(L"../Resources/Models/Floor/floor.obj");
+    std::vector<Mesh*>* stoneModel = renderer->LoadModel(L"../Resources/Models/Rock/rock.obj");
+    std::vector<Mesh*>* cubeModel  = renderer->LoadModel(L"../Resources/Models/Cube/crate.obj");
 
 #pragma region CreateScene0
     // Create Scene
@@ -50,7 +42,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Entity* entity;
 
     entity = scene->GetEntity("player");
-    entity->AddComponent<component::CameraComponent>(hInstance, *window->GetHwnd(), true);
+    component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(hInstance, *window->GetHwnd(), true);
 
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::MeshComponent>();
@@ -108,8 +100,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc->SetMeshes(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::Blend);
 
-    Texture* ambientDefault = renderer.LoadTexture(L"../Resources/Textures/Default/default_ambient.png");
-    Texture* normalDefault = renderer.LoadTexture(L"../Resources/Textures/Default/default_normal.png");
+    Texture* ambientDefault = renderer->LoadTexture(L"../Resources/Textures/Default/default_ambient.png");
+    Texture* normalDefault = renderer->LoadTexture(L"../Resources/Textures/Default/default_normal.png");
     mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::AMBIENT , ambientDefault);
     mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::DIFFUSE , ambientDefault);
     mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::SPECULAR, ambientDefault);
@@ -179,7 +171,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     dl->SetColor(LIGHT_COLOR_TYPE::LIGHT_SPECULAR, { 0.2f, 0.8f, 0.8f, 1.0f });
 
 #pragma endregion CreateScene1
-    renderer.SetSceneToDraw(sceneHandler->GetScene("scene0"));
+    renderer->SetSceneToDraw(sceneHandler->GetScene("scene0"));
     while (!window->ExitWindow())
     {
         // ONLY HERE FOR TESTING
@@ -227,12 +219,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         /* ------ Update ------ */
         timer->Update();
-        renderer.Update(timer->GetDeltaTime());
+        renderer->Update(timer->GetDeltaTime());
 
         /* ------ Sort ------ */
-        renderer.SortObjectsByDistance();
+        renderer->SortObjectsByDistance();
         /* ------ Draw ------ */
-        renderer.Execute();
+        renderer->Execute();
     }
 
     return 0;

@@ -1,7 +1,7 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include "../Window.h"
+#include "Window.h"
 
 class Timer
 {

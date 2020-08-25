@@ -1,5 +1,4 @@
 #include "Thread.h"
-#include "Task.h"
 
 unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 {

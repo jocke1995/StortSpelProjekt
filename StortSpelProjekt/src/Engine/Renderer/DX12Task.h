@@ -1,9 +1,8 @@
-#pragma once
+#ifndef DX12TASK_H
+#define DX12TASK_H
 
-#include "Task.h"
+#include "../Misc/Task.h"
 #include "CommandInterface.h"
-
-#include "D3D12Timer.h"
 
 class Resource;
 
@@ -42,3 +41,5 @@ protected:
 	int backBufferIndex = -1;
 	int commandInterfaceIndex = -1;
 };
+
+#endif

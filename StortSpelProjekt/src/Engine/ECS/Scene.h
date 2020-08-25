@@ -3,7 +3,8 @@
 
 #include "Entity.h"
 
-#include "../src/Engine/BaseCamera.h"
+#include "../Renderer/BaseCamera.h"
+
 class Scene
 {
 public:

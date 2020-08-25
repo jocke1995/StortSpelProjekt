@@ -8,7 +8,7 @@ project "StortSpelProjekt"
     kind "WindowedApp"
     language "C++"
     pchheader "stdafx.h"
-    pchsource "src/Engine/stdafx.cpp"
+    pchsource "src/Engine/Headers/stdafx.cpp"
     targetdir "bin/%{cfg.buildcfg}"
     files { "src/**.cpp", "src/**.h", "src/**.hlsl" }
     forceincludes { "stdafx.h" }

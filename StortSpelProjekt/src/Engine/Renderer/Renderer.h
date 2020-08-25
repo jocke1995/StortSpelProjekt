@@ -4,11 +4,12 @@
 #include "RootSignature.h"
 #include "SwapChain.h"
 #include "DepthStencilView.h"
-#include "ThreadPool.h"
 #include "LightViewsPool.h"
 
 #include "MousePicker.h"
 #include "BoundingBoxPool.h"
+
+#include "../Misc/ThreadPool.h"
 
 // ECS
 #include "../ECS/Scene.h"
@@ -27,6 +28,9 @@
 // Compute (Later include the specific tasks instead of this)
 #include "ComputeTask.h"
 
+// Problem with intelissense
+#include "../Headers/stdafx.h"
+
 class Renderer
 {
 public:
@@ -34,7 +38,7 @@ public:
 	~Renderer();
 
 	// Call once
-	void InitD3D12(const HWND *hwnd, HINSTANCE hInstance);
+	void InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool);
 
 	std::vector<Mesh*>* LoadModel(std::wstring path);
 	Texture* LoadTexture(std::wstring path);
@@ -47,8 +51,9 @@ public:
 	void SortObjectsByDistance();
 	void Execute();
 
-	ThreadPool* GetThreadPool() const;
 private:
+	ThreadPool* threadPool = nullptr;
+
 	// Camera
 	BaseCamera* ScenePrimaryCamera = nullptr;
 	void SetRenderTasksPrimaryCamera();
@@ -74,9 +79,6 @@ private:
 	// Rootsignature
 	RootSignature* rootSignature = nullptr;
 	void CreateRootSignature();
-
-	// ThreadPool
-	ThreadPool* threadpool = nullptr;
 
 	// Picking
 	MousePicker* mousePicker = nullptr;

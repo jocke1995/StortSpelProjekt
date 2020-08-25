@@ -1,7 +1,6 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
-#include "../../Engine/stdafx.h"
 class Entity;
 
 class Component

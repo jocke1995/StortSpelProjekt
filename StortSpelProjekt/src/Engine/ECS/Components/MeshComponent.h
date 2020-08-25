@@ -1,7 +1,7 @@
 #ifndef MESHCOMPONENT_H
 #define MESHCOMPONENT_H
 
-#include "../../Engine/Mesh.h"
+#include "../../Renderer/Mesh.h"
 #include "Component.h"
 
 namespace component

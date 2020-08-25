@@ -1,4 +1,4 @@
-#include "../structs.h"
+#include "../../Headers/structs.h"
 
 struct VS_OUT
 {
