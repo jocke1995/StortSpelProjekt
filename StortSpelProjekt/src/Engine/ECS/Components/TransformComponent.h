@@ -1,7 +1,7 @@
 #ifndef TRANSFORMCOMPONENT_H
 #define TRANSFORMCOMPONENT_H
 
-#include "../../Engine/Transform.h"
+#include "../../Renderer/Transform.h"
 #include "Component.h"
 
 namespace component

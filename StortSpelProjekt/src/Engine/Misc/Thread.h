@@ -1,4 +1,5 @@
-#pragma once
+#ifndef THREAD_H
+#define THREAD_H
 
 #include "Task.h"
 
@@ -41,3 +42,4 @@ private:
 	bool isRunning = true;
 };
 
+#endif

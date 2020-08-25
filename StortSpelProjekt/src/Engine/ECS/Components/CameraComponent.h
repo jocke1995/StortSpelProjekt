@@ -2,8 +2,8 @@
 #define CAMERACOMPONENT_H
 
 #include "Component.h"
-#include "../src/Engine/PerspectiveCamera.h"
-#include "../src/Engine/OrthographicCamera.h"
+#include "../../Renderer/PerspectiveCamera.h"
+#include "../../Renderer/OrthographicCamera.h"
 namespace component
 {
 	class CameraComponent : public Component

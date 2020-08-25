@@ -1,4 +1,4 @@
-#include "../structs.h"
+#include "../../Headers/structs.h"
 
 Texture2D textures[]   : register (t0);
 SamplerState samplerTypeWrap	: register (s0);

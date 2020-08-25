@@ -4,11 +4,10 @@
 #include "../../Entity.h"
 #include "../TransformComponent.h"
 #include "../Component.h"
-#include "../src/Engine/stdafx.h"
-#include "../src/Engine/structs.h"
+//#include "../../../structs.h"
 
-#include "../src/Engine/OrthographicCamera.h"
-#include "../src/Engine/PerspectiveCamera.h"
+#include "../../../Renderer/OrthographicCamera.h"
+#include "../../../Renderer/PerspectiveCamera.h"
 
 enum FLAG_LIGHT
 {

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef THREADPOOL_H
+#define THREADPOOL_H
 
 #include "Thread.h"
 
@@ -23,3 +24,4 @@ private:
 	bool IsThreadsQueuesEmpty(unsigned int flag);
 };
 
+#endif

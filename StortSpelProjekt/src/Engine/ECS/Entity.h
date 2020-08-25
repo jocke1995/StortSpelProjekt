@@ -13,7 +13,6 @@ class SpotLightComponent;
 class CameraComponent;
 class BoundingBoxComponent;
 
-#include "../Engine/stdafx.h"
 #include "Components/Component.h"
 
 static unsigned int staticID = 0;
