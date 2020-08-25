@@ -10,6 +10,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /* ------ Window  ------ */
     Window w(hInstance, nCmdShow);
     Window* window = &w; //= new Window(hInstance, nCmdShow);
+
     /* ------ Timer  ------ */
     Timer t(window);
     Timer* timer = &t;// = new Timer(window);
