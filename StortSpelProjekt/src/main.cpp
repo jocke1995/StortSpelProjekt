@@ -8,10 +8,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
     /* ------ Window  ------ */
-    Window* window = new Window(hInstance, nCmdShow);
-
+    Window w(hInstance, nCmdShow);
+    Window* window = &w; //= new Window(hInstance, nCmdShow);
     /* ------ Timer  ------ */
-    Timer* timer = new Timer(window);
+    Timer t(window);
+    Timer* timer = &t;// = new Timer(window);
 
     /* ------ Renderer  ------ */
     Renderer renderer = Renderer();
@@ -21,7 +22,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     ThreadPool* threadPool = renderer.GetThreadPool();
 
     // Handler to the scenes, which will be used to create different scenes with entities..
-    SceneHandler* sceneHandler = new SceneHandler();
+    SceneHandler s;
+    SceneHandler* sceneHandler = &s;// = new SceneHandler();
 
     // This will be loaded once from disk, then the next time the same function is called (with the same filepath),
     // the function will just return the same pointer to the model that was loaded earlier.
@@ -111,13 +113,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::DIFFUSE , ambientDefault);
     mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::SPECULAR, ambientDefault);
     mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::NORMAL  , normalDefault);
-
+    
     tc = scene->GetEntity("transparentTestObject")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(5.0f);
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 1.0f);
     tc->GetTransform()->RotateZ(3.141572f / 2.0f);
     tc->GetTransform()->RotateX(3.141572f / 2.0f);
-
+    
     entity = scene->GetEntity("transparentTestObject");
     entity->GetComponent<component::BoundingBoxComponent>()->Init();
 
@@ -194,7 +196,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             scene = sceneHandler->GetScene("scene0");
             tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
             float3 posa = tc->GetTransform()->GetPositionFloat3();
-            tc->GetTransform()->SetPosition(posa.x, posa.y, posa.z + 0.1);
+            tc->GetTransform()->SetPosition(posa.x, posa.y, posa.z + 0.1f);
 
             // Test to add objects during runtime (horrible solution, very badly designed)
             //char boxName[10];
@@ -220,7 +222,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             //
             //// (horrible solution, very badly designed)
             //renderer.SetSceneToDraw(sceneHandler->GetScene("scene0"));
-        } 
+        }
 
         /* ------ Update ------ */
         timer->Update();
@@ -228,14 +230,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         /* ------ Sort ------ */
         renderer.SortObjectsByDistance();
-
         /* ------ Draw ------ */
         renderer.Execute();
     }
-
-    delete window;
-    delete sceneHandler;
-    delete timer;
 
     return 0;
 }
