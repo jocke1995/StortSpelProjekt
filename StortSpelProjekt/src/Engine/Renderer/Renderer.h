@@ -4,9 +4,9 @@
 #include "RootSignature.h"
 #include "SwapChain.h"
 #include "DepthStencilView.h"
-#include "LightViewsPool.h"
-
 #include "MousePicker.h"
+
+#include "LightViewsPool.h"
 #include "BoundingBoxPool.h"
 
 #include "../Misc/ThreadPool.h"
@@ -18,6 +18,7 @@
 
 // Graphics
 #include "WireframeRenderTask.h"
+#include "OutliningRenderTask.h"
 #include "ForwardRenderTask.h"
 #include "BlendRenderTask.h"
 #include "ShadowRenderTask.h"

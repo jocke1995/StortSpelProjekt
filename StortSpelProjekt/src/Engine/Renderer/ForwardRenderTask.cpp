@@ -92,10 +92,10 @@ void FowardRenderTask::Execute()
 	// Draw Rendercomponent with stencil testing enabled
 	if (outlinedModel.first != nullptr)
 	{
-		//static unsigned int counter = 0;
-		//counter++;
-		//Entity* parent = outlinedModel.first->GetParent();
-		//Log::Print("%s is picked! %d\n", parent->GetName().c_str(), counter);
+		static unsigned int counter = 0;
+		counter++;
+		Entity* parent = outlinedModel.first->GetParent();
+		Log::Print("%s is picked! %d\n", parent->GetName().c_str(), counter);
 
 		commandList->SetPipelineState(this->pipelineStates[1]->GetPSO());
 		commandList->OMSetStencilRef(1);
