@@ -872,7 +872,7 @@ void Renderer::InitRenderTasks()
 	gpsdModelOutlining.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	dsd = {};
-	dsd.DepthEnable = true;	// Maybe enable if we dont want the object to "highlight" through other objects
+	dsd.DepthEnable = false;	// Maybe enable if we dont want the object to "highlight" through other objects
 	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 
