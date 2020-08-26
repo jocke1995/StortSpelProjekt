@@ -1,19 +1,16 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
-// Render
-class MeshComponent;
-class TransformComponent;
+// Renderer
+#include "Components/MeshComponent.h"
+#include "Components/TransformComponent.h"
+#include "Components/CameraComponent.h"
+#include "Components/BoundingBoxComponent.h"
 
 // Lights
 class DirectionalLightComponent;
 class PointLightComponent;
 class SpotLightComponent;
-
-class CameraComponent;
-class BoundingBoxComponent;
-
-#include "Components/Component.h"
 
 static unsigned int staticID = 0;
 class Entity

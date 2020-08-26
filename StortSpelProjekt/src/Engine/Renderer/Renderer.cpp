@@ -328,7 +328,7 @@ void Renderer::SetSceneToDraw(Scene* scene)
 				Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel());
 				if (m == nullptr)
 				{
-					Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", bbc->GetParentName().c_str());
+					Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", bbc->GetParent()->GetName().c_str());
 					continue;
 				}
 
@@ -345,7 +345,7 @@ void Renderer::SetSceneToDraw(Scene* scene)
 			}
 
 			// Add to vector so the mouse picker can check for intersections
-			if (bbc->Pick() == true)
+			if (bbc->CanBePicked() == true)
 			{
 				this->boundingBoxesToBePicked.push_back(bbc);
 				
@@ -438,39 +438,7 @@ void Renderer::Update(double dt)
 	this->cbPerFrameData->camPos = this->ScenePrimaryCamera->GetPositionFloat3();
 
 	// Picking
-	this->mousePicker->UpdateRay();
-	
-	struct PickedBBC
-	{
-		component::BoundingBoxComponent* bbc;
-		float distance = -1.0f;
-	};
-
-	PickedBBC pbbc;
-
-	float tempDist;
-	float closestDist = MAXNUMBER;
-
-	for (component::BoundingBoxComponent* bbc : this->boundingBoxesToBePicked)
-	{
-		if (this->mousePicker->Pick(bbc, tempDist) == true)
-		{
-			if (tempDist < closestDist)
-			{
-				pbbc.bbc = bbc;
-				pbbc.distance = tempDist;
-
-				closestDist = tempDist;
-			}
-		}		
-	}
-
-	if (closestDist < MAXNUMBER)
-	{
-		// outline..?
-		
-		//Log::Print("%s is picked! %d\n", pbbc.bbc->GetParentName().c_str(), this->frameCounter);
-	}
+	this->UpdateMousePicker();
 	
 	// Update scene
 	this->currActiveScene->UpdateScene(dt);
@@ -764,6 +732,42 @@ void Renderer::CreateMainDSV(const HWND* hwnd)
 void Renderer::CreateRootSignature()
 {
 	this->rootSignature = new RootSignature(this->device5);
+}
+
+void Renderer::UpdateMousePicker()
+{
+	this->mousePicker->UpdateRay();
+
+	component::BoundingBoxComponent* pickedBoundingBox = nullptr;
+
+	float tempDist;
+	float closestDist = MAXNUMBER;
+
+	for (component::BoundingBoxComponent* bbc : this->boundingBoxesToBePicked)
+	{
+		// Reset picked entities from last frame
+		bbc->IsPickedThisFrame() = false;
+
+		if (this->mousePicker->Pick(bbc, tempDist) == true)
+		{
+			if (tempDist < closestDist)
+			{
+				pickedBoundingBox = bbc;
+
+				closestDist = tempDist;
+			}
+		}
+	}
+
+	if (closestDist < MAXNUMBER)
+	{
+		pickedBoundingBox->IsPickedThisFrame() = true;
+
+		if (pickedBoundingBox->IsPickedThisFrame() == true)
+		{
+			//Log::Print("%s is picked! %d\n", pickedBoundingBox->GetParent()->GetName().c_str(), this->frameCounter);
+		}
+	}
 }
 
 void Renderer::InitRenderTasks()

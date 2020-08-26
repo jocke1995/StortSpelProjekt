@@ -24,6 +24,9 @@ namespace component
         unsigned int GetNrOfMeshes() const;
 
     private:
+        friend class BoundingBoxComponent;
+        bool outlineThisFrame = false;
+
         std::vector<Mesh*> meshes;
         unsigned int drawFlag = 0;
     };

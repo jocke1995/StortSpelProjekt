@@ -2,7 +2,8 @@
 #define SPOTLIGHTCOMPONENT_H
 
 #include "Light.h"
-#include <assimp\types.h>
+#include "../Component.h"
+
 namespace component
 {
 	class SpotLightComponent : public Light, public Component

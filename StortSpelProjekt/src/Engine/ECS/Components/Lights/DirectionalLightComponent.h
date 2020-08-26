@@ -2,6 +2,7 @@
 #define DIRECTIONALLIGHTCOMPONENT_H
 
 #include "Light.h"
+#include "../Component.h"
 
 namespace component
 {

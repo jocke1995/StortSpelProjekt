@@ -1,12 +1,13 @@
 #include "BoundingBoxComponent.h"
 
+#include "../../Headers/stdafx.h"
+
 namespace component
 {
-	BoundingBoxComponent::BoundingBoxComponent(Entity* parent, bool pick, bool outlineWhenPicked)
+	BoundingBoxComponent::BoundingBoxComponent(Entity* parent, bool pick)
 		:Component(parent)
 	{
-		this->pick = pick;
-		this->outlineWhenPicked = outlineWhenPicked;
+		this->canBePicked = pick;
 	}
 
 	BoundingBoxComponent::~BoundingBoxComponent()
@@ -49,20 +50,16 @@ namespace component
 		return this->pathOfModel;
 	}
 
-	std::string BoundingBoxComponent::GetParentName() const
+
+	bool BoundingBoxComponent::CanBePicked() const
 	{
-		std::string parentName = this->parent->GetName();
-		return parentName;
+		return this->canBePicked;
 	}
 
-	bool BoundingBoxComponent::Pick() const
+	// Writes from BoundingBoxComponent to MeshComponent, which uses this in renderer
+	bool& BoundingBoxComponent::IsPickedThisFrame()
 	{
-		return this->pick;
-	}
-
-	bool BoundingBoxComponent::Outline() const
-	{
-		return this->outlineWhenPicked;
+		return this->parent->GetComponent<MeshComponent>()->outlineThisFrame;
 	}
 
 	bool BoundingBoxComponent::CreateBoundingBox()
@@ -73,7 +70,7 @@ namespace component
 			this->transform = this->parent->GetComponent<TransformComponent>()->GetTransform();
 			MeshComponent* mc = this->parent->GetComponent<MeshComponent>();
 			this->pathOfModel = mc->GetMesh(0)->GetPath();
-
+			
 			BoundingBoxPool* bbp = BoundingBoxPool::Get();
 			if (bbp->BoundingBoxDataExists(this->pathOfModel) == true)
 			{

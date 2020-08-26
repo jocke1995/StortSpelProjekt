@@ -17,7 +17,7 @@ namespace component
 	class BoundingBoxComponent : public Component
 	{
 	public:
-		BoundingBoxComponent(Entity* parent, bool pick = false, bool outlineWhenPicked = false);
+		BoundingBoxComponent(Entity* parent, bool pick = false);
 		virtual ~BoundingBoxComponent();
 
 		void Init();
@@ -29,18 +29,18 @@ namespace component
 		const Mesh* GetMesh() const;
 		const BoundingBoxData* GetBoundingBoxData() const;
 		const std::string GetPathOfModel() const;
-		std::string GetParentName() const;
 
-		bool Pick() const;
-		bool Outline() const;
+		bool CanBePicked() const;
+
+		// Renderer calls this function when an entity is picked
+		bool& IsPickedThisFrame();
 
 	private:
 		std::string pathOfModel = "";
 		BoundingBoxData* bbd = nullptr;
 		Mesh* mesh = nullptr;
 
-		bool pick = false;
-		bool outlineWhenPicked = false;
+		bool canBePicked = false;
 
 		Transform* transform = nullptr;
 

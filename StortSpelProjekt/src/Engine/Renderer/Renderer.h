@@ -82,6 +82,7 @@ private:
 
 	// Picking
 	MousePicker* mousePicker = nullptr;
+	void UpdateMousePicker();
 
 	// Tasks
 	std::vector<ComputeTask*> computeTasks;
