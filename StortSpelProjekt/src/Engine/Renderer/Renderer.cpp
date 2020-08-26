@@ -348,6 +348,7 @@ void Renderer::SetSceneToDraw(Scene* scene)
 			if (bbc->Pick() == true)
 			{
 				this->boundingBoxesToBePicked.push_back(bbc);
+				
 			}
 		}
 	}

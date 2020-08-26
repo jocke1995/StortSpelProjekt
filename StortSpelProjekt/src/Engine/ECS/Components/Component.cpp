@@ -8,3 +8,8 @@ Component::Component(Entity* parent)
 Component::~Component()
 {
 }
+
+Entity* const Component::GetParent() const
+{
+	return this->parent;
+}
