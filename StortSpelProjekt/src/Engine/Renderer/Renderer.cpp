@@ -40,6 +40,7 @@ Renderer::~Renderer()
 	for (RenderTask* renderTask : this->renderTasks)
 		delete renderTask;
 	delete this->wireFrameTask;
+	delete this->outliningRenderTask;
 
 	SAFE_RELEASE(&this->device5);
 
@@ -535,6 +536,11 @@ void Renderer::Execute()
 		this->threadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 		//renderTask->Execute();	// NON-MULTITHREADED-VERSION 
 	}
+
+	// Outlining, if an object is picked
+	this->outliningRenderTask->SetBackBufferIndex(backBufferIndex);
+	this->outliningRenderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	this->threadPool->AddTask(this->outliningRenderTask, FLAG_THREAD::RENDER);
 	
 	if (DRAWBOUNDINGBOX == true)
 	{
@@ -576,6 +582,8 @@ void Renderer::SetRenderTasksPrimaryCamera()
 	{
 		renderTask->SetCamera(this->ScenePrimaryCamera);
 	}
+
+	this->outliningRenderTask->SetCamera(this->ScenePrimaryCamera);
 
 	if (DRAWBOUNDINGBOX == true)
 	{
@@ -760,14 +768,22 @@ void Renderer::UpdateMousePicker()
 		}
 	}
 
+	// If an object intersected with the ray
 	if (closestDist < MAXNUMBER)
 	{
 		pickedBoundingBox->IsPickedThisFrame() = true;
 
-		if (pickedBoundingBox->IsPickedThisFrame() == true)
-		{
-			//Log::Print("%s is picked! %d\n", pickedBoundingBox->GetParent()->GetName().c_str(), this->frameCounter);
-		}
+		// Set the object to me drawn in outliningRenderTask
+		Entity* parentOfPickedObject = pickedBoundingBox->GetParent();
+		component::MeshComponent*		mc = parentOfPickedObject->GetComponent<component::MeshComponent>();
+		component::TransformComponent*	tc = parentOfPickedObject->GetComponent<component::TransformComponent>();
+
+		this->outliningRenderTask->SetObjectToOutline(&std::make_pair(mc, tc));
+	}
+	else
+	{
+		// No object was picked, reset the outlingRenderTask
+		this->outliningRenderTask->Clear();
 	}
 }
 
@@ -804,6 +820,8 @@ void Renderer::InitRenderTasks()
 	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 
+	// DepthStencil
+	dsd.StencilEnable = false;
 	gpsdForwardRender.DepthStencilState = dsd;
 	gpsdForwardRender.DSVFormat = this->mainDSV->GetDXGIFormat();
 
@@ -818,9 +836,13 @@ void Renderer::InitRenderTasks()
 
 	// DepthStencil
 	dsd.StencilEnable = true;
-	dsd.StencilReadMask = 0xff;
+	dsd.StencilReadMask = 0x00;
 	dsd.StencilWriteMask = 0xff;
-	const D3D12_DEPTH_STENCILOP_DESC stencilWriteAllways = { D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_REPLACE, D3D12_COMPARISON_FUNC_ALWAYS };
+	const D3D12_DEPTH_STENCILOP_DESC stencilWriteAllways =
+	{
+		D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_REPLACE,
+		D3D12_COMPARISON_FUNC_ALWAYS
+	};
 	dsd.FrontFace = stencilWriteAllways;
 	dsd.BackFace = stencilWriteAllways;
 
@@ -846,35 +868,41 @@ void Renderer::InitRenderTasks()
 #pragma endregion ForwardRendering
 #pragma region ModelOutlining
 	/* Forward rendering without stencil testing */
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdModelOutlining = {};
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdModelOutlining = gpsdForwardRenderStencilTest;
 	gpsdModelOutlining.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	dsd = {};
-	dsd.DepthEnable = false;	// Maybe enable if we dont want the object to "highlight" through other objects
+	dsd.DepthEnable = true;	// Maybe enable if we dont want the object to "highlight" through other objects
+	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 
 	// DepthStencil
 	dsd.StencilEnable = true;
 	dsd.StencilReadMask = 0xff;
 	dsd.StencilWriteMask = 0x00;
-	const D3D12_DEPTH_STENCILOP_DESC stencilNotEqual = { D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_REPLACE, D3D12_COMPARISON_FUNC_NOT_EQUAL };
+	const D3D12_DEPTH_STENCILOP_DESC stencilNotEqual =
+	{ 
+		D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_REPLACE,
+		D3D12_COMPARISON_FUNC_NOT_EQUAL
+	};
 	dsd.FrontFace = stencilNotEqual;
 	dsd.BackFace = stencilNotEqual;
 
 	gpsdModelOutlining.DepthStencilState = dsd;
 	gpsdModelOutlining.DSVFormat = this->mainDSV->GetDXGIFormat();
 
-	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdOutlingingVector;
-	gpsdOutlingingVector.push_back(&gpsdModelOutlining);
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdOutliningVector;
+	gpsdOutliningVector.push_back(&gpsdModelOutlining);
 
-	//RenderTask* outliningRenderTask = new OutliningRenderTask(
-	//	this->device5,
-	//	this->rootSignature,
-	//	L"WhiteVertex.hlsl", L"WhitePixel.hlsl",
-	//	&gpsdOutlingingVector,
-	//	L"outliningScaledPSO");
-	//
-	//outliningRenderTask->AddRenderTarget("swapChain", this->swapChain);
-	//outliningRenderTask->SetDescriptorHeaps(this->descriptorHeaps);
+	this->outliningRenderTask = new OutliningRenderTask(
+		this->device5,
+		this->rootSignature,
+		L"OutlinedVertex.hlsl", L"OutlinedPixel.hlsl",
+		&gpsdOutliningVector,
+		L"outliningScaledPSO");
+	
+	outliningRenderTask->AddRenderTarget("swapChain", this->swapChain);
+	outliningRenderTask->SetDescriptorHeaps(this->descriptorHeaps);
 
 #pragma endregion ModelOutlining
 #pragma region Blend
@@ -1080,6 +1108,9 @@ void Renderer::InitRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		this->directCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		this->directCommandLists[i].push_back(this->outliningRenderTask->GetCommandList(i));
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		this->directCommandLists[i].push_back(blendRenderTask->GetCommandList(i));

@@ -1,7 +1,11 @@
 #ifndef TRANSFORM_H
 #define TRANSFORM_H
 
+// Intellisense bug
+#include "../Headers/stdafx.h"
+
 using namespace DirectX;
+
 
 class Transform
 {
@@ -19,6 +23,7 @@ public:
 	void SetScale(float scale);
 	void SetScale(float x, float y, float z);
 	void SetScale(XMFLOAT3 scale);
+	void IncreaseScaleByPercent(float scale);
 
 	void UpdateWorldMatrix();
 

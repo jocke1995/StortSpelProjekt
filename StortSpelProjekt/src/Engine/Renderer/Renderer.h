@@ -89,7 +89,10 @@ private:
 	std::vector<ComputeTask*> computeTasks;
 	std::vector<CopyTask*>    copyTasks;
 	std::vector<RenderTask*>  renderTasks;
+
+	// Since these tasks wont operate on all objects, they will not be set in the same map as the other "rendertasks".
 	WireframeRenderTask* wireFrameTask = nullptr;
+	OutliningRenderTask* outliningRenderTask = nullptr;	
 	void InitRenderTasks();
 
 	// Group of components that's needed for rendering:

@@ -97,7 +97,7 @@ void BlendRenderTask::Execute()
 		}	
 	}
 	
-	// Ändra state på front/backbuffer
+	// Change state on front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		swapChainResource,
 		D3D12_RESOURCE_STATE_RENDER_TARGET,

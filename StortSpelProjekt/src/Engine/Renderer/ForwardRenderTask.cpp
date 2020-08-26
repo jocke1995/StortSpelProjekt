@@ -81,28 +81,21 @@ void FowardRenderTask::Execute()
 		// Instead we store it and draw it later with a different pso to allow for model-outlining
 		if (mc->IsPickedThisFrame() == true)
 		{
-			//Log::Print("%s is picked!\n", mc->GetParent()->GetName().c_str());
 			outlinedModel = std::make_pair(this->renderComponents.at(i).first, this->renderComponents.at(i).second);
 			continue;
 		}
-
+		commandList->OMSetStencilRef(1);
 		this->DrawRenderComponent(mc, tc, viewProjMatTrans, commandList);
 	}
 
 	// Draw Rendercomponent with stencil testing enabled
 	if (outlinedModel.first != nullptr)
 	{
-		static unsigned int counter = 0;
-		counter++;
-		Entity* parent = outlinedModel.first->GetParent();
-		Log::Print("%s is picked! %d\n", parent->GetName().c_str(), counter);
-
 		commandList->SetPipelineState(this->pipelineStates[1]->GetPSO());
 		commandList->OMSetStencilRef(1);
 		this->DrawRenderComponent(outlinedModel.first, outlinedModel.second, viewProjMatTrans, commandList);
 	}
 	
-
 	// Change state on front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		swapChainResource,

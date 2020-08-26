@@ -6,6 +6,7 @@
 
 class Resource;
 
+// These renderTasks will execute on "all objects"
 enum RENDER_TASK_TYPE
 {
 	FORWARD_RENDER,

@@ -57,6 +57,13 @@ void Transform::SetScale(XMFLOAT3 scale)
 	this->scale = scale;
 }
 
+void Transform::IncreaseScaleByPercent(float scale)
+{
+	this->scale.x += this->scale.x * scale;
+	this->scale.y += this->scale.y * scale;
+	this->scale.z += this->scale.z * scale;
+}
+
 void Transform::UpdateWorldMatrix()
 {
 	XMMATRIX posMat = XMMatrixTranslation(this->position.x, this->position.y, this->position.z);
