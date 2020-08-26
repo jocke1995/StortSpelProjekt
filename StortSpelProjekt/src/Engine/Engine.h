@@ -26,16 +26,16 @@ public:
 	Timer* const GetTimer() const;
 	ThreadPool* const GetThreadPool() const;
 
-	SceneHandler* const GetSceneHandler() const;
 	Renderer* const GetRenderer() const;
+	SceneHandler* const GetSceneHandler() const;
 
 private:
 	Window* window = nullptr;
 	Timer* timer = nullptr;
 	ThreadPool* threadPool = nullptr;
 
-	SceneHandler* sceneHandler = nullptr;
 	Renderer* renderer = nullptr;
+	SceneHandler* sceneHandler = nullptr;
 };
 
 #endif

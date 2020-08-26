@@ -21,7 +21,7 @@ class Entity
 public:
 	Entity(std::string entityName);
 	bool operator == (const Entity* rhs) const;
-	~Entity();
+	virtual ~Entity();
 
 	template <class T, typename... Args>
 	T* AddComponent(Args... args);

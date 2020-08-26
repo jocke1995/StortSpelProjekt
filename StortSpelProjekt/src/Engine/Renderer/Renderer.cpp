@@ -25,7 +25,7 @@ Renderer::~Renderer()
 	delete this->rootSignature;
 	delete this->swapChain;
 	delete this->mainDSV;
-
+	
 	for (auto& pair : this->descriptorHeaps)
 	{
 		delete pair.second;
@@ -183,18 +183,6 @@ Texture* Renderer::LoadTexture(std::wstring path)
 // Handle the components thats used for rendering
 void Renderer::SetSceneToDraw(Scene* scene)
 {
-	// Reset
-	this->renderComponents.clear();
-	for (auto& light : this->lights)
-	{
-		light.second.clear();
-	}
-	this->lightViewsPool->Clear();
-	this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
-	this->ScenePrimaryCamera = nullptr;
-	this->wireFrameTask->Clear();
-	this->boundingBoxesToBePicked.clear();
-
 	// Handle and structure the components in the scene
 #pragma region HandleComponents
 	std::map<std::string, Entity*> entities = *scene->GetEntities();
@@ -1122,4 +1110,19 @@ void Renderer::TempCopyResource(Resource* uploadResource, Resource* defaultResou
 	// this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Wait(this->fenceFrame, this->fenceFrameValue - 1);
 	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(ARRAYSIZE(ppCommandLists), ppCommandLists);
 	this->WaitForGpu();
+}
+
+void Renderer::ResetScene()
+{
+	// Reset
+	this->renderComponents.clear();
+	for (auto& light : this->lights)
+	{
+		light.second.clear();
+	}
+	this->lightViewsPool->Clear();
+	this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
+	this->ScenePrimaryCamera = nullptr;
+	this->wireFrameTask->Clear();
+	this->boundingBoxesToBePicked.clear();
 }

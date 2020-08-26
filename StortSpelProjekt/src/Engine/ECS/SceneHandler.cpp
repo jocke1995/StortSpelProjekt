@@ -1,7 +1,8 @@
 #include "SceneHandler.h"
 
-SceneHandler::SceneHandler()
+SceneHandler::SceneHandler(Renderer* r)
 {
+	this->renderer = r;
 }
 
 SceneHandler::~SceneHandler()
@@ -32,7 +33,7 @@ Scene* SceneHandler::GetScene(std::string sceneName) const
     {
         return this->scenes.at(sceneName);
     }
-
+	
     Log::PrintSeverity(Log::Severity::CRITICAL, "No Scene with name: \'%s\' was found.\n", sceneName.c_str());
     return nullptr;
 }

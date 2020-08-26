@@ -29,12 +29,12 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	if (numCores == 0) numCores = 1; // function not supported
 	this->threadPool = new ThreadPool(numCores); // Set num threads to number of cores of the cpu
 
-	// ECS
-	this->sceneHandler = new SceneHandler();
-
 	// Sub-engines
 	this->renderer = new Renderer();
 	this->renderer->InitD3D12(this->window->GetHwnd(), hInstance, this->threadPool);
+
+	// ECS
+	this->sceneHandler = new SceneHandler(this->renderer);
 }
 
 Window* const Engine::GetWindow() const

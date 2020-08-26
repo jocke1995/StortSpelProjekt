@@ -9,7 +9,7 @@ class Scene
 {
 public:
 	Scene(std::string sceneName);
-	~Scene();
+	virtual ~Scene();
 
 	Entity* AddEntityFromOther(Entity* other);
 	Entity* AddEntity(std::string entityName);

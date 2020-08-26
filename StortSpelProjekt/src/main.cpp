@@ -172,6 +172,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 #pragma endregion CreateScene1
     renderer->SetSceneToDraw(sceneHandler->GetScene("scene0"));
+	sceneHandler->ManageScene(sceneHandler->GetScene("scene0"));
     while (!window->ExitWindow())
     {
         // ONLY HERE FOR TESTING
@@ -186,35 +187,36 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             //sceneSwapper++;
 
             // Test to move objects during runtime
-            scene = sceneHandler->GetScene("scene0");
-            tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
-            float3 posa = tc->GetTransform()->GetPositionFloat3();
-            tc->GetTransform()->SetPosition(posa.x, posa.y, posa.z + 0.1f);
+            //scene = sceneHandler->GetScene("scene0");
+            //tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
+            //float3 posa = tc->GetTransform()->GetPositionFloat3();
+            //tc->GetTransform()->SetPosition(posa.x, posa.y, posa.z + 0.1f);
 
             // Test to add objects during runtime (horrible solution, very badly designed)
-            //char boxName[10];
-            //static int boxisCounter = 1;
-            //sprintf(boxName, "boxis%d", boxisCounter);
-            //boxisCounter++;
-            //
-            //scene = sceneHandler->GetScene("scene0");
-            //entity = scene->AddEntity(boxName);
-            //entity->AddComponent<component::MeshComponent>();
-            //entity->AddComponent<component::TransformComponent>();
-            //
-            //mc = entity->GetComponent<component::MeshComponent>();
-            //mc->SetMeshes(cubeModel);
-            //mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
-            //
-            //tc = entity->GetComponent<component::TransformComponent>();
-            //tc->GetTransform()->SetScale(0.5f);
-            //float3 spawnPosition = { renderer.GetCamera()->GetPositionFloat3().x + renderer.GetCamera()->GetLookAt().x * 10,
-            //                         renderer.GetCamera()->GetPositionFloat3().y + renderer.GetCamera()->GetLookAt().y * 10, 
-            //                         renderer.GetCamera()->GetPositionFloat3().z + renderer.GetCamera()->GetLookAt().z * 10, };
-            //tc->GetTransform()->SetPosition(spawnPosition.x, spawnPosition.y, spawnPosition.z);
-            //
-            //// (horrible solution, very badly designed)
-            //renderer.SetSceneToDraw(sceneHandler->GetScene("scene0"));
+            char boxName[10];
+            static int boxisCounter = 1;
+            sprintf(boxName, "boxis%d", boxisCounter);
+            boxisCounter++;
+            
+            scene = sceneHandler->GetScene("scene0");
+            entity = scene->AddEntity(boxName);
+            entity->AddComponent<component::MeshComponent>();
+            entity->AddComponent<component::TransformComponent>();
+            
+            mc = entity->GetComponent<component::MeshComponent>();
+            mc->SetMeshes(cubeModel);
+            mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+            
+            tc = entity->GetComponent<component::TransformComponent>();
+            tc->GetTransform()->SetScale(0.5f);
+            float3 spawnPosition = { cc->GetCamera()->GetPositionFloat3().x + cc->GetCamera()->GetLookAt().x * 10,
+                                     cc->GetCamera()->GetPositionFloat3().y + cc->GetCamera()->GetLookAt().y * 10, 
+                                     cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetLookAt().z * 10, };
+            tc->GetTransform()->SetPosition(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            
+            // (horrible solution, very badly designed)
+            renderer->SetSceneToDraw(sceneHandler->GetScene("scene0"));
+			sceneHandler->ManageScene(entity);
         }
 
         /* ------ Update ------ */

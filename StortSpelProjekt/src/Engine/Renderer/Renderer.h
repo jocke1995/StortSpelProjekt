@@ -52,6 +52,9 @@ public:
 	void Execute();
 
 private:
+	
+	friend class SceneHandler;
+
 	ThreadPool* threadPool = nullptr;
 
 	// Camera
@@ -129,6 +132,8 @@ private:
 	void WaitForGpu();
 	CommandInterface* tempCommandInterface = nullptr;
 	void TempCopyResource(Resource* uploadResource, Resource* defaultResource, void* data);
+
+	void ResetScene();
 };
 
 #endif
