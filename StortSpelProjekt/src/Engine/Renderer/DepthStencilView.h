@@ -4,42 +4,49 @@
 #include "DescriptorHeap.h"
 #include "Resource.h"
 
+// Intellisense bug
+#include "../Headers/stdafx.h"
+
 class DepthStencilView
 {
 public:
-	// Constructor that also creates a resource
+	// Constructor that creates a resource
 	DepthStencilView(
 		ID3D12Device5* device,
 		unsigned int width, unsigned int height,
 		std::wstring dsvResourceName,
 		DescriptorHeap* descriptorHeap_DSV,
-		D3D12_DEPTH_STENCIL_VIEW_DESC* depthStencilDescInput = nullptr);	// Set to nullptr to use default
+		DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN);
 
 	// Constructor that assigns a resource
 	DepthStencilView(
 		ID3D12Device5* device,
 		DescriptorHeap* descriptorHeap_DSV,
 		Resource* resource,
-		D3D12_DEPTH_STENCIL_VIEW_DESC* depthStencilDescInput = nullptr);	// Set to nullptr to use default
+		DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN);	// Set to nullptr to use default
 
 	virtual ~DepthStencilView();
 
 	Resource* GetDSVResource() const;
 	unsigned int GetDescriptorHeapIndex() const;
+	DXGI_FORMAT GetDXGIFormat() const;
 
 private:
 
 	Resource* resource = nullptr;
 	unsigned int descriptorHeapIndex_DSV = -1;
+	DXGI_FORMAT dxgi_Format = DXGI_FORMAT_UNKNOWN;
 
 	void CreateResource(
 		ID3D12Device5* device,
 		unsigned int width, unsigned int height,
-		std::wstring dsvResourceName);
+		std::wstring dsvResourceName,
+		DXGI_FORMAT format = DXGI_FORMAT_D32_FLOAT);
+
 	void CreateDSV(
 		ID3D12Device5* device,
 		DescriptorHeap* descriptorHeap_DSV,
-		D3D12_DEPTH_STENCIL_VIEW_DESC* depthStencilDescInput);
+		DXGI_FORMAT format = DXGI_FORMAT_D32_FLOAT);
 
 	bool deleteResource = false;
 };

@@ -721,12 +721,13 @@ void Renderer::CreateMainDSV(const HWND* hwnd)
 		width = rect.right - rect.left;
 		height = rect.bottom - rect.top;
 	}
-	
+
 	this->mainDSV = new DepthStencilView(
 		this->device5,
 		width, height,	// width, height
 		L"MainDSV_DEFAULT_RESOURCE",
-		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
+		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV],
+		DXGI_FORMAT_D32_FLOAT_S8X24_UINT);
 }
 
 void Renderer::CreateRootSignature()
@@ -773,6 +774,7 @@ void Renderer::UpdateMousePicker()
 void Renderer::InitRenderTasks()
 {
 #pragma region ForwardRendering
+	/* Forward rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdForwardRender = {};
 	gpsdForwardRender.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
@@ -802,21 +804,34 @@ void Renderer::InitRenderTasks()
 	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 
+	gpsdForwardRender.DepthStencilState = dsd;
+	gpsdForwardRender.DSVFormat = this->mainDSV->GetDXGIFormat();
+
+	/* Forward rendering with stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdForwardRenderStencilTest = gpsdForwardRender;
+
+	// Only change stencil testing
+	dsd = {};
+	dsd.DepthEnable = true;
+	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+
 	// DepthStencil
-	dsd.StencilEnable = false;
-	dsd.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
-	dsd.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
-	const D3D12_DEPTH_STENCILOP_DESC defaultStencilOP{ D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_COMPARISON_FUNC_ALWAYS };
+	dsd.StencilEnable = true;
+	dsd.StencilReadMask = 0xff;
+	dsd.StencilWriteMask = 0xff;
+	const D3D12_DEPTH_STENCILOP_DESC defaultStencilOP = { D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_REPLACE, D3D12_COMPARISON_FUNC_ALWAYS };
 	dsd.FrontFace = defaultStencilOP;
 	dsd.BackFace = defaultStencilOP;
 
-	gpsdForwardRender.DepthStencilState = dsd;
-	gpsdForwardRender.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	gpsdForwardRenderStencilTest.DepthStencilState = dsd;
 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdForwardRenderVector;
 	gpsdForwardRenderVector.push_back(&gpsdForwardRender);
+	gpsdForwardRenderVector.push_back(&gpsdForwardRenderStencilTest);
 
-	RenderTask* forwardRenderTask = new FowardRenderTask(this->device5,
+	RenderTask* forwardRenderTask = new FowardRenderTask(
+		this->device5,
 		this->rootSignature, 
 		L"ForwardVertex.hlsl", L"ForwardPixel.hlsl", 
 		&gpsdForwardRenderVector, 
@@ -829,6 +844,9 @@ void Renderer::InitRenderTasks()
 	
 
 #pragma endregion ForwardRendering
+#pragma region ModelOutlining
+	
+#pragma endregion ModelOutlining
 #pragma region Blend
 	// ------------------------ TASK 2: BLEND ---------------------------- FRONTCULL
 
@@ -879,7 +897,7 @@ void Renderer::InitRenderTasks()
 	dsdBlend.BackFace = blendStencilOP;
 
 	gpsdBlendFrontCull.DepthStencilState = dsdBlend;
-	gpsdBlendFrontCull.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	gpsdBlendFrontCull.DSVFormat = this->mainDSV->GetDXGIFormat();
 
 	// ------------------------ TASK 2: BLEND ---------------------------- BACKCULL
 
@@ -903,7 +921,7 @@ void Renderer::InitRenderTasks()
 	dsdBlend.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 
 	gpsdBlendBackCull.DepthStencilState = dsdBlend;
-	gpsdBlendBackCull.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	gpsdBlendBackCull.DSVFormat = this->mainDSV->GetDXGIFormat();
 
 	gpsdBlendVector.push_back(&gpsdBlendFrontCull);
 	gpsdBlendVector.push_back(&gpsdBlendBackCull);
@@ -946,7 +964,6 @@ void Renderer::InitRenderTasks()
 	dsdShadow.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 	dsdShadow.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 	dsdShadow.StencilEnable = false;
-
 
 	gpsdShadow.DepthStencilState = dsdShadow;
 	gpsdShadow.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;

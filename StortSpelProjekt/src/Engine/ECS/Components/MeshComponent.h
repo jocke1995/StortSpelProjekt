@@ -22,10 +22,12 @@ namespace component
         Mesh* GetMesh(unsigned int index = 0) const;
         unsigned int GetDrawFlag() const;
         unsigned int GetNrOfMeshes() const;
+        bool IsPickedThisFrame() const;
 
     private:
+        // The boundingBox will update the "isPickedThisFrame"
         friend class BoundingBoxComponent;
-        bool outlineThisFrame = false;
+        bool isPickedThisFrame = false;
 
         std::vector<Mesh*> meshes;
         unsigned int drawFlag = 0;

@@ -48,4 +48,8 @@ namespace component
 	{
 		return this->meshes.size();
 	}
+	bool MeshComponent::IsPickedThisFrame() const
+	{
+		return this->isPickedThisFrame;
+	}
 }

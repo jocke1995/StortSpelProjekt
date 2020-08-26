@@ -91,17 +91,11 @@ void ShadowInfo::CreateResource(ID3D12Device5* device, unsigned int width, unsig
 
 void ShadowInfo::CreateDSV(ID3D12Device5* device, DescriptorHeap* dh_DSV)
 {
-	D3D12_DEPTH_STENCIL_VIEW_DESC dsvd = {};
-	dsvd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	dsvd.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-	dsvd.Flags = D3D12_DSV_FLAG_NONE;
-	dsvd.Texture2D.MipSlice = 0;
-
 	this->DSV = new DepthStencilView(
 		device,
 		dh_DSV,
 		this->resource,
-		&dsvd);
+		DXGI_FORMAT_D24_UNORM_S8_UINT);
 }
 
 void ShadowInfo::CreateSRV(ID3D12Device5* device, DescriptorHeap* dh_SRV)

@@ -16,7 +16,11 @@ public:
 	void Execute();
 
 private:
-	
+	void DrawRenderComponent(
+		component::MeshComponent* mc,
+		component::TransformComponent* tc,
+		const DirectX::XMMATRIX* viewProjTransposed,
+		ID3D12GraphicsCommandList5* cl);
 };
 
 #endif

@@ -59,7 +59,7 @@ namespace component
 	// Writes from BoundingBoxComponent to MeshComponent, which uses this in renderer
 	bool& BoundingBoxComponent::IsPickedThisFrame()
 	{
-		return this->parent->GetComponent<MeshComponent>()->outlineThisFrame;
+		return this->parent->GetComponent<MeshComponent>()->isPickedThisFrame;
 	}
 
 	bool BoundingBoxComponent::CreateBoundingBox()
