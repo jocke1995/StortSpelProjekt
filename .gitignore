@@ -3,6 +3,7 @@
 StortSpelProjekt/build/
 StortSpelProjekt/bin/
 StortSpelProjekt/*.bat
+
 **.sln
 **.vcxproj
 **.user
