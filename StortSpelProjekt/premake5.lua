@@ -1,6 +1,7 @@
 workspace "StortSpelProjekt"
     architecture "x64"
     configurations { "Debug", "Release" }
+    startproject "Game"
     
 project "Engine"
     location "Engine"
