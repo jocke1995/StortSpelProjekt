@@ -5,8 +5,14 @@ namespace component
 	BoundingBoxComponent::BoundingBoxComponent(Entity* parent, bool pick, bool outlineWhenPicked)
 		:Component(parent)
 	{
+		this->id = 1;//idCounter++;
 		this->pick = pick;
 		this->outlineWhenPicked = outlineWhenPicked;
+	}
+
+	bool BoundingBoxComponent::operator==(const BoundingBoxComponent& other)
+	{
+		return this->id == other.id;
 	}
 
 	BoundingBoxComponent::~BoundingBoxComponent()

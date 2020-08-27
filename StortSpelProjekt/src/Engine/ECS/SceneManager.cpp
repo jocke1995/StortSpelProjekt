@@ -67,7 +67,7 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 #pragma region RemoveEntity
 	if (remove == true)
 	{
-		// Find renderComponent
+		// Check if the entity is a renderComponent
 		for (int i = 0; i < this->renderer->renderComponents.size(); i++)
 		{
 			Entity* parent = this->renderer->renderComponents[i].first->GetParent();
@@ -76,11 +76,11 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 				this->renderer->renderComponents.erase(this->renderer->renderComponents.begin() + i);
 				this->renderer->SetRenderTasksRenderComponents();
 				break;
-				Log::Print("I was here\n");
 			}
 		}
 
-		// Find light
+		// Check if the entity got any light components.
+		// Remove them and update both cpu/gpu resources
 		component::DirectionalLightComponent* dlc;
 		component::PointLightComponent* plc;
 		component::SpotLightComponent* slc;
@@ -121,15 +121,41 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 					this->renderer->lightViewsPool->ClearSpecific(type, cbv, si);
 					
 					// Remove from CopyPerFrame
-
-					// Update cbPerScene
+					CopyPerFrameTask* cpft = nullptr;
+					cpft = static_cast<CopyPerFrameTask*>(this->renderer->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+					cpft->ClearSpecific(cbv);
 
 					// Finally remove from renderer
 					this->renderer->lights[type].erase(this->renderer->lights[type].begin() + j);
 
-					Log::Print("%d (lightTypeEnumIndex) was removed\n", type);
+					// Update cbPerScene
+					this->renderer->PrepareCBPerScene();
+					break;
 				}
 				j++;
+			}
+		}
+
+		// Check if the entity got a boundingbox component.
+		component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
+		if (bbc->GetParent() == entity)
+		{
+			// Stop drawing the wireFrame
+			if (DRAWBOUNDINGBOX == true)
+			{
+				this->renderer->wireFrameTask->ClearSpecific(bbc);
+			}
+
+			// Stop picking this boundingBox
+			unsigned int i = 0;
+			for (auto& bbcToBePicked : this->renderer->boundingBoxesToBePicked)
+			{
+				if (bbcToBePicked == bbc)
+				{
+					this->renderer->boundingBoxesToBePicked.erase(this->renderer->boundingBoxesToBePicked.begin() + i);
+					break;
+				}
+				i++;
 			}
 		}
 		return;
@@ -278,7 +304,7 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 
 			bbc->SetMesh(m);
 
-			this->renderer->wireFrameTask->AddObjectToDraw(&std::make_pair(m, bbc->GetTransform()));
+			this->renderer->wireFrameTask->AddObjectToDraw(bbc);
 		}
 
 		// Add to vector so the mouse picker can check for intersections

@@ -216,7 +216,7 @@ void Renderer::Update(double dt)
 	if (closestDist < MAXNUMBER)
 	{
 		// outline..?
-		
+		this->pickedEntity = pbbc.bbc->GetParent();
 		//Log::Print("%s is picked! %d\n", pbbc.bbc->GetParentName().c_str(), this->frameCounter);
 	}
 	
@@ -830,6 +830,71 @@ void Renderer::WaitForFrame(unsigned int framesToBeAhead)
 	}
 }
 
+void Renderer::PrepareCBPerScene()
+{
+	CB_PER_SCENE_STRUCT cps = {};
+	// ----- directional lights -----
+	cps.Num_Dir_Lights = this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
+	unsigned int index = 0;
+	for (auto& tuple : this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT])
+	{
+		cps.dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		index++;
+	}
+	// ----- directional lights -----
+
+	// ----- point lights -----
+	cps.Num_Point_Lights = this->lights[LIGHT_TYPE::POINT_LIGHT].size();
+	index = 0;
+	for (auto& tuple : this->lights[LIGHT_TYPE::POINT_LIGHT])
+	{
+		cps.pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		index++;
+	}
+	// ----- point lights -----
+
+	// ----- spot lights -----
+	cps.Num_Spot_Lights = this->lights[LIGHT_TYPE::SPOT_LIGHT].size();
+	index = 0;
+	for (auto& tuple : this->lights[LIGHT_TYPE::SPOT_LIGHT])
+	{
+		cps.spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		index++;
+	}
+	// ----- spot lights -----
+
+	// Upload CB_PER_SCENE to defaultheap
+	this->TempCopyResource(
+		this->cbPerScene->GetUploadResource(),
+		this->cbPerScene->GetCBVResource(),
+		&cps);
+}
+
+void Renderer::PrepareCBPerFrame()
+{
+	CopyPerFrameTask* cpft = nullptr;
+	// Lights
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		for (auto& tuple : this->lights[type])
+		{
+			void* data = std::get<0>(tuple)->GetLightData();
+			ConstantBufferView* cbd = std::get<1>(tuple);
+			
+			cpft = static_cast<CopyPerFrameTask*>(this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+			cpft->Submit(&std::make_pair(data, cbd));
+		}
+	}
+
+	// CB_PER_FRAME_STRUCT
+	if (cpft != nullptr)
+	{
+		void* perFrameData = static_cast<void*>(this->cbPerFrameData);
+		cpft->Submit(&std::make_pair(perFrameData, this->cbPerFrame));
+	}
+}
+
 void Renderer::WaitForGpu()
 {
 	//Signal and increment the fence value.
@@ -871,68 +936,4 @@ void Renderer::TempCopyResource(Resource* uploadResource, Resource* defaultResou
 	// this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Wait(this->fenceFrame, this->fenceFrameValue - 1);
 	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(ARRAYSIZE(ppCommandLists), ppCommandLists);
 	this->WaitForGpu();
-}
-
-void Renderer::ConstantBufferPreparation()
-{
-	// Setup Per-scene data and send to GPU
-#pragma region Prepare_CbPerScene
-	CB_PER_SCENE_STRUCT cps = {};
-	// ----- directional lights -----
-	cps.Num_Dir_Lights = this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
-	unsigned int index = 0;
-	for (auto& tuple : this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT])
-	{
-		cps.dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
-		index++;
-	}
-	// ----- directional lights -----
-
-	// ----- point lights -----
-	cps.Num_Point_Lights = this->lights[LIGHT_TYPE::POINT_LIGHT].size();
-	index = 0;
-	for (auto& tuple : this->lights[LIGHT_TYPE::POINT_LIGHT])
-	{
-		cps.pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
-		index++;
-	}
-	// ----- point lights -----
-
-	// ----- spot lights -----
-	cps.Num_Spot_Lights = this->lights[LIGHT_TYPE::SPOT_LIGHT].size();
-	index = 0;
-	for (auto& tuple : this->lights[LIGHT_TYPE::SPOT_LIGHT])
-	{
-		cps.spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
-		index++;
-	}
-	// ----- spot lights -----
-
-
-	// Upload CB_PER_SCENE to defaultheap
-	this->TempCopyResource(
-		this->cbPerScene->GetUploadResource(),
-		this->cbPerScene->GetCBVResource(),
-		&cps);
-#pragma endregion Prepare_CbPerScene
-
-	// Add Per-frame data to the copy queue
-#pragma region Prepare_CbPerFrame
-
-	// Lights
-	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
-	{
-		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
-		for (auto& tuple : this->lights[type])
-		{
-			void* data = std::get<0>(tuple)->GetLightData();
-			ConstantBufferView* cbd = std::get<1>(tuple);
-			this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Submit(&std::make_pair(data, cbd));
-		}
-	}
-
-	// CB_PER_FRAME_STRUCT
-	void* perFrameData = static_cast<void*>(this->cbPerFrameData);
-	this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Submit(&std::make_pair(perFrameData, this->cbPerFrame));
-#pragma endregion Prepare_CbPerFrame
 }

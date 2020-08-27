@@ -13,7 +13,7 @@ public:
 	Scene* CreateScene(std::string sceneName);
 
 	Scene* GetScene(std::string sceneName) const;
-	
+
 	template<class T>
 	void EditScene(T* input, bool remove = false);
 private:
@@ -27,6 +27,7 @@ private:
 	void ResetScene();
 };
 
+// Edit takes in either Scene* to set, or an Entity* to add/remove
 template<class T>
 void SceneManager::EditScene(T* input, bool remove)
 {
@@ -34,12 +35,11 @@ void SceneManager::EditScene(T* input, bool remove)
 	
 	if (scene != nullptr)
 	{
-		Log::Print("New Scene \n");
-
 		ResetScene();
 		HandleSceneComponents(scene);
 
-		this->renderer->ConstantBufferPreparation();
+		this->renderer->PrepareCBPerFrame();
+		this->renderer->PrepareCBPerScene();
 
 		// -------------------- DEBUG STUFF --------------------
 		// Test to change camera to the shadow casting lights cameras
@@ -49,14 +49,16 @@ void SceneManager::EditScene(T* input, bool remove)
 		if (this->renderer->ScenePrimaryCamera == nullptr)
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scene: %s\n", scene->GetName());
+			
+			// Todo: Set default camera
 		}
+
 		this->renderer->mousePicker->SetPrimaryCamera(renderer->ScenePrimaryCamera);
 		scene->SetPrimaryCamera(renderer->ScenePrimaryCamera);
 		this->renderer->SetRenderTasksRenderComponents();
 		this->renderer->SetRenderTasksPrimaryCamera();
 
 		this->renderer->currActiveScene = scene;
-
 		return;
 	}
 
@@ -64,12 +66,11 @@ void SceneManager::EditScene(T* input, bool remove)
 
 	if (entity != nullptr)
 	{
-		Log::Print("New Entity \n");
 		ManageComponent(entity, remove);
 		return;
 	}
 	
-	Log::PrintSeverity(Log::Severity::CRITICAL, "The pointer sent to ManageScene is neither an Entity or a Scene!\n");
+	Log::PrintSeverity(Log::Severity::CRITICAL, "The pointer sent to EditScene is neither an Entity or a Scene!\n");
 }
 
 #endif

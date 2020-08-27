@@ -48,7 +48,7 @@ Window::Window(
 	this->windowName = windowName;
 	this->windowTitle = windowTitle;
 
-	InitWindow(hInstance, nCmdShow);
+	this->InitWindow(hInstance, nCmdShow);
 }
 
 

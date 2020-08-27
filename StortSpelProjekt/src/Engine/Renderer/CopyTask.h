@@ -11,10 +11,6 @@ public:
 	CopyTask(ID3D12Device5* device);
 	virtual ~CopyTask();
 
-	void Submit(std::pair<void*, ConstantBufferView*>* data_CBV);
-
-	void Clear();
-protected:
-	std::vector<std::pair<void*, ConstantBufferView*>> data_CBVs;
+	virtual void Clear() = 0;
 };
 #endif

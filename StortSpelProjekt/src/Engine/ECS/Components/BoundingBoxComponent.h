@@ -14,10 +14,13 @@
 
 namespace component
 {
+	//static unsigned int idCounter = 0;
 	class BoundingBoxComponent : public Component
 	{
 	public:
 		BoundingBoxComponent(Entity* parent, bool pick = false, bool outlineWhenPicked = false);
+		
+		bool operator == (const BoundingBoxComponent& other);
 		virtual ~BoundingBoxComponent();
 
 		void Init();
@@ -35,6 +38,7 @@ namespace component
 		bool Outline() const;
 
 	private:
+		unsigned int id = 0;
 		std::string pathOfModel = "";
 		BoundingBoxData* bbd = nullptr;
 		Mesh* mesh = nullptr;

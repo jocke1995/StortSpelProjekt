@@ -37,6 +37,8 @@ public:
 	Renderer();
 	~Renderer();
 
+	Entity* pickedEntity = nullptr;
+
 	// Call once
 	void InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool);
 
@@ -125,12 +127,15 @@ private:
 
 	void WaitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
 
+	// Setup Per-scene data and send to GPU
+	void PrepareCBPerScene();
+	// Submit per-frame data to the copyQueue that updates each frame
+	void PrepareCBPerFrame();
+
 	// Temporary.. these functions and variables are used to copy data to GPU on initialization
 	void WaitForGpu();
 	CommandInterface* tempCommandInterface = nullptr;
 	void TempCopyResource(Resource* uploadResource, Resource* defaultResource, void* data);
-
-	void ConstantBufferPreparation();
 };
 
 #endif

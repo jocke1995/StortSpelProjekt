@@ -65,11 +65,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::BoundingBoxComponent>(false);
 
     entity = scene->GetEntity("directionalLight");
-    entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION);
+    entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
 
     entity = scene->GetEntity("spotLight");
-    entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION);
-
+    entity->AddComponent<component::MeshComponent>();
+    entity->AddComponent<component::TransformComponent>();
+    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
     // Set the components
     component::MeshComponent* mc = scene->GetEntity("floor")->GetComponent<component::MeshComponent>();
@@ -122,6 +124,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     dl->SetColor(LIGHT_COLOR_TYPE::LIGHT_DIFFUSE, { 0.4f, 0.4f, 0.4f, 1.0f });
     dl->SetColor(LIGHT_COLOR_TYPE::LIGHT_SPECULAR, { 0.4f, 0.4f, 0.4f, 1.0f });
 
+    // Spotlight settings
+    entity = scene->GetEntity("spotLight");
+    mc = entity->GetComponent<component::MeshComponent>();
+    mc->SetMeshes(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering)
+        ;
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(-20.0f, 6.0f, -3.0f);
+
+    entity->GetComponent<component::BoundingBoxComponent>()->Init();
+
     component::SpotLightComponent* sl = scene->GetEntity("spotLight")->GetComponent<component::SpotLightComponent>();
     sl->SetPosition({ -20.0f, 6.0f, -3.0f });
     sl->SetDirection({ 2.0, -1.0, 0.0f });
@@ -171,7 +185,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     dl->SetColor(LIGHT_COLOR_TYPE::LIGHT_SPECULAR, { 0.2f, 0.8f, 0.8f, 1.0f });
 
 #pragma endregion CreateScene1
-	char sceneName[7] = "scene0";
+	char sceneName[10] = "scene0";
 	sceneManager->EditScene(sceneManager->GetScene(sceneName));
     while (!window->ExitWindow())
     {
@@ -179,13 +193,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		if (window->WasTabPressed())
 		{
 			// Test to change scene during runtime
-			static int sceneSwapper = 0;
-			sceneSwapper %= 2;
-			sprintf(sceneName, "scene%d", sceneSwapper);
-			Log::Print("Scene: %s\n", sceneName);
+			//static int sceneSwapper = 0;
+			//sceneSwapper %= 2;
+			//sprintf(sceneName, "scene%d", sceneSwapper);
+			//Log::Print("Scene: %s\n", sceneName);
+			//sceneManager->EditScene(sceneManager->GetScene(sceneName));
+			//sceneSwapper++;
 
-			sceneManager->EditScene(sceneManager->GetScene(sceneName));
-			sceneSwapper++;
+            // Test to remove picked object
+            // Entity* pickedEnt = renderer->pickedEntity;
+            // if (pickedEnt != nullptr)
+            // {
+            //     sceneManager->EditScene(pickedEnt, true);
+            // }
 		}
 		if (window->WasSpacePressed())
 		{
@@ -201,10 +221,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             //entity = scene->AddEntity(boxName);
             //entity->AddComponent<component::MeshComponent>();
             //entity->AddComponent<component::TransformComponent>();
+            //component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>(true);
             //
             //mc = entity->GetComponent<component::MeshComponent>();
             //mc->SetMeshes(cubeModel);
             //mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+            //bbc->Init();
             //
             //tc = entity->GetComponent<component::TransformComponent>();
             //tc->GetTransform()->SetScale(0.5f);
@@ -213,19 +235,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             //                         cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetLookAt().z * 10, };
             //tc->GetTransform()->SetPosition(spawnPosition.x, spawnPosition.y, spawnPosition.z);
             //
-			//sceneManager->EditScene(entity, false);
-			//Log::Print("BoxCounter: %d boxes = %dnr of Polygons!\n", boxisCounter, nrOfPolygons);
-
-			// Test to remove objects during runtime
-			scene = sceneManager->GetScene(sceneName);
-			entity = scene->GetEntity("spotLight");
-			sceneManager->EditScene(entity, true);
-
-			// Test to move objects during runtime
-			//scene = sceneHandler->GetScene("scene0");
-			//tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
-			//float3 posa = tc->GetTransform()->GetPositionFloat3();
-			//tc->GetTransform()->SetPosition(posa.x, posa.y, posa.z + 0.1f);
+			//sceneManager->EditScene(entity);
         }
 
         /* ------ Update ------ */
@@ -234,6 +244,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         /* ------ Sort ------ */
         renderer->SortObjectsByDistance();
+
         /* ------ Draw ------ */
         renderer->Execute();
     }
