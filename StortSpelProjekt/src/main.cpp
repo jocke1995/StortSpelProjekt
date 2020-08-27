@@ -171,34 +171,33 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     dl->SetColor(LIGHT_COLOR_TYPE::LIGHT_SPECULAR, { 0.2f, 0.8f, 0.8f, 1.0f });
 
 #pragma endregion CreateScene1
-    renderer->SetSceneToDraw(sceneHandler->GetScene("scene0"));
-	sceneHandler->ManageScene(sceneHandler->GetScene("scene0"));
+	char sceneName[7] = "scene0";
+	sceneHandler->ManageScene(sceneHandler->GetScene(sceneName));
     while (!window->ExitWindow())
     {
         // ONLY HERE FOR TESTING
-        if (window->WasSpacePressed())
-        {
-            // Test to change scene during runtime
-            //char sceneName[10];
-            //static int sceneSwapper = 1;
-            //sceneSwapper %= 2;
-            //sprintf(sceneName, "scene%d", sceneSwapper);
-            //renderer.SetSceneToDraw(sceneHandler->GetScene(sceneName));
-            //sceneSwapper++;
+		if (window->WasTabPressed())
+		{
+			// Test to change scene during runtime
+			static int sceneSwapper = 0;
+			sceneSwapper %= 2;
+			sprintf(sceneName, "scene%d", sceneSwapper);
+			Log::Print("Scene: %s\n", sceneName);
 
-            // Test to move objects during runtime
-            //scene = sceneHandler->GetScene("scene0");
-            //tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
-            //float3 posa = tc->GetTransform()->GetPositionFloat3();
-            //tc->GetTransform()->SetPosition(posa.x, posa.y, posa.z + 0.1f);
-
+			sceneHandler->ManageScene(sceneHandler->GetScene(sceneName));
+			sceneSwapper++;
+		}
+		if (window->WasSpacePressed())
+		{
             // Test to add objects during runtime (horrible solution, very badly designed)
             char boxName[10];
-            static int boxisCounter = 1;
+            static int boxisCounter = 0;
+			static int nrOfPolygons = 0;
             sprintf(boxName, "boxis%d", boxisCounter);
+			nrOfPolygons += 12;
             boxisCounter++;
             
-            scene = sceneHandler->GetScene("scene0");
+            scene = sceneHandler->GetScene(sceneName);
             entity = scene->AddEntity(boxName);
             entity->AddComponent<component::MeshComponent>();
             entity->AddComponent<component::TransformComponent>();
@@ -214,9 +213,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                                      cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetLookAt().z * 10, };
             tc->GetTransform()->SetPosition(spawnPosition.x, spawnPosition.y, spawnPosition.z);
             
-            // (horrible solution, very badly designed)
-            renderer->SetSceneToDraw(sceneHandler->GetScene("scene0"));
 			sceneHandler->ManageScene(entity);
+			Log::Print("BoxCounter: %d boxes = %dnr of Polygons!\n", boxisCounter, nrOfPolygons);
+
+			// Test to move objects during runtime
+			//scene = sceneHandler->GetScene("scene0");
+			//tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
+			//float3 posa = tc->GetTransform()->GetPositionFloat3();
+			//tc->GetTransform()->SetPosition(posa.x, posa.y, posa.z + 0.1f);
         }
 
         /* ------ Update ------ */

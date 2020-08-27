@@ -21,8 +21,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			spacePressed = true;
 		}
+		if (wParam == VK_TAB)
+		{
+			tabPressed = true;
+		}
 		
-
 		return 0;
 
 	case WM_DESTROY:
@@ -103,6 +106,16 @@ bool Window::WasSpacePressed()
 	if (spacePressed == true)
 	{
 		spacePressed = false;
+		return true;
+	}
+	return false;
+}
+
+bool Window::WasTabPressed()
+{
+	if (tabPressed == true)
+	{
+		tabPressed = false;
 		return true;
 	}
 	return false;

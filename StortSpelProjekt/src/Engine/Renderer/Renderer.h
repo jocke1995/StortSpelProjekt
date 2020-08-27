@@ -133,7 +133,7 @@ private:
 	CommandInterface* tempCommandInterface = nullptr;
 	void TempCopyResource(Resource* uploadResource, Resource* defaultResource, void* data);
 
-	void ResetScene();
+	void ConstantBufferPreparation();
 };
 
 #endif

@@ -3,6 +3,7 @@
 
 // Temp
 static bool spacePressed = false;
+static bool tabPressed = false;
 
 class Window
 {
@@ -30,6 +31,7 @@ public:
 
 	// Temp
 	bool WasSpacePressed();
+	bool WasTabPressed();
 private:
 	// Window * window;
 	bool InitWindow(HINSTANCE hInstance, int nCmdShow);
