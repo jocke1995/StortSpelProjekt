@@ -34,7 +34,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	this->renderer->InitD3D12(this->window->GetHwnd(), hInstance, this->threadPool);
 
 	// ECS
-	this->sceneHandler = new SceneHandler(this->renderer);
+	this->sceneHandler = new SceneManager(this->renderer);
 }
 
 Window* const Engine::GetWindow() const
@@ -52,7 +52,7 @@ ThreadPool* const Engine::GetThreadPool() const
 	return this->threadPool;
 }
 
-SceneHandler* const Engine::GetSceneHandler() const
+SceneManager* const Engine::GetSceneHandler() const
 {
 	return this->sceneHandler;
 }

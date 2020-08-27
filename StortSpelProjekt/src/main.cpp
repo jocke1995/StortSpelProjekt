@@ -15,7 +15,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	Window* const window = engine.GetWindow();
 	Timer* const timer = engine.GetTimer();
 	ThreadPool* const threadPool = engine.GetThreadPool();
-	SceneHandler* const sceneHandler = engine.GetSceneHandler();
+	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
 
     // This will be loaded once from disk, then the next time the same function is called (with the same filepath),
@@ -26,7 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 #pragma region CreateScene0
     // Create Scene
-    Scene* scene = sceneHandler->CreateScene("scene0");
+    Scene* scene = sceneManager->CreateScene("scene0");
     
     // Add Entity to Scene
     scene->AddEntity("player");
@@ -132,8 +132,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 #pragma endregion CreateScene0
 #pragma region CreateScene1
     // Create Scene
-    sceneHandler->CreateScene("scene1");
-    Scene* scene1 = sceneHandler->GetScene("scene1");
+    sceneManager->CreateScene("scene1");
+    Scene* scene1 = sceneManager->GetScene("scene1");
 
     // Use the same player as in the first scene
     entity = scene->GetEntity("player");
@@ -172,7 +172,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 #pragma endregion CreateScene1
 	char sceneName[7] = "scene0";
-	sceneHandler->ManageScene(sceneHandler->GetScene(sceneName));
+	sceneManager->EditScene(sceneManager->GetScene(sceneName));
     while (!window->ExitWindow())
     {
         // ONLY HERE FOR TESTING
@@ -184,7 +184,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			sprintf(sceneName, "scene%d", sceneSwapper);
 			Log::Print("Scene: %s\n", sceneName);
 
-			sceneHandler->ManageScene(sceneHandler->GetScene(sceneName));
+			sceneManager->EditScene(sceneManager->GetScene(sceneName));
 			sceneSwapper++;
 		}
 		if (window->WasSpacePressed())
@@ -197,7 +197,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			nrOfPolygons += 12;
             boxisCounter++;
             
-            scene = sceneHandler->GetScene(sceneName);
+            scene = sceneManager->GetScene(sceneName);
             entity = scene->AddEntity(boxName);
             entity->AddComponent<component::MeshComponent>();
             entity->AddComponent<component::TransformComponent>();
@@ -213,7 +213,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                                      cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetLookAt().z * 10, };
             tc->GetTransform()->SetPosition(spawnPosition.x, spawnPosition.y, spawnPosition.z);
             
-			sceneHandler->ManageScene(entity);
+			sceneManager->EditScene(entity);
 			Log::Print("BoxCounter: %d boxes = %dnr of Polygons!\n", boxisCounter, nrOfPolygons);
 
 			// Test to move objects during runtime

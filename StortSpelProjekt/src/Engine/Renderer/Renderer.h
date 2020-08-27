@@ -53,7 +53,7 @@ public:
 
 private:
 	
-	friend class SceneHandler;
+	friend class SceneManager;
 
 	ThreadPool* threadPool = nullptr;
 

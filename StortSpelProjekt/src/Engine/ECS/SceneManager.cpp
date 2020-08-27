@@ -1,11 +1,11 @@
-#include "SceneHandler.h"
+#include "SceneManager.h"
 
-SceneHandler::SceneHandler(Renderer* r)
+SceneManager::SceneManager(Renderer* r)
 {
 	this->renderer = r;
 }
 
-SceneHandler::~SceneHandler()
+SceneManager::~SceneManager()
 {
     for (auto pair : this->scenes)
     {
@@ -14,7 +14,7 @@ SceneHandler::~SceneHandler()
     this->scenes.clear();
 }
 
-Scene* SceneHandler::CreateScene(std::string sceneName)
+Scene* SceneManager::CreateScene(std::string sceneName)
 {
     if (this->SceneExists(sceneName))
     {
@@ -27,7 +27,7 @@ Scene* SceneHandler::CreateScene(std::string sceneName)
     return this->scenes[sceneName];
 }
 
-Scene* SceneHandler::GetScene(std::string sceneName) const
+Scene* SceneManager::GetScene(std::string sceneName) const
 {
     if (this->SceneExists(sceneName))
     {
@@ -38,7 +38,7 @@ Scene* SceneHandler::GetScene(std::string sceneName) const
     return nullptr;
 }
 
-bool SceneHandler::SceneExists(std::string sceneName) const
+bool SceneManager::SceneExists(std::string sceneName) const
 {
     for (auto pair : this->scenes)
     {
@@ -53,7 +53,7 @@ bool SceneHandler::SceneExists(std::string sceneName) const
 }
 
 // Handle and structure the components in the scene
-void SceneHandler::HandleSceneComponents(Scene* scene)
+void SceneManager::HandleSceneComponents(Scene* scene)
 {
 	std::map<std::string, Entity*> entities = *scene->GetEntities();
 	for (auto const& [entityName, entity] : entities)
@@ -62,7 +62,7 @@ void SceneHandler::HandleSceneComponents(Scene* scene)
 	}
 }
 
-void SceneHandler::ManageComponent(Entity* entity)
+void SceneManager::ManageComponent(Entity* entity)
 {
 	// Only add the entities that actually should be drawn
 	component::MeshComponent* mc = entity->GetComponent<component::MeshComponent>();
@@ -216,7 +216,7 @@ void SceneHandler::ManageComponent(Entity* entity)
 	}
 }
 
-void SceneHandler::ResetScene()
+void SceneManager::ResetScene()
 {
 	// Reset
 	this->renderer->renderComponents.clear();

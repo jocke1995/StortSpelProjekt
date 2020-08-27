@@ -7,7 +7,7 @@
 #include "Misc/ThreadPool.h"
 
 // Entity Component System
-#include "ECS/SceneHandler.h"
+#include "ECS/SceneManager.h"
 
 // Sub-engines
 #include "Renderer/Renderer.h"
@@ -27,7 +27,7 @@ public:
 	ThreadPool* const GetThreadPool() const;
 
 	Renderer* const GetRenderer() const;
-	SceneHandler* const GetSceneHandler() const;
+	SceneManager* const GetSceneHandler() const;
 
 private:
 	Window* window = nullptr;
@@ -35,7 +35,7 @@ private:
 	ThreadPool* threadPool = nullptr;
 
 	Renderer* renderer = nullptr;
-	SceneHandler* sceneHandler = nullptr;
+	SceneManager* sceneHandler = nullptr;
 };
 
 #endif

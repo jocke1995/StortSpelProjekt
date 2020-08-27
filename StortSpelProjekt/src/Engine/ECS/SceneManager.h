@@ -1,22 +1,21 @@
-#ifndef SCENEHANDLER_H
-#define SCENEHANDLER_H
+#ifndef SCENEMANAGER_H
+#define SCENEMANAGER_H
 
 #include "Scene.h"
 #include "..\Renderer\Renderer.h"
 
-class SceneHandler 
+class SceneManager 
 {
 public:
-	SceneHandler(Renderer *r);
-	~SceneHandler();
+	SceneManager(Renderer *r);
+	~SceneManager();
 
 	Scene* CreateScene(std::string sceneName);
 
 	Scene* GetScene(std::string sceneName) const;
 	
-	// Input is either an Entity or a Scene
 	template<class T>
-	void ManageScene(T* input);
+	void EditScene(T* input);
 private:
 	Renderer* renderer;
 
@@ -29,7 +28,7 @@ private:
 };
 
 template<class T>
-void SceneHandler::ManageScene(T* input)
+void SceneManager::EditScene(T* input)
 {
 	Scene* scene = dynamic_cast<Scene*>(input);
 	
