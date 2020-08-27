@@ -52,18 +52,91 @@ bool SceneManager::SceneExists(std::string sceneName) const
     return false;
 }
 
-// Handle and structure the components in the scene
+// Handle and structure of the components in the scene
 void SceneManager::HandleSceneComponents(Scene* scene)
 {
 	std::map<std::string, Entity*> entities = *scene->GetEntities();
 	for (auto const& [entityName, entity] : entities)
 	{
-		ManageComponent(entity);
+		ManageComponent(entity, false);
 	}
 }
 
-void SceneManager::ManageComponent(Entity* entity)
+void SceneManager::ManageComponent(Entity* entity, bool remove)
 {
+#pragma region RemoveEntity
+	if (remove == true)
+	{
+		// Find renderComponent
+		for (int i = 0; i < this->renderer->renderComponents.size(); i++)
+		{
+			Entity* parent = this->renderer->renderComponents[i].first->GetParent();
+			if (parent == entity)
+			{
+				this->renderer->renderComponents.erase(this->renderer->renderComponents.begin() + i);
+				this->renderer->SetRenderTasksRenderComponents();
+				break;
+				Log::Print("I was here\n");
+			}
+		}
+
+		// Find light
+		component::DirectionalLightComponent* dlc;
+		component::PointLightComponent* plc;
+		component::SpotLightComponent* slc;
+
+		for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+		{
+			LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+			unsigned int j = 0;
+
+			for (auto& tuple : this->renderer->lights[type])
+			{
+				Light* light = std::get<0>(tuple);
+				Entity* parent = nullptr;
+
+				// Find parent
+				switch (type)
+				{
+				case LIGHT_TYPE::DIRECTIONAL_LIGHT:
+					dlc = static_cast<component::DirectionalLightComponent*>(light);
+					parent = dlc->GetParent();
+					break;
+				case LIGHT_TYPE::POINT_LIGHT:
+					plc = static_cast<component::PointLightComponent*>(light);
+					parent = plc->GetParent();
+					break;
+				case LIGHT_TYPE::SPOT_LIGHT:
+					slc = static_cast<component::SpotLightComponent*>(light);
+					parent = slc->GetParent();
+					break;
+				}
+
+				// Remove light if it matches the entity
+				if (parent == entity)
+				{
+					// Free memory so other entities can use it
+					ConstantBufferView* cbv = std::get<1>(tuple);
+					ShadowInfo* si = std::get<2>(tuple);
+					this->renderer->lightViewsPool->ClearSpecific(type, cbv, si);
+					
+					// Remove from CopyPerFrame
+
+					// Update cbPerScene
+
+					// Finally remove from renderer
+					this->renderer->lights[type].erase(this->renderer->lights[type].begin() + j);
+
+					Log::Print("%d (lightTypeEnumIndex) was removed\n", type);
+				}
+				j++;
+			}
+		}
+		return;
+	}
+#pragma endregion RemoveEntity
+
+#pragma region AddEntity
 	// Only add the entities that actually should be drawn
 	component::MeshComponent* mc = entity->GetComponent<component::MeshComponent>();
 	if (mc != nullptr)
@@ -214,6 +287,7 @@ void SceneManager::ManageComponent(Entity* entity)
 			this->renderer->boundingBoxesToBePicked.push_back(bbc);
 		}
 	}
+#pragma endregion AddEntity
 }
 
 void SceneManager::ResetScene()

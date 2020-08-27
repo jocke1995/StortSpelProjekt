@@ -15,7 +15,7 @@ public:
 	Scene* GetScene(std::string sceneName) const;
 	
 	template<class T>
-	void EditScene(T* input);
+	void EditScene(T* input, bool remove = false);
 private:
 	Renderer* renderer;
 
@@ -23,12 +23,12 @@ private:
 
 	bool SceneExists(std::string sceneName) const;
 	void HandleSceneComponents(Scene* scene);
-	void ManageComponent(Entity* entity);
+	void ManageComponent(Entity* entity, bool remove);
 	void ResetScene();
 };
 
 template<class T>
-void SceneManager::EditScene(T* input)
+void SceneManager::EditScene(T* input, bool remove)
 {
 	Scene* scene = dynamic_cast<Scene*>(input);
 	
@@ -65,7 +65,7 @@ void SceneManager::EditScene(T* input)
 	if (entity != nullptr)
 	{
 		Log::Print("New Entity \n");
-		ManageComponent(entity);
+		ManageComponent(entity, remove);
 		return;
 	}
 	

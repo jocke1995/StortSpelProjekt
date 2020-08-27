@@ -189,32 +189,37 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		}
 		if (window->WasSpacePressed())
 		{
-            // Test to add objects during runtime (horrible solution, very badly designed)
-            char boxName[10];
-            static int boxisCounter = 0;
-			static int nrOfPolygons = 0;
-            sprintf(boxName, "boxis%d", boxisCounter);
-			nrOfPolygons += 12;
-            boxisCounter++;
-            
-            scene = sceneManager->GetScene(sceneName);
-            entity = scene->AddEntity(boxName);
-            entity->AddComponent<component::MeshComponent>();
-            entity->AddComponent<component::TransformComponent>();
-            
-            mc = entity->GetComponent<component::MeshComponent>();
-            mc->SetMeshes(cubeModel);
-            mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
-            
-            tc = entity->GetComponent<component::TransformComponent>();
-            tc->GetTransform()->SetScale(0.5f);
-            float3 spawnPosition = { cc->GetCamera()->GetPositionFloat3().x + cc->GetCamera()->GetLookAt().x * 10,
-                                     cc->GetCamera()->GetPositionFloat3().y + cc->GetCamera()->GetLookAt().y * 10, 
-                                     cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetLookAt().z * 10, };
-            tc->GetTransform()->SetPosition(spawnPosition.x, spawnPosition.y, spawnPosition.z);
-            
-			sceneManager->EditScene(entity);
-			Log::Print("BoxCounter: %d boxes = %dnr of Polygons!\n", boxisCounter, nrOfPolygons);
+            // Test to add objects during runtime
+            //char boxName[10];
+            //static int boxisCounter = 0;
+			//static int nrOfPolygons = 0;
+            //sprintf(boxName, "boxis%d", boxisCounter);
+			//nrOfPolygons += 12;
+            //boxisCounter++;
+            //
+            //scene = sceneManager->GetScene(sceneName);
+            //entity = scene->AddEntity(boxName);
+            //entity->AddComponent<component::MeshComponent>();
+            //entity->AddComponent<component::TransformComponent>();
+            //
+            //mc = entity->GetComponent<component::MeshComponent>();
+            //mc->SetMeshes(cubeModel);
+            //mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+            //
+            //tc = entity->GetComponent<component::TransformComponent>();
+            //tc->GetTransform()->SetScale(0.5f);
+            //float3 spawnPosition = { cc->GetCamera()->GetPositionFloat3().x + cc->GetCamera()->GetLookAt().x * 10,
+            //                         cc->GetCamera()->GetPositionFloat3().y + cc->GetCamera()->GetLookAt().y * 10, 
+            //                         cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetLookAt().z * 10, };
+            //tc->GetTransform()->SetPosition(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            //
+			//sceneManager->EditScene(entity, false);
+			//Log::Print("BoxCounter: %d boxes = %dnr of Polygons!\n", boxisCounter, nrOfPolygons);
+
+			// Test to remove objects during runtime
+			scene = sceneManager->GetScene(sceneName);
+			entity = scene->GetEntity("spotLight");
+			sceneManager->EditScene(entity, true);
 
 			// Test to move objects during runtime
 			//scene = sceneHandler->GetScene("scene0");

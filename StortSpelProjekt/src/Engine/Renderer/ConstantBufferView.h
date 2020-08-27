@@ -3,6 +3,7 @@
 
 #include "ConstantBuffer.h"
 
+static unsigned int cbvCounter = 0;
 class ConstantBufferView : public ConstantBuffer
 {
 public:
@@ -12,12 +13,15 @@ public:
 		unsigned int descriptorHeapIndex,
 		DescriptorHeap* descriptorHeap_CBV_UAV_SRV);
 
+	bool operator == (const ConstantBufferView& other);
+
 	virtual ~ConstantBufferView();
 
 	Resource* GetCBVResource() const;
 	
 private:
 	Resource* defaultResource = nullptr;
+	unsigned int id = 0;
 
 	void CreateConstantBufferView(
 		ID3D12Device5* device,

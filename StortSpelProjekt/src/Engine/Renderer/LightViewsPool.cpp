@@ -90,6 +90,33 @@ void LightViewsPool::Clear()
 	}
 }
 
+void LightViewsPool::ClearSpecific(LIGHT_TYPE type, ConstantBufferView* cbv, ShadowInfo* si)
+{
+	// Free cbv
+	for (auto& pair : this->cbvPools[type])
+	{
+		if (pair.second == cbv)
+		{
+			pair.first = true;
+			break;
+		}
+	}
+
+	// Free shadowInfo
+	if (si != nullptr)
+	{
+		for (auto& tuple : this->shadowPools[type])
+		{
+			if (std::get<2>(tuple) == si)
+			{
+				//pair.first = true;
+				break;
+			}
+		}
+	}
+	
+}
+
 ConstantBufferView* LightViewsPool::CreateConstantBufferView(LIGHT_TYPE type)
 {
 	unsigned int entrySize = 0;

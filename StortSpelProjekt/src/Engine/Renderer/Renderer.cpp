@@ -908,6 +908,7 @@ void Renderer::ConstantBufferPreparation()
 	}
 	// ----- spot lights -----
 
+
 	// Upload CB_PER_SCENE to defaultheap
 	this->TempCopyResource(
 		this->cbPerScene->GetUploadResource(),

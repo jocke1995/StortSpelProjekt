@@ -43,9 +43,6 @@ public:
 	std::vector<Mesh*>* LoadModel(std::wstring path);
 	Texture* LoadTexture(std::wstring path);
 
-	// Change active scene
-	void SetSceneToDraw(Scene* scene);
-
 	// Call each frame
 	void Update(double dt);
 	void SortObjectsByDistance();

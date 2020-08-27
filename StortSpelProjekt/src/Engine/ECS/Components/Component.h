@@ -10,6 +10,7 @@ public:
 	virtual ~Component();
 
 	virtual void Update(double dt) = 0;
+	Entity* const GetParent() const;
 
 protected:
 	Entity* parent = nullptr;

@@ -20,6 +20,11 @@ ShadowInfo::ShadowInfo(
 
 }
 
+bool ShadowInfo::operator==(const ShadowInfo& other)
+{
+	return this->id == other.id;
+}
+
 ShadowInfo::~ShadowInfo()
 {
 	delete this->resource;

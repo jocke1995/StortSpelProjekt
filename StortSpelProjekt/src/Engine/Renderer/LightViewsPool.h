@@ -7,6 +7,8 @@
 
 #include "../ECS/Components/Lights/Light.h"
 
+#include "../Headers/stdafx.h"
+
 class LightViewsPool
 {
 public:
@@ -21,6 +23,7 @@ public:
 	ShadowInfo* GetFreeShadowInfo(LIGHT_TYPE type, SHADOW_RESOLUTION shadowResolution);
 
 	void Clear();
+	void ClearSpecific(LIGHT_TYPE type, ConstantBufferView* cbv, ShadowInfo* si);
 
 private:
 	ID3D12Device5* device = nullptr;
