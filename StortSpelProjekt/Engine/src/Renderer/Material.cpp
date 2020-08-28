@@ -4,11 +4,20 @@
 Material::Material(SlotInfo* slotInfo)
 {
 	this->slotInfo = slotInfo;
+	this->materialAttributes = new MaterialAttributes();
+}
+
+Material::Material(const Material* other)
+{
+	this->slotInfo = other->slotInfo;
+	this->materialAttributes = new MaterialAttributes();
+
+	this->materialAttributes->shininess = other->materialAttributes->shininess;
 }
 
 Material::~Material()
 {
-	
+	delete this->materialAttributes;
 }
 
 void Material::SetTexture(TEXTURE_TYPE textureType, Texture* texture)
@@ -35,7 +44,17 @@ void Material::SetTexture(TEXTURE_TYPE textureType, Texture* texture)
 	}
 }
 
+void Material::SetShininess(float shininess)
+{
+	this->materialAttributes->shininess = shininess;
+}
+
 Texture* Material::GetTexture(TEXTURE_TYPE textureType)
 {
 	return this->textures.at(textureType);
+}
+
+const MaterialAttributes* Material::GetMaterialAttributes() const
+{
+	return this->materialAttributes;
 }
