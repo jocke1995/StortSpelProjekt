@@ -8,7 +8,7 @@ Mesh::Mesh(	ID3D12Device5* device,
 {
 	this->vertices = vertices;
 	this->indices = indices;
-	
+
 	this->path = path;
 
 	// Set vertices
@@ -40,6 +40,7 @@ Mesh::Mesh(	ID3D12Device5* device,
 
 	this->slotInfo = new SlotInfo();
 	this->slotInfo->vertexDataIndex = this->SRV->GetDescriptorHeapIndex();
+	this->material = new Material(this->slotInfo);
 }
 
 Mesh::Mesh(const Mesh* other)
@@ -53,11 +54,15 @@ Mesh::Mesh(const Mesh* other)
 
 	this->slotInfo = new SlotInfo();
 	this->slotInfo->vertexDataIndex = other->slotInfo->vertexDataIndex;
-	this->slotInfo->textureAmbient  = other->slotInfo->textureAmbient;
-	this->slotInfo->textureDiffuse  = other->slotInfo->textureDiffuse;
-	this->slotInfo->textureSpecular = other->slotInfo->textureSpecular;
-	this->slotInfo->textureNormal   = other->slotInfo->textureNormal;
-	this->slotInfo->textureEmissive = other->slotInfo->textureEmissive;
+
+	// Set material properties
+	this->material = new Material(this->slotInfo);
+	Material* mat = other->GetMaterial();
+	for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+	{
+		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
+		this->material->SetTexture(type, mat->GetTexture(type));
+	}
 
 	this->defaultResourceVertices = other->defaultResourceVertices;
 	this->defaultResourceIndices = other->defaultResourceIndices;
@@ -70,6 +75,7 @@ Mesh::Mesh(const Mesh* other)
 Mesh::~Mesh()
 {
 	delete this->slotInfo;
+	delete this->material;
 
 	if (this->isCopied == false)
 	{
@@ -78,6 +84,8 @@ Mesh::~Mesh()
 
 		delete this->uploadResourceIndices;
 		delete this->defaultResourceIndices;
+
+		
 
 		delete this->SRV;
 	}
@@ -123,30 +131,6 @@ void Mesh::UploadToDefault(ID3D12Device5* device, CommandInterface* commandInter
 	commandList->Close();
 	ID3D12CommandList* ppCommandLists[] = { commandList };
 	cmdQueue->ExecuteCommandLists(ARRAYSIZE(ppCommandLists), ppCommandLists);
-}
-
-void Mesh::SetTexture(TEXTURE_TYPE textureType, Texture* texture)
-{
-	this->textures[textureType] = texture;
-	
-	switch (textureType)
-	{
-	case TEXTURE_TYPE::AMBIENT:
-		this->slotInfo->textureAmbient = texture->GetDescriptorHeapIndex();
-		break;
-	case TEXTURE_TYPE::DIFFUSE:
-		this->slotInfo->textureDiffuse = texture->GetDescriptorHeapIndex();
-		break;
-	case TEXTURE_TYPE::SPECULAR:
-		this->slotInfo->textureSpecular = texture->GetDescriptorHeapIndex();
-		break;
-	case TEXTURE_TYPE::NORMAL:
-		this->slotInfo->textureNormal = texture->GetDescriptorHeapIndex();
-		break;
-	case TEXTURE_TYPE::EMISSIVE:
-		this->slotInfo->textureEmissive = texture->GetDescriptorHeapIndex();
-		break;
-	}
 }
 
 Resource* Mesh::GetDefaultResourceVertices() const
@@ -199,14 +183,14 @@ const SlotInfo* Mesh::GetSlotInfo() const
 	return this->slotInfo;
 }
 
-Texture* Mesh::GetTexture(TEXTURE_TYPE textureType)
-{
-	return this->textures[textureType];
-}
-
 std::string Mesh::GetPath()
 {
 	return this->path;
+}
+
+Material* Mesh::GetMaterial() const
+{
+	return this->material;
 }
 
 void Mesh::CreateIndexBufferView()

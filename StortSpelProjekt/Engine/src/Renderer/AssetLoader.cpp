@@ -225,7 +225,7 @@ Mesh* AssetLoader::ProcessMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 	{
 		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
 		texture = ProcessTexture(mat, type, &filePathWithoutTexture);
-		mesh->SetTexture(type, texture);
+		mesh->GetMaterial()->SetTexture(type, texture);
 	}
 	// ---------- Get Textures and set them to the mesh END----------
 	return mesh;

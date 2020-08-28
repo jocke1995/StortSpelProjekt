@@ -104,10 +104,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     Texture* ambientDefault = renderer->LoadTexture(L"../Vendor/Resources/Textures/Default/default_ambient.png");
     Texture* normalDefault = renderer->LoadTexture(L"../Vendor/Resources/Textures/Default/default_normal.png");
-    mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::AMBIENT , ambientDefault);
-    mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::DIFFUSE , ambientDefault);
-    mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::SPECULAR, ambientDefault);
-    mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::NORMAL  , normalDefault);
+    mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::AMBIENT , ambientDefault);
+    mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::DIFFUSE , ambientDefault);
+    mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::SPECULAR, ambientDefault);
+    mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::NORMAL  , normalDefault);
     
     tc = scene->GetEntity("transparentTestObject")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(5.0f);

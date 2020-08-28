@@ -149,7 +149,7 @@ std::vector<Mesh*>* Renderer::LoadModel(std::wstring path)
 			for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
 			{
 				TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-				Texture* texture = mesh->GetTexture(type);
+				Texture* texture = mesh->GetMaterial()->GetTexture(type);
 				texture->UploadToDefault(
 					this->device5,
 					this->tempCommandInterface,
