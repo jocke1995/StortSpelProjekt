@@ -29,9 +29,6 @@
 // Compute (Later include the specific tasks instead of this)
 #include "ComputeTask.h"
 
-// Problem with intelissense
-#include "../Headers/stdafx.h"
-
 class Renderer
 {
 public:
@@ -44,15 +41,16 @@ public:
 	std::vector<Mesh*>* LoadModel(std::wstring path);
 	Texture* LoadTexture(std::wstring path);
 
-	// Change active scene
-	void SetSceneToDraw(Scene* scene);
-
 	// Call each frame
 	void Update(double dt);
 	void SortObjectsByDistance();
 	void Execute();
 
+	// PickedEntity
+	Entity* const GetPickedEntity() const;
+
 private:
+	friend class SceneManager;
 	ThreadPool* threadPool = nullptr;
 
 	// Camera
@@ -83,6 +81,7 @@ private:
 
 	// Picking
 	MousePicker* mousePicker = nullptr;
+	Entity* pickedEntity = nullptr;
 	void UpdateMousePicker();
 
 	// Tasks
@@ -129,6 +128,11 @@ private:
 	void CreateFences();
 
 	void WaitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
+
+	// Setup Per-scene data and send to GPU
+	void PrepareCBPerScene();
+	// Submit per-frame data to the copyQueue that updates each frame
+	void PrepareCBPerFrame();
 
 	// Temporary.. these functions and variables are used to copy data to GPU on initialization
 	void WaitForGpu();

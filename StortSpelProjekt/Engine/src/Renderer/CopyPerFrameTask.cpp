@@ -11,6 +11,31 @@ CopyPerFrameTask::~CopyPerFrameTask()
 
 }
 
+void CopyPerFrameTask::Submit(std::pair<void*, ConstantBufferView*>* data_CBV)
+{
+	this->data_CBVs.push_back(*data_CBV);
+}
+
+void CopyPerFrameTask::ClearSpecific(ConstantBufferView* cbv)
+{
+	unsigned int i = 0;
+	// Loop through all copyPerFrame tasks
+	for (auto& pair : this->data_CBVs)
+	{
+		if (pair.second == cbv)
+		{
+			// Remove
+			this->data_CBVs.erase(this->data_CBVs.begin() + i);
+		}
+		i++;
+	}
+}
+
+void CopyPerFrameTask::Clear()
+{
+	this->data_CBVs.clear();
+}
+
 void CopyPerFrameTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = this->commandInterface->GetCommandAllocator(this->commandInterfaceIndex);

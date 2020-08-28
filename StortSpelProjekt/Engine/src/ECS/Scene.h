@@ -1,6 +1,8 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <string>
+#include <map>
 #include "Entity.h"
 
 #include "../Renderer/BaseCamera.h"
@@ -9,7 +11,7 @@ class Scene
 {
 public:
 	Scene(std::string sceneName);
-	~Scene();
+	virtual ~Scene();
 
 	Entity* AddEntityFromOther(Entity* other);
 	Entity* AddEntity(std::string entityName);

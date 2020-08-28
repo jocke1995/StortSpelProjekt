@@ -10,9 +10,9 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <D3Dcompiler.h>
-#include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
+#include "EngineMath.h"
 #include "d3dx12.h"
 
 // Windows stuff
@@ -58,61 +58,9 @@ inline std::wstring to_wstring(std::string str)
 	return strconverter.from_bytes(str);
 }
 
-template <typename T>
-inline T Min(T a, T b)
-{
-	if (a < b)
-	{
-		return a;
-	}
-	return b;
-}
-
-template <typename T>
-inline T Max(T a, T b)
-{
-	if (a > b)
-	{
-		return a;
-	}
-	return b;
-}
-
 typedef DirectX::XMMATRIX float4x4;
 
-// this will only call release if an object exists (prevents exceptions calling release on non existant objects)
-#define SAFE_RELEASE(p)			\
-{								\
-	if ((*p))					\
-	{							\
-		(*p)->Release();		\
-		(*p) = NULL;			\
-	}							\
-}
-
-#define NUM_SWAP_BUFFERS 2
-#define BIT(x) (1 << x)
-#define MAXNUMBER 10000000.0f
-#define DRAWBOUNDINGBOX false
-
-typedef union
-{
-	struct { float x; float y; float z; float w; };
-	struct { float r; float g; float b; float a; };
-} float4;
-
-typedef union
-{
-	struct { float x; float y; float z; };
-	struct { float r; float g; float b; };
-} float3;
-
-typedef union
-{
-	struct { float x; float y; };
-	struct { float u; float v; };
-} float2;
-
+#include "Core.h"
 #include "structs.h"
 
 enum FLAG_DRAW

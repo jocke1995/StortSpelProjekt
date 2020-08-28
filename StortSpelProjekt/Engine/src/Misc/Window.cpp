@@ -1,8 +1,5 @@
 #include "Window.h"
 
-// Problem med precompiled header eller liknande.. Intellisense problemet
-//#include "Headers/stdafx.h"
-
 // callback function for windows messages
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -21,8 +18,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			spacePressed = true;
 		}
+		if (wParam == VK_TAB)
+		{
+			tabPressed = true;
+		}
 		
-
 		return 0;
 
 	case WM_DESTROY:
@@ -45,7 +45,7 @@ Window::Window(
 	this->windowName = windowName;
 	this->windowTitle = windowTitle;
 
-	InitWindow(hInstance, nCmdShow);
+	this->InitWindow(hInstance, nCmdShow);
 }
 
 
@@ -103,6 +103,16 @@ bool Window::WasSpacePressed()
 	if (spacePressed == true)
 	{
 		spacePressed = false;
+		return true;
+	}
+	return false;
+}
+
+bool Window::WasTabPressed()
+{
+	if (tabPressed == true)
+	{
+		tabPressed = false;
 		return true;
 	}
 	return false;

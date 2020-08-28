@@ -1,9 +1,13 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include <d3d12.h>
+#include "EngineMath.h"
 #include "Resource.h"
 #include "Texture.h"
 #include "ShaderResourceView.h"
+#include "Core.h"
+#include "structs.h"
 
 struct Vertex
 {

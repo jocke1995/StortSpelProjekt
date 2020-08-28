@@ -1,6 +1,7 @@
 #ifndef SWAPCHAIN_H
 #define SWAPCHAIN_H
 
+#include <dxgi1_5.h>
 #include "RenderTarget.h"
 #include "Resource.h"
 

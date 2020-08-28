@@ -181,258 +181,6 @@ Texture* Renderer::LoadTexture(std::wstring path)
 	return texture;
 }
 
-// Handle the components thats used for rendering
-void Renderer::SetSceneToDraw(Scene* scene)
-{
-	// Reset
-	this->renderComponents.clear();
-	for (auto& light : this->lights)
-	{
-		light.second.clear();
-	}
-	this->lightViewsPool->Clear();
-	this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
-	this->ScenePrimaryCamera = nullptr;
-	this->wireFrameTask->Clear();
-	this->boundingBoxesToBePicked.clear();
-
-	// Handle and structure the components in the scene
-#pragma region HandleComponents
-	std::map<std::string, Entity*> entities = *scene->GetEntities();
-	for (auto const& [entityName, entity] : entities)
-	{
-		// Only add the entities that actually should be drawn
-		component::MeshComponent* mc = entity->GetComponent<component::MeshComponent>();
-		if (mc != nullptr)
-		{
-			component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
-			if (tc != nullptr)
-			{
-				this->renderComponents.push_back(std::make_pair(mc, tc));
-
-				// Send the Textures to GPU here later, so that textures aren't in memory if they aren't used
-				// or submit index to a queue and then submit all textures together later..
-			}
-		}
-
-		component::DirectionalLightComponent* dlc = entity->GetComponent<component::DirectionalLightComponent>();
-		if (dlc != nullptr)
-		{
-			// Assign CBV from the lightPool
-			ConstantBufferView* cbd = this->lightViewsPool->GetFreeConstantBufferView(LIGHT_TYPE::DIRECTIONAL_LIGHT);
-
-			// Check if the light is to cast shadows
-			SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
-
-			if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION)
-			{
-				resolution = SHADOW_RESOLUTION::LOW;
-			}
-			else if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION)
-			{
-				resolution = SHADOW_RESOLUTION::MEDIUM;
-			}
-			else if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION)
-			{
-				resolution = SHADOW_RESOLUTION::HIGH;
-			}
-			else if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION)
-			{
-				resolution = SHADOW_RESOLUTION::ULTRA;
-			}
-			
-			// Assign views required for shadows from the lightPool
-			ShadowInfo* si = nullptr;
-			if(resolution != SHADOW_RESOLUTION::UNDEFINED)
-			{
-
-				si = this->lightViewsPool->GetFreeShadowInfo(LIGHT_TYPE::DIRECTIONAL_LIGHT, resolution);
-				static_cast<DirectionalLight*>(dlc->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
-
-				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(this->renderTasks[RENDER_TASK_TYPE::SHADOW]);
-				srt->AddShadowCastingLight(std::make_pair(dlc, si));
-			}
-
-			// Save in renderer
-			this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(dlc, cbd, si));
-		}
-
-		// Currently no shadows are implemented for pointLights
-		component::PointLightComponent* plc = entity->GetComponent<component::PointLightComponent>();
-		if (plc != nullptr)
-		{
-			// Assign resource from resourcePool
-			ConstantBufferView* cbd = this->lightViewsPool->GetFreeConstantBufferView(LIGHT_TYPE::POINT_LIGHT);
-
-			// Assign views required for shadows from the lightPool
-			ShadowInfo* si = nullptr;
-
-			// Save in renderer
-			this->lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(plc, cbd, si));
-		}
-
-		component::SpotLightComponent* slc = entity->GetComponent<component::SpotLightComponent>();
-		if (slc != nullptr)
-		{
-			// Assign resource from resourcePool
-			ConstantBufferView* cbd = this->lightViewsPool->GetFreeConstantBufferView(LIGHT_TYPE::SPOT_LIGHT);
-
-			// Check if the light is to cast shadows
-			SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
-
-			if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION)
-			{
-				resolution = SHADOW_RESOLUTION::LOW;
-			}
-			else if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION)
-			{
-				resolution = SHADOW_RESOLUTION::MEDIUM;
-			}
-			else if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION)
-			{
-				resolution = SHADOW_RESOLUTION::HIGH;
-			}
-			else if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION)
-			{
-				resolution = SHADOW_RESOLUTION::ULTRA;
-			}
-
-			// Assign views required for shadows from the lightPool
-			ShadowInfo* si = nullptr;
-			if (resolution != SHADOW_RESOLUTION::UNDEFINED)
-			{
-				si = this->lightViewsPool->GetFreeShadowInfo(LIGHT_TYPE::SPOT_LIGHT, resolution);
-				static_cast<SpotLight*>(slc->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
-
-				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(this->renderTasks[RENDER_TASK_TYPE::SHADOW]);
-				srt->AddShadowCastingLight(std::make_pair(slc, si));
-			}
-			// Save in renderer
-			this->lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(slc, cbd, si));
-		}
-
-		component::CameraComponent* cc = entity->GetComponent<component::CameraComponent>();
-		if (cc != nullptr)
-		{
-			if (cc->IsPrimary() == true)
-			{
-				this->ScenePrimaryCamera = cc->GetCamera();
-			}
-		}
-
-		component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
-		if (bbc != nullptr)
-		{
-			// Add it to task so it can be drawn
-			if (DRAWBOUNDINGBOX == true)
-			{
-				Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel());
-				if (m == nullptr)
-				{
-					Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", bbc->GetParent()->GetName().c_str());
-					continue;
-				}
-
-				// Upload to Default heap
-				m->UploadToDefault(
-					this->device5,
-					this->tempCommandInterface,
-					this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
-				this->WaitForGpu();
-
-				bbc->SetMesh(m);
-
-				this->wireFrameTask->AddObjectToDraw(&std::make_pair(m, bbc->GetTransform()));
-			}
-
-			// Add to vector so the mouse picker can check for intersections
-			if (bbc->CanBePicked() == true)
-			{
-				this->boundingBoxesToBePicked.push_back(bbc);
-				
-			}
-		}
-	}
-#pragma endregion HandleComponents
-	
-	// Setup Per-scene data and send to GPU
-#pragma region Prepare_CbPerScene
-	CB_PER_SCENE_STRUCT cps = {};
-		// ----- directional lights -----
-		cps.Num_Dir_Lights = this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
-		unsigned int index = 0;
-		for (auto& tuple : this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT])
-		{
-			cps.dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
-			index++;
-		}
-		// ----- directional lights -----
-
-		// ----- point lights -----
-		cps.Num_Point_Lights = this->lights[LIGHT_TYPE::POINT_LIGHT].size();
-		index = 0;
-		for (auto& tuple : this->lights[LIGHT_TYPE::POINT_LIGHT])
-		{
-			cps.pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
-			index++;
-		}
-		// ----- point lights -----
-
-		// ----- spot lights -----
-		cps.Num_Spot_Lights = this->lights[LIGHT_TYPE::SPOT_LIGHT].size();
-		index = 0;
-		for (auto& tuple : this->lights[LIGHT_TYPE::SPOT_LIGHT])
-		{
-			cps.spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
-			index++;
-		}
-		// ----- spot lights -----
-
-	// Upload CB_PER_SCENE to defaultheap
-	this->TempCopyResource( 
-		this->cbPerScene->GetUploadResource(),
-		this->cbPerScene->GetCBVResource(),
-		&cps);
-#pragma endregion Prepare_CbPerScene
-
-	// Add Per-frame data to the copy queue
-#pragma region Prepare_CbPerFrame
-
-	// Lights
-	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
-	{
-		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
-		for (auto& tuple : this->lights[type])
-		{
-			void* data = std::get<0>(tuple)->GetLightData();
-			ConstantBufferView* cbd = std::get<1>(tuple);
-			this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Submit(&std::make_pair(data, cbd));
-		}
-	}
-
-	// CB_PER_FRAME_STRUCT
-	void* perFrameData = static_cast<void*>(this->cbPerFrameData);
-	this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Submit(&std::make_pair(perFrameData, this->cbPerFrame));
-#pragma endregion Prepare_CbPerFrame
-
-	// -------------------- DEBUG STUFF --------------------
-	// Test to change camera to the shadow casting lights cameras
-	//auto& tuple = this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].at(0);
-	//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
-	//this->ScenePrimaryCamera = tempCam;
-
-	if (this->ScenePrimaryCamera == nullptr)
-	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scene: %s\n", scene->GetName());
-	}
-	this->mousePicker->SetPrimaryCamera(this->ScenePrimaryCamera);
-	scene->SetPrimaryCamera(this->ScenePrimaryCamera);
-	this->SetRenderTasksRenderComponents();
-	this->SetRenderTasksPrimaryCamera();
-
-	this->currActiveScene = scene;
-}
-
 void Renderer::Update(double dt)
 {
 	// Update CB_PER_FRAME data
@@ -574,6 +322,11 @@ void Renderer::Execute()
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Swapchain Failed to present\n");
 	}
 #endif
+}
+
+Entity* const Renderer::GetPickedEntity() const
+{
+	return pickedEntity;
 }
 
 void Renderer::SetRenderTasksPrimaryCamera()
@@ -779,6 +532,8 @@ void Renderer::UpdateMousePicker()
 		component::TransformComponent*	tc = parentOfPickedObject->GetComponent<component::TransformComponent>();
 
 		this->outliningRenderTask->SetObjectToOutline(&std::make_pair(mc, tc));
+
+		this->pickedEntity = parentOfPickedObject;
 	}
 	else
 	{
@@ -1161,6 +916,71 @@ void Renderer::WaitForFrame(unsigned int framesToBeAhead)
 	{
 		this->fenceFrame->SetEventOnCompletion(this->fenceFrameValue - fenceValuesToBeAhead, this->eventHandle);
 		WaitForSingleObject(this->eventHandle, INFINITE);
+	}
+}
+
+void Renderer::PrepareCBPerScene()
+{
+	CB_PER_SCENE_STRUCT cps = {};
+	// ----- directional lights -----
+	cps.Num_Dir_Lights = this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
+	unsigned int index = 0;
+	for (auto& tuple : this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT])
+	{
+		cps.dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		index++;
+	}
+	// ----- directional lights -----
+
+	// ----- point lights -----
+	cps.Num_Point_Lights = this->lights[LIGHT_TYPE::POINT_LIGHT].size();
+	index = 0;
+	for (auto& tuple : this->lights[LIGHT_TYPE::POINT_LIGHT])
+	{
+		cps.pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		index++;
+	}
+	// ----- point lights -----
+
+	// ----- spot lights -----
+	cps.Num_Spot_Lights = this->lights[LIGHT_TYPE::SPOT_LIGHT].size();
+	index = 0;
+	for (auto& tuple : this->lights[LIGHT_TYPE::SPOT_LIGHT])
+	{
+		cps.spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		index++;
+	}
+	// ----- spot lights -----
+
+	// Upload CB_PER_SCENE to defaultheap
+	this->TempCopyResource(
+		this->cbPerScene->GetUploadResource(),
+		this->cbPerScene->GetCBVResource(),
+		&cps);
+}
+
+void Renderer::PrepareCBPerFrame()
+{
+	CopyPerFrameTask* cpft = nullptr;
+	// Lights
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		for (auto& tuple : this->lights[type])
+		{
+			void* data = std::get<0>(tuple)->GetLightData();
+			ConstantBufferView* cbd = std::get<1>(tuple);
+
+			cpft = static_cast<CopyPerFrameTask*>(this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+			cpft->Submit(&std::make_pair(data, cbd));
+		}
+	}
+
+	// CB_PER_FRAME_STRUCT
+	if (cpft != nullptr)
+	{
+		void* perFrameData = static_cast<void*>(this->cbPerFrameData);
+		cpft->Submit(&std::make_pair(perFrameData, this->cbPerFrame));
 	}
 }
 

@@ -1,8 +1,11 @@
 #ifndef WINDOW_H
 #define WINDOW_H
+#include <Windows.h>
+#include <string>
 // Temp
-#include "stdafx.h"
 static bool spacePressed = false;
+static bool tabPressed = false;
+
 class Window
 {
 public:
@@ -29,6 +32,7 @@ public:
 
 	// Temp
 	bool WasSpacePressed();
+	bool WasTabPressed();
 private:
 	// Window * window;
 	bool InitWindow(HINSTANCE hInstance, int nCmdShow);

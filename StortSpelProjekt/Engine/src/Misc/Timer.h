@@ -2,6 +2,7 @@
 #define TIMER_H
 
 #include "Window.h"
+#include <chrono>
 class Timer
 {
 public:

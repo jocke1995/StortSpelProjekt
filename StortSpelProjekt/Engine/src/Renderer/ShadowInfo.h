@@ -26,6 +26,7 @@ public:
 		DescriptorHeap* dh_DSV,
 		DescriptorHeap* dh_SRV);
 
+	bool operator == (const ShadowInfo& other);
 	virtual ~ShadowInfo();
 
 	unsigned int GetId() const;

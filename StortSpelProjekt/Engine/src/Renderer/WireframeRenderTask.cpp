@@ -16,14 +16,28 @@ WireframeRenderTask::~WireframeRenderTask()
 
 }
 
-void WireframeRenderTask::AddObjectToDraw(std::pair<Mesh*, Transform*>* pair)
+void WireframeRenderTask::AddObjectToDraw(component::BoundingBoxComponent* bbc)
 {
-	this->objectsToDraw.push_back(*pair);
+	this->objectsToDraw.push_back(bbc);
 }
 
 void WireframeRenderTask::Clear()
 {
 	this->objectsToDraw.clear();
+}
+
+void WireframeRenderTask::ClearSpecific(component::BoundingBoxComponent* bbc)
+{
+	unsigned int i = 0;
+	for (auto& bbcInTask : this->objectsToDraw)
+	{
+		if (bbcInTask == bbc)
+		{
+			this->objectsToDraw.erase(this->objectsToDraw.begin() + i);
+			break;
+		}
+		i++;
+	}
 }
 
 void WireframeRenderTask::Execute()
@@ -68,8 +82,8 @@ void WireframeRenderTask::Execute()
 	// Draw for every mesh
 	for (int i = 0; i < this->objectsToDraw.size(); i++)
 	{
-		Mesh* m = this->objectsToDraw[i].first;
-		Transform* t = this->objectsToDraw[i].second;
+		const Mesh* m = this->objectsToDraw[i]->GetMesh();
+		Transform* t = this->objectsToDraw[i]->GetTransform();
 
 		size_t num_Indices = m->GetNumIndices();
 		const SlotInfo* info = m->GetSlotInfo();
@@ -86,7 +100,7 @@ void WireframeRenderTask::Execute()
 		commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 	}
 
-	// Change state on front/backbuffer
+	// Ändra state på front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		swapChainResource,
 		D3D12_RESOURCE_STATE_RENDER_TARGET,

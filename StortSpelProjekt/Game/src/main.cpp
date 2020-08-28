@@ -1,5 +1,7 @@
 #include "Engine.h"
+
 // Helps intellisense to understand that stdafx is included
+//#include "Headers/stdafx.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -13,7 +15,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	Window* const window = engine.GetWindow();
 	Timer* const timer = engine.GetTimer();
 	ThreadPool* const threadPool = engine.GetThreadPool();
-	SceneHandler* const sceneHandler = engine.GetSceneHandler();
+	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
 
     // This will be loaded once from disk, then the next time the same function is called (with the same filepath),
@@ -24,7 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 #pragma region CreateScene0
     // Create Scene
-    Scene* scene = sceneHandler->CreateScene("scene0");
+    Scene* scene = sceneManager->CreateScene("scene0");
     
     // Add Entity to Scene
     scene->AddEntity("player");
@@ -63,11 +65,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::BoundingBoxComponent>(false);
 
     entity = scene->GetEntity("directionalLight");
-    entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION);
+    entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
 
     entity = scene->GetEntity("spotLight");
-    entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION);
-
+    entity->AddComponent<component::MeshComponent>();
+    entity->AddComponent<component::TransformComponent>();
+    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
     // Set the components
     component::MeshComponent* mc = scene->GetEntity("floor")->GetComponent<component::MeshComponent>();
@@ -120,6 +124,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     dl->SetColor(LIGHT_COLOR_TYPE::LIGHT_DIFFUSE, { 0.4f, 0.4f, 0.4f, 1.0f });
     dl->SetColor(LIGHT_COLOR_TYPE::LIGHT_SPECULAR, { 0.4f, 0.4f, 0.4f, 1.0f });
 
+    // Spotlight settings
+    entity = scene->GetEntity("spotLight");
+    mc = entity->GetComponent<component::MeshComponent>();
+    mc->SetMeshes(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering)
+        ;
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(-20.0f, 6.0f, -3.0f);
+
+    entity->GetComponent<component::BoundingBoxComponent>()->Init();
+
     component::SpotLightComponent* sl = scene->GetEntity("spotLight")->GetComponent<component::SpotLightComponent>();
     sl->SetPosition({ -20.0f, 6.0f, -3.0f });
     sl->SetDirection({ 2.0, -1.0, 0.0f });
@@ -130,8 +146,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 #pragma endregion CreateScene0
 #pragma region CreateScene1
     // Create Scene
-    sceneHandler->CreateScene("scene1");
-    Scene* scene1 = sceneHandler->GetScene("scene1");
+    sceneManager->CreateScene("scene1");
+    Scene* scene1 = sceneManager->GetScene("scene1");
 
     // Use the same player as in the first scene
     entity = scene->GetEntity("player");
@@ -169,50 +185,57 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     dl->SetColor(LIGHT_COLOR_TYPE::LIGHT_SPECULAR, { 0.2f, 0.8f, 0.8f, 1.0f });
 
 #pragma endregion CreateScene1
-    renderer->SetSceneToDraw(sceneHandler->GetScene("scene0"));
+	char sceneName[10] = "scene0";
+	sceneManager->EditScene(sceneManager->GetScene(sceneName));
     while (!window->ExitWindow())
     {
         // ONLY HERE FOR TESTING
-        if (window->WasSpacePressed())
-        {
-            // Test to change scene during runtime
-            //char sceneName[10];
-            //static int sceneSwapper = 1;
-            //sceneSwapper %= 2;
-            //sprintf(sceneName, "scene%d", sceneSwapper);
-            //renderer.SetSceneToDraw(sceneHandler->GetScene(sceneName));
-            //sceneSwapper++;
+		if (window->WasTabPressed())
+		{
+			// Test to change scene during runtime
+			//static int sceneSwapper = 0;
+			//sceneSwapper %= 2;
+			//sprintf(sceneName, "scene%d", sceneSwapper);
+			//Log::Print("Scene: %s\n", sceneName);
+			//sceneManager->EditScene(sceneManager->GetScene(sceneName));
+			//sceneSwapper++;
 
-            // Test to move objects during runtime
-            scene = sceneHandler->GetScene("scene0");
-            tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
-            float3 posa = tc->GetTransform()->GetPositionFloat3();
-            tc->GetTransform()->SetPosition(posa.x, posa.y, posa.z + 0.1f);
-
-            // Test to add objects during runtime (horrible solution, very badly designed)
-            //char boxName[10];
-            //static int boxisCounter = 1;
-            //sprintf(boxName, "boxis%d", boxisCounter);
-            //boxisCounter++;
-            //
-            //scene = sceneHandler->GetScene("scene0");
-            //entity = scene->AddEntity(boxName);
-            //entity->AddComponent<component::MeshComponent>();
-            //entity->AddComponent<component::TransformComponent>();
-            //
-            //mc = entity->GetComponent<component::MeshComponent>();
-            //mc->SetMeshes(cubeModel);
-            //mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
-            //
-            //tc = entity->GetComponent<component::TransformComponent>();
-            //tc->GetTransform()->SetScale(0.5f);
-            //float3 spawnPosition = { renderer.GetCamera()->GetPositionFloat3().x + renderer.GetCamera()->GetLookAt().x * 10,
-            //                         renderer.GetCamera()->GetPositionFloat3().y + renderer.GetCamera()->GetLookAt().y * 10, 
-            //                         renderer.GetCamera()->GetPositionFloat3().z + renderer.GetCamera()->GetLookAt().z * 10, };
-            //tc->GetTransform()->SetPosition(spawnPosition.x, spawnPosition.y, spawnPosition.z);
-            //
-            //// (horrible solution, very badly designed)
-            //renderer.SetSceneToDraw(sceneHandler->GetScene("scene0"));
+            // Test to remove picked object
+            Entity* pickedEnt = renderer->GetPickedEntity();
+            if (pickedEnt != nullptr)
+            {
+                sceneManager->EditScene(pickedEnt, true);
+            }
+		}
+		if (window->WasSpacePressed())
+		{
+            // Test to add objects during runtime
+            char boxName[10];
+            static int boxisCounter = 0;
+			static int nrOfPolygons = 0;
+            sprintf(boxName, "boxis%d", boxisCounter);
+			nrOfPolygons += 12;
+            boxisCounter++;
+            
+            scene = sceneManager->GetScene(sceneName);
+            entity = scene->AddEntity(boxName);
+            entity->AddComponent<component::MeshComponent>();
+            entity->AddComponent<component::TransformComponent>();
+            component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>(true);
+            
+            mc = entity->GetComponent<component::MeshComponent>();
+            mc->SetMeshes(cubeModel);
+            mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+            bbc->Init();
+            
+            tc = entity->GetComponent<component::TransformComponent>();
+            tc->GetTransform()->SetScale(0.5f);
+            float3 spawnPosition = { cc->GetCamera()->GetPositionFloat3().x + cc->GetCamera()->GetLookAt().x * 10,
+                                     cc->GetCamera()->GetPositionFloat3().y + cc->GetCamera()->GetLookAt().y * 10, 
+                                     cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetLookAt().z * 10, };
+            tc->GetTransform()->SetPosition(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            
+			sceneManager->EditScene(entity);
         }
 
         /* ------ Update ------ */
@@ -221,6 +244,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         /* ------ Sort ------ */
         renderer->SortObjectsByDistance();
+
         /* ------ Draw ------ */
         renderer->Execute();
     }

@@ -1,6 +1,5 @@
 #ifndef ENTITY_H
 #define ENTITY_H
-
 // Renderer
 #include "Components/MeshComponent.h"
 #include "Components/TransformComponent.h"
@@ -18,7 +17,7 @@ class Entity
 public:
 	Entity(std::string entityName);
 	bool operator == (const Entity* rhs) const;
-	~Entity();
+	virtual ~Entity();
 
 	template <class T, typename... Args>
 	T* AddComponent(Args... args);

@@ -5,6 +5,10 @@
 #include "GraphicsState.h"
 #include "SwapChain.h"
 
+#include "../Headers/stdafx.h"
+
+#include "../ECS/Components/BoundingBoxComponent.h"
+
 class WireframeRenderTask : public RenderTask
 {
 public:
@@ -15,13 +19,15 @@ public:
 		LPCTSTR psoName);
 	~WireframeRenderTask();
 
-	void AddObjectToDraw(std::pair<Mesh*, Transform*>* pair);
+	void AddObjectToDraw(component::BoundingBoxComponent* bbc);
+
 	void Clear();
+	void ClearSpecific(component::BoundingBoxComponent* bbc);
 
 	void Execute();
 
 private:
-	std::vector<std::pair<Mesh*, Transform*>> objectsToDraw;
+	std::vector<component::BoundingBoxComponent*> objectsToDraw;
 };
 
 #endif

@@ -2,7 +2,6 @@
 #define LIGHT_H
 
 #include "../../Entity.h"
-#include "../../../Headers/stdafx.h"
 
 #include "../../../Renderer/OrthographicCamera.h"
 #include "../../../Renderer/PerspectiveCamera.h"

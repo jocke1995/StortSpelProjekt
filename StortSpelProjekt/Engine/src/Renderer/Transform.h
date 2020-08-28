@@ -1,11 +1,9 @@
 #ifndef TRANSFORM_H
 #define TRANSFORM_H
 
-// Intellisense bug
-#include "../Headers/stdafx.h"
-
+#include <DirectXMath.h>
+#include "Core.h"
 using namespace DirectX;
-
 
 class Transform
 {

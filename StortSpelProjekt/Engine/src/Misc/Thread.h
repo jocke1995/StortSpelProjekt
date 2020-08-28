@@ -1,7 +1,12 @@
 #ifndef THREAD_H
 #define THREAD_H
 
+#include <queue>
+#include <mutex>
 #include "Task.h"
+#include "Core.h"
+
+
 enum FLAG_THREAD
 {
 	RENDER = BIT(1),

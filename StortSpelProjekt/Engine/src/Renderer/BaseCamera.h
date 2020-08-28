@@ -1,6 +1,9 @@
 #ifndef BASECAMERA_H
 #define BASECAMERA_H
 
+#include <DirectXMath.h>
+#include "Core.h"
+
 using namespace DirectX;
 
 enum class CAMERA_TYPE

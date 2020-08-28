@@ -1,7 +1,5 @@
 #include "BoundingBoxComponent.h"
 
-#include "../../Headers/stdafx.h"
-
 namespace component
 {
 	BoundingBoxComponent::BoundingBoxComponent(Entity* parent, bool pick)

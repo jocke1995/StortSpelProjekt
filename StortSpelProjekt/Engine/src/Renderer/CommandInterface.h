@@ -1,5 +1,8 @@
-#pragma once
-#include "../Headers/stdafx.h"
+#ifndef COMMANDINTERFACE_H
+#define COMMANDINTERFACE_H
+
+#define NUM_SWAP_BUFFERS 2
+
 enum COMMAND_INTERFACE_TYPE
 {
 	DIRECT_TYPE,
@@ -24,3 +27,5 @@ private:
 
 	void CreateCommandInterfaces(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType);
 };
+
+#endif
