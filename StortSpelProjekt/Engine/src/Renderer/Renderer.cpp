@@ -326,7 +326,12 @@ void Renderer::Execute()
 
 Entity* const Renderer::GetPickedEntity() const
 {
-	return pickedEntity;
+	return this->pickedEntity;
+}
+
+Scene* const Renderer::GetActiveScene() const
+{
+	return this->currActiveScene;
 }
 
 void Renderer::SetRenderTasksPrimaryCamera()
