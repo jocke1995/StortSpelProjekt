@@ -7,11 +7,11 @@ Material::Material(SlotInfo* slotInfo)
 	this->materialAttributes = new MaterialAttributes();
 }
 
-Material::Material(const Material* other)
+Material::Material(const Material* other, SlotInfo* slotInfo)
 {
-	this->slotInfo = other->slotInfo;
-	this->materialAttributes = new MaterialAttributes();
+	this->slotInfo = slotInfo;
 
+	this->materialAttributes = new MaterialAttributes();
 	this->materialAttributes->shininess = other->materialAttributes->shininess;
 }
 

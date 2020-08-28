@@ -19,6 +19,12 @@ struct SlotInfo
 	unsigned int pad1[2];
 };
 
+struct MaterialAttributes
+{
+	float shininess;
+	float3 pad1;
+};
+
 struct CB_PER_OBJECT_STRUCT
 {
 	float4x4 worldMatrix;

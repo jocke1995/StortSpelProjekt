@@ -10,7 +10,7 @@ class Material
 {
 public:
 	Material(SlotInfo* slotInfo);
-	Material(const Material* other);
+	Material(const Material* other, SlotInfo* slotInfo);
 	virtual ~Material();
 
 	// Sets

@@ -57,7 +57,7 @@ Mesh::Mesh(const Mesh* other)
 
 	// Set material properties
 	Material* mat = other->GetMaterial();
-	this->material = new Material(mat);
+	this->material = new Material(mat, this->slotInfo);
 	for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
 	{
 		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
