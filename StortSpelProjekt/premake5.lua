@@ -32,7 +32,8 @@ project "Engine"
 
     postbuildcommands
     {
-        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Game")
+        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Game"),
+        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Sandbox")
     }
     
         filter "configurations:Debug"
@@ -45,6 +46,35 @@ project "Engine"
 
 project "Game"
     location "Game"
+    systemversion "latest"
+    kind "WindowedApp"
+    language "C++"
+    targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
+    objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
+    files { "%{prj.location}/src/**.cpp", "%{prj.location}/src/**.h", "%{prj.location}/src/**.hlsl" }
+    
+    filter { "files:**.hlsl" }
+        flags "ExcludeFromBuild"
+    
+    filter "configurations:*"
+        cppdialect "C++17"
+    
+    includedirs {"Vendor/Include/", "Engine/src/", "Engine/src/Headers/"}
+    libdirs { "Vendor/Lib/**" }
+    links {
+        "Engine"
+    }
+    
+    filter "configurations:Debug"
+        defines { "_DEBUG", "_CONSOLE" }
+        symbols "On"
+    
+    filter "configurations:Release"
+        defines { "NDEBUG", "_CONSOLE" }
+        optimize "On"
+
+project "Sandbox"
+    location "Sandbox"
     systemversion "latest"
     kind "WindowedApp"
     language "C++"

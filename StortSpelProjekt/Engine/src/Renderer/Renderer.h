@@ -49,6 +49,9 @@ public:
 	// PickedEntity
 	Entity* const GetPickedEntity() const;
 
+	// Scene
+	Scene* const GetActiveScene() const;
+
 private:
 	friend class SceneManager;
 	ThreadPool* threadPool = nullptr;
