@@ -19,7 +19,7 @@ public:
 		DescriptorHeap* descriptorHeap_DSV);
 	~ViewPool();
 
-	ConstantBufferView* GetFreeLightCBV(LIGHT_TYPE type);
+	ConstantBufferView* GetFreeCBV(unsigned int sizeAligned, std::wstring resourceName = L"CBV_DEFAULTNAME");
 	ShadowInfo* GetFreeShadowInfo(LIGHT_TYPE type, SHADOW_RESOLUTION shadowResolution);
 
 	void Clear();
@@ -32,7 +32,7 @@ private:
 	DescriptorHeap* descriptorHeap_RTV = nullptr;
 	DescriptorHeap* descriptorHeap_DSV = nullptr;
 
-	std::map<LIGHT_TYPE, std::vector<std::pair<bool, ConstantBufferView*>>> cbvPools;
+	std::map<unsigned int, std::vector<std::pair<bool, ConstantBufferView*>>> cbvPool;
 	ConstantBufferView* CreateConstantBufferView(unsigned int sizeAligned, std::wstring resourceName);
 
 	std::map<LIGHT_TYPE, std::vector<std::tuple<bool, SHADOW_RESOLUTION, ShadowInfo*>>> shadowPools;

@@ -104,7 +104,7 @@ private:
 	// BoundingBoxes to be picked
 	std::vector<component::BoundingBoxComponent*> boundingBoxesToBePicked;
 
-	ViewPool* lightViewsPool = nullptr;
+	ViewPool* cbvPool = nullptr;
 	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBufferView*, ShadowInfo*>>> lights;
 
 	// Current scene to be drawn

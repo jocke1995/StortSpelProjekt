@@ -118,7 +118,7 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 					// Free memory so other entities can use it
 					ConstantBufferView* cbv = std::get<1>(tuple);
 					ShadowInfo* si = std::get<2>(tuple);
-					this->renderer->lightViewsPool->ClearSpecificLight(type, cbv, si);
+					this->renderer->cbvPool->ClearSpecificLight(type, cbv, si);
 					
 					// Remove from CopyPerFrame
 					CopyPerFrameTask* cpft = nullptr;
@@ -181,7 +181,9 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 	if (dlc != nullptr)
 	{
 		// Assign CBV from the lightPool
-		ConstantBufferView* cbd = this->renderer->lightViewsPool->GetFreeLightCBV(LIGHT_TYPE::DIRECTIONAL_LIGHT);
+		unsigned int entrySize = (sizeof(DirectionalLight) + 255) & ~255;	// align to 255-byte boundary
+		std::wstring resourceName = L"DirectionalLight_DefaultResource";
+		ConstantBufferView* cbd = this->renderer->cbvPool->GetFreeCBV(entrySize, resourceName);
 
 		// Check if the light is to cast shadows
 		SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
@@ -208,7 +210,7 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 		if (resolution != SHADOW_RESOLUTION::UNDEFINED)
 		{
 
-			si = this->renderer->lightViewsPool->GetFreeShadowInfo(LIGHT_TYPE::DIRECTIONAL_LIGHT, resolution);
+			si = this->renderer->cbvPool->GetFreeShadowInfo(LIGHT_TYPE::DIRECTIONAL_LIGHT, resolution);
 			static_cast<DirectionalLight*>(dlc->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
 
 			ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(this->renderer->renderTasks[RENDER_TASK_TYPE::SHADOW]);
@@ -223,8 +225,10 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 	component::PointLightComponent* plc = entity->GetComponent<component::PointLightComponent>();
 	if (plc != nullptr)
 	{
-		// Assign resource from resourcePool
-		ConstantBufferView* cbd = this->renderer->lightViewsPool->GetFreeLightCBV(LIGHT_TYPE::POINT_LIGHT);
+		// Assign CBV from the lightPool
+		unsigned int entrySize = (sizeof(PointLight) + 255) & ~255;	// align to 255-byte boundary
+		std::wstring resourceName = L"PointLight_DefaultResource";
+		ConstantBufferView* cbd = this->renderer->cbvPool->GetFreeCBV(entrySize, resourceName);
 
 		// Assign views required for shadows from the lightPool
 		ShadowInfo* si = nullptr;
@@ -236,8 +240,10 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 	component::SpotLightComponent* slc = entity->GetComponent<component::SpotLightComponent>();
 	if (slc != nullptr)
 	{
-		// Assign resource from resourcePool
-		ConstantBufferView* cbd = this->renderer->lightViewsPool->GetFreeLightCBV(LIGHT_TYPE::SPOT_LIGHT);
+		// Assign CBV from the lightPool
+		unsigned int entrySize = (sizeof(SpotLight) + 255) & ~255;	// align to 255-byte boundary
+		std::wstring resourceName = L"SpotLight_DefaultResource";
+		ConstantBufferView* cbd = this->renderer->cbvPool->GetFreeCBV(entrySize, resourceName);
 
 		// Check if the light is to cast shadows
 		SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
@@ -263,7 +269,7 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 		ShadowInfo* si = nullptr;
 		if (resolution != SHADOW_RESOLUTION::UNDEFINED)
 		{
-			si = this->renderer->lightViewsPool->GetFreeShadowInfo(LIGHT_TYPE::SPOT_LIGHT, resolution);
+			si = this->renderer->cbvPool->GetFreeShadowInfo(LIGHT_TYPE::SPOT_LIGHT, resolution);
 			static_cast<SpotLight*>(slc->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
 
 			ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(this->renderer->renderTasks[RENDER_TASK_TYPE::SHADOW]);
@@ -324,7 +330,7 @@ void SceneManager::ResetScene()
 	{
 		light.second.clear();
 	}
-	this->renderer->lightViewsPool->Clear();
+	this->renderer->cbvPool->Clear();
 	this->renderer->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
 	this->renderer->ScenePrimaryCamera = nullptr;
 	this->renderer->wireFrameTask->Clear();
