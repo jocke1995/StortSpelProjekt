@@ -75,6 +75,7 @@ void BlendRenderTask::Execute()
 			{
 				size_t num_Indices = mc->GetMesh(j)->GetNumIndices();
 				const SlotInfo* info = mc->GetMesh(j)->GetSlotInfo();
+				const MaterialAttributes* matAttrib = mc->GetMesh(j)->GetMaterial()->GetMaterialAttributes();
 
 				Transform* transform = tc->GetTransform();
 
@@ -82,7 +83,7 @@ void BlendRenderTask::Execute()
 				XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
 				// Create a CB_PER_OBJECT struct
-				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
+				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *matAttrib , *info };
 
 				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 

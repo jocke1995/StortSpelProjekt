@@ -4,6 +4,8 @@ Texture2D textures[]   : register (t0);
 SamplerState samplerTypeWrap	: register (s0);
 SamplerState samplerTypeBorder	: register (s1);
 
+ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
+
 float CalculateShadow(
 	in float4 fragPosLightSpace,
 	in float shadowMapIndex)
@@ -63,7 +65,7 @@ float3 CalcDirLight(
 	// Specular
 	float3 vecToCam = normalize(camPos - fragPos.xyz);
 	float3 reflection = normalize(reflect(-lightDir.xyz, normalMap.xyz));
-	float spec = pow(max(dot(reflection, vecToCam), 0.0), 100);
+	float spec = pow(max(dot(reflection, vecToCam), 0.0), cbPerObject.matAttrib.shininess);
 	float3 specular = specularMap.rgb * dirLight.baseLight.specular.rgb * spec;
 
 	float shadow = 0.0f;
@@ -100,7 +102,7 @@ float3 CalcPointLight(
 	// Specular
 	float3 vecToCam = normalize(camPos - fragPos.xyz);
 	float3 reflection = normalize(reflect(-lightDir.xyz, normalMap.xyz));
-	float spec = pow(max(dot(reflection, vecToCam), 0.0), 100);
+	float spec = pow(max(dot(reflection, vecToCam), 0.0), cbPerObject.matAttrib.shininess);
 	float3 specular = specularMap.rgb * pointLight.baseLight.specular.rgb * spec;
 
 	// Attenuation
@@ -146,7 +148,7 @@ float3 CalcSpotLight(
 	// Specular
 	float3 vecToCam = normalize(camPos - fragPos);
 	float3 reflection = normalize(reflect(-lightDir.xyz, normalMap.xyz));
-	float spec = pow(max(dot(reflection, vecToCam), 0.0), 100);
+	float spec = pow(max(dot(reflection, vecToCam), 0.0), cbPerObject.matAttrib.shininess);
 	float3 specular = specularMap.rgb * spotLight.baseLight.specular.rgb * spec;
 
 	// Attenuation

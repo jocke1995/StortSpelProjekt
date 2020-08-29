@@ -77,6 +77,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     component::MeshComponent* mc = scene->GetEntity("floor")->GetComponent<component::MeshComponent>();
     mc->SetMeshes(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    mc->GetMesh(0)->GetMaterial()->SetShininess(300);
     component::TransformComponent* tc = scene->GetEntity("floor")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(20, 1, 20);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);

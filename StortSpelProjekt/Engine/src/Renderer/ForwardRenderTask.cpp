@@ -119,13 +119,14 @@ void FowardRenderTask::DrawRenderComponent(
 		{
 			size_t num_Indices = mc->GetMesh(i)->GetNumIndices();
 			const SlotInfo* info = mc->GetMesh(i)->GetSlotInfo();
+			const MaterialAttributes* matAttrib = mc->GetMesh(i)->GetMaterial()->GetMaterialAttributes();
 
 			Transform* transform = tc->GetTransform();
 			XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
 			XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
 
 			// Create a CB_PER_OBJECT struct
-			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
+			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *matAttrib , *info };
 
 			cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 

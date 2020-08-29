@@ -270,6 +270,7 @@ void Renderer::Execute()
 
 	/* --------------------- Execute copy command lists --------------------- */
 	// Copy per frame
+	unsigned int a = this->copyCommandLists[commandInterfaceIndex].size();
 	this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(
 		this->copyCommandLists[commandInterfaceIndex].size(),
 		this->copyCommandLists[commandInterfaceIndex].data());

@@ -29,6 +29,7 @@ struct CB_PER_OBJECT_STRUCT
 {
 	float4x4 worldMatrix;
 	float4x4 WVP;
+	MaterialAttributes matAttrib;
 	SlotInfo info;
 };
 
@@ -93,4 +94,5 @@ struct SpotLight
 	unsigned int textureShadowMap;	// Index to the shadowMap (srv)
 	unsigned int pad1[3];
 };
+
 #endif

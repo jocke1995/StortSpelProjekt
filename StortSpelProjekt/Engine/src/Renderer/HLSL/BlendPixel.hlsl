@@ -12,7 +12,6 @@ ConstantBuffer<DirectionalLight> dirLight[]	: register(b0, space0);
 ConstantBuffer<PointLight> pointLight[]		: register(b0, space1);
 ConstantBuffer<SpotLight> spotLight[]		: register(b0, space2);
 
-ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
 ConstantBuffer<CB_PER_FRAME_STRUCT>  cbPerFrame  : register(b2, space3);
 ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b3, space3);
 
