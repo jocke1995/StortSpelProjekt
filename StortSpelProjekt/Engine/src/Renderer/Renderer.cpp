@@ -543,6 +543,7 @@ void Renderer::UpdateMousePicker()
 	{
 		// No object was picked, reset the outlingRenderTask
 		this->outliningRenderTask->Clear();
+		this->pickedEntity = nullptr;
 	}
 }
 
