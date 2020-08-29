@@ -126,7 +126,7 @@ void FowardRenderTask::DrawRenderComponent(
 			XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
 
 			// Create a CB_PER_OBJECT struct
-			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *matAttrib , *info };
+			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
 
 			cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 

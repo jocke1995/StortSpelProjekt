@@ -20,6 +20,11 @@ Material::~Material()
 	delete this->materialAttributes;
 }
 
+void Material::SetCBV(ConstantBufferView* cbv)
+{
+	this->cbv = cbv;
+}
+
 void Material::SetTexture(TEXTURE_TYPE textureType, Texture* texture)
 {
 	this->textures[textureType] = texture;

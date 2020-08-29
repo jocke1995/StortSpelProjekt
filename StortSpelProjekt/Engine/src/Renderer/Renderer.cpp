@@ -93,7 +93,7 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	BoundingBoxPool::Get(this->device5, this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 	
 	// Pool to handle GPU memory for the lights
-	this->lightViewsPool = new LightViewsPool(
+	this->lightViewsPool = new ViewPool(
 		this->device5,
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],

@@ -6,7 +6,7 @@
 #include "DepthStencilView.h"
 #include "MousePicker.h"
 
-#include "LightViewsPool.h"
+#include "ViewPool.h"
 #include "BoundingBoxPool.h"
 
 #include "../Misc/ThreadPool.h"
@@ -104,7 +104,7 @@ private:
 	// BoundingBoxes to be picked
 	std::vector<component::BoundingBoxComponent*> boundingBoxesToBePicked;
 
-	LightViewsPool* lightViewsPool = nullptr;
+	ViewPool* lightViewsPool = nullptr;
 	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBufferView*, ShadowInfo*>>> lights;
 
 	// Current scene to be drawn

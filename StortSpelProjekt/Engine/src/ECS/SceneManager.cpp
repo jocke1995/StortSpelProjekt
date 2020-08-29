@@ -118,7 +118,7 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 					// Free memory so other entities can use it
 					ConstantBufferView* cbv = std::get<1>(tuple);
 					ShadowInfo* si = std::get<2>(tuple);
-					this->renderer->lightViewsPool->ClearSpecific(type, cbv, si);
+					this->renderer->lightViewsPool->ClearSpecificLight(type, cbv, si);
 					
 					// Remove from CopyPerFrame
 					CopyPerFrameTask* cpft = nullptr;
@@ -181,7 +181,7 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 	if (dlc != nullptr)
 	{
 		// Assign CBV from the lightPool
-		ConstantBufferView* cbd = this->renderer->lightViewsPool->GetFreeConstantBufferView(LIGHT_TYPE::DIRECTIONAL_LIGHT);
+		ConstantBufferView* cbd = this->renderer->lightViewsPool->GetFreeLightCBV(LIGHT_TYPE::DIRECTIONAL_LIGHT);
 
 		// Check if the light is to cast shadows
 		SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
@@ -224,7 +224,7 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 	if (plc != nullptr)
 	{
 		// Assign resource from resourcePool
-		ConstantBufferView* cbd = this->renderer->lightViewsPool->GetFreeConstantBufferView(LIGHT_TYPE::POINT_LIGHT);
+		ConstantBufferView* cbd = this->renderer->lightViewsPool->GetFreeLightCBV(LIGHT_TYPE::POINT_LIGHT);
 
 		// Assign views required for shadows from the lightPool
 		ShadowInfo* si = nullptr;
@@ -237,7 +237,7 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 	if (slc != nullptr)
 	{
 		// Assign resource from resourcePool
-		ConstantBufferView* cbd = this->renderer->lightViewsPool->GetFreeConstantBufferView(LIGHT_TYPE::SPOT_LIGHT);
+		ConstantBufferView* cbd = this->renderer->lightViewsPool->GetFreeLightCBV(LIGHT_TYPE::SPOT_LIGHT);
 
 		// Check if the light is to cast shadows
 		SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;

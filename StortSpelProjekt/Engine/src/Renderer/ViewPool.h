@@ -1,5 +1,5 @@
-#ifndef LIGHTVIEWSPOOL_H
-#define LIGHTVIEWSPOOL_H
+#ifndef VIEWPOOL_H
+#define VIEWPOOL_H
 
 #include "ConstantBufferView.h"
 //  SRV & DSV
@@ -9,21 +9,21 @@
 
 #include "../Headers/stdafx.h"
 
-class LightViewsPool
+class ViewPool
 {
 public:
-	LightViewsPool(
+	ViewPool(
 		ID3D12Device5* device,
 		DescriptorHeap* descriptorHeap_CBV_UAV_SRV,
 		DescriptorHeap* descriptorHeap_RTV,
 		DescriptorHeap* descriptorHeap_DSV);
-	~LightViewsPool();
+	~ViewPool();
 
-	ConstantBufferView* GetFreeConstantBufferView(LIGHT_TYPE type);
+	ConstantBufferView* GetFreeLightCBV(LIGHT_TYPE type);
 	ShadowInfo* GetFreeShadowInfo(LIGHT_TYPE type, SHADOW_RESOLUTION shadowResolution);
 
 	void Clear();
-	void ClearSpecific(LIGHT_TYPE type, ConstantBufferView* cbv, ShadowInfo* si);
+	void ClearSpecificLight(LIGHT_TYPE type, ConstantBufferView* cbv, ShadowInfo* si);
 
 private:
 	ID3D12Device5* device = nullptr;
@@ -33,7 +33,7 @@ private:
 	DescriptorHeap* descriptorHeap_DSV = nullptr;
 
 	std::map<LIGHT_TYPE, std::vector<std::pair<bool, ConstantBufferView*>>> cbvPools;
-	ConstantBufferView* CreateConstantBufferView(LIGHT_TYPE type);
+	ConstantBufferView* CreateConstantBufferView(unsigned int sizeAligned, std::wstring resourceName);
 
 	std::map<LIGHT_TYPE, std::vector<std::tuple<bool, SHADOW_RESOLUTION, ShadowInfo*>>> shadowPools;
 	ShadowInfo* CreateShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION shadowResolution);
