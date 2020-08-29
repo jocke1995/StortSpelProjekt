@@ -230,7 +230,7 @@ Mesh* AssetLoader::ProcessMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 	// ---------- Get Textures and set them to the mesh END----------
 
 	// Set shininess
-	float shininess = 60;
+	float shininess = 100;
 	// Todo: looks to bright with these values, bad models or bad scene?
 	// if (AI_SUCCESS != aiGetMaterialFloat(mat, AI_MATKEY_SHININESS, &shininess))
 	// {

@@ -87,7 +87,6 @@ void WireframeRenderTask::Execute()
 
 		size_t num_Indices = m->GetNumIndices();
 		const SlotInfo* info = m->GetSlotInfo();
-		const MaterialAttributes* matAttrib = m->GetMaterial()->GetMaterialAttributes();
 
 		XMMATRIX* WTransposed = t->GetWorldMatrixTransposed();
 		XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);

@@ -4,7 +4,8 @@ Texture2D textures[]   : register (t0);
 SamplerState samplerTypeWrap	: register (s0);
 SamplerState samplerTypeBorder	: register (s1);
 
-ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
+
+ConstantBuffer<MaterialAttributes> materialAttributes : register(b2, space3);
 
 float CalculateShadow(
 	in float4 fragPosLightSpace,
@@ -65,7 +66,7 @@ float3 CalcDirLight(
 	// Specular
 	float3 vecToCam = normalize(camPos - fragPos.xyz);
 	float3 reflection = normalize(reflect(-lightDir.xyz, normalMap.xyz));
-	float spec = pow(max(dot(reflection, vecToCam), 0.0), 100);
+	float spec = pow(max(dot(reflection, vecToCam), 0.0), materialAttributes.shininess);
 	float3 specular = specularMap.rgb * dirLight.baseLight.specular.rgb * spec;
 
 	float shadow = 0.0f;

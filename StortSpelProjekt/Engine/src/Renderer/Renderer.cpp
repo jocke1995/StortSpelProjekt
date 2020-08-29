@@ -983,17 +983,9 @@ void Renderer::PrepareCBPerFrame()
 		}
 	}
 
-	// Materials
-	for (auto& renderComponent : this->renderComponents)
-	{
-		// For every mesh in each renderComponent
-		for (unsigned int i = 0; i < renderComponent.first->GetNrOfMeshes(); i++)
-		{
-			data = static_cast<void*>(renderComponent.first->GetMesh(i)->GetMaterial()->GetMaterialAttributes());
-			cbv = const_cast<ConstantBufferView*>(renderComponent.first->GetMesh(i)->GetMaterial()->GetConstantBufferView());
-			cpft->Submit(&std::make_pair(data, cbv));
-		}
-	}
+	// Materials are submitted in the copyPerFrameTask inside EditScene.
+	// This was done so that a new entity (added during runetime) also would be added to the list.
+	
 
 	// CB_PER_FRAME_STRUCT
 	if (cpft != nullptr)

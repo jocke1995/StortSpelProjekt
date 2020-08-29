@@ -16,29 +16,27 @@ struct SlotInfo
 	unsigned int textureNormal;
 	unsigned int textureEmissive;
 
-	// Material Attribute, used for color tinting
-	unsigned int materialAttribute;
-
 	unsigned int pad1[1];
 };
 
 struct MaterialAttributes
 {
-	// These colors will be used with "addition" in the shaders
-	//float4 ambientAdd;
-	//float4 diffuseAdd;
-	//float4 specularAdd;
-	//
-	//// These colors will be used with "multiplication" in the shaders.
-	//// They can be used to tint the colors in different ways
-	//float4 ambientMul;
-	//float4 diffuseMul;
-	//float4 specularMul;
-
+	// shininess
 	float shininess;
 	float3 pad1;
 
-	//float4 pad2;
+	// These colors will be used with "addition" in the shaders
+	float4 ambientAdd;
+	float4 diffuseAdd;
+	float4 specularAdd;
+	
+	// These colors will be used with "multiplication" in the shaders.
+	// They can be used to tint the colors in different ways
+	float4 ambientMul;
+	float4 diffuseMul;
+	float4 specularMul;
+
+	float4 pad2;
 };
 
 struct CB_PER_OBJECT_STRUCT

@@ -175,6 +175,11 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 			{	
 				ConstantBufferView* cbv = this->renderer->viewPool->GetFreeCBV(sizeof(MaterialAttributes), L"Material" + i);
 				mc->GetMesh(i)->GetMaterial()->SetCBV(cbv);
+
+				// Submit to the list which gets updated to the gpu each frame
+				CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(this->renderer->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+				void* data = static_cast<void*>(mc->GetMesh(i)->GetMaterial()->GetMaterialAttributes());
+				cpft->Submit(&std::make_pair(data, cbv));
 			}
 
 			this->renderer->renderComponents.push_back(std::make_pair(mc, tc));
