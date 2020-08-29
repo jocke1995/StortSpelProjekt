@@ -103,12 +103,16 @@ project "Sandbox"
 project "GTest"
     location "googletest"
     kind "StaticLib"
-    files { "googletest/googletest/src/gtest-all.cc" }
-    includedirs { "googletest/googletest/include", "googletest/googletest" }
+    targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
+    objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
+    files { "googletest/gtest/googletest/src/gtest-all.cc" }
+    includedirs { "googletest/gtest/googletest/include", "googletest/gtest/googletest" }
 
 project "EngineTests"
     location "EngineTests"
     kind "ConsoleApp"
+    targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
+    objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
     files {"%{prj.location}/src/**.cpp", "src/**.h"}
-    includedirs { "Engine/src/", "googletest/googletest/include/"}
+    includedirs { "Engine/src/", "googletest/gtest/googletest/include/"}
     links {"Engine", "GTest" }
