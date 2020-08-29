@@ -22,7 +22,7 @@ namespace component
 	private:
 		DirectionalLight* directionalLight = nullptr;
 		void InitFlagUsages();
-		void UpdateLightData(LIGHT_COLOR_TYPE type);
+		void UpdateLightData(COLOR_TYPE type);
 	};
 }
 #endif

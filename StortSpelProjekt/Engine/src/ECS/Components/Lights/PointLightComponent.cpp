@@ -50,17 +50,17 @@ namespace component
 		return this->pointLight;
 	}
 
-	void PointLightComponent::UpdateLightData(LIGHT_COLOR_TYPE type)
+	void PointLightComponent::UpdateLightData(COLOR_TYPE type)
 	{
 		switch (type)
 		{
-		case LIGHT_COLOR_TYPE::LIGHT_AMBIENT:
+		case COLOR_TYPE::LIGHT_AMBIENT:
 			this->pointLight->baseLight.ambient = this->baseLight->ambient;
 			break;
-		case LIGHT_COLOR_TYPE::LIGHT_DIFFUSE:
+		case COLOR_TYPE::LIGHT_DIFFUSE:
 			this->pointLight->baseLight.diffuse = this->baseLight->diffuse;
 			break;
-		case LIGHT_COLOR_TYPE::LIGHT_SPECULAR:
+		case COLOR_TYPE::LIGHT_SPECULAR:
 			this->pointLight->baseLight.specular = this->baseLight->specular;
 			break;
 		}

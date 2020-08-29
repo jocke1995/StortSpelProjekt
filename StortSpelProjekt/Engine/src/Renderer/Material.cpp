@@ -5,6 +5,14 @@ Material::Material(SlotInfo* slotInfo)
 {
 	this->slotInfo = slotInfo;
 	this->materialAttributes = new MaterialAttributes();
+
+	this->materialAttributes->shininess = 100;
+	this->materialAttributes->ambientAdd  = float4({ 0.0f, 0.0f, 0.0f, 1.0f });
+	this->materialAttributes->diffuseAdd  = float4({ 0.0f, 0.0f, 0.0f, 1.0f });
+	this->materialAttributes->specularAdd = float4({ 0.0f, 0.0f, 0.0f, 1.0f });
+	this->materialAttributes->ambientMul  = float4({ 1.0f, 1.0f, 1.0f, 1.0f });
+	this->materialAttributes->diffuseMul  = float4({ 1.0f, 1.0f, 1.0f, 1.0f });
+	this->materialAttributes->specularMul = float4({ 1.0f, 1.0f, 1.0f, 1.0f });
 }
 
 Material::Material(const Material* other, SlotInfo* slotInfo)
@@ -12,7 +20,13 @@ Material::Material(const Material* other, SlotInfo* slotInfo)
 	this->slotInfo = slotInfo;
 
 	this->materialAttributes = new MaterialAttributes();
-	this->materialAttributes->shininess = other->materialAttributes->shininess;
+	this->materialAttributes->shininess   = other->materialAttributes->shininess;
+	this->materialAttributes->ambientAdd  = other->materialAttributes->ambientAdd;
+	this->materialAttributes->diffuseAdd  = other->materialAttributes->diffuseAdd;
+	this->materialAttributes->specularAdd = other->materialAttributes->specularAdd;
+	this->materialAttributes->ambientMul  = other->materialAttributes->ambientMul;
+	this->materialAttributes->diffuseMul  = other->materialAttributes->diffuseMul;
+	this->materialAttributes->specularMul = other->materialAttributes->specularMul;
 }
 
 Material::~Material()
@@ -52,6 +66,38 @@ void Material::SetTexture(TEXTURE_TYPE textureType, Texture* texture)
 void Material::SetShininess(float shininess)
 {
 	this->materialAttributes->shininess = shininess;
+}
+
+void Material::SetColorAdd(COLOR_TYPE type, float4 color)
+{
+	switch (type)
+	{
+	case COLOR_TYPE::LIGHT_AMBIENT:
+		this->materialAttributes->ambientAdd = color;
+		break;
+	case COLOR_TYPE::LIGHT_DIFFUSE:
+		this->materialAttributes->diffuseAdd = color;
+		break;
+	case COLOR_TYPE::LIGHT_SPECULAR:
+		this->materialAttributes->specularAdd = color;
+		break;
+	}
+}
+
+void Material::SetColorMul(COLOR_TYPE type, float4 color)
+{
+	switch (type)
+	{
+	case COLOR_TYPE::LIGHT_AMBIENT:
+		this->materialAttributes->ambientMul = color;
+		break;
+	case COLOR_TYPE::LIGHT_DIFFUSE:
+		this->materialAttributes->diffuseMul = color;
+		break;
+	case COLOR_TYPE::LIGHT_SPECULAR:
+		this->materialAttributes->specularMul = color;
+		break;
+	}
 }
 
 Texture* Material::GetTexture(TEXTURE_TYPE textureType)

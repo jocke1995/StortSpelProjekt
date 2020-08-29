@@ -985,7 +985,6 @@ void Renderer::PrepareCBPerFrame()
 
 	// Materials are submitted in the copyPerFrameTask inside EditScene.
 	// This was done so that a new entity (added during runetime) also would be added to the list.
-	
 
 	// CB_PER_FRAME_STRUCT
 	if (cpft != nullptr)

@@ -3,7 +3,7 @@
 
 #include "Texture.h"
 #include "ConstantBufferView.h"
-
+#include "Core.h"
 // For slotInfo
 #include "structs.h"
 
@@ -17,6 +17,9 @@ public:
 	// Sets
 	void SetTexture(TEXTURE_TYPE textureType, Texture* texture);
 	void SetShininess(float shininess);
+	void SetColorAdd(COLOR_TYPE type, float4 color);
+	void SetColorMul(COLOR_TYPE type, float4 color);
+
 	// For usage in renderer
 	void SetCBV(ConstantBufferView* cbv);
 
