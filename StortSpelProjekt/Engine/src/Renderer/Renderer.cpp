@@ -46,7 +46,7 @@ Renderer::~Renderer()
 
 	delete this->mousePicker;
 
-	delete this->cbvPool;
+	delete this->viewPool;
 	delete this->cbPerScene;
 	delete this->cbPerFrame;
 	delete this->cbPerFrameData;
@@ -93,27 +93,25 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	BoundingBoxPool::Get(this->device5, this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 	
 	// Pool to handle GPU memory for the lights
-	this->cbvPool = new ViewPool(
+	this->viewPool = new ViewPool(
 		this->device5,
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
 
 	// Allocate memory for cbPerScene
-	unsigned int CB_PER_SCENE_SizeAligned = (sizeof(CB_PER_SCENE_STRUCT) + 255) & ~255;
 	this->cbPerScene = new ConstantBufferView(
 		this->device5, 
-		CB_PER_SCENE_SizeAligned,
+		sizeof(CB_PER_SCENE_STRUCT),
 		L"CB_PER_SCENE_DEFAULT",
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
 		);
 
 	// Allocate memory for cbPerFrame
-	unsigned int CB_PER_Frame_SizeAligned = (sizeof(CB_PER_FRAME_STRUCT) + 255) & ~255;
 	this->cbPerFrame = new ConstantBufferView(
 		this->device5,
-		CB_PER_Frame_SizeAligned,
+		sizeof(CB_PER_FRAME_STRUCT),
 		L"CB_PER_FRAME_DEFAULT",
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
@@ -968,25 +966,40 @@ void Renderer::PrepareCBPerScene()
 void Renderer::PrepareCBPerFrame()
 {
 	CopyPerFrameTask* cpft = nullptr;
+	void* data = nullptr;
+	ConstantBufferView* cbv = nullptr;
+
 	// Lights
 	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
 	{
 		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
 		for (auto& tuple : this->lights[type])
 		{
-			void* data = std::get<0>(tuple)->GetLightData();
-			ConstantBufferView* cbd = std::get<1>(tuple);
+			data = std::get<0>(tuple)->GetLightData();
+			cbv = std::get<1>(tuple);
 
 			cpft = static_cast<CopyPerFrameTask*>(this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-			cpft->Submit(&std::make_pair(data, cbd));
+			cpft->Submit(&std::make_pair(data, cbv));
+		}
+	}
+
+	// Materials
+	for (auto& renderComponent : this->renderComponents)
+	{
+		// For every mesh in each renderComponent
+		for (unsigned int i = 0; i < renderComponent.first->GetNrOfMeshes(); i++)
+		{
+			data = static_cast<void*>(renderComponent.first->GetMesh(i)->GetMaterial()->GetMaterialAttributes());
+			cbv = const_cast<ConstantBufferView*>(renderComponent.first->GetMesh(i)->GetMaterial()->GetConstantBufferView());
+			cpft->Submit(&std::make_pair(data, cbv));
 		}
 	}
 
 	// CB_PER_FRAME_STRUCT
 	if (cpft != nullptr)
 	{
-		void* perFrameData = static_cast<void*>(this->cbPerFrameData);
-		cpft->Submit(&std::make_pair(perFrameData, this->cbPerFrame));
+		data = static_cast<void*>(this->cbPerFrameData);
+		cpft->Submit(&std::make_pair(data, this->cbPerFrame));
 	}
 }
 

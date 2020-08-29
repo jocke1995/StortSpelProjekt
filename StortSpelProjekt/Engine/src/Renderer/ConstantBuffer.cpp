@@ -6,7 +6,8 @@ ConstantBuffer::ConstantBuffer(
 	std::wstring resourceName,
 	unsigned int descriptorHeapIndex)
 {
-	this->uploadResource = new Resource(device, entrySize, RESOURCE_TYPE::UPLOAD, resourceName);
+	unsigned int sizeAligned = (entrySize + 255) & ~255;
+	this->uploadResource = new Resource(device, sizeAligned, RESOURCE_TYPE::UPLOAD, resourceName);
 	this->descriptorHeapIndex = descriptorHeapIndex;
 }
 

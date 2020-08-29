@@ -59,7 +59,12 @@ Texture* Material::GetTexture(TEXTURE_TYPE textureType)
 	return this->textures.at(textureType);
 }
 
-const MaterialAttributes* Material::GetMaterialAttributes() const
+MaterialAttributes* Material::GetMaterialAttributes() const
 {
 	return this->materialAttributes;
+}
+
+const ConstantBufferView* const Material::GetConstantBufferView() const
+{
+	return this->cbv;
 }

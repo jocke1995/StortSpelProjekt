@@ -14,22 +14,23 @@ public:
 	Material(const Material* other, SlotInfo* slotInfo);
 	virtual ~Material();
 
-	// For usage in renderer
-	void SetCBV(ConstantBufferView* cbv);
-
 	// Sets
 	void SetTexture(TEXTURE_TYPE textureType, Texture* texture);
 	void SetShininess(float shininess);
+	// For usage in renderer
+	void SetCBV(ConstantBufferView* cbv);
 
 	// Gets
 	Texture* GetTexture(TEXTURE_TYPE textureType);
-	const MaterialAttributes* GetMaterialAttributes() const;
+	MaterialAttributes* GetMaterialAttributes() const;
+	const ConstantBufferView* const GetConstantBufferView() const;
 
 private:
 	std::map<TEXTURE_TYPE, Texture*> textures;
 
 	SlotInfo* slotInfo = nullptr;
 
+	// a constantBuffer containing the materialAttributesData
 	ConstantBufferView* cbv = nullptr;
 	MaterialAttributes* materialAttributes = nullptr;
 

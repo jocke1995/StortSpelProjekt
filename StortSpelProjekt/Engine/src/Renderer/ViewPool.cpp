@@ -37,8 +37,10 @@ ViewPool::~ViewPool()
 	}
 }
 
-ConstantBufferView* ViewPool::GetFreeCBV(unsigned int sizeAligned, std::wstring resourceName)
+ConstantBufferView* ViewPool::GetFreeCBV(unsigned int size, std::wstring resourceName)
 {
+	unsigned int sizeAligned = (size + 255) & ~255;
+
 	for (auto& pair : this->cbvPool[sizeAligned])
 	{
 		// The resource is free
@@ -74,7 +76,7 @@ ShadowInfo* ViewPool::GetFreeShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION 
 	return si;
 }
 
-void ViewPool::Clear()
+void ViewPool::ClearAll()
 {
 	for (auto& pair : this->cbvPool)
 	{
@@ -136,8 +138,15 @@ void ViewPool::ClearSpecificLight(LIGHT_TYPE type, ConstantBufferView* cbv, Shad
 	}
 }
 
-ConstantBufferView* ViewPool::CreateConstantBufferView(unsigned int sizeAligned, std::wstring resourceName)
+void ViewPool::ClearSpecificCBV(unsigned int size, ConstantBufferView* cbv)
 {
+	unsigned int sizeAligned = (size + 255) & ~255;
+}
+
+ConstantBufferView* ViewPool::CreateConstantBufferView(unsigned int size, std::wstring resourceName)
+{
+	unsigned int sizeAligned = (size + 255) & ~255;
+
 	ConstantBufferView* cbd = new ConstantBufferView(
 		device,
 		sizeAligned,
