@@ -2,10 +2,10 @@ workspace "StortSpelProjekt"
     architecture "x64"
     configurations { "Debug", "Release" }
     startproject "Game"
+    systemversion "latest"
     
 project "Engine"
     location "Engine"
-    systemversion "latest"
     kind "StaticLib"
     language "C++"
     pchheader "stdafx.h"
@@ -46,7 +46,6 @@ project "Engine"
 
 project "Game"
     location "Game"
-    systemversion "latest"
     kind "WindowedApp"
     language "C++"
     targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
@@ -75,7 +74,6 @@ project "Game"
 
 project "Sandbox"
     location "Sandbox"
-    systemversion "latest"
     kind "WindowedApp"
     language "C++"
     targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
@@ -101,3 +99,16 @@ project "Sandbox"
     filter "configurations:Release"
         defines { "NDEBUG", "_CONSOLE" }
         optimize "On"
+
+project "GTest"
+    location "googletest"
+    kind "StaticLib"
+    files { "googletest/googletest/src/gtest-all.cc" }
+    includedirs { "googletest/googletest/include", "googletest/googletest" }
+
+project "EngineTests"
+    location "EngineTests"
+    kind "ConsoleApp"
+    files {"%{prj.location}/src/**.cpp", "src/**.h"}
+    includedirs { "Engine/src/", "googletest/googletest/include/"}
+    links {"Engine", "GTest" }
