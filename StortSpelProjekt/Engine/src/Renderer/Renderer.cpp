@@ -39,6 +39,7 @@ Renderer::~Renderer()
 
 	for (RenderTask* renderTask : this->renderTasks)
 		delete renderTask;
+
 	delete this->wireFrameTask;
 	delete this->outliningRenderTask;
 
