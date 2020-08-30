@@ -2,8 +2,8 @@
 #define OUTLININGRENDERTASK_H
 
 #include "RenderTask.h"
-#include "GraphicsState.h"
-#include "SwapChain.h"
+#include "../GraphicsState.h"
+#include "../SwapChain.h"
 
 class OutliningRenderTask : public RenderTask
 {

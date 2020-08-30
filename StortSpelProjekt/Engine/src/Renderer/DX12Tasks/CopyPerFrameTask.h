@@ -2,7 +2,7 @@
 #define COPYPERFRAMETASK_H
 
 #include "CopyTask.h"
-#include "../Headers/stdafx.h"
+#include "../../Headers/stdafx.h"
 
 class CopyPerFrameTask : public CopyTask
 {
