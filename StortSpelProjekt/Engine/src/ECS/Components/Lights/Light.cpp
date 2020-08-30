@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Light.h"
 
 Light::Light(CAMERA_TYPE camType, unsigned int lightFlags)

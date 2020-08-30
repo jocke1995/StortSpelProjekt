@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "OutliningRenderTask.h"
 
 OutliningRenderTask::OutliningRenderTask(

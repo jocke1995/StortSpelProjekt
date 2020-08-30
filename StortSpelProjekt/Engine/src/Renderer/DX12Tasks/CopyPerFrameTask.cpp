@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "CopyPerFrameTask.h"
 
 CopyPerFrameTask::CopyPerFrameTask(ID3D12Device5* device)

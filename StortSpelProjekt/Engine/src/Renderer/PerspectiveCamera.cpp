@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "PerspectiveCamera.h"
 
 // TEMPORARY CONSTRUCTOR

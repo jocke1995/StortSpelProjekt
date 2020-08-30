@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "PipelineState.h"
 
 PipelineState::PipelineState(LPCTSTR psoName)

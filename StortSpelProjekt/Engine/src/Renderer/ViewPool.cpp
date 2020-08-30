@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ViewPool.h"
 
 ViewPool::ViewPool(

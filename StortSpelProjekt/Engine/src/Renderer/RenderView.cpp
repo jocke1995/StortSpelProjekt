@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "RenderView.h"
 
 RenderView::RenderView(unsigned int width, unsigned int height)

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Timer.h"
 
 Timer::Timer(Window* window)

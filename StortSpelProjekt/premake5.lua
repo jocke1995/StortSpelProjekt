@@ -35,7 +35,7 @@ project "Engine"
         ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Game"),
         ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Sandbox")
     }
-    
+    defines{"_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE"}
         filter "configurations:Debug"
             defines { "_DEBUG", "_CONSOLE" }
             symbols "On"

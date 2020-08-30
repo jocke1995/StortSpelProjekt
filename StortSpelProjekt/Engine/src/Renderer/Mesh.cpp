@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Mesh.h"
 
 Mesh::Mesh(	ID3D12Device5* device,

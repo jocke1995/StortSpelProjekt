@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "SceneManager.h"
 
 SceneManager::SceneManager(Renderer* r)

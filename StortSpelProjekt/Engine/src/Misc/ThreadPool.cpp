@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ThreadPool.h"
 
 ThreadPool::ThreadPool(int nrOfThreads)

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ComputeTask.h"
 
 ComputeTask::ComputeTask(ID3D12Device5* device, RootSignature* rootSignature, LPCWSTR CSName, LPCTSTR psoName)

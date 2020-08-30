@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ConstantBufferView.h"
 
 ConstantBufferView::ConstantBufferView(ID3D12Device5* device, unsigned int entrySize, std::wstring defaultName, unsigned int descriptorHeapIndex, DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
