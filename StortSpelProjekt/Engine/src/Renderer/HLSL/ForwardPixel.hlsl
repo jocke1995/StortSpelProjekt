@@ -22,11 +22,12 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 	float3 finalColor = float3(0.0f, 0.0f, 0.0f);
 
 	// Sample from textures
-	float4 ambientMap  = textures[cbPerObject.info.textureAmbient ].Sample(samplerTypeWrap, input.uv);
-	float4 diffuseMap  = textures[cbPerObject.info.textureDiffuse ].Sample(samplerTypeWrap, input.uv);
-	float4 specularMap = textures[cbPerObject.info.textureSpecular].Sample(samplerTypeWrap, input.uv);
-	float4 emissiveMap = textures[cbPerObject.info.textureEmissive].Sample(samplerTypeWrap, input.uv);
-	float4 normalMap   = textures[cbPerObject.info.textureNormal  ].Sample(samplerTypeWrap, input.uv);
+	float2 uvScaled = float2(input.uv.x * materialAttributes.uvScale.x, input.uv.y * materialAttributes.uvScale.y);
+	float4 ambientMap  = textures[cbPerObject.info.textureAmbient ].Sample(samplerTypeWrap, uvScaled);
+	float4 diffuseMap  = textures[cbPerObject.info.textureDiffuse ].Sample(samplerTypeWrap, uvScaled);
+	float4 specularMap = textures[cbPerObject.info.textureSpecular].Sample(samplerTypeWrap, uvScaled);
+	float4 emissiveMap = textures[cbPerObject.info.textureEmissive].Sample(samplerTypeWrap, uvScaled);
+	float4 normalMap   = textures[cbPerObject.info.textureNormal  ].Sample(samplerTypeWrap, uvScaled);
 
 	normalMap = (2.0f * normalMap) - 1.0f;
 	float4 normal = float4(normalize(mul(normalMap.xyz, input.tbn)), 1.0f);
