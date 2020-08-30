@@ -21,6 +21,14 @@ inline T Max(T a, T b)
 	return b;
 }
 
+enum class COLOR_TYPE
+{
+	LIGHT_AMBIENT,
+	LIGHT_DIFFUSE,
+	LIGHT_SPECULAR,
+	NUM_COLOR_TYPES
+};
+
 // this will only call release if an object exists (prevents exceptions calling release on non existant objects)
 #define SAFE_RELEASE(p)			\
 {								\

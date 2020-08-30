@@ -39,6 +39,7 @@ Renderer::~Renderer()
 
 	for (RenderTask* renderTask : this->renderTasks)
 		delete renderTask;
+
 	delete this->wireFrameTask;
 	delete this->outliningRenderTask;
 
@@ -46,7 +47,7 @@ Renderer::~Renderer()
 
 	delete this->mousePicker;
 
-	delete this->lightViewsPool;
+	delete this->viewPool;
 	delete this->cbPerScene;
 	delete this->cbPerFrame;
 	delete this->cbPerFrameData;
@@ -93,27 +94,25 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	BoundingBoxPool::Get(this->device5, this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 	
 	// Pool to handle GPU memory for the lights
-	this->lightViewsPool = new LightViewsPool(
+	this->viewPool = new ViewPool(
 		this->device5,
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
 
 	// Allocate memory for cbPerScene
-	unsigned int CB_PER_SCENE_SizeAligned = (sizeof(CB_PER_SCENE_STRUCT) + 255) & ~255;
 	this->cbPerScene = new ConstantBufferView(
 		this->device5, 
-		CB_PER_SCENE_SizeAligned,
+		sizeof(CB_PER_SCENE_STRUCT),
 		L"CB_PER_SCENE_DEFAULT",
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
 		);
 
 	// Allocate memory for cbPerFrame
-	unsigned int CB_PER_Frame_SizeAligned = (sizeof(CB_PER_FRAME_STRUCT) + 255) & ~255;
 	this->cbPerFrame = new ConstantBufferView(
 		this->device5,
-		CB_PER_Frame_SizeAligned,
+		sizeof(CB_PER_FRAME_STRUCT),
 		L"CB_PER_FRAME_DEFAULT",
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
@@ -149,7 +148,7 @@ std::vector<Mesh*>* Renderer::LoadModel(std::wstring path)
 			for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
 			{
 				TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-				Texture* texture = mesh->GetTexture(type);
+				Texture* texture = mesh->GetMaterial()->GetTexture(type);
 				texture->UploadToDefault(
 					this->device5,
 					this->tempCommandInterface,
@@ -270,6 +269,7 @@ void Renderer::Execute()
 
 	/* --------------------- Execute copy command lists --------------------- */
 	// Copy per frame
+	unsigned int a = this->copyCommandLists[commandInterfaceIndex].size();
 	this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(
 		this->copyCommandLists[commandInterfaceIndex].size(),
 		this->copyCommandLists[commandInterfaceIndex].data());
@@ -544,6 +544,7 @@ void Renderer::UpdateMousePicker()
 	{
 		// No object was picked, reset the outlingRenderTask
 		this->outliningRenderTask->Clear();
+		this->pickedEntity = nullptr;
 	}
 }
 
@@ -967,25 +968,31 @@ void Renderer::PrepareCBPerScene()
 void Renderer::PrepareCBPerFrame()
 {
 	CopyPerFrameTask* cpft = nullptr;
+	void* data = nullptr;
+	ConstantBufferView* cbv = nullptr;
+
 	// Lights
 	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
 	{
 		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
 		for (auto& tuple : this->lights[type])
 		{
-			void* data = std::get<0>(tuple)->GetLightData();
-			ConstantBufferView* cbd = std::get<1>(tuple);
+			data = std::get<0>(tuple)->GetLightData();
+			cbv = std::get<1>(tuple);
 
 			cpft = static_cast<CopyPerFrameTask*>(this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-			cpft->Submit(&std::make_pair(data, cbd));
+			cpft->Submit(&std::make_pair(data, cbv));
 		}
 	}
+
+	// Materials are submitted in the copyPerFrameTask inside EditScene.
+	// This was done so that a new entity (added during runetime) also would be added to the list.
 
 	// CB_PER_FRAME_STRUCT
 	if (cpft != nullptr)
 	{
-		void* perFrameData = static_cast<void*>(this->cbPerFrameData);
-		cpft->Submit(&std::make_pair(perFrameData, this->cbPerFrame));
+		data = static_cast<void*>(this->cbPerFrameData);
+		cpft->Submit(&std::make_pair(data, this->cbPerFrame));
 	}
 }
 

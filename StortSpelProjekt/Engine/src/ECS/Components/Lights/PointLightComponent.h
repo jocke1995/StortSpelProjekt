@@ -22,7 +22,7 @@ namespace component
 	private:
 		PointLight* pointLight = nullptr;
 
-		void UpdateLightData(LIGHT_COLOR_TYPE type);
+		void UpdateLightData(COLOR_TYPE type);
 	};
 }
 

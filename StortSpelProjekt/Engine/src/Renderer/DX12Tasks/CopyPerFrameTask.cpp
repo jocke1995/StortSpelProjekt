@@ -16,7 +16,7 @@ void CopyPerFrameTask::Submit(std::pair<void*, ConstantBufferView*>* data_CBV)
 	this->data_CBVs.push_back(*data_CBV);
 }
 
-void CopyPerFrameTask::ClearSpecific(ConstantBufferView* cbv)
+void CopyPerFrameTask::ClearSpecific(const ConstantBufferView* cbv)
 {
 	unsigned int i = 0;
 	// Loop through all copyPerFrame tasks
