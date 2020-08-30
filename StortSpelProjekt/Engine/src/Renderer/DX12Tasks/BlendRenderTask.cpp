@@ -56,7 +56,6 @@ void BlendRenderTask::Execute()
 	// Create a CB_PER_FRAME struct
 	CB_PER_FRAME_STRUCT perFrame = { camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z };
 	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_FRAME, this->resources["cbPerFrame"]->GetGPUVirtualAdress());
-
 	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_SCENE, this->resources["cbPerScene"]->GetGPUVirtualAdress());
 
 	const XMMATRIX * viewProjMatTrans = this->camera->GetViewProjectionTranposed();
@@ -73,8 +72,9 @@ void BlendRenderTask::Execute()
 			// Draw for every mesh the MeshComponent has
 			for (unsigned int j = 0; j < mc->GetNrOfMeshes(); j++)
 			{
-				size_t num_Indices = mc->GetMesh(j)->GetNumIndices();
-				const SlotInfo* info = mc->GetMesh(j)->GetSlotInfo();
+				Mesh* m = mc->GetMesh(j);
+				size_t num_Indices = m->GetNumIndices();
+				const SlotInfo* info = m->GetSlotInfo();
 
 				Transform* transform = tc->GetTransform();
 
@@ -82,9 +82,10 @@ void BlendRenderTask::Execute()
 				XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
 				// Create a CB_PER_OBJECT struct
-				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
+				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed , *info };
 
 				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+				commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_OBJECT_CBV, m->GetMaterial()->GetConstantBufferView()->GetCBVResource()->GetGPUVirtualAdress());
 
 				commandList->IASetIndexBuffer(mc->GetMesh(j)->GetIndexBufferView());
 				// Draw each object twice with different PSO 

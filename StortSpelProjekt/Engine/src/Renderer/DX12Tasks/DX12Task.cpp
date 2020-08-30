@@ -1,5 +1,4 @@
 #include "DX12Task.h"
-#include "Resource.h"
 
 DX12Task::DX12Task(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType)
 {

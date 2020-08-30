@@ -1,6 +1,6 @@
-#include "LightViewsPool.h"
+#include "ViewPool.h"
 
-LightViewsPool::LightViewsPool(
+ViewPool::ViewPool(
 	ID3D12Device5* device,
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV,
 	DescriptorHeap* descriptorHeap_RTV,
@@ -13,29 +13,35 @@ LightViewsPool::LightViewsPool(
 	this->descriptorHeap_DSV = descriptorHeap_DSV;
 }
 
-LightViewsPool::~LightViewsPool()
+ViewPool::~ViewPool()
 {
-	for (int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	// Free cbvs
+	for (auto& pair : this->cbvPool)
 	{
-		LIGHT_TYPE typeIndex = static_cast<LIGHT_TYPE>(i);
-
-		// CBVs
-		for (auto& pair : this->cbvPools[typeIndex])
+		for (auto& pair2 : pair.second)
 		{
-			delete pair.second;
+			// free memory of cbv
+			delete pair2.second;
 		}
+	}
 
-		// shadowInfos
-		for (auto& tuple : this->shadowPools[typeIndex])
+	// Free shadowInfo
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		for (auto& tuple : this->shadowPools[type])
 		{
+			// free memory of shadowInfo
 			delete std::get<2>(tuple);
 		}
 	}
 }
 
-ConstantBufferView* LightViewsPool::GetFreeConstantBufferView(LIGHT_TYPE type)
+ConstantBufferView* ViewPool::GetFreeCBV(unsigned int size, std::wstring resourceName)
 {
-	for (auto& pair : this->cbvPools[type])
+	unsigned int sizeAligned = (size + 255) & ~255;
+
+	for (auto& pair : this->cbvPool[sizeAligned])
 	{
 		// The resource is free
 		if (pair.first == true)
@@ -46,12 +52,12 @@ ConstantBufferView* LightViewsPool::GetFreeConstantBufferView(LIGHT_TYPE type)
 	}
 
 	// No constant buffer of that type exists.. Create and return a new one
-	ConstantBufferView* cbd = CreateConstantBufferView(type);
-	this->cbvPools[type].push_back(std::make_pair(false, cbd));
+	ConstantBufferView* cbd = CreateConstantBufferView(sizeAligned, resourceName);
+	this->cbvPool[sizeAligned].push_back(std::make_pair(false, cbd));
 	return cbd;
 }
 
-ShadowInfo* LightViewsPool::GetFreeShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION shadowResolution)
+ShadowInfo* ViewPool::GetFreeShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION shadowResolution)
 {
 	// If there are a free shadowInfo, use it
 	for (auto& tuple : this->shadowPools[lightType])
@@ -70,18 +76,20 @@ ShadowInfo* LightViewsPool::GetFreeShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOL
 	return si;
 }
 
-void LightViewsPool::Clear()
+void ViewPool::ClearAll()
 {
+	for (auto& pair : this->cbvPool)
+	{
+		for (auto& vec : pair.second)
+		{
+			vec.first = true;
+		}
+	}
+
 	for (int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
 	{
 		LIGHT_TYPE typeIndex = static_cast<LIGHT_TYPE>(i);
-
-		// CBVs
-		for (auto& pair : this->cbvPools[typeIndex])
-		{
-			pair.first = true;
-		}
-
+	
 		// shadowInfos
 		for (auto& tuple : this->shadowPools[typeIndex])
 		{
@@ -90,10 +98,24 @@ void LightViewsPool::Clear()
 	}
 }
 
-void LightViewsPool::ClearSpecific(LIGHT_TYPE type, ConstantBufferView* cbv, ShadowInfo* si)
+void ViewPool::ClearSpecificLight(LIGHT_TYPE type, ConstantBufferView* cbv, ShadowInfo* si)
 {
+	unsigned int sizeAligned = 0;
+	switch (type)
+	{
+	case LIGHT_TYPE::DIRECTIONAL_LIGHT:
+		sizeAligned = (sizeof(DirectionalLight) + 255) & ~255;
+		break;
+	case LIGHT_TYPE::POINT_LIGHT:
+		sizeAligned = (sizeof(PointLight) + 255) & ~255;
+		break;
+	case LIGHT_TYPE::SPOT_LIGHT:
+		sizeAligned = (sizeof(SpotLight) + 255) & ~255;
+		break;
+	}
+
 	// Free cbv
-	for (auto& pair : this->cbvPools[type])
+	for (auto& pair : this->cbvPool[sizeAligned])
 	{
 		if (pair.second == cbv)
 		{
@@ -109,37 +131,25 @@ void LightViewsPool::ClearSpecific(LIGHT_TYPE type, ConstantBufferView* cbv, Sha
 		{
 			if (std::get<2>(tuple) == si)
 			{
-				//pair.first = true;
+				std::get<0>(tuple) = true;
 				break;
 			}
 		}
 	}
-	
 }
 
-ConstantBufferView* LightViewsPool::CreateConstantBufferView(LIGHT_TYPE type)
+void ViewPool::ClearSpecificCBV(unsigned int size, ConstantBufferView* cbv)
 {
-	unsigned int entrySize = 0;
-	std::wstring resourceName = L"";
-	switch (type)
-	{
-	case LIGHT_TYPE::DIRECTIONAL_LIGHT:
-		entrySize = (sizeof(DirectionalLight) + 255) & ~255;	// align to 255-byte boundary
-		resourceName = L"DirectionalLight_DefaultResource";
-		break;
-	case LIGHT_TYPE::POINT_LIGHT:
-		entrySize = (sizeof(PointLight) + 255) & ~255;	// align to 255-byte boundary
-		resourceName = L"PointLight_DefaultResource";
-		break;
-	case LIGHT_TYPE::SPOT_LIGHT:
-		entrySize = (sizeof(SpotLight) + 255) & ~255;	// align to 255-byte boundary
-		resourceName = L"SpotLight_DefaultResource";
-		break;
-	}
+	unsigned int sizeAligned = (size + 255) & ~255;
+}
+
+ConstantBufferView* ViewPool::CreateConstantBufferView(unsigned int size, std::wstring resourceName)
+{
+	unsigned int sizeAligned = (size + 255) & ~255;
 
 	ConstantBufferView* cbd = new ConstantBufferView(
 		device,
-		entrySize,
+		sizeAligned,
 		resourceName,
 		this->descriptorHeap_CBV_UAV_SRV->GetNextDescriptorHeapIndex(1),
 		this->descriptorHeap_CBV_UAV_SRV);
@@ -147,7 +157,7 @@ ConstantBufferView* LightViewsPool::CreateConstantBufferView(LIGHT_TYPE type)
 	return cbd;
 }
 
-ShadowInfo* LightViewsPool::CreateShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION shadowResolution)
+ShadowInfo* ViewPool::CreateShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION shadowResolution)
 {
 	
 	unsigned int depthTextureWidth = 0;

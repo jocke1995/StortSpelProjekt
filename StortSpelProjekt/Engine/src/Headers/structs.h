@@ -16,7 +16,27 @@ struct SlotInfo
 	unsigned int textureNormal;
 	unsigned int textureEmissive;
 
-	unsigned int pad1[2];
+	unsigned int pad1[1];
+};
+
+struct MaterialAttributes
+{
+	// shininess
+	float shininess;
+	float3 pad1;
+
+	// These colors will be used with "addition" in the shaders
+	float4 ambientAdd;
+	float4 diffuseAdd;
+	float4 specularAdd;
+	
+	// These colors will be used with "multiplication" in the shaders.
+	// They can be used to tint the colors in different ways
+	float4 ambientMul;
+	float4 diffuseMul;
+	float4 specularMul;
+
+	float4 pad2;
 };
 
 struct CB_PER_OBJECT_STRUCT
@@ -87,4 +107,5 @@ struct SpotLight
 	unsigned int textureShadowMap;	// Index to the shadowMap (srv)
 	unsigned int pad1[3];
 };
+
 #endif
