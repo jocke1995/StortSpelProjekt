@@ -13,6 +13,7 @@ Material::Material(SlotInfo* slotInfo)
 	this->materialAttributes->ambientMul  = float4({ 1.0f, 1.0f, 1.0f, 1.0f });
 	this->materialAttributes->diffuseMul  = float4({ 1.0f, 1.0f, 1.0f, 1.0f });
 	this->materialAttributes->specularMul = float4({ 1.0f, 1.0f, 1.0f, 1.0f });
+	this->materialAttributes->uvScale	  = float2({ 1.0f, 1.0f });
 }
 
 Material::Material(const Material* other, SlotInfo* slotInfo)
@@ -27,6 +28,7 @@ Material::Material(const Material* other, SlotInfo* slotInfo)
 	this->materialAttributes->ambientMul  = other->materialAttributes->ambientMul;
 	this->materialAttributes->diffuseMul  = other->materialAttributes->diffuseMul;
 	this->materialAttributes->specularMul = other->materialAttributes->specularMul;
+	this->materialAttributes->uvScale	  = other->materialAttributes->uvScale;
 }
 
 Material::~Material()
@@ -98,6 +100,11 @@ void Material::SetColorMul(COLOR_TYPE type, float4 color)
 		this->materialAttributes->specularMul = color;
 		break;
 	}
+}
+
+void Material::SetUVScale(float u, float v)
+{
+	this->materialAttributes->uvScale = {u, v};
 }
 
 Texture* Material::GetTexture(TEXTURE_TYPE textureType)

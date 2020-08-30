@@ -36,7 +36,8 @@ struct MaterialAttributes
 	float4 diffuseMul;
 	float4 specularMul;
 
-	float4 pad2;
+	float2 uvScale;
+	float2 pad2;
 };
 
 struct CB_PER_OBJECT_STRUCT
