@@ -1,8 +1,8 @@
 #ifndef DX12TASK_H
 #define DX12TASK_H
 
-#include "../Misc/Task.h"
-#include "CommandInterface.h"
+#include "../../Misc/Task.h"
+#include "../CommandInterface.h"
 
 class Resource;
 

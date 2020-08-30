@@ -31,14 +31,6 @@ enum LIGHT_TYPE
 	NUM_LIGHT_TYPES
 };
 
-enum class LIGHT_COLOR_TYPE
-{
-	LIGHT_AMBIENT,
-	LIGHT_DIFFUSE,
-	LIGHT_SPECULAR,
-	NUM_COLOR_TYPES
-};
-
 class Light
 {
 public:
@@ -47,7 +39,7 @@ public:
 
 	virtual void Update(double dt) = 0;
 
-	void SetColor(LIGHT_COLOR_TYPE type, float4 color);
+	void SetColor(COLOR_TYPE type, float4 color);
 
 	// Gets
 	unsigned int GetLightFlags() const;
@@ -56,7 +48,7 @@ public:
 
 protected:
 	BaseLight* baseLight = nullptr;
-	virtual void UpdateLightData(LIGHT_COLOR_TYPE type) = 0;
+	virtual void UpdateLightData(COLOR_TYPE type) = 0;
 
 	unsigned int lightFlags = 0;
 
