@@ -20,7 +20,6 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 {
 	float3 camPos = cbPerFrame.camPos;
 	float3 finalColor = float3(0.0f, 0.0f, 0.0f);
-	
 
 	// Sample from textures
 	float2 uvScaled = float2(input.uv.x * materialAttributes.uvScale.x, input.uv.y * materialAttributes.uvScale.y);
