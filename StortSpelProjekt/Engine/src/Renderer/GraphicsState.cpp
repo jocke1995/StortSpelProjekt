@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "GraphicsState.h"
 
 GraphicsState::GraphicsState(ID3D12Device5* device, RootSignature* rootSignature, LPCWSTR VSName, LPCWSTR PSName, D3D12_GRAPHICS_PIPELINE_STATE_DESC* gpsd, LPCTSTR psoName)

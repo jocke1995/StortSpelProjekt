@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "BaseCamera.h"
 
 BaseCamera::BaseCamera(XMVECTOR position, XMVECTOR lookAt)

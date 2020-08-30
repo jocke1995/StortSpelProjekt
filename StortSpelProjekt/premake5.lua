@@ -2,10 +2,10 @@ workspace "StortSpelProjekt"
     architecture "x64"
     configurations { "Debug", "Release" }
     startproject "Game"
+    systemversion "latest"
     
 project "Engine"
     location "Engine"
-    systemversion "latest"
     kind "StaticLib"
     language "C++"
     pchheader "stdafx.h"
@@ -35,7 +35,7 @@ project "Engine"
         ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Game"),
         ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Sandbox")
     }
-    
+    defines{"_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE"}
         filter "configurations:Debug"
             defines { "_DEBUG", "_CONSOLE" }
             symbols "On"
@@ -46,7 +46,6 @@ project "Engine"
 
 project "Game"
     location "Game"
-    systemversion "latest"
     kind "WindowedApp"
     language "C++"
     targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
@@ -75,7 +74,6 @@ project "Game"
 
 project "Sandbox"
     location "Sandbox"
-    systemversion "latest"
     kind "WindowedApp"
     language "C++"
     targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
@@ -101,3 +99,20 @@ project "Sandbox"
     filter "configurations:Release"
         defines { "NDEBUG", "_CONSOLE" }
         optimize "On"
+
+project "GTest"
+    location "googletest"
+    kind "StaticLib"
+    targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
+    objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
+    files { "googletest/gtest/googletest/src/gtest-all.cc" }
+    includedirs { "googletest/gtest/googletest/include", "googletest/gtest/googletest" }
+
+project "EngineTests"
+    location "EngineTests"
+    kind "ConsoleApp"
+    targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
+    objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
+    files {"%{prj.location}/src/**.cpp", "src/**.h"}
+    includedirs { "Engine/src/", "googletest/gtest/googletest/include/"}
+    links {"Engine", "GTest" }

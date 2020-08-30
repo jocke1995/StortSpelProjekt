@@ -4,9 +4,6 @@
 #include "DescriptorHeap.h"
 #include "Resource.h"
 
-// Intellisense bug
-#include "../Headers/stdafx.h"
-
 class DepthStencilView
 {
 public:

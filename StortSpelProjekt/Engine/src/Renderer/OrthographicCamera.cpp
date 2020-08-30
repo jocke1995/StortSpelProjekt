@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "OrthographicCamera.h"
 
 OrthographicCamera::OrthographicCamera(XMVECTOR position, XMVECTOR lookAt, float left, float right, float bot, float top, float nearZ, float farZ)

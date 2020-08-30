@@ -4,10 +4,13 @@
 #include <d3d12.h>
 #include "EngineMath.h"
 #include "Resource.h"
-#include "Texture.h"
 #include "ShaderResourceView.h"
 #include "Core.h"
-#include "structs.h"
+
+#include "Material.h"
+
+// temp
+#include "CommandInterface.h"
 
 struct Vertex
 {
@@ -30,9 +33,6 @@ public:
 
     void UploadToDefault(ID3D12Device5* device, CommandInterface* commandInterface, ID3D12CommandQueue* cmdQueue);
 
-    // Sets
-    void SetTexture(TEXTURE_TYPE textureType, Texture* texture);
-
     // Vertices
     Resource* GetDefaultResourceVertices() const;
     const std::vector<Vertex>* GetVertices() const;
@@ -47,17 +47,13 @@ public:
     const D3D12_INDEX_BUFFER_VIEW* GetIndexBufferView() const;
 
     const SlotInfo* GetSlotInfo() const;
-    Texture* GetTexture(TEXTURE_TYPE textureType);
     std::string GetPath();
+    Material* GetMaterial() const;
 
 private:
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::string path = "";
-
-    SlotInfo* slotInfo = nullptr;
-
-    std::map<TEXTURE_TYPE,Texture*> textures;
 
     Resource* uploadResourceVertices = nullptr;
     Resource* uploadResourceIndices = nullptr;
@@ -65,6 +61,10 @@ private:
     Resource* defaultResourceIndices = nullptr;
 
     ShaderResourceView* SRV = nullptr;
+
+    // Material will write descriptorIndices to "slotinfo" in mesh 
+    Material* material = nullptr;
+    SlotInfo* slotInfo = nullptr;
 
     D3D12_INDEX_BUFFER_VIEW indexBufferView = {};
     void CreateIndexBufferView();

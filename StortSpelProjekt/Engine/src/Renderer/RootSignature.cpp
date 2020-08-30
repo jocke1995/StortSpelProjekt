@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "RootSignature.h"
 
 RootSignature::RootSignature(ID3D12Device5* device)
@@ -79,13 +80,18 @@ void RootSignature::CreateRootSignatureStructure()
 	rootParam[RS::CB_PER_OBJECT_CONSTANTS].Constants.Num32BitValues = sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT);
 	rootParam[RS::CB_PER_OBJECT_CONSTANTS].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
+	rootParam[RS::CB_PER_OBJECT_CBV].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParam[RS::CB_PER_OBJECT_CBV].Constants.ShaderRegister = 2; // b2
+	rootParam[RS::CB_PER_OBJECT_CBV].Constants.RegisterSpace = 3; // space0
+	rootParam[RS::CB_PER_OBJECT_CBV].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
 	rootParam[RS::CB_PER_FRAME].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParam[RS::CB_PER_FRAME].Constants.ShaderRegister = 2; // b2
+	rootParam[RS::CB_PER_FRAME].Constants.ShaderRegister = 3; // b3
 	rootParam[RS::CB_PER_FRAME].Constants.RegisterSpace = 3; // space0
 	rootParam[RS::CB_PER_FRAME].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	rootParam[RS::CB_PER_SCENE].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParam[RS::CB_PER_SCENE].Descriptor.ShaderRegister = 3;	// b3
+	rootParam[RS::CB_PER_SCENE].Descriptor.ShaderRegister = 4;	// b4
 	rootParam[RS::CB_PER_SCENE].Descriptor.RegisterSpace = 3;	// space0
 	rootParam[RS::CB_PER_SCENE].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 

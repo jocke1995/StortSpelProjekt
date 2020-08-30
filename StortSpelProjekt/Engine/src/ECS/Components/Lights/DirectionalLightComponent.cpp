@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "DirectionalLightComponent.h"
 
 namespace component
@@ -68,17 +69,17 @@ namespace component
 		}
 	}
 
-	void DirectionalLightComponent::UpdateLightData(LIGHT_COLOR_TYPE type)
+	void DirectionalLightComponent::UpdateLightData(COLOR_TYPE type)
 	{
 		switch (type)
 		{
-		case LIGHT_COLOR_TYPE::LIGHT_AMBIENT:
+		case COLOR_TYPE::LIGHT_AMBIENT:
 			this->directionalLight->baseLight.ambient = this->baseLight->ambient;
 			break;
-		case LIGHT_COLOR_TYPE::LIGHT_DIFFUSE:
+		case COLOR_TYPE::LIGHT_DIFFUSE:
 			this->directionalLight->baseLight.diffuse = this->baseLight->diffuse;
 			break;
-		case LIGHT_COLOR_TYPE::LIGHT_SPECULAR:
+		case COLOR_TYPE::LIGHT_SPECULAR:
 			this->directionalLight->baseLight.specular = this->baseLight->specular;
 			break;
 		}

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "SpotLightComponent.h"
 
 namespace component
@@ -124,17 +125,17 @@ namespace component
         }
     }
 
-    void SpotLightComponent::UpdateLightData(LIGHT_COLOR_TYPE type)
+    void SpotLightComponent::UpdateLightData(COLOR_TYPE type)
     {
         switch (type)
         {
-        case LIGHT_COLOR_TYPE::LIGHT_AMBIENT:
+        case COLOR_TYPE::LIGHT_AMBIENT:
             this->spotLight->baseLight.ambient = this->baseLight->ambient;
             break;
-        case LIGHT_COLOR_TYPE::LIGHT_DIFFUSE:
+        case COLOR_TYPE::LIGHT_DIFFUSE:
             this->spotLight->baseLight.diffuse = this->baseLight->diffuse;
             break;
-        case LIGHT_COLOR_TYPE::LIGHT_SPECULAR:
+        case COLOR_TYPE::LIGHT_SPECULAR:
             this->spotLight->baseLight.specular = this->baseLight->specular;
             break;
         }

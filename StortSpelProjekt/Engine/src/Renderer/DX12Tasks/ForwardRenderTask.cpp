@@ -1,7 +1,6 @@
+#include "stdafx.h"
 #include "ForwardRenderTask.h"
 
-// Forceinclude issue with intellisense
-#include "../Headers/stdafx.h"
 
 FowardRenderTask::FowardRenderTask(
 	ID3D12Device5* device,
@@ -117,8 +116,9 @@ void FowardRenderTask::DrawRenderComponent(
 		// Draw for every mesh the meshComponent has
 		for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 		{
-			size_t num_Indices = mc->GetMesh(i)->GetNumIndices();
-			const SlotInfo* info = mc->GetMesh(i)->GetSlotInfo();
+			Mesh* m = mc->GetMesh(i);
+			size_t num_Indices = m->GetNumIndices();
+			const SlotInfo* info = m->GetSlotInfo();
 
 			Transform* transform = tc->GetTransform();
 			XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
@@ -128,8 +128,9 @@ void FowardRenderTask::DrawRenderComponent(
 			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
 
 			cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+			cl->SetGraphicsRootConstantBufferView(RS::CB_PER_OBJECT_CBV, m->GetMaterial()->GetConstantBufferView()->GetCBVResource()->GetGPUVirtualAdress());
 
-			cl->IASetIndexBuffer(mc->GetMesh(i)->GetIndexBufferView());
+			cl->IASetIndexBuffer(m->GetIndexBufferView());
 			cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 		}
 	}

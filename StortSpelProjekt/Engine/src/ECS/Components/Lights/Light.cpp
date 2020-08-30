@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Light.h"
 
 Light::Light(CAMERA_TYPE camType, unsigned int lightFlags)
@@ -20,17 +21,17 @@ Light::~Light()
 	delete this->camera;
 }
 
-void Light::SetColor(LIGHT_COLOR_TYPE type, float4 color)
+void Light::SetColor(COLOR_TYPE type, float4 color)
 {
 	switch (type)
 	{
-	case LIGHT_COLOR_TYPE::LIGHT_AMBIENT:
+	case COLOR_TYPE::LIGHT_AMBIENT:
 		this->baseLight->ambient = color;
 		break;
-	case LIGHT_COLOR_TYPE::LIGHT_DIFFUSE:
+	case COLOR_TYPE::LIGHT_DIFFUSE:
 		this->baseLight->diffuse = color;
 		break;
-	case LIGHT_COLOR_TYPE::LIGHT_SPECULAR:
+	case COLOR_TYPE::LIGHT_SPECULAR:
 		this->baseLight->specular = color;
 		break;
 	}

@@ -19,7 +19,7 @@ namespace component
         void SetDrawFlag(unsigned int drawFlag);
 
         // Gets
-        Mesh* GetMesh(unsigned int index = 0) const;
+        Mesh* GetMesh(unsigned int index) const;
         unsigned int GetDrawFlag() const;
         unsigned int GetNrOfMeshes() const;
         bool IsPickedThisFrame() const;

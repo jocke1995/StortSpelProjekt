@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "AssetLoader.h"
 
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
@@ -225,9 +226,21 @@ Mesh* AssetLoader::ProcessMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 	{
 		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
 		texture = ProcessTexture(mat, type, &filePathWithoutTexture);
-		mesh->SetTexture(type, texture);
+		mesh->GetMaterial()->SetTexture(type, texture);
 	}
 	// ---------- Get Textures and set them to the mesh END----------
+
+	// Set shininess
+	float shininess = 100;
+	// Todo: looks to bright with these values, bad models or bad scene?
+	// if (AI_SUCCESS != aiGetMaterialFloat(mat, AI_MATKEY_SHININESS, &shininess))
+	// {
+	// 	// if unsuccessful set a default
+	// 	shininess = 20.0f;
+	// }
+
+	mesh->GetMaterial()->SetShininess(shininess);
+
 	return mesh;
 }
 

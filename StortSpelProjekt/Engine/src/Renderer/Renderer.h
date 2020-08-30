@@ -6,7 +6,7 @@
 #include "DepthStencilView.h"
 #include "MousePicker.h"
 
-#include "LightViewsPool.h"
+#include "ViewPool.h"
 #include "BoundingBoxPool.h"
 
 #include "../Misc/ThreadPool.h"
@@ -17,17 +17,17 @@
 #include "../ECS/Components/BoundingBoxComponent.h"
 
 // Graphics
-#include "WireframeRenderTask.h"
-#include "OutliningRenderTask.h"
-#include "ForwardRenderTask.h"
-#include "BlendRenderTask.h"
-#include "ShadowRenderTask.h"
+#include "DX12Tasks/WireframeRenderTask.h"
+#include "DX12Tasks/OutliningRenderTask.h"
+#include "DX12Tasks/ForwardRenderTask.h"
+#include "DX12Tasks/BlendRenderTask.h"
+#include "DX12Tasks/ShadowRenderTask.h"
 
 // Copy
-#include "CopyPerFrameTask.h"
+#include "DX12Tasks/CopyPerFrameTask.h"
 
 // Compute (Later include the specific tasks instead of this)
-#include "ComputeTask.h"
+#include "DX12Tasks/ComputeTask.h"
 
 class Renderer
 {
@@ -104,7 +104,7 @@ private:
 	// BoundingBoxes to be picked
 	std::vector<component::BoundingBoxComponent*> boundingBoxesToBePicked;
 
-	LightViewsPool* lightViewsPool = nullptr;
+	ViewPool* viewPool = nullptr;
 	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBufferView*, ShadowInfo*>>> lights;
 
 	// Current scene to be drawn

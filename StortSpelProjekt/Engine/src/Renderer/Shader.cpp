@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Shader.h"
 
 Shader::Shader(LPCTSTR path, ShaderType type)
