@@ -5,8 +5,6 @@
 #include "../GraphicsState.h"
 #include "../SwapChain.h"
 
-#include "../Headers/stdafx.h"
-
 #include "../../ECS/Components/BoundingBoxComponent.h"
 
 class WireframeRenderTask : public RenderTask
