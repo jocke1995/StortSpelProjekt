@@ -38,8 +38,6 @@ public:
     D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAdress() const;
 
     // Only to be used if the resource is of type: UPLOAD
-    void SetData(const void* data, unsigned int subResourceIndex = 0);
-    // Only to be used if the resource is of type: UPLOAD
     void SetData(const void* data, unsigned int subResourceIndex = 0) const;
 protected:
     unsigned long long entrySize = 0;

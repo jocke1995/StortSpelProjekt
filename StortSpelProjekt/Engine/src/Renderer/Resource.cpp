@@ -83,24 +83,6 @@ D3D12_GPU_VIRTUAL_ADDRESS Resource::GetGPUVirtualAdress() const
 	return this->resource->GetGPUVirtualAddress();
 }
 
-void Resource::SetData(const void* data, unsigned int subResourceIndex)
-{
-	if (type == RESOURCE_TYPE::DEFAULT)
-	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Trying to SetData into default heap\n");
-		return;
-	}
-
-	void* dataBegin = nullptr;
-
-	// Set up the heap data
-	D3D12_RANGE range = { 0, 0 }; // We do not intend to read this resource on the CPU.
-
-	this->resource->Map(subResourceIndex, &range, &dataBegin); // Get a dataBegin pointer where we can copy data to
-	memcpy(dataBegin, data, this->entrySize);
-	this->resource->Unmap(subResourceIndex, nullptr);
-}
-
 void Resource::SetData(const void* data, unsigned int subResourceIndex) const
 {
 	if (type == RESOURCE_TYPE::DEFAULT)
