@@ -20,7 +20,6 @@ public:
 
 	void SetScale(float scale);
 	void SetScale(float x, float y, float z);
-	void SetScale(XMFLOAT3 scale);
 	void IncreaseScaleByPercent(float scale);
 
 	void UpdateWorldMatrix();

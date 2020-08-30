@@ -19,6 +19,7 @@ public:
 	void SetShininess(float shininess);
 	void SetColorAdd(COLOR_TYPE type, float4 color);
 	void SetColorMul(COLOR_TYPE type, float4 color);
+	void SetUVScale(float u, float v);
 
 	// For usage in renderer
 	void SetCBV(ConstantBufferView* cbv);
