@@ -13,13 +13,13 @@ public:
 	void Submit(std::pair<void*, ConstantBufferView*>* data_CBV);
 
 	// Removal
-	void ClearSpecific(ConstantBufferView* cbv);
+	void ClearSpecific(const ConstantBufferView* cbv);
 	void Clear();
 
 	void Execute();
 
 private:
-	std::vector<std::pair<void*, ConstantBufferView*>> data_CBVs;
+	std::vector<std::pair<void*, const ConstantBufferView*>> data_CBVs;
 
 	void CopyResource(
 		ID3D12GraphicsCommandList5* commandList,

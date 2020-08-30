@@ -75,6 +75,17 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 			{
 				this->renderer->renderComponents.erase(this->renderer->renderComponents.begin() + i);
 				this->renderer->SetRenderTasksRenderComponents();
+
+				// Remove from CopyPerFrame
+				component::MeshComponent* mc = parent->GetComponent<component::MeshComponent>();
+				for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+				{
+					const ConstantBufferView* cbv = mc->GetMesh(i)->GetMaterial()->GetConstantBufferView();
+					CopyPerFrameTask * cpft = nullptr;
+					cpft = static_cast<CopyPerFrameTask*>(this->renderer->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+					cpft->ClearSpecific(cbv);
+				}	
+
 				break;
 			}
 		}
