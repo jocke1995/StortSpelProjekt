@@ -1,6 +1,5 @@
 #ifndef FREELIST_H
 #define FREELIST_H
-#include "Allocator.h"
 
 // TODOS,
 
@@ -16,16 +15,20 @@ struct Entry
 	bool busy;
 };
 
-class FreeList : public Allocator
+class FreeList
 {
-private:
-	void* m_pMem;
-	Entry* m_pFreeHead;
 public:
 	FreeList(void* mem, size_t size);
 
 	void* Allocate(size_t size);
 	void Free(void* ptr);
+
+private:
+	bool deFragList();
+	Entry* findSuitableEntry(size_t size);
+
+	void* m_pMem;
+	Entry* m_pHead;
 };
 
 #endif
