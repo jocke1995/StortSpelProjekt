@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "CommandInterface.h"
 
 CommandInterface::CommandInterface(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType)

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "CopyTask.h"
 
 CopyTask::CopyTask(ID3D12Device5* device)

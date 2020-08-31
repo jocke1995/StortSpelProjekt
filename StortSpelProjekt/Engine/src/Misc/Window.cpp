@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Window.h"
 
 // callback function for windows messages

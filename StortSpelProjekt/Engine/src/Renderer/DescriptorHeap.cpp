@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "DescriptorHeap.h"
 
 DescriptorHeap::DescriptorHeap(ID3D12Device5* device, DESCRIPTOR_HEAP_TYPE type)

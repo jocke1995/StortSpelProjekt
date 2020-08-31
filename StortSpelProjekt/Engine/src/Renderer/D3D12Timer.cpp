@@ -1,5 +1,5 @@
 #pragma once
-
+#include "stdafx.h"
 #include "D3D12Timer.h"
 
 namespace D3D12

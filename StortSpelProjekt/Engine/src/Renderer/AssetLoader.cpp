@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "AssetLoader.h"
 
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV)

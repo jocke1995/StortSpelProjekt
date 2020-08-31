@@ -7,7 +7,6 @@
 
 #include "../ECS/Components/Lights/Light.h"
 
-#include "../Headers/stdafx.h"
 
 class ViewPool
 {

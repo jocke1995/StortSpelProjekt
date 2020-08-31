@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ShadowRenderTask.h"
 
 ShadowRenderTask::ShadowRenderTask(

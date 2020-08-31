@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "MousePicker.h"
 
 MousePicker::MousePicker()

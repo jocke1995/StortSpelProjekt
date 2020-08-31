@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "TempInputClass.h"
 
 TempInputClass::TempInputClass()

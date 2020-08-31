@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "DepthStencilView.h"
 
 // Constructor that also creates a resource

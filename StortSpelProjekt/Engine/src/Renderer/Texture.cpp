@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Texture.h"
 
 #pragma region HelpFunctions

@@ -18,10 +18,10 @@ float CalculateShadow(
 	texCoord = texCoord * 0.5 + 0.5;
 	texCoord.y = 1 - texCoord.y;
 
-	// get depth of current fragment from light's perspective
+	// Get depth of current fragment from light's perspective
 	float depthFromLightToFragPos = fragPosLightSpace.z / fragPosLightSpace.w;
 
-	// check whether current fragPos is in shadow
+	// Check whether current fragPos is in shadow
 	float shadow = 0.0f;
 	float bias = 0.0003f;
 

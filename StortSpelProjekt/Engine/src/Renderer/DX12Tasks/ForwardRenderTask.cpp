@@ -1,7 +1,6 @@
+#include "stdafx.h"
 #include "ForwardRenderTask.h"
 
-// Forceinclude issue with intellisense
-#include "../Headers/stdafx.h"
 
 FowardRenderTask::FowardRenderTask(
 	ID3D12Device5* device,

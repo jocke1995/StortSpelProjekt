@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Transform.h"
 
 Transform::Transform()
@@ -50,11 +51,6 @@ void Transform::SetScale(float scale)
 void Transform::SetScale(float x, float y, float z)
 {
 	this->scale = XMFLOAT3(x, y, z);
-}
-
-void Transform::SetScale(XMFLOAT3 scale)
-{
-	this->scale = scale;
 }
 
 void Transform::IncreaseScaleByPercent(float scale)

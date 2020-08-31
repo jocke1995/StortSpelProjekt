@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "RootSignature.h"
 
 RootSignature::RootSignature(ID3D12Device5* device)
