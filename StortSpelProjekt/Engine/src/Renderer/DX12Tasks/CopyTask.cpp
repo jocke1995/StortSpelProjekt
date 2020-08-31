@@ -12,9 +12,9 @@ CopyTask::~CopyTask()
 
 }
 
-void CopyTask::Submit(std::pair<const void*, ConstantBufferView*>* data_CBV)
+void CopyTask::Submit(std::tuple<Resource*, Resource*, const void*>* data_CBV)
 {
-	m_Data_CBVs.push_back(*data_CBV);
+	m_Upload_Default_Data.push_back(*data_CBV);
 }
 
 void CopyTask::copyResource(

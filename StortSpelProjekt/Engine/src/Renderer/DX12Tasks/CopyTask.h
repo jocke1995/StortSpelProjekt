@@ -12,12 +12,12 @@ public:
 	virtual ~CopyTask();
 
 	// Data alongside its constantBuffer
-	void Submit(std::pair<const void*, ConstantBufferView*>* data_CBV);
+	void Submit(std::tuple<Resource*, Resource*, const void*>* data_CBV);
 
 	virtual void Clear() = 0;
 
 protected:
-	std::vector<std::pair<const void*, ConstantBufferView*>> m_Data_CBVs;
+	std::vector<std::tuple<Resource*, Resource*, const void*>> m_Upload_Default_Data;
 
 	void copyResource(
 		ID3D12GraphicsCommandList5* commandList,

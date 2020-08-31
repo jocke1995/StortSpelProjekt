@@ -139,10 +139,23 @@ std::vector<Mesh*>* Renderer::LoadModel(std::wstring path)
 		for (Mesh* mesh : *meshes)
 		{
 			// Upload to Default heap
-			mesh->UploadToDefault(
-				this->device5,
-				this->tempCommandInterface,
-				this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
+			// Vertices
+			const void* data = static_cast<const void*>(mesh->vertices.data());
+			Resource* uploadR = mesh->uploadResourceVertices;
+			Resource* defaultR = mesh->defaultResourceVertices;
+			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Submit(&std::tuple(uploadR, defaultR, data));
+
+			// inidices
+			data = static_cast<const void*>(mesh->indices.data());
+			uploadR = mesh->uploadResourceIndices;
+			defaultR = mesh->defaultResourceIndices;
+			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Submit(&std::tuple(uploadR, defaultR, data));
+
+			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
+			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
+			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
+			// temp
+			this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &m_CopyOnDemandCmdList[0]);
 			this->WaitForGpu();
 
 			// Wont upload data if its already up.. TEMPORARY safecheck inside the texture class
@@ -986,7 +999,7 @@ void Renderer::PrepareCBPerFrame()
 			cbv = std::get<1>(tuple);
 
 			cpft = static_cast<CopyPerFrameTask*>(this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-			cpft->Submit(&std::make_pair(data, cbv));
+			cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetCBVResource(), data));
 		}
 	}
 
@@ -997,7 +1010,7 @@ void Renderer::PrepareCBPerFrame()
 	if (cpft != nullptr)
 	{
 		data = static_cast<void*>(this->cbPerFrameData);
-		cpft->Submit(&std::make_pair(data, this->cbPerFrame));
+		cpft->Submit(&std::tuple(this->cbPerFrame->GetUploadResource(), this->cbPerFrame->GetCBVResource(), data));
 	}
 }
 
@@ -1005,7 +1018,7 @@ void Renderer::WaitForGpu()
 {
 	//Signal and increment the fence value.
 	const UINT64 oldFenceValue = this->fenceFrameValue;
-	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(this->fenceFrame, oldFenceValue);
+	this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(this->fenceFrame, oldFenceValue);
 	this->fenceFrameValue++;
 
 	//Wait until command queue is done.

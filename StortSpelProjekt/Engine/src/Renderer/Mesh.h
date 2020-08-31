@@ -31,8 +31,6 @@ public:
     Mesh(const Mesh* other);
     ~Mesh();
 
-    void UploadToDefault(ID3D12Device5* device, CommandInterface* commandInterface, ID3D12CommandQueue* cmdQueue);
-
     // Vertices
     Resource* GetDefaultResourceVertices() const;
     const std::vector<Vertex>* GetVertices() const;
@@ -51,6 +49,8 @@ public:
     Material* GetMaterial() const;
 
 private:
+    // Renderer needs to be able to use member variables of mesh without giving access to them outside of the engine
+    friend class Renderer;
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::string path = "";

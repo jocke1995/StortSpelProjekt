@@ -13,7 +13,7 @@ CopyOnDemandTask::~CopyOnDemandTask()
 
 void CopyOnDemandTask::Clear()
 {
-	m_Data_CBVs.clear();
+	m_Upload_Default_Data.clear();
 	m_Textures.clear();
 }
 
@@ -29,14 +29,17 @@ void CopyOnDemandTask::Execute()
 	
 	this->commandInterface->Reset(this->commandInterfaceIndex);
 	
-	for (auto& pair : m_Data_CBVs)
+	// Upload the "small" data, such as constantbuffers..
+	for (auto& tuple : m_Upload_Default_Data)
 	{
 		copyResource(
 			commandList,
-			pair.second->GetUploadResource(),
-			pair.second->GetCBVResource(),
-			pair.first);	// Data
+			std::get<0>(tuple),		// UploadHeap
+			std::get<1>(tuple),		// DefaultHeap
+			std::get<2>(tuple));	// Data
 	}
+
+	// Upload "big" texturedata
 	
 	commandList->Close();
 }

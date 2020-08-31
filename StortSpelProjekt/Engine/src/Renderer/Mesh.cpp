@@ -92,48 +92,6 @@ Mesh::~Mesh()
 	}
 }
 
-void Mesh::UploadToDefault(ID3D12Device5* device, CommandInterface* commandInterface, ID3D12CommandQueue* cmdQueue)
-{
-	commandInterface->Reset(0);
-	ID3D12GraphicsCommandList5* commandList = commandInterface->GetCommandList(0);
-
-	/* ------------------------------------- Vertices ------------------------------------- */
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		this->defaultResourceVertices->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_COMMON,
-		D3D12_RESOURCE_STATE_COPY_DEST));
-
-	// To Defaultheap from Uploadheap
-	commandList->CopyResource(
-		this->defaultResourceVertices->GetID3D12Resource1(),	// Receiever
-		this->uploadResourceVertices->GetID3D12Resource1());	// Sender
-
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		this->defaultResourceVertices->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		D3D12_RESOURCE_STATE_COMMON));
-
-	/* ------------------------------------- Indices ------------------------------------- */
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		this->defaultResourceIndices->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_COMMON,
-		D3D12_RESOURCE_STATE_COPY_DEST));
-
-	// To Defaultheap from Uploadheap
-	commandList->CopyResource(
-		this->defaultResourceIndices->GetID3D12Resource1(),	// Receiever
-		this->uploadResourceIndices->GetID3D12Resource1());	// Sender
-
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		this->defaultResourceIndices->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		D3D12_RESOURCE_STATE_COMMON));
-
-	commandList->Close();
-	ID3D12CommandList* ppCommandLists[] = { commandList };
-	cmdQueue->ExecuteCommandLists(ARRAYSIZE(ppCommandLists), ppCommandLists);
-}
-
 Resource* Mesh::GetDefaultResourceVertices() const
 {
 	return this->defaultResourceVertices;

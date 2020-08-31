@@ -29,10 +29,8 @@ public:
 	Resource* GetResource() const;
 
 private:
+	D3D12_SUBRESOURCE_DATA m_SubresourceData = {};
 	std::wstring filePath = L"";
-	unsigned int bytesPerRow = 0;
-	unsigned int imageSize = 0;
-	BYTE* imageData = nullptr;
 
 	ShaderResourceView* SRV = nullptr;
 

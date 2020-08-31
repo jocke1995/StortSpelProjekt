@@ -113,7 +113,7 @@ Texture::~Texture()
 	}
 	
 	delete this->SRV;
-	free(this->imageData);
+	free(const_cast<void*>(m_SubresourceData.pData));
 }
 
 const UINT Texture::GetDescriptorHeapIndex() const
@@ -178,11 +178,6 @@ void Texture::UploadToDefault(ID3D12Device5* device, CommandInterface* commandIn
 	if (this->hasBeenUploadedToDefault == true)
 		return;
 
-	D3D12_SUBRESOURCE_DATA textureData = {};
-	textureData.pData = &imageData[0]; // pointer to our image data
-	textureData.RowPitch = bytesPerRow;
-	textureData.SlicePitch = bytesPerRow * resourceDescription.Height;
-
 	commandInterface->Reset(0);
 
 	// Transfer the data
@@ -190,7 +185,7 @@ void Texture::UploadToDefault(ID3D12Device5* device, CommandInterface* commandIn
 		this->resourceDefaultHeap->GetID3D12Resource1(),
 		this->resourceUploadHeap->GetID3D12Resource1(),
 		0, 0, 1,
-		&textureData);
+		&m_SubresourceData);
 
 	commandInterface->GetCommandList(0)->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		this->resourceDefaultHeap->GetID3D12Resource1(),
@@ -322,25 +317,29 @@ bool Texture::CreateTexture(std::wstring filePath, ID3D12Device5* device, UINT d
 	}
 
 	int bitsPerPixel = GetDXGIFormatBitsPerPixel(dxgiFormat); // number of bits per pixel
-	this->bytesPerRow = (textureWidth * bitsPerPixel) / 8; // number of bytes in each row of the image data
-	this->imageSize = this->bytesPerRow * textureHeight; // total image size in bytes
+	unsigned int bytesPerRow = (textureWidth * bitsPerPixel) / 8; // number of bytes in each row of the image data
+	unsigned int imageSize = bytesPerRow * textureHeight; // total image size in bytes
 
 	// Allocate enough memory for the raw image data, and set imageData to point to that memory
-	imageData = (BYTE*)malloc(this->imageSize);
+	BYTE* imageData = (BYTE*)malloc(imageSize);
 
 	// Copy (decoded) raw image data into the newly allocated memory (imageData)
 	if (imageConverted)
 	{
 		// If image format needed to be converted, the wic converter will contain the converted image
-		hr = wicConverter->CopyPixels(0, bytesPerRow, this->imageSize, imageData);
+		hr = wicConverter->CopyPixels(0, bytesPerRow, imageSize, imageData);
 		if (FAILED(hr)) return 0;
 	}
 	else
 	{
 		// No need to convert, just copy data from the wic frame
-		hr = wicFrame->CopyPixels(0, bytesPerRow, this->imageSize, imageData);
+		hr = wicFrame->CopyPixels(0, bytesPerRow, imageSize, imageData);
 		if (FAILED(hr)) return 0;
 	}
+
+	m_SubresourceData.pData = &imageData[0]; // pointer to our image data
+	m_SubresourceData.RowPitch = bytesPerRow;
+	m_SubresourceData.SlicePitch = bytesPerRow * resourceDescription.Height;
 
 	// Now describe the texture with the information we have obtained from the image
 	this->resourceDescription.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;

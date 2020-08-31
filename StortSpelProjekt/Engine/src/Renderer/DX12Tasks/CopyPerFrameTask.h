@@ -12,7 +12,7 @@ public:
 	// The submit is inside CopyTask
 
 	// Removal
-	void ClearSpecific(const ConstantBufferView* cbv);
+	void ClearSpecific(const Resource* uploadResource);
 	void Clear();
 
 	void Execute();

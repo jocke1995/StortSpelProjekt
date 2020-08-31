@@ -12,16 +12,16 @@ CopyPerFrameTask::~CopyPerFrameTask()
 
 }
 
-void CopyPerFrameTask::ClearSpecific(const ConstantBufferView* cbv)
+void CopyPerFrameTask::ClearSpecific(const Resource* uploadResource)
 {
 	unsigned int i = 0;
 	// Loop through all copyPerFrame tasks
-	for (auto& pair : m_Data_CBVs)
+	for (auto& tuple : m_Upload_Default_Data)
 	{
-		if (pair.second == cbv)
+		if (std::get<0>(tuple) == uploadResource)
 		{
 			// Remove
-			m_Data_CBVs.erase(m_Data_CBVs.begin() + i);
+			m_Upload_Default_Data.erase(m_Upload_Default_Data.begin() + i);
 		}
 		i++;
 	}
@@ -29,7 +29,7 @@ void CopyPerFrameTask::ClearSpecific(const ConstantBufferView* cbv)
 
 void CopyPerFrameTask::Clear()
 {
-	m_Data_CBVs.clear();
+	m_Upload_Default_Data.clear();
 }
 
 void CopyPerFrameTask::Execute()
@@ -39,13 +39,13 @@ void CopyPerFrameTask::Execute()
 
 	this->commandInterface->Reset(this->commandInterfaceIndex);
 
-	for (auto& pair : m_Data_CBVs)
+	for (auto& tuple : m_Upload_Default_Data)
 	{
 		copyResource(
 			commandList,
-			pair.second->GetUploadResource(),
-			pair.second->GetCBVResource(),
-			pair.first);	// Data
+			std::get<0>(tuple),		// UploadHeap
+			std::get<1>(tuple),		// DefaultHeap
+			std::get<2>(tuple));	// Data
 	}
 
 	commandList->Close();

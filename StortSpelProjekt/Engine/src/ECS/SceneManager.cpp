@@ -84,7 +84,7 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 					const ConstantBufferView* cbv = mc->GetMesh(i)->GetMaterial()->GetConstantBufferView();
 					CopyPerFrameTask * cpft = nullptr;
 					cpft = static_cast<CopyPerFrameTask*>(this->renderer->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-					cpft->ClearSpecific(cbv);
+					cpft->ClearSpecific(cbv->GetUploadResource());
 				}	
 
 				break;
@@ -135,7 +135,7 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 					// Remove from CopyPerFrame
 					CopyPerFrameTask* cpft = nullptr;
 					cpft = static_cast<CopyPerFrameTask*>(this->renderer->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-					cpft->ClearSpecific(cbv);
+					cpft->ClearSpecific(cbv->GetUploadResource());
 
 					// Finally remove from renderer
 					this->renderer->lights[type].erase(this->renderer->lights[type].begin() + j);
@@ -191,7 +191,7 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 				// Submit to the list which gets updated to the gpu each frame
 				CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(this->renderer->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
 				const void* data = static_cast<const void*>(mc->GetMesh(i)->GetMaterial()->GetMaterialAttributes());
-				cpft->Submit(&std::make_pair(data, cbv));
+				cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetCBVResource(), data));
 			}
 
 			this->renderer->renderComponents.push_back(std::make_pair(mc, tc));
@@ -323,11 +323,11 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 			}
 
 			// Upload to Default heap
-			m->UploadToDefault(
-				this->renderer->device5,
-				this->renderer->tempCommandInterface,
-				this->renderer->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
-			this->renderer->WaitForGpu();
+			//m->UploadToDefault(
+			//	this->renderer->device5,
+			//	this->renderer->tempCommandInterface,
+			//	this->renderer->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
+			//this->renderer->WaitForGpu();
 
 			bbc->SetMesh(m);
 
