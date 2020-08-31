@@ -969,7 +969,7 @@ void Renderer::PrepareCBPerScene()
 void Renderer::PrepareCBPerFrame()
 {
 	CopyPerFrameTask* cpft = nullptr;
-	void* data = nullptr;
+	const void* data = nullptr;
 	ConstantBufferView* cbv = nullptr;
 
 	// Lights

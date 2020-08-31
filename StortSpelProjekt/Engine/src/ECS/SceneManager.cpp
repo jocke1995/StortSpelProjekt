@@ -190,7 +190,7 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 
 				// Submit to the list which gets updated to the gpu each frame
 				CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(this->renderer->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-				void* data = static_cast<void*>(mc->GetMesh(i)->GetMaterial()->GetMaterialAttributes());
+				const void* data = static_cast<const void*>(mc->GetMesh(i)->GetMaterial()->GetMaterialAttributes());
 				cpft->Submit(&std::make_pair(data, cbv));
 			}
 

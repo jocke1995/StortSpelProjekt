@@ -11,3 +11,32 @@ CopyTask::~CopyTask()
 {
 
 }
+
+void CopyTask::Submit(std::pair<const void*, ConstantBufferView*>* data_CBV)
+{
+	m_Data_CBVs.push_back(*data_CBV);
+}
+
+void CopyTask::copyResource(
+	ID3D12GraphicsCommandList5* commandList,
+	Resource* uploadResource, Resource* defaultResource,
+	const void* data)
+{
+	// Set the data into the upload heap
+	uploadResource->SetData(data);
+
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+		defaultResource->GetID3D12Resource1(),
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_COPY_DEST));
+
+	// To Defaultheap from Uploadheap
+	commandList->CopyResource(
+		defaultResource->GetID3D12Resource1(),	// Receiever
+		uploadResource->GetID3D12Resource1());	// Sender
+
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+		defaultResource->GetID3D12Resource1(),
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		D3D12_RESOURCE_STATE_COMMON));
+}
