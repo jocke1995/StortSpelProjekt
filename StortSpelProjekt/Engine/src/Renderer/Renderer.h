@@ -141,8 +141,6 @@ private:
 
 	// Temporary.. these functions and variables are used to copy data to GPU on initialization
 	void WaitForGpu();
-	CommandInterface* tempCommandInterface = nullptr;
-	void TempCopyResource(Resource* uploadResource, Resource* defaultResource, void* data);
 };
 
 #endif

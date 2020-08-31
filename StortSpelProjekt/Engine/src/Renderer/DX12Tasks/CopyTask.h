@@ -11,8 +11,8 @@ public:
 	CopyTask(ID3D12Device5* device);
 	virtual ~CopyTask();
 
-	// Data alongside its constantBuffer
-	void Submit(std::tuple<Resource*, Resource*, const void*>* data_CBV);
+	// tuple(Upload, Default, Data)
+	void Submit(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
 
 	virtual void Clear() = 0;
 

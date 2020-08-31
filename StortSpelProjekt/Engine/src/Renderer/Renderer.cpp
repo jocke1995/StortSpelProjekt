@@ -52,9 +52,6 @@ Renderer::~Renderer()
 	delete this->cbPerScene;
 	delete this->cbPerFrame;
 	delete this->cbPerFrameData;
-
-	// temp
-	delete this->tempCommandInterface;
 }
 
 void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool)
@@ -122,9 +119,6 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	this->cbPerFrameData = new CB_PER_FRAME_STRUCT();
 
 	this->InitRenderTasks();
-
-	// temp, used to transmit textures/meshes to the default memory on GPU when loaded
-	this->tempCommandInterface = new CommandInterface(this->device5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE);
 }
 
 std::vector<Mesh*>* Renderer::LoadModel(std::wstring path)
@@ -974,10 +968,9 @@ void Renderer::PrepareCBPerScene()
 	// ----- spot lights -----
 
 	// Upload CB_PER_SCENE to defaultheap
-	this->TempCopyResource(
-		this->cbPerScene->GetUploadResource(),
-		this->cbPerScene->GetCBVResource(),
-		&cps);
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+	const void* data = static_cast<const void*>(&cps);
+	codt->Submit(&std::make_tuple(this->cbPerScene->GetUploadResource(), this->cbPerScene->GetCBVResource(), data));
 }
 
 void Renderer::PrepareCBPerFrame()
@@ -1024,32 +1017,4 @@ void Renderer::WaitForGpu()
 		this->fenceFrame->SetEventOnCompletion(oldFenceValue, eventHandle);
 		WaitForSingleObject(eventHandle, INFINITE);
 	}
-}
-
-void Renderer::TempCopyResource(Resource* uploadResource, Resource* defaultResource, void* data)
-{
-	this->tempCommandInterface->Reset(0);
-	// Set the data into the upload heap
-	uploadResource->SetData(data);
-
-	this->tempCommandInterface->GetCommandList(0)->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		defaultResource->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_COMMON,
-		D3D12_RESOURCE_STATE_COPY_DEST));
-
-	// To Defaultheap from Uploadheap
-	this->tempCommandInterface->GetCommandList(0)->CopyResource(
-		defaultResource->GetID3D12Resource1(),	// Receiever
-		uploadResource->GetID3D12Resource1());	// Sender
-
-	this->tempCommandInterface->GetCommandList(0)->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		defaultResource->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		D3D12_RESOURCE_STATE_COMMON));
-
-	this->tempCommandInterface->GetCommandList(0)->Close();
-	ID3D12CommandList* ppCommandLists[] = { this->tempCommandInterface->GetCommandList(0) };
-	// this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Wait(this->fenceFrame, this->fenceFrameValue - 1);
-	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(ARRAYSIZE(ppCommandLists), ppCommandLists);
-	this->WaitForGpu();
 }

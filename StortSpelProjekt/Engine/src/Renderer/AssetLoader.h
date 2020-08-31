@@ -19,20 +19,14 @@ public:
     static AssetLoader* Get(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr);
 
     /* Load Functions */
-    // Mesh ---------------
+    // Model ---------------
     std::vector<Mesh*>* LoadModel(const std::wstring path, bool* loadedBefore);
 
     // Texture ------------
     Texture* LoadTexture(std::wstring path);
 
-
-    // Material -----------
-    //Material& LoadMaterial(std::wstring path);
-
-    // Shader -------------
-    Shader* LoadShader(std::wstring fileName, ShaderType type);
-
 private:
+    friend class PipelineState;
     AssetLoader(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr);
     AssetLoader(AssetLoader const&) = delete;
     void operator=(AssetLoader const&) = delete;
@@ -40,17 +34,19 @@ private:
     ID3D12Device5* device = nullptr;
     DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr;
 
-    std::map<std::wstring, std::vector<Mesh*>*> loadedModels;
+    const std::wstring filePathShaders = L"../Engine/src/Renderer/HLSL/";
+    const std::wstring filePathDefaultTextures = L"../Vendor/Resources/Textures/Default/";
+
+    // Every model & texture also has a bool which indicates if its data is on the GPU or not
+    std::map<std::wstring, std::pair<bool, std::vector<Mesh*>*>> loadedModels;
+    std::map<std::wstring, std::pair<bool, Texture*>> loadedTextures;
+    std::map<std::wstring, Shader*> loadedShaders;
+
+    /* --------------- Functions --------------- */
     void ProcessNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*> *meshes, const std::string* filePath);
     Mesh* ProcessMesh(aiMesh* mesh, const aiScene* assimpScene, const std::string* filePath);
     Texture* ProcessTexture(aiMaterial* mat, TEXTURE_TYPE texture_type, const std::string* filePathWithoutTexture);
-
-    std::map<std::wstring, Texture*> loadedTextures;
-    //std::map<std::wstring, Mesh*> loadedMaterials;
-    std::map<std::wstring, Shader*> loadedShaders;
-
-    const std::wstring filePathShaders = L"../Engine/src/Renderer/HLSL/";
-    const std::wstring filePathDefaultTextures = L"../Vendor/Resources/Textures/Default/";
+    Shader* LoadShader(std::wstring fileName, ShaderType type);
 };
 
 #endif

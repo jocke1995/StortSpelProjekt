@@ -12,9 +12,9 @@ CopyTask::~CopyTask()
 
 }
 
-void CopyTask::Submit(std::tuple<Resource*, Resource*, const void*>* data_CBV)
+void CopyTask::Submit(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
 {
-	m_Upload_Default_Data.push_back(*data_CBV);
+	m_Upload_Default_Data.push_back(*Upload_Default_Data);
 }
 
 void CopyTask::copyResource(

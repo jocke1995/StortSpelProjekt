@@ -20,17 +20,17 @@ AssetLoader::~AssetLoader()
 	for (auto pair : this->loadedModels)
 	{
 		// For every mesh the model has
-		for (unsigned int i = 0; i < pair.second->size(); i++)
+		for (unsigned int i = 0; i < pair.second.second->size(); i++)
 		{
-			delete pair.second->at(i);
+			delete pair.second.second->at(i);
 		}
-		delete pair.second;
+		delete pair.second.second;
 	}
 
 	// For every texture
 	for (auto pair : this->loadedTextures)
 	{
-		delete pair.second;
+		delete pair.second.second;
 	}
 
 	// For every shader
@@ -51,7 +51,7 @@ std::vector<Mesh*>* AssetLoader::LoadModel(const std::wstring path, bool* loaded
 	if (this->loadedModels.count(path) != 0)
 	{
 		*loadedBefore = true;
-		return this->loadedModels[path];
+		return this->loadedModels[path].second;
 	}
 
 	// Else load the model
@@ -68,12 +68,13 @@ std::vector<Mesh*>* AssetLoader::LoadModel(const std::wstring path, bool* loaded
 	
 	std::vector<Mesh*> *meshes = new std::vector<Mesh*>;
 	meshes->reserve(assimpScene->mNumMeshes);
-	this->loadedModels[path] = meshes;
+	this->loadedModels[path].first = false;
+	this->loadedModels[path].second = meshes;
 
 	this->ProcessNode(assimpScene->mRootNode, assimpScene, meshes, &filePath);
 
 	*loadedBefore = false;
-	return this->loadedModels[path];
+	return this->loadedModels[path].second;
 }
 
 Texture* AssetLoader::LoadTexture(std::wstring path)
@@ -81,7 +82,7 @@ Texture* AssetLoader::LoadTexture(std::wstring path)
 	// Check if the texture already exists
 	if (this->loadedTextures.count(path) != 0)
 	{
-		return this->loadedTextures[path];
+		return this->loadedTextures[path].second;
 	}
 
 	Texture* texture = new Texture();
@@ -91,8 +92,9 @@ Texture* AssetLoader::LoadTexture(std::wstring path)
 		return nullptr;
 	}
 
-	this->loadedTextures[path] = texture;
-	return this->loadedTextures[path];
+	this->loadedTextures[path].first = false;
+	this->loadedTextures[path].second = texture;
+	return texture;
 }
 
 Shader* AssetLoader::LoadShader(std::wstring fileName, ShaderType type)
@@ -302,7 +304,7 @@ Texture* AssetLoader::ProcessTexture(aiMaterial* mat,
 		// No texture, warn and apply default Texture
 		Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType + 
 			" on mesh with path: \'%s\'\n", filePathWithoutTexture->c_str());
-		return this->loadedTextures[defaultPath];
+		return this->loadedTextures[defaultPath].second;
 	}
 
 	return nullptr;
