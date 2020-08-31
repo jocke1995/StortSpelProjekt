@@ -9,12 +9,6 @@ CopyOnDemandTask::CopyOnDemandTask(ID3D12Device5* device)
 
 CopyOnDemandTask::~CopyOnDemandTask()
 {
-
-}
-
-void CopyOnDemandTask::SubmitTexture(Texture* texture)
-{
-	m_Textures.push_back(texture);
 }
 
 void CopyOnDemandTask::Clear()
@@ -23,13 +17,18 @@ void CopyOnDemandTask::Clear()
 	m_Textures.clear();
 }
 
+void CopyOnDemandTask::SubmitTexture(Texture* texture)
+{
+	m_Textures.push_back(texture);
+}
+
 void CopyOnDemandTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = this->commandInterface->GetCommandAllocator(this->commandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = this->commandInterface->GetCommandList(this->commandInterfaceIndex);
-
+	
 	this->commandInterface->Reset(this->commandInterfaceIndex);
-
+	
 	for (auto& pair : m_Data_CBVs)
 	{
 		copyResource(
@@ -38,7 +37,7 @@ void CopyOnDemandTask::Execute()
 			pair.second->GetCBVResource(),
 			pair.first);	// Data
 	}
-
+	
 	commandList->Close();
 }
 

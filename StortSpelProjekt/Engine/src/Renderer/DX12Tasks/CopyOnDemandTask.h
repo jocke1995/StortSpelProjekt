@@ -2,11 +2,11 @@
 #define COPYONDEMANDTASK_H
 
 #include "CopyTask.h"
-class ID3D12Device5;
 class Texture;
 
 class CopyOnDemandTask : public CopyTask
 {
+public:
 	CopyOnDemandTask(ID3D12Device5* device);
 	virtual ~CopyOnDemandTask();
 

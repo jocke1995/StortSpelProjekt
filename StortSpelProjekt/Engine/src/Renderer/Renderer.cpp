@@ -270,10 +270,9 @@ void Renderer::Execute()
 
 	/* --------------------- Execute copy command lists --------------------- */
 	// Copy per frame
-	unsigned int a = this->copyCommandLists[commandInterfaceIndex].size();
 	this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(
-		this->copyCommandLists[commandInterfaceIndex].size(),
-		this->copyCommandLists[commandInterfaceIndex].data());
+		1,
+		&m_CopyPerFrameCmdList[commandInterfaceIndex]);
 	UINT64 copyFenceValue = ++this->fenceFrameValue;
 	this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(this->fenceFrame, copyFenceValue);
 
@@ -843,6 +842,7 @@ void Renderer::InitRenderTasks()
 #pragma endregion WireFrame
 
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(this->device5);
+	CopyTask* copyOnDemandTask = new CopyOnDemandTask(this->device5);
 
 	// Add the tasks to desired vectors so they can be used in renderer
 	/* -------------------------------------------------------------- */
@@ -853,7 +853,11 @@ void Renderer::InitRenderTasks()
 	this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME] = copyPerFrameTask;
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-		this->copyCommandLists[i].push_back(copyPerFrameTask->GetCommandList(i));
+		m_CopyPerFrameCmdList[i] = copyPerFrameTask->GetCommandList(i);
+
+	this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND] = copyOnDemandTask;
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandList(i);
 
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
 

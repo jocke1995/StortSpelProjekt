@@ -25,6 +25,7 @@
 
 // Copy
 #include "DX12Tasks/CopyPerFrameTask.h"
+#include "DX12Tasks/CopyOnDemandTask.h"
 
 // Compute (Later include the specific tasks instead of this)
 #include "DX12Tasks/ComputeTask.h"
@@ -118,7 +119,8 @@ private:
 	// Commandlists holders
 	std::vector<ID3D12CommandList*> directCommandLists[NUM_SWAP_BUFFERS];
 	std::vector<ID3D12CommandList*> computeCommandLists[NUM_SWAP_BUFFERS];
-	std::vector<ID3D12CommandList*> copyCommandLists[NUM_SWAP_BUFFERS];
+	ID3D12CommandList* m_CopyPerFrameCmdList[NUM_SWAP_BUFFERS];
+	ID3D12CommandList* m_CopyOnDemandCmdList[NUM_SWAP_BUFFERS];
 	
 	// DescriptorHeaps
 	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> descriptorHeaps = {};
