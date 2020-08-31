@@ -37,11 +37,11 @@ project "Engine"
     }
     defines{"_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE"}
         filter "configurations:Debug"
-            defines { "_DEBUG", "_CONSOLE" }
+            defines { "_DEBUG" }
             symbols "On"
 
         filter "configurations:Release"
-            defines { "NDEBUG", "_CONSOLE" }
+            defines { "NDEBUG" }
             optimize "On"
 
 project "Game"
@@ -65,11 +65,11 @@ project "Game"
     }
     
     filter "configurations:Debug"
-        defines { "_DEBUG", "_CONSOLE" }
+        defines { "_DEBUG" }
         symbols "On"
     
     filter "configurations:Release"
-        defines { "NDEBUG", "_CONSOLE" }
+        defines { "NDEBUG" }
         optimize "On"
 
 project "Sandbox"
@@ -93,11 +93,11 @@ project "Sandbox"
     }
     
     filter "configurations:Debug"
-        defines { "_DEBUG", "_CONSOLE" }
+        defines { "_DEBUG" }
         symbols "On"
     
     filter "configurations:Release"
-        defines { "NDEBUG", "_CONSOLE" }
+        defines { "NDEBUG" }
         optimize "On"
 
 project "GTest"
@@ -107,6 +107,13 @@ project "GTest"
     objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
     files { "googletest/gtest/googletest/src/gtest-all.cc" }
     includedirs { "googletest/gtest/googletest/include", "googletest/gtest/googletest" }
+    filter "configurations:Debug"
+        defines { "_DEBUG" }
+        symbols "On"
+
+    filter "configurations:Release"
+        defines { "NDEBUG" }
+        optimize "On"
 
 project "EngineTests"
     location "EngineTests"
@@ -116,3 +123,10 @@ project "EngineTests"
     files {"%{prj.location}/src/**.cpp", "src/**.h"}
     includedirs { "Engine/src/", "googletest/gtest/googletest/include/"}
     links {"Engine", "GTest" }
+    filter "configurations:Debug"
+        defines { "_DEBUG", "_CONSOLE" }
+        symbols "On"
+
+    filter "configurations:Release"
+        defines { "NDEBUG", "_CONSOLE" }
+        optimize "On"
