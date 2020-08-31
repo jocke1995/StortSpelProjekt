@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "FreeList.h"
 #include <new>
-FreeList::FreeList(void* mem, size_t size): m_pMem(nullptr), m_pFreeHead(nullptr)
+FreeList::FreeList(void* mem, size_t size): m_pMem(nullptr), m_pHead(nullptr)
 {
 	// If the memory is smaller or equal to the size of an entry, there is no point in ursing it.
 	if (size <= sizeof(Entry))
@@ -11,61 +11,43 @@ FreeList::FreeList(void* mem, size_t size): m_pMem(nullptr), m_pFreeHead(nullptr
 	}
 
 	m_pMem = mem;
-	m_pFreeHead = (Entry*)new (m_pMem) Entry;
-	m_pFreeHead->Size = size - sizeof(Entry);
-	m_pFreeHead->pPayload = (void*)((char*)m_pMem + sizeof(Entry));
-	m_pFreeHead->busy = false;
+	m_pHead = (Entry*)new (m_pMem) Entry;
+	m_pHead->Size = size - sizeof(Entry);
+	m_pHead->pPayload = (void*)((char*)m_pMem + sizeof(Entry));
+	m_pHead->busy = false;
+	m_pHead->pNext = nullptr;
 }
 
 void* FreeList::Allocate(size_t size)
 {
 	void* payload = nullptr;
-	Entry* candidate = nullptr;
-	Entry* current = m_pFreeHead;
 
-	// First fit
-	while (candidate == nullptr && current != nullptr)
-	{
-		if (current->Size > size && !current->busy)
-		{
-			candidate = current;
-			payload = candidate->pPayload;
-		}
+	Entry* candidate = findSuitableEntry(size);
+	Entry* excess = nullptr;
 
-		current = current->pNext;
-	}
-
-	// Best fit search.
-	while (current != nullptr)
-	{
-		if (current->Size >= size && (current->Size < candidate->Size)&& !current->busy)
-		{
-			candidate = current;
-			payload = candidate->pPayload;
-		}
-	}
-
-	// If candidate was found, the excess memory should be prepared
 	if (candidate)
 	{
-		if (candidate->Size > size)
+		// If candidate was found, the excess memory should become a new entry.
+		if (candidate->Size > size + sizeof(Entry))
 		{
-			current = new ((char*)candidate->pPayload + size) Entry;
-			current->busy = false;
-			
-			current->pNext = candidate->pNext;
-			candidate->pNext = current;
-			
-			current->Size = candidate->Size - size - sizeof(Entry);
+			excess = new ((char*)candidate->pPayload + size) Entry;
+			excess->busy = false;
+
+			excess->pNext = candidate->pNext;
+			candidate->pNext = excess;
+
+			excess->Size = candidate->Size - size - sizeof(Entry);
 			candidate->Size = size;
-			
-			current->pPayload = (char*)current + sizeof(Entry);
+
+			excess->pPayload = (char*)excess + sizeof(Entry);
 		}
+		candidate->busy = true;
+		payload = candidate->pPayload;
 	}
-	candidate->busy = true;
-
-	// TODO, if no suitable memory was found, try defragmenting.
-
+	else if (deFragList())
+	{
+		candidate = findSuitableEntry(size);
+	}
 	// TODO, if no suitable memory was found after defrag, ask memorymanager for more.
 
 	return payload;
@@ -78,10 +60,65 @@ void FreeList::Free(void* ptr)
 	entry->busy = false;
 
 	// Merge the neighbours if they are both free :D
-	if (!entry->pNext->busy)
+	if (entry->pNext)
 	{
-		entry->Size += entry->pNext->Size + sizeof(Entry);
-		entry->pNext = entry->pNext->pNext;
-		// TODO, Clear the memory. do a memcpy of zeros?
+		if (!entry->pNext->busy)
+		{
+			entry->Size += entry->pNext->Size + sizeof(Entry);
+			entry->pNext = entry->pNext->pNext;
+		}
 	}
+}
+
+bool FreeList::deFragList()
+{
+	Entry* curr = m_pHead;
+	bool res = false;
+	
+	while (curr->pNext)
+	{
+		if (!(curr->busy || curr->pNext->busy))
+		{
+			curr->Size += curr->pNext->Size + sizeof(Entry);
+			
+			// probably unneccessary.
+			// memcpy(curr->pNext, 0, sizeof(Entry));
+
+			curr->pNext = curr->pNext->pNext;
+			res = true;
+		}
+		curr = curr->pNext;
+	}
+
+	return res;
+}
+
+Entry* FreeList::findSuitableEntry(size_t size)
+{
+	Entry* candidate = nullptr;
+	Entry* current = m_pHead;
+
+	// First fit
+	while (candidate == nullptr && current != nullptr)
+	{
+		if (current->Size >= size && !current->busy)
+		{
+			candidate = current;
+		}
+		current = current->pNext;
+	}
+
+	// If there is no candidate by first fit, there is no Entry appropriate for the requested memory.
+	if (candidate)
+	{
+		// Best fit search.
+		while (current != nullptr)
+		{
+			if (current->Size >= size && (current->Size < candidate->Size) && !current->busy)
+			{
+				candidate = current;
+			}
+		}
+	}
+	return candidate;
 }
