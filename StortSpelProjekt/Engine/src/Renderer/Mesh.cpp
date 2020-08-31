@@ -14,13 +14,11 @@ Mesh::Mesh(	ID3D12Device5* device,
 
 	// Set vertices
 	this->uploadResourceVertices = new Resource(device, this->GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
-	this->uploadResourceVertices->SetData(this->vertices.data());
 
 	this->defaultResourceVertices = new Resource(device, this->GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
 
 	// Set indices
 	this->uploadResourceIndices = new Resource(device, this->GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
-	this->uploadResourceIndices->SetData(this->indices.data());
 	this->defaultResourceIndices = new Resource(device, this->GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
 	this->CreateIndexBufferView();
 
@@ -65,7 +63,10 @@ Mesh::Mesh(const Mesh* other)
 		this->material->SetTexture(type, mat->GetTexture(type));
 	}
 
+	this->uploadResourceVertices = other->uploadResourceVertices;
 	this->defaultResourceVertices = other->defaultResourceVertices;
+
+	this->uploadResourceIndices = other->uploadResourceIndices;
 	this->defaultResourceIndices = other->defaultResourceIndices;
 
 	this->indexBufferView = other->indexBufferView;

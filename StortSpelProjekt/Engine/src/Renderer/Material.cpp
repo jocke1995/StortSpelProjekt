@@ -29,6 +29,12 @@ Material::Material(const Material* other, SlotInfo* slotInfo)
 	this->materialAttributes->diffuseMul  = other->materialAttributes->diffuseMul;
 	this->materialAttributes->specularMul = other->materialAttributes->specularMul;
 	this->materialAttributes->uvScale	  = other->materialAttributes->uvScale;
+
+	for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+	{
+		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
+		this->textures[type] = other->textures.at(type);
+	}
 }
 
 Material::~Material()

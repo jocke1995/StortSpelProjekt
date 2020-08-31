@@ -50,6 +50,7 @@ Renderer::~Renderer()
 
 	delete this->viewPool;
 	delete this->cbPerScene;
+	delete this->cbPerSceneData;
 	delete this->cbPerFrame;
 	delete this->cbPerFrameData;
 }
@@ -106,6 +107,8 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
 		);
+	
+	this->cbPerSceneData = new CB_PER_SCENE_STRUCT();
 
 	// Allocate memory for cbPerFrame
 	this->cbPerFrame = new ConstantBufferView(
@@ -132,34 +135,8 @@ std::vector<Mesh*>* Renderer::LoadModel(std::wstring path)
 	{
 		for (Mesh* mesh : *meshes)
 		{
-			// Upload to Default heap
-			// Vertices
-			const void* data = static_cast<const void*>(mesh->vertices.data());
-			Resource* uploadR = mesh->uploadResourceVertices;
-			Resource* defaultR = mesh->defaultResourceVertices;
-			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Submit(&std::tuple(uploadR, defaultR, data));
-
-			// inidices
-			data = static_cast<const void*>(mesh->indices.data());
-			uploadR = mesh->uploadResourceIndices;
-			defaultR = mesh->defaultResourceIndices;
-			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Submit(&std::tuple(uploadR, defaultR, data));
-
-			// Wont upload data if its already up.. TEMPORARY safecheck inside the texture class
-			for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
-			{
-				TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-				Texture* texture = mesh->GetMaterial()->GetTexture(type);
-				CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-				codt->SubmitTexture(texture);
-			}
-
 			// temp
-			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
-			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
-			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
-			this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &m_CopyOnDemandCmdList[0]);
-			this->WaitForGpu();
+			
 		}
 	}
 	return meshes;
@@ -855,11 +832,11 @@ void Renderer::InitRenderTasks()
 	/* ------------------------- CopyQueue Tasks ------------------------ */
 
 	this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME] = copyPerFrameTask;
+	this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND] = copyOnDemandTask;
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		m_CopyPerFrameCmdList[i] = copyPerFrameTask->GetCommandList(i);
 
-	this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND] = copyOnDemandTask;
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandList(i);
 
@@ -936,40 +913,39 @@ void Renderer::WaitForFrame(unsigned int framesToBeAhead)
 
 void Renderer::PrepareCBPerScene()
 {
-	CB_PER_SCENE_STRUCT cps = {};
 	// ----- directional lights -----
-	cps.Num_Dir_Lights = this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
+	this->cbPerSceneData->Num_Dir_Lights = this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
 	unsigned int index = 0;
 	for (auto& tuple : this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT])
 	{
-		cps.dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		this->cbPerSceneData->dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
 	// ----- directional lights -----
 
 	// ----- point lights -----
-	cps.Num_Point_Lights = this->lights[LIGHT_TYPE::POINT_LIGHT].size();
+	this->cbPerSceneData->Num_Point_Lights = this->lights[LIGHT_TYPE::POINT_LIGHT].size();
 	index = 0;
 	for (auto& tuple : this->lights[LIGHT_TYPE::POINT_LIGHT])
 	{
-		cps.pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		this->cbPerSceneData->pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
 	// ----- point lights -----
 
 	// ----- spot lights -----
-	cps.Num_Spot_Lights = this->lights[LIGHT_TYPE::SPOT_LIGHT].size();
+	this->cbPerSceneData->Num_Spot_Lights = this->lights[LIGHT_TYPE::SPOT_LIGHT].size();
 	index = 0;
 	for (auto& tuple : this->lights[LIGHT_TYPE::SPOT_LIGHT])
 	{
-		cps.spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		this->cbPerSceneData->spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
 	// ----- spot lights -----
 
 	// Upload CB_PER_SCENE to defaultheap
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-	const void* data = static_cast<const void*>(&cps);
+	const void* data = static_cast<const void*>(this->cbPerSceneData);
 	codt->Submit(&std::make_tuple(this->cbPerScene->GetUploadResource(), this->cbPerScene->GetCBVResource(), data));
 }
 
@@ -1004,7 +980,7 @@ void Renderer::PrepareCBPerFrame()
 	}
 }
 
-void Renderer::WaitForGpu()
+void Renderer::WaitForCopyOnDemand()
 {
 	//Signal and increment the fence value.
 	const UINT64 oldFenceValue = this->fenceFrameValue;

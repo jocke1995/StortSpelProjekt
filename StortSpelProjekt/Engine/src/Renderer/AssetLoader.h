@@ -26,7 +26,11 @@ public:
     Texture* LoadTexture(std::wstring path);
 
 private:
+    // PipelineState loads all shaders
     friend class PipelineState;
+    // SceneManager needs access to loadedModels & loadedTextures so it can check if they are uploaded to GPU.
+    friend class SceneManager;
+
     AssetLoader(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr);
     AssetLoader(AssetLoader const&) = delete;
     void operator=(AssetLoader const&) = delete;

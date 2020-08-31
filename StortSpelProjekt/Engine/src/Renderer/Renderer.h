@@ -110,6 +110,7 @@ private:
 
 	// Current scene to be drawn
 	Scene* currActiveScene = nullptr;
+	CB_PER_SCENE_STRUCT* cbPerSceneData = nullptr;
 	ConstantBufferView* cbPerScene = nullptr;
 
 	// update per frame
@@ -139,8 +140,8 @@ private:
 	// Submit per-frame data to the copyQueue that updates each frame
 	void PrepareCBPerFrame();
 
-	// Temporary.. these functions and variables are used to copy data to GPU on initialization
-	void WaitForGpu();
+	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetSceneToDraw
+	void WaitForCopyOnDemand();
 };
 
 #endif

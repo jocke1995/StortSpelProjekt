@@ -31,7 +31,7 @@ void CopyOnDemandTask::Execute()
 	
 	this->commandInterface->Reset(this->commandInterfaceIndex);
 	
-	// Upload the "small" data, such as constantbuffers..
+	// record the "small" data, such as constantbuffers..
 	for (auto& tuple : m_Upload_Default_Data)
 	{
 		copyResource(
@@ -41,7 +41,7 @@ void CopyOnDemandTask::Execute()
 			std::get<2>(tuple));	// Data
 	}
 
-	// Upload "big" texturedata
+	// record texturedata
 	for (Texture* texture : m_Textures)
 	{
 		copyTexture(commandList, texture);
@@ -60,12 +60,11 @@ void CopyOnDemandTask::copyTexture(ID3D12GraphicsCommandList5* commandList, Text
 		D3D12_RESOURCE_STATE_COMMON,
 		D3D12_RESOURCE_STATE_COPY_DEST));
 
-	D3D12_SUBRESOURCE_DATA subResourceData = texture->m_SubresourceData;
 	// Transfer the data
 	UpdateSubresources(commandList,
 		defaultHeap, uploadHeap,
 		0, 0, 1,
-		&subResourceData);
+		&texture->m_SubresourceData);
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		defaultHeap,

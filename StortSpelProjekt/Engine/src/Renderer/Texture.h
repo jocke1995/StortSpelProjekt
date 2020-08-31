@@ -27,8 +27,10 @@ public:
 	const UINT GetDescriptorHeapIndex() const;
 
 private:
-	// CopyOnDemandTask uses the private members of the texture class to upload data to the gpu
+	// CopyOnDemandTask & sceneMangager uses the private members of the texture class to upload data to the gpu
 	friend class CopyOnDemandTask;
+	friend class SceneManager;
+
 	D3D12_SUBRESOURCE_DATA m_SubresourceData = {};
 	std::wstring filePath = L"";
 

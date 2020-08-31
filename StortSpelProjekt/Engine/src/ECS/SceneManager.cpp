@@ -86,7 +86,6 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 					cpft = static_cast<CopyPerFrameTask*>(this->renderer->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
 					cpft->ClearSpecific(cbv->GetUploadResource());
 				}	
-
 				break;
 			}
 		}
@@ -182,22 +181,66 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 		component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
 		if (tc != nullptr)
 		{
-			// Add material cbv
+			Mesh* mesh = mc->GetMesh(0);
+			AssetLoader* al = AssetLoader::Get();
+			std::wstring modelPath = to_wstring(mesh->GetPath());
+			bool isModelOnGpu = al->loadedModels[modelPath].first;
+
+			// If the model isn't on GPU, it will be uploaded below
+			if (isModelOnGpu == false)
+			{
+				al->loadedModels[modelPath].first = true;
+			}
+
+			// Submit Material and Mesh/texture data to GPU if they haven't already been uploaded
 			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
-			{	
+			{
+				mesh = mc->GetMesh(i);
+
+				// Add material cbv
 				ConstantBufferView* cbv = this->renderer->viewPool->GetFreeCBV(sizeof(MaterialAttributes), L"Material" + i);
-				mc->GetMesh(i)->GetMaterial()->SetCBV(cbv);
+				mesh->GetMaterial()->SetCBV(cbv);
 
 				// Submit to the list which gets updated to the gpu each frame
 				CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(this->renderer->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-				const void* data = static_cast<const void*>(mc->GetMesh(i)->GetMaterial()->GetMaterialAttributes());
+				const void* data = static_cast<const void*>(mesh->GetMaterial()->GetMaterialAttributes());
 				cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetCBVResource(), data));
+
+				// Submit mesh & texture Data to GPU if the data isn't already uploaded
+				if (isModelOnGpu == false)
+				{
+					CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(this->renderer->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+
+					// Vertices
+					data = static_cast<const void*>(mesh->vertices.data());
+					Resource* uploadR = mesh->uploadResourceVertices;
+					Resource* defaultR = mesh->defaultResourceVertices;
+					codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+					// inidices
+					data = static_cast<const void*>(mesh->indices.data());
+					uploadR = mesh->uploadResourceIndices;
+					defaultR = mesh->defaultResourceIndices;
+					codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+					// Textures
+					for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+					{
+						TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
+						Texture* texture = mesh->GetMaterial()->GetTexture(type);
+						
+						// Check if the texture is on GPU before submitting to be uploaded
+						if (al->loadedTextures[texture->filePath].first == false)
+						{
+							codt->SubmitTexture(texture);
+							al->loadedTextures[texture->filePath].first = true;
+						}
+					}
+				}
 			}
 
+			// Finally store the object in renderer so it will be drawn
 			this->renderer->renderComponents.push_back(std::make_pair(mc, tc));
-
-			// Send the Textures to GPU here later, so that textures aren't in memory if they aren't used
-			// or submit index to a queue and then submit all textures together later..
 		}
 	}
 
@@ -322,12 +365,19 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 				return;
 			}
 
-			// Upload to Default heap
-			//m->UploadToDefault(
-			//	this->renderer->device5,
-			//	this->renderer->tempCommandInterface,
-			//	this->renderer->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
-			//this->renderer->WaitForGpu();
+			// Submit to GPU
+			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(this->renderer->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+			// Vertices
+			const void* data = static_cast<const void*>(m->vertices.data());
+			Resource* uploadR = m->uploadResourceVertices;
+			Resource* defaultR = m->defaultResourceVertices;
+			codt->Submit(&std::tuple(uploadR, defaultR, data));
+
+			// inidices
+			data = static_cast<const void*>(m->indices.data());
+			uploadR = m->uploadResourceIndices;
+			defaultR = m->defaultResourceIndices;
+			codt->Submit(&std::tuple(uploadR, defaultR, data));
 
 			bbc->SetMesh(m);
 
@@ -341,6 +391,15 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 		}
 	}
 #pragma endregion AddEntity
+}
+
+void SceneManager::ExecuteCopyOnDemand()
+{
+	this->renderer->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
+	this->renderer->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
+	this->renderer->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &this->renderer->m_CopyOnDemandCmdList[0]);
+	this->renderer->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
+	this->renderer->WaitForCopyOnDemand();
 }
 
 void SceneManager::ResetScene()

@@ -49,8 +49,9 @@ public:
     Material* GetMaterial() const;
 
 private:
-    // Renderer needs to be able to use member variables of mesh without giving access to them outside of the engine
     friend class Renderer;
+    friend class SceneManager;
+
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::string path = "";
