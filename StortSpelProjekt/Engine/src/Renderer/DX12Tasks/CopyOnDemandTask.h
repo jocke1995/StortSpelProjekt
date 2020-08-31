@@ -19,7 +19,7 @@ public:
 
 private:
 	std::vector<Texture*> m_Textures;
-	void copyTexture(Texture* texture);
+	void copyTexture(ID3D12GraphicsCommandList5* commandList, Texture* texture);
 };
 
 #endif

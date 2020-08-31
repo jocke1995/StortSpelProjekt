@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "CopyOnDemandTask.h"
 
+#include "../Texture.h"
+
 CopyOnDemandTask::CopyOnDemandTask(ID3D12Device5* device)
 	:CopyTask(device)
 {
@@ -40,11 +42,33 @@ void CopyOnDemandTask::Execute()
 	}
 
 	// Upload "big" texturedata
+	for (Texture* texture : m_Textures)
+	{
+		copyTexture(commandList, texture);
+	}
 	
 	commandList->Close();
 }
 
-void CopyOnDemandTask::copyTexture(Texture* texture)
+void CopyOnDemandTask::copyTexture(ID3D12GraphicsCommandList5* commandList, Texture* texture)
 {
+	ID3D12Resource* defaultHeap = texture->resourceDefaultHeap->GetID3D12Resource1();
+	ID3D12Resource* uploadHeap = texture->resourceUploadHeap->GetID3D12Resource1();
 
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+		defaultHeap,
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_COPY_DEST));
+
+	D3D12_SUBRESOURCE_DATA subResourceData = texture->m_SubresourceData;
+	// Transfer the data
+	UpdateSubresources(commandList,
+		defaultHeap, uploadHeap,
+		0, 0, 1,
+		&subResourceData);
+
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+		defaultHeap,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		D3D12_RESOURCE_STATE_COMMON));
 }

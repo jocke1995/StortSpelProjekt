@@ -151,24 +151,21 @@ std::vector<Mesh*>* Renderer::LoadModel(std::wstring path)
 			defaultR = mesh->defaultResourceIndices;
 			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Submit(&std::tuple(uploadR, defaultR, data));
 
-			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
-			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
-			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
-			// temp
-			this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &m_CopyOnDemandCmdList[0]);
-			this->WaitForGpu();
-
 			// Wont upload data if its already up.. TEMPORARY safecheck inside the texture class
 			for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
 			{
 				TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
 				Texture* texture = mesh->GetMaterial()->GetTexture(type);
-				texture->UploadToDefault(
-					this->device5,
-					this->tempCommandInterface,
-					this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
-				this->WaitForGpu();
+				CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+				codt->SubmitTexture(texture);
 			}
+
+			// temp
+			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
+			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
+			this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
+			this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &m_CopyOnDemandCmdList[0]);
+			this->WaitForGpu();
 		}
 	}
 	return meshes;
@@ -185,11 +182,11 @@ Texture* Renderer::LoadTexture(std::wstring path)
 
 	// ------------------------------ TEMPORARY CODE ------------------------------ 
 	// Wont upload data if its already up.. TEMPORARY safecheck inside the texture class
-	texture->UploadToDefault(
-		this->device5,
-		this->tempCommandInterface,
-		this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
-	this->WaitForGpu();
+	//texture->UploadToDefault(
+	//	this->device5,
+	//	this->tempCommandInterface,
+	//	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
+	//this->WaitForGpu();
 
 	return texture;
 }

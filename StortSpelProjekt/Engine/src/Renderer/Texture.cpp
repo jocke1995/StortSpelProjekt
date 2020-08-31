@@ -121,11 +121,6 @@ const UINT Texture::GetDescriptorHeapIndex() const
 	return this->SRV->GetDescriptorHeapIndex();
 }
 
-Resource* Texture::GetResource() const
-{
-	return this->resourceDefaultHeap;
-}
-
 bool Texture::Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 {
 	this->filePath = filePath;
@@ -142,7 +137,8 @@ bool Texture::Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap*
 		device,
 		&this->resourceDescription,
 		nullptr,
-		this->filePath + L"_DEFAULT_RESOURCE");
+		this->filePath + L"_DEFAULT_RESOURCE",
+		D3D12_RESOURCE_STATE_COMMON);
 
 	UINT64 textureUploadBufferSize;
 	device->GetCopyableFootprints(
@@ -155,7 +151,7 @@ bool Texture::Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap*
 	this->resourceUploadHeap = new Resource(device,
 	textureUploadBufferSize,
 	RESOURCE_TYPE::UPLOAD,
-	L"Temporary UploadHeap for texture");
+		this->filePath + L"_UPLOAD_RESOURCE");
 
 	// Create srv
 	D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
@@ -171,32 +167,6 @@ bool Texture::Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap*
 		this->resourceDefaultHeap);
 
 	return true;
-}
-
-void Texture::UploadToDefault(ID3D12Device5* device, CommandInterface* commandInterface, ID3D12CommandQueue* cmdQueue)
-{
-	if (this->hasBeenUploadedToDefault == true)
-		return;
-
-	commandInterface->Reset(0);
-
-	// Transfer the data
-	UpdateSubresources(commandInterface->GetCommandList(0),
-		this->resourceDefaultHeap->GetID3D12Resource1(),
-		this->resourceUploadHeap->GetID3D12Resource1(),
-		0, 0, 1,
-		&m_SubresourceData);
-
-	commandInterface->GetCommandList(0)->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		this->resourceDefaultHeap->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
-
-	commandInterface->GetCommandList(0)->Close();
-	ID3D12CommandList* ppCommandLists[] = { commandInterface->GetCommandList(0) };
-	cmdQueue->ExecuteCommandLists(ARRAYSIZE(ppCommandLists), ppCommandLists);
-
-	this->hasBeenUploadedToDefault = true;
 }
 
 bool Texture::CreateTexture(std::wstring filePath, ID3D12Device5* device, UINT descriptorHeapIndex_SRV)
