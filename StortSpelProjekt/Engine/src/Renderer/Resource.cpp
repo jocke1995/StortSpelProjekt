@@ -7,6 +7,7 @@ Resource::Resource(
 	RESOURCE_TYPE type,
 	std::wstring name)
 {
+	m_Id = s_IdCounter++;
 	this->entrySize = entrySize;
 	this->type = type;
 	this->name = name;
@@ -47,6 +48,7 @@ Resource::Resource(
 	std::wstring name,
 	D3D12_RESOURCE_STATES startState)
 {
+	m_Id = s_IdCounter++;
 	this->type = RESOURCE_TYPE::DEFAULT;
 	this->entrySize = resourceDesc->Width * resourceDesc->Height;
 	this->name = name;
@@ -56,6 +58,16 @@ Resource::Resource(
 	this->SetupHeapProperties(d3d12HeapType);
 
 	this->CreateResource(device, resourceDesc, clearValue, startState);
+}
+
+Resource::Resource()
+{
+	m_Id = s_IdCounter++;
+}
+
+bool Resource::operator==(const Resource& other)
+{
+	return this->m_Id == other.m_Id;
 }
 
 Resource::~Resource()

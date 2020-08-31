@@ -23,16 +23,16 @@ public:
 	~Texture();
 	
 	bool Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap);
-	void UploadToDefault(ID3D12Device5* device, CommandInterface* commandInterface, ID3D12CommandQueue* cmdQueue);
 
 	const UINT GetDescriptorHeapIndex() const;
-	Resource* GetResource() const;
 
 private:
+	// CopyOnDemandTask & sceneMangager uses the private members of the texture class to upload data to the gpu
+	friend class CopyOnDemandTask;
+	friend class SceneManager;
+
+	D3D12_SUBRESOURCE_DATA m_SubresourceData = {};
 	std::wstring filePath = L"";
-	unsigned int bytesPerRow = 0;
-	unsigned int imageSize = 0;
-	BYTE* imageData = nullptr;
 
 	ShaderResourceView* SRV = nullptr;
 

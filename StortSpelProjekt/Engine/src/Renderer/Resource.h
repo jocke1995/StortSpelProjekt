@@ -10,6 +10,7 @@ enum RESOURCE_TYPE
     NUM_RESOURCE_TYPES
 };
 
+static unsigned int s_IdCounter = 0;
 class Resource
 {
 public:
@@ -29,7 +30,9 @@ public:
         D3D12_RESOURCE_STATES startState = D3D12_RESOURCE_STATE_COMMON);
 
     // Default Constructor
-    Resource() = default;
+    Resource();
+
+    bool operator==(const Resource& other);
     virtual ~Resource();
 
     virtual unsigned int GetSize() const;
@@ -40,6 +43,7 @@ public:
     // Only to be used if the resource is of type: UPLOAD
     void SetData(const void* data, unsigned int subResourceIndex = 0) const;
 protected:
+    unsigned int m_Id = 0;
     unsigned long long entrySize = 0;
     RESOURCE_TYPE type;
     std::wstring name;

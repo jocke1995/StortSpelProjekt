@@ -132,8 +132,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity = scene->GetEntity("spotLight");
     mc = entity->GetComponent<component::MeshComponent>();
     mc->SetMeshes(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering)
-        ;
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(-20.0f, 6.0f, -3.0f);

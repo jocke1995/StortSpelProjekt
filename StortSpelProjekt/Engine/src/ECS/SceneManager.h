@@ -24,6 +24,7 @@ private:
 	bool SceneExists(std::string sceneName) const;
 	void HandleSceneComponents(Scene* scene);
 	void ManageComponent(Entity* entity, bool remove);
+	void ExecuteCopyOnDemand();
 	void ResetScene();
 };
 
@@ -59,6 +60,8 @@ void SceneManager::EditScene(T* input, bool remove)
 		this->renderer->SetRenderTasksPrimaryCamera();
 
 		this->renderer->currActiveScene = scene;
+
+		this->ExecuteCopyOnDemand();
 		return;
 	}
 
@@ -67,6 +70,7 @@ void SceneManager::EditScene(T* input, bool remove)
 	if (entity != nullptr)
 	{
 		ManageComponent(entity, remove);
+		this->ExecuteCopyOnDemand();
 		return;
 	}
 	

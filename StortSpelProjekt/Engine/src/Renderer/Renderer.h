@@ -25,6 +25,7 @@
 
 // Copy
 #include "DX12Tasks/CopyPerFrameTask.h"
+#include "DX12Tasks/CopyOnDemandTask.h"
 
 // Compute (Later include the specific tasks instead of this)
 #include "DX12Tasks/ComputeTask.h"
@@ -109,6 +110,7 @@ private:
 
 	// Current scene to be drawn
 	Scene* currActiveScene = nullptr;
+	CB_PER_SCENE_STRUCT* cbPerSceneData = nullptr;
 	ConstantBufferView* cbPerScene = nullptr;
 
 	// update per frame
@@ -118,7 +120,8 @@ private:
 	// Commandlists holders
 	std::vector<ID3D12CommandList*> directCommandLists[NUM_SWAP_BUFFERS];
 	std::vector<ID3D12CommandList*> computeCommandLists[NUM_SWAP_BUFFERS];
-	std::vector<ID3D12CommandList*> copyCommandLists[NUM_SWAP_BUFFERS];
+	ID3D12CommandList* m_CopyPerFrameCmdList[NUM_SWAP_BUFFERS];
+	ID3D12CommandList* m_CopyOnDemandCmdList[NUM_SWAP_BUFFERS];
 	
 	// DescriptorHeaps
 	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> descriptorHeaps = {};
@@ -137,10 +140,8 @@ private:
 	// Submit per-frame data to the copyQueue that updates each frame
 	void PrepareCBPerFrame();
 
-	// Temporary.. these functions and variables are used to copy data to GPU on initialization
-	void WaitForGpu();
-	CommandInterface* tempCommandInterface = nullptr;
-	void TempCopyResource(Resource* uploadResource, Resource* defaultResource, void* data);
+	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetSceneToDraw
+	void WaitForCopyOnDemand();
 };
 
 #endif

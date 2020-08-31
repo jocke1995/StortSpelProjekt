@@ -50,11 +50,9 @@ Renderer::~Renderer()
 
 	delete this->viewPool;
 	delete this->cbPerScene;
+	delete this->cbPerSceneData;
 	delete this->cbPerFrame;
 	delete this->cbPerFrameData;
-
-	// temp
-	delete this->tempCommandInterface;
 }
 
 void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool)
@@ -109,6 +107,8 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
 		);
+	
+	this->cbPerSceneData = new CB_PER_SCENE_STRUCT();
 
 	// Allocate memory for cbPerFrame
 	this->cbPerFrame = new ConstantBufferView(
@@ -122,9 +122,6 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	this->cbPerFrameData = new CB_PER_FRAME_STRUCT();
 
 	this->InitRenderTasks();
-
-	// temp, used to transmit textures/meshes to the default memory on GPU when loaded
-	this->tempCommandInterface = new CommandInterface(this->device5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE);
 }
 
 std::vector<Mesh*>* Renderer::LoadModel(std::wstring path)
@@ -138,24 +135,8 @@ std::vector<Mesh*>* Renderer::LoadModel(std::wstring path)
 	{
 		for (Mesh* mesh : *meshes)
 		{
-			// Upload to Default heap
-			mesh->UploadToDefault(
-				this->device5,
-				this->tempCommandInterface,
-				this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
-			this->WaitForGpu();
-
-			// Wont upload data if its already up.. TEMPORARY safecheck inside the texture class
-			for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
-			{
-				TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-				Texture* texture = mesh->GetMaterial()->GetTexture(type);
-				texture->UploadToDefault(
-					this->device5,
-					this->tempCommandInterface,
-					this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
-				this->WaitForGpu();
-			}
+			// temp
+			
 		}
 	}
 	return meshes;
@@ -172,11 +153,11 @@ Texture* Renderer::LoadTexture(std::wstring path)
 
 	// ------------------------------ TEMPORARY CODE ------------------------------ 
 	// Wont upload data if its already up.. TEMPORARY safecheck inside the texture class
-	texture->UploadToDefault(
-		this->device5,
-		this->tempCommandInterface,
-		this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
-	this->WaitForGpu();
+	//texture->UploadToDefault(
+	//	this->device5,
+	//	this->tempCommandInterface,
+	//	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
+	//this->WaitForGpu();
 
 	return texture;
 }
@@ -270,10 +251,9 @@ void Renderer::Execute()
 
 	/* --------------------- Execute copy command lists --------------------- */
 	// Copy per frame
-	unsigned int a = this->copyCommandLists[commandInterfaceIndex].size();
 	this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(
-		this->copyCommandLists[commandInterfaceIndex].size(),
-		this->copyCommandLists[commandInterfaceIndex].data());
+		1,
+		&m_CopyPerFrameCmdList[commandInterfaceIndex]);
 	UINT64 copyFenceValue = ++this->fenceFrameValue;
 	this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(this->fenceFrame, copyFenceValue);
 
@@ -843,6 +823,7 @@ void Renderer::InitRenderTasks()
 #pragma endregion WireFrame
 
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(this->device5);
+	CopyTask* copyOnDemandTask = new CopyOnDemandTask(this->device5);
 
 	// Add the tasks to desired vectors so they can be used in renderer
 	/* -------------------------------------------------------------- */
@@ -851,9 +832,13 @@ void Renderer::InitRenderTasks()
 	/* ------------------------- CopyQueue Tasks ------------------------ */
 
 	this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME] = copyPerFrameTask;
+	this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND] = copyOnDemandTask;
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-		this->copyCommandLists[i].push_back(copyPerFrameTask->GetCommandList(i));
+		m_CopyPerFrameCmdList[i] = copyPerFrameTask->GetCommandList(i);
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandList(i);
 
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
 
@@ -928,48 +913,46 @@ void Renderer::WaitForFrame(unsigned int framesToBeAhead)
 
 void Renderer::PrepareCBPerScene()
 {
-	CB_PER_SCENE_STRUCT cps = {};
 	// ----- directional lights -----
-	cps.Num_Dir_Lights = this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
+	this->cbPerSceneData->Num_Dir_Lights = this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
 	unsigned int index = 0;
 	for (auto& tuple : this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT])
 	{
-		cps.dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		this->cbPerSceneData->dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
 	// ----- directional lights -----
 
 	// ----- point lights -----
-	cps.Num_Point_Lights = this->lights[LIGHT_TYPE::POINT_LIGHT].size();
+	this->cbPerSceneData->Num_Point_Lights = this->lights[LIGHT_TYPE::POINT_LIGHT].size();
 	index = 0;
 	for (auto& tuple : this->lights[LIGHT_TYPE::POINT_LIGHT])
 	{
-		cps.pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		this->cbPerSceneData->pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
 	// ----- point lights -----
 
 	// ----- spot lights -----
-	cps.Num_Spot_Lights = this->lights[LIGHT_TYPE::SPOT_LIGHT].size();
+	this->cbPerSceneData->Num_Spot_Lights = this->lights[LIGHT_TYPE::SPOT_LIGHT].size();
 	index = 0;
 	for (auto& tuple : this->lights[LIGHT_TYPE::SPOT_LIGHT])
 	{
-		cps.spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		this->cbPerSceneData->spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
 	// ----- spot lights -----
 
 	// Upload CB_PER_SCENE to defaultheap
-	this->TempCopyResource(
-		this->cbPerScene->GetUploadResource(),
-		this->cbPerScene->GetCBVResource(),
-		&cps);
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+	const void* data = static_cast<const void*>(this->cbPerSceneData);
+	codt->Submit(&std::make_tuple(this->cbPerScene->GetUploadResource(), this->cbPerScene->GetCBVResource(), data));
 }
 
 void Renderer::PrepareCBPerFrame()
 {
 	CopyPerFrameTask* cpft = nullptr;
-	void* data = nullptr;
+	const void* data = nullptr;
 	ConstantBufferView* cbv = nullptr;
 
 	// Lights
@@ -982,7 +965,7 @@ void Renderer::PrepareCBPerFrame()
 			cbv = std::get<1>(tuple);
 
 			cpft = static_cast<CopyPerFrameTask*>(this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-			cpft->Submit(&std::make_pair(data, cbv));
+			cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetCBVResource(), data));
 		}
 	}
 
@@ -993,15 +976,15 @@ void Renderer::PrepareCBPerFrame()
 	if (cpft != nullptr)
 	{
 		data = static_cast<void*>(this->cbPerFrameData);
-		cpft->Submit(&std::make_pair(data, this->cbPerFrame));
+		cpft->Submit(&std::tuple(this->cbPerFrame->GetUploadResource(), this->cbPerFrame->GetCBVResource(), data));
 	}
 }
 
-void Renderer::WaitForGpu()
+void Renderer::WaitForCopyOnDemand()
 {
 	//Signal and increment the fence value.
 	const UINT64 oldFenceValue = this->fenceFrameValue;
-	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(this->fenceFrame, oldFenceValue);
+	this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(this->fenceFrame, oldFenceValue);
 	this->fenceFrameValue++;
 
 	//Wait until command queue is done.
@@ -1010,32 +993,4 @@ void Renderer::WaitForGpu()
 		this->fenceFrame->SetEventOnCompletion(oldFenceValue, eventHandle);
 		WaitForSingleObject(eventHandle, INFINITE);
 	}
-}
-
-void Renderer::TempCopyResource(Resource* uploadResource, Resource* defaultResource, void* data)
-{
-	this->tempCommandInterface->Reset(0);
-	// Set the data into the upload heap
-	uploadResource->SetData(data);
-
-	this->tempCommandInterface->GetCommandList(0)->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		defaultResource->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_COMMON,
-		D3D12_RESOURCE_STATE_COPY_DEST));
-
-	// To Defaultheap from Uploadheap
-	this->tempCommandInterface->GetCommandList(0)->CopyResource(
-		defaultResource->GetID3D12Resource1(),	// Receiever
-		uploadResource->GetID3D12Resource1());	// Sender
-
-	this->tempCommandInterface->GetCommandList(0)->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		defaultResource->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		D3D12_RESOURCE_STATE_COMMON));
-
-	this->tempCommandInterface->GetCommandList(0)->Close();
-	ID3D12CommandList* ppCommandLists[] = { this->tempCommandInterface->GetCommandList(0) };
-	// this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Wait(this->fenceFrame, this->fenceFrameValue - 1);
-	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(ARRAYSIZE(ppCommandLists), ppCommandLists);
-	this->WaitForGpu();
 }
