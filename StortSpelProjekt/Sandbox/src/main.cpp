@@ -1,8 +1,5 @@
 #include "Engine.h"
 
-// Helps intellisense to understand that stdafx is included
-//#include "Headers/stdafx.h"
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
