@@ -16,9 +16,6 @@ public:
 	void Clear();
 
 	void Execute();
-
-private:
-	
 };
 
 #endif

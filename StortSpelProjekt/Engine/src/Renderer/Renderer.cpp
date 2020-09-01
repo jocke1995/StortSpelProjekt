@@ -194,7 +194,7 @@ void Renderer::SortObjectsByDistance()
 								pow(camPos.y - objectPos.y, 2) +
 								pow(camPos.z - objectPos.z, 2));
 
-		// Save the object alongside its distance to the camera
+		// Save the object alongside its distance to the m_pCamera
 		distFromCamArr[i].distance = distance;
 		distFromCamArr[i].mc = m_RenderComponents.at(i).first;
 		distFromCamArr[i].tc = m_RenderComponents.at(i).second;
@@ -366,7 +366,7 @@ bool Renderer::createDevice()
 			break; // No more adapters
 		}
 	
-		// Check to see if the adapter supports Direct3D 12, but don't create the actual device yet.
+		// Check to see if the adapter supports Direct3D 12, but don't create the actual m_pDevice yet.
 		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, __uuidof(ID3D12Device5), nullptr)))
 		{
 			break;
@@ -392,7 +392,7 @@ bool Renderer::createDevice()
 	}
 	else
 	{
-		//Create warp device if no adapter was found.
+		//Create warp m_pDevice if no adapter was found.
 		factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
 		D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pDevice5));
 	}
@@ -490,7 +490,7 @@ void Renderer::updateMousePicker()
 
 	for (component::BoundingBoxComponent* bbc : m_BoundingBoxesToBePicked)
 	{
-		// Reset picked entities from last frame
+		// Reset picked m_Entities from last frame
 		bbc->IsPickedThisFrame() = false;
 
 		if (m_pMousePicker->Pick(bbc, tempDist) == true)
@@ -822,7 +822,7 @@ void Renderer::initRenderTasks()
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5);
 	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5);
 
-	// Add the tasks to desired vectors so they can be used in renderer
+	// Add the tasks to desired vectors so they can be used in m_pRenderer
 	/* -------------------------------------------------------------- */
 
 
@@ -918,7 +918,7 @@ void Renderer::prepareCBPerScene()
 		m_pCbPerSceneData->dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
-	// ----- directional lights -----
+	// ----- directional m_lights -----
 
 	// ----- point lights -----
 	m_pCbPerSceneData->Num_Point_Lights = m_Lights[LIGHT_TYPE::POINT_LIGHT].size();
@@ -928,7 +928,7 @@ void Renderer::prepareCBPerScene()
 		m_pCbPerSceneData->pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
-	// ----- point lights -----
+	// ----- point m_lights -----
 
 	// ----- spot lights -----
 	m_pCbPerSceneData->Num_Spot_Lights = m_Lights[LIGHT_TYPE::SPOT_LIGHT].size();
@@ -938,7 +938,7 @@ void Renderer::prepareCBPerScene()
 		m_pCbPerSceneData->spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
-	// ----- spot lights -----
+	// ----- spot m_lights -----
 
 	// Upload CB_PER_SCENE to defaultheap
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);

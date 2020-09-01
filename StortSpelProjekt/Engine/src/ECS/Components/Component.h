@@ -13,7 +13,7 @@ public:
 	Entity* const GetParent() const;
 
 protected:
-	Entity* parent = nullptr;
+	Entity* m_pParent = nullptr;
 };
 
 #endif

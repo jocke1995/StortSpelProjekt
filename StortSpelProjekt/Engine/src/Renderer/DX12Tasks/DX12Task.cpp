@@ -5,25 +5,25 @@
 
 DX12Task::DX12Task(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType)
 {
-	this->commandInterface = new CommandInterface(device, interfaceType);
+	this->m_pCommandInterface = new CommandInterface(device, interfaceType);
 }
 
 DX12Task::~DX12Task()
 {
-	delete this->commandInterface;
+	delete this->m_pCommandInterface;
 }
 
 void DX12Task::SetBackBufferIndex(int backBufferIndex)
 {
-	this->backBufferIndex = backBufferIndex;
+	this->m_BackBufferIndex = backBufferIndex;
 }
 
 void DX12Task::SetCommandInterfaceIndex(int index)
 {
-	this->commandInterfaceIndex = index;
+	this->m_CommandInterfaceIndex = index;
 }
 
 ID3D12GraphicsCommandList5* DX12Task::GetCommandList(unsigned int index) const
 {
-	return this->commandInterface->GetCommandList(index);
+	return this->m_pCommandInterface->GetCommandList(index);
 }

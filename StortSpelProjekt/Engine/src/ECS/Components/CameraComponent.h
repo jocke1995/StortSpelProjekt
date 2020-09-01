@@ -10,7 +10,6 @@ namespace component
 	class CameraComponent : public Component
 	{
 	public:
-
 		// Temp Constructor to handle input
 		CameraComponent(Entity* parent, HINSTANCE hInstance, HWND hwnd, bool primary = false);
 		
@@ -47,13 +46,13 @@ namespace component
 		void Update(double dt);
 
 	private:
-		BaseCamera* camera = nullptr;
-		CAMERA_TYPE camType = CAMERA_TYPE::UNDEFINED;
-		bool primaryCamera = false;
+		BaseCamera* m_pCamera = nullptr;
+		CAMERA_TYPE m_CamType = CAMERA_TYPE::UNDEFINED;
+		bool m_PrimaryCamera = false;
 
-		// Todo: add and calculate mesh to be able to draw frustrum in wireframe
+		// Todo: add and calculate m_pMesh to be able to draw frustrum in wireframe
 
-		BaseCamera* CreatePerspective(
+		BaseCamera* createPerspective(
 			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
 			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
 			double fov = 45.0f,
@@ -61,7 +60,7 @@ namespace component
 			double zNear = 0.1f,
 			double zFar = 1000.0f);
 
-		BaseCamera* CreateOrthographic(
+		BaseCamera* createOrthographic(
 			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
 			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
 			float left = -40.0f,

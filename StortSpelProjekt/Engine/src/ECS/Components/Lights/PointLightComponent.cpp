@@ -13,49 +13,49 @@ namespace component
 	PointLightComponent::PointLightComponent(Entity* parent, unsigned int lightFlags)
 		:Component(parent), Light(CAMERA_TYPE::PERSPECTIVE, lightFlags)
 	{
-		this->pointLight = new PointLight();
-		this->pointLight->position = { 0.0f,  2.0f,  0.0f, 0.0f };
-		this->pointLight->attenuation = { 1.0f, 0.09f, 0.032f, 0.0f };
-		this->pointLight->baseLight = *this->baseLight;
+		m_pPointLight = new PointLight();
+		m_pPointLight->position = { 0.0f,  2.0f,  0.0f, 0.0f };
+		m_pPointLight->attenuation = { 1.0f, 0.09f, 0.032f, 0.0f };
+		m_pPointLight->baseLight = *m_pBaseLight;
 	}
 
 	PointLightComponent::~PointLightComponent()
 	{
-		delete this->pointLight;
+		delete m_pPointLight;
 	}
 
 	void PointLightComponent::Update(double dt)
 	{
-		if (this->camera != nullptr)
+		if (m_pCamera != nullptr)
 		{
-			this->camera->Update(dt);
+			m_pCamera->Update(dt);
 		}
 
-		if (this->lightFlags & FLAG_LIGHT::USE_TRANSFORM_POSITION)
+		if (m_LightFlags & FLAG_LIGHT::USE_TRANSFORM_POSITION)
 		{
-			Transform* tc = this->parent->GetComponent<TransformComponent>()->GetTransform();
+			Transform* tc = m_pParent->GetComponent<TransformComponent>()->GetTransform();
 			float3 position = tc->GetPositionFloat3();
-			this->pointLight->position.x = position.x;
-			this->pointLight->position.y = position.y;
-			this->pointLight->position.z = position.z;
+			m_pPointLight->position.x = position.x;
+			m_pPointLight->position.y = position.y;
+			m_pPointLight->position.z = position.z;
 		}
 	}
 
 	void PointLightComponent::SetPosition(float3 position)
 	{
-		this->pointLight->position = { position.x, position.y, position.z, 1.0f };
+		m_pPointLight->position = { position.x, position.y, position.z, 1.0f };
 	}
 
 	void PointLightComponent::SetAttenuation(float3 attenuation)
 	{
-		this->pointLight->attenuation.x = attenuation.x;
-		this->pointLight->attenuation.y = attenuation.y;
-		this->pointLight->attenuation.z = attenuation.z;
+		m_pPointLight->attenuation.x = attenuation.x;
+		m_pPointLight->attenuation.y = attenuation.y;
+		m_pPointLight->attenuation.z = attenuation.z;
 	}
 
 	void* PointLightComponent::GetLightData() const
 	{
-		return this->pointLight;
+		return m_pPointLight;
 	}
 
 	void PointLightComponent::UpdateLightData(COLOR_TYPE type)
@@ -63,13 +63,13 @@ namespace component
 		switch (type)
 		{
 		case COLOR_TYPE::LIGHT_AMBIENT:
-			this->pointLight->baseLight.ambient = this->baseLight->ambient;
+			m_pPointLight->baseLight.ambient = m_pBaseLight->ambient;
 			break;
 		case COLOR_TYPE::LIGHT_DIFFUSE:
-			this->pointLight->baseLight.diffuse = this->baseLight->diffuse;
+			m_pPointLight->baseLight.diffuse = m_pBaseLight->diffuse;
 			break;
 		case COLOR_TYPE::LIGHT_SPECULAR:
-			this->pointLight->baseLight.specular = this->baseLight->specular;
+			m_pPointLight->baseLight.specular = m_pBaseLight->specular;
 			break;
 		}
 	}

@@ -16,7 +16,7 @@ public:
 	void Execute();
 
 private:
-	void DrawRenderComponent(
+	void drawRenderComponent(
 		component::MeshComponent* mc,
 		component::TransformComponent* tc,
 		const DirectX::XMMATRIX* viewProjTransposed,

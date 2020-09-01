@@ -42,9 +42,9 @@ public:
 	ID3D12GraphicsCommandList5* GetCommandList(unsigned int index) const;
 protected:
 
-	CommandInterface* commandInterface = nullptr;
-	int backBufferIndex = -1;
-	int commandInterfaceIndex = -1;
+	CommandInterface* m_pCommandInterface = nullptr;
+	int m_BackBufferIndex = -1;
+	int m_CommandInterfaceIndex = -1;
 };
 
 #endif

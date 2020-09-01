@@ -21,7 +21,7 @@ OutliningRenderTask::OutliningRenderTask(
 	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName)
 {
 	// Init with nullptr
-	this->Clear();
+	Clear();
 }
 
 OutliningRenderTask::~OutliningRenderTask()
@@ -30,24 +30,24 @@ OutliningRenderTask::~OutliningRenderTask()
 
 void OutliningRenderTask::Execute()
 {
-	ID3D12CommandAllocator* commandAllocator = this->commandInterface->GetCommandAllocator(this->commandInterfaceIndex);
-	ID3D12GraphicsCommandList5* commandList = this->commandInterface->GetCommandList(this->commandInterfaceIndex);
-	ID3D12Resource1* swapChainResource = this->renderTargets["swapChain"]->GetResource(this->backBufferIndex)->GetID3D12Resource1();
+	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
+	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
+	ID3D12Resource1* swapChainResource = m_RenderTargets["swapChain"]->GetResource(m_BackBufferIndex)->GetID3D12Resource1();
 
-	this->commandInterface->Reset(this->commandInterfaceIndex);
+	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
-	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
+	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
 	ID3D12DescriptorHeap* d3d12DescriptorHeap = descriptorHeap_CBV_UAV_SRV->GetID3D12DescriptorHeap();
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
 
-	DescriptorHeap* renderTargetHeap = this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
-	DescriptorHeap* depthBufferHeap = this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
+	DescriptorHeap* renderTargetHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
+	DescriptorHeap* depthBufferHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 
-	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(this->backBufferIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
 	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
 
 	// Check if there is an object to outline
-	if (this->objectToOutline.first == nullptr)
+	if (m_ObjectToOutline.first == nullptr)
 	{
 		commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_STENCIL, 0.0f, 0, 0, nullptr);
 		commandList->Close();
@@ -55,7 +55,7 @@ void OutliningRenderTask::Execute()
 	}
 	// else continue as usual
 
-	commandList->SetGraphicsRootSignature(this->rootSig);
+	commandList->SetGraphicsRootSignature(m_pRootSig);
 	commandList->SetGraphicsRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
 
 	// Change state on front/backbuffer
@@ -66,22 +66,22 @@ void OutliningRenderTask::Execute()
 
 	commandList->OMSetRenderTargets(1, &cdh, true, &dsh);
 
-	SwapChain* sc = static_cast<SwapChain*>(this->renderTargets["swapChain"]);
+	SwapChain* sc = static_cast<SwapChain*>(m_RenderTargets["swapChain"]);
 	const D3D12_VIEWPORT* viewPort = sc->GetRenderView()->GetViewPort();
 	const D3D12_RECT* rect = sc->GetRenderView()->GetScissorRect();
 	commandList->RSSetViewports(1, viewPort);
 	commandList->RSSetScissorRects(1, rect);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	commandList->SetPipelineState(this->pipelineStates[0]->GetPSO());
+	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
-	const DirectX::XMMATRIX* viewProjMatTrans = this->camera->GetViewProjectionTranposed();
+	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
 
-	// Draw for every mesh
-	for (int i = 0; i < this->objectToOutline.first->GetNrOfMeshes(); i++)
+	// Draw for every m_pMesh
+	for (int i = 0; i < m_ObjectToOutline.first->GetNrOfMeshes(); i++)
 	{
-		Mesh* m = this->objectToOutline.first->GetMesh(i);
-		Transform* t = this->objectToOutline.second->GetTransform();
+		Mesh* m = m_ObjectToOutline.first->GetMesh(i);
+		Transform* t = m_ObjectToOutline.second->GetTransform();
 		Transform newScaledTransform = *t;
 		newScaledTransform.IncreaseScaleByPercent(0.02f);
 		newScaledTransform.UpdateWorldMatrix();
@@ -114,11 +114,11 @@ void OutliningRenderTask::Execute()
 
 void OutliningRenderTask::SetObjectToOutline(std::pair<component::MeshComponent*, component::TransformComponent*>* objectToOutline)
 {
-	this->objectToOutline = *objectToOutline;
+	m_ObjectToOutline = *objectToOutline;
 }
 
 void OutliningRenderTask::Clear()
 {
-	this->objectToOutline.first = nullptr;
-	this->objectToOutline.second = nullptr;
+	m_ObjectToOutline.first = nullptr;
+	m_ObjectToOutline.second = nullptr;
 }

@@ -18,7 +18,7 @@ public:
 
 	void Execute();
 private:
-	std::vector<std::pair<Light*, ShadowInfo*>> lights;
+	std::vector<std::pair<Light*, ShadowInfo*>> m_lights;
 };
 
 #endif

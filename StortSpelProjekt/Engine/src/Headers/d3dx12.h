@@ -3221,7 +3221,7 @@ private:
     D3D12_HIT_GROUP_DESC m_Desc;
     static const UINT m_NumStrings = 4;
     CD3DX12_STATE_OBJECT_DESC::StringContainer 
-        m_Strings[m_NumStrings]; // one string for every entrypoint name
+        m_Strings[m_NumStrings]; // one string for every entrypoint m_Name
 };
 
 //------------------------------------------------------------------------------------------------

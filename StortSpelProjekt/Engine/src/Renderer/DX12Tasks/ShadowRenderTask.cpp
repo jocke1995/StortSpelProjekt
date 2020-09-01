@@ -30,29 +30,29 @@ ShadowRenderTask::~ShadowRenderTask()
 
 void ShadowRenderTask::AddShadowCastingLight(std::pair<Light*, ShadowInfo*> light)
 {
-	this->lights.push_back(light);
+	m_lights.push_back(light);
 }
 
 void ShadowRenderTask::Execute()
 {
-	ID3D12CommandAllocator* commandAllocator = this->commandInterface->GetCommandAllocator(this->commandInterfaceIndex);
-	ID3D12GraphicsCommandList5* commandList = this->commandInterface->GetCommandList(this->commandInterfaceIndex);
-	this->commandInterface->Reset(this->commandInterfaceIndex);
+	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
+	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
+	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 	
-	commandList->SetGraphicsRootSignature(this->rootSig);
+	commandList->SetGraphicsRootSignature(m_pRootSig);
 
-	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
+	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
 	ID3D12DescriptorHeap* d3d12DescriptorHeap = descriptorHeap_CBV_UAV_SRV->GetID3D12DescriptorHeap();
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
 
 	commandList->SetGraphicsRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
 
-	DescriptorHeap* depthBufferHeap = this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
+	DescriptorHeap* depthBufferHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 
 	// Draw for every shadow-casting-light
-	for (auto pair : this->lights)
+	for (auto pair : m_lights)
 	{
-		commandList->SetPipelineState(this->pipelineStates[0]->GetPSO());
+		commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		const D3D12_VIEWPORT* viewPort = pair.second->GetRenderView()->GetViewPort();
@@ -74,15 +74,15 @@ void ShadowRenderTask::Execute()
 		commandList->OMSetRenderTargets(0, nullptr, true, &dsh);
 
 		// Draw for every Rendercomponent
-		for (int i = 0; i < this->renderComponents.size(); i++)
+		for (int i = 0; i < m_RenderComponents.size(); i++)
 		{
-			component::MeshComponent* mc = this->renderComponents.at(i).first;
-			component::TransformComponent* tc = this->renderComponents.at(i).second;
+			component::MeshComponent* mc = m_RenderComponents.at(i).first;
+			component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
 			// Check if the object is to be drawn in ShadowPass
 			if (mc->GetDrawFlag() & FLAG_DRAW::Shadow)
 			{
-				// Draw for every mesh the meshComponent has
+				// Draw for every m_pMesh the meshComponent has
 				for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 				{
 					size_t num_Indices = mc->GetMesh(i)->GetNumIndices();

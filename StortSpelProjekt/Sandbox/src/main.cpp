@@ -73,7 +73,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::BoundingBoxComponent>(true);
     entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
-    // Set the components
+    // Set the m_Components
     component::MeshComponent* mc = scene->GetEntity("floor")->GetComponent<component::MeshComponent>();
     mc->SetMeshes(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
@@ -199,9 +199,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			// Test to change scene during runtime
 			//static int sceneSwapper = 0;
 			//sceneSwapper %= 2;
-			//sprintf(sceneName, "scene%d", sceneSwapper);
-			//Log::Print("Scene: %s\n", sceneName);
-			//sceneManager->EditScene(sceneManager->GetScene(sceneName));
+			//sprintf(m_SceneName, "scene%d", sceneSwapper);
+			//Log::Print("Scene: %s\n", m_SceneName);
+			//sceneManager->EditScene(sceneManager->GetScene(m_SceneName));
 			//sceneSwapper++;
 
             // Test to remove picked object

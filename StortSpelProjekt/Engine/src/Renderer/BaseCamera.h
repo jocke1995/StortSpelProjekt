@@ -29,6 +29,7 @@ protected:
 	DirectX::XMVECTOR m_EyeVector;
 	DirectX::XMVECTOR m_AtVector;
 	DirectX::XMVECTOR m_UpVector;
+
 	DirectX::XMMATRIX m_ViewMatrix;
 	DirectX::XMMATRIX m_ViewMatrixInverse;
 

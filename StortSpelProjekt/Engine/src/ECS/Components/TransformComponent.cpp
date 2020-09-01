@@ -7,22 +7,22 @@ namespace component
 	TransformComponent::TransformComponent(Entity* parent)
 		:Component(parent)
 	{
-		this->transform = new Transform();
+		m_pTransform = new Transform();
 	}
 
 	TransformComponent::~TransformComponent()
 	{
-		delete this->transform;
+		delete m_pTransform;
 	}
 
 	void TransformComponent::Update(double dt)
 	{
 
-		this->transform->UpdateWorldMatrix();
+		m_pTransform->UpdateWorldMatrix();
 	}
 
 	Transform* TransformComponent::GetTransform() const
 	{
-		return this->transform;
+		return m_pTransform;
 	}
 }

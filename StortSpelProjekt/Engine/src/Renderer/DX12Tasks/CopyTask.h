@@ -17,7 +17,7 @@ public:
 	virtual void Clear() = 0;
 
 protected:
-	std::vector<std::tuple<Resource*, Resource*, const void*>> m_Upload_Default_Data;
+	std::vector<std::tuple<Resource*, Resource*, const void*>> m_UploadDefaultData;
 
 	void copyResource(
 		ID3D12GraphicsCommandList5* commandList,

@@ -17,13 +17,13 @@ public:
 
 	void ExitThreads();
 private:
-	std::vector<Thread*> threads;
+	std::vector<Thread*> m_Threads;
 
-	int nrOfThreads;
-	unsigned int threadCounter = 0;
+	int m_NrOfThreads;
+	unsigned int m_ThreadCounter = 0;
 
-	bool IsAllFinished(unsigned int flag);
-	bool IsThreadsQueuesEmpty(unsigned int flag);
+	bool isAllFinished(unsigned int flag);
+	bool isThreadsQueuesEmpty(unsigned int flag);
 };
 
 #endif
