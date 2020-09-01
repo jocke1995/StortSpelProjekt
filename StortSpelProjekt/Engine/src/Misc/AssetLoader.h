@@ -1,11 +1,11 @@
 #ifndef ASSETLOADER_H
 #define ASSETLOADER_H
 
-#include "DescriptorHeap.h"
+#include "../Renderer/DescriptorHeap.h"
 
-#include "Mesh.h"
-#include "Shader.h"
-#include "Texture.h"
+#include "../Renderer/Mesh.h"
+#include "../Renderer/Shader.h"
+#include "../Renderer/Texture.h"
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
@@ -20,7 +20,7 @@ public:
 
     /* Load Functions */
     // Model ---------------
-    std::vector<Mesh*>* LoadModel(const std::wstring path, bool* loadedBefore);
+    std::vector<Mesh*>* LoadModel(const std::wstring path);
 
     // Texture ------------
     Texture* LoadTexture(std::wstring path);
@@ -31,6 +31,7 @@ private:
     // SceneManager needs access to loadedModels & loadedTextures so it can check if they are uploaded to GPU.
     friend class SceneManager;
 
+    // Constructor currently called from renderer to set dx12 specific objects
     AssetLoader(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr);
     AssetLoader(AssetLoader const&) = delete;
     void operator=(AssetLoader const&) = delete;

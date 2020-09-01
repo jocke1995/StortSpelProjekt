@@ -15,11 +15,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
 
+    /*------ AssetLoader to load models / textures ------*/
+    AssetLoader* al = AssetLoader::Get();
+
     // This will be loaded once from disk, then the next time the same function is called (with the same filepath),
     // the function will just return the same pointer to the model that was loaded earlier.
-    std::vector<Mesh*>* floorModel = renderer->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
-    std::vector<Mesh*>* stoneModel = renderer->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
-    std::vector<Mesh*>* cubeModel  = renderer->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    std::vector<Mesh*>* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    std::vector<Mesh*>* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    std::vector<Mesh*>* cubeModel  = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
 #pragma region CreateScene0
     // Create Scene
@@ -103,8 +106,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc->SetMeshes(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::Blend);
 
-    Texture* ambientDefault = renderer->LoadTexture(L"../Vendor/Resources/Textures/Default/default_ambient.png");
-    Texture* normalDefault = renderer->LoadTexture(L"../Vendor/Resources/Textures/Default/default_normal.png");
+    Texture* ambientDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_ambient.png");
+    Texture* normalDefault  = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_normal.png");
     mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::AMBIENT , ambientDefault);
     mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::DIFFUSE , ambientDefault);
     mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::SPECULAR, ambientDefault);

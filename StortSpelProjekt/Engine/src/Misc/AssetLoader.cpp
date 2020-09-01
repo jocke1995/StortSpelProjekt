@@ -45,12 +45,11 @@ AssetLoader* AssetLoader::Get(ID3D12Device5* device, DescriptorHeap* descriptorH
 	return &instance;
 }
 
-std::vector<Mesh*>* AssetLoader::LoadModel(const std::wstring path, bool* loadedBefore)
+std::vector<Mesh*>* AssetLoader::LoadModel(const std::wstring path)
 {
 	// Check if the model already exists
 	if (this->loadedModels.count(path) != 0)
 	{
-		*loadedBefore = true;
 		return this->loadedModels[path].second;
 	}
 
@@ -73,7 +72,6 @@ std::vector<Mesh*>* AssetLoader::LoadModel(const std::wstring path, bool* loaded
 
 	this->ProcessNode(assimpScene->mRootNode, assimpScene, meshes, &filePath);
 
-	*loadedBefore = false;
 	return this->loadedModels[path].second;
 }
 

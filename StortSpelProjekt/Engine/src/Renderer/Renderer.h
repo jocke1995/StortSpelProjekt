@@ -39,9 +39,6 @@ public:
 	// Call once
 	void InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool);
 
-	std::vector<Mesh*>* LoadModel(std::wstring path);
-	Texture* LoadTexture(std::wstring path);
-
 	// Call each frame
 	void Update(double dt);
 	void SortObjectsByDistance();
