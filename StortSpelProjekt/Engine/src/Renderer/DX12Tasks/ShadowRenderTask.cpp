@@ -9,6 +9,9 @@
 #include "../CommandInterface.h"
 #include "../PipelineState.h"
 #include "../ShadowInfo.h"
+#include "../Renderer/Transform.h"
+#include "../Renderer/Mesh.h"
+#include "../Renderer/BaseCamera.h"
 
 ShadowRenderTask::ShadowRenderTask(
 	ID3D12Device5* device,

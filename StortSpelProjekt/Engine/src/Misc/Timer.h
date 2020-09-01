@@ -1,8 +1,8 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include "Window.h"
 #include <chrono>
+class Window;
 class Timer
 {
 public:

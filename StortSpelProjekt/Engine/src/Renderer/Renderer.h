@@ -19,6 +19,7 @@ class MousePicker;
 class ViewPool;
 class BoundingBoxPool;
 class ShadowInfo;
+class DescriptorHeap;
 
 enum COMMAND_INTERFACE_TYPE;
 enum class DESCRIPTOR_HEAP_TYPE;
@@ -32,6 +33,7 @@ class Light;
 class RenderTask;
 class WireframeRenderTask;
 class OutliningRenderTask;
+class BaseCamera;
 
 // Copy
 class CopyTask;
@@ -43,6 +45,13 @@ class ComputeTask;
 struct ID3D12CommandQueue;
 struct ID3D12CommandList;
 struct ID3D12Fence1;
+struct ID3D12Device5;
+
+namespace component
+{
+	class MeshComponent;
+	class TransformComponent;
+}
 
 class Renderer
 {

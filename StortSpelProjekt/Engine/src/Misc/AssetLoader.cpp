@@ -3,6 +3,16 @@
 
 #include "../Renderer/Material.h"
 
+#include "../Renderer/DescriptorHeap.h"
+
+#include "../Renderer/Mesh.h"
+#include "../Renderer/Shader.h"
+#include "../Renderer/Texture.h"
+
+#include "assimp/Importer.hpp"
+#include "assimp/postprocess.h"
+#include "assimp/scene.h"
+
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
 {
 	this->device = device;

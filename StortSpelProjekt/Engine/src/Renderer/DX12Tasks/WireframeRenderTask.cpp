@@ -8,6 +8,9 @@
 #include "../SwapChain.h"
 #include "../Resource.h"
 #include "../PipelineState.h"
+#include "../Renderer/Transform.h"
+#include "../Renderer/Mesh.h"
+#include "../Renderer/BaseCamera.h"
 
 WireframeRenderTask::WireframeRenderTask(
 	ID3D12Device5* device,

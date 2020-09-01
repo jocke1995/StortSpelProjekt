@@ -11,6 +11,9 @@
 #include "../Resource.h"
 #include "../PipelineState.h"
 #include "../Material.h"
+#include "../Renderer/Transform.h"
+#include "../Renderer/Mesh.h"
+#include "../Renderer/BaseCamera.h"
 
 BlendRenderTask::BlendRenderTask(	
 	ID3D12Device5* device,

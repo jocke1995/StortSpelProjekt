@@ -3,9 +3,9 @@
 
 #include <queue>
 #include <mutex>
-#include "MultiThreadedTask.h"
 #include "Core.h"
 
+class MultiThreadedTask;
 
 enum FLAG_THREAD
 {

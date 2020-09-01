@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "Light.h"
 
+#include "../../Entity.h"
+
+#include "../../../Renderer/OrthographicCamera.h"
+#include "../../../Renderer/PerspectiveCamera.h"
+
 Light::Light(CAMERA_TYPE camType, unsigned int lightFlags)
 {
 	this->cameraType = camType;

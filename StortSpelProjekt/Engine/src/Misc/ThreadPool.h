@@ -1,7 +1,10 @@
 #ifndef THREADPOOL_H
 #define THREADPOOL_H
 
-#include "Thread.h"
+#include <vector>
+
+class Thread;
+class MultiThreadedTask;
 class ThreadPool
 {
 public:

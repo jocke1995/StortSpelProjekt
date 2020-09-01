@@ -8,7 +8,9 @@
 #include "../Resource.h"
 #include "../GraphicsState.h"
 #include "../SwapChain.h"
-
+#include "../Renderer/Transform.h"
+#include "../Renderer/Mesh.h"
+#include "../Renderer/BaseCamera.h"
 
 OutliningRenderTask::OutliningRenderTask(
 	ID3D12Device5* device,

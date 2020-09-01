@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "TransformComponent.h"
+#include "../../Renderer/Transform.h"
 
 namespace component
 {

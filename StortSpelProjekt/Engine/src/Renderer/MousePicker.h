@@ -1,8 +1,10 @@
 #ifndef MOUSEPICKER_H
 #define MOUSEPICKER_H
 
-class BaseCamera;
 #include "../ECS/Components/BoundingBoxComponent.h"
+#include "EngineMath.h"
+class BaseCamera;
+
 
 // Todo: Currently picking from middle of the screen (like a first person shooter)
 // Add real mouse coordinates when event-system + inputHandler is implemented

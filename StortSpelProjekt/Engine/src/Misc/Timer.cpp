@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Timer.h"
+#include "Window.h"
 
 Timer::Timer(Window* window)
 {

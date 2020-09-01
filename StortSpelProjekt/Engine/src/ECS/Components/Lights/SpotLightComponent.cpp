@@ -1,7 +1,13 @@
 #include "stdafx.h"
 #include "SpotLightComponent.h"
-
 #include "EngineMath.h"
+
+// Renderer
+#include "../Renderer/Transform.h"
+#include "../Renderer/BaseCamera.h"
+
+// ECS
+#include "../ECS/Entity.h"
 
 namespace component
 {

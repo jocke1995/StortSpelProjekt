@@ -10,6 +10,9 @@
 #include "../Resource.h"
 #include "../PipelineState.h"
 #include "../Material.h"
+#include "../Renderer/Transform.h"
+#include "../Renderer/Mesh.h"
+#include "../BaseCamera.h"
 
 FowardRenderTask::FowardRenderTask(
 	ID3D12Device5* device,

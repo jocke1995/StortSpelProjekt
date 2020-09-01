@@ -1,5 +1,16 @@
 #include "stdafx.h"
 #include "BoundingBoxComponent.h"
+#include "../Renderer/Mesh.h"
+
+#include "../Entity.h"
+
+// Creating the BB out of the model
+#include "MeshComponent.h"
+
+// Using the same transform as the models transform
+#include "TransformComponent.h"
+
+#include "../Renderer/BoundingBoxPool.h"
 
 namespace component
 {

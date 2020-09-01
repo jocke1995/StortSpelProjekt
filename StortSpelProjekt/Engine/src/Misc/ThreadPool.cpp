@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ThreadPool.h"
-
+#include "Thread.h"
 ThreadPool::ThreadPool(int nrOfThreads)
 {
 	this->nrOfThreads = nrOfThreads;

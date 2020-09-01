@@ -1,9 +1,8 @@
 #ifndef MESHCOMPONENT_H
 #define MESHCOMPONENT_H
 
-#include "../../Renderer/Mesh.h"
 #include "Component.h"
-
+class Mesh;
 namespace component
 {
     class MeshComponent : public Component

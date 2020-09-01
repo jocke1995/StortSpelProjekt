@@ -1,15 +1,17 @@
 #ifndef ASSETLOADER_H
 #define ASSETLOADER_H
 
-#include "../Renderer/DescriptorHeap.h"
+#include "Core.h"
 
-#include "../Renderer/Mesh.h"
-#include "../Renderer/Shader.h"
-#include "../Renderer/Texture.h"
+class DescriptorHeap;
+class Mesh;
+class Shader;
+class Texture;
+struct aiNode;
+struct aiScene;
+struct aiMesh;
+struct aiMaterial;
 
-#include "assimp/Importer.hpp"
-#include "assimp/postprocess.h"
-#include "assimp/scene.h"
 
 class AssetLoader
 {

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "MeshComponent.h"
-
+#include "../Renderer/Mesh.h"
 namespace component
 {
 	MeshComponent::MeshComponent(Entity* parent)

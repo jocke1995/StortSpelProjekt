@@ -6,6 +6,7 @@
 class DescriptorHeap;
 class Mesh;
 struct Vertex;
+struct ID3D12Device5;
 
 struct BoundingBoxData
 {

@@ -4,9 +4,10 @@
 // Misc
 #include "../Misc/ThreadPool.h"
 #include "../Misc/AssetLoader.h"
-
+#include "../Misc/Thread.h"
 // ECS
 #include "../ECS/Scene.h"
+#include "../ECS/Entity.h"
 
 // Renderer-Engine 
 #include "RootSignature.h"
@@ -17,6 +18,9 @@
 #include "ViewPool.h"
 #include "BoundingBoxPool.h"
 #include "CommandInterface.h"
+#include "DescriptorHeap.h"
+#include "Transform.h"
+#include "BaseCamera.h"
 
 // Graphics
 #include "DX12Tasks/WireframeRenderTask.h"

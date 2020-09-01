@@ -2,8 +2,10 @@
 #define SCENEMANAGER_H
 
 #include "Scene.h"
-#include "../Renderer/Renderer.h"
 #include "../Renderer/MousePicker.h"
+
+class Entity;
+class Renderer;
 
 class SceneManager 
 {

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DirectionalLightComponent.h"
+#include "../Renderer/BaseCamera.h"
 
 namespace component
 {

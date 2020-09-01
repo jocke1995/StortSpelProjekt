@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Thread.h"
+#include "MultiThreadedTask.h"
 
 unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 {

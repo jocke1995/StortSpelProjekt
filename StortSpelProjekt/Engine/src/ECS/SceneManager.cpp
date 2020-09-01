@@ -3,6 +3,8 @@
 
 #include "../Misc/AssetLoader.h"
 
+#include "../Renderer/Renderer.h"
+
 // Renderer
 #include "../Renderer/CommandInterface.h"
 #include "../Renderer/ShaderResourceView.h"
@@ -10,6 +12,8 @@
 #include "../Renderer/Material.h"
 #include "../Renderer/ShadowInfo.h"
 #include "../Renderer/ViewPool.h"
+#include "../Renderer/Texture.h"
+#include "../Renderer/Mesh.h"
 
 // CopyTasks
 #include "../Renderer/DX12Tasks/CopyOnDemandTask.h"
@@ -19,11 +23,14 @@
 // WireFrame (currently only used for debugging boundingBoxes
 #include "../Renderer/DX12Tasks/WireframeRenderTask.h"
 #include "../Renderer/DX12Tasks/ShadowRenderTask.h"
+#include "../Renderer/BoundingBoxPool.h"
 
 // Components
 #include "../ECS/Components/Lights/DirectionalLightComponent.h"
 #include "../ECS/Components/Lights/PointLightComponent.h"
 #include "../ECS/Components/Lights/SpotLightComponent.h"
+#include "../ECS/Entity.h"
+
 SceneManager::SceneManager(Renderer* r)
 {
 	this->renderer = r;

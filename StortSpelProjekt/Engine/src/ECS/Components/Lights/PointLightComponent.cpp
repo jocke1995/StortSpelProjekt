@@ -1,6 +1,13 @@
 #include "stdafx.h"
 #include "PointLightComponent.h"
 
+// Renderer
+#include "../Renderer/Transform.h"
+#include "../Renderer/BaseCamera.h"
+
+// ECS
+#include "../ECS/Entity.h"
+
 namespace component
 {
 	PointLightComponent::PointLightComponent(Entity* parent, unsigned int lightFlags)

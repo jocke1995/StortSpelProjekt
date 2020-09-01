@@ -2,7 +2,7 @@
 #define BASECAMERA_H
 
 #include "Core.h"
-#include <DirectXMath.h>
+#include "EngineMath.h"
 
 class BaseCamera
 {

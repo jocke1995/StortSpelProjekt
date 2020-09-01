@@ -1,9 +1,8 @@
 #ifndef CAMERACOMPONENT_H
 #define CAMERACOMPONENT_H
-
+#include "EngineMath.h"
 #include "Component.h"
 #include "Core.h"
-
 class BaseCamera;
 
 namespace component

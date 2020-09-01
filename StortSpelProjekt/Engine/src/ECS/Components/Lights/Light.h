@@ -1,12 +1,9 @@
 #ifndef LIGHT_H
 #define LIGHT_H
-
-#include "../../Entity.h"
-
-#include "../../../Renderer/OrthographicCamera.h"
-#include "../../../Renderer/PerspectiveCamera.h"
+#include "Core.h"
 #include "structs.h"
 
+class BaseCamera;
 enum FLAG_LIGHT
 {
 	// Set flag to make the light position inherit the position of the corresponding mesh

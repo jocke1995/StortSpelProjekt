@@ -1,11 +1,10 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include <string>
 #include <map>
-#include "Entity.h"
-
-#include "../Renderer/BaseCamera.h"
+#include "Core.h"
+class Entity;
+class BaseCamera;
 
 class Scene
 {

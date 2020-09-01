@@ -3,6 +3,9 @@
 
 #include "EngineMath.h"
 #include "BaseCamera.h"
+#include "../Renderer/Transform.h"
+#include "../Renderer/Mesh.h"
+#include "../Renderer/BoundingBoxPool.h"
 
 MousePicker::MousePicker()
 {
