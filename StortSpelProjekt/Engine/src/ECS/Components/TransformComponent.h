@@ -16,7 +16,7 @@ namespace component
 
         Transform* GetTransform() const;
     private:
-        Transform* transform = nullptr;
+        Transform* m_pTransform = nullptr;
     };
 }
 

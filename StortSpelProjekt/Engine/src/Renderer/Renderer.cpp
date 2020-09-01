@@ -127,7 +127,7 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	// Init BoundingBoxPool
 	BoundingBoxPool::Get(this->device5, this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 	
-	// Pool to handle GPU memory for the lights
+	// Pool to handle GPU memory for the m_lights
 	this->viewPool = new ViewPool(
 		this->device5,
 		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
@@ -194,7 +194,7 @@ void Renderer::SortObjectsByDistance()
 								pow(camPos.y - objectPos.y, 2) +
 								pow(camPos.z - objectPos.z, 2));
 
-		// Save the object alongside its distance to the camera
+		// Save the object alongside its distance to the m_pCamera
 		distFromCamArr[i].distance = distance;
 		distFromCamArr[i].mc = this->renderComponents.at(i).first;
 		distFromCamArr[i].tc = this->renderComponents.at(i).second;
@@ -275,7 +275,7 @@ void Renderer::Execute()
 		this->threadPool->AddTask(this->wireFrameTask, FLAG_THREAD::RENDER);
 	}
 	
-	// Wait for the threads which records the commandlists to complete
+	// Wait for the m_Threads which records the commandlists to complete
 	this->threadPool->WaitForThreads(FLAG_THREAD::RENDER | FLAG_THREAD::ALL);
 	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Wait(this->fenceFrame, copyFenceValue);
 
@@ -366,7 +366,7 @@ bool Renderer::CreateDevice()
 			break; // No more adapters
 		}
 	
-		// Check to see if the adapter supports Direct3D 12, but don't create the actual device yet.
+		// Check to see if the adapter supports Direct3D 12, but don't create the actual m_pDevice yet.
 		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, __uuidof(ID3D12Device5), nullptr)))
 		{
 			break;
@@ -378,7 +378,7 @@ bool Renderer::CreateDevice()
 	if (adapter)
 	{
 		HRESULT hr = S_OK;
-		//Create the actual device.
+		//Create the actual m_pDevice.
 		if (SUCCEEDED(hr = D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&device5))))
 		{
 			deviceCreated = true;
@@ -392,7 +392,7 @@ bool Renderer::CreateDevice()
 	}
 	else
 	{
-		//Create warp device if no adapter was found.
+		//Create warp m_pDevice if no adapter was found.
 		factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
 		D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device5));
 	}
@@ -490,7 +490,7 @@ void Renderer::UpdateMousePicker()
 
 	for (component::BoundingBoxComponent* bbc : this->boundingBoxesToBePicked)
 	{
-		// Reset picked entities from last frame
+		// Reset picked m_Entities from last frame
 		bbc->IsPickedThisFrame() = false;
 
 		if (this->mousePicker->Pick(bbc, tempDist) == true)
@@ -822,7 +822,7 @@ void Renderer::InitRenderTasks()
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(this->device5);
 	CopyTask* copyOnDemandTask = new CopyOnDemandTask(this->device5);
 
-	// Add the tasks to desired vectors so they can be used in renderer
+	// Add the tasks to desired vectors so they can be used in m_pRenderer
 	/* -------------------------------------------------------------- */
 
 
@@ -910,7 +910,7 @@ void Renderer::WaitForFrame(unsigned int framesToBeAhead)
 
 void Renderer::PrepareCBPerScene()
 {
-	// ----- directional lights -----
+	// ----- directional m_lights -----
 	this->cbPerSceneData->Num_Dir_Lights = this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
 	unsigned int index = 0;
 	for (auto& tuple : this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT])
@@ -918,9 +918,9 @@ void Renderer::PrepareCBPerScene()
 		this->cbPerSceneData->dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
-	// ----- directional lights -----
+	// ----- directional m_lights -----
 
-	// ----- point lights -----
+	// ----- point m_lights -----
 	this->cbPerSceneData->Num_Point_Lights = this->lights[LIGHT_TYPE::POINT_LIGHT].size();
 	index = 0;
 	for (auto& tuple : this->lights[LIGHT_TYPE::POINT_LIGHT])
@@ -928,9 +928,9 @@ void Renderer::PrepareCBPerScene()
 		this->cbPerSceneData->pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
-	// ----- point lights -----
+	// ----- point m_lights -----
 
-	// ----- spot lights -----
+	// ----- spot m_lights -----
 	this->cbPerSceneData->Num_Spot_Lights = this->lights[LIGHT_TYPE::SPOT_LIGHT].size();
 	index = 0;
 	for (auto& tuple : this->lights[LIGHT_TYPE::SPOT_LIGHT])
@@ -938,7 +938,7 @@ void Renderer::PrepareCBPerScene()
 		this->cbPerSceneData->spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
-	// ----- spot lights -----
+	// ----- spot m_lights -----
 
 	// Upload CB_PER_SCENE to defaultheap
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(this->copyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);

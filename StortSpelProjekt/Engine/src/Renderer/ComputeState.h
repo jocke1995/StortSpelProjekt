@@ -19,8 +19,8 @@ public:
 	const D3D12_COMPUTE_PIPELINE_STATE_DESC* GetCpsd() const;
 	Shader* GetShader(ShaderType type = ShaderType::CS) const;
 private:
-	Shader* CS = nullptr;
-	D3D12_COMPUTE_PIPELINE_STATE_DESC cpsd = {};
+	Shader* m_pCS = nullptr;
+	D3D12_COMPUTE_PIPELINE_STATE_DESC m_Cpsd = {};
 };
 
 #endif 

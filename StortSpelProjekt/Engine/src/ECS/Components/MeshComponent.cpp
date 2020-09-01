@@ -11,7 +11,7 @@ namespace component
 
 	MeshComponent::~MeshComponent()
 	{
-		for (Mesh* mesh : this->meshes)
+		for (Mesh* mesh : m_Meshes)
 		{
 			delete mesh;
 		}
@@ -21,13 +21,13 @@ namespace component
 	{
 		for (Mesh* mesh : *meshes)
 		{
-			this->meshes.push_back(new Mesh(mesh));
+			m_Meshes.push_back(new Mesh(mesh));
 		}
 	}
 
 	void MeshComponent::SetDrawFlag(unsigned int drawFlag)
 	{
-		this->drawFlag = drawFlag;
+		m_DrawFlag = drawFlag;
 	}
 
 	void MeshComponent::Update(double dt)
@@ -37,20 +37,20 @@ namespace component
 
 	Mesh* MeshComponent::GetMesh(unsigned int index) const
 	{
-		return this->meshes[index];
+		return m_Meshes[index];
 	}
 
 	unsigned int MeshComponent::GetDrawFlag() const
 	{
-		return this->drawFlag;
+		return m_DrawFlag;
 	}
 
 	unsigned int MeshComponent::GetNrOfMeshes() const
 	{
-		return this->meshes.size();
+		return m_Meshes.size();
 	}
 	bool MeshComponent::IsPickedThisFrame() const
 	{
-		return this->isPickedThisFrame;
+		return m_IsPickedThisFrame;
 	}
 }

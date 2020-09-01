@@ -21,12 +21,14 @@ namespace component
 		void SetAttenuation(float3 attenuation);
 
 		void* GetLightData() const;
+	
+	protected:
+		void UpdateLightData(COLOR_TYPE type);
 
 	private:
-		SpotLight* spotLight = nullptr;
+		SpotLight* m_pSpotLight = nullptr;
 
-		void InitFlagUsages();
-		void UpdateLightData(COLOR_TYPE type);
+		void initFlagUsages();
 	};
 }
 

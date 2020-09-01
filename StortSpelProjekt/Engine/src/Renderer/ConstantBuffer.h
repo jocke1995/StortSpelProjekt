@@ -23,10 +23,10 @@ public:
 	unsigned int GetDescriptorHeapIndex() const;
 
 protected:
-	unsigned int descriptorHeapIndex = -1;
+	unsigned int m_DescriptorHeapIndex = -1;
 
-	// will be created with different resources depending on the constantBuffer type
-	Resource* uploadResource = nullptr;
+	// will be created with different m_Resources depending on the constantBuffer type
+	Resource* m_pUploadResource = nullptr;
 	virtual void CreateConstantBufferView(
 		ID3D12Device5* device,
 		DescriptorHeap* descriptorHeap_CBV_UAV_SRV) = 0;

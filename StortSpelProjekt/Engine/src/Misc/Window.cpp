@@ -40,13 +40,13 @@ Window::Window(
 	int screenWidth, int screenHeight,
 	LPCTSTR windowName, LPCTSTR windowTitle)
 {
-	this->screenWidth = screenWidth;
-	this->screenHeight = screenHeight;
-	this->fullScreen = fullScreen;
-	this->windowName = windowName;
-	this->windowTitle = windowTitle;
+	m_ScreenWidth = screenWidth;
+	m_ScreenHeight = screenHeight;
+	m_FullScreen = fullScreen;
+	m_WindowName = windowName;
+	m_WindowTitle = windowTitle;
 
-	this->InitWindow(hInstance, nCmdShow);
+	initWindow(hInstance, nCmdShow);
 }
 
 
@@ -57,27 +57,27 @@ Window::~Window()
 
 void Window::SetWindowTitle(std::wstring newTitle)
 {
-	SetWindowTextW(this->hwnd, newTitle.c_str());
+	SetWindowTextW(m_Hwnd, newTitle.c_str());
 }
 
 bool Window::IsFullScreen() const
 {
-	return this->fullScreen;
+	return m_FullScreen;
 }
 
 int Window::GetScreenWidth() const
 {
-	return this->screenWidth;
+	return m_ScreenWidth;
 }
 
 int Window::GetScreenHeight() const
 {
-	return this->screenHeight;
+	return m_ScreenHeight;
 }
 
 const HWND* Window::GetHwnd() const
 {
-	return &this->hwnd;
+	return &m_Hwnd;
 }
 
 bool Window::ExitWindow()
@@ -119,16 +119,16 @@ bool Window::WasTabPressed()
 	return false;
 }
 
-bool Window::InitWindow(HINSTANCE hInstance, int nCmdShow)
+bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 {
-	if (this->fullScreen)
+	if (m_FullScreen)
 	{
-		HMONITOR hmon = MonitorFromWindow(this->hwnd, MONITOR_DEFAULTTONEAREST);
+		HMONITOR hmon = MonitorFromWindow(m_Hwnd, MONITOR_DEFAULTTONEAREST);
 		MONITORINFO mi = { sizeof(mi) };
 		GetMonitorInfo(hmon, &mi);
 
-		this->screenWidth = mi.rcMonitor.right - mi.rcMonitor.left;
-		this->screenHeight = mi.rcMonitor.bottom - mi.rcMonitor.top;
+		m_ScreenWidth = mi.rcMonitor.right - mi.rcMonitor.left;
+		m_ScreenHeight = mi.rcMonitor.bottom - mi.rcMonitor.top;
 	}
 
 	WNDCLASSEX wc;
@@ -142,7 +142,7 @@ bool Window::InitWindow(HINSTANCE hInstance, int nCmdShow)
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 2);
 	wc.lpszMenuName = NULL;
-	wc.lpszClassName = this->windowName;
+	wc.lpszClassName = m_WindowName;
 	wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
 	if (!RegisterClassEx(&wc))
@@ -152,32 +152,32 @@ bool Window::InitWindow(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	// This structure describes the window
-	this->hwnd = CreateWindowEx(NULL,
-		this->windowName,
-		this->windowTitle,
+	m_Hwnd = CreateWindowEx(NULL,
+		m_WindowName,
+		m_WindowTitle,
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
-		this->screenWidth, this->screenHeight,
+		m_ScreenWidth, m_ScreenHeight,
 		NULL,
 		NULL,
 		hInstance,
 		NULL);
 
 	// If the windowhandle was unsuccesful
-	if (!this->hwnd)
+	if (!m_Hwnd)
 	{
 		MessageBox(NULL, L"Error creating window", L"Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 
 	// Remove the topbar of the window if we are in fullscreen
-	if (this->fullScreen)
+	if (m_FullScreen)
 	{
-		SetWindowLong(this->hwnd, GWL_STYLE, 0);
+		SetWindowLong(m_Hwnd, GWL_STYLE, 0);
 	}
 
-	ShowWindow(this->hwnd, nCmdShow);
-	UpdateWindow(this->hwnd);
+	ShowWindow(m_Hwnd, nCmdShow);
+	UpdateWindow(m_Hwnd);
 
 	return true;
 }

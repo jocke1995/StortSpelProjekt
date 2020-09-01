@@ -65,14 +65,14 @@ private:
 
     ShaderResourceView* SRV = nullptr;
 
-    // Material will write descriptorIndices to "slotinfo" in mesh 
+    // Material will write descriptorIndices to "slotinfo" in m_pMesh 
     Material* material = nullptr;
     SlotInfo* slotInfo = nullptr;
 
     D3D12_INDEX_BUFFER_VIEW* indexBufferView = nullptr;;
     void CreateIndexBufferView();
 
-    // Temporay solution to make sure each "new" mesh only gets deleted once
+    // Temporay solution to make sure each "new" m_pMesh only gets deleted once
     bool isCopied = false;
 };
 

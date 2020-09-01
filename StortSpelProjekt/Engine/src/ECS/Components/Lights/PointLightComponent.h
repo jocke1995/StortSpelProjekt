@@ -19,10 +19,11 @@ namespace component
 
 		void* GetLightData() const;
 
-	private:
-		PointLight* pointLight = nullptr;
-
+	protected:
 		void UpdateLightData(COLOR_TYPE type);
+
+	private:
+		PointLight* m_pPointLight = nullptr;
 	};
 }
 

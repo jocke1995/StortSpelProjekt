@@ -18,12 +18,12 @@ void CopyPerFrameTask::ClearSpecific(const Resource* uploadResource)
 {
 	unsigned int i = 0;
 	// Loop through all copyPerFrame tasks
-	for (auto& tuple : m_Upload_Default_Data)
+	for (auto& tuple : m_UploadDefaultData)
 	{
 		if (std::get<0>(tuple) == uploadResource)
 		{
 			// Remove
-			m_Upload_Default_Data.erase(m_Upload_Default_Data.begin() + i);
+			m_UploadDefaultData.erase(m_UploadDefaultData.begin() + i);
 		}
 		i++;
 	}
@@ -31,17 +31,17 @@ void CopyPerFrameTask::ClearSpecific(const Resource* uploadResource)
 
 void CopyPerFrameTask::Clear()
 {
-	m_Upload_Default_Data.clear();
+	m_UploadDefaultData.clear();
 }
 
 void CopyPerFrameTask::Execute()
 {
-	ID3D12CommandAllocator* commandAllocator = this->commandInterface->GetCommandAllocator(this->commandInterfaceIndex);
-	ID3D12GraphicsCommandList5* commandList = this->commandInterface->GetCommandList(this->commandInterfaceIndex);
+	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
+	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
 
-	this->commandInterface->Reset(this->commandInterfaceIndex);
+	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
-	for (auto& tuple : m_Upload_Default_Data)
+	for (auto& tuple : m_UploadDefaultData)
 	{
 		copyResource(
 			commandList,

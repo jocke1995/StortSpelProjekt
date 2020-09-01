@@ -21,7 +21,7 @@ public:
 	void SetObjectToOutline(std::pair<component::MeshComponent*, component::TransformComponent*>* objectToOutline);
 	void Clear();
 private:
-	std::pair<component::MeshComponent*, component::TransformComponent*> objectToOutline;
+	std::pair<component::MeshComponent*, component::TransformComponent*> m_ObjectToOutline;
 };
 
 #endif

@@ -7,7 +7,7 @@
 // Creating the BB out of the model
 #include "MeshComponent.h"
 
-// Using the same transform as the models transform
+// Using the same m_pTransform as the models m_pTransform
 #include "TransformComponent.h"
 
 #include "../Renderer/BoundingBoxPool.h"
@@ -17,7 +17,7 @@ namespace component
 	BoundingBoxComponent::BoundingBoxComponent(Entity* parent, bool pick)
 		:Component(parent)
 	{
-		this->canBePicked = pick;
+		m_CanBePicked = pick;
 	}
 
 	BoundingBoxComponent::~BoundingBoxComponent()
@@ -27,7 +27,7 @@ namespace component
 
 	void BoundingBoxComponent::Init()
 	{
-		this->CreateBoundingBox();
+		createBoundingBox();
 	}
 
 	void BoundingBoxComponent::Update(double dt)
@@ -37,54 +37,54 @@ namespace component
 
 	void BoundingBoxComponent::SetMesh(Mesh* mesh)
 	{
-		this->mesh = mesh;
+		m_pMesh = mesh;
 	}
 
 	Transform* BoundingBoxComponent::GetTransform() const
 	{
-		return this->transform;
+		return m_pTransform;
 	}
 
 	const Mesh* BoundingBoxComponent::GetMesh() const
 	{
-		return this->mesh;
+		return m_pMesh;
 	}
 
 	const BoundingBoxData* BoundingBoxComponent::GetBoundingBoxData() const
 	{
-		return this->bbd;
+		return m_pBbd;
 	}
 
 	const std::string BoundingBoxComponent::GetPathOfModel() const
 	{
-		return this->pathOfModel;
+		return m_pPathOfModel;
 	}
 
 
 	bool BoundingBoxComponent::CanBePicked() const
 	{
-		return this->canBePicked;
+		return m_CanBePicked;
 	}
 
-	// Writes from BoundingBoxComponent to MeshComponent, which uses this in renderer
+	// Writes from BoundingBoxComponent to MeshComponent, which uses this in m_pRenderer
 	bool& BoundingBoxComponent::IsPickedThisFrame()
 	{
-		return this->parent->GetComponent<MeshComponent>()->isPickedThisFrame;
+		return m_pParent->GetComponent<MeshComponent>()->m_IsPickedThisFrame;
 	}
 
-	bool BoundingBoxComponent::CreateBoundingBox()
+	bool BoundingBoxComponent::createBoundingBox()
 	{
-		if (this->parent->HasComponent<MeshComponent>() == true && this->parent->HasComponent<TransformComponent>() == true)
+		if (m_pParent->HasComponent<MeshComponent>() == true && m_pParent->HasComponent<TransformComponent>() == true)
 		{
-			// Use the same transform as the model
-			this->transform = this->parent->GetComponent<TransformComponent>()->GetTransform();
-			MeshComponent* mc = this->parent->GetComponent<MeshComponent>();
-			this->pathOfModel = mc->GetMesh(0)->GetPath();
+			// Use the same m_pTransform as the model
+			m_pTransform = m_pParent->GetComponent<TransformComponent>()->GetTransform();
+			MeshComponent* mc = m_pParent->GetComponent<MeshComponent>();
+			m_pPathOfModel = mc->GetMesh(0)->GetPath();
 			
 			BoundingBoxPool* bbp = BoundingBoxPool::Get();
-			if (bbp->BoundingBoxDataExists(this->pathOfModel) == true)
+			if (bbp->BoundingBoxDataExists(m_pPathOfModel) == true)
 			{
-				this->bbd = bbp->GetBoundingBoxData(this->pathOfModel);
+				m_pBbd = bbp->GetBoundingBoxData(m_pPathOfModel);
 				return true;
 			}
 
@@ -162,7 +162,7 @@ namespace component
 				boundingBoxIndicesLocal.push_back(indices[i]);
 			}
 
-			this->bbd = bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, this->pathOfModel);
+			m_pBbd = bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, m_pPathOfModel);
 			
 			return true;
 		}

@@ -27,7 +27,7 @@ RenderTarget::RenderTarget(
 	viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	viewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	
-	// Create resources and RTVs
+	// Create m_Resources and RTVs
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		Resource* resource = new Resource(

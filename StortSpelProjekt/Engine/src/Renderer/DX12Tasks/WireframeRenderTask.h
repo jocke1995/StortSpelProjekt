@@ -26,7 +26,7 @@ public:
 	void Execute();
 
 private:
-	std::vector<component::BoundingBoxComponent*> objectsToDraw;
+	std::vector<component::BoundingBoxComponent*> m_ObjectsToDraw;
 };
 
 #endif

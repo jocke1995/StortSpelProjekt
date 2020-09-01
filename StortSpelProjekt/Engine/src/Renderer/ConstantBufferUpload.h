@@ -22,7 +22,7 @@ public:
 
 private:
 
-	void CreateConstantBufferView(
+	void createConstantBufferView(
 		ID3D12Device5* device,
 		DescriptorHeap* descriptorHeap_CBV_UAV_SRV);
 };

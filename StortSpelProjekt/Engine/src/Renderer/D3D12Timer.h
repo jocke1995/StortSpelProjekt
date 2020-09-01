@@ -18,43 +18,43 @@ namespace D3D12
 		// Destructor.
 		~D3D12Timer();
 
-		HRESULT init(ID3D12Device* pDevice, UINT numTimers);
+		HRESULT Init(ID3D12Device* pDevice, UINT numTimers);
 
 		// Start timestamp.
-		void start(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndex);
+		void Start(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndex);
 
 		// Stop timestamp.
-		void stop(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndex);
+		void Stop(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndex);
 
-		// Resolve query data. Write query to device memory. Make sure to wait for query to finsih before resolving data.
-		void resolveQueryToCPU(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndex);
-		void resolveQueryToCPU(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndexFirst, UINT timestampPairIndexLast);
-		void resolveQueryToGPU(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource** ppQueryResourceGPUOut);
+		// Resolve query data. Write query to m_pDevice memory. Make sure to wait for query to finsih before resolving data.
+		void ResolveQueryToCPU(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndex);
+		void ResolveQueryToCPU(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndexFirst, UINT timestampPairIndexLast);
+		void ResolveQueryToGPU(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource** ppQueryResourceGPUOut);
 
-		GPUTimestampPair getTimestampPair(UINT timestampPairIndex);
+		GPUTimestampPair GetTimestampPair(UINT timestampPairIndex);
 
 		// Calcluate time and map memory to CPU.
-		void calculateTime();
+		void CalculateTime();
 
-		// Get time from start to stop in nano seconds.
-		UINT64 getDeltaTime();
-		UINT64 getEndTime();
-		UINT64 getBeginTime();
+		// Get time from m_Start to m_Stop in nano seconds.
+		UINT64 GetDeltaTime();
+		UINT64 GetEndTime();
+		UINT64 GetBeginTime();
 
 		// Whether timer is active.
-		bool isActive();
+		bool IsActive();
 
 	private:
 		void setGPUResourceState(ID3D12GraphicsCommandList* pCommandList, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState);
 
-		ID3D12Device* device_ = nullptr;
-		ID3D12QueryHeap* queryHeap_ = nullptr;
-		ID3D12Resource* queryResourceCPU_ = nullptr;
-		ID3D12Resource* queryResourceGPU_ = nullptr;
-		bool active_ = false;
-		UINT64 deltaTime_ = 0;
-		UINT64 beginTime_ = 0;
-		UINT64 endTime_ = 0;
-		UINT timerCount_ = 0;
+		ID3D12Device* m_pDevice = nullptr;
+		ID3D12QueryHeap* m_pQueryHeap_ = nullptr;
+		ID3D12Resource* m_pQueryResourceCPU = nullptr;
+		ID3D12Resource* m_pQueryResourceGPU = nullptr;
+		bool m_Active = false;
+		UINT64 m_DeltaTime = 0;
+		UINT64 m_BeginTime = 0;
+		UINT64 m_EndTime = 0;
+		UINT m_TimerCount = 0;
 	};
 }

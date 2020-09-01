@@ -25,7 +25,7 @@ public:
 	void SetColorMul(COLOR_TYPE type, float4 color);
 	void SetUVScale(float u, float v);
 
-	// For usage in renderer
+	// For usage in m_pRenderer
 	void SetCBV(ConstantBufferView* cbv);
 
 	// Gets

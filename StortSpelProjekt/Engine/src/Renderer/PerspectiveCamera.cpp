@@ -57,7 +57,7 @@ void PerspectiveCamera::UpdateSpecific(double dt)
 	}
 	
 
-	this->viewProjMatrix = this->viewMatrix * this->projMatrix;
+	this->viewProjMatrix = this->m_ViewMatrix * this->projMatrix;
 	this->viewProjTranposedMatrix = DirectX::XMMatrixTranspose(this->viewProjMatrix);
 }
 
@@ -76,8 +76,8 @@ void PerspectiveCamera::UpdateCameraMovement()
 	// Update the lookAt Vector depending on the mouse pitch/yaw.... WE DONT HAVE ROLL (hence '0' as the last parameter)
 	DirectX::XMMATRIX camRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(this->camPitch, this->camYaw, 0);
 	DirectX::XMVECTOR defaultForward = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
-	this->atVector = DirectX::XMVector3TransformCoord(defaultForward, camRotationMatrix);
-	this->atVector = DirectX::XMVector3Normalize(this->atVector);
+	this->m_AtVector = DirectX::XMVector3TransformCoord(defaultForward, camRotationMatrix);
+	this->m_AtVector = DirectX::XMVector3Normalize(this->m_AtVector);
 
 	// Update cameras forward,up and right vectors
 	DirectX::XMMATRIX RotateYTempMatrix;
@@ -85,18 +85,18 @@ void PerspectiveCamera::UpdateCameraMovement()
 
 	DirectX::XMVECTOR defaultRight = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f);
 	
-	this->upVector = XMVector3TransformCoord(this->upVector, RotateYTempMatrix);
-	this->atVector = XMVector3TransformCoord(this->atVector, RotateYTempMatrix);
+	this->m_UpVector = XMVector3TransformCoord(this->m_UpVector, RotateYTempMatrix);
+	this->m_AtVector = XMVector3TransformCoord(this->m_AtVector, RotateYTempMatrix);
 
-	this->rightVector = DirectX::XMVector3Cross(this->atVector, this->upVector);
+	this->m_RightVector = DirectX::XMVector3Cross(this->m_AtVector, this->m_UpVector);
 	
-	this->eyeVector = DirectX::XMVectorAdd(this->eyeVector, DirectX::operator*(this->moveLeftRight, this->rightVector));
-	this->eyeVector = DirectX::XMVectorAdd(this->eyeVector, DirectX::operator*(this->atVector,  this->moveForwardBackward));
-	this->eyeVector = DirectX::XMVectorAdd(this->eyeVector, DirectX::operator*(this->upVector, this->moveUpDown));
+	this->m_EyeVector = DirectX::XMVectorAdd(this->m_EyeVector, DirectX::operator*(this->moveLeftRight, this->m_RightVector));
+	this->m_EyeVector = DirectX::XMVectorAdd(this->m_EyeVector, DirectX::operator*(this->m_AtVector,  this->moveForwardBackward));
+	this->m_EyeVector = DirectX::XMVectorAdd(this->m_EyeVector, DirectX::operator*(this->m_UpVector, this->moveUpDown));
 
 	this->moveForwardBackward = 0.0f;
 	this->moveLeftRight = 0.0f;
 	this->moveUpDown = 0.0f;
 
-	this->viewMatrix = DirectX::XMMatrixLookAtLH(this->eyeVector, DirectX::XMVectorAdd(this->eyeVector, this->atVector), this->upVector);
+	this->m_ViewMatrix = DirectX::XMMatrixLookAtLH(this->m_EyeVector, DirectX::XMVectorAdd(this->m_EyeVector, this->m_AtVector), this->m_UpVector);
 }

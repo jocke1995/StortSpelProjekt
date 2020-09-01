@@ -12,7 +12,7 @@ ViewPool::ViewPool(
 	DescriptorHeap* descriptorHeap_RTV,
 	DescriptorHeap* descriptorHeap_DSV)
 {
-	this->device = device;
+	this->m_pDevice = device;
 
 	this->descriptorHeap_CBV_UAV_SRV = descriptorHeap_CBV_UAV_SRV;
 	this->descriptorHeap_RTV = descriptorHeap_RTV;
@@ -154,7 +154,7 @@ ConstantBufferView* ViewPool::CreateConstantBufferView(unsigned int size, std::w
 	unsigned int sizeAligned = (size + 255) & ~255;
 
 	ConstantBufferView* cbd = new ConstantBufferView(
-		device,
+		m_pDevice,
 		sizeAligned,
 		resourceName,
 		this->descriptorHeap_CBV_UAV_SRV->GetNextDescriptorHeapIndex(1),
@@ -241,7 +241,7 @@ ShadowInfo* ViewPool::CreateShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION s
 		depthTextureHeight,
 		this->shadowInfoIdCounter++,
 		shadowResolution,
-		this->device,
+		this->m_pDevice,
 		this->descriptorHeap_DSV,
 		this->descriptorHeap_CBV_UAV_SRV);
 

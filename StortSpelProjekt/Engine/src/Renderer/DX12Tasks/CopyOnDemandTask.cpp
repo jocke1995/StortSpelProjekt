@@ -17,7 +17,7 @@ CopyOnDemandTask::~CopyOnDemandTask()
 
 void CopyOnDemandTask::Clear()
 {
-	m_Upload_Default_Data.clear();
+	m_UploadDefaultData.clear();
 	m_Textures.clear();
 }
 
@@ -28,13 +28,13 @@ void CopyOnDemandTask::SubmitTexture(Texture* texture)
 
 void CopyOnDemandTask::Execute()
 {
-	ID3D12CommandAllocator* commandAllocator = this->commandInterface->GetCommandAllocator(this->commandInterfaceIndex);
-	ID3D12GraphicsCommandList5* commandList = this->commandInterface->GetCommandList(this->commandInterfaceIndex);
+	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
+	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
 	
-	this->commandInterface->Reset(this->commandInterfaceIndex);
+	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 	
 	// record the "small" data, such as constantbuffers..
-	for (auto& tuple : m_Upload_Default_Data)
+	for (auto& tuple : m_UploadDefaultData)
 	{
 		copyResource(
 			commandList,

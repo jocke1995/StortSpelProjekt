@@ -27,13 +27,13 @@ public:
 	virtual const DirectX::XMMATRIX* GetViewProjectionTranposed() const = 0;
 
 protected:
-	DirectX::XMVECTOR rightVector;
-	DirectX::XMVECTOR eyeVector;
-	DirectX::XMVECTOR atVector;
-	DirectX::XMVECTOR upVector;
+	DirectX::XMVECTOR m_RightVector;
+	DirectX::XMVECTOR m_EyeVector;
+	DirectX::XMVECTOR m_AtVector;
+	DirectX::XMVECTOR m_UpVector;
 
-	DirectX::XMMATRIX viewMatrix;
-	DirectX::XMMATRIX viewMatrixInverse;
+	DirectX::XMMATRIX m_ViewMatrix;
+	DirectX::XMMATRIX m_ViewMatrixInverse;
 
 	virtual void UpdateSpecific(double dt = 0.0) = 0;
 };

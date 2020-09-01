@@ -4,12 +4,12 @@
 BaseCamera::BaseCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt)
 {
 	// Create View Matrix
-	this->eyeVector = position;
-	this->atVector = lookAt;
-	this->upVector = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	this->rightVector = DirectX::XMVector3Cross(this->atVector, this->upVector);
+	m_EyeVector = position;
+	m_AtVector = lookAt;
+	m_UpVector = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	m_RightVector = DirectX::XMVector3Cross(m_AtVector, m_UpVector);
 
-	this->viewMatrix = DirectX::XMMatrixLookAtLH(this->eyeVector, DirectX::XMVectorAdd(this->atVector, this->eyeVector), this->upVector);
+	m_ViewMatrix = DirectX::XMMatrixLookAtLH(m_EyeVector, DirectX::XMVectorAdd(m_AtVector, m_EyeVector), m_UpVector);
 }
 
 BaseCamera::~BaseCamera()
@@ -19,29 +19,29 @@ BaseCamera::~BaseCamera()
 
 void BaseCamera::Update(double dt)
 {
-	this->viewMatrix = DirectX::XMMatrixLookAtLH(this->eyeVector, DirectX::XMVectorAdd(this->atVector, this->eyeVector), this->upVector);
+	m_ViewMatrix = DirectX::XMMatrixLookAtLH(m_EyeVector, DirectX::XMVectorAdd(m_AtVector, m_EyeVector), m_UpVector);
 
 	// Inverse
 	DirectX::XMVECTOR matInvDeter;	// Not used, but the function doesn't allow null params :)))
-	this->viewMatrixInverse = XMMatrixInverse(&matInvDeter, this->viewMatrix);
+	m_ViewMatrixInverse = XMMatrixInverse(&matInvDeter, m_ViewMatrix);
 
-	this->UpdateSpecific(dt);
+	UpdateSpecific(dt);
 }
 
 void BaseCamera::SetPosition(float x, float y, float z)
 {
-	this->eyeVector = DirectX::XMVectorSet(x, y, z, 1.0);
+	m_EyeVector = DirectX::XMVectorSet(x, y, z, 1.0);
 }
 
 void BaseCamera::SetLookAt(float x, float y, float z)
 {
-	this->atVector = DirectX::XMVectorSet(x, y, z, 0.0f);
+	m_AtVector = DirectX::XMVectorSet(x, y, z, 0.0f);
 }
 
 DirectX::XMFLOAT3 BaseCamera::GetPosition() const
 {
 	DirectX::XMFLOAT3 DXfloat3;
-	DirectX::XMStoreFloat3(&DXfloat3, this->eyeVector);
+	DirectX::XMStoreFloat3(&DXfloat3, m_EyeVector);
 
 	return DXfloat3;
 }
@@ -49,7 +49,7 @@ DirectX::XMFLOAT3 BaseCamera::GetPosition() const
 float3 BaseCamera::GetPositionFloat3() const
 {
 	DirectX::XMFLOAT3 DXfloat3;
-	DirectX::XMStoreFloat3(&DXfloat3, this->eyeVector);
+	DirectX::XMStoreFloat3(&DXfloat3, m_EyeVector);
 
 	float3 temp = {};
 	temp.x = DXfloat3.x;
@@ -62,7 +62,7 @@ float3 BaseCamera::GetPositionFloat3() const
 DirectX::XMFLOAT3 BaseCamera::GetLookAt() const
 {
 	DirectX::XMFLOAT3 DXfloat3;
-	DirectX::XMStoreFloat3(&DXfloat3, this->atVector);
+	DirectX::XMStoreFloat3(&DXfloat3, m_AtVector);
 
 	return DXfloat3;
 }
@@ -70,7 +70,7 @@ DirectX::XMFLOAT3 BaseCamera::GetLookAt() const
 float3 BaseCamera::GetLookAtFloat3() const
 {
 	DirectX::XMFLOAT3 DXfloat3;
-	DirectX::XMStoreFloat3(&DXfloat3, this->atVector);
+	DirectX::XMStoreFloat3(&DXfloat3, m_AtVector);
 
 	float3 temp = {};
 	temp.x = DXfloat3.x;
@@ -82,10 +82,10 @@ float3 BaseCamera::GetLookAtFloat3() const
 
 const DirectX::XMMATRIX* BaseCamera::GetViewMatrix() const
 {
-	return &this->viewMatrix;
+	return &m_ViewMatrix;
 }
 
 const DirectX::XMMATRIX* BaseCamera::GetViewMatrixInverse() const
 {
-	return &this->viewMatrixInverse;
+	return &m_ViewMatrixInverse;
 }

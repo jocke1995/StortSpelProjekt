@@ -118,7 +118,7 @@ private:
 	OutliningRenderTask* outliningRenderTask = nullptr;	
 	void InitRenderTasks();
 
-	// Group of components that's needed for rendering:
+	// Group of m_Components that's needed for rendering:
 	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> renderComponents;
 	void SetRenderTasksRenderComponents();
 

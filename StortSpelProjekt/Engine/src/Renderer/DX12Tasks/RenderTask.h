@@ -49,14 +49,14 @@ public:
 	void SetCamera(BaseCamera* camera);
 	
 protected:
-	std::map<std::string, Resource*> resources;
-	std::map<std::string, RenderTarget*> renderTargets;
-	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> descriptorHeaps;
+	std::map<std::string, Resource*> m_Resources;
+	std::map<std::string, RenderTarget*> m_RenderTargets;
+	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> m_DescriptorHeaps;
 
-	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> renderComponents;
+	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
 	
-	BaseCamera* camera = nullptr;
-	ID3D12RootSignature* rootSig = nullptr;
-	std::vector<PipelineState*> pipelineStates;
+	BaseCamera* m_pCamera = nullptr;
+	ID3D12RootSignature* m_pRootSig = nullptr;
+	std::vector<PipelineState*> m_PipelineStates;
 };
 #endif

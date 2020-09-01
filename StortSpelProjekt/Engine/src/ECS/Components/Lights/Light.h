@@ -6,7 +6,7 @@
 class BaseCamera;
 enum FLAG_LIGHT
 {
-	// Set flag to make the light position inherit the position of the corresponding mesh
+	// Set flag to make the light position inherit the position of the corresponding m_pMesh
 	USE_TRANSFORM_POSITION = BIT(1),
 
 	// Option to make the light cast shadows or not with different resolutions
@@ -15,7 +15,7 @@ enum FLAG_LIGHT
 	CAST_SHADOW_HIGH_RESOLUTION = BIT(4),
 	CAST_SHADOW_ULTRA_RESOLUTION = BIT(5),
 
-	// If this is set, renderer only need to copy data once to GPU
+	// If this is set, m_pRenderer only need to copy data once to GPU
 	// STATIC_DATA .. = BIT(6),
 
 	// etc..
@@ -37,14 +37,14 @@ public:
 	BaseCamera* GetCamera() const;
 
 protected:
-	BaseLight* baseLight = nullptr;
-	virtual void UpdateLightData(COLOR_TYPE type) = 0;
+	BaseLight* m_pBaseLight = nullptr;
+	unsigned int m_LightFlags = 0;
 
-	unsigned int lightFlags = 0;
-
-	BaseCamera* camera = nullptr;
-	CAMERA_TYPE cameraType;
+	BaseCamera* m_pCamera = nullptr;
+	CAMERA_TYPE m_CameraType;
 	void CreateCamera(float3 position, float3 lookAt);
+
+	virtual void UpdateLightData(COLOR_TYPE type) = 0;
 
 };
 

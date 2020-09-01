@@ -8,12 +8,12 @@
 ComputeTask::ComputeTask(ID3D12Device5* device, RootSignature* rootSignature, LPCWSTR CSName, LPCTSTR psoName)
 	:DX12Task(device, COMMAND_INTERFACE_TYPE::COMPUTE_TYPE)
 {
-	this->pipelineState = new ComputeState(device, rootSignature, CSName, psoName);
+	m_pPipelineState = new ComputeState(device, rootSignature, CSName, psoName);
 
-	this->rootSig = rootSignature->GetRootSig();
+	m_pRootSig = rootSignature->GetRootSig();
 }
 
 ComputeTask::~ComputeTask()
 {
-	delete this->pipelineState;
+	delete m_pPipelineState;
 }

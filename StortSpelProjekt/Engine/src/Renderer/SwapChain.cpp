@@ -56,7 +56,7 @@ SwapChain::SwapChain(
 
 	SAFE_RELEASE(&factory);
 
-	// Connect the renderTargets to the swapchain, so that the swapchain can easily swap between these two renderTargets
+	// Connect the m_RenderTargets to the swapchain, so that the swapchain can easily swap between these two m_RenderTargets
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		HRESULT hr = swapChain4->GetBuffer(i, IID_PPV_ARGS(this->resources[i]->GetID3D12Resource1PP()));

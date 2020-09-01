@@ -27,7 +27,7 @@ void OrthographicCamera::UpdateSpecific(double dt)
 		this->nearZ,
 		this->farZ);
 
-	this->viewProjMatrix = this->viewMatrix * this->projMatrix;
+	this->viewProjMatrix = this->m_ViewMatrix * this->projMatrix;
 	this->viewProjTranposedMatrix = DirectX::XMMatrixTranspose(this->viewProjMatrix);
 }
 

@@ -24,15 +24,15 @@ Shader* PipelineState::CreateShader(LPCTSTR fileName, ShaderType type)
 {
 	if (type == ShaderType::VS)
 	{
-		return AssetLoader::Get()->LoadShader(fileName, type);
+		return AssetLoader::Get()->loadShader(fileName, type);
 	}
 	else if (type == ShaderType::PS)
 	{
-		return AssetLoader::Get()->LoadShader(fileName, type);
+		return AssetLoader::Get()->loadShader(fileName, type);
 	}
 	else if (type == ShaderType::CS)
 	{
-		return AssetLoader::Get()->LoadShader(fileName, type);
+		return AssetLoader::Get()->loadShader(fileName, type);
 	}
 	return nullptr;
 }

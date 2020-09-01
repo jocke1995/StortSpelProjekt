@@ -4,12 +4,12 @@
 #include "../Renderer/BaseCamera.h"
 Scene::Scene(std::string sceneName)
 {
-    this->sceneName = sceneName;
+    m_SceneName = sceneName;
 }
 
 Scene::~Scene()
 {
-    for (auto pair : this->entities)
+    for (auto pair : m_Entities)
     {
         if (pair.second != nullptr)
         {
@@ -20,62 +20,62 @@ Scene::~Scene()
             pair.second->DecrementRefCount();
         }
     }
-    this->entities.clear();
+    m_Entities.clear();
 }
 
 Entity* Scene::AddEntityFromOther(Entity* other)
 {
-    if (this->EntityExists(other->GetName()) == true)
+    if (EntityExists(other->GetName()) == true)
     {
-        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to add two components with the same name \'%s\' into scene: %s\n", other->GetName(), this->sceneName);
+        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to add two components with the same name \'%s\' into scene: %s\n", other->GetName(), m_SceneName);
         return nullptr;
     }
 
-    this->entities[other->GetName()] = other;
+    m_Entities[other->GetName()] = other;
     other->IncrementRefCount();
 
-    this->nrOfEntities++;
+    m_NrOfEntities++;
     return other;
 }
 
 // Returns false if the entity couldn't be created
 Entity* Scene::AddEntity(std::string entityName)
 {
-    if (this->EntityExists(entityName) == true)
+    if (EntityExists(entityName) == true)
     {
-        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to add two components with the same name \'%s\' into scene: %s\n", entityName, this->sceneName);
+        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to add two components with the same name \'%s\' into scene: %s\n", entityName, m_SceneName);
         return nullptr;
     }
 
-    this->entities[entityName] = new Entity(entityName);
-    this->nrOfEntities++;
-    return this->entities[entityName];
+    m_Entities[entityName] = new Entity(entityName);
+    m_NrOfEntities++;
+    return m_Entities[entityName];
 }
 
 bool Scene::RemoveEntity(std::string entityName)
 {
-    if (this->EntityExists(entityName) == false)
+    if (EntityExists(entityName) == false)
     {
         return false;
     }
 
-    delete this->entities[entityName];
-    this->entities.erase(entityName);
+    delete m_Entities[entityName];
+    m_Entities.erase(entityName);
 
-    this->nrOfEntities--;
+    m_NrOfEntities--;
     return true;
 }
 
 void Scene::SetPrimaryCamera(BaseCamera* primaryCamera)
 {
-    this->primaryCamera = primaryCamera;
+    m_pPrimaryCamera = primaryCamera;
 }
 
 Entity* Scene::GetEntity(std::string entityName)
 {
-    if (this->EntityExists(entityName))
+    if (EntityExists(entityName))
     {
-        return this->entities.at(entityName);
+        return m_Entities.at(entityName);
     }
 
     Log::PrintSeverity(Log::Severity::CRITICAL, "No Entity with name: \'%s\' was found.\n", entityName.c_str());
@@ -84,27 +84,27 @@ Entity* Scene::GetEntity(std::string entityName)
 
 const std::map<std::string, Entity*>* Scene::GetEntities() const
 {
-	return &this->entities;
+	return &m_Entities;
 }
 
 unsigned int Scene::GetNrOfEntites() const
 {
-    return this->nrOfEntities;
+    return m_NrOfEntities;
 }
 
 BaseCamera* Scene::GetMainCamera() const
 {
-	return this->primaryCamera;
+	return m_pPrimaryCamera;
 }
 
 std::string Scene::GetName() const
 {
-    return this->sceneName;
+    return m_SceneName;
 }
 
 void Scene::UpdateScene(double dt)
 {
-    for (auto pair : this->entities)
+    for (auto pair : m_Entities)
     {
         pair.second->Update(dt);
     }
@@ -112,9 +112,9 @@ void Scene::UpdateScene(double dt)
 
 bool Scene::EntityExists(std::string entityName) const
 {
-    for (auto pair : this->entities)
+    for (auto pair : m_Entities)
     {
-        // An entity with this name already exists
+        // An entity with this m_Name already exists
         if (pair.first == entityName)
         {
             return true;

@@ -3,15 +3,15 @@
 
 Entity::Entity(std::string entityName)
 {
-	this->id = staticID++;
-	this->name = entityName;
+	m_Id = staticID++;
+	m_Name = entityName;
 
-	this->referenceCount = 1;
+	m_ReferenceCount = 1;
 }
 
 bool Entity::operator==(const Entity* rhs) const
 {
-	if (this->id == rhs->id)
+	if (m_Id == rhs->m_Id)
 	{
 		return true;
 	}
@@ -20,7 +20,7 @@ bool Entity::operator==(const Entity* rhs) const
 
 Entity::~Entity()
 {
-	for (Component* component : this->components)
+	for (Component* component : m_Components)
 	{
 		delete component;
 	}
@@ -28,32 +28,32 @@ Entity::~Entity()
 
 unsigned int Entity::GetID() const
 {
-	return this->id;
+	return m_Id;
 }
 
 std::string Entity::GetName() const
 {
-	return this->name;
+	return m_Name;
 }
 
 unsigned int Entity::GetRefCount() const
 {
-	return this->referenceCount;
+	return m_ReferenceCount;
 }
 
 void Entity::IncrementRefCount()
 {
-	this->referenceCount++;
+	m_ReferenceCount++;
 }
 
 void Entity::DecrementRefCount()
 {
-	this->referenceCount--;
+	m_ReferenceCount--;
 }
 
 void Entity::Update(double dt)
 {
-	for (Component* component : this->components)
+	for (Component* component : m_Components)
 	{
 		component->Update(dt);
 	}

@@ -28,11 +28,11 @@ public:
 	void UpdateScene(double dt);
 	
 private:
-	std::string sceneName;
-	std::map<std::string, Entity*> entities;
-	unsigned int nrOfEntities = 0;
+	std::string m_SceneName;
+	std::map<std::string, Entity*> m_Entities;
+	unsigned int m_NrOfEntities = 0;
 
-	BaseCamera* primaryCamera = nullptr;
+	BaseCamera* m_pPrimaryCamera = nullptr;
 
 	bool EntityExists(std::string entityName) const;
 };

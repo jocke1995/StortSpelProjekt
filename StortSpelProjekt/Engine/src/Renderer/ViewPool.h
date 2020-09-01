@@ -27,7 +27,7 @@ public:
 
 
 private:
-	ID3D12Device5* device = nullptr;
+	ID3D12Device5* m_pDevice = nullptr;
 
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr;
 	DescriptorHeap* descriptorHeap_RTV = nullptr;

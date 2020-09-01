@@ -101,7 +101,7 @@ bool MousePicker::Pick(component::BoundingBoxComponent* bbc, float& distance)
 		if (ep2 != 0.0f)
 			t = -(ep1 + tri1D) / (ep2);
 
-		// Make sure you not to pick objects behind the camera
+		// Make sure you not to pick objects behind the m_pCamera
 		if (t > 0.0f)    
 		{
 			// Get the point on the plane
@@ -115,7 +115,7 @@ bool MousePicker::Pick(component::BoundingBoxComponent* bbc, float& distance)
 			if (this->IsPointInTriangle(tri1V1, tri1V2, tri1V3, pointInPlane))
 			{
 				// Return the distance to the hit, so you can check all the other pickable objects in your scene
-				// and choose whichever object is closest to the camera
+				// and choose whichever object is closest to the m_pCamera
 				distance = t / 2.0f;
 				return true;
 			}

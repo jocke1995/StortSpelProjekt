@@ -28,7 +28,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	// ThreadPool
 	int numCores = std::thread::hardware_concurrency();
 	if (numCores == 0) numCores = 1; // function not supported
-	this->m_ThreadPool = new ThreadPool(numCores); // Set num threads to number of cores of the cpu
+	this->m_ThreadPool = new ThreadPool(numCores); // Set num m_Threads to number of cores of the cpu
 
 	// Sub-engines
 	this->m_Renderer = new Renderer();

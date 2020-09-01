@@ -17,7 +17,7 @@ CopyTask::~CopyTask()
 
 void CopyTask::Submit(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
 {
-	m_Upload_Default_Data.push_back(*Upload_Default_Data);
+	m_UploadDefaultData.push_back(*Upload_Default_Data);
 }
 
 void CopyTask::copyResource(

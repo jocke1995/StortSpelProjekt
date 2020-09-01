@@ -32,18 +32,18 @@ public:
 	bool IsQueueEmpty();
 	unsigned int GetTaskFlag();
 private:
-	HANDLE thread;
-	HANDLE beginEvent;
+	HANDLE m_Thread;
+	HANDLE m_BeginEvent;
 
 	static unsigned int __stdcall threadFunc(LPVOID lpParameter);
 
-	std::queue<MultiThreadedTask*> taskQueue;
-	std::mutex mutex;
+	std::queue<MultiThreadedTask*> m_TaskQueue;
+	std::mutex m_Mutex;
 
-	MultiThreadedTask* task= nullptr;
-	unsigned int taskFlag = 0;
+	MultiThreadedTask* m_pTask= nullptr;
+	unsigned int m_TaskFlag = 0;
 
-	bool isRunning = true;
+	bool m_IsRunning = true;
 };
 
 #endif
