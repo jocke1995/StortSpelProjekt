@@ -34,13 +34,12 @@ public:
 	const ConstantBufferView* const GetConstantBufferView() const;
 
 private:
-	std::map<TEXTURE_TYPE, Texture*> textures;
-
-	SlotInfo* slotInfo = nullptr;
+	std::map<TEXTURE_TYPE, Texture*> m_Textures;
+	SlotInfo* m_pSlotInfo = nullptr;
 
 	// a constantBuffer containing the materialAttributesData
-	ConstantBufferView* cbv = nullptr;
-	MaterialAttributes* materialAttributes = nullptr;
+	ConstantBufferView* m_pCbv = nullptr;
+	MaterialAttributes* m_pMaterialAttributes = nullptr;
 
 };
 

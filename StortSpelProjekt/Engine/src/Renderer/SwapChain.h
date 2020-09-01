@@ -21,12 +21,12 @@ public:
 		unsigned int width, unsigned int height,
 		ID3D12CommandQueue* commandQueue,
 		DescriptorHeap* descriptorHeap_RTV);
-	~SwapChain();
+	virtual ~SwapChain();
 
 	IDXGISwapChain4* GetDX12SwapChain() const;
 
 private:
-	IDXGISwapChain4* swapChain4 = nullptr;
+	IDXGISwapChain4* m_pSwapChain4 = nullptr;
 };
 
 #endif

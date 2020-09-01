@@ -21,15 +21,15 @@ class RootSignature
 {
 public:
 	RootSignature(ID3D12Device5* device);
-	~RootSignature();
+	virtual ~RootSignature();
 
 	ID3D12RootSignature* GetRootSig() const;
 	ID3DBlob* GetBlob() const;
 private:
 	// Rootsignature
-	ID3D12RootSignature* rootSig = nullptr;
-	ID3DBlob* sBlob = nullptr;
-	void CreateRootSignatureStructure();
+	ID3D12RootSignature* m_pRootSig = nullptr;
+	ID3DBlob* m_pBlob = nullptr;
+	void createRootSignatureStructure();
 };
 
 #endif

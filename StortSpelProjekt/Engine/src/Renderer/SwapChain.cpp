@@ -44,9 +44,9 @@ SwapChain::SwapChain(
 		nullptr,
 		&swapChain1)))
 	{
-		if (SUCCEEDED(swapChain1->QueryInterface(IID_PPV_ARGS(&swapChain4))))
+		if (SUCCEEDED(swapChain1->QueryInterface(IID_PPV_ARGS(&m_pSwapChain4))))
 		{
-			swapChain4->Release();
+			m_pSwapChain4->Release();
 		}
 	}
 	else
@@ -59,7 +59,7 @@ SwapChain::SwapChain(
 	// Connect the renderTargets to the swapchain, so that the swapchain can easily swap between these two renderTargets
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		HRESULT hr = swapChain4->GetBuffer(i, IID_PPV_ARGS(this->resources[i]->GetID3D12Resource1PP()));
+		HRESULT hr = m_pSwapChain4->GetBuffer(i, IID_PPV_ARGS(this->m_Resources[i]->GetID3D12Resource1PP()));
 		if (FAILED(hr))
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to GetBuffer from RenderTarget to Swapchain\n");
@@ -67,16 +67,16 @@ SwapChain::SwapChain(
 
 		unsigned int dhIndex = descriptorHeap_RTV->GetNextDescriptorHeapIndex(1);
 		D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_RTV->GetCPUHeapAt(dhIndex);
-		device->CreateRenderTargetView(*this->resources[i]->GetID3D12Resource1PP(), nullptr, cdh);
+		device->CreateRenderTargetView(*this->m_Resources[i]->GetID3D12Resource1PP(), nullptr, cdh);
 	}
 }
 
 SwapChain::~SwapChain()
 {
-	SAFE_RELEASE(&this->swapChain4);
+	SAFE_RELEASE(&this->m_pSwapChain4);
 }
 
 IDXGISwapChain4* SwapChain::GetDX12SwapChain() const
 {
-	return this->swapChain4;
+	return this->m_pSwapChain4;
 }

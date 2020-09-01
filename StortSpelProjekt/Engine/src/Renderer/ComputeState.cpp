@@ -9,7 +9,7 @@ ComputeState::ComputeState(ID3D12Device5* device, RootSignature* rootSignature, 
 {
 	this->cpsd.pRootSignature = rootSignature->GetRootSig();
 
-	this->CS = this->CreateShader(CSName, ShaderType::CS);
+	this->CS = this->createShader(CSName, ShaderType::CS);
 
 	ID3DBlob* csBlob = this->CS->GetBlob();
 
@@ -17,12 +17,12 @@ ComputeState::ComputeState(ID3D12Device5* device, RootSignature* rootSignature, 
 	this->cpsd.CS.BytecodeLength = csBlob->GetBufferSize();
 
 	// Create pipelineStateObject
-	HRESULT hr = device->CreateComputePipelineState(&this->cpsd, IID_PPV_ARGS(&this->PSO));
+	HRESULT hr = device->CreateComputePipelineState(&this->cpsd, IID_PPV_ARGS(&this->m_pPSO));
 
-	this->PSO->SetName(this->psoName);
+	this->m_pPSO->SetName(this->m_PsoName);
 	if (!SUCCEEDED(hr))
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create %S\n", this->psoName);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create %S\n", this->m_PsoName);
 	}
 }
 
@@ -43,11 +43,11 @@ Shader* ComputeState::GetShader(ShaderType type) const
 	}
 	else if (type == ShaderType::VS)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "There is no vertexShader in \'%S\'\n", this->psoName);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "There is no vertexShader in \'%S\'\n", this->m_PsoName);
 	}
 	else if (type == ShaderType::PS)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "There is no pixelShader in \'%S\'\n", this->psoName);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "There is no pixelShader in \'%S\'\n", this->m_PsoName);
 	}
 
 	return nullptr;

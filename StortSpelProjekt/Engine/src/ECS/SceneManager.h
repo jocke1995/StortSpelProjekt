@@ -42,27 +42,27 @@ void SceneManager::EditScene(T* input, bool remove)
 		ResetScene();
 		HandleSceneComponents(scene);
 
-		this->renderer->PrepareCBPerFrame();
-		this->renderer->PrepareCBPerScene();
+		this->renderer->prepareCBPerFrame();
+		this->renderer->prepareCBPerScene();
 
 		// -------------------- DEBUG STUFF --------------------
 		// Test to change camera to the shadow casting lights cameras
 		//auto& tuple = this->renderer->lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
 		//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
 		//this->renderer->ScenePrimaryCamera = tempCam;
-		if (this->renderer->ScenePrimaryCamera == nullptr)
+		if (this->renderer->m_pScenePrimaryCamera == nullptr)
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scene: %s\n", scene->GetName());
 			
 			// Todo: Set default camera
 		}
 
-		this->renderer->mousePicker->SetPrimaryCamera(renderer->ScenePrimaryCamera);
-		scene->SetPrimaryCamera(renderer->ScenePrimaryCamera);
-		this->renderer->SetRenderTasksRenderComponents();
-		this->renderer->SetRenderTasksPrimaryCamera();
+		this->renderer->m_pMousePicker->SetPrimaryCamera(renderer->m_pScenePrimaryCamera);
+		scene->SetPrimaryCamera(renderer->m_pScenePrimaryCamera);
+		this->renderer->setRenderTasksRenderComponents();
+		this->renderer->setRenderTasksPrimaryCamera();
 
-		this->renderer->currActiveScene = scene;
+		this->renderer->m_pCurrActiveScene = scene;
 
 		this->ExecuteCopyOnDemand();
 		return;

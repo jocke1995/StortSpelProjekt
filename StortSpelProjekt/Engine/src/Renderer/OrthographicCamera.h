@@ -21,19 +21,18 @@ public:
     const DirectX::XMMATRIX* GetViewProjectionTranposed() const;
 
 private:
-    float left  = 0;
-    float right = 0;
-    float bot   = 0;
-    float top   = 0;
-    float nearZ = 0;
-    float farZ  = 0;
+    float m_Left  = 0;
+    float m_Right = 0;
+    float m_Bot   = 0;
+    float m_Top   = 0;
+    float m_NearZ = 0;
+    float m_FarZ  = 0;
 
-    DirectX::XMMATRIX projMatrix;
+    DirectX::XMMATRIX m_ProjMatrix;
+    DirectX::XMMATRIX m_ViewProjMatrix;
+    DirectX::XMMATRIX m_ViewProjTranposedMatrix;
 
-    DirectX::XMMATRIX viewProjMatrix;
-    DirectX::XMMATRIX viewProjTranposedMatrix;
-
-    void UpdateSpecific(double dt);
+    void updateSpecific(double dt);
 };
 
 #endif

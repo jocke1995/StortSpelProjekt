@@ -24,10 +24,9 @@ public:
 	// viewport & scizzorRect
 	RenderView* GetRenderView() const;
 protected:
-	std::vector<Resource*> resources;
-
+	std::vector<Resource*> m_Resources;
 	// viewport & scizzorRect
-	RenderView* renderView = nullptr;
+	RenderView* m_pRenderView = nullptr;
 };
 
 #endif

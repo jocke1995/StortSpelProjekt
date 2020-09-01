@@ -21,9 +21,9 @@ public:
 	const D3D12_GRAPHICS_PIPELINE_STATE_DESC* GetGpsd() const;
 	Shader* GetShader(ShaderType type) const;
 private:
-	Shader* VS = nullptr;
-	Shader* PS = nullptr;
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC* gpsd = nullptr;
+	Shader* m_pVS = nullptr;
+	Shader* m_pPS = nullptr;
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC* m_pGPSD = nullptr;
 };
 
 #endif 

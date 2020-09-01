@@ -22,12 +22,11 @@ public:
 	bool Pick(component::BoundingBoxComponent* bbc, float& distance);
 
 private:
-	BaseCamera* primaryCamera = nullptr;
+	BaseCamera* m_pPrimaryCamera = nullptr;
+	DirectX::XMVECTOR m_RayInWorldSpacePos = {};
+	DirectX::XMVECTOR m_RayInWorldSpaceDir = {};
 
-	DirectX::XMVECTOR rayInWorldSpacePos = {};
-	DirectX::XMVECTOR rayInWorldSpaceDir = {};
-
-	bool IsPointInTriangle(DirectX::XMVECTOR& triV1, DirectX::XMVECTOR& triV2, DirectX::XMVECTOR& triV3, DirectX::XMVECTOR& point);
+	bool isPointInTriangle(DirectX::XMVECTOR& triV1, DirectX::XMVECTOR& triV2, DirectX::XMVECTOR& triV3, DirectX::XMVECTOR& point);
 };
 
 #endif

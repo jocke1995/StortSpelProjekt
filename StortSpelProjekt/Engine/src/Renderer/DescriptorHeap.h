@@ -16,7 +16,7 @@ class DescriptorHeap
 {
 public:
 	DescriptorHeap(ID3D12Device5* device, DESCRIPTOR_HEAP_TYPE type);
-	~DescriptorHeap();
+	virtual ~DescriptorHeap();
 
 	void SetCPUGPUHeapStart();
 	void IncrementDescriptorHeapIndex();
@@ -29,19 +29,18 @@ public:
 	const UINT GetHandleIncrementSize() const;
 
 private:
-	ID3D12DescriptorHeap* descriptorHeap = nullptr;
-	unsigned int descriptorHeapIndex = 0;
+	ID3D12DescriptorHeap* m_pDescriptorHeap = nullptr;
+	unsigned int m_DescriptorHeapIndex = 0;
 
-	D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+	D3D12_DESCRIPTOR_HEAP_DESC m_Desc = {};
 
-	D3D12_CPU_DESCRIPTOR_HANDLE CPUHeapStart;
-	D3D12_GPU_DESCRIPTOR_HANDLE GPUHeapStart;
+	D3D12_CPU_DESCRIPTOR_HANDLE m_CPUHeapStart;
+	D3D12_GPU_DESCRIPTOR_HANDLE m_GPUHeapStart;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE CPUHeapAt;
-	D3D12_GPU_DESCRIPTOR_HANDLE GPUHeapAt;
+	D3D12_CPU_DESCRIPTOR_HANDLE m_CPUHeapAt;
+	D3D12_GPU_DESCRIPTOR_HANDLE m_GPUHeapAt;
 
-
-	UINT handleIncrementSize;
+	UINT m_HandleIncrementSize;
 };
 
 #endif

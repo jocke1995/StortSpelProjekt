@@ -20,13 +20,11 @@ public:
         float *camYaw,
         float *camPitch);
 private:
-
-    float movementSpeed = 10.0f;
-
-    IDirectInputDevice8* keyboard;
-    IDirectInputDevice8* mouse;
-    DIMOUSESTATE mouseLastState;
-    LPDIRECTINPUT8 DirectInput;
+    float m_MovementSpeed = 10.0f;
+    IDirectInputDevice8* m_pKeyboard;
+    IDirectInputDevice8* m_pMouse;
+    LPDIRECTINPUT8 m_DirectInput;
+    DIMOUSESTATE m_MouseLastState;
 
    
 };

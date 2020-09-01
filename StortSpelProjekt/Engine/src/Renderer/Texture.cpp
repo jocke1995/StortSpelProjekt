@@ -110,74 +110,74 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-	if (this->resourceDefaultHeap != nullptr)
+	if (this->m_pResourceDefaultHeap != nullptr)
 	{
-		delete this->resourceDefaultHeap;
+		delete this->m_pResourceDefaultHeap;
 	}
 
-	if (this->resourceUploadHeap != nullptr)
+	if (this->m_pResourceUploadHeap != nullptr)
 	{
-		delete this->resourceUploadHeap;
+		delete this->m_pResourceUploadHeap;
 	}
 	
-	delete this->SRV;
+	delete this->m_pSRV;
 	free(const_cast<void*>(m_SubresourceData.pData));
 }
 
 const UINT Texture::GetDescriptorHeapIndex() const
 {
-	return this->SRV->GetDescriptorHeapIndex();
+	return this->m_pSRV->GetDescriptorHeapIndex();
 }
 
 bool Texture::Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 {
-	this->filePath = filePath;
+	this->m_FilePath = filePath;
 	unsigned int descriptorHeapIndex = descriptorHeap->GetNextDescriptorHeapIndex(0);
 
-	if (this->CreateTexture(filePath, device, descriptorHeapIndex) == false)
+	if (this->createTexture(filePath, device, descriptorHeapIndex) == false)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(filePath).c_str());
 		return false;
 	}
 
 	// Default heap
-	this->resourceDefaultHeap = new Resource(
+	this->m_pResourceDefaultHeap = new Resource(
 		device,
-		&this->resourceDescription,
+		&this->m_ResourceDescription,
 		nullptr,
-		this->filePath + L"_DEFAULT_RESOURCE",
+		this->m_FilePath + L"_DEFAULT_RESOURCE",
 		D3D12_RESOURCE_STATE_COMMON);
 
 	UINT64 textureUploadBufferSize;
 	device->GetCopyableFootprints(
-		&this->resourceDescription,
+		&this->m_ResourceDescription,
 		0, 1, 0,
 		nullptr, nullptr, nullptr,
 		&textureUploadBufferSize);
 
 	// Upload heap
-	this->resourceUploadHeap = new Resource(device,
+	this->m_pResourceUploadHeap = new Resource(device,
 	textureUploadBufferSize,
 	RESOURCE_TYPE::UPLOAD,
-		this->filePath + L"_UPLOAD_RESOURCE");
+		this->m_FilePath + L"_UPLOAD_RESOURCE");
 
 	// Create srv
 	D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
 	desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	desc.Format = this->resourceDescription.Format;
+	desc.Format = this->m_ResourceDescription.Format;
 	desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	desc.Texture2D.MipLevels = 1;
 
-	this->SRV = new ShaderResourceView(
+	this->m_pSRV = new ShaderResourceView(
 		device,
 		descriptorHeap,
 		&desc,
-		this->resourceDefaultHeap);
+		this->m_pResourceDefaultHeap);
 
 	return true;
 }
 
-bool Texture::CreateTexture(std::wstring filePath, ID3D12Device5* device, UINT descriptorHeapIndex_SRV)
+bool Texture::createTexture(std::wstring filePath, ID3D12Device5* device, UINT descriptorHeapIndex_SRV)
 {
 	static IWICImagingFactory* wicFactory;
 
@@ -206,7 +206,7 @@ bool Texture::CreateTexture(std::wstring filePath, ID3D12Device5* device, UINT d
 	}
 
 	// Load a decoder for the image
-	LPCWSTR tempName = this->filePath.c_str();
+	LPCWSTR tempName = this->m_FilePath.c_str();
 	hr = wicFactory->CreateDecoderFromFilename(
 		tempName,                        // Image we want to load in
 		NULL,                            // This is a vendor ID, we do not prefer a specific one so set to null
@@ -317,20 +317,20 @@ bool Texture::CreateTexture(std::wstring filePath, ID3D12Device5* device, UINT d
 
 	m_SubresourceData.pData = &imageData[0]; // pointer to our image data
 	m_SubresourceData.RowPitch = bytesPerRow;
-	m_SubresourceData.SlicePitch = bytesPerRow * resourceDescription.Height;
+	m_SubresourceData.SlicePitch = bytesPerRow * m_ResourceDescription.Height;
 
 	// Now describe the texture with the information we have obtained from the image
-	this->resourceDescription.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	this->resourceDescription.Alignment = 0; // may be 0, 4KB, 64KB, or 4MB. 0 will let runtime decide between 64KB and 4MB (4MB for multi-sampled textures)
-	this->resourceDescription.Width = textureWidth; // width of the texture
-	this->resourceDescription.Height = textureHeight; // height of the texture
-	this->resourceDescription.DepthOrArraySize = 1; // if 3d image, depth of 3d image. Otherwise an array of 1D or 2D textures (we only have one image, so we set 1)
-	this->resourceDescription.MipLevels = 1; // Number of mipmaps. We are not generating mipmaps for this texture, so we have only one level
-	this->resourceDescription.Format = dxgiFormat; // This is the dxgi format of the image (format of the pixels)
-	this->resourceDescription.SampleDesc.Count = 1; // This is the number of samples per pixel, we just want 1 sample
-	this->resourceDescription.SampleDesc.Quality = 0; // The quality level of the samples. Higher is better quality, but worse performance
-	this->resourceDescription.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN; // The arrangement of the pixels. Setting to unknown lets the driver choose the most efficient one
-	this->resourceDescription.Flags = D3D12_RESOURCE_FLAG_NONE; // no flags
+	this->m_ResourceDescription.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	this->m_ResourceDescription.Alignment = 0; // may be 0, 4KB, 64KB, or 4MB. 0 will let runtime decide between 64KB and 4MB (4MB for multi-sampled textures)
+	this->m_ResourceDescription.Width = textureWidth; // width of the texture
+	this->m_ResourceDescription.Height = textureHeight; // height of the texture
+	this->m_ResourceDescription.DepthOrArraySize = 1; // if 3d image, depth of 3d image. Otherwise an array of 1D or 2D textures (we only have one image, so we set 1)
+	this->m_ResourceDescription.MipLevels = 1; // Number of mipmaps. We are not generating mipmaps for this texture, so we have only one level
+	this->m_ResourceDescription.Format = dxgiFormat; // This is the dxgi format of the image (format of the pixels)
+	this->m_ResourceDescription.SampleDesc.Count = 1; // This is the number of samples per pixel, we just want 1 sample
+	this->m_ResourceDescription.SampleDesc.Quality = 0; // The quality level of the samples. Higher is better quality, but worse performance
+	this->m_ResourceDescription.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN; // The arrangement of the pixels. Setting to unknown lets the driver choose the most efficient one
+	this->m_ResourceDescription.Flags = D3D12_RESOURCE_FLAG_NONE; // no flags
 
 	return true;
 }

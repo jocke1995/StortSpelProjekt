@@ -19,18 +19,18 @@ MousePicker::~MousePicker()
 
 void MousePicker::SetPrimaryCamera(BaseCamera* primaryCamera)
 {
-	this->primaryCamera = primaryCamera;
+	this->m_pPrimaryCamera = primaryCamera;
 }
 
 void MousePicker::UpdateRay()
 {
 	// Pick from middle of the screen
-	this->rayInWorldSpacePos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	this->rayInWorldSpaceDir = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	this->m_RayInWorldSpacePos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	this->m_RayInWorldSpaceDir = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 
 	// Transform ray to worldSpace by taking inverse of the view matrix
-	this->rayInWorldSpacePos = DirectX::XMVector3TransformCoord(this->rayInWorldSpacePos, *this->primaryCamera->GetViewMatrixInverse());
-	this->rayInWorldSpaceDir = DirectX::XMVector3TransformNormal(this->rayInWorldSpaceDir, *this->primaryCamera->GetViewMatrixInverse());
+	this->m_RayInWorldSpacePos = DirectX::XMVector3TransformCoord(this->m_RayInWorldSpacePos, *this->m_pPrimaryCamera->GetViewMatrixInverse());
+	this->m_RayInWorldSpaceDir = DirectX::XMVector3TransformNormal(this->m_RayInWorldSpaceDir, *this->m_pPrimaryCamera->GetViewMatrixInverse());
 }
 
 bool MousePicker::Pick(component::BoundingBoxComponent* bbc, float& distance)
@@ -94,8 +94,8 @@ bool MousePicker::Pick(component::BoundingBoxComponent* bbc, float& distance)
 		float planeIntersectX, planeIntersectY, planeIntersectZ = 0.0f;
 		DirectX::XMVECTOR pointInPlane = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 
-		ep1 = (tri1A *  DirectX::XMVectorGetX(this->rayInWorldSpacePos)) + (tri1B *  DirectX::XMVectorGetY(this->rayInWorldSpacePos)) + (tri1C *  DirectX::XMVectorGetZ(this->rayInWorldSpacePos));
-		ep2 = (tri1A *  DirectX::XMVectorGetX(this->rayInWorldSpaceDir)) + (tri1B *  DirectX::XMVectorGetY(this->rayInWorldSpaceDir)) + (tri1C *  DirectX::XMVectorGetZ(this->rayInWorldSpaceDir));
+		ep1 = (tri1A *  DirectX::XMVectorGetX(this->m_RayInWorldSpacePos)) + (tri1B *  DirectX::XMVectorGetY(this->m_RayInWorldSpacePos)) + (tri1C *  DirectX::XMVectorGetZ(this->m_RayInWorldSpacePos));
+		ep2 = (tri1A *  DirectX::XMVectorGetX(this->m_RayInWorldSpaceDir)) + (tri1B *  DirectX::XMVectorGetY(this->m_RayInWorldSpaceDir)) + (tri1C *  DirectX::XMVectorGetZ(this->m_RayInWorldSpaceDir));
 
 		// Make sure there are no divide-by-zeros
 		if (ep2 != 0.0f)
@@ -105,14 +105,14 @@ bool MousePicker::Pick(component::BoundingBoxComponent* bbc, float& distance)
 		if (t > 0.0f)    
 		{
 			// Get the point on the plane
-			planeIntersectX =  DirectX::XMVectorGetX(this->rayInWorldSpacePos) +  DirectX::XMVectorGetX(this->rayInWorldSpaceDir) * t;
-			planeIntersectY =  DirectX::XMVectorGetY(this->rayInWorldSpacePos) +  DirectX::XMVectorGetY(this->rayInWorldSpaceDir) * t;
-			planeIntersectZ =  DirectX::XMVectorGetZ(this->rayInWorldSpacePos) +  DirectX::XMVectorGetZ(this->rayInWorldSpaceDir) * t;
+			planeIntersectX =  DirectX::XMVectorGetX(this->m_RayInWorldSpacePos) +  DirectX::XMVectorGetX(this->m_RayInWorldSpaceDir) * t;
+			planeIntersectY =  DirectX::XMVectorGetY(this->m_RayInWorldSpacePos) +  DirectX::XMVectorGetY(this->m_RayInWorldSpaceDir) * t;
+			planeIntersectZ =  DirectX::XMVectorGetZ(this->m_RayInWorldSpacePos) +  DirectX::XMVectorGetZ(this->m_RayInWorldSpaceDir) * t;
 
 			pointInPlane = DirectX::XMVectorSet(planeIntersectX, planeIntersectY, planeIntersectZ, 0.0f);
 
 			// Call function to check if point is in the triangle
-			if (this->IsPointInTriangle(tri1V1, tri1V2, tri1V3, pointInPlane))
+			if (this->isPointInTriangle(tri1V1, tri1V2, tri1V3, pointInPlane))
 			{
 				// Return the distance to the hit, so you can check all the other pickable objects in your scene
 				// and choose whichever object is closest to the camera
@@ -124,7 +124,7 @@ bool MousePicker::Pick(component::BoundingBoxComponent* bbc, float& distance)
 	return false;
 }
 
-bool MousePicker::IsPointInTriangle(DirectX::XMVECTOR& triV1, DirectX::XMVECTOR& triV2, DirectX::XMVECTOR& triV3, DirectX::XMVECTOR& point)
+bool MousePicker::isPointInTriangle(DirectX::XMVECTOR& triV1, DirectX::XMVECTOR& triV2, DirectX::XMVECTOR& triV3, DirectX::XMVECTOR& point)
 {
 	// To find out if the point is inside the triangle, we will check to see if the point
 	// is on the correct side of each of the triangles edges.

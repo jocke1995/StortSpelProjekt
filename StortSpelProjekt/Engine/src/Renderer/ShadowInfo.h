@@ -31,19 +31,17 @@ public:
 	RenderView* GetRenderView() const;
 
 private:
-	unsigned int id = 0;
-	SHADOW_RESOLUTION shadowResolution = SHADOW_RESOLUTION::UNDEFINED;
+	unsigned int m_Id = 0;
+	SHADOW_RESOLUTION m_ShadowResolution = SHADOW_RESOLUTION::UNDEFINED;
 
-	Resource* resource = nullptr;
-
-	DepthStencilView* DSV = nullptr;
-	ShaderResourceView* SRV = nullptr;
-
-	RenderView* renderView = nullptr;
+	Resource* m_pResource = nullptr;
+	DepthStencilView* m_pDSV = nullptr;
+	ShaderResourceView* m_pSRV = nullptr;
+	RenderView* m_pRenderView = nullptr;
 	
-	void CreateResource(ID3D12Device5* device, unsigned int width, unsigned int height);
-	void CreateDSV(ID3D12Device5* device, DescriptorHeap* dh_DSV);
-	void CreateSRV(ID3D12Device5* device, DescriptorHeap* dh_SRV);
+	void createResource(ID3D12Device5* device, unsigned int width, unsigned int height);
+	void createDSV(ID3D12Device5* device, DescriptorHeap* dh_DSV);
+	void createSRV(ID3D12Device5* device, DescriptorHeap* dh_SRV);
 };
 
 #endif

@@ -12,11 +12,11 @@ DepthStencilView::DepthStencilView(
 	DescriptorHeap* descriptorHeap_DSV,
 	DXGI_FORMAT format)
 {
-	this->CreateResource(device, width, height, dsvResourceName, format);
-	this->CreateDSV(device, descriptorHeap_DSV, format);
-	this->dxgi_Format = format;
+	this->createResource(device, width, height, dsvResourceName, format);
+	this->createDSV(device, descriptorHeap_DSV, format);
+	this->m_DXGIFormat = format;
 
-	this->deleteResource = true;
+	this->m_DeleteResource = true;
 }
 
 // Constructor that assigns a resource
@@ -26,35 +26,35 @@ DepthStencilView::DepthStencilView(
 	Resource* resource,
 	DXGI_FORMAT format)
 {
-	this->resource = resource;
-	this->CreateDSV(device, descriptorHeap_DSV, format);
-	this->dxgi_Format = format;
+	this->m_pResource = resource;
+	this->createDSV(device, descriptorHeap_DSV, format);
+	this->m_DXGIFormat = format;
 
-	this->deleteResource = false;
+	this->m_DeleteResource = false;
 }
 
 DepthStencilView::~DepthStencilView()
 {
-	if (this->deleteResource == true)
-		delete this->resource;
+	if (this->m_DeleteResource == true)
+		delete this->m_pResource;
 }
 
 Resource* DepthStencilView::GetDSVResource() const
 {
-	return this->resource;
+	return this->m_pResource;
 }
 
 unsigned int DepthStencilView::GetDescriptorHeapIndex() const
 {
-	return this->descriptorHeapIndex_DSV;
+	return this->m_DescriptorHeapIndexDSV;
 }
 
 DXGI_FORMAT DepthStencilView::GetDXGIFormat() const
 {
-	return this->dxgi_Format;
+	return this->m_DXGIFormat;
 }
 
-void DepthStencilView::CreateResource(
+void DepthStencilView::createResource(
 	ID3D12Device5* device,
 	unsigned int width, unsigned int height,
 	std::wstring dsvResourceName,
@@ -77,7 +77,7 @@ void DepthStencilView::CreateResource(
 	clearValue.DepthStencil.Depth = 1;
 	clearValue.DepthStencil.Stencil = 0;
 
-	this->resource = new Resource(
+	this->m_pResource = new Resource(
 		device,
 		&resourceDesc,
 		&clearValue,
@@ -85,7 +85,7 @@ void DepthStencilView::CreateResource(
 		D3D12_RESOURCE_STATE_DEPTH_WRITE);
 }
 
-void DepthStencilView::CreateDSV(
+void DepthStencilView::createDSV(
 	ID3D12Device5* device,
 	DescriptorHeap* descriptorHeap_DSV,
 	DXGI_FORMAT format)
@@ -95,8 +95,8 @@ void DepthStencilView::CreateDSV(
 	depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-	this->descriptorHeapIndex_DSV = descriptorHeap_DSV->GetNextDescriptorHeapIndex(1);
-	D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_DSV->GetCPUHeapAt(descriptorHeapIndex_DSV);
-	device->CreateDepthStencilView(this->resource->GetID3D12Resource1(), &depthStencilDesc, cdh);
+	this->m_DescriptorHeapIndexDSV = descriptorHeap_DSV->GetNextDescriptorHeapIndex(1);
+	D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_DSV->GetCPUHeapAt(m_DescriptorHeapIndexDSV);
+	device->CreateDepthStencilView(this->m_pResource->GetID3D12Resource1(), &depthStencilDesc, cdh);
 }
 

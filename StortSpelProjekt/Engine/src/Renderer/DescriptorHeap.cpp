@@ -7,25 +7,25 @@ DescriptorHeap::DescriptorHeap(ID3D12Device5* device, DESCRIPTOR_HEAP_TYPE type)
 	switch (type)
 	{
 	case DESCRIPTOR_HEAP_TYPE::RTV:
-		this->desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		this->desc.NumDescriptors = 10;
+		this->m_Desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		this->m_Desc.NumDescriptors = 10;
 		break;
 	case DESCRIPTOR_HEAP_TYPE::DSV:
-		this->desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		this->desc.NumDescriptors = 10;
+		this->m_Desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		this->m_Desc.NumDescriptors = 10;
 		break;
 	case DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV:
-		this->desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		this->desc.NumDescriptors = 100000;
-		this->desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		this->m_Desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		this->m_Desc.NumDescriptors = 100000;
+		this->m_Desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		break;
 	}
 
-	this->handleIncrementSize = device->GetDescriptorHandleIncrementSize(this->desc.Type);
+	this->m_HandleIncrementSize = device->GetDescriptorHandleIncrementSize(this->m_Desc.Type);
 
 	// Create descriptorHeap for the renderTarget
 	
-	HRESULT hr = device->CreateDescriptorHeap(&this->desc, IID_PPV_ARGS(&this->descriptorHeap));
+	HRESULT hr = device->CreateDescriptorHeap(&this->m_Desc, IID_PPV_ARGS(&this->m_pDescriptorHeap));
 	if (hr != S_OK)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create DescriptorHeap\n");
@@ -36,53 +36,53 @@ DescriptorHeap::DescriptorHeap(ID3D12Device5* device, DESCRIPTOR_HEAP_TYPE type)
 
 DescriptorHeap::~DescriptorHeap()
 {
-	SAFE_RELEASE(&this->descriptorHeap);
+	SAFE_RELEASE(&this->m_pDescriptorHeap);
 }
 
 void DescriptorHeap::SetCPUGPUHeapStart()
 {
-	this->CPUHeapStart = this->descriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	this->GPUHeapStart = this->descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	this->m_CPUHeapStart = this->m_pDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	this->m_GPUHeapStart = this->m_pDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 }
 
 void DescriptorHeap::IncrementDescriptorHeapIndex()
 {
-	this->descriptorHeapIndex++;
+	this->m_DescriptorHeapIndex++;
 }
 
 unsigned int DescriptorHeap::GetNextDescriptorHeapIndex(unsigned int increment)
 {
-	unsigned int indexToReturn = this->descriptorHeapIndex;
+	unsigned int indexToReturn = this->m_DescriptorHeapIndex;
 
-	this->descriptorHeapIndex += increment;
+	this->m_DescriptorHeapIndex += increment;
 
 	return indexToReturn;
 }
 
 const D3D12_DESCRIPTOR_HEAP_DESC* DescriptorHeap::GetDesc() const
 {
-	return &this->desc;
+	return &this->m_Desc;
 }
 
 ID3D12DescriptorHeap* DescriptorHeap::GetID3D12DescriptorHeap() const
 {
-	return this->descriptorHeap;
+	return this->m_pDescriptorHeap;
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetCPUHeapAt(UINT descriptorIndex)
 {
-	this->CPUHeapAt.ptr = this->CPUHeapStart.ptr + this->handleIncrementSize * descriptorIndex;
-	return this->CPUHeapAt;
+	this->m_CPUHeapAt.ptr = this->m_CPUHeapStart.ptr + this->m_HandleIncrementSize * descriptorIndex;
+	return this->m_CPUHeapAt;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGPUHeapAt(UINT descriptorIndex)
 {
-	this->GPUHeapAt.ptr = this->GPUHeapStart.ptr + this->handleIncrementSize * descriptorIndex;
+	this->m_GPUHeapAt.ptr = this->m_GPUHeapStart.ptr + this->m_HandleIncrementSize * descriptorIndex;
 
-	return this->GPUHeapAt;
+	return this->m_GPUHeapAt;
 }
 
 const UINT DescriptorHeap::GetHandleIncrementSize() const
 {
-	return this->handleIncrementSize;
+	return this->m_HandleIncrementSize;
 }

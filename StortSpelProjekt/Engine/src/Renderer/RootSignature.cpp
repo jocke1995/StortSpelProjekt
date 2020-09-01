@@ -5,13 +5,13 @@
 
 RootSignature::RootSignature(ID3D12Device5* device)
 {
-	this->CreateRootSignatureStructure();
+	this->createRootSignatureStructure();
 
 	HRESULT hr = device->CreateRootSignature(
 		0,
-		this->sBlob->GetBufferPointer(),
-		this->sBlob->GetBufferSize(),
-		IID_PPV_ARGS(&this->rootSig));
+		this->m_pBlob->GetBufferPointer(),
+		this->m_pBlob->GetBufferSize(),
+		IID_PPV_ARGS(&this->m_pRootSig));
 
 	if(FAILED(hr))
 	{
@@ -21,21 +21,21 @@ RootSignature::RootSignature(ID3D12Device5* device)
 
 RootSignature::~RootSignature()
 {
-	SAFE_RELEASE(&this->rootSig);
-	SAFE_RELEASE(&this->sBlob);
+	SAFE_RELEASE(&this->m_pRootSig);
+	SAFE_RELEASE(&this->m_pBlob);
 }
 
 ID3D12RootSignature* RootSignature::GetRootSig() const
 {
-	return this->rootSig;
+	return this->m_pRootSig;
 }
 
 ID3DBlob* RootSignature::GetBlob() const
 {
-	return this->sBlob;
+	return this->m_pBlob;
 }
 
-void RootSignature::CreateRootSignatureStructure()
+void RootSignature::createRootSignatureStructure()
 {
 	// DescriptorTable for CBV's (bindless)
 	D3D12_DESCRIPTOR_RANGE dtRangesCBV[3]{};
@@ -132,7 +132,7 @@ void RootSignature::CreateRootSignatureStructure()
 	HRESULT hr = D3D12SerializeRootSignature(
 		&rsDesc,
 		D3D_ROOT_SIGNATURE_VERSION_1,
-		&this->sBlob,
+		&this->m_pBlob,
 		&errorMessages);
 
 	if (FAILED(hr) && errorMessages)

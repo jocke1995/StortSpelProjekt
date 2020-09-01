@@ -32,23 +32,21 @@ public:
 	DXGI_FORMAT GetDXGIFormat() const;
 
 private:
+	Resource* m_pResource = nullptr;
+	unsigned int m_DescriptorHeapIndexDSV = -1;
+	DXGI_FORMAT m_DXGIFormat = DXGI_FORMAT_UNKNOWN;
+	bool m_DeleteResource = false;
 
-	Resource* resource = nullptr;
-	unsigned int descriptorHeapIndex_DSV = -1;
-	DXGI_FORMAT dxgi_Format = DXGI_FORMAT_UNKNOWN;
-
-	void CreateResource(
+	void createResource(
 		ID3D12Device5* device,
 		unsigned int width, unsigned int height,
 		std::wstring dsvResourceName,
 		DXGI_FORMAT format = DXGI_FORMAT_D32_FLOAT);
 
-	void CreateDSV(
+	void createDSV(
 		ID3D12Device5* device,
 		DescriptorHeap* descriptorHeap_DSV,
 		DXGI_FORMAT format = DXGI_FORMAT_D32_FLOAT);
-
-	bool deleteResource = false;
 };
 
 #endif
