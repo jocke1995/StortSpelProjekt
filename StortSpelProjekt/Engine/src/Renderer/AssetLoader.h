@@ -20,7 +20,7 @@ public:
 
     /* Load Functions */
     // Model ---------------
-    std::vector<Mesh*>* LoadModel(const std::wstring path, bool* loadedBefore);
+    std::vector<Mesh*>* LoadModel(const std::wstring path);
 
     // Texture ------------
     Texture* LoadTexture(std::wstring path);

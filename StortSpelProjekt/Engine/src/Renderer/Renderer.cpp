@@ -124,44 +124,6 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	this->InitRenderTasks();
 }
 
-std::vector<Mesh*>* Renderer::LoadModel(std::wstring path)
-{
-	bool loadedBefore = false;
-	std::vector<Mesh*>* meshes = AssetLoader::Get()->LoadModel(path, &loadedBefore);
-
-	// ------------------------------ TEMPORARY CODE ------------------------------ 
-	// Only Upload to default heaps if its the first time its loaded
-	if (!loadedBefore)
-	{
-		for (Mesh* mesh : *meshes)
-		{
-			// temp
-			
-		}
-	}
-	return meshes;
-}
-
-Texture* Renderer::LoadTexture(std::wstring path)
-{
-	Texture* texture = AssetLoader::Get()->LoadTexture(path);
-
-	if (texture == nullptr)
-	{
-		return nullptr;
-	}
-
-	// ------------------------------ TEMPORARY CODE ------------------------------ 
-	// Wont upload data if its already up.. TEMPORARY safecheck inside the texture class
-	//texture->UploadToDefault(
-	//	this->device5,
-	//	this->tempCommandInterface,
-	//	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
-	//this->WaitForGpu();
-
-	return texture;
-}
-
 void Renderer::Update(double dt)
 {
 	// Update CB_PER_FRAME data

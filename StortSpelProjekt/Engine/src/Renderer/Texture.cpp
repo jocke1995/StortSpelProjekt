@@ -250,7 +250,7 @@ bool Texture::CreateTexture(std::wstring filePath, ID3D12Device5* device, UINT d
 		// Return if no dxgi compatible format was found
 		if (convertToPixelFormat == GUID_WICPixelFormatDontCare)
 		{
-			Log::PrintSeverity(Log::Severity::CRITICAL, "No dxgi compatible format was found.\n");
+			Log::PrintSeverity(Log::Severity::CRITICAL, "No dxgi compatible format was found for texture.\n");
 			return false;
 		}
 
