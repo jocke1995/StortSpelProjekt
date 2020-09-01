@@ -1,9 +1,9 @@
 #ifndef PERSPECTIVECAMERA_H
 #define PERSPECTIVECAMERA_H
 
-#include "TempInputClass.h"
-
 #include "BaseCamera.h"
+
+class TempInputClass;
 
 class PerspectiveCamera : public BaseCamera
 {
@@ -12,7 +12,7 @@ public:
     PerspectiveCamera(HINSTANCE hInstance, HWND hwnd);
 
     // main constructor
-    PerspectiveCamera(XMVECTOR position, XMVECTOR lookAt,
+    PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt,
         double fov = 45.0f,
         double aspectRatio = 16.0f / 9.0f,
         double zNear = 0.1f,
@@ -20,8 +20,8 @@ public:
 
 	virtual ~PerspectiveCamera();
 
-    const XMMATRIX* GetViewProjection() const;
-    const XMMATRIX* GetViewProjectionTranposed() const;
+    const DirectX::XMMATRIX* GetViewProjection() const;
+    const DirectX::XMMATRIX* GetViewProjectionTranposed() const;
 
 private:
     float moveLeftRight = 0.0f;
@@ -30,9 +30,9 @@ private:
     float camYaw = 0.0f;
     float camPitch = 0.0f;
 
-    XMMATRIX projMatrix;
-    XMMATRIX viewProjMatrix;
-    XMMATRIX viewProjTranposedMatrix;
+    DirectX::XMMATRIX projMatrix;
+    DirectX::XMMATRIX viewProjMatrix;
+    DirectX::XMMATRIX viewProjTranposedMatrix;
 
     double fov = 0.0f;
     double aspectRatio = 0.0f;

@@ -1,12 +1,12 @@
 #ifndef VIEWPOOL_H
 #define VIEWPOOL_H
 
-#include "ConstantBufferView.h"
-//  SRV & DSV
-#include "ShadowInfo.h"
+class ConstantBufferView;
+class DescriptorHeap;
+class ShadowInfo;
+class Light;
 
-#include "../ECS/Components/Lights/Light.h"
-
+#include "Core.h"
 
 class ViewPool
 {

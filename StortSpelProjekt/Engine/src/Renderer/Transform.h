@@ -1,9 +1,7 @@
 #ifndef TRANSFORM_H
 #define TRANSFORM_H
 
-#include <DirectXMath.h>
-#include "Core.h"
-using namespace DirectX;
+#include "EngineMath.h"
 
 class Transform
 {
@@ -12,7 +10,7 @@ public:
 	~Transform();
 
 	void SetPosition(float x, float y, float z);
-	void SetPosition(XMFLOAT3 pos);
+	void SetPosition(DirectX::XMFLOAT3 pos);
 	
 	void RotateX(float radians);
 	void RotateY(float radians);
@@ -24,23 +22,23 @@ public:
 
 	void UpdateWorldMatrix();
 
-	XMMATRIX* GetWorldMatrix();
-	XMMATRIX* GetWorldMatrixTransposed();
+	DirectX::XMMATRIX* GetWorldMatrix();
+	DirectX::XMMATRIX* GetWorldMatrixTransposed();
 
-	XMFLOAT3 GetPositionXMFLOAT3() const;
+	DirectX::XMFLOAT3 GetPositionXMFLOAT3() const;
 	float3 GetPositionFloat3() const;
 
 private:
-	XMMATRIX worldMat;
-	XMMATRIX worldMatTransposed;
+	DirectX::XMMATRIX worldMat;
+	DirectX::XMMATRIX worldMatTransposed;
 
-	XMFLOAT3 position;
-	XMFLOAT3 scale;
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT3 scale;
 
-	XMMATRIX rotXMat;
-	XMMATRIX rotYMat;
-	XMMATRIX rotZMat;
-	XMMATRIX rotationMat;
+	DirectX::XMMATRIX rotXMat;
+	DirectX::XMMATRIX rotYMat;
+	DirectX::XMMATRIX rotZMat;
+	DirectX::XMMATRIX rotationMat;
 };
 
 #endif

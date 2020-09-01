@@ -3,7 +3,7 @@
 
 #include "DX12Task.h"
 
-#include "../ConstantBufferView.h"
+class Resource;
 
 class CopyTask : public DX12Task
 {

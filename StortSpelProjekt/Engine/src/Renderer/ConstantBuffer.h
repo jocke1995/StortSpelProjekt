@@ -1,8 +1,13 @@
 #ifndef CONSTANTBUFFER_H
 #define CONSTANTBUFFER_H
 
-#include "Resource.h"
-#include "DescriptorHeap.h"
+#include "Core.h"
+
+class Resource;
+class DescriptorHeap;
+
+// DX12 Forward Declarations
+struct ID3D12Device5;
 
 class ConstantBuffer
 {
@@ -25,8 +30,6 @@ protected:
 	virtual void CreateConstantBufferView(
 		ID3D12Device5* device,
 		DescriptorHeap* descriptorHeap_CBV_UAV_SRV) = 0;
-private:
-	int asd;
 };
 
 #endif

@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "BoundingBoxPool.h"
 
+#include "DescriptorHeap.h"
+#include "Mesh.h"
+
 BoundingBoxPool::BoundingBoxPool(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
 {
 	this->device = device;

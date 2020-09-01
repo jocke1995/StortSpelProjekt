@@ -1,16 +1,18 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include <d3d12.h>
 #include "EngineMath.h"
-#include "Resource.h"
-#include "ShaderResourceView.h"
 #include "Core.h"
 
-#include "Material.h"
+class Resource;
+class ShaderResourceView;
+class Material;
+class DescriptorHeap;
+struct SlotInfo;
 
-// temp
-#include "CommandInterface.h"
+// DX12 Forward Declarations
+struct ID3D12Device5;
+struct D3D12_INDEX_BUFFER_VIEW;
 
 struct Vertex
 {
@@ -67,7 +69,7 @@ private:
     Material* material = nullptr;
     SlotInfo* slotInfo = nullptr;
 
-    D3D12_INDEX_BUFFER_VIEW indexBufferView = {};
+    D3D12_INDEX_BUFFER_VIEW* indexBufferView = nullptr;;
     void CreateIndexBufferView();
 
     // Temporay solution to make sure each "new" mesh only gets deleted once

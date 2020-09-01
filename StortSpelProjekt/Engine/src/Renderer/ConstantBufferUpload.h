@@ -3,6 +3,11 @@
 
 #include "ConstantBuffer.h"
 
+class DescriptorHeap;
+
+// DX12 Forward Declarations
+struct ID3D12Device5;
+
 class ConstantBufferUpload : public ConstantBuffer
 {
 public:

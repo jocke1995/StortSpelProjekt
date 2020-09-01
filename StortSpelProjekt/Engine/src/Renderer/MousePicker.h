@@ -1,7 +1,7 @@
 #ifndef MOUSEPICKER_H
 #define MOUSEPICKER_H
 
-#include "BaseCamera.h"
+class BaseCamera;
 #include "../ECS/Components/BoundingBoxComponent.h"
 
 // Todo: Currently picking from middle of the screen (like a first person shooter)
@@ -25,7 +25,7 @@ private:
 	DirectX::XMVECTOR rayInWorldSpacePos = {};
 	DirectX::XMVECTOR rayInWorldSpaceDir = {};
 
-	bool IsPointInTriangle(XMVECTOR& triV1, XMVECTOR& triV2, XMVECTOR& triV3, XMVECTOR& point);
+	bool IsPointInTriangle(DirectX::XMVECTOR& triV1, DirectX::XMVECTOR& triV2, DirectX::XMVECTOR& triV3, DirectX::XMVECTOR& point);
 };
 
 #endif

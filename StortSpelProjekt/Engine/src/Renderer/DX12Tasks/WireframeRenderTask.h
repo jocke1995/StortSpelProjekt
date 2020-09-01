@@ -2,8 +2,9 @@
 #define WIREFRAMERENDERTASK_H
 
 #include "RenderTask.h"
-#include "../GraphicsState.h"
-#include "../SwapChain.h"
+
+class GraphicsState;
+class SwapChain;
 
 #include "../../ECS/Components/BoundingBoxComponent.h"
 

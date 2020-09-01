@@ -1,6 +1,15 @@
 #include "stdafx.h"
 #include "OutliningRenderTask.h"
 
+#include "../RenderView.h"
+#include "../RootSignature.h"
+#include "../CommandInterface.h"
+#include "../DescriptorHeap.h"
+#include "../Resource.h"
+#include "../GraphicsState.h"
+#include "../SwapChain.h"
+
+
 OutliningRenderTask::OutliningRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
@@ -64,7 +73,7 @@ void OutliningRenderTask::Execute()
 
 	commandList->SetPipelineState(this->pipelineStates[0]->GetPSO());
 
-	const XMMATRIX* viewProjMatTrans = this->camera->GetViewProjectionTranposed();
+	const DirectX::XMMATRIX* viewProjMatTrans = this->camera->GetViewProjectionTranposed();
 
 	// Draw for every mesh
 	for (int i = 0; i < this->objectToOutline.first->GetNrOfMeshes(); i++)
@@ -78,8 +87,8 @@ void OutliningRenderTask::Execute()
 		size_t num_Indices = m->GetNumIndices();
 		const SlotInfo* info = m->GetSlotInfo();
 
-		XMMATRIX* WTransposed = newScaledTransform.GetWorldMatrixTransposed();
-		XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+		DirectX::XMMATRIX* WTransposed = newScaledTransform.GetWorldMatrixTransposed();
+		DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
 		// Create a CB_PER_OBJECT struct
 		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };

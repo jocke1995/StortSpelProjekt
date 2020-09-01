@@ -22,7 +22,7 @@ unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 			threadInstance->taskQueue.pop();
 		}
 
-		Task* task = threadInstance->task;
+		MultiThreadedTask* task = threadInstance->task;
 		threadInstance->mutex.unlock();
 		// ------------------- Critical region 1-------------------
 
@@ -72,7 +72,7 @@ void Thread::ExitThread()
 	this->isRunning = false;
 }
 
-void Thread::AddTask(Task* task, unsigned int taskFlag)
+void Thread::AddTask(MultiThreadedTask* task, unsigned int taskFlag)
 {
 	// Specify the type of task
 	this->taskFlag = taskFlag;

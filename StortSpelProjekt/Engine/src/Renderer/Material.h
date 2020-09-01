@@ -1,11 +1,15 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "Texture.h"
-#include "ConstantBufferView.h"
 #include "Core.h"
-// For slotInfo
+// For slotInfo and MaterialAttributes
 #include "structs.h"
+
+#include <map>
+
+// Forward Declarations
+class Texture;
+class ConstantBufferView;
 
 class Material
 {

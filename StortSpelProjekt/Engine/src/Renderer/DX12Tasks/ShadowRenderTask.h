@@ -2,7 +2,8 @@
 #define SHADOWRENDERTASK_H
 
 #include "RenderTask.h"
-#include "../ShadowInfo.h"
+
+class ShadowInfo;
 
 class ShadowRenderTask : public RenderTask
 {

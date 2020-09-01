@@ -1,8 +1,6 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
-#include <d3d12.h>
-
 enum RESOURCE_TYPE
 {
     UPLOAD,

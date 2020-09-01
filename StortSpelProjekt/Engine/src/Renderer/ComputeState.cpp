@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "ComputeState.h"
 
+#include "RootSignature.h"
+#include "Shader.h"
+
 ComputeState::ComputeState(ID3D12Device5* device, RootSignature* rootSignature, LPCWSTR CSName, LPCTSTR psoName)
 	:PipelineState(psoName)
 {

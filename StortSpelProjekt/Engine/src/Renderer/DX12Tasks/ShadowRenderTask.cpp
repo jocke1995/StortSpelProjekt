@@ -1,6 +1,15 @@
 #include "stdafx.h"
 #include "ShadowRenderTask.h"
 
+#include "../DescriptorHeap.h"
+#include "../Resource.h"
+#include "../RenderView.h"
+#include "../DepthStencilView.h"
+#include "../RootSignature.h"
+#include "../CommandInterface.h"
+#include "../PipelineState.h"
+#include "../ShadowInfo.h"
+
 ShadowRenderTask::ShadowRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
@@ -48,7 +57,7 @@ void ShadowRenderTask::Execute()
 		commandList->RSSetViewports(1, viewPort);
 		commandList->RSSetScissorRects(1, rect);
 
-		const XMMATRIX* viewProjMatTrans = pair.first->GetCamera()->GetViewProjectionTranposed();
+		const DirectX::XMMATRIX* viewProjMatTrans = pair.first->GetCamera()->GetViewProjectionTranposed();
 
 		commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 			pair.second->GetResource()->GetID3D12Resource1(),
@@ -77,10 +86,8 @@ void ShadowRenderTask::Execute()
 					const SlotInfo* info = mc->GetMesh(i)->GetSlotInfo();
 
 					Transform* transform = tc->GetTransform();
-					XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-
-					// kanske fel ordning
-					XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+					DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+					DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
 					// Create a CB_PER_OBJECT struct
 					CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };

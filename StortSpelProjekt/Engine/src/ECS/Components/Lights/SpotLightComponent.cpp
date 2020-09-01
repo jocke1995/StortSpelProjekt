@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "SpotLightComponent.h"
 
+#include "EngineMath.h"
+
 namespace component
 {
     SpotLightComponent::SpotLightComponent(Entity* parent, unsigned int lightFlags)
@@ -8,8 +10,8 @@ namespace component
     {
         
         this->spotLight = new SpotLight();
-        this->spotLight->position_cutOff = { 0.0f, 0.0f, 0.0f, cos(XMConvertToRadians(30.0f)) };
-        this->spotLight->direction_outerCutoff = { 1.0f, 0.0f, 0.0f, cos(XMConvertToRadians(45.0f)) };
+        this->spotLight->position_cutOff = { 0.0f, 0.0f, 0.0f, cos(DirectX::XMConvertToRadians(30.0f)) };
+        this->spotLight->direction_outerCutoff = { 1.0f, 0.0f, 0.0f, cos(DirectX::XMConvertToRadians(45.0f)) };
         this->spotLight->attenuation = { 1.0f, 0.009f, 0.0032f, 0.0f }; 
         this->spotLight->baseLight = *this->baseLight;
 

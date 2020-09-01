@@ -1,23 +1,13 @@
 #ifndef BASECAMERA_H
 #define BASECAMERA_H
 
-#include <DirectXMath.h>
 #include "Core.h"
-
-using namespace DirectX;
-
-enum class CAMERA_TYPE
-{
-	PERSPECTIVE,
-	ORTHOGRAPHIC,
-	NUM_CAMERA_TYPES,
-	UNDEFINED
-};
+#include <DirectXMath.h>
 
 class BaseCamera
 {
 public:
-	BaseCamera(XMVECTOR position = { 0.0, 3.0, -5.0, 1.0f }, XMVECTOR lookAt = { 0.0f, 0.0f, 1.0f, 1.0f });
+	BaseCamera(DirectX::XMVECTOR position = { 0.0, 3.0, -5.0, 1.0f }, DirectX::XMVECTOR lookAt = { 0.0f, 0.0f, 1.0f, 1.0f });
 	virtual ~BaseCamera();
 
 	void Update(double dt);
@@ -25,25 +15,25 @@ public:
 	void SetPosition(float x, float y, float z);
 	void SetLookAt(float x, float y, float z);
 
-	XMFLOAT3 GetPosition() const;
+	DirectX::XMFLOAT3 GetPosition() const;
 	float3 GetPositionFloat3() const;
 
-	XMFLOAT3 GetLookAt() const;
+	DirectX::XMFLOAT3 GetLookAt() const;
 	float3 GetLookAtFloat3() const;
 
-	const XMMATRIX* GetViewMatrix() const;
-	const XMMATRIX* GetViewMatrixInverse() const;
-	virtual const XMMATRIX* GetViewProjection() const = 0;
-	virtual const XMMATRIX* GetViewProjectionTranposed() const = 0;
+	const DirectX::XMMATRIX* GetViewMatrix() const;
+	const DirectX::XMMATRIX* GetViewMatrixInverse() const;
+	virtual const DirectX::XMMATRIX* GetViewProjection() const = 0;
+	virtual const DirectX::XMMATRIX* GetViewProjectionTranposed() const = 0;
 
 protected:
-	XMVECTOR rightVector;
-	XMVECTOR eyeVector;
-	XMVECTOR atVector;
-	XMVECTOR upVector;
+	DirectX::XMVECTOR rightVector;
+	DirectX::XMVECTOR eyeVector;
+	DirectX::XMVECTOR atVector;
+	DirectX::XMVECTOR upVector;
 
-	XMMATRIX viewMatrix;
-	XMMATRIX viewMatrixInverse;
+	DirectX::XMMATRIX viewMatrix;
+	DirectX::XMMATRIX viewMatrixInverse;
 
 	virtual void UpdateSpecific(double dt = 0.0) = 0;
 };

@@ -1,6 +1,9 @@
 #ifndef DESCRIPTORHEAP_H
 #define DESCRIPTORHEAP_H
 
+// DX12 Forward Declarations (But cant because using non-pointers)
+#include "d3dx12.h"
+
 enum class DESCRIPTOR_HEAP_TYPE
 {
 	CBV_UAV_SRV,

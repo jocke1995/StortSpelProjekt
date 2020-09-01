@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "SwapChain.h"
 
+#include "Resource.h"
+#include "DescriptorHeap.h"
+
 SwapChain::SwapChain(
 	ID3D12Device5* device,
 	const HWND* hwnd,

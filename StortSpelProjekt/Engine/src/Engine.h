@@ -14,6 +14,11 @@
 // #include "physics"
 // #include "audio"
 
+#include "Misc/AssetLoader.h"
+
+#include "Renderer/Material.h"
+
+
 class Engine
 {
 public:
@@ -30,12 +35,12 @@ public:
 	SceneManager* const GetSceneHandler() const;
 
 private:
-	Window* window = nullptr;
-	Timer* timer = nullptr;
-	ThreadPool* threadPool = nullptr;
+	Window* m_Window = nullptr;
+	Timer* m_Timer = nullptr;
+	ThreadPool* m_ThreadPool = nullptr;
 
-	Renderer* renderer = nullptr;
-	SceneManager* sceneHandler = nullptr;
+	Renderer* m_Renderer = nullptr;
+	SceneManager* m_SceneManager = nullptr;
 };
 
 #endif

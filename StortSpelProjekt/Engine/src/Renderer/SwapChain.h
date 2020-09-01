@@ -1,9 +1,16 @@
 #ifndef SWAPCHAIN_H
 #define SWAPCHAIN_H
 
-#include <dxgi1_5.h>
 #include "RenderTarget.h"
-#include "Resource.h"
+
+class Resource;
+class DescriptorHeap;
+struct IDXGISwapChain4;
+
+// DX12 Forward Declarations
+struct ID3D12Device5;
+struct ID3D12CommandQueue;
+struct IDXGISwapChain4;
 
 class SwapChain : public RenderTarget
 {

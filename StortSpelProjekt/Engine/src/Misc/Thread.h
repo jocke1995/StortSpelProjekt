@@ -3,7 +3,7 @@
 
 #include <queue>
 #include <mutex>
-#include "Task.h"
+#include "MultiThreadedTask.h"
 #include "Core.h"
 
 
@@ -26,7 +26,7 @@ public:
 
 	bool IsTaskNullptr();
 
-	void AddTask(Task* task, unsigned int taskFlag);
+	void AddTask(MultiThreadedTask* task, unsigned int taskFlag);
 	void ExitThread();
 
 	bool IsQueueEmpty();
@@ -37,10 +37,10 @@ private:
 
 	static unsigned int __stdcall threadFunc(LPVOID lpParameter);
 
-	std::queue<Task*> taskQueue;
+	std::queue<MultiThreadedTask*> taskQueue;
 	std::mutex mutex;
 
-	Task* task= nullptr;
+	MultiThreadedTask* task= nullptr;
 	unsigned int taskFlag = 0;
 
 	bool isRunning = true;

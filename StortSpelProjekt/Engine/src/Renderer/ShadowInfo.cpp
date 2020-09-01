@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include "ShadowInfo.h"
 
+#include "DepthStencilView.h"
+#include "ShaderResourceView.h"
+#include "RenderView.h"
+#include "DescriptorHeap.h"
+#include "Resource.h"
+
 ShadowInfo::ShadowInfo(
 	unsigned int textureWidth, unsigned int textureHeight,
 	unsigned int shadowInfoId,

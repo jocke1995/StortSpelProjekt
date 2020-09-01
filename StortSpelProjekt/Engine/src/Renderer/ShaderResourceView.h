@@ -1,8 +1,8 @@
 #ifndef SHADERRESOURCEVIEW_H
 #define SHADERRESOURCEVIEW_H
 
-#include "DescriptorHeap.h"
-#include "Resource.h"
+class DescriptorHeap;
+class Resource;
 
 class ShaderResourceView
 {

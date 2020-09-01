@@ -1,10 +1,13 @@
 #ifndef DX12TASK_H
 #define DX12TASK_H
 
-#include "../../Misc/Task.h"
-#include "../CommandInterface.h"
+#include "../../Misc/MultiThreadedTask.h"
 
-class Resource;
+class CommandInterface;
+enum COMMAND_INTERFACE_TYPE;
+
+// DX12 Forward Declarations
+struct ID3D12GraphicsCommandList5;
 
 // These renderTasks will execute on "all objects"
 enum RENDER_TASK_TYPE
@@ -27,7 +30,7 @@ enum COPY_TASK_TYPE
 	NR_OF_COPYTASKS
 };
 
-class DX12Task : public Task
+class DX12Task : public MultiThreadedTask
 {
 public:
 	DX12Task(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType);

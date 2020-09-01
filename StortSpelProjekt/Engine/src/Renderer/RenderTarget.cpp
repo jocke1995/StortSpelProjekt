@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "RenderTarget.h"
 
+#include "DescriptorHeap.h"
+#include "Resource.h"
+#include "RenderView.h"
+
 RenderTarget::RenderTarget(
 	ID3D12Device5* device,
 	unsigned int width, unsigned int height,

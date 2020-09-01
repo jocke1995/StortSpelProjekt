@@ -2,6 +2,8 @@
 #include "CopyOnDemandTask.h"
 
 #include "../Texture.h"
+#include "../Resource.h"
+#include "../CommandInterface.h"
 
 CopyOnDemandTask::CopyOnDemandTask(ID3D12Device5* device)
 	:CopyTask(device)

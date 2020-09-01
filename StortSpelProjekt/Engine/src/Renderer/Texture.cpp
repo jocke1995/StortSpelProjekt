@@ -1,6 +1,14 @@
 #include "stdafx.h"
 #include "Texture.h"
 
+#include "Resource.h"
+#include "CommandInterface.h"
+#include "ShaderResourceView.h"
+#include "DescriptorHeap.h"
+
+// For loading textures
+#include <wincodec.h>
+
 #pragma region HelpFunctions
 DXGI_FORMAT GetDXGIFormatFromWICFormat(WICPixelFormatGUID& wicFormatGUID)
 {

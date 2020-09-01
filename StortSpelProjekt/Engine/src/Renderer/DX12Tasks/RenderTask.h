@@ -1,19 +1,28 @@
 #ifndef RENDERTASK_H
 #define RENDERTASK_H
 
+#include "Core.h"
+#include <map>
 #include "DX12Task.h"
 
-#include "../PerspectiveCamera.h"
-#include "../OrthographicCamera.h"
-#include "../GraphicsState.h"
-#include "../SwapChain.h"
+// Renderer
+class RootSignature;
+class Resource;
+class DescriptorHeap;
+enum class DESCRIPTOR_HEAP_TYPE;
+class BaseCamera;
+class RenderTarget;
+class PipelineState;
 
+// Components
 #include "../../ECS/Components/MeshComponent.h"
 #include "../../ECS/Components/TransformComponent.h"
-
 #include "../../ECS/Components/Lights/DirectionalLightComponent.h"
 #include "../../ECS/Components/Lights/PointLightComponent.h"
 #include "../../ECS/Components/Lights/SpotLightComponent.h"
+
+// DX12 Forward Declarations
+struct ID3D12RootSignature;
 
 class RenderTask : public DX12Task
 {

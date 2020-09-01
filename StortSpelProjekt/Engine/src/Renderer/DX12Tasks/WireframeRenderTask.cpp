@@ -1,6 +1,14 @@
 #include "stdafx.h"
 #include "WireframeRenderTask.h"
 
+#include "../RenderView.h"
+#include "../RootSignature.h"
+#include "../CommandInterface.h"
+#include "../DescriptorHeap.h"
+#include "../SwapChain.h"
+#include "../Resource.h"
+#include "../PipelineState.h"
+
 WireframeRenderTask::WireframeRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
@@ -78,7 +86,7 @@ void WireframeRenderTask::Execute()
 
 	commandList->SetPipelineState(this->pipelineStates[0]->GetPSO());
 
-	const XMMATRIX* viewProjMatTrans = this->camera->GetViewProjectionTranposed();
+	const DirectX::XMMATRIX* viewProjMatTrans = this->camera->GetViewProjectionTranposed();
 
 	// Draw for every mesh
 	for (int i = 0; i < this->objectsToDraw.size(); i++)
@@ -89,8 +97,8 @@ void WireframeRenderTask::Execute()
 		size_t num_Indices = m->GetNumIndices();
 		const SlotInfo* info = m->GetSlotInfo();
 
-		XMMATRIX* WTransposed = t->GetWorldMatrixTransposed();
-		XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+		DirectX::XMMATRIX* WTransposed = t->GetWorldMatrixTransposed();
+		DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
 		// Create a CB_PER_OBJECT struct
 		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed,  *info };

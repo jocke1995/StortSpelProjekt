@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "CameraComponent.h"
 
+#include "../../Renderer/PerspectiveCamera.h"
+#include "../../Renderer/OrthographicCamera.h"
+
 namespace component
 {
 	// Temp Constructor to handle input
@@ -30,7 +33,7 @@ namespace component
 	}
 
 	// Perspective Constructor
-	CameraComponent::CameraComponent(Entity* parent, bool primary, XMVECTOR position, XMVECTOR lookAt, double fov, double aspectRatio, double zNear, double zFar)
+	CameraComponent::CameraComponent(Entity* parent, bool primary, DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, double fov, double aspectRatio, double zNear, double zFar)
 		: Component(parent)
 	{
 		this->primaryCamera = primary;
@@ -41,7 +44,7 @@ namespace component
 	}
 
 	// Orthographic Constructor
-	CameraComponent::CameraComponent(Entity* parent, bool primary, XMVECTOR position, XMVECTOR lookAt, float left, float right, float bot, float top, float nearZ, float farZ)
+	CameraComponent::CameraComponent(Entity* parent, bool primary, DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, float left, float right, float bot, float top, float nearZ, float farZ)
 		: Component(parent)
 	{
 		this->primaryCamera = primary;
@@ -71,7 +74,7 @@ namespace component
 		this->camera->Update(dt);
 	}
 
-	BaseCamera* CameraComponent::CreatePerspective(XMVECTOR position, XMVECTOR lookAt, double fov, double aspectRatio, double nearZ, double farZ)
+	BaseCamera* CameraComponent::CreatePerspective(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, double fov, double aspectRatio, double nearZ, double farZ)
 	{
 		this->camType = CAMERA_TYPE::PERSPECTIVE;
 		return new PerspectiveCamera(
@@ -80,7 +83,7 @@ namespace component
 			nearZ, farZ);
 	}
 
-	BaseCamera* CameraComponent::CreateOrthographic(XMVECTOR position, XMVECTOR lookAt, float left, float right, float bot, float top, float nearZ, float farZ)
+	BaseCamera* CameraComponent::CreateOrthographic(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, float left, float right, float bot, float top, float nearZ, float farZ)
 	{
 		this->camType = CAMERA_TYPE::ORTHOGRAPHIC;
 		return new OrthographicCamera(

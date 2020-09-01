@@ -1,6 +1,17 @@
 #include "stdafx.h"
 #include "BlendRenderTask.h"
 
+#include "../RenderView.h"
+#include "../RootSignature.h"
+#include "../ConstantBufferView.h"
+#include "../CommandInterface.h"
+#include "../RenderTarget.h"
+#include "../DescriptorHeap.h"
+#include "../SwapChain.h"
+#include "../Resource.h"
+#include "../PipelineState.h"
+#include "../Material.h"
+
 BlendRenderTask::BlendRenderTask(	
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
@@ -59,7 +70,7 @@ void BlendRenderTask::Execute()
 	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_FRAME, this->resources["cbPerFrame"]->GetGPUVirtualAdress());
 	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_SCENE, this->resources["cbPerScene"]->GetGPUVirtualAdress());
 
-	const XMMATRIX * viewProjMatTrans = this->camera->GetViewProjectionTranposed();
+	const DirectX::XMMATRIX * viewProjMatTrans = this->camera->GetViewProjectionTranposed();
 
 	// Draw from opposite order from the sorted array
 	for(int i = this->renderComponents.size() - 1; i >= 0; i--)
@@ -79,8 +90,8 @@ void BlendRenderTask::Execute()
 
 				Transform* transform = tc->GetTransform();
 
-				XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-				XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+				DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+				DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
 				// Create a CB_PER_OBJECT struct
 				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed , *info };

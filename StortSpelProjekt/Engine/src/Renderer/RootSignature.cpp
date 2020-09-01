@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "RootSignature.h"
 
+#include "d3dx12.h"
+
 RootSignature::RootSignature(ID3D12Device5* device)
 {
 	this->CreateRootSignatureStructure();

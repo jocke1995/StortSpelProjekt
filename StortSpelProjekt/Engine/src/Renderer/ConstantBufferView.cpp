@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "ConstantBufferView.h"
 
+#include "Resource.h"
+#include "DescriptorHeap.h"
+
 ConstantBufferView::ConstantBufferView(ID3D12Device5* device, unsigned int entrySize, std::wstring defaultName, unsigned int descriptorHeapIndex, DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
 	:ConstantBuffer(device, entrySize, L"ConstantBuffer_UPLOAD_RESOURCE", descriptorHeapIndex)
 {

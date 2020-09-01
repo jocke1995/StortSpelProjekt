@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "RenderTask.h"
 
+#include "../RootSignature.h"
+#include "../CommandInterface.h"
+#include "../GraphicsState.h"
+#include "../Resource.h"
+
 RenderTask::RenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,

@@ -37,7 +37,7 @@ void ThreadPool::WaitForThreads(unsigned int flag)
 	}
 }
 
-void ThreadPool::AddTask(Task* task, unsigned int flag)
+void ThreadPool::AddTask(MultiThreadedTask* task, unsigned int flag)
 {
 	// Adds a task to a thread
 	this->threads.at(this->threadCounter % this->nrOfThreads)->AddTask(task, flag);

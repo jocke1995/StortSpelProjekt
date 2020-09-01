@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "OrthographicCamera.h"
 
-OrthographicCamera::OrthographicCamera(XMVECTOR position, XMVECTOR lookAt, float left, float right, float bot, float top, float nearZ, float farZ)
+OrthographicCamera::OrthographicCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, float left, float right, float bot, float top, float nearZ, float farZ)
 	:BaseCamera(position, lookAt)
 {
 	this->left = left;
@@ -31,12 +31,12 @@ void OrthographicCamera::UpdateSpecific(double dt)
 	this->viewProjTranposedMatrix = DirectX::XMMatrixTranspose(this->viewProjMatrix);
 }
 
-const XMMATRIX* OrthographicCamera::GetViewProjection() const
+const DirectX::XMMATRIX* OrthographicCamera::GetViewProjection() const
 {
 	return &this->viewProjMatrix;
 }
 
-const XMMATRIX* OrthographicCamera::GetViewProjectionTranposed() const
+const DirectX::XMMATRIX* OrthographicCamera::GetViewProjectionTranposed() const
 {
 	return &this->viewProjTranposedMatrix;
 }

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "CopyPerFrameTask.h"
 
+#include "../CommandInterface.h"
+
 CopyPerFrameTask::CopyPerFrameTask(ID3D12Device5* device)
 	:CopyTask(device)
 {

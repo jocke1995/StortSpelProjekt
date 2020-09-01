@@ -1,6 +1,15 @@
 #include "stdafx.h"
 #include "SceneManager.h"
 
+#include "../Misc/AssetLoader.h"
+
+// Renderer
+#include "../Renderer/CommandInterface.h"
+#include "../Renderer/ShaderResourceView.h"
+#include "../Renderer/ConstantBufferView.h"
+#include "../Renderer/Material.h"
+#include "../Renderer/ShadowInfo.h"
+
 SceneManager::SceneManager(Renderer* r)
 {
 	this->renderer = r;
@@ -275,7 +284,6 @@ void SceneManager::ManageComponent(Entity* entity, bool remove)
 		ShadowInfo* si = nullptr;
 		if (resolution != SHADOW_RESOLUTION::UNDEFINED)
 		{
-
 			si = this->renderer->viewPool->GetFreeShadowInfo(LIGHT_TYPE::DIRECTIONAL_LIGHT, resolution);
 			static_cast<DirectionalLight*>(dlc->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
 

@@ -1,9 +1,12 @@
 #ifndef PIPELINESTATE_H
 #define PIPELINESTATE_H
 
-#include "Shader.h"
-#include "RootSignature.h"
-#include "../Misc/AssetLoader.h"
+class Shader;
+class RootSignature;
+class AssetLoader;
+
+// DX12 Forward Declarations
+struct ID3D12PipelineState;
 
 class PipelineState
 {

@@ -7,8 +7,8 @@ class OrthographicCamera : public BaseCamera
 {
 public:
     OrthographicCamera(
-        XMVECTOR position,
-        XMVECTOR lookAt,
+        DirectX::XMVECTOR position,
+        DirectX::XMVECTOR lookAt,
         float left = -30.0f,
         float right = 30.0f,
         float bot = -30.0f,
@@ -17,8 +17,8 @@ public:
         float farZ = 1000.0f);
     virtual ~OrthographicCamera();
 
-    const XMMATRIX* GetViewProjection() const;
-    const XMMATRIX* GetViewProjectionTranposed() const;
+    const DirectX::XMMATRIX* GetViewProjection() const;
+    const DirectX::XMMATRIX* GetViewProjectionTranposed() const;
 
 private:
     float left  = 0;
@@ -28,10 +28,10 @@ private:
     float nearZ = 0;
     float farZ  = 0;
 
-    XMMATRIX projMatrix;
+    DirectX::XMMATRIX projMatrix;
 
-    XMMATRIX viewProjMatrix;
-    XMMATRIX viewProjTranposedMatrix;
+    DirectX::XMMATRIX viewProjMatrix;
+    DirectX::XMMATRIX viewProjTranposedMatrix;
 
     void UpdateSpecific(double dt);
 };

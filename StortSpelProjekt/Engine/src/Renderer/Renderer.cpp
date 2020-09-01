@@ -1,6 +1,13 @@
 #include "stdafx.h"
 #include "Renderer.h"
 
+// Misc
+#include "../Misc/AssetLoader.h"
+
+// Renderer-Engine 
+#include "CommandInterface.h"
+#include "ConstantBufferView.h"
+
 Renderer::Renderer()
 {
 	this->renderTasks.resize(RENDER_TASK_TYPE::NR_OF_RENDERTASKS);
@@ -150,10 +157,10 @@ void Renderer::SortObjectsByDistance()
 	DistFromCamera* distFromCamArr = new DistFromCamera[numRenderComponents];
 
 	// Get all the distances of each objects and store them by ID and distance
-	XMFLOAT3 camPos = this->ScenePrimaryCamera->GetPosition();
+	DirectX::XMFLOAT3 camPos = this->ScenePrimaryCamera->GetPosition();
 	for (int i = 0; i < numRenderComponents; i++)
 	{
-		XMFLOAT3 objectPos = this->renderComponents.at(i).second->GetTransform()->GetPositionXMFLOAT3();
+		DirectX::XMFLOAT3 objectPos = this->renderComponents.at(i).second->GetTransform()->GetPositionXMFLOAT3();
 
 		double distance = sqrt(	pow(camPos.x - objectPos.x, 2) +
 								pow(camPos.y - objectPos.y, 2) +

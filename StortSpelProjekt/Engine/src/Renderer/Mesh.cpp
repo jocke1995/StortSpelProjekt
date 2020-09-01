@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "Mesh.h"
 
+#include "Resource.h"
+#include "ShaderResourceView.h"
+#include "Material.h"
+#include "DescriptorHeap.h"
+
 Mesh::Mesh(	ID3D12Device5* device,
 			std::vector<Vertex> vertices,
 			std::vector<unsigned int> indices,
@@ -87,9 +92,8 @@ Mesh::~Mesh()
 		delete this->uploadResourceIndices;
 		delete this->defaultResourceIndices;
 
-		
-
 		delete this->SRV;
+		delete this->indexBufferView;
 	}
 }
 
@@ -135,7 +139,7 @@ const size_t Mesh::GetNumIndices() const
 
 const D3D12_INDEX_BUFFER_VIEW* Mesh::GetIndexBufferView() const
 {
-	return &this->indexBufferView;
+	return this->indexBufferView;
 }
 
 const SlotInfo* Mesh::GetSlotInfo() const
@@ -155,8 +159,9 @@ Material* Mesh::GetMaterial() const
 
 void Mesh::CreateIndexBufferView()
 {
-	this->indexBufferView.BufferLocation = this->defaultResourceIndices->GetGPUVirtualAdress();
-	this->indexBufferView.Format = DXGI_FORMAT_R32_UINT;
-	this->indexBufferView.SizeInBytes = this->GetSizeOfIndices();
+	this->indexBufferView = new D3D12_INDEX_BUFFER_VIEW();
+	this->indexBufferView->BufferLocation = this->defaultResourceIndices->GetGPUVirtualAdress();
+	this->indexBufferView->Format = DXGI_FORMAT_R32_UINT;
+	this->indexBufferView->SizeInBytes = this->GetSizeOfIndices();
 }
 

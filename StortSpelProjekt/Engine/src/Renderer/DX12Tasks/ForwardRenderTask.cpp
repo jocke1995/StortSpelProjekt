@@ -1,6 +1,15 @@
 #include "stdafx.h"
 #include "ForwardRenderTask.h"
 
+#include "../RenderView.h"
+#include "../RootSignature.h"
+#include "../ConstantBufferView.h"
+#include "../CommandInterface.h"
+#include "../DescriptorHeap.h"
+#include "../SwapChain.h"
+#include "../Resource.h"
+#include "../PipelineState.h"
+#include "../Material.h"
 
 FowardRenderTask::FowardRenderTask(
 	ID3D12Device5* device,
@@ -64,7 +73,7 @@ void FowardRenderTask::Execute()
 	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_FRAME, this->resources["cbPerFrame"]->GetGPUVirtualAdress());
 	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_SCENE, this->resources["cbPerScene"]->GetGPUVirtualAdress());
 
-	const XMMATRIX* viewProjMatTrans = this->camera->GetViewProjectionTranposed();
+	const DirectX::XMMATRIX* viewProjMatTrans = this->camera->GetViewProjectionTranposed();
 
 	// This pair for renderComponents will be used for model-outlining in case any model is picked.
 	std::pair<component::MeshComponent*, component::TransformComponent*> outlinedModel = std::make_pair(nullptr, nullptr);
@@ -121,8 +130,8 @@ void FowardRenderTask::DrawRenderComponent(
 			const SlotInfo* info = m->GetSlotInfo();
 
 			Transform* transform = tc->GetTransform();
-			XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-			XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
+			DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+			DirectX::XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
 
 			// Create a CB_PER_OBJECT struct
 			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };

@@ -2,8 +2,10 @@
 #define CAMERACOMPONENT_H
 
 #include "Component.h"
-#include "../../Renderer/PerspectiveCamera.h"
-#include "../../Renderer/OrthographicCamera.h"
+#include "Core.h"
+
+class BaseCamera;
+
 namespace component
 {
 	class CameraComponent : public Component
@@ -19,8 +21,8 @@ namespace component
 		// Perspective Constructor
 		CameraComponent(Entity* parent,
 			bool primary = false,
-			XMVECTOR position = { 0.0f, 0.0f, 0.0f },
-			XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
+			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
+			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
 			double fov = 45.0f,
 			double aspectRatio = 16.0f / 9.0f,
 			double zNear = 0.1f,
@@ -29,8 +31,8 @@ namespace component
 		// Orthographic Constructor
 		CameraComponent(Entity* parent,
 			bool primary = false,
-			XMVECTOR position = { 0.0f, 0.0f, 0.0f },
-			XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
+			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
+			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
 			float left = -40.0f,
 			float right = 40.0f,
 			float bot = -40.0f,
@@ -53,16 +55,16 @@ namespace component
 		// Todo: add and calculate mesh to be able to draw frustrum in wireframe
 
 		BaseCamera* CreatePerspective(
-			XMVECTOR position = { 0.0f, 0.0f, 0.0f },
-			XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
+			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
+			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
 			double fov = 45.0f,
 			double aspectRatio = 16.0f / 9.0f,
 			double zNear = 0.1f,
 			double zFar = 1000.0f);
 
 		BaseCamera* CreateOrthographic(
-			XMVECTOR position = { 0.0f, 0.0f, 0.0f },
-			XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
+			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
+			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
 			float left = -40.0f,
 			float right = 40.0f,
 			float bot = -40.0f,

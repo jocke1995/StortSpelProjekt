@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "DepthStencilView.h"
 
+#include "DescriptorHeap.h"
+#include "Resource.h"
+
 // Constructor that also creates a resource
 DepthStencilView::DepthStencilView(
 	ID3D12Device5* device,

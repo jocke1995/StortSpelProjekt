@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "ViewPool.h"
 
+#include "ConstantBufferView.h"
+#include "ShadowInfo.h"
+#include "DescriptorHeap.h"
+#include "../ECS/Components/Lights/Light.h"
+
 ViewPool::ViewPool(
 	ID3D12Device5* device,
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV,

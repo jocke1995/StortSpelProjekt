@@ -1,20 +1,11 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include <wincodec.h>
-#include "Resource.h"
-#include "CommandInterface.h"
-#include "ShaderResourceView.h"
-
-enum TEXTURE_TYPE
-{
-	AMBIENT,
-	DIFFUSE,
-	SPECULAR,
-	NORMAL,
-	EMISSIVE,
-	NUM_TEXTURE_TYPES
-};
+#include "Core.h"
+class Resource;
+class CommandInterface;
+class ShaderResourceView;
+class DescriptorHeap;
 
 class Texture
 {

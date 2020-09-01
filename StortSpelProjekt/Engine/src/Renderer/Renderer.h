@@ -1,6 +1,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include "stdafx.h"
 #include "RootSignature.h"
 #include "SwapChain.h"
 #include "DepthStencilView.h"

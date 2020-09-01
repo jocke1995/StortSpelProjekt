@@ -1,19 +1,13 @@
 #ifndef SHADOWINFO_H
 #define SHADOWINFO_H
 
-#include "DepthStencilView.h"
-#include "ShaderResourceView.h"
-#include "RenderView.h"
+class DepthStencilView;
+class ShaderResourceView;
+class RenderView;
+class DescriptorHeap;
+class Resource;
 
-enum SHADOW_RESOLUTION
-{
-	LOW,
-	MEDIUM,
-	HIGH,
-	ULTRA,
-	NUM_SHADOW_RESOLUTIONS,
-	UNDEFINED
-};
+#include "Core.h"
 
 class ShadowInfo
 {

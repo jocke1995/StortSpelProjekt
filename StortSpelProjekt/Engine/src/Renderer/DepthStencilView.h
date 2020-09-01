@@ -1,8 +1,11 @@
 #ifndef DEPTHSTENCILVIEW_H
 #define DEPTHSTENCILVIEW_H
 
-#include "DescriptorHeap.h"
-#include "Resource.h"
+class DescriptorHeap;
+class Resource;
+
+// DX12
+#include <dxgiformat.h>
 
 class DepthStencilView
 {

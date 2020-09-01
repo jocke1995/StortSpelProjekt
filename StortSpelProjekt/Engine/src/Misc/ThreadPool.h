@@ -10,7 +10,7 @@ public:
 
 	void WaitForThreads(unsigned int flag);
 
-	void AddTask(Task* task, unsigned int flag);
+	void AddTask(MultiThreadedTask* task, unsigned int flag);
 
 	void ExitThreads();
 private:

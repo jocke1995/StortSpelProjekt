@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "Material.h"
 
+#include "Texture.h"
+#include "ConstantBufferView.h"
+
 Material::Material(SlotInfo* slotInfo)
 {
 	this->slotInfo = slotInfo;

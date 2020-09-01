@@ -5,6 +5,7 @@
 
 #include "../../../Renderer/OrthographicCamera.h"
 #include "../../../Renderer/PerspectiveCamera.h"
+#include "structs.h"
 
 enum FLAG_LIGHT
 {
@@ -21,14 +22,6 @@ enum FLAG_LIGHT
 	// STATIC_DATA .. = BIT(6),
 
 	// etc..
-};
-
-enum LIGHT_TYPE
-{
-	DIRECTIONAL_LIGHT,
-	POINT_LIGHT,
-	SPOT_LIGHT,
-	NUM_LIGHT_TYPES
 };
 
 class Light

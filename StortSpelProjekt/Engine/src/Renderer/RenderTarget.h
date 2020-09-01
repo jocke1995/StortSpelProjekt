@@ -1,9 +1,11 @@
 #ifndef RENDERTARGET_H
 #define RENDERTARGET_H
 
-#include "DescriptorHeap.h"
-#include "Resource.h"
-#include "RenderView.h"
+class DescriptorHeap;
+class Resource;
+class RenderView;
+
+#include <vector>
 
 class RenderTarget
 {

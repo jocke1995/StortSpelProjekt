@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "AssetLoader.h"
 
+#include "../Renderer/Material.h"
+
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
 {
 	this->device = device;

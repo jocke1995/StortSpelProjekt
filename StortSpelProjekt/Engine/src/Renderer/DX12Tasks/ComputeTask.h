@@ -2,7 +2,9 @@
 #define COMPUTETASK_H
 
 #include "DX12Task.h"
-#include "../ComputeState.h"
+
+class RootSignature;
+class PipelineState;
 
 class ComputeTask : public DX12Task
 {

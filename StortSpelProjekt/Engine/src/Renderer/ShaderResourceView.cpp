@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "ShaderResourceView.h"
 
+#include "DescriptorHeap.h"
+#include "Resource.h"
+
 ShaderResourceView::ShaderResourceView(
 	ID3D12Device5* device,
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV,

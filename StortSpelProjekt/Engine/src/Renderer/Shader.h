@@ -1,14 +1,6 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-enum class ShaderType 
-{ 
-	VS = 0, 
-	PS = 1, 
-	CS = 2,
-	UNSPECIFIED = 3
-};
-
 class Shader
 {
 public:
