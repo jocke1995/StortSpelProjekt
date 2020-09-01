@@ -1,35 +1,48 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "stdafx.h"
-#include "RootSignature.h"
-#include "SwapChain.h"
-#include "DepthStencilView.h"
-#include "MousePicker.h"
+#include <vector>
+#include <map>
 
-#include "ViewPool.h"
-#include "BoundingBoxPool.h"
+#include "structs.h"
+#include "core.h"
 
-#include "../Misc/ThreadPool.h"
+// Misc
+class ThreadPool;
+
+// Renderer Engine
+class RootSignature;
+class SwapChain;
+class DepthStencilView;
+class ConstantBufferView;
+class MousePicker;
+class ViewPool;
+class BoundingBoxPool;
+class ShadowInfo;
+
+enum COMMAND_INTERFACE_TYPE;
+enum class DESCRIPTOR_HEAP_TYPE;
 
 // ECS
-#include "../ECS/Scene.h"
-#include "../ECS/Components/CameraComponent.h"
+class Scene;
 #include "../ECS/Components/BoundingBoxComponent.h"
+class Light;
 
 // Graphics
-#include "DX12Tasks/WireframeRenderTask.h"
-#include "DX12Tasks/OutliningRenderTask.h"
-#include "DX12Tasks/ForwardRenderTask.h"
-#include "DX12Tasks/BlendRenderTask.h"
-#include "DX12Tasks/ShadowRenderTask.h"
+class RenderTask;
+class WireframeRenderTask;
+class OutliningRenderTask;
 
 // Copy
-#include "DX12Tasks/CopyPerFrameTask.h"
-#include "DX12Tasks/CopyOnDemandTask.h"
+class CopyTask;
 
-// Compute (Later include the specific tasks instead of this)
-#include "DX12Tasks/ComputeTask.h"
+// Compute
+class ComputeTask;
+
+// DX12 Forward Declarations
+struct ID3D12CommandQueue;
+struct ID3D12CommandList;
+struct ID3D12Fence1;
 
 class Renderer
 {

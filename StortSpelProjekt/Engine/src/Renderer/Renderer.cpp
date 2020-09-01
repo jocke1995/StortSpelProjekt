@@ -2,11 +2,35 @@
 #include "Renderer.h"
 
 // Misc
+#include "../Misc/ThreadPool.h"
 #include "../Misc/AssetLoader.h"
 
+// ECS
+#include "../ECS/Scene.h"
+
 // Renderer-Engine 
-#include "CommandInterface.h"
+#include "RootSignature.h"
+#include "SwapChain.h"
+#include "DepthStencilView.h"
 #include "ConstantBufferView.h"
+#include "MousePicker.h"
+#include "ViewPool.h"
+#include "BoundingBoxPool.h"
+#include "CommandInterface.h"
+
+// Graphics
+#include "DX12Tasks/WireframeRenderTask.h"
+#include "DX12Tasks/OutliningRenderTask.h"
+#include "DX12Tasks/ForwardRenderTask.h"
+#include "DX12Tasks/BlendRenderTask.h"
+#include "DX12Tasks/ShadowRenderTask.h"
+
+// Copy 
+#include "DX12Tasks/CopyPerFrameTask.h"
+#include "DX12Tasks/CopyOnDemandTask.h"
+
+// Compute
+#include "DX12Tasks/ComputeTask.h"
 
 Renderer::Renderer()
 {

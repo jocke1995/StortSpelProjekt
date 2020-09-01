@@ -9,7 +9,21 @@
 #include "../Renderer/ConstantBufferView.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/ShadowInfo.h"
+#include "../Renderer/ViewPool.h"
 
+// CopyTasks
+#include "../Renderer/DX12Tasks/CopyOnDemandTask.h"
+#include "../Renderer/DX12Tasks/CopyPerFrameTask.h"
+
+// RenderTasks
+// WireFrame (currently only used for debugging boundingBoxes
+#include "../Renderer/DX12Tasks/WireframeRenderTask.h"
+#include "../Renderer/DX12Tasks/ShadowRenderTask.h"
+
+// Components
+#include "../ECS/Components/Lights/DirectionalLightComponent.h"
+#include "../ECS/Components/Lights/PointLightComponent.h"
+#include "../ECS/Components/Lights/SpotLightComponent.h"
 SceneManager::SceneManager(Renderer* r)
 {
 	this->renderer = r;

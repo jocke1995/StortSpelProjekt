@@ -23,6 +23,7 @@ class PipelineState;
 
 // DX12 Forward Declarations
 struct ID3D12RootSignature;
+struct D3D12_GRAPHICS_PIPELINE_STATE_DESC;
 
 class RenderTask : public DX12Task
 {
