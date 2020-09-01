@@ -18,6 +18,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
 
+    /*------ AssetLoader to load models / textures ------*/
+    AssetLoader* al = AssetLoader::Get();
+
     if (renderer->GetActiveScene())
     {
         while (!window->ExitWindow())

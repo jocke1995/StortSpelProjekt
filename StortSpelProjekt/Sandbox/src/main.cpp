@@ -15,6 +15,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
 
+    /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
     // This will be loaded once from disk, then the next time the same function is called (with the same filepath),
