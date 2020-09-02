@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "RenderTask.h"
 
+#include "../RootSignature.h"
+#include "../CommandInterface.h"
+#include "../GraphicsState.h"
+#include "../Resource.h"
+
 RenderTask::RenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
@@ -10,33 +15,33 @@ RenderTask::RenderTask(
 	:DX12Task(device, COMMAND_INTERFACE_TYPE::DIRECT_TYPE)
 {
 	for (auto gpsd : *gpsds)
-		this->pipelineStates.push_back(new GraphicsState(device, rootSignature, VSName, PSName, gpsd, psoName));
+		m_PipelineStates.push_back(new GraphicsState(device, rootSignature, VSName, PSName, gpsd, psoName));
 
-	this->rootSig = rootSignature->GetRootSig();
+	m_pRootSig = rootSignature->GetRootSig();
 }
 
 RenderTask::~RenderTask()
 {
-	for (auto pair : this->resources)
+	for (auto pair : m_Resources)
 	{
 		ID3D12Resource1* res = pair.second->GetID3D12Resource1();
 		SAFE_RELEASE(&res);
 	}
 
-	for (auto pipelineState : this->pipelineStates)
+	for (auto pipelineState : m_PipelineStates)
 		delete pipelineState;
 }
 
 PipelineState* RenderTask::GetPipelineState(unsigned int index)
 {
-	return this->pipelineStates[index];
+	return m_PipelineStates[index];
 }
 
 void RenderTask::AddResource(std::string id, Resource* resource)
 {
-	if (this->resources[id] == nullptr)
+	if (m_Resources[id] == nullptr)
 	{
-		this->resources[id] = resource;
+		m_Resources[id] = resource;
 		resource->GetID3D12Resource1()->AddRef();
 		return;
 	}
@@ -50,23 +55,23 @@ void RenderTask::AddResource(std::string id, Resource* resource)
 
 void RenderTask::AddRenderTarget(std::string name, RenderTarget* renderTarget)
 {
-	this->renderTargets[name] = renderTarget;
+	m_RenderTargets[name] = renderTarget;
 }
 
 void RenderTask::SetDescriptorHeaps(std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> dhs)
 {
-	this->descriptorHeaps = dhs;
+	m_DescriptorHeaps = dhs;
 }
 
 void RenderTask::SetRenderComponents(std::vector<std::pair<	component::MeshComponent*,
 															component::TransformComponent*>>*renderComponents)
 {
-	this->renderComponents = *renderComponents;
+	m_RenderComponents = *renderComponents;
 }
 
 void RenderTask::SetCamera(BaseCamera* camera)
 {
-	this->camera = camera;
+	m_pCamera = camera;
 }
 
 

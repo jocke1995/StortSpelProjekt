@@ -2,7 +2,10 @@
 #define SCENEMANAGER_H
 
 #include "Scene.h"
-#include "..\Renderer\Renderer.h"
+#include "../Renderer/MousePicker.h"
+
+class Entity;
+class Renderer;
 
 class SceneManager 
 {
@@ -17,9 +20,9 @@ public:
 	template<class T>
 	void EditScene(T* input, bool remove = false);
 private:
-	Renderer* renderer;
+	Renderer* m_pRenderer;
 
-	std::map<std::string, Scene*> scenes;
+	std::map<std::string, Scene*> m_pScenes;
 
 	bool SceneExists(std::string sceneName) const;
 	void HandleSceneComponents(Scene* scene);
@@ -39,29 +42,29 @@ void SceneManager::EditScene(T* input, bool remove)
 		ResetScene();
 		HandleSceneComponents(scene);
 
-		this->renderer->PrepareCBPerFrame();
-		this->renderer->PrepareCBPerScene();
+		m_pRenderer->prepareCBPerFrame();
+		m_pRenderer->prepareCBPerScene();
 
 		// -------------------- DEBUG STUFF --------------------
-		// Test to change camera to the shadow casting lights cameras
-		//auto& tuple = this->renderer->lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
+		// Test to change m_pCamera to the shadow casting m_lights cameras
+		//auto& tuple = m_pRenderer->m_lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
 		//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
-		//this->renderer->ScenePrimaryCamera = tempCam;
-		if (this->renderer->ScenePrimaryCamera == nullptr)
+		//m_pRenderer->ScenePrimaryCamera = tempCam;
+		if (m_pRenderer->m_pScenePrimaryCamera == nullptr)
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scene: %s\n", scene->GetName());
 			
-			// Todo: Set default camera
+			// Todo: Set default m_pCamera
 		}
 
-		this->renderer->mousePicker->SetPrimaryCamera(renderer->ScenePrimaryCamera);
-		scene->SetPrimaryCamera(renderer->ScenePrimaryCamera);
-		this->renderer->SetRenderTasksRenderComponents();
-		this->renderer->SetRenderTasksPrimaryCamera();
+		m_pRenderer->m_pMousePicker->SetPrimaryCamera(m_pRenderer->m_pScenePrimaryCamera);
+		scene->SetPrimaryCamera(m_pRenderer->m_pScenePrimaryCamera);
+		m_pRenderer->setRenderTasksRenderComponents();
+		m_pRenderer->setRenderTasksPrimaryCamera();
 
-		this->renderer->currActiveScene = scene;
+		m_pRenderer->m_pCurrActiveScene = scene;
 
-		this->ExecuteCopyOnDemand();
+		ExecuteCopyOnDemand();
 		return;
 	}
 
@@ -70,7 +73,7 @@ void SceneManager::EditScene(T* input, bool remove)
 	if (entity != nullptr)
 	{
 		ManageComponent(entity, remove);
-		this->ExecuteCopyOnDemand();
+		ExecuteCopyOnDemand();
 		return;
 	}
 	

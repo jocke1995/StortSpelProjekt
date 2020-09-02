@@ -1,7 +1,12 @@
 #ifndef BOUNDINGBOXPOOL_H
 #define BOUNDINGBOXPOOL_H
 
-#include "Mesh.h"
+#include "Core.h"
+
+class DescriptorHeap;
+class Mesh;
+struct Vertex;
+struct ID3D12Device5;
 
 struct BoundingBoxData
 {
@@ -28,11 +33,11 @@ private:
 	BoundingBoxPool(BoundingBoxPool const&) = delete;
 	void operator=(BoundingBoxPool const&) = delete;
 
-	ID3D12Device5* device = nullptr;
-	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr;
+	ID3D12Device5* m_pDevice = nullptr;
+	DescriptorHeap* m_pDescriptorHeap_CBV_UAV_SRV = nullptr;
 
-	std::map<std::string, BoundingBoxData*> boundingBoxesData;
-	std::map<std::string, Mesh*> boundingBoxesMesh;
+	std::map<std::string, BoundingBoxData*> m_BoundingBoxesData;
+	std::map<std::string, Mesh*> m_BoundingBoxesMesh;
 
 };
 

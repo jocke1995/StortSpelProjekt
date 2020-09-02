@@ -1,33 +1,36 @@
 #include "stdafx.h"
 #include "GraphicsState.h"
 
+#include "RootSignature.h"
+#include "Shader.h"
+
 GraphicsState::GraphicsState(ID3D12Device5* device, RootSignature* rootSignature, LPCWSTR VSName, LPCWSTR PSName, D3D12_GRAPHICS_PIPELINE_STATE_DESC* gpsd, LPCTSTR psoName)
 	:PipelineState(psoName)
 {
 	// Set the rootSignature in the pipeline state object descriptor
-	this->gpsd = *gpsd;
+	m_pGPSD = gpsd;
 
-	this->gpsd.pRootSignature = rootSignature->GetRootSig();
+	m_pGPSD->pRootSignature = rootSignature->GetRootSig();
 
-	this->VS = this->CreateShader(VSName, ShaderType::VS);
-	this->PS = this->CreateShader(PSName, ShaderType::PS);
+	m_pVS = createShader(VSName, ShaderType::VS);
+	m_pPS = createShader(PSName, ShaderType::PS);
 
-	ID3DBlob* vsBlob = this->VS->GetBlob();
-	ID3DBlob* psBlob = this->PS->GetBlob();
+	ID3DBlob* vsBlob = m_pVS->GetBlob();
+	ID3DBlob* psBlob = m_pPS->GetBlob();
 
-	this->gpsd.VS.pShaderBytecode = vsBlob->GetBufferPointer();
-	this->gpsd.VS.BytecodeLength = vsBlob->GetBufferSize();
-	this->gpsd.PS.pShaderBytecode = psBlob->GetBufferPointer();
-	this->gpsd.PS.BytecodeLength = psBlob->GetBufferSize();
+	m_pGPSD->VS.pShaderBytecode = vsBlob->GetBufferPointer();
+	m_pGPSD->VS.BytecodeLength = vsBlob->GetBufferSize();
+	m_pGPSD->PS.pShaderBytecode = psBlob->GetBufferPointer();
+	m_pGPSD->PS.BytecodeLength = psBlob->GetBufferSize();
 
 	// Create pipelineStateObject
-	HRESULT hr = device->CreateGraphicsPipelineState(&this->gpsd, IID_PPV_ARGS(&this->PSO));
+	HRESULT hr = device->CreateGraphicsPipelineState(m_pGPSD, IID_PPV_ARGS(&m_pPSO));
 
 	if (FAILED(hr))
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create %S\n", this->psoName);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create %S\n", m_PsoName);
 	}
-	this->PSO->SetName(this->psoName);
+	m_pPSO->SetName(m_PsoName);
 }
 
 GraphicsState::~GraphicsState()
@@ -36,20 +39,20 @@ GraphicsState::~GraphicsState()
 
 const D3D12_GRAPHICS_PIPELINE_STATE_DESC* GraphicsState::GetGpsd() const
 {
-	return &this->gpsd;
+	return m_pGPSD;
 }
 
 Shader* GraphicsState::GetShader(ShaderType type) const
 {
 	if (type == ShaderType::VS)
 	{
-		return this->VS;
+		return m_pVS;
 	}
 	else if (type == ShaderType::PS)
 	{
-		return this->PS;
+		return m_pPS;
 	}
 	
-	Log::PrintSeverity(Log::Severity::CRITICAL, "There is no ComputeShader in \'%S\'\n", this->psoName);
+	Log::PrintSeverity(Log::Severity::CRITICAL, "There is no ComputeShader in \'%S\'\n", m_PsoName);
 	return nullptr;
 }

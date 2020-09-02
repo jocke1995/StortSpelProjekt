@@ -1,6 +1,10 @@
 #ifndef ROOTSIGNATURE_H
 #define ROOTSIGNATURE_H
 
+// DX12 Forward Declarations
+struct ID3D12RootSignature;
+struct ID3D10Blob;
+typedef ID3D10Blob ID3DBlob;
 
 enum RS
 {
@@ -17,15 +21,15 @@ class RootSignature
 {
 public:
 	RootSignature(ID3D12Device5* device);
-	~RootSignature();
+	virtual ~RootSignature();
 
 	ID3D12RootSignature* GetRootSig() const;
 	ID3DBlob* GetBlob() const;
 private:
 	// Rootsignature
-	ID3D12RootSignature* rootSig;
-	ID3DBlob* sBlob;
-	void CreateRootSignatureStructure();
+	ID3D12RootSignature* m_pRootSig = nullptr;
+	ID3DBlob* m_pBlob = nullptr;
+	void createRootSignatureStructure();
 };
 
 #endif

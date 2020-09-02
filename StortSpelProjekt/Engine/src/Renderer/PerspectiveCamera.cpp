@@ -1,100 +1,102 @@
 #include "stdafx.h"
 #include "PerspectiveCamera.h"
 
+#include "TempInputClass.h"
+
 // TEMPORARY CONSTRUCTOR
 PerspectiveCamera::PerspectiveCamera(HINSTANCE hInstance, HWND hwnd)
 	:BaseCamera()
 {
-	this->Init();
-	this->UpdateSpecific(0);
+	init();
+	updateSpecific(0);
 
-	this->tempHasInputObject = true;
-	this->tempInputClass = new TempInputClass();
-	this->tempInputClass->InitDirectInput(hInstance, hwnd);
+	m_TempHasInputObject = true;
+	m_pTempInputClass = new TempInputClass();
+	m_pTempInputClass->InitDirectInput(hInstance, hwnd);
 }
 
-PerspectiveCamera::PerspectiveCamera(XMVECTOR position, XMVECTOR lookAt, double fov, double aspectRatio, double zNear, double zFar)
+PerspectiveCamera::PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, double fov, double aspectRatio, double zNear, double zFar)
 	:BaseCamera(position, lookAt)
 {
-	this->Init(fov, aspectRatio, zNear, zFar);
-	this->UpdateSpecific(0);
+	init(fov, aspectRatio, zNear, zFar);
+	updateSpecific(0);
 
-	this->tempHasInputObject = false;
+	m_TempHasInputObject = false;
 }
 
 PerspectiveCamera::~PerspectiveCamera()
 {
-	if (tempHasInputObject == true)
+	if (m_TempHasInputObject == true)
 	{
-		delete this->tempInputClass;
+		delete m_pTempInputClass;
 	}
 }
 
-void PerspectiveCamera::Init(double fov, double aspectRatio, double zNear, double zFar)
+void PerspectiveCamera::init(double fov, double aspectRatio, double zNear, double zFar)
 {
 	// Create Projection Matrix
-	this->fov = fov * XM_PI / 180.0f;
-	this->aspectRatio = aspectRatio;
-	this->zNear = zNear;
-	this->zFar = zFar;
-	this->projMatrix = XMMatrixPerspectiveFovLH(this->fov, this->aspectRatio, this->zNear, this->zFar);
+	m_Fov = fov * DirectX::XM_PI / 180.0f;
+	m_AspectRatio = aspectRatio;
+	m_ZNear = zNear;
+	m_ZFar = zFar;
+	m_ProjMatrix = DirectX::XMMatrixPerspectiveFovLH(m_Fov, m_AspectRatio, m_ZNear, m_ZFar);
 }
 
-void PerspectiveCamera::UpdateSpecific(double dt)
+void PerspectiveCamera::updateSpecific(double dt)
 {
-	if (tempHasInputObject == true)
+	if (m_TempHasInputObject == true)
 	{
-		this->tempInputClass->DetectInput(dt,
-			&this->moveForwardBackward,
-			&this->moveLeftRight,
-			&this->moveUpDown,
-			&this->camYaw,
-			&this->camPitch);
+		m_pTempInputClass->DetectInput(dt,
+			&m_MoveForwardBackward,
+			&m_MoveLeftRight,
+			&m_MoveUpDown,
+			&m_CamYaw,
+			&m_CamPitch);
 
-		this->UpdateCameraMovement();
+		updateCameraMovement();
 	}
 	
 
-	this->viewProjMatrix = this->viewMatrix * this->projMatrix;
-	this->viewProjTranposedMatrix = DirectX::XMMatrixTranspose(this->viewProjMatrix);
+	m_ViewProjMatrix = m_ViewMatrix * m_ProjMatrix;
+	m_ViewProjTranposedMatrix = DirectX::XMMatrixTranspose(m_ViewProjMatrix);
 }
 
-const XMMATRIX* PerspectiveCamera::GetViewProjection() const
+const DirectX::XMMATRIX* PerspectiveCamera::GetViewProjection() const
 {
-	return &this->viewProjMatrix;
+	return &m_ViewProjMatrix;
 }
 
-const XMMATRIX* PerspectiveCamera::GetViewProjectionTranposed() const
+const DirectX::XMMATRIX* PerspectiveCamera::GetViewProjectionTranposed() const
 {
-	return &this->viewProjTranposedMatrix;
+	return &m_ViewProjTranposedMatrix;
 }
 
-void PerspectiveCamera::UpdateCameraMovement()
+void PerspectiveCamera::updateCameraMovement()
 {
 	// Update the lookAt Vector depending on the mouse pitch/yaw.... WE DONT HAVE ROLL (hence '0' as the last parameter)
-	XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(this->camPitch, this->camYaw, 0);
-	XMVECTOR defaultForward = XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
-	this->atVector = XMVector3TransformCoord(defaultForward, camRotationMatrix);
-	this->atVector = XMVector3Normalize(this->atVector);
+	DirectX::XMMATRIX camRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(m_CamPitch, m_CamYaw, 0);
+	DirectX::XMVECTOR defaultForward = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
+	m_AtVector = DirectX::XMVector3TransformCoord(defaultForward, camRotationMatrix);
+	m_AtVector = DirectX::XMVector3Normalize(m_AtVector);
 
 	// Update cameras forward,up and right vectors
-	XMMATRIX RotateYTempMatrix;
-	RotateYTempMatrix = XMMatrixRotationY(this->camYaw);
+	DirectX::XMMATRIX RotateYTempMatrix;
+	RotateYTempMatrix = DirectX::XMMatrixRotationY(m_CamYaw);
 
-	XMVECTOR defaultRight = XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f);
+	DirectX::XMVECTOR defaultRight = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f);
 	
-	this->upVector = XMVector3TransformCoord(this->upVector, RotateYTempMatrix);
-	this->atVector = XMVector3TransformCoord(this->atVector, RotateYTempMatrix);
+	m_UpVector = XMVector3TransformCoord(m_UpVector, RotateYTempMatrix);
+	m_AtVector = XMVector3TransformCoord(m_AtVector, RotateYTempMatrix);
 
-	this->rightVector = XMVector3Cross(this->atVector, this->upVector);
+	m_RightVector = DirectX::XMVector3Cross(m_AtVector, m_UpVector);
+	
+	m_EyeVector = DirectX::XMVectorAdd(m_EyeVector, DirectX::operator*(m_MoveLeftRight, m_RightVector));
+	m_EyeVector = DirectX::XMVectorAdd(m_EyeVector, DirectX::operator*(m_AtVector,  m_MoveForwardBackward));
+	m_EyeVector = DirectX::XMVectorAdd(m_EyeVector, DirectX::operator*(m_UpVector, m_MoveUpDown));
 
-	this->eyeVector += this->rightVector * this->moveLeftRight;
-	this->eyeVector += this->atVector * this->moveForwardBackward;
-	this->eyeVector += this->upVector * this->moveUpDown;
+	m_MoveForwardBackward = 0.0f;
+	m_MoveLeftRight = 0.0f;
+	m_MoveUpDown = 0.0f;
 
-	this->moveForwardBackward = 0.0f;
-	this->moveLeftRight = 0.0f;
-	this->moveUpDown = 0.0f;
-
-	this->viewMatrix = XMMatrixLookAtLH(this->eyeVector, this->eyeVector + this->atVector, this->upVector);
+	m_ViewMatrix = DirectX::XMMatrixLookAtLH(m_EyeVector, DirectX::XMVectorAdd(m_EyeVector, m_AtVector), m_UpVector);
 }

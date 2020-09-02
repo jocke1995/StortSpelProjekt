@@ -1,8 +1,10 @@
 #ifndef MOUSEPICKER_H
 #define MOUSEPICKER_H
 
-#include "BaseCamera.h"
 #include "../ECS/Components/BoundingBoxComponent.h"
+#include "EngineMath.h"
+class BaseCamera;
+
 
 // Todo: Currently picking from middle of the screen (like a first person shooter)
 // Add real mouse coordinates when event-system + inputHandler is implemented
@@ -20,12 +22,11 @@ public:
 	bool Pick(component::BoundingBoxComponent* bbc, float& distance);
 
 private:
-	BaseCamera* primaryCamera = nullptr;
+	BaseCamera* m_pPrimaryCamera = nullptr;
+	DirectX::XMVECTOR m_RayInWorldSpacePos = {};
+	DirectX::XMVECTOR m_RayInWorldSpaceDir = {};
 
-	DirectX::XMVECTOR rayInWorldSpacePos = {};
-	DirectX::XMVECTOR rayInWorldSpaceDir = {};
-
-	bool IsPointInTriangle(XMVECTOR& triV1, XMVECTOR& triV2, XMVECTOR& triV3, XMVECTOR& point);
+	bool isPointInTriangle(DirectX::XMVECTOR& triV1, DirectX::XMVECTOR& triV2, DirectX::XMVECTOR& triV3, DirectX::XMVECTOR& point);
 };
 
 #endif

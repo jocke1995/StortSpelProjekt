@@ -1,42 +1,42 @@
 #include "stdafx.h"
 #include "OrthographicCamera.h"
 
-OrthographicCamera::OrthographicCamera(XMVECTOR position, XMVECTOR lookAt, float left, float right, float bot, float top, float nearZ, float farZ)
+OrthographicCamera::OrthographicCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, float left, float right, float bot, float top, float nearZ, float farZ)
 	:BaseCamera(position, lookAt)
 {
-	this->left = left;
-	this->right = right;
-	this->bot = bot;
-	this->top = top;
-	this->nearZ = nearZ;
-	this->farZ = farZ;
-	this->projMatrix = DirectX::XMMatrixOrthographicOffCenterLH(left, right, bot, top, nearZ, farZ);
-	this->UpdateSpecific(0);
+	m_Left = left;
+	m_Right = right;
+	m_Bot = bot;
+	m_Top = top;
+	m_NearZ = nearZ;
+	m_FarZ = farZ;
+	m_ProjMatrix = DirectX::XMMatrixOrthographicOffCenterLH(left, right, bot, top, nearZ, farZ);
+	updateSpecific(0);
 }
 OrthographicCamera::~OrthographicCamera()
 {
 }
 
-void OrthographicCamera::UpdateSpecific(double dt)
+void OrthographicCamera::updateSpecific(double dt)
 {
-	this->projMatrix = DirectX::XMMatrixOrthographicOffCenterLH(
-		this->left,
-		this->right,
-		this->bot,
-		this->top,
-		this->nearZ,
-		this->farZ);
+	m_ProjMatrix = DirectX::XMMatrixOrthographicOffCenterLH(
+		m_Left,
+		m_Right,
+		m_Bot,
+		m_Top,
+		m_NearZ,
+		m_FarZ);
 
-	this->viewProjMatrix = this->viewMatrix * this->projMatrix;
-	this->viewProjTranposedMatrix = DirectX::XMMatrixTranspose(this->viewProjMatrix);
+	m_ViewProjMatrix = m_ViewMatrix * m_ProjMatrix;
+	m_ViewProjTranposedMatrix = DirectX::XMMatrixTranspose(m_ViewProjMatrix);
 }
 
-const XMMATRIX* OrthographicCamera::GetViewProjection() const
+const DirectX::XMMATRIX* OrthographicCamera::GetViewProjection() const
 {
-	return &this->viewProjMatrix;
+	return &m_ViewProjMatrix;
 }
 
-const XMMATRIX* OrthographicCamera::GetViewProjectionTranposed() const
+const DirectX::XMMATRIX* OrthographicCamera::GetViewProjectionTranposed() const
 {
-	return &this->viewProjTranposedMatrix;
+	return &m_ViewProjTranposedMatrix;
 }

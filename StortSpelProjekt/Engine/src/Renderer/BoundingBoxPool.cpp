@@ -1,20 +1,23 @@
 #include "stdafx.h"
 #include "BoundingBoxPool.h"
 
+#include "DescriptorHeap.h"
+#include "Mesh.h"
+
 BoundingBoxPool::BoundingBoxPool(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
 {
-	this->device = device;
-	this->descriptorHeap_CBV_UAV_SRV = descriptorHeap_CBV_UAV_SRV;
+	m_pDevice = device;
+	m_pDescriptorHeap_CBV_UAV_SRV = descriptorHeap_CBV_UAV_SRV;
 }
 
 BoundingBoxPool::~BoundingBoxPool()
 {
-	for (auto& pair : this->boundingBoxesMesh)
+	for (auto& pair : m_BoundingBoxesMesh)
 	{
 		delete pair.second;
 	}
 
-	for (auto& pair : this->boundingBoxesData)
+	for (auto& pair : m_BoundingBoxesData)
 	{
 		delete pair.second;
 	}
@@ -29,7 +32,7 @@ BoundingBoxPool* BoundingBoxPool::Get(ID3D12Device5* device, DescriptorHeap* des
 
 bool BoundingBoxPool::BoundingBoxDataExists(std::string uniquePath) const
 {
-	if (this->boundingBoxesData.count(uniquePath) != 0)
+	if (m_BoundingBoxesData.count(uniquePath) != 0)
 	{
 		return true;
 	}
@@ -38,7 +41,7 @@ bool BoundingBoxPool::BoundingBoxDataExists(std::string uniquePath) const
 
 bool BoundingBoxPool::BoundingBoxMeshExists(std::string uniquePath) const
 {
-	if (this->boundingBoxesMesh.count(uniquePath) != 0)
+	if (m_BoundingBoxesMesh.count(uniquePath) != 0)
 	{
 		return true;
 	}
@@ -47,9 +50,9 @@ bool BoundingBoxPool::BoundingBoxMeshExists(std::string uniquePath) const
 
 BoundingBoxData* BoundingBoxPool::GetBoundingBoxData(std::string uniquePath)
 {
-	if (this->BoundingBoxDataExists(uniquePath) == true)
+	if (BoundingBoxDataExists(uniquePath) == true)
 	{
-		return this->boundingBoxesData.at(uniquePath);
+		return m_BoundingBoxesData.at(uniquePath);
 	}
 	return nullptr;
 }
@@ -59,30 +62,30 @@ BoundingBoxData* BoundingBoxPool::CreateBoundingBoxData(
 	std::vector<unsigned int> indices,
 	std::string uniquePath)
 {
-	if (this->BoundingBoxDataExists(uniquePath) == false)
+	if (BoundingBoxDataExists(uniquePath) == false)
 	{
 		BoundingBoxData* bbd = new BoundingBoxData();
 		bbd->boundingBoxVertices = vertices;
 		bbd->boundingBoxIndices = indices;
-		this->boundingBoxesData[uniquePath] = bbd;
+		m_BoundingBoxesData[uniquePath] = bbd;
 	}
-	return this->boundingBoxesData[uniquePath];
+	return m_BoundingBoxesData[uniquePath];
 }
 
 Mesh* BoundingBoxPool::CreateBoundingBoxMesh(std::string uniquePath)
 {
 	// If it already exists.. return it
-	if (this->BoundingBoxMeshExists(uniquePath) == true)
+	if (BoundingBoxMeshExists(uniquePath) == true)
 	{
-		return this->boundingBoxesMesh.at(uniquePath);
+		return m_BoundingBoxesMesh.at(uniquePath);
 	}
 
 	// else create it and return it if the data exists
-	if (this->BoundingBoxDataExists(uniquePath) == true)
+	if (BoundingBoxDataExists(uniquePath) == true)
 	{
-		BoundingBoxData* bbd = this->boundingBoxesData[uniquePath];
-		this->boundingBoxesMesh[uniquePath] = new Mesh(this->device, bbd->boundingBoxVertices, bbd->boundingBoxIndices, this->descriptorHeap_CBV_UAV_SRV, uniquePath);
-		return this->boundingBoxesMesh[uniquePath];
+		BoundingBoxData* bbd = m_BoundingBoxesData[uniquePath];
+		m_BoundingBoxesMesh[uniquePath] = new Mesh(m_pDevice, bbd->boundingBoxVertices, bbd->boundingBoxIndices, m_pDescriptorHeap_CBV_UAV_SRV, uniquePath);
+		return m_BoundingBoxesMesh[uniquePath];
 	}
 
 	// else return nullptr

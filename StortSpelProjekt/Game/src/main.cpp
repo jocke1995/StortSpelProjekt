@@ -25,7 +25,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     {
         while (!window->ExitWindow())
         {
-            // Currently no scene set, hence the renderer should not be working.
+            // Currently no scene set, hence the m_pRenderer should not be working.
 
             /* ------ Update ------ */
             timer->Update();

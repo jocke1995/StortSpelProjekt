@@ -2,16 +2,10 @@
 #define BOUNDINGBOXCOMPONENT_H
 
 #include "Component.h"
-#include "../Entity.h"
 
-// Creating the BB out of the model
-#include "MeshComponent.h"
-
-// Using the same transform as the models transform
-#include "TransformComponent.h"
-
-#include "../Renderer/BoundingBoxPool.h"
-
+struct BoundingBoxData;
+class Mesh;
+class Transform;
 namespace component
 {
 	class BoundingBoxComponent : public Component
@@ -36,15 +30,14 @@ namespace component
 		bool& IsPickedThisFrame();
 
 	private:
-		std::string pathOfModel = "";
-		BoundingBoxData* bbd = nullptr;
-		Mesh* mesh = nullptr;
+		std::string m_pPathOfModel = "";
+		BoundingBoxData* m_pBbd = nullptr;
+		bool createBoundingBox();
+		Mesh* m_pMesh = nullptr;
 
-		bool canBePicked = false;
+		bool m_CanBePicked = false;
 
-		Transform* transform = nullptr;
-
-		bool CreateBoundingBox();
+		Transform* m_pTransform = nullptr;
 	};
 }
 

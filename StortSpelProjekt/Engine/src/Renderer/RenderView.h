@@ -11,13 +11,13 @@ public:
 	const D3D12_RECT* GetScissorRect() const;
 
 private:
-	unsigned int width = 0;
-	unsigned int height = 0;
+	unsigned int m_Width = 0;
+	unsigned int m_Height = 0;
+	D3D12_VIEWPORT m_Viewport = {};
+	D3D12_RECT m_ScissorRect = {};
 
-	D3D12_VIEWPORT viewport = {};
-	D3D12_RECT scissorRect = {};
-	void CreateViewport();
-	void CreateScissorRect();
+	void createViewport();
+	void createScissorRect();
 };
 
 #endif

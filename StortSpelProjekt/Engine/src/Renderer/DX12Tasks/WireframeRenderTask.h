@@ -2,8 +2,9 @@
 #define WIREFRAMERENDERTASK_H
 
 #include "RenderTask.h"
-#include "../GraphicsState.h"
-#include "../SwapChain.h"
+
+class GraphicsState;
+class SwapChain;
 
 #include "../../ECS/Components/BoundingBoxComponent.h"
 
@@ -25,7 +26,7 @@ public:
 	void Execute();
 
 private:
-	std::vector<component::BoundingBoxComponent*> objectsToDraw;
+	std::vector<component::BoundingBoxComponent*> m_ObjectsToDraw;
 };
 
 #endif

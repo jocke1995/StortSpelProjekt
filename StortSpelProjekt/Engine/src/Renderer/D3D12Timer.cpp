@@ -12,35 +12,35 @@ namespace D3D12
 	// Destructor.
 	D3D12Timer::~D3D12Timer()
 	{
-		if (queryHeap_)
-			queryHeap_->Release();
+		if (m_pQueryHeap_)
+			m_pQueryHeap_->Release();
 
-		if (queryResourceCPU_)
-			queryResourceCPU_->Release();
+		if (m_pQueryResourceCPU)
+			m_pQueryResourceCPU->Release();
 
-		if (queryResourceGPU_)
-			queryResourceGPU_->Release();
+		if (m_pQueryResourceGPU)
+			m_pQueryResourceGPU->Release();
 	}
 
-	HRESULT D3D12Timer::init(ID3D12Device* pDevice, UINT numTimers)
+	HRESULT D3D12Timer::Init(ID3D12Device* pDevice, UINT numTimers)
 	{
 		HRESULT hr = S_OK;
-		device_ = pDevice;
+		m_pDevice = pDevice;
 
-		timerCount_ = numTimers;
+		m_TimerCount = numTimers;
 
 		D3D12_QUERY_HEAP_DESC queryHeapDesc;
 		queryHeapDesc.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
 		queryHeapDesc.NodeMask = 0;
-		queryHeapDesc.Count = timerCount_ * 2;
+		queryHeapDesc.Count = m_TimerCount * 2;
 
-		if (SUCCEEDED(hr = device_->CreateQueryHeap(&queryHeapDesc, IID_PPV_ARGS(&queryHeap_))))
+		if (SUCCEEDED(hr = m_pDevice->CreateQueryHeap(&queryHeapDesc, IID_PPV_ARGS(&m_pQueryHeap_))))
 		{
 			D3D12_RESOURCE_DESC resouceDesc;
 			ZeroMemory(&resouceDesc, sizeof(resouceDesc));
 			resouceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 			resouceDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-			resouceDesc.Width = sizeof(GPUTimestampPair) * timerCount_;
+			resouceDesc.Width = sizeof(GPUTimestampPair) * m_TimerCount;
 			resouceDesc.Height = 1;
 			resouceDesc.DepthOrArraySize = 1;
 			resouceDesc.MipLevels = 1;
@@ -57,16 +57,16 @@ namespace D3D12
 			heapProp.CreationNodeMask = 1;
 			heapProp.VisibleNodeMask = 1;
 
-			if (SUCCEEDED(hr = device_->CreateCommittedResource(
+			if (SUCCEEDED(hr = m_pDevice->CreateCommittedResource(
 				&heapProp,
 				D3D12_HEAP_FLAG_NONE,
 				&resouceDesc,
 				D3D12_RESOURCE_STATE_COPY_DEST,
 				nullptr,
-				IID_PPV_ARGS(&queryResourceCPU_))
+				IID_PPV_ARGS(&m_pQueryResourceCPU))
 			))
 			{
-				queryResourceCPU_->SetName(L"queryResourceCPU_");
+				m_pQueryResourceCPU->SetName(L"queryResourceCPU_");
 			}
 
 
@@ -74,16 +74,16 @@ namespace D3D12
 			//create gpu dest
 			//resouceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 			heapProp.Type = D3D12_HEAP_TYPE_DEFAULT;
-			if (SUCCEEDED(hr = device_->CreateCommittedResource(
+			if (SUCCEEDED(hr = m_pDevice->CreateCommittedResource(
 				&heapProp,
 				D3D12_HEAP_FLAG_NONE,
 				&resouceDesc,
 				D3D12_RESOURCE_STATE_COPY_SOURCE,
 				nullptr,
-				IID_PPV_ARGS(&queryResourceGPU_))
+				IID_PPV_ARGS(&m_pQueryResourceGPU))
 			))
 			{
-				queryResourceGPU_->SetName(L"queryResourceGPU_");
+				m_pQueryResourceGPU->SetName(L"queryResourceGPU_");
 			}
 		}
 
@@ -91,58 +91,58 @@ namespace D3D12
 	}
 
 	// Start timestamp.
-	void D3D12Timer::start(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndex)
+	void D3D12Timer::Start(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndex)
 	{
-		active_ = true;
+		m_Active = true;
 
-		pCommandList->EndQuery(queryHeap_, D3D12_QUERY_TYPE_TIMESTAMP, timestampPairIndex * 2);
+		pCommandList->EndQuery(m_pQueryHeap_, D3D12_QUERY_TYPE_TIMESTAMP, timestampPairIndex * 2);
 	}
 
 	// Stop timestamp.
-	void D3D12Timer::stop(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndex)
+	void D3D12Timer::Stop(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndex)
 	{
-		active_ = false;
+		m_Active = false;
 
-		pCommandList->EndQuery(queryHeap_, D3D12_QUERY_TYPE_TIMESTAMP, timestampPairIndex * 2 + 1);
+		pCommandList->EndQuery(m_pQueryHeap_, D3D12_QUERY_TYPE_TIMESTAMP, timestampPairIndex * 2 + 1);
 	}
 
-	// Resolve query data. Write query to device memory. Make sure to wait for query to finsih before resolving data.
-	void D3D12Timer::resolveQueryToCPU(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndex)
+	// Resolve query data. Write query to m_pDevice memory. Make sure to wait for query to finsih before resolving data.
+	void D3D12Timer::ResolveQueryToCPU(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndex)
 	{
 		pCommandList->ResolveQueryData(
-			queryHeap_,
+			m_pQueryHeap_,
 			D3D12_QUERY_TYPE_TIMESTAMP,
 			timestampPairIndex * 2,
 			2,
-			queryResourceCPU_,
+			m_pQueryResourceCPU,
 			sizeof(GPUTimestampPair) * timestampPairIndex
 		);
 	}
 
-	void D3D12Timer::resolveQueryToCPU(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndexFirst, UINT timestampPairIndexLast)
+	void D3D12Timer::ResolveQueryToCPU(ID3D12GraphicsCommandList* pCommandList, UINT timestampPairIndexFirst, UINT timestampPairIndexLast)
 	{
 		UINT numToResolve = timestampPairIndexLast - timestampPairIndexFirst;
 		pCommandList->ResolveQueryData(
-			queryHeap_,
+			m_pQueryHeap_,
 			D3D12_QUERY_TYPE_TIMESTAMP,
 			timestampPairIndexFirst * 2,
 			numToResolve * 2,
-			queryResourceCPU_,
+			m_pQueryResourceCPU,
 			sizeof(GPUTimestampPair) * timestampPairIndexFirst
 		);
 	}
 
-	void D3D12Timer::resolveQueryToGPU(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource** ppQueryResourceGPUOut)
+	void D3D12Timer::ResolveQueryToGPU(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource** ppQueryResourceGPUOut)
 	{
 		setGPUResourceState(pCommandList, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
 
-		pCommandList->ResolveQueryData(queryHeap_, D3D12_QUERY_TYPE_TIMESTAMP, 0, timerCount_ * 2, queryResourceGPU_, 0);
+		pCommandList->ResolveQueryData(m_pQueryHeap_, D3D12_QUERY_TYPE_TIMESTAMP, 0, m_TimerCount * 2, m_pQueryResourceGPU, 0);
 
 		setGPUResourceState(pCommandList, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
 		if (ppQueryResourceGPUOut)
 		{
-			*ppQueryResourceGPUOut = queryResourceGPU_;
+			*ppQueryResourceGPUOut = m_pQueryResourceGPU;
 		}
 	}
 
@@ -150,7 +150,7 @@ namespace D3D12
 	{
 		D3D12_RESOURCE_BARRIER barrierDesc = {};
 		barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barrierDesc.Transition.pResource = queryResourceGPU_;
+		barrierDesc.Transition.pResource = m_pQueryResourceGPU;
 		barrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		barrierDesc.Transition.StateBefore = prevState;
 		barrierDesc.Transition.StateAfter = newState;
@@ -158,7 +158,7 @@ namespace D3D12
 		pCommandList->ResourceBarrier(1, &barrierDesc);
 	}
 
-	GPUTimestampPair D3D12Timer::getTimestampPair(UINT timestampPairIndex)
+	GPUTimestampPair D3D12Timer::GetTimestampPair(UINT timestampPairIndex)
 	{
 		GPUTimestampPair p{};
 
@@ -166,11 +166,11 @@ namespace D3D12
 			GPUTimestampPair* mapMem = nullptr;
 			D3D12_RANGE readRange{ sizeof(p) * timestampPairIndex, sizeof(p) * (timestampPairIndex + 1) };
 			D3D12_RANGE writeRange{ 0, 0 };
-			if (SUCCEEDED(queryResourceCPU_->Map(0, &readRange, (void**)&mapMem)))
+			if (SUCCEEDED(m_pQueryResourceCPU->Map(0, &readRange, (void**)&mapMem)))
 			{
 				mapMem += timestampPairIndex;
 				p = *mapMem;
-				queryResourceCPU_->Unmap(0, &writeRange);
+				m_pQueryResourceCPU->Unmap(0, &writeRange);
 			}
 		}
 
@@ -178,48 +178,48 @@ namespace D3D12
 	}
 
 	// Calcluate time and map memory to CPU.
-	void D3D12Timer::calculateTime()
+	void D3D12Timer::CalculateTime()
 	{
 		// Copy to CPU.
 		UINT64 timeStamps[2];
 		{
 			void* mappedResource;
-			D3D12_RANGE readRange{ 0, sizeof(UINT64) * timerCount_ * 2 };
+			D3D12_RANGE readRange{ 0, sizeof(UINT64) * m_TimerCount * 2 };
 			D3D12_RANGE writeRange{ 0, 0 };
-			if (SUCCEEDED(queryResourceCPU_->Map(0, &readRange, &mappedResource)))
+			if (SUCCEEDED(m_pQueryResourceCPU->Map(0, &readRange, &mappedResource)))
 			{
-				memcpy(&timeStamps, mappedResource, sizeof(UINT64) * timerCount_ * 2);
-				queryResourceCPU_->Unmap(0, &writeRange);
+				memcpy(&timeStamps, mappedResource, sizeof(UINT64) * m_TimerCount * 2);
+				m_pQueryResourceCPU->Unmap(0, &writeRange);
 			}
 		}
 
-		beginTime_ = timeStamps[0];
-		endTime_ = timeStamps[1];
+		m_BeginTime = timeStamps[0];
+		m_EndTime = timeStamps[1];
 
 		//			if (mBeginTime != 0) MessageBoxA(0, "ddd", "", 0);
 
-		deltaTime_ = endTime_ - beginTime_;
+		m_DeltaTime = m_EndTime - m_BeginTime;
 	}
 
-	// Get time from start to stop in nano seconds.
-	UINT64 D3D12Timer::getDeltaTime()
+	// Get time from m_Start to m_Stop in nano seconds.
+	UINT64 D3D12Timer::GetDeltaTime()
 	{
-		return deltaTime_;
+		return m_DeltaTime;
 	}
 
-	UINT64 D3D12Timer::getEndTime()
+	UINT64 D3D12Timer::GetEndTime()
 	{
-		return endTime_;
+		return m_EndTime;
 	}
 
-	UINT64 D3D12Timer::getBeginTime()
+	UINT64 D3D12Timer::GetBeginTime()
 	{
-		return beginTime_;
+		return m_BeginTime;
 	}
 
 	// Whether timer is active.
-	bool D3D12Timer::isActive()
+	bool D3D12Timer::IsActive()
 	{
-		return active_;
+		return m_Active;
 	}
 }

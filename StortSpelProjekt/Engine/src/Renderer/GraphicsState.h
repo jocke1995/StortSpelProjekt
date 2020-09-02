@@ -2,6 +2,11 @@
 #define GRAPHICSSTATE_H
 
 #include "PipelineState.h"
+class Shader;
+
+// DX12 Forward Declarations
+struct D3D12_GRAPHICS_PIPELINE_STATE_DESC;
+
 class GraphicsState : public PipelineState
 {
 public:
@@ -16,9 +21,9 @@ public:
 	const D3D12_GRAPHICS_PIPELINE_STATE_DESC* GetGpsd() const;
 	Shader* GetShader(ShaderType type) const;
 private:
-	Shader* VS = nullptr;
-	Shader* PS = nullptr;
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsd = {};
+	Shader* m_pVS = nullptr;
+	Shader* m_pPS = nullptr;
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC* m_pGPSD = nullptr;
 };
 
 #endif 

@@ -2,8 +2,9 @@
 #define OUTLININGRENDERTASK_H
 
 #include "RenderTask.h"
-#include "../GraphicsState.h"
-#include "../SwapChain.h"
+
+class GraphicsState;
+class SwapChain;
 
 class OutliningRenderTask : public RenderTask
 {
@@ -20,7 +21,7 @@ public:
 	void SetObjectToOutline(std::pair<component::MeshComponent*, component::TransformComponent*>* objectToOutline);
 	void Clear();
 private:
-	std::pair<component::MeshComponent*, component::TransformComponent*> objectToOutline;
+	std::pair<component::MeshComponent*, component::TransformComponent*> m_ObjectToOutline;
 };
 
 #endif

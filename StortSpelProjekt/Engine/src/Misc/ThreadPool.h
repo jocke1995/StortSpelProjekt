@@ -1,7 +1,10 @@
 #ifndef THREADPOOL_H
 #define THREADPOOL_H
 
-#include "Thread.h"
+#include <vector>
+
+class Thread;
+class MultiThreadedTask;
 class ThreadPool
 {
 public:
@@ -10,17 +13,17 @@ public:
 
 	void WaitForThreads(unsigned int flag);
 
-	void AddTask(Task* task, unsigned int flag);
+	void AddTask(MultiThreadedTask* task, unsigned int flag);
 
 	void ExitThreads();
 private:
-	std::vector<Thread*> threads;
+	std::vector<Thread*> m_Threads;
 
-	int nrOfThreads;
-	unsigned int threadCounter = 0;
+	int m_NrOfThreads;
+	unsigned int m_ThreadCounter = 0;
 
-	bool IsAllFinished(unsigned int flag);
-	bool IsThreadsQueuesEmpty(unsigned int flag);
+	bool isAllFinished(unsigned int flag);
+	bool isThreadsQueuesEmpty(unsigned int flag);
 };
 
 #endif

@@ -1,79 +1,82 @@
 #include "stdafx.h"
 #include "Material.h"
 
+#include "Texture.h"
+#include "ConstantBufferView.h"
+
 Material::Material(SlotInfo* slotInfo)
 {
-	this->slotInfo = slotInfo;
-	this->materialAttributes = new MaterialAttributes();
+	m_pSlotInfo = slotInfo;
+	m_pMaterialAttributes = new MaterialAttributes();
 
-	this->materialAttributes->shininess = 100;
-	this->materialAttributes->ambientAdd  = float4({ 0.0f, 0.0f, 0.0f, 1.0f });
-	this->materialAttributes->diffuseAdd  = float4({ 0.0f, 0.0f, 0.0f, 1.0f });
-	this->materialAttributes->specularAdd = float4({ 0.0f, 0.0f, 0.0f, 1.0f });
-	this->materialAttributes->ambientMul  = float4({ 1.0f, 1.0f, 1.0f, 1.0f });
-	this->materialAttributes->diffuseMul  = float4({ 1.0f, 1.0f, 1.0f, 1.0f });
-	this->materialAttributes->specularMul = float4({ 1.0f, 1.0f, 1.0f, 1.0f });
-	this->materialAttributes->uvScale	  = float2({ 1.0f, 1.0f });
+	m_pMaterialAttributes->shininess = 100;
+	m_pMaterialAttributes->ambientAdd  = float4({ 0.0f, 0.0f, 0.0f, 1.0f });
+	m_pMaterialAttributes->diffuseAdd  = float4({ 0.0f, 0.0f, 0.0f, 1.0f });
+	m_pMaterialAttributes->specularAdd = float4({ 0.0f, 0.0f, 0.0f, 1.0f });
+	m_pMaterialAttributes->ambientMul  = float4({ 1.0f, 1.0f, 1.0f, 1.0f });
+	m_pMaterialAttributes->diffuseMul  = float4({ 1.0f, 1.0f, 1.0f, 1.0f });
+	m_pMaterialAttributes->specularMul = float4({ 1.0f, 1.0f, 1.0f, 1.0f });
+	m_pMaterialAttributes->uvScale	  = float2({ 1.0f, 1.0f });
 }
 
 Material::Material(const Material* other, SlotInfo* slotInfo)
 {
-	this->slotInfo = slotInfo;
+	m_pSlotInfo = slotInfo;
 
-	this->materialAttributes = new MaterialAttributes();
-	this->materialAttributes->shininess   = other->materialAttributes->shininess;
-	this->materialAttributes->ambientAdd  = other->materialAttributes->ambientAdd;
-	this->materialAttributes->diffuseAdd  = other->materialAttributes->diffuseAdd;
-	this->materialAttributes->specularAdd = other->materialAttributes->specularAdd;
-	this->materialAttributes->ambientMul  = other->materialAttributes->ambientMul;
-	this->materialAttributes->diffuseMul  = other->materialAttributes->diffuseMul;
-	this->materialAttributes->specularMul = other->materialAttributes->specularMul;
-	this->materialAttributes->uvScale	  = other->materialAttributes->uvScale;
+	m_pMaterialAttributes = new MaterialAttributes();
+	m_pMaterialAttributes->shininess   = other->m_pMaterialAttributes->shininess;
+	m_pMaterialAttributes->ambientAdd  = other->m_pMaterialAttributes->ambientAdd;
+	m_pMaterialAttributes->diffuseAdd  = other->m_pMaterialAttributes->diffuseAdd;
+	m_pMaterialAttributes->specularAdd = other->m_pMaterialAttributes->specularAdd;
+	m_pMaterialAttributes->ambientMul  = other->m_pMaterialAttributes->ambientMul;
+	m_pMaterialAttributes->diffuseMul  = other->m_pMaterialAttributes->diffuseMul;
+	m_pMaterialAttributes->specularMul = other->m_pMaterialAttributes->specularMul;
+	m_pMaterialAttributes->uvScale	  = other->m_pMaterialAttributes->uvScale;
 
 	for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
 	{
 		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-		this->textures[type] = other->textures.at(type);
+		m_Textures[type] = other->m_Textures.at(type);
 	}
 }
 
 Material::~Material()
 {
-	delete this->materialAttributes;
+	delete m_pMaterialAttributes;
 }
 
 void Material::SetCBV(ConstantBufferView* cbv)
 {
-	this->cbv = cbv;
+	m_pCbv = cbv;
 }
 
 void Material::SetTexture(TEXTURE_TYPE textureType, Texture* texture)
 {
-	this->textures[textureType] = texture;
+	m_Textures[textureType] = texture;
 	
 	switch (textureType)
 	{
 	case TEXTURE_TYPE::AMBIENT:
-		this->slotInfo->textureAmbient = texture->GetDescriptorHeapIndex();
+		m_pSlotInfo->textureAmbient = texture->GetDescriptorHeapIndex();
 		break;
 	case TEXTURE_TYPE::DIFFUSE:
-		this->slotInfo->textureDiffuse = texture->GetDescriptorHeapIndex();
+		m_pSlotInfo->textureDiffuse = texture->GetDescriptorHeapIndex();
 		break;
 	case TEXTURE_TYPE::SPECULAR:
-		this->slotInfo->textureSpecular = texture->GetDescriptorHeapIndex();
+		m_pSlotInfo->textureSpecular = texture->GetDescriptorHeapIndex();
 		break;
 	case TEXTURE_TYPE::NORMAL:
-		this->slotInfo->textureNormal = texture->GetDescriptorHeapIndex();
+		m_pSlotInfo->textureNormal = texture->GetDescriptorHeapIndex();
 		break;
 	case TEXTURE_TYPE::EMISSIVE:
-		this->slotInfo->textureEmissive = texture->GetDescriptorHeapIndex();
+		m_pSlotInfo->textureEmissive = texture->GetDescriptorHeapIndex();
 		break;
 	}
 }
 
 void Material::SetShininess(float shininess)
 {
-	this->materialAttributes->shininess = shininess;
+	m_pMaterialAttributes->shininess = shininess;
 }
 
 void Material::SetColorAdd(COLOR_TYPE type, float4 color)
@@ -81,13 +84,13 @@ void Material::SetColorAdd(COLOR_TYPE type, float4 color)
 	switch (type)
 	{
 	case COLOR_TYPE::LIGHT_AMBIENT:
-		this->materialAttributes->ambientAdd = color;
+		m_pMaterialAttributes->ambientAdd = color;
 		break;
 	case COLOR_TYPE::LIGHT_DIFFUSE:
-		this->materialAttributes->diffuseAdd = color;
+		m_pMaterialAttributes->diffuseAdd = color;
 		break;
 	case COLOR_TYPE::LIGHT_SPECULAR:
-		this->materialAttributes->specularAdd = color;
+		m_pMaterialAttributes->specularAdd = color;
 		break;
 	}
 }
@@ -97,33 +100,33 @@ void Material::SetColorMul(COLOR_TYPE type, float4 color)
 	switch (type)
 	{
 	case COLOR_TYPE::LIGHT_AMBIENT:
-		this->materialAttributes->ambientMul = color;
+		m_pMaterialAttributes->ambientMul = color;
 		break;
 	case COLOR_TYPE::LIGHT_DIFFUSE:
-		this->materialAttributes->diffuseMul = color;
+		m_pMaterialAttributes->diffuseMul = color;
 		break;
 	case COLOR_TYPE::LIGHT_SPECULAR:
-		this->materialAttributes->specularMul = color;
+		m_pMaterialAttributes->specularMul = color;
 		break;
 	}
 }
 
 void Material::SetUVScale(float u, float v)
 {
-	this->materialAttributes->uvScale = {u, v};
+	m_pMaterialAttributes->uvScale = {u, v};
 }
 
 Texture* Material::GetTexture(TEXTURE_TYPE textureType)
 {
-	return this->textures.at(textureType);
+	return m_Textures.at(textureType);
 }
 
 MaterialAttributes* Material::GetMaterialAttributes() const
 {
-	return this->materialAttributes;
+	return m_pMaterialAttributes;
 }
 
 const ConstantBufferView* const Material::GetConstantBufferView() const
 {
-	return this->cbv;
+	return m_pCbv;
 }

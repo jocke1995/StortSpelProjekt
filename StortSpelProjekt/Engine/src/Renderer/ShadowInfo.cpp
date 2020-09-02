@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include "ShadowInfo.h"
 
+#include "DepthStencilView.h"
+#include "ShaderResourceView.h"
+#include "RenderView.h"
+#include "DescriptorHeap.h"
+#include "Resource.h"
+
 ShadowInfo::ShadowInfo(
 	unsigned int textureWidth, unsigned int textureHeight,
 	unsigned int shadowInfoId,
@@ -9,64 +15,64 @@ ShadowInfo::ShadowInfo(
 	DescriptorHeap* dh_DSV,
 	DescriptorHeap* dh_SRV)
 {
-	this->id = shadowInfoId;
-	this->shadowResolution = shadowResolution;
+	m_Id = shadowInfoId;
+	m_ShadowResolution = shadowResolution;
 
-	this->CreateResource(device, textureWidth, textureHeight);
+	createResource(device, textureWidth, textureHeight);
 
-	this->CreateDSV(device, dh_DSV);
-	this->CreateSRV(device, dh_SRV);
+	createDSV(device, dh_DSV);
+	createSRV(device, dh_SRV);
 
-	this->renderView = new RenderView(textureWidth, textureHeight);
+	m_pRenderView = new RenderView(textureWidth, textureHeight);
 
 }
 
 bool ShadowInfo::operator==(const ShadowInfo& other)
 {
-	return this->id == other.id;
+	return m_Id == other.m_Id;
 }
 
 ShadowInfo::~ShadowInfo()
 {
-	delete this->resource;
+	delete m_pResource;
 
-	delete this->DSV;
-	delete this->SRV;
+	delete m_pDSV;
+	delete m_pSRV;
 
-	delete this->renderView;
+	delete m_pRenderView;
 }
 
 unsigned int ShadowInfo::GetId() const
 {
-	return this->id;
+	return m_Id;
 }
 
 SHADOW_RESOLUTION ShadowInfo::GetShadowResolution() const
 {
-	return this->shadowResolution;
+	return m_ShadowResolution;
 }
 
 Resource* ShadowInfo::GetResource() const
 {
-	return this->resource;
+	return m_pResource;
 }
 
 DepthStencilView* ShadowInfo::GetDSV() const
 {
-	return this->DSV;
+	return m_pDSV;
 }
 
 ShaderResourceView* ShadowInfo::GetSRV() const
 {
-	return this->SRV;
+	return m_pSRV;
 }
 
 RenderView* ShadowInfo::GetRenderView() const
 {
-	return this->renderView;
+	return m_pRenderView;
 }
 
-void ShadowInfo::CreateResource(ID3D12Device5* device, unsigned int width, unsigned int height)
+void ShadowInfo::createResource(ID3D12Device5* device, unsigned int width, unsigned int height)
 {
 	D3D12_RESOURCE_DESC desc = {};
 	desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
@@ -86,8 +92,8 @@ void ShadowInfo::CreateResource(ID3D12Device5* device, unsigned int width, unsig
 	clearValue.DepthStencil.Depth = 1.0f;
 	clearValue.DepthStencil.Stencil = 0;
 
-	std::wstring resourceName = L"ShadowMap" + std::to_wstring(this->id) + L"_DEFAULT_RESOURCE";
-	this->resource = new Resource(
+	std::wstring resourceName = L"ShadowMap" + std::to_wstring(m_Id) + L"_DEFAULT_RESOURCE";
+	m_pResource = new Resource(
 		device,
 		&desc,
 		&clearValue,
@@ -95,16 +101,16 @@ void ShadowInfo::CreateResource(ID3D12Device5* device, unsigned int width, unsig
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
-void ShadowInfo::CreateDSV(ID3D12Device5* device, DescriptorHeap* dh_DSV)
+void ShadowInfo::createDSV(ID3D12Device5* device, DescriptorHeap* dh_DSV)
 {
-	this->DSV = new DepthStencilView(
+	m_pDSV = new DepthStencilView(
 		device,
 		dh_DSV,
-		this->resource,
+		m_pResource,
 		DXGI_FORMAT_D24_UNORM_S8_UINT);
 }
 
-void ShadowInfo::CreateSRV(ID3D12Device5* device, DescriptorHeap* dh_SRV)
+void ShadowInfo::createSRV(ID3D12Device5* device, DescriptorHeap* dh_SRV)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvd = {};
 	srvd.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -115,9 +121,9 @@ void ShadowInfo::CreateSRV(ID3D12Device5* device, DescriptorHeap* dh_SRV)
 	srvd.Texture2D.ResourceMinLODClamp = 0.0f;
 	srvd.Texture2D.PlaneSlice = 0;
 
-	this->SRV = new ShaderResourceView(
+	m_pSRV = new ShaderResourceView(
 		device,
 		dh_SRV,
 		&srvd,
-		this->resource);
+		m_pResource);
 }

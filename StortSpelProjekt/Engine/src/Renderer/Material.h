@@ -1,11 +1,15 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "Texture.h"
-#include "ConstantBufferView.h"
 #include "Core.h"
-// For slotInfo
+// For slotInfo and MaterialAttributes
 #include "structs.h"
+
+#include <map>
+
+// Forward Declarations
+class Texture;
+class ConstantBufferView;
 
 class Material
 {
@@ -21,7 +25,7 @@ public:
 	void SetColorMul(COLOR_TYPE type, float4 color);
 	void SetUVScale(float u, float v);
 
-	// For usage in renderer
+	// For usage in m_pRenderer
 	void SetCBV(ConstantBufferView* cbv);
 
 	// Gets
@@ -30,13 +34,12 @@ public:
 	const ConstantBufferView* const GetConstantBufferView() const;
 
 private:
-	std::map<TEXTURE_TYPE, Texture*> textures;
-
-	SlotInfo* slotInfo = nullptr;
+	std::map<TEXTURE_TYPE, Texture*> m_Textures;
+	SlotInfo* m_pSlotInfo = nullptr;
 
 	// a constantBuffer containing the materialAttributesData
-	ConstantBufferView* cbv = nullptr;
-	MaterialAttributes* materialAttributes = nullptr;
+	ConstantBufferView* m_pCbv = nullptr;
+	MaterialAttributes* m_pMaterialAttributes = nullptr;
 
 };
 

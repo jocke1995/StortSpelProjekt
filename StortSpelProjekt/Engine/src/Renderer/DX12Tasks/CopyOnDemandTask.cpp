@@ -2,6 +2,8 @@
 #include "CopyOnDemandTask.h"
 
 #include "../Texture.h"
+#include "../Resource.h"
+#include "../CommandInterface.h"
 
 CopyOnDemandTask::CopyOnDemandTask(ID3D12Device5* device)
 	:CopyTask(device)
@@ -15,7 +17,7 @@ CopyOnDemandTask::~CopyOnDemandTask()
 
 void CopyOnDemandTask::Clear()
 {
-	m_Upload_Default_Data.clear();
+	m_UploadDefaultData.clear();
 	m_Textures.clear();
 }
 
@@ -26,13 +28,13 @@ void CopyOnDemandTask::SubmitTexture(Texture* texture)
 
 void CopyOnDemandTask::Execute()
 {
-	ID3D12CommandAllocator* commandAllocator = this->commandInterface->GetCommandAllocator(this->commandInterfaceIndex);
-	ID3D12GraphicsCommandList5* commandList = this->commandInterface->GetCommandList(this->commandInterfaceIndex);
+	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
+	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
 	
-	this->commandInterface->Reset(this->commandInterfaceIndex);
+	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 	
 	// record the "small" data, such as constantbuffers..
-	for (auto& tuple : m_Upload_Default_Data)
+	for (auto& tuple : m_UploadDefaultData)
 	{
 		copyResource(
 			commandList,
@@ -52,8 +54,8 @@ void CopyOnDemandTask::Execute()
 
 void CopyOnDemandTask::copyTexture(ID3D12GraphicsCommandList5* commandList, Texture* texture)
 {
-	ID3D12Resource* defaultHeap = texture->resourceDefaultHeap->GetID3D12Resource1();
-	ID3D12Resource* uploadHeap = texture->resourceUploadHeap->GetID3D12Resource1();
+	ID3D12Resource* defaultHeap = texture->m_pResourceDefaultHeap->GetID3D12Resource1();
+	ID3D12Resource* uploadHeap = texture->m_pResourceUploadHeap->GetID3D12Resource1();
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		defaultHeap,

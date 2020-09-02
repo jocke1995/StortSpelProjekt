@@ -8,11 +8,24 @@
 
 // Entity Component System
 #include "ECS/SceneManager.h"
+#include "ECS/Entity.h"
+#include "ECS/Components/MeshComponent.h"
+#include "ECS/Components/TransformComponent.h"
+#include "ECS/Components/Lights/DirectionalLightComponent.h"
+#include "ECS/Components/Lights/PointLightComponent.h"
+#include "ECS/Components/Lights/SpotLightComponent.h"
+#include "ECS/Components/CameraComponent.h"
 
 // Sub-engines
 #include "Renderer/Renderer.h"
+#include "Renderer/Material.h"
+#include "Renderer/Transform.h"
+#include "Renderer/Mesh.h"
+#include "Renderer/BaseCamera.h"
 // #include "physics"
 // #include "audio"
+
+#include "Misc/AssetLoader.h"
 
 class Engine
 {
@@ -30,12 +43,12 @@ public:
 	SceneManager* const GetSceneHandler() const;
 
 private:
-	Window* window = nullptr;
-	Timer* timer = nullptr;
-	ThreadPool* threadPool = nullptr;
+	Window* m_Window = nullptr;
+	Timer* m_Timer = nullptr;
+	ThreadPool* m_ThreadPool = nullptr;
 
-	Renderer* renderer = nullptr;
-	SceneManager* sceneHandler = nullptr;
+	Renderer* m_Renderer = nullptr;
+	SceneManager* m_SceneManager = nullptr;
 };
 
 #endif

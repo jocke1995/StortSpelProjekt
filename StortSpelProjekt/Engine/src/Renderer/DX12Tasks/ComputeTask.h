@@ -2,7 +2,9 @@
 #define COMPUTETASK_H
 
 #include "DX12Task.h"
-#include "../ComputeState.h"
+
+class RootSignature;
+class PipelineState;
 
 class ComputeTask : public DX12Task
 {
@@ -14,8 +16,8 @@ public:
 	virtual ~ComputeTask();
 
 protected:
-	ID3D12RootSignature* rootSig = nullptr;
+	ID3D12RootSignature* m_pRootSig = nullptr;
 
-	PipelineState* pipelineState = nullptr;
+	PipelineState* m_pPipelineState = nullptr;
 };
 #endif

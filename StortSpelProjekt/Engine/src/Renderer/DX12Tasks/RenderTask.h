@@ -1,19 +1,29 @@
 #ifndef RENDERTASK_H
 #define RENDERTASK_H
 
+#include "Core.h"
+#include <map>
 #include "DX12Task.h"
 
-#include "../PerspectiveCamera.h"
-#include "../OrthographicCamera.h"
-#include "../GraphicsState.h"
-#include "../SwapChain.h"
+// Renderer
+class RootSignature;
+class Resource;
+class DescriptorHeap;
+enum class DESCRIPTOR_HEAP_TYPE;
+class BaseCamera;
+class RenderTarget;
+class PipelineState;
 
+// Components
 #include "../../ECS/Components/MeshComponent.h"
 #include "../../ECS/Components/TransformComponent.h"
-
 #include "../../ECS/Components/Lights/DirectionalLightComponent.h"
 #include "../../ECS/Components/Lights/PointLightComponent.h"
 #include "../../ECS/Components/Lights/SpotLightComponent.h"
+
+// DX12 Forward Declarations
+struct ID3D12RootSignature;
+struct D3D12_GRAPHICS_PIPELINE_STATE_DESC;
 
 class RenderTask : public DX12Task
 {
@@ -39,14 +49,14 @@ public:
 	void SetCamera(BaseCamera* camera);
 	
 protected:
-	std::map<std::string, Resource*> resources;
-	std::map<std::string, RenderTarget*> renderTargets;
-	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> descriptorHeaps;
+	std::map<std::string, Resource*> m_Resources;
+	std::map<std::string, RenderTarget*> m_RenderTargets;
+	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> m_DescriptorHeaps;
 
-	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> renderComponents;
+	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
 	
-	BaseCamera* camera = nullptr;
-	ID3D12RootSignature* rootSig = nullptr;
-	std::vector<PipelineState*> pipelineStates;
+	BaseCamera* m_pCamera = nullptr;
+	ID3D12RootSignature* m_pRootSig = nullptr;
+	std::vector<PipelineState*> m_PipelineStates;
 };
 #endif

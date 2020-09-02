@@ -1,26 +1,17 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include <wincodec.h>
-#include "Resource.h"
-#include "CommandInterface.h"
-#include "ShaderResourceView.h"
-
-enum TEXTURE_TYPE
-{
-	AMBIENT,
-	DIFFUSE,
-	SPECULAR,
-	NORMAL,
-	EMISSIVE,
-	NUM_TEXTURE_TYPES
-};
+#include "Core.h"
+class Resource;
+class CommandInterface;
+class ShaderResourceView;
+class DescriptorHeap;
 
 class Texture
 {
 public:
 	Texture();
-	~Texture();
+	virtual ~Texture();
 	
 	bool Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap);
 
@@ -31,18 +22,19 @@ private:
 	friend class CopyOnDemandTask;
 	friend class SceneManager;
 
+	std::wstring m_FilePath = L"";
+	ShaderResourceView* m_pSRV = nullptr;
 	D3D12_SUBRESOURCE_DATA m_SubresourceData = {};
-	std::wstring filePath = L"";
+	D3D12_RESOURCE_DESC m_ResourceDescription = {};
+	Resource* m_pResourceDefaultHeap = nullptr;
+	Resource* m_pResourceUploadHeap = nullptr;
 
-	ShaderResourceView* SRV = nullptr;
+	bool createTexture(std::wstring filePath, ID3D12Device5* device, UINT descriptorHeapIndex_SRV);
 
-	D3D12_RESOURCE_DESC resourceDescription = {};
-	Resource* resourceDefaultHeap = nullptr;
-	Resource* resourceUploadHeap = nullptr;
-	bool CreateTexture(std::wstring filePath, ID3D12Device5* device, UINT descriptorHeapIndex_SRV);
+
 
 	// Temp until scene is properly loaded when a change of scene happens
-	bool hasBeenUploadedToDefault = false;
+	bool m_HasBeenUploadedToDefault = false;
 };
 
 #endif

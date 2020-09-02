@@ -2,7 +2,8 @@
 #define SHADOWRENDERTASK_H
 
 #include "RenderTask.h"
-#include "../ShadowInfo.h"
+
+class ShadowInfo;
 
 class ShadowRenderTask : public RenderTask
 {
@@ -17,7 +18,7 @@ public:
 
 	void Execute();
 private:
-	std::vector<std::pair<Light*, ShadowInfo*>> lights;
+	std::vector<std::pair<Light*, ShadowInfo*>> m_lights;
 };
 
 #endif

@@ -20,8 +20,8 @@ public:
 	Resource* GetCBVResource() const;
 	
 private:
-	Resource* defaultResource = nullptr;
-	unsigned int id = 0;
+	Resource* m_pDefaultResource = nullptr;
+	unsigned int m_pId = 0;
 
 	void CreateConstantBufferView(
 		ID3D12Device5* device,

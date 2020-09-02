@@ -1,16 +1,18 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include <d3d12.h>
 #include "EngineMath.h"
-#include "Resource.h"
-#include "ShaderResourceView.h"
 #include "Core.h"
 
-#include "Material.h"
+class Resource;
+class ShaderResourceView;
+class Material;
+class DescriptorHeap;
+struct SlotInfo;
 
-// temp
-#include "CommandInterface.h"
+// DX12 Forward Declarations
+struct ID3D12Device5;
+struct D3D12_INDEX_BUFFER_VIEW;
 
 struct Vertex
 {
@@ -29,7 +31,7 @@ public:
             DescriptorHeap* descriptorHeap_SRV,
             const std::string path = "");
     Mesh(const Mesh* other);
-    ~Mesh();
+    virtual ~Mesh();
 
     // Vertices
     Resource* GetDefaultResourceVertices() const;
@@ -52,26 +54,28 @@ private:
     friend class Renderer;
     friend class SceneManager;
 
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-    std::string path = "";
+    std::vector<Vertex> m_Vertices;
+    std::vector<unsigned int> m_Indices;
+    std::string m_Path = "";
 
-    Resource* uploadResourceVertices = nullptr;
-    Resource* uploadResourceIndices = nullptr;
-    Resource* defaultResourceVertices = nullptr;
-    Resource* defaultResourceIndices = nullptr;
+    Resource* m_pUploadResourceVertices = nullptr;
+    Resource* m_pUploadResourceIndices = nullptr;
+    Resource* m_pDefaultResourceVertices = nullptr;
+    Resource* m_pDefaultResourceIndices = nullptr;
 
-    ShaderResourceView* SRV = nullptr;
+    ShaderResourceView* m_pSRV = nullptr;
+    D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;;
 
     // Material will write descriptorIndices to "slotinfo" in mesh 
-    Material* material = nullptr;
-    SlotInfo* slotInfo = nullptr;
+    Material* m_pMaterial = nullptr;
+    SlotInfo* m_pSlotInfo = nullptr;
 
-    D3D12_INDEX_BUFFER_VIEW indexBufferView = {};
-    void CreateIndexBufferView();
+
+    void createIndexBufferView();
+
 
     // Temporay solution to make sure each "new" mesh only gets deleted once
-    bool isCopied = false;
+    bool m_IsCopied = false;
 };
 
 #endif

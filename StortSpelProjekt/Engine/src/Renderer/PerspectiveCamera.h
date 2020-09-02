@@ -1,9 +1,9 @@
 #ifndef PERSPECTIVECAMERA_H
 #define PERSPECTIVECAMERA_H
 
-#include "TempInputClass.h"
-
 #include "BaseCamera.h"
+
+class TempInputClass;
 
 class PerspectiveCamera : public BaseCamera
 {
@@ -12,7 +12,7 @@ public:
     PerspectiveCamera(HINSTANCE hInstance, HWND hwnd);
 
     // main constructor
-    PerspectiveCamera(XMVECTOR position, XMVECTOR lookAt,
+    PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt,
         double fov = 45.0f,
         double aspectRatio = 16.0f / 9.0f,
         double zNear = 0.1f,
@@ -20,37 +20,39 @@ public:
 
 	virtual ~PerspectiveCamera();
 
-    const XMMATRIX* GetViewProjection() const;
-    const XMMATRIX* GetViewProjectionTranposed() const;
+    const DirectX::XMMATRIX* GetViewProjection() const;
+    const DirectX::XMMATRIX* GetViewProjectionTranposed() const;
 
 private:
-    float moveLeftRight = 0.0f;
-    float moveForwardBackward = 0.0f;
-    float moveUpDown = 0.0f;
-    float camYaw = 0.0f;
-    float camPitch = 0.0f;
+    float m_MoveLeftRight = 0.0f;
+    float m_MoveForwardBackward = 0.0f;
+    float m_MoveUpDown = 0.0f;
+    float m_CamYaw = 0.0f;
+    float m_CamPitch = 0.0f;
 
-    XMMATRIX projMatrix;
-    XMMATRIX viewProjMatrix;
-    XMMATRIX viewProjTranposedMatrix;
+    DirectX::XMMATRIX m_ProjMatrix;
+    DirectX::XMMATRIX m_ViewProjMatrix;
+    DirectX::XMMATRIX m_ViewProjTranposedMatrix;
 
-    double fov = 0.0f;
-    double aspectRatio = 0.0f;
-    double zNear = 0.0f;
-    double zFar = 0.0f;
+    double m_Fov = 0.0f;
+    double m_AspectRatio = 0.0f;
+    double m_ZNear = 0.0f;
+    double m_ZFar = 0.0f;
 
-    void Init(
+    void init(
         double fov = 45.0f,
         double aspectRatio = 16.0f / 9.0f,
         double zNear = 0.1f,
         double zFar = 1000.0f);
 
-    void UpdateSpecific(double dt);
-    void UpdateCameraMovement();
+    void updateSpecific(double dt);
+    void updateCameraMovement();
+
+
 
     //  ------------------------ TEMPORARY IN THIS CLASS ------------------------
-    bool tempHasInputObject = false;
-    TempInputClass* tempInputClass = nullptr;
+    bool m_TempHasInputObject = false;
+    TempInputClass* m_pTempInputClass = nullptr;
 };
 
 #endif
