@@ -1,18 +1,29 @@
 #include "stdafx.h"
 #include "MemoryManager.h"
 
+MemoryManager::~MemoryManager()
+{
+    free(m_pMem);
+}
+
 void* MemoryManager::AllocHeapBlock()
 {
-    void* toReturn = MemoryManager::getInstance().m_pHeapHead->pMem;
-    MemoryManager::getInstance().m_pHeapHead = MemoryManager::getInstance().m_pHeapHead->pNext;
+    MemoryManager& mm = MemoryManager::getInstance();
+    void* toReturn = mm.m_pHeapHead->pMem;
+    if (mm.m_pStackEnd == mm.m_pHeapHead)
+        return nullptr;
+    mm.m_pHeapHead = mm.m_pHeapHead->pNext;
     return toReturn;
 }
 
 void* MemoryManager::AllocStackHeap()
 {
-    void* toReturn = MemoryManager::getInstance().m_pStackEnd->pMem;
+    MemoryManager& mm = MemoryManager::getInstance();
+    void* toReturn = mm.m_pStackEnd->pMem;
+    if (mm.m_pStackEnd == mm.m_pHeapHead)
+        return nullptr;
     // will this actually give a next block ptr?
-    MemoryManager::getInstance().m_pStackEnd = MemoryManager::getInstance().m_pStackEnd + 1;
+    mm.m_pStackEnd = mm.m_pStackEnd + 1;
     return toReturn;
 }
 

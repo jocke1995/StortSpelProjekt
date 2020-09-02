@@ -22,6 +22,7 @@ struct Block
 class MemoryManager
 {
 public:
+	~MemoryManager();
 	static void* AllocHeapBlock();
 	static void* AllocStackHeap();
 
