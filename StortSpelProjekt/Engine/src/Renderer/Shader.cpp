@@ -3,20 +3,20 @@
 
 Shader::Shader(LPCTSTR path, ShaderType type)
 {
-	this->m_Path = path;
-	this->m_Type = type;
+	m_Path = path;
+	m_Type = type;
 
-	this->compileShader();
+	compileShader();
 }
 
 Shader::~Shader()
 {
-	SAFE_RELEASE(&this->m_pBlob);
+	SAFE_RELEASE(&m_pBlob);
 }
 
 ID3DBlob* Shader::GetBlob() const
 {
-	return this->m_pBlob;
+	return m_pBlob;
 }
 
 void Shader::compileShader()
@@ -52,14 +52,14 @@ void Shader::compileShader()
 #endif
 
 	HRESULT hr = D3DCompileFromFile(
-		this->m_Path, // filePath + filename
+		m_Path, // filePath + filename
 		nullptr,		// optional macros
 		D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 		entryPoint.c_str(),		// entry point
 		shaderModelTarget.c_str(),		// shader model (target)
 		flags,	// shader compile options			// here DEBUGGING OPTIONS
 		0,				// effect compile options
-		&this->m_pBlob,	// double pointer to ID3DBlob		
+		&m_pBlob,	// double pointer to ID3DBlob		
 		&errorMessages			// pointer for Error Blob messages.
 						// how to use the Error blob, see here
 						// https://msdn.microsoft.com/en-us/library/windows/desktop/hh968107(v=vs.85).aspx
@@ -67,7 +67,7 @@ void Shader::compileShader()
 
 	if (m_pBlob == nullptr)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "blob is nullptr when loading shader with path: %S\n", this->m_Path);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "blob is nullptr when loading shader with path: %S\n", m_Path);
 	}
 
 	if (FAILED(hr) && errorMessages)

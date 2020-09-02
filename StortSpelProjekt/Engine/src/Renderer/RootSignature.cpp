@@ -5,13 +5,13 @@
 
 RootSignature::RootSignature(ID3D12Device5* device)
 {
-	this->createRootSignatureStructure();
+	createRootSignatureStructure();
 
 	HRESULT hr = device->CreateRootSignature(
 		0,
-		this->m_pBlob->GetBufferPointer(),
-		this->m_pBlob->GetBufferSize(),
-		IID_PPV_ARGS(&this->m_pRootSig));
+		m_pBlob->GetBufferPointer(),
+		m_pBlob->GetBufferSize(),
+		IID_PPV_ARGS(&m_pRootSig));
 
 	if(FAILED(hr))
 	{
@@ -21,18 +21,18 @@ RootSignature::RootSignature(ID3D12Device5* device)
 
 RootSignature::~RootSignature()
 {
-	SAFE_RELEASE(&this->m_pRootSig);
-	SAFE_RELEASE(&this->m_pBlob);
+	SAFE_RELEASE(&m_pRootSig);
+	SAFE_RELEASE(&m_pBlob);
 }
 
 ID3D12RootSignature* RootSignature::GetRootSig() const
 {
-	return this->m_pRootSig;
+	return m_pRootSig;
 }
 
 ID3DBlob* RootSignature::GetBlob() const
 {
-	return this->m_pBlob;
+	return m_pBlob;
 }
 
 void RootSignature::createRootSignatureStructure()
@@ -132,7 +132,7 @@ void RootSignature::createRootSignatureStructure()
 	HRESULT hr = D3D12SerializeRootSignature(
 		&rsDesc,
 		D3D_ROOT_SIGNATURE_VERSION_1,
-		&this->m_pBlob,
+		&m_pBlob,
 		&errorMessages);
 
 	if (FAILED(hr) && errorMessages)

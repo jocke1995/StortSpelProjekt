@@ -10,9 +10,9 @@ ShaderResourceView::ShaderResourceView(
 	D3D12_SHADER_RESOURCE_VIEW_DESC* desc,
 	Resource* resource)
 {
-	this->m_DescriptorHeapIndex = descriptorHeap_CBV_UAV_SRV->GetNextDescriptorHeapIndex(1);
+	m_DescriptorHeapIndex = descriptorHeap_CBV_UAV_SRV->GetNextDescriptorHeapIndex(1);
 
-	this->createShaderResourceView(device, descriptorHeap_CBV_UAV_SRV, desc, resource);
+	createShaderResourceView(device, descriptorHeap_CBV_UAV_SRV, desc, resource);
 }
 
 ShaderResourceView::~ShaderResourceView()
@@ -22,7 +22,7 @@ ShaderResourceView::~ShaderResourceView()
 
 unsigned int ShaderResourceView::GetDescriptorHeapIndex() const
 {
-	return this->m_DescriptorHeapIndex;
+	return m_DescriptorHeapIndex;
 }
 
 void ShaderResourceView::createShaderResourceView(
@@ -31,7 +31,7 @@ void ShaderResourceView::createShaderResourceView(
 	D3D12_SHADER_RESOURCE_VIEW_DESC* desc,
 	Resource* resource)
 {
-	D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_CBV_UAV_SRV->GetCPUHeapAt(this->m_DescriptorHeapIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_CBV_UAV_SRV->GetCPUHeapAt(m_DescriptorHeapIndex);
 
 	device->CreateShaderResourceView(resource->GetID3D12Resource1(), desc, cdh);
 }

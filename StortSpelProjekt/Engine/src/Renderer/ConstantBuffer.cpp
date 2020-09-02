@@ -11,21 +11,21 @@ ConstantBuffer::ConstantBuffer(
 	unsigned int descriptorHeapIndex)
 {
 	unsigned int sizeAligned = (entrySize + 255) & ~255;
-	this->m_pUploadResource = new Resource(device, sizeAligned, RESOURCE_TYPE::UPLOAD, resourceName);
-	this->m_DescriptorHeapIndex = descriptorHeapIndex;
+	m_pUploadResource = new Resource(device, sizeAligned, RESOURCE_TYPE::UPLOAD, resourceName);
+	m_DescriptorHeapIndex = descriptorHeapIndex;
 }
 
 ConstantBuffer::~ConstantBuffer()
 {
-	delete this->m_pUploadResource;
+	delete m_pUploadResource;
 }
 
 Resource* ConstantBuffer::GetUploadResource() const
 {
-	return this->m_pUploadResource;
+	return m_pUploadResource;
 }
 
 unsigned int ConstantBuffer::GetDescriptorHeapIndex() const
 {
-	return this->m_DescriptorHeapIndex;
+	return m_DescriptorHeapIndex;
 }

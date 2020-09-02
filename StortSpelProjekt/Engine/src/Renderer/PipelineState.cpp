@@ -7,17 +7,17 @@
 
 PipelineState::PipelineState(LPCTSTR psoName)
 {
-	this->m_PsoName = psoName;
+	m_PsoName = psoName;
 }
 
 PipelineState::~PipelineState()
 {
-	SAFE_RELEASE(&this->m_pPSO);
+	SAFE_RELEASE(&m_pPSO);
 }
 
 ID3D12PipelineState* PipelineState::GetPSO() const
 {
-	return this->m_pPSO;
+	return m_pPSO;
 }
 
 Shader* PipelineState::createShader(LPCTSTR fileName, ShaderType type)

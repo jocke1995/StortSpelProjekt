@@ -37,42 +37,42 @@ RenderTarget::RenderTarget(
 			L"RenderTarget_DEFAULT_RESOURCE",
 			D3D12_RESOURCE_STATE_GENERIC_READ);
 	
-		this->m_Resources.push_back(resource);
+		m_Resources.push_back(resource);
 
 		unsigned int dhIndex = descriptorHeap_RTV->GetNextDescriptorHeapIndex(1);
 		D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_RTV->GetCPUHeapAt(dhIndex);
 		device->CreateRenderTargetView(resource->GetID3D12Resource1(), &viewDesc, cdh);
 	}
 	
-	this->m_pRenderView = new RenderView(width, height);
+	m_pRenderView = new RenderView(width, height);
 }
 
 RenderTarget::RenderTarget(unsigned int width, unsigned int height)
 {
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		this->m_Resources.push_back(new Resource());
+		m_Resources.push_back(new Resource());
 	}
 
-	this->m_pRenderView = new RenderView(width, height);
+	m_pRenderView = new RenderView(width, height);
 }
 
 RenderTarget::~RenderTarget()
 {
-	for (Resource* resource : this->m_Resources)
+	for (Resource* resource : m_Resources)
 	{
 		delete resource;
 	}
 
-	delete this->m_pRenderView;
+	delete m_pRenderView;
 }
 
 Resource* RenderTarget::GetResource(unsigned int index) const
 {
-	return this->m_Resources[index];
+	return m_Resources[index];
 }
 
 RenderView* RenderTarget::GetRenderView() const
 {
-	return this->m_pRenderView;
+	return m_pRenderView;
 }

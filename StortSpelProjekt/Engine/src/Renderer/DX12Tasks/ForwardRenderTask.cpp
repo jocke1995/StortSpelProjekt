@@ -31,15 +31,15 @@ FowardRenderTask::~FowardRenderTask()
 
 void FowardRenderTask::Execute()
 {
-	ID3D12CommandAllocator* commandAllocator = this->m_pCommandInterface->GetCommandAllocator(this->m_CommandInterfaceIndex);
-	ID3D12GraphicsCommandList5* commandList = this->m_pCommandInterface->GetCommandList(this->m_CommandInterfaceIndex);
-	ID3D12Resource1* swapChainResource = this->m_RenderTargets["swapChain"]->GetResource(this->m_BackBufferIndex)->GetID3D12Resource1();
+	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
+	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
+	ID3D12Resource1* swapChainResource = m_RenderTargets["swapChain"]->GetResource(m_BackBufferIndex)->GetID3D12Resource1();
 
-	this->m_pCommandInterface->Reset(this->m_CommandInterfaceIndex);
+	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
-	commandList->SetGraphicsRootSignature(this->m_pRootSig);
+	commandList->SetGraphicsRootSignature(m_pRootSig);
 	
-	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = this->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
+	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
 	ID3D12DescriptorHeap* d3d12DescriptorHeap = descriptorHeap_CBV_UAV_SRV->GetID3D12DescriptorHeap();
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
 
@@ -52,10 +52,10 @@ void FowardRenderTask::Execute()
 		D3D12_RESOURCE_STATE_PRESENT,
 		D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	DescriptorHeap* renderTargetHeap = this->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
-	DescriptorHeap* depthBufferHeap  = this->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
+	DescriptorHeap* renderTargetHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
+	DescriptorHeap* depthBufferHeap  = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 
-	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(this->m_BackBufferIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
 	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
 
 	commandList->OMSetRenderTargets(1, &cdh, true, &dsh);
@@ -65,7 +65,7 @@ void FowardRenderTask::Execute()
 
 	commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-	SwapChain* sc = static_cast<SwapChain*>(this->m_RenderTargets["swapChain"]);
+	SwapChain* sc = static_cast<SwapChain*>(m_RenderTargets["swapChain"]);
 	const D3D12_VIEWPORT* viewPort = sc->GetRenderView()->GetViewPort();
 	const D3D12_RECT* rect = sc->GetRenderView()->GetScissorRect();
 	commandList->RSSetViewports(1, viewPort);
@@ -73,38 +73,38 @@ void FowardRenderTask::Execute()
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Set cbvs
-	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_FRAME, this->m_Resources["cbPerFrame"]->GetGPUVirtualAdress());
-	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_SCENE, this->m_Resources["cbPerScene"]->GetGPUVirtualAdress());
+	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_FRAME, m_Resources["cbPerFrame"]->GetGPUVirtualAdress());
+	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_SCENE, m_Resources["cbPerScene"]->GetGPUVirtualAdress());
 
-	const DirectX::XMMATRIX* viewProjMatTrans = this->m_pCamera->GetViewProjectionTranposed();
+	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
 
 	// This pair for m_RenderComponents will be used for model-outlining in case any model is picked.
 	std::pair<component::MeshComponent*, component::TransformComponent*> outlinedModel = std::make_pair(nullptr, nullptr);
 
 	// Draw for every Rendercomponent with stencil testing disabled
-	commandList->SetPipelineState(this->m_PipelineStates[0]->GetPSO());
-	for (int i = 0; i < this->m_RenderComponents.size(); i++)
+	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
+	for (int i = 0; i < m_RenderComponents.size(); i++)
 	{
-		component::MeshComponent* mc = this->m_RenderComponents.at(i).first;
-		component::TransformComponent* tc = this->m_RenderComponents.at(i).second;
+		component::MeshComponent* mc = m_RenderComponents.at(i).first;
+		component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
 		// If the model is picked, we dont draw it with default stencil buffer.
 		// Instead we store it and draw it later with a different pso to allow for model-outlining
 		if (mc->IsPickedThisFrame() == true)
 		{
-			outlinedModel = std::make_pair(this->m_RenderComponents.at(i).first, this->m_RenderComponents.at(i).second);
+			outlinedModel = std::make_pair(m_RenderComponents.at(i).first, m_RenderComponents.at(i).second);
 			continue;
 		}
 		commandList->OMSetStencilRef(1);
-		this->drawRenderComponent(mc, tc, viewProjMatTrans, commandList);
+		drawRenderComponent(mc, tc, viewProjMatTrans, commandList);
 	}
 
 	// Draw Rendercomponent with stencil testing enabled
 	if (outlinedModel.first != nullptr)
 	{
-		commandList->SetPipelineState(this->m_PipelineStates[1]->GetPSO());
+		commandList->SetPipelineState(m_PipelineStates[1]->GetPSO());
 		commandList->OMSetStencilRef(1);
-		this->drawRenderComponent(outlinedModel.first, outlinedModel.second, viewProjMatTrans, commandList);
+		drawRenderComponent(outlinedModel.first, outlinedModel.second, viewProjMatTrans, commandList);
 	}
 	
 	// Change state on front/backbuffer

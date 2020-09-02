@@ -2309,37 +2309,37 @@ struct CD3DX12_PIPELINE_STATE_STREAM1
     D3D12_GRAPHICS_PIPELINE_STATE_DESC GraphicsDescV0() const
     {
         D3D12_GRAPHICS_PIPELINE_STATE_DESC D;
-        D.Flags                 = this->Flags;
-        D.NodeMask              = this->NodeMask;
-        D.pRootSignature        = this->pRootSignature;
-        D.InputLayout           = this->InputLayout;
-        D.IBStripCutValue       = this->IBStripCutValue;
-        D.PrimitiveTopologyType = this->PrimitiveTopologyType;
-        D.VS                    = this->VS;
-        D.GS                    = this->GS;
-        D.StreamOutput          = this->StreamOutput;
-        D.HS                    = this->HS;
-        D.DS                    = this->DS;
-        D.PS                    = this->PS;
-        D.BlendState            = this->BlendState;
-        D.DepthStencilState     = CD3DX12_DEPTH_STENCIL_DESC1(D3D12_DEPTH_STENCIL_DESC1(this->DepthStencilState));
-        D.DSVFormat             = this->DSVFormat;
-        D.RasterizerState       = this->RasterizerState;
-        D.NumRenderTargets      = D3D12_RT_FORMAT_ARRAY(this->RTVFormats).NumRenderTargets;
-        memcpy(D.RTVFormats, D3D12_RT_FORMAT_ARRAY(this->RTVFormats).RTFormats, sizeof(D.RTVFormats));
-        D.SampleDesc            = this->SampleDesc;
-        D.SampleMask            = this->SampleMask;
-        D.CachedPSO             = this->CachedPSO;
+        D.Flags                 = Flags;
+        D.NodeMask              = NodeMask;
+        D.pRootSignature        = pRootSignature;
+        D.InputLayout           = InputLayout;
+        D.IBStripCutValue       = IBStripCutValue;
+        D.PrimitiveTopologyType = PrimitiveTopologyType;
+        D.VS                    = VS;
+        D.GS                    = GS;
+        D.StreamOutput          = StreamOutput;
+        D.HS                    = HS;
+        D.DS                    = DS;
+        D.PS                    = PS;
+        D.BlendState            = BlendState;
+        D.DepthStencilState     = CD3DX12_DEPTH_STENCIL_DESC1(D3D12_DEPTH_STENCIL_DESC1(DepthStencilState));
+        D.DSVFormat             = DSVFormat;
+        D.RasterizerState       = RasterizerState;
+        D.NumRenderTargets      = D3D12_RT_FORMAT_ARRAY(RTVFormats).NumRenderTargets;
+        memcpy(D.RTVFormats, D3D12_RT_FORMAT_ARRAY(RTVFormats).RTFormats, sizeof(D.RTVFormats));
+        D.SampleDesc            = SampleDesc;
+        D.SampleMask            = SampleMask;
+        D.CachedPSO             = CachedPSO;
         return D;
     }
     D3D12_COMPUTE_PIPELINE_STATE_DESC ComputeDescV0() const
     {
         D3D12_COMPUTE_PIPELINE_STATE_DESC D;
-        D.Flags                 = this->Flags;
-        D.NodeMask              = this->NodeMask;
-        D.pRootSignature        = this->pRootSignature;
-        D.CS                    = this->CS;
-        D.CachedPSO             = this->CachedPSO;
+        D.Flags                 = Flags;
+        D.NodeMask              = NodeMask;
+        D.pRootSignature        = pRootSignature;
+        D.CS                    = CS;
+        D.CachedPSO             = CachedPSO;
         return D;
     }
 };
@@ -2402,37 +2402,37 @@ struct CD3DX12_PIPELINE_STATE_STREAM
     D3D12_GRAPHICS_PIPELINE_STATE_DESC GraphicsDescV0() const
     {
         D3D12_GRAPHICS_PIPELINE_STATE_DESC D;
-        D.Flags                 = this->Flags;
-        D.NodeMask              = this->NodeMask;
-        D.pRootSignature        = this->pRootSignature;
-        D.InputLayout           = this->InputLayout;
-        D.IBStripCutValue       = this->IBStripCutValue;
-        D.PrimitiveTopologyType = this->PrimitiveTopologyType;
-        D.VS                    = this->VS;
-        D.GS                    = this->GS;
-        D.StreamOutput          = this->StreamOutput;
-        D.HS                    = this->HS;
-        D.DS                    = this->DS;
-        D.PS                    = this->PS;
-        D.BlendState            = this->BlendState;
-        D.DepthStencilState     = CD3DX12_DEPTH_STENCIL_DESC1(D3D12_DEPTH_STENCIL_DESC1(this->DepthStencilState));
-        D.DSVFormat             = this->DSVFormat;
-        D.RasterizerState       = this->RasterizerState;
-        D.NumRenderTargets      = D3D12_RT_FORMAT_ARRAY(this->RTVFormats).NumRenderTargets;
-        memcpy(D.RTVFormats, D3D12_RT_FORMAT_ARRAY(this->RTVFormats).RTFormats, sizeof(D.RTVFormats));
-        D.SampleDesc            = this->SampleDesc;
-        D.SampleMask            = this->SampleMask;
-        D.CachedPSO             = this->CachedPSO;
+        D.Flags                 = Flags;
+        D.NodeMask              = NodeMask;
+        D.pRootSignature        = pRootSignature;
+        D.InputLayout           = InputLayout;
+        D.IBStripCutValue       = IBStripCutValue;
+        D.PrimitiveTopologyType = PrimitiveTopologyType;
+        D.VS                    = VS;
+        D.GS                    = GS;
+        D.StreamOutput          = StreamOutput;
+        D.HS                    = HS;
+        D.DS                    = DS;
+        D.PS                    = PS;
+        D.BlendState            = BlendState;
+        D.DepthStencilState     = CD3DX12_DEPTH_STENCIL_DESC1(D3D12_DEPTH_STENCIL_DESC1(DepthStencilState));
+        D.DSVFormat             = DSVFormat;
+        D.RasterizerState       = RasterizerState;
+        D.NumRenderTargets      = D3D12_RT_FORMAT_ARRAY(RTVFormats).NumRenderTargets;
+        memcpy(D.RTVFormats, D3D12_RT_FORMAT_ARRAY(RTVFormats).RTFormats, sizeof(D.RTVFormats));
+        D.SampleDesc            = SampleDesc;
+        D.SampleMask            = SampleMask;
+        D.CachedPSO             = CachedPSO;
         return D;
     }
     D3D12_COMPUTE_PIPELINE_STATE_DESC ComputeDescV0() const
     {
         D3D12_COMPUTE_PIPELINE_STATE_DESC D;
-        D.Flags                 = this->Flags;
-        D.NodeMask              = this->NodeMask;
-        D.pRootSignature        = this->pRootSignature;
-        D.CS                    = this->CS;
-        D.CachedPSO             = this->CachedPSO;
+        D.Flags                 = Flags;
+        D.NodeMask              = NodeMask;
+        D.pRootSignature        = pRootSignature;
+        D.CS                    = CS;
+        D.CachedPSO             = CachedPSO;
         return D;
     }
 };

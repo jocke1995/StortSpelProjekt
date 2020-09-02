@@ -4,14 +4,14 @@
 OrthographicCamera::OrthographicCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, float left, float right, float bot, float top, float nearZ, float farZ)
 	:BaseCamera(position, lookAt)
 {
-	this->m_Left = left;
-	this->m_Right = right;
-	this->m_Bot = bot;
-	this->m_Top = top;
-	this->m_NearZ = nearZ;
-	this->m_FarZ = farZ;
-	this->m_ProjMatrix = DirectX::XMMatrixOrthographicOffCenterLH(left, right, bot, top, nearZ, farZ);
-	this->updateSpecific(0);
+	m_Left = left;
+	m_Right = right;
+	m_Bot = bot;
+	m_Top = top;
+	m_NearZ = nearZ;
+	m_FarZ = farZ;
+	m_ProjMatrix = DirectX::XMMatrixOrthographicOffCenterLH(left, right, bot, top, nearZ, farZ);
+	updateSpecific(0);
 }
 OrthographicCamera::~OrthographicCamera()
 {
@@ -19,24 +19,24 @@ OrthographicCamera::~OrthographicCamera()
 
 void OrthographicCamera::updateSpecific(double dt)
 {
-	this->m_ProjMatrix = DirectX::XMMatrixOrthographicOffCenterLH(
-		this->m_Left,
-		this->m_Right,
-		this->m_Bot,
-		this->m_Top,
-		this->m_NearZ,
-		this->m_FarZ);
+	m_ProjMatrix = DirectX::XMMatrixOrthographicOffCenterLH(
+		m_Left,
+		m_Right,
+		m_Bot,
+		m_Top,
+		m_NearZ,
+		m_FarZ);
 
-	this->m_ViewProjMatrix = this->m_ViewMatrix * this->m_ProjMatrix;
-	this->m_ViewProjTranposedMatrix = DirectX::XMMatrixTranspose(this->m_ViewProjMatrix);
+	m_ViewProjMatrix = m_ViewMatrix * m_ProjMatrix;
+	m_ViewProjTranposedMatrix = DirectX::XMMatrixTranspose(m_ViewProjMatrix);
 }
 
 const DirectX::XMMATRIX* OrthographicCamera::GetViewProjection() const
 {
-	return &this->m_ViewProjMatrix;
+	return &m_ViewProjMatrix;
 }
 
 const DirectX::XMMATRIX* OrthographicCamera::GetViewProjectionTranposed() const
 {
-	return &this->m_ViewProjTranposedMatrix;
+	return &m_ViewProjTranposedMatrix;
 }

@@ -8,9 +8,9 @@ Resource::Resource(
 	std::wstring name)
 {
 	m_Id = s_IdCounter++;
-	this->m_EntrySize = entrySize;
-	this->m_Type = type;
-	this->m_Name = name;
+	m_EntrySize = entrySize;
+	m_Type = type;
+	m_Name = name;
 
 	D3D12_HEAP_TYPE d3d12HeapType;
 	D3D12_RESOURCE_STATES startState;
@@ -27,18 +27,18 @@ Resource::Resource(
 		break;
 	}
 
-	this->setupHeapProperties(d3d12HeapType);
+	setupHeapProperties(d3d12HeapType);
 
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resourceDesc.Width = this->m_EntrySize;
+	resourceDesc.Width = m_EntrySize;
 	resourceDesc.Height = 1;
 	resourceDesc.DepthOrArraySize = 1;
 	resourceDesc.MipLevels = 1;
 	resourceDesc.SampleDesc.Count = 1;
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-	this->createResource(device, &resourceDesc, nullptr, startState);
+	createResource(device, &resourceDesc, nullptr, startState);
 }
 
 Resource::Resource(
@@ -49,15 +49,15 @@ Resource::Resource(
 	D3D12_RESOURCE_STATES startState)
 {
 	m_Id = s_IdCounter++;
-	this->m_Type = RESOURCE_TYPE::DEFAULT;
-	this->m_EntrySize = resourceDesc->Width * resourceDesc->Height;
-	this->m_Name = name;
+	m_Type = RESOURCE_TYPE::DEFAULT;
+	m_EntrySize = resourceDesc->Width * resourceDesc->Height;
+	m_Name = name;
 
 	D3D12_HEAP_TYPE d3d12HeapType = D3D12_HEAP_TYPE_DEFAULT;
 
-	this->setupHeapProperties(d3d12HeapType);
+	setupHeapProperties(d3d12HeapType);
 
-	this->createResource(device, resourceDesc, clearValue, startState);
+	createResource(device, resourceDesc, clearValue, startState);
 }
 
 Resource::Resource()
@@ -67,32 +67,32 @@ Resource::Resource()
 
 bool Resource::operator==(const Resource& other)
 {
-	return this->m_Id == other.m_Id;
+	return m_Id == other.m_Id;
 }
 
 Resource::~Resource()
 {
-	SAFE_RELEASE(&this->m_pResource);
+	SAFE_RELEASE(&m_pResource);
 }
 
 unsigned int Resource::GetSize() const
 {
-	return this->m_EntrySize;
+	return m_EntrySize;
 }
 
 ID3D12Resource1* Resource::GetID3D12Resource1() const
 {
-	return this->m_pResource;
+	return m_pResource;
 }
 
 ID3D12Resource1** Resource::GetID3D12Resource1PP()
 {
-	return &this->m_pResource;
+	return &m_pResource;
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS Resource::GetGPUVirtualAdress() const
 {
-	return this->m_pResource->GetGPUVirtualAddress();
+	return m_pResource->GetGPUVirtualAddress();
 }
 
 void Resource::SetData(const void* data, unsigned int subResourceIndex) const
@@ -108,18 +108,18 @@ void Resource::SetData(const void* data, unsigned int subResourceIndex) const
 	// Set up the heap data
 	D3D12_RANGE range = { 0, 0 }; // We do not intend to read this resource on the CPU.
 
-	this->m_pResource->Map(subResourceIndex, &range, &dataBegin); // Get a dataBegin pointer where we can copy data to
-	memcpy(dataBegin, data, this->m_EntrySize);
-	this->m_pResource->Unmap(subResourceIndex, nullptr);
+	m_pResource->Map(subResourceIndex, &range, &dataBegin); // Get a dataBegin pointer where we can copy data to
+	memcpy(dataBegin, data, m_EntrySize);
+	m_pResource->Unmap(subResourceIndex, nullptr);
 }
 
 void Resource::setupHeapProperties(D3D12_HEAP_TYPE heapType)
 {
-	this->m_HeapProperties.Type = heapType;
-	this->m_HeapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	this->m_HeapProperties.CreationNodeMask = 1; //used when multi-gpu
-	this->m_HeapProperties.VisibleNodeMask = 1; //used when multi-gpu
-	this->m_HeapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	m_HeapProperties.Type = heapType;
+	m_HeapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	m_HeapProperties.CreationNodeMask = 1; //used when multi-gpu
+	m_HeapProperties.VisibleNodeMask = 1; //used when multi-gpu
+	m_HeapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 }
 
 void Resource::createResource(
@@ -129,19 +129,19 @@ void Resource::createResource(
 	D3D12_RESOURCE_STATES startState)
 {
 	HRESULT hr = device->CreateCommittedResource(
-		&this->m_HeapProperties,
+		&m_HeapProperties,
 		D3D12_HEAP_FLAG_NONE,
 		resourceDesc,
 		startState,
 		clearValue,
-		IID_PPV_ARGS(&this->m_pResource)
+		IID_PPV_ARGS(&m_pResource)
 	);
 
 	if (FAILED(hr))
 	{
-		std::string cbName(this->m_Name.begin(), this->m_Name.end());
+		std::string cbName(m_Name.begin(), m_Name.end());
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create Resource with name: \'%s\'\n", cbName.c_str());
 	}
 
-	this->m_pResource->SetName(m_Name.c_str());
+	m_pResource->SetName(m_Name.c_str());
 }
