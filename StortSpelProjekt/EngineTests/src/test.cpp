@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <crtdbg.h>
 #include "Memory/FreeList.h"
+#include "Memory/MemoryManager.h"
 int main(int argc, char** argv)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -13,6 +14,7 @@ TEST(INITTEST, ZEROISZERO)
 	EXPECT_EQ(0, 0);
 }
 
+// ------------------ FREELIST ------------------
 TEST(FREELIST, ALLOCELEMENT)
 {
 	// INIT
@@ -139,4 +141,82 @@ TEST(MALLOC, ALLOCANDFREE)
 	// RESET
 
 	free(largerAlloc);
+}
+
+// ------------------ MemoryManager ------------------
+TEST(MEMORYMANAGER, STACKBASIC)
+{
+	void* block = MemoryManager::AllocStackBlock();
+	MemoryManager::FreeStackBlock(block);
+}
+
+TEST(MEMORYMANAGER, STACKFEW)
+{
+	void* blockFirst = MemoryManager::AllocStackBlock();
+	void* blockSecond = MemoryManager::AllocStackBlock();
+	void* blockThird = MemoryManager::AllocStackBlock();
+	void* blockFourth = MemoryManager::AllocStackBlock();
+
+	MemoryManager::FreeStackBlock(blockFourth);
+	MemoryManager::FreeStackBlock(blockThird);
+	MemoryManager::FreeStackBlock(blockSecond);
+	MemoryManager::FreeStackBlock(blockFirst);
+}
+
+TEST(MEMORYMANAGER, STACKMANY)
+{
+	void** blockWithBlocks = (void**)MemoryManager::AllocStackBlock();
+	size_t toAlloc = MemoryManager::GetBlockSize() / 8;
+	for (int i = 0; i < toAlloc; i++)
+	{
+		blockWithBlocks[i] = nullptr;
+		blockWithBlocks[i] = MemoryManager::AllocStackBlock();
+		EXPECT_NE(blockWithBlocks[i], nullptr);
+	}
+
+	for (int i = toAlloc - 1; i >= 0; i--)
+	{
+		MemoryManager::FreeStackBlock(blockWithBlocks[i]);
+	}
+	MemoryManager::FreeStackBlock(blockWithBlocks);
+}
+
+TEST(MEMORYMANAGER, HEAPBASIC)
+{
+	void* block = MemoryManager::AllocHeapBlock();
+	MemoryManager::FreeHeapBlock(block);
+}
+
+TEST(MEMORYMANAGER, HEAPFEW)
+{
+	void* blockFirst = MemoryManager::AllocHeapBlock();
+	void* blockSecond = MemoryManager::AllocHeapBlock();
+	void* blockThird = MemoryManager::AllocHeapBlock();
+	void* blockFourth = MemoryManager::AllocHeapBlock();
+
+	// Dealloc in random order.
+	MemoryManager::FreeHeapBlock(blockThird);
+	MemoryManager::FreeHeapBlock(blockFourth);
+	MemoryManager::FreeHeapBlock(blockFirst);
+	MemoryManager::FreeHeapBlock(blockSecond);
+}
+
+TEST(MEMORYMANAGER, HEAPMANY)
+{
+	void** blockWithBlocks = (void**)MemoryManager::AllocHeapBlock();
+	size_t toAlloc = MemoryManager::GetBlockSize() / 8;
+	for (int i = 0; i < toAlloc; i++)
+	{
+		blockWithBlocks[i] = nullptr;
+		blockWithBlocks[i] = MemoryManager::AllocHeapBlock();
+		EXPECT_NE(blockWithBlocks[i], nullptr);
+	}
+
+	for (int i = 0; i < toAlloc; i++)
+	{
+		MemoryManager::FreeHeapBlock(blockWithBlocks[i]);
+	}
+
+	MemoryManager::FreeHeapBlock(blockWithBlocks);
+	
 }

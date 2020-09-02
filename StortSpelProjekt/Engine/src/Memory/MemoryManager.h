@@ -24,10 +24,13 @@ class MemoryManager
 public:
 	~MemoryManager();
 	static void* AllocHeapBlock();
-	static void* AllocStackHeap();
+	static void* AllocStackBlock();
 
 	static void FreeHeapBlock(void* ptr);
 	static void FreeStackBlock(void* ptr);
+
+	static constexpr size_t GetBlockSize();
+	static constexpr size_t GetTotMemSize();
 private:
 	MemoryManager();
 
@@ -35,9 +38,6 @@ private:
 	Block* m_pHeapHead;
 	void* m_pMem;
 
-
-	static constexpr size_t getBlockSize();
-	static constexpr size_t getTotMemSize();
 	static constexpr size_t getNrOfBlocks();
 	static constexpr size_t getMetadataSizeInBlocks();
 	static MemoryManager& getInstance();
