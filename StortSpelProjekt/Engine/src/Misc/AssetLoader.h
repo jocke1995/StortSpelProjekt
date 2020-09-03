@@ -30,8 +30,8 @@ public:
 private:
     // PipelineState loads all shaders
     friend class PipelineState;
-    // SceneManager needs access to m_LoadedModels & m_LoadedTextures so it can check if they are uploaded to GPU.
-    friend class SceneManager;
+    // Renderer needs access to m_LoadedModels & m_LoadedTextures so it can check if they are uploaded to GPU.
+    friend class Renderer;
 
     // Constructor currently called from m_pRenderer to set dx12 specific objects
     AssetLoader(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr);
