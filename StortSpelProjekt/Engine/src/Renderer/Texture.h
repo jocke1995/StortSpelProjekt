@@ -18,9 +18,9 @@ public:
 	const UINT GetDescriptorHeapIndex() const;
 
 private:
-	// CopyOnDemandTask & sceneMangager uses the private members of the texture class to upload data to the gpu
+	// CopyOnDemandTask & Renderer uses the private members of the texture class to upload data to the gpu
 	friend class CopyOnDemandTask;
-	friend class SceneManager;
+	friend class Renderer;
 
 	std::wstring m_FilePath = L"";
 	ShaderResourceView* m_pSRV = nullptr;

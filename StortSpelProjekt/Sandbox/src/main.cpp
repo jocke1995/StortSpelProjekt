@@ -190,7 +190,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 #pragma endregion CreateScene1
 	char sceneName[10] = "scene0";
-	sceneManager->EditScene(sceneManager->GetScene(sceneName));
+	sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
     while (!window->ExitWindow())
     {
         // ONLY HERE FOR TESTING
@@ -208,7 +208,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             Entity* pickedEnt = renderer->GetPickedEntity();
             if (pickedEnt != nullptr)
             {
-                sceneManager->EditScene(pickedEnt, true);
+				sceneManager->RemoveEntity(pickedEnt);
             }
 		}
 		if (window->WasSpacePressed())
@@ -239,7 +239,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                                      cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetLookAt().z * 10, };
             tc->GetTransform()->SetPosition(spawnPosition.x, spawnPosition.y, spawnPosition.z);
             
-			sceneManager->EditScene(entity);
+			sceneManager->AddEntity(entity);
         }
 
         /* ------ Update ------ */

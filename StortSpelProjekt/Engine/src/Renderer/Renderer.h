@@ -160,6 +160,9 @@ private:
 	void prepareCBPerFrame();
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetSceneToDraw
 	void waitForCopyOnDemand();
+
+	void removeComponents(Entity* entity);
+	void addComponents(Entity* entity);
 };
 
 #endif
