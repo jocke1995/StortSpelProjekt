@@ -24,7 +24,9 @@ class MemoryManager
 public:
 	~MemoryManager();
 	static void* AllocHeapBlock();
+	static void* AllocHeap(size_t size);
 	static void* AllocStackBlock();
+	static void* AllocStack(size_t size);
 
 	static void FreeHeapBlock(void* ptr);
 	static void FreeStackBlock(void* ptr);
