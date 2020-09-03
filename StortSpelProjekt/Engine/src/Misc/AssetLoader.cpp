@@ -157,7 +157,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 			vTemp.pos.x = assimpMesh->mVertices[i].x;
 			vTemp.pos.y = assimpMesh->mVertices[i].y;
 			vTemp.pos.z = assimpMesh->mVertices[i].z;
-			vTemp.pos.w = 1.0;
+			//vTemp.pos.w = 1.0;
 		}
 		else
 		{
@@ -170,7 +170,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 			vTemp.normal.x = assimpMesh->mNormals[i].x;
 			vTemp.normal.y = assimpMesh->mNormals[i].y;
 			vTemp.normal.z = assimpMesh->mNormals[i].z;
-			vTemp.normal.w = 0.0;
+			//vTemp.normal.w = 0.0;
 		}
 		else
 		{
@@ -182,7 +182,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 			vTemp.tangent.x = assimpMesh->mTangents[i].x;
 			vTemp.tangent.y = assimpMesh->mTangents[i].y;
 			vTemp.tangent.z = assimpMesh->mTangents[i].z;
-			vTemp.tangent.w = 0.0;
+			//vTemp.tangent.w = 0.0;
 		}
 		else
 		{
@@ -195,8 +195,8 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 		{
 			vTemp.uv.x = (float)assimpMesh->mTextureCoords[0][i].x;
 			vTemp.uv.y = (float)assimpMesh->mTextureCoords[0][i].y;
-			vTemp.uv.z = 0.0f;
-			vTemp.uv.w = 0.0f;
+			//vTemp.uv.z = 0.0f;
+			//vTemp.uv.w = 0.0f;
 		}
 		else
 		{

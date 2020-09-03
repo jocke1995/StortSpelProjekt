@@ -115,16 +115,16 @@ namespace component
 			Vertex v[8] = {};
 
 			// Front vertices
-			v[0].pos = { minVertex.x, minVertex.y, minVertex.z, 1.0f};
-			v[1].pos = { minVertex.x, maxVertex.y, minVertex.z, 1.0f };
-			v[2].pos = { maxVertex.x, maxVertex.y, minVertex.z, 1.0f };
-			v[3].pos = { maxVertex.x, minVertex.y, minVertex.z, 1.0f };
+			v[0].pos = { minVertex.x, minVertex.y, minVertex.z };
+			v[1].pos = { minVertex.x, maxVertex.y, minVertex.z };
+			v[2].pos = { maxVertex.x, maxVertex.y, minVertex.z };
+			v[3].pos = { maxVertex.x, minVertex.y, minVertex.z };
 
 			// Back vertices
-			v[4].pos = { minVertex.x, minVertex.y, maxVertex.z, 1.0f };
-			v[5].pos = { minVertex.x, maxVertex.y, maxVertex.z, 1.0f };
-			v[6].pos = { maxVertex.x, maxVertex.y, maxVertex.z, 1.0f };
-			v[7].pos = { maxVertex.x, minVertex.y, maxVertex.z, 1.0f };
+			v[4].pos = { minVertex.x, minVertex.y, maxVertex.z };
+			v[5].pos = { minVertex.x, maxVertex.y, maxVertex.z };
+			v[6].pos = { maxVertex.x, maxVertex.y, maxVertex.z };
+			v[7].pos = { maxVertex.x, minVertex.y, maxVertex.z };
 
 			for (unsigned int i = 0; i < 8; i++)
 			{
