@@ -1,11 +1,40 @@
 #include <gtest/gtest.h>
 #include <crtdbg.h>
 #include "Memory/FreeList.h"
+#include "Memory/StackAllocator.h"
+
 int main(int argc, char** argv)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
+}
+
+TEST(STACKALLOCATORTEST, ALLOCATE)
+{
+	void* start = malloc(500);
+
+	StackAllocator sa(start, (static_cast<char*>(start) + 500));
+	void* testVar = sa.Allocate(255);
+
+	EXPECT_NE(testVar, nullptr);
+
+	free(start);
+}
+
+TEST(STACKALLOCATORTEST, FREE)
+{
+	void* start = malloc(1000);
+
+	StackAllocator sa(start, (static_cast<char*>(start) + 1000));
+	void* testVar1 = sa.Allocate(255);
+	void* testVar2 = sa.Allocate(255);
+
+	sa.Free(testVar2);
+
+	EXPECT_EQ(sa.Allocate(0), testVar2);
+
+	free(start);
 }
 
 TEST(INITTEST, ZEROISZERO)
