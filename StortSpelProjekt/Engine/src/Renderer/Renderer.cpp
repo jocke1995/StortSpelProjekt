@@ -913,75 +913,6 @@ void Renderer::waitForFrame(unsigned int framesToBeAhead)
 	}
 }
 
-void Renderer::prepareCBPerScene()
-{
-	// ----- directional lights -----
-	m_pCbPerSceneData->Num_Dir_Lights = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
-	unsigned int index = 0;
-	for (auto& tuple : m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT])
-	{
-		m_pCbPerSceneData->dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
-		index++;
-	}
-	// ----- directional m_lights -----
-
-	// ----- point lights -----
-	m_pCbPerSceneData->Num_Point_Lights = m_Lights[LIGHT_TYPE::POINT_LIGHT].size();
-	index = 0;
-	for (auto& tuple : m_Lights[LIGHT_TYPE::POINT_LIGHT])
-	{
-		m_pCbPerSceneData->pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
-		index++;
-	}
-	// ----- point m_lights -----
-
-	// ----- spot lights -----
-	m_pCbPerSceneData->Num_Spot_Lights = m_Lights[LIGHT_TYPE::SPOT_LIGHT].size();
-	index = 0;
-	for (auto& tuple : m_Lights[LIGHT_TYPE::SPOT_LIGHT])
-	{
-		m_pCbPerSceneData->spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
-		index++;
-	}
-	// ----- spot m_lights -----
-
-	// Upload CB_PER_SCENE to defaultheap
-	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-	const void* data = static_cast<const void*>(m_pCbPerSceneData);
-	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetCBVResource(), data));
-}
-
-void Renderer::prepareCBPerFrame()
-{
-	CopyPerFrameTask* cpft = nullptr;
-	const void* data = nullptr;
-	ConstantBufferView* cbv = nullptr;
-
-	// Lights
-	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
-	{
-		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
-		for (auto& tuple : m_Lights[type])
-		{
-			data = std::get<0>(tuple)->GetLightData();
-			cbv = std::get<1>(tuple);
-
-			cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-			cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetCBVResource(), data));
-		}
-	}
-
-	// Materials are submitted in the copyPerFrameTask inside EditScene.
-	// This was done so that a new entity (added during runetime) also would be added to the list.
-
-	// CB_PER_FRAME_STRUCT
-	if (cpft != nullptr)
-	{
-		data = static_cast<void*>(m_pCbPerFrameData);
-		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetCBVResource(), data));
-	}
-}
-
 void Renderer::waitForCopyOnDemand()
 {
 	//Signal and increment the fence value.
@@ -1321,3 +1252,98 @@ void Renderer::addComponents(Entity* entity)
 		}
 	}
 }
+
+void Renderer::prepareScene(Scene* scene)
+{
+	prepareCBPerFrame();
+	prepareCBPerScene();
+
+	// -------------------- DEBUG STUFF --------------------
+	// Test to change m_pCamera to the shadow casting m_lights cameras
+	//auto& tuple = m_pRenderer->m_lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
+	//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
+	//m_pRenderer->ScenePrimaryCamera = tempCam;
+	if (m_pScenePrimaryCamera == nullptr)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scene: %s\n", scene->GetName());
+
+		// Todo: Set default m_pCamera
+	}
+
+	m_pMousePicker->SetPrimaryCamera(m_pScenePrimaryCamera);
+	scene->SetPrimaryCamera(m_pScenePrimaryCamera);
+	setRenderTasksRenderComponents();
+	setRenderTasksPrimaryCamera();
+
+	m_pCurrActiveScene = scene;
+}
+
+void Renderer::prepareCBPerScene()
+{
+	// ----- directional lights -----
+	m_pCbPerSceneData->Num_Dir_Lights = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
+	unsigned int index = 0;
+	for (auto& tuple : m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT])
+	{
+		m_pCbPerSceneData->dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		index++;
+	}
+	// ----- directional m_lights -----
+
+	// ----- point lights -----
+	m_pCbPerSceneData->Num_Point_Lights = m_Lights[LIGHT_TYPE::POINT_LIGHT].size();
+	index = 0;
+	for (auto& tuple : m_Lights[LIGHT_TYPE::POINT_LIGHT])
+	{
+		m_pCbPerSceneData->pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		index++;
+	}
+	// ----- point m_lights -----
+
+	// ----- spot lights -----
+	m_pCbPerSceneData->Num_Spot_Lights = m_Lights[LIGHT_TYPE::SPOT_LIGHT].size();
+	index = 0;
+	for (auto& tuple : m_Lights[LIGHT_TYPE::SPOT_LIGHT])
+	{
+		m_pCbPerSceneData->spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		index++;
+	}
+	// ----- spot m_lights -----
+
+	// Upload CB_PER_SCENE to defaultheap
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+	const void* data = static_cast<const void*>(m_pCbPerSceneData);
+	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetCBVResource(), data));
+}
+
+void Renderer::prepareCBPerFrame()
+{
+	CopyPerFrameTask* cpft = nullptr;
+	const void* data = nullptr;
+	ConstantBufferView* cbv = nullptr;
+
+	// Lights
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		for (auto& tuple : m_Lights[type])
+		{
+			data = std::get<0>(tuple)->GetLightData();
+			cbv = std::get<1>(tuple);
+
+			cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+			cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetCBVResource(), data));
+		}
+	}
+
+	// Materials are submitted in the copyPerFrameTask inside EditScene.
+	// This was done so that a new entity (added during runetime) also would be added to the list.
+
+	// CB_PER_FRAME_STRUCT
+	if (cpft != nullptr)
+	{
+		data = static_cast<void*>(m_pCbPerFrameData);
+		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetCBVResource(), data));
+	}
+}
+

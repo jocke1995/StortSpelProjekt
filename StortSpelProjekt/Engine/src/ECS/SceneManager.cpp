@@ -104,7 +104,7 @@ void SceneManager::SetSceneToDraw(Scene* scene)
 	std::map<std::string, Entity*> entities = *scene->GetEntities();
 	for (auto const& [entityName, entity] : entities)
 	{
-		// Add renderer component
+		// Add renderer component returns 0
 		m_pRenderer->addComponents(entity);
 
 		// Add sound component
@@ -112,29 +112,10 @@ void SceneManager::SetSceneToDraw(Scene* scene)
 		// Add game component
 
 		// Add physic component
+
 	}
-
-	m_pRenderer->prepareCBPerFrame();
-	m_pRenderer->prepareCBPerScene();
-
-	// -------------------- DEBUG STUFF --------------------
-	// Test to change m_pCamera to the shadow casting m_lights cameras
-	//auto& tuple = m_pRenderer->m_lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
-	//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
-	//m_pRenderer->ScenePrimaryCamera = tempCam;
-	if (m_pRenderer->m_pScenePrimaryCamera == nullptr)
-	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scene: %s\n", scene->GetName());
-
-		// Todo: Set default m_pCamera
-	}
-
-	m_pRenderer->m_pMousePicker->SetPrimaryCamera(m_pRenderer->m_pScenePrimaryCamera);
-	scene->SetPrimaryCamera(m_pRenderer->m_pScenePrimaryCamera);
-	m_pRenderer->setRenderTasksRenderComponents();
-	m_pRenderer->setRenderTasksPrimaryCamera();
-
-	m_pRenderer->m_pCurrActiveScene = scene;
+	
+	m_pRenderer->prepareScene(scene);
 
 	executeCopyOnDemand();
 	return;
@@ -153,12 +134,6 @@ bool SceneManager::sceneExists(std::string sceneName) const
     }
 
     return false;
-}
-
-// Handle and structure of the m_Components in the scene
-void SceneManager::handleSceneComponents(Scene* scene)
-{
-
 }
 
 void SceneManager::executeCopyOnDemand()
