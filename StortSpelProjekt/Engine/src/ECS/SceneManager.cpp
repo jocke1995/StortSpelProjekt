@@ -155,6 +155,7 @@ void SceneManager::resetScene()
 	}
 	m_pRenderer->m_pViewPool->ClearAll();
 	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
+	static_cast<ShadowRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
 	m_pRenderer->m_pScenePrimaryCamera = nullptr;
 	m_pRenderer->m_pWireFrameTask->Clear();
 	m_pRenderer->m_BoundingBoxesToBePicked.clear();

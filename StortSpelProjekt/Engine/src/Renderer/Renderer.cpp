@@ -999,6 +999,8 @@ void Renderer::removeComponents(Entity* entity)
 				cpft->ClearSpecific(cbv->GetUploadResource());
 
 				// Finally remove from m_pRenderer
+				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
+				srt->ClearSpecificLight(std::get<0>(tuple));
 				m_Lights[type].erase(m_Lights[type].begin() + j);
 
 				// Update cbPerScene

@@ -8,7 +8,7 @@
 
 Light::Light(CAMERA_TYPE camType, unsigned int lightFlags)
 {
-	//#include "stdafx.h"m_CameraType = m_CamType;
+	m_Id = s_LightIdCounter++;
 
 	m_LightFlags = lightFlags;
 
@@ -25,6 +25,11 @@ Light::~Light()
 	delete m_pBaseLight;
 
 	delete m_pCamera;
+}
+
+bool Light::operator==(const Light& other)
+{
+	return m_Id == other.m_Id;
 }
 
 void Light::SetColor(COLOR_TYPE type, float4 color)

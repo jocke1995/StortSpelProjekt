@@ -158,8 +158,10 @@ private:
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetSceneToDraw
 	void waitForCopyOnDemand();
 
+	// Manage components
 	void removeComponents(Entity* entity);
 	void addComponents(Entity* entity);
+
 	// Setup the whole scene
 	void prepareScene(Scene* scene);
 	// Setup Per-scene data and send to GPU

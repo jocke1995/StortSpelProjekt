@@ -33,6 +33,24 @@ void ShadowRenderTask::AddShadowCastingLight(std::pair<Light*, ShadowInfo*> ligh
 	m_lights.push_back(light);
 }
 
+void ShadowRenderTask::ClearSpecificLight(Light* light)
+{
+	unsigned int i = 0;
+	for (auto& pair : m_lights)
+	{
+		if (pair.first == light)
+		{
+			m_lights.erase(m_lights.begin() + i);
+		}
+		i++;
+	}
+}
+
+void ShadowRenderTask::Clear()
+{
+	m_lights.clear();
+}
+
 void ShadowRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);

@@ -21,11 +21,15 @@ enum FLAG_LIGHT
 	// etc..
 };
 
+static unsigned int s_LightIdCounter = 0;
+
 class Light
 {
 public:
 	Light(CAMERA_TYPE camType, unsigned int lightFlags = 0);
 	virtual ~Light();
+
+	bool operator== (const Light& other);
 
 	virtual void Update(double dt) = 0;
 
@@ -39,6 +43,7 @@ public:
 protected:
 	BaseLight* m_pBaseLight = nullptr;
 	unsigned int m_LightFlags = 0;
+	unsigned int m_Id = 0;
 
 	BaseCamera* m_pCamera = nullptr;
 	CAMERA_TYPE m_CameraType;
