@@ -4,16 +4,16 @@ struct VS_OUT
 {
 	float4 pos      : SV_Position;
 	float4 worldPos : WPos;
-	float4 uv       : UV;
+	float2 uv       : UV;
 	float3x3 tbn	: TBN;
 };
 
 struct vertex
 {
-	float4 pos;
-	float4 uv;
-	float4 norm;
-	float4 tang;
+	float3 pos;
+	float2 uv;
+	float3 norm;
+	float3 tang;
 };
 
 ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
@@ -30,11 +30,11 @@ VS_OUT VS_main(uint vID : SV_VertexID)
 	output.pos = mul(vertexPosition, cbPerObject.WVP);
 	output.worldPos = mul(vertexPosition, cbPerObject.worldMatrix);
 
-	output.uv = float4(v.uv);
+	output.uv = float2(v.uv.x, v.uv.y);
 	
 	// Create TBN-Matrix
-	float3 T = normalize(mul(float4(v.tang), cbPerObject.worldMatrix)).xyz;
-	float3 N = normalize(mul(float4(v.norm), cbPerObject.worldMatrix)).xyz;
+	float3 T = normalize(mul(float4(v.tang, 0.0f), cbPerObject.worldMatrix)).xyz;
+	float3 N = normalize(mul(float4(v.norm, 0.0f), cbPerObject.worldMatrix)).xyz;
 
 	// Gram schmidt
 	T = normalize(T - dot(T, N) * N);

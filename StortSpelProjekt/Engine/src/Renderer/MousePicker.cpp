@@ -50,7 +50,7 @@ bool MousePicker::Pick(component::BoundingBoxComponent* bbc, float& distance)
 		DirectX::XMVECTOR tri1V3 = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 
 		// For each vertex in the triangle
-		DirectX::XMFLOAT4 v1, v2, v3;
+		DirectX::XMFLOAT3 v1, v2, v3;
 
 		// Get triangle 
 		v1 = vertices[indices[(i * 3) + 0]].pos;
