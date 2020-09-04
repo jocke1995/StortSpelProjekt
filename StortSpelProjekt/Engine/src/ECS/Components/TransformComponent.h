@@ -1,8 +1,8 @@
 #ifndef TRANSFORMCOMPONENT_H
 #define TRANSFORMCOMPONENT_H
 
-#include "../../Renderer/Transform.h"
 #include "Component.h"
+class Transform;
 
 namespace component
 {
@@ -16,7 +16,7 @@ namespace component
 
         Transform* GetTransform() const;
     private:
-        Transform* transform = nullptr;
+        Transform* m_pTransform = nullptr;
     };
 }
 

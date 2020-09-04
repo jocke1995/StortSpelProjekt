@@ -1,9 +1,8 @@
 #ifndef MESHCOMPONENT_H
 #define MESHCOMPONENT_H
 
-#include "../../Renderer/Mesh.h"
 #include "Component.h"
-
+class Mesh;
 namespace component
 {
     class MeshComponent : public Component
@@ -25,12 +24,12 @@ namespace component
         bool IsPickedThisFrame() const;
 
     private:
-        // The boundingBox will update the "isPickedThisFrame"
+        // The boundingBox will update the "m_IsPickedThisFrame"
         friend class BoundingBoxComponent;
-        bool isPickedThisFrame = false;
+        bool m_IsPickedThisFrame = false;
 
-        std::vector<Mesh*> meshes;
-        unsigned int drawFlag = 0;
+        std::vector<Mesh*> m_Meshes;
+        unsigned int m_DrawFlag = 0;
     };
 }
 #endif

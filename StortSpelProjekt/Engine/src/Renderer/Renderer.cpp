@@ -1,196 +1,179 @@
 #include "stdafx.h"
 #include "Renderer.h"
 
+// Misc
+#include "../Misc/ThreadPool.h"
+#include "../Misc/AssetLoader.h"
+#include "../Misc/Thread.h"
+// ECS
+#include "../ECS/Scene.h"
+#include "../ECS/Entity.h"
+
+// Renderer-Engine 
+#include "RootSignature.h"
+#include "SwapChain.h"
+#include "DepthStencilView.h"
+#include "ConstantBufferView.h"
+#include "MousePicker.h"
+#include "ViewPool.h"
+#include "BoundingBoxPool.h"
+#include "CommandInterface.h"
+#include "DescriptorHeap.h"
+#include "Transform.h"
+#include "BaseCamera.h"
+#include "Mesh.h"
+#include "Material.h"
+#include "Texture.h"
+#include "ShadowInfo.h"
+#include "ShaderResourceView.h"
+
+// Graphics
+#include "DX12Tasks/WireframeRenderTask.h"
+#include "DX12Tasks/OutliningRenderTask.h"
+#include "DX12Tasks/ForwardRenderTask.h"
+#include "DX12Tasks/BlendRenderTask.h"
+#include "DX12Tasks/ShadowRenderTask.h"
+
+// Copy 
+#include "DX12Tasks/CopyPerFrameTask.h"
+#include "DX12Tasks/CopyOnDemandTask.h"
+
+// Compute
+#include "DX12Tasks/ComputeTask.h"
+
 Renderer::Renderer()
 {
-	this->renderTasks.resize(RENDER_TASK_TYPE::NR_OF_RENDERTASKS);
-	this->copyTasks.resize(COPY_TASK_TYPE::NR_OF_COPYTASKS);
-	this->computeTasks.resize(COMPUTE_TASK_TYPE::NR_OF_COMPUTETASKS);
+	m_RenderTasks.resize(RENDER_TASK_TYPE::NR_OF_RENDERTASKS);
+	m_CopyTasks.resize(COPY_TASK_TYPE::NR_OF_COPYTASKS);
+	m_ComputeTasks.resize(COMPUTE_TASK_TYPE::NR_OF_COMPUTETASKS);
 }
 
 Renderer::~Renderer()
 {
 	Log::Print("----------------------------  Deleting Renderer  ----------------------------------\n");
-	this->WaitForFrame(0);
+	waitForFrame(0);
 
-	SAFE_RELEASE(&this->fenceFrame);
-	if (!CloseHandle(this->eventHandle))
+	SAFE_RELEASE(&m_pFenceFrame);
+	if (!CloseHandle(m_EventHandle))
 	{
 		Log::Print("Failed To Close Handle... ErrorCode: %d\n", GetLastError());
 	}
 
-	SAFE_RELEASE(&this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
-	SAFE_RELEASE(&this->commandQueues[COMMAND_INTERFACE_TYPE::COMPUTE_TYPE]);
-	SAFE_RELEASE(&this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]);
+	SAFE_RELEASE(&m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
+	SAFE_RELEASE(&m_CommandQueues[COMMAND_INTERFACE_TYPE::COMPUTE_TYPE]);
+	SAFE_RELEASE(&m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]);
 
-	delete this->rootSignature;
-	delete this->swapChain;
-	delete this->mainDSV;
+	delete m_pRootSignature;
+	delete m_pSwapChain;
+	delete m_pMainDSV;
 
-	for (auto& pair : this->descriptorHeaps)
+	for (auto& pair : m_DescriptorHeaps)
 	{
 		delete pair.second;
 	}
 
-	for (ComputeTask* computeTask : this->computeTasks)
+	for (ComputeTask* computeTask : m_ComputeTasks)
 		delete computeTask;
 
-	for (CopyTask* copyTask : this->copyTasks)
+	for (CopyTask* copyTask : m_CopyTasks)
 		delete copyTask;
 
-	for (RenderTask* renderTask : this->renderTasks)
+	for (RenderTask* renderTask : m_RenderTasks)
 		delete renderTask;
 
-	delete this->wireFrameTask;
-	delete this->outliningRenderTask;
+	delete m_pWireFrameTask;
+	delete m_pOutliningRenderTask;
 
-	SAFE_RELEASE(&this->device5);
+	SAFE_RELEASE(&m_pDevice5);
 
-	delete this->mousePicker;
+	delete m_pMousePicker;
 
-	delete this->viewPool;
-	delete this->cbPerScene;
-	delete this->cbPerFrame;
-	delete this->cbPerFrameData;
-
-	// temp
-	delete this->tempCommandInterface;
+	delete m_pViewPool;
+	delete m_pCbPerScene;
+	delete m_pCbPerSceneData;
+	delete m_pCbPerFrame;
+	delete m_pCbPerFrameData;
 }
 
 void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool)
 {
-	this->threadPool = threadPool;
+	m_pThreadPool = threadPool;
 
 	// Create Device
-	if (!this->CreateDevice())
+	if (!createDevice())
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to Create Device\n");
 	}
 
 	// Create CommandQueues (copy, compute and direct)
-	this->CreateCommandQueues();
+	createCommandQueues();
 
 	// Create DescriptorHeaps
-	this->CreateDescriptorHeaps();
+	createDescriptorHeaps();
 
 	// Fence for WaitForFrame();
-	this->CreateFences();
+	createFences();
 
 	// Create SwapChain
-	this->CreateSwapChain(hwnd);
+	createSwapChain(hwnd);
 
 	// Create Main DepthBuffer
-	this->CreateMainDSV(hwnd);
+	createMainDSV(hwnd);
 
 	// Picking
-	this->mousePicker = new MousePicker();
+	m_pMousePicker = new MousePicker();
 	
 	// Create Rootsignature
-	this->CreateRootSignature();
+	createRootSignature();
 
 	// Init Assetloader
-	AssetLoader::Get(this->device5, this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 
 	// Init BoundingBoxPool
-	BoundingBoxPool::Get(this->device5, this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	BoundingBoxPool::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 	
 	// Pool to handle GPU memory for the lights
-	this->viewPool = new ViewPool(
-		this->device5,
-		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
-		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
-		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
+	m_pViewPool = new ViewPool(
+		m_pDevice5,
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
 
 	// Allocate memory for cbPerScene
-	this->cbPerScene = new ConstantBufferView(
-		this->device5, 
+	m_pCbPerScene = new ConstantBufferView(
+		m_pDevice5, 
 		sizeof(CB_PER_SCENE_STRUCT),
 		L"CB_PER_SCENE_DEFAULT",
-		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
-		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
 		);
+	
+	m_pCbPerSceneData = new CB_PER_SCENE_STRUCT();
 
 	// Allocate memory for cbPerFrame
-	this->cbPerFrame = new ConstantBufferView(
-		this->device5,
+	m_pCbPerFrame = new ConstantBufferView(
+		m_pDevice5,
 		sizeof(CB_PER_FRAME_STRUCT),
 		L"CB_PER_FRAME_DEFAULT",
-		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
-		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
 	);
 
-	this->cbPerFrameData = new CB_PER_FRAME_STRUCT();
+	m_pCbPerFrameData = new CB_PER_FRAME_STRUCT();
 
-	this->InitRenderTasks();
-
-	// temp, used to transmit textures/meshes to the default memory on GPU when loaded
-	this->tempCommandInterface = new CommandInterface(this->device5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE);
-}
-
-std::vector<Mesh*>* Renderer::LoadModel(std::wstring path)
-{
-	bool loadedBefore = false;
-	std::vector<Mesh*>* meshes = AssetLoader::Get()->LoadModel(path, &loadedBefore);
-
-	// ------------------------------ TEMPORARY CODE ------------------------------ 
-	// Only Upload to default heaps if its the first time its loaded
-	if (!loadedBefore)
-	{
-		for (Mesh* mesh : *meshes)
-		{
-			// Upload to Default heap
-			mesh->UploadToDefault(
-				this->device5,
-				this->tempCommandInterface,
-				this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
-			this->WaitForGpu();
-
-			// Wont upload data if its already up.. TEMPORARY safecheck inside the texture class
-			for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
-			{
-				TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-				Texture* texture = mesh->GetMaterial()->GetTexture(type);
-				texture->UploadToDefault(
-					this->device5,
-					this->tempCommandInterface,
-					this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
-				this->WaitForGpu();
-			}
-		}
-	}
-	return meshes;
-}
-
-Texture* Renderer::LoadTexture(std::wstring path)
-{
-	Texture* texture = AssetLoader::Get()->LoadTexture(path);
-
-	if (texture == nullptr)
-	{
-		return nullptr;
-	}
-
-	// ------------------------------ TEMPORARY CODE ------------------------------ 
-	// Wont upload data if its already up.. TEMPORARY safecheck inside the texture class
-	texture->UploadToDefault(
-		this->device5,
-		this->tempCommandInterface,
-		this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]);
-	this->WaitForGpu();
-
-	return texture;
+	initRenderTasks();
 }
 
 void Renderer::Update(double dt)
 {
 	// Update CB_PER_FRAME data
-	this->cbPerFrameData->camPos = this->ScenePrimaryCamera->GetPositionFloat3();
+	m_pCbPerFrameData->camPos = m_pScenePrimaryCamera->GetPositionFloat3();
 
 	// Picking
-	this->UpdateMousePicker();
+	updateMousePicker();
 	
 	// Update scene
-	this->currActiveScene->UpdateScene(dt);
+	m_pCurrActiveScene->UpdateScene(dt);
 }
 
 void Renderer::SortObjectsByDistance()
@@ -202,24 +185,24 @@ void Renderer::SortObjectsByDistance()
 		component::TransformComponent* tc;
 	};
 
-	int numRenderComponents = this->renderComponents.size();
+	int numRenderComponents = m_RenderComponents.size();
 
 	DistFromCamera* distFromCamArr = new DistFromCamera[numRenderComponents];
 
 	// Get all the distances of each objects and store them by ID and distance
-	XMFLOAT3 camPos = this->ScenePrimaryCamera->GetPosition();
+	DirectX::XMFLOAT3 camPos = m_pScenePrimaryCamera->GetPosition();
 	for (int i = 0; i < numRenderComponents; i++)
 	{
-		XMFLOAT3 objectPos = this->renderComponents.at(i).second->GetTransform()->GetPositionXMFLOAT3();
+		DirectX::XMFLOAT3 objectPos = m_RenderComponents.at(i).second->GetTransform()->GetPositionXMFLOAT3();
 
 		double distance = sqrt(	pow(camPos.x - objectPos.x, 2) +
 								pow(camPos.y - objectPos.y, 2) +
 								pow(camPos.z - objectPos.z, 2));
 
-		// Save the object alongside its distance to the camera
+		// Save the object alongside its distance to the m_pCamera
 		distFromCamArr[i].distance = distance;
-		distFromCamArr[i].mc = this->renderComponents.at(i).first;
-		distFromCamArr[i].tc = this->renderComponents.at(i).second;
+		distFromCamArr[i].mc = m_RenderComponents.at(i).first;
+		distFromCamArr[i].tc = m_RenderComponents.at(i).second;
 	}
 
 	// InsertionSort (because its best case is O(N)), 
@@ -240,80 +223,79 @@ void Renderer::SortObjectsByDistance()
 	}
 
 	// Fill the vector with sorted array
-	this->renderComponents.clear();
+	m_RenderComponents.clear();
 	for (int i = 0; i < numRenderComponents; i++)
 	{
-		this->renderComponents.push_back(std::make_pair(distFromCamArr[i].mc, distFromCamArr[i].tc));
+		m_RenderComponents.push_back(std::make_pair(distFromCamArr[i].mc, distFromCamArr[i].tc));
 	}
 
 	// Free memory
 	delete distFromCamArr;
 
 	// Update the entity-arrays inside the rendertasks
-	this->SetRenderTasksRenderComponents();
+	setRenderTasksRenderComponents();
 }
 
 void Renderer::Execute()
 {
-	IDXGISwapChain4* dx12SwapChain = this->swapChain->GetDX12SwapChain();
+	IDXGISwapChain4* dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
-	int commandInterfaceIndex = this->frameCounter++ % 2;
+	int commandInterfaceIndex = m_FrameCounter++ % 2;
 
 	/* --------------------- Record copy command lists --------------------- */
 	// Copy per frame
-	CopyTask* ct = this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
+	CopyTask* ct = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
 	ct->SetCommandInterfaceIndex(commandInterfaceIndex);
-	//this->threadpool->AddTask(ct, THREAD_FLAG::COPY_DATA);
+	//threadpool->AddTask(ct, THREAD_FLAG::COPY_DATA);
 	ct->Execute();
-	//this->threadpool->WaitForThreads(THREAD_FLAG::COPY_DATA);
+	//threadpool->WaitForThreads(THREAD_FLAG::COPY_DATA);
 
 
 	/* --------------------- Execute copy command lists --------------------- */
 	// Copy per frame
-	unsigned int a = this->copyCommandLists[commandInterfaceIndex].size();
-	this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(
-		this->copyCommandLists[commandInterfaceIndex].size(),
-		this->copyCommandLists[commandInterfaceIndex].data());
-	UINT64 copyFenceValue = ++this->fenceFrameValue;
-	this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(this->fenceFrame, copyFenceValue);
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(
+		1,
+		&m_CopyPerFrameCmdList[commandInterfaceIndex]);
+	UINT64 copyFenceValue = ++m_FenceFrameValue;
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(m_pFenceFrame, copyFenceValue);
 
 	/* --------------------- Record direct commandlists --------------------- */
-	for (RenderTask* renderTask : this->renderTasks)
+	for (RenderTask* renderTask : m_RenderTasks)
 	{
 		renderTask->SetBackBufferIndex(backBufferIndex);
 		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		this->threadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+		m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 		//renderTask->Execute();	// NON-MULTITHREADED-VERSION 
 	}
 
 	// Outlining, if an object is picked
-	this->outliningRenderTask->SetBackBufferIndex(backBufferIndex);
-	this->outliningRenderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	this->threadPool->AddTask(this->outliningRenderTask, FLAG_THREAD::RENDER);
+	m_pOutliningRenderTask->SetBackBufferIndex(backBufferIndex);
+	m_pOutliningRenderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_pOutliningRenderTask, FLAG_THREAD::RENDER);
 	
 	if (DRAWBOUNDINGBOX == true)
 	{
-		this->wireFrameTask->SetBackBufferIndex(backBufferIndex);
-		this->wireFrameTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		this->threadPool->AddTask(this->wireFrameTask, FLAG_THREAD::RENDER);
+		m_pWireFrameTask->SetBackBufferIndex(backBufferIndex);
+		m_pWireFrameTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+		m_pThreadPool->AddTask(m_pWireFrameTask, FLAG_THREAD::RENDER);
 	}
 	
 	// Wait for the threads which records the commandlists to complete
-	this->threadPool->WaitForThreads(FLAG_THREAD::RENDER | FLAG_THREAD::ALL);
-	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Wait(this->fenceFrame, copyFenceValue);
+	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER | FLAG_THREAD::ALL);
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Wait(m_pFenceFrame, copyFenceValue);
 
-	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
-		this->directCommandLists[commandInterfaceIndex].size(), 
-		this->directCommandLists[commandInterfaceIndex].data());
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(), 
+		m_DirectCommandLists[commandInterfaceIndex].data());
 
 	/* --------------------------------------------------------------- */
 
 	// Wait if the CPU is to far ahead of the gpu
-	this->fenceFrameValue++;
+	m_FenceFrameValue++;
 
-	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(this->fenceFrame, this->fenceFrameValue);
-	this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Wait(this->fenceFrame, this->fenceFrameValue);
-	WaitForFrame();
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Wait(m_pFenceFrame, m_FenceFrameValue);
+	waitForFrame();
 
 	HRESULT hr = dx12SwapChain->Present(0, 0);
 	
@@ -327,30 +309,30 @@ void Renderer::Execute()
 
 Entity* const Renderer::GetPickedEntity() const
 {
-	return this->pickedEntity;
+	return m_pPickedEntity;
 }
 
 Scene* const Renderer::GetActiveScene() const
 {
-	return this->currActiveScene;
+	return m_pCurrActiveScene;
 }
 
-void Renderer::SetRenderTasksPrimaryCamera()
+void Renderer::setRenderTasksPrimaryCamera()
 {
-	for (RenderTask* renderTask : this->renderTasks)
+	for (RenderTask* renderTask : m_RenderTasks)
 	{
-		renderTask->SetCamera(this->ScenePrimaryCamera);
+		renderTask->SetCamera(m_pScenePrimaryCamera);
 	}
 
-	this->outliningRenderTask->SetCamera(this->ScenePrimaryCamera);
+	m_pOutliningRenderTask->SetCamera(m_pScenePrimaryCamera);
 
 	if (DRAWBOUNDINGBOX == true)
 	{
-		this->wireFrameTask->SetCamera(this->ScenePrimaryCamera);
+		m_pWireFrameTask->SetCamera(m_pScenePrimaryCamera);
 	}
 }
 
-bool Renderer::CreateDevice()
+bool Renderer::createDevice()
 {
 	bool deviceCreated = false;
 
@@ -389,7 +371,7 @@ bool Renderer::CreateDevice()
 			break; // No more adapters
 		}
 	
-		// Check to see if the adapter supports Direct3D 12, but don't create the actual device yet.
+		// Check to see if the adapter supports Direct3D 12, but don't create the actual m_pDevice yet.
 		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, __uuidof(ID3D12Device5), nullptr)))
 		{
 			break;
@@ -402,7 +384,7 @@ bool Renderer::CreateDevice()
 	{
 		HRESULT hr = S_OK;
 		//Create the actual device.
-		if (SUCCEEDED(hr = D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&device5))))
+		if (SUCCEEDED(hr = D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&m_pDevice5))))
 		{
 			deviceCreated = true;
 		}
@@ -415,9 +397,9 @@ bool Renderer::CreateDevice()
 	}
 	else
 	{
-		//Create warp device if no adapter was found.
+		//Create warp m_pDevice if no adapter was found.
 		factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
-		D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device5));
+		D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pDevice5));
 	}
 	
 	SAFE_RELEASE(&factory);
@@ -425,41 +407,41 @@ bool Renderer::CreateDevice()
 	return deviceCreated;
 }
 
-void Renderer::CreateCommandQueues()
+void Renderer::createCommandQueues()
 {
 	// Direct
 	D3D12_COMMAND_QUEUE_DESC cqdDirect = {};
 	cqdDirect.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	HRESULT hr;
-	hr = device5->CreateCommandQueue(&cqdDirect, IID_PPV_ARGS(&this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]));
+	hr = m_pDevice5->CreateCommandQueue(&cqdDirect, IID_PPV_ARGS(&m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]));
 	if (FAILED(hr))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to Create Direct CommandQueue\n");
 	}
-	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->SetName(L"DirectQueue");
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->SetName(L"DirectQueue");
 
 	// Compute
 	D3D12_COMMAND_QUEUE_DESC cqdCompute = {};
 	cqdCompute.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
-	hr = device5->CreateCommandQueue(&cqdCompute, IID_PPV_ARGS(&this->commandQueues[COMMAND_INTERFACE_TYPE::COMPUTE_TYPE]));
+	hr = m_pDevice5->CreateCommandQueue(&cqdCompute, IID_PPV_ARGS(&m_CommandQueues[COMMAND_INTERFACE_TYPE::COMPUTE_TYPE]));
 	if (FAILED(hr))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to Create Compute CommandQueue\n");
 	}
-	this->commandQueues[COMMAND_INTERFACE_TYPE::COMPUTE_TYPE]->SetName(L"ComputeQueue");
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::COMPUTE_TYPE]->SetName(L"ComputeQueue");
 
 	// Copy
 	D3D12_COMMAND_QUEUE_DESC cqdCopy = {};
 	cqdCopy.Type = D3D12_COMMAND_LIST_TYPE_COPY;
-	hr = device5->CreateCommandQueue(&cqdCopy, IID_PPV_ARGS(&this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]));
+	hr = m_pDevice5->CreateCommandQueue(&cqdCopy, IID_PPV_ARGS(&m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]));
 	if (FAILED(hr))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to Create Copy CommandQueue\n");
 	}
-	this->commandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->SetName(L"CopyQueue");
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->SetName(L"CopyQueue");
 }
 
-void Renderer::CreateSwapChain(const HWND *hwnd)
+void Renderer::createSwapChain(const HWND *hwnd)
 {
 	RECT rect;
 	unsigned int width = 0;
@@ -470,15 +452,15 @@ void Renderer::CreateSwapChain(const HWND *hwnd)
 		height = rect.bottom - rect.top;
 	}
 
-	this->swapChain = new SwapChain(
-		device5,
+	m_pSwapChain = new SwapChain(
+		m_pDevice5,
 		hwnd,
 		width, height,
-		this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
-		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV]);
+		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV]);
 }
 
-void Renderer::CreateMainDSV(const HWND* hwnd)
+void Renderer::createMainDSV(const HWND* hwnd)
 {
 	RECT rect;
 	unsigned int width = 0;
@@ -489,34 +471,34 @@ void Renderer::CreateMainDSV(const HWND* hwnd)
 		height = rect.bottom - rect.top;
 	}
 
-	this->mainDSV = new DepthStencilView(
-		this->device5,
+	m_pMainDSV = new DepthStencilView(
+		m_pDevice5,
 		width, height,	// width, height
 		L"MainDSV_DEFAULT_RESOURCE",
-		this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV],
 		DXGI_FORMAT_D32_FLOAT_S8X24_UINT);
 }
 
-void Renderer::CreateRootSignature()
+void Renderer::createRootSignature()
 {
-	this->rootSignature = new RootSignature(this->device5);
+	m_pRootSignature = new RootSignature(m_pDevice5);
 }
 
-void Renderer::UpdateMousePicker()
+void Renderer::updateMousePicker()
 {
-	this->mousePicker->UpdateRay();
+	m_pMousePicker->UpdateRay();
 
 	component::BoundingBoxComponent* pickedBoundingBox = nullptr;
 
 	float tempDist;
 	float closestDist = MAXNUMBER;
 
-	for (component::BoundingBoxComponent* bbc : this->boundingBoxesToBePicked)
+	for (component::BoundingBoxComponent* bbc : m_BoundingBoxesToBePicked)
 	{
-		// Reset picked entities from last frame
+		// Reset picked m_Entities from last frame
 		bbc->IsPickedThisFrame() = false;
 
-		if (this->mousePicker->Pick(bbc, tempDist) == true)
+		if (m_pMousePicker->Pick(bbc, tempDist) == true)
 		{
 			if (tempDist < closestDist)
 			{
@@ -537,19 +519,19 @@ void Renderer::UpdateMousePicker()
 		component::MeshComponent*		mc = parentOfPickedObject->GetComponent<component::MeshComponent>();
 		component::TransformComponent*	tc = parentOfPickedObject->GetComponent<component::TransformComponent>();
 
-		this->outliningRenderTask->SetObjectToOutline(&std::make_pair(mc, tc));
+		m_pOutliningRenderTask->SetObjectToOutline(&std::make_pair(mc, tc));
 
-		this->pickedEntity = parentOfPickedObject;
+		m_pPickedEntity = parentOfPickedObject;
 	}
 	else
 	{
 		// No object was picked, reset the outlingRenderTask
-		this->outliningRenderTask->Clear();
-		this->pickedEntity = nullptr;
+		m_pOutliningRenderTask->Clear();
+		m_pPickedEntity = nullptr;
 	}
 }
 
-void Renderer::InitRenderTasks()
+void Renderer::initRenderTasks()
 {
 #pragma region ForwardRendering
 	/* Forward rendering without stencil testing */
@@ -585,7 +567,7 @@ void Renderer::InitRenderTasks()
 	// DepthStencil
 	dsd.StencilEnable = false;
 	gpsdForwardRender.DepthStencilState = dsd;
-	gpsdForwardRender.DSVFormat = this->mainDSV->GetDXGIFormat();
+	gpsdForwardRender.DSVFormat = m_pMainDSV->GetDXGIFormat();
 
 	/* Forward rendering with stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdForwardRenderStencilTest = gpsdForwardRender;
@@ -615,16 +597,16 @@ void Renderer::InitRenderTasks()
 	gpsdForwardRenderVector.push_back(&gpsdForwardRenderStencilTest);
 
 	RenderTask* forwardRenderTask = new FowardRenderTask(
-		this->device5,
-		this->rootSignature, 
+		m_pDevice5,
+		m_pRootSignature, 
 		L"ForwardVertex.hlsl", L"ForwardPixel.hlsl", 
 		&gpsdForwardRenderVector, 
 		L"ForwardRenderingPSO");
 
-	forwardRenderTask->AddResource("cbPerFrame", this->cbPerFrame->GetCBVResource());
-	forwardRenderTask->AddResource("cbPerScene", this->cbPerScene->GetCBVResource());
-	forwardRenderTask->AddRenderTarget("swapChain", this->swapChain);
-	forwardRenderTask->SetDescriptorHeaps(this->descriptorHeaps);
+	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
+	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
+	forwardRenderTask->AddRenderTarget("swapChain", m_pSwapChain);
+	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	
 
 #pragma endregion ForwardRendering
@@ -651,20 +633,20 @@ void Renderer::InitRenderTasks()
 	dsd.BackFace = stencilNotEqual;
 
 	gpsdModelOutlining.DepthStencilState = dsd;
-	gpsdModelOutlining.DSVFormat = this->mainDSV->GetDXGIFormat();
+	gpsdModelOutlining.DSVFormat = m_pMainDSV->GetDXGIFormat();
 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdOutliningVector;
 	gpsdOutliningVector.push_back(&gpsdModelOutlining);
 
-	this->outliningRenderTask = new OutliningRenderTask(
-		this->device5,
-		this->rootSignature,
+	m_pOutliningRenderTask = new OutliningRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
 		L"OutlinedVertex.hlsl", L"OutlinedPixel.hlsl",
 		&gpsdOutliningVector,
 		L"outliningScaledPSO");
 	
-	outliningRenderTask->AddRenderTarget("swapChain", this->swapChain);
-	outliningRenderTask->SetDescriptorHeaps(this->descriptorHeaps);
+	m_pOutliningRenderTask->AddRenderTarget("swapChain", m_pSwapChain);
+	m_pOutliningRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion ModelOutlining
 #pragma region Blend
@@ -717,7 +699,7 @@ void Renderer::InitRenderTasks()
 	dsdBlend.BackFace = blendStencilOP;
 
 	gpsdBlendFrontCull.DepthStencilState = dsdBlend;
-	gpsdBlendFrontCull.DSVFormat = this->mainDSV->GetDXGIFormat();
+	gpsdBlendFrontCull.DSVFormat = m_pMainDSV->GetDXGIFormat();
 
 	// ------------------------ TASK 2: BLEND ---------------------------- BACKCULL
 
@@ -741,22 +723,22 @@ void Renderer::InitRenderTasks()
 	dsdBlend.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 
 	gpsdBlendBackCull.DepthStencilState = dsdBlend;
-	gpsdBlendBackCull.DSVFormat = this->mainDSV->GetDXGIFormat();
+	gpsdBlendBackCull.DSVFormat = m_pMainDSV->GetDXGIFormat();
 
 	gpsdBlendVector.push_back(&gpsdBlendFrontCull);
 	gpsdBlendVector.push_back(&gpsdBlendBackCull);
 
-	RenderTask* blendRenderTask = new BlendRenderTask(this->device5,
-		this->rootSignature,
+	RenderTask* blendRenderTask = new BlendRenderTask(m_pDevice5,
+		m_pRootSignature,
 		L"BlendVertex.hlsl",
 		L"BlendPixel.hlsl",
 		&gpsdBlendVector,
 		L"BlendPSO");
 
-	blendRenderTask->AddResource("cbPerFrame", this->cbPerFrame->GetCBVResource());
-	blendRenderTask->AddResource("cbPerScene", this->cbPerScene->GetCBVResource());
-	blendRenderTask->AddRenderTarget("swapChain", this->swapChain);
-	blendRenderTask->SetDescriptorHeaps(this->descriptorHeaps);
+	blendRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
+	blendRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
+	blendRenderTask->AddRenderTarget("swapChain", m_pSwapChain);
+	blendRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	
 
 #pragma endregion Blend
@@ -801,13 +783,13 @@ void Renderer::InitRenderTasks()
 	gpsdShadowVector.push_back(&gpsdShadow);
 
 	RenderTask* shadowRenderTask = new ShadowRenderTask(
-		this->device5,
-		this->rootSignature,
+		m_pDevice5,
+		m_pRootSignature,
 		L"ShadowVertex.hlsl", L"ShadowPixel.hlsl",
 		&gpsdShadowVector,
 		L"ShadowPSO");
 
-	shadowRenderTask->SetDescriptorHeaps(this->descriptorHeaps);
+	shadowRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion ShadowPass
 #pragma region WireFrame
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdWireFrame = {};
@@ -832,157 +814,527 @@ void Renderer::InitRenderTasks()
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdWireFrameVector;
 	gpsdWireFrameVector.push_back(&gpsdWireFrame);
 
-	this->wireFrameTask = new WireframeRenderTask(this->device5,
-		this->rootSignature,
+	m_pWireFrameTask = new WireframeRenderTask(m_pDevice5,
+		m_pRootSignature,
 		L"WhiteVertex.hlsl", L"WhitePixel.hlsl",
 		&gpsdWireFrameVector,
 		L"WireFramePSO");
 
-	this->wireFrameTask->AddRenderTarget("swapChain", this->swapChain);
-	this->wireFrameTask->SetDescriptorHeaps(this->descriptorHeaps);
+	m_pWireFrameTask->AddRenderTarget("swapChain", m_pSwapChain);
+	m_pWireFrameTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion WireFrame
 
-	CopyTask* copyPerFrameTask = new CopyPerFrameTask(this->device5);
+	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5);
+	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5);
 
-	// Add the tasks to desired vectors so they can be used in renderer
+	// Add the tasks to desired vectors so they can be used in m_pRenderer
 	/* -------------------------------------------------------------- */
 
 
 	/* ------------------------- CopyQueue Tasks ------------------------ */
 
-	this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME] = copyPerFrameTask;
+	m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME] = copyPerFrameTask;
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND] = copyOnDemandTask;
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-		this->copyCommandLists[i].push_back(copyPerFrameTask->GetCommandList(i));
+		m_CopyPerFrameCmdList[i] = copyPerFrameTask->GetCommandList(i);
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandList(i);
 
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
 
 	// None atm
 
 	/* ------------------------- DirectQueue Tasks ---------------------- */
-	this->renderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
-	this->renderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
-	this->renderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-		this->directCommandLists[i].push_back(shadowRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandList(i));
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-		this->directCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-		this->directCommandLists[i].push_back(this->outliningRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(m_pOutliningRenderTask->GetCommandList(i));
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-		this->directCommandLists[i].push_back(blendRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandList(i));
 
 	if (DRAWBOUNDINGBOX == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			this->directCommandLists[i].push_back(this->wireFrameTask->GetCommandList(i));
+			m_DirectCommandLists[i].push_back(m_pWireFrameTask->GetCommandList(i));
 	}
 }
 
-void Renderer::SetRenderTasksRenderComponents()
+void Renderer::setRenderTasksRenderComponents()
 {
-	for (RenderTask* rendertask : this->renderTasks)
+	for (RenderTask* rendertask : m_RenderTasks)
 	{
-		rendertask->SetRenderComponents(&this->renderComponents);
+		rendertask->SetRenderComponents(&m_RenderComponents);
 	}
 }
 
-void Renderer::CreateDescriptorHeaps()
+void Renderer::createDescriptorHeaps()
 {
-	this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV] = new DescriptorHeap(this->device5, DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV);
-	this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV] = new DescriptorHeap(this->device5, DESCRIPTOR_HEAP_TYPE::RTV);
-	this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV] = new DescriptorHeap(this->device5, DESCRIPTOR_HEAP_TYPE::DSV);
+	m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV] = new DescriptorHeap(m_pDevice5, DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV);
+	m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV] = new DescriptorHeap(m_pDevice5, DESCRIPTOR_HEAP_TYPE::RTV);
+	m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV] = new DescriptorHeap(m_pDevice5, DESCRIPTOR_HEAP_TYPE::DSV);
 }
 
-void Renderer::CreateFences()
+void Renderer::createFences()
 {
-	HRESULT hr = device5->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&this->fenceFrame));
+	HRESULT hr = m_pDevice5->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFenceFrame));
 
 	if (FAILED(hr))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to Create Fence\n");
 	}
-	this->fenceFrameValue = 1;
+	m_FenceFrameValue = 1;
 
 	// Event handle to use for GPU synchronization
-	this->eventHandle = CreateEvent(0, false, false, 0);
+	m_EventHandle = CreateEvent(0, false, false, 0);
 }
 
-void Renderer::WaitForFrame(unsigned int framesToBeAhead)
+void Renderer::waitForFrame(unsigned int framesToBeAhead)
 {
 	static constexpr unsigned int nrOfFenceChangesPerFrame = 2;
 	unsigned int fenceValuesToBeAhead = framesToBeAhead * nrOfFenceChangesPerFrame;
 
 	//Wait if the CPU is "framesToBeAhead" number of frames ahead of the GPU
-	if (this->fenceFrame->GetCompletedValue() < this->fenceFrameValue - fenceValuesToBeAhead)
+	if (m_pFenceFrame->GetCompletedValue() < m_FenceFrameValue - fenceValuesToBeAhead)
 	{
-		this->fenceFrame->SetEventOnCompletion(this->fenceFrameValue - fenceValuesToBeAhead, this->eventHandle);
-		WaitForSingleObject(this->eventHandle, INFINITE);
+		m_pFenceFrame->SetEventOnCompletion(m_FenceFrameValue - fenceValuesToBeAhead, m_EventHandle);
+		WaitForSingleObject(m_EventHandle, INFINITE);
 	}
 }
 
-void Renderer::PrepareCBPerScene()
+void Renderer::waitForCopyOnDemand()
 {
-	CB_PER_SCENE_STRUCT cps = {};
+	//Signal and increment the fence value.
+	const UINT64 oldFenceValue = m_FenceFrameValue;
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(m_pFenceFrame, oldFenceValue);
+	m_FenceFrameValue++;
+
+	//Wait until command queue is done.
+	if (m_pFenceFrame->GetCompletedValue() < oldFenceValue)
+	{
+		m_pFenceFrame->SetEventOnCompletion(oldFenceValue, m_EventHandle);
+		WaitForSingleObject(m_EventHandle, INFINITE);
+	}
+}
+
+void Renderer::removeComponents(Entity* entity)
+{
+	// Check if the entity is a renderComponent
+	for (int i = 0; i < m_RenderComponents.size(); i++)
+	{
+		Entity* parent = m_RenderComponents[i].first->GetParent();
+		if (parent == entity)
+		{
+			m_RenderComponents.erase(m_RenderComponents.begin() + i);
+			setRenderTasksRenderComponents();
+
+			// Remove from CopyPerFrame
+			component::MeshComponent* mc = parent->GetComponent<component::MeshComponent>();
+			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+			{
+				const ConstantBufferView* cbv = mc->GetMesh(i)->GetMaterial()->GetConstantBufferView();
+				CopyPerFrameTask* cpft = nullptr;
+				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+				cpft->ClearSpecific(cbv->GetUploadResource());
+			}
+			break;
+		}
+	}
+
+	// Check if the entity got any light m_Components.
+	// Remove them and update both cpu/gpu m_Resources
+	component::DirectionalLightComponent* dlc;
+	component::PointLightComponent* plc;
+	component::SpotLightComponent* slc;
+
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		unsigned int j = 0;
+
+		for (auto& tuple : m_Lights[type])
+		{
+			Light* light = std::get<0>(tuple);
+			Entity* parent = nullptr;
+
+			// Find m_pParent
+			switch (type)
+			{
+			case LIGHT_TYPE::DIRECTIONAL_LIGHT:
+				dlc = static_cast<component::DirectionalLightComponent*>(light);
+				parent = dlc->GetParent();
+				break;
+			case LIGHT_TYPE::POINT_LIGHT:
+				plc = static_cast<component::PointLightComponent*>(light);
+				parent = plc->GetParent();
+				break;
+			case LIGHT_TYPE::SPOT_LIGHT:
+				slc = static_cast<component::SpotLightComponent*>(light);
+				parent = slc->GetParent();
+				break;
+			}
+
+			// Remove light if it matches the entity
+			if (parent == entity)
+			{
+				// Free memory so other m_Entities can use it
+				ConstantBufferView* cbv = std::get<1>(tuple);
+				ShadowInfo* si = std::get<2>(tuple);
+				m_pViewPool->ClearSpecificLight(type, cbv, si);
+
+				// Remove from CopyPerFrame
+				CopyPerFrameTask* cpft = nullptr;
+				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+				cpft->ClearSpecific(cbv->GetUploadResource());
+
+				// Finally remove from m_pRenderer
+				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
+				srt->ClearSpecificLight(std::get<0>(tuple));
+				m_Lights[type].erase(m_Lights[type].begin() + j);
+
+				// Update cbPerScene
+				prepareCBPerScene();
+				break;
+			}
+			j++;
+		}
+	}
+
+	// Check if the entity got a boundingbox component.
+	component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
+	if (bbc->GetParent() == entity)
+	{
+		// Stop drawing the wireFrame
+		if (DRAWBOUNDINGBOX == true)
+		{
+			m_pWireFrameTask->ClearSpecific(bbc);
+		}
+
+		// Stop picking this boundingBox
+		unsigned int i = 0;
+		for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
+		{
+			if (bbcToBePicked == bbc)
+			{
+				m_BoundingBoxesToBePicked.erase(m_BoundingBoxesToBePicked.begin() + i);
+				break;
+			}
+			i++;
+		}
+	}
+	return;
+}
+
+void Renderer::addComponents(Entity* entity)
+{
+	// Only add the m_Entities that actually should be drawn
+	component::MeshComponent* mc = entity->GetComponent<component::MeshComponent>();
+	if (mc != nullptr)
+	{
+		component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
+		if (tc != nullptr)
+		{
+			Mesh* mesh = mc->GetMesh(0);
+			AssetLoader* al = AssetLoader::Get();
+			std::wstring modelPath = to_wstring(mesh->GetPath());
+			bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
+
+			// If the model isn't on GPU, it will be uploaded below
+			if (isModelOnGpu == false)
+			{
+				al->m_LoadedModels[modelPath].first = true;
+			}
+
+			// Submit Material and Mesh/texture data to GPU if they haven't already been uploaded
+			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+			{
+				mesh = mc->GetMesh(i);
+
+				// Add material cbv
+				ConstantBufferView* cbv = m_pViewPool->GetFreeCBV(sizeof(MaterialAttributes), L"Material" + i);
+				mesh->GetMaterial()->SetCBV(cbv);
+
+				// Submit to the list which gets updated to the gpu each frame
+				CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+				const void* data = static_cast<const void*>(mesh->GetMaterial()->GetMaterialAttributes());
+				cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetCBVResource(), data));
+
+				// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
+				if (isModelOnGpu == false)
+				{
+					CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+
+					// Vertices
+					data = static_cast<const void*>(mesh->m_Vertices.data());
+					Resource* uploadR = mesh->m_pUploadResourceVertices;
+					Resource* defaultR = mesh->m_pDefaultResourceVertices;
+					codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+					// inidices
+					data = static_cast<const void*>(mesh->m_Indices.data());
+					uploadR = mesh->m_pUploadResourceIndices;
+					defaultR = mesh->m_pDefaultResourceIndices;
+					codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+					// Textures
+					for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+					{
+						TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
+						Texture* texture = mesh->GetMaterial()->GetTexture(type);
+
+						// Check if the texture is on GPU before submitting to be uploaded
+						if (al->m_LoadedTextures[texture->m_FilePath].first == false)
+						{
+							codt->SubmitTexture(texture);
+							al->m_LoadedTextures[texture->m_FilePath].first = true;
+						}
+					}
+				}
+			}
+
+			// Finally store the object in m_pRenderer so it will be drawn
+			m_RenderComponents.push_back(std::make_pair(mc, tc));
+		}
+	}
+
+	component::DirectionalLightComponent* dlc = entity->GetComponent<component::DirectionalLightComponent>();
+	if (dlc != nullptr)
+	{
+		// Assign CBV from the lightPool
+		std::wstring resourceName = L"DirectionalLight_DefaultResource";
+		ConstantBufferView* cbd = m_pViewPool->GetFreeCBV(sizeof(DirectionalLight), resourceName);
+
+		// Check if the light is to cast shadows
+		SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
+
+		if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION)
+		{
+			resolution = SHADOW_RESOLUTION::LOW;
+		}
+		else if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION)
+		{
+			resolution = SHADOW_RESOLUTION::MEDIUM;
+		}
+		else if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION)
+		{
+			resolution = SHADOW_RESOLUTION::HIGH;
+		}
+		else if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION)
+		{
+			resolution = SHADOW_RESOLUTION::ULTRA;
+		}
+
+		// Assign views required for shadows from the lightPool
+		ShadowInfo* si = nullptr;
+		if (resolution != SHADOW_RESOLUTION::UNDEFINED)
+		{
+			si = m_pViewPool->GetFreeShadowInfo(LIGHT_TYPE::DIRECTIONAL_LIGHT, resolution);
+			static_cast<DirectionalLight*>(dlc->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
+
+			ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
+			srt->AddShadowCastingLight(std::make_pair(dlc, si));
+		}
+
+		// Save in m_pRenderer
+		m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(dlc, cbd, si));
+	}
+
+	// Currently no shadows are implemented for pointLights
+	component::PointLightComponent* plc = entity->GetComponent<component::PointLightComponent>();
+	if (plc != nullptr)
+	{
+		// Assign CBV from the lightPool
+		std::wstring resourceName = L"PointLight_DefaultResource";
+		ConstantBufferView* cbd = m_pViewPool->GetFreeCBV(sizeof(PointLight), resourceName);
+
+		// Assign views required for shadows from the lightPool
+		ShadowInfo* si = nullptr;
+
+		// Save in m_pRenderer
+		m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(plc, cbd, si));
+	}
+
+	component::SpotLightComponent* slc = entity->GetComponent<component::SpotLightComponent>();
+	if (slc != nullptr)
+	{
+		// Assign CBV from the lightPool
+		std::wstring resourceName = L"SpotLight_DefaultResource";
+		ConstantBufferView* cbd = m_pViewPool->GetFreeCBV(sizeof(SpotLight), resourceName);
+
+		// Check if the light is to cast shadows
+		SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
+
+		if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION)
+		{
+			resolution = SHADOW_RESOLUTION::LOW;
+		}
+		else if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION)
+		{
+			resolution = SHADOW_RESOLUTION::MEDIUM;
+		}
+		else if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION)
+		{
+			resolution = SHADOW_RESOLUTION::HIGH;
+		}
+		else if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION)
+		{
+			resolution = SHADOW_RESOLUTION::ULTRA;
+		}
+
+		// Assign views required for shadows from the lightPool
+		ShadowInfo* si = nullptr;
+		if (resolution != SHADOW_RESOLUTION::UNDEFINED)
+		{
+			si = m_pViewPool->GetFreeShadowInfo(LIGHT_TYPE::SPOT_LIGHT, resolution);
+			static_cast<SpotLight*>(slc->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
+
+			ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
+			srt->AddShadowCastingLight(std::make_pair(slc, si));
+		}
+		// Save in m_pRenderer
+		m_Lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(slc, cbd, si));
+	}
+
+	component::CameraComponent* cc = entity->GetComponent<component::CameraComponent>();
+	if (cc != nullptr)
+	{
+		if (cc->IsPrimary() == true)
+		{
+			m_pScenePrimaryCamera = cc->GetCamera();
+		}
+	}
+
+	component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
+	if (bbc != nullptr)
+	{
+		// Add it to m_pTask so it can be drawn
+		if (DRAWBOUNDINGBOX == true)
+		{
+			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel());
+			if (m == nullptr)
+			{
+				Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", bbc->GetParent()->GetName().c_str());
+				return;
+			}
+
+			// Submit to GPU
+			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+			// Vertices
+			const void* data = static_cast<const void*>(m->m_Vertices.data());
+			Resource* uploadR = m->m_pUploadResourceVertices;
+			Resource* defaultR = m->m_pDefaultResourceVertices;
+			codt->Submit(&std::tuple(uploadR, defaultR, data));
+
+			// inidices
+			data = static_cast<const void*>(m->m_Indices.data());
+			uploadR = m->m_pUploadResourceIndices;
+			defaultR = m->m_pDefaultResourceIndices;
+			codt->Submit(&std::tuple(uploadR, defaultR, data));
+
+			bbc->SetMesh(m);
+
+			m_pWireFrameTask->AddObjectToDraw(bbc);
+		}
+
+		// Add to vector so the mouse picker can check for intersections
+		if (bbc->CanBePicked() == true)
+		{
+			m_BoundingBoxesToBePicked.push_back(bbc);
+		}
+	}
+}
+
+void Renderer::prepareScene(Scene* scene)
+{
+	prepareCBPerFrame();
+	prepareCBPerScene();
+
+	// -------------------- DEBUG STUFF --------------------
+	// Test to change m_pCamera to the shadow casting m_lights cameras
+	//auto& tuple = m_pRenderer->m_lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
+	//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
+	//m_pRenderer->ScenePrimaryCamera = tempCam;
+	if (m_pScenePrimaryCamera == nullptr)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scene: %s\n", scene->GetName());
+
+		// Todo: Set default m_pCamera
+	}
+
+	m_pMousePicker->SetPrimaryCamera(m_pScenePrimaryCamera);
+	scene->SetPrimaryCamera(m_pScenePrimaryCamera);
+	setRenderTasksRenderComponents();
+	setRenderTasksPrimaryCamera();
+
+	m_pCurrActiveScene = scene;
+}
+
+void Renderer::prepareCBPerScene()
+{
 	// ----- directional lights -----
-	cps.Num_Dir_Lights = this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
+	m_pCbPerSceneData->Num_Dir_Lights = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
 	unsigned int index = 0;
-	for (auto& tuple : this->lights[LIGHT_TYPE::DIRECTIONAL_LIGHT])
+	for (auto& tuple : m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT])
 	{
-		cps.dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		m_pCbPerSceneData->dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
-	// ----- directional lights -----
+	// ----- directional m_lights -----
 
 	// ----- point lights -----
-	cps.Num_Point_Lights = this->lights[LIGHT_TYPE::POINT_LIGHT].size();
+	m_pCbPerSceneData->Num_Point_Lights = m_Lights[LIGHT_TYPE::POINT_LIGHT].size();
 	index = 0;
-	for (auto& tuple : this->lights[LIGHT_TYPE::POINT_LIGHT])
+	for (auto& tuple : m_Lights[LIGHT_TYPE::POINT_LIGHT])
 	{
-		cps.pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		m_pCbPerSceneData->pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
-	// ----- point lights -----
+	// ----- point m_lights -----
 
 	// ----- spot lights -----
-	cps.Num_Spot_Lights = this->lights[LIGHT_TYPE::SPOT_LIGHT].size();
+	m_pCbPerSceneData->Num_Spot_Lights = m_Lights[LIGHT_TYPE::SPOT_LIGHT].size();
 	index = 0;
-	for (auto& tuple : this->lights[LIGHT_TYPE::SPOT_LIGHT])
+	for (auto& tuple : m_Lights[LIGHT_TYPE::SPOT_LIGHT])
 	{
-		cps.spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		m_pCbPerSceneData->spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
 		index++;
 	}
-	// ----- spot lights -----
+	// ----- spot m_lights -----
 
 	// Upload CB_PER_SCENE to defaultheap
-	this->TempCopyResource(
-		this->cbPerScene->GetUploadResource(),
-		this->cbPerScene->GetCBVResource(),
-		&cps);
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+	const void* data = static_cast<const void*>(m_pCbPerSceneData);
+	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetCBVResource(), data));
 }
 
-void Renderer::PrepareCBPerFrame()
+void Renderer::prepareCBPerFrame()
 {
 	CopyPerFrameTask* cpft = nullptr;
-	void* data = nullptr;
+	const void* data = nullptr;
 	ConstantBufferView* cbv = nullptr;
 
 	// Lights
 	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
 	{
 		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
-		for (auto& tuple : this->lights[type])
+		for (auto& tuple : m_Lights[type])
 		{
 			data = std::get<0>(tuple)->GetLightData();
 			cbv = std::get<1>(tuple);
 
-			cpft = static_cast<CopyPerFrameTask*>(this->copyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-			cpft->Submit(&std::make_pair(data, cbv));
+			cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+			cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetCBVResource(), data));
 		}
 	}
 
@@ -992,50 +1344,8 @@ void Renderer::PrepareCBPerFrame()
 	// CB_PER_FRAME_STRUCT
 	if (cpft != nullptr)
 	{
-		data = static_cast<void*>(this->cbPerFrameData);
-		cpft->Submit(&std::make_pair(data, this->cbPerFrame));
+		data = static_cast<void*>(m_pCbPerFrameData);
+		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetCBVResource(), data));
 	}
 }
 
-void Renderer::WaitForGpu()
-{
-	//Signal and increment the fence value.
-	const UINT64 oldFenceValue = this->fenceFrameValue;
-	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(this->fenceFrame, oldFenceValue);
-	this->fenceFrameValue++;
-
-	//Wait until command queue is done.
-	if (this->fenceFrame->GetCompletedValue() < oldFenceValue)
-	{
-		this->fenceFrame->SetEventOnCompletion(oldFenceValue, eventHandle);
-		WaitForSingleObject(eventHandle, INFINITE);
-	}
-}
-
-void Renderer::TempCopyResource(Resource* uploadResource, Resource* defaultResource, void* data)
-{
-	this->tempCommandInterface->Reset(0);
-	// Set the data into the upload heap
-	uploadResource->SetData(data);
-
-	this->tempCommandInterface->GetCommandList(0)->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		defaultResource->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_COMMON,
-		D3D12_RESOURCE_STATE_COPY_DEST));
-
-	// To Defaultheap from Uploadheap
-	this->tempCommandInterface->GetCommandList(0)->CopyResource(
-		defaultResource->GetID3D12Resource1(),	// Receiever
-		uploadResource->GetID3D12Resource1());	// Sender
-
-	this->tempCommandInterface->GetCommandList(0)->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		defaultResource->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		D3D12_RESOURCE_STATE_COMMON));
-
-	this->tempCommandInterface->GetCommandList(0)->Close();
-	ID3D12CommandList* ppCommandLists[] = { this->tempCommandInterface->GetCommandList(0) };
-	// this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Wait(this->fenceFrame, this->fenceFrameValue - 1);
-	this->commandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(ARRAYSIZE(ppCommandLists), ppCommandLists);
-	this->WaitForGpu();
-}

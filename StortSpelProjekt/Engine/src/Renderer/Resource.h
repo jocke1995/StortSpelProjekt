@@ -1,8 +1,6 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
-#include <d3d12.h>
-
 enum RESOURCE_TYPE
 {
     UPLOAD,
@@ -10,6 +8,7 @@ enum RESOURCE_TYPE
     NUM_RESOURCE_TYPES
 };
 
+static unsigned int s_IdCounter = 0;
 class Resource
 {
 public:
@@ -29,7 +28,9 @@ public:
         D3D12_RESOURCE_STATES startState = D3D12_RESOURCE_STATE_COMMON);
 
     // Default Constructor
-    Resource() = default;
+    Resource();
+
+    bool operator==(const Resource& other);
     virtual ~Resource();
 
     virtual unsigned int GetSize() const;
@@ -40,15 +41,15 @@ public:
     // Only to be used if the resource is of type: UPLOAD
     void SetData(const void* data, unsigned int subResourceIndex = 0) const;
 protected:
-    unsigned long long entrySize = 0;
-    RESOURCE_TYPE type;
-    std::wstring name;
+    unsigned int m_Id = 0;
+    unsigned long long m_EntrySize = 0;
+    std::wstring m_Name;
+    RESOURCE_TYPE m_Type;
+    ID3D12Resource1* m_pResource = nullptr;
+    D3D12_HEAP_PROPERTIES m_HeapProperties = {};
 
-    D3D12_HEAP_PROPERTIES heapProperties = {};
-    void SetupHeapProperties(D3D12_HEAP_TYPE heapType);
-
-    ID3D12Resource1* resource = nullptr;
-    void CreateResource(
+    void setupHeapProperties(D3D12_HEAP_TYPE heapType);
+    void createResource(
         ID3D12Device* device,
         D3D12_RESOURCE_DESC* resourceDesc,
         D3D12_CLEAR_VALUE* clearValue,

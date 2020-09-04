@@ -1,60 +1,60 @@
 #include "stdafx.h"
 #include "ThreadPool.h"
-
+#include "Thread.h"
 ThreadPool::ThreadPool(int nrOfThreads)
 {
-	this->nrOfThreads = nrOfThreads;
+	m_NrOfThreads = nrOfThreads;
 	
 	// Create Threads
-	for (int i = 0; i < this->nrOfThreads; i++)
-		this->threads.push_back(new Thread());
+	for (int i = 0; i < m_NrOfThreads; i++)
+		m_Threads.push_back(new Thread());
 }
 
 ThreadPool::~ThreadPool()
 {
-	for (Thread* thread : this->threads)
+	for (Thread* thread : m_Threads)
 		delete thread;
 }
 
 void ThreadPool::WaitForThreads(unsigned int flag)
 {
 	// Two conditios to wait.
-	// 1. Until each taskQueue of each thread is empty
-	// 2. Until each thread's taskpointer is nullptr
+	// 1. Until each m_TaskQueue of each m_Thread is empty
+	// 2. Until each m_Thread's taskpointer is nullptr
 	// Otherwise there is a chance that the mainthread will continue
-	// whilst some threads are working on some of the last tasks.
+	// whilst some m_Threads are working on some of the last tasks.
 
 	// Wait until all tasks are completed
 	bool isEmpty = false;
 	while (true)
 	{
-		isEmpty = this->IsThreadsQueuesEmpty(flag);
+		isEmpty = isThreadsQueuesEmpty(flag);
 
-		if (isEmpty && this->IsAllFinished(flag))
+		if (isEmpty && isAllFinished(flag))
 		{
 			break;
 		}
 	}
 }
 
-void ThreadPool::AddTask(Task* task, unsigned int flag)
+void ThreadPool::AddTask(MultiThreadedTask* task, unsigned int flag)
 {
-	// Adds a task to a thread
-	this->threads.at(this->threadCounter % this->nrOfThreads)->AddTask(task, flag);
-	this->threadCounter++;
+	// Adds a m_pTask to a m_Thread
+	m_Threads.at(m_ThreadCounter % m_NrOfThreads)->AddTask(task, flag);
+	m_ThreadCounter++;
 }
 
 void ThreadPool::ExitThreads()
 {
-	for (auto thread : this->threads)
+	for (auto thread : m_Threads)
 	{
 		thread->ExitThread();
 	}
 }
 
-bool ThreadPool::IsAllFinished(unsigned int flag)
+bool ThreadPool::isAllFinished(unsigned int flag)
 {
-	for (Thread* thread : this->threads)
+	for (Thread* thread : m_Threads)
 	{
 		if (thread->GetTaskFlag() & flag)
 		{
@@ -67,9 +67,9 @@ bool ThreadPool::IsAllFinished(unsigned int flag)
 	return true;
 }
 
-bool ThreadPool::IsThreadsQueuesEmpty(unsigned int flag)
+bool ThreadPool::isThreadsQueuesEmpty(unsigned int flag)
 {
-	for (auto thread : this->threads)
+	for (auto thread : m_Threads)
 	{
 		if (thread->GetTaskFlag() & flag)
 		{

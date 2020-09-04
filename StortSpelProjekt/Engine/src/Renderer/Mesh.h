@@ -1,23 +1,25 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include <d3d12.h>
 #include "EngineMath.h"
-#include "Resource.h"
-#include "ShaderResourceView.h"
 #include "Core.h"
 
-#include "Material.h"
+class Resource;
+class ShaderResourceView;
+class Material;
+class DescriptorHeap;
+struct SlotInfo;
 
-// temp
-#include "CommandInterface.h"
+// DX12 Forward Declarations
+struct ID3D12Device5;
+struct D3D12_INDEX_BUFFER_VIEW;
 
 struct Vertex
 {
-    DirectX::XMFLOAT4 pos;
-    DirectX::XMFLOAT4 uv;
-    DirectX::XMFLOAT4 normal;
-    DirectX::XMFLOAT4 tangent;
+    DirectX::XMFLOAT3 pos;
+    DirectX::XMFLOAT2 uv;
+    DirectX::XMFLOAT3 normal;
+    DirectX::XMFLOAT3 tangent;
 };
 
 class Mesh
@@ -29,9 +31,7 @@ public:
             DescriptorHeap* descriptorHeap_SRV,
             const std::string path = "");
     Mesh(const Mesh* other);
-    ~Mesh();
-
-    void UploadToDefault(ID3D12Device5* device, CommandInterface* commandInterface, ID3D12CommandQueue* cmdQueue);
+    virtual ~Mesh();
 
     // Vertices
     Resource* GetDefaultResourceVertices() const;
@@ -51,26 +51,29 @@ public:
     Material* GetMaterial() const;
 
 private:
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-    std::string path = "";
+    friend class Renderer;
+    friend class SceneManager;
 
-    Resource* uploadResourceVertices = nullptr;
-    Resource* uploadResourceIndices = nullptr;
-    Resource* defaultResourceVertices = nullptr;
-    Resource* defaultResourceIndices = nullptr;
+    std::vector<Vertex> m_Vertices;
+    std::vector<unsigned int> m_Indices;
+    std::string m_Path = "";
 
-    ShaderResourceView* SRV = nullptr;
+    Resource* m_pUploadResourceVertices = nullptr;
+    Resource* m_pUploadResourceIndices = nullptr;
+    Resource* m_pDefaultResourceVertices = nullptr;
+    Resource* m_pDefaultResourceIndices = nullptr;
+
+    ShaderResourceView* m_pSRV = nullptr;
+    D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;;
 
     // Material will write descriptorIndices to "slotinfo" in mesh 
-    Material* material = nullptr;
-    SlotInfo* slotInfo = nullptr;
+    Material* m_pMaterial = nullptr;
+    SlotInfo* m_pSlotInfo = nullptr;
 
-    D3D12_INDEX_BUFFER_VIEW indexBufferView = {};
-    void CreateIndexBufferView();
+    void createIndexBufferView();
 
     // Temporay solution to make sure each "new" mesh only gets deleted once
-    bool isCopied = false;
+    bool m_IsCopied = false;
 };
 
 #endif

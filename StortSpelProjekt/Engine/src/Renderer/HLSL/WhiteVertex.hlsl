@@ -7,10 +7,10 @@ struct VS_OUT
 
 struct vertex
 {
-	float4 pos;
-	float4 uv;
-	float4 norm;
-	float4 tang;
+	float3 pos;
+	float2 uv;
+	float3 norm;
+	float3 tang;
 };
 
 ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);

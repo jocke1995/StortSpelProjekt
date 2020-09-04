@@ -1,9 +1,11 @@
 #ifndef RENDERTARGET_H
 #define RENDERTARGET_H
 
-#include "DescriptorHeap.h"
-#include "Resource.h"
-#include "RenderView.h"
+class DescriptorHeap;
+class Resource;
+class RenderView;
+
+#include <vector>
 
 class RenderTarget
 {
@@ -22,10 +24,9 @@ public:
 	// viewport & scizzorRect
 	RenderView* GetRenderView() const;
 protected:
-	std::vector<Resource*> resources;
-
+	std::vector<Resource*> m_Resources;
 	// viewport & scizzorRect
-	RenderView* renderView = nullptr;
+	RenderView* m_pRenderView = nullptr;
 };
 
 #endif

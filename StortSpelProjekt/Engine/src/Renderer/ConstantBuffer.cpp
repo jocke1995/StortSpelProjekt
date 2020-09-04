@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "ConstantBuffer.h"
 
+#include "Resource.h"
+#include "DescriptorHeap.h"
+
 ConstantBuffer::ConstantBuffer(
 	ID3D12Device5* device,
 	unsigned int entrySize,
@@ -8,21 +11,21 @@ ConstantBuffer::ConstantBuffer(
 	unsigned int descriptorHeapIndex)
 {
 	unsigned int sizeAligned = (entrySize + 255) & ~255;
-	this->uploadResource = new Resource(device, sizeAligned, RESOURCE_TYPE::UPLOAD, resourceName);
-	this->descriptorHeapIndex = descriptorHeapIndex;
+	m_pUploadResource = new Resource(device, sizeAligned, RESOURCE_TYPE::UPLOAD, resourceName);
+	m_DescriptorHeapIndex = descriptorHeapIndex;
 }
 
 ConstantBuffer::~ConstantBuffer()
 {
-	delete this->uploadResource;
+	delete m_pUploadResource;
 }
 
 Resource* ConstantBuffer::GetUploadResource() const
 {
-	return this->uploadResource;
+	return m_pUploadResource;
 }
 
 unsigned int ConstantBuffer::GetDescriptorHeapIndex() const
 {
-	return this->descriptorHeapIndex;
+	return m_DescriptorHeapIndex;
 }

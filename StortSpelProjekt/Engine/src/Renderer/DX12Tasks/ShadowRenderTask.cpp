@@ -1,6 +1,18 @@
 #include "stdafx.h"
 #include "ShadowRenderTask.h"
 
+#include "../DescriptorHeap.h"
+#include "../Resource.h"
+#include "../RenderView.h"
+#include "../DepthStencilView.h"
+#include "../RootSignature.h"
+#include "../CommandInterface.h"
+#include "../PipelineState.h"
+#include "../ShadowInfo.h"
+#include "../Renderer/Transform.h"
+#include "../Renderer/Mesh.h"
+#include "../Renderer/BaseCamera.h"
+
 ShadowRenderTask::ShadowRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
@@ -18,29 +30,47 @@ ShadowRenderTask::~ShadowRenderTask()
 
 void ShadowRenderTask::AddShadowCastingLight(std::pair<Light*, ShadowInfo*> light)
 {
-	this->lights.push_back(light);
+	m_lights.push_back(light);
+}
+
+void ShadowRenderTask::ClearSpecificLight(Light* light)
+{
+	unsigned int i = 0;
+	for (auto& pair : m_lights)
+	{
+		if (pair.first == light)
+		{
+			m_lights.erase(m_lights.begin() + i);
+		}
+		i++;
+	}
+}
+
+void ShadowRenderTask::Clear()
+{
+	m_lights.clear();
 }
 
 void ShadowRenderTask::Execute()
 {
-	ID3D12CommandAllocator* commandAllocator = this->commandInterface->GetCommandAllocator(this->commandInterfaceIndex);
-	ID3D12GraphicsCommandList5* commandList = this->commandInterface->GetCommandList(this->commandInterfaceIndex);
-	this->commandInterface->Reset(this->commandInterfaceIndex);
+	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
+	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
+	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 	
-	commandList->SetGraphicsRootSignature(this->rootSig);
+	commandList->SetGraphicsRootSignature(m_pRootSig);
 
-	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
+	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
 	ID3D12DescriptorHeap* d3d12DescriptorHeap = descriptorHeap_CBV_UAV_SRV->GetID3D12DescriptorHeap();
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
 
 	commandList->SetGraphicsRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
 
-	DescriptorHeap* depthBufferHeap = this->descriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
+	DescriptorHeap* depthBufferHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 
 	// Draw for every shadow-casting-light
-	for (auto pair : this->lights)
+	for (auto pair : m_lights)
 	{
-		commandList->SetPipelineState(this->pipelineStates[0]->GetPSO());
+		commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		const D3D12_VIEWPORT* viewPort = pair.second->GetRenderView()->GetViewPort();
@@ -48,7 +78,7 @@ void ShadowRenderTask::Execute()
 		commandList->RSSetViewports(1, viewPort);
 		commandList->RSSetScissorRects(1, rect);
 
-		const XMMATRIX* viewProjMatTrans = pair.first->GetCamera()->GetViewProjectionTranposed();
+		const DirectX::XMMATRIX* viewProjMatTrans = pair.first->GetCamera()->GetViewProjectionTranposed();
 
 		commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 			pair.second->GetResource()->GetID3D12Resource1(),
@@ -62,25 +92,23 @@ void ShadowRenderTask::Execute()
 		commandList->OMSetRenderTargets(0, nullptr, true, &dsh);
 
 		// Draw for every Rendercomponent
-		for (int i = 0; i < this->renderComponents.size(); i++)
+		for (int i = 0; i < m_RenderComponents.size(); i++)
 		{
-			component::MeshComponent* mc = this->renderComponents.at(i).first;
-			component::TransformComponent* tc = this->renderComponents.at(i).second;
+			component::MeshComponent* mc = m_RenderComponents.at(i).first;
+			component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
 			// Check if the object is to be drawn in ShadowPass
 			if (mc->GetDrawFlag() & FLAG_DRAW::Shadow)
 			{
-				// Draw for every mesh the meshComponent has
+				// Draw for every m_pMesh the meshComponent has
 				for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 				{
 					size_t num_Indices = mc->GetMesh(i)->GetNumIndices();
 					const SlotInfo* info = mc->GetMesh(i)->GetSlotInfo();
 
 					Transform* transform = tc->GetTransform();
-					XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-
-					// kanske fel ordning
-					XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+					DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+					DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
 					// Create a CB_PER_OBJECT struct
 					CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };

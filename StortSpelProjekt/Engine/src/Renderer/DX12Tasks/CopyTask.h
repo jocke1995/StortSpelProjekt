@@ -3,7 +3,7 @@
 
 #include "DX12Task.h"
 
-#include "../ConstantBufferView.h"
+class Resource;
 
 class CopyTask : public DX12Task
 {
@@ -11,6 +11,17 @@ public:
 	CopyTask(ID3D12Device5* device);
 	virtual ~CopyTask();
 
+	// tuple(Upload, Default, Data)
+	void Submit(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
+
 	virtual void Clear() = 0;
+
+protected:
+	std::vector<std::tuple<Resource*, Resource*, const void*>> m_UploadDefaultData;
+
+	void copyResource(
+		ID3D12GraphicsCommandList5* commandList,
+		Resource* uploadResource, Resource* defaultResource,
+		const void* data);
 };
 #endif

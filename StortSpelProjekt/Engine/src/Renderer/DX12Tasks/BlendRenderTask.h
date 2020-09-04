@@ -3,6 +3,8 @@
 
 #include "RenderTask.h"
 
+class RootSignature;
+
 class BlendRenderTask : public RenderTask
 {
 public:

@@ -3,11 +3,11 @@
 
 RenderView::RenderView(unsigned int width, unsigned int height)
 {
-	this->width = width;
-	this->height = height;
+	m_Width = width;
+	m_Height = height;
 
-	this->CreateViewport();
-	this->CreateScissorRect();
+	createViewport();
+	createScissorRect();
 }
 
 RenderView::~RenderView()
@@ -16,28 +16,28 @@ RenderView::~RenderView()
 
 const D3D12_VIEWPORT* RenderView::GetViewPort() const
 {
-	return &this->viewport;
+	return &m_Viewport;
 }
 
 const D3D12_RECT* RenderView::GetScissorRect() const
 {
-	return &this->scissorRect;
+	return &m_ScissorRect;
 }
 
-void RenderView::CreateViewport()
+void RenderView::createViewport()
 {
-	this->viewport.TopLeftX = 0.0f;
-	this->viewport.TopLeftY = 0.0f;
-	this->viewport.Width = this->width;
-	this->viewport.Height = this->height;
-	this->viewport.MinDepth = 0.0f;
-	this->viewport.MaxDepth = 1.0f;
+	m_Viewport.TopLeftX = 0.0f;
+	m_Viewport.TopLeftY = 0.0f;
+	m_Viewport.Width = m_Width;
+	m_Viewport.Height = m_Height;
+	m_Viewport.MinDepth = 0.0f;
+	m_Viewport.MaxDepth = 1.0f;
 }
 
-void RenderView::CreateScissorRect()
+void RenderView::createScissorRect()
 {
-	this->scissorRect.left = 0;
-	this->scissorRect.right = this->width;
-	this->scissorRect.top = 0;
-	this->scissorRect.bottom = this->height;
+	m_ScissorRect.left = 0;
+	m_ScissorRect.right = m_Width;
+	m_ScissorRect.top = 0;
+	m_ScissorRect.bottom = m_Height;
 }

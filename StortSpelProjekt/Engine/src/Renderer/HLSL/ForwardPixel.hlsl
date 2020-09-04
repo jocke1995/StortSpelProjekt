@@ -4,7 +4,7 @@ struct VS_OUT
 {
 	float4 pos      : SV_Position;
 	float4 worldPos : WPos;
-	float4 uv       : UV;
+	float2 uv       : UV;
 	float3x3 tbn	: TBN;
 };
 

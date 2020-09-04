@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "CopyPerFrameTask.h"
 
+#include "../CommandInterface.h"
+
 CopyPerFrameTask::CopyPerFrameTask(ID3D12Device5* device)
 	:CopyTask(device)
 {
@@ -12,21 +14,16 @@ CopyPerFrameTask::~CopyPerFrameTask()
 
 }
 
-void CopyPerFrameTask::Submit(std::pair<void*, ConstantBufferView*>* data_CBV)
-{
-	this->data_CBVs.push_back(*data_CBV);
-}
-
-void CopyPerFrameTask::ClearSpecific(const ConstantBufferView* cbv)
+void CopyPerFrameTask::ClearSpecific(const Resource* uploadResource)
 {
 	unsigned int i = 0;
 	// Loop through all copyPerFrame tasks
-	for (auto& pair : this->data_CBVs)
+	for (auto& tuple : m_UploadDefaultData)
 	{
-		if (pair.second == cbv)
+		if (std::get<0>(tuple) == uploadResource)
 		{
 			// Remove
-			this->data_CBVs.erase(this->data_CBVs.begin() + i);
+			m_UploadDefaultData.erase(m_UploadDefaultData.begin() + i);
 		}
 		i++;
 	}
@@ -34,48 +31,24 @@ void CopyPerFrameTask::ClearSpecific(const ConstantBufferView* cbv)
 
 void CopyPerFrameTask::Clear()
 {
-	this->data_CBVs.clear();
+	m_UploadDefaultData.clear();
 }
 
 void CopyPerFrameTask::Execute()
 {
-	ID3D12CommandAllocator* commandAllocator = this->commandInterface->GetCommandAllocator(this->commandInterfaceIndex);
-	ID3D12GraphicsCommandList5* commandList = this->commandInterface->GetCommandList(this->commandInterfaceIndex);
+	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
+	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
 
-	this->commandInterface->Reset(this->commandInterfaceIndex);
+	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
-	for (auto& pair : this->data_CBVs)
+	for (auto& tuple : m_UploadDefaultData)
 	{
-		this->CopyResource(
+		copyResource(
 			commandList,
-			pair.second->GetUploadResource(),
-			pair.second->GetCBVResource(),
-			pair.first);	// Data
+			std::get<0>(tuple),		// UploadHeap
+			std::get<1>(tuple),		// DefaultHeap
+			std::get<2>(tuple));	// Data
 	}
 
 	commandList->Close();
-}
-
-void CopyPerFrameTask::CopyResource(
-	ID3D12GraphicsCommandList5* commandList,
-	Resource* uploadResource, Resource* defaultResource,
-	void* data)
-{
-	// Set the data into the upload heap
-	uploadResource->SetData(data);
-
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		defaultResource->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_COMMON,
-		D3D12_RESOURCE_STATE_COPY_DEST));
-
-	// To Defaultheap from Uploadheap
-	commandList->CopyResource(
-		defaultResource->GetID3D12Resource1(),	// Receiever
-		uploadResource->GetID3D12Resource1());	// Sender
-
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		defaultResource->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		D3D12_RESOURCE_STATE_COMMON));
 }

@@ -3,9 +3,9 @@
 
 #include <queue>
 #include <mutex>
-#include "Task.h"
 #include "Core.h"
 
+class MultiThreadedTask;
 
 enum FLAG_THREAD
 {
@@ -26,24 +26,24 @@ public:
 
 	bool IsTaskNullptr();
 
-	void AddTask(Task* task, unsigned int taskFlag);
+	void AddTask(MultiThreadedTask* task, unsigned int taskFlag);
 	void ExitThread();
 
 	bool IsQueueEmpty();
 	unsigned int GetTaskFlag();
 private:
-	HANDLE thread;
-	HANDLE beginEvent;
+	HANDLE m_Thread;
+	HANDLE m_BeginEvent;
 
 	static unsigned int __stdcall threadFunc(LPVOID lpParameter);
 
-	std::queue<Task*> taskQueue;
-	std::mutex mutex;
+	std::queue<MultiThreadedTask*> m_TaskQueue;
+	std::mutex m_Mutex;
 
-	Task* task= nullptr;
-	unsigned int taskFlag = 0;
+	MultiThreadedTask* m_pTask= nullptr;
+	unsigned int m_TaskFlag = 0;
 
-	bool isRunning = true;
+	bool m_IsRunning = true;
 };
 
 #endif

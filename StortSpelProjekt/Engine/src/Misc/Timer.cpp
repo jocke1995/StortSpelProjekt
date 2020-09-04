@@ -1,13 +1,14 @@
 #include "stdafx.h"
 #include "Timer.h"
+#include "Window.h"
 
 Timer::Timer(Window* window)
 {
-	this->window = window;
+	m_pWindow = window;
 
 	auto start = std::chrono::system_clock::now();
-	this->timeNow = start;
-	this->timeLast = start;
+	m_TimeNow = start;
+	m_TimeLast = start;
 }
 
 Timer::~Timer()
@@ -20,18 +21,18 @@ void Timer::Update()
     fpsCounter++;
 
     // Calculate deltatime
-    this->timeLast = this->timeNow;
-    this->timeNow = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_time = this->timeNow - this->timeLast;
-    this->dt = elapsed_time.count();
+    m_TimeLast = m_TimeNow;
+    m_TimeNow = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_time = m_TimeNow - m_TimeLast;
+    m_Dt = elapsed_time.count();
 
     // Set limit to the updates on the window title
-    std::chrono::duration<double> elapsed_timeFps = this->timeNow - this->timeLastTitleUpdate;
+    std::chrono::duration<double> elapsed_timeFps = m_TimeNow - m_TimeLastTitleUpdate;
     if (elapsed_timeFps.count() >= 1.0)
     {
         std::wstring fpsString = std::to_wstring(fpsCounter);
-        window->SetWindowTitle(fpsString);
-        this->timeLastTitleUpdate = this->timeNow;
+        m_pWindow->SetWindowTitle(fpsString);
+        m_TimeLastTitleUpdate = m_TimeNow;
 
         fpsCounter = 0;
     }
@@ -39,19 +40,19 @@ void Timer::Update()
 
 double Timer::GetDeltaTime() const
 {
-    return this->dt;
+    return m_Dt;
 }
 
 void Timer::StartTimer()
 {
-    this->start = std::chrono::system_clock::now();
+    m_Start = std::chrono::system_clock::now();
 }
 
 double Timer::StopTimer()
 {
-    this->stop = std::chrono::system_clock::now();
+    m_Stop = std::chrono::system_clock::now();
 
-    std::chrono::duration<double> elapsedTime = this->stop - this->start;
+    std::chrono::duration<double> elapsedTime = m_Stop - m_Start;
 
     return elapsedTime.count();
 }

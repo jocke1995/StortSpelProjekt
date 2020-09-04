@@ -3,7 +3,7 @@
 
 Component::Component(Entity* parent)
 {
-	this->parent = parent;
+	m_pParent = parent;
 }
 
 Component::~Component()
@@ -12,5 +12,5 @@ Component::~Component()
 
 Entity* const Component::GetParent() const
 {
-	return this->parent;
+	return m_pParent;
 }

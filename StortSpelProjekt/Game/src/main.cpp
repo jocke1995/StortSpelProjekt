@@ -18,11 +18,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
 
+    /*------ AssetLoader to load models / textures ------*/
+    AssetLoader* al = AssetLoader::Get();
+
     if (renderer->GetActiveScene())
     {
         while (!window->ExitWindow())
         {
-            // Currently no scene set, hence the renderer should not be working.
+            // Currently no scene set, hence the m_pRenderer should not be working.
 
             /* ------ Update ------ */
             timer->Update();

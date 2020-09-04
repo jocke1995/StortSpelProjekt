@@ -3,15 +3,15 @@
 
 Transform::Transform()
 {
-	this->position = XMFLOAT3(0.0, 0.0, 0.0);
-	this->rotationMat = XMMatrixIdentity();
-	this->scale = XMFLOAT3(1.0, 1.0, 1.0);
+	m_Position = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+	m_RotationMat = DirectX::XMMatrixIdentity();
+	m_Scale = DirectX::XMFLOAT3(1.0, 1.0, 1.0);
 
-	this->UpdateWorldMatrix();
+	UpdateWorldMatrix();
 
-	this->rotXMat = XMMatrixIdentity();
-	this->rotYMat = XMMatrixIdentity();
-	this->rotZMat = XMMatrixIdentity();
+	m_RotXMat = DirectX::XMMatrixIdentity();
+	m_RotYMat = DirectX::XMMatrixIdentity();
+	m_RotZMat = DirectX::XMMatrixIdentity();
 }
 
 Transform::~Transform()
@@ -20,79 +20,78 @@ Transform::~Transform()
 
 void Transform::SetPosition(float x, float y, float z)
 {
-	this->position = XMFLOAT3(x, y, z);
+	m_Position = DirectX::XMFLOAT3(x, y, z);
 }
 
-void Transform::SetPosition(XMFLOAT3 pos)
+void Transform::SetPosition(DirectX::XMFLOAT3 pos)
 {
-	this->position = pos;
+	m_Position = pos;
 }
 
 void Transform::RotateX(float radians)
 {
-	this->rotXMat = XMMatrixRotationX(radians);
+	m_RotXMat = DirectX::XMMatrixRotationX(radians);
 }
 
 void Transform::RotateY(float radians)
 {
-	this->rotYMat = XMMatrixRotationY(radians);
+	m_RotYMat = DirectX::XMMatrixRotationY(radians);
 }
 
 void Transform::RotateZ(float radians)
 {
-	this->rotZMat = XMMatrixRotationZ(radians);
+	m_RotZMat = DirectX::XMMatrixRotationZ(radians);
 }
 
 void Transform::SetScale(float scale)
 {
-	this->scale = XMFLOAT3(scale, scale, scale);
+	m_Scale = DirectX::XMFLOAT3(scale, scale, scale);
 }
 
 void Transform::SetScale(float x, float y, float z)
 {
-	this->scale = XMFLOAT3(x, y, z);
+	m_Scale = DirectX::XMFLOAT3(x, y, z);
 }
 
 void Transform::IncreaseScaleByPercent(float scale)
 {
-	this->scale.x += this->scale.x * scale;
-	this->scale.y += this->scale.y * scale;
-	this->scale.z += this->scale.z * scale;
+	m_Scale.x += m_Scale.x * scale;
+	m_Scale.y += m_Scale.y * scale;
+	m_Scale.z += m_Scale.z * scale;
 }
 
 void Transform::UpdateWorldMatrix()
 {
-	XMMATRIX posMat = XMMatrixTranslation(this->position.x, this->position.y, this->position.z);
-	XMMATRIX sclMat = XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
-	XMMATRIX rotMat = this->rotationMat * this->rotXMat * this->rotYMat * this->rotZMat;
+	DirectX::XMMATRIX posMat = DirectX::XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+	DirectX::XMMATRIX sclMat = DirectX::XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
+	DirectX::XMMATRIX rotMat = m_RotationMat * m_RotXMat * m_RotYMat * m_RotZMat;
 
-	this->worldMat = rotMat * sclMat * posMat;
-	//this->worldMat = XMMatrixIdentity();
+	m_WorldMat = rotMat * sclMat * posMat;
 
 	// Update transposed world matrix
-	this->worldMatTransposed = DirectX::XMMatrixTranspose(this->worldMat);
+	m_WorldMatTransposed = DirectX::XMMatrixTranspose(m_WorldMat);
 }
 
-XMMATRIX* Transform::GetWorldMatrix()
+DirectX::XMMATRIX* Transform::GetWorldMatrix()
 {
-	return &this->worldMat;
+	return &m_WorldMat;
 }
 
-XMMATRIX* Transform::GetWorldMatrixTransposed()
+DirectX::XMMATRIX* Transform::GetWorldMatrixTransposed()
 {
-	return &this->worldMatTransposed;
+	return &m_WorldMatTransposed;
 }
 
-XMFLOAT3 Transform::GetPositionXMFLOAT3() const
+DirectX::XMFLOAT3 Transform::GetPositionXMFLOAT3() const
 {
-	return this->position;
+	return m_Position;
 }
 
 float3 Transform::GetPositionFloat3() const
 {
 	float3 pos = {};
-	pos.x = this->position.x;
-	pos.y = this->position.y;
-	pos.z = this->position.z;
+	pos.x = m_Position.x;
+	pos.y = m_Position.y;
+	pos.z = m_Position.z;
 	return pos;
 }

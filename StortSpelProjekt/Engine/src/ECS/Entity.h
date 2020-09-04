@@ -37,14 +37,14 @@ public:
 	void Update(double dt);
 
 private:
-	unsigned int id = -1;
-	std::string name = "";
+	unsigned int m_Id = -1;
+	std::string m_Name = "";
 	
-	// Multiple scenes can use the same entity (player for example).
+	// Multiple m_pScenes can use the same entity (player for example).
 	// This is to make sure that the player doesn't get deleted if its still in use AND to not delete it twice
-	unsigned int referenceCount = 0;
+	unsigned int m_ReferenceCount = 0;
 
-	std::vector<Component*> components;
+	std::vector<Component*> m_Components;
 };
 
 template<class T, typename... Args>
@@ -52,12 +52,12 @@ inline T* Entity::AddComponent(Args... args)
 {
 	// Check if component already exists,
 	// and if it does.. return it
-	T* compInEntity = this->GetComponent<T>();
+	T* compInEntity = GetComponent<T>();
 	if (compInEntity == nullptr)
 	{
 		// Add component
 		T* finalComponent = new T(this, std::forward<Args>(args)...);
-		this->components.push_back(finalComponent);
+		m_Components.push_back(finalComponent);
 
 		return finalComponent;
 	}
@@ -67,9 +67,9 @@ inline T* Entity::AddComponent(Args... args)
 template<class T>
 inline T* Entity::GetComponent() const
 {
-	for (int i = 0; i < this->components.size(); i++)
+	for (int i = 0; i < m_Components.size(); i++)
 	{
-		T* component = dynamic_cast<T*>(this->components[i]);
+		T* component = dynamic_cast<T*>(m_Components[i]);
 
 		if (component != nullptr)
 		{
@@ -82,9 +82,9 @@ inline T* Entity::GetComponent() const
 template<class T>
 inline bool Entity::HasComponent() const
 {
-	for (int i = 0; i < this->components.size(); i++)
+	for (int i = 0; i < m_Components.size(); i++)
 	{
-		T* component = dynamic_cast<T*>(this->components[i]);
+		T* component = dynamic_cast<T*>(m_Components[i]);
 
 		if (component != nullptr)
 		{

@@ -44,6 +44,50 @@ enum class COLOR_TYPE
 	NUM_COLOR_TYPES
 };
 
+enum TEXTURE_TYPE
+{
+	AMBIENT,
+	DIFFUSE,
+	SPECULAR,
+	NORMAL,
+	EMISSIVE,
+	NUM_TEXTURE_TYPES
+};
+
+enum LIGHT_TYPE
+{
+	DIRECTIONAL_LIGHT,
+	POINT_LIGHT,
+	SPOT_LIGHT,
+	NUM_LIGHT_TYPES
+};
+
+enum SHADOW_RESOLUTION
+{
+	LOW,
+	MEDIUM,
+	HIGH,
+	ULTRA,
+	NUM_SHADOW_RESOLUTIONS,
+	UNDEFINED
+};
+
+enum class ShaderType
+{
+	VS = 0,
+	PS = 1,
+	CS = 2,
+	UNSPECIFIED = 3
+};
+
+enum class CAMERA_TYPE
+{
+	PERSPECTIVE,
+	ORTHOGRAPHIC,
+	NUM_CAMERA_TYPES,
+	UNDEFINED
+};
+
 // this will only call release if an object exists (prevents exceptions calling release on non existant objects)
 #define SAFE_RELEASE(p)			\
 {								\

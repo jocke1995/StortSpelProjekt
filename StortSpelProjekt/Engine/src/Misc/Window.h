@@ -34,16 +34,15 @@ public:
 	bool WasSpacePressed();
 	bool WasTabPressed();
 private:
-	// Window * window;
-	bool InitWindow(HINSTANCE hInstance, int nCmdShow);
+	int m_ScreenWidth;
+	int m_ScreenHeight;
+	bool m_FullScreen;
+	LPCTSTR m_WindowName;
+	LPCTSTR m_WindowTitle;
 
-	int screenWidth;
-	int screenHeight;
-	bool fullScreen;
-	LPCTSTR windowName;
-	LPCTSTR windowTitle;
+	HWND m_Hwnd;
 
-	HWND hwnd;
+	bool initWindow(HINSTANCE hInstance, int nCmdShow);
 };
 
 #endif

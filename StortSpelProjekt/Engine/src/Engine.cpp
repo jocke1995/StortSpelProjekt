@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Engine.h"
-
+#include "Misc/Thread.h"
 Engine::Engine()
 {
 	
@@ -8,57 +8,57 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-	delete this->window;
-	delete this->timer;
+	delete m_Window;
+	delete m_Timer;
 
-	this->threadPool->WaitForThreads(FLAG_THREAD::ALL);
-	this->threadPool->ExitThreads();
-	delete this->threadPool;
+	m_ThreadPool->WaitForThreads(FLAG_THREAD::ALL);
+	m_ThreadPool->ExitThreads();
+	delete m_ThreadPool;
 
-	delete this->sceneHandler;
-	delete this->renderer;
+	delete m_SceneManager;
+	delete m_Renderer;
 }
 
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 {
 	// Misc
-	this->window = new Window(hInstance, nCmdShow, false);
-	this->timer = new Timer(this->window);
+	m_Window = new Window(hInstance, nCmdShow, false);
+	m_Timer = new Timer(m_Window);
 
 	// ThreadPool
 	int numCores = std::thread::hardware_concurrency();
 	if (numCores == 0) numCores = 1; // function not supported
-	this->threadPool = new ThreadPool(numCores); // Set num threads to number of cores of the cpu
+	m_ThreadPool = new ThreadPool(numCores); // Set num m_Threads to number of cores of the cpu
 
 	// Sub-engines
-	this->renderer = new Renderer();
-	this->renderer->InitD3D12(this->window->GetHwnd(), hInstance, this->threadPool);
+	m_Renderer = new Renderer();
+	m_Renderer->InitD3D12(m_Window->GetHwnd(), hInstance, m_ThreadPool);
 
 	// ECS
-	this->sceneHandler = new SceneManager(this->renderer);
+	m_SceneManager = new SceneManager(m_Renderer);
 }
 
 Window* const Engine::GetWindow() const
 {
-	return this->window;
+	return m_Window;
 }
 
 Timer* const Engine::GetTimer() const
 {
-	return this->timer;
+	return m_Timer;
 }
 
 ThreadPool* const Engine::GetThreadPool() const
 {
-	return this->threadPool;
+	return m_ThreadPool;
 }
 
 SceneManager* const Engine::GetSceneHandler() const
 {
-	return this->sceneHandler;
+	return m_SceneManager;
 }
 
 Renderer* const Engine::GetRenderer() const
 {
-	return this->renderer;
+	return m_Renderer;
 }

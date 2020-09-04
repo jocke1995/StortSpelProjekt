@@ -7,10 +7,10 @@ TempInputClass::TempInputClass()
 
 TempInputClass::~TempInputClass()
 {
-	this->keyboard->Unacquire();
-	this->mouse->Unacquire();
+	m_pKeyboard->Unacquire();
+	m_pMouse->Unacquire();
 
-	this->DirectInput->Release();
+	m_DirectInput->Release();
 }
 
 void TempInputClass::InitDirectInput(HINSTANCE hInstance, HWND hwnd)
@@ -19,43 +19,43 @@ void TempInputClass::InitDirectInput(HINSTANCE hInstance, HWND hwnd)
 	HRESULT hr = DirectInput8Create(hInstance,
 		DIRECTINPUT_VERSION,
 		IID_IDirectInput8,
-		(void**)&DirectInput,
+		(void**)&m_DirectInput,
 		NULL);
 	if (FAILED(hr))
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to Create Direct Input\n");
 
 	// Create Device for Keyboard
-	hr = DirectInput->CreateDevice(GUID_SysKeyboard,
-		&this->keyboard,
+	hr = m_DirectInput->CreateDevice(GUID_SysKeyboard,
+		&m_pKeyboard,
 		NULL);
 	if (FAILED(hr))
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to Create device for keyboard\n");
 
 	// Create Device for Mouse
-	hr = DirectInput->CreateDevice(GUID_SysMouse,
-		&this->mouse,
+	hr = m_DirectInput->CreateDevice(GUID_SysMouse,
+		&m_pMouse,
 		NULL);
 	if (FAILED(hr))
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to Create device for mouse\n");
 
 	// Init Keyboard
-	hr = this->keyboard->SetDataFormat(&c_dfDIKeyboard);
+	hr = m_pKeyboard->SetDataFormat(&c_dfDIKeyboard);
 	if (FAILED(hr))
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to SetDataFormat for keyboard\n");
-	hr = this->keyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+	hr = m_pKeyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
 	if (FAILED(hr))
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to SetCooperativeLevel for keyboard\n");
 
 	// Init Mouse
-	hr = this->mouse->SetDataFormat(&c_dfDIMouse);
+	hr = m_pMouse->SetDataFormat(&c_dfDIMouse);
 	if (FAILED(hr))
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to SetDataFormat for mouse\n");
-	hr = this->mouse->SetCooperativeLevel(hwnd, DISCL_EXCLUSIVE | DISCL_NOWINKEY | DISCL_FOREGROUND);
+	hr = m_pMouse->SetCooperativeLevel(hwnd, DISCL_EXCLUSIVE | DISCL_NOWINKEY | DISCL_FOREGROUND);
 	if (FAILED(hr))
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to SetCooperativeLevel for mouse\n");
 
-	mouseLastState.lX = 0;
-	mouseLastState.lY = 0;
+	m_MouseLastState.lX = 0;
+	m_MouseLastState.lY = 0;
 }
 
 void TempInputClass::DetectInput(
@@ -71,35 +71,35 @@ void TempInputClass::DetectInput(
 	// Array of possible keys to be pressed
 	unsigned char keyboardState[256];
 
-	this->keyboard->Acquire();
-	this->mouse->Acquire();	// Takes control over the mouse
+	m_pKeyboard->Acquire();
+	m_pMouse->Acquire();	// Takes control over the mouse
 
-	this->mouse->GetDeviceState(sizeof(DIMOUSESTATE), &mouseCurrState);
-	this->keyboard->GetDeviceState(sizeof(keyboardState), (LPVOID)&keyboardState);
+	m_pMouse->GetDeviceState(sizeof(DIMOUSESTATE), &mouseCurrState);
+	m_pKeyboard->GetDeviceState(sizeof(keyboardState), (LPVOID)&keyboardState);
 
 	if (keyboardState[DIK_W] & 0x80)
-		*mfb += this->movementSpeed * dt;
+		*mfb += m_MovementSpeed * dt;
 
 	if (keyboardState[DIK_S] & 0x80)
-		*mfb -= this->movementSpeed * dt;
+		*mfb -= m_MovementSpeed * dt;
 
 	if (keyboardState[DIK_A] & 0x80)
-		*mlr += this->movementSpeed * dt;
+		*mlr += m_MovementSpeed * dt;
 
 	if (keyboardState[DIK_D] & 0x80)
-		*mlr -= this->movementSpeed * dt;
+		*mlr -= m_MovementSpeed * dt;
 
 	if (keyboardState[DIK_R] & 0x80)
-		*mud += this->movementSpeed * dt;
+		*mud += m_MovementSpeed * dt;
 
 	if (keyboardState[DIK_F] & 0x80)
-		*mud -= this->movementSpeed * dt;
+		*mud -= m_MovementSpeed * dt;
 
-	if ((mouseCurrState.lX != mouseLastState.lX) || (mouseCurrState.lY != mouseLastState.lY))
+	if ((mouseCurrState.lX != m_MouseLastState.lX) || (mouseCurrState.lY != m_MouseLastState.lY))
 	{
-		*camYaw += mouseLastState.lX * 0.001f;
+		*camYaw += m_MouseLastState.lX * 0.001f;
 		*camPitch += mouseCurrState.lY * 0.001f;
 
-		mouseLastState = mouseCurrState;
+		m_MouseLastState = mouseCurrState;
 	}
 }

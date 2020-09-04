@@ -1,7 +1,11 @@
 #ifndef COMMANDINTERFACE_H
 #define COMMANDINTERFACE_H
 
-#define NUM_SWAP_BUFFERS 2
+#include "Core.h"
+
+// DX12 Forward Declarations
+struct ID3D12GraphicsCommandList5;
+struct ID3D12CommandAllocator;
 
 enum COMMAND_INTERFACE_TYPE
 {
@@ -22,10 +26,10 @@ public:
 	void Reset(unsigned int index);
 
 private:
-	ID3D12GraphicsCommandList5* commandLists[NUM_SWAP_BUFFERS]{ nullptr };
-	ID3D12CommandAllocator* commandAllocators[NUM_SWAP_BUFFERS]{ nullptr };
+	ID3D12GraphicsCommandList5* m_pCommandLists[NUM_SWAP_BUFFERS]{ nullptr };
+	ID3D12CommandAllocator* m_pCommandAllocators[NUM_SWAP_BUFFERS]{ nullptr };
 
-	void CreateCommandInterfaces(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType);
+	void createCommandInterfaces(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType);
 };
 
 #endif

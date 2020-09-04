@@ -1,8 +1,5 @@
 #include "Engine.h"
 
-// Helps intellisense to understand that stdafx is included
-//#include "Headers/stdafx.h"
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -18,11 +15,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
 
+    /*------ AssetLoader to load models / textures ------*/
+    AssetLoader* al = AssetLoader::Get();
+
     // This will be loaded once from disk, then the next time the same function is called (with the same filepath),
     // the function will just return the same pointer to the model that was loaded earlier.
-    std::vector<Mesh*>* floorModel = renderer->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
-    std::vector<Mesh*>* stoneModel = renderer->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
-    std::vector<Mesh*>* cubeModel  = renderer->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    std::vector<Mesh*>* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    std::vector<Mesh*>* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    std::vector<Mesh*>* cubeModel  = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
 #pragma region CreateScene0
     // Create Scene
@@ -73,7 +73,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::BoundingBoxComponent>(true);
     entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
-    // Set the components
+    // Set the m_Components
     component::MeshComponent* mc = scene->GetEntity("floor")->GetComponent<component::MeshComponent>();
     mc->SetMeshes(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
@@ -106,8 +106,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc->SetMeshes(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::Blend);
 
-    Texture* ambientDefault = renderer->LoadTexture(L"../Vendor/Resources/Textures/Default/default_ambient.png");
-    Texture* normalDefault = renderer->LoadTexture(L"../Vendor/Resources/Textures/Default/default_normal.png");
+    Texture* ambientDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_ambient.png");
+    Texture* normalDefault  = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_normal.png");
     mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::AMBIENT , ambientDefault);
     mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::DIFFUSE , ambientDefault);
     mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::SPECULAR, ambientDefault);
@@ -132,8 +132,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity = scene->GetEntity("spotLight");
     mc = entity->GetComponent<component::MeshComponent>();
     mc->SetMeshes(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering)
-        ;
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(-20.0f, 6.0f, -3.0f);
@@ -190,25 +190,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 #pragma endregion CreateScene1
 	char sceneName[10] = "scene0";
-	sceneManager->EditScene(sceneManager->GetScene(sceneName));
+	sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
     while (!window->ExitWindow())
     {
         // ONLY HERE FOR TESTING
 		if (window->WasTabPressed())
 		{
 			// Test to change scene during runtime
-			//static int sceneSwapper = 0;
+			//static int sceneSwapper = 1;
 			//sceneSwapper %= 2;
 			//sprintf(sceneName, "scene%d", sceneSwapper);
 			//Log::Print("Scene: %s\n", sceneName);
-			//sceneManager->EditScene(sceneManager->GetScene(sceneName));
+			//sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
 			//sceneSwapper++;
 
             // Test to remove picked object
             Entity* pickedEnt = renderer->GetPickedEntity();
             if (pickedEnt != nullptr)
             {
-                sceneManager->EditScene(pickedEnt, true);
+				sceneManager->RemoveEntity(pickedEnt);
+				scene->RemoveEntity(pickedEnt->GetName());
             }
 		}
 		if (window->WasSpacePressed())
@@ -239,7 +240,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                                      cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetLookAt().z * 10, };
             tc->GetTransform()->SetPosition(spawnPosition.x, spawnPosition.y, spawnPosition.z);
             
-			sceneManager->EditScene(entity);
+			sceneManager->AddEntity(entity);
+
+			// Test to remove picked object
+			//Entity* pickedEnt = renderer->GetPickedEntity();
+			//if (pickedEnt != nullptr)
+			//{
+			//	sceneManager->RemoveEntity(pickedEnt);
+			//	scene->RemoveEntity(pickedEnt->GetName());
+			//}
         }
 
         /* ------ Update ------ */

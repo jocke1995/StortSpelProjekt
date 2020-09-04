@@ -9,22 +9,13 @@ public:
 	CopyPerFrameTask(ID3D12Device5* device);
 	virtual ~CopyPerFrameTask();
 
-	// Data to copy
-	void Submit(std::pair<void*, ConstantBufferView*>* data_CBV);
+	// The submit is inside CopyTask
 
 	// Removal
-	void ClearSpecific(const ConstantBufferView* cbv);
+	void ClearSpecific(const Resource* uploadResource);
 	void Clear();
 
 	void Execute();
-
-private:
-	std::vector<std::pair<void*, const ConstantBufferView*>> data_CBVs;
-
-	void CopyResource(
-		ID3D12GraphicsCommandList5* commandList,
-		Resource* uploadResource, Resource* defaultResource,
-		void* data);
 };
 
 #endif
