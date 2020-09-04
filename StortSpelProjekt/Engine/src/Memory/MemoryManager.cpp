@@ -22,7 +22,7 @@ void* MemoryManager::AllocHeap(size_t size)
 {
     MemoryManager& mm = MemoryManager::getInstance();
     void* toReturn = nullptr;
-    size_t nrOfBlocksToAlloc = 1 + (size / MemoryManager::GetBlockSize());
+    size_t nrOfBlocksToAlloc = 1 + ((size - 1) / MemoryManager::GetBlockSize());
     bool nFound = true;
     Block* candidate = mm.m_pHeapHead;
     Block* candChild = candidate;
@@ -31,16 +31,31 @@ void* MemoryManager::AllocHeap(size_t size)
     {
         candidate = candChild;
         nFound = candChild->pNext != candChild - 1;
-        for (int i = 1; i < nrOfBlocksToAlloc && !nFound; i++)
+
+        if (nFound)
+        {
+            candChild = candChild->pNext;
+        }
+
+        for (int i = 1; i < nrOfBlocksToAlloc && !nFound && candChild != mm.m_pStackEnd; i++)
         {
             candChild = candChild->pNext;
             nFound = candChild->pNext != candChild - 1;
         }
     }
 
+    if (candChild == mm.m_pStackEnd)
+    {
+        return nullptr;
+    }
+
     if (candidate)
     {
         toReturn = candChild->pMem;
+        if (candidate == mm.m_pHeapHead)
+            mm.m_pHeapHead = candChild->pNext;
+        else
+            mm.m_pHeapHead->pNext = candChild->pNext;
         candChild->pNext = candidate;
     }
 

@@ -220,3 +220,32 @@ TEST(MEMORYMANAGER, HEAPMANY)
 	MemoryManager::FreeHeapBlock(blockWithBlocks);
 	
 }
+
+TEST(MEMORYMANAGER, HEAPLARGE)
+{
+	void* mem = MemoryManager::AllocHeap(MemoryManager::GetBlockSize() * 2);
+	EXPECT_NE(mem, nullptr);
+
+	MemoryManager::FreeHeapBlock(mem);
+}
+
+TEST(MEMORYMANAGER, HEAPFEWANDLARGE)
+{
+	void* smallMem = MemoryManager::AllocHeapBlock();
+	void* smallMemSec = MemoryManager::AllocHeapBlock();
+	MemoryManager::FreeHeapBlock(smallMem);
+	void* mem = MemoryManager::AllocHeap(MemoryManager::GetBlockSize() * 2);
+	EXPECT_NE(mem, nullptr);
+
+	smallMem = MemoryManager::AllocHeapBlock();
+	EXPECT_NE(smallMem, nullptr);
+
+	MemoryManager::FreeHeapBlock(smallMemSec);
+	smallMemSec = MemoryManager::AllocHeap(MemoryManager::GetBlockSize() * 100);
+	EXPECT_NE(smallMemSec, nullptr);
+	MemoryManager::FreeHeapBlock(smallMemSec);
+	MemoryManager::FreeHeapBlock(smallMem);
+	MemoryManager::FreeHeapBlock(mem);
+
+
+}
