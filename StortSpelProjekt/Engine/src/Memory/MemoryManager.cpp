@@ -11,10 +11,19 @@ void* MemoryManager::AllocHeapBlock()
     MemoryManager& mm = MemoryManager::getInstance();
     void* toReturn = mm.m_pHeapHead->pMem;
     if (mm.m_pStackEnd == mm.m_pHeapHead)
+    {
+        Log::PrintSeverity(Log::Severity::CRITICAL, "MemoryManager out of memory!\n");
         return nullptr;
+    }
     Block* targetBlock = mm.m_pHeapHead;
     mm.m_pHeapHead = targetBlock->pNext;
     targetBlock->pNext = targetBlock;
+
+#ifdef _DEBUG
+    if (!toReturn)
+        Log::PrintSeverity(Log::Severity::CRITICAL, "MemoryManager could not hand out memory!\n");
+#endif // _DEBUG
+
     return toReturn;
 }
 
@@ -46,6 +55,7 @@ void* MemoryManager::AllocHeap(size_t size)
 
     if (candChild == mm.m_pStackEnd)
     {
+        Log::PrintSeverity(Log::Severity::CRITICAL, "MemoryManager out of memory!\n");
         return nullptr;
     }
 
@@ -58,6 +68,10 @@ void* MemoryManager::AllocHeap(size_t size)
             mm.m_pHeapHead->pNext = candChild->pNext;
         candChild->pNext = candidate;
     }
+#ifdef _DEBUG
+    if (!toReturn)
+        Log::PrintSeverity(Log::Severity::CRITICAL, "MemoryManager could not hand out memory!\n");
+#endif // _DEBUG
 
     return toReturn;
 }
@@ -67,8 +81,17 @@ void* MemoryManager::AllocStackBlock()
     MemoryManager& mm = MemoryManager::getInstance();
     void* toReturn = mm.m_pStackEnd->pMem;
     if (mm.m_pStackEnd == mm.m_pHeapHead)
+    {
+        Log::PrintSeverity(Log::Severity::CRITICAL, "MemoryManager out of memory!\n");
         return nullptr;
+    }
     mm.m_pStackEnd = mm.m_pStackEnd + 1;
+
+#ifdef _DEBUG
+    if (!toReturn)
+        Log::PrintSeverity(Log::Severity::CRITICAL, "MemoryManager could not hand out memory!\n");
+#endif // _DEBUG
+
     return toReturn;
 }
 
@@ -81,9 +104,16 @@ void* MemoryManager::AllocStack(size_t size)
 
     void* toReturn = mm.m_pStackEnd->pMem;
     if (mm.m_pStackEnd + nrOfBlocksToAlloc == mm.m_pHeapHead)
+    {
+        Log::PrintSeverity(Log::Severity::CRITICAL, "MemoryManager out of memory!\n");
         return nullptr;
-
+    }
     mm.m_pStackEnd = mm.m_pStackEnd + nrOfBlocksToAlloc;
+
+#ifdef _DEBUG
+    if (!toReturn)
+        Log::PrintSeverity(Log::Severity::CRITICAL, "MemoryManager could not hand out memory!\n");
+#endif // _DEBUG
 
     return toReturn;
 }
