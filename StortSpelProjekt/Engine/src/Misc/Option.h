@@ -4,24 +4,24 @@
 #include <string.h>
 #include <vector>
 #include <fstream>
+#include <utility>
+#include "Core.h"
 
 //This is a singleton class in order to be globaly accessed
 class Option {
 public:
-	static Option* getInstance();
+	static Option& GetInstance();
 
 	//Read all variables from option file
-	void readFile();
+	void ReadFile();
 	//Write all variables to option file
-	void writeFile();
+	void WriteFile();
 
-	float getVariable(std::string name);
-	void setVariable(std::string name);
+	float GetVariable(std::string name);
+	void SetVariable(std::string name, const float value);
 
 private:
-	static Option* m_Instance;
-
-	std::vector<std::string, float> m_Variables;
+	std::vector<std::pair<std::string, float>> m_Variables;
 
 	Option() {};
 };
