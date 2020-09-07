@@ -100,6 +100,16 @@ void TempInputClass::DetectInput(
 		*camYaw += m_MouseLastState.lX * 0.001f;
 		*camPitch += mouseCurrState.lY * 0.001f;
 
+		// Lock at 90 degrees pitch
+		if (*camPitch > 0.89)
+		{
+			*camPitch = 0.89;
+		}
+		else if (*camPitch < -0.89)
+		{
+			*camPitch = -0.89;
+		}
+
 		m_MouseLastState = mouseCurrState;
 	}
 }
