@@ -22,6 +22,13 @@ num + num2; // Yes
 num+num2; // NO!
 ```
 
+* Use c++ style casting
+```cpp
+int a = 5;
+double b = static_cast<double>(a); // Yes
+double b = a // NO!
+```
+
 ## Functions and methods
 Any function or public method should be named with an initial capital letter and then follow "CamelCasing" standard. Private methods should be named with normal "camelCasing".
 
