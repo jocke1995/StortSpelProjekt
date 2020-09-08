@@ -18,17 +18,39 @@ struct Entry
 class FreeList
 {
 public:
-	FreeList(void* mem, size_t size);
 
-	void* Allocate(size_t size);
-	void Free(void* ptr);
+	static void* Allocate(size_t size);
+	template<typename T, typename ...Args>
+	static T* Allocate(const Args& ... args);
+	static void Free(void* ptr);
+	template<typename T>
+	static void Free(T* ptr);
 
 private:
+	FreeList();
 	bool deFragList();
 	Entry* findSuitableEntry(size_t size);
+	static FreeList& getInstance();
 
 	void* m_pMem;
 	Entry* m_pHead;
 };
 
 #endif
+
+template<typename T, typename ...Args>
+inline T* FreeList::Allocate(const Args& ...args)
+{
+	T* ptr = new (FreeList::Allocate(sizeof(T))) T(args...);
+	return ptr;
+}
+
+template<typename T>
+inline void FreeList::Free(T* ptr)
+{
+	if (ptr)
+	{
+		ptr->~T();
+		FreeList::Free(static_cast<void*>(ptr));
+	}
+}
