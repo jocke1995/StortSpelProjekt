@@ -4,19 +4,21 @@
 class StackAllocator
 {
 public:
-	StackAllocator(void* start, void* end);
 
-	void* Allocate(size_t size);
+	static void* Allocate(size_t size);
 
 	template<typename T, typename ...Args>
-	T* Allocate(Args... args);
+	static T* Allocate(Args... args);
 
-	void Free(void* ptr);
+	static void Free(void* ptr);
 
 	template<typename T>
-	void Free(T* ptr);
+	static void Free(T* ptr);
 
 private:
+	
+	StackAllocator();
+	static StackAllocator& getInstace();
 	char* m_pStart;
 	char* m_pEnd;
 	char* m_pCurrent;
@@ -36,5 +38,5 @@ template<typename T>
 inline void StackAllocator::Free(T* ptr)
 {
 	ptr->~T();
-	Free(static_cast<void*>ptr);
+	Free(static_cast<void*>(ptr));
 }

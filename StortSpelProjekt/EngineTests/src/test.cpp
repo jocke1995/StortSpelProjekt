@@ -3,9 +3,9 @@
 #include <crtdbg.h>
 #include "Memory/FreeList.h"
 #include "Memory/StackAllocator.h"
-
 #include "Memory/MemoryManager.h"
 #include "Headers/Core.h"
+
 int main(int argc, char** argv)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -13,31 +13,43 @@ int main(int argc, char** argv)
 	return RUN_ALL_TESTS();
 }
 
+class memTester
+{
+public:
+	inline memTester(int id) { memset(m_Bytes, 0, 1024); m_pDynamicInteger = (int*)FreeList::Allocate(sizeof(int)); *m_pDynamicInteger = id; };
+	inline ~memTester() { Log::Print("memTester with ID %d deleted.\n", *m_pDynamicInteger); FreeList::Free(m_pDynamicInteger); };
+	inline int GetId() { return *m_pDynamicInteger; };
+private:
+	char m_Bytes[1024];
+	int* m_pDynamicInteger;
+};
+
+
 TEST(STACKALLOCATORTEST, ALLOCATE)
 {
-	void* start = malloc(500);
-
-	StackAllocator sa(start, (static_cast<char*>(start) + 500));
-	void* testVar = sa.Allocate(255);
+	void* testVar = StackAllocator::Allocate(255);
 
 	EXPECT_NE(testVar, nullptr);
 
-	free(start);
+	StackAllocator::Free(testVar);
 }
 
-TEST(STACKALLOCATORTEST, FREE)
+TEST(STACKALLOCATORTEST, CUSTOMCLASS)
 {
-	void* start = malloc(1000);
+	Log::Print("\n======STACK TEST WITH CUSTOM CLASS======\n\n");
+	size_t numberOfElements = 100;
+	memTester** arrPtrs = static_cast<memTester**>(StackAllocator::Allocate(sizeof(memTester) * numberOfElements));
 
-	StackAllocator sa(start, (static_cast<char*>(start) + 1000));
-	void* testVar1 = sa.Allocate(255);
-	void* testVar2 = sa.Allocate(255);
+	for (int i = 0; i < numberOfElements; i++)
+	{
+		arrPtrs[i] = StackAllocator::Allocate<memTester>(i);
+	}
 
-	sa.Free(testVar2);
-
-	EXPECT_EQ(sa.Allocate(0), testVar2);
-
-	free(start);
+	for (int i = numberOfElements - 1; i >= 0; i--)
+	{
+		StackAllocator::Free(arrPtrs[i]);
+	}
+	StackAllocator::Free(arrPtrs);
 }
 
 TEST(INITTEST, ZEROISZERO)
@@ -46,101 +58,6 @@ TEST(INITTEST, ZEROISZERO)
 }
 
 // ------------------ FREELIST ------------------
-/*
-TEST(FREELIST, ALLOCELEMENT)
-{
-	// INIT
-	size_t toAlloc = sizeof(Entry) + sizeof(int);
-	void* mem = malloc(toAlloc);
-	FreeList allocator(mem, toAlloc);
-
-	// TEST
-	int* element = (int*)allocator.Allocate(sizeof(int));
-
-	EXPECT_NE(element, nullptr);
-
-	// RESET
-	free(mem);
-}
-
-TEST(FREELIST, ALLOCMANY)
-{
-	// INIT
-	size_t nrOfElements = 5;
-	size_t toAlloc = (sizeof(Entry) + sizeof(int)) * nrOfElements;
-	void* mem = malloc(toAlloc);
-	FreeList allocator(mem, toAlloc);
-
-	// TEST
-	int* elements = (int*)allocator.Allocate(sizeof(int) * nrOfElements);
-
-	for (int i = 0; i < nrOfElements; i++)
-	{
-		elements[i] = i;
-	}
-
-	allocator.Free(elements);
-
-	// RESET
-	free(mem);
-}
-
-TEST(FREELIST, ALLOCPTRS)
-{
-	// INIT
-	size_t nrOfElements = 5;
-	size_t toAlloc = (sizeof(Entry) + sizeof(int)) * nrOfElements + sizeof(Entry) + (sizeof(int*)) * nrOfElements;
-	void* mem = malloc(toAlloc);
-	FreeList allocator(mem, toAlloc);
-
-	// TEST
-	int** elementsPtr = (int**)allocator.Allocate(sizeof(int*) * nrOfElements);
-
-	for (int i = 0; i < nrOfElements; i++)
-	{
-		elementsPtr[i] = (int*)allocator.Allocate(sizeof(int));
-		*elementsPtr[i] = i;
-	}
-
-	// RESET
-	free(mem);
-}
-
-TEST(FREELIST, ALLOCANDFREE)
-{
-	// INIT
-	size_t nrOfElements = 5;
-	size_t toAlloc = (sizeof(Entry) + sizeof(int)) * nrOfElements + sizeof(Entry) + (sizeof(int*)) * nrOfElements;
-	void* mem = malloc(toAlloc);
-	FreeList allocator(mem, toAlloc);
-
-	// TEST
-	int** elementsPtr = (int**)allocator.Allocate(sizeof(int*) * nrOfElements);
-
-	for (int i = 0; i < nrOfElements; i++)
-	{
-		elementsPtr[i] = (int*)allocator.Allocate(sizeof(int));
-		*elementsPtr[i] = i;
-	}
-
-	// Because of the properties of the freelist, it should go faster to free from the back
-	// as parents try to merge with their children.
-	for (int i = nrOfElements - 1; i >= 0; i--)
-	{
-		allocator.Free(elementsPtr[i]);
-	}
-	allocator.Free(elementsPtr);
-
-	// Once everythin is deallocated we should have room to allocate all of the memory minus the size of an entry
-
-	void* largerAlloc = allocator.Allocate(toAlloc - sizeof(Entry));
-
-	EXPECT_NE(largerAlloc, nullptr);
-
-	// RESET
-	free(mem);
-}
-*/
 
 TEST(FREELIST, ALLOCELEMENT)
 {
@@ -212,19 +129,9 @@ TEST(FREELIST, ALLOCANDFREE)
 	}
 }
 
-class memTester
-{
-public:
-	inline memTester(int id) { memset(m_Bytes, 0, 1024); m_pDynamicInteger = (int*)FreeList::Allocate(sizeof(int)); *m_pDynamicInteger = id; };
-	inline ~memTester() { Log::Print("memTester with ID %d deleted.\n", *m_pDynamicInteger); FreeList::Free(m_pDynamicInteger); };
-	inline int GetId() { return *m_pDynamicInteger; };
-private:
-	char m_Bytes[1024];
-	int* m_pDynamicInteger;
-};
-
 TEST(FREELIST, CUSTOMCLASS)
 {
+	Log::Print("\n======FREELIST TEST WITH CUSTOM CLASS======\n\n");
 	size_t nrOfElements = 100;
 
 	memTester** ptrs = (memTester**)FreeList::Allocate(nrOfElements * sizeof(memTester*));
@@ -268,7 +175,7 @@ TEST(FREELIST, CUSTOMCLASS)
 }
 
 // ------------------ MemoryManager ------------------
-TEST(MEMORYMANAGER, STACKBASIC)
+TEST(MM, STACKBASIC)
 {
 	void* block = MemoryManager::AllocStackBlock();
 	EXPECT_NE(block, nullptr);
@@ -277,7 +184,7 @@ TEST(MEMORYMANAGER, STACKBASIC)
 		MemoryManager::FreeStackBlock(block);
 }
 
-TEST(MEMORYMANAGER, STACKFEW)
+TEST(MM, STACKFEW)
 {
 	void* blockFirst = MemoryManager::AllocStackBlock();
 	void* blockSecond = MemoryManager::AllocStackBlock();
@@ -299,7 +206,7 @@ TEST(MEMORYMANAGER, STACKFEW)
 		MemoryManager::FreeStackBlock(blockFirst);
 }
 
-TEST(MEMORYMANAGER, STACKMANY)
+TEST(MM, STACKMANY)
 {
 	void** blockWithBlocks = (void**)MemoryManager::AllocStackBlock();
 
@@ -323,7 +230,7 @@ TEST(MEMORYMANAGER, STACKMANY)
 	}
 }
 
-TEST(MEMORYMANAGER, HEAPBASIC)
+TEST(MM, HEAPBASIC)
 {
 	void* block = MemoryManager::AllocHeapBlock();
 	EXPECT_NE(nullptr, block);
@@ -331,7 +238,7 @@ TEST(MEMORYMANAGER, HEAPBASIC)
 		MemoryManager::FreeHeapBlock(block);
 }
 
-TEST(MEMORYMANAGER, HEAPFEW)
+TEST(MM, HEAPFEW)
 {
 	void* blockFirst = MemoryManager::AllocHeapBlock();
 	void* blockSecond = MemoryManager::AllocHeapBlock();
@@ -355,7 +262,7 @@ TEST(MEMORYMANAGER, HEAPFEW)
 		MemoryManager::FreeHeapBlock(blockSecond);
 }
 
-TEST(MEMORYMANAGER, HEAPMANY)
+TEST(MM, HEAPMANY)
 {
 	void** blockWithBlocks = (void**)MemoryManager::AllocHeapBlock();
 
@@ -380,7 +287,7 @@ TEST(MEMORYMANAGER, HEAPMANY)
 	}
 }
 
-TEST(MEMORYMANAGER, HEAPLARGE)
+TEST(MM, HEAPLARGE)
 {
 	void* mem = MemoryManager::AllocHeap(MemoryManager::GetBlockSize() * 2);
 	EXPECT_NE(mem, nullptr);
@@ -389,7 +296,7 @@ TEST(MEMORYMANAGER, HEAPLARGE)
 		MemoryManager::FreeHeapBlock(mem);
 }
 
-TEST(MEMORYMANAGER, HEAPFEWANDLARGE)
+TEST(MM, HEAPFEWANDLARGE)
 {
 	void* smallMem = MemoryManager::AllocHeapBlock();
 	void* smallMemSec = MemoryManager::AllocHeapBlock();
