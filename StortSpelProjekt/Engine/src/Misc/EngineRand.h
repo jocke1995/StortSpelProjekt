@@ -14,8 +14,8 @@ public:
 	unsigned long Rand(unsigned long min, unsigned long max);
 private:
 	unsigned long m_Seed;
-	unsigned long m_Multiplier = 1664525;
-	unsigned long m_Incrementer = 1013904223;
+	unsigned long m_Multiplier;
+	unsigned long m_Incrementer;
 	unsigned long m_Prime;
 };
 
