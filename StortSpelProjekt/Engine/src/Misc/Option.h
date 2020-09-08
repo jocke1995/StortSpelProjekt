@@ -1,11 +1,10 @@
 #ifndef OPTION_H
 #define OPTION_H
 
-#include <string.h>
 #include <vector>
 #include <fstream>
 #include <utility>
-#include "Core.h"
+#include "../Headers/Core.h"
 
 //This is a singleton class in order to be globaly accessed
 class Option {
