@@ -65,6 +65,7 @@ Renderer::~Renderer()
 
 	delete m_pRootSignature;
 	delete m_pSwapChain;
+	delete m_pBrightTarget;
 	delete m_pMainDSV;
 
 	for (auto& pair : m_DescriptorHeaps)
@@ -114,8 +115,9 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	// Fence for WaitForFrame();
 	createFences();
 
-	// Create SwapChain
+	// Rendertargets
 	createSwapChain(hwnd);
+	createBrightRenderTarget(hwnd);
 
 	// Create Main DepthBuffer
 	createMainDSV(hwnd);
@@ -458,6 +460,20 @@ void Renderer::createSwapChain(const HWND *hwnd)
 		width, height,
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV]);
+}
+
+void Renderer::createBrightRenderTarget(const HWND* hwnd)
+{
+	RECT rect;
+	unsigned int width = 0;
+	unsigned int height = 0;
+	if (GetWindowRect(*hwnd, &rect))
+	{
+		width = rect.right - rect.left;
+		height = rect.bottom - rect.top;
+	}
+
+	m_pBrightTarget = new RenderTarget(m_pDevice5, width, height, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV]);
 }
 
 void Renderer::createMainDSV(const HWND* hwnd)

@@ -13,6 +13,7 @@ class ThreadPool;
 // Renderer Engine
 class RootSignature;
 class SwapChain;
+class RenderTarget;
 class DepthStencilView;
 class ConstantBufferView;
 class MousePicker;
@@ -87,8 +88,10 @@ private:
 	// CommandQueues
 	std::map<COMMAND_INTERFACE_TYPE, ID3D12CommandQueue*> m_CommandQueues;
 
+	// RenderTargets
 	// Swapchain (inheriting from 'RenderTarget')
 	SwapChain* m_pSwapChain = nullptr;
+	RenderTarget* m_pBrightTarget = nullptr;	// used for bloom
 
 	// Depthbuffer
 	DepthStencilView* m_pMainDSV = nullptr;
@@ -146,6 +149,7 @@ private:
 	bool createDevice();
 	void createCommandQueues();
 	void createSwapChain(const HWND *hwnd);
+	void createBrightRenderTarget(const HWND* hwnd);
 	void createMainDSV(const HWND* hwnd);
 	void createRootSignature();
 	void updateMousePicker();
