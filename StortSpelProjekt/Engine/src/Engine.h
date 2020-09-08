@@ -22,7 +22,7 @@
 #include "Renderer/Transform.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/BaseCamera.h"
-// #include "physics"
+#include "Physics/Physics.h"
 // #include "audio"
 
 #include "Misc/AssetLoader.h"
@@ -41,6 +41,7 @@ public:
 
 	Renderer* const GetRenderer() const;
 	SceneManager* const GetSceneHandler() const;
+	Physics* const GetPhysics() const;
 
 private:
 	Window* m_Window = nullptr;
@@ -49,6 +50,7 @@ private:
 
 	Renderer* m_Renderer = nullptr;
 	SceneManager* m_SceneManager = nullptr;
+	Physics* m_Physics = nullptr;
 };
 
 #endif

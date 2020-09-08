@@ -58,6 +58,11 @@ SceneManager* const Engine::GetSceneHandler() const
 	return m_SceneManager;
 }
 
+Physics* const Engine::GetPhysics() const
+{
+	return m_Physics;
+}
+
 Renderer* const Engine::GetRenderer() const
 {
 	return m_Renderer;
