@@ -17,19 +17,22 @@ void Option::ReadFile()
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "Attempted to open non-existing config file");
 	}
-
-	m_Variables.clear();
-	int i = 0;
-	while(!file.eof()) 
+	else
 	{
-		std::string tempName;
-		std::string tempFloat;
 
-		std::getline(file, tempName, ' ');
-		std::getline(file, tempFloat, '\n');
+		m_Variables.clear();
+		int i = 0;
+		while (!file.eof())
+		{
+			std::string tempName;
+			std::string tempFloat;
 
-		if(tempName != "")
-			m_Variables.push_back(std::pair(tempName, std::atof(tempFloat.c_str())));
+			std::getline(file, tempName, ' ');
+			std::getline(file, tempFloat, '\n');
+
+			if (tempName != "")
+				m_Variables.push_back(std::pair(tempName, std::atof(tempFloat.c_str())));
+		}
 	}
 }
 
