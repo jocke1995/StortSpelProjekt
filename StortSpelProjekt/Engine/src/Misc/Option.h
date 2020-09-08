@@ -22,7 +22,7 @@ public:
 
 private:
 	std::vector<std::pair<std::string, float>> m_Variables;
-
+	
 	Option() {};
 };
 
