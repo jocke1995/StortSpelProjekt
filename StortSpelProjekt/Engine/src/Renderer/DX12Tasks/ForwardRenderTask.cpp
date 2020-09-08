@@ -34,6 +34,7 @@ void FowardRenderTask::Execute()
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
 	ID3D12Resource1* swapChainResource = m_RenderTargets["swapChain"]->GetResource(m_BackBufferIndex)->GetID3D12Resource1();
+	ID3D12Resource1* BrightTargetResource = m_RenderTargets["brightTarget"]->GetResource(m_BackBufferIndex)->GetID3D12Resource1();
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
@@ -52,24 +53,45 @@ void FowardRenderTask::Execute()
 		D3D12_RESOURCE_STATE_PRESENT,
 		D3D12_RESOURCE_STATE_RENDER_TARGET));
 
+	// Change state on front/backbuffer
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+		BrightTargetResource,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		D3D12_RESOURCE_STATE_RENDER_TARGET));
+
 	DescriptorHeap* renderTargetHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
 	DescriptorHeap* depthBufferHeap  = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 
-	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
+	// RenderTargets
+	const unsigned int SwapChainIndex = m_RenderTargets["swapChain"]->GetDescriptorHeapIndex(m_BackBufferIndex);
+	const unsigned int brightTargetIndex = m_RenderTargets["brightTarget"]->GetDescriptorHeapIndex(m_BackBufferIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(SwapChainIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE cdhBrightTarget = renderTargetHeap->GetCPUHeapAt(brightTargetIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE cdhs[] = { cdhSwapChain, cdhBrightTarget };
+
+	// Depth
 	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
 
-	commandList->OMSetRenderTargets(1, &cdh, true, &dsh);
+	commandList->OMSetRenderTargets(2, cdhs, false, &dsh);
 
 	float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	commandList->ClearRenderTargetView(cdh, clearColor, 0, nullptr);
+	commandList->ClearRenderTargetView(cdhSwapChain, clearColor, 0, nullptr);
+	commandList->ClearRenderTargetView(cdhBrightTarget, clearColor, 0, nullptr);
 
 	commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
 	SwapChain* sc = static_cast<SwapChain*>(m_RenderTargets["swapChain"]);
-	const D3D12_VIEWPORT* viewPort = sc->GetRenderView()->GetViewPort();
+	const D3D12_VIEWPORT viewPortSwapChain = *m_RenderTargets["swapChain"]->GetRenderView()->GetViewPort();
+	const D3D12_VIEWPORT viewPortBrightTarget = *m_RenderTargets["brightTarget"]->GetRenderView()->GetViewPort();
+	const D3D12_VIEWPORT viewPorts[2] = { viewPortSwapChain, viewPortBrightTarget };
+
+	const D3D12_RECT rectSwapChain = *m_RenderTargets["swapChain"]->GetRenderView()->GetScissorRect();
+	const D3D12_RECT rectBrightTarget = *m_RenderTargets["brightTarget"]->GetRenderView()->GetScissorRect();
+	const D3D12_RECT rects[2] = { rectSwapChain, rectBrightTarget };
+
 	const D3D12_RECT* rect = sc->GetRenderView()->GetScissorRect();
-	commandList->RSSetViewports(1, viewPort);
-	commandList->RSSetScissorRects(1, rect);
+	commandList->RSSetViewports(2, viewPorts);
+	commandList->RSSetScissorRects(2, rects);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Set cbvs
@@ -106,6 +128,12 @@ void FowardRenderTask::Execute()
 		commandList->OMSetStencilRef(1);
 		drawRenderComponent(outlinedModel.first, outlinedModel.second, viewProjMatTrans, commandList);
 	}
+
+	// Change state on front/backbuffer
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+		BrightTargetResource,
+		D3D12_RESOURCE_STATE_RENDER_TARGET,
+		D3D12_RESOURCE_STATE_GENERIC_READ));
 	
 	// Change state on front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(

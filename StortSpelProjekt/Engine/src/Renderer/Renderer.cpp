@@ -555,8 +555,9 @@ void Renderer::initRenderTasks()
 	gpsdForwardRender.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	// RenderTarget
+	gpsdForwardRender.NumRenderTargets = 2;
 	gpsdForwardRender.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	gpsdForwardRender.NumRenderTargets = 1;
+	gpsdForwardRender.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	// Depthstencil usage
 	gpsdForwardRender.SampleDesc.Count = 1;
 	gpsdForwardRender.SampleMask = UINT_MAX;
@@ -593,7 +594,7 @@ void Renderer::initRenderTasks()
 	dsd.DepthEnable = true;
 	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-
+	
 	// DepthStencil
 	dsd.StencilEnable = true;
 	dsd.StencilReadMask = 0x00;
@@ -622,6 +623,7 @@ void Renderer::initRenderTasks()
 	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
 	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
 	forwardRenderTask->AddRenderTarget("swapChain", m_pSwapChain);
+	forwardRenderTask->AddRenderTarget("brightTarget", m_pBrightTarget);
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	
 
@@ -954,7 +956,7 @@ void Renderer::removeComponents(Entity* entity)
 		{
 			m_RenderComponents.erase(m_RenderComponents.begin() + i);
 			setRenderTasksRenderComponents();
-
+			
 			// Remove from CopyPerFrame
 			component::MeshComponent* mc = parent->GetComponent<component::MeshComponent>();
 			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)

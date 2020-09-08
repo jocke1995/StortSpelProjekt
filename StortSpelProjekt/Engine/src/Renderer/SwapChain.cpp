@@ -22,8 +22,8 @@ SwapChain::SwapChain(
 
 	//Create descriptor
 	DXGI_SWAP_CHAIN_DESC1 scDesc = {};
-	scDesc.Width = 0;
-	scDesc.Height = 0;
+	scDesc.Width = width;
+	scDesc.Height = height;
 	scDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	scDesc.Stereo = FALSE;
 	scDesc.SampleDesc.Count = 1;
@@ -56,6 +56,9 @@ SwapChain::SwapChain(
 
 	SAFE_RELEASE(&factory);
 
+	//D3D12_RENDER_TARGET_VIEW_DESC rtvd = {};
+	//rtvd.
+
 	// Connect the m_RenderTargets to the swapchain, so that the swapchain can easily swap between these two m_RenderTargets
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
@@ -65,8 +68,8 @@ SwapChain::SwapChain(
 			Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to GetBuffer from RenderTarget to Swapchain\n");
 		}
 
-		unsigned int dhIndex = descriptorHeap_RTV->GetNextDescriptorHeapIndex(1);
-		D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_RTV->GetCPUHeapAt(dhIndex);
+		m_dhIndices[i] = descriptorHeap_RTV->GetNextDescriptorHeapIndex(1);
+		D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_RTV->GetCPUHeapAt(m_dhIndices[i]);
 		device->CreateRenderTargetView(*m_Resources[i]->GetID3D12Resource1PP(), nullptr, cdh);
 	}
 }

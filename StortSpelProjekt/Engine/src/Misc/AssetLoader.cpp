@@ -69,7 +69,7 @@ std::vector<Mesh*>* AssetLoader::LoadModel(const std::wstring path)
 	const std::string filePath(path.begin(), path.end());
 	Assimp::Importer importer;
 
-	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
+	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
 
 	if (assimpScene == nullptr)
 	{

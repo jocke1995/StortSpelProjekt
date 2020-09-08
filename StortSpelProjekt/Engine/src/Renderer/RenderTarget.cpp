@@ -26,6 +26,14 @@ RenderTarget::RenderTarget(
 	D3D12_RENDER_TARGET_VIEW_DESC viewDesc = {};
 	viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	viewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
+	// Clearvalue
+	D3D12_CLEAR_VALUE clearValue = {};
+	clearValue.Format = resourceDesc.Format;
+	clearValue.Color[0] = 0.1f;
+	clearValue.Color[1] = 0.1f;
+	clearValue.Color[2] = 0.1f;
+	clearValue.Color[3] = 1.0f;
 	
 	// Create m_Resources and RTVs
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -33,14 +41,14 @@ RenderTarget::RenderTarget(
 		Resource* resource = new Resource(
 			device,
 			&resourceDesc,
-			nullptr,
+			&clearValue,
 			L"RenderTarget_DEFAULT_RESOURCE",
 			D3D12_RESOURCE_STATE_GENERIC_READ);
 	
 		m_Resources.push_back(resource);
 
-		unsigned int dhIndex = descriptorHeap_RTV->GetNextDescriptorHeapIndex(1);
-		D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_RTV->GetCPUHeapAt(dhIndex);
+		m_dhIndices[i] = descriptorHeap_RTV->GetNextDescriptorHeapIndex(1);
+		D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_RTV->GetCPUHeapAt(m_dhIndices[i]);
 		device->CreateRenderTargetView(resource->GetID3D12Resource1(), &viewDesc, cdh);
 	}
 	
@@ -75,4 +83,9 @@ Resource* RenderTarget::GetResource(unsigned int index) const
 RenderView* RenderTarget::GetRenderView() const
 {
 	return m_pRenderView;
+}
+
+const unsigned int RenderTarget::GetDescriptorHeapIndex(unsigned int backBufferIndex) const
+{
+	return m_dhIndices[backBufferIndex];
 }
