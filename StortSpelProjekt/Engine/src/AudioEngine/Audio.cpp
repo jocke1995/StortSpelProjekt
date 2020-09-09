@@ -3,7 +3,7 @@
 
 Audio::Audio()
 {
-    pSourceVoice = nullptr;
+    m_pSourceVoice = nullptr;
     m_Wfx = { 0 };
     m_Buffer = { 0 };
     m_Hr = NULL;
@@ -11,13 +11,17 @@ Audio::Audio()
 
 Audio::~Audio()
 {
+    m_pSourceVoice->DestroyVoice();
+    delete m_Buffer.pAudioData;
 }
 
 HRESULT Audio::findChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& dwChunkDataPosition)
 {
     HRESULT hr = S_OK;
     if (INVALID_SET_FILE_POINTER == SetFilePointer(hFile, 0, NULL, FILE_BEGIN))
+    {
         return HRESULT_FROM_WIN32(GetLastError());
+    }
 
     DWORD dwChunkType;
     DWORD dwChunkDataSize;
@@ -30,10 +34,14 @@ HRESULT Audio::findChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& 
     {
         DWORD dwRead;
         if (0 == ReadFile(hFile, &dwChunkType, sizeof(DWORD), &dwRead, NULL))
+        {
             hr = HRESULT_FROM_WIN32(GetLastError());
+        }
 
         if (0 == ReadFile(hFile, &dwChunkDataSize, sizeof(DWORD), &dwRead, NULL))
+        {
             hr = HRESULT_FROM_WIN32(GetLastError());
+        }
 
         switch (dwChunkType)
         {
@@ -41,12 +49,16 @@ HRESULT Audio::findChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& 
             dwRIFFDataSize = dwChunkDataSize;
             dwChunkDataSize = 4;
             if (0 == ReadFile(hFile, &dwFileType, sizeof(DWORD), &dwRead, NULL))
+            {
                 hr = HRESULT_FROM_WIN32(GetLastError());
+            }
             break;
 
         default:
             if (INVALID_SET_FILE_POINTER == SetFilePointer(hFile, dwChunkDataSize, NULL, FILE_CURRENT))
+            {
                 return HRESULT_FROM_WIN32(GetLastError());
+            }
         }
 
         dwOffset += sizeof(DWORD) * 2;
@@ -60,7 +72,10 @@ HRESULT Audio::findChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& 
 
         dwOffset += dwChunkDataSize;
 
-        if (bytesRead >= dwRIFFDataSize) return S_FALSE;
+        if (bytesRead >= dwRIFFDataSize)
+        {
+            return S_FALSE;
+        }
     }
 
     return S_OK;
@@ -70,10 +85,16 @@ HRESULT Audio::readChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD
 {
     HRESULT hr = S_OK;
     if (INVALID_SET_FILE_POINTER == SetFilePointer(hFile, bufferoffset, NULL, FILE_BEGIN))
+    {
         return HRESULT_FROM_WIN32(GetLastError());
+    }
+
     DWORD dwRead;
     if (0 == ReadFile(hFile, buffer, buffersize, &dwRead, NULL))
+    {
         hr = HRESULT_FROM_WIN32(GetLastError());
+    }
+
     return hr;
 }
 
@@ -92,10 +113,14 @@ void Audio::OpenFile(IXAudio2* pXAudio2, const TCHAR* sound)
         NULL);
 
     if (INVALID_HANDLE_VALUE == hFile)
+    {
         Log::Print("Invalid handle value\n");
+    }
 
     if (INVALID_SET_FILE_POINTER == SetFilePointer(hFile, 0, NULL, FILE_BEGIN))
+    {
         Log::Print("Invalid set file pointer\n");
+    }
 
     DWORD dwChunkSize;
     DWORD dwChunkPosition;
@@ -120,13 +145,12 @@ void Audio::OpenFile(IXAudio2* pXAudio2, const TCHAR* sound)
     m_Buffer.pAudioData = pDataBuffer;  //size of the audio buffer in bytes
     m_Buffer.Flags = XAUDIO2_END_OF_STREAM; // tell the source voice not to expect any data after this buffer
 
-    if (FAILED(m_Hr = pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&m_Wfx)))
+    if (FAILED(m_Hr = pXAudio2->CreateSourceVoice(&m_pSourceVoice, (WAVEFORMATEX*)&m_Wfx)))
     {
         Log::Print("Failed creating sound source\n");
     }
 
-
-    if (FAILED(m_Hr = pSourceVoice->SubmitSourceBuffer(&m_Buffer)))
+    if (FAILED(m_Hr = m_pSourceVoice->SubmitSourceBuffer(&m_Buffer)))
     {
         Log::Print("Failed to submit source buffer\n");
     }
@@ -138,21 +162,21 @@ void Audio::OpenFile(IXAudio2* pXAudio2, const TCHAR* sound)
     m_Buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
     StopAudio();
 
-    pSourceVoice->SetVolume(0.1);
+    m_pSourceVoice->SetVolume(0.1);
 }
 
 void Audio::PlayAudio()
 {
     // reset the buffer if sound has ended
     XAUDIO2_VOICE_STATE test;
-    pSourceVoice->GetState(&test);
+    m_pSourceVoice->GetState(&test);
     if (test.BuffersQueued == 0)
     {
         StopAudio();
     }
 
     // play the sound
-    if (FAILED(m_Hr = pSourceVoice->Start(0)))
+    if (FAILED(m_Hr = m_pSourceVoice->Start(0)))
     {
         Log::Print("Error playing audio\n");
     }
@@ -161,11 +185,11 @@ void Audio::PlayAudio()
 void Audio::StopAudio()
 {
     // stop playback
-    if (FAILED(m_Hr = pSourceVoice->Stop(0)))
+    if (FAILED(m_Hr = m_pSourceVoice->Stop(0)))
     {
         Log::Print("Error stopping audio\n");
     }
     // reset the buffer so the sound starts from the beginning at next playback
-    pSourceVoice->FlushSourceBuffers();
-    pSourceVoice->SubmitSourceBuffer(&m_Buffer);
+    m_pSourceVoice->FlushSourceBuffers();
+    m_pSourceVoice->SubmitSourceBuffer(&m_Buffer);
 }

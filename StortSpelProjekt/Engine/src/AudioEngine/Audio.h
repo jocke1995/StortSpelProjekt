@@ -22,7 +22,7 @@ public:
 	void StopAudio();
 
 private:
-	IXAudio2SourceVoice* pSourceVoice;
+	IXAudio2SourceVoice* m_pSourceVoice;
 	WAVEFORMATEXTENSIBLE m_Wfx;
 	XAUDIO2_BUFFER m_Buffer;
 	HRESULT m_Hr;
