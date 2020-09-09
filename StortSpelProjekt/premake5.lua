@@ -37,7 +37,7 @@ project "Engine"
         ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Game"),
         ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Sandbox")
     }
-    defines{"SFML_STATIC","_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE"}
+    defines{"_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE"}
         filter "configurations:Debug"
             defines { "_DEBUG" }
             symbols "On"
@@ -142,7 +142,7 @@ project "Server"
     includedirs {"Vendor/Include/", "Engine/src/", "Engine/src/Headers/"}
     links {"Engine"}
     filter "configurations:Debug"
-        defines { "SFML_STATIC","_DEBUG", "_CONSOLE" }
+        defines {"_DEBUG", "_CONSOLE" }
         symbols "On"
 
     filter "configurations:Release"
