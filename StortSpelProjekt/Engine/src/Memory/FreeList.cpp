@@ -1,18 +1,21 @@
 #include "stdafx.h"
 #include "FreeList.h"
 #include <new>
-FreeList::FreeList(void* mem, size_t size): m_pMem(nullptr), m_pHead(nullptr)
+#include "MemoryManager.h"
+
+FreeList::FreeList(): m_pMem(nullptr), m_pHead(nullptr)
 {
+	m_pMem = MemoryManager::AllocHeapBlock();
+
 	// If the memory is smaller or equal to the size of an entry, there is no point in ursing it.
-	if (size <= sizeof(Entry))
+	if (MemoryManager::GetBlockSize() <= sizeof(Entry))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL,"MEMORY ERROR: FreeList did not recieve enough memory!");
 		return;
 	}
 
-	m_pMem = mem;
 	m_pHead = (Entry*)new (m_pMem) Entry;
-	m_pHead->Size = size - sizeof(Entry);
+	m_pHead->Size = MemoryManager::GetBlockSize() - sizeof(Entry);
 	m_pHead->pPayload = (void*)((char*)m_pMem + sizeof(Entry));
 	m_pHead->busy = false;
 	m_pHead->pNext = nullptr;
@@ -21,8 +24,8 @@ FreeList::FreeList(void* mem, size_t size): m_pMem(nullptr), m_pHead(nullptr)
 void* FreeList::Allocate(size_t size)
 {
 	void* payload = nullptr;
-
-	Entry* candidate = findSuitableEntry(size);
+	FreeList& fl = FreeList::getInstance();
+	Entry* candidate = fl.findSuitableEntry(size);
 	Entry* excess = nullptr;
 
 	if (candidate)
@@ -44,9 +47,38 @@ void* FreeList::Allocate(size_t size)
 		candidate->busy = true;
 		payload = candidate->pPayload;
 	}
-	else if (deFragList())
+	else if (fl.deFragList())
 	{
-		candidate = findSuitableEntry(size);
+		candidate = fl.findSuitableEntry(size);
+	}
+	else
+	{
+		size_t sizeOfNewMem = Max(size + sizeof(Entry), MemoryManager::GetBlockSize());
+		void* mem = MemoryManager::AllocHeap(sizeOfNewMem);
+
+		if (mem)
+		{
+			candidate = new (mem) Entry;
+			candidate->Size = sizeOfNewMem - sizeof(Entry);
+			candidate->pPayload = static_cast<char*>(mem) + sizeof(Entry);
+			candidate->pNext = fl.m_pHead;
+
+			if (candidate->Size > size + sizeof(Entry))
+			{
+				excess = new ((char*)candidate->pPayload + size) Entry;
+				excess->busy = false;
+
+				excess->pNext = candidate->pNext;
+				candidate->pNext = excess;
+
+				excess->Size = candidate->Size - size - sizeof(Entry);
+				candidate->Size = size;
+
+				excess->pPayload = (char*)excess + sizeof(Entry);
+			}
+			candidate->busy = true;
+			payload = candidate->pPayload;
+		}
 	}
 	// TODO, if no suitable memory was found after defrag, ask memorymanager for more.
 
@@ -55,17 +87,20 @@ void* FreeList::Allocate(size_t size)
 
 void FreeList::Free(void* ptr)
 {
-	Entry* entry = (Entry*)((char*)ptr - sizeof(Entry));
-
-	entry->busy = false;
-
-	// Merge the neighbours if they are both free :D
-	if (entry->pNext)
+	if (ptr)
 	{
-		if (!entry->pNext->busy)
+		Entry* entry = (Entry*)((char*)ptr - sizeof(Entry));
+
+		entry->busy = false;
+
+		// Merge the neighbours if they are both free :D
+		if (entry->pNext)
 		{
-			entry->Size += entry->pNext->Size + sizeof(Entry);
-			entry->pNext = entry->pNext->pNext;
+			if (!entry->pNext->busy)
+			{
+				entry->Size += entry->pNext->Size + sizeof(Entry);
+				entry->pNext = entry->pNext->pNext;
+			}
 		}
 	}
 }
@@ -77,7 +112,8 @@ bool FreeList::deFragList()
 	
 	while (curr->pNext)
 	{
-		if (!(curr->busy || curr->pNext->busy))
+		if (!(curr->busy || curr->pNext->busy) && 
+			(curr + curr->Size + sizeof(Entry) == curr->pNext))
 		{
 			curr->Size += curr->pNext->Size + sizeof(Entry);
 			
@@ -121,4 +157,10 @@ Entry* FreeList::findSuitableEntry(size_t size)
 		}
 	}
 	return candidate;
+}
+
+FreeList& FreeList::getInstance()
+{
+	static FreeList instance;
+	return instance;
 }
