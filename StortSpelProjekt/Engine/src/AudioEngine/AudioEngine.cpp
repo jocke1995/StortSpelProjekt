@@ -6,7 +6,6 @@ AudioEngine::AudioEngine()
 	m_pMasterVoice = nullptr;
 
 	HRESULT hr;
-	//CoInitialize(nullptr);
 	if (FAILED(hr = XAudio2Create(&m_pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR)))
 	{
 		Log::Print("Failed to create audio engine\n");
@@ -16,11 +15,12 @@ AudioEngine::AudioEngine()
 	{
 		Log::Print("Failed to create mastering voice\n");
 	}
-	//Log::Print("CREATED SOME SHET\n");
 }
 
 AudioEngine::~AudioEngine()
 {
+	m_pMasterVoice->DestroyVoice();
+	m_pXAudio2->Release();
 }
 
 IXAudio2* AudioEngine::GetAudioEngine()
