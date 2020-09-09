@@ -135,54 +135,54 @@ public:
 	/// <summary>
 	/// Register the input devices to be used.
 	/// </summary>
-	/// <param name="hWnd">The handle of the input window</param>
+	/// <param name="hWnd">: The handle of the input window</param>
 	void RegisterDevices(const HWND* hWnd);
 
 	/// <summary>
 	/// Sets the state of a keyboard key, either pressed or not pressed.
 	/// </summary>
-	/// <param name="key">The scan code of the key</param>
-	/// <param name="pressed">The state of the key. True means pressed, false means not pressed</param>
+	/// <param name="key">: The scan code of the key</param>
+	/// <param name="pressed"> : The state of the key. True means pressed, false means not pressed</param>
 	void SetKeyState(SCAN_CODES key, bool pressed);
 	/// <summary>
 	/// Set the state of a key to "just pressed".
 	/// </summary>
-	/// <param name="key">The scan code of the key</param>
-	/// <param name="justPressed">The state whether the key is just pressed or not</param>
+	/// <param name="key">: The scan code of the key</param>
+	/// <param name="justPressed">: The state whether the key is just pressed or not</param>
 	void SetJustPressed(SCAN_CODES key, bool justPressed);
 	/// <summary>
 	/// Sets the state of a mouse button, either pressed or not pressed.
 	/// </summary>
-	/// <param name="button">The scan code of the button</param>
-	/// <param name="pressed">The state of the button. True means pressed, false means not pressed</param>
+	/// <param name="button">: The scan code of the button</param>
+	/// <param name="pressed">: The state of the button. True means pressed, false means not pressed</param>
 	void SetMouseButtonState(MOUSE_BUTTON button, bool pressed);
 	/// <summary>
 	/// Sets the scroll state of the mouse wheel, either positive (when scrolling forward) or negative (when scrolling backwards).
 	/// </summary>
-	/// <param name="scroll">The amount of scroll</param>
+	/// <param name="scroll">: The amount of scroll</param>
 	void SetMouseScroll(SHORT scroll);
 	/// <summary>
 	/// Set the position of the mouse cursor relative to the center of the window.
 	/// </summary>
-	/// <param name="x">The x-coordinate of the cursor relative to the center of the window</param>
-	/// <param name="y">The y-coordinate of the cursor relative to the center of the window</param>
+	/// <param name="x">: The x-coordinate of the cursor relative to the center of the window</param>
+	/// <param name="y">: The y-coordinate of the cursor relative to the center of the window</param>
 	void SetMousePosition(int x, int y);
 	/// <summary>
 	/// Get the state of a keyboard key.
 	/// </summary>
-	/// <param name="key">The scan code of the key</param>
+	/// <param name="key">: The scan code of the key</param>
 	/// <returns>true if key is pressed, false if key is not pressed</returns>
 	bool GetKeyState(SCAN_CODES key);
 	/// <summary>
 	/// Get the state of whether a key has just been pressed.
 	/// </summary>
-	/// <param name="key">The scan code of the key</param>
+	/// <param name="key">: The scan code of the key</param>
 	/// <returns>true if the key has just been pressed, false if it has not</returns>
 	bool GetJustPressed(SCAN_CODES key);
 	/// <summary>
 	/// Get the state of a mouse button.
 	/// </summary>
-	/// <param name="button">The scan code of the button</param>
+	/// <param name="button">: The scan code of the button</param>
 	/// <returns>true if button is pressed, false if button is not pressed</returns>
 	bool GetMouseButtonState(MOUSE_BUTTON button);
 	/// <summary>
