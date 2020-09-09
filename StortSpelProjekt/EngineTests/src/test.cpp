@@ -449,3 +449,59 @@ TEST(RANDOMGEN, RANGE)
 	Log::Print("%d\n", lehm.Rand(1, 10));
 	Log::Print("%d\n", lehm.Rand(1, 10));
 }
+
+TEST(RANDOMGEN, FLOATS)
+{
+	EngineRand lehm(5);
+
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+}
+
+TEST(RANDOMGEN, FLOATSRANGE)
+{
+	EngineRand lehm(2);
+
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+}

@@ -24,5 +24,22 @@ unsigned long EngineRand::Rand()
 
 unsigned long EngineRand::Rand(unsigned long min, unsigned long max)
 {
-	return (min + Rand() % (max - min + 1));
+	return (min + Rand() % (max - min));
+}
+
+float EngineRand::Randf()
+{
+	float nr = static_cast<float>(Rand()) / 10000;
+	float deci = randDecimals();
+	return nr + deci;
+}
+
+float EngineRand::Randf(unsigned long min, unsigned long max)
+{
+	return static_cast<float>(Rand(min, max)) + randDecimals();
+}
+
+float EngineRand::randDecimals()
+{
+	return static_cast<float>(Rand()) / m_Prime;
 }

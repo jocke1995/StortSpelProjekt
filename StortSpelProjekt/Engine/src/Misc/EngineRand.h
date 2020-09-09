@@ -12,7 +12,13 @@ public:
 	void SetSeed(unsigned long seed);
 	unsigned long Rand();
 	unsigned long Rand(unsigned long min, unsigned long max);
+
+	float Randf();
+	float Randf(unsigned long min, unsigned long max);
 private:
+
+	float randDecimals();
+
 	unsigned long m_Seed;
 	unsigned long m_Multiplier;
 	unsigned long m_Incrementer;
