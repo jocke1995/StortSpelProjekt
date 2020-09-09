@@ -24,7 +24,7 @@
 #include "Renderer/Mesh.h"
 #include "Renderer/BaseCamera.h"
 // #include "physics"
-// #include "audio"
+#include "AudioEngine/Audio.h"
 
 #include "Misc/AssetLoader.h"
 
@@ -42,6 +42,7 @@ public:
 
 	Renderer* const GetRenderer() const;
 	SceneManager* const GetSceneHandler() const;
+	IXAudio2* const GetAudioEngine() const;
 
 private:
 	Window* m_Window = nullptr;
@@ -50,6 +51,7 @@ private:
 
 	Renderer* m_Renderer = nullptr;
 	SceneManager* m_SceneManager = nullptr;
+	AudioEngine* m_pAudioEngine = nullptr;
 };
 
 #endif
