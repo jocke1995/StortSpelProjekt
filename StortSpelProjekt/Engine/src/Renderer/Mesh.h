@@ -4,9 +4,11 @@
 #include "EngineMath.h"
 #include "Core.h"
 
+
+
+class Texture;
 class Resource;
 class ShaderResourceView;
-class Material;
 class DescriptorHeap;
 struct SlotInfo;
 
@@ -30,7 +32,6 @@ public:
             std::vector<unsigned int> indices,
             DescriptorHeap* descriptorHeap_SRV,
             const std::string path = "");
-    Mesh(const Mesh* other);
     virtual ~Mesh();
 
     // Vertices
@@ -46,9 +47,11 @@ public:
     const size_t GetNumIndices() const;
     const D3D12_INDEX_BUFFER_VIEW* GetIndexBufferView() const;
 
+    // Material
     const SlotInfo* GetSlotInfo() const;
     std::string GetPath();
-    Material* GetMaterial() const;
+    void SetTexture(TEXTURE_TYPE type, Texture* texture);
+    Texture* GetTexture(TEXTURE_TYPE type);
 
 private:
     friend class Renderer;
@@ -66,14 +69,10 @@ private:
     ShaderResourceView* m_pSRV = nullptr;
     D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;;
 
-    // Material will write descriptorIndices to "slotinfo" in mesh 
-    Material* m_pMaterial = nullptr;
     SlotInfo* m_pSlotInfo = nullptr;
+    std::map<TEXTURE_TYPE, Texture*> m_Textures;
 
     void createIndexBufferView();
-
-    // Temporay solution to make sure each "new" mesh only gets deleted once
-    bool m_IsCopied = false;
 };
 
 #endif

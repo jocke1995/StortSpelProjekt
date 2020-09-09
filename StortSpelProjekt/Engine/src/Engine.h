@@ -18,7 +18,6 @@
 
 // Sub-engines
 #include "Renderer/Renderer.h"
-#include "Renderer/Material.h"
 #include "Renderer/Transform.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/BaseCamera.h"
