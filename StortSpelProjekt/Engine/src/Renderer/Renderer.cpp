@@ -39,7 +39,7 @@
 #include "DX12Tasks/CopyOnDemandTask.h"
 
 // Compute
-#include "DX12Tasks/ComputeTask.h"
+#include "DX12Tasks/BlurComputeTask.h"
 
 Renderer::Renderer()
 {
@@ -262,13 +262,29 @@ void Renderer::Execute()
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(m_pFenceFrame, copyFenceValue);
 
 	/* --------------------- Record direct commandlists --------------------- */
-	for (RenderTask* renderTask : m_RenderTasks)
-	{
-		renderTask->SetBackBufferIndex(backBufferIndex);
-		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
-		//renderTask->Execute();	// NON-MULTITHREADED-VERSION 
-	}
+	RenderTask* rt = nullptr;
+	// Recording shadowmaps
+	rt = m_RenderTasks[RENDER_TASK_TYPE::SHADOW];
+	rt->SetBackBufferIndex(backBufferIndex);
+	rt->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(rt, FLAG_THREAD::RENDER);
+
+	// Drawing
+	rt = m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER];
+	rt->SetBackBufferIndex(backBufferIndex);
+	rt->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(rt, FLAG_THREAD::RENDER);
+
+	// Blending
+	rt = m_RenderTasks[RENDER_TASK_TYPE::BLEND];
+	rt->SetBackBufferIndex(backBufferIndex);
+	rt->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(rt, FLAG_THREAD::RENDER);
+
+	// Blurring for bloom
+	rt = m_RenderTasks[RENDER_TASK_TYPE::BLUR];
+	rt->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(rt, FLAG_THREAD::RENDER);
 
 	// Outlining, if an object is picked
 	m_pOutliningRenderTask->SetBackBufferIndex(backBufferIndex);
@@ -296,6 +312,9 @@ void Renderer::Execute()
 	m_FenceFrameValue++;
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+
+
+
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Wait(m_pFenceFrame, m_FenceFrameValue);
 	waitForFrame();
 
@@ -549,6 +568,7 @@ void Renderer::updateMousePicker()
 
 void Renderer::initRenderTasks()
 {
+	// RenderTasks
 #pragma region ForwardRendering
 	/* Forward rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdForwardRender = {};
@@ -842,9 +862,18 @@ void Renderer::initRenderTasks()
 	m_pWireFrameTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion WireFrame
 
+	// ComputeTasks
+	DX12Task* blurComputeTask = new BlurComputeTask
+		(m_pDevice5, m_pRootSignature,
+		L"BlurCompute.hlsl", L"blurPSO",
+		COMMAND_INTERFACE_TYPE::DIRECT_TYPE);
+
+
+	// CopyTasks
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5);
 	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5);
 
+	
 	// Add the tasks to desired vectors so they can be used in m_pRenderer
 	/* -------------------------------------------------------------- */
 
@@ -861,6 +890,7 @@ void Renderer::initRenderTasks()
 		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandList(i);
 
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
+	
 
 	// None atm
 
@@ -868,6 +898,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::BLUR] = static_cast<RenderTask*>(blurComputeTask);
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -887,14 +918,17 @@ void Renderer::initRenderTasks()
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 			m_DirectCommandLists[i].push_back(m_pWireFrameTask->GetCommandList(i));
 	}
+
+	// Compute shader to blur the RTV from forwardRenderTask
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		m_DirectCommandLists[i].push_back(blurComputeTask->GetCommandList(i));
 }
 
 void Renderer::setRenderTasksRenderComponents()
 {
-	for (RenderTask* rendertask : m_RenderTasks)
-	{
-		rendertask->SetRenderComponents(&m_RenderComponents);
-	}
+	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents);
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents);
+	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents);
 }
 
 void Renderer::createDescriptorHeaps()

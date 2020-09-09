@@ -2,15 +2,16 @@
 #define BRIGHTBLURTASK_H
 
 #include "ComputeTask.h"
-class BrightBlurTask : public ComputeTask
+class BlurComputeTask : public ComputeTask
 {
 public:
-	BrightBlurTask(
+	BlurComputeTask(
 		ID3D12Device5* device,
 		RootSignature* rootSignature,
 		LPCWSTR CSName,
-		LPCTSTR psoName);
-	virtual ~BrightBlurTask();
+		LPCTSTR psoName,
+		COMMAND_INTERFACE_TYPE interfaceType);
+	virtual ~BlurComputeTask();
 
 	void Execute();
 private:

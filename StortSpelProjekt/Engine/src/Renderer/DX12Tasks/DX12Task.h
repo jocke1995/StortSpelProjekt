@@ -15,6 +15,7 @@ enum RENDER_TASK_TYPE
 	FORWARD_RENDER,
 	BLEND,
 	SHADOW,
+	BLUR,
 	NR_OF_RENDERTASKS
 };
 
@@ -34,7 +35,7 @@ class DX12Task : public MultiThreadedTask
 {
 public:
 	DX12Task(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType);
-	~DX12Task();
+	virtual ~DX12Task();
 
 	void SetBackBufferIndex(int backBufferIndex);
 	void SetCommandInterfaceIndex(int index);

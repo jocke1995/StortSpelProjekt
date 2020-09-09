@@ -2,6 +2,7 @@
 #define COMPUTETASK_H
 
 #include "DX12Task.h"
+#include "../CommandInterface.h"
 
 class RootSignature;
 class PipelineState;
@@ -12,7 +13,8 @@ public:
 	ComputeTask(ID3D12Device5* device,
 		RootSignature* rootSignature,
 		LPCWSTR CSName,
-		LPCTSTR psoName);
+		LPCTSTR psoName,
+		COMMAND_INTERFACE_TYPE interfaceType = COMMAND_INTERFACE_TYPE::COMPUTE_TYPE);
 	virtual ~ComputeTask();
 
 protected:
