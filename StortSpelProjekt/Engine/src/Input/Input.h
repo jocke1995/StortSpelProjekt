@@ -126,16 +126,29 @@ enum class MOUSE_BUTTON
 
 class Input {
 public:
+	/// <summary>
+	/// Get an instance of the class.
+	/// </summary>
+	/// <returns>an instance of the class</returns>
 	static Input& GetInstance();
 
+	/// <summary>
+	/// Register the input devices to be used.
+	/// </summary>
+	/// <param name="hWnd">The handle of the input window</param>
 	void RegisterDevices(const HWND* hWnd);
 
 	/// <summary>
 	/// Sets the state of a keyboard key, either pressed or not pressed.
 	/// </summary>
-	/// <param name="key">is an enum representing the scan code of the key</param>
-	/// <param name="pressed">is a bool representing the state of the key. True means pressed, false means not pressed</param>
+	/// <param name="key">The scan code of the key</param>
+	/// <param name="pressed">The state of the key. True means pressed, false means not pressed</param>
 	void SetKeyState(SCAN_CODES key, bool pressed);
+	/// <summary>
+	/// Set the state of a key to "just pressed".
+	/// </summary>
+	/// <param name="key">The scan code of the key</param>
+	/// <param name="justPressed">The state whether the key is just pressed or not</param>
 	void SetJustPressed(SCAN_CODES key, bool justPressed);
 	/// <summary>
 	/// Sets the state of a mouse button, either pressed or not pressed.
@@ -160,6 +173,11 @@ public:
 	/// <param name="key">The scan code of the key</param>
 	/// <returns>true if key is pressed, false if key is not pressed</returns>
 	bool GetKeyState(SCAN_CODES key);
+	/// <summary>
+	/// Get the state of whether a key has just been pressed.
+	/// </summary>
+	/// <param name="key">The scan code of the key</param>
+	/// <returns>true if the key has just been pressed, false if it has not</returns>
 	bool GetJustPressed(SCAN_CODES key);
 	/// <summary>
 	/// Get the state of a mouse button.
@@ -170,7 +188,7 @@ public:
 	/// <summary>
 	/// Get the state of the scroll wheel.
 	/// </summary>
-	/// <returns>scroll state, either positive (forwards) or negative (backwards)</returns>
+	/// <returns>1 if the wheel has just been scrolled forward, -1 if it has just been scrolled backwards and 0 if it has not just been scrolled</returns>
 	int GetMouseScroll();
 	/// <summary>
 	/// Get the position of the mouse cursor relative to the center of the window.
