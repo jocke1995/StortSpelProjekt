@@ -34,17 +34,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_INPUT:
 		UINT dwSize;
 
-		GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize,
-			sizeof(RAWINPUTHEADER));
+		GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
 		LPBYTE lpb = new BYTE[dwSize];
 		if (lpb == NULL)
 		{
 			return 0;
 		}
 
-		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize,
-			sizeof(RAWINPUTHEADER)) != dwSize)
+		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
+		{
 			OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
+		}
 
 		RAWINPUT* raw = (RAWINPUT*)lpb;
 
