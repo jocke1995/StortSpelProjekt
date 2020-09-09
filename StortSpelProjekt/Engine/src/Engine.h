@@ -26,6 +26,9 @@
 // #include "physics"
 // #include "audio"
 
+// Event-handling
+#include "Events/EventBus.h"
+
 #include "Misc/AssetLoader.h"
 
 class Engine

@@ -1,7 +1,7 @@
 #pragma once
 #include "Events.h"
 
-// This is the interface for MemberFunctionHandler that each specialization will use
+// This is the interface for MemberFunctionWrapper that each specialization will use
 class HandlerFunctionBase 
 {
 public:
@@ -11,7 +11,7 @@ public:
         call(evnt);
     }
 private:
-    // Implemented by MemberFunctionHandler
+    // Implemented by MemberFunctionWrapper
     virtual void call(Event* evnt) = 0;
 };
 

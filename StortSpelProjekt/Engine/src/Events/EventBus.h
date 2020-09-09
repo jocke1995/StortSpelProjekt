@@ -9,38 +9,68 @@ typedef std::list<HandlerFunctionBase*> HandlerList;
 class EventBus 
 {
 public:
-    template<typename EventType>
-    void publish(EventType* evnt) {
-        HandlerList* handlers = subscribers[typeid(EventType)];
+	template<typename EventType>
+	void publish(EventType* evnt);
 
-        if (handlers == nullptr) 
-        {
-            return;
-        }
+	template<class T, class EventType>
+	void subscribe(T* instance, void (T::* memberFunction)(EventType*));
 
-        for (auto& handler : *handlers) 
-        {
-            if (handler != nullptr) 
-            {
-                handler->exec(evnt);
-            }
-        }
-    }
+	//Singleton of the eventbus
+	static EventBus& get();
 
-    template<class T, class EventType>
-    void subscribe(T* instance, void (T::* memberFunction)(EventType*)) 
-    {
-        HandlerList* handlers = subscribers[typeid(EventType)];
+	template<class T, class EventType>
+	void unsubscribe(T* instance, void (T::* memberFunction)(EventType*));
 
-        //First time initialization
-        if (handlers == nullptr) 
-        {
-            handlers = new HandlerList();
-            subscribers[typeid(EventType)] = handlers;
-        }
+	void unsubscribeAll();
 
-        handlers->push_back(new MemberFunctionHandler<T, EventType>(instance, memberFunction));
-    }
+	// Only called when program exits
+	~EventBus();
 private:
-    std::map<std::type_index, HandlerList*> subscribers;
+	std::map<std::type_index, HandlerList*> m_Subscribers;
 };
+
+// Publish to the EventBus using an event from Events.h
+template<typename EventType>
+inline void EventBus::publish(EventType* evnt)
+{
+	//Get all subscribed handlers associated with the current event
+	HandlerList* handlers = m_Subscribers[typeid(EventType)];
+
+	//No handler exists, exit
+	if (handlers == nullptr)
+	{
+		return;
+	}
+
+	//Loop through each handler and execute events
+	for (auto& handler : *handlers) {
+		if (handler != nullptr) {
+			handler->exec(evnt);
+		}
+	}
+}
+
+// Subscribe to the EventBus
+template<class T, class EventType>
+inline void EventBus::subscribe(T* instance, void(T::* memberFunction)(EventType*))
+{
+	//Get all subscribed handlers associated with the current event
+	HandlerList* handlers = m_Subscribers[typeid(EventType)];
+
+	//If there are no handlers for the current EventType, create one
+	if (handlers == nullptr)
+	{
+		handlers = new HandlerList();
+		m_Subscribers[typeid(EventType)] = handlers;
+	}
+
+	//Push handler into list of handlers
+	handlers->push_back(new MemberFunctionHandler<T, EventType>(instance, memberFunction));
+}
+
+// Get the single instance of the EventBus in order to subscribe/publish
+inline EventBus& EventBus::get()
+{
+	static EventBus instance;
+	return instance;
+}

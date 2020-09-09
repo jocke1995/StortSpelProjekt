@@ -24,6 +24,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     std::vector<Mesh*>* cubeModel  = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
+    EventBus::get().publish(&MessageLog("Message"));
+
 #pragma region CreateScene0
     // Create Scene
     Scene* scene = sceneManager->CreateScene("scene0");
