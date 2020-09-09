@@ -119,7 +119,10 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 
 	// Rendertargets
 	createSwapChain(hwnd);
-	m_pBloom = new Bloom(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV], hwnd);
+	m_pBloom = new Bloom(m_pDevice5, 
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
+		hwnd);
 
 	// Create Main DepthBuffer
 	createMainDSV(hwnd);
@@ -314,8 +317,6 @@ void Renderer::Execute()
 	m_FenceFrameValue++;
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
-
-
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Wait(m_pFenceFrame, m_FenceFrameValue);
 	waitForFrame();
