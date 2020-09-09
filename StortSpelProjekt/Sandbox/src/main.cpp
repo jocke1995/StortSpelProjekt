@@ -191,6 +191,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 #pragma endregion CreateScene1
 	char sceneName[10] = "scene0";
 	sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
+
+
+    // AUDIO TESTING, press SPACE to play, TAB to stop
+    Audio audiotest;
+    audiotest.OpenFile(engine.GetAudioEngine(), TEXT("../Vendor/Resources/Audio/AGameWithNoName.wav"));
+
+
     while (!window->ExitWindow())
     {
         // ONLY HERE FOR TESTING
@@ -211,6 +218,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 				sceneManager->RemoveEntity(pickedEnt);
 				scene->RemoveEntity(pickedEnt->GetName());
             }
+
+            // AUDIO TEST
+            audiotest.StopAudio();
 		}
 		if (window->WasSpacePressed())
 		{
@@ -249,6 +259,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			//	sceneManager->RemoveEntity(pickedEnt);
 			//	scene->RemoveEntity(pickedEnt->GetName());
 			//}
+
+            // AUDIO TEST 
+            audiotest.PlayAudio();
         }
 
         /* ------ Update ------ */
