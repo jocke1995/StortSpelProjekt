@@ -21,9 +21,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     // This will be loaded once from disk, then the next time the same function is called (with the same filepath),
     // the function will just return the same pointer to the model that was loaded earlier.
     std::vector<Mesh*>* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    std::vector<Mesh*>* panelModel = al->LoadModel(L"../Vendor/Resources/Models/Panel/panel.obj");
     std::vector<Mesh*>* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     std::vector<Mesh*>* cubeModel  = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
-    std::vector<Mesh*>* testModel = al->LoadModel(L"../Vendor/Resources/Models/test/source/goblin_low_anim_final.fbx");
+    std::vector<Mesh*>* testModel = al->LoadModel(L"../Vendor/Resources/Models/test/dboy/D-boy2.obj");
 
 #pragma region CreateScene0
     // Create Scene
@@ -100,11 +101,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->Init();
 
     mc = scene->GetEntity("transparentTestObject")->GetComponent<component::MeshComponent>();
-    mc->SetMeshes(floorModel);
+    mc->SetMeshes(panelModel);
     mc->SetDrawFlag(FLAG_DRAW::Blend);
 
     Texture* ambientDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_ambient.png");
     Texture* normalDefault  = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_normal.png");
+
 
     mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::AMBIENT , ambientDefault);
     mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::DIFFUSE , ambientDefault);
@@ -232,7 +234,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             bbc->Init();
             
             tc = entity->GetComponent<component::TransformComponent>();
-            tc->GetTransform()->SetScale(0.01f);
+            tc->GetTransform()->SetScale(1.0f);
             float3 spawnPosition = { cc->GetCamera()->GetPositionFloat3().x + cc->GetCamera()->GetLookAt().x * 10,
                                      cc->GetCamera()->GetPositionFloat3().y + cc->GetCamera()->GetLookAt().y * 10, 
                                      cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetLookAt().z * 10, };
