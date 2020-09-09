@@ -39,7 +39,7 @@ public:
 	PipelineState* GetPipelineState(unsigned int index);
 
 	void AddResource(std::string id, Resource* resource);
-	void AddRenderTarget(std::string, RenderTarget* renderTarget);
+	void AddRenderTarget(std::string, const RenderTarget* renderTarget);
 	void SetDescriptorHeaps(std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> dhs);
 
 	void SetRenderComponents(
@@ -50,7 +50,7 @@ public:
 	
 protected:
 	std::map<std::string, Resource*> m_Resources;
-	std::map<std::string, RenderTarget*> m_RenderTargets;
+	std::map<std::string, const RenderTarget*> m_RenderTargets;
 	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> m_DescriptorHeaps;
 
 	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;

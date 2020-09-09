@@ -80,7 +80,7 @@ void FowardRenderTask::Execute()
 
 	commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-	SwapChain* sc = static_cast<SwapChain*>(m_RenderTargets["swapChain"]);
+	const SwapChain* sc = static_cast<const SwapChain*>(m_RenderTargets["swapChain"]);
 	const D3D12_VIEWPORT viewPortSwapChain = *m_RenderTargets["swapChain"]->GetRenderView()->GetViewPort();
 	const D3D12_VIEWPORT viewPortBrightTarget = *m_RenderTargets["brightTarget"]->GetRenderView()->GetViewPort();
 	const D3D12_VIEWPORT viewPorts[2] = { viewPortSwapChain, viewPortBrightTarget };

@@ -66,7 +66,7 @@ void OutliningRenderTask::Execute()
 
 	commandList->OMSetRenderTargets(1, &cdh, true, &dsh);
 
-	SwapChain* sc = static_cast<SwapChain*>(m_RenderTargets["swapChain"]);
+	const SwapChain* sc = static_cast<const SwapChain*>(m_RenderTargets["swapChain"]);
 	const D3D12_VIEWPORT* viewPort = sc->GetRenderView()->GetViewPort();
 	const D3D12_RECT* rect = sc->GetRenderView()->GetScissorRect();
 	commandList->RSSetViewports(1, viewPort);

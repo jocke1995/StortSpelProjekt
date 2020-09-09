@@ -53,7 +53,7 @@ void RenderTask::AddResource(std::string id, Resource* resource)
 	}
 }
 
-void RenderTask::AddRenderTarget(std::string name, RenderTarget* renderTarget)
+void RenderTask::AddRenderTarget(std::string name, const RenderTarget* renderTarget)
 {
 	m_RenderTargets[name] = renderTarget;
 }

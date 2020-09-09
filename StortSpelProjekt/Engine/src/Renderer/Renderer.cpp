@@ -14,7 +14,6 @@
 #include "SwapChain.h"
 #include "DepthStencilView.h"
 #include "ConstantBufferView.h"
-#include "MousePicker.h"
 #include "ViewPool.h"
 #include "BoundingBoxPool.h"
 #include "CommandInterface.h"
@@ -24,8 +23,11 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Texture.h"
-#include "ShadowInfo.h"
 #include "ShaderResourceView.h"
+
+#include "Bloom.h"
+#include "ShadowInfo.h"
+#include "MousePicker.h"
 
 // Graphics
 #include "DX12Tasks/WireframeRenderTask.h"
@@ -65,7 +67,7 @@ Renderer::~Renderer()
 
 	delete m_pRootSignature;
 	delete m_pSwapChain;
-	delete m_pBrightTarget;
+	delete m_pBloom;
 	delete m_pMainDSV;
 
 	for (auto& pair : m_DescriptorHeaps)
@@ -117,7 +119,7 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 
 	// Rendertargets
 	createSwapChain(hwnd);
-	createBrightRenderTarget(hwnd);
+	m_pBloom = new Bloom(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV], hwnd);
 
 	// Create Main DepthBuffer
 	createMainDSV(hwnd);
@@ -481,20 +483,6 @@ void Renderer::createSwapChain(const HWND *hwnd)
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV]);
 }
 
-void Renderer::createBrightRenderTarget(const HWND* hwnd)
-{
-	RECT rect;
-	unsigned int width = 0;
-	unsigned int height = 0;
-	if (GetWindowRect(*hwnd, &rect))
-	{
-		width = rect.right - rect.left;
-		height = rect.bottom - rect.top;
-	}
-
-	m_pBrightTarget = new RenderTarget(m_pDevice5, width, height, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV]);
-}
-
 void Renderer::createMainDSV(const HWND* hwnd)
 {
 	RECT rect;
@@ -643,7 +631,7 @@ void Renderer::initRenderTasks()
 	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
 	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
 	forwardRenderTask->AddRenderTarget("swapChain", m_pSwapChain);
-	forwardRenderTask->AddRenderTarget("brightTarget", m_pBrightTarget);
+	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloom->GetRenderTarget());
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	
 

@@ -16,14 +16,17 @@ class SwapChain;
 class RenderTarget;
 class DepthStencilView;
 class ConstantBufferView;
-class MousePicker;
 class ViewPool;
 class BoundingBoxPool;
-class ShadowInfo;
 class DescriptorHeap;
 
 enum COMMAND_INTERFACE_TYPE;
 enum class DESCRIPTOR_HEAP_TYPE;
+
+// techniques
+class ShadowInfo;
+class MousePicker;
+class Bloom;
 
 // ECS
 class Scene;
@@ -91,7 +94,9 @@ private:
 	// RenderTargets
 	// Swapchain (inheriting from 'RenderTarget')
 	SwapChain* m_pSwapChain = nullptr;
-	RenderTarget* m_pBrightTarget = nullptr;	// used for bloom
+	
+	// Bloom (includes rtv, uav and srv)
+	Bloom* m_pBloom = nullptr;
 
 	// Depthbuffer
 	DepthStencilView* m_pMainDSV = nullptr;
@@ -149,7 +154,6 @@ private:
 	bool createDevice();
 	void createCommandQueues();
 	void createSwapChain(const HWND *hwnd);
-	void createBrightRenderTarget(const HWND* hwnd);
 	void createMainDSV(const HWND* hwnd);
 	void createRootSignature();
 	void updateMousePicker();
