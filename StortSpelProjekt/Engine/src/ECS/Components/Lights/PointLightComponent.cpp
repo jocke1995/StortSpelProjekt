@@ -28,7 +28,7 @@ namespace component
 	{
 		if (m_pCamera != nullptr)
 		{
-			m_pCamera->Update(m_pParent, dt);
+			m_pCamera->Update(dt);
 		}
 
 		if (m_LightFlags & FLAG_LIGHT::USE_TRANSFORM_POSITION)
