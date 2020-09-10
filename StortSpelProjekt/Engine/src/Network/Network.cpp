@@ -39,4 +39,18 @@ void Network::ListenConnection(int port)
 
 void Network::AppendPacket(std::string str)
 {
+    m_Packet.append(str.c_str(), str.size());
+}
+
+void Network::SendPacket()
+{
+    m_Socket.send(m_Packet);
+    m_Packet.clear();
+}
+
+std::string Network::ListenPacket()
+{
+    m_Socket.setBlocking(true);
+    m_Socket.receive(m_Packet);
+    return str;
 }

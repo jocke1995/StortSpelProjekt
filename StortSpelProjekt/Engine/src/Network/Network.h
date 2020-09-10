@@ -15,9 +15,12 @@ public:
 	void AppendPacket(std::string str);
 	void SendPacket();
 
+	std::string ListenPacket();
+
 private:
 	sf::TcpSocket m_Socket;
 	sf::TcpListener m_Listener;
+	sf::Packet m_Packet;
 };
 
 
