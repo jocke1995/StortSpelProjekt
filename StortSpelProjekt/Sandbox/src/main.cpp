@@ -184,12 +184,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	char sceneName[10] = "scene0";
 	sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
 
-
-    // AUDIO TESTING, press SPACE to play, TAB to stop. Only for testing purposes, these calls will later be changed to work with the ecs/scene system
-    Audio audiotest;
-    audiotest.OpenFile(engine.GetAudioEngine()->GetAudioEngine(), TEXT("../Vendor/Resources/Audio/AGameWithNoName.wav"));
-
-
     while (!window->ExitWindow())
     {
         // ONLY HERE FOR TESTING
@@ -211,13 +205,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 				scene->RemoveEntity(pickedEnt->GetName());
             }*/
 
-            // AUDIO TEST
-            audiotest.StopAudio();
+
 		}
 		if (window->WasSpacePressed())
 		{
-            // AUDIO TEST
-            audiotest.PlayAudio();
         }
 
         /* ------ Update ------ */
