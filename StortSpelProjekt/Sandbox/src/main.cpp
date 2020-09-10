@@ -33,8 +33,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     
     // Add Entity to Scene
     scene->AddEntity("player");
+    scene->AddEntity("floor");
+    scene->AddEntity("box");
+    scene->AddEntity("stone");
+    scene->AddEntity("transparentTestObject");
     scene->AddEntity("Dragon");
     scene->AddEntity("directionalLight");
+    scene->AddEntity("spotLight");
+    scene->AddEntity("spotLight2");
 
     // Add Components to Entities
     Entity* entity;
@@ -45,6 +51,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>(true);
 
+    entity = scene->GetEntity("floor");
+    entity->AddComponent<component::MeshComponent>();
+    entity->AddComponent<component::TransformComponent>();
+    entity->AddComponent<component::BoundingBoxComponent>(false);
+
+    entity = scene->GetEntity("box");
+    entity->AddComponent<component::MeshComponent>();
+    entity->AddComponent<component::TransformComponent>();
+    entity->AddComponent<component::BoundingBoxComponent>(true);
+
+    entity = scene->GetEntity("stone");
+    entity->AddComponent<component::MeshComponent>();
+    entity->AddComponent<component::TransformComponent>();
+    entity->AddComponent<component::BoundingBoxComponent>(true);
+
+    entity = scene->GetEntity("transparentTestObject");
+    entity->AddComponent<component::MeshComponent>();
+    entity->AddComponent<component::TransformComponent>();
+    entity->AddComponent<component::BoundingBoxComponent>(false);
+
     entity = scene->GetEntity("Dragon");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
@@ -52,6 +78,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity = scene->GetEntity("directionalLight");
     entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
 
+    entity = scene->GetEntity("spotLight");
+    entity->AddComponent<component::MeshComponent>();
+    entity->AddComponent<component::TransformComponent>();
+    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
     // Set the m_Components
 
@@ -80,15 +111,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     mc = scene->GetEntity("box")->GetComponent<component::MeshComponent>();
     mc->SetMeshes(cubeModel);
-
-    component::MeshComponent* mc = scene->GetEntity("Dragon")->GetComponent<component::MeshComponent>();
-    mc->SetMeshes(dragonModel);
-  
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
-    component::TransformComponent* tc = scene->GetEntity("Dragon")->GetComponent<component::TransformComponent>();
+    tc = scene->GetEntity("box")->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(-10.0f, 0.5f, 14.0f);
+    scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->Init();
+
+    mc = scene->GetEntity("stone")->GetComponent<component::MeshComponent>();
+    mc->SetMeshes(stoneModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    mc->GetMesh(0)->GetMaterial()->SetShininess(300);
+    mc->GetMesh(0)->GetMaterial()->SetColorMul(COLOR_TYPE::LIGHT_SPECULAR, { 0.4f, 0.4f, 0.4f, 1.0f });
+    tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(0.01f);
+    tc->GetTransform()->SetPosition(-8.0f, 0.0f, 0.0f);
+    scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->Init();
+
+    mc = scene->GetEntity("transparentTestObject")->GetComponent<component::MeshComponent>();
+    mc->SetMeshes(floorModel);
+    mc->SetDrawFlag(FLAG_DRAW::Blend);
+
+    mc = scene->GetEntity("Dragon")->GetComponent<component::MeshComponent>();
+    mc->SetMeshes(dragonModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    tc = scene->GetEntity("Dragon")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 40.0f);
     tc->GetTransform()->RotateX(3.1415f / 2);
-
 
     Texture* ambientDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_ambient.png");
     Texture* normalDefault  = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_normal.png");
@@ -97,6 +145,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::SPECULAR, ambientDefault);
     mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::NORMAL  , normalDefault);
     
+    tc = scene->GetEntity("transparentTestObject")->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(5.0f);
+    tc->GetTransform()->SetPosition(0.0f, 5.0f, 1.0f);
+    tc->GetTransform()->RotateZ(3.141572f / 2.0f);
+    tc->GetTransform()->RotateX(3.141572f / 2.0f);
+
+    entity = scene->GetEntity("transparentTestObject");
+    entity->GetComponent<component::BoundingBoxComponent>()->Init();
     
     component::DirectionalLightComponent* dl = scene->GetEntity("directionalLight")->GetComponent<component::DirectionalLightComponent>();
     dl->SetDirection({ -1.0f, -1.0f, -1.0f });
@@ -104,6 +160,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     dl->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.4f, 0.4f, 0.4f, 1.0f });
     dl->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.4f, 0.4f, 0.4f, 1.0f });
 
+    // Spotlight settings
+    entity = scene->GetEntity("spotLight");
+    mc = entity->GetComponent<component::MeshComponent>();
+    mc->SetMeshes(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(-20.0f, 6.0f, -3.0f);
+
+    entity->GetComponent<component::BoundingBoxComponent>()->Init();
+
+    component::SpotLightComponent* sl = scene->GetEntity("spotLight")->GetComponent<component::SpotLightComponent>();
+    sl->SetPosition({ -20.0f, 6.0f, -3.0f });
+    sl->SetDirection({ 2.0, -1.0, 0.0f });
+    sl->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.00f, 0.05f, 1.0f });
+    sl->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 1.0f, 0.00f, 1.0f, 1.0f });
+    sl->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 1.0f, 0.00f, 1.0f, 1.0f });
 
 #pragma endregion CreateScene0
 
