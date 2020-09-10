@@ -36,3 +36,7 @@ void Network::ListenConnection(int port)
 
     Log::Print("Connected to " + m_Socket.getRemoteAddress().toString() + "\n");
 }
+
+void Network::AppendPacket(std::string str)
+{
+}
