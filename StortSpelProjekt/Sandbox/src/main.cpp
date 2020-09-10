@@ -73,6 +73,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	char sceneName[10] = "scene0";
 	sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
+
     while (!window->ExitWindow())
     {
         // ONLY HERE FOR TESTING
