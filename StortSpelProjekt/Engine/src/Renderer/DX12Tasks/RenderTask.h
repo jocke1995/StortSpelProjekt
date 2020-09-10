@@ -21,6 +21,8 @@ class PipelineState;
 #include "../../ECS/Components/Lights/PointLightComponent.h"
 #include "../../ECS/Components/Lights/SpotLightComponent.h"
 
+#include "../Text.h"
+
 // DX12 Forward Declarations
 struct ID3D12RootSignature;
 struct D3D12_GRAPHICS_PIPELINE_STATE_DESC;

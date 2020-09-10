@@ -64,7 +64,7 @@ private:
     Resource* m_pDefaultResourceIndices = nullptr;
 
     ShaderResourceView* m_pSRV = nullptr;
-    D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;;
+    D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;
 
     // Material will write descriptorIndices to "slotinfo" in mesh 
     Material* m_pMaterial = nullptr;

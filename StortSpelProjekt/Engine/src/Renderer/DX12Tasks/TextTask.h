@@ -17,8 +17,10 @@ public:
 
 	void Execute();
 
-private:
+	void SubmitText(Text* text);
 
+private:
+	std::vector<Text*> m_TextVec;
 };
 
 #endif

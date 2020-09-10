@@ -33,6 +33,7 @@
 #include "DX12Tasks/ForwardRenderTask.h"
 #include "DX12Tasks/BlendRenderTask.h"
 #include "DX12Tasks/ShadowRenderTask.h"
+#include "DX12Tasks/TextTask.h"
 
 // Copy 
 #include "DX12Tasks/CopyPerFrameTask.h"
@@ -273,6 +274,11 @@ void Renderer::Execute()
 	m_pOutliningRenderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(m_pOutliningRenderTask, FLAG_THREAD::RENDER);
 	
+	// For text
+	//->SetBackBufferIndex(backBufferIndex);
+	//m_pOutliningRenderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(m_pOutliningRenderTask, FLAG_THREAD::RENDER);
+
 	if (DRAWBOUNDINGBOX == true)
 	{
 		m_pWireFrameTask->SetBackBufferIndex(backBufferIndex);
@@ -823,6 +829,63 @@ void Renderer::initRenderTasks()
 	m_pWireFrameTask->AddRenderTarget("swapChain", m_pSwapChain);
 	m_pWireFrameTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion WireFrame
+#pragma region Text 
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdText = {};
+	//gpsdText.InputLayout = textInputLayoutDesc;
+	//gpsdText.pRootSignature = rootSignature;
+	//gpsdText.VS = textVertexShaderBytecode;
+	//gpsdText.PS = textPixelShaderBytecode;
+
+	gpsdText.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdText.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdText.NumRenderTargets = 1;
+	// Depthstencil usage
+	gpsdText.SampleDesc.Count = 1;
+	gpsdText.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdText.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+
+	D3D12_BLEND_DESC textBlendStateDesc = {};
+	textBlendStateDesc.AlphaToCoverageEnable = FALSE;
+	textBlendStateDesc.IndependentBlendEnable = FALSE;
+	textBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
+
+	textBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	textBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+	textBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+
+	textBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+	textBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
+	textBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+
+	textBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	gpsdText.BlendState = textBlendStateDesc;
+	gpsdText.NumRenderTargets = 1;
+
+	D3D12_DEPTH_STENCIL_DESC textDepthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	textDepthStencilDesc.DepthEnable = false;
+	gpsdText.DepthStencilState = textDepthStencilDesc;
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdTextVector;
+	gpsdTextVector.push_back(&gpsdText);
+
+	RenderTask* textTask = new TextTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"TextVertex.hlsl", L"TextPixel.hlsl",
+		&gpsdTextVector,
+		L"TextPSO");
+
+	//textTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
+	//textTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
+	textTask->AddRenderTarget("swapChain", m_pSwapChain);
+	textTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion Text
 
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5);
 	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5);
@@ -837,10 +900,14 @@ void Renderer::initRenderTasks()
 	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND] = copyOnDemandTask;
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_CopyPerFrameCmdList[i] = copyPerFrameTask->GetCommandList(i);
+	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandList(i);
+	}
 
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
 
@@ -850,24 +917,40 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::TEXT] = textTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandList(i));
+	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
+	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(m_pOutliningRenderTask->GetCommandList(i));
+	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(textTask->GetCommandList(i));
+	}
 
 	if (DRAWBOUNDINGBOX == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
 			m_DirectCommandLists[i].push_back(m_pWireFrameTask->GetCommandList(i));
+		}
 	}
 }
 
@@ -1251,6 +1334,38 @@ void Renderer::addComponents(Entity* entity)
 		if (bbc->CanBePicked() == true)
 		{
 			m_BoundingBoxesToBePicked.push_back(bbc);
+		}
+	}
+
+	component::TextComponent* textComp = entity->GetComponent<component::TextComponent>();
+	if (textComp != nullptr)
+	{
+		TextTask* tt = static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT]);
+		std::vector<TextData*> textData = textComp->GetTextDataVec();
+		Text* text;
+
+		for (int i = 0; i < textData.size(); i++)
+		{
+			text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+			text->SetColor(textData.at(i)->color);
+			text->SetFont(textData.at(i)->font);
+			text->SetPadding(textData.at(i)->padding);
+			text->SetPos(textData.at(i)->pos);
+			text->SetScale(textData.at(i)->scale);
+			text->SetText(textData.at(i)->text);
+
+			tt->SubmitText(text);
+
+			// Submit to GPU
+			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+
+			// Look if data is already on the GPU
+
+			// Vertices
+			const void* data = static_cast<const void*>(text->GetTextVertexData());
+			Resource* uploadR = text->m_pUploadResourceVertices;
+			Resource* defaultR = text->m_pDefaultResourceVertices;
+			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 		}
 	}
 }

@@ -116,7 +116,7 @@ void SceneManager::SetSceneToDraw(Scene* scene)
 	}
 	
 	m_pRenderer->prepareScene(scene);
-
+	
 	executeCopyOnDemand();
 	return;
 }

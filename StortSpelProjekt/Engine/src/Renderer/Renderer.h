@@ -74,6 +74,7 @@ public:
 
 private:
 	friend class SceneManager;
+	friend class Text;
 	ThreadPool* m_pThreadPool = nullptr;
 
 	// Camera
@@ -111,7 +112,6 @@ private:
 
 	// Group of components that's needed for rendering:
 	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
-
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 
 	ViewPool* m_pViewPool = nullptr;

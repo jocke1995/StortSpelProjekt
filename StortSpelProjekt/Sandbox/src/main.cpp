@@ -249,7 +249,37 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			//	sceneManager->RemoveEntity(pickedEnt);
 			//	scene->RemoveEntity(pickedEnt->GetName());
 			//}
+
         }
+
+		static int i = 0;
+		if (i < 2)
+		{
+			//Text test ---------------------------------------
+			std::string fontPath = "H:/Users/FREDRIK/Documents/School/3DProjects/DX12/Stort Spel Projekt/Projekt/StortSpelProjekt/StortSpelProjekt/Vendor/Resources/Fonts/Arial.fnt";
+			std::string textToRender = "Test";
+			float2 textPos = { 0.02f + i * 0.02f, 0.01f };
+			float2 textPadding = { 0.5f, 0.0f };
+			float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			float2 textScale = { 1.0f, 1.0f };
+			char text[10];
+			static int textCounter = 0;
+			sprintf(text, "test%d", textCounter);
+			textCounter++;
+			entity = scene->AddEntity(text);
+			component::TextComponent* textComp = entity->AddComponent<component::TextComponent>();
+			textComp->AddText();
+			textComp->SetColor(textColor, 0);
+			textComp->SetFont(window, fontPath, 0);
+			textComp->SetPadding(textPadding, 0);
+			textComp->SetPos(textPos, 0);
+			textComp->SetScale(textScale, 0);
+			textComp->SetText(text, 0);
+			float4 redColor = { 1.0, 0.0, 0.0, 1.0 };
+			sceneManager->AddEntity(entity);
+			//--------------------------------------------
+			i++;
+		}
 
         /* ------ Update ------ */
         timer->Update();
