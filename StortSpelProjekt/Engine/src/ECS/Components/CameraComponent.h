@@ -20,7 +20,7 @@ namespace component
 		CameraComponent(Entity* parent,
 			bool primary = false,
 			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
-			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
+			DirectX::XMVECTOR direction = { 1.0f, 1.0f, 1.0f },
 			double fov = 45.0f,
 			double aspectRatio = 16.0f / 9.0f,
 			double zNear = 0.1f,
@@ -30,7 +30,7 @@ namespace component
 		CameraComponent(Entity* parent,
 			bool primary = false,
 			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
-			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
+			DirectX::XMVECTOR direction = { 1.0f, 1.0f, 1.0f },
 			float left = -40.0f,
 			float right = 40.0f,
 			float bot = -40.0f,
@@ -54,7 +54,7 @@ namespace component
 
 		BaseCamera* createPerspective(
 			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
-			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
+			DirectX::XMVECTOR direction = { 1.0f, 1.0f, 1.0f },
 			double fov = 45.0f,
 			double aspectRatio = 16.0f / 9.0f,
 			double zNear = 0.1f,
@@ -62,7 +62,7 @@ namespace component
 
 		BaseCamera* createOrthographic(
 			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
-			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
+			DirectX::XMVECTOR direction = { 1.0f, 1.0f, 1.0f },
 			float left = -40.0f,
 			float right = 40.0f,
 			float bot = -40.0f,

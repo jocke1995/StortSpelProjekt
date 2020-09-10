@@ -8,7 +8,7 @@ class OrthographicCamera : public BaseCamera
 public:
     OrthographicCamera(
         DirectX::XMVECTOR position,
-        DirectX::XMVECTOR lookAt,
+        DirectX::XMVECTOR direction,
         float left = -30.0f,
         float right = 30.0f,
         float bot = -30.0f,
