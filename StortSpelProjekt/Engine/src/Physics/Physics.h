@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PHYSICS_H
+#define PHYSICS_H
 
 #include<DirectXCollision.h>
 
@@ -15,5 +16,4 @@ private:
 
 };
 
-
-
+#endif

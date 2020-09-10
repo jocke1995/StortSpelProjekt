@@ -6,11 +6,11 @@
 #include<DirectXCollision.h>
 
 // used for enabling Collision and/or Picking.
-// write as "F_OBB_Flags::Collision | F_OBB_Flags::Picking", without the "", if you want to have both
-enum F_OBB_Flags
+// write as "F_OBBFlags::COLLISION | F_OBBFlags::PICKING", without the "", if you want to have both
+enum F_OBBFlags
 {
-	Collision = BIT(1),
-	Picking = BIT(2),
+	COLLISION = BIT(1),
+	PICKING = BIT(2),
 
 };
 
@@ -22,8 +22,6 @@ namespace component
 	class BoundingBoxComponent : public Component
 	{
 	public:
-		// The F_OBB_Flags is for enabling collision and/or picking.
-		// Write as "F_OBB_Flags::Collision | F_OBB_Flags::Picking", without the "", if you want to have both
 		BoundingBoxComponent(Entity* parent, unsigned int flagOBB = 0);
 		virtual ~BoundingBoxComponent();
 

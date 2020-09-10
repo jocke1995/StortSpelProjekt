@@ -47,22 +47,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
 
     entity = scene->GetEntity("box");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     entity = scene->GetEntity("stone");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     entity = scene->GetEntity("transparentTestObject");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
 
     entity = scene->GetEntity("directionalLight");
     entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
@@ -70,7 +70,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity = scene->GetEntity("spotLight");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>();
     entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
     // Set the m_Components
@@ -226,7 +226,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             entity = scene->AddEntity(boxName);
             entity->AddComponent<component::MeshComponent>();
             entity->AddComponent<component::TransformComponent>();
-            component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>(true);
+            component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
             
             mc = entity->GetComponent<component::MeshComponent>();
             mc->SetMeshes(cubeModel);
