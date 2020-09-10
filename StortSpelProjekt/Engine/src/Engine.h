@@ -28,6 +28,8 @@
 
 #include "Misc/AssetLoader.h"
 
+#include "Input/Input.h"
+
 class Engine
 {
 public:
