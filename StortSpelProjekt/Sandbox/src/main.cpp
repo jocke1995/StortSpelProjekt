@@ -20,9 +20,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     // This will be loaded once from disk, then the next time the same function is called (with the same filepath),
     // the function will just return the same pointer to the model that was loaded earlier.
+
     std::vector<Mesh*>* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     std::vector<Mesh*>* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     std::vector<Mesh*>* cubeModel  = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    std::vector<Mesh*>* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    std::vector<Mesh*>* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
 
 #pragma region CreateScene0
     // Create Scene
@@ -34,6 +37,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     scene->AddEntity("box");
     scene->AddEntity("stone");
     scene->AddEntity("transparentTestObject");
+    scene->AddEntity("Dragon");
     scene->AddEntity("directionalLight");
     scene->AddEntity("spotLight");
     scene->AddEntity("spotLight2");
@@ -43,6 +47,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     entity = scene->GetEntity("player");
     component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(hInstance, *window->GetHwnd(), true);
+    entity->AddComponent<component::MeshComponent>();
+    entity->AddComponent<component::TransformComponent>();
+    entity->AddComponent<component::BoundingBoxComponent>(true);
 
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::MeshComponent>();
@@ -64,22 +71,40 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>(false);
 
+    entity = scene->GetEntity("Dragon");
+    entity->AddComponent<component::MeshComponent>();
+    entity->AddComponent<component::TransformComponent>();
+
     entity = scene->GetEntity("directionalLight");
     entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
 
     entity = scene->GetEntity("spotLight");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>(false);
     entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
     // Set the m_Components
-    component::MeshComponent* mc = scene->GetEntity("floor")->GetComponent<component::MeshComponent>();
+
+    component::MeshComponent* mc = scene->GetEntity("player")->GetComponent<component::MeshComponent>();
+    mc->SetMeshes(playerModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    mc->GetMesh(0)->GetMaterial()->SetShininess(300);
+    component::TransformComponent* tc = scene->GetEntity("player")->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(
+        cc->GetCamera()->GetPositionFloat3().x + cc->GetCamera()->GetDirection().x,
+        cc->GetCamera()->GetPositionFloat3().y + cc->GetCamera()->GetDirection().y - 1,
+        cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetDirection().z
+    );
+    scene->GetEntity("player")->GetComponent<component::BoundingBoxComponent>()->Init();
+
+    mc = scene->GetEntity("floor")->GetComponent<component::MeshComponent>();
     mc->SetMeshes(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
     mc->GetMesh(0)->GetMaterial()->SetShininess(300);
     mc->GetMesh(0)->GetMaterial()->SetUVScale(2.0f, 2.0f);
-    component::TransformComponent* tc = scene->GetEntity("floor")->GetComponent<component::TransformComponent>();
+    tc = scene->GetEntity("floor")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(20, 1, 20);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     scene->GetEntity("floor")->GetComponent<component::BoundingBoxComponent>()->Init();
@@ -106,6 +131,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc->SetMeshes(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::Blend);
 
+    mc = scene->GetEntity("Dragon")->GetComponent<component::MeshComponent>();
+    mc->SetMeshes(dragonModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    tc = scene->GetEntity("Dragon")->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 40.0f);
+    tc->GetTransform()->RotateX(3.1415f / 2);
+
     Texture* ambientDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_ambient.png");
     Texture* normalDefault  = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_normal.png");
     mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::AMBIENT , ambientDefault);
@@ -118,10 +150,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 1.0f);
     tc->GetTransform()->RotateZ(3.141572f / 2.0f);
     tc->GetTransform()->RotateX(3.141572f / 2.0f);
-    
+
     entity = scene->GetEntity("transparentTestObject");
     entity->GetComponent<component::BoundingBoxComponent>()->Init();
-
+    
     component::DirectionalLightComponent* dl = scene->GetEntity("directionalLight")->GetComponent<component::DirectionalLightComponent>();
     dl->SetDirection({ -1.0f, -1.0f, -1.0f });
     dl->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.05f, 0.05f, 1.0f });
@@ -148,47 +180,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     sl->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 1.0f, 0.00f, 1.0f, 1.0f });
 
 #pragma endregion CreateScene0
-#pragma region CreateScene1
-    // Create Scene
-    sceneManager->CreateScene("scene1");
-    Scene* scene1 = sceneManager->GetScene("scene1");
 
-    // Use the same player as in the first scene
-    entity = scene->GetEntity("player");
-    scene1->AddEntityFromOther(entity);
-    
-    scene1->AddEntity("cube1");
-    scene1->AddEntity("cube2");
-    scene1->AddEntity("directionalLight");
-    scene1->GetEntity("cube1")->AddComponent<component::MeshComponent>();
-    scene1->GetEntity("cube1")->AddComponent<component::TransformComponent>();
-    scene1->GetEntity("cube2")->AddComponent<component::MeshComponent>();
-    scene1->GetEntity("cube2")->AddComponent<component::TransformComponent>();
-    scene1->GetEntity("directionalLight")->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION);
-    
-    mc = scene1->GetEntity("cube1")->GetComponent<component::MeshComponent>();
-    mc->SetMeshes(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
-    
-    tc = scene1->GetEntity("cube1")->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(-15.0f, 1.0f, 0.0f);
-    
-    mc = scene1->GetEntity("cube2")->GetComponent<component::MeshComponent>();
-    mc->SetMeshes(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
-    
-    tc = scene1->GetEntity("cube2")->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(-5.0f, 1.0f, 0.0f);
-   
-    dl = scene1->GetEntity("directionalLight")->GetComponent<component::DirectionalLightComponent>();
-    dl->SetDirection({ -1.0f, -1.0f, -1.0f });
-    dl->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.02f, 0.08f, 0.08f, 1.0f });
-    dl->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.2f, 0.8f, 0.8f, 1.0f });
-    dl->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.2f, 0.8f, 0.8f, 1.0f });
-
-#pragma endregion CreateScene1
 	char sceneName[10] = "scene0";
 	sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
 
@@ -224,45 +216,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		}
 		if (window->WasSpacePressed())
 		{
-            // Test to add objects during runtime
-            char boxName[10];
-            static int boxisCounter = 0;
-			static int nrOfPolygons = 0;
-            sprintf(boxName, "boxis%d", boxisCounter);
-			nrOfPolygons += 12;
-            boxisCounter++;
-            
-            scene = sceneManager->GetScene(sceneName);
-            entity = scene->AddEntity(boxName);
-            entity->AddComponent<component::MeshComponent>();
-            entity->AddComponent<component::TransformComponent>();
-            component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>(true);
-            
-            mc = entity->GetComponent<component::MeshComponent>();
-            mc->SetMeshes(cubeModel);
-            mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
-            bbc->Init();
-            
-            tc = entity->GetComponent<component::TransformComponent>();
-            tc->GetTransform()->SetScale(0.5f);
-            float3 spawnPosition = { cc->GetCamera()->GetPositionFloat3().x + cc->GetCamera()->GetLookAt().x * 10,
-                                     cc->GetCamera()->GetPositionFloat3().y + cc->GetCamera()->GetLookAt().y * 10, 
-                                     cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetLookAt().z * 10, };
-            tc->GetTransform()->SetPosition(spawnPosition.x, spawnPosition.y, spawnPosition.z);
-            
-			sceneManager->AddEntity(entity);
-
-			// Test to remove picked object
-			//Entity* pickedEnt = renderer->GetPickedEntity();
-			//if (pickedEnt != nullptr)
-			//{
-			//	sceneManager->RemoveEntity(pickedEnt);
-			//	scene->RemoveEntity(pickedEnt->GetName());
-			//}
-
-            // AUDIO TEST 
-            audiotest.PlayAudio();
-        }
+    }
 
         /* ------ Update ------ */
         timer->Update();
