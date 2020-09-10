@@ -27,13 +27,17 @@ project "Engine"
         "d3d12",
         "dxgi",
         "d3dcompiler",
-        "assimp-vc140-mt"
+        "assimp-vc140-mt",
+	    "sfml-system-d",
+	    "sfml-network-d"
     }
 
     postbuildcommands
     {
         ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Game"),
-        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Sandbox")
+        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Sandbox"),
+        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/EngineTests"),
+        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Server")
     }
     defines{"_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE"}
         filter "configurations:Debug"
@@ -125,6 +129,22 @@ project "EngineTests"
     links {"Engine", "GTest" }
     filter "configurations:Debug"
         defines { "_DEBUG", "_CONSOLE" }
+        symbols "On"
+
+    filter "configurations:Release"
+        defines { "NDEBUG", "_CONSOLE" }
+        optimize "On"
+
+project "Server"
+    location "Server"
+    kind "ConsoleApp"
+    targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
+    objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
+    files {"%{prj.location}/src/**.cpp", "src/**.h"}
+    includedirs {"Vendor/Include/", "Engine/src/", "Engine/src/Headers/"}
+    links {"Engine"}
+    filter "configurations:Debug"
+        defines {"_DEBUG", "_CONSOLE" }
         symbols "On"
 
     filter "configurations:Release"
