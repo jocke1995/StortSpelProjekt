@@ -12,7 +12,7 @@ public:
     PerspectiveCamera(HINSTANCE hInstance, HWND hwnd);
 
     // main constructor
-    PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt,
+    PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR direction,
         double fov = 45.0f,
         double aspectRatio = 16.0f / 9.0f,
         double zNear = 0.1f,

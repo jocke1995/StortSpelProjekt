@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "OrthographicCamera.h"
 
-OrthographicCamera::OrthographicCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, float left, float right, float bot, float top, float nearZ, float farZ)
-	:BaseCamera(position, lookAt)
+OrthographicCamera::OrthographicCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR direction, float left, float right, float bot, float top, float nearZ, float farZ)
+	:BaseCamera(position, direction)
 {
 	m_Left = left;
 	m_Right = right;
