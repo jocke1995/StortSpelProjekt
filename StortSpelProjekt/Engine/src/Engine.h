@@ -26,7 +26,12 @@
 // #include "physics"
 #include "AudioEngine/Audio.h"
 
+// Network
+#include "Network/Network.h"
+
 #include "Misc/AssetLoader.h"
+
+#include "Input/Input.h"
 
 class Engine
 {

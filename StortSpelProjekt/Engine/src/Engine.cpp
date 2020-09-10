@@ -39,6 +39,8 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 
 	// ECS
 	m_SceneManager = new SceneManager(m_Renderer);
+
+	Input::GetInstance().RegisterDevices(m_Window->GetHwnd());
 }
 
 Window* const Engine::GetWindow() const
