@@ -1248,7 +1248,7 @@ void Renderer::addComponents(Entity* entity)
 		}
 
 		// Add to vector so the mouse picker can check for intersections
-		if (bbc->CanBePicked() == true)
+		if (bbc->GetFlagOBB() & F_OBB_Flags::Picking)
 		{
 			m_BoundingBoxesToBePicked.push_back(bbc);
 		}

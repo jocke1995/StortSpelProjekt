@@ -25,7 +25,7 @@ namespace component
 
     private:
         // The boundingBox will update the "m_IsPickedThisFrame"
-        friend class BoundingBoxComponent;
+        friend class BoundingBoxComponent; // TODO: remove
         bool m_IsPickedThisFrame = false;
 
         std::vector<Mesh*> m_Meshes;
