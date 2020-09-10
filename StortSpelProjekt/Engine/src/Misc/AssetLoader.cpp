@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "AssetLoader.h"
 
-#include "../Renderer/Material.h"
-
 #include "../Renderer/DescriptorHeap.h"
 
 #include "../Renderer/Mesh.h"
@@ -233,7 +231,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 	{
 		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
 		texture = processTexture(mat, type, &filePathWithoutTexture);
-		mesh->GetMaterial()->SetTexture(type, texture);
+		mesh->SetTexture(type, texture);
 	}
 	// ---------- Get Textures and set them to the m_pMesh END----------
 
@@ -245,8 +243,6 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 	// 	// if unsuccessful set a default
 	// 	shininess = 20.0f;
 	// }
-
-	mesh->GetMaterial()->SetShininess(shininess);
 
 	return mesh;
 }

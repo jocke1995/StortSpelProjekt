@@ -22,7 +22,6 @@
 #include "Transform.h"
 #include "BaseCamera.h"
 #include "Mesh.h"
-#include "Material.h"
 #include "Texture.h"
 #include "ShadowInfo.h"
 #include "ShaderResourceView.h"
@@ -938,17 +937,6 @@ void Renderer::removeComponents(Entity* entity)
 		{
 			m_RenderComponents.erase(m_RenderComponents.begin() + i);
 			setRenderTasksRenderComponents();
-
-			// Remove from CopyPerFrame
-			component::MeshComponent* mc = parent->GetComponent<component::MeshComponent>();
-			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
-			{
-				const ConstantBufferView* cbv = mc->GetMesh(i)->GetMaterial()->GetConstantBufferView();
-				CopyPerFrameTask* cpft = nullptr;
-				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-				cpft->ClearSpecific(cbv->GetUploadResource());
-			}
-			break;
 		}
 	}
 
@@ -1056,19 +1044,13 @@ void Renderer::addComponents(Entity* entity)
 				al->m_LoadedModels[modelPath].first = true;
 			}
 
-			// Submit Material and Mesh/texture data to GPU if they haven't already been uploaded
+			// Submit Mesh/texture data to GPU if they haven't already been uploaded
 			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 			{
 				mesh = mc->GetMesh(i);
 
-				// Add material cbv
-				ConstantBufferView* cbv = m_pViewPool->GetFreeCBV(sizeof(MaterialAttributes), L"Material" + i);
-				mesh->GetMaterial()->SetCBV(cbv);
-
 				// Submit to the list which gets updated to the gpu each frame
 				CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-				const void* data = static_cast<const void*>(mesh->GetMaterial()->GetMaterialAttributes());
-				cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetCBVResource(), data));
 
 				// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
 				if (isModelOnGpu == false)
@@ -1076,7 +1058,7 @@ void Renderer::addComponents(Entity* entity)
 					CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 
 					// Vertices
-					data = static_cast<const void*>(mesh->m_Vertices.data());
+					const void* data = static_cast<const void*>(mesh->m_Vertices.data());
 					Resource* uploadR = mesh->m_pUploadResourceVertices;
 					Resource* defaultR = mesh->m_pDefaultResourceVertices;
 					codt->Submit(&std::make_tuple(uploadR, defaultR, data));
@@ -1091,7 +1073,7 @@ void Renderer::addComponents(Entity* entity)
 					for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
 					{
 						TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-						Texture* texture = mesh->GetMaterial()->GetTexture(type);
+						Texture* texture = mesh->GetTexture(type);
 
 						// Check if the texture is on GPU before submitting to be uploaded
 						if (al->m_LoadedTextures[texture->m_FilePath].first == false)
