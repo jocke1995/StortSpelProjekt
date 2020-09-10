@@ -26,7 +26,7 @@ enum class DESCRIPTOR_HEAP_TYPE;
 // techniques
 class ShadowInfo;
 class MousePicker;
-class Bloom;
+class BloomResources;
 
 // ECS
 class Scene;
@@ -96,7 +96,7 @@ private:
 	SwapChain* m_pSwapChain = nullptr;
 	
 	// Bloom (includes rtv, uav and srv)
-	Bloom* m_pBloom = nullptr;
+	BloomResources* m_pBloom = nullptr;
 
 	// Depthbuffer
 	DepthStencilView* m_pMainDSV = nullptr;

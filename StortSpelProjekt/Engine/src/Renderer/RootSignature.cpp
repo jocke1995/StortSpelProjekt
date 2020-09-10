@@ -97,15 +97,15 @@ void RootSignature::createRootSignatureStructure()
 	rootParam[RS::CB_PER_SCENE].Descriptor.RegisterSpace = 3;	// space0
 	rootParam[RS::CB_PER_SCENE].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	rootParam[RS::SRV].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-	rootParam[RS::SRV].Descriptor.ShaderRegister = 1;	// b1
-	rootParam[RS::SRV].Descriptor.RegisterSpace = 1;	// space0
-	rootParam[RS::SRV].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-	rootParam[RS::UAV].ParameterType = D3D12_ROOT_PARAMETER_TYPE_UAV;
-	rootParam[RS::UAV].Descriptor.ShaderRegister = 0;	// b0
-	rootParam[RS::UAV].Descriptor.RegisterSpace = 0;	// space0
-	rootParam[RS::UAV].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	rootParam[RS::SRV1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+	rootParam[RS::SRV1].Descriptor.ShaderRegister = 1;	// b1
+	rootParam[RS::SRV1].Descriptor.RegisterSpace = 1;	// space1
+	rootParam[RS::SRV1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+					 
+	rootParam[RS::UAV1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_UAV;
+	rootParam[RS::UAV1].Descriptor.ShaderRegister = 0;	// b0
+	rootParam[RS::UAV1].Descriptor.RegisterSpace = 0;	// space0
+	rootParam[RS::UAV1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_ROOT_SIGNATURE_DESC rsDesc;
 	rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;

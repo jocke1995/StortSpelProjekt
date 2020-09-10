@@ -2,13 +2,11 @@
 #include "Bloom.h"
 
 #include "RenderTarget.h"
-#include "ShaderResourceView.h"
-#include "UnorderedAccessView.h"
 #include "Resource.h"
 #include "../Misc/Window.h"
 
 
-Bloom::Bloom(
+BloomResources::BloomResources(
 	ID3D12Device5* device,
 	DescriptorHeap* dh_RTV,
 	DescriptorHeap* dh_CBV_UAV_SRV,
@@ -26,58 +24,42 @@ Bloom::Bloom(
 	// A renderTarget for "bright" areas on the screen
 	createBrightRenderTarget(device, dh_RTV, width, height);
 
-	// A srv to read from in the compute shader (same resource as the rtv)
-	createShaderResourceViews(device, dh_CBV_UAV_SRV);
+	// two resources (which will be interpreted as UAVs) to write the blurred image to after gaussian blur
+	D3D12_RESOURCE_DESC resourceDesc = {};
+	resourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	resourceDesc.Width = width;
+	resourceDesc.Height = height;
+	resourceDesc.DepthOrArraySize = 1;
+	resourceDesc.MipLevels = 0;
+	resourceDesc.SampleDesc.Count = 1;
+	resourceDesc.SampleDesc.Quality = 0;
+	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 
-	// A uav to write the blurred image to after gaussian blur
-	createUnorderedAccessViews(device, dh_CBV_UAV_SRV, width, height);
+	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_ResourcesToWrite[i] = new Resource(device, &resourceDesc, nullptr, L"ResourceToBlur" + i, D3D12_RESOURCE_STATE_GENERIC_READ);
+	}
 }
 
-Bloom::~Bloom()
+BloomResources::~BloomResources()
 {
 	delete m_pRenderTarget;
 
 	// Delete SRVs & UAVs
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		delete m_SRVs[i];
-		delete m_UAVs[i];
+		delete m_ResourcesToWrite[i];
 	}
 }
 
-const RenderTarget* const Bloom::GetRenderTarget() const
+const RenderTarget* const BloomResources::GetRenderTarget() const
 {
 	return m_pRenderTarget;
 }
 
-void Bloom::createBrightRenderTarget(ID3D12Device5* device5, DescriptorHeap* dhRTV, unsigned int width, unsigned int height)
+void BloomResources::createBrightRenderTarget(ID3D12Device5* device5, DescriptorHeap* dhRTV, unsigned int width, unsigned int height)
 {
 	m_pRenderTarget = new RenderTarget(device5, width, height, dhRTV);
-}
-
-void Bloom::createShaderResourceViews(ID3D12Device5* device, DescriptorHeap* dh_CBV_UAV_SRV)
-{
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvd = {};
-	srvd.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	srvd.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvd.Texture2D.MipLevels = 1;
-
-	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
-	{
-		Resource* resource = m_pRenderTarget->GetResource(i);
-		m_SRVs[i] = new ShaderResourceView(device, dh_CBV_UAV_SRV, &srvd, resource);
-	}
-}
-
-void Bloom::createUnorderedAccessViews(ID3D12Device5* device, DescriptorHeap* dh_CBV_UAV_SRV, unsigned int width, unsigned int height)
-{
-	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-	uavDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-
-	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
-	{
-		m_UAVs[i] = new UnorderedAccessView(device, dh_CBV_UAV_SRV, &uavDesc, width, height);
-	}
 }
