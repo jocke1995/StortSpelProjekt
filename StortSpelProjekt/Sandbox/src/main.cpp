@@ -176,10 +176,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     sl->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 1.0f, 0.00f, 1.0f, 1.0f });
 
 #pragma endregion CreateScene0
-#pragma region CreateScene1
-    // Create Scene
-    sceneManager->CreateScene("scene1");
-    Scene* scene1 = sceneManager->GetScene("scene1");
 
     // Use the same player as in the first scene
     entity = scene->GetEntity("player");
@@ -235,12 +231,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			//sceneSwapper++;
 
             // Test to remove picked object
-            Entity* pickedEnt = renderer->GetPickedEntity();
+            /*Entity* pickedEnt = renderer->GetPickedEntity();
             if (pickedEnt != nullptr)
             {
 				sceneManager->RemoveEntity(pickedEnt);
 				scene->RemoveEntity(pickedEnt->GetName());
-            }
+            }*/
+
+
 		}
 		if (window->WasSpacePressed())
 		{

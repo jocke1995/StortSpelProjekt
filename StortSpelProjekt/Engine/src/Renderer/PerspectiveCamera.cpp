@@ -97,9 +97,5 @@ void PerspectiveCamera::updateCameraMovement()
 	m_MoveLeftRight = 0.0f;
 	m_MoveUpDown = 0.0f;
 
-	DirectX::XMFLOAT3 pos(2.0, 4.0, -10.0);
-
-	m_EyeVector = DirectX::XMLoadFloat3(&pos);
-
 	m_ViewMatrix = DirectX::XMMatrixLookAtLH(m_EyeVector, DirectX::XMVectorAdd(m_EyeVector, m_DirectionVector), m_UpVector);
 }

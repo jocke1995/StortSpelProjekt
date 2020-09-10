@@ -17,6 +17,7 @@ Engine::~Engine()
 
 	delete m_SceneManager;
 	delete m_Renderer;
+	delete m_pAudioEngine;
 }
 
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
@@ -33,6 +34,8 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	// Sub-engines
 	m_Renderer = new Renderer();
 	m_Renderer->InitD3D12(m_Window->GetHwnd(), hInstance, m_ThreadPool);
+
+	m_pAudioEngine = new AudioEngine();
 
 	// ECS
 	m_SceneManager = new SceneManager(m_Renderer);
@@ -58,6 +61,11 @@ ThreadPool* const Engine::GetThreadPool() const
 SceneManager* const Engine::GetSceneHandler() const
 {
 	return m_SceneManager;
+}
+
+AudioEngine* const Engine::GetAudioEngine() const
+{
+	return m_pAudioEngine;
 }
 
 Renderer* const Engine::GetRenderer() const
