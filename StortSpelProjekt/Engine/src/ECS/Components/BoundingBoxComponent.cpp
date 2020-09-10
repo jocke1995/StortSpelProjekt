@@ -29,7 +29,6 @@ void component::BoundingBoxComponent::Init()
 
 void component::BoundingBoxComponent::Update(double dt)
 {
-	m_pTransform = m_pParent->GetComponent<TransformComponent>()->GetTransform();
 	// update pos
 	m_OrientedBoundingBox.Center.x = m_pTransform->GetPositionFloat3().x;
 	m_OrientedBoundingBox.Center.y = m_pTransform->GetPositionFloat3().y;
@@ -134,12 +133,11 @@ bool component::BoundingBoxComponent::createOrientedBoundingBox()
 		m_OrientedBoundingBox.Center.y = m_pTransform->GetPositionFloat3().y;
 		m_OrientedBoundingBox.Center.z = m_pTransform->GetPositionFloat3().z;
 
-		// get roataion from the transform worldmatrix and convert it to the required quaternion(XMFLOAT4)
+		// get roataion from the rotationMatrix and convert it 
+		// to the required quaternion(XMFLOAT4) and store it
 		DirectX::XMMATRIX wm = m_pTransform->GetRotMatrix();
-		DirectX::XMVECTOR qv = DirectX::XMQuaternionRotationMatrix((wm));
+		DirectX::XMVECTOR qv = DirectX::XMQuaternionRotationMatrix(wm);
 		DirectX::XMStoreFloat4(&m_OrientedBoundingBox.Orientation, qv);
-
-		// Bellow is code needed for sending data to the BoundingBoxData struct
 
 		// Create bounding box
 		Vertex v[8] = {};

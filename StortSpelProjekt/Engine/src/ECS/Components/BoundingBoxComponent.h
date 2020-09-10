@@ -28,6 +28,7 @@ namespace component
 		virtual ~BoundingBoxComponent();
 
 		void Init();
+		//updates the position and rotation of m_OrientedBoundingBox
 		void Update(double dt);
 
 		void SetMesh(Mesh* mesh);
@@ -37,7 +38,6 @@ namespace component
 		const Mesh* GetMesh() const;
 		const BoundingBoxData* GetBoundingBoxData() const;
 		const std::string GetPathOfModel() const;
-		// 
 		unsigned int GetFlagOBB() const;
 
 		// Renderer calls this function when an entity is picked
