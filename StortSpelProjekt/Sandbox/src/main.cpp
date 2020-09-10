@@ -1,4 +1,6 @@
 #include "Engine.h"
+#include "TestHeader.h"
+#include "TestHeaderTwo.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -23,6 +25,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     std::vector<Mesh*>* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     std::vector<Mesh*>* cubeModel  = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+
+    TestSubscriber testingOne;
+    TestHeaderTwo testingTwo;
 
     EventBus::get().publish(&MessageLog("Message"));
 

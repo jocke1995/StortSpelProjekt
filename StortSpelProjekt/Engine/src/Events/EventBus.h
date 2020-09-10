@@ -74,3 +74,7 @@ inline EventBus& EventBus::get()
 	static EventBus instance;
 	return instance;
 }
+
+inline EventBus::~EventBus()
+{
+}
