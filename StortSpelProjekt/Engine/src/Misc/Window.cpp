@@ -82,7 +82,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					break;
 			}
 
-			Input::GetInstance().SetMousePosition(inputData.lLastX, inputData.lLastY);
+			Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
 			SetCursorPos(500, 400);
 		}
 

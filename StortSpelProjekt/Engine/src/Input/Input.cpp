@@ -54,9 +54,9 @@ void Input::SetMouseScroll(SHORT scroll)
 	m_Scroll = (scroll > 0) * 2 - 1;
 }
 
-void Input::SetMousePosition(int x, int y)
+void Input::SetMouseMovement(int x, int y)
 {
-	m_MousePos = std::make_pair(x, y);
+	m_MouseMovement = std::make_pair(x, y);
 }
 
 bool Input::GetKeyState(SCAN_CODES key)
@@ -83,9 +83,9 @@ int Input::GetMouseScroll()
 	return toReturn;
 }
 
-std::pair<int, int> Input::GetMousePos()
+std::pair<int, int> Input::GetMouseMovement()
 {
-	return m_MousePos;
+	return m_MouseMovement;
 }
 
 Input::Input()

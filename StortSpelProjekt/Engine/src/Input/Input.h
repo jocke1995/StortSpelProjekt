@@ -166,7 +166,7 @@ public:
 	/// </summary>
 	/// <param name="x">: The x-coordinate of the cursor relative to the center of the window</param>
 	/// <param name="y">: The y-coordinate of the cursor relative to the center of the window</param>
-	void SetMousePosition(int x, int y);
+	void SetMouseMovement(int x, int y);
 	/// <summary>
 	/// Get the state of a keyboard key.
 	/// </summary>
@@ -194,7 +194,7 @@ public:
 	/// Get the position of the mouse cursor relative to the center of the window.
 	/// </summary>
 	/// <returns>a pair of integers representing the position of the mouse cursor</returns>
-	std::pair<int, int> GetMousePos();
+	std::pair<int, int> GetMouseMovement();
 
 private:
 	Input();
@@ -204,7 +204,7 @@ private:
 	std::unordered_map<MOUSE_BUTTON, bool> m_MouseButtonState;
 	int m_Scroll;
 
-	std::pair<int, int> m_MousePos;
+	std::pair<int, int> m_MouseMovement;
 };
 
 #endif // !INPUT_H
