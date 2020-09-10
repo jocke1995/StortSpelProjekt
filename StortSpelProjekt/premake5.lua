@@ -28,14 +28,16 @@ project "Engine"
         "dxgi",
         "d3dcompiler",
         "assimp-vc140-mt",
-	"sfml-system-d",
-	"sfml-network-d"
+	    "sfml-system-d",
+	    "sfml-network-d"
     }
 
     postbuildcommands
     {
         ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Game"),
-        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Sandbox")
+        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Sandbox"),
+        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/EngineTests"),
+        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Server")
     }
     defines{"_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE"}
         filter "configurations:Debug"
