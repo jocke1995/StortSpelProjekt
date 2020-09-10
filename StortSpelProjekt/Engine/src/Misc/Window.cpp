@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Window.h"
+#include "..\Input\Input.h"
 
 // callback function for windows messages
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -28,6 +29,64 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_DESTROY:
 		PostQuitMessage(0);
+		return 0;
+
+	case WM_INPUT:
+		UINT dwSize;
+
+		GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
+		LPBYTE lpb = new BYTE[dwSize];
+		if (lpb == NULL)
+		{
+			return 0;
+		}
+
+		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
+		{
+			OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
+		}
+
+		RAWINPUT* raw = (RAWINPUT*)lpb;
+
+		if (raw->header.dwType == RIM_TYPEKEYBOARD)
+		{
+			auto inputData = raw->data.keyboard;
+
+			int modifier = (inputData.Flags / 2 + 1) * 0x100;
+			SCAN_CODES key = static_cast<SCAN_CODES>(inputData.MakeCode + modifier);
+
+			Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
+		}
+		else if (raw->header.dwType == RIM_TYPEMOUSE)
+		{
+			auto inputData = raw->data.mouse;
+			MOUSE_BUTTON button = static_cast<MOUSE_BUTTON>(inputData.usButtonFlags);
+
+			switch (button)
+			{
+				case MOUSE_BUTTON::WHEEL:
+					Input::GetInstance().SetMouseScroll(inputData.usButtonData);
+					break;
+				case MOUSE_BUTTON::LEFT_DOWN:
+				case MOUSE_BUTTON::MIDDLE_DOWN:
+				case MOUSE_BUTTON::RIGHT_DOWN:
+					Input::GetInstance().SetMouseButtonState(button, true);
+					break;
+				case MOUSE_BUTTON::LEFT_UP:
+				case MOUSE_BUTTON::MIDDLE_UP:
+				case MOUSE_BUTTON::RIGHT_UP:
+					button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
+					Input::GetInstance().SetMouseButtonState(button, false);
+					break;
+				default:
+					break;
+			}
+
+			Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
+			SetCursorPos(500, 400);
+		}
+
+		delete[] lpb;
 		return 0;
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -177,6 +236,7 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	ShowWindow(m_Hwnd, nCmdShow);
+	//ShowCursor(false);
 	UpdateWindow(m_Hwnd);
 
 	return true;

@@ -47,7 +47,7 @@ protected:
 
 	BaseCamera* m_pCamera = nullptr;
 	CAMERA_TYPE m_CameraType;
-	void CreateCamera(float3 position, float3 lookAt);
+	void CreateCamera(float3 position, float3 direction);
 
 	virtual void UpdateLightData(COLOR_TYPE type) = 0;
 

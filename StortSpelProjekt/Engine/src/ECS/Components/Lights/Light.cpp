@@ -60,19 +60,19 @@ BaseCamera* Light::GetCamera() const
 	return m_pCamera;
 }
 
-void Light::CreateCamera(float3 position, float3 lookAt)
+void Light::CreateCamera(float3 position, float3 direction)
 {
 	switch (m_CameraType)
 	{
 		case CAMERA_TYPE::ORTHOGRAPHIC:
 			m_pCamera = new OrthographicCamera(
 			{ position.x, position.y, position.z , 1.0f},
-			{ lookAt.x, lookAt.y, lookAt.z , 0.0f});
+			{ direction.x, direction.y, direction.z , 0.0f});
 			break; 
 		case CAMERA_TYPE::PERSPECTIVE:
 			m_pCamera = new PerspectiveCamera(
 				{ position.x, position.y, position.z, 1.0f},
-				{ lookAt.x, lookAt.y, lookAt.z , 0.0f},
+				{ direction.x, direction.y, direction.z , 0.0f},
 				60.0f);	// Field of view
 			break;
 	}

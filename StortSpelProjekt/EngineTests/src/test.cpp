@@ -1,9 +1,10 @@
 #include <gtest/gtest.h>
 #include "Headers/stdafx.h"
 #include <crtdbg.h>
+#include "Headers/Core.h"
 #include "Memory/FreeList.h"
 #include "Memory/MemoryManager.h"
-#include "Headers/Core.h"
+#include "Misc/EngineRand.h"
 int main(int argc, char** argv)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -388,6 +389,117 @@ TEST(MEMORYMANAGER, HEAPFEWANDLARGE)
 		MemoryManager::FreeHeapBlock(smallMem);
 	if(mem)
 		MemoryManager::FreeHeapBlock(mem);
+}
 
+TEST(RANDOMGEN, BASIC)
+{
+	EngineRand lehm(5);
+	Log::Print("\nRandom tests\n\n");
 
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+	Log::Print("%d\n", lehm.Rand());
+}
+
+TEST(RANDOMGEN, RANGE)
+{
+	EngineRand lehm(2);
+
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+	Log::Print("%d\n", lehm.Rand(1, 10));
+}
+
+TEST(RANDOMGEN, FLOATS)
+{
+	EngineRand lehm(5);
+
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+	Log::Print("%f\n", lehm.Randf());
+}
+
+TEST(RANDOMGEN, FLOATSRANGE)
+{
+	EngineRand lehm(2);
+
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
+	Log::Print("%f\n", lehm.Randf(1, 10));
 }
