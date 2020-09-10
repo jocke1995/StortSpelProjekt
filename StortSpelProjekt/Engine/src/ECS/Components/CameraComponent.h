@@ -49,6 +49,9 @@ namespace component
 		BaseCamera* GetCamera() const;
 		bool IsPrimary() const;
 
+		/// <summary>
+		/// Toggles whether the camera locks to the movement of the player
+		/// </summary>
 		void ToggleCameraLock();
 
 		void Update(double dt);

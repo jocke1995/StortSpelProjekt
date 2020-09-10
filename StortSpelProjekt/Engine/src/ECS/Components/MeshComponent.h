@@ -15,6 +15,7 @@ namespace component
 
         // Sets
         void SetMeshes(std::vector<Mesh*>* meshes);
+        
         void SetDrawFlag(unsigned int drawFlag);
 
         // Gets
