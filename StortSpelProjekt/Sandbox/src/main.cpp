@@ -190,25 +190,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 #pragma endregion CreateScene1
 	char sceneName[10] = "scene0";
-	sceneManager->EditScene(sceneManager->GetScene(sceneName));
+	sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
     while (!window->ExitWindow())
     {
         // ONLY HERE FOR TESTING
 		if (window->WasTabPressed())
 		{
 			// Test to change scene during runtime
-			//static int sceneSwapper = 0;
+			//static int sceneSwapper = 1;
 			//sceneSwapper %= 2;
-			//sprintf(m_SceneName, "scene%d", sceneSwapper);
-			//Log::Print("Scene: %s\n", m_SceneName);
-			//sceneManager->EditScene(sceneManager->GetScene(m_SceneName));
+			//sprintf(sceneName, "scene%d", sceneSwapper);
+			//Log::Print("Scene: %s\n", sceneName);
+			//sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
 			//sceneSwapper++;
 
             // Test to remove picked object
             Entity* pickedEnt = renderer->GetPickedEntity();
             if (pickedEnt != nullptr)
             {
-                sceneManager->EditScene(pickedEnt, true);
+				sceneManager->RemoveEntity(pickedEnt);
+				scene->RemoveEntity(pickedEnt->GetName());
             }
 		}
 		if (window->WasSpacePressed())
@@ -239,7 +240,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                                      cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetLookAt().z * 10, };
             tc->GetTransform()->SetPosition(spawnPosition.x, spawnPosition.y, spawnPosition.z);
             
-			sceneManager->EditScene(entity);
+			sceneManager->AddEntity(entity);
+
+			// Test to remove picked object
+			//Entity* pickedEnt = renderer->GetPickedEntity();
+			//if (pickedEnt != nullptr)
+			//{
+			//	sceneManager->RemoveEntity(pickedEnt);
+			//	scene->RemoveEntity(pickedEnt->GetName());
+			//}
         }
 
         /* ------ Update ------ */

@@ -7,10 +7,11 @@
 
 // The metadata is any specific information which the memorymanager needs, such as blocks.
 
-// The stack is growing from low memory adresses to higher addresses. It may only grow or decrease, no blocks of memory may be freed in the middle of it. This makes it "safe" from fragmentation.
+// The stack is growing from low memory adresses to higher addresses. It may only grow or decrease, no blocks of memory may be freed in the middle of it. This makes it safe 
+// from fragmentation as long as noone tries to free memory in the middle of the stack block.
 
-// The heap is growing from high memory adresses to lower adresses. It is allowed to free memory blocks anywhere where memory is allocated. 
-// The implementation will then be like that of a poolallocator to get a constant allocation and deallocation time. The highest memory adresses are the ones that should be returned from this part of the memory.
+// The heap is growing from high memory adresses to lower adresses. It is allowed to free memory blocks anywhere where memory is allocated.
+// The implementation will then be like that of a Pool Allocator to get a constant allocation and deallocation time. The highest memory adresses are the ones that should be returned from this part of the memory.
 
 struct Block
 {

@@ -16,10 +16,10 @@ struct D3D12_INDEX_BUFFER_VIEW;
 
 struct Vertex
 {
-    DirectX::XMFLOAT4 pos;
-    DirectX::XMFLOAT4 uv;
-    DirectX::XMFLOAT4 normal;
-    DirectX::XMFLOAT4 tangent;
+    DirectX::XMFLOAT3 pos;
+    DirectX::XMFLOAT2 uv;
+    DirectX::XMFLOAT3 normal;
+    DirectX::XMFLOAT3 tangent;
 };
 
 class Mesh
@@ -70,9 +70,7 @@ private:
     Material* m_pMaterial = nullptr;
     SlotInfo* m_pSlotInfo = nullptr;
 
-
     void createIndexBufferView();
-
 
     // Temporay solution to make sure each "new" mesh only gets deleted once
     bool m_IsCopied = false;
