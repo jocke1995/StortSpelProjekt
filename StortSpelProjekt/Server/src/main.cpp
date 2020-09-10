@@ -9,12 +9,14 @@ int main() {
 
 	std::cin >> ip;
 
-	if (ip == "1") {
+	if (ip == "1")
+	{
 		std::cin >> ip;
 		std::cout << "Connecting to " + ip << std::endl;
 		network.ConnectToIP(ip, 55555);
 	}
-	else {
+	else 
+	{
 		std::cout << "Listening for connections" << std::endl;
 		network.ListenConnection(55555);
 	}
