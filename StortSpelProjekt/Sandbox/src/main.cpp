@@ -198,16 +198,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			//sceneSwapper++;
 
             // Test to remove picked object
-            Entity* pickedEnt = renderer->GetPickedEntity();
+            /*Entity* pickedEnt = renderer->GetPickedEntity();
             if (pickedEnt != nullptr)
             {
 				sceneManager->RemoveEntity(pickedEnt);
 				scene->RemoveEntity(pickedEnt->GetName());
-            }
+            }*/
+
+
 		}
 		if (window->WasSpacePressed())
 		{
-    }
+        }
 
         /* ------ Update ------ */
         timer->Update();
