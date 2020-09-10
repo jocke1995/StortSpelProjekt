@@ -18,10 +18,10 @@ public:
 	//Singleton of the eventbus
 	static EventBus& get();
 
-	template<class T, class EventType>
+	/*template<class T, class EventType>
 	void unsubscribe(T* instance, void (T::* memberFunction)(EventType*));
 
-	void unsubscribeAll();
+	void unsubscribeAll();*/
 
 	// Only called when program exits
 	~EventBus();
@@ -77,4 +77,18 @@ inline EventBus& EventBus::get()
 
 inline EventBus::~EventBus()
 {
+	for (auto const& i : m_Subscribers)
+	{
+		HandlerList* handlers = i.second;
+		if (handlers != nullptr)
+		{
+			std::list<HandlerFunctionBase*>::iterator iter;
+			for (iter = handlers->begin(); iter != handlers->end(); iter++)
+			{
+				delete* iter;
+			}
+			delete handlers;
+		}
+	}
+	m_Subscribers.clear();
 }
