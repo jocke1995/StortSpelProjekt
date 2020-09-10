@@ -72,7 +72,7 @@ namespace component
 
 	void CameraComponent::Update(double dt)
 	{
-		m_pCamera->Update(dt);
+		m_pCamera->Update(m_pParent, dt);
 	}
 
 	BaseCamera* CameraComponent::createPerspective(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, double fov, double aspectRatio, double nearZ, double farZ)

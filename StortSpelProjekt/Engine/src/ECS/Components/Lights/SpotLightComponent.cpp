@@ -49,7 +49,7 @@ namespace component
 
         if (m_pCamera != nullptr)
         {
-            m_pCamera->Update(dt);
+            m_pCamera->Update(m_pParent, dt);
             m_pSpotLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
         }  
     }

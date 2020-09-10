@@ -4,13 +4,15 @@
 #include "Core.h"
 #include "EngineMath.h"
 
+class Entity;
+
 class BaseCamera
 {
 public:
 	BaseCamera(DirectX::XMVECTOR position = { 0.0, 3.0, -5.0, 1.0f }, DirectX::XMVECTOR lookAt = { 0.0f, 0.0f, 1.0f, 1.0f });
 	virtual ~BaseCamera();
 
-	void Update(double dt);
+	void Update(Entity* parent, double dt);
 
 	void SetPosition(float x, float y, float z);
 	void SetLookAt(float x, float y, float z);
@@ -32,6 +34,8 @@ protected:
 
 	DirectX::XMMATRIX m_ViewMatrix;
 	DirectX::XMMATRIX m_ViewMatrixInverse;
+
+	Entity* m_pComponentParent;
 
 	virtual void updateSpecific(double dt = 0.0) = 0;
 };

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "BaseCamera.h"
+#include "..\ECS\Entity.h"
 
 BaseCamera::BaseCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt)
 {
@@ -17,13 +18,15 @@ BaseCamera::~BaseCamera()
 
 }
 
-void BaseCamera::Update(double dt)
+void BaseCamera::Update(Entity* parent, double dt)
 {
 	m_ViewMatrix = DirectX::XMMatrixLookAtLH(m_EyeVector, DirectX::XMVectorAdd(m_AtVector, m_EyeVector), m_UpVector);
 
 	// Inverse
 	DirectX::XMVECTOR matInvDeter;	// Not used, but the function doesn't allow null params :)))
 	m_ViewMatrixInverse = XMMatrixInverse(&matInvDeter, m_ViewMatrix);
+
+	m_pComponentParent = parent;
 
 	updateSpecific(dt);
 }

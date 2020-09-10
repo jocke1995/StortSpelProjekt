@@ -26,7 +26,7 @@ namespace component
 	{
 		if (m_pCamera != nullptr)
 		{
-			m_pCamera->Update(dt);
+			m_pCamera->Update(m_pParent, dt);
 			directionalLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
 		}
 	}

@@ -2,6 +2,8 @@
 #include "PerspectiveCamera.h"
 
 #include "TempInputClass.h"
+#include "..\ECS\Entity.h"
+#include "..\Renderer\Transform.h"
 
 // TEMPORARY CONSTRUCTOR
 PerspectiveCamera::PerspectiveCamera(HINSTANCE hInstance, HWND hwnd)
@@ -90,9 +92,12 @@ void PerspectiveCamera::updateCameraMovement()
 
 	m_RightVector = DirectX::XMVector3Cross(m_AtVector, m_UpVector);
 	
-	m_EyeVector = DirectX::XMVectorAdd(m_EyeVector, DirectX::operator*(m_MoveLeftRight, m_RightVector));
-	m_EyeVector = DirectX::XMVectorAdd(m_EyeVector, DirectX::operator*(m_AtVector,  m_MoveForwardBackward));
-	m_EyeVector = DirectX::XMVectorAdd(m_EyeVector, DirectX::operator*(m_UpVector, m_MoveUpDown));
+	component::TransformComponent* tc = m_pComponentParent->GetComponent<component::TransformComponent>();
+	DirectX::XMFLOAT3 pos = tc->GetTransform()->GetPositionXMFLOAT3();
+	pos.y += 3;
+	pos.z -= 10;
+
+	m_EyeVector = DirectX::XMLoadFloat3(&pos);
 
 	m_MoveForwardBackward = 0.0f;
 	m_MoveLeftRight = 0.0f;

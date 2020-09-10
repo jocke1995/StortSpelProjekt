@@ -43,6 +43,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     entity = scene->GetEntity("player");
     component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(hInstance, *window->GetHwnd(), true);
+    entity->AddComponent<component::MeshComponent>();
+    entity->AddComponent<component::TransformComponent>();
+    entity->AddComponent<component::BoundingBoxComponent>(false);
 
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::MeshComponent>();
@@ -74,12 +77,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
     // Set the m_Components
-    component::MeshComponent* mc = scene->GetEntity("floor")->GetComponent<component::MeshComponent>();
+
+    component::MeshComponent* mc = scene->GetEntity("player")->GetComponent<component::MeshComponent>();
+    mc->SetMeshes(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    component::TransformComponent* tc = scene->GetEntity("player")->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    scene->GetEntity("player")->GetComponent<component::BoundingBoxComponent>()->Init();
+    
+    mc = scene->GetEntity("floor")->GetComponent<component::MeshComponent>();
     mc->SetMeshes(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
     mc->GetMesh(0)->GetMaterial()->SetShininess(300);
     mc->GetMesh(0)->GetMaterial()->SetUVScale(2.0f, 2.0f);
-    component::TransformComponent* tc = scene->GetEntity("floor")->GetComponent<component::TransformComponent>();
+    tc = scene->GetEntity("floor")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(20, 1, 20);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     scene->GetEntity("floor")->GetComponent<component::BoundingBoxComponent>()->Init();
