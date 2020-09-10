@@ -176,6 +176,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     sl->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 1.0f, 0.00f, 1.0f, 1.0f });
 
 #pragma endregion CreateScene0
+    // Create Scene
+    Scene* scene1 = sceneManager->CreateScene("scene1");
 
     // Use the same player as in the first scene
     entity = scene->GetEntity("player");
