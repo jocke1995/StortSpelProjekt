@@ -34,23 +34,23 @@ namespace component
 	}
 
 	// Perspective Constructor
-	CameraComponent::CameraComponent(Entity* parent, bool primary, DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, double fov, double aspectRatio, double zNear, double zFar)
+	CameraComponent::CameraComponent(Entity* parent, bool primary, DirectX::XMVECTOR position, DirectX::XMVECTOR direction, double fov, double aspectRatio, double zNear, double zFar)
 		: Component(parent)
 	{
 		m_PrimaryCamera = primary;
 		m_pCamera = createPerspective(
-			position, lookAt,
+			position, direction,
 			fov, aspectRatio,
 			zNear, zFar);
 	}
 
 	// Orthographic Constructor
-	CameraComponent::CameraComponent(Entity* parent, bool primary, DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, float left, float right, float bot, float top, float nearZ, float farZ)
+	CameraComponent::CameraComponent(Entity* parent, bool primary, DirectX::XMVECTOR position, DirectX::XMVECTOR direction, float left, float right, float bot, float top, float nearZ, float farZ)
 		: Component(parent)
 	{
 		m_PrimaryCamera = primary;
 		m_pCamera = createOrthographic(
-			position, lookAt,
+			position, direction,
 			left, right, bot, top,
 			nearZ, farZ);
 	}
@@ -75,20 +75,20 @@ namespace component
 		m_pCamera->Update(dt);
 	}
 
-	BaseCamera* CameraComponent::createPerspective(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, double fov, double aspectRatio, double nearZ, double farZ)
+	BaseCamera* CameraComponent::createPerspective(DirectX::XMVECTOR position, DirectX::XMVECTOR direction, double fov, double aspectRatio, double nearZ, double farZ)
 	{
 		m_CamType = CAMERA_TYPE::PERSPECTIVE;
 		return new PerspectiveCamera(
-			position, lookAt,
+			position, direction,
 			fov, aspectRatio,
 			nearZ, farZ);
 	}
 
-	BaseCamera* CameraComponent::createOrthographic(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, float left, float right, float bot, float top, float nearZ, float farZ)
+	BaseCamera* CameraComponent::createOrthographic(DirectX::XMVECTOR position, DirectX::XMVECTOR direction, float left, float right, float bot, float top, float nearZ, float farZ)
 	{
 		m_CamType = CAMERA_TYPE::ORTHOGRAPHIC;
 		return new OrthographicCamera(
-			position, lookAt,
+			position, direction,
 			left, right,
 			bot, top,
 			nearZ, farZ);
