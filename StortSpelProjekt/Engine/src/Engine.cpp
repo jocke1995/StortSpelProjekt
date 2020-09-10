@@ -63,9 +63,9 @@ SceneManager* const Engine::GetSceneHandler() const
 	return m_SceneManager;
 }
 
-IXAudio2* const Engine::GetAudioEngine() const
+AudioEngine* const Engine::GetAudioEngine() const
 {
-	return m_pAudioEngine->GetAudioEngine();
+	return m_pAudioEngine;
 }
 
 Renderer* const Engine::GetRenderer() const
