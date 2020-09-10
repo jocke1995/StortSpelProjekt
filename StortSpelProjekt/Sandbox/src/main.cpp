@@ -193,9 +193,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
 
 
-    // AUDIO TESTING, press SPACE to play, TAB to stop
+    // AUDIO TESTING, press SPACE to play, TAB to stop. Only for testing purposes, these calls will later be changed to work with the ecs/scene system
     Audio audiotest;
-    audiotest.OpenFile(engine.GetAudioEngine(), TEXT("../Vendor/Resources/Audio/AGameWithNoName.wav"));
+    audiotest.OpenFile(engine.GetAudioEngine()->GetAudioEngine(), TEXT("../Vendor/Resources/Audio/AGameWithNoName.wav"));
 
 
     while (!window->ExitWindow())

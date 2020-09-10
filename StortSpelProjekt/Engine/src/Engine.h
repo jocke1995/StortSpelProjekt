@@ -42,7 +42,7 @@ public:
 
 	Renderer* const GetRenderer() const;
 	SceneManager* const GetSceneHandler() const;
-	IXAudio2* const GetAudioEngine() const;
+	AudioEngine* const GetAudioEngine() const;
 
 private:
 	Window* m_Window = nullptr;
