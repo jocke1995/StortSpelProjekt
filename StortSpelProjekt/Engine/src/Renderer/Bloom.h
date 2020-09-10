@@ -14,6 +14,7 @@ public:
 	virtual ~BloomResources();
 
 	const RenderTarget* const GetRenderTarget() const;
+	const Resource* const GetResourceToWrite(unsigned int index) const;
 
 private:
 	RenderTarget* m_pRenderTarget = nullptr;

@@ -4,6 +4,7 @@
 #include "../../Misc/MultiThreadedTask.h"
 
 class CommandInterface;
+class Resource;
 enum COMMAND_INTERFACE_TYPE;
 
 // DX12 Forward Declarations
@@ -40,9 +41,11 @@ public:
 	void SetBackBufferIndex(int backBufferIndex);
 	void SetCommandInterfaceIndex(int index);
 
+	void AddResource(std::string id, const Resource* resource);
+
 	ID3D12GraphicsCommandList5* GetCommandList(unsigned int index) const;
 protected:
-
+	std::map<std::string, const Resource*> m_Resources;
 	CommandInterface* m_pCommandInterface = nullptr;
 	int m_BackBufferIndex = -1;
 	int m_CommandInterfaceIndex = -1;

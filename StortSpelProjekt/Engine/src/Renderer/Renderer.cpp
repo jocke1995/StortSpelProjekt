@@ -267,29 +267,24 @@ void Renderer::Execute()
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(m_pFenceFrame, copyFenceValue);
 
 	/* --------------------- Record direct commandlists --------------------- */
-	RenderTask* rt = nullptr;
 	// Recording shadowmaps
-	rt = m_RenderTasks[RENDER_TASK_TYPE::SHADOW];
-	rt->SetBackBufferIndex(backBufferIndex);
-	rt->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(rt, FLAG_THREAD::RENDER);
+	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::SHADOW], FLAG_THREAD::RENDER);
 
 	// Drawing
-	rt = m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER];
-	rt->SetBackBufferIndex(backBufferIndex);
-	rt->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(rt, FLAG_THREAD::RENDER);
+	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER], FLAG_THREAD::RENDER);
 
 	// Blending
-	rt = m_RenderTasks[RENDER_TASK_TYPE::BLEND];
-	rt->SetBackBufferIndex(backBufferIndex);
-	rt->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(rt, FLAG_THREAD::RENDER);
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::BLEND], FLAG_THREAD::RENDER);
 
 	// Blurring for bloom
-	rt = m_RenderTasks[RENDER_TASK_TYPE::BLUR];
-	rt->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(rt, FLAG_THREAD::RENDER);
+	m_RenderTasks[RENDER_TASK_TYPE::BLUR]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::BLUR], FLAG_THREAD::RENDER);
 
 	// Outlining, if an object is picked
 	m_pOutliningRenderTask->SetBackBufferIndex(backBufferIndex);
@@ -343,10 +338,9 @@ Scene* const Renderer::GetActiveScene() const
 
 void Renderer::setRenderTasksPrimaryCamera()
 {
-	for (RenderTask* renderTask : m_RenderTasks)
-	{
-		renderTask->SetCamera(m_pScenePrimaryCamera);
-	}
+	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
 
 	m_pOutliningRenderTask->SetCamera(m_pScenePrimaryCamera);
 
@@ -857,6 +851,10 @@ void Renderer::initRenderTasks()
 		L"BlurCompute.hlsl", L"blurPSO",
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE);
 
+	blurComputeTask->AddResource("brightResource0", m_pBloom->GetRenderTarget()->GetResource(0));
+	blurComputeTask->AddResource("brightResource1", m_pBloom->GetRenderTarget()->GetResource(1));
+	blurComputeTask->AddResource("writeResource0", m_pBloom->GetResourceToWrite(0));
+	blurComputeTask->AddResource("writeResource1", m_pBloom->GetResourceToWrite(1));
 
 	// CopyTasks
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5);
@@ -880,7 +878,6 @@ void Renderer::initRenderTasks()
 
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
 	
-
 	// None atm
 
 	/* ------------------------- DirectQueue Tasks ---------------------- */
@@ -897,20 +894,20 @@ void Renderer::initRenderTasks()
 		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-		m_DirectCommandLists[i].push_back(m_pOutliningRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandList(i));
+
+	// Compute shader to blur the RTV from forwardRenderTask
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		m_DirectCommandLists[i].push_back(blurComputeTask->GetCommandList(i));
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(m_pOutliningRenderTask->GetCommandList(i));
 
 	if (DRAWBOUNDINGBOX == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 			m_DirectCommandLists[i].push_back(m_pWireFrameTask->GetCommandList(i));
 	}
-
-	// Compute shader to blur the RTV from forwardRenderTask
-	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-		m_DirectCommandLists[i].push_back(blurComputeTask->GetCommandList(i));
 }
 
 void Renderer::setRenderTasksRenderComponents()

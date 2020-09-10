@@ -59,6 +59,11 @@ const RenderTarget* const BloomResources::GetRenderTarget() const
 	return m_pRenderTarget;
 }
 
+const Resource* const BloomResources::GetResourceToWrite(unsigned int index) const
+{
+	return m_ResourcesToWrite[index];
+}
+
 void BloomResources::createBrightRenderTarget(ID3D12Device5* device5, DescriptorHeap* dhRTV, unsigned int width, unsigned int height)
 {
 	m_pRenderTarget = new RenderTarget(device5, width, height, dhRTV);

@@ -23,6 +23,20 @@ void DX12Task::SetCommandInterfaceIndex(int index)
 	m_CommandInterfaceIndex = index;
 }
 
+void DX12Task::AddResource(std::string id, const Resource* resource)
+{
+	if (m_Resources[id] == nullptr)
+	{
+		m_Resources[id] = resource;
+	}
+	else
+	{
+		Log::PrintSeverity(
+			Log::Severity::CRITICAL,
+			"Trying to add Resource with name: \'%s\' that already exists.\n", id);
+	}
+}
+
 ID3D12GraphicsCommandList5* DX12Task::GetCommandList(unsigned int index) const
 {
 	return m_pCommandInterface->GetCommandList(index);
