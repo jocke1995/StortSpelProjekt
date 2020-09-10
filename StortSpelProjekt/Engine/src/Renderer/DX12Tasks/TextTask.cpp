@@ -39,14 +39,15 @@ void TextTask::Execute()
 	commandList->SetGraphicsRootSignature(m_pRootSig);
 
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
+	DescriptorHeap* renderTargetHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
 	DescriptorHeap* descriptorHeap_DSV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 	ID3D12DescriptorHeap* d3d12DescriptorHeap = descriptorHeap_CBV_UAV_SRV->GetID3D12DescriptorHeap();
 
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
 
 	// clear the depth buffer so we can draw over everything
-	D3D12_CPU_DESCRIPTOR_HANDLE dsh = descriptorHeap_DSV->GetCPUHeapAt(0);
-	commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	//D3D12_CPU_DESCRIPTOR_HANDLE dsh = descriptorHeap_DSV->GetCPUHeapAt(0);
+	//commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	// set the text pipeline state object
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
@@ -65,10 +66,23 @@ void TextTask::Execute()
 		swapChainResource,
 		D3D12_RESOURCE_STATE_PRESENT,
 		D3D12_RESOURCE_STATE_RENDER_TARGET));
+  
+	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
+	commandList->OMSetRenderTargets(1, &cdhSwapChain, true, nullptr);
+
+	const SwapChain* sc = static_cast<const SwapChain*>(m_RenderTargets["swapChain"]);
+	commandList->RSSetViewports(1, sc->GetRenderView()->GetViewPort());
+	commandList->RSSetScissorRects(1, sc->GetRenderView()->GetScissorRect());
 
 	int nrOfCharacters;
 	for (int i = 0; i < m_TextVec.size(); i++)
 	{
+		// Create a CB_PER_OBJECT struct
+		const SlotInfo* info = m_TextVec.at(i)->GetSlotInfo();
+		DirectX::XMMATRIX idMatrix = DirectX::XMMatrixIdentity();
+		CB_PER_OBJECT_STRUCT perObject = { idMatrix, idMatrix, *info};
+		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+
 		// we are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
 		nrOfCharacters = m_TextVec.at(0)->GetNrOfCharacters();
 		commandList->DrawInstanced(4, nrOfCharacters, 0, 0);

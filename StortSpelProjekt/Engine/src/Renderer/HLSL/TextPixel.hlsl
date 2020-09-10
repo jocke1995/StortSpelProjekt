@@ -1,5 +1,5 @@
-Texture2D t1 : register(t0);
-SamplerState s1 : register(s0);
+Texture2D textures[] : register(t0);
+SamplerState samplerTypeWrap : register (s0);
 
 struct VS_OUT
 {
@@ -10,5 +10,8 @@ struct VS_OUT
 
 float4 PS_main(VS_OUT input) : SV_TARGET0
 {
-	return float4(input.color.rgb, input.color.a * t1.Sample(s1, input.texCoord).a);
+	float4 textureTmp = textures[3].Sample(samplerTypeWrap, input.texCoord);
+	//return float4(input.texCoord.x, input.texCoord.y, 0.0, 1.0);//*/textureTmp;
+	//return float4(input.color.rgb, input.color.a * textures[1].Sample(samplerTypeWrap, input.texCoord).a);
+	return input.color;
 }

@@ -273,11 +273,6 @@ void Renderer::Execute()
 	m_pOutliningRenderTask->SetBackBufferIndex(backBufferIndex);
 	m_pOutliningRenderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(m_pOutliningRenderTask, FLAG_THREAD::RENDER);
-	
-	// For text
-	//->SetBackBufferIndex(backBufferIndex);
-	//m_pOutliningRenderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	//m_pThreadPool->AddTask(m_pOutliningRenderTask, FLAG_THREAD::RENDER);
 
 	if (DRAWBOUNDINGBOX == true)
 	{
@@ -1346,14 +1341,15 @@ void Renderer::addComponents(Entity* entity)
 
 		for (int i = 0; i < textData.size(); i++)
 		{
-			text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+			text = new Text(textData.at(i)->font.fontImage, m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 			text->SetColor(textData.at(i)->color);
 			text->SetFont(textData.at(i)->font);
 			text->SetPadding(textData.at(i)->padding);
 			text->SetPos(textData.at(i)->pos);
 			text->SetScale(textData.at(i)->scale);
 			text->SetText(textData.at(i)->text);
-
+			text->InitVertexData();
+			
 			tt->SubmitText(text);
 
 			// Submit to GPU
@@ -1362,7 +1358,7 @@ void Renderer::addComponents(Entity* entity)
 			// Look if data is already on the GPU
 
 			// Vertices
-			const void* data = static_cast<const void*>(text->GetTextVertexData());
+			const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
 			Resource* uploadR = text->m_pUploadResourceVertices;
 			Resource* defaultR = text->m_pDefaultResourceVertices;
 			codt->Submit(&std::make_tuple(uploadR, defaultR, data));

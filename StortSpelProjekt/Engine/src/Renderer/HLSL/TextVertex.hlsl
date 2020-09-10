@@ -1,12 +1,5 @@
 #include "../../Headers/structs.h"
 
-//struct VS_IN
-//{
-//	float4 pos : POSITION;
-//	float4 texCoord: TEXCOORD;
-//	float4 color: COLOR;
-//};
-
 struct VS_OUT
 {
 	float4 pos: SV_POSITION;

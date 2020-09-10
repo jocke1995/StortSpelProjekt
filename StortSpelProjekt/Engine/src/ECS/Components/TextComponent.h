@@ -9,6 +9,7 @@ class Window;
 struct TextData
 {
 	std::wstring text;
+	std::wstring fontPath;
 	float2 pos;
 	float2 scale;
 	float2 padding;

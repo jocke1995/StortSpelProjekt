@@ -253,14 +253,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         }
 
 		static int i = 0;
-		if (i < 2)
+		if (i < 1)
 		{
 			//Text test ---------------------------------------
-			std::string fontPath = "H:/Users/FREDRIK/Documents/School/3DProjects/DX12/Stort Spel Projekt/Projekt/StortSpelProjekt/StortSpelProjekt/Vendor/Resources/Fonts/Arial.fnt";
+			std::string fontPath = "../Vendor/Resources/Fonts/Arial.fnt";
 			std::string textToRender = "Test";
 			float2 textPos = { 0.02f + i * 0.02f, 0.01f };
 			float2 textPadding = { 0.5f, 0.0f };
-			float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			float4 textColor = { 1.0f, 0.0f, 1.0f, 1.0f };
 			float2 textScale = { 1.0f, 1.0f };
 			char text[10];
 			static int textCounter = 0;
@@ -275,7 +275,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			textComp->SetPos(textPos, 0);
 			textComp->SetScale(textScale, 0);
 			textComp->SetText(text, 0);
-			float4 redColor = { 1.0, 0.0, 0.0, 1.0 };
 			sceneManager->AddEntity(entity);
 			//--------------------------------------------
 			i++;

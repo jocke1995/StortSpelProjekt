@@ -7,6 +7,7 @@ class Window;
 class Resource;
 class ShaderResourceView;
 class DescriptorHeap;
+class Texture;
 struct SlotInfo;
 
 // DX12 Forward Declarations
@@ -21,16 +22,20 @@ static int g_MaxNumTextCharacters = 1024;
 
 struct TextVertex
 {
-	float4 pos;
-	float4 texCoord;
-	float4 color;
+	//float4 pos;
+	//float4 texCoord;
+	//float4 color;
 
-	TextVertex(float r, float g, float b, float a, float u, float v, float tw, float th, float x, float y, float w, float h)
+	DirectX::XMFLOAT4 pos;
+	DirectX::XMFLOAT4 texCoord;
+	DirectX::XMFLOAT4 color;
+
+	/*TextVertex(float r, float g, float b, float a, float u, float v, float tw, float th, float x, float y, float w, float h)
 	{
 		color = { r, g, b, a };
 		texCoord = { u, v, tw, th };
 		pos = { x, y, w, h };
-	}
+	}*/
 };
 
 struct FontChar
@@ -114,10 +119,12 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight);
 class Text
 {
 public:
-	Text(ID3D12Device5* device,
-		DescriptorHeap* descriptorHeap_SRV);
-	//Text(Window* window, std::string fontPath, std::string text, float2 pos, float2 scale, float2 padding, float4 color);
+	Text(std::wstring fontPath, ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV);
 	~Text();
+
+	// TODO: Change most of the set and get to Set TextData
+
+	void InitVertexData();
 
 	Font GetFont() const;
 	std::wstring const GetText() const;
@@ -125,8 +132,8 @@ public:
 	float2 const GetScale() const;
 	float2 const GetPadding() const;
 	float4 const GetColor() const;
+	SlotInfo* const GetSlotInfo() const;
 
-	TextVertex* GetTextVertexData();
 	int const GetNrOfCharacters() const;
 
 	void SetFont(Font font);
@@ -140,6 +147,8 @@ private:
 	friend class Renderer;
 	friend class SceneManager;
 
+	Texture* m_pFontTexture;
+
 	int m_NrOfVertices;
 	int m_SizeOfVertices;
 	int m_NrOfCharacters;
@@ -149,13 +158,13 @@ private:
 	std::wstring m_Text; 
 	float2 m_Pos, m_Scale, m_Padding;
 	float4 m_Color;
-	TextVertex* m_pVertex;
+	std::vector<TextVertex> m_TextVertexVec;
 
 	Resource* m_pUploadResourceVertices = nullptr;
 	Resource* m_pDefaultResourceVertices = nullptr;
 
 	ShaderResourceView* m_pSRV = nullptr;
-	//D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;;
+	//D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;
 
 	SlotInfo* m_pSlotInfo = nullptr;
 };

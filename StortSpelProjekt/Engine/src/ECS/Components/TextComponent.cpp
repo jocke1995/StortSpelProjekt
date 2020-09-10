@@ -50,7 +50,8 @@ namespace component
 
 	void TextComponent::SetText(std::string text, int pos)
 	{
-		m_TextDataVec.at(pos)->text = std::wstring(text.begin(), text.end()).length();
+		std::wstring wtext = std::wstring(text.begin(), text.end());
+		m_TextDataVec.at(pos)->text = wtext;
 	}
 
 	void TextComponent::SetPos(float2 textPos, int pos)

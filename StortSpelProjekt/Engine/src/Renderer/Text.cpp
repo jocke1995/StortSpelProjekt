@@ -2,11 +2,13 @@
 #include "stdafx.h"
 #include <fstream>
 
+#include "Texture.h"
 #include "../Misc/Window.h"
 #include "Resource.h"
 #include "ShaderResourceView.h"
 #include "DescriptorHeap.h"
 
+// TODO Move font to assetloader so that we cant load more than one of the same fonts
 Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 {
 	std::wifstream fs;
@@ -83,6 +85,7 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	fs >> wtmp; // file="Arial.png"
 	startpos = wtmp.find(L"\"") + 1;
 	font.fontImage = wtmp.substr(startpos, wtmp.size() - startpos - 1);
+	font.fontImage = L"../Vendor/Resources/Fonts/" + font.fontImage;
 
 	// get number of characters
 	fs >> tmp >> tmp; // chars count=97
@@ -173,10 +176,12 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	return font;
 }
 
-Text::Text(ID3D12Device5* device,
-	DescriptorHeap* descriptorHeap_SRV)
+Text::Text(std::wstring fontPath, ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV)
 {
-	m_NrOfVertices = g_MaxNumTextCharacters / 4;
+	m_pFontTexture = new Texture();
+	m_pFontTexture->Init(fontPath, device, descriptorHeap_SRV);
+
+	m_NrOfVertices = g_MaxNumTextCharacters * 4;
 	m_SizeOfVertices = m_NrOfVertices * sizeof(TextVertex);
 	m_NrOfCharacters = 0;
 
@@ -203,18 +208,6 @@ Text::Text(ID3D12Device5* device,
 	m_pSlotInfo->vertexDataIndex = m_pSRV->GetDescriptorHeapIndex();
 }
 
-/*Text::Text(Window* window, std::string fontPath, std::string text, float2 pos, float2 scale, float2 padding, float4 color)
-{
-	m_Font = loadFont(std::wstring(fontPath.begin(), fontPath.end()).c_str(), window->GetScreenWidth(), window->GetScreenHeight());
-	m_Text = std::wstring(text.begin(), text.end());
-	m_Pos = pos;
-	m_Scale = scale;
-	m_Padding = padding;
-	m_Color = color;
-
-	m_NrOfCharacters = text.length();
-}*/
-
 Text::~Text()
 {
 	delete m_pSlotInfo;
@@ -224,7 +217,85 @@ Text::~Text()
 
 	delete m_pSRV;
 
-	delete m_pVertex;
+	delete m_pFontTexture;
+}
+
+void Text::InitVertexData()
+{
+	float topLeftScreenX = (m_Pos.x * 2.0f) - 1.0f;
+	float topLeftScreenY = ((1.0f - m_Pos.y) * 2.0f) - 1.0f;
+
+	float x = topLeftScreenX;
+	float y = topLeftScreenY;
+
+	float horrizontalPadding = (m_pFont.leftpadding + m_pFont.rightpadding) * m_Padding.x;
+	float verticalPadding = (m_pFont.toppadding + m_pFont.bottompadding) * m_Padding.y;
+
+	wchar_t lastChar = -1; // no last character to start with
+
+	for (int nrOfCharacters = 0; nrOfCharacters < m_Text.size(); ++nrOfCharacters)
+	{
+		wchar_t c = m_Text[nrOfCharacters];
+
+		FontChar* fc = m_pFont.GetChar(c);
+
+		// character not in font char set
+		if (fc == nullptr)
+		{
+			continue;
+		}
+
+		// end of string
+		if (c == L' ')
+		{
+			break;
+		}
+
+		// new line
+		if (c == L'n')
+		{
+			x = topLeftScreenX;
+			y -= (m_pFont.lineHeight + verticalPadding) * m_Scale.y;
+			continue;
+		}
+
+		// don't overflow the buffer. In your app if this is true, you can implement a resize of your text vertex buffer
+		if (nrOfCharacters >= g_MaxNumTextCharacters)
+		{
+			break;
+		}
+
+		float kerning = 0.0f;
+		if (nrOfCharacters > 0)
+		{
+			kerning = m_pFont.GetKerning(lastChar, c);
+		}
+
+		TextVertex vTmp = {};
+		vTmp.color = DirectX::XMFLOAT4{ m_Color.x, m_Color.y, m_Color.z, m_Color.w };
+		vTmp.texCoord = DirectX::XMFLOAT4{ fc->u, fc->v, fc->twidth, fc->theight };
+		vTmp.pos = DirectX::XMFLOAT4{ x + ((fc->xoffset + kerning) * m_Scale.x), y - (fc->yoffset * m_Scale.y),
+			fc->width * m_Scale.x, fc->height * m_Scale.y };
+
+		m_TextVertexVec.push_back(vTmp);
+		/*TextVertex(m_Color.x,
+		m_Color.y,
+		m_Color.z,
+		m_Color.w,
+		fc->u,
+		fc->v,
+		fc->twidth,
+		fc->theight,
+		x + ((fc->xoffset + kerning) * m_Scale.x),
+		y - (fc->yoffset * m_Scale.y),
+		fc->width * m_Scale.x,
+		fc->height * m_Scale.y);*/
+
+		// remove horrizontal padding and advance to next char position
+		x += (fc->xadvance - horrizontalPadding) * m_Scale.x;
+
+		lastChar = c;
+	}
 }
 
 Font Text::GetFont() const
@@ -257,75 +328,9 @@ float4 const Text::GetColor() const
 	return m_Color;
 }
 
-TextVertex* Text::GetTextVertexData()
+SlotInfo* const Text::GetSlotInfo() const
 {
-	int nrOfCharacters = 0;
-
-	float topLeftScreenX = (m_Pos.x * 2.0f) - 1.0f;
-	float topLeftScreenY = ((1.0f - m_Pos.y) * 2.0f) - 1.0f;
-
-	float x = topLeftScreenX;
-	float y = topLeftScreenY;
-
-	float horrizontalPadding = (m_pFont.leftpadding + m_pFont.rightpadding) * m_Padding.x;
-	float verticalPadding = (m_pFont.toppadding + m_pFont.bottompadding) * m_Padding.y;
-	
-	m_pVertex = new TextVertex(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-	
-	wchar_t lastChar = -1; // no last character to start with
-
-	for (int i = 0; i < m_Text.size(); ++i)
-	{
-		wchar_t c = m_Text[i];
-
-		FontChar* fc = m_pFont.GetChar(c);
-
-		// character not in font char set
-		if (fc == nullptr)
-			continue;
-
-		// end of string
-		if (c == L' ')
-			break;
-
-		// new line
-		if (c == L'n')
-		{
-			x = topLeftScreenX;
-			y -= (m_pFont.lineHeight + verticalPadding) * m_Scale.y;
-			continue;
-		}
-
-		// don't overflow the buffer. In your app if this is true, you can implement a resize of your text vertex buffer
-		if (nrOfCharacters >= g_MaxNumTextCharacters)
-			break;
-
-		float kerning = 0.0f;
-		if (i > 0)
-			kerning = m_pFont.GetKerning(lastChar, c);
-
-		m_pVertex[nrOfCharacters] = TextVertex(m_Color.x,
-			m_Color.y,
-			m_Color.z,
-			m_Color.w,
-			fc->u,
-			fc->v,
-			fc->twidth,
-			fc->theight,
-			x + ((fc->xoffset + kerning) * m_Scale.x),
-			y - (fc->yoffset * m_Scale.y),
-			fc->width * m_Scale.x,
-			fc->height * m_Scale.y);
-
-		nrOfCharacters++;
-
-		// remove horrizontal padding and advance to next char position
-		x += (fc->xadvance - horrizontalPadding) * m_Scale.x;
-
-		lastChar = c;
-	}
-
-	return m_pVertex;
+	return m_pSlotInfo;
 }
 
 int const Text::GetNrOfCharacters() const
@@ -341,8 +346,8 @@ void Text::SetFont(Font font)
 void Text::SetText(std::wstring text)
 {
 	m_Text = text;
-
-	m_NrOfCharacters = text.length();
+	std::string convText = std::string(text.begin(), text.end());
+	m_NrOfCharacters = convText.length();
 }
 
 void Text::SetPos(float2 pos)
