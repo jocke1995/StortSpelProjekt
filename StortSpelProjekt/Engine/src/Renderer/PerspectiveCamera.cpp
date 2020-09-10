@@ -10,9 +10,9 @@ PerspectiveCamera::PerspectiveCamera(HINSTANCE hInstance, HWND hwnd)
 	init();
 	updateSpecific(0);
 
-	m_TempHasInputObject = true;
-	m_pTempInputClass = new TempInputClass();
-	m_pTempInputClass->InitDirectInput(hInstance, hwnd);
+	//m_TempHasInputObject = true;
+	//m_pTempInputClass = new TempInputClass();
+	//m_pTempInputClass->InitDirectInput(hInstance, hwnd);
 }
 
 PerspectiveCamera::PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR lookAt, double fov, double aspectRatio, double zNear, double zFar)
@@ -26,10 +26,10 @@ PerspectiveCamera::PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECT
 
 PerspectiveCamera::~PerspectiveCamera()
 {
-	if (m_TempHasInputObject == true)
+	/*if (m_TempHasInputObject == true)
 	{
 		delete m_pTempInputClass;
-	}
+	}*/
 }
 
 void PerspectiveCamera::init(double fov, double aspectRatio, double zNear, double zFar)
@@ -44,7 +44,7 @@ void PerspectiveCamera::init(double fov, double aspectRatio, double zNear, doubl
 
 void PerspectiveCamera::updateSpecific(double dt)
 {
-	if (m_TempHasInputObject == true)
+	/*if (m_TempHasInputObject == true)
 	{
 		m_pTempInputClass->DetectInput(dt,
 			&m_MoveForwardBackward,
@@ -54,7 +54,7 @@ void PerspectiveCamera::updateSpecific(double dt)
 			&m_CamPitch);
 
 		updateCameraMovement();
-	}
+	}*/
 	
 
 	m_ViewProjMatrix = m_ViewMatrix * m_ProjMatrix;

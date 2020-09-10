@@ -389,8 +389,6 @@ TEST(MEMORYMANAGER, HEAPFEWANDLARGE)
 		MemoryManager::FreeHeapBlock(smallMem);
 	if(mem)
 		MemoryManager::FreeHeapBlock(mem);
-
-
 }
 
 TEST(RANDOMGEN, BASIC)
