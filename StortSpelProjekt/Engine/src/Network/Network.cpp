@@ -7,7 +7,7 @@ Network::Network()
 
 bool Network::ConnectToIP(std::string ip, int port)
 {
-    sf::Socket::Status status = socket.connect(ip, port);
+    sf::Socket::Status status = m_Socket.connect(ip, port);
 
     if (status != 0) 
     {
@@ -23,15 +23,16 @@ bool Network::ConnectToIP(std::string ip, int port)
 void Network::ListenConnection(int port)
 {
     // bind the listener to a port
-    if (listener.listen(port) != sf::Socket::Done)
+    if (m_Listener.listen(port) != sf::Socket::Done)
     {
         Log::PrintSeverity(Log::Severity::WARNING, "Failed attempting to listen to port: " + std::to_string(port) + " failed\n");
     }
 
-    if (listener.accept(socket) != sf::Socket::Done)
+    // Accept connection
+    if (m_Listener.accept(m_Socket) != sf::Socket::Done)
     {
-        Log::PrintSeverity(Log::Severity::WARNING, "Failed connection to " + socket.getRemoteAddress().toString() + "\n");
+        Log::PrintSeverity(Log::Severity::WARNING, "Failed connection to " + m_Socket.getRemoteAddress().toString() + "\n");
     }
 
-    Log::Print("Connected to " + socket.getRemoteAddress().toString() + "\n");
+    Log::Print("Connected to " + m_Socket.getRemoteAddress().toString() + "\n");
 }

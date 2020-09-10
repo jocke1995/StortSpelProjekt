@@ -13,8 +13,8 @@ public:
 	void ListenConnection(int port);
 
 private:
-	sf::TcpSocket socket;
-	sf::TcpListener listener;
+	sf::TcpSocket m_Socket;
+	sf::TcpListener m_Listener;
 };
 
 
