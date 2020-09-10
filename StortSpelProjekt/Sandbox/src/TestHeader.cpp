@@ -7,5 +7,5 @@ TestSubscriber::TestSubscriber()
 
 void TestSubscriber::popMsg(MessageLog * evnt)
 {
-	Log::Print("Printing from TestFileOne, %s \n", evnt->msg);
+	Log::Print("Printing from TestFileOne, %s \n", evnt->msg.c_str());
 }

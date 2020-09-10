@@ -7,5 +7,5 @@ TestHeaderTwo::TestHeaderTwo()
 
 void TestHeaderTwo::popMsg(MessageLog* evnt)
 {
-	Log::Print("Printing from TestFileTwo, %s \n", evnt->msg);
+	Log::Print("Printing from TestFileTwo, %s \n", evnt->msg.c_str());
 }
