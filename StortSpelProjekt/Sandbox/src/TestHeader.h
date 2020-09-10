@@ -1,7 +1,8 @@
 #pragma once
 #include "Engine.h"
 
-class TestSubscriber {
+class TestSubscriber 
+{
 public:
 	TestSubscriber();
 private:
