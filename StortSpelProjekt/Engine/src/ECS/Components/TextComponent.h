@@ -2,45 +2,41 @@
 #define TEXTCOMPONENT_H
 
 #include "Component.h"
-#include "../Renderer/Text.h"
 class Text;
 class Window;
-
-struct TextData
-{
-	std::wstring text;
-	std::wstring fontPath;
-	float2 pos;
-	float2 scale;
-	float2 padding;
-	float4 color;
-	Font font;
-};
+class Texture;
+struct TextData;
+struct Font;
 
 namespace component
 {
 	class TextComponent : public Component
 	{
 	public:
-		TextComponent(Entity* parent);
+		TextComponent(Entity* parent, std::pair<Font*, Texture*> font);
 		virtual ~TextComponent();
 
-		//void SetText(Text* text, int pos);
-		std::vector<TextData*> const GetTextDataVec() const;
+		std::vector<TextData>* const GetTextDataVec();
 
 		void AddText();
 
-		void SetFont(Window* window, std::string fontPath, int pos);
+		void SetFont(std::pair<Font*, Texture*> font);
 		void SetText(std::string text, int pos);
 		void SetPos(float2 textPos, int pos);
 		void SetScale(float2 scale, int pos);
 		void SetPadding(float2 padding, int pos);
 		void SetColor(float4 color, int pos);
 
+		Font* GetFont() const;
+		Texture* GetTexture() const;
+		const int GetNumOfCharacters(int pos) const;
+
 		void Update(double dt);
 
 	private:
-		std::vector<TextData*> m_TextDataVec;
+		std::vector<TextData> m_TextDataVec;
+		Font* m_pFont = nullptr;
+		Texture* m_pFontTexture;
 	};
 }
 #endif

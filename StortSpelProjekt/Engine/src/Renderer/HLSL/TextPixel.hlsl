@@ -1,3 +1,4 @@
+#include "../../Headers/structs.h"
 Texture2D textures[] : register(t0);
 SamplerState samplerTypeWrap : register (s0);
 
@@ -8,10 +9,9 @@ struct VS_OUT
 	float2 texCoord: TEXCOORD;
 };
 
+ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
+
 float4 PS_main(VS_OUT input) : SV_TARGET0
 {
-	float4 textureTmp = textures[3].Sample(samplerTypeWrap, input.texCoord);
-	//return float4(input.texCoord.x, input.texCoord.y, 0.0, 1.0);//*/textureTmp;
-	//return float4(input.color.rgb, input.color.a * textures[1].Sample(samplerTypeWrap, input.texCoord).a);
-	return input.color;
+	return float4(input.color.rgb, input.color.a * textures[cbPerObject.info.textureDiffuse].Sample(samplerTypeWrap, input.texCoord).a);
 }

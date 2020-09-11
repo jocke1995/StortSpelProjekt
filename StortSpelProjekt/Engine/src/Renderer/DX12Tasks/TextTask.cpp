@@ -58,7 +58,7 @@ void TextTask::Execute()
 	// set the text vertex buffer
 	//commandList->IASetVertexBuffers(0, 1, &textVertexBufferView[frameIndex]);
 
-	// bind the text srv. We will assume the correct descriptor heap and table are currently bound and set
+	// bind the text srv
 	commandList->SetGraphicsRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
 
 	// Change state on front/backbuffer
@@ -84,7 +84,7 @@ void TextTask::Execute()
 		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
 		// we are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
-		nrOfCharacters = m_TextVec.at(0)->GetNrOfCharacters();
+		nrOfCharacters = m_TextVec.at(i)->GetNrOfCharacters();
 		commandList->DrawInstanced(4, nrOfCharacters, 0, 0);
 	}
 

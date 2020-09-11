@@ -24,6 +24,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     std::vector<Mesh*>* cubeModel  = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
+	// Load fonts
+	std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
+
 #pragma region CreateScene0
     // Create Scene
     Scene* scene = sceneManager->CreateScene("scene0");
@@ -256,25 +259,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		if (i < 1)
 		{
 			//Text test ---------------------------------------
-			std::string fontPath = "../Vendor/Resources/Fonts/Arial.fnt";
 			std::string textToRender = "Test";
-			float2 textPos = { 0.02f + i * 0.02f, 0.01f };
-			float2 textPadding = { 0.5f, 0.0f };
-			float4 textColor = { 1.0f, 0.0f, 1.0f, 1.0f };
-			float2 textScale = { 1.0f, 1.0f };
+			float2 textPos = { 0.02f + i * 0.05f, 0.01f };
+			float2 textPadding = { 0.0f, 0.0f };
+			float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			float2 textScale = { 2.0f, 2.0f };
 			char text[10];
 			static int textCounter = 0;
 			sprintf(text, "test%d", textCounter);
 			textCounter++;
 			entity = scene->AddEntity(text);
-			component::TextComponent* textComp = entity->AddComponent<component::TextComponent>();
+			component::TextComponent* textComp = entity->AddComponent<component::TextComponent>(arialFont);
 			textComp->AddText();
 			textComp->SetColor(textColor, 0);
-			textComp->SetFont(window, fontPath, 0);
+			textComp->SetFont(arialFont);
 			textComp->SetPadding(textPadding, 0);
 			textComp->SetPos(textPos, 0);
 			textComp->SetScale(textScale, 0);
-			textComp->SetText(text, 0);
+			//textComp->SetText(text, 0);
 			sceneManager->AddEntity(entity);
 			//--------------------------------------------
 			i++;

@@ -5,6 +5,8 @@
 #include "../Misc/ThreadPool.h"
 #include "../Misc/AssetLoader.h"
 #include "../Misc/Thread.h"
+#include "../Misc/Window.h"
+
 // ECS
 #include "../ECS/Scene.h"
 #include "../ECS/Entity.h"
@@ -96,7 +98,7 @@ Renderer::~Renderer()
 	delete m_pCbPerFrameData;
 }
 
-void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool)
+void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
 {
 	m_pThreadPool = threadPool;
 
@@ -116,10 +118,10 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	createFences();
 
 	// Create SwapChain
-	createSwapChain(hwnd);
+	createSwapChain(window->GetHwnd());
 
 	// Create Main DepthBuffer
-	createMainDSV(hwnd);
+	createMainDSV(window->GetHwnd());
 
 	// Picking
 	m_pMousePicker = new MousePicker();
@@ -128,7 +130,7 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	createRootSignature();
 
 	// Init Assetloader
-	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], window);
 
 	// Init BoundingBoxPool
 	BoundingBoxPool::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
@@ -1336,19 +1338,16 @@ void Renderer::addComponents(Entity* entity)
 	if (textComp != nullptr)
 	{
 		TextTask* tt = static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT]);
-		std::vector<TextData*> textData = textComp->GetTextDataVec();
+		std::vector<TextData>* textDataVec = textComp->GetTextDataVec();
 		Text* text;
 
-		for (int i = 0; i < textData.size(); i++)
+		for (int i = 0; i < textDataVec->size(); i++)
 		{
-			text = new Text(textData.at(i)->font.fontImage, m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
-			text->SetColor(textData.at(i)->color);
-			text->SetFont(textData.at(i)->font);
-			text->SetPadding(textData.at(i)->padding);
-			text->SetPos(textData.at(i)->pos);
-			text->SetScale(textData.at(i)->scale);
-			text->SetText(textData.at(i)->text);
-			text->InitVertexData();
+			AssetLoader* al = AssetLoader::Get();
+
+			int numOfCharacters = textComp->GetNumOfCharacters(i);
+			text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, textComp->GetTexture());
+			text->SetTextData(&textDataVec->at(i), textComp->GetFont());
 			
 			tt->SubmitText(text);
 
@@ -1362,6 +1361,9 @@ void Renderer::addComponents(Entity* entity)
 			Resource* uploadR = text->m_pUploadResourceVertices;
 			Resource* defaultR = text->m_pDefaultResourceVertices;
 			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+			// Texture
+			codt->SubmitTexture(textComp->GetTexture());
 		}
 	}
 }
