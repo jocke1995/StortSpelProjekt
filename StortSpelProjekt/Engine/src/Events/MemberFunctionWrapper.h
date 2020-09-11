@@ -8,7 +8,7 @@ public:
     // Call the member function
     void Exec(Event* evnt) 
     {
-        Call(evnt);
+        call(evnt);
     }
 private:
     // Implemented by MemberFunctionHandler
@@ -25,7 +25,7 @@ public:
 
   
 private:
-    void Call(Event* evnt)
+    void call(Event* evnt)
     {
         // Cast event to the correct type and call member function
         (m_pInstance->*m_MemberFunction)(static_cast<EventType*>(evnt));
