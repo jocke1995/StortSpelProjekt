@@ -6,13 +6,13 @@ class HandlerFunctionBase
 {
 public:
     // Call the member function
-    void exec(Event* evnt) 
+    void Exec(Event* evnt) 
     {
-        call(evnt);
+        Call(evnt);
     }
 private:
-    // Implemented by MemberFunctionWrapper
-    virtual void call(Event* evnt) = 0;
+    // Implemented by MemberFunctionHandler
+    virtual void Call(Event* evnt) = 0;
 };
 
 template<class T, class EventType>
@@ -21,17 +21,19 @@ class MemberFunctionHandler : public HandlerFunctionBase
 public:
     typedef void (T::* MemberFunction)(EventType*);
 
-    MemberFunctionHandler(T* instance, MemberFunction memberFunction) : instance{ instance }, memberFunction{ memberFunction } {};
+    MemberFunctionHandler(T* m_pInstance, MemberFunction m_MemberFunction) : m_pInstance{ m_pInstance }, m_MemberFunction{ m_MemberFunction } {};
 
-    void call(Event* evnt) 
+  
+private:
+    void Call(Event* evnt)
     {
         // Cast event to the correct type and call member function
-        (instance->*memberFunction)(static_cast<EventType*>(evnt));
+        (m_pInstance->*m_MemberFunction)(static_cast<EventType*>(evnt));
     }
-private:
+
     // Pointer to class instance
-    T* instance;
+    T* m_pInstance;
 
     // Pointer to member function
-    MemberFunction memberFunction;
+    MemberFunction m_MemberFunction;
 };
