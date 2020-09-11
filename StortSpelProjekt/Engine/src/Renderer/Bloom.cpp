@@ -20,10 +20,6 @@ BloomResources::BloomResources(
 		height = rect.bottom - rect.top;
 	}
 
-	// A renderTarget for "bright" areas on the screen
-	createBrightRenderTarget(device, dh_RTV, width, height);
-
-	// two resources (which will be interpreted as UAVs) to write the blurred image to after gaussian blur
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	resourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	resourceDesc.Width = width;
@@ -32,19 +28,27 @@ BloomResources::BloomResources(
 	resourceDesc.MipLevels = 1;
 	resourceDesc.SampleDesc.Count = 1;
 	resourceDesc.SampleDesc.Quality = 0;
-	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 
-	m_pResourceToWrite = new Resource(device, &resourceDesc, nullptr, L"ResourceToBlur", D3D12_RESOURCE_STATE_GENERIC_READ);
+	D3D12_CLEAR_VALUE clearValue = {};
+	clearValue.Format = resourceDesc.Format;
+	clearValue.Color[0] = 0.1f;
+	clearValue.Color[1] = 0.1f;
+	clearValue.Color[2] = 0.1f;
+	clearValue.Color[3] = 1.0f;
+
+	m_pResource = new Resource(device, &resourceDesc, &clearValue, L"Bloom0_RESOURCE", D3D12_RESOURCE_STATE_GENERIC_READ);
+
+	// A renderTarget for "bright" areas on the screen
+	createBrightRenderTarget(device, dh_RTV, width, height);
 }
 
 BloomResources::~BloomResources()
 {
+	delete m_pResource;
 	delete m_pRenderTarget;
-
-	// Delete the resource
-	delete m_pResourceToWrite;
 }
 
 const RenderTarget* const BloomResources::GetRenderTarget() const
@@ -52,12 +56,15 @@ const RenderTarget* const BloomResources::GetRenderTarget() const
 	return m_pRenderTarget;
 }
 
-const Resource* const BloomResources::GetResourceToWrite() const
+const PingPongBuffer* BloomResources::GetPingPongBuffer(unsigned int index) const
 {
-	return m_pResourceToWrite;
+	return m_PingPongBuffers[index];
 }
 
-void BloomResources::createBrightRenderTarget(ID3D12Device5* device5, DescriptorHeap* dhRTV, unsigned int width, unsigned int height)
+void BloomResources::createBrightRenderTarget(
+	ID3D12Device5* device5,
+	DescriptorHeap* dhRTV,
+	unsigned int width, unsigned int height)
 {
-	m_pRenderTarget = new RenderTarget(device5, width, height, dhRTV, 1);
+	m_pRenderTarget = new RenderTarget(device5, dhRTV, m_pResource, width, height);
 }

@@ -6,6 +6,8 @@ struct ID3D12Device5;
 class RenderTarget;
 class Resource;
 
+class PingPongBuffer;
+
 #include <array>
 class BloomResources
 {
@@ -14,14 +16,21 @@ public:
 	virtual ~BloomResources();
 
 	const RenderTarget* const GetRenderTarget() const;
-	const Resource* const GetResourceToWrite() const;
+	
+	const PingPongBuffer* GetPingPongBuffer(unsigned int index) const;
 
 private:
-	// The compute shader will read from the renderTarget and then write "blurred-data" to m_pResourceToWrite
+	Resource* m_pResource = nullptr;
 	RenderTarget* m_pRenderTarget = nullptr;
-	Resource* m_pResourceToWrite = nullptr;
 
-	void createBrightRenderTarget(ID3D12Device5* device, DescriptorHeap* dhRTV, unsigned int width, unsigned int height);
+	// The compute shader will read and write in a "Ping-Pong"-order to these objects.
+	std::array<PingPongBuffer*, 2> m_PingPongBuffers;
+	
+
+	void createBrightRenderTarget(
+		ID3D12Device5* device,
+		DescriptorHeap* dhRTV,
+		unsigned int width, unsigned int height);
 };
 
 #endif

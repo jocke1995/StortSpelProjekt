@@ -12,6 +12,7 @@ class DescriptorHeap;
 enum class DESCRIPTOR_HEAP_TYPE;
 class BaseCamera;
 class RenderTarget;
+class SwapChain;
 class PipelineState;
 
 // Components
@@ -47,6 +48,7 @@ public:
 								component::TransformComponent*>>* renderComponents);
 
 	void SetCamera(BaseCamera* camera);
+	void SetSwapChain(SwapChain* swapChain);
 	
 protected:
 	std::map<std::string, const RenderTarget*> m_RenderTargets;
@@ -55,6 +57,7 @@ protected:
 	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
 	
 	BaseCamera* m_pCamera = nullptr;
+	SwapChain* m_pSwapChain = nullptr;
 	ID3D12RootSignature* m_pRootSig = nullptr;
 	std::vector<PipelineState*> m_PipelineStates;
 };

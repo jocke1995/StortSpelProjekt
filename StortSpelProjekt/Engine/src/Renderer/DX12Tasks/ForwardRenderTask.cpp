@@ -13,6 +13,8 @@
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
 #include "../BaseCamera.h"
+#include "../SwapChain.h"
+#include "../RenderTarget.h"
 
 FowardRenderTask::FowardRenderTask(
 	ID3D12Device5* device,
@@ -33,8 +35,11 @@ void FowardRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
-	ID3D12Resource1* swapChainResource = m_RenderTargets["swapChain"]->GetResource(m_BackBufferIndex)->GetID3D12Resource1();
-	ID3D12Resource1* BrightTargetResource = m_RenderTargets["brightTarget"]->GetResource(0)->GetID3D12Resource1();
+	const RenderTarget* swapChainRenderTarget = m_pSwapChain->GetRenderTarget(m_BackBufferIndex);
+	ID3D12Resource1* swapChainResource = swapChainRenderTarget->GetResource()->GetID3D12Resource1();
+
+	unsigned int a = 15;
+	ID3D12Resource1* BrightTargetResource = m_RenderTargets["brightTarget"]->GetResource()->GetID3D12Resource1();
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
@@ -63,8 +68,8 @@ void FowardRenderTask::Execute()
 	DescriptorHeap* depthBufferHeap  = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 
 	// RenderTargets
-	const unsigned int SwapChainIndex = m_RenderTargets["swapChain"]->GetDescriptorHeapIndex(m_BackBufferIndex);
-	const unsigned int brightTargetIndex = m_RenderTargets["brightTarget"]->GetDescriptorHeapIndex(0);	// this rtv is not dubblebuffered
+	const unsigned int SwapChainIndex = swapChainRenderTarget->GetDescriptorHeapIndex();
+	const unsigned int brightTargetIndex = m_RenderTargets["brightTarget"]->GetDescriptorHeapIndex();
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(SwapChainIndex);
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhBrightTarget = renderTargetHeap->GetCPUHeapAt(brightTargetIndex);
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhs[] = { cdhSwapChain, cdhBrightTarget };
@@ -80,16 +85,15 @@ void FowardRenderTask::Execute()
 
 	commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-	const SwapChain* sc = static_cast<const SwapChain*>(m_RenderTargets["swapChain"]);
-	const D3D12_VIEWPORT viewPortSwapChain = *m_RenderTargets["swapChain"]->GetRenderView()->GetViewPort();
+	const D3D12_VIEWPORT viewPortSwapChain = *swapChainRenderTarget->GetRenderView()->GetViewPort();
 	const D3D12_VIEWPORT viewPortBrightTarget = *m_RenderTargets["brightTarget"]->GetRenderView()->GetViewPort();
 	const D3D12_VIEWPORT viewPorts[2] = { viewPortSwapChain, viewPortBrightTarget };
 
-	const D3D12_RECT rectSwapChain = *m_RenderTargets["swapChain"]->GetRenderView()->GetScissorRect();
+	const D3D12_RECT rectSwapChain = *swapChainRenderTarget->GetRenderView()->GetScissorRect();
 	const D3D12_RECT rectBrightTarget = *m_RenderTargets["brightTarget"]->GetRenderView()->GetScissorRect();
 	const D3D12_RECT rects[2] = { rectSwapChain, rectBrightTarget };
 
-	const D3D12_RECT* rect = sc->GetRenderView()->GetScissorRect();
+	const D3D12_RECT* rect = swapChainRenderTarget->GetRenderView()->GetScissorRect();
 	commandList->RSSetViewports(2, viewPorts);
 	commandList->RSSetScissorRects(2, rects);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

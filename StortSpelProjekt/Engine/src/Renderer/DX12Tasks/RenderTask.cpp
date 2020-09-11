@@ -5,6 +5,7 @@
 #include "../CommandInterface.h"
 #include "../GraphicsState.h"
 #include "../Resource.h"
+#include "../SwapChain.h"
 
 RenderTask::RenderTask(
 	ID3D12Device5* device,
@@ -50,6 +51,11 @@ void RenderTask::SetRenderComponents(std::vector<std::pair<	component::MeshCompo
 void RenderTask::SetCamera(BaseCamera* camera)
 {
 	m_pCamera = camera;
+}
+
+void RenderTask::SetSwapChain(SwapChain* swapChain)
+{
+	m_pSwapChain = swapChain;
 }
 
 

@@ -474,8 +474,7 @@ void Renderer::createSwapChain(const HWND *hwnd)
 		hwnd,
 		width, height,
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV], 
-		2);
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV]);
 }
 
 void Renderer::createMainDSV(const HWND* hwnd)
@@ -625,7 +624,7 @@ void Renderer::initRenderTasks()
 
 	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
 	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
-	forwardRenderTask->AddRenderTarget("swapChain", m_pSwapChain);
+	forwardRenderTask->SetSwapChain(m_pSwapChain);
 	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTarget());
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	
@@ -666,7 +665,7 @@ void Renderer::initRenderTasks()
 		&gpsdOutliningVector,
 		L"outliningScaledPSO");
 	
-	m_pOutliningRenderTask->AddRenderTarget("swapChain", m_pSwapChain);
+	m_pOutliningRenderTask->SetSwapChain(m_pSwapChain);
 	m_pOutliningRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion ModelOutlining
@@ -758,7 +757,7 @@ void Renderer::initRenderTasks()
 
 	blendRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
 	blendRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
-	blendRenderTask->AddRenderTarget("swapChain", m_pSwapChain);
+	blendRenderTask->SetSwapChain(m_pSwapChain);
 	blendRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	
 
@@ -841,7 +840,7 @@ void Renderer::initRenderTasks()
 		&gpsdWireFrameVector,
 		L"WireFramePSO");
 
-	m_pWireFrameTask->AddRenderTarget("swapChain", m_pSwapChain);
+	m_pWireFrameTask->SetSwapChain(m_pSwapChain);
 	m_pWireFrameTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion WireFrame
 
@@ -851,8 +850,8 @@ void Renderer::initRenderTasks()
 		L"BlurCompute.hlsl", L"blurPSO",
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE);
 
-	blurComputeTask->AddResource("brightResource", m_pBloomResources->GetRenderTarget()->GetResource(0));
-	blurComputeTask->AddResource("writeResource", m_pBloomResources->GetResourceToWrite());
+	//blurComputeTask->AddResource("brightResource", m_pBloomResources->GetRenderTarget()->GetResource(0));
+	//blurComputeTask->AddResource("writeResource", m_pBloomResources->GetResourceToWrite());
 
 	// CopyTasks
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5);
