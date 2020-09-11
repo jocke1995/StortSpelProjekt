@@ -114,50 +114,38 @@ struct Font
 	}
 };
 
-Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight);
+struct TextData
+{
+	std::wstring text;
+	float2 pos;
+	float2 scale;
+	float2 padding;
+	float4 color;
+};
 
 class Text
 {
 public:
-	Text(std::wstring fontPath, ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV);
+	Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfCharacters, Texture* texture);
 	~Text();
 
-	// TODO: Change most of the set and get to Set TextData
-
-	void InitVertexData();
-
-	Font GetFont() const;
-	std::wstring const GetText() const;
-	float2 const GetPos() const;
-	float2 const GetScale() const;
-	float2 const GetPadding() const;
-	float4 const GetColor() const;
 	SlotInfo* const GetSlotInfo() const;
+	TextData* const GetTextData(int pos);
+	const int GetNrOfCharacters() const;
 
-	int const GetNrOfCharacters() const;
-
-	void SetFont(Font font);
-	void SetText(std::wstring text);
-	void SetPos(float2 pos);
-	void SetScale(float2 scale);
-	void SetPadding(float2 padding);
-	void SetColor(float4 color);
+	void SetTextData(TextData* textData, Font* font);
 
 private:
 	friend class Renderer;
 	friend class SceneManager;
 
-	Texture* m_pFontTexture;
+	Font* m_pFont = nullptr;
 
 	int m_NrOfVertices;
 	int m_SizeOfVertices;
-	int m_NrOfCharacters;
 
 	// this will store our font information
-	Font m_pFont;
-	std::wstring m_Text; 
-	float2 m_Pos, m_Scale, m_Padding;
-	float4 m_Color;
+	TextData m_TextData;
 	std::vector<TextVertex> m_TextVertexVec;
 
 	Resource* m_pUploadResourceVertices = nullptr;
@@ -167,6 +155,8 @@ private:
 	//D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;
 
 	SlotInfo* m_pSlotInfo = nullptr;
+
+	void initVertexData();
 };
 
 #endif

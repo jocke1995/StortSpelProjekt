@@ -32,7 +32,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 
 	// Sub-engines
 	m_Renderer = new Renderer();
-	m_Renderer->InitD3D12(m_Window->GetHwnd(), hInstance, m_ThreadPool);
+	m_Renderer->InitD3D12(m_Window, hInstance, m_ThreadPool);
 
 	// ECS
 	m_SceneManager = new SceneManager(m_Renderer);

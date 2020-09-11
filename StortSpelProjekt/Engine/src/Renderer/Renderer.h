@@ -9,6 +9,7 @@
 
 // Misc
 class ThreadPool;
+class Window;
 
 // Renderer Engine
 class RootSignature;
@@ -65,7 +66,7 @@ public:
 	Scene* const GetActiveScene() const;
 
 	// Call once
-	void InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool);
+	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
 	// Call each frame
 	void Update(double dt);
