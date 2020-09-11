@@ -14,17 +14,16 @@ int main() {
 
 	if (ip == "1")
 	{
+		std::cout << "What ip to connect to. (\"localhost\" to connect to own machine)" << std::endl;
 		std::cin >> ip;
 		std::cout << "Connecting to " + ip << std::endl;
 		network.ConnectToIP(ip, 55555);
 
+		std::cout << "Write message" << std::endl;
 		std::string str = "";
-		while (std::strcmp(str.c_str(), "quit") != 0)
-		{
-			std::cin >> str;
-			network.AppendPacket(str);
-			network.SendPacket();
-		}
+		std::cin >> str;
+		network.AppendStringPacket(str);
+		network.SendPacket();
 	}
 	else
 	{
@@ -34,6 +33,7 @@ int main() {
 		std::string str = "";
 		str = network.ListenPacket();
 
+		std::cout << "Message recieved: ";
 		std::cout << str;
 	}
 

@@ -37,20 +37,23 @@ void Network::ListenConnection(int port)
     Log::Print("Connected to " + m_Socket.getRemoteAddress().toString() + "\n");
 }
 
-void Network::AppendPacket(std::string str)
+void Network::AppendStringPacket(std::string str)
 {
-    m_Packet.append(str.c_str(), str.size());
+    m_PacketSend << str;
 }
 
 void Network::SendPacket()
 {
-    m_Socket.send(m_Packet);
-    m_Packet.clear();
+    m_Socket.send(m_PacketSend);
+    m_PacketSend.clear();
 }
 
 std::string Network::ListenPacket()
 {
     m_Socket.setBlocking(true);
-    m_Socket.receive(m_Packet);
+    m_Socket.receive(m_PacketRecieve);
+    std::string str;
+    m_PacketRecieve >> str;
+
     return str;
 }

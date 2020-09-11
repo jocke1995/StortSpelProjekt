@@ -12,7 +12,7 @@ public:
 	void ListenConnection(int port);
 
 	//Add string to at the end to the next packet
-	void AppendPacket(std::string str);
+	void AppendStringPacket(std::string str);
 	void SendPacket();
 
 	std::string ListenPacket();
@@ -20,7 +20,8 @@ public:
 private:
 	sf::TcpSocket m_Socket;
 	sf::TcpListener m_Listener;
-	sf::Packet m_Packet;
+	sf::Packet m_PacketRecieve;
+	sf::Packet m_PacketSend;
 };
 
 
