@@ -47,7 +47,7 @@ inline void EventBus::Publish(EventType* evnt)
 	{
 		if (handler != nullptr) 
 		{
-			handler->exec(evnt);
+			handler->Exec(evnt);
 		}
 	}
 }

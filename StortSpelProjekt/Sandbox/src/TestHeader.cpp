@@ -2,7 +2,7 @@
 
 TestSubscriber::TestSubscriber()
 {
-	EventBus::get().subscribe(this, &TestSubscriber::popMsg);
+	EventBus::GetInstance().Subscribe(this, &TestSubscriber::popMsg);
 }
 
 void TestSubscriber::popMsg(MessageLog * evnt)

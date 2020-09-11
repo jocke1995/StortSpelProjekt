@@ -2,7 +2,7 @@
 
 TestHeaderTwo::TestHeaderTwo()
 {
-	EventBus::get().subscribe(this, &TestHeaderTwo::popMsg);
+	EventBus::GetInstance().Subscribe(this, &TestHeaderTwo::popMsg);
 }
 
 void TestHeaderTwo::popMsg(MessageLog* evnt)

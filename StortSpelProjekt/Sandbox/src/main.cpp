@@ -34,7 +34,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     TestSubscriber testingOne;
     TestHeaderTwo testingTwo;
 
-    EventBus::get().publish(&MessageLog(std::string("MumboJumboLul")));
+    EventBus::GetInstance().Publish(&MessageLog(std::string("MumboJumboLul")));
 
 #pragma region CreateScene0
     // Create Scene
