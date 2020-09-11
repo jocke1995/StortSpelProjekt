@@ -16,7 +16,6 @@ UnorderedAccessView::UnorderedAccessView(
 
 UnorderedAccessView::~UnorderedAccessView()
 {
-	delete m_pResource;
 }
 
 unsigned int UnorderedAccessView::GetDescriptorHeapIndex() const

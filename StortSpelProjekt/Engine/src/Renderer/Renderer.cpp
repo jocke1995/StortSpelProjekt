@@ -121,6 +121,7 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	createSwapChain(hwnd);
 	m_pBloomResources = new BloomResources(m_pDevice5, 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
 		hwnd);
 
 	// Create Main DepthBuffer
