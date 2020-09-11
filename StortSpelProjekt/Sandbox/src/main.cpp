@@ -153,8 +153,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         {
             p = new Physics();
         }
-        //BoundingBoxComponent bbc = 
-        //scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->collision(scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->GetOBB(), *scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->GetTransform())
+
         if (p->checkOBBCollision(   
             scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->GetOBB(),                   
             scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->GetOBB()))
