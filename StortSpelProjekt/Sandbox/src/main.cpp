@@ -28,6 +28,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* testModel = al->LoadModel(L"../Vendor/Resources/Models/test/dboy/D-boy2.obj");
     std::vector<Mesh*>* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     std::vector<Mesh*>* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
+    
 
 #pragma region CreateScene0
     // Create Scene
@@ -44,6 +45,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     scene->AddEntity("spotLight");
     scene->AddEntity("spotLight2");
 
+
     // Add Components to Entities
     Entity* entity;
 
@@ -51,27 +53,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
 
     entity = scene->GetEntity("box");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
 
     entity = scene->GetEntity("stone");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
 
     entity = scene->GetEntity("transparentTestObject");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
 
     entity = scene->GetEntity("Dragon");
     entity->AddComponent<component::MeshComponent>();
@@ -83,8 +85,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity = scene->GetEntity("spotLight");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
     entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
 
     // Set the m_Components
 
