@@ -27,6 +27,9 @@ public:
     // Texture ------------
     Texture* LoadTexture(std::wstring path);
 
+    // Load Audio
+    // ??
+
 private:
     // PipelineState loads all shaders
     friend class PipelineState;
@@ -48,6 +51,9 @@ private:
     std::map<std::wstring, std::pair<bool, std::vector<Mesh*>*>> m_LoadedModels;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
     std::map<std::wstring, Shader*> m_LoadedShaders;
+
+    // Audio
+    // add map for audio (path, AudioObject)
 
     /* --------------- Functions --------------- */
     void processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*> *meshes, const std::string* filePath);

@@ -14,6 +14,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	ThreadPool* const threadPool = engine.GetThreadPool();
 	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
+    AudioEngine* const audioEngine = engine.GetAudioEngine();
 
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
@@ -26,6 +27,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* cubeModel  = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     std::vector<Mesh*>* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     std::vector<Mesh*>* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
+
+    //Audio* testAudio = al->LoadAudio(path);
 
 #pragma region CreateScene0
     // Create Scene
@@ -50,6 +53,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::AudioComponent>(audioEngine);
 
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::MeshComponent>();
@@ -98,6 +102,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetDirection().z
     );
     scene->GetEntity("player")->GetComponent<component::BoundingBoxComponent>()->Init();
+
+    // audio component
+    component::AudioComponent* ac = scene->GetEntity("player")->GetComponent<component::AudioComponent>();
+    ac->AddAudio("horse", "../Vendor/Resources/Audio/AGameWithNoName.wav");
+    ac->AddAudio("melody", "../Vendor/Resources/Audio/melody.wav");
+
+    //ac->AddAudio("testAudio", testAudio);
 
     mc = scene->GetEntity("floor")->GetComponent<component::MeshComponent>();
     mc->SetMeshes(floorModel);
@@ -185,10 +196,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
 
 
-    // AUDIO TESTING, press SPACE to play, TAB to stop. Only for testing purposes, these calls will later be changed to work with the ecs/scene system
-    Audio audiotest;
-    audiotest.OpenFile(engine.GetAudioEngine()->GetAudioEngine(), TEXT("../Vendor/Resources/Audio/AGameWithNoName.wav"));
-
+    // AUDIO TESTING, two sounds loaded into player entity, space stops first sound and plays other (also works to play simultaneously)
+    component::AudioComponent* test = scene->GetEntity("player")->GetComponent<component::AudioComponent>();
+    test->PlayAudio("horse");
 
     while (!window->ExitWindow())
     {
@@ -210,15 +220,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 				sceneManager->RemoveEntity(pickedEnt);
 				scene->RemoveEntity(pickedEnt->GetName());
             }*/
-
-            // AUDIO TEST
-            audiotest.StopAudio();
 		}
+
 		if (window->WasSpacePressed())
 		{
-            // AUDIO TEST
-            audiotest.PlayAudio();
         }
+
+        if (Input::GetInstance().GetJustPressed(SCAN_CODES::SPACE))
+        {
+            test->PlayAudio("melody");
+            test->StopAudio("horse");
+        }
+
+        //test->PlayAudio("testAudio");
+
 
         /* ------ Update ------ */
         timer->Update();

@@ -38,7 +38,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	m_pAudioEngine = new AudioEngine();
 
 	// ECS
-	m_SceneManager = new SceneManager(m_Renderer);
+	m_SceneManager = new SceneManager(m_Renderer, m_pAudioEngine);
 
 	Input::GetInstance().RegisterDevices(m_Window->GetHwnd());
 }

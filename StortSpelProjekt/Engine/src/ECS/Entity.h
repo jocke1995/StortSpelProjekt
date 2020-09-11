@@ -5,6 +5,8 @@
 #include "Components/TransformComponent.h"
 #include "Components/CameraComponent.h"
 #include "Components/BoundingBoxComponent.h"
+// Audio
+#include "Components/AudioComponent.h"
 
 // Lights
 class DirectionalLightComponent;

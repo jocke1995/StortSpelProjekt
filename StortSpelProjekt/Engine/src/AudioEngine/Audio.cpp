@@ -98,13 +98,13 @@ HRESULT Audio::readChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD
     return hr;
 }
 
-void Audio::OpenFile(IXAudio2* pXAudio2, const TCHAR* sound)
+void Audio::OpenFile(IXAudio2* pXAudio2, std::string path)
 {
-    const TCHAR* strFileName = sound;
+    std::wstring strFileName = to_wstring(path);
 
     // Open the file
     HANDLE hFile = CreateFile(
-        strFileName,
+        strFileName.c_str(),
         GENERIC_READ,
         FILE_SHARE_READ,
         NULL,

@@ -20,7 +20,8 @@ public:
 	Audio();
 	~Audio();
 
-	void OpenFile(IXAudio2* pXAudio2, const TCHAR* sound);
+	//void OpenFile(IXAudio2* pXAudio2, const TCHAR* path);
+	void OpenFile(IXAudio2* pXAudio2, std::string path);
 
 	// Simple playback functions that will be extended in the future
 	void PlayAudio();
