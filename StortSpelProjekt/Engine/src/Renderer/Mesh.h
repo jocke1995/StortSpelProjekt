@@ -4,7 +4,7 @@
 #include "EngineMath.h"
 #include "Core.h"
 
-
+#include "../ECS/Components/BoundingBoxComponent.h"
 
 class Texture;
 class Resource;
@@ -54,6 +54,7 @@ private:
     friend class Renderer;
     friend class SceneManager;
     friend class Model;
+    friend class component::BoundingBoxComponent;
 
     std::vector<Vertex> m_Vertices;
     std::vector<unsigned int> m_Indices;

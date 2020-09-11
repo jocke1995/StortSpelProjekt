@@ -101,18 +101,14 @@ void WireframeRenderTask::Execute()
 		const Mesh* m = m_ObjectsToDraw[i]->GetMesh();
 		Transform* t = m_ObjectsToDraw[i]->GetTransform();
 
-		// TODO: TEMP FILIP
-		Entity* ent = m_ObjectsToDraw[i]->GetParent();
-		component::ModelComponent* mc = ent->GetComponent<component::ModelComponent>();
-
 		size_t num_Indices = m->GetNumIndices();
-		const SlotInfo info = mc->GetSlotInfoAt(i);
+		const SlotInfo* info = m_ObjectsToDraw[i]->GetSlotInfo();
 
 		DirectX::XMMATRIX* WTransposed = t->GetWorldMatrixTransposed();
 		DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
 		// Create a CB_PER_OBJECT struct
-		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed,  info };
+		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed,  *info };
 
 		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 		//commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_OBJECT_CBV, )

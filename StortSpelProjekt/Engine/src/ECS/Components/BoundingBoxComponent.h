@@ -4,8 +4,10 @@
 #include "Component.h"
 
 struct BoundingBoxData;
+class ShaderResourceView;
 class Mesh;
 class Transform;
+class SlotInfo;
 namespace component
 {
 	class BoundingBoxComponent : public Component
@@ -23,6 +25,7 @@ namespace component
 		const Mesh* GetMesh() const;
 		const BoundingBoxData* GetBoundingBoxData() const;
 		const std::string GetPathOfModel() const;
+		const SlotInfo* GetSlotInfo() const;
 
 		bool CanBePicked() const;
 
@@ -34,6 +37,7 @@ namespace component
 		BoundingBoxData* m_pBbd = nullptr;
 		bool createBoundingBox();
 		Mesh* m_pMesh = nullptr;
+		SlotInfo* m_SlotInfo;
 
 		bool m_CanBePicked = false;
 

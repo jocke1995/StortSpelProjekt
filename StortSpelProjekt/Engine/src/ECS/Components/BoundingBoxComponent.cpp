@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "BoundingBoxComponent.h"
-#include "../Renderer/Mesh.h"
+
 
 #include "../Entity.h"
 
@@ -12,17 +12,25 @@
 
 #include "../Renderer/BoundingBoxPool.h"
 
+#include "../Renderer/Mesh.h"
+#include "../Renderer/ShaderResourceView.h"
+
+#include "../Headers/structs.h"
+
+
 namespace component
 {
 	BoundingBoxComponent::BoundingBoxComponent(Entity* parent, bool pick)
 		:Component(parent)
 	{
 		m_CanBePicked = pick;
+
+		m_SlotInfo = new SlotInfo();
 	}
 
 	BoundingBoxComponent::~BoundingBoxComponent()
 	{
-		
+		delete m_SlotInfo;
 	}
 
 	void BoundingBoxComponent::Init()
@@ -38,6 +46,9 @@ namespace component
 	void BoundingBoxComponent::SetMesh(Mesh* mesh)
 	{
 		m_pMesh = mesh;
+
+		m_SlotInfo->vertexDataIndex = mesh->m_pSRV->GetDescriptorHeapIndex();
+		// Textures are not used in the WireframeRenderTask
 	}
 
 	Transform* BoundingBoxComponent::GetTransform() const
@@ -58,6 +69,11 @@ namespace component
 	const std::string BoundingBoxComponent::GetPathOfModel() const
 	{
 		return m_pPathOfModel;
+	}
+
+	const SlotInfo* BoundingBoxComponent::GetSlotInfo() const
+	{
+		return m_SlotInfo;
 	}
 
 
