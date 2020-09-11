@@ -1,4 +1,5 @@
 #include "Input.h"
+#include "..\Events\EventBus.h"
 
 Input& Input::GetInstance()
 {
@@ -37,11 +38,19 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 {
 	SetJustPressed(key, !m_KeyState[key]);
 	m_KeyState[key] = pressed;
+	if ((key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::Q || key == SCAN_CODES::E) && !pressed)
+	{
+		EventBus::GetInstance().Publish(&MovementInput(key, pressed));
+	}
 }
 
 void Input::SetJustPressed(SCAN_CODES key, bool justPressed)
 {
 	m_JustPressed[key] = justPressed;
+	if ((key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::Q || key == SCAN_CODES::E) && justPressed)
+	{
+		EventBus::GetInstance().Publish(&MovementInput(key, justPressed));
+	}
 }
 
 void Input::SetMouseButtonState(MOUSE_BUTTON button, bool pressed)
