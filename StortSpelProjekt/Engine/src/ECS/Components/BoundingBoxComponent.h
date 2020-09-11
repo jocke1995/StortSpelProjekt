@@ -50,7 +50,7 @@ namespace component
 		// If picking and or collision should be enabled
 		unsigned int m_FlagOBB = 0;
 		Mesh* m_pMesh = nullptr;
-		std::string m_pPathOfModel = "";
+		std::string m_PathOfModel = "";
 		BoundingBoxData* m_pBbd = nullptr;
 
 		bool createOrientedBoundingBox();

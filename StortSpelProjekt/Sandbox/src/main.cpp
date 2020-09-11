@@ -218,34 +218,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         timer->Update();
         renderer->Update(timer->GetDeltaTime());
 
-        // Test for OBB collision written by Bj�rn. Should  be removed after review
-        tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
-        static float test = 0;
-        test += 0.0005;
-        tc->GetTransform()->SetPosition(-8, 0, test);
-        tc->GetTransform()->RotateX(test);
-        Physics* p = engine.GetPhysics();
-        if (p == nullptr)
-        {
-            p = new Physics();
-        }
-
-        if (p->checkOBBCollision(   
-            scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->GetOBB(),                   
-            scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->GetOBB()))
-        {
-            Log::Print("Stone - box Collision!\n");
-        }
-        if (p->checkOBBCollision(
-            scene->GetEntity("player")->GetComponent<component::BoundingBoxComponent>()->GetOBB(),
-            scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->GetOBB()))
-        {
-            Log::Print("Player - box Collision!\n");
-        }
-
-
-        delete p;
-
         /* ------ Sort ------ */
         renderer->SortObjectsByDistance();
 

@@ -72,7 +72,7 @@ const BoundingBoxData* component::BoundingBoxComponent::GetBoundingBoxData() con
 
 const std::string component::BoundingBoxComponent::GetPathOfModel() const
 {
-	return m_pPathOfModel;
+	return m_PathOfModel;
 }
 
 unsigned int component::BoundingBoxComponent::GetFlagOBB() const
@@ -93,12 +93,12 @@ bool component::BoundingBoxComponent::createOrientedBoundingBox()
 		// Use the same m_pTransform as the model
 		m_pTransform = m_pParent->GetComponent<TransformComponent>()->GetTransform();
 		MeshComponent* mc = m_pParent->GetComponent<MeshComponent>();
-		m_pPathOfModel = mc->GetMesh(0)->GetPath();
+		m_PathOfModel = mc->GetMesh(0)->GetPath();
 
 		BoundingBoxPool* bbp = BoundingBoxPool::Get();
-		if (bbp->BoundingBoxDataExists(m_pPathOfModel) == true)
+		if (bbp->BoundingBoxDataExists(m_PathOfModel) == true)
 		{
-			m_pBbd = bbp->GetBoundingBoxData(m_pPathOfModel);
+			m_pBbd = bbp->GetBoundingBoxData(m_PathOfModel);
 			return true;
 		}
 
@@ -205,7 +205,7 @@ bool component::BoundingBoxComponent::createOrientedBoundingBox()
 			boundingBoxIndicesLocal.push_back(indices[i]);
 		}
 
-		m_pBbd = bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, m_pPathOfModel);
+		m_pBbd = bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, m_PathOfModel);
 
 
 		return true;
