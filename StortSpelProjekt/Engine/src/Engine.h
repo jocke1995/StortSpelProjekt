@@ -19,14 +19,24 @@
 
 // Sub-engines
 #include "Renderer/Renderer.h"
-#include "Renderer/Material.h"
 #include "Renderer/Transform.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/BaseCamera.h"
 #include "Physics/Physics.h"
-// #include "audio"
+#include "AudioEngine/Audio.h"
+
+// Event-handling
+#include "Events/EventBus.h"
+
+// Network
+#include "Network/Network.h"
+
+// Network
+#include "Network/Network.h"
 
 #include "Misc/AssetLoader.h"
+
+#include "Input/Input.h"
 
 class Engine
 {
@@ -43,6 +53,7 @@ public:
 	Renderer* const GetRenderer() const;
 	SceneManager* const GetSceneHandler() const;
 	Physics* const GetPhysics() const;
+	AudioEngine* const GetAudioEngine() const;
 
 private:
 	Window* m_Window = nullptr;
@@ -52,6 +63,7 @@ private:
 	Renderer* m_Renderer = nullptr;
 	SceneManager* m_SceneManager = nullptr;
 	Physics* m_Physics = nullptr;
+	AudioEngine* m_pAudioEngine = nullptr;
 };
 
 #endif
