@@ -29,9 +29,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     std::vector<Mesh*>* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
     
-    // Needed for OBB test witten by bj�rn. Should be removed after review
-    std::vector<Mesh*>* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
-    std::vector<Mesh*>* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
 #pragma region CreateScene0
     // Create Scene
@@ -48,9 +45,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     scene->AddEntity("spotLight");
     scene->AddEntity("spotLight2");
 
-    // Needed for OBB test witten by bj�rn. Should be removed after review
-    scene->AddEntity("box"); 
-    scene->AddEntity("stone");
 
     // Add Components to Entities
     Entity* entity;
@@ -59,27 +53,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
 
     entity = scene->GetEntity("box");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
 
     entity = scene->GetEntity("stone");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
 
     entity = scene->GetEntity("transparentTestObject");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
 
     entity = scene->GetEntity("Dragon");
     entity->AddComponent<component::MeshComponent>();
@@ -91,7 +85,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity = scene->GetEntity("spotLight");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
     entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
 
@@ -240,16 +234,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->GetOBB(),                   
             scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->GetOBB()))
         {
-            Log::Print("Collision!\n");
+            Log::Print("Stone - box Collision!\n");
         }
-        else
+        if (p->checkOBBCollision(
+            scene->GetEntity("player")->GetComponent<component::BoundingBoxComponent>()->GetOBB(),
+            scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->GetOBB()))
         {
-            //Log::Print("Nothing!\n");
+            Log::Print("Player - box Collision!\n");
         }
-        DirectX::XMFLOAT3 corners[8];
-        scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->GetOBB().Center.x;
-        Log::Print("stone corner z: %f..\n ",
-            corners[2].z);
+
+
         delete p;
 
         /* ------ Sort ------ */
