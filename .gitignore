@@ -4,6 +4,8 @@ StortSpelProjekt/build/
 StortSpelProjekt/bin/
 StortSpelProjekt/*.bat
 
+**ERROR.txt
+
 **.sln
 **.vcxproj
 **.user
