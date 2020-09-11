@@ -12,7 +12,7 @@ public:
     }
 private:
     // Implemented by MemberFunctionHandler
-    virtual void Call(Event* evnt) = 0;
+    virtual void call(Event* evnt) = 0;
 };
 
 template<class T, class EventType>
@@ -21,7 +21,7 @@ class MemberFunctionHandler : public HandlerFunctionBase
 public:
     typedef void (T::* MemberFunction)(EventType*);
 
-    MemberFunctionHandler(T* m_pInstance, MemberFunction m_MemberFunction) : m_pInstance{ m_pInstance }, m_MemberFunction{ m_MemberFunction } {};
+    MemberFunctionHandler(T* classInstance, MemberFunction memberFunction) : m_pInstance{ classInstance }, m_MemberFunction{ memberFunction } {};
 
   
 private:
