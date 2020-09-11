@@ -10,13 +10,13 @@ class EventBus
 {
 public:
 	template<typename EventType>
-	void publish(EventType* evnt);
+	void Publish(EventType* evnt);
 
 	template<class T, class EventType>
-	void subscribe(T* instance, void (T::* memberFunction)(EventType*));
+	void Subscribe(T* classInstance, void (T::* memberFunction)(EventType*));
 
 	//Singleton of the eventbus
-	static EventBus& get();
+	static EventBus& GetInstance();
 
 	template<class T, class EventType>
 	void unsubscribe(T* instance, void (T::* memberFunction)(EventType*));
@@ -31,7 +31,7 @@ private:
 
 // Publish to the EventBus using an event from Events.h
 template<typename EventType>
-inline void EventBus::publish(EventType* evnt)
+inline void EventBus::Publish(EventType* evnt)
 {
 	//Get all subscribed handlers associated with the current event
 	HandlerList* handlers = m_Subscribers[typeid(EventType)];
@@ -43,16 +43,18 @@ inline void EventBus::publish(EventType* evnt)
 	}
 
 	//Loop through each handler and execute events
-	for (auto& handler : *handlers) {
-		if (handler != nullptr) {
-			handler->exec(evnt);
+	for (auto& handler : *handlers) 
+	{
+		if (handler != nullptr) 
+		{
+			handler->Exec(evnt);
 		}
 	}
 }
 
 // Subscribe to the EventBus
 template<class T, class EventType>
-inline void EventBus::subscribe(T* instance, void(T::* memberFunction)(EventType*))
+inline void EventBus::Subscribe(T* classInstance, void(T::* memberFunction)(EventType*))
 {
 	//Get all subscribed handlers associated with the current event
 	HandlerList* handlers = m_Subscribers[typeid(EventType)];
@@ -65,11 +67,11 @@ inline void EventBus::subscribe(T* instance, void(T::* memberFunction)(EventType
 	}
 
 	//Push handler into list of handlers
-	handlers->push_back(new MemberFunctionHandler<T, EventType>(instance, memberFunction));
+	handlers->push_back(new MemberFunctionHandler<T, EventType>(classInstance, memberFunction));
 }
 
 // Get the single instance of the EventBus in order to subscribe/publish
-inline EventBus& EventBus::get()
+inline EventBus& EventBus::GetInstance()
 {
 	static EventBus instance;
 	return instance;
