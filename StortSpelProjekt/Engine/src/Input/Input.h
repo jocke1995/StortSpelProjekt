@@ -34,7 +34,7 @@ enum class SCAN_CODES
 	A_RING = 0x11a,
 	DIAERESIS = 0x11b,
 	ENTER = 0x11c,
-	CTRL = 0x11d,
+	LEFT_CTRL = 0x11d,
 	A = 0x11e,
 	S = 0x11f,
 	D = 0x120,
@@ -90,12 +90,12 @@ enum class SCAN_CODES
 	KEYPAD_0 = 0x152,
 	KEYPAD_PERIOD = 0x153,
 
-
 	CHEVRON = 0x156,
 	F11 = 0x157,
 	F12 = 0x158,
 
 	KEYPAD_ENTER = 0x21c,
+	RIGHT_CTRL = 0x21d,
 	KEYPAD_DIVISION = 0x235,
 	PRINT_SCREEN = 0x237,
 	ALT_GR = 0x238,

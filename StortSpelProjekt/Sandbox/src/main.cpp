@@ -49,10 +49,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Entity* entity;
 
     entity = scene->GetEntity("player");
-    component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(hInstance, *window->GetHwnd(), true);
+    component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
     entity->AddComponent<component::ModelComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>(false);
 
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::ModelComponent>();
@@ -94,11 +94,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
     component::TransformComponent* tc = scene->GetEntity("player")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(
-        cc->GetCamera()->GetPositionFloat3().x + cc->GetCamera()->GetDirection().x,
-        cc->GetCamera()->GetPositionFloat3().y + cc->GetCamera()->GetDirection().y - 1,
-        cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetDirection().z
-    );
+    tc->GetTransform()->SetPosition(0, 1, 0);
     scene->GetEntity("player")->GetComponent<component::BoundingBoxComponent>()->Init();
 
     mc = scene->GetEntity("floor")->GetComponent<component::ModelComponent>();
@@ -208,6 +204,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         if (window->WasSpacePressed())
         {
             // nothing
+        }
+
+        if (Input::GetInstance().GetJustPressed(SCAN_CODES::LEFT_CTRL))
+        {
+            cc->ToggleCameraLock();
         }
 
         /* ------ Update ------ */

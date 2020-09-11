@@ -160,6 +160,50 @@ namespace Log
 
 		OutputDebugStringA(inputBuffer.data());
 	}
+
+	template <typename... Args>
+	inline void PrintToFile(const std::string string, const Args&...args)
+	{
+		std::FILE* file = std::fopen("ERROR.txt", "a");
+		if (file)
+		{
+			fprintf(file, string.c_str(), args...);
+			std::fclose(file);
+		}
+	}
+
+	template <typename... Args>
+	inline void PrintSeverityToFile(const Severity type, const std::string string, const Args&...args)
+	{
+		std::FILE* file = std::fopen("ERROR.txt", "a");
+		if (file)
+		{
+			switch (type)
+			{
+			case Severity::CRITICAL:
+				fprintf(file, "CRITICAL ERROR: ");
+				break;
+
+			case Severity::WARNING:
+				fprintf(file, "WARNING: ");
+				break;
+
+			default:
+				fprintf(file, "");
+				break;
+			}
+
+			fprintf(file, string.c_str(), args...);
+			std::fclose(file);
+		}
+	}
+
+	inline void ResetFile()
+	{
+		std::FILE* file = std::fopen("ERROR.txt", "w");
+
+		std::fclose(file);
+	}
 }
 
 #endif

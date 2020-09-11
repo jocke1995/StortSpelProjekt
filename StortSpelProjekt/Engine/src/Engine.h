@@ -26,6 +26,12 @@
 // #include "physics"
 #include "AudioEngine/Audio.h"
 
+// Event-handling
+#include "Events/EventBus.h"
+
+// Network
+#include "Network/Network.h"
+
 // Network
 #include "Network/Network.h"
 
