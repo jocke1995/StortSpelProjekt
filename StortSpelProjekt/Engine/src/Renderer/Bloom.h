@@ -9,18 +9,18 @@ class Resource;
 class PingPongResource;
 
 #include <array>
-class BloomResources
+class Bloom
 {
 public:
-	BloomResources(
+	Bloom(
 		ID3D12Device5* device,
 		DescriptorHeap* dhRTV, DescriptorHeap* dh_CBV_UAV_SRV,
 		const HWND* hwnd);
-	virtual ~BloomResources();
+	virtual ~Bloom();
 
 	const RenderTarget* const GetRenderTarget() const;
 	
-	const PingPongResource* GetPingPongBuffer(unsigned int index) const;
+	const PingPongResource* GetPingPongResource(unsigned int index) const;
 
 private:
 	RenderTarget* m_pRenderTarget = nullptr;

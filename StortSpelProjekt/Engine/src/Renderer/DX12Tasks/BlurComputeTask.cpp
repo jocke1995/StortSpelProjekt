@@ -4,16 +4,24 @@
 #include "../CommandInterface.h"
 #include"../RootSignature.h"
 #include "../ComputeState.h"
+
+#include "../PingPongResource.h"
+#include "../ShaderResourceView.h"
+#include "../UnorderedAccessView.h"
 #include "../Resource.h"
+#include "../DescriptorHeap.h"
 
 BlurComputeTask::BlurComputeTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
 	LPCWSTR CSName, LPCTSTR psoName,
-	COMMAND_INTERFACE_TYPE interfaceType)
+	COMMAND_INTERFACE_TYPE interfaceType,
+	const PingPongResource* Bloom0_RESOURCE,
+	const PingPongResource* Bloom1_RESOURCE)
 	:ComputeTask(device, rootSignature, CSName, psoName, interfaceType)
 {
-
+	m_PingPongResources[0] = Bloom0_RESOURCE;
+	m_PingPongResources[1] = Bloom1_RESOURCE;
 }
 
 BlurComputeTask::~BlurComputeTask()
@@ -31,43 +39,45 @@ void BlurComputeTask::Execute()
 	
 	commandList->SetComputeRootSignature(m_pRootSig);
 	
+	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
+	ID3D12DescriptorHeap* d3d12DescriptorHeap = descriptorHeap_CBV_UAV_SRV->GetID3D12DescriptorHeap();
+	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
+
+	commandList->SetComputeRootDescriptorTable(RS::dtUAV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
+	commandList->SetComputeRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
+
 	commandList->SetPipelineState(m_pPipelineState->GetPSO());
 	
 
-	const Resource* readResource = m_Resources["brightResource"];
-	const Resource* writeResource = m_Resources["writeResource"];
-
 	// The resource to read (Resource Barrier)
 	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-	//	readResource->GetID3D12Resource1(),
+	//	m_PingPongResources[0]->GetSRV()->GetResource()->GetID3D12Resource1(),
 	//	D3D12_RESOURCE_STATE_RENDER_TARGET,
 	//	D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
-	//
-	//commandList->SetComputeRootShaderResourceView(RS::SRV1, readResource->GetGPUVirtualAdress());
-	//
-	////// The resource to write (Resource Barrier)
-	////commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-	////	writeResource->GetID3D12Resource1(),
-	////	D3D12_RESOURCE_STATE_GENERIC_READ,
-	////	D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
-	////commandList->SetComputeRootUnorderedAccessView(RS::UAV1, writeResource->GetGPUVirtualAdress());
-	//
-	//unsigned int numGroupsX = static_cast<unsigned int>(ceilf(800 / 256.0f));
-	//unsigned int numGroupsY = 600;
-	////commandList->Dispatch(numGroupsX, numGroupsY, 1);
-	//
-	//
-	//// The resource to read (Resource Barrier)
+	
+	
+	// The resource to write (Resource Barrier)
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+		m_PingPongResources[1]->GetSRV()->GetResource()->GetID3D12Resource1(),
+		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
+	
+	unsigned int numGroupsX = static_cast<unsigned int>(ceilf(800 / 256.0f));
+	unsigned int numGroupsY = 600;
+	commandList->Dispatch(numGroupsX, numGroupsY, 1);
+	
+	
+	// The resource to read (Resource Barrier)
 	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-	//	readResource->GetID3D12Resource1(),
+	//	m_PingPongResources[0]->GetSRV()->GetResource()->GetID3D12Resource1(),
 	//	D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 	//	D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	//// The resource to write (Resource Barrier)
-	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-	//	writeResource->GetID3D12Resource1(),
-	//	D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-	//	D3D12_RESOURCE_STATE_GENERIC_READ));
+	// The resource to write (Resource Barrier)
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+		m_PingPongResources[1]->GetSRV()->GetResource()->GetID3D12Resource1(),
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
 
 	commandList->Close();
 }

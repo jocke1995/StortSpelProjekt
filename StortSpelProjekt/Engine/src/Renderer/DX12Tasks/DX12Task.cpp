@@ -2,6 +2,7 @@
 #include "DX12Task.h"
 
 #include "../CommandInterface.h"
+#include "../DescriptorHeap.h"
 
 DX12Task::DX12Task(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType)
 {
@@ -21,6 +22,11 @@ void DX12Task::SetBackBufferIndex(int backBufferIndex)
 void DX12Task::SetCommandInterfaceIndex(int index)
 {
 	m_CommandInterfaceIndex = index;
+}
+
+void DX12Task::SetDescriptorHeaps(std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> dhs)
+{
+	m_DescriptorHeaps = dhs;
 }
 
 void DX12Task::AddResource(std::string id, const Resource* resource)

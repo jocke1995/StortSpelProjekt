@@ -20,13 +20,15 @@ class ViewPool;
 class BoundingBoxPool;
 class DescriptorHeap;
 
+class Bloom;
+
 enum COMMAND_INTERFACE_TYPE;
 enum class DESCRIPTOR_HEAP_TYPE;
 
 // techniques
 class ShadowInfo;
 class MousePicker;
-class BloomResources;
+class Bloom;
 
 // ECS
 class Scene;
@@ -96,7 +98,7 @@ private:
 	SwapChain* m_pSwapChain = nullptr;
 	
 	// Bloom (includes rtv, uav and srv)
-	BloomResources* m_pBloomResources = nullptr;
+	Bloom* m_pBloomResources = nullptr;
 
 	// Depthbuffer
 	DepthStencilView* m_pMainDSV = nullptr;

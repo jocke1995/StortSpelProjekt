@@ -37,11 +37,6 @@ void RenderTask::AddRenderTarget(std::string name, const RenderTarget* renderTar
 	m_RenderTargets[name] = renderTarget;
 }
 
-void RenderTask::SetDescriptorHeaps(std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> dhs)
-{
-	m_DescriptorHeaps = dhs;
-}
-
 void RenderTask::SetRenderComponents(std::vector<std::pair<	component::MeshComponent*,
 															component::TransformComponent*>>*renderComponents)
 {

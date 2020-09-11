@@ -8,8 +8,7 @@
 // Renderer
 class RootSignature;
 class Resource;
-class DescriptorHeap;
-enum class DESCRIPTOR_HEAP_TYPE;
+
 class BaseCamera;
 class RenderTarget;
 class SwapChain;
@@ -41,8 +40,7 @@ public:
 
 	
 	void AddRenderTarget(std::string, const RenderTarget* renderTarget);
-	void SetDescriptorHeaps(std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> dhs);
-
+	
 	void SetRenderComponents(
 		std::vector<std::pair<	component::MeshComponent*,
 								component::TransformComponent*>>* renderComponents);
@@ -52,8 +50,6 @@ public:
 	
 protected:
 	std::map<std::string, const RenderTarget*> m_RenderTargets;
-	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> m_DescriptorHeaps;
-
 	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
 	
 	BaseCamera* m_pCamera = nullptr;

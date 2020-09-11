@@ -7,7 +7,7 @@
 #include "../Misc/Window.h"
 
 
-BloomResources::BloomResources(
+Bloom::Bloom(
 	ID3D12Device5* device,
 	DescriptorHeap* dh_RTV,
 	DescriptorHeap* dh_CBV_UAV_SRV,
@@ -45,7 +45,7 @@ BloomResources::BloomResources(
 	}
 }
 
-BloomResources::~BloomResources()
+Bloom::~Bloom()
 {
 	for (unsigned int i = 0; i < 2; i++)
 	{
@@ -55,17 +55,17 @@ BloomResources::~BloomResources()
 	delete m_pRenderTarget;
 }
 
-const RenderTarget* const BloomResources::GetRenderTarget() const
+const RenderTarget* const Bloom::GetRenderTarget() const
 {
 	return m_pRenderTarget;
 }
 
-const PingPongResource* BloomResources::GetPingPongBuffer(unsigned int index) const
+const PingPongResource* Bloom::GetPingPongResource(unsigned int index) const
 {
 	return m_PingPongResources[index];
 }
 
-void BloomResources::createResources(ID3D12Device5* device, unsigned int width, unsigned int height)
+void Bloom::createResources(ID3D12Device5* device, unsigned int width, unsigned int height)
 {
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	resourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -87,10 +87,10 @@ void BloomResources::createResources(ID3D12Device5* device, unsigned int width, 
 	clearValue.Color[3] = 1.0f;
 
 	m_resources[0] = new Resource(device, &resourceDesc, &clearValue, L"Bloom0_RESOURCE", D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-	m_resources[1] = new Resource(device, &resourceDesc, &clearValue, L"Bloom1_RESOURCE", D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	m_resources[1] = new Resource(device, &resourceDesc, &clearValue, L"Bloom1_RESOURCE", D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 }
 
-void BloomResources::createBrightRenderTarget(
+void Bloom::createBrightRenderTarget(
 	ID3D12Device5* device5,
 	DescriptorHeap* dhRTV,
 	unsigned int width, unsigned int height)

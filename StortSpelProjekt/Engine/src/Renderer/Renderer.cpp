@@ -26,6 +26,7 @@
 #include "ShaderResourceView.h"
 
 #include "Bloom.h"
+#include "PingPongResource.h"
 #include "ShadowInfo.h"
 #include "MousePicker.h"
 
@@ -119,7 +120,7 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 
 	// Rendertargets
 	createSwapChain(hwnd);
-	m_pBloomResources = new BloomResources(m_pDevice5, 
+	m_pBloomResources = new Bloom(m_pDevice5, 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
 		hwnd);
@@ -846,13 +847,14 @@ void Renderer::initRenderTasks()
 #pragma endregion WireFrame
 
 	// ComputeTasks
-	DX12Task* blurComputeTask = new BlurComputeTask
-		(m_pDevice5, m_pRootSignature,
+	DX12Task* blurComputeTask = new BlurComputeTask(
+		m_pDevice5, m_pRootSignature,
 		L"BlurCompute.hlsl", L"blurPSO",
-		COMMAND_INTERFACE_TYPE::DIRECT_TYPE);
+		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
+		m_pBloomResources->GetPingPongResource(0),
+		m_pBloomResources->GetPingPongResource(1));
 
-	//blurComputeTask->AddResource("brightResource", m_pBloomResources->GetRenderTarget()->GetResource(0));
-	//blurComputeTask->AddResource("writeResource", m_pBloomResources->GetResourceToWrite());
+	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 	// CopyTasks
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5);
