@@ -11,7 +11,7 @@ public:
 		ID3D12Device5* device,
 		DescriptorHeap* descriptorHeap_CBV_UAV_SRV,
 		D3D12_UNORDERED_ACCESS_VIEW_DESC* uavDesc,
-		unsigned int width, unsigned int height);
+		Resource* resource);
 	virtual ~UnorderedAccessView();
 
 	unsigned int GetDescriptorHeapIndex() const;

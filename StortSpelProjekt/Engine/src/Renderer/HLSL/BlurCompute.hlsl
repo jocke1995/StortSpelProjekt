@@ -1,12 +1,10 @@
 
-[numthreads(3, 1, 1)]
+Texture2D<float4> brightTarget : register(t1, space1);
+RWTexture2D<float4> blurTarget : register(u0, space0);
+
+[numthreads(256, 1, 1)]
 void CS_main(uint3 DTid : SV_DispatchThreadID)
 {
-	int threadId = DTid.x;
-
-	if (threadId <= 3)
-	{
-		//materialColor0[0].rgba[threadId] *= 10.0f;
-		//materialColor0[0].rgba[threadId] = abs(sin(materialColor0[0].rgba[threadId]));
-	}
+	
+	//blurTarget[0].rgba.r = 0.2f;
 }

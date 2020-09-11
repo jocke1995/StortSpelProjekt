@@ -96,7 +96,7 @@ private:
 	SwapChain* m_pSwapChain = nullptr;
 	
 	// Bloom (includes rtv, uav and srv)
-	BloomResources* m_pBloom = nullptr;
+	BloomResources* m_pBloomResources = nullptr;
 
 	// Depthbuffer
 	DepthStencilView* m_pMainDSV = nullptr;

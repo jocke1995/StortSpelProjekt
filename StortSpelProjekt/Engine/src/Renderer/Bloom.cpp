@@ -9,7 +9,6 @@
 BloomResources::BloomResources(
 	ID3D12Device5* device,
 	DescriptorHeap* dh_RTV,
-	DescriptorHeap* dh_CBV_UAV_SRV,
 	const HWND* hwnd)
 {
 	RECT rect;
@@ -30,28 +29,22 @@ BloomResources::BloomResources(
 	resourceDesc.Width = width;
 	resourceDesc.Height = height;
 	resourceDesc.DepthOrArraySize = 1;
-	resourceDesc.MipLevels = 0;
+	resourceDesc.MipLevels = 1;
 	resourceDesc.SampleDesc.Count = 1;
 	resourceDesc.SampleDesc.Quality = 0;
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 
-	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
-	{
-		m_ResourcesToWrite[i] = new Resource(device, &resourceDesc, nullptr, L"ResourceToBlur" + i, D3D12_RESOURCE_STATE_GENERIC_READ);
-	}
+	m_pResourceToWrite = new Resource(device, &resourceDesc, nullptr, L"ResourceToBlur", D3D12_RESOURCE_STATE_GENERIC_READ);
 }
 
 BloomResources::~BloomResources()
 {
 	delete m_pRenderTarget;
 
-	// Delete SRVs & UAVs
-	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
-	{
-		delete m_ResourcesToWrite[i];
-	}
+	// Delete the resource
+	delete m_pResourceToWrite;
 }
 
 const RenderTarget* const BloomResources::GetRenderTarget() const
@@ -59,12 +52,12 @@ const RenderTarget* const BloomResources::GetRenderTarget() const
 	return m_pRenderTarget;
 }
 
-const Resource* const BloomResources::GetResourceToWrite(unsigned int index) const
+const Resource* const BloomResources::GetResourceToWrite() const
 {
-	return m_ResourcesToWrite[index];
+	return m_pResourceToWrite;
 }
 
 void BloomResources::createBrightRenderTarget(ID3D12Device5* device5, DescriptorHeap* dhRTV, unsigned int width, unsigned int height)
 {
-	m_pRenderTarget = new RenderTarget(device5, width, height, dhRTV);
+	m_pRenderTarget = new RenderTarget(device5, width, height, dhRTV, 1);
 }

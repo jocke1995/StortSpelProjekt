@@ -67,7 +67,7 @@ Renderer::~Renderer()
 
 	delete m_pRootSignature;
 	delete m_pSwapChain;
-	delete m_pBloom;
+	delete m_pBloomResources;
 	delete m_pMainDSV;
 
 	for (auto& pair : m_DescriptorHeaps)
@@ -119,9 +119,8 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 
 	// Rendertargets
 	createSwapChain(hwnd);
-	m_pBloom = new BloomResources(m_pDevice5, 
+	m_pBloomResources = new BloomResources(m_pDevice5, 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
 		hwnd);
 
 	// Create Main DepthBuffer
@@ -475,7 +474,8 @@ void Renderer::createSwapChain(const HWND *hwnd)
 		hwnd,
 		width, height,
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV]);
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV], 
+		2);
 }
 
 void Renderer::createMainDSV(const HWND* hwnd)
@@ -626,7 +626,7 @@ void Renderer::initRenderTasks()
 	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
 	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
 	forwardRenderTask->AddRenderTarget("swapChain", m_pSwapChain);
-	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloom->GetRenderTarget());
+	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTarget());
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	
 
@@ -851,10 +851,8 @@ void Renderer::initRenderTasks()
 		L"BlurCompute.hlsl", L"blurPSO",
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE);
 
-	blurComputeTask->AddResource("brightResource0", m_pBloom->GetRenderTarget()->GetResource(0));
-	blurComputeTask->AddResource("brightResource1", m_pBloom->GetRenderTarget()->GetResource(1));
-	blurComputeTask->AddResource("writeResource0", m_pBloom->GetResourceToWrite(0));
-	blurComputeTask->AddResource("writeResource1", m_pBloom->GetResourceToWrite(1));
+	blurComputeTask->AddResource("brightResource", m_pBloomResources->GetRenderTarget()->GetResource(0));
+	blurComputeTask->AddResource("writeResource", m_pBloomResources->GetResourceToWrite());
 
 	// CopyTasks
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5);

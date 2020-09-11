@@ -34,7 +34,7 @@ void FowardRenderTask::Execute()
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
 	ID3D12Resource1* swapChainResource = m_RenderTargets["swapChain"]->GetResource(m_BackBufferIndex)->GetID3D12Resource1();
-	ID3D12Resource1* BrightTargetResource = m_RenderTargets["brightTarget"]->GetResource(m_BackBufferIndex)->GetID3D12Resource1();
+	ID3D12Resource1* BrightTargetResource = m_RenderTargets["brightTarget"]->GetResource(0)->GetID3D12Resource1();
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
@@ -64,7 +64,7 @@ void FowardRenderTask::Execute()
 
 	// RenderTargets
 	const unsigned int SwapChainIndex = m_RenderTargets["swapChain"]->GetDescriptorHeapIndex(m_BackBufferIndex);
-	const unsigned int brightTargetIndex = m_RenderTargets["brightTarget"]->GetDescriptorHeapIndex(m_BackBufferIndex);
+	const unsigned int brightTargetIndex = m_RenderTargets["brightTarget"]->GetDescriptorHeapIndex(0);	// this rtv is not dubblebuffered
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(SwapChainIndex);
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhBrightTarget = renderTargetHeap->GetCPUHeapAt(brightTargetIndex);
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhs[] = { cdhSwapChain, cdhBrightTarget };

@@ -20,7 +20,8 @@ public:
 		const HWND* hwnd,
 		unsigned int width, unsigned int height,
 		ID3D12CommandQueue* commandQueue,
-		DescriptorHeap* descriptorHeap_RTV);
+		DescriptorHeap* descriptorHeap_RTV,
+		unsigned int numRenderTargets);
 	virtual ~SwapChain();
 
 	IDXGISwapChain4* GetDX12SwapChain() const;

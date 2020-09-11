@@ -10,15 +10,16 @@ class Resource;
 class BloomResources
 {
 public:
-	BloomResources(ID3D12Device5* device, DescriptorHeap* dhRTV, DescriptorHeap* dh_CBV_UAV_SRV, const HWND* hwnd);
+	BloomResources(ID3D12Device5* device, DescriptorHeap* dhRTV, const HWND* hwnd);
 	virtual ~BloomResources();
 
 	const RenderTarget* const GetRenderTarget() const;
-	const Resource* const GetResourceToWrite(unsigned int index) const;
+	const Resource* const GetResourceToWrite() const;
 
 private:
+	// The compute shader will read from the renderTarget and then write "blurred-data" to m_pResourceToWrite
 	RenderTarget* m_pRenderTarget = nullptr;
-	std::array<Resource*, NUM_SWAP_BUFFERS> m_ResourcesToWrite;
+	Resource* m_pResourceToWrite = nullptr;
 
 	void createBrightRenderTarget(ID3D12Device5* device, DescriptorHeap* dhRTV, unsigned int width, unsigned int height);
 };

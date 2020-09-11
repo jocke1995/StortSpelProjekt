@@ -9,8 +9,9 @@ SwapChain::SwapChain(
 	const HWND* hwnd,
 	unsigned int width, unsigned int height,
 	ID3D12CommandQueue* commandQueue,
-	DescriptorHeap* descriptorHeap_RTV)
-	:RenderTarget(width, height)
+	DescriptorHeap* descriptorHeap_RTV,
+	unsigned int numRenderTargets)
+	:RenderTarget(width, height, numRenderTargets)
 {
 	IDXGIFactory4* factory = nullptr;
 	HRESULT hr = CreateDXGIFactory(IID_PPV_ARGS(&factory));
@@ -60,7 +61,7 @@ SwapChain::SwapChain(
 	//rtvd.
 
 	// Connect the m_RenderTargets to the swapchain, so that the swapchain can easily swap between these two m_RenderTargets
-	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	for (unsigned int i = 0; i < numRenderTargets; i++)
 	{
 		HRESULT hr = m_pSwapChain4->GetBuffer(i, IID_PPV_ARGS(m_Resources[i]->GetID3D12Resource1PP()));
 		if (FAILED(hr))

@@ -14,10 +14,11 @@ public:
 	RenderTarget(
 		ID3D12Device5* device,
 		unsigned int width, unsigned int height,
-		DescriptorHeap* descriptorHeap_RTV);
+		DescriptorHeap* descriptorHeap_RTV,
+		unsigned int numRenderTargets);
 
 	// RenderTarget without creating a comittedResource
-	RenderTarget(unsigned int width, unsigned int height);
+	RenderTarget(unsigned int width, unsigned int height, unsigned int numRenderTargets);
 	virtual ~RenderTarget();
 
 	Resource* GetResource(unsigned int index) const;

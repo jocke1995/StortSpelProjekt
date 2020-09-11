@@ -8,17 +8,18 @@
 RenderTarget::RenderTarget(
 	ID3D12Device5* device,
 	unsigned int width, unsigned int height,
-	DescriptorHeap* descriptorHeap_RTV)
+	DescriptorHeap* descriptorHeap_RTV,
+	unsigned int numRenderTargets)
 {
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	resourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	resourceDesc.Width = width;
 	resourceDesc.Height = height;
 	resourceDesc.DepthOrArraySize = 1;
-	resourceDesc.MipLevels = 0;
+	resourceDesc.MipLevels = 1;
 	resourceDesc.SampleDesc.Count = 1;
 	resourceDesc.SampleDesc.Quality = 0;
-	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS;
+	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	
@@ -36,7 +37,7 @@ RenderTarget::RenderTarget(
 	clearValue.Color[3] = 1.0f;
 	
 	// Create m_Resources and RTVs
-	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	for (int i = 0; i < numRenderTargets; i++)
 	{
 		Resource* resource = new Resource(
 			device,
@@ -55,9 +56,9 @@ RenderTarget::RenderTarget(
 	m_pRenderView = new RenderView(width, height);
 }
 
-RenderTarget::RenderTarget(unsigned int width, unsigned int height)
+RenderTarget::RenderTarget(unsigned int width, unsigned int height, unsigned int numRenderTargets)
 {
-	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	for (unsigned int i = 0; i < numRenderTargets; i++)
 	{
 		m_Resources.push_back(new Resource());
 	}

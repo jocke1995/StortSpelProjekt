@@ -4,7 +4,6 @@ Texture2D textures[]   : register (t0);
 SamplerState samplerTypeWrap	: register (s0);
 SamplerState samplerTypeBorder	: register (s1);
 
-
 ConstantBuffer<MaterialAttributes> materialAttributes : register(b2, space3);
 
 float CalculateShadow(
