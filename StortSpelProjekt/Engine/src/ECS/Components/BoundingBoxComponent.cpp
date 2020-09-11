@@ -5,7 +5,7 @@
 #include "../Entity.h"
 
 // Creating the BB out of the model
-#include "MeshComponent.h"
+#include "ModelComponent.h"
 
 // Using the same m_pTransform as the models m_pTransform
 #include "TransformComponent.h"
@@ -69,17 +69,17 @@ namespace component
 	// Writes from BoundingBoxComponent to MeshComponent, which uses this in m_pRenderer
 	bool& BoundingBoxComponent::IsPickedThisFrame()
 	{
-		return m_pParent->GetComponent<MeshComponent>()->m_IsPickedThisFrame;
+		return m_pParent->GetComponent<ModelComponent>()->m_IsPickedThisFrame;
 	}
 
 	bool BoundingBoxComponent::createBoundingBox()
 	{
-		if (m_pParent->HasComponent<MeshComponent>() == true && m_pParent->HasComponent<TransformComponent>() == true)
+		if (m_pParent->HasComponent<ModelComponent>() == true && m_pParent->HasComponent<TransformComponent>() == true)
 		{
 			// Use the same m_pTransform as the model
 			m_pTransform = m_pParent->GetComponent<TransformComponent>()->GetTransform();
-			MeshComponent* mc = m_pParent->GetComponent<MeshComponent>();
-			m_pPathOfModel = mc->GetMesh(0)->GetPath();
+			ModelComponent* mc = m_pParent->GetComponent<ModelComponent>();
+			m_pPathOfModel = mc->GetMeshAt(0)->GetPath();
 			
 			BoundingBoxPool* bbp = BoundingBoxPool::Get();
 			if (bbp->BoundingBoxDataExists(m_pPathOfModel) == true)
@@ -97,7 +97,7 @@ namespace component
 
 			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 			{
-				std::vector<Vertex> modelVertices = *mc->GetMesh(i)->GetVertices();
+				std::vector<Vertex> modelVertices = *mc->GetMeshAt(i)->GetVertices();
 
 				for (unsigned int j = 0; j < modelVertices.size(); j++)
 				{

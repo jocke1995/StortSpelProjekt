@@ -180,7 +180,7 @@ void Renderer::SortObjectsByDistance()
 	struct DistFromCamera
 	{
 		double distance;
-		component::MeshComponent* mc;
+		component::ModelComponent* mc;
 		component::TransformComponent* tc;
 	};
 
@@ -515,7 +515,7 @@ void Renderer::updateMousePicker()
 
 		// Set the object to me drawn in outliningRenderTask
 		Entity* parentOfPickedObject = pickedBoundingBox->GetParent();
-		component::MeshComponent*		mc = parentOfPickedObject->GetComponent<component::MeshComponent>();
+		component::ModelComponent*		mc = parentOfPickedObject->GetComponent<component::ModelComponent>();
 		component::TransformComponent*	tc = parentOfPickedObject->GetComponent<component::TransformComponent>();
 
 		m_pOutliningRenderTask->SetObjectToOutline(&std::make_pair(mc, tc));
@@ -1027,13 +1027,13 @@ void Renderer::removeComponents(Entity* entity)
 void Renderer::addComponents(Entity* entity)
 {
 	// Only add the m_Entities that actually should be drawn
-	component::MeshComponent* mc = entity->GetComponent<component::MeshComponent>();
+	component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
 	if (mc != nullptr)
 	{
 		component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
 		if (tc != nullptr)
 		{
-			Mesh* mesh = mc->GetMesh(0);
+			Mesh* mesh = mc->GetMeshAt(0);
 			AssetLoader* al = AssetLoader::Get();
 			std::wstring modelPath = to_wstring(mesh->GetPath());
 			bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
@@ -1047,7 +1047,7 @@ void Renderer::addComponents(Entity* entity)
 			// Submit Mesh/texture data to GPU if they haven't already been uploaded
 			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 			{
-				mesh = mc->GetMesh(i);
+				mesh = mc->GetMeshAt(i);
 
 				// Submit to the list which gets updated to the gpu each frame
 				CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
@@ -1069,11 +1069,14 @@ void Renderer::addComponents(Entity* entity)
 					defaultR = mesh->m_pDefaultResourceIndices;
 					codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 
+					// TODO: FILIP TEMP
+					std::map<TEXTURE_TYPE, Texture*> meshTextures = mc->GetTexturesAt(i);
+
 					// Textures
 					for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
 					{
 						TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-						Texture* texture = mesh->GetTexture(type);
+						Texture* texture = meshTextures[type];
 
 						// Check if the texture is on GPU before submitting to be uploaded
 						if (al->m_LoadedTextures[texture->m_FilePath].first == false)

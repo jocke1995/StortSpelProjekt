@@ -63,7 +63,7 @@ void RenderTask::SetDescriptorHeaps(std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHea
 	m_DescriptorHeaps = dhs;
 }
 
-void RenderTask::SetRenderComponents(std::vector<std::pair<	component::MeshComponent*,
+void RenderTask::SetRenderComponents(std::vector<std::pair<	component::ModelComponent*,
 															component::TransformComponent*>>*renderComponents)
 {
 	m_RenderComponents = *renderComponents;

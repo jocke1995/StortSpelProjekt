@@ -15,7 +15,7 @@ class RenderTarget;
 class PipelineState;
 
 // Components
-#include "../../ECS/Components/MeshComponent.h"
+#include "../../ECS/Components/ModelComponent.h"
 #include "../../ECS/Components/TransformComponent.h"
 #include "../../ECS/Components/Lights/DirectionalLightComponent.h"
 #include "../../ECS/Components/Lights/PointLightComponent.h"
@@ -43,7 +43,7 @@ public:
 	void SetDescriptorHeaps(std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> dhs);
 
 	void SetRenderComponents(
-		std::vector<std::pair<	component::MeshComponent*,
+		std::vector<std::pair<	component::ModelComponent*,
 								component::TransformComponent*>>* renderComponents);
 
 	void SetCamera(BaseCamera* camera);
@@ -53,7 +53,7 @@ protected:
 	std::map<std::string, RenderTarget*> m_RenderTargets;
 	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> m_DescriptorHeaps;
 
-	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
+	std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>> m_RenderComponents;
 	
 	BaseCamera* m_pCamera = nullptr;
 	ID3D12RootSignature* m_pRootSig = nullptr;

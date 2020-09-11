@@ -12,6 +12,10 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/BaseCamera.h"
 
+
+// TODO: TEMP FILIP
+#include "../../ECS/Entity.h"
+
 WireframeRenderTask::WireframeRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
@@ -97,14 +101,18 @@ void WireframeRenderTask::Execute()
 		const Mesh* m = m_ObjectsToDraw[i]->GetMesh();
 		Transform* t = m_ObjectsToDraw[i]->GetTransform();
 
+		// TODO: TEMP FILIP
+		Entity* ent = m_ObjectsToDraw[i]->GetParent();
+		component::ModelComponent* mc = ent->GetComponent<component::ModelComponent>();
+
 		size_t num_Indices = m->GetNumIndices();
-		const SlotInfo* info = m->GetSlotInfo();
+		const SlotInfo info = mc->GetSlotInfoAt(i);
 
 		DirectX::XMMATRIX* WTransposed = t->GetWorldMatrixTransposed();
 		DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
 		// Create a CB_PER_OBJECT struct
-		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed,  *info };
+		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed,  info };
 
 		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 		//commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_OBJECT_CBV, )

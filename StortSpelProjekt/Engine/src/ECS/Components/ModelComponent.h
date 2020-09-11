@@ -1,25 +1,33 @@
-#ifndef MESHCOMPONENT_H
-#define MESHCOMPONENT_H
+#ifndef MODELCOMPONENT_H
+#define MODELCOMPONENT_H
 
 #include "Component.h"
 class Mesh;
+class Model;
+class Texture;
+
+// TODO: FILIP TEMP
+#include "structs.h"
+
 namespace component
 {
-    class MeshComponent : public Component
+    class ModelComponent : public Component
     {
     public:
-        MeshComponent(Entity* parent);
-        virtual ~MeshComponent();
+        ModelComponent(Entity* parent);
+        virtual ~ModelComponent();
 
         void Update(double dt);
 
         // Sets
-        void SetMeshes(std::vector<Mesh*>* meshes);
+        void SetModel(Model* model);
+        Mesh* GetMeshAt(unsigned int index);
+        std::map<TEXTURE_TYPE, Texture*> GetTexturesAt(unsigned int index);
+        SlotInfo GetSlotInfoAt(unsigned int index);
         
         void SetDrawFlag(unsigned int drawFlag);
 
         // Gets
-        Mesh* GetMesh(unsigned int index) const;
         unsigned int GetDrawFlag() const;
         unsigned int GetNrOfMeshes() const;
         bool IsPickedThisFrame() const;
@@ -29,7 +37,7 @@ namespace component
         friend class BoundingBoxComponent;
         bool m_IsPickedThisFrame = false;
 
-        std::vector<Mesh*> m_Meshes;
+        Model* m_Model = nullptr;
         unsigned int m_DrawFlag = 0;
     };
 }

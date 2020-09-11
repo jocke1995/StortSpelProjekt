@@ -48,14 +48,12 @@ public:
     const D3D12_INDEX_BUFFER_VIEW* GetIndexBufferView() const;
 
     // Material
-    const SlotInfo* GetSlotInfo() const;
     std::string GetPath();
-    void SetTexture(TEXTURE_TYPE type, Texture* texture);
-    Texture* GetTexture(TEXTURE_TYPE type);
 
 private:
     friend class Renderer;
     friend class SceneManager;
+    friend class Model;
 
     std::vector<Vertex> m_Vertices;
     std::vector<unsigned int> m_Indices;
@@ -68,10 +66,7 @@ private:
 
     ShaderResourceView* m_pSRV = nullptr;
     D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;;
-
-    SlotInfo* m_pSlotInfo = nullptr;
-    std::map<TEXTURE_TYPE, Texture*> m_Textures;
-
+    
     void createIndexBufferView();
 };
 

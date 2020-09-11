@@ -49,7 +49,7 @@ struct ID3D12Device5;
 
 namespace component
 {
-	class MeshComponent;
+	class ModelComponent;
 	class TransformComponent;
 }
 
@@ -110,7 +110,7 @@ private:
 	OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
 
 	// Group of components that's needed for rendering:
-	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
+	std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>> m_RenderComponents;
 
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 
