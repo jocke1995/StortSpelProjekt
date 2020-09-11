@@ -1,6 +1,4 @@
 #include "Engine.h"
-#include "TestHeader.h"
-#include "TestHeaderTwo.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
