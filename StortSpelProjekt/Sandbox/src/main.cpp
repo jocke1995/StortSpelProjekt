@@ -21,6 +21,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     // This will be loaded once from disk, then the next time the same function is called (with the same filepath),
     // the function will just return the same pointer to the model that was loaded earlier.
     std::vector<Mesh*>* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
+    
+    // Needed for OBB test witten by björn. Should be removed after review
+    std::vector<Mesh*>* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    std::vector<Mesh*>* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
 #pragma region CreateScene0
     // Create Scene
@@ -30,6 +34,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     scene->AddEntity("player");
     scene->AddEntity("Dragon");
     scene->AddEntity("directionalLight");
+
+    // Needed for OBB test witten by björn. Should be removed after review
+    scene->AddEntity("box"); 
+    scene->AddEntity("stone");
 
     // Add Components to Entities
     Entity* entity;
@@ -45,6 +53,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
 
 
+
     // Set the m_Components
     component::MeshComponent* mc = scene->GetEntity("Dragon")->GetComponent<component::MeshComponent>();
     mc->SetMeshes(dragonModel);
@@ -52,6 +61,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     component::TransformComponent* tc = scene->GetEntity("Dragon")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 40.0f);
     tc->GetTransform()->RotateX(3.1415f / 2);
+
+    // Needed for OBB test witten by björn. Should be removed after review
+    entity = scene->GetEntity("box");
+    entity->AddComponent<component::MeshComponent>();
+    entity->AddComponent<component::TransformComponent>();
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+
+    entity = scene->GetEntity("stone");
+    entity->AddComponent<component::MeshComponent>();
+    entity->AddComponent<component::TransformComponent>();
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
 
     Texture* ambientDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_ambient.png");
@@ -61,6 +81,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::SPECULAR, ambientDefault);
     mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::NORMAL  , normalDefault);
     
+
+    // Needed for OBB test witten by björn. Should be removed after review
+    mc = scene->GetEntity("box")->GetComponent<component::MeshComponent>();
+    mc->SetMeshes(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    tc = scene->GetEntity("box")->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(-10.0f, 0.5f, 14.0f);
+    scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->Init();
+    // Needed for OBB test witten by björn. Should be removed after review
+    mc = scene->GetEntity("stone")->GetComponent<component::MeshComponent>();
+    mc->SetMeshes(stoneModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    mc->GetMesh(0)->GetMaterial()->SetShininess(300);
+    mc->GetMesh(0)->GetMaterial()->SetColorMul(COLOR_TYPE::LIGHT_SPECULAR, { 0.4f, 0.4f, 0.4f, 1.0f });
+    tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(0.01f);
+    tc->GetTransform()->SetPosition(-8.0f, 0.0f, 0.0f);
+    scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->Init();
     
     component::DirectionalLightComponent* dl = scene->GetEntity("directionalLight")->GetComponent<component::DirectionalLightComponent>();
     dl->SetDirection({ -1.0f, -1.0f, -1.0f });
@@ -102,6 +141,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ------ Update ------ */
         timer->Update();
         renderer->Update(timer->GetDeltaTime());
+
+        // Test for OBB collision written by Björn. Should  be removed after review
+        tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
+        static float test = 0;
+        test += 0.0005;
+        tc->GetTransform()->SetPosition(-8, 0, test);
+        tc->GetTransform()->RotateX(test);
+        Physics* p = engine.GetPhysics();
+        if (p == nullptr)
+        {
+            p = new Physics();
+        }
+        //BoundingBoxComponent bbc = 
+        //scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->collision(scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->GetOBB(), *scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->GetTransform())
+        if (p->checkOBBCollision(   
+            scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->GetOBB(),                   
+            scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->GetOBB()))
+        {
+            Log::Print("Collision!\n");
+        }
+        else
+        {
+            //Log::Print("Nothing!\n");
+        }
+        DirectX::XMFLOAT3 corners[8];
+        scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->GetOBB().Center.x;
+        Log::Print("stone corner z: %f..\n ",
+            corners[2].z);
+        delete p;
 
         /* ------ Sort ------ */
         renderer->SortObjectsByDistance();

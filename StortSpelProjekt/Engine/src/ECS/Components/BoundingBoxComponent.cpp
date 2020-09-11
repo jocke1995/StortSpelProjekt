@@ -20,6 +20,7 @@ component::BoundingBoxComponent::BoundingBoxComponent(Entity* parent, unsigned i
 
 component::BoundingBoxComponent::~BoundingBoxComponent()
 {
+
 }
 
 void component::BoundingBoxComponent::Init()
@@ -29,15 +30,19 @@ void component::BoundingBoxComponent::Init()
 
 void component::BoundingBoxComponent::Update(double dt)
 {
-	// update pos
-	m_OrientedBoundingBox.Center.x = m_pTransform->GetPositionFloat3().x;
-	m_OrientedBoundingBox.Center.y = m_pTransform->GetPositionFloat3().y;
-	m_OrientedBoundingBox.Center.z = m_pTransform->GetPositionFloat3().z;
+	// Making a temporary OBB which takes the original state of the OBB
+	DirectX::BoundingOrientedBox obb;
+	obb.Center = m_OriginalBoundingBox.Center;
+	obb.Extents = m_OriginalBoundingBox.Extents;
+	obb.Orientation = m_OriginalBoundingBox.Orientation;
 
-	//update rot
-	DirectX::XMMATRIX wm = m_pTransform->GetRotMatrix();
-	DirectX::XMVECTOR qv = DirectX::XMQuaternionRotationMatrix((wm));
-	DirectX::XMStoreFloat4(&m_OrientedBoundingBox.Orientation, qv);
+	// then do all the transformations on this temoporary OBB so we don't change the original state
+	obb.Transform(obb, *m_pTransform->GetWorldMatrix());
+
+	// now save the transformations to the OBB that is used in collision detection
+	m_OrientedBoundingBox.Center = obb.Center;
+	m_OrientedBoundingBox.Extents = obb.Extents;
+	m_OrientedBoundingBox.Orientation = obb.Orientation;	
 }
 
 void component::BoundingBoxComponent::SetMesh(Mesh* mesh)
@@ -119,19 +124,20 @@ bool component::BoundingBoxComponent::createOrientedBoundingBox()
 				maxVertex.z = Max(maxVertex.z, modelVertices[j].pos.z);
 			}
 		}
-		
+
 		// Extents are from middle of box to the edge of the box in all axisis
-		float3 absHalfLenghtOfRect = {	(abs(minVertex.x) + abs(maxVertex.x)) / 2 * m_pTransform->GetScale().x,
-										(abs(minVertex.y) + abs(maxVertex.y)) / 2 * m_pTransform->GetScale().y,
-										(abs(minVertex.z) + abs(maxVertex.z)) / 2 * m_pTransform->GetScale().z };
+		float3 absHalfLenghtOfRect = { (abs(minVertex.x) + abs(maxVertex.x)) / 2 ,
+										(abs(minVertex.y) + abs(maxVertex.y)) / 2 ,
+										(abs(minVertex.z) + abs(maxVertex.z)) / 2 };
 		m_OrientedBoundingBox.Extents.x = absHalfLenghtOfRect.x;
 		m_OrientedBoundingBox.Extents.y = absHalfLenghtOfRect.y;
 		m_OrientedBoundingBox.Extents.z = absHalfLenghtOfRect.z;
 
 		// Set the position of the OBB
-		m_OrientedBoundingBox.Center.x = m_pTransform->GetPositionFloat3().x;
-		m_OrientedBoundingBox.Center.y = m_pTransform->GetPositionFloat3().y;
-		m_OrientedBoundingBox.Center.z = m_pTransform->GetPositionFloat3().z;
+		m_OrientedBoundingBox.Center.x = 0;
+		// y pos of models should be at 0, and we want the center of the model, so add the distance to center
+		m_OrientedBoundingBox.Center.y = ((minVertex.y) + (maxVertex.y)) / 2; 
+		m_OrientedBoundingBox.Center.z = 0;
 
 		// get roataion from the rotationMatrix and convert it 
 		// to the required quaternion(XMFLOAT4) and store it
@@ -139,20 +145,29 @@ bool component::BoundingBoxComponent::createOrientedBoundingBox()
 		DirectX::XMVECTOR qv = DirectX::XMQuaternionRotationMatrix(wm);
 		DirectX::XMStoreFloat4(&m_OrientedBoundingBox.Orientation, qv);
 
-		// Create bounding box
+		// save this original state of the boundingBox so that we can apply the correct math in update()
+		m_OriginalBoundingBox = m_OrientedBoundingBox;
+
+		// Saving down OBB corners
+		DirectX::XMFLOAT3 corners[8];
+		m_OrientedBoundingBox.GetCorners(corners);
+
+		// Create the drawn bounding box
 		Vertex v[8] = {};
 
+		// The vertices are the corners of the OBB so send them
 		// Front vertices
-		v[0].pos = { minVertex.x, minVertex.y, minVertex.z };
-		v[1].pos = { minVertex.x, maxVertex.y, minVertex.z };
-		v[2].pos = { maxVertex.x, maxVertex.y, minVertex.z };
-		v[3].pos = { maxVertex.x, minVertex.y, minVertex.z };
-
+		v[0].pos = corners[0];
+		v[1].pos = corners[1];
+		v[2].pos = corners[2];
+		v[3].pos = corners[3];
+	
 		// Back vertices
-		v[4].pos = { minVertex.x, minVertex.y, maxVertex.z };
-		v[5].pos = { minVertex.x, maxVertex.y, maxVertex.z };
-		v[6].pos = { maxVertex.x, maxVertex.y, maxVertex.z };
-		v[7].pos = { maxVertex.x, minVertex.y, maxVertex.z };
+		v[4].pos = corners[4];
+		v[5].pos = corners[5];
+		v[6].pos = corners[6];
+		v[7].pos = corners[7];
+
 
 		for (unsigned int i = 0; i < 8; i++)
 		{
@@ -200,4 +215,5 @@ bool component::BoundingBoxComponent::createOrientedBoundingBox()
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to add a bounding box when no mesh and/or transform exists on entity.\n");
 		return false;
 	}
+
 }

@@ -42,14 +42,16 @@ namespace component
 		bool& IsPickedThisFrame();
 
 	private:
+		// used for collision checks
 		DirectX::BoundingOrientedBox m_OrientedBoundingBox;
+		// inital state of the OBB, used for math in update()
+		DirectX::BoundingOrientedBox m_OriginalBoundingBox;
 		Transform* m_pTransform = nullptr;
 		// If picking and or collision should be enabled
 		unsigned int m_FlagOBB = 0;
 		Mesh* m_pMesh = nullptr;
 		std::string m_pPathOfModel = "";
 		BoundingBoxData* m_pBbd = nullptr;
-
 
 		bool createOrientedBoundingBox();
 
