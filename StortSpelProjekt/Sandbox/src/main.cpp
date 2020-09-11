@@ -31,11 +31,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     std::vector<Mesh*>* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
 
-    TestSubscriber testingOne;
-    TestHeaderTwo testingTwo;
-
-    EventBus::GetInstance().Publish(&MessageLog(std::string("MumboJumboLul")));
-
 #pragma region CreateScene0
     // Create Scene
     Scene* scene = sceneManager->CreateScene("scene0");
