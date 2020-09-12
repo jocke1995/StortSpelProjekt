@@ -68,6 +68,7 @@ Renderer::~Renderer()
 	SAFE_RELEASE(&m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]);
 
 	delete m_pRootSignature;
+	delete m_pFullScreenQuad;
 	delete m_pSwapChain;
 	delete m_pBloomResources;
 	delete m_pMainDSV;
@@ -135,6 +136,9 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	// Create Rootsignature
 	createRootSignature();
 
+	// FullScreenQuad
+	createFullScreenQuad();
+
 	// Init Assetloader
 	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 
@@ -171,6 +175,17 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	m_pCbPerFrameData = new CB_PER_FRAME_STRUCT();
 
 	initRenderTasks();
+
+	// Submit the fullscreenQuad to be uploaded, but it won't be uploaded until a scene has been set to Draw
+	const void* datavertices = m_pFullScreenQuad->m_Vertices.data();
+	Resource* uplResourceVertices = m_pFullScreenQuad->m_pUploadResourceVertices;
+	Resource* defResourceVertices = m_pFullScreenQuad->m_pDefaultResourceVertices;
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Submit(&std::make_tuple(uplResourceVertices, defResourceVertices, datavertices));
+
+	const void* dataindices = m_pFullScreenQuad->m_Indices.data();
+	Resource* uplResourceindices = m_pFullScreenQuad->m_pUploadResourceIndices;
+	Resource* defResourceindices = m_pFullScreenQuad->m_pDefaultResourceIndices;
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Submit(&std::make_tuple(uplResourceindices, defResourceindices, dataindices));
 }
 
 void Renderer::Update(double dt)
@@ -299,6 +314,10 @@ void Renderer::Execute()
 		m_pWireFrameTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 		m_pThreadPool->AddTask(m_pWireFrameTask, FLAG_THREAD::RENDER);
 	}
+
+	m_RenderTasks[RENDER_TASK_TYPE::MERGE]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::MERGE]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::MERGE], FLAG_THREAD::RENDER);
 	
 	// Wait for the threads which records the commandlists to complete
 	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER | FLAG_THREAD::ALL);
@@ -502,6 +521,31 @@ void Renderer::createMainDSV(const HWND* hwnd)
 void Renderer::createRootSignature()
 {
 	m_pRootSignature = new RootSignature(m_pDevice5);
+}
+
+void Renderer::createFullScreenQuad()
+{
+	std::vector<Vertex> vertexVector;
+	std::vector<unsigned int> indexVector;
+
+	Vertex vertices[4] = {};
+	vertices[0].pos = { -1.0f, 1.0f, 1.0f };
+	vertices[1].pos = { -1.0f, -1.0f, 1.0f };
+	vertices[2].pos = { 1.0f, 1.0f, 1.0f };
+	vertices[3].pos = { 1.0f, -1.0f, 1.0f };
+
+	for (unsigned int i = 0; i < 4; i++)
+	{
+		vertexVector.push_back(vertices[i]);
+	}
+	indexVector.push_back(1);
+	indexVector.push_back(0);
+	indexVector.push_back(3);
+	indexVector.push_back(0);
+	indexVector.push_back(2);
+	indexVector.push_back(3);
+
+	m_pFullScreenQuad = new Mesh(m_pDevice5, vertexVector, indexVector, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 }
 
 void Renderer::updateMousePicker()
@@ -881,9 +925,10 @@ void Renderer::initRenderTasks()
 		&gpsdMergePassVector,
 		L"MergePassPSO");
 
-	forwardRenderTask->SetSwapChain(m_pSwapChain);
-	forwardRenderTask->AddResource("blurredTexture", m_pBloomResources->GetPingPongResource(0)->GetResource());
-	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+	static_cast<MergeRenderTask*>(mergeTask)->SetFullScreenQuad(m_pFullScreenQuad);
+	mergeTask->SetSwapChain(m_pSwapChain);
+	mergeTask->AddResource("blurredTexture", m_pBloomResources->GetPingPongResource(0)->GetResource());
+	mergeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion MergePass
 	
 

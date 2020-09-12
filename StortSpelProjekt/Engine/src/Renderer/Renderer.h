@@ -19,8 +19,7 @@ class ConstantBufferView;
 class ViewPool;
 class BoundingBoxPool;
 class DescriptorHeap;
-
-class Bloom;
+class Mesh;
 
 enum COMMAND_INTERFACE_TYPE;
 enum class DESCRIPTOR_HEAP_TYPE;
@@ -119,6 +118,8 @@ private:
 	WireframeRenderTask* m_pWireFrameTask = nullptr;
 	OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
 
+	Mesh* m_pFullScreenQuad = nullptr;
+
 	// Group of components that's needed for rendering:
 	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
 
@@ -158,6 +159,7 @@ private:
 	void createSwapChain(const HWND *hwnd);
 	void createMainDSV(const HWND* hwnd);
 	void createRootSignature();
+	void createFullScreenQuad();
 	void updateMousePicker();
 	void initRenderTasks();
 	void setRenderTasksRenderComponents();
