@@ -3,8 +3,10 @@
 
 class Resource;
 class DescriptorHeap;
-class RenderTarget;
 struct IDXGISwapChain4;
+
+class RenderTarget;
+class ShaderResourceView;
 
 // DX12 Forward Declarations
 struct ID3D12Device5;
@@ -19,15 +21,18 @@ public:
 		const HWND* hwnd,
 		unsigned int width, unsigned int height,
 		ID3D12CommandQueue* commandQueue,
-		DescriptorHeap* descriptorHeap_RTV);
+		DescriptorHeap* descriptorHeap_RTV,
+		DescriptorHeap* descriptorHeap_CBV_UAV_SRV);
 	virtual ~SwapChain();
 
 	IDXGISwapChain4* GetDX12SwapChain() const;
 	const RenderTarget* GetRenderTarget(unsigned int backBufferIndex) const;
+	const ShaderResourceView* GetSRV(unsigned int backBufferIndex) const;
 
 private:
 	std::array<Resource*, NUM_SWAP_BUFFERS> m_Resources;
 	std::array<RenderTarget*, NUM_SWAP_BUFFERS> m_RenderTargets;
+	std::array<ShaderResourceView*, NUM_SWAP_BUFFERS> m_SRVs;
 	IDXGISwapChain4* m_pSwapChain4 = nullptr;
 };
 

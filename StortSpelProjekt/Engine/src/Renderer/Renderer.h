@@ -151,8 +151,6 @@ private:
 	ID3D12Fence1* m_pFenceFrame = nullptr;
 	UINT64 m_FenceFrameValue = 0;
 
-
-
 	void setRenderTasksPrimaryCamera();
 	bool createDevice();
 	void createCommandQueues();

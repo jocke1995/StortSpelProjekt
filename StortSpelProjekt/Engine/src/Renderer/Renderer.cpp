@@ -496,7 +496,8 @@ void Renderer::createSwapChain(const HWND *hwnd)
 		hwnd,
 		width, height,
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV]);
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 }
 
 void Renderer::createMainDSV(const HWND* hwnd)

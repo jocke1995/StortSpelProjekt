@@ -50,9 +50,8 @@ void MergeRenderTask::Execute()
 
 	DescriptorHeap* renderTargetHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
 
-	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
-
-	// else continue as usual
+	const unsigned int SwapChainIndex = swapChainRenderTarget->GetDescriptorHeapIndex();
+	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(SwapChainIndex);
 
 	commandList->SetGraphicsRootSignature(m_pRootSig);
 
