@@ -1437,4 +1437,3 @@ void Renderer::prepareCBPerFrame()
 		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetCBVResource(), data));
 	}
 }
-

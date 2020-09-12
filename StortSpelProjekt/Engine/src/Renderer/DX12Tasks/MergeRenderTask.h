@@ -2,6 +2,7 @@
 #define MERGERENDERTASK_H
 
 #include "RenderTask.h"
+class Mesh;
 
 class MergeRenderTask : public RenderTask
 {
@@ -14,8 +15,11 @@ public:
 		LPCTSTR psoName);
 	virtual ~MergeRenderTask();
 
+	void SetFullScreenQuad(Mesh* mesh);
+
 	void Execute();
 private:
+	Mesh* m_pFullScreenQuadMesh = nullptr;
 
 };
 

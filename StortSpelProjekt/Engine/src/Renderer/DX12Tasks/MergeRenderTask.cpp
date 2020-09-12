@@ -1,6 +1,19 @@
 #include "stdafx.h"
 #include "MergeRenderTask.h"
 
+#include "../CommandInterface.h"
+
+#include "../SwapChain.h"
+#include "../RenderTarget.h"
+#include "../RenderView.h"
+#include "../Resource.h"
+
+#include "../DescriptorHeap.h"
+#include "../RootSignature.h"
+#include "../PipelineState.h"
+
+#include "../Mesh.h"
+
 MergeRenderTask::MergeRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
@@ -15,6 +28,72 @@ MergeRenderTask::~MergeRenderTask()
 {
 }
 
+void MergeRenderTask::SetFullScreenQuad(Mesh* mesh)
+{
+	m_pFullScreenQuadMesh = mesh;
+}
+
 void MergeRenderTask::Execute()
 {
+	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
+	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
+
+	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
+
+	// Get renderTarget
+	const RenderTarget* swapChainRenderTarget = m_pSwapChain->GetRenderTarget(m_BackBufferIndex);
+	ID3D12Resource1* swapChainResource = swapChainRenderTarget->GetResource()->GetID3D12Resource1();
+
+	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
+	ID3D12DescriptorHeap* d3d12DescriptorHeap = descriptorHeap_CBV_UAV_SRV->GetID3D12DescriptorHeap();
+	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
+
+	DescriptorHeap* renderTargetHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
+
+	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
+
+	// else continue as usual
+
+	commandList->SetGraphicsRootSignature(m_pRootSig);
+
+	commandList->SetGraphicsRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
+
+	// Change state on front/backbuffer
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+		swapChainResource,
+		D3D12_RESOURCE_STATE_PRESENT,
+		D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	commandList->OMSetRenderTargets(1, &cdh, true, nullptr);
+
+	const D3D12_VIEWPORT* viewPort = swapChainRenderTarget->GetRenderView()->GetViewPort();
+	const D3D12_RECT* rect = swapChainRenderTarget->GetRenderView()->GetScissorRect();
+	commandList->RSSetViewports(1, viewPort);
+	commandList->RSSetScissorRects(1, rect);
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
+
+	// Draw a fullscreen quad
+	size_t num_Indices = m_pFullScreenQuadMesh->GetNumIndices();
+	const SlotInfo* info = m_pFullScreenQuadMesh->GetSlotInfo();
+
+	DirectX::XMMATRIX identityMatrix = DirectX::XMMatrixIdentity();
+
+	// Create a CB_PER_OBJECT struct
+	CB_PER_OBJECT_STRUCT perObject = { identityMatrix, identityMatrix, *info };
+
+	commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+
+	commandList->IASetIndexBuffer(m_pFullScreenQuadMesh->GetIndexBufferView());
+
+	commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+
+	// Change state on front/backbuffer
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+		swapChainResource,
+		D3D12_RESOURCE_STATE_RENDER_TARGET,
+		D3D12_RESOURCE_STATE_PRESENT));
+
+	commandList->Close();
 }
