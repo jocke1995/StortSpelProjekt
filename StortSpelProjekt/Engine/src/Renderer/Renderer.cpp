@@ -846,13 +846,18 @@ void Renderer::initRenderTasks()
 	m_pWireFrameTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion WireFrame
 
+	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
+	csNamePSOName.push_back(std::make_pair(L"ComputeBlurHorizontal.hlsl", L"blurHorizontalPSO"));
+	csNamePSOName.push_back(std::make_pair(L"ComputeBlurVertical.hlsl", L"blurVerticalPSO"));
+
 	// ComputeTasks
 	DX12Task* blurComputeTask = new BlurComputeTask(
 		m_pDevice5, m_pRootSignature,
-		L"BlurCompute.hlsl", L"blurPSO",
+		csNamePSOName,
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
 		m_pBloomResources->GetPingPongResource(0),
-		m_pBloomResources->GetPingPongResource(1));
+		m_pBloomResources->GetPingPongResource(1),
+		800, 600); // TODO: Send screen width/height from window
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 

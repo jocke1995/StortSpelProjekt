@@ -4,15 +4,22 @@
 #include "../RootSignature.h"
 #include "../ComputeState.h"
 
-ComputeTask::ComputeTask(ID3D12Device5* device, RootSignature* rootSignature, LPCWSTR CSName, LPCTSTR psoName, COMMAND_INTERFACE_TYPE interfaceType)
+ComputeTask::ComputeTask(ID3D12Device5* device, RootSignature* rootSignature, std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName, COMMAND_INTERFACE_TYPE interfaceType)
 	:DX12Task(device, interfaceType)
 {
-	m_pPipelineState = new ComputeState(device, rootSignature, CSName, psoName);
+	for (auto& pair : csNamePSOName)
+	{
+		m_PipelineStates.push_back(new ComputeState(device, rootSignature, pair.first, pair.second));
+	}
 
 	m_pRootSig = rootSignature->GetRootSig();
 }
 
 ComputeTask::~ComputeTask()
 {
-	delete m_pPipelineState;
+	for (auto cso : m_PipelineStates)
+	{
+		delete cso;
+	}
+	
 }

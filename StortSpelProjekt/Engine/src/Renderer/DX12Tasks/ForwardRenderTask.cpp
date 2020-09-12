@@ -58,12 +58,6 @@ void FowardRenderTask::Execute()
 		D3D12_RESOURCE_STATE_PRESENT,
 		D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	// Change state on front/backbuffer
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		BrightTargetResource,
-		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-		D3D12_RESOURCE_STATE_RENDER_TARGET));
-
 	DescriptorHeap* renderTargetHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
 	DescriptorHeap* depthBufferHeap  = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 
@@ -132,12 +126,6 @@ void FowardRenderTask::Execute()
 		commandList->OMSetStencilRef(1);
 		drawRenderComponent(outlinedModel.first, outlinedModel.second, viewProjMatTrans, commandList);
 	}
-
-	// Change state on front/backbuffer
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		BrightTargetResource,
-		D3D12_RESOURCE_STATE_RENDER_TARGET,
-		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
 	
 	// Change state on front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
