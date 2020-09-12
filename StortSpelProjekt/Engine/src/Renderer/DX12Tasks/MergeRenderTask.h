@@ -14,12 +14,14 @@ public:
 		std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
 		LPCTSTR psoName);
 	virtual ~MergeRenderTask();
-
+	
+	void AddSRVIndexToMerge(unsigned int srvIndex);
 	void SetFullScreenQuad(Mesh* mesh);
 
 	void Execute();
 private:
 	Mesh* m_pFullScreenQuadMesh = nullptr;
+	std::vector<unsigned int> m_SRVIndices;
 
 };
 

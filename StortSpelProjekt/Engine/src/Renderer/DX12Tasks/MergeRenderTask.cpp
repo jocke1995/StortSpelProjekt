@@ -5,6 +5,7 @@
 
 #include "../SwapChain.h"
 #include "../RenderTarget.h"
+#include "../ShaderResourceView.h"
 #include "../RenderView.h"
 #include "../Resource.h"
 
@@ -26,6 +27,11 @@ MergeRenderTask::MergeRenderTask(
 
 MergeRenderTask::~MergeRenderTask()
 {
+}
+
+void MergeRenderTask::AddSRVIndexToMerge(unsigned int srvIndex)
+{
+	m_SRVIndices.push_back(srvIndex);
 }
 
 void MergeRenderTask::SetFullScreenQuad(Mesh* mesh)
@@ -73,9 +79,13 @@ void MergeRenderTask::Execute()
 
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
-	// Draw a fullscreen quad
+	// Draw a fullscreen quad 
 	size_t num_Indices = m_pFullScreenQuadMesh->GetNumIndices();
 	const SlotInfo* info = m_pFullScreenQuadMesh->GetSlotInfo();
+
+	// The descriptorHeapIndices for the SRVs are currently put inside the textureSlots inside SlotInfo
+	const_cast<SlotInfo*>(info)->textureAmbient = m_pSwapChain->GetSRV(m_BackBufferIndex)->GetDescriptorHeapIndex();
+	const_cast<SlotInfo*>(info)->textureDiffuse = m_SRVIndices[0];	// Blurred srv
 
 	DirectX::XMMATRIX identityMatrix = DirectX::XMMatrixIdentity();
 

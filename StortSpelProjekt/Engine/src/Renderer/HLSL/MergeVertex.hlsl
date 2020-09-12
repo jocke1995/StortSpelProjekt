@@ -3,6 +3,7 @@
 struct VS_OUT
 {
 	float4 pos  : SV_Position;
+	float2 uv   : UV;
 };
 
 struct vertex
@@ -23,6 +24,7 @@ VS_OUT VS_main(uint vID : SV_VertexID)
 
 	vertex mesh = meshes[cbPerObject.info.vertexDataIndex][vID];
 	output.pos = float4(mesh.pos.xyz, 1.0f);
+	output.uv = mesh.uv;
 
 	return output;
 }

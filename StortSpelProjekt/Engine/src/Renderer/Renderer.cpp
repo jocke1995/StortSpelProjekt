@@ -531,9 +531,16 @@ void Renderer::createFullScreenQuad()
 
 	Vertex vertices[4] = {};
 	vertices[0].pos = { -1.0f, 1.0f, 1.0f };
+	vertices[0].uv = { 0.0f, 0.0f, };
+
 	vertices[1].pos = { -1.0f, -1.0f, 1.0f };
+	vertices[1].uv = { 0.0f, 1.0f };
+
 	vertices[2].pos = { 1.0f, 1.0f, 1.0f };
+	vertices[2].uv = { 1.0f, 0.0f };
+
 	vertices[3].pos = { 1.0f, -1.0f, 1.0f };
+	vertices[3].uv = { 1.0f, 1.0f};
 
 	for (unsigned int i = 0; i < 4; i++)
 	{
@@ -927,8 +934,8 @@ void Renderer::initRenderTasks()
 		L"MergePassPSO");
 
 	static_cast<MergeRenderTask*>(mergeTask)->SetFullScreenQuad(m_pFullScreenQuad);
+	static_cast<MergeRenderTask*>(mergeTask)->AddSRVIndexToMerge(m_pBloomResources->GetPingPongResource(0)->GetSRV()->GetDescriptorHeapIndex());
 	mergeTask->SetSwapChain(m_pSwapChain);
-	mergeTask->AddResource("blurredTexture", m_pBloomResources->GetPingPongResource(0)->GetResource());
 	mergeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion MergePass
 	

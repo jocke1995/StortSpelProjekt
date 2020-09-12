@@ -1,9 +1,20 @@
+#include "../../Headers/structs.h"
+
 struct VS_OUT
 {
-	float4 pos      : SV_Position;
+	float4 pos  : SV_Position;
+	float2 uv   : UV;
 };
+
+ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
+Texture2D<float4> textures[]   : register (t0);
+
+SamplerState samplerTypeWrap	: register (s0);
 
 float4 PS_main(VS_OUT input) : SV_TARGET0
 {
-	return float4(1.0f, 1.0f, 0.0f, 1.0f);
+	float4 sceneColor = textures[cbPerObject.info.textureAmbient].Sample(samplerTypeWrap, input.uv);
+	float4 blurColor = textures[cbPerObject.info.textureDiffuse].Sample(samplerTypeWrap, input.uv);
+
+	return sceneColor + blurColor;
 }
