@@ -23,6 +23,11 @@ unsigned int UnorderedAccessView::GetDescriptorHeapIndex() const
 	return m_DescriptorHeapIndex;
 }
 
+const Resource* const UnorderedAccessView::GetResource() const
+{
+	return m_pResource;
+}
+
 void UnorderedAccessView::createUnorderedAccessView(
 	ID3D12Device5* device,
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV,

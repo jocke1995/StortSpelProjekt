@@ -21,8 +21,10 @@ public:
 	void Execute();
 private:
 	std::array<const PingPongResource*, 2> m_PingPongResources;
-	unsigned int m_threadGroupsX;
-	unsigned int m_threadGroupsY;
+	unsigned int m_HorizontalThreadGroupsX;
+	unsigned int m_HorizontalThreadGroupsY;
+	unsigned int m_VerticalThreadGroupsX;
+	unsigned int m_VerticalThreadGroupsY;
 	const unsigned int m_threadsPerGroup = 256;
 };
 

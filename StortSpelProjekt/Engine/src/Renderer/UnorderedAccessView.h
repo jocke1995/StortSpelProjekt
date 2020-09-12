@@ -15,6 +15,7 @@ public:
 	virtual ~UnorderedAccessView();
 
 	unsigned int GetDescriptorHeapIndex() const;
+	const Resource* const GetResource() const;
 private:
 	unsigned int m_DescriptorHeapIndex = -1;
 
