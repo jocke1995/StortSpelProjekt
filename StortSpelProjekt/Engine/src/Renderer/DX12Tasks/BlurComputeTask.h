@@ -26,6 +26,8 @@ private:
 	unsigned int m_VerticalThreadGroupsX;
 	unsigned int m_VerticalThreadGroupsY;
 	const unsigned int m_threadsPerGroup = 256;
+
+	DescriptorHeapIndices m_DhIndices = {};
 };
 
 #endif

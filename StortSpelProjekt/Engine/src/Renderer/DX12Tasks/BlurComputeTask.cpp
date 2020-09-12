@@ -53,6 +53,17 @@ void BlurComputeTask::Execute()
 	commandList->SetComputeRootDescriptorTable(RS::dtUAV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
 	commandList->SetComputeRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
 
+	// Descriptorheap indices for the textures to blur
+	// Horizontal pass
+	m_DhIndices.index0 = m_PingPongResources[0]->GetSRV()->GetDescriptorHeapIndex();	// Read
+	m_DhIndices.index1 = m_PingPongResources[1]->GetUAV()->GetDescriptorHeapIndex();	// Write
+	// Vertical pass
+	m_DhIndices.index2 = m_PingPongResources[1]->GetSRV()->GetDescriptorHeapIndex();	// Read
+	m_DhIndices.index3 = m_PingPongResources[0]->GetUAV()->GetDescriptorHeapIndex();	// Write
+
+	// Send the indices to gpu
+	commandList->SetComputeRoot32BitConstants(RS::CB_INDICES_CONSTANTS, sizeof(DescriptorHeapIndices) / sizeof(UINT), &m_DhIndices, 0);
+
 	unsigned int timesToBlur = 1;
 	for (unsigned int i = 0; i < timesToBlur; i++)
 	{
