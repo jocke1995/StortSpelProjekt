@@ -36,6 +36,7 @@
 #include "DX12Tasks/ForwardRenderTask.h"
 #include "DX12Tasks/BlendRenderTask.h"
 #include "DX12Tasks/ShadowRenderTask.h"
+#include "DX12Tasks/MergeRenderTask.h"
 
 // Copy 
 #include "DX12Tasks/CopyPerFrameTask.h"
@@ -845,12 +846,51 @@ void Renderer::initRenderTasks()
 	m_pWireFrameTask->SetSwapChain(m_pSwapChain);
 	m_pWireFrameTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion WireFrame
+#pragma region MergePass
+	/* Forward rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdMergePass = {};
+	gpsdMergePass.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
+	// RenderTarget
+	gpsdMergePass.NumRenderTargets = 1;
+	gpsdMergePass.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	// Depthstencil usage
+	gpsdMergePass.SampleDesc.Count = 1;
+	gpsdMergePass.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdMergePass.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdMergePass.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdMergePass.RasterizerState.FrontCounterClockwise = false;
+
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdMergePass.BlendState.RenderTarget[i] = defaultRTdesc;
+
+	// Depth descriptor
+	D3D12_DEPTH_STENCIL_DESC dsdMergePass = {};
+	dsdMergePass.DepthEnable = false;
+	dsdMergePass.StencilEnable = false;
+	gpsdMergePass.DepthStencilState = dsdMergePass;
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdMergePassVector;
+	gpsdMergePassVector.push_back(&gpsdMergePass);
+
+	RenderTask* mergeTask = new MergeRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"MergeVertex.hlsl", L"MergePixel.hlsl",
+		&gpsdMergePassVector,
+		L"MergePassPSO");
+
+	forwardRenderTask->SetSwapChain(m_pSwapChain);
+	forwardRenderTask->AddResource("blurredTexture", m_pBloomResources->GetPingPongResource(0)->GetResource());
+	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+#pragma endregion MergePass
+	
+
+	// ComputeTasks
 	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurHorizontal.hlsl", L"blurHorizontalPSO"));
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurVertical.hlsl", L"blurVerticalPSO"));
-
-	// ComputeTasks
 	DX12Task* blurComputeTask = new BlurComputeTask(
 		m_pDevice5, m_pRootSignature,
 		csNamePSOName,
@@ -890,6 +930,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::BLUR] = static_cast<RenderTask*>(blurComputeTask);
+	m_RenderTasks[RENDER_TASK_TYPE::MERGE] = mergeTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -913,6 +954,11 @@ void Renderer::initRenderTasks()
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 			m_DirectCommandLists[i].push_back(m_pWireFrameTask->GetCommandList(i));
 	}
+
+	// Final pass (this pass will merge different textures together and put result in the swapchain backBuffer)
+	// This will be used for pp-effects such as bloom.
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		m_DirectCommandLists[i].push_back(mergeTask->GetCommandList(i));
 }
 
 void Renderer::setRenderTasksRenderComponents()
