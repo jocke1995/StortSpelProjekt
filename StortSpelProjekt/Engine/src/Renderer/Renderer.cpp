@@ -950,7 +950,7 @@ void Renderer::initRenderTasks()
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		800, 600); // TODO: Send screen width/height from window
+		800, 600); // TODO: Send screen width/height from window after merge to develop
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 

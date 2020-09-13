@@ -81,9 +81,9 @@ void Bloom::createResources(ID3D12Device5* device, unsigned int width, unsigned 
 
 	D3D12_CLEAR_VALUE clearValue = {};
 	clearValue.Format = resourceDesc.Format;
-	clearValue.Color[0] = 0.1f;
-	clearValue.Color[1] = 0.1f;
-	clearValue.Color[2] = 0.1f;
+	clearValue.Color[0] = 0.0f;
+	clearValue.Color[1] = 0.0f;
+	clearValue.Color[2] = 0.0f;
 	clearValue.Color[3] = 1.0f;
 
 	m_resources[0] = new Resource(device, &resourceDesc, &clearValue, L"Bloom0_RESOURCE", D3D12_RESOURCE_STATE_RENDER_TARGET);

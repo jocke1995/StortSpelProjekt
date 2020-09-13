@@ -73,7 +73,7 @@ void FowardRenderTask::Execute()
 
 	commandList->OMSetRenderTargets(2, cdhs, false, &dsh);
 
-	float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	commandList->ClearRenderTargetView(cdhSwapChain, clearColor, 0, nullptr);
 	commandList->ClearRenderTargetView(cdhBrightTarget, clearColor, 0, nullptr);
 

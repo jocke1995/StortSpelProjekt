@@ -97,7 +97,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
     mc->GetMesh(0)->GetMaterial()->SetShininess(300);
     mc->GetMesh(0)->GetMaterial()->SetColorMul(COLOR_TYPE::LIGHT_SPECULAR, { 0.4f, 0.4f, 0.4f, 1.0f });
-    mc->GetMesh(0)->GetMaterial()->SetColorAdd(COLOR_TYPE::LIGHT_AMBIENT, { 0.2f, 0.2f, 0.2f, 1.0f });
+    mc->GetMesh(0)->GetMaterial()->SetColorAdd(COLOR_TYPE::LIGHT_AMBIENT, { 0.2f, 0.6f, 0.2f, 1.0f });
     tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(0.01f);
     tc->GetTransform()->SetPosition(-8.0f, 0.0f, 0.0f);
