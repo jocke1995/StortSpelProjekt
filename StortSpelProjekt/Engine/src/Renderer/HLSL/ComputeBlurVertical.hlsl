@@ -17,14 +17,14 @@ void CS_main(uint3 dispatchThreadID : SV_DispatchThreadID, int3 groupThreadID : 
 
 	float weights[5] = { 0.227027f, 0.1945946f, 0.1216216f, 0.054054f, 0.016216f };
 	/* -------------------- Clamp out of bound samples -------------------- */
-	// left side
+	// top side
 	if (groupThreadID.y < g_BlurRadius)
 	{
 		int y = max(dispatchThreadID.y - g_BlurRadius, 0);
 		g_SharedMem[groupThreadID.y] = textures[readIndex][int2(dispatchThreadID.x, y)];
 	}
 
-	// right side
+	// bot side
 	if (groupThreadID.y >= g_NumThreads - g_BlurRadius)
 	{
 		int y = min(dispatchThreadID.y + g_BlurRadius, textures[readIndex].Length.y - 1);
@@ -45,10 +45,10 @@ void CS_main(uint3 dispatchThreadID : SV_DispatchThreadID, int3 groupThreadID : 
 	// Adjacent fragment contributions
 	for (int i = 1; i <= g_BlurRadius; i++)
 	{
-		int left = groupThreadID.y + g_BlurRadius - i;
-		int right = groupThreadID.y + g_BlurRadius + i;
-		blurColor += weights[i] * g_SharedMem[left];
-		blurColor += weights[i] * g_SharedMem[right];
+		int top = groupThreadID.y + g_BlurRadius - i;
+		int bot = groupThreadID.y + g_BlurRadius + i;
+		blurColor += weights[i] * g_SharedMem[top];
+		blurColor += weights[i] * g_SharedMem[bot];
 	}
 
 	textureToBlur[writeIndex][dispatchThreadID.xy] = blurColor;
