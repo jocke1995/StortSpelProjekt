@@ -90,13 +90,13 @@ void OutliningRenderTask::Execute()
 		component::ModelComponent* mc = m_ObjectToOutline.first;
 
 		size_t num_Indices = m->GetNumIndices();
-		const SlotInfo info = mc->GetSlotInfoAt(i);
+		const SlotInfo* info = mc->GetSlotInfoAt(i);
 
 		DirectX::XMMATRIX* WTransposed = newScaledTransform.GetWorldMatrixTransposed();
 		DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
 		// Create a CB_PER_OBJECT struct
-		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, info };
+		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
 
 		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 

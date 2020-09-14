@@ -32,7 +32,6 @@ namespace component
 		delete m_SlotInfo;
 	}
 
-
 	void BoundingBoxComponent::Init()
 	{
 		createOrientedBoundingBox();
@@ -63,9 +62,9 @@ namespace component
 		// Textures are not used in the WireframeRenderTask
 	}
 
-	DirectX::BoundingOrientedBox BoundingBoxComponent::GetOBB() const
+	const DirectX::BoundingOrientedBox* BoundingBoxComponent::GetOBB() const
 	{
-		return m_OrientedBoundingBox;
+		return &m_OrientedBoundingBox;
 	}
 
 	Transform* BoundingBoxComponent::GetTransform() const
@@ -73,14 +72,14 @@ namespace component
 		return m_pTransform;
 	}
 
-	const SlotInfo* BoundingBoxComponent::GetSlotInfo() const
-	{
-		return m_SlotInfo;
-	}
-
 	const Mesh* BoundingBoxComponent::GetMesh() const
 	{
 		return m_pMesh;
+	}
+
+	const SlotInfo* BoundingBoxComponent::GetSlotInfo() const
+	{
+		return m_SlotInfo;
 	}
 
 	const BoundingBoxData* BoundingBoxComponent::GetBoundingBoxData() const
@@ -98,7 +97,6 @@ namespace component
 		return m_FlagOBB;
 	}
 
-	// Writes from BoundingBoxComponent to MeshComponent, which uses this in m_pRenderer
 	bool& BoundingBoxComponent::IsPickedThisFrame()
 	{
 		return m_pParent->GetComponent<ModelComponent>()->m_IsPickedThisFrame;
@@ -233,7 +231,5 @@ namespace component
 			Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to add a bounding box when no mesh and/or transform exists on entity.\n");
 			return false;
 		}
-
 	}
-
 }

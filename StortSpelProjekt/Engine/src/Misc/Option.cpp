@@ -55,7 +55,7 @@ void Option::WriteFile()
 	}
 }
 
-float Option::GetVariable(std::string name)
+float Option::GetVariable(std::string name) const
 {
 	//Search all variable names for one matching the given name
 	for (unsigned int i = 0; i < m_Variables.size(); i++) 

@@ -11,22 +11,8 @@ Model::Model(const std::wstring path, std::vector<Mesh*>* meshes, std::vector<st
 	m_Size = (*meshes).size();
 
 	// Just copy the pointers
-	m_Meshes = (*meshes);
-	m_Textures = (*textures);
-
-
-
-
-	// temp code to make stuff work
-
-	unsigned int vertexDataIndex;
-	// TextureIndices
-	unsigned int textureAmbient;
-	unsigned int textureDiffuse;
-	unsigned int textureSpecular;
-	unsigned int textureNormal;
-	unsigned int textureEmissive;
-
+	m_Meshes = *meshes;
+	m_Textures = *textures;
 
 	// Fill SlotInfo with mesh+material info
 	for (unsigned int i = 0; i < (*meshes).size(); i++)
@@ -62,22 +48,12 @@ Mesh* Model::GetMeshAt(unsigned int index)
 	return m_Meshes[index];
 }
 
-std::map<TEXTURE_TYPE, Texture*> Model::GetTexturesAt(unsigned int index)
-{
-	return m_Textures[index];
-}
-
-SlotInfo Model::GetSlotInfoAt(unsigned int index)
-{
-	return m_SlotInfos[index];
-}
-
-std::map<TEXTURE_TYPE, Texture*>* Model::GetTextures(unsigned int index)
+std::map<TEXTURE_TYPE, Texture*>* Model::GetTexturesAt(unsigned int index)
 {
 	return &m_Textures[index];
 }
 
-const SlotInfo* Model::GetSlotInfo(unsigned int index) const
+SlotInfo* Model::GetSlotInfoAt(unsigned int index)
 {
 	return &m_SlotInfos[index];
 }

@@ -104,14 +104,14 @@ void ShadowRenderTask::Execute()
 				for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 				{
 					size_t num_Indices = mc->GetMeshAt(i)->GetNumIndices();
-					const SlotInfo info = mc->GetSlotInfoAt(i);
+					const SlotInfo* info = mc->GetSlotInfoAt(i);
 
 					Transform* transform = tc->GetTransform();
 					DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
 					DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
 					// Create a CB_PER_OBJECT struct
-					CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, info };
+					CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
 
 					commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 

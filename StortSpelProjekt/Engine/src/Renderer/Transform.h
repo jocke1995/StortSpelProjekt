@@ -12,9 +12,9 @@ public:
 	void SetPosition(float x, float y, float z);
 	void SetPosition(DirectX::XMFLOAT3 pos);
 	
-	void RotateX(float radians);
-	void RotateY(float radians);
-	void RotateZ(float radians);
+	void SetRotationX(float radians);
+	void SetRotationY(float radians);
+	void SetRotationZ(float radians);
 
 	void SetScale(float scale);
 	void SetScale(float x, float y, float z);

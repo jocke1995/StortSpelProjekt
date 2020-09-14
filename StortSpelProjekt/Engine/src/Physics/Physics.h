@@ -10,7 +10,7 @@ public:
 	~Physics();
 
 	// returns true if there is an intersection between the OBBs
-	bool CheckOBBCollision(DirectX::BoundingOrientedBox obb1, DirectX::BoundingOrientedBox obb2);
+	bool CheckOBBCollision(const DirectX::BoundingOrientedBox* obb1, const DirectX::BoundingOrientedBox* obb2) const;
 
 private:
 

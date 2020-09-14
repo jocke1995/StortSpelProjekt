@@ -1,6 +1,7 @@
 #include "Engine.h"
 
 
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -16,6 +17,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     SceneManager* const sceneManager = engine.GetSceneHandler();
     Renderer* const renderer = engine.GetRenderer();
 
+    /*------ Load Option Variables ------*/
+    Option::GetInstance().ReadFile();
+
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
@@ -29,6 +33,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Model* testModel = al->LoadModel(L"../Vendor/Resources/Models/test/dboy/D-boy2.obj");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     Model* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
+
+    //AUDIO EXAMPLE
+    Audio audio;
+    audio.OpenFile(engine.GetAudioEngine()->GetAudioEngine(), TEXT("../Vendor/Resources/Audio/bruh.wav"));
+    //Change this value to 0 = infinite, 1 = play once, 1+ = play multiple
+    audio.SetAudioLoop(1);
+    audio.PlayAudio();
 
 #pragma region CreateScene0
     // Create Scene
@@ -132,21 +143,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
     tc = scene->GetEntity("Dragon")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 40.0f);
-    tc->GetTransform()->RotateX(3.1415f / 2);
+    tc->GetTransform()->SetRotationX(3.1415f / 2);
 
     Texture* ambientDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_ambient.png");
     Texture* normalDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_normal.png");
 
-    mc->GetTexturesAt(0)[TEXTURE_TYPE::AMBIENT] = ambientDefault;
-    mc->GetTexturesAt(0)[TEXTURE_TYPE::DIFFUSE] = ambientDefault;
-    mc->GetTexturesAt(0)[TEXTURE_TYPE::SPECULAR] = ambientDefault;
-    mc->GetTexturesAt(0)[TEXTURE_TYPE::NORMAL] = ambientDefault;
+    (*mc->GetTexturesAt(0))[TEXTURE_TYPE::AMBIENT] = ambientDefault;
+    (*mc->GetTexturesAt(0))[TEXTURE_TYPE::DIFFUSE] = ambientDefault;
+    (*mc->GetTexturesAt(0))[TEXTURE_TYPE::SPECULAR] = ambientDefault;
+    (*mc->GetTexturesAt(0))[TEXTURE_TYPE::NORMAL] = ambientDefault;
 
     tc = scene->GetEntity("transparentTestObject")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(5.0f);
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 1.0f);
-    tc->GetTransform()->RotateZ(3.141572f / 2.0f);
-    tc->GetTransform()->RotateX(3.141572f / 2.0f);
+    tc->GetTransform()->SetRotationZ(3.141572f / 2.0f);
+    tc->GetTransform()->SetRotationX(3.141572f / 2.0f);
 
     entity = scene->GetEntity("transparentTestObject");
     entity->GetComponent<component::BoundingBoxComponent>()->Init();
@@ -206,11 +217,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         if (window->WasSpacePressed())
         {
             // nothing
-        }
-
-        if (Input::GetInstance().GetJustPressed(SCAN_CODES::LEFT_CTRL))
-        {
-            cc->ToggleCameraLock();
         }
 
         /* ------ Update ------ */

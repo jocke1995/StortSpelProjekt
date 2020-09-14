@@ -34,7 +34,7 @@ namespace component
 
 		void SetMesh(Mesh* mesh);
 
-		DirectX::BoundingOrientedBox GetOBB() const;
+		const DirectX::BoundingOrientedBox* GetOBB() const;
 		Transform* GetTransform() const;
 		const Mesh* GetMesh() const;
 		const BoundingBoxData* GetBoundingBoxData() const;

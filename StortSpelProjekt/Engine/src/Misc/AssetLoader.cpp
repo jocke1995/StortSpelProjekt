@@ -77,20 +77,17 @@ Model* AssetLoader::LoadModel(const std::wstring path)
 		return nullptr;
 	}
 	
-	std::vector<Mesh*>* meshes = new std::vector<Mesh*>();
-	std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures = new std::vector<std::map<TEXTURE_TYPE, Texture*>>();
+	std::vector<Mesh*> meshes;
+	std::vector<std::map<TEXTURE_TYPE, Texture*>> textures;
 
-	meshes->reserve(assimpScene->mNumMeshes);
-	textures->reserve(assimpScene->mNumMeshes);
+	meshes.reserve(assimpScene->mNumMeshes);
+	textures.reserve(assimpScene->mNumMeshes);
 	m_LoadedModels[path].first = false;
 	
 
-	processNode(assimpScene->mRootNode, assimpScene, meshes, textures, &filePath);
+	processNode(assimpScene->mRootNode, assimpScene, &meshes, &textures, &filePath);
 
-	m_LoadedModels[path].second = new Model(path, meshes, textures);
-
-	delete meshes;
-	delete textures;
+	m_LoadedModels[path].second = new Model(path, &meshes, &textures);
 
 	return m_LoadedModels[path].second;
 }

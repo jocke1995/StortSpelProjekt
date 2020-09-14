@@ -88,7 +88,7 @@ void BlendRenderTask::Execute()
 			{
 				Mesh* m = mc->GetMeshAt(j);
 				size_t num_Indices = m->GetNumIndices();
-				const SlotInfo info = mc->GetSlotInfoAt(j);
+				const SlotInfo* info = mc->GetSlotInfoAt(j);
 
 				Transform* transform = tc->GetTransform();
 
@@ -96,7 +96,7 @@ void BlendRenderTask::Execute()
 				DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
 				// Create a CB_PER_OBJECT struct
-				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed , info };
+				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed , *info };
 
 				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 				

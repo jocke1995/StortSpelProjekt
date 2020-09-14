@@ -129,14 +129,14 @@ void FowardRenderTask::drawRenderComponent(
 		{
 			Mesh* m = mc->GetMeshAt(i);
 			size_t num_Indices = m->GetNumIndices();
-			const SlotInfo info = mc->GetSlotInfoAt(i);
+			const SlotInfo* info = mc->GetSlotInfoAt(i);
 
 			Transform* transform = tc->GetTransform();
 			DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
 			DirectX::XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
 
 			// Create a CB_PER_OBJECT struct
-			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, info };
+			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
 
 			cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 

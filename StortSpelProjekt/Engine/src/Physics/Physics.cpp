@@ -10,7 +10,7 @@ Physics::~Physics()
 {
 }
 
-bool Physics::CheckOBBCollision(DirectX::BoundingOrientedBox obb1, DirectX::BoundingOrientedBox obb2)
+bool Physics::CheckOBBCollision(const DirectX::BoundingOrientedBox* obb1, const DirectX::BoundingOrientedBox* obb2) const
 {
-	return obb1.Intersects(obb2);
+	return obb1->Intersects(*obb2);
 }
