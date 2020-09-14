@@ -81,7 +81,7 @@ Model* AssetLoader::LoadModel(const std::wstring path)
 	std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures = new std::vector<std::map<TEXTURE_TYPE, Texture*>>();
 
 	meshes->reserve(assimpScene->mNumMeshes);
-	textures->reserve(5); // minimum 5 textures per model
+	textures->reserve(assimpScene->mNumMeshes);
 	m_LoadedModels[path].first = false;
 	
 
