@@ -20,6 +20,7 @@ namespace component
 		if (!std::strcmp(m_pParent->GetName().c_str(), "player"))
 		{
 			EventBus::GetInstance().Subscribe(this, &TransformComponent::setMovement);
+			EventBus::GetInstance().Subscribe(this, &TransformComponent::setRotation);
 		}
 	}
 
@@ -68,5 +69,35 @@ namespace component
 		{
 			m_pTransform->SetMovement(0.0f, 0.0f, 0.0f);
 		}
+	}
+	void TransformComponent::setRotation(MouseMovement* evnt)
+	{
+		// Mouse movement in x-direction
+		int x = evnt->x;
+
+		// Determine how much to rotate in radians
+		float rotate = -(static_cast<float>(x) / 400.0) * 3.1415;
+
+		// Get rotation to determine current rotation angle
+		DirectX::XMMATRIX rotMat = m_pTransform->GetRotMatrix();
+		DirectX::XMFLOAT3 forward, right;
+		DirectX::XMStoreFloat3(&forward, rotMat.r[2]);
+		DirectX::XMStoreFloat3(&right, rotMat.r[0]);
+
+		float angle = std::atan2(forward.x, forward.z);
+
+		// Set the new rotation
+		m_pTransform->RotateY(angle + rotate);
+
+		// Get new direction
+		rotMat = m_pTransform->GetRotMatrix();
+		DirectX::XMStoreFloat3(&forward, rotMat.r[2]);
+		DirectX::XMStoreFloat3(&right, rotMat.r[0]);
+
+		// Determine if player is currently moving, if yes, update movement direction
+		int isMovingZ = static_cast<int>(Input::GetInstance().GetKeyState(SCAN_CODES::W)) - static_cast<int>(Input::GetInstance().GetKeyState(SCAN_CODES::S));
+		int isMovingX = static_cast<int>(Input::GetInstance().GetKeyState(SCAN_CODES::D)) - static_cast<int>(Input::GetInstance().GetKeyState(SCAN_CODES::A));
+
+		m_pTransform->SetMovement(forward.x * isMovingZ + right.x * isMovingX, m_pTransform->GetMovement().y, forward.z * isMovingZ + right.z * isMovingX);
 	}
 }

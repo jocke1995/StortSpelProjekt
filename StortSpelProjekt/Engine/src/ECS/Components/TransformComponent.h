@@ -4,6 +4,7 @@
 #include "Component.h"
 class Transform;
 class MovementInput;
+class MouseMovement;
 
 namespace component
 {
@@ -20,6 +21,7 @@ namespace component
         Transform* m_pTransform = nullptr;
 
         void setMovement(MovementInput* evnt);
+        void setRotation(MouseMovement* evnt);
     };
 }
 

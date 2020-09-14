@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CameraComponent.h"
+#include "..\Events\EventBus.h"
 
 // Renderer
 #include "../../Renderer/PerspectiveCamera.h"
@@ -29,6 +30,8 @@ namespace component
 
 		m_CamType = camType;
 
+		m_Zoom = 12.0f;
+
 		switch (m_CamType)
 		{
 		case CAMERA_TYPE::PERSPECTIVE:
@@ -37,6 +40,13 @@ namespace component
 		case CAMERA_TYPE::ORTHOGRAPHIC:
 			m_pCamera = createOrthographic();
 			break;
+		}
+
+		// If player camera, subscribe to camera control events
+		if (!std::strcmp(m_pParent->GetName().c_str(), "player"))
+		{
+			EventBus::GetInstance().Subscribe(this, &CameraComponent::toggleCameraLock);
+			EventBus::GetInstance().Subscribe(this, &CameraComponent::zoom);
 		}
 	}
 
@@ -86,12 +96,24 @@ namespace component
 	{
 		m_pCamera->Update(dt);
 
+		// Lock camera to player
 		if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 		{
 			Transform* tc = m_pParent->GetComponent<TransformComponent>()->GetTransform();
-			float3 position = tc->GetPositionFloat3();
-			m_pCamera->SetPosition(position.x, position.y + 2, position.z - 10);
-			m_pCamera->SetDirection(0.0, -2.0, 10.0);
+			float3 playerPosition = tc->GetPositionFloat3();
+
+			DirectX::XMMATRIX rotMat = tc->GetRotMatrix();
+			DirectX::XMFLOAT3 forward, right;
+			DirectX::XMStoreFloat3(&forward, rotMat.r[2]);
+			DirectX::XMStoreFloat3(&right, rotMat.r[0]);
+
+			float3 cameraPosition = { playerPosition.x - (m_Zoom * forward.x), playerPosition.y + m_Zoom / 4, playerPosition.z - (m_Zoom * forward.z) };
+
+			m_pCamera->SetPosition(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+			float directionX = playerPosition.x - cameraPosition.x;
+			float directionY = playerPosition.y - cameraPosition.y;
+			float directionZ = playerPosition.z - cameraPosition.z;
+			m_pCamera->SetDirection(directionX, directionY, directionZ);
 		}
 	}
 
@@ -112,5 +134,17 @@ namespace component
 			left, right,
 			bot, top,
 			nearZ, farZ);
+	}
+
+	void CameraComponent::toggleCameraLock(ModifierInput* evnt)
+	{
+		if (evnt->key == SCAN_CODES::LEFT_CTRL && evnt->pressed)
+		{
+			ToggleCameraLock();
+		}
+	}
+	void CameraComponent::zoom(MouseScroll* evnt)
+	{
+		m_Zoom = std::max(m_Zoom - evnt->scroll, 6.0f);
 	}
 }

@@ -4,6 +4,8 @@
 #include "Component.h"
 #include "Core.h"
 class BaseCamera;
+class ModifierInput;
+class MouseScroll;
 
 enum CAMERA_FLAGS
 {
@@ -52,15 +54,16 @@ namespace component
 		/// <summary>
 		/// Toggles whether the camera locks to the movement of the player
 		/// </summary>
-		void ToggleCameraLock();
 
 		void Update(double dt);
+		void ToggleCameraLock();
 
 	private:
 		BaseCamera* m_pCamera = nullptr;
 		CAMERA_TYPE m_CamType = CAMERA_TYPE::UNDEFINED;
 		bool m_PrimaryCamera = false;
 		unsigned int m_CameraFlags = 0;
+		float m_Zoom;
 
 		// Todo: add and calculate m_pMesh to be able to draw frustrum in wireframe
 
@@ -81,6 +84,9 @@ namespace component
 			float top = 40.0f,
 			float nearZ = 0.01f,
 			float farZ = 1000.0f);
+
+		void toggleCameraLock(ModifierInput* evnt);
+		void zoom(MouseScroll* evnt);
 	};
 }
 
