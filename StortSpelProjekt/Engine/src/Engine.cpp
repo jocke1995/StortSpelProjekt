@@ -18,6 +18,7 @@ Engine::~Engine()
 	delete m_SceneManager;
 	delete m_Renderer;
 	delete m_pAudioEngine;
+	delete m_Physics;
 }
 
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
@@ -39,6 +40,9 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 
 	// ECS
 	m_SceneManager = new SceneManager(m_Renderer);
+
+	// Physics
+	m_Physics = new Physics();
 
 	Input::GetInstance().RegisterDevices(m_Window->GetHwnd());
 }

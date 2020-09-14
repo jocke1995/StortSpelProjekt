@@ -32,3 +32,10 @@ struct MouseScroll : public Event
 	MouseScroll(int scroll) : scroll{ scroll } {};
 	int scroll;
 };
+
+struct Collision : public Event
+{
+	Collision(Entity *ent1, Entity *ent2) : ent1{ ent1 }, ent2{ ent2 } {};
+	Entity *ent1;
+	Entity *ent2;
+};
