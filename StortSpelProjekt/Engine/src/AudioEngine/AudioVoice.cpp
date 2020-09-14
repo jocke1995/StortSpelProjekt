@@ -36,7 +36,6 @@ void AudioVoice::initialize(XAUDIO2_BUFFER* buff, WAVEFORMATEXTENSIBLE* wfxForma
 
 void AudioVoice::Initialize(AudioBuffer& audio)
 {
-    m_Initialized = true;
     initialize(&audio.m_Buffer, &audio.m_Wfx);
 }
 

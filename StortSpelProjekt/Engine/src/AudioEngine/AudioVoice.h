@@ -21,6 +21,7 @@ public:
 
 	/// <summary>
 	/// Initializer, needs to be called before use if default constructor was used.
+	/// Makes a shallow copy of the audiobuffer and creates the new sourcevoice.
 	/// </summary>
 	void Initialize(AudioBuffer& audio);
 
@@ -38,6 +39,10 @@ private:
 	XAUDIO2_BUFFER* m_pBuffer = nullptr;
 	WAVEFORMATEXTENSIBLE* m_pWfxFormat = nullptr;
 
+	/// <summary>
+	/// Initializer, called by regular constructor.
+	/// Makes a shallow copy of the audiobuffer and creates the new sourcevoice.
+	/// </summary>
 	void initialize(XAUDIO2_BUFFER* buff, WAVEFORMATEXTENSIBLE* wfxFormat);
 };
 
