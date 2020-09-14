@@ -7,12 +7,6 @@ public:
 	virtual ~Event() = default;
 };
 
-struct TestEvent : public Event
-{
-	TestEvent(int nr) : number{ nr } {};
-	int number;
-};
-
 struct MovementInput : public Event
 {
 	MovementInput(SCAN_CODES key, bool pressed) : key{ key }, pressed{ pressed } {};
@@ -37,4 +31,10 @@ struct MouseScroll : public Event
 {
 	MouseScroll(int scroll) : scroll{ scroll } {};
 	int scroll;
+};
+
+struct TestEvent : public Event
+{
+	TestEvent(int number) : number{ number } {};
+	int number;
 };
