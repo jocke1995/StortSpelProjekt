@@ -40,7 +40,6 @@ public:
 private:
     std::wstring m_Path;
     unsigned int m_Size = 0;
-    // TODO: maybe std::forward_list?
     std::vector<Mesh*> m_Meshes;
     std::vector<std::map<TEXTURE_TYPE, Texture*>> m_Textures;
     std::vector<SlotInfo>  m_SlotInfos;

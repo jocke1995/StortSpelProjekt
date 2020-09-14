@@ -12,10 +12,6 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/BaseCamera.h"
 
-
-// TODO: TEMP FILIP
-#include "../../ECS/Entity.h"
-
 WireframeRenderTask::WireframeRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,

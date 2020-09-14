@@ -7,7 +7,8 @@ struct BoundingBoxData;
 class ShaderResourceView;
 class Mesh;
 class Transform;
-class SlotInfo;
+struct SlotInfo;
+
 namespace component
 {
 	class BoundingBoxComponent : public Component

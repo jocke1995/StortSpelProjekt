@@ -1053,10 +1053,9 @@ void Renderer::addComponents(Entity* entity)
 				CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
 
 				// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
+				CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 				if (isModelOnGpu == false)
 				{
-					CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-
 					// Vertices
 					const void* data = static_cast<const void*>(mesh->m_Vertices.data());
 					Resource* uploadR = mesh->m_pUploadResourceVertices;
@@ -1068,22 +1067,20 @@ void Renderer::addComponents(Entity* entity)
 					uploadR = mesh->m_pUploadResourceIndices;
 					defaultR = mesh->m_pDefaultResourceIndices;
 					codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+				}
 
-					// TODO: FILIP TEMP
-					std::map<TEXTURE_TYPE, Texture*> meshTextures = mc->GetTexturesAt(i);
+				std::map<TEXTURE_TYPE, Texture*> meshTextures = mc->GetTexturesAt(i);
+				// Textures
+				for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+				{
+					TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
+					Texture* texture = meshTextures[type];
 
-					// Textures
-					for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+					// Check if the texture is on GPU before submitting to be uploaded
+					if (al->m_LoadedTextures[texture->m_FilePath].first == false)
 					{
-						TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-						Texture* texture = meshTextures[type];
-
-						// Check if the texture is on GPU before submitting to be uploaded
-						if (al->m_LoadedTextures[texture->m_FilePath].first == false)
-						{
-							codt->SubmitTexture(texture);
-							al->m_LoadedTextures[texture->m_FilePath].first = true;
-						}
+						codt->SubmitTexture(texture);
+						al->m_LoadedTextures[texture->m_FilePath].first = true;
 					}
 				}
 			}

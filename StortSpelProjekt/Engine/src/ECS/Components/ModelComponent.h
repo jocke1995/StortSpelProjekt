@@ -2,12 +2,10 @@
 #define MODELCOMPONENT_H
 
 #include "Component.h"
+#include "structs.h"
 class Mesh;
 class Model;
 class Texture;
-
-// TODO: FILIP TEMP
-#include "structs.h"
 
 namespace component
 {
