@@ -1,21 +1,21 @@
 #include "stdafx.h"
-#include "VoiceComponent.h"
-#include "../AudioEngine/Voice.h"
+#include "AudioVoiceComponent.h"
+#include "../AudioEngine/AudioVoice.h"
 #include "../Misc/AssetLoader.h"
 
-component::VoiceComponent::VoiceComponent(Entity* parent): Component(parent)
+component::AudioVoiceComponent::AudioVoiceComponent(Entity* parent): Component(parent)
 {
 }
 
-component::VoiceComponent::~VoiceComponent()
+component::AudioVoiceComponent::~AudioVoiceComponent()
 {
 }
 
-void component::VoiceComponent::Update(double dt)
+void component::AudioVoiceComponent::Update(double dt)
 {
 }
 
-void component::VoiceComponent::AddVoice(const std::wstring& name)
+void component::AudioVoiceComponent::AddVoice(const std::wstring& name)
 {
 	if (m_Voices.count(name) == 0)
 	{
@@ -23,7 +23,7 @@ void component::VoiceComponent::AddVoice(const std::wstring& name)
 	}
 }
 
-void component::VoiceComponent::PlayVoice(const std::wstring& name)
+void component::AudioVoiceComponent::Play(const std::wstring& name)
 {
 #ifdef _DEBUG
 	if (m_Voices.count(name) != 0)
@@ -39,7 +39,7 @@ void component::VoiceComponent::PlayVoice(const std::wstring& name)
 #endif
 }
 
-void component::VoiceComponent::StopVoice(const std::wstring& name)
+void component::AudioVoiceComponent::Stop(const std::wstring& name)
 {
 #ifdef _DEBUG
 	if (m_Voices.count(name) != 0)

@@ -1,5 +1,5 @@
-#ifndef AUDIO_H
-#define AUDIO_H
+#ifndef AUDIOBUFFER_H
+#define AUDIOBUFFER_H
 #include "AudioEngine.h"
 // Helper functions to potentially be used later
 //#define XAUDIO2_HELPER_FUNCTIONS
@@ -13,21 +13,17 @@
 #define fourccWAVE 'EVAW'
 #define fourccXWMA 'AMWX'
 #define fourccDPDS 'sdpd'
-#include "Voice.h"
+#include "AudioVoice.h"
 
-class Audio
+class AudioBuffer
 {
 public:
-	Audio();
-	Audio(const std::wstring& path);
-	~Audio();
+	AudioBuffer();
+	AudioBuffer(const std::wstring& path);
+	~AudioBuffer();
 
 	//void OpenFile(IXAudio2* pXAudio2, const TCHAR* path);
 	void OpenFile(IXAudio2* pXAudio2, std::wstring path);
-
-	// Simple playback functions that will be extended in the future
-	void PlayAudio();
-	void StopAudio();
 
 	//Set how many times audio should loop. 0 = "infinte"; 1 = "play once"; 1> = "play multiple"
 	void SetAudioLoop(int loopCount);
@@ -35,11 +31,11 @@ public:
 	/// <summary>
 	/// Creates a voice object which may play the loaded audio.
 	/// </summary>
-	Voice CloneVoice();
+	AudioVoice CloneVoice();
 
 
 private:
-	friend class Voice;
+	friend class AudioVoice;
 	// Voices are audio channels that can be routed to and/or combined in IXAudio2SubmixVoice and IXAudio2MasteringVoice.
 	// Submix and Master voices mix the audio from all voices feeding into them and operate on the result.
 	IXAudio2SourceVoice* m_pSourceVoice;

@@ -1,28 +1,28 @@
-#ifndef VOICE_H
-#define VOICE_H
+#ifndef AUDIOVOICE_H
+#define AUDIOVOICE_H
 #include <xaudio2.h>
-class Audio;
+class AudioBuffer;
 
 /// <summary>
 /// Audiosource, plays sounds on command.
 /// </summary>
-class Voice
+class AudioVoice
 {
 public:
 	/// <summary>
 	/// Default constructor, avoid if possible. Object needs to be initialized before use!
 	/// </summary>
-	Voice();
+	AudioVoice();
 	/// <summary>
 	/// Regular constructor.
 	/// </summary>
-	Voice(Audio& audio);
-	~Voice();
+	AudioVoice(AudioBuffer& audio);
+	~AudioVoice();
 
 	/// <summary>
 	/// Initializer, needs to be called before use if default constructor was used.
 	/// </summary>
-	void Initialize(Audio& audio);
+	void Initialize(AudioBuffer& audio);
 
 	/// <summary>
 	/// Plays audio.

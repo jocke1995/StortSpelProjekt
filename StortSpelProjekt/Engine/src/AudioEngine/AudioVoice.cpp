@@ -1,23 +1,23 @@
 #include "stdafx.h"
-#include "Voice.h"
-#include "Audio.h"
+#include "AudioVoice.h"
+#include "AudioBuffer.h"
 #include "AudioEngine.h"
 
-Voice::Voice()
+AudioVoice::AudioVoice()
 {
     m_Initialized = false;
 }
 
-Voice::Voice(Audio& audio)
+AudioVoice::AudioVoice(AudioBuffer& audio)
 {
     initialize(&audio.m_Buffer, &audio.m_Wfx);
 }
 
-Voice::~Voice()
+AudioVoice::~AudioVoice()
 {
 }
 
-void Voice::initialize(XAUDIO2_BUFFER* buff, WAVEFORMATEXTENSIBLE* wfxFormat)
+void AudioVoice::initialize(XAUDIO2_BUFFER* buff, WAVEFORMATEXTENSIBLE* wfxFormat)
 {
     m_pBuffer = buff;
     m_pWfxFormat = wfxFormat;
@@ -34,13 +34,13 @@ void Voice::initialize(XAUDIO2_BUFFER* buff, WAVEFORMATEXTENSIBLE* wfxFormat)
     m_pSourceVoice->SetVolume(0.1);
 }
 
-void Voice::Initialize(Audio& audio)
+void AudioVoice::Initialize(AudioBuffer& audio)
 {
     m_Initialized = true;
     initialize(&audio.m_Buffer, &audio.m_Wfx);
 }
 
-void Voice::Play()
+void AudioVoice::Play()
 {
     if (m_Initialized)
     {
@@ -60,7 +60,7 @@ void Voice::Play()
     }
 }
 
-void Voice::Stop()
+void AudioVoice::Stop()
 {
     if (m_Initialized)
     {

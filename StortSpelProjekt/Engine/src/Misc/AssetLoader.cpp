@@ -105,7 +105,7 @@ Texture* AssetLoader::LoadTexture(std::wstring path)
 	return texture;
 }
 
-Audio* AssetLoader::LoadAudio(const std::wstring& path, const std::wstring& name)
+AudioBuffer* AssetLoader::LoadAudio(const std::wstring& path, const std::wstring& name)
 {
 	if (m_LoadedAudios.count(name) != 0)
 	{
@@ -116,7 +116,7 @@ Audio* AssetLoader::LoadAudio(const std::wstring& path, const std::wstring& name
 	return &m_LoadedAudios[name];
 }
 
-Audio* AssetLoader::GetAudio(const std::wstring& name)
+AudioBuffer* AssetLoader::GetAudio(const std::wstring& name)
 {
 	return &m_LoadedAudios[name];
 }

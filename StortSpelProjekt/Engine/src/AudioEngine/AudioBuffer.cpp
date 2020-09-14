@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "Audio.h"
+#include "AudioBuffer.h"
 #include "../Misc/Option.h"
 
-Audio::Audio()
+AudioBuffer::AudioBuffer()
 {
     m_pSourceVoice = nullptr;
     m_Wfx = { 0 };
@@ -10,7 +10,7 @@ Audio::Audio()
     m_Hr = NULL;
 }
 
-Audio::Audio(const std::wstring& path)
+AudioBuffer::AudioBuffer(const std::wstring& path)
 {
     m_pSourceVoice = nullptr;
     m_Wfx = { 0 };
@@ -20,12 +20,12 @@ Audio::Audio(const std::wstring& path)
     OpenFile(AudioEngine::GetInstance().GetAudioEngine(), path);
 }
 
-Audio::~Audio()
+AudioBuffer::~AudioBuffer()
 {
     delete m_Buffer.pAudioData;
 }
 
-HRESULT Audio::findChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& dwChunkDataPosition)
+HRESULT AudioBuffer::findChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& dwChunkDataPosition)
 {
     HRESULT hr = S_OK;
     if (INVALID_SET_FILE_POINTER == SetFilePointer(hFile, 0, NULL, FILE_BEGIN))
@@ -91,7 +91,7 @@ HRESULT Audio::findChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& 
     return S_OK;
 }
 
-HRESULT Audio::readChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD bufferoffset)
+HRESULT AudioBuffer::readChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD bufferoffset)
 {
     HRESULT hr = S_OK;
     if (INVALID_SET_FILE_POINTER == SetFilePointer(hFile, bufferoffset, NULL, FILE_BEGIN))
@@ -108,7 +108,7 @@ HRESULT Audio::readChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD
     return hr;
 }
 
-void Audio::OpenFile(IXAudio2* pXAudio2, std::wstring path)
+void AudioBuffer::OpenFile(IXAudio2* pXAudio2, std::wstring path)
 {
     //std::wstring strFileName = to_wstring(path);
 
@@ -170,30 +170,7 @@ void Audio::OpenFile(IXAudio2* pXAudio2, std::wstring path)
     m_Buffer.LoopBegin = 0;
     m_Buffer.LoopLength = 0;
     m_Buffer.LoopCount = 0;
-    StopAudio();
 
-    m_pSourceVoice->SetVolume(Option::GetInstance().GetVariable("volume"));
-}
-
-void Audio::PlayAudio()
-{
-    // reset the buffer if sound has ended
-    XAUDIO2_VOICE_STATE test;
-    m_pSourceVoice->GetState(&test);
-    if (test.BuffersQueued == 0)
-    {
-        StopAudio();
-    }
-
-    // play the sound
-    if (FAILED(m_Hr = m_pSourceVoice->Start(0)))
-    {
-        Log::Print("Error playing audio\n");
-    }
-}
-
-void Audio::StopAudio()
-{
     // stop playback
     if (FAILED(m_Hr = m_pSourceVoice->Stop(0)))
     {
@@ -202,9 +179,12 @@ void Audio::StopAudio()
     // reset the buffer so the sound starts from the beginning at next playback
     m_pSourceVoice->FlushSourceBuffers();
     m_pSourceVoice->SubmitSourceBuffer(&m_Buffer);
+
+    m_pSourceVoice->SetVolume(Option::GetInstance().GetVariable("volume"));
 }
 
-void Audio::SetAudioLoop(int loopCount)
+
+void AudioBuffer::SetAudioLoop(int loopCount)
 {
     if (loopCount == 0)
     {
@@ -218,7 +198,7 @@ void Audio::SetAudioLoop(int loopCount)
     m_pSourceVoice->SubmitSourceBuffer(&m_Buffer);
 }
 
-Voice Audio::CloneVoice()
+AudioVoice AudioBuffer::CloneVoice()
 {
-    return Voice(*this);
+    return AudioVoice(*this);
 }
