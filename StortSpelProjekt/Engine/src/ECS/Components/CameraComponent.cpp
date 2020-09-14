@@ -4,6 +4,9 @@
 // Renderer
 #include "../../Renderer/PerspectiveCamera.h"
 #include "../../Renderer/OrthographicCamera.h"
+#include "../ECS/Components/TransformComponent.h"
+#include "../ECS/Entity.h"
+#include "../Renderer/Transform.h"
 
 namespace component
 {
@@ -17,10 +20,14 @@ namespace component
 	}
 
 	// Default Settings
-	CameraComponent::CameraComponent(Entity* parent, CAMERA_TYPE camType, bool primary)
+	CameraComponent::CameraComponent(Entity* parent, CAMERA_TYPE camType, bool primary, unsigned int camFlags)
 		:Component(parent)
 	{
 		m_PrimaryCamera = primary;
+
+		m_CameraFlags = camFlags;
+
+		m_CamType = camType;
 
 		switch (m_CamType)
 		{
@@ -70,9 +77,22 @@ namespace component
 		return m_PrimaryCamera;
 	}
 
+	void CameraComponent::ToggleCameraLock()
+	{
+		m_CameraFlags ^= CAMERA_FLAGS::USE_PLAYER_POSITION;
+	}
+
 	void CameraComponent::Update(double dt)
 	{
 		m_pCamera->Update(dt);
+
+		if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
+		{
+			Transform* tc = m_pParent->GetComponent<TransformComponent>()->GetTransform();
+			float3 position = tc->GetPositionFloat3();
+			m_pCamera->SetPosition(position.x, position.y + 2, position.z - 10);
+			m_pCamera->SetDirection(0.0, -2.0, 10.0);
+		}
 	}
 
 	BaseCamera* CameraComponent::createPerspective(DirectX::XMVECTOR position, DirectX::XMVECTOR direction, double fov, double aspectRatio, double nearZ, double farZ)
