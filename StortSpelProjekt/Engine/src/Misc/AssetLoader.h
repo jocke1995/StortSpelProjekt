@@ -52,7 +52,7 @@ private:
     std::map<std::wstring, std::pair<bool, std::vector<Mesh*>*>> m_LoadedModels;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
     std::map<std::wstring, Shader*> m_LoadedShaders;
-    std::map < std::wstring, Audio> m_LoadedAudios;
+    std::map<std::wstring, Audio> m_LoadedAudios;
 
     // Audio
     // add map for audio (path, AudioObject)
