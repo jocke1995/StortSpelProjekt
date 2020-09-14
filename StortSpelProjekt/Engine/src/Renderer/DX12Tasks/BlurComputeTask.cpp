@@ -24,7 +24,7 @@ BlurComputeTask::BlurComputeTask(
 	m_PingPongResources[0] = Bloom0_RESOURCE;
 	m_PingPongResources[1] = Bloom1_RESOURCE;
 
-	m_HorizontalThreadGroupsX = static_cast<unsigned int>(ceilf(static_cast<float>(screenWidth) / m_threadsPerGroup));
+	m_HorizontalThreadGroupsX = static_cast<unsigned int>(ceilf(static_cast<float>(screenWidth) / m_ThreadsPerGroup));
 	m_HorizontalThreadGroupsY = screenHeight;
 
 	m_VerticalThreadGroupsX = screenWidth;

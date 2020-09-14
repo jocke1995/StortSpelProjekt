@@ -81,7 +81,7 @@ PS_OUTPUT PS_main(VS_OUT input)
 	}
 
 	// This is a test to show that bloom works, remove after review
-	finalColor += float4(1.0f, 1.0f, 1.0f, 1.0f);// emissiveMap.rgb;
+	finalColor += emissiveMap.rgb;
 	finalColor = saturate(finalColor);
 
 	PS_OUTPUT output;

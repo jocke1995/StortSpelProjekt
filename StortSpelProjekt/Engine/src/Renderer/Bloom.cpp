@@ -41,7 +41,7 @@ Bloom::Bloom(
 	
 	for (unsigned int i = 0; i < 2; i++)
 	{
-		m_PingPongResources[i] = new PingPongResource(m_resources[i], device, dh_CBV_UAV_SRV, &srvDesc, &uavDesc);
+		m_PingPongResources[i] = new PingPongResource(m_Resources[i], device, dh_CBV_UAV_SRV, &srvDesc, &uavDesc);
 	}
 }
 
@@ -49,7 +49,7 @@ Bloom::~Bloom()
 {
 	for (unsigned int i = 0; i < 2; i++)
 	{
-		delete m_resources[i];
+		delete m_Resources[i];
 		delete m_PingPongResources[i];
 	}
 	delete m_pRenderTarget;
@@ -86,8 +86,8 @@ void Bloom::createResources(ID3D12Device5* device, unsigned int width, unsigned 
 	clearValue.Color[2] = 0.0f;
 	clearValue.Color[3] = 1.0f;
 
-	m_resources[0] = new Resource(device, &resourceDesc, &clearValue, L"Bloom0_RESOURCE", D3D12_RESOURCE_STATE_RENDER_TARGET);
-	m_resources[1] = new Resource(device, &resourceDesc, &clearValue, L"Bloom1_RESOURCE", D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+	m_Resources[0] = new Resource(device, &resourceDesc, &clearValue, L"Bloom0_RESOURCE", D3D12_RESOURCE_STATE_RENDER_TARGET);
+	m_Resources[1] = new Resource(device, &resourceDesc, &clearValue, L"Bloom1_RESOURCE", D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 }
 
 void Bloom::createBrightRenderTarget(
@@ -96,5 +96,5 @@ void Bloom::createBrightRenderTarget(
 	unsigned int width, unsigned int height)
 {
 	// Resource 0 will be used as the starting resource to read from during the blurring pass.
-	m_pRenderTarget = new RenderTarget(device5, dhRTV, m_resources[0], width, height);
+	m_pRenderTarget = new RenderTarget(device5, dhRTV, m_Resources[0], width, height);
 }

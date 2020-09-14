@@ -25,7 +25,7 @@ public:
 private:
 	RenderTarget* m_pRenderTarget = nullptr;
 
-	std::array<Resource*, 2> m_resources;
+	std::array<Resource*, 2> m_Resources;
 	// The compute shader will read and write in a "Ping-Pong"-order to these objects.
 	std::array<PingPongResource*, 2> m_PingPongResources;
 	
