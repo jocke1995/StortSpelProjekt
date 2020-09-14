@@ -236,7 +236,7 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	ShowWindow(m_Hwnd, nCmdShow);
-	//ShowCursor(false);
+	ShowCursor(false);
 	UpdateWindow(m_Hwnd);
 
 	return true;

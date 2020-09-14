@@ -94,8 +94,6 @@ namespace component
 
 	void CameraComponent::Update(double dt)
 	{
-		m_pCamera->Update(dt);
-
 		// Lock camera to player
 		if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 		{
@@ -115,6 +113,8 @@ namespace component
 			float directionZ = playerPosition.z - cameraPosition.z;
 			m_pCamera->SetDirection(directionX, directionY, directionZ);
 		}
+
+		m_pCamera->Update(dt);
 	}
 
 	BaseCamera* CameraComponent::createPerspective(DirectX::XMVECTOR position, DirectX::XMVECTOR direction, double fov, double aspectRatio, double nearZ, double farZ)
