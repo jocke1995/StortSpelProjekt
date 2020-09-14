@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "AssetLoader.h"
 
-#include "../Renderer/Material.h"
-
 #include "../Renderer/DescriptorHeap.h"
 #include "Window.h"
 
@@ -85,7 +83,7 @@ std::vector<Mesh*>* AssetLoader::LoadModel(const std::wstring path)
 	const std::string filePath(path.begin(), path.end());
 	Assimp::Importer importer;
 
-	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
+	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded);
 
 	if (assimpScene == nullptr)
 	{
@@ -203,7 +201,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 		}
 		else
 		{
-			Log::PrintSeverity(Log::Severity::CRITICAL, "Mesh has no positions");
+			Log::PrintSeverity(Log::Severity::CRITICAL, "Mesh has no positions\n");
 		}
 
 		// Get Normals
@@ -215,7 +213,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 		}
 		else
 		{
-			Log::PrintSeverity(Log::Severity::CRITICAL, "Mesh has no normals");
+			Log::PrintSeverity(Log::Severity::CRITICAL, "Mesh has no normals\n");
 		}
 
 		if (assimpMesh->HasTangentsAndBitangents())
@@ -226,7 +224,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 		}
 		else
 		{
-			Log::PrintSeverity(Log::Severity::CRITICAL, "Mesh has no tangents");
+			Log::PrintSeverity(Log::Severity::CRITICAL, "Mesh has no tangents\n");
 		}
 		
 		
@@ -238,7 +236,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 		}
 		else
 		{
-			Log::PrintSeverity(Log::Severity::CRITICAL, "Mesh has no textureCoords");
+			Log::PrintSeverity(Log::Severity::CRITICAL, "Mesh has no textureCoords\n");
 		}
 
 		vertices.push_back(vTemp);
@@ -276,7 +274,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 	{
 		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
 		texture = processTexture(mat, type, &filePathWithoutTexture);
-		mesh->GetMaterial()->SetTexture(type, texture);
+		mesh->SetTexture(type, texture);
 	}
 	// ---------- Get Textures and set them to the m_pMesh END----------
 
@@ -288,8 +286,6 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 	// 	// if unsuccessful set a default
 	// 	shininess = 20.0f;
 	// }
-
-	mesh->GetMaterial()->SetShininess(shininess);
 
 	return mesh;
 }

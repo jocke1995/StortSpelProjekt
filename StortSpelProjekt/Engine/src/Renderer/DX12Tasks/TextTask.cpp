@@ -7,6 +7,7 @@
 #include "../CommandInterface.h"
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
+#include "../RenderTarget.h"
 #include "../Resource.h"
 #include "../PipelineState.h"
 
@@ -22,11 +23,17 @@ TextTask::~TextTask()
 {
 }
 
+void TextTask::SetTextComponents(std::vector<component::TextComponent*>* textComponents)
+{
+	m_TextComponents = *textComponents;
+}
+
 void TextTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
-	ID3D12Resource1* swapChainResource = m_RenderTargets["swapChain"]->GetResource(m_BackBufferIndex)->GetID3D12Resource1();
+	const RenderTarget* swapChainRenderTarget = m_pSwapChain->GetRenderTarget(m_BackBufferIndex);
+	ID3D12Resource1* swapChainResource = swapChainRenderTarget->GetResource()->GetID3D12Resource1();
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
@@ -56,9 +63,8 @@ void TextTask::Execute()
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
 	commandList->OMSetRenderTargets(1, &cdhSwapChain, true, nullptr);
 
-	const SwapChain* sc = static_cast<const SwapChain*>(m_RenderTargets["swapChain"]);
-	commandList->RSSetViewports(1, sc->GetRenderView()->GetViewPort());
-	commandList->RSSetScissorRects(1, sc->GetRenderView()->GetScissorRect());
+	commandList->RSSetViewports(1, swapChainRenderTarget->GetRenderView()->GetViewPort());
+	commandList->RSSetScissorRects(1, swapChainRenderTarget->GetRenderView()->GetScissorRect());
 
 	for (int i = 0; i < m_TextComponents.size(); i++)
 	{

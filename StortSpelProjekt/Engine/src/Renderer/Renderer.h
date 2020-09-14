@@ -14,16 +14,21 @@ class Window;
 // Renderer Engine
 class RootSignature;
 class SwapChain;
+class RenderTarget;
 class DepthStencilView;
 class ConstantBufferView;
-class MousePicker;
 class ViewPool;
 class BoundingBoxPool;
-class ShadowInfo;
 class DescriptorHeap;
+class Mesh;
 
 enum COMMAND_INTERFACE_TYPE;
 enum class DESCRIPTOR_HEAP_TYPE;
+
+// techniques
+class ShadowInfo;
+class MousePicker;
+class Bloom;
 
 // ECS
 class Scene;
@@ -90,8 +95,12 @@ private:
 	// CommandQueues
 	std::map<COMMAND_INTERFACE_TYPE, ID3D12CommandQueue*> m_CommandQueues;
 
+	// RenderTargets
 	// Swapchain (inheriting from 'RenderTarget')
 	SwapChain* m_pSwapChain = nullptr;
+	
+	// Bloom (includes rtv, uav and srv)
+	Bloom* m_pBloomResources = nullptr;
 
 	// Depthbuffer
 	DepthStencilView* m_pMainDSV = nullptr;
@@ -111,6 +120,8 @@ private:
 	// Since these tasks wont operate on all objects, they will not be set in the same map as the other "rendertasks".
 	WireframeRenderTask* m_pWireFrameTask = nullptr;
 	OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
+
+	Mesh* m_pFullScreenQuad = nullptr;
 
 	// Group of components that's needed for rendering:
 	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
@@ -143,14 +154,13 @@ private:
 	ID3D12Fence1* m_pFenceFrame = nullptr;
 	UINT64 m_FenceFrameValue = 0;
 
-
-
 	void setRenderTasksPrimaryCamera();
 	bool createDevice();
 	void createCommandQueues();
 	void createSwapChain(const HWND *hwnd);
 	void createMainDSV(const HWND* hwnd);
 	void createRootSignature();
+	void createFullScreenQuad();
 	void updateMousePicker();
 	void initRenderTasks();
 	void setRenderTasksRenderComponents();

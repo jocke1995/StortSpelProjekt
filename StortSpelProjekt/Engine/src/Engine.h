@@ -5,6 +5,7 @@
 #include "Misc/Window.h"
 #include "Misc/Timer.h"
 #include "Misc/ThreadPool.h"
+#include "Misc/Option.h"
 
 // Entity Component System
 #include "ECS/SceneManager.h"
@@ -15,18 +16,29 @@
 #include "ECS/Components/Lights/PointLightComponent.h"
 #include "ECS/Components/Lights/SpotLightComponent.h"
 #include "ECS/Components/CameraComponent.h"
+#include "ECS/Components/TextComponent.h"
 
 // Sub-engines
 #include "Renderer/Renderer.h"
 #include "Renderer/Text.h"
-#include "Renderer/Material.h"
 #include "Renderer/Transform.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/BaseCamera.h"
-// #include "physics"
-// #include "audio"
+#include "Physics/Physics.h"
+#include "AudioEngine/Audio.h"
+
+// Event-handling
+#include "Events/EventBus.h"
+
+// Network
+#include "Network/Network.h"
+
+// Network
+#include "Network/Network.h"
 
 #include "Misc/AssetLoader.h"
+
+#include "Input/Input.h"
 
 class Engine
 {
@@ -42,6 +54,8 @@ public:
 
 	Renderer* const GetRenderer() const;
 	SceneManager* const GetSceneHandler() const;
+	Physics* const GetPhysics() const;
+	AudioEngine* const GetAudioEngine() const;
 
 private:
 	Window* m_Window = nullptr;
@@ -50,6 +64,8 @@ private:
 
 	Renderer* m_Renderer = nullptr;
 	SceneManager* m_SceneManager = nullptr;
+	Physics* m_Physics = nullptr;
+	AudioEngine* m_pAudioEngine = nullptr;
 };
 
 #endif
