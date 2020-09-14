@@ -20,7 +20,6 @@ namespace component
 		if (!std::strcmp(m_pParent->GetName().c_str(), "player"))
 		{
 			EventBus::GetInstance().Subscribe(this, &TransformComponent::setMovement);
-			EventBus::GetInstance().Subscribe(this, &TransformComponent::setRotation);
 		}
 	}
 
