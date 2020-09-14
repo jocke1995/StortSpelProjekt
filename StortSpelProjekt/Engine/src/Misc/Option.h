@@ -16,7 +16,7 @@ public:
 	//Write all variables to option file
 	void WriteFile();
 
-	float GetVariable(std::string name);
+	float GetVariable(std::string name) const;
 	void SetVariable(std::string name, const float value);
 
 private:

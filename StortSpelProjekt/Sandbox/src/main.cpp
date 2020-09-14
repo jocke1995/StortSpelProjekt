@@ -16,6 +16,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     SceneManager* const sceneManager = engine.GetSceneHandler();
     Renderer* const renderer = engine.GetRenderer();
 
+    /*------ Load Option Variables ------*/
+    Option::GetInstance().ReadFile();
+
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
@@ -53,6 +56,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     object.sub();
     
 
+
+    //AUDIO EXAMPLE
+    Audio audio;
+    audio.OpenFile(engine.GetAudioEngine()->GetAudioEngine(), TEXT("../Vendor/Resources/Audio/bruh.wav"));
+    //Change this value to 0 = infinite, 1 = play once, 1+ = play multiple
+    audio.SetAudioLoop(1);
+    audio.PlayAudio();
 
 #pragma region CreateScene0
     // Create Scene

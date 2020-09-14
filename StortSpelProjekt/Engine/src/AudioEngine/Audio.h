@@ -26,6 +26,9 @@ public:
 	void PlayAudio();
 	void StopAudio();
 
+	//Set how many times audio should loop. 0 = "infinte"; 1 = "play once"; 1> = "play multiple"
+	void SetAudioLoop(int loopCount);
+
 private:
 	// Voices are audio channels that can be routed to and/or combined in IXAudio2SubmixVoice and IXAudio2MasteringVoice.
 	// Submix and Master voices mix the audio from all voices feeding into them and operate on the result.
