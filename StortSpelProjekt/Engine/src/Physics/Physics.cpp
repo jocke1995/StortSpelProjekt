@@ -42,7 +42,7 @@ void Physics::collisionChecks(double dt)
 {
 	m_timeSinceLastColCheck += dt;
 
-	if (m_timeSinceLastColCheck > m_collisionUpdateTime)
+	if (m_timeSinceLastColCheck > m_CollisionUpdateInterval)
 	{
 		// if there is 0 or only 1 object in our vector then we don't have to check collision
 		if (m_CollisionEntities.size() > 1)

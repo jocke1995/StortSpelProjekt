@@ -1,6 +1,7 @@
 #pragma once
 #include "../Input/Input.h"
 
+class Entity;
 class Event
 {
 public:

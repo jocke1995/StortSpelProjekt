@@ -23,7 +23,7 @@ public:
 private:
 	double m_timeSinceLastColCheck = 0;
 	// How often the collisions are checked
-	const double m_collisionUpdateTime = 0.2;
+	const double m_CollisionUpdateInterval = 0.2;
 	// Vector containing all objects collision will be checked for
 	std::vector<Entity*> m_CollisionEntities;
 
