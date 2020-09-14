@@ -10,7 +10,6 @@
 #include "../SwapChain.h"
 #include "../Resource.h"
 #include "../PipelineState.h"
-#include "../Material.h"
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/BaseCamera.h"
@@ -100,8 +99,7 @@ void BlendRenderTask::Execute()
 				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed , *info };
 
 				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
-				commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_OBJECT_CBV, m->GetMaterial()->GetConstantBufferView()->GetCBVResource()->GetGPUVirtualAdress());
-
+				
 				commandList->IASetIndexBuffer(mc->GetMesh(j)->GetIndexBufferView());
 				// Draw each object twice with different PSO 
 				for (int k = 0; k < 2; k++)

@@ -63,6 +63,11 @@ SceneManager* const Engine::GetSceneHandler() const
 	return m_SceneManager;
 }
 
+Physics* const Engine::GetPhysics() const
+{
+	return m_Physics;
+}
+
 AudioEngine* const Engine::GetAudioEngine() const
 {
 	return m_pAudioEngine;

@@ -34,7 +34,7 @@ enum class SCAN_CODES
 	A_RING = 0x11a,
 	DIAERESIS = 0x11b,
 	ENTER = 0x11c,
-	CTRL = 0x11d,
+	LEFT_CTRL = 0x11d,
 	A = 0x11e,
 	S = 0x11f,
 	D = 0x120,
@@ -90,12 +90,12 @@ enum class SCAN_CODES
 	KEYPAD_0 = 0x152,
 	KEYPAD_PERIOD = 0x153,
 
-
 	CHEVRON = 0x156,
 	F11 = 0x157,
 	F12 = 0x158,
 
 	KEYPAD_ENTER = 0x21c,
+	RIGHT_CTRL = 0x21d,
 	KEYPAD_DIVISION = 0x235,
 	PRINT_SCREEN = 0x237,
 	ALT_GR = 0x238,
@@ -174,37 +174,17 @@ public:
 	/// <returns>true if key is pressed, false if key is not pressed</returns>
 	bool GetKeyState(SCAN_CODES key);
 	/// <summary>
-	/// Get the state of whether a key has just been pressed.
-	/// </summary>
-	/// <param name="key">: The scan code of the key</param>
-	/// <returns>true if the key has just been pressed, false if it has not</returns>
-	bool GetJustPressed(SCAN_CODES key);
-	/// <summary>
 	/// Get the state of a mouse button.
 	/// </summary>
 	/// <param name="button">: The scan code of the button</param>
 	/// <returns>true if button is pressed, false if button is not pressed</returns>
 	bool GetMouseButtonState(MOUSE_BUTTON button);
-	/// <summary>
-	/// Get the state of the scroll wheel.
-	/// </summary>
-	/// <returns>1 if the wheel has just been scrolled forward, -1 if it has just been scrolled backwards and 0 if it has not just been scrolled</returns>
-	int GetMouseScroll();
-	/// <summary>
-	/// Get the position of the mouse cursor relative to the center of the window.
-	/// </summary>
-	/// <returns>a pair of integers representing the position of the mouse cursor</returns>
-	std::pair<int, int> GetMouseMovement();
 
 private:
 	Input();
 
 	std::unordered_map<SCAN_CODES, bool> m_KeyState;
-	std::unordered_map<SCAN_CODES, bool> m_JustPressed;
 	std::unordered_map<MOUSE_BUTTON, bool> m_MouseButtonState;
-	int m_Scroll;
-
-	std::pair<int, int> m_MouseMovement;
 };
 
 #endif // !INPUT_H

@@ -16,6 +16,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	Renderer* const renderer = engine.GetRenderer();
     //AudioEngine* const audioEngine = engine.GetAudioEngine();
 
+    /*------ Load Option Variables ------*/
+    Option::GetInstance().ReadFile();
+
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
@@ -23,10 +26,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     // the function will just return the same pointer to the model that was loaded earlier.
 
     std::vector<Mesh*>* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    std::vector<Mesh*>* panelModel = al->LoadModel(L"../Vendor/Resources/Models/Panel/panel.obj");
     std::vector<Mesh*>* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
-    std::vector<Mesh*>* cubeModel  = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    std::vector<Mesh*>* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    std::vector<Mesh*>* testModel = al->LoadModel(L"../Vendor/Resources/Models/test/dboy/D-boy2.obj");
     std::vector<Mesh*>* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     std::vector<Mesh*>* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
+    
 
     Audio* testAudio = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"Melody");
     Audio* DABADABA = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"Music");
@@ -34,7 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 #pragma region CreateScene0
     // Create Scene
     Scene* scene = sceneManager->CreateScene("scene0");
-    
+
     // Add Entity to Scene
     scene->AddEntity("player");
     scene->AddEntity("floor");
@@ -46,36 +52,37 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     scene->AddEntity("spotLight");
     scene->AddEntity("spotLight2");
 
+
     // Add Components to Entities
     Entity* entity;
 
     entity = scene->GetEntity("player");
-    component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(hInstance, *window->GetHwnd(), true);
+    component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     entity->AddComponent<component::VoiceComponent>();
 
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
 
     entity = scene->GetEntity("box");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
 
     entity = scene->GetEntity("stone");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
 
     entity = scene->GetEntity("transparentTestObject");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
 
     entity = scene->GetEntity("Dragon");
     entity->AddComponent<component::MeshComponent>();
@@ -87,23 +94,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity = scene->GetEntity("spotLight");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
     entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
 
     // Set the m_Components
 
     component::MeshComponent* mc = scene->GetEntity("player")->GetComponent<component::MeshComponent>();
     mc->SetMeshes(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
-    mc->GetMesh(0)->GetMaterial()->SetShininess(300);
-
     component::TransformComponent* tc = scene->GetEntity("player")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(
-        cc->GetCamera()->GetPositionFloat3().x + cc->GetCamera()->GetDirection().x,
-        cc->GetCamera()->GetPositionFloat3().y + cc->GetCamera()->GetDirection().y - 1,
-        cc->GetCamera()->GetPositionFloat3().z + cc->GetCamera()->GetDirection().z
-    );
+    tc->GetTransform()->SetPosition(0, 1, 0);
     scene->GetEntity("player")->GetComponent<component::BoundingBoxComponent>()->Init();
 
     // audio component
@@ -122,8 +124,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc = scene->GetEntity("floor")->GetComponent<component::MeshComponent>();
     mc->SetMeshes(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
-    mc->GetMesh(0)->GetMaterial()->SetShininess(300);
-    mc->GetMesh(0)->GetMaterial()->SetUVScale(2.0f, 2.0f);
     tc = scene->GetEntity("floor")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(20, 1, 20);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
@@ -140,15 +140,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc = scene->GetEntity("stone")->GetComponent<component::MeshComponent>();
     mc->SetMeshes(stoneModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
-    mc->GetMesh(0)->GetMaterial()->SetShininess(300);
-    mc->GetMesh(0)->GetMaterial()->SetColorMul(COLOR_TYPE::LIGHT_SPECULAR, { 0.4f, 0.4f, 0.4f, 1.0f });
     tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(0.01f);
     tc->GetTransform()->SetPosition(-8.0f, 0.0f, 0.0f);
     scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->Init();
 
     mc = scene->GetEntity("transparentTestObject")->GetComponent<component::MeshComponent>();
-    mc->SetMeshes(floorModel);
+    mc->SetMeshes(panelModel);
     mc->SetDrawFlag(FLAG_DRAW::Blend);
 
     mc = scene->GetEntity("Dragon")->GetComponent<component::MeshComponent>();
@@ -159,12 +157,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     tc->GetTransform()->RotateX(3.1415f / 2);
 
     Texture* ambientDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_ambient.png");
-    Texture* normalDefault  = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_normal.png");
-    mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::AMBIENT , ambientDefault);
-    mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::DIFFUSE , ambientDefault);
-    mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::SPECULAR, ambientDefault);
-    mc->GetMesh(0)->GetMaterial()->SetTexture(TEXTURE_TYPE::NORMAL  , normalDefault);
-    
+    Texture* normalDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_normal.png");
+
+
+    mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::AMBIENT, ambientDefault);
+    mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::DIFFUSE, ambientDefault);
+    mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::SPECULAR, ambientDefault);
+    mc->GetMesh(0)->SetTexture(TEXTURE_TYPE::NORMAL, normalDefault);
+
     tc = scene->GetEntity("transparentTestObject")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(5.0f);
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 1.0f);
@@ -173,7 +173,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     entity = scene->GetEntity("transparentTestObject");
     entity->GetComponent<component::BoundingBoxComponent>()->Init();
-    
+
     component::DirectionalLightComponent* dl = scene->GetEntity("directionalLight")->GetComponent<component::DirectionalLightComponent>();
     dl->SetDirection({ -1.0f, -1.0f, -1.0f });
     dl->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.05f, 0.05f, 1.0f });
@@ -201,8 +201,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 #pragma endregion CreateScene0
 
-	char sceneName[10] = "scene0";
-	sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
+    char sceneName[10] = "scene0";
+    sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
 
 
     // AUDIO TESTING, two sounds loaded into player entity, space stops first sound and plays other (also works to play simultaneously)
@@ -213,34 +213,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     while (!window->ExitWindow())
     {
         // ONLY HERE FOR TESTING
-		if (window->WasTabPressed())
-		{
-			// Test to change scene during runtime
-			//static int sceneSwapper = 1;
-			//sceneSwapper %= 2;
-			//sprintf(sceneName, "scene%d", sceneSwapper);
-			//Log::Print("Scene: %s\n", sceneName);
-			//sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
-			//sceneSwapper++;
+        if (window->WasTabPressed())
+        {
+            // Test to change scene during runtime
+            //static int sceneSwapper = 1;
+            //sceneSwapper %= 2;
+            //sprintf(sceneName, "scene%d", sceneSwapper);
+            //Log::Print("Scene: %s\n", sceneName);
+            //sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
+            //sceneSwapper++;
 
             // Test to remove picked object
             /*Entity* pickedEnt = renderer->GetPickedEntity();
             if (pickedEnt != nullptr)
             {
-				sceneManager->RemoveEntity(pickedEnt);
-				scene->RemoveEntity(pickedEnt->GetName());
+                sceneManager->RemoveEntity(pickedEnt);
+                scene->RemoveEntity(pickedEnt->GetName());
             }*/
 		}
 
 		if (window->WasSpacePressed())
 		{
-        }
-
-        if (Input::GetInstance().GetJustPressed(SCAN_CODES::SPACE))
-        {
-            vc->PlayVoice(L"Melody");
-//            test->PlayAudio("melody");
-//            test->StopAudio("horse");
         }
 
         //test->PlayAudio("testAudio");

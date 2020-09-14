@@ -3,8 +3,8 @@
 
 #include "Resource.h"
 #include "ShaderResourceView.h"
-#include "Material.h"
 #include "DescriptorHeap.h"
+#include "Texture.h"
 
 Mesh::Mesh(	ID3D12Device5* device,
 			std::vector<Vertex> vertices,
@@ -44,58 +44,24 @@ Mesh::Mesh(	ID3D12Device5* device,
 
 	m_pSlotInfo = new SlotInfo();
 	m_pSlotInfo->vertexDataIndex = m_pSRV->GetDescriptorHeapIndex();
-	m_pMaterial = new Material(m_pSlotInfo);
-}
-
-Mesh::Mesh(const Mesh* other)
-{
-	m_IsCopied = true;
-
-	// TODO: use the same vertices instead of copy
-	m_Vertices = other->m_Vertices;
-	m_Indices = other->m_Indices;
-	m_Path = other->m_Path;
-
-	m_pSlotInfo = new SlotInfo();
-	m_pSlotInfo->vertexDataIndex = other->m_pSlotInfo->vertexDataIndex;
-
-	// Set material properties
-	Material* mat = other->GetMaterial();
-	m_pMaterial = new Material(mat, m_pSlotInfo);
-	for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
-	{
-		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-		m_pMaterial->SetTexture(type, mat->GetTexture(type));
-	}
-
-	m_pUploadResourceVertices = other->m_pUploadResourceVertices;
-	m_pDefaultResourceVertices = other->m_pDefaultResourceVertices;
-
-	m_pUploadResourceIndices = other->m_pUploadResourceIndices;
-	m_pDefaultResourceIndices = other->m_pDefaultResourceIndices;
-
-	m_pIndexBufferView = other->m_pIndexBufferView;
-
-	m_pSRV = other->m_pSRV;
 }
 
 Mesh::~Mesh()
 {
+	delete m_pUploadResourceVertices;
+
+	delete m_pDefaultResourceVertices;
+
+	// Set indices
+	delete m_pUploadResourceIndices;
+	delete m_pDefaultResourceIndices;
+
+	delete m_pSRV;
+	delete m_pIndexBufferView;
+
 	delete m_pSlotInfo;
-	delete m_pMaterial;
-
-	if (m_IsCopied == false)
-	{
-		delete m_pUploadResourceVertices;
-		delete m_pDefaultResourceVertices;
-
-		delete m_pUploadResourceIndices;
-		delete m_pDefaultResourceIndices;
-
-		delete m_pSRV;
-		delete m_pIndexBufferView;
-	}
 }
+
 
 Resource* Mesh::GetDefaultResourceVertices() const
 {
@@ -152,9 +118,33 @@ std::string Mesh::GetPath()
 	return m_Path;
 }
 
-Material* Mesh::GetMaterial() const
+void Mesh::SetTexture(TEXTURE_TYPE type, Texture* texture)
 {
-	return m_pMaterial;
+	m_Textures[type] = texture;
+
+	switch (type)
+	{
+	case TEXTURE_TYPE::AMBIENT:
+		m_pSlotInfo->textureAmbient = texture->GetDescriptorHeapIndex();
+		break;
+	case TEXTURE_TYPE::DIFFUSE:
+		m_pSlotInfo->textureDiffuse = texture->GetDescriptorHeapIndex();
+		break;
+	case TEXTURE_TYPE::SPECULAR:
+		m_pSlotInfo->textureSpecular = texture->GetDescriptorHeapIndex();
+		break;
+	case TEXTURE_TYPE::NORMAL:
+		m_pSlotInfo->textureNormal = texture->GetDescriptorHeapIndex();
+		break;
+	case TEXTURE_TYPE::EMISSIVE:
+		m_pSlotInfo->textureEmissive = texture->GetDescriptorHeapIndex();
+		break;
+	}
+}
+
+Texture* Mesh::GetTexture(TEXTURE_TYPE type)
+{
+	return m_Textures[type];
 }
 
 void Mesh::createIndexBufferView()
