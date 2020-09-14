@@ -40,12 +40,9 @@ void TextTask::Execute()
 
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
 	DescriptorHeap* renderTargetHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
-	DescriptorHeap* descriptorHeap_DSV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 	ID3D12DescriptorHeap* d3d12DescriptorHeap = descriptorHeap_CBV_UAV_SRV->GetID3D12DescriptorHeap();
 
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
-
-	commandList->ClearDepthStencilView(descriptorHeap_DSV->GetCPUHeapAt(0), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	// set the text pipeline state object
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
@@ -63,7 +60,7 @@ void TextTask::Execute()
 		D3D12_RESOURCE_STATE_RENDER_TARGET));
   
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
-	commandList->OMSetRenderTargets(1, &cdhSwapChain, true, &descriptorHeap_DSV->GetCPUHeapAt(0));
+	commandList->OMSetRenderTargets(1, &cdhSwapChain, true, nullptr);
 
 	const SwapChain* sc = static_cast<const SwapChain*>(m_RenderTargets["swapChain"]);
 	commandList->RSSetViewports(1, sc->GetRenderView()->GetViewPort());

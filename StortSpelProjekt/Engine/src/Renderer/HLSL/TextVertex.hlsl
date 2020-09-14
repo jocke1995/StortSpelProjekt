@@ -18,7 +18,7 @@ ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
 
 StructuredBuffer<vertex> meshes[] : register(t0);
 
-VS_OUT VS_main(uint vID : SV_VertexID)
+VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
 {
 	VS_OUT output;
 
@@ -29,7 +29,7 @@ VS_OUT VS_main(uint vID : SV_VertexID)
 	float2 uv = float2(vID & 1, (vID >> 1) & 1);
 
 	// set the position for the vertex based on which vertex it is (uv)
-	vertex mesh = meshes[cbPerObject.info.vertexDataIndex][vID];
+	vertex mesh = meshes[cbPerObject.info.vertexDataIndex][iID];
 	output.pos = float4(mesh.pos.x + (mesh.pos.z * uv.x), mesh.pos.y - (mesh.pos.w * uv.y), 0, 1);
 	output.color = mesh.color;
 

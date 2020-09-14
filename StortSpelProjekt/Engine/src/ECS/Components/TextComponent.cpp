@@ -16,6 +16,7 @@ namespace component
 
 	TextComponent::~TextComponent()
 	{
+		Log::Print("inside textComponent Destructor\n");
 	}
 
 	std::vector<TextData>* const TextComponent::GetTextDataVec()
@@ -44,8 +45,7 @@ namespace component
 
 	void TextComponent::SetText(std::string text, int pos)
 	{
-		std::wstring wtext = std::wstring(text.begin(), text.end());
-		m_TextDataVec.at(pos).text = wtext;
+		m_TextDataVec.at(pos).text = to_wstring(text);
 	}
 
 	void TextComponent::SetPos(float2 textPos, int pos)

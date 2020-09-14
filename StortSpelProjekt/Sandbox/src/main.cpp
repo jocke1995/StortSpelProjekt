@@ -25,7 +25,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* cubeModel  = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
 	// Load fonts
-	std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
+	std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Javanese.fnt");
 
 #pragma region CreateScene0
     // Create Scene
@@ -259,10 +259,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		if (i < 1)
 		{
 			//Text test ---------------------------------------
-			std::string textToRender = "T";
+			std::string textToRender = "test1337";
+            std::string textToRender2 = "Daedalus maze 2";
 			float2 textPos = { 0.02f + i * 0.15f, 0.01f };
 			float2 textPadding = { 0.5f, 0.0f };
-			float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
 			float2 textScale = { 2.0f, 2.0f };
 			char text[10];
 			static int textCounter = 0;
@@ -277,6 +278,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			textComp->SetPos(textPos, 0);
 			textComp->SetScale(textScale, 0);
 			textComp->SetText(textToRender, 0);
+
+            textComp->AddText();
+            textComp->SetColor(textColor, 1);
+            textComp->SetFont(arialFont);
+            textComp->SetPadding(textPadding, 1);
+            textComp->SetPos({ 0.02f + i * 0.15f, 0.1f }, 1);
+            textComp->SetScale(textScale, 1);
+            textComp->SetText(textToRender2, 1);
 			sceneManager->AddEntity(entity);
 			//--------------------------------------------
 			i++;
