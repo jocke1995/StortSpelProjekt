@@ -67,7 +67,7 @@ inline void EventBus::Subscribe(T* classInstance, void(T::* memberFunction)(Even
 	}
 
 	HandlerFunctionBase* memberFunction = new MemberFunctionHandler<T, EventType>(classInstance, memberFunction)
-	//Push handler into list of handlers
+	//Push function into list of handlers
 	handlers->push_back(memberFunction);
 }
 

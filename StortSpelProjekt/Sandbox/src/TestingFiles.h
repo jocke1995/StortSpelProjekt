@@ -4,7 +4,7 @@
 class TestingFiles
 {
 private:
-	void TestFunction(MovementInput* evnt);
+	void TestFunction(TestEvent* evnt);
 public:
 	TestingFiles();
 	~TestingFiles();

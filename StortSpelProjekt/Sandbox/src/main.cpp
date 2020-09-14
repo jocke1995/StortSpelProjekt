@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "TestingFiles.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -29,6 +30,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     std::vector<Mesh*>* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
     
+    TestingFiles object;
+    EventBus::GetInstance().Publish(&TestEvent(1));
 
 #pragma region CreateScene0
     // Create Scene
