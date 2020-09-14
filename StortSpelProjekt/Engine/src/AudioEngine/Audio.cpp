@@ -205,5 +205,5 @@ void Audio::StopAudio()
 
 Voice Audio::CloneVoice()
 {
-    return Voice(&m_Buffer,&m_Wfx);
+    return Voice(*this);
 }

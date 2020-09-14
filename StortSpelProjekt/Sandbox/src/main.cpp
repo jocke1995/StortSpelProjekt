@@ -28,8 +28,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     std::vector<Mesh*>* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
 
-    Audio* testAudio = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav");
-    Audio* DABADABA = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav");
+    Audio* testAudio = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"Melody");
+    Audio* DABADABA = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"Music");
 
 #pragma region CreateScene0
     // Create Scene
@@ -54,7 +54,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>(true);
-    //entity->AddComponent<component::AudioComponent>();
+
     entity->AddComponent<component::VoiceComponent>();
 
     entity = scene->GetEntity("floor");
@@ -114,8 +114,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //ac->AddAudio("melody", "../Vendor/Resources/Audio/melody.wav");
 
     component::VoiceComponent* vc = scene->GetEntity("player")->GetComponent<component::VoiceComponent>();
-    vc->AddVoice(&DABADABA->CloneVoice());
-    vc->AddVoice(&DABADABA->CloneVoice());
+    vc->AddVoice(L"Melody");
+    vc->AddVoice(L"Melody");
 
     //ac->AddAudio("testAudio", testAudio);
 
@@ -208,7 +208,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     // AUDIO TESTING, two sounds loaded into player entity, space stops first sound and plays other (also works to play simultaneously)
     //component::AudioComponent* test = scene->GetEntity("player")->GetComponent<component::AudioComponent>();
     //test->PlayAudio();
-    vc->PlayVoice();
+    vc->PlayVoice(L"Melody");
 
     while (!window->ExitWindow())
     {
@@ -238,7 +238,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         if (Input::GetInstance().GetJustPressed(SCAN_CODES::SPACE))
         {
-            vc->PlayVoice(1);
+            vc->PlayVoice(L"Melody");
 //            test->PlayAudio("melody");
 //            test->StopAudio("horse");
         }

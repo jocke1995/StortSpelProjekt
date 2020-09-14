@@ -28,8 +28,15 @@ public:
 	// Simple playback functions that will be extended in the future
 	void PlayAudio();
 	void StopAudio();
+
+	/// <summary>
+	/// Creates a voice object which may play the loaded audio.
+	/// </summary>
 	Voice CloneVoice();
+
+
 private:
+	friend class Voice;
 	// Voices are audio channels that can be routed to and/or combined in IXAudio2SubmixVoice and IXAudio2MasteringVoice.
 	// Submix and Master voices mix the audio from all voices feeding into them and operate on the result.
 	IXAudio2SourceVoice* m_pSourceVoice;

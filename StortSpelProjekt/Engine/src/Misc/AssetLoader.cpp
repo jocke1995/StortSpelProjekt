@@ -107,15 +107,20 @@ Texture* AssetLoader::LoadTexture(std::wstring path)
 	return texture;
 }
 
-Audio* AssetLoader::LoadAudio(std::wstring path)
+Audio* AssetLoader::LoadAudio(const std::wstring& path, const std::wstring& name)
 {
-	if (m_LoadedAudios.count(path) != 0)
+	if (m_LoadedAudios.count(name) != 0)
 	{
-		return &m_LoadedAudios[path];
+		return &m_LoadedAudios[name];
 	}
 
-	m_LoadedAudios.emplace(path, path);
-	return &m_LoadedAudios[path];
+	m_LoadedAudios.emplace(name, path);
+	return &m_LoadedAudios[name];
+}
+
+Audio* AssetLoader::GetAudio(const std::wstring& name)
+{
+	return &m_LoadedAudios[name];
 }
 
 Shader* AssetLoader::loadShader(std::wstring fileName, ShaderType type)

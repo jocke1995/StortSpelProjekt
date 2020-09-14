@@ -28,7 +28,8 @@ public:
     Texture* LoadTexture(std::wstring path);
 
     // Load Audio
-    Audio* LoadAudio(std::wstring path);
+    Audio* LoadAudio(const std::wstring& path, const std::wstring& name);
+    Audio* GetAudio(const std::wstring& name);
     // ??
 
 private:
