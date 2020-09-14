@@ -2,7 +2,7 @@
 #define ASSETLOADER_H
 
 #include "Core.h"
-
+#include "../AudioEngine/Audio.h"
 class DescriptorHeap;
 class Mesh;
 class Shader;
@@ -28,6 +28,7 @@ public:
     Texture* LoadTexture(std::wstring path);
 
     // Load Audio
+    Audio* LoadAudio(std::wstring path);
     // ??
 
 private:
@@ -51,6 +52,7 @@ private:
     std::map<std::wstring, std::pair<bool, std::vector<Mesh*>*>> m_LoadedModels;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
     std::map<std::wstring, Shader*> m_LoadedShaders;
+    std::map < std::wstring, Audio> m_LoadedAudios;
 
     // Audio
     // add map for audio (path, AudioObject)

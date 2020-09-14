@@ -7,7 +7,7 @@ class Entity;
 class AudioEngine
 {
 public:
-	AudioEngine();
+	static AudioEngine& GetInstance();
 	~AudioEngine();
 
 	IXAudio2* GetAudioEngine();
@@ -25,6 +25,7 @@ public:
 	void StopAudio(std::string handle);
 
 private:
+	AudioEngine();
 	// The "engine" interface for XAudio2 
 	IXAudio2* m_pXAudio2;
 	// Voice that represents the audio output device, this is where all other voices will are routed to be heard.

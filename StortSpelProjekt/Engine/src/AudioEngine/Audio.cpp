@@ -9,9 +9,18 @@ Audio::Audio()
     m_Hr = NULL;
 }
 
+Audio::Audio(const std::wstring& path)
+{
+    m_pSourceVoice = nullptr;
+    m_Wfx = { 0 };
+    m_Buffer = { 0 };
+    m_Hr = NULL;
+
+    OpenFile(AudioEngine::GetInstance().GetAudioEngine(), path);
+}
+
 Audio::~Audio()
 {
-    m_pSourceVoice->DestroyVoice();
     delete m_Buffer.pAudioData;
 }
 
@@ -98,13 +107,13 @@ HRESULT Audio::readChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD
     return hr;
 }
 
-void Audio::OpenFile(IXAudio2* pXAudio2, std::string path)
+void Audio::OpenFile(IXAudio2* pXAudio2, std::wstring path)
 {
-    std::wstring strFileName = to_wstring(path);
+    //std::wstring strFileName = to_wstring(path);
 
     // Open the file
     HANDLE hFile = CreateFile(
-        strFileName.c_str(),
+        path.c_str(),
         GENERIC_READ,
         FILE_SHARE_READ,
         NULL,
@@ -192,4 +201,9 @@ void Audio::StopAudio()
     // reset the buffer so the sound starts from the beginning at next playback
     m_pSourceVoice->FlushSourceBuffers();
     m_pSourceVoice->SubmitSourceBuffer(&m_Buffer);
+}
+
+Voice Audio::CloneVoice()
+{
+    return Voice(&m_Buffer,&m_Wfx);
 }

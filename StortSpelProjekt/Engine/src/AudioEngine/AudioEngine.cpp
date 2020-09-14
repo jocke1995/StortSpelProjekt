@@ -21,6 +21,12 @@ AudioEngine::AudioEngine()
 	}
 }
 
+AudioEngine& AudioEngine::GetInstance()
+{
+	static AudioEngine instance;
+	return instance;
+}
+
 AudioEngine::~AudioEngine()
 {
 	m_pMasterVoice->DestroyVoice();
@@ -34,33 +40,33 @@ IXAudio2* AudioEngine::GetAudioEngine()
 
 void AudioEngine::LoadAudioFiles(Entity* entity)
 {
-	// look for entities that have audiocomponents
-	component::AudioComponent* audioComp = entity->GetComponent<component::AudioComponent>();
-	if (audioComp != nullptr)
-	{
-		// get handles of all audio files attached to component
-		std::vector<std::string>* handles = audioComp->GetAudioHandles();
-
-		// for all individual audio files, create a new Audio object and load the files
-		std::string handle;
-		std::string path;
-		for (int i = 0; i < handles->size(); i++)
-		{
-			handle = handles->at(i);
-			path = m_audioBank[handle];
-			m_pAudio = new Audio();
-			m_pAudio->OpenFile(m_pXAudio2, path);
-			m_LoadedAudioFiles.insert(std::make_pair(handle, m_pAudio));
-		}
-
-		// test to load one audio file
-		//std::string handle = handles->at(0);
-		//std::string path = m_audioBank[handle];
-
-		//testAudio->OpenFile(m_pXAudio2, path);
-
-	}
-	// if have audiocomponent -> look up audiohandle -> find its path in the AudioBank and load this file
+	//// look for entities that have audiocomponents
+	//component::AudioComponent* audioComp = entity->GetComponent<component::AudioComponent>();
+	//if (audioComp != nullptr)
+	//{
+	//	// get handles of all audio files attached to component
+	//	std::vector<std::string>* handles = audioComp->GetAudioHandles();
+	//
+	//	// for all individual audio files, create a new Audio object and load the files
+	//	std::string handle;
+	//	std::string path;
+	//	for (int i = 0; i < handles->size(); i++)
+	//	{
+	//		handle = handles->at(i);
+	//		path = m_audioBank[handle];
+	//		m_pAudio = new Audio();
+	//		m_pAudio->OpenFile(m_pXAudio2, path);
+	//		m_LoadedAudioFiles.insert(std::make_pair(handle, m_pAudio));
+	//	}
+	//
+	//	// test to load one audio file
+	//	//std::string handle = handles->at(0);
+	//	//std::string path = m_audioBank[handle];
+	//
+	//	//testAudio->OpenFile(m_pXAudio2, path);
+	//
+	//}
+	//// if have audiocomponent -> look up audiohandle -> find its path in the AudioBank and load this file
 }
 
 void AudioEngine::AddAudioBank(std::string handle, std::string path)

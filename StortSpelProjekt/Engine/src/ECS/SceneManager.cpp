@@ -31,9 +31,6 @@
 #include "../ECS/Components/Lights/SpotLightComponent.h"
 #include "../ECS/Entity.h"
 
-// Audio
-#include "../AudioEngine/AudioEngine.h"
-
 SceneManager::SceneManager(Renderer* r, AudioEngine* audioEngine)
 {
 	m_pRenderer = r;
@@ -113,7 +110,7 @@ void SceneManager::SetSceneToDraw(Scene* scene)
 
 		// Add sound component
 		// load sound files that are to be used in scene
-		m_pAudioEngine->LoadAudioFiles(entity);
+		// m_pAudioEngine->LoadAudioFiles(entity);
 
 		// Add game component
 

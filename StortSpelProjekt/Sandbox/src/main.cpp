@@ -14,7 +14,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	ThreadPool* const threadPool = engine.GetThreadPool();
 	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
-    AudioEngine* const audioEngine = engine.GetAudioEngine();
+    //AudioEngine* const audioEngine = engine.GetAudioEngine();
 
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
@@ -28,7 +28,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     std::vector<Mesh*>* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
 
-    //Audio* testAudio = al->LoadAudio(path);
+    Audio* testAudio = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav");
+    Audio* DABADABA = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav");
 
 #pragma region CreateScene0
     // Create Scene
@@ -53,7 +54,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>(true);
-    entity->AddComponent<component::AudioComponent>(audioEngine);
+    //entity->AddComponent<component::AudioComponent>();
+    entity->AddComponent<component::VoiceComponent>();
 
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::MeshComponent>();
@@ -94,6 +96,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     mc->SetMeshes(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
     mc->GetMesh(0)->GetMaterial()->SetShininess(300);
+
     component::TransformComponent* tc = scene->GetEntity("player")->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(
@@ -104,9 +107,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     scene->GetEntity("player")->GetComponent<component::BoundingBoxComponent>()->Init();
 
     // audio component
-    component::AudioComponent* ac = scene->GetEntity("player")->GetComponent<component::AudioComponent>();
-    ac->AddAudio("horse", "../Vendor/Resources/Audio/AGameWithNoName.wav");
-    ac->AddAudio("melody", "../Vendor/Resources/Audio/melody.wav");
+    //component::AudioComponent* ac = scene->GetEntity("player")->GetComponent<component::AudioComponent>();
+    //ac->AddAudio(testAudio);
+    //ac->AddAudio(DABADABA);
+    //ac->AddAudio("horse", "../Vendor/Resources/Audio/AGameWithNoName.wav");
+    //ac->AddAudio("melody", "../Vendor/Resources/Audio/melody.wav");
+
+    component::VoiceComponent* vc = scene->GetEntity("player")->GetComponent<component::VoiceComponent>();
+    vc->AddVoice(&DABADABA->CloneVoice());
+    vc->AddVoice(&DABADABA->CloneVoice());
 
     //ac->AddAudio("testAudio", testAudio);
 
@@ -197,8 +206,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 
     // AUDIO TESTING, two sounds loaded into player entity, space stops first sound and plays other (also works to play simultaneously)
-    component::AudioComponent* test = scene->GetEntity("player")->GetComponent<component::AudioComponent>();
-    test->PlayAudio("horse");
+    //component::AudioComponent* test = scene->GetEntity("player")->GetComponent<component::AudioComponent>();
+    //test->PlayAudio();
+    vc->PlayVoice();
 
     while (!window->ExitWindow())
     {
@@ -228,8 +238,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         if (Input::GetInstance().GetJustPressed(SCAN_CODES::SPACE))
         {
-            test->PlayAudio("melody");
-            test->StopAudio("horse");
+            vc->PlayVoice(1);
+//            test->PlayAudio("melody");
+//            test->StopAudio("horse");
         }
 
         //test->PlayAudio("testAudio");

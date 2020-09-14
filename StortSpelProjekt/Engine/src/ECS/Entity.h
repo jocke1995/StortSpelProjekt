@@ -7,6 +7,7 @@
 #include "Components/BoundingBoxComponent.h"
 // Audio
 #include "Components/AudioComponent.h"
+#include "Components/VoiceComponent.h"
 
 // Lights
 class DirectionalLightComponent;

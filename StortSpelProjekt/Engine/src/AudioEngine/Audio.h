@@ -13,20 +13,22 @@
 #define fourccWAVE 'EVAW'
 #define fourccXWMA 'AMWX'
 #define fourccDPDS 'sdpd'
+#include "Voice.h"
 
 class Audio
 {
 public:
 	Audio();
+	Audio(const std::wstring& path);
 	~Audio();
 
 	//void OpenFile(IXAudio2* pXAudio2, const TCHAR* path);
-	void OpenFile(IXAudio2* pXAudio2, std::string path);
+	void OpenFile(IXAudio2* pXAudio2, std::wstring path);
 
 	// Simple playback functions that will be extended in the future
 	void PlayAudio();
 	void StopAudio();
-
+	Voice CloneVoice();
 private:
 	// Voices are audio channels that can be routed to and/or combined in IXAudio2SubmixVoice and IXAudio2MasteringVoice.
 	// Submix and Master voices mix the audio from all voices feeding into them and operate on the result.

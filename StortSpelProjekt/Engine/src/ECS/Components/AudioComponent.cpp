@@ -1,15 +1,17 @@
 #include "stdafx.h"
 #include "AudioComponent.h"
-#include "../AudioEngine/AudioEngine.h"
+//#include "../AudioEngine/AudioEngine.h"
+#include "../AudioEngine/Audio.h"
+#include "VoiceComponent.h"
 
-
-component::AudioComponent::AudioComponent(Entity* parent, AudioEngine* audioEngine)
+component::AudioComponent::AudioComponent(Entity* parent)
 	:Component(parent)
 {
 	//m_pAudio = new Audio();
 	//m_pAudio->OpenFile();
 	//PlayAudio();
-	m_pAudioEngine = audioEngine;
+	
+	//m_pAudioEngine = &AudioEngine::GetInstance();
 }
 
 component::AudioComponent::~AudioComponent()
@@ -22,31 +24,46 @@ void component::AudioComponent::Update(double dt)
 	// may later be used to update positions of sounds?	
 }
 
-void component::AudioComponent::AddAudio(std::string handle, std::string path)
+//void component::AudioComponent::AddAudio(std::string handle, std::string path)
+//{
+//	// send handle and path to the audioEngine
+//	m_pAudioEngine->AddAudioBank(handle, path);
+//
+//
+//
+//
+//
+//
+//	// save handle in vector so that we can have multiple sounds attached
+//	m_HandleBank.push_back(handle);
+//}
+
+void component::AudioComponent::AddAudio(Audio* audio)
 {
-	// send handle and path to the audioEngine
-	m_pAudioEngine->AddAudioBank(handle, path);
-
-
-
-
-
-
-	// save handle in vector so that we can have multiple sounds attached
-	m_HandleBank.push_back(handle);
+	m_Audios.push_back(audio);
 }
 
-std::vector<std::string>* component::AudioComponent::GetAudioHandles()
+void component::AudioComponent::PlayAudio(unsigned int i)
 {
-	return &m_HandleBank;
+	m_Audios[i]->PlayAudio();
 }
 
-void component::AudioComponent::PlayAudio(std::string handle)
+void component::AudioComponent::StopAudio(unsigned int i)
 {
-	m_pAudioEngine->PlayAudio(handle);
+	m_Audios[i]->StopAudio();
 }
 
-void component::AudioComponent::StopAudio(std::string handle)
-{
-	m_pAudioEngine->StopAudio(handle);
-}
+//std::vector<std::string>* component::AudioComponent::GetAudioHandles()
+//{
+//	return &m_HandleBank;
+//}
+//
+//void component::AudioComponent::PlayAudio(std::string handle)
+//{
+//	m_pAudioEngine->PlayAudio(handle);
+//}
+//
+//void component::AudioComponent::StopAudio(std::string handle)
+//{
+//	m_pAudioEngine->StopAudio(handle);
+//}

@@ -17,7 +17,7 @@ Engine::~Engine()
 
 	delete m_SceneManager;
 	delete m_Renderer;
-	delete m_pAudioEngine;
+	//delete m_pAudioEngine;
 }
 
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
@@ -35,7 +35,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	m_Renderer = new Renderer();
 	m_Renderer->InitD3D12(m_Window->GetHwnd(), hInstance, m_ThreadPool);
 
-	m_pAudioEngine = new AudioEngine();
+	//m_pAudioEngine = &AudioEngine::GetInstance();
 
 	// ECS
 	m_SceneManager = new SceneManager(m_Renderer, m_pAudioEngine);
