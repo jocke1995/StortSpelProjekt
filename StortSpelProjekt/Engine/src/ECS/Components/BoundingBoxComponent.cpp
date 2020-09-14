@@ -159,9 +159,9 @@ namespace component
 
 			// get roataion from the rotationMatrix and convert it 
 			// to the required quaternion(XMFLOAT4) and store it
-			DirectX::XMMATRIX wm = m_pTransform->GetRotMatrix();
-			DirectX::XMVECTOR qv = DirectX::XMQuaternionRotationMatrix(wm);
-			DirectX::XMStoreFloat4(&m_OrientedBoundingBox.Orientation, qv);
+			//DirectX::XMMATRIX wm = m_pTransform->GetRotMatrix();
+			//DirectX::XMVECTOR qv = DirectX::XMQuaternionRotationMatrix(wm);
+			//DirectX::XMStoreFloat4(&m_OrientedBoundingBox.Orientation, qv);
 
 			// save this original state of the boundingBox so that we can apply the correct math in update()
 			m_OriginalBoundingBox = m_OrientedBoundingBox;
