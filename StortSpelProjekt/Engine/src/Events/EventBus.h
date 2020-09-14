@@ -18,10 +18,10 @@ public:
 	//Singleton of the eventbus
 	static EventBus& GetInstance();
 
-	/*template<class T, class EventType>
-	void unsubscribe(T* classInstance, void (T::* memberFunction)(EventType*));
+	template<class T, class EventType>
+	void unsubscribe(T* instance, void (T::* memberFunction)(EventType*));
 
-	void unsubscribeAll();*/
+	void unsubscribeAll();
 
 	// Only called when program exits
 	~EventBus();

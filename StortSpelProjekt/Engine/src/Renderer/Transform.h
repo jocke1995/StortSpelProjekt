@@ -27,6 +27,9 @@ public:
 
 	DirectX::XMFLOAT3 GetPositionXMFLOAT3() const;
 	float3 GetPositionFloat3() const;
+	DirectX::XMFLOAT3 GetScale() const;
+	// gets the rotation of the transform in all axisis
+	DirectX::XMMATRIX GetRotMatrix() const;
 
 private:
 	DirectX::XMMATRIX m_WorldMat;

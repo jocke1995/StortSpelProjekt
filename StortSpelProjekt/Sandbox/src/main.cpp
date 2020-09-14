@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -52,27 +53,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
     entity->AddComponent<component::ModelComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::ModelComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
 
     entity = scene->GetEntity("box");
     entity->AddComponent<component::ModelComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
 
     entity = scene->GetEntity("stone");
     entity->AddComponent<component::ModelComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(true);
+    entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
 
     entity = scene->GetEntity("transparentTestObject");
     entity->AddComponent<component::ModelComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
 
     entity = scene->GetEntity("Dragon");
     entity->AddComponent<component::ModelComponent>();
@@ -84,8 +85,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity = scene->GetEntity("spotLight");
     entity->AddComponent<component::ModelComponent>();
     entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::BoundingBoxComponent>(false);
+    entity->AddComponent<component::BoundingBoxComponent>();
     entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
 
     // Set the m_Components
 
@@ -214,6 +216,36 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ------ Update ------ */
         timer->Update();
         renderer->Update(timer->GetDeltaTime());
+
+        tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
+        static float test = 0;
+        test += 0.0005;
+        tc->GetTransform()->SetPosition(-8, 0, test);
+        tc->GetTransform()->RotateX(test);
+        //scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->GetTransform()->SetPosition(-8, 0, test);
+        // TODO: remove this when testing of OBB is done
+        Physics* p = engine.GetPhysics();
+        p = new Physics();
+        if (p->CheckOBBCollision(
+            scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->GetOBB(),
+            scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->GetOBB())
+            )
+        {
+            Log::Print("Collision Stone - Box!\n");
+        }
+
+        if (p->CheckOBBCollision(
+            scene->GetEntity("player")->GetComponent<component::BoundingBoxComponent>()->GetOBB(),
+            scene->GetEntity("box")->GetComponent<component::BoundingBoxComponent>()->GetOBB())
+            )
+        {
+            Log::Print("Collision Player - Box!\n");
+        }
+        //else
+        //{
+        //    Log::Print("Nothing!\n");
+        //}
+        delete p;
 
         /* ------ Sort ------ */
         renderer->SortObjectsByDistance();
