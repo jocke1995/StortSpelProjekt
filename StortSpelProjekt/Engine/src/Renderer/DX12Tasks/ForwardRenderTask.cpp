@@ -61,9 +61,9 @@ void FowardRenderTask::Execute()
 	DescriptorHeap* depthBufferHeap  = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 
 	// RenderTargets
-	const unsigned int SwapChainIndex = swapChainRenderTarget->GetDescriptorHeapIndex();
+	const unsigned int swapChainIndex = swapChainRenderTarget->GetDescriptorHeapIndex();
 	const unsigned int brightTargetIndex = m_RenderTargets["brightTarget"]->GetDescriptorHeapIndex();
-	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(SwapChainIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(swapChainIndex);
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhBrightTarget = renderTargetHeap->GetCPUHeapAt(brightTargetIndex);
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhs[] = { cdhSwapChain, cdhBrightTarget };
 
