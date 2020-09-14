@@ -69,6 +69,11 @@ void RenderTask::SetRenderComponents(std::vector<std::pair<	component::MeshCompo
 	m_RenderComponents = *renderComponents;
 }
 
+void RenderTask::SetTextComponents(std::vector<component::TextComponent*>* textComponents)
+{
+	m_TextComponents = *textComponents;
+}
+
 void RenderTask::SetCamera(BaseCamera* camera)
 {
 	m_pCamera = camera;

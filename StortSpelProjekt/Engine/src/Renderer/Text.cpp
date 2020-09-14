@@ -27,15 +27,6 @@ Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfC
 	dsrv.Buffer.NumElements = m_NrOfVertices;
 	dsrv.Buffer.StructureByteStride = sizeof(TextVertex);
 
-	// create an srv for the font
-	/*D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
-	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	dsrv.Format = texture->m_ResourceDescription.Format;
-	dsrv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	dsrv.Texture2D.MipLevels = 1;
-	dsrv.Buffer.NumElements = m_NrOfVertices;
-	dsrv.Buffer.StructureByteStride = sizeof(TextVertex);*/
-
 	m_pSRV = new ShaderResourceView(
 		device,
 		descriptorHeap_SRV,
@@ -105,7 +96,7 @@ void Text::initVertexData()
 			continue;
 		}
 
-		// don't overflow the buffer. In your app if this is true, you can implement a resize of your text vertex buffer
+		// don't overflow the buffer
 		if (numCharacters >= g_MaxNumTextCharacters)
 		{
 			break;

@@ -25,12 +25,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* cubeModel  = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
 	// Load fonts
-	std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Javanese.fnt");
+	std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
 
 #pragma region CreateScene0
     // Create Scene
     Scene* scene = sceneManager->CreateScene("scene0");
     
+	// Text test ---------------------------------------
+	std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
+	float2 textPos = { 0.02f, 0.01f };
+	float2 textPadding = { 0.5f, 0.0f };
+	float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
+	float2 textScale = { 0.5f, 0.5f };
+	// ---------------------------------------------------
+
     // Add Entity to Scene
     scene->AddEntity("player");
     scene->AddEntity("floor");
@@ -40,6 +48,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     scene->AddEntity("directionalLight");
     scene->AddEntity("spotLight");
     scene->AddEntity("spotLight2");
+	scene->AddEntity("text");
 
     // Add Components to Entities
     Entity* entity;
@@ -150,6 +159,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     sl->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 1.0f, 0.00f, 1.0f, 1.0f });
     sl->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 1.0f, 0.00f, 1.0f, 1.0f });
 
+	entity = scene->GetEntity("text");
+	component::TextComponent* textComp = entity->AddComponent<component::TextComponent>(arialFont);
+	textComp->AddText();
+	textComp->SetColor(textColor, 0);
+	textComp->SetPadding(textPadding, 0);
+	textComp->SetPos(textPos, 0);
+	textComp->SetScale(textScale, 0);
+	textComp->SetText(textToRender, 0);
+	sceneManager->AddEntity(entity);
+
 #pragma endregion CreateScene0
 #pragma region CreateScene1
     // Create Scene
@@ -252,44 +271,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			//	sceneManager->RemoveEntity(pickedEnt);
 			//	scene->RemoveEntity(pickedEnt->GetName());
 			//}
-
         }
-
-		static int i = 0;
-		if (i < 1)
-		{
-			//Text test ---------------------------------------
-			std::string textToRender = "test1337";
-            std::string textToRender2 = "Daedalus maze 2";
-			float2 textPos = { 0.02f + i * 0.15f, 0.01f };
-			float2 textPadding = { 0.5f, 0.0f };
-			float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
-			float2 textScale = { 2.0f, 2.0f };
-			char text[10];
-			static int textCounter = 0;
-			sprintf(text, "test%d", &textToRender, textCounter);
-			textCounter++;
-			entity = scene->AddEntity(text);
-			component::TextComponent* textComp = entity->AddComponent<component::TextComponent>(arialFont);
-			textComp->AddText();
-			textComp->SetColor(textColor, 0);
-			textComp->SetFont(arialFont);
-			textComp->SetPadding(textPadding, 0);
-			textComp->SetPos(textPos, 0);
-			textComp->SetScale(textScale, 0);
-			textComp->SetText(textToRender, 0);
-
-            textComp->AddText();
-            textComp->SetColor(textColor, 1);
-            textComp->SetFont(arialFont);
-            textComp->SetPadding(textPadding, 1);
-            textComp->SetPos({ 0.02f + i * 0.15f, 0.1f }, 1);
-            textComp->SetScale(textScale, 1);
-            textComp->SetText(textToRender2, 1);
-			sceneManager->AddEntity(entity);
-			//--------------------------------------------
-			i++;
-		}
 
         /* ------ Update ------ */
         timer->Update();

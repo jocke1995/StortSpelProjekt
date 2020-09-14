@@ -143,7 +143,6 @@ private:
 	Resource* m_pDefaultResourceVertices = nullptr;
 
 	ShaderResourceView* m_pSRV = nullptr;
-	//D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;
 
 	SlotInfo* m_pSlotInfo = nullptr;
 

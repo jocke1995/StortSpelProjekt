@@ -80,7 +80,7 @@ void FowardRenderTask::Execute()
 
 	// This pair for m_RenderComponents will be used for model-outlining in case any model is picked.
 	std::pair<component::MeshComponent*, component::TransformComponent*> outlinedModel = std::make_pair(nullptr, nullptr);
-
+	
 	// Draw for every Rendercomponent with stencil testing disabled
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 	for (int i = 0; i < m_RenderComponents.size(); i++)

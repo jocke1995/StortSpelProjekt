@@ -19,6 +19,7 @@ namespace component
 		std::vector<TextData>* const GetTextDataVec();
 
 		void AddText();
+		void SubmitText(Text* text);
 
 		void SetFont(std::pair<Font*, Texture*> font);
 		void SetText(std::string text, int pos);
@@ -29,12 +30,15 @@ namespace component
 
 		Font* GetFont() const;
 		Texture* GetTexture() const;
+		Text* GetText(int pos) const;
+		const int GetNumOfTexts() const;
 		const int GetNumOfCharacters(int pos) const;
 
 		void Update(double dt);
 
 	private:
 		std::vector<TextData> m_TextDataVec;
+		std::vector<Text*> m_TextVec;
 		Font* m_pFont = nullptr;
 		Texture* m_pFontTexture;
 	};

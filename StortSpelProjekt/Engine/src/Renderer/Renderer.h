@@ -28,6 +28,7 @@ enum class DESCRIPTOR_HEAP_TYPE;
 // ECS
 class Scene;
 #include "../ECS/Components/BoundingBoxComponent.h"
+#include "../ECS/Components/TextComponent.h"
 class Light;
 
 // Graphics
@@ -114,6 +115,7 @@ private:
 	// Group of components that's needed for rendering:
 	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
+	std::vector<component::TextComponent*> m_TextComponents;
 
 	ViewPool* m_pViewPool = nullptr;
 	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBufferView*, ShadowInfo*>>> m_Lights;

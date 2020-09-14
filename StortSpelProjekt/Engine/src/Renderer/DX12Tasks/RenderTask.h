@@ -17,6 +17,7 @@ class PipelineState;
 // Components
 #include "../../ECS/Components/MeshComponent.h"
 #include "../../ECS/Components/TransformComponent.h"
+#include "../../ECS/Components/TextComponent.h"
 #include "../../ECS/Components/Lights/DirectionalLightComponent.h"
 #include "../../ECS/Components/Lights/PointLightComponent.h"
 #include "../../ECS/Components/Lights/SpotLightComponent.h"
@@ -47,6 +48,7 @@ public:
 	void SetRenderComponents(
 		std::vector<std::pair<	component::MeshComponent*,
 								component::TransformComponent*>>* renderComponents);
+	void SetTextComponents(std::vector<component::TextComponent*>* textComponents);
 
 	void SetCamera(BaseCamera* camera);
 	
@@ -56,6 +58,7 @@ protected:
 	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> m_DescriptorHeaps;
 
 	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
+	std::vector<component::TextComponent*> m_TextComponents;
 	
 	BaseCamera* m_pCamera = nullptr;
 	ID3D12RootSignature* m_pRootSig = nullptr;

@@ -20,12 +20,6 @@ TextTask::TextTask(ID3D12Device5* device,
 
 TextTask::~TextTask()
 {
-	for (int i = 0; i < m_TextVec.size(); i++)
-	{
-		delete m_TextVec.at(i);
-	}
-
-	m_TextVec.clear();
 }
 
 void TextTask::Execute()
@@ -66,19 +60,10 @@ void TextTask::Execute()
 	commandList->RSSetViewports(1, sc->GetRenderView()->GetViewPort());
 	commandList->RSSetScissorRects(1, sc->GetRenderView()->GetScissorRect());
 
-	int nrOfCharacters;
-	const SlotInfo* info;
-	for (int i = 0; i < m_TextVec.size(); i++)
+	for (int i = 0; i < m_TextComponents.size(); i++)
 	{
-		// Create a CB_PER_OBJECT struct
-		info = m_TextVec.at(i)->GetSlotInfo();
-		DirectX::XMMATRIX idMatrix = DirectX::XMMatrixIdentity();
-		CB_PER_OBJECT_STRUCT perObject = { idMatrix, idMatrix, *info};
-		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
-
-		// we are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
-		nrOfCharacters = m_TextVec.at(i)->GetNrOfCharacters();
-		commandList->DrawInstanced(4, nrOfCharacters, 0, 0);
+		component::TextComponent* tc = m_TextComponents.at(i);
+		draw(commandList, tc);
 	}
 
 	// Change state on front/backbuffer
@@ -90,7 +75,22 @@ void TextTask::Execute()
 	commandList->Close();
 }
 
-void TextTask::SubmitText(Text* text)
+void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::TextComponent* tc)
 {
-	m_TextVec.push_back(text);
+	int nrOfCharacters;
+	const SlotInfo* info;
+	for (int i = 0; i < tc->GetNumOfTexts(); i++)
+	{
+		Text* text = tc->GetText(i);
+
+		// Create a CB_PER_OBJECT struct
+		info = text->GetSlotInfo();
+		DirectX::XMMATRIX idMatrix = DirectX::XMMatrixIdentity();
+		CB_PER_OBJECT_STRUCT perObject = { idMatrix, idMatrix, *info };
+		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+
+		// we are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
+		nrOfCharacters = text->GetNrOfCharacters();
+		commandList->DrawInstanced(4, nrOfCharacters, 0, 0);
+	}
 }

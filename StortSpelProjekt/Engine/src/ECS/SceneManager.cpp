@@ -159,4 +159,5 @@ void SceneManager::resetScene()
 	m_pRenderer->m_pScenePrimaryCamera = nullptr;
 	m_pRenderer->m_pWireFrameTask->Clear();
 	m_pRenderer->m_BoundingBoxesToBePicked.clear();
+	m_pRenderer->m_TextComponents.clear();
 }

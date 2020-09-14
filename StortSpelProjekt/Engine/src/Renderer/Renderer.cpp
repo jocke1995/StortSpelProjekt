@@ -839,7 +839,9 @@ void Renderer::initRenderTasks()
 	gpsdText.SampleDesc.Count = 1;
 	gpsdText.SampleMask = UINT_MAX;
 	// Rasterizer behaviour
-	gpsdText.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	gpsdText.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdText.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdText.RasterizerState.FrontCounterClockwise = false;
 
 	D3D12_BLEND_DESC textBlendStateDesc = {};
 	textBlendStateDesc.AlphaToCoverageEnable = FALSE;
@@ -873,8 +875,6 @@ void Renderer::initRenderTasks()
 		&gpsdTextVector,
 		L"TextPSO");
 
-	//textTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
-	//textTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
 	textTask->AddRenderTarget("swapChain", m_pSwapChain);
 	textTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
@@ -952,6 +952,7 @@ void Renderer::setRenderTasksRenderComponents()
 	for (RenderTask* rendertask : m_RenderTasks)
 	{
 		rendertask->SetRenderComponents(&m_RenderComponents);
+		rendertask->SetTextComponents(&m_TextComponents);
 	}
 }
 
@@ -1345,7 +1346,7 @@ void Renderer::addComponents(Entity* entity)
 			text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, textComp->GetTexture());
 			text->SetTextData(&textDataVec->at(i), textComp->GetFont());
 			
-			tt->SubmitText(text);
+			textComp->SubmitText(text);
 
 			// Submit to GPU
 			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
@@ -1361,6 +1362,9 @@ void Renderer::addComponents(Entity* entity)
 			// Texture
 			codt->SubmitTexture(textComp->GetTexture());
 		}
+
+		// Finally store the text in m_pRenderer so it will be drawn
+		m_TextComponents.push_back(textComp);
 	}
 }
 

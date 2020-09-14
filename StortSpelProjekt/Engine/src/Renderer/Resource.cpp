@@ -110,7 +110,7 @@ void Resource::SetData(const void* data, unsigned int subResourceIndex) const
 
 	m_pResource->Map(subResourceIndex, &range, &dataBegin); // Get a dataBegin pointer where we can copy data to
 	memcpy(dataBegin, data, m_EntrySize);
-	m_pResource->Unmap(subResourceIndex, nullptr);
+    m_pResource->Unmap(subResourceIndex, nullptr);
 }
 
 void Resource::setupHeapProperties(D3D12_HEAP_TYPE heapType)

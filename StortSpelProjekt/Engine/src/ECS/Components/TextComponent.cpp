@@ -16,7 +16,12 @@ namespace component
 
 	TextComponent::~TextComponent()
 	{
-		Log::Print("inside textComponent Destructor\n");
+		for (int i = 0; i < m_TextVec.size(); i++)
+		{
+			delete m_TextVec.at(i);
+		}
+
+		m_TextVec.clear();
 	}
 
 	std::vector<TextData>* const TextComponent::GetTextDataVec()
@@ -35,6 +40,11 @@ namespace component
 		textData.text = L"DEFAULT_TEXT";
 
 		m_TextDataVec.push_back(textData);
+	}
+
+	void TextComponent::SubmitText(Text* text)
+	{
+		m_TextVec.push_back(text);
 	}
 
 	void TextComponent::SetFont(std::pair<Font*, Texture*> font)
@@ -76,6 +86,16 @@ namespace component
 	Texture* TextComponent::GetTexture() const
 	{
 		return m_pFontTexture;
+	}
+
+	Text* TextComponent::GetText(int pos) const
+	{
+		return m_TextVec.at(pos);
+	}
+
+	const int TextComponent::GetNumOfTexts() const
+	{
+		return m_TextVec.size();
 	}
 
 	const int TextComponent::GetNumOfCharacters(int pos) const

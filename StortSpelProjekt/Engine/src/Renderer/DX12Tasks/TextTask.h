@@ -17,10 +17,8 @@ public:
 
 	void Execute();
 
-	void SubmitText(Text* text);
-
 private:
-	std::vector<Text*> m_TextVec;
+	void draw(ID3D12GraphicsCommandList5* commandList, component::TextComponent* tc);
 };
 
 #endif
