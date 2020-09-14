@@ -8,7 +8,7 @@ DescriptorHeap::DescriptorHeap(ID3D12Device5* device, DESCRIPTOR_HEAP_TYPE type)
 	{
 	case DESCRIPTOR_HEAP_TYPE::RTV:
 		m_Desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		m_Desc.NumDescriptors = 10;
+		m_Desc.NumDescriptors = 200;
 		break;
 	case DESCRIPTOR_HEAP_TYPE::DSV:
 		m_Desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;

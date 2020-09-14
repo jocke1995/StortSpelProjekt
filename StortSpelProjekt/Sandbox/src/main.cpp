@@ -16,6 +16,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Renderer* const renderer = engine.GetRenderer();
     Physics* const physics = engine.GetPhysics();
 
+    /*------ Load Option Variables ------*/
+    Option::GetInstance().ReadFile();
+
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
@@ -30,6 +33,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     std::vector<Mesh*>* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
     
+
+    //AUDIO EXAMPLE
+    Audio audio;
+    audio.OpenFile(engine.GetAudioEngine()->GetAudioEngine(), TEXT("../Vendor/Resources/Audio/bruh.wav"));
+    //Change this value to 0 = infinite, 1 = play once, 1+ = play multiple
+    audio.SetAudioLoop(1);
+    audio.PlayAudio();
 
 #pragma region CreateScene0
     // Create Scene
@@ -215,11 +225,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         if (window->WasSpacePressed())
         {
             // nothing
-        }
-
-        if (Input::GetInstance().GetJustPressed(SCAN_CODES::LEFT_CTRL))
-        {
-            cc->ToggleCameraLock();
         }
 
         /* ------ Update ------ */

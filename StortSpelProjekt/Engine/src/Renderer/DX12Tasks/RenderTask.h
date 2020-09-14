@@ -8,10 +8,10 @@
 // Renderer
 class RootSignature;
 class Resource;
-class DescriptorHeap;
-enum class DESCRIPTOR_HEAP_TYPE;
+
 class BaseCamera;
 class RenderTarget;
+class SwapChain;
 class PipelineState;
 
 // Components
@@ -38,24 +38,22 @@ public:
 
 	PipelineState* GetPipelineState(unsigned int index);
 
-	void AddResource(std::string id, Resource* resource);
-	void AddRenderTarget(std::string, RenderTarget* renderTarget);
-	void SetDescriptorHeaps(std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> dhs);
-
+	
+	void AddRenderTarget(std::string, const RenderTarget* renderTarget);
+	
 	void SetRenderComponents(
 		std::vector<std::pair<	component::MeshComponent*,
 								component::TransformComponent*>>* renderComponents);
 
 	void SetCamera(BaseCamera* camera);
+	void SetSwapChain(SwapChain* swapChain);
 	
 protected:
-	std::map<std::string, Resource*> m_Resources;
-	std::map<std::string, RenderTarget*> m_RenderTargets;
-	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> m_DescriptorHeaps;
-
+	std::map<std::string, const RenderTarget*> m_RenderTargets;
 	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
 	
 	BaseCamera* m_pCamera = nullptr;
+	SwapChain* m_pSwapChain = nullptr;
 	ID3D12RootSignature* m_pRootSig = nullptr;
 	std::vector<PipelineState*> m_PipelineStates;
 };

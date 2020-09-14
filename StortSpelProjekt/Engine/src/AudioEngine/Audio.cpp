@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Audio.h"
+#include "../Misc/Option.h"
 
 Audio::Audio()
 {
@@ -159,10 +160,10 @@ void Audio::OpenFile(IXAudio2* pXAudio2, const TCHAR* sound)
     m_Buffer.Flags = 0;
     m_Buffer.LoopBegin = 0;
     m_Buffer.LoopLength = 0;
-    m_Buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
+    m_Buffer.LoopCount = 0;
     StopAudio();
 
-    m_pSourceVoice->SetVolume(0.1);
+    m_pSourceVoice->SetVolume(Option::GetInstance().GetVariable("volume"));
 }
 
 void Audio::PlayAudio()
@@ -190,6 +191,20 @@ void Audio::StopAudio()
         Log::Print("Error stopping audio\n");
     }
     // reset the buffer so the sound starts from the beginning at next playback
+    m_pSourceVoice->FlushSourceBuffers();
+    m_pSourceVoice->SubmitSourceBuffer(&m_Buffer);
+}
+
+void Audio::SetAudioLoop(int loopCount)
+{
+    if (loopCount == 0)
+    {
+        m_Buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
+    }
+    else 
+    {
+        m_Buffer.LoopCount = loopCount-1;
+    }
     m_pSourceVoice->FlushSourceBuffers();
     m_pSourceVoice->SubmitSourceBuffer(&m_Buffer);
 }
