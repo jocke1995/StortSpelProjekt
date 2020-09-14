@@ -66,8 +66,14 @@ inline void EventBus::Subscribe(T* classInstance, void(T::* memberFunction)(Even
 		m_Subscribers[typeid(EventType)] = handlers;
 	}
 
+	HandlerFunctionBase* memberFunction = new MemberFunctionHandler<T, EventType>(classInstance, memberFunction)
 	//Push handler into list of handlers
-	handlers->push_back(new MemberFunctionHandler<T, EventType>(classInstance, memberFunction));
+	handlers->push_back(memberFunction);
+}
+
+template<class T, class EventType>
+inline void EventBus::unsubscribe(T* instance, void(T::* memberFunction)(EventType*))
+{
 }
 
 // Get the single instance of the EventBus in order to subscribe/publish
@@ -77,7 +83,7 @@ inline EventBus& EventBus::GetInstance()
 	return instance;
 }
 
-inline EventBus::~EventBus()
+inline void EventBus::unsubscribeAll()
 {
 	for (auto const& i : m_Subscribers)
 	{
@@ -93,4 +99,9 @@ inline EventBus::~EventBus()
 		}
 	}
 	m_Subscribers.clear();
+}
+
+inline EventBus::~EventBus()
+{
+	unsubscribeAll();
 }
