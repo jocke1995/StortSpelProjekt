@@ -64,18 +64,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-
     entity->AddComponent<component::AudioVoiceComponent>();
 
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>();
+    entity->AddComponent<component::AudioVoiceComponent>();
 
     entity = scene->GetEntity("box");
     entity->AddComponent<component::MeshComponent>();
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
+    entity->AddComponent<component::AudioVoiceComponent>();
 
     entity = scene->GetEntity("stone");
     entity->AddComponent<component::MeshComponent>();
@@ -112,13 +113,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     scene->GetEntity("player")->GetComponent<component::BoundingBoxComponent>()->Init();
 
     // To add sound for an entity, a voice component needs to be added. Add the voice component with the same name as
-    // one of the loaded audios.
+    // one of the loaded audios. The same audio may be played from different entities!
+    component::AudioVoiceComponent* avc = scene->GetEntity("player")->GetComponent<component::AudioVoiceComponent>();
+    avc->AddVoice(L"Bruh");
 
-    component::AudioVoiceComponent* vc = scene->GetEntity("player")->GetComponent<component::AudioVoiceComponent>();
-    vc->AddVoice(L"Melody");
-    vc->AddVoice(L"Bruh");
+    // To play the audio, simply call play on the component, giving the name of the Audio that you whish to play.
+    // Multiple sounds are allowed!
+    avc->Play(L"Bruh");
 
-    //ac->AddAudio("testAudio", testAudio);
 
     mc = scene->GetEntity("floor")->GetComponent<component::MeshComponent>();
     mc->SetMeshes(floorModel);
