@@ -95,7 +95,7 @@ inline void EventBus::Unsubscribe(T* classInstance, void(T::* memberFunction)(Ev
 			}
 			else if ((*it)->m_Id == id)
 			{
-				it.at(1);
+				
 				delete* it;
 				(*it) = nullptr;
 				break;
