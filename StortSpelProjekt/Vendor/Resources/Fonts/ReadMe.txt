@@ -25,8 +25,11 @@ is too small, sampling from the texture is less accurate and may end up getting 
 Let's set all these to 5 pixels for padding.
 
 That should be it for setting up. Let's get our bitmap font files now. Click on "File" in the top menu, 
-then click "Save BMFont files (text)...". Choose a directory and name for the output files. I named it Arial.fnt. 
+then click "Save BMFont files (text)...". Choose a directory and name for the output file, however,
+make sure that the name does not include any spaces or special letters. 
 When you click save, it will save a .fnt file containing information about rendering the font, and .png containing the font image.
+If you choose a font with a space in its name, for example "Javanese Text", make sure that you delete the space in the fnt file,
+and that the name of the fnt and the png files have the same name as mentioned in the fnt file.
 
 Having troubles running the program?
 Make sure that you have the latest Java Runtime installed.

@@ -523,6 +523,6 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 		int t = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 		m_LoadedFonts[filename].first->kerningsList[k].amount = (float)t / (float)windowWidth;
 	}
-
+	Font* font = m_LoadedFonts[filename].first;
 	return m_LoadedFonts[filename].first;
 }

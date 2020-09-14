@@ -22,20 +22,9 @@ static int g_MaxNumTextCharacters = 1024;
 
 struct TextVertex
 {
-	//float4 pos;
-	//float4 texCoord;
-	//float4 color;
-
 	DirectX::XMFLOAT4 pos;
 	DirectX::XMFLOAT4 texCoord;
 	DirectX::XMFLOAT4 color;
-
-	/*TextVertex(float r, float g, float b, float a, float u, float v, float tw, float th, float x, float y, float w, float h)
-	{
-		color = { r, g, b, a };
-		texCoord = { u, v, tw, th };
-		pos = { x, y, w, h };
-	}*/
 };
 
 struct FontChar
@@ -79,8 +68,6 @@ struct Font
 	FontChar* charList; // list of characters
 	int numKernings; // the number of kernings
 	FontKerning* kerningsList; // list to hold kerning values
-	//ID3D12Resource* textureBuffer; // the font texture resource
-	//D3D12_GPU_DESCRIPTOR_HANDLE srvHandle; // the font srv
 
 	// these are how much the character is padded in the texture. We
 	// add padding to give sampling a little space so it does not accidentally
@@ -97,7 +84,9 @@ struct Font
 		for (int i = 0; i < numKernings; ++i)
 		{
 			if ((wchar_t)kerningsList[i].firstid == first && (wchar_t)kerningsList[i].secondid == second)
+			{
 				return kerningsList[i].amount;
+			}
 		}
 		return 0.0f;
 	}
@@ -108,7 +97,9 @@ struct Font
 		for (int i = 0; i < numCharacters; ++i)
 		{
 			if (c == (wchar_t)charList[i].id)
+			{
 				return &charList[i];
+			}
 		}
 		return nullptr;
 	}

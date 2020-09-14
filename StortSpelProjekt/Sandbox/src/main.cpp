@@ -259,14 +259,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		if (i < 1)
 		{
 			//Text test ---------------------------------------
-			std::string textToRender = "Test";
-			float2 textPos = { 0.02f + i * 0.05f, 0.01f };
-			float2 textPadding = { 0.0f, 0.0f };
+			std::string textToRender = "T";
+			float2 textPos = { 0.02f + i * 0.15f, 0.01f };
+			float2 textPadding = { 0.5f, 0.0f };
 			float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 			float2 textScale = { 2.0f, 2.0f };
 			char text[10];
 			static int textCounter = 0;
-			sprintf(text, "test%d", textCounter);
+			sprintf(text, "test%d", &textToRender, textCounter);
 			textCounter++;
 			entity = scene->AddEntity(text);
 			component::TextComponent* textComp = entity->AddComponent<component::TextComponent>(arialFont);
@@ -276,7 +276,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			textComp->SetPadding(textPadding, 0);
 			textComp->SetPos(textPos, 0);
 			textComp->SetScale(textScale, 0);
-			//textComp->SetText(text, 0);
+			textComp->SetText(textToRender, 0);
 			sceneManager->AddEntity(entity);
 			//--------------------------------------------
 			i++;

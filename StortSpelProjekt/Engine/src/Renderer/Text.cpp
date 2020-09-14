@@ -10,7 +10,7 @@
 
 Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfCharacters, Texture* texture)
 {
-	// Four vertices per character
+	// Four vertices (quad) per character 
 	m_NrOfVertices = numOfCharacters * 4;
 	m_SizeOfVertices = m_NrOfVertices * sizeof(TextVertex);
 
@@ -26,6 +26,15 @@ Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfC
 	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	dsrv.Buffer.NumElements = m_NrOfVertices;
 	dsrv.Buffer.StructureByteStride = sizeof(TextVertex);
+
+	// create an srv for the font
+	/*D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
+	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	dsrv.Format = texture->m_ResourceDescription.Format;
+	dsrv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	dsrv.Texture2D.MipLevels = 1;
+	dsrv.Buffer.NumElements = m_NrOfVertices;
+	dsrv.Buffer.StructureByteStride = sizeof(TextVertex);*/
 
 	m_pSRV = new ShaderResourceView(
 		device,
@@ -50,22 +59,31 @@ Text::~Text()
 
 void Text::initVertexData()
 {
-	float topLeftScreenX = (m_TextData.pos.x * 2.0f) - 1.0f;
-	float topLeftScreenY = ((1.0f - m_TextData.pos.y) * 2.0f) - 1.0f;
+	float2 pos = m_TextData.pos;
+	float2 padding = m_TextData.padding;
+	float2 scale = m_TextData.scale;
+	float4 color = m_TextData.color;
+	std::wstring text = m_TextData.text;
+	Font font = *m_pFont;
+
+	int numCharacters = 0;
+
+	float topLeftScreenX = (pos.x * 2.0f) - 1.0f;
+	float topLeftScreenY = ((1.0f - pos.y) * 2.0f) - 1.0f;
 
 	float x = topLeftScreenX;
 	float y = topLeftScreenY;
-	
-	float horrizontalPadding = (m_pFont->leftpadding + m_pFont->rightpadding) * m_TextData.padding.x;
-	float verticalPadding = (m_pFont->toppadding + m_pFont->bottompadding) * m_TextData.padding.y;
+
+	float horrizontalPadding = (font.leftpadding + font.rightpadding) * padding.x;
+	float verticalPadding = (font.toppadding + font.bottompadding) * padding.y;
 
 	wchar_t lastChar = -1; // no last character to start with
-	
-	for (int nrOfCharacters = 0; nrOfCharacters < m_TextData.text.size(); ++nrOfCharacters)
-	{
-		wchar_t c = m_TextData.text[nrOfCharacters];
 
-		FontChar* fc = m_pFont->GetChar(c);
+	for (int i = 0; i < text.size(); ++i)
+	{
+		wchar_t c = text[i];
+
+		FontChar* fc = font.GetChar(c);
 
 		// character not in font char set
 		if (fc == nullptr)
@@ -74,41 +92,48 @@ void Text::initVertexData()
 		}
 
 		// end of string
-		if (c == L' ')
+		if (c == L'\0')
 		{
 			break;
 		}
 
 		// new line
-		if (c == L'n')
+		if (c == L'\n')
 		{
 			x = topLeftScreenX;
-			y -= (m_pFont->lineHeight + verticalPadding) * m_TextData.scale.y;
+			y -= (font.lineHeight + verticalPadding) * scale.y;
 			continue;
 		}
 
 		// don't overflow the buffer. In your app if this is true, you can implement a resize of your text vertex buffer
-		if (nrOfCharacters >= g_MaxNumTextCharacters)
+		if (numCharacters >= g_MaxNumTextCharacters)
 		{
 			break;
 		}
 
 		float kerning = 0.0f;
-		if (nrOfCharacters > 0)
+		if (i > 0)
 		{
-			kerning = m_pFont->GetKerning(lastChar, c);
+			kerning = font.GetKerning(lastChar, c);
 		}
 
 		TextVertex vTmp = {};
-		vTmp.color = DirectX::XMFLOAT4{ m_TextData.color.x, m_TextData.color.y, m_TextData.color.z, m_TextData.color.w };
+		vTmp.color = DirectX::XMFLOAT4{ color.x, color.y, color.z, color.w };
 		vTmp.texCoord = DirectX::XMFLOAT4{ fc->u, fc->v, fc->twidth, fc->theight };
-		vTmp.pos = DirectX::XMFLOAT4{ x + ((fc->xoffset + kerning) * m_TextData.scale.x), y - (fc->yoffset * m_TextData.scale.y),
-			fc->width * m_TextData.scale.x, fc->height * m_TextData.scale.y };
+		vTmp.pos = DirectX::XMFLOAT4
+		{
+			x + ((fc->xoffset + kerning) * scale.x),
+			y - (fc->yoffset * scale.y),
+			fc->width * scale.x,
+			fc->height * scale.y
+		};
 
 		m_TextVertexVec.push_back(vTmp);
 
+		numCharacters++;
+
 		// remove horrizontal padding and advance to next char position
-		x += (fc->xadvance - horrizontalPadding) * m_TextData.scale.x;
+		x += (fc->xadvance - horrizontalPadding) * scale.x;
 
 		lastChar = c;
 	}

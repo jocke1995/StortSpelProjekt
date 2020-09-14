@@ -20,7 +20,7 @@ StructuredBuffer<vertex> meshes[] : register(t0);
 
 VS_OUT VS_main(uint vID : SV_VertexID)
 {
-	VS_OUT output = (VS_OUT)0;
+	VS_OUT output;
 
 	// vert id 0 = 0000, uv = (0, 0)
 	// vert id 1 = 0001, uv = (1, 0)

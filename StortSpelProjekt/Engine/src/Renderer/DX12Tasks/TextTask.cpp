@@ -45,18 +45,13 @@ void TextTask::Execute()
 
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
 
-	// clear the depth buffer so we can draw over everything
-	//D3D12_CPU_DESCRIPTOR_HANDLE dsh = descriptorHeap_DSV->GetCPUHeapAt(0);
-	//commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	commandList->ClearDepthStencilView(descriptorHeap_DSV->GetCPUHeapAt(0), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	// set the text pipeline state object
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
 	// this way we only need 4 vertices per quad rather than 6 if we were to use a triangle list topology
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-	// set the text vertex buffer
-	//commandList->IASetVertexBuffers(0, 1, &textVertexBufferView[frameIndex]);
 
 	// bind the text srv
 	commandList->SetGraphicsRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
@@ -68,17 +63,18 @@ void TextTask::Execute()
 		D3D12_RESOURCE_STATE_RENDER_TARGET));
   
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
-	commandList->OMSetRenderTargets(1, &cdhSwapChain, true, nullptr);
+	commandList->OMSetRenderTargets(1, &cdhSwapChain, true, &descriptorHeap_DSV->GetCPUHeapAt(0));
 
 	const SwapChain* sc = static_cast<const SwapChain*>(m_RenderTargets["swapChain"]);
 	commandList->RSSetViewports(1, sc->GetRenderView()->GetViewPort());
 	commandList->RSSetScissorRects(1, sc->GetRenderView()->GetScissorRect());
 
 	int nrOfCharacters;
+	const SlotInfo* info;
 	for (int i = 0; i < m_TextVec.size(); i++)
 	{
 		// Create a CB_PER_OBJECT struct
-		const SlotInfo* info = m_TextVec.at(i)->GetSlotInfo();
+		info = m_TextVec.at(i)->GetSlotInfo();
 		DirectX::XMMATRIX idMatrix = DirectX::XMMatrixIdentity();
 		CB_PER_OBJECT_STRUCT perObject = { idMatrix, idMatrix, *info};
 		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);

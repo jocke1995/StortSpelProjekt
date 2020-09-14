@@ -829,10 +829,6 @@ void Renderer::initRenderTasks()
 #pragma region Text 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdText = {};
-	//gpsdText.InputLayout = textInputLayoutDesc;
-	//gpsdText.pRootSignature = rootSignature;
-	//gpsdText.VS = textVertexShaderBytecode;
-	//gpsdText.PS = textPixelShaderBytecode;
 
 	gpsdText.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
