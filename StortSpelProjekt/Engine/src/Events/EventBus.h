@@ -5,7 +5,7 @@
 #include "MemberFunctionWrapper.h"
 #include "Events.h"
 
-typedef std::list<HandlerFunctionBase*> HandlerList;
+typedef std::vector<HandlerFunctionBase*> HandlerList;
 class EventBus 
 {
 public:
@@ -78,19 +78,24 @@ template<class T, class EventType>
 inline void EventBus::Unsubscribe(T* classInstance, void(T::* memberFunction)(EventType*))
 {
 	if (m_Subscribers.empty())
+	{
 		return;
+	}
+
 	if (m_Subscribers.find(typeid(EventType)) != m_Subscribers.end())
 	{
 		HandlerList* handlers = m_Subscribers[typeid(EventType)];
 
 		unsigned id = GetID<T, EventType>(classInstance);
-		std::list<HandlerFunctionBase*>::iterator it;
+		std::vector<HandlerFunctionBase*>::iterator it;
 		for (it = handlers->begin(); it != handlers->end(); ++it)
 		{
 			if ((*it) == nullptr)
-				continue;
-			if ((*it)->m_Id == id)
 			{
+			}
+			else if ((*it)->m_Id == id)
+			{
+				it.at(1);
 				delete* it;
 				(*it) = nullptr;
 				break;
@@ -120,7 +125,7 @@ inline void EventBus::UnsubscribeAll()
 		HandlerList* handlers = i.second;
 		if (handlers != nullptr)
 		{
-			std::list<HandlerFunctionBase*>::iterator iter;
+			std::vector<HandlerFunctionBase*>::iterator iter;
 			for (iter = handlers->begin(); iter != handlers->end(); iter++)
 			{
 				delete* iter;
