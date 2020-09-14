@@ -209,11 +209,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             // nothing
         }
 
-        if (Input::GetInstance().GetJustPressed(SCAN_CODES::LEFT_CTRL))
-        {
-            cc->ToggleCameraLock();
-        }
-
         /* ------ Update ------ */
         timer->Update();
         renderer->Update(timer->GetDeltaTime());
