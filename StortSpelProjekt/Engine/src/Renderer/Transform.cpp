@@ -95,3 +95,13 @@ float3 Transform::GetPositionFloat3() const
 	pos.z = m_Position.z;
 	return pos;
 }
+
+DirectX::XMFLOAT3 Transform::GetScale() const
+{
+	return m_Scale;
+}
+
+DirectX::XMMATRIX Transform::GetRotMatrix() const
+{
+	return m_RotationMat * m_RotXMat * m_RotYMat * m_RotZMat;
+}

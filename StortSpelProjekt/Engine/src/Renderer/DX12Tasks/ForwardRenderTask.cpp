@@ -9,7 +9,6 @@
 #include "../SwapChain.h"
 #include "../Resource.h"
 #include "../PipelineState.h"
-#include "../Material.h"
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
 #include "../BaseCamera.h"
@@ -160,7 +159,6 @@ void FowardRenderTask::drawRenderComponent(
 			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
 
 			cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
-			cl->SetGraphicsRootConstantBufferView(RS::CB_PER_OBJECT_CBV, m->GetMaterial()->GetConstantBufferView()->GetCBVResource()->GetGPUVirtualAdress());
 
 			cl->IASetIndexBuffer(m->GetIndexBufferView());
 			cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);

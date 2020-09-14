@@ -11,17 +11,14 @@ namespace component
 
 	MeshComponent::~MeshComponent()
 	{
-		for (Mesh* mesh : m_Meshes)
-		{
-			delete mesh;
-		}
+		
 	}
 
 	void MeshComponent::SetMeshes(std::vector<Mesh*>* meshes)
 	{
 		for (Mesh* mesh : *meshes)
 		{
-			m_Meshes.push_back(new Mesh(mesh));
+			m_Meshes.push_back(mesh);
 		}
 	}
 

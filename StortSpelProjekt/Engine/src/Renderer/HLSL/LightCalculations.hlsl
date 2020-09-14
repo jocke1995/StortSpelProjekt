@@ -4,7 +4,21 @@ Texture2D textures[]   : register (t0);
 SamplerState samplerTypeWrap	: register (s0);
 SamplerState samplerTypeBorder	: register (s1);
 
-ConstantBuffer<MaterialAttributes> materialAttributes : register(b2, space3);
+static const MaterialAttributes materialAttributes = {
+	100,
+	0, 0, 0,
+	
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+
+	1, 1, 1, 1,
+	1, 1, 1, 1,
+	1, 1, 1, 1,
+
+	1, 1,
+	0, 0
+};
 
 float CalculateShadow(
 	in float4 fragPosLightSpace,
