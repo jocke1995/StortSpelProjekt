@@ -18,21 +18,6 @@ namespace component
 		m_Model = model;
 	}
 
-	Mesh* ModelComponent::GetMeshAt(unsigned int index)
-	{
-		return m_Model->GetMeshAt(index);
-	}
-
-	std::map<TEXTURE_TYPE, Texture*> ModelComponent::GetTexturesAt(unsigned int index)
-	{
-		return m_Model->GetTexturesAt(index);
-	}
-
-	SlotInfo ModelComponent::GetSlotInfoAt(unsigned int index)
-	{
-		return m_Model->GetSlotInfoAt(index);
-	}
-
 	void ModelComponent::SetDrawFlag(unsigned int drawFlag)
 	{
 		m_DrawFlag = drawFlag;
@@ -41,6 +26,21 @@ namespace component
 	void ModelComponent::Update(double dt)
 	{
 
+	}
+
+	Mesh* ModelComponent::GetMeshAt(unsigned int index) const
+	{
+		return m_Model->GetMeshAt(index);
+	}
+
+	std::map<TEXTURE_TYPE, Texture*> ModelComponent::GetTexturesAt(unsigned int index) const
+	{
+		return m_Model->GetTexturesAt(index);
+	}
+
+	SlotInfo ModelComponent::GetSlotInfoAt(unsigned int index) const
+	{
+		return m_Model->GetSlotInfoAt(index);
 	}
 
 	unsigned int ModelComponent::GetDrawFlag() const
