@@ -34,6 +34,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     EventBus::GetInstance().Publish(&TestEvent(1));
     object.unsub();
     EventBus::GetInstance().Publish(&TestEvent(1));
+    object.sub();
+    EventBus::GetInstance().Publish(&TestEvent(1));
+    object.unsub();
+    EventBus::GetInstance().Publish(&TestEvent(1));
+    object.sub();
+    EventBus::GetInstance().Publish(&TestEvent(1));
+    object.unsub();
+    EventBus::GetInstance().Publish(&TestEvent(1));
+    object.sub();
+    EventBus::GetInstance().Publish(&TestEvent(1));
+    object.unsub();
+    EventBus::GetInstance().Publish(&TestEvent(1));
+    object.sub();
+    EventBus::GetInstance().Publish(&TestEvent(1));
+    object.unsub();
+    EventBus::GetInstance().Publish(&TestEvent(1));
+    object.sub();
+    
+
 
 #pragma region CreateScene0
     // Create Scene

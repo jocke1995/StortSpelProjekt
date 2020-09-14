@@ -90,14 +90,10 @@ inline void EventBus::Unsubscribe(T* classInstance, void(T::* memberFunction)(Ev
 		std::vector<HandlerFunctionBase*>::iterator it;
 		for (it = handlers->begin(); it != handlers->end(); ++it)
 		{
-			if ((*it) == nullptr)
+			if ((*it)->m_Id == id)
 			{
-			}
-			else if ((*it)->m_Id == id)
-			{
-				
 				delete* it;
-				(*it) = nullptr;
+				handlers->erase(it);
 				break;
 			}
 		}
