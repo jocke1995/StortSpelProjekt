@@ -30,6 +30,7 @@
 #include "MousePicker.h"
 
 // Graphics
+#include "DX12Tasks/PreDepthRenderTask.h"
 #include "DX12Tasks/WireframeRenderTask.h"
 #include "DX12Tasks/OutliningRenderTask.h"
 #include "DX12Tasks/ForwardRenderTask.h"
@@ -288,6 +289,11 @@ void Renderer::Execute()
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::SHADOW], FLAG_THREAD::RENDER);
 
+	// Recording shadowmaps
+	m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH], FLAG_THREAD::RENDER);
+
 	// Drawing
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetBackBufferIndex(backBufferIndex);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCommandInterfaceIndex(commandInterfaceIndex);
@@ -358,6 +364,7 @@ Scene* const Renderer::GetActiveScene() const
 
 void Renderer::setRenderTasksPrimaryCamera()
 {
+	m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
@@ -605,6 +612,65 @@ void Renderer::updateMousePicker()
 void Renderer::initRenderTasks()
 {
 	// RenderTasks
+
+#pragma region PreDepthRendering
+
+/* PreDepth rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdPreDepthRender = {};
+	gpsdPreDepthRender.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdPreDepthRender.NumRenderTargets = 0;
+	gpsdPreDepthRender.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+	// Depthstencil usage
+	gpsdPreDepthRender.SampleDesc.Count = 1;
+	gpsdPreDepthRender.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdPreDepthRender.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdPreDepthRender.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdPreDepthRender.RasterizerState.DepthBias = 0;
+	gpsdPreDepthRender.RasterizerState.DepthBiasClamp = 0.0f;
+	gpsdPreDepthRender.RasterizerState.SlopeScaledDepthBias = 0.0f;
+	gpsdPreDepthRender.RasterizerState.FrontCounterClockwise = false;
+
+	// Specify Blend descriptions
+	// copy of defaultRTdesc
+	D3D12_RENDER_TARGET_BLEND_DESC preDepthRTdesc = {
+		false, false,
+		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		D3D12_LOGIC_OP_NOOP, D3D12_COLOR_WRITE_ENABLE_ALL };
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdPreDepthRender.BlendState.RenderTarget[i] = preDepthRTdesc;
+
+	// Depth descriptor
+	D3D12_DEPTH_STENCIL_DESC preDepthdsd = {};
+	preDepthdsd.DepthEnable = true;
+	preDepthdsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	preDepthdsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+
+	// DepthStencil
+	preDepthdsd.StencilEnable = false;
+	gpsdPreDepthRender.DepthStencilState = preDepthdsd;
+	gpsdPreDepthRender.DSVFormat = m_pMainDSV->GetDXGIFormat();
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdPreDepthRenderVector;
+	gpsdPreDepthRenderVector.push_back(&gpsdPreDepthRender);
+
+	RenderTask* preDepthRenderTask = new PreDepthRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"PreDepthVertex.hlsl", L"PreDepthPixel.hlsl",
+		&gpsdPreDepthRenderVector,
+		L"PreDepthRenderingPSO");
+
+	preDepthRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
+	preDepthRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
+	preDepthRenderTask->SetSwapChain(m_pSwapChain);
+	preDepthRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion PreDepthRendering
+
 #pragma region ForwardRendering
 	/* Forward rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdForwardRender = {};
@@ -650,7 +716,7 @@ void Renderer::initRenderTasks()
 	dsd.DepthEnable = true;
 	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-	
+
 	// DepthStencil
 	dsd.StencilEnable = true;
 	dsd.StencilReadMask = 0x00;
@@ -671,9 +737,9 @@ void Renderer::initRenderTasks()
 
 	RenderTask* forwardRenderTask = new FowardRenderTask(
 		m_pDevice5,
-		m_pRootSignature, 
-		L"ForwardVertex.hlsl", L"ForwardPixel.hlsl", 
-		&gpsdForwardRenderVector, 
+		m_pRootSignature,
+		L"ForwardVertex.hlsl", L"ForwardPixel.hlsl",
+		&gpsdForwardRenderVector,
 		L"ForwardRenderingPSO");
 
 	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
@@ -681,7 +747,7 @@ void Renderer::initRenderTasks()
 	forwardRenderTask->SetSwapChain(m_pSwapChain);
 	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTarget());
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
-	
+
 
 #pragma endregion ForwardRendering
 #pragma region ModelOutlining
@@ -979,6 +1045,7 @@ void Renderer::initRenderTasks()
 	// None atm
 
 	/* ------------------------- DirectQueue Tasks ---------------------- */
+	m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH] = preDepthRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
@@ -988,6 +1055,9 @@ void Renderer::initRenderTasks()
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandList(i));
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		m_DirectCommandLists[i].push_back(preDepthRenderTask->GetCommandList(i));
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
@@ -1016,6 +1086,7 @@ void Renderer::initRenderTasks()
 
 void Renderer::setRenderTasksRenderComponents()
 {
+	m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH]->SetRenderComponents(&m_RenderComponents);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents);

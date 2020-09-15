@@ -17,6 +17,7 @@ struct ID3D12GraphicsCommandList5;
 // These renderTasks will execute on "all objects"
 enum RENDER_TASK_TYPE
 {
+	PRE_DEPTH,
 	FORWARD_RENDER,
 	BLEND,
 	SHADOW,
