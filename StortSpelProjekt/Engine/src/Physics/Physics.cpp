@@ -10,6 +10,12 @@ Physics::Physics()
 	EventBus::GetInstance().Subscribe(this, &Physics::printCollisions);
 }
 
+Physics& Physics::GetInstance()
+{
+	static Physics instance;
+	return instance;
+}
+
 Physics::~Physics()
 {
 }

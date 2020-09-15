@@ -10,7 +10,7 @@ class Collision;
 class Physics
 {
 public:
-	Physics();
+	static Physics& GetInstance();
 	~Physics();
 
 	void Update(double dt);
@@ -21,6 +21,7 @@ public:
 
 
 private:
+	Physics();
 	double m_timeSinceLastColCheck = 0;
 	// How often the collisions are checked
 	const double m_CollisionUpdateInterval = 0.2;
