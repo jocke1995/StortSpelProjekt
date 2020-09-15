@@ -20,7 +20,6 @@
 
 // Sub-engines
 #include "Renderer/Renderer.h"
-#include "Renderer/Text.h"
 #include "Renderer/Transform.h"
 #include "Renderer/Model.h"
 #include "Renderer/Mesh.h"

@@ -10,6 +10,7 @@
 #include "../RenderTarget.h"
 #include "../Resource.h"
 #include "../PipelineState.h"
+#include "../Text.h"
 
 TextTask::TextTask(ID3D12Device5* device, 
 	RootSignature* rootSignature, 
@@ -84,13 +85,12 @@ void TextTask::Execute()
 void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::TextComponent* tc)
 {
 	int nrOfCharacters;
-	const SlotInfo* info;
 	for (int i = 0; i < tc->GetNumOfTexts(); i++)
 	{
 		Text* text = tc->GetText(i);
 
 		// Create a CB_PER_OBJECT struct
-		info = text->GetSlotInfo();
+		SlotInfo* info = text->GetSlotInfo();
 		DirectX::XMMATRIX idMatrix = DirectX::XMMatrixIdentity();
 		CB_PER_OBJECT_STRUCT perObject = { idMatrix, idMatrix, *info };
 		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);

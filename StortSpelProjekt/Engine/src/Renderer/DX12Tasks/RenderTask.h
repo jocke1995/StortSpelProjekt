@@ -15,14 +15,12 @@ class SwapChain;
 class PipelineState;
 
 // Components
+#include "../../ECS/Components/TextComponent.h"
 #include "../../ECS/Components/ModelComponent.h"
 #include "../../ECS/Components/TransformComponent.h"
-#include "../../ECS/Components/TextComponent.h"
 #include "../../ECS/Components/Lights/DirectionalLightComponent.h"
 #include "../../ECS/Components/Lights/PointLightComponent.h"
 #include "../../ECS/Components/Lights/SpotLightComponent.h"
-
-#include "../Text.h"
 
 // DX12 Forward Declarations
 struct ID3D12RootSignature;

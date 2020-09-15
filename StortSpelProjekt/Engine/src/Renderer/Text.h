@@ -65,9 +65,9 @@ struct Font
 	int textureWidth; // width of the font texture
 	int textureHeight; // height of the font texture
 	int numCharacters; // number of characters in the font
-	FontChar* charList; // list of characters
+	FontChar* charList = nullptr; // list of characters
 	int numKernings; // the number of kernings
-	FontKerning* kerningsList; // list to hold kerning values
+	FontKerning* kerningsList = nullptr; // list to hold kerning values
 
 	// these are how much the character is padded in the texture. We
 	// add padding to give sampling a little space so it does not accidentally
@@ -107,11 +107,11 @@ struct Font
 
 struct TextData
 {
-	std::wstring text;
-	float2 pos;
-	float2 scale;
-	float2 padding;
-	float4 color;
+	std::wstring text = L"";
+	float2 pos = { 0, 0 };
+	float2 scale = { 0, 0 };
+	float2 padding = { 0, 0 };
+	float4 color = { 0,0,0,0 };
 };
 
 class Text
@@ -132,12 +132,12 @@ private:
 
 	Font* m_pFont = nullptr;
 
-	int m_NrOfVertices;
-	int m_SizeOfVertices;
+	int m_NrOfVertices = 0;
+	int m_SizeOfVertices = 0;
 
 	// this will store our font information
 	TextData m_TextData;
-	std::vector<TextVertex> m_TextVertexVec;
+	std::vector<TextVertex> m_TextVertexVec = {};
 
 	Resource* m_pUploadResourceVertices = nullptr;
 	Resource* m_pDefaultResourceVertices = nullptr;

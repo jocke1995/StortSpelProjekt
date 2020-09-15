@@ -14,8 +14,6 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
-#include <fstream>
-
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
 	m_pDevice = device;
@@ -139,14 +137,13 @@ std::pair<Font*, Texture*> AssetLoader::LoadFontFromFile(const std::wstring font
 	}
 
 	// else load the font and store it in m_LoadedFonts
-	LPCWSTR path2 = path.c_str();
-	m_LoadedFonts[path].first = loadFont(path2, m_pWindow->GetScreenWidth(), m_pWindow->GetScreenHeight());
+	m_LoadedFonts[path].first = loadFont(path.c_str(), m_pWindow->GetScreenWidth(), m_pWindow->GetScreenHeight());
 
 	// and create the texture
 	Texture* texture = new Texture();
 	if (texture->Init(m_LoadedFonts[path].first->fontImage, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Could not init the font texture for %s.\n", path);
+		Log::PrintSeverity(Log::Severity::WARNING, "Could not init the font texture for %s.\n", to_string(fontName).c_str());
 		delete texture;
 		return m_LoadedFonts[path];
 	}
@@ -380,17 +377,17 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	m_LoadedFonts[filename].first->name = tmp.substr(startpos, tmp.size() - startpos - 1);
 
 	// get font size
-	fs >> tmp; // size=73
+	fs >> tmp;
 	startpos = tmp.find(L"=") + 1;
 	m_LoadedFonts[filename].first->size = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// bold, italic, charset, unicode, stretchH, smooth, aa, padding, spacing
-	fs >> tmp >> tmp >> tmp >> tmp >> tmp >> tmp >> tmp; // bold=0 italic=0 charset="" unicode=0 stretchH=100 smooth=1 aa=1 
+	fs >> tmp >> tmp >> tmp >> tmp >> tmp >> tmp >> tmp;
 
 	// get padding
-	fs >> tmp; // padding=5,5,5,5 
+	fs >> tmp;
 	startpos = tmp.find(L"=") + 1;
-	tmp = tmp.substr(startpos, tmp.size() - startpos); // 5,5,5,5
+	tmp = tmp.substr(startpos, tmp.size() - startpos); 
 
 	// get up padding
 	startpos = tmp.find(L",") + 1;
@@ -410,41 +407,41 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	tmp = tmp.substr(startpos, tmp.size() - startpos);
 	m_LoadedFonts[filename].first->leftpadding = std::stoi(tmp) / (float)windowWidth;
 
-	fs >> tmp; // spacing=0,0
+	fs >> tmp;
 
 	// get lineheight (how much to move down for each line), and normalize (between 0.0 and 1.0 based on size of font)
-	fs >> tmp >> tmp; // common lineHeight=95
+	fs >> tmp >> tmp;
 	startpos = tmp.find(L"=") + 1;
 	m_LoadedFonts[filename].first->lineHeight = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowHeight;
 
 	// get base height (height of all characters), and normalize (between 0.0 and 1.0 based on size of font)
-	fs >> tmp; // base=68
+	fs >> tmp;
 	startpos = tmp.find(L"=") + 1;
 	m_LoadedFonts[filename].first->baseHeight = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowHeight;
 
 	// get texture width
-	fs >> tmp; // scaleW=512
+	fs >> tmp;
 	startpos = tmp.find(L"=") + 1;
 	m_LoadedFonts[filename].first->textureWidth = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// get texture height
-	fs >> tmp; // scaleH=512
+	fs >> tmp;
 	startpos = tmp.find(L"=") + 1;
 	m_LoadedFonts[filename].first->textureHeight = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// get pages, packed, page id
-	fs >> tmp >> tmp; // pages=1 packed=0
-	fs >> tmp >> tmp; // page id=0
+	fs >> tmp >> tmp; 
+	fs >> tmp >> tmp;
 
 	// get texture filename
 	std::wstring wtmp;
-	fs >> wtmp; // file="Arial.png"
+	fs >> wtmp;
 	startpos = wtmp.find(L"\"") + 1;
 	m_LoadedFonts[filename].first->fontImage = wtmp.substr(startpos, wtmp.size() - startpos - 1);
 	m_LoadedFonts[filename].first->fontImage = L"../Vendor/Resources/Fonts/" + m_LoadedFonts[filename].first->fontImage;
 
 	// get number of characters
-	fs >> tmp >> tmp; // chars count=97
+	fs >> tmp >> tmp;
 	startpos = tmp.find(L"=") + 1;
 	m_LoadedFonts[filename].first->numCharacters = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
@@ -454,58 +451,58 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	for (int c = 0; c < m_LoadedFonts[filename].first->numCharacters; ++c)
 	{
 		// get unicode id
-		fs >> tmp >> tmp; // char id=0
+		fs >> tmp >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		m_LoadedFonts[filename].first->charList[c].id = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 		// get x
-		fs >> tmp; // x=392
+		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		m_LoadedFonts[filename].first->charList[c].u 
 			= (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)m_LoadedFonts[filename].first->textureWidth;
 
 		// get y
-		fs >> tmp; // y=340
+		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		m_LoadedFonts[filename].first->charList[c].v 
 			= (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)m_LoadedFonts[filename].first->textureHeight;
 
 		// get width
-		fs >> tmp; // width=47
+		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		tmp = tmp.substr(startpos, tmp.size() - startpos);
 		m_LoadedFonts[filename].first->charList[c].width = (float)std::stoi(tmp) / (float)windowWidth;
 		m_LoadedFonts[filename].first->charList[c].twidth = (float)std::stoi(tmp) / (float)m_LoadedFonts[filename].first->textureWidth;
 
 		// get height
-		fs >> tmp; // height=57
+		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		tmp = tmp.substr(startpos, tmp.size() - startpos);
 		m_LoadedFonts[filename].first->charList[c].height = (float)std::stoi(tmp) / (float)windowHeight;
 		m_LoadedFonts[filename].first->charList[c].theight = (float)std::stoi(tmp) / (float)m_LoadedFonts[filename].first->textureHeight;
 
 		// get xoffset
-		fs >> tmp; // xoffset=-6
+		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		m_LoadedFonts[filename].first->charList[c].xoffset = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowWidth;
 
 		// get yoffset
-		fs >> tmp; // yoffset=16
+		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		m_LoadedFonts[filename].first->charList[c].yoffset = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowHeight;
 
 		// get xadvance
-		fs >> tmp; // xadvance=65
+		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		m_LoadedFonts[filename].first->charList[c].xadvance = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowWidth;
 
 		// get page
 		// get channel
-		fs >> tmp >> tmp; // page=0    chnl=0
+		fs >> tmp >> tmp;
 	}
 
 	// get number of kernings
-	fs >> tmp >> tmp; // kernings count=96
+	fs >> tmp >> tmp;
 	startpos = tmp.find(L"=") + 1;
 	m_LoadedFonts[filename].first->numKernings = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
@@ -515,17 +512,17 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	for (int k = 0; k < m_LoadedFonts[filename].first->numKernings; ++k)
 	{
 		// get first character
-		fs >> tmp >> tmp; // kerning first=87
+		fs >> tmp >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		m_LoadedFonts[filename].first->kerningsList[k].firstid = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 		// get second character
-		fs >> tmp; // second=45
+		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		m_LoadedFonts[filename].first->kerningsList[k].secondid = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 		// get amount
-		fs >> tmp; // amount=-1
+		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		int t = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 		m_LoadedFonts[filename].first->kerningsList[k].amount = (float)t / (float)windowWidth;

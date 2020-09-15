@@ -10,6 +10,7 @@
 // ECS
 #include "../ECS/Scene.h"
 #include "../ECS/Entity.h"
+#include "../ECS/Components/TextComponent.h"
 
 // Renderer-Engine 
 #include "RootSignature.h"
@@ -24,6 +25,7 @@
 #include "BaseCamera.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "Text.h"
 #include "ShaderResourceView.h"
 
 #include "Bloom.h"
@@ -980,7 +982,7 @@ void Renderer::initRenderTasks()
 	gpsdText.BlendState = textBlendStateDesc;
 	gpsdText.NumRenderTargets = 1;
 
-	D3D12_DEPTH_STENCIL_DESC textDepthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	D3D12_DEPTH_STENCIL_DESC textDepthStencilDesc = {};
 	textDepthStencilDesc.DepthEnable = false;
 	gpsdText.DepthStencilState = textDepthStencilDesc;
 
@@ -1466,25 +1468,25 @@ void Renderer::addComponents(Entity* entity)
 	{
 		TextTask* tt = static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT]);
 		std::vector<TextData>* textDataVec = textComp->GetTextDataVec();
-		Text* text;
 
 		for (int i = 0; i < textDataVec->size(); i++)
 		{
 			AssetLoader* al = AssetLoader::Get();
 			int numOfCharacters = textComp->GetNumOfCharacters(i);
 
-			text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, textComp->GetTexture());
+			Text* text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, textComp->GetTexture());
 			text->SetTextData(&textDataVec->at(i), textComp->GetFont());
 
 			textComp->SubmitText(text);
+
 			// Look if data is already on the GPU
 
 			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+
 			// Submit to GPU
-
 			const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
-			// Vertices
 
+			// Vertices
 			Resource* uploadR = text->m_pUploadResourceVertices;
 			Resource* defaultR = text->m_pDefaultResourceVertices;
 			codt->Submit(&std::make_tuple(uploadR, defaultR, data));

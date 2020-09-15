@@ -37,10 +37,10 @@ namespace component
 		void Update(double dt);
 
 	private:
-		std::vector<TextData> m_TextDataVec;
-		std::vector<Text*> m_TextVec;
+		std::vector<TextData> m_TextDataVec = {};
+		std::vector<Text*> m_TextVec = {};
 		Font* m_pFont = nullptr;
-		Texture* m_pFontTexture;
+		Texture* m_pFontTexture = nullptr;
 	};
 }
 #endif

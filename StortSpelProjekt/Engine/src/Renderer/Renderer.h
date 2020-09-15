@@ -33,7 +33,6 @@ class Bloom;
 // ECS
 class Scene;
 #include "../ECS/Components/BoundingBoxComponent.h"
-#include "../ECS/Components/TextComponent.h"
 class Light;
 
 // Graphics
@@ -58,6 +57,7 @@ namespace component
 {
 	class ModelComponent;
 	class TransformComponent;
+	class TextComponent;
 }
 
 class Renderer
