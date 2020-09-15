@@ -1143,7 +1143,6 @@ void Renderer::removeComponents(Entity* entity)
 
 	// Check if the entity got a boundingbox component.
 	component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
-
 	if (bbc->GetParent() == entity)
 	{
 		// Stop drawing the wireFrame
@@ -1154,7 +1153,6 @@ void Renderer::removeComponents(Entity* entity)
 
 		// Stop picking this boundingBox
 		unsigned int i = 0;
-
 		for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
 		{
 			if (bbcToBePicked == bbc)
@@ -1174,11 +1172,9 @@ void Renderer::addComponents(Entity* entity)
 {
 	// Only add the m_Entities that actually should be drawn
 	component::MeshComponent* mc = entity->GetComponent<component::MeshComponent>();
-
 	if (mc != nullptr)
 	{
 		component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
-
 		if (tc != nullptr)
 		{
 			Mesh* mesh = mc->GetMesh(0);
@@ -1239,7 +1235,6 @@ void Renderer::addComponents(Entity* entity)
 	}
 
 	component::DirectionalLightComponent* dlc = entity->GetComponent<component::DirectionalLightComponent>();
-
 	if (dlc != nullptr)
 	{
 		// Assign CBV from the lightPool
@@ -1267,7 +1262,6 @@ void Renderer::addComponents(Entity* entity)
 		}
 
 		// Assign views required for shadows from the lightPool
-
 		ShadowInfo* si = nullptr;
 
 		if (resolution != SHADOW_RESOLUTION::UNDEFINED)
@@ -1297,7 +1291,6 @@ void Renderer::addComponents(Entity* entity)
 
 		// Save in m_pRenderer
 		m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(plc, cbd, si));
-
 	}
 
 	component::SpotLightComponent* slc = entity->GetComponent<component::SpotLightComponent>();
@@ -1391,23 +1384,16 @@ void Renderer::addComponents(Entity* entity)
 	}
 }
 
-
-
 void Renderer::prepareScene(Scene* scene)
-
 {
 	prepareCBPerFrame();
 	prepareCBPerScene();
 
 	// -------------------- DEBUG STUFF --------------------
-
 	// Test to change m_pCamera to the shadow casting m_lights cameras
-
-	//auto& tuple = m_pRenderer->m_lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
-
-	//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
-
-	//m_pRenderer->ScenePrimaryCamera = tempCam;
+	// auto& tuple = m_pRenderer->m_lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
+	// BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
+	// m_pRenderer->ScenePrimaryCamera = tempCam;
 
 	if (m_pScenePrimaryCamera == nullptr)
 	{
@@ -1421,9 +1407,7 @@ void Renderer::prepareScene(Scene* scene)
 	setRenderTasksPrimaryCamera();
 
 	m_pCurrActiveScene = scene;
-
 }
-
 
 void Renderer::prepareCBPerScene()
 {

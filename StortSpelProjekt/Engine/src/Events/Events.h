@@ -34,6 +34,12 @@ struct MouseScroll : public Event
 	int scroll;
 };
 
+struct TestEvent : public Event
+{
+	TestEvent(int number) : number{ number } {};
+	int number;
+};
+
 struct ModifierInput : public Event
 {
 	ModifierInput(SCAN_CODES key, bool pressed) : key{ key }, pressed{ pressed } {};
