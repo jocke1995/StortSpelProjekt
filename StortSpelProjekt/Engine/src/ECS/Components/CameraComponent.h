@@ -67,6 +67,7 @@ namespace component
 		unsigned int m_CameraFlags = 0;
 		float m_Zoom;
 		float m_Height;
+		float m_Yaw;
 		float m_CameraDistance;
 
 		// Todo: add and calculate m_pMesh to be able to draw frustrum in wireframe

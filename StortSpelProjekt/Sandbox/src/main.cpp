@@ -1,5 +1,4 @@
 #include "Engine.h"
-#include "TestFileTwo.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -32,37 +31,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* testModel = al->LoadModel(L"../Vendor/Resources/Models/test/dboy/D-boy2.obj");
     std::vector<Mesh*>* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     std::vector<Mesh*>* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
-    
-    TestFile object;
-    EventBus::GetInstance().Publish(&TestEvent(1));
-    object.unsub();
-    EventBus::GetInstance().Publish(&TestEvent(1));
-    object.sub();
-    EventBus::GetInstance().Publish(&TestEvent(1));
-    object.unsub();
-    EventBus::GetInstance().Publish(&TestEvent(1));
-    object.sub();
-    EventBus::GetInstance().Publish(&TestEvent(1));
-    object.unsub();
-    EventBus::GetInstance().Publish(&TestEvent(1));
-    object.sub();
-    EventBus::GetInstance().Publish(&TestEvent(1));
-    object.unsub();
-    EventBus::GetInstance().Publish(&TestEvent(1));
-    object.sub();
-    EventBus::GetInstance().Publish(&TestEvent(1));
-    object.unsub();
-    EventBus::GetInstance().Publish(&TestEvent(1));
-    object.sub();
-    
-
-
+ 
     //AUDIO EXAMPLE
     Audio audio;
     audio.OpenFile(engine.GetAudioEngine()->GetAudioEngine(), TEXT("../Vendor/Resources/Audio/bruh.wav"));
     //Change this value to 0 = infinite, 1 = play once, 1+ = play multiple
     audio.SetAudioLoop(1);
-    audio.PlayAudio();
+    //audio.PlayAudio();
 
 #pragma region CreateScene0
     // Create Scene

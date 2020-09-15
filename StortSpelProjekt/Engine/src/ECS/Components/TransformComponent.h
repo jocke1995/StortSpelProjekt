@@ -5,6 +5,7 @@
 class Transform;
 class MovementInput;
 class MouseMovement;
+class ModifierInput;
 
 namespace component
 {
@@ -19,9 +20,11 @@ namespace component
         Transform* GetTransform() const;
     private:
         Transform* m_pTransform = nullptr;
+        bool m_CameraLocked;
 
         void setMovement(MovementInput* evnt);
         void setRotation(MouseMovement* evnt);
+        void toggleCameraLock(ModifierInput* evnt);
     };
 }
 

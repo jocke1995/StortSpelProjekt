@@ -34,6 +34,8 @@ namespace component
 
 		m_Height = 1.0f;
 
+		m_Yaw = 1.0f;
+
 		m_CameraDistance = sqrt(m_Zoom * m_Zoom + (m_Zoom / 4) * (m_Zoom / 4));
 
 		switch (m_CamType)
@@ -95,7 +97,9 @@ namespace component
 	void CameraComponent::ToggleCameraLock()
 	{
 		m_CameraFlags ^= CAMERA_FLAGS::USE_PLAYER_POSITION;
-		(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? EventBus::GetInstance().Subscribe(this, &CameraComponent::moveCamera) : Log::Print("Unsubscribe\n")/* EventBus::GetInstance().Unsubscribe(this &CameraComponent::moveCamera)*/;
+		(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? EventBus::GetInstance().Unsubscribe(this, &CameraComponent::moveCamera) : EventBus::GetInstance().Subscribe(this, &CameraComponent::moveCamera);
+		m_Yaw = sqrt(2);
+		m_Height = 0.0f;
 	}
 
 	void CameraComponent::Update(double dt)
@@ -120,6 +124,11 @@ namespace component
 			float directionY = playerPosition.y - cameraPosition.y;
 			float directionZ = playerPosition.z - cameraPosition.z;
 			m_pCamera->SetDirection(directionX, directionY, directionZ);
+		}
+		else
+		{
+			DirectX::XMFLOAT3 direction = m_pCamera->GetDirection();
+			m_pCamera->SetDirection(cos(m_Yaw), m_Height * 2, sin(m_Yaw));
 		}
 
 		m_pCamera->Update(dt);
@@ -158,16 +167,34 @@ namespace component
 	}
 	void CameraComponent::moveCamera(MovementInput* evnt)
 	{
+		// Find out which key has been pressed
+		float moveRight = static_cast<float>(evnt->key == SCAN_CODES::A) * (static_cast<float>(evnt->pressed) * 2 - 1) - static_cast<float>((evnt->key == SCAN_CODES::D) * (static_cast<float>(evnt->pressed) * 2 - 1));
+		float moveUp = static_cast<float>(evnt->key == SCAN_CODES::Q) * (static_cast<float>(evnt->pressed) * 2 - 1) - static_cast<float>((evnt->key == SCAN_CODES::E) * (static_cast<float>(evnt->pressed) * 2 - 1));
+		float moveForward = static_cast<float>(evnt->key == SCAN_CODES::W) * (static_cast<float>(evnt->pressed) * 2 - 1) - static_cast<float>((evnt->key == SCAN_CODES::S) * (static_cast<float>(evnt->pressed) * 2 - 1));
 
+		static_cast<PerspectiveCamera*>(m_pCamera)->UpdateMovement(moveRight, moveUp, moveForward);
+
+		// If all buttons are released, reset the movement
+		if (!(Input::GetInstance().GetKeyState(SCAN_CODES::W)) &&
+			!(Input::GetInstance().GetKeyState(SCAN_CODES::A)) &&
+			!(Input::GetInstance().GetKeyState(SCAN_CODES::S)) &&
+			!(Input::GetInstance().GetKeyState(SCAN_CODES::D)) &&
+			!(Input::GetInstance().GetKeyState(SCAN_CODES::Q)) &&
+			!(Input::GetInstance().GetKeyState(SCAN_CODES::E)))
+		{
+			static_cast<PerspectiveCamera*>(m_pCamera)->SetMovement(0.0f, 0.0f, 0.0f);
+		}
 	}
 	void CameraComponent::rotateCamera(MouseMovement* evnt)
 	{
 		// Mouse movement in x-direction
-		int y = evnt->y;
+		int x = evnt->x, y = evnt->y;
 
 		// Determine how much to rotate in radians
-		float rotate = -(static_cast<float>(y) / 300.0) * 3.1415;
+		float rotateY = -(static_cast<float>(y) / 600.0) * 3.1415;
+		float rotateX = -(static_cast<float>(x) / 800.0) * 3.1415;
 
-		m_Height = std::max(std::min(m_Height + rotate, 3.0f), -3.0f);
+		m_Height = std::max(std::min(m_Height + rotateY, 3.0f), -3.0f);
+		m_Yaw = m_Yaw + rotateX;
 	}
 }

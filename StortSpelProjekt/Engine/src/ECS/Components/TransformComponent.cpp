@@ -16,11 +16,15 @@ namespace component
 	{
 		m_pTransform = new Transform();
 
+		m_CameraLocked = false;
+
 		// If parent is the player, subscribe to movement events
 		if (!std::strcmp(m_pParent->GetName().c_str(), "player"))
 		{
+			m_CameraLocked = true;
 			EventBus::GetInstance().Subscribe(this, &TransformComponent::setMovement);
 			EventBus::GetInstance().Subscribe(this, &TransformComponent::setRotation);
+			EventBus::GetInstance().Subscribe(this, &TransformComponent::toggleCameraLock);
 		}
 	}
 
@@ -99,5 +103,23 @@ namespace component
 		int isMovingX = static_cast<int>(Input::GetInstance().GetKeyState(SCAN_CODES::D)) - static_cast<int>(Input::GetInstance().GetKeyState(SCAN_CODES::A));
 
 		m_pTransform->SetMovement(forward.x * isMovingZ + right.x * isMovingX, m_pTransform->GetMovement().y, forward.z * isMovingZ + right.z * isMovingX);
+	}
+	void TransformComponent::toggleCameraLock(ModifierInput* evnt)
+	{
+		if (evnt->key == SCAN_CODES::LEFT_CTRL && evnt->pressed)
+		{
+			if (m_CameraLocked)
+			{
+				m_CameraLocked = false;
+				EventBus::GetInstance().Unsubscribe(this, &TransformComponent::setMovement);
+				EventBus::GetInstance().Unsubscribe(this, &TransformComponent::setRotation);
+			}
+			else
+			{
+				m_CameraLocked = true;
+				EventBus::GetInstance().Subscribe(this, &TransformComponent::setMovement);
+				EventBus::GetInstance().Subscribe(this, &TransformComponent::setRotation);
+			}
+		}
 	}
 }
