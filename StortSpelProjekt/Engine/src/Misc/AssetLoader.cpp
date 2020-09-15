@@ -4,6 +4,7 @@
 #include "../Renderer/DescriptorHeap.h"
 #include "Window.h"
 
+#include "../Renderer/Model.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Texture.h"
@@ -31,14 +32,15 @@ AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_C
 
 AssetLoader::~AssetLoader()
 {
+	// For every Mesh
+	for (auto mesh : m_LoadedMeshes)
+	{
+		delete mesh;
+	}
+
 	// For every model
 	for (auto pair : m_LoadedModels)
 	{
-		// For every m_pMesh the model has
-		for (unsigned int i = 0; i < pair.second.second->size(); i++)
-		{
-			delete pair.second.second->at(i);
-		}
 		delete pair.second.second;
 	}
 
@@ -71,7 +73,7 @@ AssetLoader* AssetLoader::Get(ID3D12Device5* device, DescriptorHeap* descriptorH
 	return &instance;
 }
 
-std::vector<Mesh*>* AssetLoader::LoadModel(const std::wstring path)
+Model* AssetLoader::LoadModel(const std::wstring path)
 {
 	// Check if the model already exists
 	if (m_LoadedModels.count(path) != 0)
@@ -91,12 +93,17 @@ std::vector<Mesh*>* AssetLoader::LoadModel(const std::wstring path)
 		return nullptr;
 	}
 	
-	std::vector<Mesh*> *meshes = new std::vector<Mesh*>;
-	meshes->reserve(assimpScene->mNumMeshes);
-	m_LoadedModels[path].first = false;
-	m_LoadedModels[path].second = meshes;
+	std::vector<Mesh*> meshes;
+	std::vector<std::map<TEXTURE_TYPE, Texture*>> textures;
 
-	processNode(assimpScene->mRootNode, assimpScene, meshes, &filePath);
+	meshes.reserve(assimpScene->mNumMeshes);
+	textures.reserve(assimpScene->mNumMeshes);
+	m_LoadedModels[path].first = false;
+	
+
+	processNode(assimpScene->mRootNode, assimpScene, &meshes, &textures, &filePath);
+
+	m_LoadedModels[path].second = new Model(path, &meshes, &textures);
 
 	return m_LoadedModels[path].second;
 }
@@ -164,28 +171,28 @@ Shader* AssetLoader::loadShader(std::wstring fileName, ShaderType type)
 	return m_LoadedShaders[fileName];
 }
 
-void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, const std::string* filePath)
+void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
 {
 	// Go through all the m_Meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = assimpScene->mMeshes[node->mMeshes[i]];
-		meshes->push_back(processMesh(mesh, assimpScene, filePath));
+		meshes->push_back(processMesh(mesh, assimpScene, meshes, textures, filePath));
 	}
 	
 	// If the node has more node children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], assimpScene, meshes, filePath);
+		processNode(node->mChildren[i], assimpScene, meshes, textures, filePath);
 	}
 }
 
-Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, const std::string* filePath)
+Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
 {
 	// Fill this data
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	std::map<TEXTURE_TYPE, Texture*> textures;
+	std::map<TEXTURE_TYPE, Texture*> meshTextures;
 
 	// Get data from assimpMesh and store it
 	for (unsigned int i = 0; i < assimpMesh->mNumVertices; i++)
@@ -260,6 +267,9 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 		m_pDescriptorHeap_CBV_UAV_SRV,
 		*filePath);
 
+	// save mesh
+	m_LoadedMeshes.push_back(mesh);
+
 	// ---------- Get Textures and set them to the m_pMesh START----------
 	aiMaterial* mat = assimpScene->mMaterials[assimpMesh->mMaterialIndex];
 	
@@ -269,13 +279,14 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, c
 	filePathWithoutTexture = filePathWithoutTexture.substr(0, indicesInPath + 1);
 
 	// Add the textures to the m_pMesh
-	Texture* texture = nullptr;
 	for (int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
 	{
 		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-		texture = processTexture(mat, type, &filePathWithoutTexture);
-		mesh->SetTexture(type, texture);
+		Texture* texture = processTexture(mat, type, &filePathWithoutTexture);
+		meshTextures[type] = texture;
 	}
+	// add the texture to the correct mesh (later for models slotinfo)
+	textures->push_back(meshTextures);
 	// ---------- Get Textures and set them to the m_pMesh END----------
 
 	// Set shininess

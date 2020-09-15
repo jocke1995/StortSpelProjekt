@@ -207,7 +207,7 @@ void Renderer::SortObjectsByDistance()
 	struct DistFromCamera
 	{
 		double distance;
-		component::MeshComponent* mc;
+		component::ModelComponent* mc;
 		component::TransformComponent* tc;
 	};
 
@@ -594,7 +594,7 @@ void Renderer::updateMousePicker()
 
 		// Set the object to me drawn in outliningRenderTask
 		Entity* parentOfPickedObject = pickedBoundingBox->GetParent();
-		component::MeshComponent*		mc = parentOfPickedObject->GetComponent<component::MeshComponent>();
+		component::ModelComponent*		mc = parentOfPickedObject->GetComponent<component::ModelComponent>();
 		component::TransformComponent*	tc = parentOfPickedObject->GetComponent<component::TransformComponent>();
 
 		m_pOutliningRenderTask->SetObjectToOutline(&std::make_pair(mc, tc));
@@ -943,7 +943,7 @@ void Renderer::initRenderTasks()
 	static_cast<MergeRenderTask*>(mergeTask)->AddSRVIndexToMerge(m_pBloomResources->GetPingPongResource(0)->GetSRV()->GetDescriptorHeapIndex());
 	mergeTask->SetSwapChain(m_pSwapChain);
 	mergeTask->SetDescriptorHeaps(m_DescriptorHeaps);
-
+	static_cast<MergeRenderTask*>(mergeTask)->CreateSlotInfo();
 #pragma endregion MergePass
 #pragma region Text 
 
@@ -1249,18 +1249,16 @@ void Renderer::removeComponents(Entity* entity)
 	return;
 }
 
-
-
 void Renderer::addComponents(Entity* entity)
 {
 	// Only add the m_Entities that actually should be drawn
-	component::MeshComponent* mc = entity->GetComponent<component::MeshComponent>();
+	component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
 	if (mc != nullptr)
 	{
 		component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
 		if (tc != nullptr)
 		{
-			Mesh* mesh = mc->GetMesh(0);
+			Mesh* mesh = mc->GetMeshAt(0);
 			AssetLoader* al = AssetLoader::Get();
 			std::wstring modelPath = to_wstring(mesh->GetPath());
 			bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
@@ -1274,16 +1272,15 @@ void Renderer::addComponents(Entity* entity)
 			// Submit Mesh/texture data to GPU if they haven't already been uploaded
 			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 			{
-				mesh = mc->GetMesh(i);
+				mesh = mc->GetMeshAt(i);
 
 				// Submit to the list which gets updated to the gpu each frame
 				CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
 
 				// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
+				CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 				if (isModelOnGpu == false)
 				{
-					CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-
 					// Vertices
 					const void* data = static_cast<const void*>(mesh->m_Vertices.data());
 					Resource* uploadR = mesh->m_pUploadResourceVertices;
@@ -1295,19 +1292,20 @@ void Renderer::addComponents(Entity* entity)
 					uploadR = mesh->m_pUploadResourceIndices;
 					defaultR = mesh->m_pDefaultResourceIndices;
 					codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+				}
 
-					// Textures
-					for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+				std::map<TEXTURE_TYPE, Texture*> meshTextures = *mc->GetTexturesAt(i);
+				// Textures
+				for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+				{
+					TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
+					Texture* texture = meshTextures[type];
+
+					// Check if the texture is on GPU before submitting to be uploaded
+					if (al->m_LoadedTextures[texture->m_FilePath].first == false)
 					{
-						TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-						Texture* texture = mesh->GetTexture(type);
-
-						// Check if the texture is on GPU before submitting to be uploaded
-						if (al->m_LoadedTextures[texture->m_FilePath].first == false)
-						{
-							codt->SubmitTexture(texture);
-							al->m_LoadedTextures[texture->m_FilePath].first = true;
-						}
+						codt->SubmitTexture(texture);
+						al->m_LoadedTextures[texture->m_FilePath].first = true;
 					}
 				}
 			}
@@ -1346,7 +1344,6 @@ void Renderer::addComponents(Entity* entity)
 
 		// Assign views required for shadows from the lightPool
 		ShadowInfo* si = nullptr;
-
 		if (resolution != SHADOW_RESOLUTION::UNDEFINED)
 		{
 			si = m_pViewPool->GetFreeShadowInfo(LIGHT_TYPE::DIRECTIONAL_LIGHT, resolution);
@@ -1362,7 +1359,6 @@ void Renderer::addComponents(Entity* entity)
 
 	// Currently no shadows are implemented for pointLights
 	component::PointLightComponent* plc = entity->GetComponent<component::PointLightComponent>();
-
 	if (plc != nullptr)
 	{
 		// Assign CBV from the lightPool
@@ -1377,7 +1373,6 @@ void Renderer::addComponents(Entity* entity)
 	}
 
 	component::SpotLightComponent* slc = entity->GetComponent<component::SpotLightComponent>();
-
 	if (slc != nullptr)
 	{
 		// Assign CBV from the lightPool
@@ -1442,7 +1437,6 @@ void Renderer::addComponents(Entity* entity)
 
 			// Submit to GPU
 			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-
 			// Vertices
 			const void* data = static_cast<const void*>(m->m_Vertices.data());
 			Resource* uploadR = m->m_pUploadResourceVertices;
@@ -1454,6 +1448,7 @@ void Renderer::addComponents(Entity* entity)
 			uploadR = m->m_pUploadResourceIndices;
 			defaultR = m->m_pDefaultResourceIndices;
 			codt->Submit(&std::tuple(uploadR, defaultR, data));
+
 			bbc->SetMesh(m);
 
 			m_pWireFrameTask->AddObjectToDraw(bbc);
@@ -1482,14 +1477,14 @@ void Renderer::addComponents(Entity* entity)
 			text->SetTextData(&textDataVec->at(i), textComp->GetFont());
 
 			textComp->SubmitText(text);
-
-			// Submit to GPU
-			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-
 			// Look if data is already on the GPU
 
-			// Vertices
+			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+			// Submit to GPU
+
 			const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
+			// Vertices
+
 			Resource* uploadR = text->m_pUploadResourceVertices;
 			Resource* defaultR = text->m_pDefaultResourceVertices;
 			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
@@ -1510,13 +1505,13 @@ void Renderer::prepareScene(Scene* scene)
 
 	// -------------------- DEBUG STUFF --------------------
 	// Test to change m_pCamera to the shadow casting m_lights cameras
-	// auto& tuple = m_pRenderer->m_lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
-	// BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
-	// m_pRenderer->ScenePrimaryCamera = tempCam;
-
+	//auto& tuple = m_pRenderer->m_lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
+	//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
+	//m_pRenderer->ScenePrimaryCamera = tempCam;
 	if (m_pScenePrimaryCamera == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scene: %s\n", scene->GetName());
+
 		// Todo: Set default m_pCamera
 	}
 

@@ -4,6 +4,7 @@
 #include "Core.h"
 
 class DescriptorHeap;
+class Model;
 class Mesh;
 class Shader;
 class Texture;
@@ -24,7 +25,7 @@ public:
 
     /* Load Functions */
     // Model ---------------
-    std::vector<Mesh*>* LoadModel(const std::wstring path);
+    Model* LoadModel(const std::wstring path);
 
     // Texture ------------
     Texture* LoadTexture(const std::wstring path);
@@ -52,14 +53,25 @@ private:
 	const std::wstring m_FilePathFonts = L"../Vendor/Resources/Fonts/";
 
     // Every model & texture also has a bool which indicates if its data is on the GPU or not
-    std::map<std::wstring, std::pair<bool, std::vector<Mesh*>*>> m_LoadedModels;
+    std::map<std::wstring, std::pair<bool, Model*>> m_LoadedModels;
+    std::vector<Mesh*> m_LoadedMeshes;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
     std::map<std::wstring, Shader*> m_LoadedShaders;
 	std::map<std::wstring, std::pair<Font*, Texture*>> m_LoadedFonts;
 
     /* --------------- Functions --------------- */
-    void processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*> *meshes, const std::string* filePath);
-    Mesh* processMesh(aiMesh* mesh, const aiScene* assimpScene, const std::string* filePath);
+    void processNode(aiNode* node, 
+        const aiScene* assimpScene,
+        std::vector<Mesh*> *meshes,
+        std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures,
+        const std::string* filePath);
+
+    Mesh* processMesh(aiMesh* mesh, 
+        const aiScene* assimpScene,
+        std::vector<Mesh*>* meshes,
+        std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures,
+        const std::string* filePath);
+
     Texture* processTexture(aiMaterial* mat, TEXTURE_TYPE texture_type, const std::string* filePathWithoutTexture);
     Shader* loadShader(std::wstring fileName, ShaderType type);
 	Font* loadFont(LPCWSTR filename, int windowWidth, int windowHeight);

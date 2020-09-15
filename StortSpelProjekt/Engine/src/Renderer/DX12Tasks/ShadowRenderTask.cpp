@@ -94,7 +94,7 @@ void ShadowRenderTask::Execute()
 		// Draw for every Rendercomponent
 		for (int i = 0; i < m_RenderComponents.size(); i++)
 		{
-			component::MeshComponent* mc = m_RenderComponents.at(i).first;
+			component::ModelComponent* mc = m_RenderComponents.at(i).first;
 			component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
 			// Check if the object is to be drawn in ShadowPass
@@ -103,8 +103,8 @@ void ShadowRenderTask::Execute()
 				// Draw for every m_pMesh the meshComponent has
 				for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 				{
-					size_t num_Indices = mc->GetMesh(i)->GetNumIndices();
-					const SlotInfo* info = mc->GetMesh(i)->GetSlotInfo();
+					size_t num_Indices = mc->GetMeshAt(i)->GetNumIndices();
+					const SlotInfo* info = mc->GetSlotInfoAt(i);
 
 					Transform* transform = tc->GetTransform();
 					DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
@@ -115,7 +115,7 @@ void ShadowRenderTask::Execute()
 
 					commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-					commandList->IASetIndexBuffer(mc->GetMesh(i)->GetIndexBufferView());
+					commandList->IASetIndexBuffer(mc->GetMeshAt(i)->GetIndexBufferView());
 					commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 				}
 			}
