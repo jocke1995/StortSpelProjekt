@@ -14,6 +14,7 @@ public:
 
 private:
 	std::string m_ConsoleInput;
+	bool m_Done;
 
 };
 
