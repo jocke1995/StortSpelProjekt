@@ -17,7 +17,6 @@ Engine::~Engine()
 
 	delete m_SceneManager;
 	delete m_Renderer;
-	//delete m_pAudioEngine;
 }
 
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
@@ -38,7 +37,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	//m_pAudioEngine = &AudioEngine::GetInstance();
 
 	// ECS
-	m_SceneManager = new SceneManager(m_Renderer, m_pAudioEngine);
+	m_SceneManager = new SceneManager(m_Renderer);
 
 	Input::GetInstance().RegisterDevices(m_Window->GetHwnd());
 }
