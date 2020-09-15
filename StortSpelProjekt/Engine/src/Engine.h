@@ -16,6 +16,7 @@
 #include "ECS/Components/Lights/PointLightComponent.h"
 #include "ECS/Components/Lights/SpotLightComponent.h"
 #include "ECS/Components/CameraComponent.h"
+#include "ECS/Components/TextComponent.h"
 
 // Sub-engines
 #include "Renderer/Renderer.h"

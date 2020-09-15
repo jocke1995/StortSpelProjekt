@@ -32,7 +32,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 
 	// Sub-engines
 	m_pRenderer = new Renderer();
-	m_pRenderer->InitD3D12(m_pWindow->GetHwnd(), hInstance, m_pThreadPool);
+	m_pRenderer->InitD3D12(m_pWindow, hInstance, m_pThreadPool);
 
 	//m_pAudioEngine = &AudioEngine::GetInstance();
 
