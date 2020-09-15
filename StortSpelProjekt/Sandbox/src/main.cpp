@@ -40,7 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     audio.OpenFile(engine.GetAudioEngine()->GetAudioEngine(), TEXT("../Vendor/Resources/Audio/bruh.wav"));
     //Change this value to 0 = infinite, 1 = play once, 1+ = play multiple
     audio.SetAudioLoop(1);
-    audio.PlayAudio();
+    //audio.PlayAudio();
 
 #pragma region CreateScene0
     // Create Scene
