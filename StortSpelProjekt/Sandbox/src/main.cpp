@@ -1,6 +1,7 @@
 #include "Engine.h"
 
 Scene* JockesTestScene(SceneManager* sm);
+Scene* FredriksTestScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -35,9 +36,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     Model* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
 
-	// Load fonts
-	std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
-
     //AUDIO EXAMPLE
     AudioBuffer* testAudio = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"Melody");
     AudioBuffer* DABADABA = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"Music");
@@ -49,14 +47,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 #pragma region CreateScene0
     // Create Scene
     Scene* scene = sceneManager->CreateScene("scene0");
-    
-	// Text test ---------------------------------------
-	std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
-	float2 textPos = { 0.02f, 0.01f };
-	float2 textPadding = { 0.5f, 0.0f };
-	float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
-	float2 textScale = { 0.5f, 0.5f };
-	// ---------------------------------------------------
 
     // Add Entity to Scene
     scene->AddEntity("player");
@@ -68,8 +58,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     scene->AddEntity("directionalLight");
     scene->AddEntity("spotLight");
     scene->AddEntity("spotLight2");
-	scene->AddEntity("text");
-
 
     // Add Components to Entities
     Entity* entity;
@@ -220,19 +208,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     sl->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.9f, 0.00f, 0.9f, 1.0f });
     sl->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.00f, 0.9f, 1.0f });
 
-	entity = scene->GetEntity("text");
-	component::TextComponent* textComp = entity->AddComponent<component::TextComponent>(arialFont);
-	textComp->AddText();
-	textComp->SetColor(textColor, 0);
-	textComp->SetPadding(textPadding, 0);
-	textComp->SetPos(textPos, 0);
-	textComp->SetScale(textScale, 0);
-	textComp->SetText(textToRender, 0);
-
 #pragma endregion CreateScene0
 
     char sceneName[10] = "scene0";
     //scene = JockesTestScene(sceneManager);
+	//scene = FredriksTestScene(sceneManager);
 
     //scene = sceneManager->GetScene(sceneName);
     sceneManager->SetSceneToDraw(scene);
@@ -439,4 +419,188 @@ Scene* JockesTestScene(SceneManager* sm)
 
 
     return scene;
+}
+
+Scene* FredriksTestScene(SceneManager* sm)
+{
+	// Create Scene
+	Scene* scene = sm->CreateScene("scene1");
+
+	component::CameraComponent* cc = nullptr;
+	component::ModelComponent* mc = nullptr;
+	component::TransformComponent* tc = nullptr;
+	component::PointLightComponent* plc = nullptr;
+	AssetLoader* al = AssetLoader::Get();
+
+	// Get the models needed
+	Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+	Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+	Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+	Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+
+	/* ---------------------- Player ---------------------- */
+	Entity* entity = scene->AddEntity("player");
+	mc = entity->AddComponent<component::ModelComponent>();
+	tc = entity->AddComponent<component::TransformComponent>();
+	cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
+
+	mc->SetModel(playerModel);
+	mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+	tc->GetTransform()->SetScale(1.0f);
+	tc->GetTransform()->SetPosition(0, 1, -30);
+	/* ---------------------- Player ---------------------- */
+
+	/* ---------------------- Floor ---------------------- */
+	entity = scene->AddEntity("floor");
+	mc = entity->AddComponent<component::ModelComponent>();
+	tc = entity->AddComponent<component::TransformComponent>();
+
+	mc = entity->GetComponent<component::ModelComponent>();
+	mc->SetModel(floorModel);
+	mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+	tc = entity->GetComponent<component::TransformComponent>();
+	tc->GetTransform()->SetScale(35, 1, 35);
+	tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+	/* ---------------------- Floor ---------------------- */
+
+	/* ---------------------- Stone ---------------------- */
+	entity = scene->AddEntity("stone");
+	mc = entity->AddComponent<component::ModelComponent>();
+	tc = entity->AddComponent<component::TransformComponent>();
+
+	mc = entity->GetComponent<component::ModelComponent>();
+	mc->SetModel(stoneModel);
+	mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+	tc = entity->GetComponent<component::TransformComponent>();
+	tc->GetTransform()->SetScale(0.01f);
+	tc->GetTransform()->SetPosition(-8.0f, 0.0f, 0.0f);
+	/* ---------------------- Stone ---------------------- */
+
+	/* ---------------------- PointLight1 ---------------------- */
+	entity = scene->AddEntity("pointLight1");
+	mc = entity->AddComponent<component::ModelComponent>();
+	tc = entity->AddComponent<component::TransformComponent>();
+	plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+	mc->SetModel(cubeModel);
+	mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+	tc->GetTransform()->SetScale(0.5f);
+	tc->GetTransform()->SetPosition(-30.0f, 4.0f, 15.0f);
+
+	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.05f, 0.0f, 1.0f });
+	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 10.0f, 0.0f, 1.0f });
+	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
+	/* ---------------------- PointLight1 ---------------------- */
+
+	/* ---------------------- PointLigh2 ---------------------- */
+	entity = scene->AddEntity("pointLight2");
+	mc = entity->AddComponent<component::ModelComponent>();
+	tc = entity->AddComponent<component::TransformComponent>();
+	plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+	mc->SetModel(cubeModel);
+	mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+	tc->GetTransform()->SetScale(0.5f);
+	tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
+
+	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.00f, 0.05f, 1.0f });
+	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 0.00f, 10.0f, 1.0f });
+	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.00f, 0.9f, 1.0f });
+
+	plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
+
+	/* ---------------------- PointLight2 ---------------------- */
+
+	/* ---------------------- PointLight3 ---------------------- */
+	entity = scene->AddEntity("pointLight3");
+	mc = entity->AddComponent<component::ModelComponent>();
+	tc = entity->AddComponent<component::TransformComponent>();
+	plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+	mc->SetModel(cubeModel);
+	mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+	tc->GetTransform()->SetScale(0.5f);
+	tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
+
+	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.05f, 1.0f });
+	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 10.0f, 10.0f, 1.0f });
+	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
+	/* ---------------------- PointLight3 ---------------------- */
+
+	/* ---------------------- PointLight4 ---------------------- */
+	entity = scene->AddEntity("pointLight4");
+	mc = entity->AddComponent<component::ModelComponent>();
+	tc = entity->AddComponent<component::TransformComponent>();
+	plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+	mc->SetModel(cubeModel);
+	mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+	tc->GetTransform()->SetScale(0.5f);
+	tc->GetTransform()->SetPosition(-30.0f, 4.0f, -15.0f);
+
+	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.0f, 0.0f, 1.0f });
+	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 30.0f, 0.0f, 0.0f, 1.0f });
+	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.0f, 0.0f, 1.0f });
+	/* ---------------------- PointLight4 ---------------------- */
+
+	/* ---------------------- PointLigh5 ---------------------- */
+	entity = scene->AddEntity("pointLight5");
+	mc = entity->AddComponent<component::ModelComponent>();
+	tc = entity->AddComponent<component::TransformComponent>();
+	plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+	mc->SetModel(cubeModel);
+	mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+	tc->GetTransform()->SetScale(0.5f);
+	tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
+
+	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.0f, 1.0f });
+	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 15.0f, 0.0f, 1.0f });
+	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.0f, 1.0f });
+
+	plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
+
+	/* ---------------------- PointLight5 ---------------------- */
+
+	/* ---------------------- PointLight6 ---------------------- */
+	entity = scene->AddEntity("pointLight6");
+	mc = entity->AddComponent<component::ModelComponent>();
+	tc = entity->AddComponent<component::TransformComponent>();
+	plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+	mc->SetModel(cubeModel);
+	mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+	tc->GetTransform()->SetScale(0.5f);
+	tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
+
+	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.0f, 0.05f, 1.0f });
+	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 0.0f, 30.0f, 1.0f });
+	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.0f, 0.9f, 1.0f });
+	/* ---------------------- PointLight6 ---------------------- */
+
+	/* ------------------------- Text --------------------------- */
+
+	// Load fonts
+	std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
+	
+	std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
+	float2 textPos = { 0.02f, 0.01f };
+	float2 textPadding = { 0.5f, 0.0f };
+	float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
+	float2 textScale = { 0.5f, 0.5f };
+
+	scene->AddEntity("text");
+
+	entity = scene->GetEntity("text");
+	component::TextComponent* textComp = entity->AddComponent<component::TextComponent>(arialFont);
+	textComp->AddText();
+	textComp->SetColor(textColor, 0);
+	textComp->SetPadding(textPadding, 0);
+	textComp->SetPos(textPos, 0);
+	textComp->SetScale(textScale, 0);
+	textComp->SetText(textToRender, 0);
+
+	/* ---------------------------------------------------------- */
+
+	return scene;
 }
