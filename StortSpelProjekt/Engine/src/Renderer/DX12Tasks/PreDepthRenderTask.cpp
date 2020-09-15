@@ -1,3 +1,4 @@
+
 #include "stdafx.h"
 #include "PreDepthRenderTask.h"
 
@@ -63,7 +64,7 @@ void PreDepthRenderTask::Execute()
 
 	// Clear and set depthstencil
 	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
-	commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	commandList->OMSetRenderTargets(0, nullptr, false, &dsh);
 
 	// Draw for every Rendercomponent
