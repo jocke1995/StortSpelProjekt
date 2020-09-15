@@ -44,6 +44,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Change this value to 0 = infinite, 1 = play once, 1+ = play multiple
     audio.SetAudioLoop(1);
     audio.PlayAudio();
+    AudioBuffer* testAudio = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"Melody");
+    AudioBuffer* DABADABA = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"Music");
+    AudioBuffer* bruhAudio = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+
+    // To set an audio to loop, 0 = loop infinetly, 1 = loop once, x > 1 loop that amount of times.
+    bruhAudio->SetAudioLoop(0);
 
 #pragma region CreateScene0
     // Create Scene
@@ -77,17 +83,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::ModelComponent>();
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    entity->AddComponent<component::AudioVoiceComponent>();
     component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
 
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::ModelComponent>();
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>();
+    entity->AddComponent<component::AudioVoiceComponent>();
 
     entity = scene->GetEntity("box");
     entity->AddComponent<component::ModelComponent>();
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
+    entity->AddComponent<component::AudioVoiceComponent>();
 
     entity = scene->GetEntity("stone");
     entity->AddComponent<component::ModelComponent>();
@@ -127,6 +136,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, 0);
     scene->GetEntity("player")->GetComponent<component::BoundingBoxComponent>()->Init();
+
+    // To add sound for an entity, a voice component needs to be added. Add the voice component with the same name as
+    // one of the loaded audios. The same audio may be played from different entities!
+    component::AudioVoiceComponent* avc = scene->GetEntity("player")->GetComponent<component::AudioVoiceComponent>();
+    avc->AddVoice(L"Bruh");
+
+    // To play the audio, simply call play on the component, giving the name of the Audio that you whish to play.
+    // Multiple sounds are allowed!
+    avc->Play(L"Bruh");
+
 
     mc = scene->GetEntity("floor")->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
@@ -240,12 +259,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                 sceneManager->RemoveEntity(pickedEnt);
                 scene->RemoveEntity(pickedEnt->GetName());
             }*/
+		}
+
+		if (window->WasSpacePressed())
+		{
         }
 
-        if (window->WasSpacePressed())
-        {
-            // nothing
-        }
+        //test->PlayAudio("testAudio");
+
 
         /* ------ Update ------ */
         timer->Update();

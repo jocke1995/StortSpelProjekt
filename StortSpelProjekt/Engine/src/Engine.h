@@ -25,7 +25,7 @@
 #include "Renderer/Mesh.h"
 #include "Renderer/BaseCamera.h"
 #include "Physics/Physics.h"
-#include "AudioEngine/Audio.h"
+#include "AudioEngine/AudioBuffer.h"
 
 // Event-handling
 #include "Events/EventBus.h"
