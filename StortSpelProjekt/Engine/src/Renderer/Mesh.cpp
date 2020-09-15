@@ -5,15 +5,18 @@
 #include "ShaderResourceView.h"
 #include "DescriptorHeap.h"
 #include "Texture.h"
+#include "Animation.h"
 
 Mesh::Mesh(	ID3D12Device5* device,
-			std::vector<Vertex> vertices,
-			std::vector<unsigned int> indices,
+			std::vector<Vertex>* vertices,
+			std::vector<unsigned int>* indices,
+			std::vector<Bone>* bones,
 			DescriptorHeap* descriptorHeap_SRV,
 			const std::string path)
 {
-	m_Vertices = vertices;
-	m_Indices = indices;
+	m_Vertices = *vertices;
+	m_Indices = *indices;
+	m_Bones = *bones;
 
 	m_Path = path;
 
