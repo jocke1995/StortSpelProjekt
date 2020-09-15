@@ -12,7 +12,7 @@
 Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfCharacters, Texture* texture)
 {
 	// Four vertices (quad) per character 
-	m_NrOfVertices = numOfCharacters * 4;
+	m_NrOfVertices = numOfCharacters;
 	m_SizeOfVertices = m_NrOfVertices * sizeof(TextVertex);
 
 	// Set vertices
