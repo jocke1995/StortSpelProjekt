@@ -3,6 +3,7 @@
 
 #include "Component.h"
 class Transform;
+class MovementInput;
 
 namespace component
 {
@@ -17,6 +18,8 @@ namespace component
         Transform* GetTransform() const;
     private:
         Transform* m_pTransform = nullptr;
+
+        void setMovement(MovementInput* evnt);
     };
 }
 
