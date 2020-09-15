@@ -73,10 +73,10 @@ namespace component
 	void TransformComponent::setRotation(MouseMovement* evnt)
 	{
 		// Mouse movement in x-direction
-		int x = evnt->x;
+		int x = evnt->x, y = evnt->x;
 
 		// Determine how much to rotate in radians
-		float rotate = -(static_cast<float>(x) / 400.0) * 3.1415;
+		float rotateX = -(static_cast<float>(x) / 400.0) * 3.1415;
 
 		// Get rotation to determine current rotation angle
 		DirectX::XMMATRIX rotMat = m_pTransform->GetRotMatrix();
@@ -87,7 +87,7 @@ namespace component
 		float angle = std::atan2(forward.x, forward.z);
 
 		// Set the new rotation
-		m_pTransform->RotateY(angle + rotate);
+		m_pTransform->RotateY(angle + rotateX);
 
 		// Get new direction
 		rotMat = m_pTransform->GetRotMatrix();

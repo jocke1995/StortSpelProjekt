@@ -6,6 +6,8 @@
 class BaseCamera;
 class ModifierInput;
 class MouseScroll;
+class MovementInput;
+class MouseMovement;
 
 enum CAMERA_FLAGS
 {
@@ -64,6 +66,8 @@ namespace component
 		bool m_PrimaryCamera = false;
 		unsigned int m_CameraFlags = 0;
 		float m_Zoom;
+		float m_Height;
+		float m_CameraDistance;
 
 		// Todo: add and calculate m_pMesh to be able to draw frustrum in wireframe
 
@@ -87,6 +91,9 @@ namespace component
 
 		void toggleCameraLock(ModifierInput* evnt);
 		void zoom(MouseScroll* evnt);
+
+		void moveCamera(MovementInput* evnt);
+		void rotateCamera(MouseMovement* evnt);
 	};
 }
 

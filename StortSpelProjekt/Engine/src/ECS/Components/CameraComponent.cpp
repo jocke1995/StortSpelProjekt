@@ -32,6 +32,10 @@ namespace component
 
 		m_Zoom = 12.0f;
 
+		m_Height = 1.0f;
+
+		m_CameraDistance = sqrt(m_Zoom * m_Zoom + (m_Zoom / 4) * (m_Zoom / 4));
+
 		switch (m_CamType)
 		{
 		case CAMERA_TYPE::PERSPECTIVE:
@@ -47,6 +51,7 @@ namespace component
 		{
 			EventBus::GetInstance().Subscribe(this, &CameraComponent::toggleCameraLock);
 			EventBus::GetInstance().Subscribe(this, &CameraComponent::zoom);
+			EventBus::GetInstance().Subscribe(this, &CameraComponent::rotateCamera);
 		}
 	}
 
@@ -90,6 +95,7 @@ namespace component
 	void CameraComponent::ToggleCameraLock()
 	{
 		m_CameraFlags ^= CAMERA_FLAGS::USE_PLAYER_POSITION;
+		(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? EventBus::GetInstance().Subscribe(this, &CameraComponent::moveCamera) : Log::Print("Unsubscribe\n")/* EventBus::GetInstance().Unsubscribe(this &CameraComponent::moveCamera)*/;
 	}
 
 	void CameraComponent::Update(double dt)
@@ -105,7 +111,9 @@ namespace component
 			DirectX::XMStoreFloat3(&forward, rotMat.r[2]);
 			DirectX::XMStoreFloat3(&right, rotMat.r[0]);
 
-			float3 cameraPosition = { playerPosition.x - (m_Zoom * forward.x), playerPosition.y + m_Zoom / 4, playerPosition.z - (m_Zoom * forward.z) };
+			float zoomBack = sqrt(m_CameraDistance * m_CameraDistance - ((m_Zoom / 4) * m_Height) * ((m_Zoom / 4) * m_Height));
+
+			float3 cameraPosition = { playerPosition.x - (zoomBack * forward.x), playerPosition.y + (m_Zoom / 4) * m_Height, playerPosition.z - (zoomBack * forward.z) };
 
 			m_pCamera->SetPosition(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 			float directionX = playerPosition.x - cameraPosition.x;
@@ -146,5 +154,20 @@ namespace component
 	void CameraComponent::zoom(MouseScroll* evnt)
 	{
 		m_Zoom = std::max(m_Zoom - evnt->scroll, 6.0f);
+		m_CameraDistance = sqrt(m_Zoom * m_Zoom + (m_Zoom / 4) * (m_Zoom / 4));
+	}
+	void CameraComponent::moveCamera(MovementInput* evnt)
+	{
+
+	}
+	void CameraComponent::rotateCamera(MouseMovement* evnt)
+	{
+		// Mouse movement in x-direction
+		int y = evnt->y;
+
+		// Determine how much to rotate in radians
+		float rotate = -(static_cast<float>(y) / 300.0) * 3.1415;
+
+		m_Height = std::max(std::min(m_Height + rotate, 3.0f), -3.0f);
 	}
 }
