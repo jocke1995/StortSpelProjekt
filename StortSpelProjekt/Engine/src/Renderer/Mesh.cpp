@@ -41,9 +41,6 @@ Mesh::Mesh(	ID3D12Device5* device,
 		descriptorHeap_SRV,
 		&dsrv,
 		m_pDefaultResourceVertices);
-
-	m_pSlotInfo = new SlotInfo();
-	m_pSlotInfo->vertexDataIndex = m_pSRV->GetDescriptorHeapIndex();
 }
 
 Mesh::~Mesh()
@@ -58,8 +55,6 @@ Mesh::~Mesh()
 
 	delete m_pSRV;
 	delete m_pIndexBufferView;
-
-	delete m_pSlotInfo;
 }
 
 
@@ -108,43 +103,9 @@ const D3D12_INDEX_BUFFER_VIEW* Mesh::GetIndexBufferView() const
 	return m_pIndexBufferView;
 }
 
-const SlotInfo* Mesh::GetSlotInfo() const
-{
-	return m_pSlotInfo;
-}
-
 std::string Mesh::GetPath()
 {
 	return m_Path;
-}
-
-void Mesh::SetTexture(TEXTURE_TYPE type, Texture* texture)
-{
-	m_Textures[type] = texture;
-
-	switch (type)
-	{
-	case TEXTURE_TYPE::AMBIENT:
-		m_pSlotInfo->textureAmbient = texture->GetDescriptorHeapIndex();
-		break;
-	case TEXTURE_TYPE::DIFFUSE:
-		m_pSlotInfo->textureDiffuse = texture->GetDescriptorHeapIndex();
-		break;
-	case TEXTURE_TYPE::SPECULAR:
-		m_pSlotInfo->textureSpecular = texture->GetDescriptorHeapIndex();
-		break;
-	case TEXTURE_TYPE::NORMAL:
-		m_pSlotInfo->textureNormal = texture->GetDescriptorHeapIndex();
-		break;
-	case TEXTURE_TYPE::EMISSIVE:
-		m_pSlotInfo->textureEmissive = texture->GetDescriptorHeapIndex();
-		break;
-	}
-}
-
-Texture* Mesh::GetTexture(TEXTURE_TYPE type)
-{
-	return m_Textures[type];
 }
 
 void Mesh::createIndexBufferView()

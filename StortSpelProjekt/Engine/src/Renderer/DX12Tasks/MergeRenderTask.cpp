@@ -23,6 +23,8 @@ MergeRenderTask::MergeRenderTask(
 	LPCTSTR psoName)
 	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName)
 {
+	m_NumIndices = 0;
+	m_Info = {};
 }
 
 MergeRenderTask::~MergeRenderTask()
@@ -37,6 +39,17 @@ void MergeRenderTask::AddSRVIndexToMerge(unsigned int srvIndex)
 void MergeRenderTask::SetFullScreenQuad(Mesh* mesh)
 {
 	m_pFullScreenQuadMesh = mesh;
+}
+
+void MergeRenderTask::CreateSlotInfo()
+{
+	// Mesh
+	m_NumIndices = m_pFullScreenQuadMesh->GetNumIndices();
+	m_Info.vertexDataIndex = m_pFullScreenQuadMesh->m_pSRV->GetDescriptorHeapIndex();
+
+	// Textures
+	// The descriptorHeapIndices for the SRVs are currently put inside the textureSlots inside SlotInfo
+	m_Info.textureDiffuse = m_SRVIndices[0];	// Blurred srv
 }
 
 void MergeRenderTask::Execute()
@@ -80,23 +93,19 @@ void MergeRenderTask::Execute()
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
 	// Draw a fullscreen quad 
-	size_t num_Indices = m_pFullScreenQuadMesh->GetNumIndices();
-	const SlotInfo* info = m_pFullScreenQuadMesh->GetSlotInfo();
-
 	// The descriptorHeapIndices for the SRVs are currently put inside the textureSlots inside SlotInfo
-	const_cast<SlotInfo*>(info)->textureAmbient = m_pSwapChain->GetSRV(m_BackBufferIndex)->GetDescriptorHeapIndex();
-	const_cast<SlotInfo*>(info)->textureDiffuse = m_SRVIndices[0];	// Blurred srv
+	m_Info.textureAmbient = m_pSwapChain->GetSRV(m_BackBufferIndex)->GetDescriptorHeapIndex();
 
 	DirectX::XMMATRIX identityMatrix = DirectX::XMMatrixIdentity();
 
 	// Create a CB_PER_OBJECT struct
-	CB_PER_OBJECT_STRUCT perObject = { identityMatrix, identityMatrix, *info };
+	CB_PER_OBJECT_STRUCT perObject = { identityMatrix, identityMatrix, m_Info };
 
 	commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
 	commandList->IASetIndexBuffer(m_pFullScreenQuadMesh->GetIndexBufferView());
 
-	commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+	commandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
 
 	// Change state on front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
