@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <utility>
 
+class MouseMovement;
+
 enum class SCAN_CODES
 {
 	ESCAPE = 0x101,
@@ -176,9 +178,12 @@ public:
 
 private:
 	Input();
+	void unlockMouse(MouseMovement* evnt);
 
 	std::unordered_map<SCAN_CODES, bool> m_KeyState;
 	std::unordered_map<MOUSE_BUTTON, bool> m_MouseButtonState;
+
+	bool m_MouseUnlocked = true;
 };
 
 #endif // !INPUT_H

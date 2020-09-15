@@ -121,13 +121,12 @@ namespace component
 
 			m_pCamera->SetPosition(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 			float directionX = playerPosition.x - cameraPosition.x;
-			float directionY = playerPosition.y - cameraPosition.y;
+			float directionY = playerPosition.y + 3.0f - cameraPosition.y;
 			float directionZ = playerPosition.z - cameraPosition.z;
 			m_pCamera->SetDirection(directionX, directionY, directionZ);
 		}
 		else
 		{
-			DirectX::XMFLOAT3 direction = m_pCamera->GetDirection();
 			m_pCamera->SetDirection(cos(m_Yaw), m_Height * 2, sin(m_Yaw));
 		}
 
@@ -191,7 +190,7 @@ namespace component
 		int x = evnt->x, y = evnt->y;
 
 		// Determine how much to rotate in radians
-		float rotateY = -(static_cast<float>(y) / 600.0) * 3.1415;
+		float rotateY = (static_cast<float>(y) / 600.0) * 3.1415;
 		float rotateX = -(static_cast<float>(x) / 800.0) * 3.1415;
 
 		m_Height = std::max(std::min(m_Height + rotateY, 3.0f), -3.0f);
