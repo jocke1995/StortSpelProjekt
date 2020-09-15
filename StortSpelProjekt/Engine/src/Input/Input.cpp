@@ -32,8 +32,6 @@ void Input::RegisterDevices(const HWND* hWnd)
 	{
 		Log::Print("Input devices registered!\n");
 	}
-
-	EventBus::GetInstance().Subscribe(this, &Input::unlockMouse);
 }
 
 void Input::SetKeyState(SCAN_CODES key, bool pressed)
@@ -72,11 +70,7 @@ void Input::SetMouseScroll(SHORT scroll)
 
 void Input::SetMouseMovement(int x, int y)
 {
-	if (m_MouseUnlocked)
-	{
-		m_MouseUnlocked = false;
-		EventBus::GetInstance().Publish(&MouseMovement(x, y));
-	}
+	EventBus::GetInstance().Publish(&MouseMovement(x, y));
 }
 
 bool Input::GetKeyState(SCAN_CODES key)
@@ -91,9 +85,4 @@ bool Input::GetMouseButtonState(MOUSE_BUTTON button)
 
 Input::Input()
 {
-}
-
-void Input::unlockMouse(MouseMovement* evnt)
-{
-	m_MouseUnlocked = true;
 }

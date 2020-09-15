@@ -46,7 +46,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
 		}
 
-		RAWINPUT* raw = (RAWINPUT*)lpb;
+		RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(lpb);
 
 		if (raw->header.dwType == RIM_TYPEKEYBOARD)
 		{
