@@ -10,7 +10,7 @@
 // Entity Component System
 #include "ECS/SceneManager.h"
 #include "ECS/Entity.h"
-#include "ECS/Components/MeshComponent.h"
+#include "ECS/Components/ModelComponent.h"
 #include "ECS/Components/TransformComponent.h"
 #include "ECS/Components/Lights/DirectionalLightComponent.h"
 #include "ECS/Components/Lights/PointLightComponent.h"
@@ -20,6 +20,7 @@
 // Sub-engines
 #include "Renderer/Renderer.h"
 #include "Renderer/Transform.h"
+#include "Renderer/Model.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/BaseCamera.h"
 #include "Physics/Physics.h"
@@ -56,13 +57,13 @@ public:
 	AudioEngine* const GetAudioEngine() const;
 
 private:
-	Window* m_Window = nullptr;
-	Timer* m_Timer = nullptr;
-	ThreadPool* m_ThreadPool = nullptr;
+	Window* m_pWindow = nullptr;
+	Timer* m_pTimer = nullptr;
+	ThreadPool* m_pThreadPool = nullptr;
 
-	Renderer* m_Renderer = nullptr;
-	SceneManager* m_SceneManager = nullptr;
-	Physics* m_Physics = nullptr;
+	Renderer* m_pRenderer = nullptr;
+	SceneManager* m_pSceneManager = nullptr;
+	Physics* m_pPhysics = nullptr;
 	AudioEngine* m_pAudioEngine = nullptr;
 };
 

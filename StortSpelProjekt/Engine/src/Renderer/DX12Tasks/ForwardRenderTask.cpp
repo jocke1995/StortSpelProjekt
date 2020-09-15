@@ -98,13 +98,13 @@ void FowardRenderTask::Execute()
 	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
 
 	// This pair for m_RenderComponents will be used for model-outlining in case any model is picked.
-	std::pair<component::MeshComponent*, component::TransformComponent*> outlinedModel = std::make_pair(nullptr, nullptr);
+	std::pair<component::ModelComponent*, component::TransformComponent*> outlinedModel = std::make_pair(nullptr, nullptr);
 
 	// Draw for every Rendercomponent with stencil testing disabled
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 	for (int i = 0; i < m_RenderComponents.size(); i++)
 	{
-		component::MeshComponent* mc = m_RenderComponents.at(i).first;
+		component::ModelComponent* mc = m_RenderComponents.at(i).first;
 		component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
 		// If the model is picked, we dont draw it with default stencil buffer.
@@ -136,7 +136,7 @@ void FowardRenderTask::Execute()
 }
 
 void FowardRenderTask::drawRenderComponent(
-	component::MeshComponent* mc,
+	component::ModelComponent* mc,
 	component::TransformComponent* tc,
 	const DirectX::XMMATRIX* viewProjTransposed,
 	ID3D12GraphicsCommandList5* cl)
@@ -147,9 +147,9 @@ void FowardRenderTask::drawRenderComponent(
 		// Draw for every m_pMesh the meshComponent has
 		for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 		{
-			Mesh* m = mc->GetMesh(i);
+			Mesh* m = mc->GetMeshAt(i);
 			size_t num_Indices = m->GetNumIndices();
-			const SlotInfo* info = m->GetSlotInfo();
+			const SlotInfo* info = mc->GetSlotInfoAt(i);
 
 			Transform* transform = tc->GetTransform();
 			DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();

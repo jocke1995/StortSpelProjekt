@@ -11,7 +11,7 @@ class AudioEngine;
 class SceneManager 
 {
 public:
-	SceneManager(Renderer* r, AudioEngine* audioEngine);
+	SceneManager(Renderer* r);
 	~SceneManager();
 
 	Scene* CreateScene(std::string sceneName);
@@ -23,7 +23,6 @@ public:
 	void SetSceneToDraw(Scene* scene);
 private:
 	Renderer* m_pRenderer;
-	AudioEngine* m_pAudioEngine;
 
 	std::map<std::string, Scene*> m_pScenes;
 

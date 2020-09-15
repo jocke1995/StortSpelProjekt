@@ -20,8 +20,6 @@ private:
 	IXAudio2MasteringVoice* m_pMasterVoice;
 
 	AudioBuffer* m_pAudio;
-	std::map<std::string, std::string> m_audioBank;
-	std::map<std::string, AudioBuffer*> m_LoadedAudioFiles;
 	//std::vector<Audio> m_pLoadedAudioFiles;
 };
 

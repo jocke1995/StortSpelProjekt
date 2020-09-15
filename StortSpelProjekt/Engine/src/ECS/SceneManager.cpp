@@ -30,10 +30,9 @@
 #include "../ECS/Components/Lights/SpotLightComponent.h"
 #include "../ECS/Entity.h"
 
-SceneManager::SceneManager(Renderer* r, AudioEngine* audioEngine)
+SceneManager::SceneManager(Renderer* r)
 {
 	m_pRenderer = r;
-	m_pAudioEngine = audioEngine;
 }
 
 SceneManager::~SceneManager()

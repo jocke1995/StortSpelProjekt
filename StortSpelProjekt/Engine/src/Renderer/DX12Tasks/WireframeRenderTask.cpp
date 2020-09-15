@@ -99,7 +99,7 @@ void WireframeRenderTask::Execute()
 		Transform* t = m_ObjectsToDraw[i]->GetTransform();
 
 		size_t num_Indices = m->GetNumIndices();
-		const SlotInfo* info = m->GetSlotInfo();
+		const SlotInfo* info = m_ObjectsToDraw[i]->GetSlotInfo();
 
 		DirectX::XMMATRIX* WTransposed = t->GetWorldMatrixTransposed();
 		DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
