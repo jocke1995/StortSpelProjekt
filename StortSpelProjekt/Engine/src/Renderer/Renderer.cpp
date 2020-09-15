@@ -1081,6 +1081,7 @@ void Renderer::removeComponents(Entity* entity)
 			setRenderTasksRenderComponents();
 		}
 	}
+
 	// Check if the entity got any light m_Components.
 	// Remove them and update both cpu/gpu m_Resources
 	component::DirectionalLightComponent* dlc;
@@ -1115,7 +1116,6 @@ void Renderer::removeComponents(Entity* entity)
 			}
 
 			// Remove light if it matches the entity
-
 			if (parent == entity)
 			{
 				// Free memory so other m_Entities can use it
@@ -1192,6 +1192,7 @@ void Renderer::addComponents(Entity* entity)
 			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 			{
 				mesh = mc->GetMesh(i);
+
 				// Submit to the list which gets updated to the gpu each frame
 				CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
 
@@ -1251,7 +1252,6 @@ void Renderer::addComponents(Entity* entity)
 		{
 			resolution = SHADOW_RESOLUTION::MEDIUM;
 		}
-
 		else if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION)
 		{
 			resolution = SHADOW_RESOLUTION::HIGH;
@@ -1267,11 +1267,9 @@ void Renderer::addComponents(Entity* entity)
 		if (resolution != SHADOW_RESOLUTION::UNDEFINED)
 		{
 			si = m_pViewPool->GetFreeShadowInfo(LIGHT_TYPE::DIRECTIONAL_LIGHT, resolution);
-
 			static_cast<DirectionalLight*>(dlc->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
 
 			ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
-
 			srt->AddShadowCastingLight(std::make_pair(dlc, si));
 		}
 
@@ -1328,14 +1326,11 @@ void Renderer::addComponents(Entity* entity)
 		if (resolution != SHADOW_RESOLUTION::UNDEFINED)
 		{
 			si = m_pViewPool->GetFreeShadowInfo(LIGHT_TYPE::SPOT_LIGHT, resolution);
-
 			static_cast<SpotLight*>(slc->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
 
 			ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
-
 			srt->AddShadowCastingLight(std::make_pair(slc, si));
 		}
-
 		// Save in m_pRenderer
 		m_Lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(slc, cbd, si));
 	}
@@ -1403,7 +1398,6 @@ void Renderer::prepareScene(Scene* scene)
 	if (m_pScenePrimaryCamera == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scene: %s\n", scene->GetName());
-
 		// Todo: Set default m_pCamera
 	}
 
