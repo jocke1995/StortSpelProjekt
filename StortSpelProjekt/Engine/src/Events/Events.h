@@ -1,6 +1,7 @@
 #pragma once
 #include "../Input/Input.h"
 
+class Entity;
 class Event
 {
 public:
@@ -38,4 +39,11 @@ struct ModifierInput : public Event
 	ModifierInput(SCAN_CODES key, bool pressed) : key{ key }, pressed{ pressed } {};
 	SCAN_CODES key;
 	bool pressed;
+};
+
+struct Collision : public Event
+{
+	Collision(Entity *ent1, Entity *ent2) : ent1{ ent1 }, ent2{ ent2 } {};
+	Entity *ent1;
+	Entity *ent2;
 };
