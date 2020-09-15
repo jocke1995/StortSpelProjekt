@@ -612,8 +612,8 @@ void Renderer::initRenderTasks()
 
 	// RenderTarget
 	gpsdForwardRender.NumRenderTargets = 2;
-	gpsdForwardRender.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	gpsdForwardRender.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdForwardRender.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	gpsdForwardRender.RTVFormats[1] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	// Depthstencil usage
 	gpsdForwardRender.SampleDesc.Count = 1;
 	gpsdForwardRender.SampleMask = UINT_MAX;
@@ -733,7 +733,7 @@ void Renderer::initRenderTasks()
 	gpsdBlendFrontCull.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	// RenderTarget
-	gpsdBlendFrontCull.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdBlendFrontCull.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	gpsdBlendFrontCull.NumRenderTargets = 1;
 	// Depthstencil usage
 	gpsdBlendFrontCull.SampleDesc.Count = 1;
@@ -780,7 +780,7 @@ void Renderer::initRenderTasks()
 	gpsdBlendBackCull.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	// RenderTarget
-	gpsdBlendBackCull.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdBlendBackCull.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	gpsdBlendBackCull.NumRenderTargets = 1;
 	// Depthstencil usage
 	gpsdBlendBackCull.SampleDesc.Count = 1;
@@ -870,7 +870,7 @@ void Renderer::initRenderTasks()
 	gpsdWireFrame.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	// RenderTarget
-	gpsdWireFrame.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdWireFrame.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	gpsdWireFrame.NumRenderTargets = 1;
 	// Depthstencil usage
 	gpsdWireFrame.SampleDesc.Count = 1;
@@ -904,7 +904,7 @@ void Renderer::initRenderTasks()
 
 	// RenderTarget
 	gpsdMergePass.NumRenderTargets = 1;
-	gpsdMergePass.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdMergePass.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	// Depthstencil usage
 	gpsdMergePass.SampleDesc.Count = 1;
 	gpsdMergePass.SampleMask = UINT_MAX;
