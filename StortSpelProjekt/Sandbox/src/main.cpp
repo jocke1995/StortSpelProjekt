@@ -40,7 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AudioBuffer* bruhAudio = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
 
     // To set an audio to loop, 0 = loop infinetly, 1 = loop once, x > 1 loop that amount of times.
-    bruhAudio->SetAudioLoop(0);
+    // bruhAudio->SetAudioLoop(0);
 
 #pragma region CreateScene0
     // Create Scene
@@ -211,7 +211,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 #pragma endregion CreateScene0
 
     char sceneName[10] = "scene0";
-    scene = JockesTestScene(sceneManager);
+    //scene = JockesTestScene(sceneManager);
 
     //scene = sceneManager->GetScene(sceneName);
     sceneManager->SetSceneToDraw(scene);
