@@ -8,6 +8,7 @@ class Resource;
 class ShaderResourceView;
 class DescriptorHeap;
 class Texture;
+class Renderer;
 struct SlotInfo;
 
 // DX12 Forward Declarations

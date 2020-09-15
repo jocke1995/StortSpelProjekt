@@ -1,13 +1,12 @@
 #include "stdafx.h"
 #include "Text.h"
-#include "stdafx.h"
-#include <fstream>
 
 #include "Texture.h"
 #include "../Misc/Window.h"
 #include "Resource.h"
 #include "ShaderResourceView.h"
 #include "DescriptorHeap.h"
+#include "Renderer.h"
 
 Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfCharacters, Texture* texture)
 {
