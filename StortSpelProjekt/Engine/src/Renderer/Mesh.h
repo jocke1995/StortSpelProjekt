@@ -51,6 +51,7 @@ public:
     std::string GetPath();
 
 private:
+    friend class MergeRenderTask;
     friend class Renderer;
     friend class SceneManager;
     friend class Model;
