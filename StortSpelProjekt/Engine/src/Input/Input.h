@@ -145,12 +145,6 @@ public:
 	/// <param name="pressed"> : The state of the key. True means pressed, false means not pressed</param>
 	void SetKeyState(SCAN_CODES key, bool pressed);
 	/// <summary>
-	/// Set the state of a key to "just pressed".
-	/// </summary>
-	/// <param name="key">: The scan code of the key</param>
-	/// <param name="justPressed">: The state whether the key is just pressed or not</param>
-	void SetJustPressed(SCAN_CODES key, bool justPressed);
-	/// <summary>
 	/// Sets the state of a mouse button, either pressed or not pressed.
 	/// </summary>
 	/// <param name="button">: The scan code of the button</param>
