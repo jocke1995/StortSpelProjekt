@@ -53,10 +53,11 @@ void PreDepthRenderTask::Execute()
 
 	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
 
+	
 	/*
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		depthBufferHeap->(),
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		m_pSwapChain->GetRenderTarget(m_BackBufferIndex)->GetResource()->GetID3D12Resource1(),
+		D3D12_RESOURCE_STATE_PRESENT,
 		D3D12_RESOURCE_STATE_DEPTH_WRITE));
 		*/
 
@@ -77,7 +78,7 @@ void PreDepthRenderTask::Execute()
 
 	/*
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		pair.second->GetResource()->GetID3D12Resource1(),
+		m_pSwapChain->GetRenderTarget(m_BackBufferIndex)->GetResource()->GetID3D12Resource1(),
 		D3D12_RESOURCE_STATE_DEPTH_WRITE,
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 		*/

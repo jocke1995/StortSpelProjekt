@@ -664,8 +664,8 @@ void Renderer::initRenderTasks()
 		&gpsdPreDepthRenderVector,
 		L"PreDepthRenderingPSO");
 
-	preDepthRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
-	preDepthRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
+	
+	// TODO: remove swapchain, using swapchains render view currently.
 	preDepthRenderTask->SetSwapChain(m_pSwapChain);
 	preDepthRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
@@ -700,8 +700,8 @@ void Renderer::initRenderTasks()
 	// Depth descriptor
 	D3D12_DEPTH_STENCIL_DESC dsd = {};
 	dsd.DepthEnable = true;
-	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 	// DepthStencil
 	dsd.StencilEnable = false;
@@ -714,8 +714,8 @@ void Renderer::initRenderTasks()
 	// Only change stencil testing
 	dsd = {};
 	dsd.DepthEnable = true;
-	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 	// DepthStencil
 	dsd.StencilEnable = true;

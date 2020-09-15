@@ -35,7 +35,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		UINT dwSize;
 
 		GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
-		LPBYTE lpb = new BYTE[dwSize];
+		static BYTE lpb[256];
 		if (lpb == NULL)
 		{
 			return 0;
@@ -82,11 +82,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					break;
 			}
 
-			Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
+			//Log::Print("MOUSEMOVED\n");
+			//Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
+			
 			SetCursorPos(500, 400);
 		}
 
-		delete[] lpb;
 		return 0;
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -144,7 +145,7 @@ bool Window::ExitWindow()
 	bool closeWindow = false;
 	MSG msg = { 0 };
 
-	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
 
 		TranslateMessage(&msg);

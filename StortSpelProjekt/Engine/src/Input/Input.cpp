@@ -40,6 +40,7 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 	m_KeyState[key] = pressed;
 	if ((key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::Q || key == SCAN_CODES::E) && !pressed)
 	{
+		//Log::Print("Key SetKeyState UP: %d\n", key);
 		EventBus::GetInstance().Publish(&MovementInput(key, pressed));
 	}
 	else if (key == SCAN_CODES::LEFT_CTRL && !pressed)
@@ -48,6 +49,7 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 	}
 	else if ((key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::Q || key == SCAN_CODES::E) && justPressed)
 	{
+		//Log::Print("Key SetKeyState DOWN: %d\n", key);
 		EventBus::GetInstance().Publish(&MovementInput(key, justPressed));
 	}
 	else if (key == SCAN_CODES::LEFT_CTRL && justPressed)
