@@ -2,7 +2,7 @@
 #define ASSETLOADER_H
 
 #include "Core.h"
-
+#include "../AudioEngine/AudioBuffer.h"
 class DescriptorHeap;
 class Model;
 class Mesh;
@@ -28,6 +28,11 @@ public:
     // Texture ------------
     Texture* LoadTexture(std::wstring path);
 
+    // Load Audio
+    AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
+    AudioBuffer* GetAudio(const std::wstring& name);
+    // ??
+
 private:
     // PipelineState loads all shaders
     friend class PipelineState;
@@ -50,7 +55,10 @@ private:
     std::vector<Mesh*> m_LoadedMeshes;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
     std::map<std::wstring, Shader*> m_LoadedShaders;
-    
+    std::map<std::wstring, AudioBuffer> m_LoadedAudios;
+
+    // Audio
+    // add map for audio (path, AudioObject)
 
     /* --------------- Functions --------------- */
     void processNode(aiNode* node, 

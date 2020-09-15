@@ -107,6 +107,8 @@ void SceneManager::SetSceneToDraw(Scene* scene)
 		m_pRenderer->addComponents(entity);
 
 		// Add sound component
+		// load sound files that are to be used in scene
+		// m_pAudioEngine->LoadAudioFiles(entity);
 
 		// Add game component
 

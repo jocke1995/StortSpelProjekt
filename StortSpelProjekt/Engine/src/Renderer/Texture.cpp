@@ -190,7 +190,7 @@ bool Texture::createTexture(std::wstring filePath, ID3D12Device5* device, UINT d
 
 	if (wicFactory == NULL)
 	{
-		// Initialize the COM library
+		// initialize the COM library
 		CoInitialize(NULL);
 
 		hr = CoCreateInstance(CLSID_WICImagingFactory,
