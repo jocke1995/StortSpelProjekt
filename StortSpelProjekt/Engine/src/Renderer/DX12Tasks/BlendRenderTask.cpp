@@ -77,7 +77,7 @@ void BlendRenderTask::Execute()
 	// Draw from opposite order from the sorted array
 	for(int i = m_RenderComponents.size() - 1; i >= 0; i--)
 	{
-		component::MeshComponent* mc = m_RenderComponents.at(i).first;
+		component::ModelComponent* mc = m_RenderComponents.at(i).first;
 		component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
 		// Check if the renderComponent is to be drawn in Blend
@@ -86,9 +86,9 @@ void BlendRenderTask::Execute()
 			// Draw for every m_pMesh the MeshComponent has
 			for (unsigned int j = 0; j < mc->GetNrOfMeshes(); j++)
 			{
-				Mesh* m = mc->GetMesh(j);
+				Mesh* m = mc->GetMeshAt(j);
 				size_t num_Indices = m->GetNumIndices();
-				const SlotInfo* info = m->GetSlotInfo();
+				const SlotInfo* info = mc->GetSlotInfoAt(j);
 
 				Transform* transform = tc->GetTransform();
 
@@ -100,7 +100,7 @@ void BlendRenderTask::Execute()
 
 				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 				
-				commandList->IASetIndexBuffer(mc->GetMesh(j)->GetIndexBufferView());
+				commandList->IASetIndexBuffer(mc->GetMeshAt(j)->GetIndexBufferView());
 				// Draw each object twice with different PSO 
 				for (int k = 0; k < 2; k++)
 				{

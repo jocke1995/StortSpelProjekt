@@ -15,7 +15,7 @@ class SwapChain;
 class PipelineState;
 
 // Components
-#include "../../ECS/Components/MeshComponent.h"
+#include "../../ECS/Components/ModelComponent.h"
 #include "../../ECS/Components/TransformComponent.h"
 #include "../../ECS/Components/Lights/DirectionalLightComponent.h"
 #include "../../ECS/Components/Lights/PointLightComponent.h"
@@ -42,15 +42,15 @@ public:
 	void AddRenderTarget(std::string, const RenderTarget* renderTarget);
 	
 	void SetRenderComponents(
-		std::vector<std::pair<	component::MeshComponent*,
+		std::vector<std::pair<	component::ModelComponent*,
 								component::TransformComponent*>>* renderComponents);
 
 	void SetCamera(BaseCamera* camera);
 	void SetSwapChain(SwapChain* swapChain);
 	
 protected:
+	std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>> m_RenderComponents;
 	std::map<std::string, const RenderTarget*> m_RenderTargets;
-	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
 	
 	BaseCamera* m_pCamera = nullptr;
 	SwapChain* m_pSwapChain = nullptr;

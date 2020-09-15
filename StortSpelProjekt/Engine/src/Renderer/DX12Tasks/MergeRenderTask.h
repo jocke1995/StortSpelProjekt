@@ -17,11 +17,15 @@ public:
 	
 	void AddSRVIndexToMerge(unsigned int srvIndex);
 	void SetFullScreenQuad(Mesh* mesh);
+	void CreateSlotInfo();
 
 	void Execute();
 private:
 	Mesh* m_pFullScreenQuadMesh = nullptr;
 	std::vector<unsigned int> m_SRVIndices;
+
+	SlotInfo m_Info;
+	size_t m_NumIndices;
 
 };
 
