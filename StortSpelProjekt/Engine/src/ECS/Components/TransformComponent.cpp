@@ -91,7 +91,7 @@ namespace component
 		float angle = std::atan2(forward.x, forward.z);
 
 		// Set the new rotation
-		m_pTransform->RotateY(angle + rotateX);
+		m_pTransform->SetRotationY(angle + rotateX);
 
 		// Get new direction
 		rotMat = m_pTransform->GetRotMatrix();

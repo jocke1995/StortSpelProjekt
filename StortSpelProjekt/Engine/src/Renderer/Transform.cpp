@@ -138,3 +138,8 @@ DirectX::XMMATRIX Transform::GetRotMatrix() const
 {
 	return m_RotationMat;
 }
+
+DirectX::XMFLOAT3 Transform::GetMovement() const
+{
+	return m_Movement;
+}
