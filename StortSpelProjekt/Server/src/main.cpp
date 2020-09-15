@@ -10,7 +10,9 @@ int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	Network network;
+	std::vector<Network*> clients;
+
+	int nrOfClients = 0;
 
 	// ThreadPool
 	int numCores = std::thread::hardware_concurrency();
@@ -30,9 +32,14 @@ int main()
 		str = "";
 		console.GetInput(&str);
 
-		if (strcmp(str.c_str(), "") != 0) {
+		if (strcmp(str.c_str(), "") != 0)
+		{
 			std::cout << str << std::endl;
 			threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
+		}
+		if (strcmp(str.c_str(), "AddClient") == 0)
+		{
+
 		}
 	}
 

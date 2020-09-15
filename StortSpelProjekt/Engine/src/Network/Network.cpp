@@ -3,6 +3,7 @@
 
 Network::Network()
 {
+    m_Connected = false;
 }
 
 bool Network::ConnectToIP(std::string ip, int port)
@@ -16,6 +17,7 @@ bool Network::ConnectToIP(std::string ip, int port)
     }
     else {
         Log::Print("Connected to " + ip + "\n");
+        m_Connected = true;
         return true;
     }
 }

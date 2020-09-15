@@ -22,6 +22,8 @@ private:
 	sf::TcpListener m_Listener;
 	sf::Packet m_PacketRecieve;
 	sf::Packet m_PacketSend;
+
+	bool m_Connected;
 };
 
 
