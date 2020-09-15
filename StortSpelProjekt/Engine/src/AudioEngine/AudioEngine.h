@@ -1,6 +1,10 @@
 #ifndef AUDIOENGINE_H
 #define AUDIOENGINE_H
 #include <xaudio2.h>
+#include <x3daudio.h>
+#pragma comment(lib, "xaudio2")
+
+
 class AudioBuffer;
 class Entity;
 
@@ -21,6 +25,9 @@ private:
 
 	AudioBuffer* m_pAudio;
 	//std::vector<Audio> m_pLoadedAudioFiles;
+
+	// 3D audio Listener struct, this contains world coordinates and orientation for the "listener" of 3D audio
+	X3DAUDIO_LISTENER Listener = { };
 };
 
 #endif

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "AudioVoice.h"
 #include "AudioBuffer.h"
-#include "AudioEngine.h"
+//#include "AudioEngine.h"
 
 AudioVoice::AudioVoice()
 {
@@ -32,6 +32,11 @@ void AudioVoice::initialize(XAUDIO2_BUFFER* buff, WAVEFORMATEXTENSIBLE* wfxForma
     }
 
     m_pSourceVoice->SetVolume(0.1);
+
+    // 3D Emitter settings, these values need to be set at initialization, rest will be updated later
+    m_Emitter = { 0 };
+    m_Emitter.ChannelCount = 1;
+    m_Emitter.CurveDistanceScaler = FLT_MIN;
 }
 
 void AudioVoice::Initialize(AudioBuffer& audio)

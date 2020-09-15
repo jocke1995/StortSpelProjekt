@@ -19,6 +19,13 @@ AudioEngine::AudioEngine()
 	{
 		Log::Print("Failed to create mastering voice\n");
 	}
+
+	DWORD dwChannelMask;
+	m_pMasterVoice->GetChannelMask(&dwChannelMask);
+
+	X3DAUDIO_HANDLE X3DInstance;
+	X3DAudioInitialize(dwChannelMask, X3DAUDIO_SPEED_OF_SOUND, X3DInstance);
+
 }
 
 AudioEngine& AudioEngine::GetInstance()
