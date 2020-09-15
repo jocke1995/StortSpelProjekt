@@ -16,6 +16,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     ThreadPool* const threadPool = engine.GetThreadPool();
     SceneManager* const sceneManager = engine.GetSceneHandler();
     Renderer* const renderer = engine.GetRenderer();
+    Physics* const physics = engine.GetPhysics();
 
     /*------ Load Option Variables ------*/
     Option::GetInstance().ReadFile();
@@ -99,6 +100,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::BoundingBoxComponent>();
     entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
+    // Add entities with collision enabled to the vector used for collision checking in Physics
+    physics->AddCollisionEntity(scene->GetEntity("stone"));
+    physics->AddCollisionEntity(scene->GetEntity("player"));
+    physics->AddCollisionEntity(scene->GetEntity("box"));
+
 
     // Set the m_Components
 
@@ -145,6 +151,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 40.0f);
     tc->GetTransform()->SetRotationX(3.1415f / 2);
 
+
     Texture* ambientDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_ambient.png");
     Texture* normalDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_normal.png");
 
@@ -187,6 +194,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     sl->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 1.0f, 0.00f, 1.0f, 1.0f });
     sl->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 1.0f, 0.00f, 1.0f, 1.0f });
 
+
 #pragma endregion CreateScene0
 
     char sceneName[10] = "scene0";
@@ -222,6 +230,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ------ Update ------ */
         timer->Update();
         renderer->Update(timer->GetDeltaTime());
+        physics->Update(timer->GetDeltaTime());
 
         /* ------ Sort ------ */
         renderer->SortObjectsByDistance();
@@ -229,6 +238,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ------ Draw ------ */
         renderer->Execute();
     }
-
     return 0;
 }

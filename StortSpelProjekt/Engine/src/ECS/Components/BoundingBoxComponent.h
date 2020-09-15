@@ -34,6 +34,7 @@ namespace component
 
 		void SetMesh(Mesh* mesh);
 
+		// Will write warning to Log if Collision is not enabled for object
 		const DirectX::BoundingOrientedBox* GetOBB() const;
 		Transform* GetTransform() const;
 		const Mesh* GetMesh() const;
