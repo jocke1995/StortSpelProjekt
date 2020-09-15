@@ -86,7 +86,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
     // 3D sound test, adding a sound to the stone and then move around it for positional sound test
-    entity->AddComponent<component::AudioVoiceComponent>();
+    entity->AddComponent<component::Audio3DEmitterComponent>();
 
     entity = scene->GetEntity("transparentTestObject");
     entity->AddComponent<component::ModelComponent>();
@@ -157,9 +157,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     scene->GetEntity("stone")->GetComponent<component::BoundingBoxComponent>()->Init();
 
     // Audio, add sound to stone for 3d testing
-    component::AudioVoiceComponent* avc = scene->GetEntity("stone")->GetComponent<component::AudioVoiceComponent>();
-    avc->AddVoice(L"Melody");
-    avc->Play(L"Melody");
+    component::Audio3DEmitterComponent* audioEmitter = scene->GetEntity("stone")->GetComponent<component::Audio3DEmitterComponent>();
+    audioEmitter->AddVoice(L"Melody");
+    audioEmitter->Play(L"Melody");
 
     mc = scene->GetEntity("transparentTestObject")->GetComponent<component::ModelComponent>();
     mc->SetModel(panelModel);
@@ -247,7 +247,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		{
         }
 
-        //test->PlayAudio("testAudio");
+        
+        // 3d sound test
+        component::Audio3DEmitterComponent* emitterTest = scene->GetEntity("stone")->GetComponent<component::Audio3DEmitterComponent>();
+        emitterTest->UpdatePosition();
+        component::Audio3DListenerComponent* listenerTest = scene->GetEntity("player")->GetComponent<component::Audio3DListenerComponent>();
+        listenerTest->UpdatePosition();
+
 
 
         /* ------ Update ------ */

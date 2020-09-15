@@ -1,7 +1,7 @@
 #ifndef AUDIOVOICE_H
 #define AUDIOVOICE_H
 #include <xaudio2.h>
-#include <x3daudio.h>
+//#include <x3daudio.h>
 class AudioBuffer;
 
 /// <summary>
@@ -46,7 +46,7 @@ private:
 	// 3d
 	//bool m_Listener = false;
 	// Emitter sets world positions of the audio source to be calculated for 3D sound
-	X3DAUDIO_EMITTER m_Emitter;
+	//X3DAUDIO_EMITTER m_Emitter;
 
 	/// <summary>
 	/// Initializer, called by regular constructor.

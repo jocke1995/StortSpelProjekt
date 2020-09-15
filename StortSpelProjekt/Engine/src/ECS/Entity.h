@@ -8,6 +8,7 @@
 // Audio
 #include "Components/AudioVoiceComponent.h"
 #include "Components/Audio3DListenerComponent.h"
+#include "Components/Audio3DEmitterComponent.h"
 
 // Lights
 class DirectionalLightComponent;
