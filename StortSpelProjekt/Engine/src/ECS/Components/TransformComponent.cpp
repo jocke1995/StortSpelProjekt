@@ -81,10 +81,6 @@ namespace component
 
 		// Determine how much to rotate in radians
 		float rotateX = (static_cast<float>(x) / 400.0) * 3.1415;
-		if (abs(rotateX) < 0.01)
-		{
-			rotateX = 0.0f;
-		}
 
 		// Get rotation to determine current rotation angle
 		DirectX::XMMATRIX rotMat = m_pTransform->GetRotMatrix();
