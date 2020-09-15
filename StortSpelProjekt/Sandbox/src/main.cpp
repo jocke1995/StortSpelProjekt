@@ -1,7 +1,5 @@
 #include "Engine.h"
 
-
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -39,11 +37,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
 
     //AUDIO EXAMPLE
-    Audio audio;
-    audio.OpenFile(engine.GetAudioEngine()->GetAudioEngine(), TEXT("../Vendor/Resources/Audio/bruh.wav"));
-    //Change this value to 0 = infinite, 1 = play once, 1+ = play multiple
-    audio.SetAudioLoop(1);
-    audio.PlayAudio();
     AudioBuffer* testAudio = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"Melody");
     AudioBuffer* DABADABA = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"Music");
     AudioBuffer* bruhAudio = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
