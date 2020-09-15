@@ -108,10 +108,10 @@ struct Font
 struct TextData
 {
 	std::wstring text = L"";
-	float2 pos = { 0, 0 };
-	float2 scale = { 0, 0 };
-	float2 padding = { 0, 0 };
-	float4 color = { 0,0,0,0 };
+	float2 pos = { 0.0f, 0.0f };
+	float2 scale = { 0.0f, 0.0f };
+	float2 padding = { 0.0f, 0.0f };
+	float4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
 };
 
 class Text
@@ -136,7 +136,7 @@ private:
 	int m_SizeOfVertices = 0;
 
 	// this will store our font information
-	TextData m_TextData;
+	TextData m_TextData = {};
 	std::vector<TextVertex> m_TextVertexVec = {};
 
 	Resource* m_pUploadResourceVertices = nullptr;

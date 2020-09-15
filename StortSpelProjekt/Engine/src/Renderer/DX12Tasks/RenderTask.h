@@ -15,7 +15,6 @@ class SwapChain;
 class PipelineState;
 
 // Components
-#include "../../ECS/Components/TextComponent.h"
 #include "../../ECS/Components/ModelComponent.h"
 #include "../../ECS/Components/TransformComponent.h"
 #include "../../ECS/Components/Lights/DirectionalLightComponent.h"

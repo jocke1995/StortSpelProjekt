@@ -11,6 +11,7 @@
 #include "../Resource.h"
 #include "../PipelineState.h"
 #include "../Text.h"
+#include "../../ECS/Components/TextComponent.h"
 
 TextTask::TextTask(ID3D12Device5* device, 
 	RootSignature* rootSignature, 

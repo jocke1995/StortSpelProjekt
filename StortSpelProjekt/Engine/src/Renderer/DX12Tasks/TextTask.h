@@ -4,7 +4,11 @@
 #include "RenderTask.h"
 
 class RootSignature;
-class TextComponent;
+
+namespace component
+{
+	class TextComponent;
+}
 
 class TextTask : public RenderTask
 {
