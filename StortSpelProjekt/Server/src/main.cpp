@@ -1,44 +1,35 @@
 #include "Engine.h"
+#include "Misc/Thread.h"
+#include "ConsoleCommand.h"
+
 #include <iostream>
 
-int main() {
+int main()
+{
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	Network network;
+	Engine engine = Engine();
 
-	std::string ip;
+	Console console;
 
+	std::string str = "";
 
-	//This is for testing
-	std::cout << "Write 1 to be client or 0 to be server" << std::endl;
-	std::cin >> ip;
+	engine.GetThreadPool()->AddTask(&console, FLAG_THREAD::NETWORK);
 
-	if (ip == "1")
+	while (strcmp(str.c_str(), "quit") != 0) 
 	{
-		std::cout << "What ip to connect to. (\"localhost\" to connect to own machine)" << std::endl;
-		std::cin >> ip;
-		std::cout << "Connecting to " + ip << std::endl;
-		network.ConnectToIP(ip, 55555);
+		console.GetInput(&str);
 
-		std::cout << "Write message" << std::endl;
-		std::string str = "";
-		std::cin >> str;
-		network.AppendStringPacket(str);
-		network.SendPacket();
-	}
-	else
-	{
-		std::cout << "Listening for connections" << std::endl;
-		network.ListenConnection(55555);
-
-		std::string str = "";
-		str = network.ListenPacket();
-
-		std::cout << "Message recieved: ";
-		std::cout << str;
+		if (strcmp(str.c_str(), "") != 0) {
+			std::cout << str << std::endl;
+			str = "";
+			engine.GetThreadPool()->AddTask(&console, FLAG_THREAD::NETWORK);
+		}
+		std::cout << "Listen" << std::endl;
 	}
 
-	std::getchar();
-	// TESTING
+	engine.GetThreadPool()->ExitThreads();
 
 	return 0;
 }
