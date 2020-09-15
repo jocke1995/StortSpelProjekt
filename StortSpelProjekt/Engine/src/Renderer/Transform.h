@@ -16,9 +16,9 @@ public:
 	void UpdateMovement(float x, float y, float z);
 	void Move(float dt);
 	
-	void RotateX(float radians);
-	void RotateY(float radians);
-	void RotateZ(float radians);
+	void SetRotationX(float radians);
+	void SetRotationY(float radians);
+	void SetRotationZ(float radians);
 
 	void SetScale(float scale);
 	void SetScale(float x, float y, float z);

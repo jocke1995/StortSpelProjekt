@@ -37,7 +37,7 @@ void RenderTask::AddRenderTarget(std::string name, const RenderTarget* renderTar
 	m_RenderTargets[name] = renderTarget;
 }
 
-void RenderTask::SetRenderComponents(std::vector<std::pair<	component::MeshComponent*,
+void RenderTask::SetRenderComponents(std::vector<std::pair<	component::ModelComponent*,
 															component::TransformComponent*>>*renderComponents)
 {
 	m_RenderComponents = *renderComponents;

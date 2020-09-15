@@ -25,6 +25,11 @@ void Physics::Update(double dt)
 	collisionChecks(dt);
 }
 
+bool Physics::CheckOBBCollision(const DirectX::BoundingOrientedBox* obb1, const DirectX::BoundingOrientedBox* obb2) const
+{
+	return obb1->Intersects(*obb2);
+}
+
 void Physics::AddCollisionEntity(Entity *ent)
 {
 	if (ent->GetComponent<component::BoundingBoxComponent>()->GetFlagOBB() & F_OBBFlags::COLLISION)
@@ -37,11 +42,6 @@ void Physics::AddCollisionEntity(Entity *ent)
 			"Trying to add an object \"%s\" without collision flag to m_CollisionEntities in \"Physics::AddCollisionEntity\"", 
 			ent->GetName().c_str());
 	}
-}
-
-bool Physics::checkOBBCollision(DirectX::BoundingOrientedBox obb1, DirectX::BoundingOrientedBox obb2)
-{
-	return obb1.Intersects(obb2);
 }
 
 void Physics::collisionChecks(double dt)
@@ -57,7 +57,7 @@ void Physics::collisionChecks(double dt)
 			{
 				for (int j = i + 1; j < m_CollisionEntities.size(); j++)
 				{
-					if (checkOBBCollision(
+					if (CheckOBBCollision(
 						m_CollisionEntities.at(i)->GetComponent<component::BoundingBoxComponent>()->GetOBB(),
 						m_CollisionEntities.at(j)->GetComponent<component::BoundingBoxComponent>()->GetOBB()))
 					{
@@ -72,5 +72,5 @@ void Physics::collisionChecks(double dt)
 
 void Physics::printCollisions(Collision* event)
 {
-	Log::Print("%s collided with %s\n", event->ent1->GetName().c_str(), event->ent2->GetName().c_str());
+	//Log::Print("%s collided with %s\n", event->ent1->GetName().c_str(), event->ent2->GetName().c_str());
 }

@@ -58,19 +58,22 @@ void Transform::Move(float dt)
 	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
 }
 
-void Transform::RotateX(float radians)
+void Transform::SetRotationX(float radians)
 {
 	m_RotXMat = DirectX::XMMatrixRotationX(radians);
+	m_RotationMat = m_RotXMat * m_RotYMat * m_RotZMat;
 }
 
-void Transform::RotateY(float radians)
+void Transform::SetRotationY(float radians)
 {
 	m_RotYMat = DirectX::XMMatrixRotationY(radians);
+	m_RotationMat = m_RotXMat * m_RotYMat * m_RotZMat;
 }
 
-void Transform::RotateZ(float radians)
+void Transform::SetRotationZ(float radians)
 {
 	m_RotZMat = DirectX::XMMatrixRotationZ(radians);
+	m_RotationMat = m_RotXMat * m_RotYMat * m_RotZMat;
 }
 
 void Transform::SetScale(float scale)
@@ -94,7 +97,7 @@ void Transform::UpdateWorldMatrix()
 {
 	DirectX::XMMATRIX posMat = DirectX::XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 	DirectX::XMMATRIX sclMat = DirectX::XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
-	DirectX::XMMATRIX rotMat = m_RotationMat * m_RotXMat * m_RotYMat * m_RotZMat;
+	DirectX::XMMATRIX rotMat = m_RotationMat;
 
 	m_WorldMat = rotMat * sclMat * posMat;
 
@@ -133,10 +136,5 @@ DirectX::XMFLOAT3 Transform::GetScale() const
 
 DirectX::XMMATRIX Transform::GetRotMatrix() const
 {
-	return m_RotationMat * m_RotXMat * m_RotYMat * m_RotZMat;
-}
-
-DirectX::XMFLOAT3 Transform::GetMovement() const
-{
-	return m_Movement;
+	return m_RotationMat;
 }

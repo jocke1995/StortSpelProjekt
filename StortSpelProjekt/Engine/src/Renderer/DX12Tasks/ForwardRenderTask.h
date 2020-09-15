@@ -17,7 +17,7 @@ public:
 
 private:
 	void drawRenderComponent(
-		component::MeshComponent* mc,
+		component::ModelComponent* mc,
 		component::TransformComponent* tc,
 		const DirectX::XMMATRIX* viewProjTransposed,
 		ID3D12GraphicsCommandList5* cl);
