@@ -14,6 +14,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     ThreadPool* const threadPool = engine.GetThreadPool();
     SceneManager* const sceneManager = engine.GetSceneHandler();
     Renderer* const renderer = engine.GetRenderer();
+    Physics* const physics = engine.GetPhysics();
 
     /*------ Load Option Variables ------*/
     Option::GetInstance().ReadFile();
@@ -31,7 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     std::vector<Mesh*>* testModel = al->LoadModel(L"../Vendor/Resources/Models/test/dboy/D-boy2.obj");
     std::vector<Mesh*>* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     std::vector<Mesh*>* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
- 
+
     //AUDIO EXAMPLE
     Audio audio;
     audio.OpenFile(engine.GetAudioEngine()->GetAudioEngine(), TEXT("../Vendor/Resources/Audio/bruh.wav"));
@@ -97,6 +98,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::BoundingBoxComponent>();
     entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION | FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
+    // Add entities with collision enabled to the vector used for collision checking in Physics
+    physics->AddCollisionEntity(scene->GetEntity("stone"));
+    physics->AddCollisionEntity(scene->GetEntity("player"));
+    physics->AddCollisionEntity(scene->GetEntity("box"));
+
 
     // Set the m_Components
 
@@ -143,6 +149,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 40.0f);
     tc->GetTransform()->RotateX(3.1415f / 2);
 
+
     Texture* ambientDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_ambient.png");
     Texture* normalDefault = al->LoadTexture(L"../Vendor/Resources/Textures/Default/default_normal.png");
 
@@ -186,6 +193,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     sl->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 1.0f, 0.00f, 1.0f, 1.0f });
     sl->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 1.0f, 0.00f, 1.0f, 1.0f });
 
+
 #pragma endregion CreateScene0
 
     char sceneName[10] = "scene0";
@@ -221,6 +229,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ------ Update ------ */
         timer->Update();
         renderer->Update(timer->GetDeltaTime());
+        physics->Update(timer->GetDeltaTime());
+
+        // Made for collision testing by BJ
+        tc = scene->GetEntity("stone")->GetComponent<component::TransformComponent>();
+        static float test = 0;
+        test += 0.0005;
+        tc->GetTransform()->SetPosition(-8, 0, test);
+        tc->GetTransform()->RotateX(test);
+
 
         /* ------ Sort ------ */
         renderer->SortObjectsByDistance();
@@ -228,6 +245,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ------ Draw ------ */
         renderer->Execute();
     }
-
     return 0;
 }

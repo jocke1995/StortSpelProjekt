@@ -30,19 +30,23 @@ void component::BoundingBoxComponent::Init()
 
 void component::BoundingBoxComponent::Update(double dt)
 {
-	// Making a temporary OBB which takes the original state of the OBB
-	DirectX::BoundingOrientedBox obb;
-	obb.Center = m_OriginalBoundingBox.Center;
-	obb.Extents = m_OriginalBoundingBox.Extents;
-	obb.Orientation = m_OriginalBoundingBox.Orientation;
+	// No need for equations every frame if the object doesn't have collision enabled 
+	if (m_FlagOBB & F_OBBFlags::COLLISION)
+	{
+		// Making a temporary OBB which takes the original state of the OBB
+		DirectX::BoundingOrientedBox obb;
+		obb.Center = m_OriginalBoundingBox.Center;
+		obb.Extents = m_OriginalBoundingBox.Extents;
+		obb.Orientation = m_OriginalBoundingBox.Orientation;
 
-	// then do all the transformations on this temoporary OBB so we don't change the original state
-	obb.Transform(obb, *m_pTransform->GetWorldMatrix());
+		// then do all the transformations on this temoporary OBB so we don't change the original state
+		obb.Transform(obb, *m_pTransform->GetWorldMatrix());
 
-	// now save the transformations to the OBB that is used in collision detection
-	m_OrientedBoundingBox.Center = obb.Center;
-	m_OrientedBoundingBox.Extents = obb.Extents;
-	m_OrientedBoundingBox.Orientation = obb.Orientation;	
+		// now save the transformations to the OBB that is used in collision detection
+		m_OrientedBoundingBox.Center = obb.Center;
+		m_OrientedBoundingBox.Extents = obb.Extents;
+		m_OrientedBoundingBox.Orientation = obb.Orientation;
+	}
 }
 
 void component::BoundingBoxComponent::SetMesh(Mesh* mesh)
@@ -52,6 +56,10 @@ void component::BoundingBoxComponent::SetMesh(Mesh* mesh)
 
 DirectX::BoundingOrientedBox component::BoundingBoxComponent::GetOBB() const
 {
+	if ((m_FlagOBB & F_OBBFlags::COLLISION) == false)
+	{
+		Log::PrintSeverity(Log::Severity::WARNING, "Object \"%s\" does not have collision enabled!\n", m_pParent->GetName().c_str());
+	}
 	return m_OrientedBoundingBox;
 }
 
