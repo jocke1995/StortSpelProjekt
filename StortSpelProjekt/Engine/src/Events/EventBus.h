@@ -5,7 +5,7 @@
 #include "MemberFunctionWrapper.h"
 #include "Events.h"
 
-typedef std::list<HandlerFunctionBase*> HandlerList;
+typedef std::vector<HandlerFunctionBase*> HandlerList;
 class EventBus 
 {
 public:
@@ -18,14 +18,16 @@ public:
 	//Singleton of the eventbus
 	static EventBus& GetInstance();
 
-	/*template<class T, class EventType>
-	void unsubscribe(T* classInstance, void (T::* memberFunction)(EventType*));
+	template<class T, class EventType>
+	void Unsubscribe(T* instance, void (T::* memberFunction)(EventType*));
 
-	void unsubscribeAll();*/
+	void UnsubscribeAll();
 
 	// Only called when program exits
 	~EventBus();
 private:
+	template<class T, class EventType>
+	static unsigned GetID(T* instance);
 	std::map<std::type_index, HandlerList*> m_Subscribers;
 };
 
@@ -66,8 +68,43 @@ inline void EventBus::Subscribe(T* classInstance, void(T::* memberFunction)(Even
 		m_Subscribers[typeid(EventType)] = handlers;
 	}
 
-	//Push handler into list of handlers
-	handlers->push_back(new MemberFunctionHandler<T, EventType>(classInstance, memberFunction));
+	HandlerFunctionBase* temp = new MemberFunctionHandler<T, EventType>(classInstance, memberFunction);
+	temp->m_Id = GetID<T, EventType>(classInstance);
+	//Push function into list of handlers
+	handlers->push_back(temp);
+}
+
+template<class T, class EventType>
+inline void EventBus::Unsubscribe(T* classInstance, void(T::* memberFunction)(EventType*))
+{
+	if (m_Subscribers.empty())
+	{
+		return;
+	}
+
+	if (m_Subscribers.find(typeid(EventType)) != m_Subscribers.end())
+	{
+		HandlerList* handlers = m_Subscribers[typeid(EventType)];
+
+		unsigned id = GetID<T, EventType>(classInstance);
+		std::vector<HandlerFunctionBase*>::iterator it;
+		for (it = handlers->begin(); it != handlers->end(); ++it)
+		{
+			if ((*it)->m_Id == id)
+			{
+				delete* it;
+				handlers->erase(it);
+				break;
+			}
+		}
+	}
+}
+
+template<class T, class EventType>
+inline unsigned EventBus::GetID(T* instance)
+{
+	size_t index = typeid(EventType).hash_code();
+	return (unsigned)(index - (size_t)instance);
 }
 
 // Get the single instance of the EventBus in order to subscribe/publish
@@ -77,14 +114,14 @@ inline EventBus& EventBus::GetInstance()
 	return instance;
 }
 
-inline EventBus::~EventBus()
+inline void EventBus::UnsubscribeAll()
 {
 	for (auto const& i : m_Subscribers)
 	{
 		HandlerList* handlers = i.second;
 		if (handlers != nullptr)
 		{
-			std::list<HandlerFunctionBase*>::iterator iter;
+			std::vector<HandlerFunctionBase*>::iterator iter;
 			for (iter = handlers->begin(); iter != handlers->end(); iter++)
 			{
 				delete* iter;
@@ -93,4 +130,9 @@ inline EventBus::~EventBus()
 		}
 	}
 	m_Subscribers.clear();
+}
+
+inline EventBus::~EventBus()
+{
+	UnsubscribeAll();
 }
