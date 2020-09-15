@@ -27,7 +27,7 @@ public:
 	~EventBus();
 private:
 	template<class T, class EventType>
-	static unsigned GetID(T* instance);
+	static unsigned getID(T* instance);
 	std::map<std::type_index, HandlerList*> m_Subscribers;
 };
 
@@ -69,7 +69,7 @@ inline void EventBus::Subscribe(T* classInstance, void(T::* memberFunction)(Even
 	}
 
 	HandlerFunctionBase* temp = new MemberFunctionHandler<T, EventType>(classInstance, memberFunction);
-	temp->m_Id = GetID<T, EventType>(classInstance);
+	temp->m_Id = getID<T, EventType>(classInstance);
 	//Push function into list of handlers
 	handlers->push_back(temp);
 }
@@ -86,7 +86,7 @@ inline void EventBus::Unsubscribe(T* classInstance, void(T::* memberFunction)(Ev
 	{
 		HandlerList* handlers = m_Subscribers[typeid(EventType)];
 
-		unsigned id = GetID<T, EventType>(classInstance);
+		unsigned id = getID<T, EventType>(classInstance);
 		std::vector<HandlerFunctionBase*>::iterator it;
 		for (it = handlers->begin(); it != handlers->end(); ++it)
 		{
@@ -101,7 +101,7 @@ inline void EventBus::Unsubscribe(T* classInstance, void(T::* memberFunction)(Ev
 }
 
 template<class T, class EventType>
-inline unsigned EventBus::GetID(T* instance)
+inline unsigned EventBus::getID(T* instance)
 {
 	size_t index = typeid(EventType).hash_code();
 	return (unsigned)(index - (size_t)instance);
