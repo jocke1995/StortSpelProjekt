@@ -32,8 +32,8 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	m_pThreadPool = new ThreadPool(numCores); // Set num m_Threads to number of cores of the cpu
 
 	// Sub-engines
-	m_Renderer = new Renderer();
-	m_Renderer->InitD3D12(m_Window, hInstance, m_ThreadPool);
+	m_pRenderer = new Renderer();
+	m_pRenderer->InitD3D12(m_pWindow, hInstance, m_pThreadPool);
 
 	m_pAudioEngine = new AudioEngine();
 
