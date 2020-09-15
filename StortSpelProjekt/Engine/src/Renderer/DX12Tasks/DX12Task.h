@@ -4,7 +4,12 @@
 #include "../../Misc/MultiThreadedTask.h"
 
 class CommandInterface;
+class Resource;
+class DescriptorHeap;
+
 enum COMMAND_INTERFACE_TYPE;
+enum class DESCRIPTOR_HEAP_TYPE;
+enum D3D12_RESOURCE_STATES;
 
 // DX12 Forward Declarations
 struct ID3D12GraphicsCommandList5;
@@ -15,6 +20,8 @@ enum RENDER_TASK_TYPE
 	FORWARD_RENDER,
 	BLEND,
 	SHADOW,
+	BLUR,
+	MERGE,
 	NR_OF_RENDERTASKS
 };
 
@@ -34,17 +41,24 @@ class DX12Task : public MultiThreadedTask
 {
 public:
 	DX12Task(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType);
-	~DX12Task();
+	virtual ~DX12Task();
 
 	void SetBackBufferIndex(int backBufferIndex);
 	void SetCommandInterfaceIndex(int index);
+	void SetDescriptorHeaps(std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> dhs);
+
+	void AddResource(std::string id, const Resource* resource);
 
 	ID3D12GraphicsCommandList5* GetCommandList(unsigned int index) const;
 protected:
+	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> m_DescriptorHeaps;
+	std::map<std::string, const Resource*> m_Resources;
 
 	CommandInterface* m_pCommandInterface = nullptr;
 	int m_BackBufferIndex = -1;
 	int m_CommandInterfaceIndex = -1;
+
+	void TransResourceState(ID3D12GraphicsCommandList5* cl, Resource* resource, D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter);
 };
 
 #endif
