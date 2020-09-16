@@ -80,15 +80,13 @@ PS_OUTPUT PS_main(VS_OUT input)
 			normal.rgb);
 	}
 
-	// This is a test to show that bloom works, remove after review
 	finalColor += emissiveMap.rgb;
-	finalColor = saturate(finalColor);
 
 	PS_OUTPUT output;
 	output.sceneColor = float4(finalColor.rgb, 1.0f);
 
 	float brightness = dot(output.sceneColor.rgb, float3(0.2126, 0.7152, 0.0722));
-	if (brightness > 0.7)	// TODO: Change when HDR is added to project
+	if (brightness > 1.0)
 	{
 		output.brightColor = output.sceneColor;
 	}
