@@ -3,7 +3,7 @@
 
 #include "GPUMemory/Resource.h"
 #include "RenderTarget.h"
-#include "ShaderResourceView.h"
+#include "GPUMemory/ShaderResourceView.h"
 #include "DescriptorHeap.h"
 
 SwapChain::SwapChain(

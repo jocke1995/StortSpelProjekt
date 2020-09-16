@@ -5,7 +5,7 @@
 
 #include "../SwapChain.h"
 #include "../RenderTarget.h"
-#include "../ShaderResourceView.h"
+#include "../GPUMemory/ShaderResourceView.h"
 #include "../RenderView.h"
 #include "../GPUMemory/Resource.h"
 

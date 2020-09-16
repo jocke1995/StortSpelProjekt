@@ -9,7 +9,7 @@ ConstantBuffer::ConstantBuffer(ID3D12Device5* device, unsigned int entrySize, st
 	unsigned int sizeAligned = (entrySize + 255) & ~255;
 	m_pUploadResource = new Resource(device, sizeAligned, RESOURCE_TYPE::UPLOAD, resourceName + L"_UPLOAD");
 	m_pDefaultResource = new Resource(device, sizeAligned, RESOURCE_TYPE::DEFAULT, resourceName + L"_DEFAULT");
-	m_pId = cbCounter++;
+	m_pId = s_CbCounter++;
 	CreateConstantBufferView(device, descriptorHeap_CBV_UAV_SRV);
 }
 

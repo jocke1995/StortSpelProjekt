@@ -13,7 +13,7 @@
 #include "../Renderer/BoundingBoxPool.h"
 
 #include "../Renderer/Mesh.h"
-#include "../Renderer/ShaderResourceView.h"
+#include "../Renderer/GPUMemory/ShaderResourceView.h"
 
 
 

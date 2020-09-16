@@ -3,7 +3,7 @@
 
 #include "GPUMemory/Resource.h"
 #include "CommandInterface.h"
-#include "ShaderResourceView.h"
+#include "GPUMemory/ShaderResourceView.h"
 #include "DescriptorHeap.h"
 
 // For loading textures

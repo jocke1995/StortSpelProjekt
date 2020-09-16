@@ -2,7 +2,7 @@
 #include "Mesh.h"
 
 #include "GPUMemory/Resource.h"
-#include "ShaderResourceView.h"
+#include "GPUMemory/ShaderResourceView.h"
 #include "DescriptorHeap.h"
 #include "Texture.h"
 

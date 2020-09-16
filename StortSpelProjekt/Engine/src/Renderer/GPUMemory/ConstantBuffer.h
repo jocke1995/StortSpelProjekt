@@ -4,7 +4,7 @@
 class Resource;
 class DescriptorHeap;
 
-static unsigned int cbCounter = 0;
+static unsigned int s_CbCounter = 0;
 class ConstantBuffer
 {
 public:

@@ -2,7 +2,7 @@
 #include "ShadowInfo.h"
 
 #include "DepthStencilView.h"
-#include "ShaderResourceView.h"
+#include "GPUMemory/ShaderResourceView.h"
 #include "RenderView.h"
 #include "DescriptorHeap.h"
 #include "GPUMemory/Resource.h"

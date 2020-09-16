@@ -26,10 +26,12 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "Text.h"
-#include "ShaderResourceView.h"
 
 // GPUMemory
 #include "GPUMemory/ConstantBuffer.h"
+#include "GPUMemory/UnorderedAccess.h"
+// Views
+#include "GPUMemory/ShaderResourceView.h"
 
 // Techniques
 #include "Bloom.h"

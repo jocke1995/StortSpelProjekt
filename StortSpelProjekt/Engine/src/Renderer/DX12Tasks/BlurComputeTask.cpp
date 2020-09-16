@@ -6,8 +6,8 @@
 #include "../ComputeState.h"
 
 #include "../PingPongResource.h"
-#include "../ShaderResourceView.h"
-#include "../UnorderedAccessView.h"
+#include "../GPUMemory/ShaderResourceView.h"
+#include "../GPUMemory/UnorderedAccessView.h"
 #include "../GPUMemory/Resource.h"
 #include "../DescriptorHeap.h"
 

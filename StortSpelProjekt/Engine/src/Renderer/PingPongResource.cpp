@@ -2,8 +2,8 @@
 #include "PingPongResource.h"
 
 #include "GPUMemory/Resource.h"
-#include "ShaderResourceView.h"
-#include "UnorderedAccessView.h"
+#include "GPUMemory/ShaderResourceView.h"
+#include "GPUMemory/UnorderedAccessView.h"
 
 PingPongResource::PingPongResource(
 	Resource* resource,
