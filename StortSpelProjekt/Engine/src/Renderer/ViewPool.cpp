@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ViewPool.h"
 
-#include "ConstantBufferView.h"
+#include "ConstantBuffer.h"
 #include "ShadowInfo.h"
 #include "DescriptorHeap.h"
 #include "../ECS/Components/Lights/Light.h"
@@ -21,12 +21,12 @@ ViewPool::ViewPool(
 
 ViewPool::~ViewPool()
 {
-	// Free cbvs
-	for (auto& pair : m_CbvPool)
+	// Free cbs
+	for (auto& pair : m_CbPool)
 	{
 		for (auto& pair2 : pair.second)
 		{
-			// free memory of cbv
+			// free memory of cb
 			delete pair2.second;
 		}
 	}
@@ -43,11 +43,11 @@ ViewPool::~ViewPool()
 	}
 }
 
-ConstantBufferView* ViewPool::GetFreeCBV(unsigned int size, std::wstring resourceName)
+ConstantBuffer* ViewPool::GetFreeCBV(unsigned int size, std::wstring resourceName)
 {
 	unsigned int sizeAligned = (size + 255) & ~255;
 
-	for (auto& pair : m_CbvPool[sizeAligned])
+	for (auto& pair : m_CbPool[sizeAligned])
 	{
 		// The resource is free
 		if (pair.first == true)
@@ -58,9 +58,9 @@ ConstantBufferView* ViewPool::GetFreeCBV(unsigned int size, std::wstring resourc
 	}
 
 	// No constant buffer of that type exists.. Create and return a new one
-	ConstantBufferView* cbd = createConstantBufferView(sizeAligned, resourceName);
-	m_CbvPool[sizeAligned].push_back(std::make_pair(false, cbd));
-	return cbd;
+	ConstantBuffer* cb = createConstantBuffer(sizeAligned, resourceName);
+	m_CbPool[sizeAligned].push_back(std::make_pair(false, cb));
+	return cb;
 }
 
 ShadowInfo* ViewPool::GetFreeShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION shadowResolution)
@@ -84,7 +84,7 @@ ShadowInfo* ViewPool::GetFreeShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION 
 
 void ViewPool::ClearAll()
 {
-	for (auto& pair : m_CbvPool)
+	for (auto& pair : m_CbPool)
 	{
 		for (auto& vec : pair.second)
 		{
@@ -104,7 +104,7 @@ void ViewPool::ClearAll()
 	}
 }
 
-void ViewPool::ClearSpecificLight(LIGHT_TYPE type, ConstantBufferView* cbv, ShadowInfo* si)
+void ViewPool::ClearSpecificLight(LIGHT_TYPE type, ConstantBuffer* cbv, ShadowInfo* si)
 {
 	unsigned int sizeAligned = 0;
 	switch (type)
@@ -121,7 +121,7 @@ void ViewPool::ClearSpecificLight(LIGHT_TYPE type, ConstantBufferView* cbv, Shad
 	}
 
 	// Free cbv
-	for (auto& pair : m_CbvPool[sizeAligned])
+	for (auto& pair : m_CbPool[sizeAligned])
 	{
 		if (pair.second == cbv)
 		{
@@ -144,16 +144,16 @@ void ViewPool::ClearSpecificLight(LIGHT_TYPE type, ConstantBufferView* cbv, Shad
 	}
 }
 
-void ViewPool::ClearSpecificCBV(unsigned int size, ConstantBufferView* cbv)
+void ViewPool::ClearSpecificCB(unsigned int size, ConstantBuffer* cbv)
 {
 	unsigned int sizeAligned = (size + 255) & ~255;
 }
 
-ConstantBufferView* ViewPool::createConstantBufferView(unsigned int size, std::wstring resourceName)
+ConstantBuffer* ViewPool::createConstantBuffer(unsigned int size, std::wstring resourceName)
 {
 	unsigned int sizeAligned = (size + 255) & ~255;
 
-	ConstantBufferView* cbd = new ConstantBufferView(
+	ConstantBuffer* cbd = new ConstantBuffer(
 		m_pDevice,
 		sizeAligned,
 		resourceName,

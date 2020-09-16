@@ -5,7 +5,7 @@
 #include "Resource.h"
 
 ConstantBufferUpload::ConstantBufferUpload(ID3D12Device5* device, unsigned int entrySize, std::wstring uploadResourceName, unsigned int descriptorHeapIndex, DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
-	:ConstantBuffer(device, entrySize, uploadResourceName, descriptorHeapIndex)
+	:ConstantBufferTemp(device, entrySize, uploadResourceName, descriptorHeapIndex)
 {
 	createConstantBufferView(device, descriptorHeap_CBV_UAV_SRV);
 }

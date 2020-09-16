@@ -11,12 +11,13 @@
 #include "../ECS/Scene.h"
 #include "../ECS/Entity.h"
 #include "../ECS/Components/TextComponent.h"
+#include "../ECS/Components/BoundingBoxComponent.h"
 
 // Renderer-Engine 
 #include "RootSignature.h"
 #include "SwapChain.h"
 #include "DepthStencilView.h"
-#include "ConstantBufferView.h"
+#include "ConstantBuffer.h"
 #include "ViewPool.h"
 #include "BoundingBoxPool.h"
 #include "CommandInterface.h"
@@ -28,6 +29,7 @@
 #include "Text.h"
 #include "ShaderResourceView.h"
 
+// Techniques
 #include "Bloom.h"
 #include "PingPongResource.h"
 #include "ShadowInfo.h"
@@ -157,7 +159,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
 
 	// Allocate memory for cbPerScene
-	m_pCbPerScene = new ConstantBufferView(
+	m_pCbPerScene = new ConstantBuffer(
 		m_pDevice5, 
 		sizeof(CB_PER_SCENE_STRUCT),
 		L"CB_PER_SCENE_DEFAULT",
@@ -168,7 +170,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	m_pCbPerSceneData = new CB_PER_SCENE_STRUCT();
 
 	// Allocate memory for cbPerFrame
-	m_pCbPerFrame = new ConstantBufferView(
+	m_pCbPerFrame = new ConstantBuffer(
 		m_pDevice5,
 		sizeof(CB_PER_FRAME_STRUCT),
 		L"CB_PER_FRAME_DEFAULT",
@@ -1204,7 +1206,7 @@ void Renderer::removeComponents(Entity* entity)
 			if (parent == entity)
 			{
 				// Free memory so other m_Entities can use it
-				ConstantBufferView* cbv = std::get<1>(tuple);
+				ConstantBuffer* cbv = std::get<1>(tuple);
 				ShadowInfo* si = std::get<2>(tuple);
 				m_pViewPool->ClearSpecificLight(type, cbv, si);
 
@@ -1322,7 +1324,7 @@ void Renderer::addComponents(Entity* entity)
 	{
 		// Assign CBV from the lightPool
 		std::wstring resourceName = L"DirectionalLight_DefaultResource";
-		ConstantBufferView* cbd = m_pViewPool->GetFreeCBV(sizeof(DirectionalLight), resourceName);
+		ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(DirectionalLight), resourceName);
 
 		// Check if the light is to cast shadows
 		SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
@@ -1365,7 +1367,7 @@ void Renderer::addComponents(Entity* entity)
 	{
 		// Assign CBV from the lightPool
 		std::wstring resourceName = L"PointLight_DefaultResource";
-		ConstantBufferView* cbd = m_pViewPool->GetFreeCBV(sizeof(PointLight), resourceName);
+		ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(PointLight), resourceName);
 
 		// Assign views required for shadows from the lightPool
 		ShadowInfo* si = nullptr;
@@ -1379,7 +1381,7 @@ void Renderer::addComponents(Entity* entity)
 	{
 		// Assign CBV from the lightPool
 		std::wstring resourceName = L"SpotLight_DefaultResource";
-		ConstantBufferView* cbd = m_pViewPool->GetFreeCBV(sizeof(SpotLight), resourceName);
+		ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(SpotLight), resourceName);
 
 		// Check if the light is to cast shadows
 		SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
@@ -1567,7 +1569,7 @@ void Renderer::prepareCBPerFrame()
 {
 	CopyPerFrameTask* cpft = nullptr;
 	const void* data = nullptr;
-	ConstantBufferView* cbv = nullptr;
+	ConstantBuffer* cbv = nullptr;
 
 	// Lights
 	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)

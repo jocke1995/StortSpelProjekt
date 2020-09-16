@@ -8,7 +8,7 @@ class DescriptorHeap;
 // DX12 Forward Declarations
 struct ID3D12Device5;
 
-class ConstantBufferUpload : public ConstantBuffer
+class ConstantBufferUpload : public ConstantBufferTemp
 {
 public:
 	ConstantBufferUpload(ID3D12Device5* device,

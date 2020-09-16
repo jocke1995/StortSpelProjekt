@@ -27,8 +27,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AssetLoader* al = AssetLoader::Get();
 
 
-    sceneManager->SetSceneToDraw(TimScene(sceneManager));
-    //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
+    //sceneManager->SetSceneToDraw(TimScene(sceneManager));
+    sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
 
     while (!window->ExitWindow())

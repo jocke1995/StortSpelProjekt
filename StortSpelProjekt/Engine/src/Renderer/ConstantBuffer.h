@@ -1,35 +1,31 @@
 #ifndef CONSTANTBUFFER_H
 #define CONSTANTBUFFER_H
 
-#include "Core.h"
+#include "ConstantBufferTemp.h"
 
-class Resource;
-class DescriptorHeap;
-
-// DX12 Forward Declarations
-struct ID3D12Device5;
-
-class ConstantBuffer
+static unsigned int cbCounter = 0;
+class ConstantBuffer : public ConstantBufferTemp
 {
 public:
-	ConstantBuffer(	ID3D12Device5* device,
-					unsigned int entrySize,
-					std::wstring resourceName,
-					unsigned int descriptorHeapIndex);
+	ConstantBuffer(ID3D12Device5* device,
+		unsigned int entrySize,
+		std::wstring defaultName,
+		unsigned int descriptorHeapIndex,
+		DescriptorHeap* descriptorHeap_CBV_UAV_SRV);
+
+	bool operator == (const ConstantBuffer& other);
+
 	virtual ~ConstantBuffer();
 
+	Resource* GetCBVResource() const;
 	
-	Resource* GetUploadResource() const;
-	unsigned int GetDescriptorHeapIndex() const;
+private:
+	Resource* m_pDefaultResource = nullptr;
+	unsigned int m_pId = 0;
 
-protected:
-	unsigned int m_DescriptorHeapIndex = -1;
-
-	// will be created with different m_Resources depending on the constantBuffer type
-	Resource* m_pUploadResource = nullptr;
-	virtual void CreateConstantBufferView(
+	void CreateConstantBufferView(
 		ID3D12Device5* device,
-		DescriptorHeap* descriptorHeap_CBV_UAV_SRV) = 0;
+		DescriptorHeap* descriptorHeap_CBV_UAV_SRV);
 };
 
 #endif

@@ -15,13 +15,18 @@ class Window;
 class RootSignature;
 class SwapChain;
 class RenderTarget;
-class DepthStencilView;
-class ConstantBufferView;
 class ViewPool;
 class BoundingBoxPool;
 class DescriptorHeap;
 class Mesh;
 
+// Views
+class DepthStencilView;
+
+// GPU Resources
+class ConstantBuffer;
+
+// Enums
 enum COMMAND_INTERFACE_TYPE;
 enum class DESCRIPTOR_HEAP_TYPE;
 
@@ -32,7 +37,6 @@ class Bloom;
 
 // ECS
 class Scene;
-#include "../ECS/Components/BoundingBoxComponent.h"
 class Light;
 
 // Graphics
@@ -53,10 +57,13 @@ struct ID3D12CommandList;
 struct ID3D12Fence1;
 struct ID3D12Device5;
 
+// ECS
+class Entity;
 namespace component
 {
 	class ModelComponent;
 	class TransformComponent;
+	class BoundingBoxComponent;
 	class TextComponent;
 }
 
@@ -129,16 +136,16 @@ private:
 	std::vector<component::TextComponent*> m_TextComponents;
 
 	ViewPool* m_pViewPool = nullptr;
-	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBufferView*, ShadowInfo*>>> m_Lights;
+	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBuffer*, ShadowInfo*>>> m_Lights;
 
 	// Current scene to be drawn
 	Scene* m_pCurrActiveScene = nullptr;
 	CB_PER_SCENE_STRUCT* m_pCbPerSceneData = nullptr;
-	ConstantBufferView* m_pCbPerScene = nullptr;
+	ConstantBuffer* m_pCbPerScene = nullptr;
 
 	// update per frame
 	CB_PER_FRAME_STRUCT* m_pCbPerFrameData = nullptr;
-	ConstantBufferView* m_pCbPerFrame = nullptr;
+	ConstantBuffer* m_pCbPerFrame = nullptr;
 
 	// Commandlists holders
 	std::vector<ID3D12CommandList*> m_DirectCommandLists[NUM_SWAP_BUFFERS];
