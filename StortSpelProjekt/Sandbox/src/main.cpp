@@ -273,9 +273,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     }
     return 0;
 }
-
-Scene* JockesTestScene(SceneManager* sm)
-{
+
+
+Scene* JockesTestScene(SceneManager* sm)
+
+{
+
     // Create Scene
     Scene* scene = sm->CreateScene("scene1");
 
@@ -342,9 +345,12 @@ Scene* JockesTestScene(SceneManager* sm)
 
     plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.05f, 0.0f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 10.0f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
-    /* ---------------------- PointLight1 ---------------------- */
-
+    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
+
+    /* ---------------------- PointLight1 ---------------------- */
+
+
+
     /* ---------------------- PointLigh2 ---------------------- */
     entity = scene->AddEntity("pointLight2");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -361,9 +367,12 @@ Scene* JockesTestScene(SceneManager* sm)
     plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.00f, 0.9f, 1.0f });
 
     plc->SetAttenuation({1.0f, 0.045f, 0.0075});
-    
-    /* ---------------------- PointLight2 ---------------------- */
-
+    
+
+    /* ---------------------- PointLight2 ---------------------- */
+
+
+
     /* ---------------------- PointLight3 ---------------------- */
     entity = scene->AddEntity("pointLight3");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -377,9 +386,12 @@ Scene* JockesTestScene(SceneManager* sm)
 
     plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.05f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 10.0f, 10.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
-    /* ---------------------- PointLight3 ---------------------- */
-
+    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
+
+    /* ---------------------- PointLight3 ---------------------- */
+
+
+
     /* ---------------------- PointLight4 ---------------------- */
     entity = scene->AddEntity("pointLight4");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -393,9 +405,12 @@ Scene* JockesTestScene(SceneManager* sm)
 
     plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.0f, 0.0f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 30.0f, 0.0f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.0f, 0.0f, 1.0f });
-    /* ---------------------- PointLight4 ---------------------- */
-
+    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.0f, 0.0f, 1.0f });
+
+    /* ---------------------- PointLight4 ---------------------- */
+
+
+
     /* ---------------------- PointLigh5 ---------------------- */
     entity = scene->AddEntity("pointLight5");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -412,9 +427,12 @@ Scene* JockesTestScene(SceneManager* sm)
     plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.0f, 1.0f });
 
     plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
-
-    /* ---------------------- PointLight5 ---------------------- */
-
+
+
+    /* ---------------------- PointLight5 ---------------------- */
+
+
+
     /* ---------------------- PointLight6 ---------------------- */
     entity = scene->AddEntity("pointLight6");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -428,15 +446,24 @@ Scene* JockesTestScene(SceneManager* sm)
 
     plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.0f, 0.05f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 0.0f, 30.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.0f, 0.9f, 1.0f });
-    /* ---------------------- PointLight6 ---------------------- */
-
-
-    return scene;
-}
-
-Scene* FredriksTestScene(SceneManager* sm)
-{
+    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.0f, 0.9f, 1.0f });
+
+    /* ---------------------- PointLight6 ---------------------- */
+
+
+
+
+
+    return scene;
+
+}
+
+
+
+Scene* FredriksTestScene(SceneManager* sm)
+
+{
+
 	// Create Scene
 	Scene* scene = sm->CreateScene("scene1");
 
@@ -503,9 +530,12 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.05f, 0.0f, 1.0f });
 	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 10.0f, 0.0f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
-	/* ---------------------- PointLight1 ---------------------- */
-
+	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
+
+	/* ---------------------- PointLight1 ---------------------- */
+
+
+
 	/* ---------------------- PointLigh2 ---------------------- */
 	entity = scene->AddEntity("pointLight2");
 	mc = entity->AddComponent<component::ModelComponent>();
@@ -522,9 +552,12 @@ Scene* FredriksTestScene(SceneManager* sm)
 	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.00f, 0.9f, 1.0f });
 
 	plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
-
-	/* ---------------------- PointLight2 ---------------------- */
-
+
+
+	/* ---------------------- PointLight2 ---------------------- */
+
+
+
 	/* ---------------------- PointLight3 ---------------------- */
 	entity = scene->AddEntity("pointLight3");
 	mc = entity->AddComponent<component::ModelComponent>();
@@ -538,9 +571,12 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.05f, 1.0f });
 	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 10.0f, 10.0f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
-	/* ---------------------- PointLight3 ---------------------- */
-
+	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
+
+	/* ---------------------- PointLight3 ---------------------- */
+
+
+
 	/* ---------------------- PointLight4 ---------------------- */
 	entity = scene->AddEntity("pointLight4");
 	mc = entity->AddComponent<component::ModelComponent>();
@@ -554,9 +590,12 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.0f, 0.0f, 1.0f });
 	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 30.0f, 0.0f, 0.0f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.0f, 0.0f, 1.0f });
-	/* ---------------------- PointLight4 ---------------------- */
-
+	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.0f, 0.0f, 1.0f });
+
+	/* ---------------------- PointLight4 ---------------------- */
+
+
+
 	/* ---------------------- PointLigh5 ---------------------- */
 	entity = scene->AddEntity("pointLight5");
 	mc = entity->AddComponent<component::ModelComponent>();
@@ -573,9 +612,12 @@ Scene* FredriksTestScene(SceneManager* sm)
 	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.0f, 1.0f });
 
 	plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
-
-	/* ---------------------- PointLight5 ---------------------- */
-
+
+
+	/* ---------------------- PointLight5 ---------------------- */
+
+
+
 	/* ---------------------- PointLight6 ---------------------- */
 	entity = scene->AddEntity("pointLight6");
 	mc = entity->AddComponent<component::ModelComponent>();
@@ -589,22 +631,31 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.0f, 0.05f, 1.0f });
 	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 0.0f, 30.0f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.0f, 0.9f, 1.0f });
-	/* ---------------------- PointLight6 ---------------------- */
-
-	/* ------------------------- Text --------------------------- */
-
+	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.0f, 0.9f, 1.0f });
+
+	/* ---------------------- PointLight6 ---------------------- */
+
+
+
+	/* ------------------------- Text --------------------------- */
+
+
+
 	// Load fonts
-	std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
+	std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
+
 	
 	std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
 	float2 textPos = { 0.02f, 0.01f };
 	float2 textPadding = { 0.5f, 0.0f };
 	float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
 	float2 textScale = { 0.5f, 0.5f };
-
-	scene->AddEntity("text");
-
+
+
+	scene->AddEntity("text");
+
+
+
 	entity = scene->GetEntity("text");
 	component::TextComponent* textComp = entity->AddComponent<component::TextComponent>(arialFont);
 	textComp->AddText();
@@ -612,9 +663,15 @@ Scene* FredriksTestScene(SceneManager* sm)
 	textComp->SetPadding(textPadding, 0);
 	textComp->SetPos(textPos, 0);
 	textComp->SetScale(textScale, 0);
-	textComp->SetText(textToRender, 0);
-
-	/* ---------------------------------------------------------- */
-
-	return scene;
-}
+	textComp->SetText(textToRender, 0);
+
+
+
+	/* ---------------------------------------------------------- */
+
+
+
+	return scene;
+
+}
+
