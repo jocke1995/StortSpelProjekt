@@ -6,15 +6,16 @@ In Events.h, create a new event on the form:
 ```cpp
     struct EventName : public Event
     {
-        EventName(var param1, var param2) : param1{ param1 }, param2{ param2 } {};
-        var param1;
-        var param2;
+        EventName(var param1, var param2) : variable1{ param1 }, variable2{ param2 } {};
+        var variable1;
+        var variable2;
     }
 ```
 
-The number of parameters is arbitrary.
+The number of parameters and variables is arbitrary.
 
-In your class, create a (private) method:
+In your class, create a (private) method. As a parameter this method should only take a pointer to the
+type of event it will subscribe to, all other parameters needed for the function will be sent throught the event bus when publishing the event.
 
 ```cpp
     void methodName(EventName* evnt);
@@ -47,8 +48,8 @@ In methodName, put the code you want to execute when the event is published. The
 of the event can be accessed by:
 
 ```cpp
-    evnt->param1;
-    evnt->param2;
+    evnt->variable1;
+    evnt->variable2;
 ```
 
 To publish the event to make the code in methodName run, call the following code:
