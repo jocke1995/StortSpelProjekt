@@ -671,7 +671,7 @@ void Renderer::initRenderTasks()
 	// DepthStencil
 	depthPrePassDsd.StencilEnable = false;
 	gpsdDepthPrePass.DepthStencilState = depthPrePassDsd;
-	gpsdDepthPrePass.DSVFormat = m_pMainDSV->GetDXGIFormat();
+	gpsdDepthPrePass.DSVFormat = m_pMainDSV->GetDSV()->GetDXGIFormat();
 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdDepthPrePassVector;
 	gpsdDepthPrePassVector.push_back(&gpsdDepthPrePass);
@@ -1293,7 +1293,7 @@ void Renderer::removeComponents(Entity* entity)
 			if (parent == entity)
 			{
 				// Free memory so other m_Entities can use it
-				ConstantBufferView* cbv = std::get<1>(tuple);
+				ConstantBuffer* cbv = std::get<1>(tuple);
 				ShadowInfo* si = std::get<2>(tuple);
 				m_pViewPool->ClearSpecificLight(type, cbv, si);
 
@@ -1411,7 +1411,7 @@ void Renderer::addComponents(Entity* entity)
 	{
 		// Assign CBV from the lightPool
 		std::wstring resourceName = L"DirectionalLight_DefaultResource";
-		ConstantBufferView* cbd = m_pViewPool->GetFreeCBV(sizeof(DirectionalLight), resourceName);
+		ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(DirectionalLight), resourceName);
 
 		// Check if the light is to cast shadows
 		SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
@@ -1454,7 +1454,7 @@ void Renderer::addComponents(Entity* entity)
 	{
 		// Assign CBV from the lightPool
 		std::wstring resourceName = L"PointLight_DefaultResource";
-		ConstantBufferView* cbd = m_pViewPool->GetFreeCBV(sizeof(PointLight), resourceName);
+		ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(PointLight), resourceName);
 
 		// Assign views required for shadows from the lightPool
 		ShadowInfo* si = nullptr;
@@ -1468,7 +1468,7 @@ void Renderer::addComponents(Entity* entity)
 	{
 		// Assign CBV from the lightPool
 		std::wstring resourceName = L"SpotLight_DefaultResource";
-		ConstantBufferView* cbd = m_pViewPool->GetFreeCBV(sizeof(SpotLight), resourceName);
+		ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(SpotLight), resourceName);
 
 		// Check if the light is to cast shadows
 		SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;

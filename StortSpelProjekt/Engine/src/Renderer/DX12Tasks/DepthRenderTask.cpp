@@ -8,7 +8,7 @@
 #include "../SwapChain.h"
 #include "../DescriptorHeap.h"
 #include "../RenderTarget.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../RenderView.h"
 #include "../PipelineState.h"
 #include "../BaseCamera.h"
