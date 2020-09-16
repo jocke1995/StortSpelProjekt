@@ -34,6 +34,7 @@
 #include "MousePicker.h"
 
 // Graphics
+#include "DX12Tasks/DepthRenderTask.h"
 #include "DX12Tasks/WireframeRenderTask.h"
 #include "DX12Tasks/OutliningRenderTask.h"
 #include "DX12Tasks/ForwardRenderTask.h"
@@ -293,6 +294,10 @@ void Renderer::Execute()
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::SHADOW], FLAG_THREAD::RENDER);
 
+	// Depth pre-pass
+	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS], FLAG_THREAD::RENDER);
+
 	// Drawing
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetBackBufferIndex(backBufferIndex);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCommandInterfaceIndex(commandInterfaceIndex);
@@ -367,6 +372,7 @@ Scene* const Renderer::GetActiveScene() const
 
 void Renderer::setRenderTasksPrimaryCamera()
 {
+	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
@@ -614,6 +620,65 @@ void Renderer::updateMousePicker()
 void Renderer::initRenderTasks()
 {
 	// RenderTasks
+
+#pragma region DepthPrePass
+
+	/* Depth Pre-Pass rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdDepthPrePass = {};
+	gpsdDepthPrePass.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdDepthPrePass.NumRenderTargets = 0;
+	gpsdDepthPrePass.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+	// Depthstencil usage
+	gpsdDepthPrePass.SampleDesc.Count = 1;
+	gpsdDepthPrePass.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdDepthPrePass.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdDepthPrePass.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdDepthPrePass.RasterizerState.DepthBias = 0;
+	gpsdDepthPrePass.RasterizerState.DepthBiasClamp = 0.0f;
+	gpsdDepthPrePass.RasterizerState.SlopeScaledDepthBias = 0.0f;
+	gpsdDepthPrePass.RasterizerState.FrontCounterClockwise = false;
+
+	// Specify Blend descriptions
+	// copy of defaultRTdesc
+	D3D12_RENDER_TARGET_BLEND_DESC depthPrePassRTdesc = {
+		false, false,
+		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		D3D12_LOGIC_OP_NOOP, D3D12_COLOR_WRITE_ENABLE_ALL };
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdDepthPrePass.BlendState.RenderTarget[i] = depthPrePassRTdesc;
+
+	// Depth descriptor
+	D3D12_DEPTH_STENCIL_DESC depthPrePassDsd = {};
+	depthPrePassDsd.DepthEnable = true;
+	depthPrePassDsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	depthPrePassDsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+
+	// DepthStencil
+	depthPrePassDsd.StencilEnable = false;
+	gpsdDepthPrePass.DepthStencilState = depthPrePassDsd;
+	gpsdDepthPrePass.DSVFormat = m_pMainDSV->GetDXGIFormat();
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdDepthPrePassVector;
+	gpsdDepthPrePassVector.push_back(&gpsdDepthPrePass);
+
+	RenderTask* DepthPrePassRenderTask = new DepthRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"DepthVertex.hlsl", L"DepthPixel.hlsl",
+		&gpsdDepthPrePassVector,
+		L"DepthPrePassPSO");
+
+	
+	// TODO: remove swapchain, using swapchains render view currently.
+	DepthPrePassRenderTask->SetSwapChain(m_pSwapChain);
+	DepthPrePassRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion DepthPrePass
+
 #pragma region ForwardRendering
 	/* Forward rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdForwardRender = {};
@@ -643,8 +708,8 @@ void Renderer::initRenderTasks()
 	// Depth descriptor
 	D3D12_DEPTH_STENCIL_DESC dsd = {};
 	dsd.DepthEnable = true;
-	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 	// DepthStencil
 	dsd.StencilEnable = false;
@@ -657,9 +722,9 @@ void Renderer::initRenderTasks()
 	// Only change stencil testing
 	dsd = {};
 	dsd.DepthEnable = true;
-	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-	
+	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
 	// DepthStencil
 	dsd.StencilEnable = true;
 	dsd.StencilReadMask = 0x00;
@@ -680,9 +745,9 @@ void Renderer::initRenderTasks()
 
 	RenderTask* forwardRenderTask = new FowardRenderTask(
 		m_pDevice5,
-		m_pRootSignature, 
-		L"ForwardVertex.hlsl", L"ForwardPixel.hlsl", 
-		&gpsdForwardRenderVector, 
+		m_pRootSignature,
+		L"ForwardVertex.hlsl", L"ForwardPixel.hlsl",
+		&gpsdForwardRenderVector,
 		L"ForwardRenderingPSO");
 
 	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
@@ -690,9 +755,10 @@ void Renderer::initRenderTasks()
 	forwardRenderTask->SetSwapChain(m_pSwapChain);
 	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTarget());
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
-	
+
 
 #pragma endregion ForwardRendering
+
 #pragma region ModelOutlining
 	/* Forward rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdModelOutlining = gpsdForwardRenderStencilTest;
@@ -732,6 +798,7 @@ void Renderer::initRenderTasks()
 	m_pOutliningRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion ModelOutlining
+
 #pragma region Blend
 	// ------------------------ TASK 2: BLEND ---------------------------- FRONTCULL
 
@@ -825,6 +892,7 @@ void Renderer::initRenderTasks()
 	
 
 #pragma endregion Blend
+
 #pragma region ShadowPass
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdShadow = { 0 };
 	gpsdShadow.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -868,12 +936,13 @@ void Renderer::initRenderTasks()
 	RenderTask* shadowRenderTask = new ShadowRenderTask(
 		m_pDevice5,
 		m_pRootSignature,
-		L"ShadowVertex.hlsl", L"ShadowPixel.hlsl",
+		L"DepthVertex.hlsl", L"DepthPixel.hlsl",
 		&gpsdShadowVector,
 		L"ShadowPSO");
 
 	shadowRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion ShadowPass
+
 #pragma region WireFrame
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdWireFrame = {};
 	gpsdWireFrame.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -906,6 +975,7 @@ void Renderer::initRenderTasks()
 	m_pWireFrameTask->SetSwapChain(m_pSwapChain);
 	m_pWireFrameTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion WireFrame
+
 #pragma region MergePass
 	/* Forward rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdMergePass = {};
@@ -947,6 +1017,7 @@ void Renderer::initRenderTasks()
 	mergeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	static_cast<MergeRenderTask*>(mergeTask)->CreateSlotInfo();
 #pragma endregion MergePass
+
 #pragma region Text 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdText = {};
@@ -1044,6 +1115,7 @@ void Renderer::initRenderTasks()
 	// None atm
 
 	/* ------------------------- DirectQueue Tasks ---------------------- */
+	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS] = DepthPrePassRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
@@ -1055,6 +1127,11 @@ void Renderer::initRenderTasks()
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(DepthPrePassRenderTask->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1099,6 +1176,7 @@ void Renderer::initRenderTasks()
 
 void Renderer::setRenderTasksRenderComponents()
 {
+	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents);
@@ -1152,6 +1230,19 @@ void Renderer::waitForCopyOnDemand()
 		m_pFenceFrame->SetEventOnCompletion(oldFenceValue, m_EventHandle);
 		WaitForSingleObject(m_EventHandle, INFINITE);
 	}
+	if (bbc != NULL)
+	component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
+	// Check if the entity got a boundingbox component.
+	// Check if the entity is a textComponent
+	for (int i = 0; i < m_TextComponents.size(); i++)
+		Entity* parent = m_TextComponents[i]->GetParent();
+	{
+		if (parent == entity)
+		{
+			m_TextComponents.erase(m_TextComponents.begin() + i);
+		}
+	}
+			setRenderTasksRenderComponents();
 }
 
 void Renderer::removeComponents(Entity* entity)
@@ -1163,17 +1254,6 @@ void Renderer::removeComponents(Entity* entity)
 		if (parent == entity)
 		{
 			m_RenderComponents.erase(m_RenderComponents.begin() + i);
-			setRenderTasksRenderComponents();
-		}
-	}
-
-	// Check if the entity is a textComponent
-	for (int i = 0; i < m_TextComponents.size(); i++)
-	{
-		Entity* parent = m_TextComponents[i]->GetParent();
-		if (parent == entity)
-		{
-			m_TextComponents.erase(m_TextComponents.begin() + i);
 			setRenderTasksRenderComponents();
 		}
 	}
@@ -1239,27 +1319,24 @@ void Renderer::removeComponents(Entity* entity)
 
 	// Check if the entity got a boundingbox component.
 	component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
-	if (bbc != NULL)
+	if (bbc->GetParent() == entity)
 	{
-		if (bbc->GetParent() == entity)
+		// Stop drawing the wireFrame
+		if (DRAWBOUNDINGBOX == true)
 		{
-			// Stop drawing the wireFrame
-			if (DRAWBOUNDINGBOX == true)
-			{
-				m_pWireFrameTask->ClearSpecific(bbc);
-			}
+			m_pWireFrameTask->ClearSpecific(bbc);
+		}
 
-			// Stop picking this boundingBox
-			unsigned int i = 0;
-			for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
+		// Stop picking this boundingBox
+		unsigned int i = 0;
+		for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
+		{
+			if (bbcToBePicked == bbc)
 			{
-				if (bbcToBePicked == bbc)
-				{
-					m_BoundingBoxesToBePicked.erase(m_BoundingBoxesToBePicked.begin() + i);
-					break;
-				}
-				i++;
+				m_BoundingBoxesToBePicked.erase(m_BoundingBoxesToBePicked.begin() + i);
+				break;
 			}
+			i++;
 		}
 	}
 	return;
@@ -1481,20 +1558,20 @@ void Renderer::addComponents(Entity* entity)
 	if (textComp != nullptr)
 	{
 		TextTask* tt = static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT]);
-		std::map<std::string, TextData>* textDataMap = textComp->GetTextDataMap();
+		std::vector<TextData>* textDataVec = textComp->GetTextDataVec();
 
-		for (auto data : *textDataMap)
+		for (int i = 0; i < textDataVec->size(); i++)
 		{
 			AssetLoader* al = AssetLoader::Get();
-			int numOfCharacters = textComp->GetNumOfCharacters(data.first);
+			int numOfCharacters = textComp->GetNumOfCharacters(i);
 
 			Text* text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, textComp->GetTexture());
-			text->SetTextData(&data.second, textComp->GetFont());
+			text->SetTextData(&textDataVec->at(i), textComp->GetFont());
 
 			textComp->SubmitText(text);
 
-			// TODO: Look if data is already on the GPU
-			
+			// Look if data is already on the GPU
+
 			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 
 			// Submit to GPU
