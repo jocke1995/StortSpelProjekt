@@ -75,7 +75,6 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 	}
 
 	finalColor += emissiveMap.rgb;
-	finalColor = saturate(finalColor);
 	float blendFactor = 0.4f;
 	return float4(finalColor.rgb, blendFactor);
 }

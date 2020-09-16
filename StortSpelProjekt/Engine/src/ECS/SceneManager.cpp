@@ -117,7 +117,7 @@ void SceneManager::SetSceneToDraw(Scene* scene)
 	}
 	
 	m_pRenderer->prepareScene(scene);
-
+	
 	executeCopyOnDemand();
 	return;
 }
@@ -160,4 +160,5 @@ void SceneManager::resetScene()
 	m_pRenderer->m_pScenePrimaryCamera = nullptr;
 	m_pRenderer->m_pWireFrameTask->Clear();
 	m_pRenderer->m_BoundingBoxesToBePicked.clear();
+	m_pRenderer->m_TextComponents.clear();
 }

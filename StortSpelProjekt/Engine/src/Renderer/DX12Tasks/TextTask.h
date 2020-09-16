@@ -5,6 +5,11 @@
 
 class RootSignature;
 
+namespace component
+{
+	class TextComponent;
+}
+
 class TextTask : public RenderTask
 {
 public:
@@ -15,10 +20,14 @@ public:
 		LPCTSTR psoName);
 	~TextTask();
 
+	void SetTextComponents(std::vector<component::TextComponent*>* textComponents);
+
 	void Execute();
 
 private:
+	std::vector<component::TextComponent*> m_TextComponents;
 
+	void draw(ID3D12GraphicsCommandList5* commandList, component::TextComponent* tc);
 };
 
 #endif
