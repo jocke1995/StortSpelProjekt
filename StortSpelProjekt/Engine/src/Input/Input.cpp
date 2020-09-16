@@ -38,21 +38,27 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 {
 	bool justPressed = !m_KeyState[key];
 	m_KeyState[key] = pressed;
-	if ((key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::Q || key == SCAN_CODES::E) && !pressed)
+	if (key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::Q || key == SCAN_CODES::E)
 	{
-		EventBus::GetInstance().Publish(&MovementInput(key, pressed));
+		if (justPressed)
+		{
+			EventBus::GetInstance().Publish(&MovementInput(key, justPressed));
+		}
+		else if (!pressed)
+		{
+			EventBus::GetInstance().Publish(&MovementInput(key, pressed));
+		}
 	}
-	else if (key == SCAN_CODES::LEFT_CTRL && !pressed)
+	else if (key == SCAN_CODES::LEFT_CTRL)
 	{
-		EventBus::GetInstance().Publish(&ModifierInput(key, pressed));
-	}
-	else if ((key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::Q || key == SCAN_CODES::E) && justPressed)
-	{
-		EventBus::GetInstance().Publish(&MovementInput(key, justPressed));
-	}
-	else if (key == SCAN_CODES::LEFT_CTRL && justPressed)
-	{
-		EventBus::GetInstance().Publish(&ModifierInput(key, justPressed));
+		if (justPressed)
+		{
+			EventBus::GetInstance().Publish(&ModifierInput(key, justPressed));
+		}
+		else if (!pressed)
+		{
+			EventBus::GetInstance().Publish(&ModifierInput(key, pressed));
+		}
 	}
 }
 
