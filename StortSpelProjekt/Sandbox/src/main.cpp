@@ -223,12 +223,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         if (window->WasTabPressed())
         {
             // Test to change scene during runtime
-            //static int sceneSwapper = 1;
-            //sceneSwapper %= 2;
-            //sprintf(sceneName, "scene%d", sceneSwapper);
-            //Log::Print("Scene: %s\n", sceneName);
-            //sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
-            //sceneSwapper++;
+            static int sceneSwapper = 1;
+            sceneSwapper %= 2;
+            sprintf(sceneName, "scene%d", sceneSwapper);
+            Log::Print("Scene: %s\n", sceneName);
+            sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
+            sceneSwapper++;
 
             // Test to remove picked object
             /*Entity* pickedEnt = renderer->GetPickedEntity();
@@ -593,12 +593,12 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 	entity = scene->GetEntity("text");
 	component::TextComponent* textComp = entity->AddComponent<component::TextComponent>(arialFont);
-	textComp->AddText();
-	textComp->SetColor(textColor, 0);
-	textComp->SetPadding(textPadding, 0);
-	textComp->SetPos(textPos, 0);
-	textComp->SetScale(textScale, 0);
-	textComp->SetText(textToRender, 0);
+	textComp->AddText("text");
+	textComp->SetColor(textColor, "text");
+	textComp->SetPadding(textPadding, "text");
+	textComp->SetPos(textPos, "text");
+	textComp->SetScale(textScale, "text");
+	textComp->SetText(textToRender, "text");
 
 	/* ---------------------------------------------------------- */
 

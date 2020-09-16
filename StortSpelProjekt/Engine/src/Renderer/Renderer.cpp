@@ -1481,32 +1481,43 @@ void Renderer::addComponents(Entity* entity)
 	if (textComp != nullptr)
 	{
 		TextTask* tt = static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT]);
-		std::vector<TextData>* textDataVec = textComp->GetTextDataVec();
+		std::map<std::string, TextData>* textDataMap = textComp->GetTextDataMap();
 
-		for (int i = 0; i < textDataVec->size(); i++)
+		for (auto data : *textDataMap)
 		{
 			AssetLoader* al = AssetLoader::Get();
-			int numOfCharacters = textComp->GetNumOfCharacters(i);
+			int numOfCharacters = textComp->GetNumOfCharacters(data.first);
 
 			Text* text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, textComp->GetTexture());
-			text->SetTextData(&textDataVec->at(i), textComp->GetFont());
+			text->SetTextData(&data.second, textComp->GetFont());
 
 			textComp->SubmitText(text);
 
 			// Look if data is already on the GPU
+			bool exists = false;
+			/*for (int i = 0; i < s_ExistingTexts.size(); i++)
+			{
+				if (data.first == s_ExistingTexts.at(i))
+				{
+					exists == true;
+				}
+			}*/
 
-			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+			if (exists == false)
+			{
+				CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 
-			// Submit to GPU
-			const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
+				// Submit to GPU
+				const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
 
-			// Vertices
-			Resource* uploadR = text->m_pUploadResourceVertices;
-			Resource* defaultR = text->m_pDefaultResourceVertices;
-			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+				// Vertices
+				Resource* uploadR = text->m_pUploadResourceVertices;
+				Resource* defaultR = text->m_pDefaultResourceVertices;
+				codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 
-			// Texture
-			codt->SubmitTexture(textComp->GetTexture());
+				// Texture
+				codt->SubmitTexture(textComp->GetTexture());
+			}
 		}
 
 		// Finally store the text in m_pRenderer so it will be drawn

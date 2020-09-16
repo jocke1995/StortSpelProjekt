@@ -16,28 +16,28 @@ namespace component
 		TextComponent(Entity* parent, std::pair<Font*, Texture*> font);
 		virtual ~TextComponent();
 
-		std::vector<TextData>* const GetTextDataVec();
+		std::map<std::string, TextData>* const GetTextDataMap();
 
-		void AddText();
+		void AddText(std::string name);
 		void SubmitText(Text* text);
 
 		void SetFont(std::pair<Font*, Texture*> font);
-		void SetText(std::string text, int pos);
-		void SetPos(float2 textPos, int pos);
-		void SetScale(float2 scale, int pos);
-		void SetPadding(float2 padding, int pos);
-		void SetColor(float4 color, int pos);
+		void SetText(std::string text, std::string name);
+		void SetPos(float2 textPos, std::string name);
+		void SetScale(float2 scale, std::string name);
+		void SetPadding(float2 padding, std::string name);
+		void SetColor(float4 color, std::string name);
 
 		Font* GetFont() const;
 		Texture* GetTexture() const;
 		Text* GetText(int pos) const;
 		const int GetNumOfTexts() const;
-		const int GetNumOfCharacters(int pos) const;
+		const int GetNumOfCharacters(std::string name);
 
 		void Update(double dt);
 
 	private:
-		std::vector<TextData> m_TextDataVec = {};
+		std::map<std::string, TextData> m_TextDataMap = {};
 		std::vector<Text*> m_TextVec = {};
 		Font* m_pFont = nullptr;
 		Texture* m_pFontTexture = nullptr;

@@ -97,7 +97,7 @@ void Text::initVertexData()
 		}
 
 		// don't overflow the buffer
-		if (numCharacters >= g_MaxNumTextCharacters)
+		if (numCharacters >= s_MaxNumTextCharacters)
 		{
 			break;
 		}
