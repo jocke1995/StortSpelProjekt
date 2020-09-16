@@ -26,8 +26,7 @@ public:
 	/// </summary>
 	void Initialize(AudioBuffer& audio);
 
-	// Set this component as listener, this will send the listeners (player/camera) positions
-	void SetListener();
+	IXAudio2SourceVoice* GetSourceVoice();
 
 	/// <summary>
 	/// Plays audio.

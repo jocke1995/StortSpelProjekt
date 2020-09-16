@@ -3,8 +3,10 @@
 
 #include "Component.h"
 #include <x3daudio.h>
+
 class AudioVoice;
 class AudioEngine;
+class Transform;
 
 // Component used for setting/updating "Emitters" position and orientation in 3D audio playback
 
@@ -33,6 +35,8 @@ namespace component
 		std::map<std::wstring, AudioVoice> m_Voices;
 		// Emitter sets world positions of the audio source to be calculated for 3D sound
 		X3DAUDIO_EMITTER m_Emitter;
+
+		Transform* m_pTransform = nullptr;
 
 	};
 }

@@ -44,6 +44,11 @@ void AudioVoice::Initialize(AudioBuffer& audio)
     initialize(&audio.m_Buffer, &audio.m_Wfx);
 }
 
+IXAudio2SourceVoice* AudioVoice::GetSourceVoice()
+{
+    return m_pSourceVoice;
+}
+
 void AudioVoice::Play()
 {
     if (m_Initialized)

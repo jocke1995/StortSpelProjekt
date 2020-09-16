@@ -7,7 +7,6 @@ AudioEngine::AudioEngine()
 	m_pXAudio2 = nullptr;
 	m_pMasterVoice = nullptr;
 	m_pAudio = nullptr;
-	//testAudio = new Audio();
 
 	HRESULT hr;
 	if (FAILED(hr = XAudio2Create(&m_pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR)))
@@ -20,11 +19,16 @@ AudioEngine::AudioEngine()
 		Log::Print("Failed to create mastering voice\n");
 	}
 
-	DWORD dwChannelMask;
-	m_pMasterVoice->GetChannelMask(&dwChannelMask);
+	// 3D initialization
+	m_pMasterVoice->GetChannelMask(&m_DwChannelMask);
+	X3DAudioInitialize(m_DwChannelMask, X3DAUDIO_SPEED_OF_SOUND, m_X3DInstance);
 
-	X3DAUDIO_HANDLE X3DInstance;
-	X3DAudioInitialize(dwChannelMask, X3DAUDIO_SPEED_OF_SOUND, X3DInstance);
+	m_pMasterVoice->GetVoiceDetails(&deviceDetails);
+	//IXAudio2Voice::GetVoiceDetails(deviceDetails);
+	matrix = new FLOAT32[deviceDetails.InputChannels];
+	m_3DFXSettings.SrcChannelCount = 1;
+	m_3DFXSettings.DstChannelCount = deviceDetails.InputChannels;
+	m_3DFXSettings.pMatrixCoefficients = matrix;
 
 }
 
@@ -38,9 +42,42 @@ AudioEngine::~AudioEngine()
 {
 	m_pMasterVoice->DestroyVoice();
 	m_pXAudio2->Release();
+	delete matrix;
 }
 
 IXAudio2* AudioEngine::GetAudioEngine()
 {
 	return m_pXAudio2;
+}
+
+X3DAUDIO_HANDLE* AudioEngine::GetX3DInstance()
+{
+	return &m_X3DInstance;
+}
+
+void AudioEngine::SetListener(DirectX::XMFLOAT3 orientFront, DirectX::XMFLOAT3 orientTop, DirectX::XMFLOAT3 position)
+{
+	m_Listener.OrientFront = orientFront;
+	m_Listener.OrientTop = orientTop;
+	m_Listener.Position = position;
+}
+
+X3DAUDIO_LISTENER* AudioEngine::GetListener()
+{
+	return &m_Listener;
+}
+
+X3DAUDIO_DSP_SETTINGS* AudioEngine::Get3DFXSettings()
+{
+	return &m_3DFXSettings;
+}
+
+IXAudio2MasteringVoice* AudioEngine::GetMasterVoice()
+{
+	return m_pMasterVoice;
+}
+
+XAUDIO2_VOICE_DETAILS* AudioEngine::GetDeviceDetails()
+{
+	return &deviceDetails;
 }

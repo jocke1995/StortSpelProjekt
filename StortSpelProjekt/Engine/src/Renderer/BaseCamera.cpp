@@ -67,6 +67,14 @@ DirectX::XMFLOAT3 BaseCamera::GetDirection() const
 	return DXfloat3;
 }
 
+DirectX::XMFLOAT3 BaseCamera::GetUpVector() const
+{
+	DirectX::XMFLOAT3 DXfloat3;
+	DirectX::XMStoreFloat3(&DXfloat3, m_UpVector);
+
+	return DXfloat3;
+}
+
 float3 BaseCamera::GetDirectionFloat3() const
 {
 	DirectX::XMFLOAT3 DXfloat3;

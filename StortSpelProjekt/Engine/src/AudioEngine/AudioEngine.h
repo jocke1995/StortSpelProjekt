@@ -15,6 +15,14 @@ public:
 	~AudioEngine();
 
 	IXAudio2* GetAudioEngine();
+	X3DAUDIO_HANDLE* GetX3DInstance();
+	// set listener structure OrientFront, OrientTop, Position
+	void SetListener(DirectX::XMFLOAT3 orientFront, DirectX::XMFLOAT3 orientTop, DirectX::XMFLOAT3 position);
+	X3DAUDIO_LISTENER* GetListener();
+	X3DAUDIO_DSP_SETTINGS* Get3DFXSettings();
+	IXAudio2MasteringVoice* GetMasterVoice();
+	XAUDIO2_VOICE_DETAILS* GetDeviceDetails();
+
 
 private:
 	AudioEngine();
@@ -26,8 +34,17 @@ private:
 	AudioBuffer* m_pAudio;
 	//std::vector<Audio> m_pLoadedAudioFiles;
 
+	// 3d stuff
+	DWORD m_DwChannelMask;
+	X3DAUDIO_HANDLE m_X3DInstance;
+
 	// 3D audio Listener struct, this contains world coordinates and orientation for the "listener" of 3D audio
-	X3DAUDIO_LISTENER Listener = { };
+	X3DAUDIO_LISTENER m_Listener = { };
+	// structure needed for 3D audio and DSP (digital signal processing) effects, holds values returned from x3dAudioCalculate
+	X3DAUDIO_DSP_SETTINGS m_3DFXSettings = { 0 };
+	// matrix coefficients for m_3DFXSettings
+	FLOAT32* matrix;
+	XAUDIO2_VOICE_DETAILS deviceDetails;
 };
 
 #endif

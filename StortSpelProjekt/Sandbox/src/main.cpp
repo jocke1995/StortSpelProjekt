@@ -66,7 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     entity->AddComponent<component::ModelComponent>();
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    entity->AddComponent<component::AudioVoiceComponent>();
+    //entity->AddComponent<component::AudioVoiceComponent>();
     entity->AddComponent<component::Audio3DListenerComponent>();
     component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
 
