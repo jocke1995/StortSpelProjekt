@@ -21,10 +21,11 @@ class DescriptorHeap;
 class Mesh;
 
 // Views
-class DepthStencilView;
+//class DepthStencilView;
 
 // GPU Resources
 class ConstantBuffer;
+class DepthStencil;
 
 // Enums
 enum COMMAND_INTERFACE_TYPE;
@@ -110,7 +111,7 @@ private:
 	Bloom* m_pBloomResources = nullptr;
 
 	// Depthbuffer
-	DepthStencilView* m_pMainDSV = nullptr;
+	DepthStencil* m_pMainDSV = nullptr;
 
 	// Rootsignature
 	RootSignature* m_pRootSignature = nullptr;

@@ -4,7 +4,7 @@
 #include "../DescriptorHeap.h"
 #include "../GPUMemory/Resource.h"
 #include "../RenderView.h"
-#include "../DepthStencilView.h"
+#include "../GPUMemory/DepthStencilView.h"
 #include "../RootSignature.h"
 #include "../CommandInterface.h"
 #include "../PipelineState.h"

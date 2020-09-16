@@ -16,7 +16,7 @@
 // Renderer-Engine 
 #include "RootSignature.h"
 #include "SwapChain.h"
-#include "DepthStencilView.h"
+#include "GPUMemory/DepthStencilView.h"
 #include "ViewPool.h"
 #include "BoundingBoxPool.h"
 #include "CommandInterface.h"
@@ -32,6 +32,7 @@
 #include "GPUMemory/UnorderedAccess.h"
 // Views
 #include "GPUMemory/ShaderResourceView.h"
+#include "GPUMemory/DepthStencil.h"
 
 // Techniques
 #include "Bloom.h"
@@ -523,12 +524,17 @@ void Renderer::createMainDSV(const HWND* hwnd)
 		height = rect.bottom - rect.top;
 	}
 
-	m_pMainDSV = new DepthStencilView(
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+	m_pMainDSV = new DepthStencil(
 		m_pDevice5,
 		width, height,	// width, height
-		L"MainDSV_DEFAULT_RESOURCE",
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV],
-		DXGI_FORMAT_D32_FLOAT_S8X24_UINT);
+		L"MainDSV",
+		&dsvDesc,
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
 }
 
 void Renderer::createRootSignature()
@@ -653,7 +659,7 @@ void Renderer::initRenderTasks()
 	// DepthStencil
 	dsd.StencilEnable = false;
 	gpsdForwardRender.DepthStencilState = dsd;
-	gpsdForwardRender.DSVFormat = m_pMainDSV->GetDXGIFormat();
+	gpsdForwardRender.DSVFormat = m_pMainDSV->GetDSV()->GetDXGIFormat();
 
 	/* Forward rendering with stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdForwardRenderStencilTest = gpsdForwardRender;
@@ -720,7 +726,7 @@ void Renderer::initRenderTasks()
 	dsd.BackFace = stencilNotEqual;
 
 	gpsdModelOutlining.DepthStencilState = dsd;
-	gpsdModelOutlining.DSVFormat = m_pMainDSV->GetDXGIFormat();
+	gpsdModelOutlining.DSVFormat = m_pMainDSV->GetDSV()->GetDXGIFormat();
 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdOutliningVector;
 	gpsdOutliningVector.push_back(&gpsdModelOutlining);
@@ -786,7 +792,7 @@ void Renderer::initRenderTasks()
 	dsdBlend.BackFace = blendStencilOP;
 
 	gpsdBlendFrontCull.DepthStencilState = dsdBlend;
-	gpsdBlendFrontCull.DSVFormat = m_pMainDSV->GetDXGIFormat();
+	gpsdBlendFrontCull.DSVFormat = m_pMainDSV->GetDSV()->GetDXGIFormat();
 
 	// ------------------------ TASK 2: BLEND ---------------------------- BACKCULL
 
@@ -810,7 +816,7 @@ void Renderer::initRenderTasks()
 	dsdBlend.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 
 	gpsdBlendBackCull.DepthStencilState = dsdBlend;
-	gpsdBlendBackCull.DSVFormat = m_pMainDSV->GetDXGIFormat();
+	gpsdBlendBackCull.DSVFormat = m_pMainDSV->GetDSV()->GetDXGIFormat();
 
 	gpsdBlendVector.push_back(&gpsdBlendFrontCull);
 	gpsdBlendVector.push_back(&gpsdBlendBackCull);
