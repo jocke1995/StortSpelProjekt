@@ -33,6 +33,7 @@ public:
 	// Temp
 	bool WasSpacePressed();
 	bool WasTabPressed();
+
 private:
 	int m_ScreenWidth;
 	int m_ScreenHeight;

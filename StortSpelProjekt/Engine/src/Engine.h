@@ -16,6 +16,7 @@
 #include "ECS/Components/Lights/PointLightComponent.h"
 #include "ECS/Components/Lights/SpotLightComponent.h"
 #include "ECS/Components/CameraComponent.h"
+#include "ECS/Components/TextComponent.h"
 
 // Sub-engines
 #include "Renderer/Renderer.h"
@@ -24,7 +25,7 @@
 #include "Renderer/Mesh.h"
 #include "Renderer/BaseCamera.h"
 #include "Physics/Physics.h"
-#include "AudioEngine/Audio.h"
+#include "AudioEngine/AudioBuffer.h"
 
 // Event-handling
 #include "Events/EventBus.h"
