@@ -162,8 +162,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	m_pCbPerScene = new ConstantBuffer(
 		m_pDevice5, 
 		sizeof(CB_PER_SCENE_STRUCT),
-		L"CB_PER_SCENE_DEFAULT",
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
+		L"CB_PER_SCENE",
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
 		);
 	
@@ -173,8 +172,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	m_pCbPerFrame = new ConstantBuffer(
 		m_pDevice5,
 		sizeof(CB_PER_FRAME_STRUCT),
-		L"CB_PER_FRAME_DEFAULT",
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
+		L"CB_PER_FRAME",
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
 	);
 
@@ -687,8 +685,8 @@ void Renderer::initRenderTasks()
 		&gpsdForwardRenderVector, 
 		L"ForwardRenderingPSO");
 
-	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
-	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
+	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
+	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
 	forwardRenderTask->SetSwapChain(m_pSwapChain);
 	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTarget());
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
@@ -820,8 +818,8 @@ void Renderer::initRenderTasks()
 		&gpsdBlendVector,
 		L"BlendPSO");
 
-	blendRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
-	blendRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
+	blendRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
+	blendRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
 	blendRenderTask->SetSwapChain(m_pSwapChain);
 	blendRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	
@@ -1206,14 +1204,14 @@ void Renderer::removeComponents(Entity* entity)
 			if (parent == entity)
 			{
 				// Free memory so other m_Entities can use it
-				ConstantBuffer* cbv = std::get<1>(tuple);
+				ConstantBuffer* cb = std::get<1>(tuple);
 				ShadowInfo* si = std::get<2>(tuple);
-				m_pViewPool->ClearSpecificLight(type, cbv, si);
+				m_pViewPool->ClearSpecificLight(type, cb, si);
 
 				// Remove from CopyPerFrame
 				CopyPerFrameTask* cpft = nullptr;
 				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-				cpft->ClearSpecific(cbv->GetUploadResource());
+				cpft->ClearSpecific(cb->GetUploadResource());
 
 				// Finally remove from m_pRenderer
 				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
@@ -1562,7 +1560,7 @@ void Renderer::prepareCBPerScene()
 	// Upload CB_PER_SCENE to defaultheap
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	const void* data = static_cast<const void*>(m_pCbPerSceneData);
-	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetCBVResource(), data));
+	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetDefaultResource(), data));
 }
 
 void Renderer::prepareCBPerFrame()
@@ -1581,7 +1579,7 @@ void Renderer::prepareCBPerFrame()
 			cbv = std::get<1>(tuple);
 
 			cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-			cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetCBVResource(), data));
+			cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetDefaultResource(), data));
 		}
 	}
 
@@ -1592,6 +1590,6 @@ void Renderer::prepareCBPerFrame()
 	if (cpft != nullptr)
 	{
 		data = static_cast<void*>(m_pCbPerFrameData);
-		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetCBVResource(), data));
+		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetDefaultResource(), data));
 	}
 }

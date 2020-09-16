@@ -157,7 +157,6 @@ ConstantBuffer* ViewPool::createConstantBuffer(unsigned int size, std::wstring r
 		m_pDevice,
 		sizeAligned,
 		resourceName,
-		m_pDescriptorHeap_CBV_UAV_SRV->GetNextDescriptorHeapIndex(1),
 		m_pDescriptorHeap_CBV_UAV_SRV);
 
 	return cbd;
