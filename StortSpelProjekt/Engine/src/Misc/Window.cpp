@@ -35,7 +35,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		UINT dwSize;
 
 		GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
-		static BYTE lpb[256];
+		LPBYTE lpb = new BYTE[dwSize];
 		if (lpb == NULL)
 		{
 			return 0;
@@ -82,11 +82,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					break;
 			}
 
-			//Log::Print("MOUSEMOVED\n");
-			//Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
+			Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
 			
 			SetCursorPos(500, 400);
 		}
+
+		delete[] lpb;
 
 		return 0;
 	}

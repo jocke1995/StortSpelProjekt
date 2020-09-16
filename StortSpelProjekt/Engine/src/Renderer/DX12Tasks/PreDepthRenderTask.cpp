@@ -46,23 +46,23 @@ void PreDepthRenderTask::Execute()
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// Same viewport as depth
-	const D3D12_VIEWPORT* viewPort = m_pSwapChain->GetRenderTarget(m_BackBufferIndex)->GetRenderView()->GetViewPort();
-	const D3D12_RECT* rect = m_pSwapChain->GetRenderTarget(m_BackBufferIndex)->GetRenderView()->GetScissorRect();
+	// TODO: Get Depth viewport, rightnow use swapchain since the view and rect is the same.
+	const D3D12_VIEWPORT* viewPort = m_pSwapChain->GetRenderTarget(0)->GetRenderView()->GetViewPort();
+	const D3D12_RECT* rect = m_pSwapChain->GetRenderTarget(0)->GetRenderView()->GetScissorRect();
 	commandList->RSSetViewports(1, viewPort);
 	commandList->RSSetScissorRects(1, rect);
 
 	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
 
 	
-	/*
+	/* Depthbuffer should have a resource barrier here
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		m_pSwapChain->GetRenderTarget(m_BackBufferIndex)->GetResource()->GetID3D12Resource1(),
 		D3D12_RESOURCE_STATE_PRESENT,
 		D3D12_RESOURCE_STATE_DEPTH_WRITE));
 		*/
 
-	// Clear and set depthstencil
+	// Clear and set depth + stencil
 	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
 	commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	commandList->OMSetRenderTargets(0, nullptr, false, &dsh);

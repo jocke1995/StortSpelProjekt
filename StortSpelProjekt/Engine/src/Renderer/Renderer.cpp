@@ -294,8 +294,7 @@ void Renderer::Execute()
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::SHADOW], FLAG_THREAD::RENDER);
 
-	// Recording shadowmaps
-	m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH]->SetBackBufferIndex(backBufferIndex);
+	// Pre Depth
 	m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH]->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH], FLAG_THREAD::RENDER);
 
@@ -624,7 +623,7 @@ void Renderer::initRenderTasks()
 
 #pragma region PreDepthRendering
 
-/* PreDepth rendering without stencil testing */
+	/* PreDepth rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdPreDepthRender = {};
 	gpsdPreDepthRender.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
