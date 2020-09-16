@@ -21,10 +21,11 @@ class DescriptorHeap;
 class Mesh;
 
 // Views
-//class DepthStencilView;
 
 // GPU Resources
 class ConstantBuffer;
+class ShaderResource;
+class UnorderedAccess;
 class DepthStencil;
 
 // Enums

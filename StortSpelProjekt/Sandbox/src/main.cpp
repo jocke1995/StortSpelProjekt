@@ -296,13 +296,15 @@ Scene* JockesTestScene(SceneManager* sm)
     /* ---------------------- PointLight6 ---------------------- */
 
 
-    //entity = scene->AddEntity("sun");
-    //dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
-    //
-    //dlc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.0f, 0.0f, 1.0f });
-    //dlc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.1f, 0.1f, 0.1f, 1.0f });
-    //dlc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.1f, 0.1f, 0.1f, 1.0f });
-    //dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
+    /* ---------------------- The Sun ---------------------- */
+    entity = scene->AddEntity("sun");
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
+    
+    dlc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.0f, 0.0f, 1.0f });
+    dlc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 1.0f, 0.1f, 0.1f, 1.0f });
+    dlc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 1.0f, 0.1f, 0.1f, 1.0f });
+    dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
+    /* ---------------------- The Sun ---------------------- */
 
     return scene;
 }
