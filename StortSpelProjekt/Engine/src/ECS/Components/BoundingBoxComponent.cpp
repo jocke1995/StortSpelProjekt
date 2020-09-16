@@ -32,7 +32,6 @@ namespace component
 		delete m_SlotInfo;
 	}
 
-
 	void BoundingBoxComponent::Init()
 	{
 		createOrientedBoundingBox();
@@ -40,19 +39,23 @@ namespace component
 
 	void BoundingBoxComponent::Update(double dt)
 	{
-		// Making a temporary OBB which takes the original state of the OBB
-		DirectX::BoundingOrientedBox obb;
-		obb.Center = m_OriginalBoundingBox.Center;
-		obb.Extents = m_OriginalBoundingBox.Extents;
-		obb.Orientation = m_OriginalBoundingBox.Orientation;
+		// No need for equations every frame if the object doesn't have collision enabled 
+		if (m_FlagOBB & F_OBBFlags::COLLISION)
+		{
+			// Making a temporary OBB which takes the original state of the OBB
+			DirectX::BoundingOrientedBox obb;
+			obb.Center = m_OriginalBoundingBox.Center;
+			obb.Extents = m_OriginalBoundingBox.Extents;
+			obb.Orientation = m_OriginalBoundingBox.Orientation;
 
-		// then do all the transformations on this temoporary OBB so we don't change the original state
-		obb.Transform(obb, *m_pTransform->GetWorldMatrix());
+			// then do all the transformations on this temoporary OBB so we don't change the original state
+			obb.Transform(obb, *m_pTransform->GetWorldMatrix());
 
-		// now save the transformations to the OBB that is used in collision detection
-		m_OrientedBoundingBox.Center = obb.Center;
-		m_OrientedBoundingBox.Extents = obb.Extents;
-		m_OrientedBoundingBox.Orientation = obb.Orientation;
+			// now save the transformations to the OBB that is used in collision detection
+			m_OrientedBoundingBox.Center = obb.Center;
+			m_OrientedBoundingBox.Extents = obb.Extents;
+			m_OrientedBoundingBox.Orientation = obb.Orientation;
+		}
 	}
 
 	void BoundingBoxComponent::SetMesh(Mesh* mesh)
@@ -63,9 +66,14 @@ namespace component
 		// Textures are not used in the WireframeRenderTask
 	}
 
-	DirectX::BoundingOrientedBox BoundingBoxComponent::GetOBB() const
+	const DirectX::BoundingOrientedBox* BoundingBoxComponent::GetOBB() const
 	{
-		return m_OrientedBoundingBox;
+		if ((m_FlagOBB & F_OBBFlags::COLLISION) == false)
+		{
+			Log::PrintSeverity(Log::Severity::WARNING, "Object \"%s\" does not have collision enabled!\n", m_pParent->GetName().c_str());
+		}
+
+		return &m_OrientedBoundingBox;
 	}
 
 	Transform* BoundingBoxComponent::GetTransform() const
@@ -73,14 +81,14 @@ namespace component
 		return m_pTransform;
 	}
 
-	const SlotInfo* BoundingBoxComponent::GetSlotInfo() const
-	{
-		return m_SlotInfo;
-	}
-
 	const Mesh* BoundingBoxComponent::GetMesh() const
 	{
 		return m_pMesh;
+	}
+
+	const SlotInfo* BoundingBoxComponent::GetSlotInfo() const
+	{
+		return m_SlotInfo;
 	}
 
 	const BoundingBoxData* BoundingBoxComponent::GetBoundingBoxData() const
@@ -98,7 +106,6 @@ namespace component
 		return m_FlagOBB;
 	}
 
-	// Writes from BoundingBoxComponent to MeshComponent, which uses this in m_pRenderer
 	bool& BoundingBoxComponent::IsPickedThisFrame()
 	{
 		return m_pParent->GetComponent<ModelComponent>()->m_IsPickedThisFrame;
@@ -156,12 +163,6 @@ namespace component
 			// y pos of models should be at 0, and we want the center of the model, so add the distance to center
 			m_OrientedBoundingBox.Center.y = ((minVertex.y) + (maxVertex.y)) / 2;
 			m_OrientedBoundingBox.Center.z = 0;
-
-			// get roataion from the rotationMatrix and convert it 
-			// to the required quaternion(XMFLOAT4) and store it
-			//DirectX::XMMATRIX wm = m_pTransform->GetRotMatrix();
-			//DirectX::XMVECTOR qv = DirectX::XMQuaternionRotationMatrix(wm);
-			//DirectX::XMStoreFloat4(&m_OrientedBoundingBox.Orientation, qv);
 
 			// save this original state of the boundingBox so that we can apply the correct math in update()
 			m_OriginalBoundingBox = m_OrientedBoundingBox;
@@ -233,7 +234,5 @@ namespace component
 			Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to add a bounding box when no mesh and/or transform exists on entity.\n");
 			return false;
 		}
-
 	}
-
 }

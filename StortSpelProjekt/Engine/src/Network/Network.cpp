@@ -27,7 +27,6 @@ void Network::ListenConnection(int port)
     {
         Log::PrintSeverity(Log::Severity::WARNING, "Failed attempting to listen to port: " + std::to_string(port) + " failed\n");
     }
-
     // Accept connection
     if (m_Listener.accept(m_Socket) != sf::Socket::Done)
     {

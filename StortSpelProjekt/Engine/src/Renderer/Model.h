@@ -28,16 +28,14 @@ public:
     std::wstring GetPath() const;
     unsigned int GetSize() const;
 
+    // Mesh
     Mesh* GetMeshAt(unsigned int index);
-    std::map<TEXTURE_TYPE, Texture*> GetTexturesAt(unsigned int index);
-    SlotInfo GetSlotInfoAt(unsigned int index);
 
     // Material
-    // TODO: maybe get/set when it's material
-    std::map<TEXTURE_TYPE, Texture*>* GetTextures(unsigned int index = 0);
+    std::map<TEXTURE_TYPE, Texture*>* GetTexturesAt(unsigned int index);
 
     // SlotInfo
-    const SlotInfo* GetSlotInfo(unsigned int index = 0) const;
+    SlotInfo* GetSlotInfoAt(unsigned int index);
 
 private:
     std::wstring m_Path;

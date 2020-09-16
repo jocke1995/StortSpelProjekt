@@ -8,6 +8,12 @@ struct VS_OUT
 	float3x3 tbn	: TBN;
 };
 
+struct PS_OUTPUT
+{
+	float4 sceneColor: SV_TARGET0;
+	float4 brightColor: SV_TARGET1;
+};
+
 ConstantBuffer<DirectionalLight> dirLight[]	: register(b0, space0);
 ConstantBuffer<PointLight> pointLight[]		: register(b0, space1);
 ConstantBuffer<SpotLight> spotLight[]		: register(b0, space2);
@@ -16,7 +22,7 @@ ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
 ConstantBuffer<CB_PER_FRAME_STRUCT>  cbPerFrame  : register(b3, space3);
 ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b4, space3);
 
-float4 PS_main(VS_OUT input) : SV_TARGET0
+PS_OUTPUT PS_main(VS_OUT input)
 {
 	float3 camPos = cbPerFrame.camPos;
 	float3 finalColor = float3(0.0f, 0.0f, 0.0f);
@@ -75,6 +81,18 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 	}
 
 	finalColor += emissiveMap.rgb;
-	finalColor = saturate(finalColor);
-	return float4(finalColor.rgb, 1.0f);
+
+	PS_OUTPUT output;
+	output.sceneColor = float4(finalColor.rgb, 1.0f);
+
+	float brightness = dot(output.sceneColor.rgb, float3(0.2126, 0.7152, 0.0722));
+	if (brightness > 1.0)
+	{
+		output.brightColor = output.sceneColor;
+	}
+	else
+	{
+		output.brightColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	}
+	return output;
 }

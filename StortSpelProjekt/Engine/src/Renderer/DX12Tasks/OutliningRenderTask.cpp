@@ -11,6 +11,7 @@
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/BaseCamera.h"
+#include "../RenderTarget.h"
 
 
 OutliningRenderTask::OutliningRenderTask(
@@ -33,7 +34,8 @@ void OutliningRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
-	ID3D12Resource1* swapChainResource = m_RenderTargets["swapChain"]->GetResource(m_BackBufferIndex)->GetID3D12Resource1();
+	const RenderTarget* swapChainRenderTarget = m_pSwapChain->GetRenderTarget(m_BackBufferIndex);
+	ID3D12Resource1* swapChainResource = swapChainRenderTarget->GetResource()->GetID3D12Resource1();
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
@@ -67,9 +69,8 @@ void OutliningRenderTask::Execute()
 
 	commandList->OMSetRenderTargets(1, &cdh, true, &dsh);
 
-	SwapChain* sc = static_cast<SwapChain*>(m_RenderTargets["swapChain"]);
-	const D3D12_VIEWPORT* viewPort = sc->GetRenderView()->GetViewPort();
-	const D3D12_RECT* rect = sc->GetRenderView()->GetScissorRect();
+	const D3D12_VIEWPORT* viewPort = swapChainRenderTarget->GetRenderView()->GetViewPort();
+	const D3D12_RECT* rect = swapChainRenderTarget->GetRenderView()->GetScissorRect();
 	commandList->RSSetViewports(1, viewPort);
 	commandList->RSSetScissorRects(1, rect);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -90,13 +91,13 @@ void OutliningRenderTask::Execute()
 		component::ModelComponent* mc = m_ObjectToOutline.first;
 
 		size_t num_Indices = m->GetNumIndices();
-		const SlotInfo info = mc->GetSlotInfoAt(i);
+		const SlotInfo* info = mc->GetSlotInfoAt(i);
 
 		DirectX::XMMATRIX* WTransposed = newScaledTransform.GetWorldMatrixTransposed();
 		DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
 		// Create a CB_PER_OBJECT struct
-		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, info };
+		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
 
 		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 

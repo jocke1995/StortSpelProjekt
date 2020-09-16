@@ -1,4 +1,5 @@
 #include "Input.h"
+#include "..\Events\EventBus.h"
 
 Input& Input::GetInstance()
 {
@@ -35,28 +36,41 @@ void Input::RegisterDevices(const HWND* hWnd)
 
 void Input::SetKeyState(SCAN_CODES key, bool pressed)
 {
-	SetJustPressed(key, !m_KeyState[key]);
+	bool justPressed = !m_KeyState[key];
 	m_KeyState[key] = pressed;
-}
-
-void Input::SetJustPressed(SCAN_CODES key, bool justPressed)
-{
-	m_JustPressed[key] = justPressed;
+	if ((key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::Q || key == SCAN_CODES::E) && !pressed)
+	{
+		EventBus::GetInstance().Publish(&MovementInput(key, pressed));
+	}
+	else if (key == SCAN_CODES::LEFT_CTRL && !pressed)
+	{
+		EventBus::GetInstance().Publish(&ModifierInput(key, pressed));
+	}
+	else if ((key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::Q || key == SCAN_CODES::E) && justPressed)
+	{
+		EventBus::GetInstance().Publish(&MovementInput(key, justPressed));
+	}
+	else if (key == SCAN_CODES::LEFT_CTRL && justPressed)
+	{
+		EventBus::GetInstance().Publish(&ModifierInput(key, justPressed));
+	}
 }
 
 void Input::SetMouseButtonState(MOUSE_BUTTON button, bool pressed)
 {
 	m_MouseButtonState[button] = pressed;
+	EventBus::GetInstance().Publish(&MouseClick(button, pressed));
 }
 
 void Input::SetMouseScroll(SHORT scroll)
 {
-	m_Scroll = (scroll > 0) * 2 - 1;
+	int mouseScroll = static_cast<int>(scroll > 0) * 2 - 1;
+	EventBus::GetInstance().Publish(&MouseScroll(mouseScroll));
 }
 
 void Input::SetMouseMovement(int x, int y)
 {
-	m_MouseMovement = std::make_pair(x, y);
+	EventBus::GetInstance().Publish(&MouseMovement(x, y));
 }
 
 bool Input::GetKeyState(SCAN_CODES key)
@@ -64,28 +78,9 @@ bool Input::GetKeyState(SCAN_CODES key)
 	return m_KeyState[key];
 }
 
-bool Input::GetJustPressed(SCAN_CODES key)
-{
-	bool toReturn = m_JustPressed[key];
-	m_JustPressed[key] = false;
-	return toReturn;
-}
-
 bool Input::GetMouseButtonState(MOUSE_BUTTON button)
 {
 	return m_MouseButtonState[button];
-}
-
-int Input::GetMouseScroll()
-{
-	int toReturn = m_Scroll;
-	m_Scroll = 0;
-	return toReturn;
-}
-
-std::pair<int, int> Input::GetMouseMovement()
-{
-	return m_MouseMovement;
 }
 
 Input::Input()

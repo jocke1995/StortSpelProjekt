@@ -10,6 +10,7 @@ public:
     {
         call(evnt);
     }
+    unsigned int m_Id;
 private:
     // Implemented by MemberFunctionHandler
     virtual void call(Event* evnt) = 0;

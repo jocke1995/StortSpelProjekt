@@ -31,6 +31,11 @@ public:
     Mesh(   ID3D12Device5* device,
             std::vector<Vertex>* vertices,
             std::vector<unsigned int>* indices,
+            DescriptorHeap* descriptorHeap_SRV,
+            const std::string path = "");
+    Mesh(   ID3D12Device5* device,
+            std::vector<Vertex>* vertices,
+            std::vector<unsigned int>* indices,
             std::vector<Bone>* bones,
             DescriptorHeap* descriptorHeap_SRV,
             const std::string path = "");
@@ -53,6 +58,7 @@ public:
     std::string GetPath();
 
 private:
+    friend class MergeRenderTask;
     friend class Renderer;
     friend class SceneManager;
     friend class Model;
@@ -71,6 +77,7 @@ private:
     ShaderResourceView* m_pSRV = nullptr;
     D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;;
     
+    void initMesh(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV);
     void createIndexBufferView();
 };
 

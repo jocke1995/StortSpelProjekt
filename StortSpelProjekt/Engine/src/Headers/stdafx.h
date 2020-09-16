@@ -28,6 +28,7 @@
 #include <utility>
 #include <algorithm>
 #include <functional>
+#include <fstream>
 
 // Threads
 #include <mutex>

@@ -1,18 +1,31 @@
 #ifndef TEXT_H
 #define TEXT_H
 
+#include "Renderer.h"
+
+class Window;
+class Resource;
+class ShaderResourceView;
+class DescriptorHeap;
+class Texture;
+class Renderer;
+struct SlotInfo;
+
+// DX12 Forward Declarations
+struct ID3D12CommandQueue;
+struct ID3D12CommandList;
+struct ID3D12Fence1;
+struct ID3D12Device5;
+
+// the maximum number of characters you can render during a frame. This is just used to make sure
+// there is enough memory allocated for the text vertex buffer each frame
+static int g_MaxNumTextCharacters = 1024;
+
 struct TextVertex
 {
-	float4 pos;
-	float4 texCoord;
-	float4 color;
-
-	TextVertex(float r, float g, float b, float a, float u, float v, float tw, float th, float x, float y, float w, float h)
-	{
-		pos = { r, g, b, a };
-		texCoord = { u, v, tw, th };
-		color = { x, y, w, h };
-	}
+	DirectX::XMFLOAT4 pos;
+	DirectX::XMFLOAT4 texCoord;
+	DirectX::XMFLOAT4 color;
 };
 
 struct FontChar
@@ -53,11 +66,9 @@ struct Font
 	int textureWidth; // width of the font texture
 	int textureHeight; // height of the font texture
 	int numCharacters; // number of characters in the font
-	FontChar* CharList; // list of characters
+	FontChar* charList = nullptr; // list of characters
 	int numKernings; // the number of kernings
-	FontKerning* KerningsList; // list to hold kerning values
-	ID3D12Resource* textureBuffer; // the font texture resource
-	D3D12_GPU_DESCRIPTOR_HANDLE srvHandle; // the font srv
+	FontKerning* kerningsList = nullptr; // list to hold kerning values
 
 	// these are how much the character is padded in the texture. We
 	// add padding to give sampling a little space so it does not accidentally
@@ -73,8 +84,10 @@ struct Font
 	{
 		for (int i = 0; i < numKernings; ++i)
 		{
-			if ((wchar_t)KerningsList[i].firstid == first && (wchar_t)KerningsList[i].secondid == second)
-				return KerningsList[i].amount;
+			if ((wchar_t)kerningsList[i].firstid == first && (wchar_t)kerningsList[i].secondid == second)
+			{
+				return kerningsList[i].amount;
+			}
 		}
 		return 0.0f;
 	}
@@ -84,25 +97,57 @@ struct Font
 	{
 		for (int i = 0; i < numCharacters; ++i)
 		{
-			if (c == (wchar_t)CharList[i].id)
-				return &CharList[i];
+			if (c == (wchar_t)charList[i].id)
+			{
+				return &charList[i];
+			}
 		}
 		return nullptr;
 	}
 };
 
+struct TextData
+{
+	std::wstring text = L"";
+	float2 pos = { 0.0f, 0.0f };
+	float2 scale = { 0.0f, 0.0f };
+	float2 padding = { 0.0f, 0.0f };
+	float4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
+};
+
 class Text
 {
 public:
-	Text();
+	Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfCharacters, Texture* texture);
 	~Text();
 
-	void RenderText(Font font, std::wstring text, float2 pos, float2 scale, float2 padding, float2 color);
-	Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight);
+	SlotInfo* const GetSlotInfo() const;
+	TextData* const GetTextData(int pos);
+	const int GetNrOfCharacters() const;
+
+	void SetTextData(TextData* textData, Font* font);
 
 private:
+	friend class Renderer;
+	friend class SceneManager;
 
+	Font* m_pFont = nullptr;
 
+	int m_NrOfVertices = 0;
+	int m_SizeOfVertices = 0;
+
+	// this will store our font information
+	TextData m_TextData = {};
+	std::vector<TextVertex> m_TextVertexVec = {};
+
+	Resource* m_pUploadResourceVertices = nullptr;
+	Resource* m_pDefaultResourceVertices = nullptr;
+
+	ShaderResourceView* m_pSRV = nullptr;
+
+	SlotInfo* m_pSlotInfo = nullptr;
+
+	void initVertexData();
 };
 
 #endif

@@ -16,6 +16,7 @@
 #include "ECS/Components/Lights/PointLightComponent.h"
 #include "ECS/Components/Lights/SpotLightComponent.h"
 #include "ECS/Components/CameraComponent.h"
+#include "ECS/Components/TextComponent.h"
 
 // Sub-engines
 #include "Renderer/Renderer.h"
@@ -24,7 +25,7 @@
 #include "Renderer/Mesh.h"
 #include "Renderer/BaseCamera.h"
 #include "Physics/Physics.h"
-#include "AudioEngine/Audio.h"
+#include "AudioEngine/AudioBuffer.h"
 
 // Event-handling
 #include "Events/EventBus.h"
@@ -57,13 +58,13 @@ public:
 	AudioEngine* const GetAudioEngine() const;
 
 private:
-	Window* m_Window = nullptr;
-	Timer* m_Timer = nullptr;
-	ThreadPool* m_ThreadPool = nullptr;
+	Window* m_pWindow = nullptr;
+	Timer* m_pTimer = nullptr;
+	ThreadPool* m_pThreadPool = nullptr;
 
-	Renderer* m_Renderer = nullptr;
-	SceneManager* m_SceneManager = nullptr;
-	Physics* m_Physics = nullptr;
+	Renderer* m_pRenderer = nullptr;
+	SceneManager* m_pSceneManager = nullptr;
+	Physics* m_pPhysics = nullptr;
 	AudioEngine* m_pAudioEngine = nullptr;
 };
 

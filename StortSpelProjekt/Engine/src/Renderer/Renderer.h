@@ -9,20 +9,26 @@
 
 // Misc
 class ThreadPool;
+class Window;
 
 // Renderer Engine
 class RootSignature;
 class SwapChain;
+class RenderTarget;
 class DepthStencilView;
 class ConstantBufferView;
-class MousePicker;
 class ViewPool;
 class BoundingBoxPool;
-class ShadowInfo;
 class DescriptorHeap;
+class Mesh;
 
 enum COMMAND_INTERFACE_TYPE;
 enum class DESCRIPTOR_HEAP_TYPE;
+
+// techniques
+class ShadowInfo;
+class MousePicker;
+class Bloom;
 
 // ECS
 class Scene;
@@ -51,6 +57,7 @@ namespace component
 {
 	class ModelComponent;
 	class TransformComponent;
+	class TextComponent;
 }
 
 class Renderer
@@ -65,7 +72,7 @@ public:
 	Scene* const GetActiveScene() const;
 
 	// Call once
-	void InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool);
+	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
 	// Call each frame
 	void Update(double dt);
@@ -74,6 +81,7 @@ public:
 
 private:
 	friend class SceneManager;
+	friend class Text;
 	ThreadPool* m_pThreadPool = nullptr;
 
 	// Camera
@@ -87,8 +95,12 @@ private:
 	// CommandQueues
 	std::map<COMMAND_INTERFACE_TYPE, ID3D12CommandQueue*> m_CommandQueues;
 
+	// RenderTargets
 	// Swapchain (inheriting from 'RenderTarget')
 	SwapChain* m_pSwapChain = nullptr;
+	
+	// Bloom (includes rtv, uav and srv)
+	Bloom* m_pBloomResources = nullptr;
 
 	// Depthbuffer
 	DepthStencilView* m_pMainDSV = nullptr;
@@ -109,10 +121,12 @@ private:
 	WireframeRenderTask* m_pWireFrameTask = nullptr;
 	OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
 
+	Mesh* m_pFullScreenQuad = nullptr;
+
 	// Group of components that's needed for rendering:
 	std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>> m_RenderComponents;
-
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
+	std::vector<component::TextComponent*> m_TextComponents;
 
 	ViewPool* m_pViewPool = nullptr;
 	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBufferView*, ShadowInfo*>>> m_Lights;
@@ -140,14 +154,13 @@ private:
 	ID3D12Fence1* m_pFenceFrame = nullptr;
 	UINT64 m_FenceFrameValue = 0;
 
-
-
 	void setRenderTasksPrimaryCamera();
 	bool createDevice();
 	void createCommandQueues();
 	void createSwapChain(const HWND *hwnd);
 	void createMainDSV(const HWND* hwnd);
 	void createRootSignature();
+	void createFullScreenQuad();
 	void updateMousePicker();
 	void initRenderTasks();
 	void setRenderTasksRenderComponents();

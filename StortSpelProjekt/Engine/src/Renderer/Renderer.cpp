@@ -5,16 +5,18 @@
 #include "../Misc/ThreadPool.h"
 #include "../Misc/AssetLoader.h"
 #include "../Misc/Thread.h"
+#include "../Misc/Window.h"
+
 // ECS
 #include "../ECS/Scene.h"
 #include "../ECS/Entity.h"
+#include "../ECS/Components/TextComponent.h"
 
 // Renderer-Engine 
 #include "RootSignature.h"
 #include "SwapChain.h"
 #include "DepthStencilView.h"
 #include "ConstantBufferView.h"
-#include "MousePicker.h"
 #include "ViewPool.h"
 #include "BoundingBoxPool.h"
 #include "CommandInterface.h"
@@ -23,8 +25,13 @@
 #include "BaseCamera.h"
 #include "Mesh.h"
 #include "Texture.h"
-#include "ShadowInfo.h"
+#include "Text.h"
 #include "ShaderResourceView.h"
+
+#include "Bloom.h"
+#include "PingPongResource.h"
+#include "ShadowInfo.h"
+#include "MousePicker.h"
 
 // Graphics
 #include "DX12Tasks/WireframeRenderTask.h"
@@ -32,13 +39,15 @@
 #include "DX12Tasks/ForwardRenderTask.h"
 #include "DX12Tasks/BlendRenderTask.h"
 #include "DX12Tasks/ShadowRenderTask.h"
+#include "DX12Tasks/MergeRenderTask.h"
+#include "DX12Tasks/TextTask.h"
 
 // Copy 
 #include "DX12Tasks/CopyPerFrameTask.h"
 #include "DX12Tasks/CopyOnDemandTask.h"
 
 // Compute
-#include "DX12Tasks/ComputeTask.h"
+#include "DX12Tasks/BlurComputeTask.h"
 
 Renderer::Renderer()
 {
@@ -63,7 +72,9 @@ Renderer::~Renderer()
 	SAFE_RELEASE(&m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]);
 
 	delete m_pRootSignature;
+	delete m_pFullScreenQuad;
 	delete m_pSwapChain;
+	delete m_pBloomResources;
 	delete m_pMainDSV;
 
 	for (auto& pair : m_DescriptorHeaps)
@@ -94,7 +105,7 @@ Renderer::~Renderer()
 	delete m_pCbPerFrameData;
 }
 
-void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool)
+void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
 {
 	m_pThreadPool = threadPool;
 
@@ -113,11 +124,15 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	// Fence for WaitForFrame();
 	createFences();
 
-	// Create SwapChain
-	createSwapChain(hwnd);
+	// Rendertargets
+	createSwapChain(window->GetHwnd());
+	m_pBloomResources = new Bloom(m_pDevice5, 
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
+		window->GetHwnd());
 
 	// Create Main DepthBuffer
-	createMainDSV(hwnd);
+	createMainDSV(window->GetHwnd());
 
 	// Picking
 	m_pMousePicker = new MousePicker();
@@ -125,8 +140,11 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	// Create Rootsignature
 	createRootSignature();
 
+	// FullScreenQuad
+	createFullScreenQuad();
+
 	// Init Assetloader
-	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], window);
 
 	// Init BoundingBoxPool
 	BoundingBoxPool::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
@@ -161,6 +179,17 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	m_pCbPerFrameData = new CB_PER_FRAME_STRUCT();
 
 	initRenderTasks();
+
+	// Submit the fullscreenQuad to be uploaded, but it won't be uploaded until a scene has been set to Draw
+	const void* datavertices = m_pFullScreenQuad->m_Vertices.data();
+	Resource* uplResourceVertices = m_pFullScreenQuad->m_pUploadResourceVertices;
+	Resource* defResourceVertices = m_pFullScreenQuad->m_pDefaultResourceVertices;
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Submit(&std::make_tuple(uplResourceVertices, defResourceVertices, datavertices));
+
+	const void* dataindices = m_pFullScreenQuad->m_Indices.data();
+	Resource* uplResourceindices = m_pFullScreenQuad->m_pUploadResourceIndices;
+	Resource* defResourceindices = m_pFullScreenQuad->m_pDefaultResourceIndices;
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Submit(&std::make_tuple(uplResourceindices, defResourceindices, dataindices));
 }
 
 void Renderer::Update(double dt)
@@ -259,25 +288,44 @@ void Renderer::Execute()
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(m_pFenceFrame, copyFenceValue);
 
 	/* --------------------- Record direct commandlists --------------------- */
-	for (RenderTask* renderTask : m_RenderTasks)
-	{
-		renderTask->SetBackBufferIndex(backBufferIndex);
-		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
-		//renderTask->Execute();	// NON-MULTITHREADED-VERSION 
-	}
+	// Recording shadowmaps
+	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::SHADOW], FLAG_THREAD::RENDER);
+
+	// Drawing
+	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER], FLAG_THREAD::RENDER);
+
+	// Blending
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::BLEND], FLAG_THREAD::RENDER);
+
+	// Blurring for bloom
+	m_RenderTasks[RENDER_TASK_TYPE::BLUR]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::BLUR], FLAG_THREAD::RENDER);
 
 	// Outlining, if an object is picked
 	m_pOutliningRenderTask->SetBackBufferIndex(backBufferIndex);
 	m_pOutliningRenderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(m_pOutliningRenderTask, FLAG_THREAD::RENDER);
-	
+
 	if (DRAWBOUNDINGBOX == true)
 	{
 		m_pWireFrameTask->SetBackBufferIndex(backBufferIndex);
 		m_pWireFrameTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 		m_pThreadPool->AddTask(m_pWireFrameTask, FLAG_THREAD::RENDER);
 	}
+
+	m_RenderTasks[RENDER_TASK_TYPE::TEXT]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::TEXT]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::TEXT], FLAG_THREAD::RENDER);
+
+	m_RenderTasks[RENDER_TASK_TYPE::MERGE]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::MERGE]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::MERGE], FLAG_THREAD::RENDER);
 	
 	// Wait for the threads which records the commandlists to complete
 	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER | FLAG_THREAD::ALL);
@@ -293,6 +341,7 @@ void Renderer::Execute()
 	m_FenceFrameValue++;
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Wait(m_pFenceFrame, m_FenceFrameValue);
 	waitForFrame();
 
@@ -318,10 +367,9 @@ Scene* const Renderer::GetActiveScene() const
 
 void Renderer::setRenderTasksPrimaryCamera()
 {
-	for (RenderTask* renderTask : m_RenderTasks)
-	{
-		renderTask->SetCamera(m_pScenePrimaryCamera);
-	}
+	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
 
 	m_pOutliningRenderTask->SetCamera(m_pScenePrimaryCamera);
 
@@ -456,7 +504,8 @@ void Renderer::createSwapChain(const HWND *hwnd)
 		hwnd,
 		width, height,
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV]);
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 }
 
 void Renderer::createMainDSV(const HWND* hwnd)
@@ -481,6 +530,38 @@ void Renderer::createMainDSV(const HWND* hwnd)
 void Renderer::createRootSignature()
 {
 	m_pRootSignature = new RootSignature(m_pDevice5);
+}
+
+void Renderer::createFullScreenQuad()
+{
+	std::vector<Vertex> vertexVector;
+	std::vector<unsigned int> indexVector;
+
+	Vertex vertices[4] = {};
+	vertices[0].pos = { -1.0f, 1.0f, 1.0f };
+	vertices[0].uv = { 0.0f, 0.0f, };
+
+	vertices[1].pos = { -1.0f, -1.0f, 1.0f };
+	vertices[1].uv = { 0.0f, 1.0f };
+
+	vertices[2].pos = { 1.0f, 1.0f, 1.0f };
+	vertices[2].uv = { 1.0f, 0.0f };
+
+	vertices[3].pos = { 1.0f, -1.0f, 1.0f };
+	vertices[3].uv = { 1.0f, 1.0f};
+
+	for (unsigned int i = 0; i < 4; i++)
+	{
+		vertexVector.push_back(vertices[i]);
+	}
+	indexVector.push_back(1);
+	indexVector.push_back(0);
+	indexVector.push_back(3);
+	indexVector.push_back(0);
+	indexVector.push_back(2);
+	indexVector.push_back(3);
+
+	m_pFullScreenQuad = new Mesh(m_pDevice5, vertexVector, indexVector, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 }
 
 void Renderer::updateMousePicker()
@@ -532,14 +613,16 @@ void Renderer::updateMousePicker()
 
 void Renderer::initRenderTasks()
 {
+	// RenderTasks
 #pragma region ForwardRendering
 	/* Forward rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdForwardRender = {};
 	gpsdForwardRender.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	// RenderTarget
-	gpsdForwardRender.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	gpsdForwardRender.NumRenderTargets = 1;
+	gpsdForwardRender.NumRenderTargets = 2;
+	gpsdForwardRender.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	gpsdForwardRender.RTVFormats[1] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	// Depthstencil usage
 	gpsdForwardRender.SampleDesc.Count = 1;
 	gpsdForwardRender.SampleMask = UINT_MAX;
@@ -576,7 +659,7 @@ void Renderer::initRenderTasks()
 	dsd.DepthEnable = true;
 	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-
+	
 	// DepthStencil
 	dsd.StencilEnable = true;
 	dsd.StencilReadMask = 0x00;
@@ -604,7 +687,8 @@ void Renderer::initRenderTasks()
 
 	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
 	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
-	forwardRenderTask->AddRenderTarget("swapChain", m_pSwapChain);
+	forwardRenderTask->SetSwapChain(m_pSwapChain);
+	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTarget());
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	
 
@@ -644,7 +728,7 @@ void Renderer::initRenderTasks()
 		&gpsdOutliningVector,
 		L"outliningScaledPSO");
 	
-	m_pOutliningRenderTask->AddRenderTarget("swapChain", m_pSwapChain);
+	m_pOutliningRenderTask->SetSwapChain(m_pSwapChain);
 	m_pOutliningRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion ModelOutlining
@@ -658,7 +742,7 @@ void Renderer::initRenderTasks()
 	gpsdBlendFrontCull.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	// RenderTarget
-	gpsdBlendFrontCull.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdBlendFrontCull.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	gpsdBlendFrontCull.NumRenderTargets = 1;
 	// Depthstencil usage
 	gpsdBlendFrontCull.SampleDesc.Count = 1;
@@ -705,7 +789,7 @@ void Renderer::initRenderTasks()
 	gpsdBlendBackCull.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	// RenderTarget
-	gpsdBlendBackCull.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdBlendBackCull.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	gpsdBlendBackCull.NumRenderTargets = 1;
 	// Depthstencil usage
 	gpsdBlendBackCull.SampleDesc.Count = 1;
@@ -736,7 +820,7 @@ void Renderer::initRenderTasks()
 
 	blendRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
 	blendRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
-	blendRenderTask->AddRenderTarget("swapChain", m_pSwapChain);
+	blendRenderTask->SetSwapChain(m_pSwapChain);
 	blendRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	
 
@@ -795,7 +879,7 @@ void Renderer::initRenderTasks()
 	gpsdWireFrame.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	// RenderTarget
-	gpsdWireFrame.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdWireFrame.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	gpsdWireFrame.NumRenderTargets = 1;
 	// Depthstencil usage
 	gpsdWireFrame.SampleDesc.Count = 1;
@@ -819,13 +903,123 @@ void Renderer::initRenderTasks()
 		&gpsdWireFrameVector,
 		L"WireFramePSO");
 
-	m_pWireFrameTask->AddRenderTarget("swapChain", m_pSwapChain);
+	m_pWireFrameTask->SetSwapChain(m_pSwapChain);
 	m_pWireFrameTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion WireFrame
+#pragma region MergePass
+	/* Forward rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdMergePass = {};
+	gpsdMergePass.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
+	// RenderTarget
+	gpsdMergePass.NumRenderTargets = 1;
+	gpsdMergePass.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	// Depthstencil usage
+	gpsdMergePass.SampleDesc.Count = 1;
+	gpsdMergePass.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdMergePass.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdMergePass.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdMergePass.RasterizerState.FrontCounterClockwise = false;
+
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdMergePass.BlendState.RenderTarget[i] = defaultRTdesc;
+
+	// Depth descriptor
+	D3D12_DEPTH_STENCIL_DESC dsdMergePass = {};
+	dsdMergePass.DepthEnable = false;
+	dsdMergePass.StencilEnable = false;
+	gpsdMergePass.DepthStencilState = dsdMergePass;
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdMergePassVector;
+	gpsdMergePassVector.push_back(&gpsdMergePass);
+
+	RenderTask* mergeTask = new MergeRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"MergeVertex.hlsl", L"MergePixel.hlsl",
+		&gpsdMergePassVector,
+		L"MergePassPSO");
+
+	static_cast<MergeRenderTask*>(mergeTask)->SetFullScreenQuad(m_pFullScreenQuad);
+	static_cast<MergeRenderTask*>(mergeTask)->AddSRVIndexToMerge(m_pBloomResources->GetPingPongResource(0)->GetSRV()->GetDescriptorHeapIndex());
+	mergeTask->SetSwapChain(m_pSwapChain);
+	mergeTask->SetDescriptorHeaps(m_DescriptorHeaps);
+	static_cast<MergeRenderTask*>(mergeTask)->CreateSlotInfo();
+#pragma endregion MergePass
+#pragma region Text 
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdText = {};
+
+	gpsdText.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdText.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	gpsdText.NumRenderTargets = 1;
+	// Depthstencil usage
+	gpsdText.SampleDesc.Count = 1;
+	gpsdText.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdText.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdText.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdText.RasterizerState.FrontCounterClockwise = false;
+
+	D3D12_BLEND_DESC textBlendStateDesc = {};
+	textBlendStateDesc.AlphaToCoverageEnable = FALSE;
+	textBlendStateDesc.IndependentBlendEnable = FALSE;
+	textBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
+
+	textBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	textBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+	textBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+
+	textBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+	textBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
+	textBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+
+	textBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	gpsdText.BlendState = textBlendStateDesc;
+	gpsdText.NumRenderTargets = 1;
+
+	D3D12_DEPTH_STENCIL_DESC textDepthStencilDesc = {};
+	textDepthStencilDesc.DepthEnable = false;
+	gpsdText.DepthStencilState = textDepthStencilDesc;
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdTextVector;
+	gpsdTextVector.push_back(&gpsdText);
+
+	RenderTask* textTask = new TextTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"TextVertex.hlsl", L"TextPixel.hlsl",
+		&gpsdTextVector,
+		L"TextPSO");
+
+	textTask->SetSwapChain(m_pSwapChain);
+	textTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion Text
+
+	// ComputeTasks
+	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
+	csNamePSOName.push_back(std::make_pair(L"ComputeBlurHorizontal.hlsl", L"blurHorizontalPSO"));
+	csNamePSOName.push_back(std::make_pair(L"ComputeBlurVertical.hlsl", L"blurVerticalPSO"));
+	DX12Task* blurComputeTask = new BlurComputeTask(
+		m_pDevice5, m_pRootSignature,
+		csNamePSOName,
+		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
+		m_pBloomResources->GetPingPongResource(0),
+		m_pBloomResources->GetPingPongResource(1),
+		800, 600); // TODO: Send screen width/height from window after merge to develop
+
+	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+	// CopyTasks
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5);
 	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5);
 
+	
 	// Add the tasks to desired vectors so they can be used in m_pRenderer
 	/* -------------------------------------------------------------- */
 
@@ -836,46 +1030,79 @@ void Renderer::initRenderTasks()
 	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND] = copyOnDemandTask;
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_CopyPerFrameCmdList[i] = copyPerFrameTask->GetCommandList(i);
+	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandList(i);
+	}
 
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
-
+	
 	// None atm
 
 	/* ------------------------- DirectQueue Tasks ---------------------- */
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::BLUR] = static_cast<RenderTask*>(blurComputeTask);
+	m_RenderTasks[RENDER_TASK_TYPE::MERGE] = mergeTask;
+	m_RenderTasks[RENDER_TASK_TYPE::TEXT] = textTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandList(i));
+	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
+	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-		m_DirectCommandLists[i].push_back(m_pOutliningRenderTask->GetCommandList(i));
-
-	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(textTask->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(m_pOutliningRenderTask->GetCommandList(i));
+	}
 
 	if (DRAWBOUNDINGBOX == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
 			m_DirectCommandLists[i].push_back(m_pWireFrameTask->GetCommandList(i));
+		}
 	}
+
+	// Compute shader to blur the RTV from forwardRenderTask
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(blurComputeTask->GetCommandList(i));
+	}
+
+	// Final pass (this pass will merge different textures together and put result in the swapchain backBuffer)
+	// This will be used for pp-effects such as bloom.
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		m_DirectCommandLists[i].push_back(mergeTask->GetCommandList(i));
 }
 
 void Renderer::setRenderTasksRenderComponents()
 {
-	for (RenderTask* rendertask : m_RenderTasks)
-	{
-		rendertask->SetRenderComponents(&m_RenderComponents);
-	}
+	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents);
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents);
+	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents);
+	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 }
 
 void Renderer::createDescriptorHeaps()
@@ -1069,7 +1296,7 @@ void Renderer::addComponents(Entity* entity)
 					codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 				}
 
-				std::map<TEXTURE_TYPE, Texture*> meshTextures = mc->GetTexturesAt(i);
+				std::map<TEXTURE_TYPE, Texture*> meshTextures = *mc->GetTexturesAt(i);
 				// Textures
 				for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
 				{
@@ -1235,6 +1462,42 @@ void Renderer::addComponents(Entity* entity)
 			m_BoundingBoxesToBePicked.push_back(bbc);
 		}
 	}
+
+	component::TextComponent* textComp = entity->GetComponent<component::TextComponent>();
+	if (textComp != nullptr)
+	{
+		TextTask* tt = static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT]);
+		std::vector<TextData>* textDataVec = textComp->GetTextDataVec();
+
+		for (int i = 0; i < textDataVec->size(); i++)
+		{
+			AssetLoader* al = AssetLoader::Get();
+			int numOfCharacters = textComp->GetNumOfCharacters(i);
+
+			Text* text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, textComp->GetTexture());
+			text->SetTextData(&textDataVec->at(i), textComp->GetFont());
+
+			textComp->SubmitText(text);
+
+			// Look if data is already on the GPU
+
+			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+
+			// Submit to GPU
+			const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
+
+			// Vertices
+			Resource* uploadR = text->m_pUploadResourceVertices;
+			Resource* defaultR = text->m_pDefaultResourceVertices;
+			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+			// Texture
+			codt->SubmitTexture(textComp->GetTexture());
+		}
+
+		// Finally store the text in m_pRenderer so it will be drawn
+		m_TextComponents.push_back(textComp);
+	}
 }
 
 void Renderer::prepareScene(Scene* scene)
@@ -1330,4 +1593,3 @@ void Renderer::prepareCBPerFrame()
 		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetCBVResource(), data));
 	}
 }
-

@@ -1,6 +1,7 @@
 #pragma once
 #include "../Input/Input.h"
 
+class Entity;
 class Event
 {
 public:
@@ -16,8 +17,8 @@ struct MovementInput : public Event
 
 struct MouseMovement : public Event
 {
-	MouseMovement(std::pair<int, int> movement) : movement{ movement } {};
-	std::pair<int, int> movement;
+	MouseMovement(int x, int y) : x{ x }, y{ y } {};
+	int x, y;
 };
 
 struct MouseClick : public Event
@@ -31,4 +32,24 @@ struct MouseScroll : public Event
 {
 	MouseScroll(int scroll) : scroll{ scroll } {};
 	int scroll;
+};
+
+struct TestEvent : public Event
+{
+	TestEvent(int number) : number{ number } {};
+	int number;
+};
+
+struct ModifierInput : public Event
+{
+	ModifierInput(SCAN_CODES key, bool pressed) : key{ key }, pressed{ pressed } {};
+	SCAN_CODES key;
+	bool pressed;
+};
+
+struct Collision : public Event
+{
+	Collision(Entity *ent1, Entity *ent2) : ent1{ ent1 }, ent2{ ent2 } {};
+	Entity *ent1;
+	Entity *ent2;
 };

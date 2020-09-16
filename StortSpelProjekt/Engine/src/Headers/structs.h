@@ -5,6 +5,16 @@
 #define MAX_POINT_LIGHTS 10
 #define MAX_SPOT_LIGHTS  10
 
+// This struct can be used to send specific indices as a root constant to the GPU.
+// Example usage is when the indices for pp-effects are sent to gpu.
+struct DescriptorHeapIndices
+{
+	unsigned int index0;
+	unsigned int index1;
+	unsigned int index2;
+	unsigned int index3;
+};
+
 // Indicies of where the descriptors are stored in the descriptorHeap
 struct SlotInfo
 {

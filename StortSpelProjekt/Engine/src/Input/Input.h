@@ -145,12 +145,6 @@ public:
 	/// <param name="pressed"> : The state of the key. True means pressed, false means not pressed</param>
 	void SetKeyState(SCAN_CODES key, bool pressed);
 	/// <summary>
-	/// Set the state of a key to "just pressed".
-	/// </summary>
-	/// <param name="key">: The scan code of the key</param>
-	/// <param name="justPressed">: The state whether the key is just pressed or not</param>
-	void SetJustPressed(SCAN_CODES key, bool justPressed);
-	/// <summary>
 	/// Sets the state of a mouse button, either pressed or not pressed.
 	/// </summary>
 	/// <param name="button">: The scan code of the button</param>
@@ -174,37 +168,17 @@ public:
 	/// <returns>true if key is pressed, false if key is not pressed</returns>
 	bool GetKeyState(SCAN_CODES key);
 	/// <summary>
-	/// Get the state of whether a key has just been pressed.
-	/// </summary>
-	/// <param name="key">: The scan code of the key</param>
-	/// <returns>true if the key has just been pressed, false if it has not</returns>
-	bool GetJustPressed(SCAN_CODES key);
-	/// <summary>
 	/// Get the state of a mouse button.
 	/// </summary>
 	/// <param name="button">: The scan code of the button</param>
 	/// <returns>true if button is pressed, false if button is not pressed</returns>
 	bool GetMouseButtonState(MOUSE_BUTTON button);
-	/// <summary>
-	/// Get the state of the scroll wheel.
-	/// </summary>
-	/// <returns>1 if the wheel has just been scrolled forward, -1 if it has just been scrolled backwards and 0 if it has not just been scrolled</returns>
-	int GetMouseScroll();
-	/// <summary>
-	/// Get the position of the mouse cursor relative to the center of the window.
-	/// </summary>
-	/// <returns>a pair of integers representing the position of the mouse cursor</returns>
-	std::pair<int, int> GetMouseMovement();
 
 private:
 	Input();
 
 	std::unordered_map<SCAN_CODES, bool> m_KeyState;
-	std::unordered_map<SCAN_CODES, bool> m_JustPressed;
 	std::unordered_map<MOUSE_BUTTON, bool> m_MouseButtonState;
-	int m_Scroll;
-
-	std::pair<int, int> m_MouseMovement;
 };
 
 #endif // !INPUT_H
