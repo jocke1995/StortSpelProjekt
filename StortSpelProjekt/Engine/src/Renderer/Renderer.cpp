@@ -1493,31 +1493,20 @@ void Renderer::addComponents(Entity* entity)
 
 			textComp->SubmitText(text);
 
-			// Look if data is already on the GPU
-			bool exists = false;
-			/*for (int i = 0; i < s_ExistingTexts.size(); i++)
-			{
-				if (data.first == s_ExistingTexts.at(i))
-				{
-					exists == true;
-				}
-			}*/
+			// TODO: Look if data is already on the GPU
+			
+			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 
-			if (exists == false)
-			{
-				CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+			// Submit to GPU
+			const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
 
-				// Submit to GPU
-				const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
+			// Vertices
+			Resource* uploadR = text->m_pUploadResourceVertices;
+			Resource* defaultR = text->m_pDefaultResourceVertices;
+			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 
-				// Vertices
-				Resource* uploadR = text->m_pUploadResourceVertices;
-				Resource* defaultR = text->m_pDefaultResourceVertices;
-				codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-
-				// Texture
-				codt->SubmitTexture(textComp->GetTexture());
-			}
+			// Texture
+			codt->SubmitTexture(textComp->GetTexture());
 		}
 
 		// Finally store the text in m_pRenderer so it will be drawn

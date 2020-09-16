@@ -212,7 +212,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     char sceneName[10] = "scene0";
     //scene = JockesTestScene(sceneManager);
-	scene = FredriksTestScene(sceneManager);
+	//scene = FredriksTestScene(sceneManager);
 
     //scene = sceneManager->GetScene(sceneName);
     sceneManager->SetSceneToDraw(scene);
@@ -223,12 +223,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         if (window->WasTabPressed())
         {
             // Test to change scene during runtime
-            static int sceneSwapper = 1;
-            sceneSwapper %= 2;
-            sprintf(sceneName, "scene%d", sceneSwapper);
-            Log::Print("Scene: %s\n", sceneName);
-            sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
-            sceneSwapper++;
+            //static int sceneSwapper = 1;
+            //sceneSwapper %= 2;
+            //sprintf(sceneName, "scene%d", sceneSwapper);
+            //Log::Print("Scene: %s\n", sceneName);
+            //sceneManager->SetSceneToDraw(sceneManager->GetScene(sceneName));
+            //sceneSwapper++;
 
             // Test to remove picked object
             /*Entity* pickedEnt = renderer->GetPickedEntity();
