@@ -106,6 +106,8 @@ Window::Window(
 	m_WindowTitle = windowTitle;
 
 	initWindow(hInstance, nCmdShow);
+
+	m_ShutDown = false;
 }
 
 
@@ -141,10 +143,10 @@ const HWND* Window::GetHwnd() const
 
 bool Window::ExitWindow()
 {
-	bool closeWindow = false;
+	bool closeWindow = m_ShutDown;
 	MSG msg = { 0 };
 
-	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
 
 		TranslateMessage(&msg);
@@ -152,7 +154,7 @@ bool Window::ExitWindow()
 
 		if (msg.message == WM_QUIT)
 		{
-			closeWindow = true;
+			m_ShutDown = true;
 		}
 	}
 	return closeWindow;
