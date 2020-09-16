@@ -1,17 +1,17 @@
-#ifndef PREDEPTHRENDERTASK_H
-#define PREDEPTHRENDERTASK_H
+#ifndef DEPTHRENDERTASK_H
+#define DEPTHRENDERTASK_H
 
 #include "RenderTask.h"
 
-class PreDepthRenderTask : public RenderTask
+class DepthRenderTask : public RenderTask
 {
 public:
-	PreDepthRenderTask(ID3D12Device5* device,
+	DepthRenderTask(ID3D12Device5* device,
 		RootSignature* rootSignature,
 		LPCWSTR VSName, LPCWSTR PSName,
 		std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
 		LPCTSTR psoName);
-	~PreDepthRenderTask();
+	~DepthRenderTask();
 
 	void Execute();
 

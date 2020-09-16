@@ -1,6 +1,5 @@
-
 #include "stdafx.h"
-#include "PreDepthRenderTask.h"
+#include "DepthRenderTask.h"
 
 #include "../Mesh.h"
 #include "../Transform.h"
@@ -14,7 +13,7 @@
 #include "../PipelineState.h"
 #include "../BaseCamera.h"
 
-PreDepthRenderTask::PreDepthRenderTask(ID3D12Device5* device, 
+DepthRenderTask::DepthRenderTask(ID3D12Device5* device, 
 	RootSignature* rootSignature, 
 	LPCWSTR VSName, LPCWSTR PSName, 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds, 
@@ -23,11 +22,11 @@ PreDepthRenderTask::PreDepthRenderTask(ID3D12Device5* device,
 {
 }
 
-PreDepthRenderTask::~PreDepthRenderTask()
+DepthRenderTask::~DepthRenderTask()
 {
 }
 
-void PreDepthRenderTask::Execute()
+void DepthRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
@@ -87,7 +86,7 @@ void PreDepthRenderTask::Execute()
 	commandList->Close();
 }
 
-void PreDepthRenderTask::drawRenderComponent(component::ModelComponent* mc, component::TransformComponent* tc, const DirectX::XMMATRIX* viewProjTransposed, ID3D12GraphicsCommandList5* cl)
+void DepthRenderTask::drawRenderComponent(component::ModelComponent* mc, component::TransformComponent* tc, const DirectX::XMMATRIX* viewProjTransposed, ID3D12GraphicsCommandList5* cl)
 {
 	// Draw for every m_pMesh the meshComponent has
 	for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)

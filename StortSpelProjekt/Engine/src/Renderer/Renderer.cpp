@@ -34,7 +34,7 @@
 #include "MousePicker.h"
 
 // Graphics
-#include "DX12Tasks/PreDepthRenderTask.h"
+#include "DX12Tasks/DepthRenderTask.h"
 #include "DX12Tasks/WireframeRenderTask.h"
 #include "DX12Tasks/OutliningRenderTask.h"
 #include "DX12Tasks/ForwardRenderTask.h"
@@ -294,9 +294,9 @@ void Renderer::Execute()
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::SHADOW], FLAG_THREAD::RENDER);
 
-	// Pre Depth
-	m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH], FLAG_THREAD::RENDER);
+	// Depth pre-pass
+	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS], FLAG_THREAD::RENDER);
 
 	// Drawing
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetBackBufferIndex(backBufferIndex);
@@ -372,7 +372,7 @@ Scene* const Renderer::GetActiveScene() const
 
 void Renderer::setRenderTasksPrimaryCamera()
 {
-	m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
@@ -621,63 +621,63 @@ void Renderer::initRenderTasks()
 {
 	// RenderTasks
 
-#pragma region PreDepthRendering
+#pragma region DepthPrePass
 
-	/* PreDepth rendering without stencil testing */
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdPreDepthRender = {};
-	gpsdPreDepthRender.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	/* Depth Pre-Pass rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdDepthPrePass = {};
+	gpsdDepthPrePass.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	// RenderTarget
-	gpsdPreDepthRender.NumRenderTargets = 0;
-	gpsdPreDepthRender.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+	gpsdDepthPrePass.NumRenderTargets = 0;
+	gpsdDepthPrePass.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
 	// Depthstencil usage
-	gpsdPreDepthRender.SampleDesc.Count = 1;
-	gpsdPreDepthRender.SampleMask = UINT_MAX;
+	gpsdDepthPrePass.SampleDesc.Count = 1;
+	gpsdDepthPrePass.SampleMask = UINT_MAX;
 	// Rasterizer behaviour
-	gpsdPreDepthRender.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-	gpsdPreDepthRender.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
-	gpsdPreDepthRender.RasterizerState.DepthBias = 0;
-	gpsdPreDepthRender.RasterizerState.DepthBiasClamp = 0.0f;
-	gpsdPreDepthRender.RasterizerState.SlopeScaledDepthBias = 0.0f;
-	gpsdPreDepthRender.RasterizerState.FrontCounterClockwise = false;
+	gpsdDepthPrePass.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdDepthPrePass.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdDepthPrePass.RasterizerState.DepthBias = 0;
+	gpsdDepthPrePass.RasterizerState.DepthBiasClamp = 0.0f;
+	gpsdDepthPrePass.RasterizerState.SlopeScaledDepthBias = 0.0f;
+	gpsdDepthPrePass.RasterizerState.FrontCounterClockwise = false;
 
 	// Specify Blend descriptions
 	// copy of defaultRTdesc
-	D3D12_RENDER_TARGET_BLEND_DESC preDepthRTdesc = {
+	D3D12_RENDER_TARGET_BLEND_DESC depthPrePassRTdesc = {
 		false, false,
 		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
 		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
 		D3D12_LOGIC_OP_NOOP, D3D12_COLOR_WRITE_ENABLE_ALL };
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
-		gpsdPreDepthRender.BlendState.RenderTarget[i] = preDepthRTdesc;
+		gpsdDepthPrePass.BlendState.RenderTarget[i] = depthPrePassRTdesc;
 
 	// Depth descriptor
-	D3D12_DEPTH_STENCIL_DESC preDepthdsd = {};
-	preDepthdsd.DepthEnable = true;
-	preDepthdsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	preDepthdsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	D3D12_DEPTH_STENCIL_DESC depthPrePassDsd = {};
+	depthPrePassDsd.DepthEnable = true;
+	depthPrePassDsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	depthPrePassDsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 
 	// DepthStencil
-	preDepthdsd.StencilEnable = false;
-	gpsdPreDepthRender.DepthStencilState = preDepthdsd;
-	gpsdPreDepthRender.DSVFormat = m_pMainDSV->GetDXGIFormat();
+	depthPrePassDsd.StencilEnable = false;
+	gpsdDepthPrePass.DepthStencilState = depthPrePassDsd;
+	gpsdDepthPrePass.DSVFormat = m_pMainDSV->GetDXGIFormat();
 
-	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdPreDepthRenderVector;
-	gpsdPreDepthRenderVector.push_back(&gpsdPreDepthRender);
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdDepthPrePassVector;
+	gpsdDepthPrePassVector.push_back(&gpsdDepthPrePass);
 
-	RenderTask* preDepthRenderTask = new PreDepthRenderTask(
+	RenderTask* DepthPrePassRenderTask = new DepthRenderTask(
 		m_pDevice5,
 		m_pRootSignature,
-		L"PreDepthVertex.hlsl", L"PreDepthPixel.hlsl",
-		&gpsdPreDepthRenderVector,
-		L"PreDepthRenderingPSO");
+		L"DepthVertex.hlsl", L"DepthPixel.hlsl",
+		&gpsdDepthPrePassVector,
+		L"DepthPrePassPSO");
 
 	
 	// TODO: remove swapchain, using swapchains render view currently.
-	preDepthRenderTask->SetSwapChain(m_pSwapChain);
-	preDepthRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+	DepthPrePassRenderTask->SetSwapChain(m_pSwapChain);
+	DepthPrePassRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
-#pragma endregion PreDepthRendering
+#pragma endregion DepthPrePass
 
 #pragma region ForwardRendering
 	/* Forward rendering without stencil testing */
@@ -758,6 +758,7 @@ void Renderer::initRenderTasks()
 
 
 #pragma endregion ForwardRendering
+
 #pragma region ModelOutlining
 	/* Forward rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdModelOutlining = gpsdForwardRenderStencilTest;
@@ -797,6 +798,7 @@ void Renderer::initRenderTasks()
 	m_pOutliningRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion ModelOutlining
+
 #pragma region Blend
 	// ------------------------ TASK 2: BLEND ---------------------------- FRONTCULL
 
@@ -890,6 +892,7 @@ void Renderer::initRenderTasks()
 	
 
 #pragma endregion Blend
+
 #pragma region ShadowPass
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdShadow = { 0 };
 	gpsdShadow.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -933,12 +936,13 @@ void Renderer::initRenderTasks()
 	RenderTask* shadowRenderTask = new ShadowRenderTask(
 		m_pDevice5,
 		m_pRootSignature,
-		L"ShadowVertex.hlsl", L"ShadowPixel.hlsl",
+		L"DepthVertex.hlsl", L"DepthPixel.hlsl",
 		&gpsdShadowVector,
 		L"ShadowPSO");
 
 	shadowRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion ShadowPass
+
 #pragma region WireFrame
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdWireFrame = {};
 	gpsdWireFrame.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -971,6 +975,7 @@ void Renderer::initRenderTasks()
 	m_pWireFrameTask->SetSwapChain(m_pSwapChain);
 	m_pWireFrameTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion WireFrame
+
 #pragma region MergePass
 	/* Forward rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdMergePass = {};
@@ -1012,6 +1017,7 @@ void Renderer::initRenderTasks()
 	mergeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	static_cast<MergeRenderTask*>(mergeTask)->CreateSlotInfo();
 #pragma endregion MergePass
+
 #pragma region Text 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdText = {};
@@ -1109,7 +1115,7 @@ void Renderer::initRenderTasks()
 	// None atm
 
 	/* ------------------------- DirectQueue Tasks ---------------------- */
-	m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH] = preDepthRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS] = DepthPrePassRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
@@ -1125,7 +1131,7 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(preDepthRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(DepthPrePassRenderTask->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1170,7 +1176,7 @@ void Renderer::initRenderTasks()
 
 void Renderer::setRenderTasksRenderComponents()
 {
-	m_RenderTasks[RENDER_TASK_TYPE::PRE_DEPTH]->SetRenderComponents(&m_RenderComponents);
+	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents);
