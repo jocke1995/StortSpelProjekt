@@ -122,9 +122,7 @@ Scene* TimScene(SceneManager* sm)
 
 
 Scene* JockesTestScene(SceneManager* sm)
-
 {
-
     // Create Scene
     Scene* scene = sm->CreateScene("scene1");
 
