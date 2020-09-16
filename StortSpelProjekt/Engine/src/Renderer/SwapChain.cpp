@@ -32,7 +32,7 @@ SwapChain::SwapChain(
 	DXGI_SWAP_CHAIN_DESC1 scDesc = {};
 	scDesc.Width = width;
 	scDesc.Height = height;
-	scDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	scDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	scDesc.Stereo = FALSE;
 	scDesc.SampleDesc.Count = 1;
 	scDesc.SampleDesc.Quality = 0;
@@ -81,7 +81,7 @@ SwapChain::SwapChain(
 	// Create SRVs
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)

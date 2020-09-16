@@ -1,9 +1,13 @@
 #include "AudioEngine.h"
+#include "AudioBuffer.h"
+#include "../ECS/Entity.h"
 
 AudioEngine::AudioEngine()
 {
 	m_pXAudio2 = nullptr;
 	m_pMasterVoice = nullptr;
+	m_pAudio = nullptr;
+	//testAudio = new Audio();
 
 	HRESULT hr;
 	if (FAILED(hr = XAudio2Create(&m_pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR)))
@@ -15,6 +19,12 @@ AudioEngine::AudioEngine()
 	{
 		Log::Print("Failed to create mastering voice\n");
 	}
+}
+
+AudioEngine& AudioEngine::GetInstance()
+{
+	static AudioEngine instance;
+	return instance;
 }
 
 AudioEngine::~AudioEngine()

@@ -16,13 +16,19 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 	float4 sceneColor = textures[cbPerObject.info.textureAmbient].Sample(samplerTypeWrap, input.uv);
 	float4 blurColor = textures[cbPerObject.info.textureDiffuse].Sample(samplerTypeWrap, input.uv);
 
-	// Darken down the base iage in areas where there is a lot of bloom
+	// Darken down the base image in areas where there is a lot of bloom
 	sceneColor *= (1 - saturate(blurColor));
 
-	// Combine
-	float glowIntensity = 1.0f;
-	return sceneColor + (blurColor * glowIntensity);
+	// Adjust glowIntensity
+	float glowIntensity = 3.0f;
+	blurColor = blurColor * glowIntensity;
 
-	// for debugging
-	// return blurColor;
+	// Combine
+	float4 finalColor = sceneColor + blurColor;
+
+	// HDR tone mapping
+	float exposure = 0.5f;
+	finalColor = float4(1.0f, 1.0f, 1.0f, 1.0f) - exp(-finalColor * exposure);
+
+	return finalColor;
 }
