@@ -4,7 +4,7 @@
 #include "../RenderView.h"
 #include "../RootSignature.h"
 #include "../CommandInterface.h"
-#include "../RenderTarget.h"
+#include "../GPUMemory/RenderTargetView.h"
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
 #include "../GPUMemory/Resource.h"
@@ -32,7 +32,7 @@ void BlendRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
-	const RenderTarget* swapChainRenderTarget = m_pSwapChain->GetRenderTarget(m_BackBufferIndex);
+	const RenderTargetView* swapChainRenderTarget = m_pSwapChain->GetRenderTarget(m_BackBufferIndex);
 	ID3D12Resource1* swapChainResource = swapChainRenderTarget->GetResource()->GetID3D12Resource1();
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);

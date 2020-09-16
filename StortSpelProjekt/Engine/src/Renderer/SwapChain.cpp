@@ -2,7 +2,7 @@
 #include "SwapChain.h"
 
 #include "GPUMemory/Resource.h"
-#include "RenderTarget.h"
+#include "GPUMemory/RenderTargetView.h"
 #include "GPUMemory/ShaderResourceView.h"
 #include "DescriptorHeap.h"
 
@@ -17,7 +17,7 @@ SwapChain::SwapChain(
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_Resources[i] = new Resource();
-		m_RenderTargets[i] = new RenderTarget(width, height, descriptorHeap_RTV, m_Resources[i]);
+		m_RenderTargets[i] = new RenderTargetView(device, width, height, descriptorHeap_RTV, nullptr, m_Resources[i], false);
 	}
 
 	IDXGIFactory4* factory = nullptr;
@@ -73,9 +73,7 @@ SwapChain::SwapChain(
 			Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to GetBuffer from RenderTarget to Swapchain\n");
 		}
 
-		//m_RenderTargets[i]-> = descriptorHeap_RTV->GetNextDescriptorHeapIndex(1);
-		D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_RTV->GetCPUHeapAt(m_RenderTargets[i]->GetDescriptorHeapIndex());
-		device->CreateRenderTargetView(m_RenderTargets[i]->GetResource()->GetID3D12Resource1(), nullptr, cdh);
+		m_RenderTargets[i]->CreateRTV(device, descriptorHeap_RTV, nullptr);
 	}
 
 	// Create SRVs
@@ -106,7 +104,7 @@ IDXGISwapChain4* SwapChain::GetDX12SwapChain() const
 	return m_pSwapChain4;
 }
 
-const RenderTarget* SwapChain::GetRenderTarget(unsigned int backBufferIndex) const
+const RenderTargetView* SwapChain::GetRenderTarget(unsigned int backBufferIndex) const
 {
 	return m_RenderTargets[backBufferIndex];
 }

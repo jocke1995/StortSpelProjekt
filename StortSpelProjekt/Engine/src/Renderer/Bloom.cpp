@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Bloom.h"
 
-#include "RenderTarget.h"
+#include "GPUMemory/RenderTargetView.h"
 #include "GPUMemory/Resource.h"
 #include "PingPongResource.h"
 #include "../Misc/Window.h"
@@ -55,7 +55,7 @@ Bloom::~Bloom()
 	delete m_pRenderTarget;
 }
 
-const RenderTarget* const Bloom::GetRenderTarget() const
+const RenderTargetView* const Bloom::GetRenderTarget() const
 {
 	return m_pRenderTarget;
 }
@@ -95,6 +95,10 @@ void Bloom::createBrightRenderTarget(
 	DescriptorHeap* dhRTV,
 	unsigned int width, unsigned int height)
 {
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
 	// Resource 0 will be used as the starting resource to read from during the blurring pass.
-	m_pRenderTarget = new RenderTarget(device5, dhRTV, m_Resources[0], width, height);
+	m_pRenderTarget = new RenderTargetView(device5, width, height, dhRTV,  &rtvDesc, m_Resources[0], true);
 }

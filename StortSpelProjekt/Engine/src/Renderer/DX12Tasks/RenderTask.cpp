@@ -32,7 +32,7 @@ PipelineState* RenderTask::GetPipelineState(unsigned int index)
 	return m_PipelineStates[index];
 }
 
-void RenderTask::AddRenderTarget(std::string name, const RenderTarget* renderTarget)
+void RenderTask::AddRenderTarget(std::string name, const RenderTargetView* renderTarget)
 {
 	m_RenderTargets[name] = renderTarget;
 }

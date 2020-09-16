@@ -14,7 +14,7 @@ class Window;
 // Renderer Engine
 class RootSignature;
 class SwapChain;
-class RenderTarget;
+class RenderTargetView;
 class ViewPool;
 class BoundingBoxPool;
 class DescriptorHeap;

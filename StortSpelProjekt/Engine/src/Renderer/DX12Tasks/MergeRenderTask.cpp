@@ -4,7 +4,7 @@
 #include "../CommandInterface.h"
 
 #include "../SwapChain.h"
-#include "../RenderTarget.h"
+#include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/ShaderResourceView.h"
 #include "../RenderView.h"
 #include "../GPUMemory/Resource.h"
@@ -60,7 +60,7 @@ void MergeRenderTask::Execute()
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
 	// Get renderTarget
-	const RenderTarget* swapChainRenderTarget = m_pSwapChain->GetRenderTarget(m_BackBufferIndex);
+	const RenderTargetView* swapChainRenderTarget = m_pSwapChain->GetRenderTarget(m_BackBufferIndex);
 	ID3D12Resource1* swapChainResource = swapChainRenderTarget->GetResource()->GetID3D12Resource1();
 
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];

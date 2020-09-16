@@ -7,7 +7,7 @@
 #include "../CommandInterface.h"
 #include "../SwapChain.h"
 #include "../DescriptorHeap.h"
-#include "../RenderTarget.h"
+#include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/Resource.h"
 #include "../RenderView.h"
 #include "../PipelineState.h"

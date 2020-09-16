@@ -29,6 +29,11 @@ private:
 	DepthStencilView* m_pDSV = nullptr;
 
 	unsigned int m_pId = 0;
+	void createResource(
+		ID3D12Device5* device,
+		unsigned int width, unsigned int height,
+		std::wstring resourceName,
+		DXGI_FORMAT format);
 };
 
 #endif
