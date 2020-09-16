@@ -1,10 +1,13 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 // Renderer
-#include "Components/MeshComponent.h"
+#include "Components/ModelComponent.h"
 #include "Components/TransformComponent.h"
 #include "Components/CameraComponent.h"
 #include "Components/BoundingBoxComponent.h"
+#include "Components/TextComponent.h"
+// Audio
+#include "Components/AudioVoiceComponent.h"
 
 // Lights
 class DirectionalLightComponent;

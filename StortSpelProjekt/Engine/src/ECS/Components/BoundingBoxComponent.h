@@ -15,8 +15,11 @@ enum F_OBBFlags
 };
 
 struct BoundingBoxData;
+class ShaderResourceView;
 class Mesh;
 class Transform;
+struct SlotInfo;
+
 namespace component
 {
 	class BoundingBoxComponent : public Component
@@ -32,11 +35,12 @@ namespace component
 		void SetMesh(Mesh* mesh);
 
 		// Will write warning to Log if Collision is not enabled for object
-		DirectX::BoundingOrientedBox GetOBB() const;
+		const DirectX::BoundingOrientedBox* GetOBB() const;
 		Transform* GetTransform() const;
 		const Mesh* GetMesh() const;
 		const BoundingBoxData* GetBoundingBoxData() const;
 		const std::string GetPathOfModel() const;
+		const SlotInfo* GetSlotInfo() const;
 		unsigned int GetFlagOBB() const;
 
 		// Renderer calls this function when an entity is picked
@@ -53,9 +57,9 @@ namespace component
 		Mesh* m_pMesh = nullptr;
 		std::string m_PathOfModel = "";
 		BoundingBoxData* m_pBbd = nullptr;
+		SlotInfo* m_SlotInfo;
 
 		bool createOrientedBoundingBox();
-
 	};
 }
 

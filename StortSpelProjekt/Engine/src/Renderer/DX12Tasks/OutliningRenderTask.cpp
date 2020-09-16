@@ -13,6 +13,7 @@
 #include "../Renderer/BaseCamera.h"
 #include "../RenderTarget.h"
 
+
 OutliningRenderTask::OutliningRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
@@ -81,14 +82,16 @@ void OutliningRenderTask::Execute()
 	// Draw for every m_pMesh
 	for (int i = 0; i < m_ObjectToOutline.first->GetNrOfMeshes(); i++)
 	{
-		Mesh* m = m_ObjectToOutline.first->GetMesh(i);
+		Mesh* m = m_ObjectToOutline.first->GetMeshAt(i);
 		Transform* t = m_ObjectToOutline.second->GetTransform();
 		Transform newScaledTransform = *t;
 		newScaledTransform.IncreaseScaleByPercent(0.02f);
 		newScaledTransform.UpdateWorldMatrix();
 
+		component::ModelComponent* mc = m_ObjectToOutline.first;
+
 		size_t num_Indices = m->GetNumIndices();
-		const SlotInfo* info = m->GetSlotInfo();
+		const SlotInfo* info = mc->GetSlotInfoAt(i);
 
 		DirectX::XMMATRIX* WTransposed = newScaledTransform.GetWorldMatrixTransposed();
 		DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
@@ -113,7 +116,7 @@ void OutliningRenderTask::Execute()
 	commandList->Close();
 }
 
-void OutliningRenderTask::SetObjectToOutline(std::pair<component::MeshComponent*, component::TransformComponent*>* objectToOutline)
+void OutliningRenderTask::SetObjectToOutline(std::pair<component::ModelComponent*, component::TransformComponent*>* objectToOutline)
 {
 	m_ObjectToOutline = *objectToOutline;
 }

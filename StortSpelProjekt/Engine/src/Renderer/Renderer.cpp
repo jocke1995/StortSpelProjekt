@@ -5,9 +5,12 @@
 #include "../Misc/ThreadPool.h"
 #include "../Misc/AssetLoader.h"
 #include "../Misc/Thread.h"
+#include "../Misc/Window.h"
+
 // ECS
 #include "../ECS/Scene.h"
 #include "../ECS/Entity.h"
+#include "../ECS/Components/TextComponent.h"
 
 // Renderer-Engine 
 #include "RootSignature.h"
@@ -22,6 +25,7 @@
 #include "BaseCamera.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "Text.h"
 #include "ShaderResourceView.h"
 
 #include "Bloom.h"
@@ -36,6 +40,7 @@
 #include "DX12Tasks/BlendRenderTask.h"
 #include "DX12Tasks/ShadowRenderTask.h"
 #include "DX12Tasks/MergeRenderTask.h"
+#include "DX12Tasks/TextTask.h"
 
 // Copy 
 #include "DX12Tasks/CopyPerFrameTask.h"
@@ -100,7 +105,7 @@ Renderer::~Renderer()
 	delete m_pCbPerFrameData;
 }
 
-void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool)
+void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
 {
 	m_pThreadPool = threadPool;
 
@@ -120,14 +125,14 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	createFences();
 
 	// Rendertargets
-	createSwapChain(hwnd);
+	createSwapChain(window->GetHwnd());
 	m_pBloomResources = new Bloom(m_pDevice5, 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
-		hwnd);
+		window->GetHwnd());
 
 	// Create Main DepthBuffer
-	createMainDSV(hwnd);
+	createMainDSV(window->GetHwnd());
 
 	// Picking
 	m_pMousePicker = new MousePicker();
@@ -139,7 +144,7 @@ void Renderer::InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* thre
 	createFullScreenQuad();
 
 	// Init Assetloader
-	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], window);
 
 	// Init BoundingBoxPool
 	BoundingBoxPool::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
@@ -204,7 +209,7 @@ void Renderer::SortObjectsByDistance()
 	struct DistFromCamera
 	{
 		double distance;
-		component::MeshComponent* mc;
+		component::ModelComponent* mc;
 		component::TransformComponent* tc;
 	};
 
@@ -306,13 +311,17 @@ void Renderer::Execute()
 	m_pOutliningRenderTask->SetBackBufferIndex(backBufferIndex);
 	m_pOutliningRenderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(m_pOutliningRenderTask, FLAG_THREAD::RENDER);
-	
+
 	if (DRAWBOUNDINGBOX == true)
 	{
 		m_pWireFrameTask->SetBackBufferIndex(backBufferIndex);
 		m_pWireFrameTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 		m_pThreadPool->AddTask(m_pWireFrameTask, FLAG_THREAD::RENDER);
 	}
+
+	m_RenderTasks[RENDER_TASK_TYPE::TEXT]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::TEXT]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::TEXT], FLAG_THREAD::RENDER);
 
 	m_RenderTasks[RENDER_TASK_TYPE::MERGE]->SetBackBufferIndex(backBufferIndex);
 	m_RenderTasks[RENDER_TASK_TYPE::MERGE]->SetCommandInterfaceIndex(commandInterfaceIndex);
@@ -587,7 +596,7 @@ void Renderer::updateMousePicker()
 
 		// Set the object to me drawn in outliningRenderTask
 		Entity* parentOfPickedObject = pickedBoundingBox->GetParent();
-		component::MeshComponent*		mc = parentOfPickedObject->GetComponent<component::MeshComponent>();
+		component::ModelComponent*		mc = parentOfPickedObject->GetComponent<component::ModelComponent>();
 		component::TransformComponent*	tc = parentOfPickedObject->GetComponent<component::TransformComponent>();
 
 		m_pOutliningRenderTask->SetObjectToOutline(&std::make_pair(mc, tc));
@@ -612,8 +621,8 @@ void Renderer::initRenderTasks()
 
 	// RenderTarget
 	gpsdForwardRender.NumRenderTargets = 2;
-	gpsdForwardRender.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	gpsdForwardRender.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdForwardRender.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	gpsdForwardRender.RTVFormats[1] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	// Depthstencil usage
 	gpsdForwardRender.SampleDesc.Count = 1;
 	gpsdForwardRender.SampleMask = UINT_MAX;
@@ -733,7 +742,7 @@ void Renderer::initRenderTasks()
 	gpsdBlendFrontCull.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	// RenderTarget
-	gpsdBlendFrontCull.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdBlendFrontCull.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	gpsdBlendFrontCull.NumRenderTargets = 1;
 	// Depthstencil usage
 	gpsdBlendFrontCull.SampleDesc.Count = 1;
@@ -780,7 +789,7 @@ void Renderer::initRenderTasks()
 	gpsdBlendBackCull.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	// RenderTarget
-	gpsdBlendBackCull.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdBlendBackCull.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	gpsdBlendBackCull.NumRenderTargets = 1;
 	// Depthstencil usage
 	gpsdBlendBackCull.SampleDesc.Count = 1;
@@ -870,7 +879,7 @@ void Renderer::initRenderTasks()
 	gpsdWireFrame.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	// RenderTarget
-	gpsdWireFrame.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdWireFrame.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	gpsdWireFrame.NumRenderTargets = 1;
 	// Depthstencil usage
 	gpsdWireFrame.SampleDesc.Count = 1;
@@ -904,7 +913,7 @@ void Renderer::initRenderTasks()
 
 	// RenderTarget
 	gpsdMergePass.NumRenderTargets = 1;
-	gpsdMergePass.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsdMergePass.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	// Depthstencil usage
 	gpsdMergePass.SampleDesc.Count = 1;
 	gpsdMergePass.SampleMask = UINT_MAX;
@@ -936,8 +945,61 @@ void Renderer::initRenderTasks()
 	static_cast<MergeRenderTask*>(mergeTask)->AddSRVIndexToMerge(m_pBloomResources->GetPingPongResource(0)->GetSRV()->GetDescriptorHeapIndex());
 	mergeTask->SetSwapChain(m_pSwapChain);
 	mergeTask->SetDescriptorHeaps(m_DescriptorHeaps);
+	static_cast<MergeRenderTask*>(mergeTask)->CreateSlotInfo();
 #pragma endregion MergePass
-	
+#pragma region Text 
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdText = {};
+
+	gpsdText.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdText.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	gpsdText.NumRenderTargets = 1;
+	// Depthstencil usage
+	gpsdText.SampleDesc.Count = 1;
+	gpsdText.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdText.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdText.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdText.RasterizerState.FrontCounterClockwise = false;
+
+	D3D12_BLEND_DESC textBlendStateDesc = {};
+	textBlendStateDesc.AlphaToCoverageEnable = FALSE;
+	textBlendStateDesc.IndependentBlendEnable = FALSE;
+	textBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
+
+	textBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	textBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+	textBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+
+	textBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+	textBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
+	textBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+
+	textBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	gpsdText.BlendState = textBlendStateDesc;
+	gpsdText.NumRenderTargets = 1;
+
+	D3D12_DEPTH_STENCIL_DESC textDepthStencilDesc = {};
+	textDepthStencilDesc.DepthEnable = false;
+	gpsdText.DepthStencilState = textDepthStencilDesc;
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdTextVector;
+	gpsdTextVector.push_back(&gpsdText);
+
+	RenderTask* textTask = new TextTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"TextVertex.hlsl", L"TextPixel.hlsl",
+		&gpsdTextVector,
+		L"TextPSO");
+
+	textTask->SetSwapChain(m_pSwapChain);
+	textTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion Text
 
 	// ComputeTasks
 	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
@@ -968,10 +1030,14 @@ void Renderer::initRenderTasks()
 	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND] = copyOnDemandTask;
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_CopyPerFrameCmdList[i] = copyPerFrameTask->GetCommandList(i);
+	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandList(i);
+	}
 
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
 	
@@ -983,28 +1049,46 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::BLUR] = static_cast<RenderTask*>(blurComputeTask);
 	m_RenderTasks[RENDER_TASK_TYPE::MERGE] = mergeTask;
+	m_RenderTasks[RENDER_TASK_TYPE::TEXT] = textTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandList(i));
+	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
+	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandList(i));
-
-	// Compute shader to blur the RTV from forwardRenderTask
-	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-		m_DirectCommandLists[i].push_back(blurComputeTask->GetCommandList(i));
+	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(textTask->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(m_pOutliningRenderTask->GetCommandList(i));
+	}
 
 	if (DRAWBOUNDINGBOX == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
 			m_DirectCommandLists[i].push_back(m_pWireFrameTask->GetCommandList(i));
+		}
+	}
+
+	// Compute shader to blur the RTV from forwardRenderTask
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(blurComputeTask->GetCommandList(i));
 	}
 
 	// Final pass (this pass will merge different textures together and put result in the swapchain backBuffer)
@@ -1018,6 +1102,7 @@ void Renderer::setRenderTasksRenderComponents()
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents);
+	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 }
 
 void Renderer::createDescriptorHeaps()
@@ -1143,7 +1228,6 @@ void Renderer::removeComponents(Entity* entity)
 
 	// Check if the entity got a boundingbox component.
 	component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
-
 	if (bbc->GetParent() == entity)
 	{
 		// Stop drawing the wireFrame
@@ -1154,7 +1238,6 @@ void Renderer::removeComponents(Entity* entity)
 
 		// Stop picking this boundingBox
 		unsigned int i = 0;
-
 		for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
 		{
 			if (bbcToBePicked == bbc)
@@ -1168,20 +1251,16 @@ void Renderer::removeComponents(Entity* entity)
 	return;
 }
 
-
-
 void Renderer::addComponents(Entity* entity)
 {
 	// Only add the m_Entities that actually should be drawn
-	component::MeshComponent* mc = entity->GetComponent<component::MeshComponent>();
-
+	component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
 	if (mc != nullptr)
 	{
 		component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
-
 		if (tc != nullptr)
 		{
-			Mesh* mesh = mc->GetMesh(0);
+			Mesh* mesh = mc->GetMeshAt(0);
 			AssetLoader* al = AssetLoader::Get();
 			std::wstring modelPath = to_wstring(mesh->GetPath());
 			bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
@@ -1195,16 +1274,15 @@ void Renderer::addComponents(Entity* entity)
 			// Submit Mesh/texture data to GPU if they haven't already been uploaded
 			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 			{
-				mesh = mc->GetMesh(i);
+				mesh = mc->GetMeshAt(i);
 
 				// Submit to the list which gets updated to the gpu each frame
 				CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
 
 				// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
+				CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 				if (isModelOnGpu == false)
 				{
-					CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-
 					// Vertices
 					const void* data = static_cast<const void*>(mesh->m_Vertices.data());
 					Resource* uploadR = mesh->m_pUploadResourceVertices;
@@ -1216,19 +1294,20 @@ void Renderer::addComponents(Entity* entity)
 					uploadR = mesh->m_pUploadResourceIndices;
 					defaultR = mesh->m_pDefaultResourceIndices;
 					codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+				}
 
-					// Textures
-					for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+				std::map<TEXTURE_TYPE, Texture*> meshTextures = *mc->GetTexturesAt(i);
+				// Textures
+				for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+				{
+					TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
+					Texture* texture = meshTextures[type];
+
+					// Check if the texture is on GPU before submitting to be uploaded
+					if (al->m_LoadedTextures[texture->m_FilePath].first == false)
 					{
-						TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-						Texture* texture = mesh->GetTexture(type);
-
-						// Check if the texture is on GPU before submitting to be uploaded
-						if (al->m_LoadedTextures[texture->m_FilePath].first == false)
-						{
-							codt->SubmitTexture(texture);
-							al->m_LoadedTextures[texture->m_FilePath].first = true;
-						}
+						codt->SubmitTexture(texture);
+						al->m_LoadedTextures[texture->m_FilePath].first = true;
 					}
 				}
 			}
@@ -1239,7 +1318,6 @@ void Renderer::addComponents(Entity* entity)
 	}
 
 	component::DirectionalLightComponent* dlc = entity->GetComponent<component::DirectionalLightComponent>();
-
 	if (dlc != nullptr)
 	{
 		// Assign CBV from the lightPool
@@ -1267,9 +1345,7 @@ void Renderer::addComponents(Entity* entity)
 		}
 
 		// Assign views required for shadows from the lightPool
-
 		ShadowInfo* si = nullptr;
-
 		if (resolution != SHADOW_RESOLUTION::UNDEFINED)
 		{
 			si = m_pViewPool->GetFreeShadowInfo(LIGHT_TYPE::DIRECTIONAL_LIGHT, resolution);
@@ -1285,7 +1361,6 @@ void Renderer::addComponents(Entity* entity)
 
 	// Currently no shadows are implemented for pointLights
 	component::PointLightComponent* plc = entity->GetComponent<component::PointLightComponent>();
-
 	if (plc != nullptr)
 	{
 		// Assign CBV from the lightPool
@@ -1297,11 +1372,9 @@ void Renderer::addComponents(Entity* entity)
 
 		// Save in m_pRenderer
 		m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(plc, cbd, si));
-
 	}
 
 	component::SpotLightComponent* slc = entity->GetComponent<component::SpotLightComponent>();
-
 	if (slc != nullptr)
 	{
 		// Assign CBV from the lightPool
@@ -1366,7 +1439,6 @@ void Renderer::addComponents(Entity* entity)
 
 			// Submit to GPU
 			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-
 			// Vertices
 			const void* data = static_cast<const void*>(m->m_Vertices.data());
 			Resource* uploadR = m->m_pUploadResourceVertices;
@@ -1378,6 +1450,7 @@ void Renderer::addComponents(Entity* entity)
 			uploadR = m->m_pUploadResourceIndices;
 			defaultR = m->m_pDefaultResourceIndices;
 			codt->Submit(&std::tuple(uploadR, defaultR, data));
+
 			bbc->SetMesh(m);
 
 			m_pWireFrameTask->AddObjectToDraw(bbc);
@@ -1389,29 +1462,58 @@ void Renderer::addComponents(Entity* entity)
 			m_BoundingBoxesToBePicked.push_back(bbc);
 		}
 	}
+
+	component::TextComponent* textComp = entity->GetComponent<component::TextComponent>();
+	if (textComp != nullptr)
+	{
+		TextTask* tt = static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT]);
+		std::vector<TextData>* textDataVec = textComp->GetTextDataVec();
+
+		for (int i = 0; i < textDataVec->size(); i++)
+		{
+			AssetLoader* al = AssetLoader::Get();
+			int numOfCharacters = textComp->GetNumOfCharacters(i);
+
+			Text* text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, textComp->GetTexture());
+			text->SetTextData(&textDataVec->at(i), textComp->GetFont());
+
+			textComp->SubmitText(text);
+
+			// Look if data is already on the GPU
+
+			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+
+			// Submit to GPU
+			const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
+
+			// Vertices
+			Resource* uploadR = text->m_pUploadResourceVertices;
+			Resource* defaultR = text->m_pDefaultResourceVertices;
+			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+			// Texture
+			codt->SubmitTexture(textComp->GetTexture());
+		}
+
+		// Finally store the text in m_pRenderer so it will be drawn
+		m_TextComponents.push_back(textComp);
+	}
 }
 
-
-
 void Renderer::prepareScene(Scene* scene)
-
 {
 	prepareCBPerFrame();
 	prepareCBPerScene();
 
 	// -------------------- DEBUG STUFF --------------------
-
 	// Test to change m_pCamera to the shadow casting m_lights cameras
-
 	//auto& tuple = m_pRenderer->m_lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
-
 	//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
-
 	//m_pRenderer->ScenePrimaryCamera = tempCam;
-
 	if (m_pScenePrimaryCamera == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scene: %s\n", scene->GetName());
+
 		// Todo: Set default m_pCamera
 	}
 
@@ -1421,9 +1523,7 @@ void Renderer::prepareScene(Scene* scene)
 	setRenderTasksPrimaryCamera();
 
 	m_pCurrActiveScene = scene;
-
 }
-
 
 void Renderer::prepareCBPerScene()
 {

@@ -9,6 +9,7 @@
 
 // Misc
 class ThreadPool;
+class Window;
 
 // Renderer Engine
 class RootSignature;
@@ -54,8 +55,9 @@ struct ID3D12Device5;
 
 namespace component
 {
-	class MeshComponent;
+	class ModelComponent;
 	class TransformComponent;
+	class TextComponent;
 }
 
 class Renderer
@@ -70,7 +72,7 @@ public:
 	Scene* const GetActiveScene() const;
 
 	// Call once
-	void InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool);
+	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
 	// Call each frame
 	void Update(double dt);
@@ -79,6 +81,7 @@ public:
 
 private:
 	friend class SceneManager;
+	friend class Text;
 	ThreadPool* m_pThreadPool = nullptr;
 
 	// Camera
@@ -121,9 +124,9 @@ private:
 	Mesh* m_pFullScreenQuad = nullptr;
 
 	// Group of components that's needed for rendering:
-	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
-
+	std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
+	std::vector<component::TextComponent*> m_TextComponents;
 
 	ViewPool* m_pViewPool = nullptr;
 	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBufferView*, ShadowInfo*>>> m_Lights;
