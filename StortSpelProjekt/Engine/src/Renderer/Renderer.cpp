@@ -561,7 +561,7 @@ void Renderer::createFullScreenQuad()
 	indexVector.push_back(2);
 	indexVector.push_back(3);
 
-	m_pFullScreenQuad = new Mesh(m_pDevice5, vertexVector, indexVector, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	m_pFullScreenQuad = new Mesh(m_pDevice5, &vertexVector, &indexVector, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 }
 
 void Renderer::updateMousePicker()
