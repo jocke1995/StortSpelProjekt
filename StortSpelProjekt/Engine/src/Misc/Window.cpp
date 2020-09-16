@@ -145,7 +145,7 @@ bool Window::ExitWindow()
 	bool closeWindow = false;
 	MSG msg = { 0 };
 
-	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
 
 		TranslateMessage(&msg);
