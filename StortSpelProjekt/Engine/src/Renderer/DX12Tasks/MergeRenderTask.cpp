@@ -7,7 +7,7 @@
 #include "../RenderTarget.h"
 #include "../ShaderResourceView.h"
 #include "../RenderView.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 
 #include "../DescriptorHeap.h"
 #include "../RootSignature.h"

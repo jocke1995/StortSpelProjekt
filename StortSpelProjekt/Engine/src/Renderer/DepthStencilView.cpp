@@ -2,7 +2,7 @@
 #include "DepthStencilView.h"
 
 #include "DescriptorHeap.h"
-#include "Resource.h"
+#include "GPUMemory/Resource.h"
 
 // Constructor that also creates a resource
 DepthStencilView::DepthStencilView(

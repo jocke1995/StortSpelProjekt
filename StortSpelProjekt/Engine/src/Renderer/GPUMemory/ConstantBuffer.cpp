@@ -2,7 +2,7 @@
 #include "ConstantBuffer.h"
 
 #include "Resource.h"
-#include "DescriptorHeap.h"
+#include "../DescriptorHeap.h"
 
 ConstantBuffer::ConstantBuffer(ID3D12Device5* device, unsigned int entrySize, std::wstring resourceName, DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
 {

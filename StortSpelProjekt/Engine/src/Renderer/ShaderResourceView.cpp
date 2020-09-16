@@ -2,7 +2,7 @@
 #include "ShaderResourceView.h"
 
 #include "DescriptorHeap.h"
-#include "Resource.h"
+#include "GPUMemory/Resource.h"
 
 ShaderResourceView::ShaderResourceView(
 	ID3D12Device5* device,

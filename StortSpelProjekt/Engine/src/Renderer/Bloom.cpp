@@ -2,7 +2,7 @@
 #include "Bloom.h"
 
 #include "RenderTarget.h"
-#include "Resource.h"
+#include "GPUMemory/Resource.h"
 #include "PingPongResource.h"
 #include "../Misc/Window.h"
 

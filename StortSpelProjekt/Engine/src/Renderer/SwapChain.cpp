@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SwapChain.h"
 
-#include "Resource.h"
+#include "GPUMemory/Resource.h"
 #include "RenderTarget.h"
 #include "ShaderResourceView.h"
 #include "DescriptorHeap.h"

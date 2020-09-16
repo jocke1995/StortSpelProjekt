@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "PingPongResource.h"
 
-#include "Resource.h"
+#include "GPUMemory/Resource.h"
 #include "ShaderResourceView.h"
 #include "UnorderedAccessView.h"
 

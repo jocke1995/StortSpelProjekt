@@ -134,11 +134,11 @@ namespace D3D12
 
 	void D3D12Timer::ResolveQueryToGPU(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource** ppQueryResourceGPUOut)
 	{
-		setGPUResourceState(pCommandList, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+		setGPUMemorytate(pCommandList, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
 
 		pCommandList->ResolveQueryData(m_pQueryHeap_, D3D12_QUERY_TYPE_TIMESTAMP, 0, m_TimerCount * 2, m_pQueryResourceGPU, 0);
 
-		setGPUResourceState(pCommandList, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE);
+		setGPUMemorytate(pCommandList, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
 		if (ppQueryResourceGPUOut)
 		{
@@ -146,7 +146,7 @@ namespace D3D12
 		}
 	}
 
-	void D3D12Timer::setGPUResourceState(ID3D12GraphicsCommandList* pCommandList, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState)
+	void D3D12Timer::setGPUMemorytate(ID3D12GraphicsCommandList* pCommandList, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState)
 	{
 		D3D12_RESOURCE_BARRIER barrierDesc = {};
 		barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;

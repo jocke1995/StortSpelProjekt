@@ -8,7 +8,7 @@
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
 #include "../RenderTarget.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../PipelineState.h"
 #include "../Text.h"
 #include "../../ECS/Components/TextComponent.h"

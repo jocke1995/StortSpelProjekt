@@ -5,7 +5,7 @@
 #include "ShaderResourceView.h"
 #include "RenderView.h"
 #include "DescriptorHeap.h"
-#include "Resource.h"
+#include "GPUMemory/Resource.h"
 
 ShadowInfo::ShadowInfo(
 	unsigned int textureWidth, unsigned int textureHeight,

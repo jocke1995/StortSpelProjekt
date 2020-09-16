@@ -17,7 +17,6 @@
 #include "RootSignature.h"
 #include "SwapChain.h"
 #include "DepthStencilView.h"
-#include "ConstantBuffer.h"
 #include "ViewPool.h"
 #include "BoundingBoxPool.h"
 #include "CommandInterface.h"
@@ -28,6 +27,9 @@
 #include "Texture.h"
 #include "Text.h"
 #include "ShaderResourceView.h"
+
+// GPUMemory
+#include "GPUMemory/ConstantBuffer.h"
 
 // Techniques
 #include "Bloom.h"

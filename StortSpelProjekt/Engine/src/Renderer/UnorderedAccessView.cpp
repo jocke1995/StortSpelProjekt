@@ -2,7 +2,7 @@
 #include "UnorderedAccessView.h"
 
 #include "DescriptorHeap.h"
-#include "Resource.h"
+#include "GPUMemory/Resource.h"
 
 UnorderedAccessView::UnorderedAccessView(
 	ID3D12Device5* device,

@@ -4,7 +4,7 @@
 #include "../RootSignature.h"
 #include "../CommandInterface.h"
 #include "../GraphicsState.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../SwapChain.h"
 
 RenderTask::RenderTask(

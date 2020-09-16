@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CopyTask.h"
 
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../CommandInterface.h"
 
 CopyTask::CopyTask(ID3D12Device5* device)

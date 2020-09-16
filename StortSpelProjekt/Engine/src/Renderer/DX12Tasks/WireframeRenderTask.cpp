@@ -6,7 +6,7 @@
 #include "../CommandInterface.h"
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../PipelineState.h"
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"

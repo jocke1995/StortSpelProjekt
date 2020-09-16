@@ -5,7 +5,7 @@
 #include "../RootSignature.h"
 #include "../CommandInterface.h"
 #include "../DescriptorHeap.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../GraphicsState.h"
 #include "../SwapChain.h"
 #include "../Renderer/Transform.h"

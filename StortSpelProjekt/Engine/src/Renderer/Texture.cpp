@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Texture.h"
 
-#include "Resource.h"
+#include "GPUMemory/Resource.h"
 #include "CommandInterface.h"
 #include "ShaderResourceView.h"
 #include "DescriptorHeap.h"

@@ -2,7 +2,7 @@
 #include "ShadowRenderTask.h"
 
 #include "../DescriptorHeap.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../RenderView.h"
 #include "../DepthStencilView.h"
 #include "../RootSignature.h"

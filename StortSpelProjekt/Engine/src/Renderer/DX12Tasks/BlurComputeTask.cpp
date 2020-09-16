@@ -8,7 +8,7 @@
 #include "../PingPongResource.h"
 #include "../ShaderResourceView.h"
 #include "../UnorderedAccessView.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../DescriptorHeap.h"
 
 BlurComputeTask::BlurComputeTask(

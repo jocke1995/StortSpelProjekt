@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ViewPool.h"
 
-#include "ConstantBuffer.h"
+#include "GPUMemory/ConstantBuffer.h"
 #include "ShadowInfo.h"
 #include "DescriptorHeap.h"
 #include "../ECS/Components/Lights/Light.h"

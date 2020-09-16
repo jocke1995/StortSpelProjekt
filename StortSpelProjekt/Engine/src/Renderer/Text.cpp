@@ -3,7 +3,7 @@
 
 #include "Texture.h"
 #include "../Misc/Window.h"
-#include "Resource.h"
+#include "GPUMemory/Resource.h"
 #include "ShaderResourceView.h"
 #include "DescriptorHeap.h"
 #include "Renderer.h"
