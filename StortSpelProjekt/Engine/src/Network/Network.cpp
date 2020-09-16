@@ -34,8 +34,12 @@ void Network::ListenConnection(int port)
     {
         Log::PrintSeverity(Log::Severity::WARNING, "Failed connection to " + m_Socket.getRemoteAddress().toString() + "\n");
     }
-
     Log::Print("Connected to " + m_Socket.getRemoteAddress().toString() + "\n");
+}
+
+sf::TcpSocket* Network::GetSocket()
+{
+    return &m_Socket;
 }
 
 void Network::AppendStringPacket(std::string str)
@@ -51,7 +55,7 @@ void Network::SendPacket()
 
 std::string Network::ListenPacket()
 {
-    m_Socket.setBlocking(true);
+    m_Socket.setBlocking(false);
     m_Socket.receive(m_PacketRecieve);
     std::string str;
     m_PacketRecieve >> str;
