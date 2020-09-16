@@ -1125,9 +1125,12 @@ void Renderer::initRenderTasks()
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(preDepthRenderTask->GetCommandList(i));
+	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
 	}
 
