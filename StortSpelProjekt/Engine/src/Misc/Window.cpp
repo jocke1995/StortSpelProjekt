@@ -83,10 +83,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 
 			Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
+			
 			SetCursorPos(500, 400);
 		}
 
 		delete[] lpb;
+
 		return 0;
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
