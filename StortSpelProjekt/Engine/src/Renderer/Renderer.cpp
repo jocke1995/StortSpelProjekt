@@ -1167,6 +1167,17 @@ void Renderer::removeComponents(Entity* entity)
 		}
 	}
 
+	// Check if the entity is a textComponent
+	for (int i = 0; i < m_TextComponents.size(); i++)
+	{
+		Entity* parent = m_TextComponents[i]->GetParent();
+		if (parent == entity)
+		{
+			m_TextComponents.erase(m_TextComponents.begin() + i);
+			setRenderTasksRenderComponents();
+		}
+	}
+
 	// Check if the entity got any light m_Components.
 	// Remove them and update both cpu/gpu m_Resources
 	component::DirectionalLightComponent* dlc;
@@ -1228,24 +1239,27 @@ void Renderer::removeComponents(Entity* entity)
 
 	// Check if the entity got a boundingbox component.
 	component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
-	if (bbc->GetParent() == entity)
+	if (bbc != NULL)
 	{
-		// Stop drawing the wireFrame
-		if (DRAWBOUNDINGBOX == true)
+		if (bbc->GetParent() == entity)
 		{
-			m_pWireFrameTask->ClearSpecific(bbc);
-		}
-
-		// Stop picking this boundingBox
-		unsigned int i = 0;
-		for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
-		{
-			if (bbcToBePicked == bbc)
+			// Stop drawing the wireFrame
+			if (DRAWBOUNDINGBOX == true)
 			{
-				m_BoundingBoxesToBePicked.erase(m_BoundingBoxesToBePicked.begin() + i);
-				break;
+				m_pWireFrameTask->ClearSpecific(bbc);
 			}
-			i++;
+
+			// Stop picking this boundingBox
+			unsigned int i = 0;
+			for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
+			{
+				if (bbcToBePicked == bbc)
+				{
+					m_BoundingBoxesToBePicked.erase(m_BoundingBoxesToBePicked.begin() + i);
+					break;
+				}
+				i++;
+			}
 		}
 	}
 	return;

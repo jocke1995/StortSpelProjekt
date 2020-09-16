@@ -90,7 +90,7 @@ namespace component
 
 	Text* TextComponent::GetText(int pos) const
 	{
-		return m_TextVec.at(pos);
+ 		return m_TextVec.at(pos);
 	}
 
 	const int TextComponent::GetNumOfTexts() const

@@ -212,7 +212,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     char sceneName[10] = "scene0";
     //scene = JockesTestScene(sceneManager);
-	//scene = FredriksTestScene(sceneManager);
+	scene = FredriksTestScene(sceneManager);
 
     //scene = sceneManager->GetScene(sceneName);
     sceneManager->SetSceneToDraw(scene);
