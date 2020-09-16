@@ -3,6 +3,7 @@
 
 class Resource;
 class DescriptorHeap;
+class ConstantBufferView;
 
 static unsigned int s_CbCounter = 0;
 class ConstantBuffer
@@ -20,18 +21,15 @@ public:
 	Resource* GetUploadResource() const;
 	Resource* GetDefaultResource() const;
 
-	unsigned int GetDescriptorHeapIndex() const;
+	const ConstantBufferView* const GetCBV() const;
 	
 private:
 	Resource* m_pUploadResource = nullptr;
 	Resource* m_pDefaultResource = nullptr;
+	ConstantBufferView* m_pCBV = nullptr;
+
 	unsigned int m_pId = 0;
 
-	unsigned int m_DescriptorHeapIndex = 0;
-
-	void CreateConstantBufferView(
-		ID3D12Device5* device,
-		DescriptorHeap* descriptorHeap_CBV_UAV_SRV);
 };
 
 #endif

@@ -32,6 +32,7 @@
 #include "GPUMemory/UnorderedAccess.h"
 // Views
 #include "GPUMemory/ShaderResourceView.h"
+#include "GPUMemory/ConstantBufferView.h"
 #include "GPUMemory/DepthStencil.h"
 
 // Techniques
@@ -1542,7 +1543,7 @@ void Renderer::prepareCBPerScene()
 	unsigned int index = 0;
 	for (auto& tuple : m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT])
 	{
-		m_pCbPerSceneData->dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		m_pCbPerSceneData->dirLightIndices[index].x = std::get<1>(tuple)->GetCBV()->GetDescriptorHeapIndex();
 		index++;
 	}
 	// ----- directional m_lights -----
@@ -1552,7 +1553,7 @@ void Renderer::prepareCBPerScene()
 	index = 0;
 	for (auto& tuple : m_Lights[LIGHT_TYPE::POINT_LIGHT])
 	{
-		m_pCbPerSceneData->pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		m_pCbPerSceneData->pointLightIndices[index].x = std::get<1>(tuple)->GetCBV()->GetDescriptorHeapIndex();
 		index++;
 	}
 	// ----- point m_lights -----
@@ -1562,7 +1563,7 @@ void Renderer::prepareCBPerScene()
 	index = 0;
 	for (auto& tuple : m_Lights[LIGHT_TYPE::SPOT_LIGHT])
 	{
-		m_pCbPerSceneData->spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		m_pCbPerSceneData->spotLightIndices[index].x = std::get<1>(tuple)->GetCBV()->GetDescriptorHeapIndex();
 		index++;
 	}
 	// ----- spot m_lights -----

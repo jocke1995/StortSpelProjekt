@@ -2,15 +2,26 @@
 #include "ConstantBuffer.h"
 
 #include "Resource.h"
+#include "ConstantBufferView.h"
 #include "../DescriptorHeap.h"
 
-ConstantBuffer::ConstantBuffer(ID3D12Device5* device, unsigned int entrySize, std::wstring resourceName, DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
+ConstantBuffer::ConstantBuffer(
+	ID3D12Device5* device,
+	unsigned int entrySize,
+	std::wstring resourceName,
+	DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
 {
 	unsigned int sizeAligned = (entrySize + 255) & ~255;
 	m_pUploadResource = new Resource(device, sizeAligned, RESOURCE_TYPE::UPLOAD, resourceName + L"_UPLOAD");
 	m_pDefaultResource = new Resource(device, sizeAligned, RESOURCE_TYPE::DEFAULT, resourceName + L"_DEFAULT");
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	cbvDesc.BufferLocation = m_pDefaultResource->GetID3D12Resource1()->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes = m_pDefaultResource->GetSize();
+
+	m_pCBV = new ConstantBufferView(device, descriptorHeap_CBV_UAV_SRV, &cbvDesc, m_pDefaultResource);
+
 	m_pId = s_CbCounter++;
-	CreateConstantBufferView(device, descriptorHeap_CBV_UAV_SRV);
 }
 
 bool ConstantBuffer::operator==(const ConstantBuffer& other)
@@ -22,6 +33,7 @@ ConstantBuffer::~ConstantBuffer()
 {
 	delete m_pUploadResource;
 	delete m_pDefaultResource;
+	delete m_pCBV;
 }
 
 Resource* ConstantBuffer::GetUploadResource() const
@@ -34,18 +46,7 @@ Resource* ConstantBuffer::GetDefaultResource() const
 	return m_pDefaultResource;
 }
 
-unsigned int ConstantBuffer::GetDescriptorHeapIndex() const
+const ConstantBufferView* const ConstantBuffer::GetCBV() const
 {
-	return m_DescriptorHeapIndex;
-}
-
-void ConstantBuffer::CreateConstantBufferView(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
-{
-	m_DescriptorHeapIndex = descriptorHeap_CBV_UAV_SRV->GetNextDescriptorHeapIndex(1);
-	D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_CBV_UAV_SRV->GetCPUHeapAt(m_DescriptorHeapIndex);
-	
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvd = {};
-	cbvd.BufferLocation = m_pDefaultResource->GetID3D12Resource1()->GetGPUVirtualAddress();
-	cbvd.SizeInBytes = m_pDefaultResource->GetSize();
-	device->CreateConstantBufferView(&cbvd, cdh);
+	return m_pCBV;
 }
