@@ -64,10 +64,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     entity = scene->GetEntity("player");
     entity->AddComponent<component::ModelComponent>();
+    entity->AddComponent<component::InputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     entity->AddComponent<component::AudioVoiceComponent>();
-    component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
+    component::CameraComponent* cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
 
     entity = scene->GetEntity("floor");
     entity->AddComponent<component::ModelComponent>();
@@ -281,7 +282,7 @@ Scene* JockesTestScene(SceneManager* sm)
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
@@ -442,7 +443,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	Entity* entity = scene->AddEntity("player");
 	mc = entity->AddComponent<component::ModelComponent>();
 	tc = entity->AddComponent<component::TransformComponent>();
-	cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
+	cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
 
 	mc->SetModel(playerModel);
 	mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);

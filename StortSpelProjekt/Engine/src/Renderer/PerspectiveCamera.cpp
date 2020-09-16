@@ -3,33 +3,16 @@
 
 #include "TempInputClass.h"
 
-// TEMPORARY CONSTRUCTOR
-PerspectiveCamera::PerspectiveCamera(HINSTANCE hInstance, HWND hwnd)
-	:BaseCamera()
-{
-	init();
-	updateSpecific(0);
-
-	//m_TempHasInputObject = true;
-	//m_pTempInputClass = new TempInputClass();
-	//m_pTempInputClass->InitDirectInput(hInstance, hwnd);
-}
-
 PerspectiveCamera::PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR direction, double fov, double aspectRatio, double zNear, double zFar)
 	:BaseCamera(position, direction)
 {
 	init(fov, aspectRatio, zNear, zFar);
 	updateSpecific(0);
-
-	m_TempHasInputObject = false;
 }
 
 PerspectiveCamera::~PerspectiveCamera()
 {
-	/*if (m_TempHasInputObject == true)
-	{
-		delete m_pTempInputClass;
-	}*/
+
 }
 
 void PerspectiveCamera::init(double fov, double aspectRatio, double zNear, double zFar)

@@ -4,8 +4,6 @@
 #include <unordered_map>
 #include <utility>
 
-class MouseMovement;
-
 enum class SCAN_CODES
 {
 	ESCAPE = 0x101,

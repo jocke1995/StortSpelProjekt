@@ -8,9 +8,6 @@ class TempInputClass;
 class PerspectiveCamera : public BaseCamera
 {
 public:
-    // Temp constructor for input (USED ONCE ATM)
-    PerspectiveCamera(HINSTANCE hInstance, HWND hwnd);
-
     // main constructor
     PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR direction,
         double fov = 45.0f,
@@ -50,12 +47,6 @@ private:
 
     void updateSpecific(double dt);
     void updateCameraMovement(double dt);
-
-
-
-    //  ------------------------ TEMPORARY IN THIS CLASS ------------------------
-    bool m_TempHasInputObject = false;
-    TempInputClass* m_pTempInputClass = nullptr;
 };
 
 #endif
