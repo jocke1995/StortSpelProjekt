@@ -1186,10 +1186,10 @@ void Renderer::initRenderTasks()
 
 void Renderer::setRenderTasksRenderComponents()
 {
-	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::No_Depth]);
-	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::ForwardRendering]);
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::Blend]);
-	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::Shadow]);
+	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::NO_DEPTH]);
+	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPACITY]);
+	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
 	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 }
 
@@ -1418,24 +1418,24 @@ void Renderer::addComponents(Entity* entity)
 			}
 
 			// Finally store the object in the corresponding renderComponent vectors so it will be drawn
-			if (FLAG_DRAW::Blend & mc->GetDrawFlag())
+			if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
 			{
-				m_RenderComponents[FLAG_DRAW::Blend].push_back(std::make_pair(mc, tc));
+				m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(mc, tc));
 			}
 
-			if (FLAG_DRAW::ForwardRendering & mc->GetDrawFlag())
+			if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
 			{
-				m_RenderComponents[FLAG_DRAW::ForwardRendering].push_back(std::make_pair(mc, tc));
+				m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
 			}
 
-			if (FLAG_DRAW::No_Depth & ~mc->GetDrawFlag())
+			if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
 			{
-				m_RenderComponents[FLAG_DRAW::No_Depth].push_back(std::make_pair(mc, tc));
+				m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
 			}
 
-			if (FLAG_DRAW::Shadow & mc->GetDrawFlag())
+			if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
 			{
-				m_RenderComponents[FLAG_DRAW::Shadow].push_back(std::make_pair(mc, tc));
+				m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(mc, tc));
 			}
 			
 		}
