@@ -13,6 +13,8 @@
 #include "../BaseCamera.h"
 #include "../SwapChain.h"
 #include "../GPUMemory/RenderTargetView.h"
+#include "../GPUMemory/DepthStencil.h"
+#include "../GPUMemory/DepthStencilView.h"
 
 FowardRenderTask::FowardRenderTask(
 	ID3D12Device5* device,
@@ -64,7 +66,7 @@ void FowardRenderTask::Execute()
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhs[] = { cdhSwapChain, cdhBrightTarget };
 
 	// Depth
-	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(m_pDepthStencil->GetDSV()->GetDescriptorHeapIndex());
 
 	commandList->OMSetRenderTargets(2, cdhs, false, &dsh);
 

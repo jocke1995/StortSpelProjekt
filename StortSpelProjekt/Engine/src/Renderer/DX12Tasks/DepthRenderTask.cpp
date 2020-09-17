@@ -12,6 +12,8 @@
 #include "../RenderView.h"
 #include "../PipelineState.h"
 #include "../BaseCamera.h"
+#include "../GPUMemory/DepthStencil.h"
+#include "../GPUMemory/DepthStencilView.h"
 
 DepthRenderTask::DepthRenderTask(ID3D12Device5* device, 
 	RootSignature* rootSignature, 
@@ -62,7 +64,7 @@ void DepthRenderTask::Execute()
 		*/
 
 	// Clear and set depth + stencil
-	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(m_pDepthStencil->GetDSV()->GetDescriptorHeapIndex());
 	commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	commandList->OMSetRenderTargets(0, nullptr, false, &dsh);
 

@@ -6,6 +6,7 @@
 #include "../GraphicsState.h"
 #include "../GPUMemory/Resource.h"
 #include "../SwapChain.h"
+#include "../GPUMemory/DepthStencil.h"
 
 RenderTask::RenderTask(
 	ID3D12Device5* device,
@@ -41,6 +42,11 @@ void RenderTask::SetRenderComponents(std::vector<std::pair<	component::ModelComp
 															component::TransformComponent*>>*renderComponents)
 {
 	m_RenderComponents = *renderComponents;
+}
+
+void RenderTask::SetMainDepthStencil(DepthStencil* depthStencil)
+{
+	m_pDepthStencil = depthStencil;
 }
 
 void RenderTask::SetCamera(BaseCamera* camera)
