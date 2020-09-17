@@ -1240,7 +1240,7 @@ void Renderer::waitForCopyOnDemand()
 	{
 		m_pFenceFrame->SetEventOnCompletion(oldFenceValue, m_EventHandle);
 		WaitForSingleObject(m_EventHandle, INFINITE);
-	}
+	}		
 }
 
 void Renderer::removeComponents(Entity* entity)
@@ -1256,6 +1256,16 @@ void Renderer::removeComponents(Entity* entity)
 		}
 	}
 
+	// Check if the entity is a textComponent
+	for (int i = 0; i < m_TextComponents.size(); i++)
+	{
+		Entity* parent = m_TextComponents[i]->GetParent();
+		if (parent == entity)
+		{
+			m_TextComponents.erase(m_TextComponents.begin() + i);
+			setRenderTasksRenderComponents();
+		}
+	}
 	// Check if the entity got any light m_Components.
 	// Remove them and update both cpu/gpu m_Resources
 	component::DirectionalLightComponent* dlc;
@@ -1317,24 +1327,27 @@ void Renderer::removeComponents(Entity* entity)
 
 	// Check if the entity got a boundingbox component.
 	component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
-	if (bbc->GetParent() == entity)
+	if (bbc != NULL)
 	{
-		// Stop drawing the wireFrame
-		if (DRAWBOUNDINGBOX == true)
+		if (bbc->GetParent() == entity)
 		{
-			m_pWireFrameTask->ClearSpecific(bbc);
-		}
-
-		// Stop picking this boundingBox
-		unsigned int i = 0;
-		for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
-		{
-			if (bbcToBePicked == bbc)
+			// Stop drawing the wireFrame
+			if (DRAWBOUNDINGBOX == true)
 			{
-				m_BoundingBoxesToBePicked.erase(m_BoundingBoxesToBePicked.begin() + i);
-				break;
+				m_pWireFrameTask->ClearSpecific(bbc);
 			}
-			i++;
+
+			// Stop picking this boundingBox
+			unsigned int i = 0;
+			for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
+			{
+				if (bbcToBePicked == bbc)
+				{
+					m_BoundingBoxesToBePicked.erase(m_BoundingBoxesToBePicked.begin() + i);
+					break;
+				}
+				i++;
+			}
 		}
 	}
 	return;
@@ -1555,16 +1568,15 @@ void Renderer::addComponents(Entity* entity)
 	component::TextComponent* textComp = entity->GetComponent<component::TextComponent>();
 	if (textComp != nullptr)
 	{
-		TextTask* tt = static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT]);
-		std::vector<TextData>* textDataVec = textComp->GetTextDataVec();
+		std::map<std::string, TextData>* textDataMap = textComp->GetTextDataMap();
 
-		for (int i = 0; i < textDataVec->size(); i++)
+		for (auto textData : *textDataMap)
 		{
 			AssetLoader* al = AssetLoader::Get();
-			int numOfCharacters = textComp->GetNumOfCharacters(i);
+			int numOfCharacters = textComp->GetNumOfCharacters(textData.first);
 
 			Text* text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, textComp->GetTexture());
-			text->SetTextData(&textDataVec->at(i), textComp->GetFont());
+			text->SetTextData(&textData.second, textComp->GetFont());
 
 			textComp->SubmitText(text);
 
