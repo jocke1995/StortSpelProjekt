@@ -7,8 +7,6 @@ Scene* JockesTestScene(SceneManager* sm);
 Scene* FredriksTestScene(SceneManager* sm);
 Scene* WilliamsTestScene(SceneManager* sm);
 Scene* AndresScene(SceneManager* sm);
-component::Audio3DListenerComponent* audioListener = nullptr;   // needed in while loop for updates
-component::Audio3DEmitterComponent* audioEmitter = nullptr;     // needed in while loop for updates
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -51,10 +49,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         /* ------ Draw ------ */
         renderer->Execute();
-
-        // needed to test positional updates for 3d audio
-        audioListener->UpdateListener();
-        audioEmitter->UpdateEmitter(L"melody");
     }
     return 0;
 }
@@ -763,8 +757,14 @@ Scene* AndresScene(SceneManager* sm)
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::AudioVoiceComponent* avc = nullptr;
+    component::InputComponent* ic = nullptr;
+    component::Audio3DListenerComponent* audioListener = nullptr;   // needed in while loop for updates
+    component::Audio3DEmitterComponent* audioEmitter = nullptr;     // needed in while loop for updates
+
     //component::Audio3DEmitterComponent* audioEmitter = nullptr;
     //component::Audio3DListenerComponent* audioListener = nullptr;
+
+
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -783,8 +783,10 @@ Scene* AndresScene(SceneManager* sm)
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
+    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     audioListener = entity->AddComponent<component::Audio3DListenerComponent>();
+    ic->Init();
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);

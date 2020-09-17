@@ -17,6 +17,8 @@ component::Audio3DListenerComponent::~Audio3DListenerComponent()
 
 void component::Audio3DListenerComponent::Update(double dt)
 {
+	// Temporary
+	UpdateListener();
 }
 
 void component::Audio3DListenerComponent::UpdateListener()

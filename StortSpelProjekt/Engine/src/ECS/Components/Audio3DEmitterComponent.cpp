@@ -35,6 +35,8 @@ component::Audio3DEmitterComponent::~Audio3DEmitterComponent()
 
 void component::Audio3DEmitterComponent::Update(double dt)
 {
+	// Temporary
+	UpdateEmitter(L"melody");
 }
 
 void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)
