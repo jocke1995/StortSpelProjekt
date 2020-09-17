@@ -22,15 +22,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Physics* const physics = engine.GetPhysics();
 
     /*------ Load Option Variables ------*/
-    Option::GetInstance().ReadFile();
+    Option* option = &Option::GetInstance();
+    option->ReadFile();
 
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
+    /*------ Network Init -----*/
+    bool networkOn = false;
+    Network network;
+    if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
+    {
+        network.ConnectToIP(option->GetVariable("s_ip"), std::atoi(option->GetVariable("i_port").c_str()));
+
+        networkOn = true;
+    }
 
     //sceneManager->SetSceneToDraw(TimScene(sceneManager));
-    sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
+    //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
+    sceneManager->SetSceneToDraw(AntonTestScene(sceneManager));
+
+    double networkTimer = 0;
 
     while (!window->ExitWindow())
     {
@@ -38,6 +51,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         timer->Update();
         renderer->Update(timer->GetDeltaTime());
         physics->Update(timer->GetDeltaTime());
+
+        /* ---- Network ---- */
+        if (networkOn)
+        {
+            networkTimer += timer->GetDeltaTime();
+            if (networkTimer >= 0.1) {
+                networkTimer = 0;
+
+                network.SendPositionPacket(sceneManager->GetScene("AntonScene")->GetEntities()->find("player")->second->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3());
+                float3 pos = network.GetPlayerPosition(1);
+                sceneManager->GetScene("AntonScene")->GetEntities()->find("player2")->second->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+            }
+        }
 
         /* ------ Sort ------ */
         renderer->SortObjectsByDistance();
@@ -121,6 +147,92 @@ Scene* TimScene(SceneManager* sm)
     return scene;
 }
 
+Scene* AntonTestScene(SceneManager* sm)
+{
+
+    // Create Scene
+    Scene* scene = sm->CreateScene("AntonScene");
+
+    component::CameraComponent* cc = nullptr;
+    component::ModelComponent* mc = nullptr;
+    component::TransformComponent* tc = nullptr;
+    component::PointLightComponent* plc = nullptr;
+    component::AudioVoiceComponent* avc = nullptr;
+    AssetLoader* al = AssetLoader::Get();
+
+    // Get the models needed
+    Model* playerModelOne = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    Model* playerModelTwo = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+
+    // Get the audio needed and add settings to it.
+    AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+
+    // Audio may loop infinetly (0) once (1) or otherwise specified amount of times!
+    bruhSound->SetAudioLoop(0);
+
+    /* ---------------------- Player 1 ---------------------- */
+    Entity* entity = scene->AddEntity("player");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
+    avc = entity->AddComponent<component::AudioVoiceComponent>();
+
+
+    mc->SetModel(playerModelOne);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(0, 1, -30);
+    avc->AddVoice(L"Bruh");
+    avc->Play(L"Bruh");
+    /* ---------------------- Player 1 ---------------------- */
+
+    /* ---------------------- Player 2 ---------------------- */
+    entity = scene->AddEntity("player2");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(playerModelTwo);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(0, 1, -30);
+    /* ---------------------- Player 2 ---------------------- */
+
+    /* ---------------------- Floor ---------------------- */
+    entity = scene->AddEntity("floor");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(floorModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(35, 1, 35);
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    /* ---------------------- Floor ---------------------- */
+
+    /* ---------------------- PointLight1 ---------------------- */
+    entity = scene->AddEntity("pointLight1");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
+
+    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.0f, 0.5f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 10.0f, 0.0f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
+    /* ---------------------- PointLight1 ---------------------- */
+
+    return scene;
+}
 
 Scene* JockesTestScene(SceneManager* sm)
 {
@@ -500,4 +612,3 @@ Scene* FredriksTestScene(SceneManager* sm)
 	return scene;
 
 }
-

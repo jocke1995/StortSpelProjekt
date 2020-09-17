@@ -180,7 +180,7 @@ void AudioBuffer::OpenFile(IXAudio2* pXAudio2, std::wstring path)
     m_pSourceVoice->FlushSourceBuffers();
     m_pSourceVoice->SubmitSourceBuffer(&m_Buffer);
 
-    m_pSourceVoice->SetVolume(Option::GetInstance().GetVariable("volume"));
+    m_pSourceVoice->SetVolume(std::atof(Option::GetInstance().GetVariable("f_volume").c_str()));
 }
 
 

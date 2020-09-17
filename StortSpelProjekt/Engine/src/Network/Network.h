@@ -12,15 +12,14 @@ public:
 
 	sf::TcpSocket* GetSocket();
 
-	void SendPositionPacket();
+	void SendPositionPacket(float3 position);
+	float3 GetPlayerPosition(int playerId);
 
-	std::string ListenPacket();
+	sf::Packet ListenPacket();
 
 private:
 	sf::TcpSocket m_Socket;
 	sf::TcpListener m_Listener;
-	sf::Packet m_PacketRecieve;
-	sf::Packet m_PacketSend;
 
 	bool m_Connected;
 };

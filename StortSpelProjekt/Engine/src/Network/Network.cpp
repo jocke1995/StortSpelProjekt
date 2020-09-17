@@ -27,12 +27,32 @@ sf::TcpSocket* Network::GetSocket()
     return &m_Socket;
 }
 
-std::string Network::ListenPacket()
+void Network::SendPositionPacket(float3 position)
+{
+    sf::Packet packet;
+    packet << position.x << position.y << position.z;
+
+    m_Socket.send(packet);
+}
+
+float3 Network::GetPlayerPosition(int playerId)
+{
+    sf::Packet packet = ListenPacket();
+
+    float3 pos;
+    packet >> pos.x;
+    packet >> pos.y;
+    packet >> pos.z;
+
+    return pos;
+}
+
+sf::Packet Network::ListenPacket()
 {
     m_Socket.setBlocking(false);
-    m_Socket.receive(m_PacketRecieve);
-    std::string str;
-    m_PacketRecieve >> str;
 
-    return str;
+    sf::Packet packet;
+    m_Socket.receive(packet);
+
+    return packet;
 }
