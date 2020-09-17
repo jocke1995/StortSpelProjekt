@@ -49,8 +49,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         renderer->Execute();
 
         // needed to test positional updates for 3d audio
-        audioListener->UpdatePosition();
-        audioEmitter->UpdatePosition(L"melody");
+        audioListener->UpdateListener();
+        audioEmitter->UpdateEmitter(L"melody");
     }
     return 0;
 }

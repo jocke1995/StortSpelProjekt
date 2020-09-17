@@ -3,13 +3,10 @@
 
 #include "Component.h"
 #include <x3daudio.h>
-//class AudioVoice;
 class AudioEngine;
 class Transform;
-class BaseCamera;
 
 // Component used for setting the position and orientation of the "Listener" in 3D audio playback
-
 namespace component
 {
 	class Audio3DListenerComponent : public Component
@@ -20,17 +17,15 @@ namespace component
 		void Update(double dt);
 
 		// update position and orientation of the listener
-		void UpdatePosition();
-		//X3DAUDIO_LISTENER* GetListener();
-
+		void UpdateListener();
+		// set listener structure OrientFront, OrientTop, Position
+		void SetListener(DirectX::XMFLOAT3 orientFront, DirectX::XMFLOAT3 orientTop, DirectX::XMFLOAT3 position);
+		X3DAUDIO_LISTENER* GetListener();
 
 	private:
-		//// 3D audio Listener struct, this contains world coordinates and orientation for the "listener" of 3D audio
-		//X3DAUDIO_LISTENER m_Listener;
-
+		// 3D audio Listener struct, this contains world coordinates and orientation for the "listener" of 3D audio
+		X3DAUDIO_LISTENER m_Listener;
 		Transform* m_pTransform = nullptr;
-		BaseCamera* m_pCamera = nullptr;
-
 	};
 }
 

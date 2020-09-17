@@ -2,6 +2,7 @@
 #define AUDIO3DEMITTERCOMPONENT_H
 
 #include "Component.h"
+#include <xaudio2.h>
 #include <x3daudio.h>
 
 class AudioVoice;
@@ -20,7 +21,7 @@ namespace component
 		void Update(double dt);
 
 		// update position and orientation of the emitter
-		void UpdatePosition(const std::wstring& name);
+		void UpdateEmitter(const std::wstring& name);
 
 		// Clones an audiobuffer to create a voice to the component
 		void AddVoice(const std::wstring& name);
@@ -38,7 +39,8 @@ namespace component
 		// structure needed for 3D audio and DSP (digital signal processing) effects, holds values returned from x3dAudioCalculate
 		// will probably need a map for separate dsp settings per voice
 		X3DAUDIO_DSP_SETTINGS m_DSPSettings = { 0 };
-		// matrix coefficients for m_3DFXSettings , maybe also one per voice?
+		// put in map later
+		XAUDIO2_VOICE_DETAILS m_VoiceDetails;
 
 		Transform* m_pTransform = nullptr;
 	};
