@@ -19,7 +19,7 @@ struct ID3D12Device5;
 
 // the maximum number of characters you can render during a frame. This is just used to make sure
 // there is enough memory allocated for the text vertex buffer each frame
-static int g_MaxNumTextCharacters = 1024;
+const static int s_MaxNumTextCharacters = 1024;
 
 struct TextVertex
 {

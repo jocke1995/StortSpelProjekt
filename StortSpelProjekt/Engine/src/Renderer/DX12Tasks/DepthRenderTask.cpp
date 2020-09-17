@@ -7,11 +7,13 @@
 #include "../CommandInterface.h"
 #include "../SwapChain.h"
 #include "../DescriptorHeap.h"
-#include "../RenderTarget.h"
-#include "../Resource.h"
+#include "../GPUMemory/RenderTargetView.h"
+#include "../GPUMemory/Resource.h"
 #include "../RenderView.h"
 #include "../PipelineState.h"
 #include "../BaseCamera.h"
+#include "../GPUMemory/DepthStencil.h"
+#include "../GPUMemory/DepthStencilView.h"
 
 DepthRenderTask::DepthRenderTask(ID3D12Device5* device, 
 	RootSignature* rootSignature, 
@@ -46,8 +48,8 @@ void DepthRenderTask::Execute()
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// TODO: Get Depth viewport, rightnow use swapchain since the view and rect is the same.
-	const D3D12_VIEWPORT* viewPort = m_pSwapChain->GetRenderTarget(0)->GetRenderView()->GetViewPort();
-	const D3D12_RECT* rect = m_pSwapChain->GetRenderTarget(0)->GetRenderView()->GetScissorRect();
+	const D3D12_VIEWPORT* viewPort = m_pSwapChain->GetRTV(0)->GetRenderView()->GetViewPort();
+	const D3D12_RECT* rect = m_pSwapChain->GetRTV(0)->GetRenderView()->GetScissorRect();
 	commandList->RSSetViewports(1, viewPort);
 	commandList->RSSetScissorRects(1, rect);
 
@@ -62,7 +64,7 @@ void DepthRenderTask::Execute()
 		*/
 
 	// Clear and set depth + stencil
-	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(m_pDepthStencil->GetDSV()->GetDescriptorHeapIndex());
 	commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	commandList->OMSetRenderTargets(0, nullptr, false, &dsh);
 

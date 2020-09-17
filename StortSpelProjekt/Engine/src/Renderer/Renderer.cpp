@@ -11,12 +11,12 @@
 #include "../ECS/Scene.h"
 #include "../ECS/Entity.h"
 #include "../ECS/Components/TextComponent.h"
+#include "../ECS/Components/BoundingBoxComponent.h"
 
 // Renderer-Engine 
 #include "RootSignature.h"
 #include "SwapChain.h"
-#include "DepthStencilView.h"
-#include "ConstantBufferView.h"
+#include "GPUMemory/DepthStencilView.h"
 #include "ViewPool.h"
 #include "BoundingBoxPool.h"
 #include "CommandInterface.h"
@@ -26,8 +26,16 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "Text.h"
-#include "ShaderResourceView.h"
 
+// GPUMemory
+#include "GPUMemory/ConstantBuffer.h"
+#include "GPUMemory/UnorderedAccess.h"
+// Views
+#include "GPUMemory/ShaderResourceView.h"
+#include "GPUMemory/ConstantBufferView.h"
+#include "GPUMemory/DepthStencil.h"
+
+// Techniques
 #include "Bloom.h"
 #include "PingPongResource.h"
 #include "ShadowInfo.h"
@@ -76,7 +84,7 @@ Renderer::~Renderer()
 	delete m_pFullScreenQuad;
 	delete m_pSwapChain;
 	delete m_pBloomResources;
-	delete m_pMainDSV;
+	delete m_pMainDepthStencil;
 
 	for (auto& pair : m_DescriptorHeaps)
 	{
@@ -158,22 +166,20 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
 
 	// Allocate memory for cbPerScene
-	m_pCbPerScene = new ConstantBufferView(
+	m_pCbPerScene = new ConstantBuffer(
 		m_pDevice5, 
 		sizeof(CB_PER_SCENE_STRUCT),
-		L"CB_PER_SCENE_DEFAULT",
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
+		L"CB_PER_SCENE",
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
 		);
 	
 	m_pCbPerSceneData = new CB_PER_SCENE_STRUCT();
 
 	// Allocate memory for cbPerFrame
-	m_pCbPerFrame = new ConstantBufferView(
+	m_pCbPerFrame = new ConstantBuffer(
 		m_pDevice5,
 		sizeof(CB_PER_FRAME_STRUCT),
-		L"CB_PER_FRAME_DEFAULT",
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1),
+		L"CB_PER_FRAME",
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]
 	);
 
@@ -525,12 +531,17 @@ void Renderer::createMainDSV(const HWND* hwnd)
 		height = rect.bottom - rect.top;
 	}
 
-	m_pMainDSV = new DepthStencilView(
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+	m_pMainDepthStencil = new DepthStencil(
 		m_pDevice5,
 		width, height,	// width, height
-		L"MainDSV_DEFAULT_RESOURCE",
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV],
-		DXGI_FORMAT_D32_FLOAT_S8X24_UINT);
+		L"MainDSV",
+		&dsvDesc,
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
 }
 
 void Renderer::createRootSignature()
@@ -660,7 +671,7 @@ void Renderer::initRenderTasks()
 	// DepthStencil
 	depthPrePassDsd.StencilEnable = false;
 	gpsdDepthPrePass.DepthStencilState = depthPrePassDsd;
-	gpsdDepthPrePass.DSVFormat = m_pMainDSV->GetDXGIFormat();
+	gpsdDepthPrePass.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdDepthPrePassVector;
 	gpsdDepthPrePassVector.push_back(&gpsdDepthPrePass);
@@ -674,6 +685,7 @@ void Renderer::initRenderTasks()
 
 	
 	// TODO: remove swapchain, using swapchains render view currently.
+	DepthPrePassRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	DepthPrePassRenderTask->SetSwapChain(m_pSwapChain);
 	DepthPrePassRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
@@ -714,7 +726,7 @@ void Renderer::initRenderTasks()
 	// DepthStencil
 	dsd.StencilEnable = false;
 	gpsdForwardRender.DepthStencilState = dsd;
-	gpsdForwardRender.DSVFormat = m_pMainDSV->GetDXGIFormat();
+	gpsdForwardRender.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	/* Forward rendering with stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdForwardRenderStencilTest = gpsdForwardRender;
@@ -750,10 +762,11 @@ void Renderer::initRenderTasks()
 		&gpsdForwardRenderVector,
 		L"ForwardRenderingPSO");
 
-	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
-	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
+	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
+	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
+	forwardRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	forwardRenderTask->SetSwapChain(m_pSwapChain);
-	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTarget());
+	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTargetView());
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 
@@ -782,7 +795,7 @@ void Renderer::initRenderTasks()
 	dsd.BackFace = stencilNotEqual;
 
 	gpsdModelOutlining.DepthStencilState = dsd;
-	gpsdModelOutlining.DSVFormat = m_pMainDSV->GetDXGIFormat();
+	gpsdModelOutlining.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdOutliningVector;
 	gpsdOutliningVector.push_back(&gpsdModelOutlining);
@@ -794,6 +807,7 @@ void Renderer::initRenderTasks()
 		&gpsdOutliningVector,
 		L"outliningScaledPSO");
 	
+	m_pOutliningRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	m_pOutliningRenderTask->SetSwapChain(m_pSwapChain);
 	m_pOutliningRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
@@ -849,7 +863,7 @@ void Renderer::initRenderTasks()
 	dsdBlend.BackFace = blendStencilOP;
 
 	gpsdBlendFrontCull.DepthStencilState = dsdBlend;
-	gpsdBlendFrontCull.DSVFormat = m_pMainDSV->GetDXGIFormat();
+	gpsdBlendFrontCull.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	// ------------------------ TASK 2: BLEND ---------------------------- BACKCULL
 
@@ -873,7 +887,7 @@ void Renderer::initRenderTasks()
 	dsdBlend.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 
 	gpsdBlendBackCull.DepthStencilState = dsdBlend;
-	gpsdBlendBackCull.DSVFormat = m_pMainDSV->GetDXGIFormat();
+	gpsdBlendBackCull.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	gpsdBlendVector.push_back(&gpsdBlendFrontCull);
 	gpsdBlendVector.push_back(&gpsdBlendBackCull);
@@ -885,8 +899,9 @@ void Renderer::initRenderTasks()
 		&gpsdBlendVector,
 		L"BlendPSO");
 
-	blendRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetCBVResource());
-	blendRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetCBVResource());
+	blendRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
+	blendRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
+	blendRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	blendRenderTask->SetSwapChain(m_pSwapChain);
 	blendRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	
@@ -1229,7 +1244,7 @@ void Renderer::waitForCopyOnDemand()
 	{
 		m_pFenceFrame->SetEventOnCompletion(oldFenceValue, m_EventHandle);
 		WaitForSingleObject(m_EventHandle, INFINITE);
-	}
+	}		
 }
 
 void Renderer::removeComponents(Entity* entity)
@@ -1245,6 +1260,16 @@ void Renderer::removeComponents(Entity* entity)
 		}
 	}
 
+	// Check if the entity is a textComponent
+	for (int i = 0; i < m_TextComponents.size(); i++)
+	{
+		Entity* parent = m_TextComponents[i]->GetParent();
+		if (parent == entity)
+		{
+			m_TextComponents.erase(m_TextComponents.begin() + i);
+			setRenderTasksRenderComponents();
+		}
+	}
 	// Check if the entity got any light m_Components.
 	// Remove them and update both cpu/gpu m_Resources
 	component::DirectionalLightComponent* dlc;
@@ -1282,7 +1307,7 @@ void Renderer::removeComponents(Entity* entity)
 			if (parent == entity)
 			{
 				// Free memory so other m_Entities can use it
-				ConstantBufferView* cbv = std::get<1>(tuple);
+				ConstantBuffer* cbv = std::get<1>(tuple);
 				ShadowInfo* si = std::get<2>(tuple);
 				m_pViewPool->ClearSpecificLight(type, cbv, si);
 
@@ -1306,24 +1331,27 @@ void Renderer::removeComponents(Entity* entity)
 
 	// Check if the entity got a boundingbox component.
 	component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
-	if (bbc->GetParent() == entity)
+	if (bbc != NULL)
 	{
-		// Stop drawing the wireFrame
-		if (DRAWBOUNDINGBOX == true)
+		if (bbc->GetParent() == entity)
 		{
-			m_pWireFrameTask->ClearSpecific(bbc);
-		}
-
-		// Stop picking this boundingBox
-		unsigned int i = 0;
-		for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
-		{
-			if (bbcToBePicked == bbc)
+			// Stop drawing the wireFrame
+			if (DRAWBOUNDINGBOX == true)
 			{
-				m_BoundingBoxesToBePicked.erase(m_BoundingBoxesToBePicked.begin() + i);
-				break;
+				m_pWireFrameTask->ClearSpecific(bbc);
 			}
-			i++;
+
+			// Stop picking this boundingBox
+			unsigned int i = 0;
+			for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
+			{
+				if (bbcToBePicked == bbc)
+				{
+					m_BoundingBoxesToBePicked.erase(m_BoundingBoxesToBePicked.begin() + i);
+					break;
+				}
+				i++;
+			}
 		}
 	}
 	return;
@@ -1400,7 +1428,7 @@ void Renderer::addComponents(Entity* entity)
 	{
 		// Assign CBV from the lightPool
 		std::wstring resourceName = L"DirectionalLight_DefaultResource";
-		ConstantBufferView* cbd = m_pViewPool->GetFreeCBV(sizeof(DirectionalLight), resourceName);
+		ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(DirectionalLight), resourceName);
 
 		// Check if the light is to cast shadows
 		SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
@@ -1443,7 +1471,7 @@ void Renderer::addComponents(Entity* entity)
 	{
 		// Assign CBV from the lightPool
 		std::wstring resourceName = L"PointLight_DefaultResource";
-		ConstantBufferView* cbd = m_pViewPool->GetFreeCBV(sizeof(PointLight), resourceName);
+		ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(PointLight), resourceName);
 
 		// Assign views required for shadows from the lightPool
 		ShadowInfo* si = nullptr;
@@ -1457,7 +1485,7 @@ void Renderer::addComponents(Entity* entity)
 	{
 		// Assign CBV from the lightPool
 		std::wstring resourceName = L"SpotLight_DefaultResource";
-		ConstantBufferView* cbd = m_pViewPool->GetFreeCBV(sizeof(SpotLight), resourceName);
+		ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(SpotLight), resourceName);
 
 		// Check if the light is to cast shadows
 		SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
@@ -1544,16 +1572,15 @@ void Renderer::addComponents(Entity* entity)
 	component::TextComponent* textComp = entity->GetComponent<component::TextComponent>();
 	if (textComp != nullptr)
 	{
-		TextTask* tt = static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT]);
-		std::vector<TextData>* textDataVec = textComp->GetTextDataVec();
+		std::map<std::string, TextData>* textDataMap = textComp->GetTextDataMap();
 
-		for (int i = 0; i < textDataVec->size(); i++)
+		for (auto textData : *textDataMap)
 		{
 			AssetLoader* al = AssetLoader::Get();
-			int numOfCharacters = textComp->GetNumOfCharacters(i);
+			int numOfCharacters = textComp->GetNumOfCharacters(textData.first);
 
 			Text* text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, textComp->GetTexture());
-			text->SetTextData(&textDataVec->at(i), textComp->GetFont());
+			text->SetTextData(&textData.second, textComp->GetFont());
 
 			textComp->SubmitText(text);
 
@@ -1610,7 +1637,7 @@ void Renderer::prepareCBPerScene()
 	unsigned int index = 0;
 	for (auto& tuple : m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT])
 	{
-		m_pCbPerSceneData->dirLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		m_pCbPerSceneData->dirLightIndices[index].x = std::get<1>(tuple)->GetCBV()->GetDescriptorHeapIndex();
 		index++;
 	}
 	// ----- directional m_lights -----
@@ -1620,7 +1647,7 @@ void Renderer::prepareCBPerScene()
 	index = 0;
 	for (auto& tuple : m_Lights[LIGHT_TYPE::POINT_LIGHT])
 	{
-		m_pCbPerSceneData->pointLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		m_pCbPerSceneData->pointLightIndices[index].x = std::get<1>(tuple)->GetCBV()->GetDescriptorHeapIndex();
 		index++;
 	}
 	// ----- point m_lights -----
@@ -1630,7 +1657,7 @@ void Renderer::prepareCBPerScene()
 	index = 0;
 	for (auto& tuple : m_Lights[LIGHT_TYPE::SPOT_LIGHT])
 	{
-		m_pCbPerSceneData->spotLightIndices[index].x = std::get<1>(tuple)->GetDescriptorHeapIndex();
+		m_pCbPerSceneData->spotLightIndices[index].x = std::get<1>(tuple)->GetCBV()->GetDescriptorHeapIndex();
 		index++;
 	}
 	// ----- spot m_lights -----
@@ -1638,14 +1665,14 @@ void Renderer::prepareCBPerScene()
 	// Upload CB_PER_SCENE to defaultheap
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	const void* data = static_cast<const void*>(m_pCbPerSceneData);
-	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetCBVResource(), data));
+	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetDefaultResource(), data));
 }
 
 void Renderer::prepareCBPerFrame()
 {
 	CopyPerFrameTask* cpft = nullptr;
 	const void* data = nullptr;
-	ConstantBufferView* cbv = nullptr;
+	ConstantBuffer* cbv = nullptr;
 
 	// Lights
 	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
@@ -1657,7 +1684,7 @@ void Renderer::prepareCBPerFrame()
 			cbv = std::get<1>(tuple);
 
 			cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-			cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetCBVResource(), data));
+			cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetDefaultResource(), data));
 		}
 	}
 
@@ -1668,6 +1695,6 @@ void Renderer::prepareCBPerFrame()
 	if (cpft != nullptr)
 	{
 		data = static_cast<void*>(m_pCbPerFrameData);
-		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetCBVResource(), data));
+		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetDefaultResource(), data));
 	}
 }

@@ -203,6 +203,7 @@ Scene* JockesTestScene(SceneManager* sm)
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
+    component::DirectionalLightComponent* dlc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -273,11 +274,14 @@ Scene* JockesTestScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
+
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
+    bbc->Init();
 
     plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.00f, 0.05f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 0.00f, 10.0f, 1.0f });
@@ -368,11 +372,17 @@ Scene* JockesTestScene(SceneManager* sm)
     /* ---------------------- PointLight6 ---------------------- */
 
 
-
-
+    /* ---------------------- The Sun ---------------------- */
+    entity = scene->AddEntity("sun");
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
+    
+    dlc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.0f, 0.0f, 1.0f });
+    dlc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 1.0f, 0.1f, 0.1f, 1.0f });
+    dlc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 1.0f, 0.1f, 0.1f, 1.0f });
+    dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
+    /* ---------------------- The Sun ---------------------- */
 
     return scene;
-
 }
 
 
@@ -481,7 +491,6 @@ Scene* FredriksTestScene(SceneManager* sm)
 	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
 	/* ---------------------- PointLight3 ---------------------- */
 
-
 	/* ---------------------- PointLight4 ---------------------- */
 	entity = scene->AddEntity("pointLight4");
 	mc = entity->AddComponent<component::ModelComponent>();
@@ -498,8 +507,6 @@ Scene* FredriksTestScene(SceneManager* sm)
 	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.0f, 0.0f, 1.0f });
 
 	/* ---------------------- PointLight4 ---------------------- */
-
-
 
 	/* ---------------------- PointLigh5 ---------------------- */
 	entity = scene->AddEntity("pointLight5");
@@ -521,8 +528,6 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 	/* ---------------------- PointLight5 ---------------------- */
 
-
-
 	/* ---------------------- PointLight6 ---------------------- */
 	entity = scene->AddEntity("pointLight6");
 	mc = entity->AddComponent<component::ModelComponent>();
@@ -540,41 +545,29 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 	/* ---------------------- PointLight6 ---------------------- */
 
-
-
 	/* ------------------------- Text --------------------------- */
-
-
 
 	// Load fonts
 	std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
 
-	
 	std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
 	float2 textPos = { 0.02f, 0.01f };
 	float2 textPadding = { 0.5f, 0.0f };
 	float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
 	float2 textScale = { 0.5f, 0.5f };
 
-
 	scene->AddEntity("text");
-
-
 
 	entity = scene->GetEntity("text");
 	component::TextComponent* textComp = entity->AddComponent<component::TextComponent>(arialFont);
-	textComp->AddText();
-	textComp->SetColor(textColor, 0);
-	textComp->SetPadding(textPadding, 0);
-	textComp->SetPos(textPos, 0);
-	textComp->SetScale(textScale, 0);
-	textComp->SetText(textToRender, 0);
-
-
+	textComp->AddText("text");
+	textComp->SetColor(textColor, "text");
+	textComp->SetPadding(textPadding, "text");
+	textComp->SetPos(textPos, "text");
+	textComp->SetScale(textScale, "text");
+	textComp->SetText(textToRender, "text");
 
 	/* ---------------------------------------------------------- */
-
-
 
 	return scene;
 

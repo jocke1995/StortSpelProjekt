@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "PingPongResource.h"
 
-#include "Resource.h"
-#include "ShaderResourceView.h"
-#include "UnorderedAccessView.h"
+#include "GPUMemory/Resource.h"
+#include "GPUMemory/ShaderResourceView.h"
+#include "GPUMemory/UnorderedAccessView.h"
 
 PingPongResource::PingPongResource(
 	Resource* resource,
