@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <utility>
+#include <Windows.h>
 
 enum class SCAN_CODES
 {
