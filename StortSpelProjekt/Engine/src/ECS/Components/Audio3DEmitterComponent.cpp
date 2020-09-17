@@ -46,7 +46,6 @@ void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)
 	m_Emitter.Position = m_pTransform->GetPositionXMFLOAT3();
 
 	AudioEngine* audioEngine = &AudioEngine::GetInstance();
-	X3DAUDIO_LISTENER* listener = audioEngine->GetListener();
 	X3DAudioCalculate(*audioEngine->GetX3DInstance(), audioEngine->GetListener(), &m_Emitter, X3DAUDIO_CALCULATE_MATRIX, &m_DSPSettings);
 	float temp = m_DSPSettings.pMatrixCoefficients[1];
 	m_DSPSettings.pMatrixCoefficients[1] = m_DSPSettings.pMatrixCoefficients[2];
