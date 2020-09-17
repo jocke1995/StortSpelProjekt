@@ -19,6 +19,8 @@ public:
 	float3 GetPositionFloat3() const;
 	DirectX::XMFLOAT3 GetDirection() const;
 	float3 GetDirectionFloat3() const;
+	DirectX::XMFLOAT3 GetRightVector() const;
+	float3 GetRightVectorFloat3() const;
 	const DirectX::XMMATRIX* GetViewMatrix() const;
 	const DirectX::XMMATRIX* GetViewMatrixInverse() const;
 	virtual const DirectX::XMMATRIX* GetViewProjection() const = 0;

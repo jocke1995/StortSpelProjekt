@@ -8,7 +8,7 @@ class Resource;
 class CopyTask : public DX12Task
 {
 public:
-	CopyTask(ID3D12Device5* device);
+	CopyTask(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType);
 	virtual ~CopyTask();
 
 	// tuple(Upload, Default, Data)

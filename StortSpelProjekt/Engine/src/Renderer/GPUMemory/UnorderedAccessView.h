@@ -1,10 +1,9 @@
 #ifndef UNORDEREDACCESSVIEW_H
 #define UNORDEREDACCESSVIEW_H
 
-class DescriptorHeap;
-class Resource;
+#include "View.h"
 
-class UnorderedAccessView
+class UnorderedAccessView : public View
 {
 public:
 	UnorderedAccessView(
@@ -14,12 +13,7 @@ public:
 		Resource* resource);
 	virtual ~UnorderedAccessView();
 
-	unsigned int GetDescriptorHeapIndex() const;
-	const Resource* const GetResource() const;
 private:
-	unsigned int m_DescriptorHeapIndex = -1;
-
-	Resource* m_pResource = nullptr;
 
 	void createUnorderedAccessView(
 		ID3D12Device5* device,
