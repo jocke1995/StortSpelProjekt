@@ -760,6 +760,7 @@ Scene* AndresScene(SceneManager* sm)
     component::InputComponent* ic = nullptr;
     component::Audio3DListenerComponent* audioListener = nullptr;   // needed in while loop for updates
     component::Audio3DEmitterComponent* audioEmitter = nullptr;     // needed in while loop for updates
+    component::AudioVoiceComponent* backroundAudio = nullptr;       // background sound
 
     //component::Audio3DEmitterComponent* audioEmitter = nullptr;
     //component::Audio3DListenerComponent* audioListener = nullptr;
@@ -775,9 +776,14 @@ Scene* AndresScene(SceneManager* sm)
 
     // Get the audio needed and add settings to it.
     AudioBuffer* melodySound = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"melody");
+    AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"bruh");
+    AudioBuffer* horseSound = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"horse");
+
 
     // Audio may loop infinetly (0) once (1) or otherwise specified amount of times!
+    bruhSound->SetAudioLoop(0);
     melodySound->SetAudioLoop(0);
+    horseSound->SetAudioLoop(0);
 
     /* ---------------------- Player ---------------------- */
     Entity* entity = scene->AddEntity("player");
@@ -799,6 +805,9 @@ Scene* AndresScene(SceneManager* sm)
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    backroundAudio = entity->AddComponent<component::AudioVoiceComponent>();
+    backroundAudio->AddVoice(L"melody");
+    backroundAudio->Play(L"melody");
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
@@ -814,8 +823,8 @@ Scene* AndresScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
     audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
-    audioEmitter->AddVoice(L"melody");
-    audioEmitter->Play(L"melody");
+    audioEmitter->AddVoice(L"horse");
+    audioEmitter->Play(L"horse");
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);

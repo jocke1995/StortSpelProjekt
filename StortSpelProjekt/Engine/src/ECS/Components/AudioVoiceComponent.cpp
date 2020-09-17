@@ -20,6 +20,8 @@ void component::AudioVoiceComponent::AddVoice(const std::wstring& name)
 	if (m_Voices.count(name) == 0)
 	{
 		m_Voices.insert(std::make_pair(name, AssetLoader::Get()->GetAudio(name)->CloneVoice()));
+		// lower the volume of background sound, so 3d sound can be heard
+		m_Voices[name].GetSourceVoice()->SetVolume(0.1);
 	}
 }
 
