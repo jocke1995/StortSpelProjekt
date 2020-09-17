@@ -3,6 +3,9 @@
 Scene* TimScene(SceneManager* sm);
 Scene* JockesTestScene(SceneManager* sm);
 Scene* FredriksTestScene(SceneManager* sm);
+Scene* AndresScene(SceneManager* sm);
+component::Audio3DEmitterComponent* audioEmitter = nullptr;     // needed in while loop for updates
+component::Audio3DListenerComponent* audioListener = nullptr;   // needed in while loop for updates
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -27,9 +30,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AssetLoader* al = AssetLoader::Get();
 
 
-    sceneManager->SetSceneToDraw(TimScene(sceneManager));
+    //sceneManager->SetSceneToDraw(TimScene(sceneManager));
     //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
+    sceneManager->SetSceneToDraw(AndresScene(sceneManager));
 
     while (!window->ExitWindow())
     {
@@ -43,6 +47,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         /* ------ Draw ------ */
         renderer->Execute();
+
+        // needed to test positional updates for 3d audio
+        audioListener->UpdatePosition();
+        audioEmitter->UpdatePosition(L"melody");
     }
     return 0;
 }
@@ -507,3 +515,79 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 }
 
+
+Scene* AndresScene(SceneManager* sm)
+{
+
+    // Create Scene
+    Scene* scene = sm->CreateScene("AndresScene");
+
+    component::CameraComponent* cc = nullptr;
+    component::ModelComponent* mc = nullptr;
+    component::TransformComponent* tc = nullptr;
+    component::PointLightComponent* plc = nullptr;
+    component::AudioVoiceComponent* avc = nullptr;
+    //component::Audio3DEmitterComponent* audioEmitter = nullptr;
+    //component::Audio3DListenerComponent* audioListener = nullptr;
+    AssetLoader* al = AssetLoader::Get();
+
+    // Get the models needed
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+
+    // Get the audio needed and add settings to it.
+    AudioBuffer* melodySound = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"melody");
+
+    // Audio may loop infinetly (0) once (1) or otherwise specified amount of times!
+    melodySound->SetAudioLoop(0);
+
+    /* ---------------------- Player ---------------------- */
+    Entity* entity = scene->AddEntity("player");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
+    audioListener = entity->AddComponent<component::Audio3DListenerComponent>();
+
+    mc->SetModel(playerModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(0, 1, -30);
+
+    /* ---------------------- Player ---------------------- */
+
+    /* ---------------------- Floor ---------------------- */
+    entity = scene->AddEntity("floor");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(floorModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(35, 1, 35);
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    /* ---------------------- Floor ---------------------- */
+
+    /* ---------------------- PointLight1 ---------------------- */
+    entity = scene->AddEntity("pointLight1");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
+    audioEmitter->AddVoice(L"melody");
+    audioEmitter->Play(L"melody");
+
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
+
+    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.0f, 0.5f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 10.0f, 0.0f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
+    /* ---------------------- PointLight1 ---------------------- */
+
+    return scene;
+}
