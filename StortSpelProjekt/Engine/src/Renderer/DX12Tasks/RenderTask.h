@@ -10,7 +10,7 @@ class RootSignature;
 class Resource;
 
 class BaseCamera;
-class RenderTarget;
+class RenderTargetView;
 class SwapChain;
 class PipelineState;
 
@@ -39,7 +39,7 @@ public:
 	PipelineState* GetPipelineState(unsigned int index);
 
 	
-	void AddRenderTarget(std::string, const RenderTarget* renderTarget);
+	void AddRenderTarget(std::string, const RenderTargetView* renderTarget);
 	
 	void SetRenderComponents(
 		std::vector<std::pair<	component::ModelComponent*,
@@ -50,7 +50,7 @@ public:
 	
 protected:
 	std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>> m_RenderComponents;
-	std::map<std::string, const RenderTarget*> m_RenderTargets;
+	std::map<std::string, const RenderTargetView*> m_RenderTargets;
 	
 	BaseCamera* m_pCamera = nullptr;
 	SwapChain* m_pSwapChain = nullptr;

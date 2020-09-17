@@ -2,7 +2,7 @@
 #include "Model.h"
 #include "Mesh.h"
 #include "Texture.h"
-#include "ShaderResourceView.h"
+#include "GPUMemory/ShaderResourceView.h"
 #include "structs.h"
 
 Model::Model(const std::wstring path, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures)

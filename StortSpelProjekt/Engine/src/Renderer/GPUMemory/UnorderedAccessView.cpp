@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "UnorderedAccessView.h"
 
-#include "DescriptorHeap.h"
+#include "../DescriptorHeap.h"
 #include "Resource.h"
 
 UnorderedAccessView::UnorderedAccessView(
