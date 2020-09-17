@@ -127,8 +127,8 @@ private:
 	std::vector<RenderTask*>  m_RenderTasks;
 
 	// Since these tasks wont operate on all objects, they will not be set in the same map as the other "rendertasks".
-	WireframeRenderTask* m_pWireFrameTask = nullptr;
-	OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
+	//WireframeRenderTask* m_pWireFrameTask = nullptr;
+	//OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
 
 	Mesh* m_pFullScreenQuad = nullptr;
 
