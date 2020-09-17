@@ -315,8 +315,8 @@ void Renderer::Execute()
 	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::BLEND], FLAG_THREAD::RENDER);
 
 	// Blurring for bloom
-	m_RenderTasks[RENDER_TASK_TYPE::BLUR]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::BLUR], FLAG_THREAD::RENDER);
+	m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR], FLAG_THREAD::RENDER);
 
 	// Outlining, if an object is picked
 	m_pOutliningRenderTask->SetBackBufferIndex(backBufferIndex);
@@ -1087,7 +1087,7 @@ void Renderer::initRenderTasks()
 	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurHorizontal.hlsl", L"blurHorizontalPSO"));
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurVertical.hlsl", L"blurVerticalPSO"));
-	DX12Task* blurComputeTask = new BlurComputeTask(
+	ComputeTask* blurComputeTask = new BlurComputeTask(
 		m_pDevice5, m_pRootSignature,
 		csNamePSOName,
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
@@ -1123,14 +1123,13 @@ void Renderer::initRenderTasks()
 
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
 	
-	// None atm
+	m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR] = blurComputeTask;
 
 	/* ------------------------- DirectQueue Tasks ---------------------- */
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS] = DepthPrePassRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
-	m_RenderTasks[RENDER_TASK_TYPE::BLUR] = static_cast<RenderTask*>(blurComputeTask);
 	m_RenderTasks[RENDER_TASK_TYPE::MERGE] = mergeTask;
 	m_RenderTasks[RENDER_TASK_TYPE::TEXT] = textTask;
 
