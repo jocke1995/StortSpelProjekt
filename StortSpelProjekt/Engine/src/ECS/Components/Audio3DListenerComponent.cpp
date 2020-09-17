@@ -17,13 +17,13 @@ component::Audio3DListenerComponent::~Audio3DListenerComponent()
 
 void component::Audio3DListenerComponent::Update(double dt)
 {
-	// Temporary
+	// Temporary for sandbox test
 	UpdateListener();
 }
 
 void component::Audio3DListenerComponent::UpdateListener()
 {
-	// get parent entity and look for transform components and get their forward, up and position vectors to update m_Listener
+	// get parent entity and look for transform component and get the forward, up and position vectors to update m_Listener
 	m_pTransform = m_pParent->GetComponent<TransformComponent>()->GetTransform();
 	DirectX::XMMATRIX rotMat = m_pTransform->GetRotMatrix();
 	DirectX::XMFLOAT3 forward, up, position;

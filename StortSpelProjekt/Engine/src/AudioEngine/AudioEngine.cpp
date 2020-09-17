@@ -21,10 +21,10 @@ AudioEngine::AudioEngine()
 	// 3D initialization
 	m_pMasterVoice->GetChannelMask(&m_DwChannelMask);
 	X3DAudioInitialize(m_DwChannelMask, X3DAUDIO_SPEED_OF_SOUND, m_X3DInstance);
-	m_pMasterVoice->GetVoiceDetails(&deviceDetails);
+	m_pMasterVoice->GetVoiceDetails(&m_DeviceDetails);
 
 	// debug info
-	m_AudioDebugInfo.TraceMask = XAUDIO2_LOG_ERRORS;
+	//m_AudioDebugInfo.TraceMask = XAUDIO2_LOG_ERRORS;
 	m_AudioDebugInfo.LogFileline = true;
 	m_pXAudio2->SetDebugConfiguration(&m_AudioDebugInfo);
 
@@ -59,7 +59,7 @@ IXAudio2MasteringVoice* AudioEngine::GetMasterVoice()
 
 XAUDIO2_VOICE_DETAILS* AudioEngine::GetDeviceDetails()
 {
-	return &deviceDetails;
+	return &m_DeviceDetails;
 }
 
 void AudioEngine::SetListenerPtr(X3DAUDIO_LISTENER* listener)

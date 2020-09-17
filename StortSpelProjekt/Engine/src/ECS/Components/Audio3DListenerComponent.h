@@ -16,7 +16,7 @@ namespace component
 		virtual ~Audio3DListenerComponent();
 		void Update(double dt);
 
-		// update position and orientation of the listener
+		// updates position and orientation of the listener
 		void UpdateListener();
 		// set listener structure OrientFront, OrientTop, Position
 		void SetListener(DirectX::XMFLOAT3 orientFront, DirectX::XMFLOAT3 orientTop, DirectX::XMFLOAT3 position);

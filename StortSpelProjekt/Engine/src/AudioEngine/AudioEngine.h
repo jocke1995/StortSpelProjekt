@@ -27,14 +27,14 @@ private:
 	// AudioVoice that represents the audio output device, this is where all other voices will are routed to be heard.
 	IXAudio2MasteringVoice* m_pMasterVoice;
 
-	// 3d stuff
+	// 3D stuff
 	DWORD m_DwChannelMask;
 	X3DAUDIO_HANDLE m_X3DInstance;
-
 	// Pointer to listener struct, put here for ease of access for emittercomponent class. Original listener struct contained in Audio3DListenerComponent
 	X3DAUDIO_LISTENER* m_pListener;
-	XAUDIO2_VOICE_DETAILS deviceDetails;
-
+	// contains details about the sound device
+	XAUDIO2_VOICE_DETAILS m_DeviceDetails;
+	// for debugging purposes
 	XAUDIO2_DEBUG_CONFIGURATION m_AudioDebugInfo;
 };
 

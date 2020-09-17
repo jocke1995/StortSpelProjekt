@@ -35,7 +35,7 @@ component::Audio3DEmitterComponent::~Audio3DEmitterComponent()
 
 void component::Audio3DEmitterComponent::Update(double dt)
 {
-	// Temporary
+	// Temporary for sandbox test
 	//UpdateEmitter(L"melody");
 	UpdateEmitter(L"horse");
 }
@@ -47,10 +47,13 @@ void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)
 	m_Emitter.Position = m_pTransform->GetPositionXMFLOAT3();
 
 	AudioEngine* audioEngine = &AudioEngine::GetInstance();
+	// calculates values relative to the emitter and listener and saves values in m_DSPSettings
 	X3DAudioCalculate(*audioEngine->GetX3DInstance(), audioEngine->GetListener(), &m_Emitter, X3DAUDIO_CALCULATE_MATRIX, &m_DSPSettings);
+	// temporary solution due to strange behaviour of the way matrixcoefficients are saved
 	float temp = m_DSPSettings.pMatrixCoefficients[1];
 	m_DSPSettings.pMatrixCoefficients[1] = m_DSPSettings.pMatrixCoefficients[2];
 	m_DSPSettings.pMatrixCoefficients[2] = temp;
+	// sets output matrix for the sound according to the matrix coefficients calculated earlier (changes the soundchannel levels)
 	m_Voices[name].GetSourceVoice()->SetOutputMatrix(audioEngine->GetMasterVoice(), m_VoiceDetails.InputChannels, AudioEngine::GetInstance().GetDeviceDetails()->InputChannels, m_DSPSettings.pMatrixCoefficients);
 
 	// filter tests
@@ -64,13 +67,16 @@ void component::Audio3DEmitterComponent::AddVoice(const std::wstring& name)
 {
 	if (m_Voices.count(name) == 0)
 	{
+		// add new sound and get details
 		m_Voices.insert(std::make_pair(name, AssetLoader::Get()->GetAudio(name)->CloneVoice()));
 		m_Voices[name].GetSourceVoice()->GetVoiceDetails(&m_VoiceDetails);
+		// set emitter settings for 3d audio calculations
 		m_Emitter.ChannelCount = m_VoiceDetails.InputChannels;
 		m_Emitter.ChannelRadius = 0.25f;
 		m_Emitter.pChannelAzimuths = new FLOAT32[m_VoiceDetails.InputChannels];
 		m_Emitter.pChannelAzimuths[0] = X3DAUDIO_PI / 4;
 		m_Emitter.pChannelAzimuths[1] = 7 * X3DAUDIO_PI / 4;
+		// prepare m_DSPSettings according to the voice details
 		m_DSPSettings.SrcChannelCount = m_VoiceDetails.InputChannels;
 		m_DSPSettings.DstChannelCount = AudioEngine::GetInstance().GetDeviceDetails()->InputChannels;
 		int coefficients = m_DSPSettings.SrcChannelCount * m_DSPSettings.DstChannelCount;
