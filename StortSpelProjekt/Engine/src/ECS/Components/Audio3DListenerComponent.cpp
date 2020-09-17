@@ -25,7 +25,7 @@ void component::Audio3DListenerComponent::UpdatePosition()
 	m_pCamera = m_pParent->GetComponent<CameraComponent>()->GetCamera();
 	m_pTransform = m_pParent->GetComponent<TransformComponent>()->GetTransform();
 	//Log::Print("x: %f, y: %f, z:%f\n", m_pTransform->GetPositionXMFLOAT3().x, m_pTransform->GetPositionXMFLOAT3().y, m_pTransform->GetPositionXMFLOAT3().z);
-	//AudioEngine::GetInstance().SetListener(m_pCamera->GetDirection(), m_pCamera->GetUpVector(), m_pTransform->GetPositionXMFLOAT3());
+	AudioEngine::GetInstance().SetListener(m_pCamera->GetDirection(), m_pCamera->GetUpVector(), m_pTransform->GetPositionXMFLOAT3());
 
 	//m_Listener.OrientFront = m_pCamera->GetDirection();
 	//m_Listener.OrientTop = m_pCamera->GetUpVector();
