@@ -46,7 +46,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
 		}
 
-		RAWINPUT* raw = (RAWINPUT*)lpb;
+		RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(lpb);
 
 		if (raw->header.dwType == RIM_TYPEKEYBOARD)
 		{
@@ -108,6 +108,8 @@ Window::Window(
 	m_WindowTitle = windowTitle;
 
 	initWindow(hInstance, nCmdShow);
+
+	m_ShutDown = false;
 }
 
 
@@ -143,10 +145,10 @@ const HWND* Window::GetHwnd() const
 
 bool Window::ExitWindow()
 {
-	bool closeWindow = false;
+	bool closeWindow = m_ShutDown;
 	MSG msg = { 0 };
 
-	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
 
 		TranslateMessage(&msg);
@@ -154,7 +156,7 @@ bool Window::ExitWindow()
 
 		if (msg.message == WM_QUIT)
 		{
-			closeWindow = true;
+			m_ShutDown = true;
 		}
 	}
 	return closeWindow;
@@ -238,7 +240,7 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	ShowWindow(m_Hwnd, nCmdShow);
-	//ShowCursor(false);
+	ShowCursor(false);
 	UpdateWindow(m_Hwnd);
 
 	return true;
