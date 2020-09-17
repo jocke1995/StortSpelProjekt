@@ -201,14 +201,14 @@ Scene* JockesTestScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-    //component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
+    component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
 
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
-    //bbc->Init();
+    bbc->Init();
 
     plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.00f, 0.05f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 0.00f, 10.0f, 1.0f });
