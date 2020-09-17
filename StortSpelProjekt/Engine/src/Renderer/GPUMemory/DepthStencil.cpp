@@ -17,12 +17,12 @@ DepthStencil::DepthStencil(
 
 	m_pDSV = new DepthStencilView(device, descriptorHeap_DSV, dsvDesc, m_pDefaultResource);
 
-    m_pId = s_DsCounter++;
+    m_Id = s_DsCounter++;
 }
 
 bool DepthStencil::operator==(const DepthStencil& other)
 {
-    return m_pId == other.m_pId;
+    return m_Id == other.m_Id;
 }
 
 DepthStencil::~DepthStencil()

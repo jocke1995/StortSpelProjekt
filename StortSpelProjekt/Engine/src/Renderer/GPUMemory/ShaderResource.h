@@ -29,7 +29,7 @@ private:
 	Resource* m_pDefaultResource = nullptr;
 	ShaderResourceView* m_pSRV = nullptr;
 
-	unsigned int m_pId = 0;
+	unsigned int m_Id = 0;
 };
 
 #endif

@@ -16,12 +16,12 @@ UnorderedAccess::UnorderedAccess(
 	m_pDefaultResource = new Resource(device, entrySize, RESOURCE_TYPE::DEFAULT, resourceName + L"_DEFAULT");
 	m_pUAV = new UnorderedAccessView(device, descriptorHeap_CBV_UAV_SRV, uavDesc, m_pDefaultResource);
 
-	m_pId = s_UaCounter++;
+	m_Id = s_UaCounter++;
 }
 
 bool UnorderedAccess::operator==(const UnorderedAccess& other)
 {
-	return m_pId == other.m_pId;
+	return m_Id == other.m_Id;
 }
 
 UnorderedAccess::~UnorderedAccess()

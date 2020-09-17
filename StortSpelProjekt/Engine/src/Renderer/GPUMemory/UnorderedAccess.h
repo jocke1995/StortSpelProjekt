@@ -30,7 +30,7 @@ private:
 	Resource* m_pDefaultResource = nullptr;
 	UnorderedAccessView* m_pUAV = nullptr;
 
-	unsigned int m_pId = 0;
+	unsigned int m_Id = 0;
 };
 
 #endif

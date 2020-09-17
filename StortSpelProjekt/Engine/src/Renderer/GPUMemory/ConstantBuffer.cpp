@@ -21,12 +21,12 @@ ConstantBuffer::ConstantBuffer(
 
 	m_pCBV = new ConstantBufferView(device, descriptorHeap_CBV_UAV_SRV, &cbvDesc, m_pDefaultResource);
 
-	m_pId = s_CbCounter++;
+	m_Id = s_CbCounter++;
 }
 
 bool ConstantBuffer::operator==(const ConstantBuffer& other)
 {
-	return m_pId == other.m_pId;
+	return m_Id == other.m_Id;
 }
 
 ConstantBuffer::~ConstantBuffer()

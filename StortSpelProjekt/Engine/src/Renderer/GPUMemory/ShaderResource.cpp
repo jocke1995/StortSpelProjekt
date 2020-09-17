@@ -16,12 +16,12 @@ ShaderResource::ShaderResource(
     m_pDefaultResource = new Resource(device, entrySize, RESOURCE_TYPE::DEFAULT, resourceName + L"_DEFAULT");
     m_pSRV = new ShaderResourceView(device, descriptorHeap_CBV_UAV_SRV, srvDesc, m_pDefaultResource);
 
-    m_pId = s_SrCounter++;
+    m_Id = s_SrCounter++;
 }
 
 bool ShaderResource::operator==(const ShaderResource& other)
 {
-    return m_pId == other.m_pId;
+    return m_Id == other.m_Id;
 }
 
 ShaderResource::~ShaderResource()

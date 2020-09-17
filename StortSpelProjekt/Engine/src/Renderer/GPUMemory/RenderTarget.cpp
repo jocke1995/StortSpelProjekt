@@ -22,7 +22,7 @@ RenderTarget::RenderTarget(
 
 bool RenderTarget::operator==(const RenderTarget& other)
 {
-	return m_pId == other.m_pId;
+	return m_Id == other.m_Id;
 }
 
 RenderTarget::~RenderTarget()

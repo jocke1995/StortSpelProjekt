@@ -28,7 +28,7 @@ private:
 	Resource* m_pDefaultResource = nullptr;
 	ConstantBufferView* m_pCBV = nullptr;
 
-	unsigned int m_pId = 0;
+	unsigned int m_Id = 0;
 
 };
 

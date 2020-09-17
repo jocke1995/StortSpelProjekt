@@ -26,7 +26,7 @@ private:
 	Resource* m_pResource = nullptr;
 	RenderTargetView* m_pRTV = nullptr;
 
-	unsigned int m_pId = 0;
+	unsigned int m_Id = 0;
 
 	void createResource(ID3D12Device5* device, unsigned int width, unsigned int height, std::wstring resourceName);
 };
