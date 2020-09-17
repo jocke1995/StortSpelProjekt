@@ -28,6 +28,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
+
+
+    //sceneManager->SetSceneToDraw(TimScene(sceneManager));
+    //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
+    //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
+    sceneManager->SetSceneToDraw(AntonTestScene(sceneManager));
+
     /*------ Network Init -----*/
     bool networkOn = false;
     Network network;
@@ -35,14 +42,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     {
         network.ConnectToIP(option->GetVariable("s_ip"), std::atoi(option->GetVariable("i_port").c_str()));
 
+        network.SetPlayerEntityPointer(sceneManager->GetScene("AntonScene")->GetEntities()->find("player")->second, 0);
+        network.SetPlayerEntityPointer(sceneManager->GetScene("AntonScene")->GetEntities()->find("player2")->second, 1);
+
         networkOn = true;
     }
-
-    //sceneManager->SetSceneToDraw(TimScene(sceneManager));
-    //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
-    //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
-    sceneManager->SetSceneToDraw(AntonTestScene(sceneManager));
-
     double networkTimer = 0;
 
     while (!window->ExitWindow())
@@ -59,9 +63,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             if (networkTimer >= 0.1) {
                 networkTimer = 0;
 
-                network.SendPositionPacket(sceneManager->GetScene("AntonScene")->GetEntities()->find("player")->second->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3());
-                float3 pos = network.GetPlayerPosition(1);
-                sceneManager->GetScene("AntonScene")->GetEntities()->find("player2")->second->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+                network.SendPositionPacket();
+                network.GetPlayerPosition();
             }
         }
 

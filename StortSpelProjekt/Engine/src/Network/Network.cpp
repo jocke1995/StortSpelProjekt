@@ -27,24 +27,54 @@ sf::TcpSocket* Network::GetSocket()
     return &m_Socket;
 }
 
-void Network::SendPositionPacket(float3 position)
+void Network::SendPositionPacket()
 {
     sf::Packet packet;
-    packet << position.x << position.y << position.z;
+
+    float3 pos = m_Players.at(0)->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+    float3 mov;
+    mov.x = m_Players.at(0)->GetComponent<component::TransformComponent>()->GetTransform()->GetMovement().x;
+    mov.y = m_Players.at(0)->GetComponent<component::TransformComponent>()->GetTransform()->GetMovement().y;
+    mov.z = m_Players.at(0)->GetComponent<component::TransformComponent>()->GetTransform()->GetMovement().z;
+
+    packet << 1 << pos.x << pos.y << pos.z << mov.x << mov.y << mov.z;
 
     m_Socket.send(packet);
 }
 
-float3 Network::GetPlayerPosition(int playerId)
+void Network::GetPlayerPosition()
 {
     sf::Packet packet = ListenPacket();
 
+    int id;
     float3 pos;
+    float3 mov;
+    
+    packet >> id;
+
     packet >> pos.x;
     packet >> pos.y;
     packet >> pos.z;
 
-    return pos;
+    packet >> mov.x;
+    packet >> mov.y;
+    packet >> mov.z;
+
+
+    m_Players.at(id)->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+    m_Players.at(id)->GetComponent<component::TransformComponent>()->GetTransform()->SetMovement(mov.x, mov.y, mov.z);
+}
+
+void Network::SetPlayerEntityPointer(Entity* playerEnitity, int id)
+{
+    if (m_Players.size() > id)
+    {
+        m_Players.at(id) = playerEnitity;
+    }
+    else 
+    {
+        m_Players.push_back(playerEnitity);
+    }
 }
 
 sf::Packet Network::ListenPacket()

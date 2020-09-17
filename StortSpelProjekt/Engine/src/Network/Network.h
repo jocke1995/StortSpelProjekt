@@ -1,7 +1,8 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#include "../Headers/Core.h"
+#include "../ECS/Entity.h"
+#include "../Renderer/Transform.h"
 #include "SFML/Network.hpp"
 
 class Network {
@@ -12,14 +13,19 @@ public:
 
 	sf::TcpSocket* GetSocket();
 
-	void SendPositionPacket(float3 position);
-	float3 GetPlayerPosition(int playerId);
+	void SendPositionPacket();
+	void GetPlayerPosition();
+	
+	//Give network the entity pointer for player.
+	void SetPlayerEntityPointer(Entity* playerEnitity, int id);
 
 	sf::Packet ListenPacket();
 
 private:
 	sf::TcpSocket m_Socket;
 	sf::TcpListener m_Listener;
+
+	std::vector<Entity*> m_Players;
 
 	bool m_Connected;
 };
