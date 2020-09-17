@@ -4,8 +4,8 @@ Scene* TimScene(SceneManager* sm);
 Scene* JockesTestScene(SceneManager* sm);
 Scene* FredriksTestScene(SceneManager* sm);
 Scene* AndresScene(SceneManager* sm);
-component::Audio3DEmitterComponent* audioEmitter = nullptr;     // needed in while loop for updates
 component::Audio3DListenerComponent* audioListener = nullptr;   // needed in while loop for updates
+component::Audio3DEmitterComponent* audioEmitter = nullptr;     // needed in while loop for updates
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {

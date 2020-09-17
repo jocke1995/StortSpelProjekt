@@ -25,6 +25,7 @@ component::Audio3DEmitterComponent::Audio3DEmitterComponent(Entity* parent) : Co
 	tempFloat.y = 1.0;
 	m_Emitter.OrientTop = tempFloat;
 
+
 }
 
 component::Audio3DEmitterComponent::~Audio3DEmitterComponent()
@@ -42,13 +43,12 @@ void component::Audio3DEmitterComponent::UpdatePosition(const std::wstring &name
 
 	m_Emitter.Position = m_pTransform->GetPositionXMFLOAT3();
 
-
 	AudioEngine* audioEngine = &AudioEngine::GetInstance();
-	X3DAudioCalculate(*audioEngine->GetX3DInstance(), audioEngine->GetListener(), &m_Emitter, X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_LPF_DIRECT, audioEngine->Get3DFXSettings());
-	m_Voices[name].GetSourceVoice()->SetOutputMatrix(audioEngine->GetMasterVoice(), 1, 1, audioEngine->Get3DFXSettings()->pMatrixCoefficients);
+	X3DAudioCalculate(*audioEngine->GetX3DInstance(), audioEngine->GetListener(), &m_Emitter, X3DAUDIO_CALCULATE_MATRIX, &m_DSPSettings);
+	m_Voices[name].GetSourceVoice()->SetOutputMatrix(audioEngine->GetMasterVoice(), 1, audioEngine->GetDeviceDetails()->InputChannels, m_DSPSettings.pMatrixCoefficients);
 	//m_Voices[name].GetSourceVoice()->SetFrequencyRatio(audioEngine->Get3DFXSettings()->DopplerFactor); //needs X3DAUDIO_CALCULATE_DOPPLER flag in X3Daudiocalculate function
-	XAUDIO2_FILTER_PARAMETERS FilterParameters = { LowPassFilter, 2.0f * sinf(X3DAUDIO_PI / 6.0f * audioEngine->Get3DFXSettings()->LPFDirectCoefficient), 1.0f };
-	m_Voices[name].GetSourceVoice()->SetFilterParameters(&FilterParameters);
+	//XAUDIO2_FILTER_PARAMETERS FilterParameters = { LowPassFilter, 2.0f * sinf(X3DAUDIO_PI / 6.0f * audioEngine->Get3DFXSettings()->LPFDirectCoefficient), 1.0f };
+	//m_Voices[name].GetSourceVoice()->SetFilterParameters(&FilterParameters);
 	//Log::Print("x: %f, y: %f, z:%f\n", m_Emitter.Position.x, m_Emitter.Position.y, m_Emitter.Position.z);
 }
 
@@ -57,6 +57,11 @@ void component::Audio3DEmitterComponent::AddVoice(const std::wstring& name)
 	if (m_Voices.count(name) == 0)
 	{
 		m_Voices.insert(std::make_pair(name, AssetLoader::Get()->GetAudio(name)->CloneVoice()));
+
+		matrix = new FLOAT32[AudioEngine::GetInstance().GetDeviceDetails()->InputChannels];
+		m_DSPSettings.SrcChannelCount = 1;	// increase this per added voice?
+		m_DSPSettings.DstChannelCount = AudioEngine::GetInstance().GetDeviceDetails()->InputChannels;
+		m_DSPSettings.pMatrixCoefficients = matrix;
 	}
 }
 
@@ -66,12 +71,6 @@ void component::Audio3DEmitterComponent::Play(const std::wstring& name)
 	if (m_Voices.count(name) != 0)
 	{
 		m_Voices[name].Play();
-		/*AudioEngine* audioEngine = &AudioEngine::GetInstance();
-		X3DAudioCalculate(*audioEngine->GetX3DInstance(), audioEngine->GetListener(), &m_Emitter, X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_DIRECT, audioEngine->Get3DFXSettings());
-		m_Voices[name].GetSourceVoice()->SetOutputMatrix(audioEngine->GetMasterVoice(), 1, audioEngine->GetDeviceDetails()->InputChannels, audioEngine->Get3DFXSettings()->pMatrixCoefficients);
-		m_Voices[name].GetSourceVoice()->SetFrequencyRatio(audioEngine->Get3DFXSettings()->DopplerFactor);
-		XAUDIO2_FILTER_PARAMETERS FilterParameters = { LowPassFilter, 2.0f * sinf(X3DAUDIO_PI / 6.0f * audioEngine->Get3DFXSettings()->LPFDirectCoefficient), 1.0f };
-		m_Voices[name].GetSourceVoice()->SetFilterParameters(&FilterParameters);*/
 	}
 	else
 	{

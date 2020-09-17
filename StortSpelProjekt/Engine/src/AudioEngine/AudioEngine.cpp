@@ -6,7 +6,6 @@ AudioEngine::AudioEngine()
 {
 	m_pXAudio2 = nullptr;
 	m_pMasterVoice = nullptr;
-	m_pAudio = nullptr;
 
 	HRESULT hr;
 	if (FAILED(hr = XAudio2Create(&m_pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR)))
@@ -24,11 +23,10 @@ AudioEngine::AudioEngine()
 	X3DAudioInitialize(m_DwChannelMask, X3DAUDIO_SPEED_OF_SOUND, m_X3DInstance);
 
 	m_pMasterVoice->GetVoiceDetails(&deviceDetails);
-	//IXAudio2Voice::GetVoiceDetails(deviceDetails);
-	matrix = new FLOAT32[deviceDetails.InputChannels];
+	/*matrix = new FLOAT32[deviceDetails.InputChannels];
 	m_3DFXSettings.SrcChannelCount = 1;
 	m_3DFXSettings.DstChannelCount = deviceDetails.InputChannels;
-	m_3DFXSettings.pMatrixCoefficients = matrix;
+	m_3DFXSettings.pMatrixCoefficients = matrix;*/
 
 }
 
@@ -42,7 +40,7 @@ AudioEngine::~AudioEngine()
 {
 	m_pMasterVoice->DestroyVoice();
 	m_pXAudio2->Release();
-	delete matrix;
+	//delete matrix;
 }
 
 IXAudio2* AudioEngine::GetAudioEngine()
@@ -75,10 +73,10 @@ X3DAUDIO_LISTENER* AudioEngine::GetListener()
 	return &m_Listener;
 }
 
-X3DAUDIO_DSP_SETTINGS* AudioEngine::Get3DFXSettings()
-{
-	return &m_3DFXSettings;
-}
+//X3DAUDIO_DSP_SETTINGS* AudioEngine::GetDSPSettings()
+//{
+//	return &m_DSPSettings;
+//}
 
 IXAudio2MasteringVoice* AudioEngine::GetMasterVoice()
 {

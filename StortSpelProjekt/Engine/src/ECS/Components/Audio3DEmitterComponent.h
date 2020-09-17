@@ -35,6 +35,11 @@ namespace component
 		std::map<std::wstring, AudioVoice> m_Voices;
 		// Emitter sets world positions of the audio source to be calculated for 3D sound
 		X3DAUDIO_EMITTER m_Emitter;
+		// structure needed for 3D audio and DSP (digital signal processing) effects, holds values returned from x3dAudioCalculate
+		// will probably need a map for separate dsp settings per voice
+		X3DAUDIO_DSP_SETTINGS m_DSPSettings = { 0 };
+		// matrix coefficients for m_3DFXSettings , maybe also one per voice?
+		FLOAT32* matrix;
 
 		Transform* m_pTransform = nullptr;
 
