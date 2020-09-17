@@ -1247,9 +1247,11 @@ void Renderer::removeComponents(Entity* entity)
 
 	// Check if the entity is a textComponent
 	for (int i = 0; i < m_TextComponents.size(); i++)
-	{		Entity* parent = m_TextComponents[i]->GetParent();
+	{
+		Entity* parent = m_TextComponents[i]->GetParent();
 		if (parent == entity)
-		{			m_TextComponents.erase(m_TextComponents.begin() + i);
+		{
+			m_TextComponents.erase(m_TextComponents.begin() + i);
 			setRenderTasksRenderComponents();
 		}
 	}
