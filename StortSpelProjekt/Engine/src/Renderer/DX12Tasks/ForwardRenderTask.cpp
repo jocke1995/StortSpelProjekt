@@ -138,27 +138,23 @@ void FowardRenderTask::drawRenderComponent(
 	const DirectX::XMMATRIX* viewProjTransposed,
 	ID3D12GraphicsCommandList5* cl)
 {
-	// Check if the object is to be drawn in forwardRendering
-	if (mc->GetDrawFlag() & FLAG_DRAW::ForwardRendering)
+	// Draw for every m_pMesh the meshComponent has
+	for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 	{
-		// Draw for every m_pMesh the meshComponent has
-		for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
-		{
-			Mesh* m = mc->GetMeshAt(i);
-			size_t num_Indices = m->GetNumIndices();
-			const SlotInfo* info = mc->GetSlotInfoAt(i);
+		Mesh* m = mc->GetMeshAt(i);
+		size_t num_Indices = m->GetNumIndices();
+		const SlotInfo* info = mc->GetSlotInfoAt(i);
 
-			Transform* transform = tc->GetTransform();
-			DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-			DirectX::XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
+		Transform* transform = tc->GetTransform();
+		DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+		DirectX::XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
 
-			// Create a CB_PER_OBJECT struct
-			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
+		// Create a CB_PER_OBJECT struct
+		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
 
-			cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+		cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-			cl->IASetIndexBuffer(m->GetIndexBufferView());
-			cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
-		}
+		cl->IASetIndexBuffer(m->GetIndexBufferView());
+		cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 	}
 }

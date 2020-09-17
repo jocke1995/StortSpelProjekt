@@ -81,33 +81,29 @@ void BlendRenderTask::Execute()
 		component::ModelComponent* mc = m_RenderComponents.at(i).first;
 		component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
-		// Check if the renderComponent is to be drawn in Blend
-		if (mc->GetDrawFlag() & FLAG_DRAW::Blend)
+		// Draw for every m_pMesh the MeshComponent has
+		for (unsigned int j = 0; j < mc->GetNrOfMeshes(); j++)
 		{
-			// Draw for every m_pMesh the MeshComponent has
-			for (unsigned int j = 0; j < mc->GetNrOfMeshes(); j++)
-			{
-				Mesh* m = mc->GetMeshAt(j);
-				size_t num_Indices = m->GetNumIndices();
-				const SlotInfo* info = mc->GetSlotInfoAt(j);
+			Mesh* m = mc->GetMeshAt(j);
+			size_t num_Indices = m->GetNumIndices();
+			const SlotInfo* info = mc->GetSlotInfoAt(j);
 
-				Transform* transform = tc->GetTransform();
+			Transform* transform = tc->GetTransform();
 
-				DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-				DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+			DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+			DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
-				// Create a CB_PER_OBJECT struct
-				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed , *info };
+			// Create a CB_PER_OBJECT struct
+			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed , *info };
 
-				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 				
-				commandList->IASetIndexBuffer(mc->GetMeshAt(j)->GetIndexBufferView());
-				// Draw each object twice with different PSO 
-				for (int k = 0; k < 2; k++)
-				{
-					commandList->SetPipelineState(m_PipelineStates[k]->GetPSO());
-					commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
-				}
+			commandList->IASetIndexBuffer(mc->GetMeshAt(j)->GetIndexBufferView());
+			// Draw each object twice with different PSO 
+			for (int k = 0; k < 2; k++)
+			{
+				commandList->SetPipelineState(m_PipelineStates[k]->GetPSO());
+				commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 			}
 		}	
 	}
