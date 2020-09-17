@@ -3,6 +3,7 @@
 #include "ThreadPool.h"
 #include "Thread.h"
 #include "MultiThreadedTask.h"
+#include "ClientPool.h"
 
 #include <iostream>
 
@@ -32,66 +33,32 @@ int main()
 
 	if (str == "1")
 	{
-		sf::TcpListener listener;
-		// bind the listener to a port
-		if (listener.listen(55555) != sf::Socket::Done)
-		{
-			Log::PrintSeverity(Log::Severity::WARNING, "Failed attempting to listen to port: " + std::to_string(55555) + " failed\n");
-		}
-		selector.add(listener);
-
+		ClientPool server(55555);
 		threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
 
-		while (strcmp(str.c_str(), "quit") != 0)
-		{
-			str = "";
-			console.GetInput(&str);
+			while (strcmp(str.c_str(), "quit") != 0)
+			{
+				str = "";
+				console.GetInput(&str);
 
-			if (strcmp(str.c_str(), "") != 0)
-			{
-				std::cout << str << std::endl;
-				threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
-			}
-			if (strcmp(str.c_str(), "AddClient") == 0)
-			{
-				clients.push_back(new sf::TcpSocket);
-			}
-
-			if (selector.wait(sf::seconds(0.1f)))
-			{
-				if (selector.isReady(listener))
+				if (strcmp(str.c_str(), "") != 0)
 				{
-					// Accept connection
-					if (listener.accept(*clients.at(clients.size() - 1)) != sf::Socket::Done)
-					{
-						Log::PrintSeverity(Log::Severity::WARNING, "Failed connection to " + clients.at(clients.size() - 1)->getRemoteAddress().toString() + "\n");
-					}
-					std::cout << "Connected to " + clients.at(clients.size() - 1)->getRemoteAddress().toString() << std::endl;
-					selector.add(*clients.at(clients.size() - 1));
+					threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
 				}
-				else
+				if (strcmp(str.c_str(), "AddClient") == 0)
 				{
-					for (int i = 0; i < clients.size(); i++)
-					{
-						if (selector.isReady(*clients.at(i)))
-						{
-							sf::Packet packet;
-							std::string temp;
-							clients.at(i)->receive(packet);
-							packet >> temp;
-							std::cout << temp << std::endl;
-							for (int j = 0; j < clients.size(); j++) 
-							{
-								if (j != i)
-								{
-									clients.at(j)->send(packet);
-								}
-							}
-						}
-					}
+					server.AddClient();
+					std::cout << server.GetNrOfClients() << " Client slots in total" << std::endl;
+				}
+
+				server.ListenMessages();
+				str = server.GetConsoleString();
+
+				if (str != "")
+				{
+					std::cout << str;
 				}
 			}
-		}
 	}
 	else
 	{
