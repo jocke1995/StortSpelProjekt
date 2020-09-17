@@ -397,6 +397,18 @@ Scene* FloppipTestScene(SceneManager* sm)
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
+
+    // TEMP: FILIP
+    //Mesh* skyboxMesh = al->CreateSkyboxMesh();
+
+    //std::vector<Mesh*> skyboxMeshes;
+    //skyboxMeshes.push_back(skyboxMesh);
+
+    //std::vector<std::map<TEXTURE2D_TYPE, Texture*>> textures;
+    //textures.push_back(*floorModel->GetTexturesAt(0));
+
+    //Model* sphereModel = new Model(L"NOPATH", &skyboxMeshes, &textures);
+
     /* ---------------------- Player ---------------------- */
     Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
@@ -411,6 +423,16 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
     /* ---------------------- Player ---------------------- */
+
+    /* ---------------------- Skybox ---------------------- */
+
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    sbc->SetModel(cubeModel);
+    sbc->GetTransform()->SetScale(5);
+
+
+    /* ---------------------- Skybox ---------------------- */
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");

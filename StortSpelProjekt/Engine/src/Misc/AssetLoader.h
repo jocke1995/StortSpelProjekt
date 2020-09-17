@@ -33,7 +33,8 @@ public:
     Texture* LoadTexture2D(const std::wstring path);
 
     // TEMP: FILIP
-
+    // Create Geometry
+    Mesh* CreateSkyboxMesh();
 
 
     // Load Audio

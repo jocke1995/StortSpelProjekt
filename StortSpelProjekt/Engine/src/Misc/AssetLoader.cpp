@@ -16,8 +16,98 @@
 
 #include "../Renderer/Texture/Texture2D.h"
 
+#include <DirectXMath.h>
 
+void CreateSphere(std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, int LatLines, int LongLines)
+{
+	unsigned int NumSphereVertices = ((LatLines - 2) * LongLines) + 2;
+	unsigned int NumSphereFaces = ((LatLines - 3) * (LongLines) * 2) + (LongLines * 2);
 
+	float sphereYaw = 0.0f;
+	float spherePitch = 0.0f;
+
+	vertices->resize(NumSphereVertices);
+
+	DirectX::XMVECTOR currVertPos = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+
+	(*vertices)[0].pos.x = 0.0f;
+	(*vertices)[0].pos.y = 0.0f;
+	(*vertices)[0].pos.z = 1.0f;
+
+	for (DWORD i = 0; i < LatLines - 2; ++i)
+	{
+		spherePitch = (i + 1) * (3.14 / (LatLines - 1));
+		DirectX::XMMATRIX Rotationx = DirectX::XMMatrixRotationX(spherePitch);
+		for (DWORD j = 0; j < LongLines; ++j)
+		{
+			sphereYaw = j * (6.28 / (LongLines));
+			DirectX::XMMATRIX Rotationy = DirectX::XMMatrixRotationZ(sphereYaw);
+			currVertPos = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), (Rotationx * Rotationy));
+			currVertPos = DirectX::XMVector3Normalize(currVertPos);
+			(*vertices)[i * LongLines + j + 1].pos.x = DirectX::XMVectorGetX(currVertPos);
+			(*vertices)[i * LongLines + j + 1].pos.y = DirectX::XMVectorGetY(currVertPos);
+			(*vertices)[i * LongLines + j + 1].pos.z = DirectX::XMVectorGetZ(currVertPos);
+		}
+	}
+
+	(*vertices)[NumSphereVertices - 1].pos.x = 0.0f;
+	(*vertices)[NumSphereVertices - 1].pos.y = 0.0f;
+	(*vertices)[NumSphereVertices - 1].pos.z = -1.0f;
+
+	indices->resize(NumSphereFaces * 3);
+
+	int k = 0;
+	for (DWORD l = 0; l < LongLines - 1; ++l)
+	{
+		(*indices)[k] = 0;
+		(*indices)[k + 1] = l + 1;
+		(*indices)[k + 2] = l + 2;
+		k += 3;
+	}
+
+	(*indices)[k] = 0;
+	(*indices)[k + 1] = LongLines;
+	(*indices)[k + 2] = 1;
+	k += 3;
+
+	for (DWORD i = 0; i < LatLines - 3; ++i)
+	{
+		for (DWORD j = 0; j < LongLines - 1; ++j)
+		{
+			(*indices)[k] = i * LongLines + j + 1;
+			(*indices)[k + 1] = i * LongLines + j + 2;
+			(*indices)[k + 2] = (i + 1) * LongLines + j + 1;
+
+			(*indices)[k + 3] = (i + 1) * LongLines + j + 1;
+			(*indices)[k + 4] = i * LongLines + j + 2;
+			(*indices)[k + 5] = (i + 1) * LongLines + j + 2;
+
+			k += 6; // next quad
+		}
+
+		(*indices)[k] = (i * LongLines) + LongLines;
+		(*indices)[k + 1] = (i * LongLines) + 1;
+		(*indices)[k + 2] = ((i + 1) * LongLines) + LongLines;
+
+		(*indices)[k + 3] = ((i + 1) * LongLines) + LongLines;
+		(*indices)[k + 4] = (i * LongLines) + 1;
+		(*indices)[k + 5] = ((i + 1) * LongLines) + 1;
+
+		k += 6;
+	}
+
+	for (DWORD l = 0; l < LongLines - 1; ++l)
+	{
+		(*indices)[k] = NumSphereVertices - 1;
+		(*indices)[k + 1] = (NumSphereVertices - 1) - (l + 1);
+		(*indices)[k + 2] = (NumSphereVertices - 1) - (l + 2);
+		k += 3;
+	}
+
+	(*indices)[k] = NumSphereVertices - 1;
+	(*indices)[k + 1] = (NumSphereVertices - 1) - LongLines;
+	(*indices)[k + 2] = NumSphereVertices - 2;
+}
 
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
@@ -549,5 +639,19 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	}
 	Font* font = m_LoadedFonts[filename].first;
 	return m_LoadedFonts[filename].first;
+}
+
+Mesh* AssetLoader::CreateSkyboxMesh()
+{
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
+
+	CreateSphere(&vertices, &indices, 10, 10);
+
+	
+	Mesh* mesh = new Mesh(m_pDevice, vertices, indices, m_pDescriptorHeap_CBV_UAV_SRV, "NOPATH");
+	m_LoadedMeshes.push_back(mesh);
+
+	return mesh;
 }
 

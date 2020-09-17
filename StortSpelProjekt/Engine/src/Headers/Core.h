@@ -115,6 +115,7 @@ enum FLAG_DRAW
 	ForwardRendering = BIT(1),
 	Blend = BIT(2),
 	Shadow = BIT(3),
+	Skybox = BIT(4),
 	// animation = BIT(4),
 	// etc..
 };
