@@ -36,6 +36,7 @@ void BaseCamera::SetPosition(float x, float y, float z)
 void BaseCamera::SetDirection(float x, float y, float z)
 {
 	m_DirectionVector = DirectX::XMVectorSet(x, y, z, 0.0f);
+	m_RightVector = DirectX::XMVector3Cross(m_DirectionVector, m_UpVector);
 }
 
 DirectX::XMFLOAT3 BaseCamera::GetPosition() const
@@ -78,6 +79,27 @@ float3 BaseCamera::GetDirectionFloat3() const
 	temp.z = DXfloat3.z;
 
 	return temp;
+}
+
+DirectX::XMFLOAT3 BaseCamera::GetRightVector() const
+{
+	DirectX::XMFLOAT3 DXfloat3;
+	DirectX::XMStoreFloat3(&DXfloat3, m_RightVector);
+
+	return DXfloat3;
+}
+
+float3 BaseCamera::GetRightVectorFloat3() const
+{
+	DirectX::XMFLOAT3 DXfloat3;
+	DirectX::XMStoreFloat3(&DXfloat3, m_RightVector);
+
+	float3 toReturn = {};
+	toReturn.x = DXfloat3.x;
+	toReturn.y = DXfloat3.y;
+	toReturn.z = DXfloat3.z;
+
+	return toReturn;
 }
 
 const DirectX::XMMATRIX* BaseCamera::GetViewMatrix() const
