@@ -543,6 +543,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetPosition(0.0f, -20.0f, 70.0f);
+    tc->GetTransform()->SetRotationX(1.5708);
 
 
     entity = scene->AddEntity("amongUs");
