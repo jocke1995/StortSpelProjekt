@@ -160,9 +160,17 @@ namespace component
 
 			// Set the position of the OBB
 			m_OrientedBoundingBox.Center.x = 0;
-			// y pos of models should be at 0, and we want the center of the model, so add the distance to center
-			m_OrientedBoundingBox.Center.y = ((minVertex.y) + (maxVertex.y)) / 2;
-			m_OrientedBoundingBox.Center.z = 0;
+			// y pos (if that is up axis for models else it is z) of models should be at 0, and we want the center of the model, so add the distance to center
+			if (m_FlagOBB & F_OBBFlags::Y_AXIS_UPP)
+			{
+				m_OrientedBoundingBox.Center.y = ((minVertex.y) + (maxVertex.y)) / 2;
+				m_OrientedBoundingBox.Center.z = 0;
+			}
+			else
+			{
+				m_OrientedBoundingBox.Center.y = 0;
+				m_OrientedBoundingBox.Center.z = ((minVertex.z) + (maxVertex.z)) / 2;
+			}
 
 			// save this original state of the boundingBox so that we can apply the correct math in update()
 			m_OriginalBoundingBox = m_OrientedBoundingBox;
