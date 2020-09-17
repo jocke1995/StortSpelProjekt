@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "ShadowInfo.h"
 
-#include "DepthStencilView.h"
-#include "ShaderResourceView.h"
+#include "GPUMemory/DepthStencilView.h"
+#include "GPUMemory/ShaderResourceView.h"
 #include "RenderView.h"
 #include "DescriptorHeap.h"
-#include "Resource.h"
+#include "GPUMemory/Resource.h"
 
 ShadowInfo::ShadowInfo(
 	unsigned int textureWidth, unsigned int textureHeight,
@@ -103,11 +103,16 @@ void ShadowInfo::createResource(ID3D12Device5* device, unsigned int width, unsig
 
 void ShadowInfo::createDSV(ID3D12Device5* device, DescriptorHeap* dh_DSV)
 {
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+
 	m_pDSV = new DepthStencilView(
 		device,
 		dh_DSV,
-		m_pResource,
-		DXGI_FORMAT_D24_UNORM_S8_UINT);
+		&dsvDesc,
+		m_pResource);
 }
 
 void ShadowInfo::createSRV(ID3D12Device5* device, DescriptorHeap* dh_SRV)

@@ -7,8 +7,8 @@
 
 // Renderer
 #include "../Renderer/CommandInterface.h"
-#include "../Renderer/ShaderResourceView.h"
-#include "../Renderer/ConstantBufferView.h"
+#include "../Renderer/GPUMemory/ShaderResourceView.h"
+#include "../Renderer/GPUMemory/ConstantBuffer.h"
 #include "../Renderer/ShadowInfo.h"
 #include "../Renderer/ViewPool.h"
 #include "../Renderer/Texture.h"
