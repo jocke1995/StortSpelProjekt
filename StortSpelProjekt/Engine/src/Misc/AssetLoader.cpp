@@ -291,10 +291,9 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 
 		// Store the name of the bone
 		bone.name = assimpBone->mName.C_Str();	// Possible loss of data, returns pointer.
-
+		
 		// Store the offset matrix of the bone
-		DirectX::XMFLOAT4X4 offsetMat(&assimpBone->mOffsetMatrix.a1);	// Possible loss of data, might be the wrong pointer to data
-		DirectX::XMStoreFloat4x4(&offsetMat, bone.offsetMatrix);
+		bone.offsetMatrix = aiMatrix4x4ToXMFloat4x4(&assimpBone->mOffsetMatrix);
 
 		// Store the weights of the bone
 		for (unsigned int j = 0; j < assimpBone->mNumWeights; j++)
@@ -645,4 +644,31 @@ void AssetLoader::processNodeAnimation(const aiNodeAnim* assimpNodeAnimation, No
 				assimpNodeAnimation->mScalingKeys[i].mValue.y,
 				assimpNodeAnimation->mScalingKeys[i].mValue.z));
 	}
+}
+
+DirectX::XMFLOAT4X4 AssetLoader::aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix)
+{
+	DirectX::XMFLOAT4X4 matrix;
+
+	matrix._11 = aiMatrix->a1;
+	matrix._12 = aiMatrix->a2;
+	matrix._13 = aiMatrix->a3;
+	matrix._14 = aiMatrix->a4;
+
+	matrix._21 = aiMatrix->b1;
+	matrix._22 = aiMatrix->b2;
+	matrix._23 = aiMatrix->b3;
+	matrix._24 = aiMatrix->b4;
+
+	matrix._31 = aiMatrix->c1;
+	matrix._32 = aiMatrix->c2;
+	matrix._33 = aiMatrix->c3;
+	matrix._34 = aiMatrix->c4;
+
+	matrix._41 = aiMatrix->d1;
+	matrix._42 = aiMatrix->d2;
+	matrix._43 = aiMatrix->d3;
+	matrix._44 = aiMatrix->d4;
+
+	return matrix;
 }

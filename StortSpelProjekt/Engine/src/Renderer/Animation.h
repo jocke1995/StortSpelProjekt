@@ -11,7 +11,7 @@ struct Bone
 {
 	std::string name;
 	std::vector<VertexWeight> weights;
-	DirectX::XMMATRIX offsetMatrix;
+	DirectX::XMFLOAT4X4 offsetMatrix;
 };
 
 struct NodeAnimation

@@ -3,6 +3,7 @@
 
 #include "Core.h"
 #include "../AudioEngine/AudioBuffer.h"
+#include "assimp/matrix4x4.h"
 class DescriptorHeap;
 class Model;
 class Mesh;
@@ -17,7 +18,6 @@ struct aiMaterial;
 struct aiNodeAnim;
 struct Animation;
 struct NodeAnimation;
-
 
 class AssetLoader
 {
@@ -89,6 +89,8 @@ private:
     
     void processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations);
     void processNodeAnimation(const aiNodeAnim* assimpNodeAnimation, NodeAnimation* nodeAnimation);
+
+    DirectX::XMFLOAT4X4 aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix);
     
     Shader* loadShader(std::wstring fileName, ShaderType type);
 	Font* loadFont(LPCWSTR filename, int windowWidth, int windowHeight);
