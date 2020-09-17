@@ -31,7 +31,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     //sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(TimScene(sceneManager));
-    //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
+    sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
 
@@ -204,6 +204,7 @@ Scene* JockesTestScene(SceneManager* sm)
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
+    component::InputComponent* ic = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
     AssetLoader* al = AssetLoader::Get();
@@ -215,10 +216,12 @@ Scene* JockesTestScene(SceneManager* sm)
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
     /* ---------------------- Player ---------------------- */
-    Entity* entity = scene->AddEntity("player");
+    Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    ic->Init();
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
