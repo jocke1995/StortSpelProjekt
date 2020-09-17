@@ -105,9 +105,10 @@ enum class CAMERA_TYPE
 
 enum FLAG_DRAW
 {
-	ForwardRendering = BIT(1),
-	Blend = BIT(2),
-	Shadow = BIT(3),
+	No_Depth = BIT(1),
+	ForwardRendering = BIT(2),
+	Blend = BIT(3),
+	Shadow = BIT(4),
 	// animation = BIT(4),
 	// etc..
 };

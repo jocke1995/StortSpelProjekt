@@ -193,7 +193,6 @@ Scene* TimScene(SceneManager* sm)
     return scene;
 }
 
-
 Scene* JockesTestScene(SceneManager* sm)
 {
     // Create Scene
@@ -388,7 +387,6 @@ Scene* JockesTestScene(SceneManager* sm)
     return scene;
 }
 
-
 Scene* FredriksTestScene(SceneManager* sm)
 {
 	// Create Scene
@@ -575,4 +573,3 @@ Scene* FredriksTestScene(SceneManager* sm)
 	return scene;
 
 }
-
