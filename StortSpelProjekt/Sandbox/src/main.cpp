@@ -41,7 +41,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         physics->Update(timer->GetDeltaTime());
 
         /* ------ Sort ------ */
-        renderer->SortObjectsByDistance();
+        renderer->SortObjects();
 
         /* ------ Draw ------ */
         renderer->Execute();
@@ -202,6 +202,7 @@ Scene* JockesTestScene(SceneManager* sm)
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::InputComponent* ic = nullptr;
+    component::BoundingBoxComponent* bbc = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
     AssetLoader* al = AssetLoader::Get();
@@ -243,6 +244,7 @@ Scene* JockesTestScene(SceneManager* sm)
     entity = scene->AddEntity("stone");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(stoneModel);
@@ -250,6 +252,7 @@ Scene* JockesTestScene(SceneManager* sm)
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(0.01f);
     tc->GetTransform()->SetPosition(-8.0f, 0.0f, 0.0f);
+    bbc->Init();
     /* ---------------------- Stone ---------------------- */
 
     /* ---------------------- PointLight1 ---------------------- */
@@ -276,14 +279,11 @@ Scene* JockesTestScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-    component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
-
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
-    bbc->Init();
 
     plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.00f, 0.05f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 0.00f, 10.0f, 1.0f });

@@ -109,6 +109,7 @@ enum FLAG_DRAW
 	ForwardRendering = BIT(2),
 	Blend = BIT(3),
 	Shadow = BIT(4),
+	NUM_FLAG_DRAWS = 4,
 	// animation = BIT(4),
 	// etc..
 };

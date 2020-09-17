@@ -85,7 +85,7 @@ public:
 
 	// Call each frame
 	void Update(double dt);
-	void SortObjectsByDistance();
+	void SortObjects();
 	void Execute();
 
 private:

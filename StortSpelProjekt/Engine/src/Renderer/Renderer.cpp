@@ -208,64 +208,67 @@ void Renderer::Update(double dt)
 	m_pCurrActiveScene->UpdateScene(dt);
 }
 
-void Renderer::SortObjectsByDistance()
+void Renderer::SortObjects()
 {
-	//struct DistFromCamera
-	//{
-	//	double distance;
-	//	component::ModelComponent* mc;
-	//	component::TransformComponent* tc;
-	//};
-	//
-	//int numRenderComponents = m_RenderComponents.size();
-	//
-	//DistFromCamera* distFromCamArr = new DistFromCamera[numRenderComponents];
-	//
-	//// Get all the distances of each objects and store them by ID and distance
-	//DirectX::XMFLOAT3 camPos = m_pScenePrimaryCamera->GetPosition();
-	//for (int i = 0; i < numRenderComponents; i++)
-	//{
-	//	DirectX::XMFLOAT3 objectPos = m_RenderComponents.at(i).second->GetTransform()->GetPositionXMFLOAT3();
-	//
-	//	double distance = sqrt(	pow(camPos.x - objectPos.x, 2) +
-	//							pow(camPos.y - objectPos.y, 2) +
-	//							pow(camPos.z - objectPos.z, 2));
-	//
-	//	// Save the object alongside its distance to the m_pCamera
-	//	distFromCamArr[i].distance = distance;
-	//	distFromCamArr[i].mc = m_RenderComponents.at(i).first;
-	//	distFromCamArr[i].tc = m_RenderComponents.at(i).second;
-	//}
-	//
-	//// InsertionSort (because its best case is O(N)), 
-	//// and since this is sorted ((((((EVERY FRAME)))))) this is a good choice of sorting algorithm
-	//int j = 0;
-	//DistFromCamera distFromCamArrTemp = {};
-	//for (int i = 1; i < numRenderComponents; i++)
-	//{
-	//	j = i;
-	//	while (j > 0 && (distFromCamArr[j - 1].distance > distFromCamArr[j].distance))
-	//	{
-	//		// Swap
-	//		distFromCamArrTemp = distFromCamArr[j - 1];
-	//		distFromCamArr[j - 1] = distFromCamArr[j];
-	//		distFromCamArr[j] = distFromCamArrTemp;
-	//		j--;
-	//	}
-	//}
-	//
-	//// Fill the vector with sorted array
-	//m_RenderComponents.clear();
-	//for (int i = 0; i < numRenderComponents; i++)
-	//{
-	//	m_RenderComponents.push_back(std::make_pair(distFromCamArr[i].mc, distFromCamArr[i].tc));
-	//}
-	//
-	//// Free memory
-	//delete distFromCamArr;
-	//
-	//// Update the entity-arrays inside the rendertasks
-	//setRenderTasksRenderComponents();
+	struct DistFromCamera
+	{
+		double distance;
+		component::ModelComponent* mc;
+		component::TransformComponent* tc;
+	};
+
+	for (auto& renderComponents : m_RenderComponents)
+	{
+		int numRenderComponents = renderComponents.second.size();
+
+		DistFromCamera* distFromCamArr = new DistFromCamera[numRenderComponents];
+
+		// Get all the distances of each objects and store them by ID and distance
+		DirectX::XMFLOAT3 camPos = m_pScenePrimaryCamera->GetPosition();
+		for (int i = 0; i < numRenderComponents; i++)
+		{
+			DirectX::XMFLOAT3 objectPos = renderComponents.second.at(i).second->GetTransform()->GetPositionXMFLOAT3();
+
+			double distance = sqrt(pow(camPos.x - objectPos.x, 2) +
+				pow(camPos.y - objectPos.y, 2) +
+				pow(camPos.z - objectPos.z, 2));
+
+			// Save the object alongside its distance to the m_pCamera
+			distFromCamArr[i].distance = distance;
+			distFromCamArr[i].mc = renderComponents.second.at(i).first;
+			distFromCamArr[i].tc = renderComponents.second.at(i).second;
+		}
+
+		// InsertionSort (because its best case is O(N)), 
+		// and since this is sorted ((((((EVERY FRAME)))))) this is a good choice of sorting algorithm
+		int j = 0;
+		DistFromCamera distFromCamArrTemp = {};
+		for (int i = 1; i < numRenderComponents; i++)
+		{
+			j = i;
+			while (j > 0 && (distFromCamArr[j - 1].distance > distFromCamArr[j].distance))
+			{
+				// Swap
+				distFromCamArrTemp = distFromCamArr[j - 1];
+				distFromCamArr[j - 1] = distFromCamArr[j];
+				distFromCamArr[j] = distFromCamArrTemp;
+				j--;
+			}
+		}
+
+		// Fill the vector with sorted array
+		renderComponents.second.clear();
+		for (int i = 0; i < numRenderComponents; i++)
+		{
+			renderComponents.second.push_back(std::make_pair(distFromCamArr[i].mc, distFromCamArr[i].tc));
+		}
+
+		// Free memory
+		delete distFromCamArr;
+	}
+	
+	// Update the entity-arrays inside the rendertasks
+	setRenderTasksRenderComponents();
 }
 
 void Renderer::Execute()
@@ -1241,59 +1244,20 @@ void Renderer::waitForCopyOnDemand()
 
 void Renderer::removeComponents(Entity* entity)
 {
-#pragma region RemoveFromRenderComponents
-	// Check if the entity is a renderComponent of type Blend
-	for (int i = 0; i < m_RenderComponents[FLAG_DRAW::Blend].size(); i++)
+	for (auto& renderComponents : m_RenderComponents)
 	{
-		// Remove from all renderComponent-vectors if they are there
-		Entity* parent = nullptr; 
-		parent = m_RenderComponents[FLAG_DRAW::Blend][i].first->GetParent();
-		if (parent == entity)
+		for (int i = 0; i < renderComponents.second.size(); i++)
 		{
-			m_RenderComponents[FLAG_DRAW::Blend].erase(m_RenderComponents[FLAG_DRAW::Blend].begin() + i);
-			setRenderTasksRenderComponents();
+			// Remove from all renderComponent-vectors if they are there
+			Entity* parent = nullptr;
+			parent = renderComponents.second[i].first->GetParent();
+			if (parent == entity)
+			{
+				renderComponents.second.erase(renderComponents.second.begin() + i);
+				setRenderTasksRenderComponents();
+			}
 		}
 	}
-
-	// Check if the entity is a renderComponent of type ForwardRendering
-	for (int i = 0; i < m_RenderComponents[FLAG_DRAW::ForwardRendering].size(); i++)
-	{
-		// Remove from all renderComponent-vectors if they are there
-		Entity* parent = nullptr;
-		parent = m_RenderComponents[FLAG_DRAW::ForwardRendering][i].first->GetParent();
-		if (parent == entity)
-		{
-			m_RenderComponents[FLAG_DRAW::ForwardRendering].erase(m_RenderComponents[FLAG_DRAW::ForwardRendering].begin() + i);
-			setRenderTasksRenderComponents();
-		}
-	}
-
-	// Check if the entity is a renderComponent of type No_Depth
-	for (int i = 0; i < m_RenderComponents[FLAG_DRAW::No_Depth].size(); i++)
-	{
-		// Remove from all renderComponent-vectors if they are there
-		Entity* parent = nullptr;
-		parent = m_RenderComponents[FLAG_DRAW::No_Depth][i].first->GetParent();
-		if (parent != entity)	// TODO: Kanske fel
-		{
-			m_RenderComponents[FLAG_DRAW::No_Depth].erase(m_RenderComponents[FLAG_DRAW::No_Depth].begin() + i);
-			setRenderTasksRenderComponents();
-		}
-	}
-
-	// Check if the entity is a renderComponent of type Shadow
-	for (int i = 0; i < m_RenderComponents[FLAG_DRAW::Shadow].size(); i++)
-	{
-		// Remove from all renderComponent-vectors if they are there
-		Entity* parent = nullptr;
-		parent = m_RenderComponents[FLAG_DRAW::Shadow][i].first->GetParent();
-		if (parent == entity)
-		{
-			m_RenderComponents[FLAG_DRAW::Shadow].erase(m_RenderComponents[FLAG_DRAW::Shadow].begin() + i);
-			setRenderTasksRenderComponents();
-		}
-	}
-#pragma endregion RemoveFromRenderComponents
 
 	// Check if the entity is a textComponent
 	for (int i = 0; i < m_TextComponents.size(); i++)
@@ -1464,7 +1428,7 @@ void Renderer::addComponents(Entity* entity)
 				m_RenderComponents[FLAG_DRAW::ForwardRendering].push_back(std::make_pair(mc, tc));
 			}
 
-			if (FLAG_DRAW::No_Depth & mc->GetDrawFlag() == 0)
+			if (FLAG_DRAW::No_Depth & ~mc->GetDrawFlag())
 			{
 				m_RenderComponents[FLAG_DRAW::No_Depth].push_back(std::make_pair(mc, tc));
 			}
