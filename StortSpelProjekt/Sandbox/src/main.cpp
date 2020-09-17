@@ -553,7 +553,7 @@ Scene* AndresScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0, 1, -30);
+    tc->GetTransform()->SetPosition(5, 1, 15);
 
     /* ---------------------- Player ---------------------- */
 

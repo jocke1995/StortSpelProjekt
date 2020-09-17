@@ -46,9 +46,9 @@ void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)
 	AudioEngine* audioEngine = &AudioEngine::GetInstance();
 	X3DAUDIO_LISTENER* listener = audioEngine->GetListener();
 	X3DAudioCalculate(*audioEngine->GetX3DInstance(), audioEngine->GetListener(), &m_Emitter, X3DAUDIO_CALCULATE_MATRIX, &m_DSPSettings);
-	//float temp = m_DSPSettings.pMatrixCoefficients[1];
-	//m_DSPSettings.pMatrixCoefficients[1] = m_DSPSettings.pMatrixCoefficients[2];
-	//m_DSPSettings.pMatrixCoefficients[2] = temp;
+	float temp = m_DSPSettings.pMatrixCoefficients[1];
+	m_DSPSettings.pMatrixCoefficients[1] = m_DSPSettings.pMatrixCoefficients[2];
+	m_DSPSettings.pMatrixCoefficients[2] = temp;
 	m_Voices[name].GetSourceVoice()->SetOutputMatrix(audioEngine->GetMasterVoice(), m_VoiceDetails.InputChannels, AudioEngine::GetInstance().GetDeviceDetails()->InputChannels, m_DSPSettings.pMatrixCoefficients);
 
 	// filter tests
@@ -65,7 +65,10 @@ void component::Audio3DEmitterComponent::AddVoice(const std::wstring& name)
 		m_Voices.insert(std::make_pair(name, AssetLoader::Get()->GetAudio(name)->CloneVoice()));
 		m_Voices[name].GetSourceVoice()->GetVoiceDetails(&m_VoiceDetails);
 		m_Emitter.ChannelCount = m_VoiceDetails.InputChannels;
+		m_Emitter.ChannelRadius = 0.25f;
 		m_Emitter.pChannelAzimuths = new FLOAT32[m_VoiceDetails.InputChannels];
+		m_Emitter.pChannelAzimuths[0] = X3DAUDIO_PI / 4;
+		m_Emitter.pChannelAzimuths[1] = 7 * X3DAUDIO_PI / 4;
 		m_DSPSettings.SrcChannelCount = m_VoiceDetails.InputChannels;
 		m_DSPSettings.DstChannelCount = AudioEngine::GetInstance().GetDeviceDetails()->InputChannels;
 		int coefficients = m_DSPSettings.SrcChannelCount * m_DSPSettings.DstChannelCount;
