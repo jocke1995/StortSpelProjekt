@@ -18,12 +18,12 @@ public:
 		const HWND* hwnd);
 	virtual ~Bloom();
 
-	const RenderTargetView* const GetRenderTarget() const;
+	const RenderTargetView* const GetRenderTargetView() const;
 	
 	const PingPongResource* GetPingPongResource(unsigned int index) const;
 
 private:
-	RenderTargetView* m_pRenderTarget = nullptr;
+	RenderTargetView* m_pRenderTargetView = nullptr;
 
 	std::array<Resource*, 2> m_Resources;
 	// The compute shader will read and write in a "Ping-Pong"-order to these objects.

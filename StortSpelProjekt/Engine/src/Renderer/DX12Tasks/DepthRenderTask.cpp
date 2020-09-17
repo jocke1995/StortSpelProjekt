@@ -46,8 +46,8 @@ void DepthRenderTask::Execute()
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// TODO: Get Depth viewport, rightnow use swapchain since the view and rect is the same.
-	const D3D12_VIEWPORT* viewPort = m_pSwapChain->GetRenderTarget(0)->GetRenderView()->GetViewPort();
-	const D3D12_RECT* rect = m_pSwapChain->GetRenderTarget(0)->GetRenderView()->GetScissorRect();
+	const D3D12_VIEWPORT* viewPort = m_pSwapChain->GetRTV(0)->GetRenderView()->GetViewPort();
+	const D3D12_RECT* rect = m_pSwapChain->GetRTV(0)->GetRenderView()->GetScissorRect();
 	commandList->RSSetViewports(1, viewPort);
 	commandList->RSSetScissorRects(1, rect);
 

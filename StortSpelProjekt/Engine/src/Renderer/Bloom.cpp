@@ -52,12 +52,12 @@ Bloom::~Bloom()
 		delete m_Resources[i];
 		delete m_PingPongResources[i];
 	}
-	delete m_pRenderTarget;
+	delete m_pRenderTargetView;
 }
 
-const RenderTargetView* const Bloom::GetRenderTarget() const
+const RenderTargetView* const Bloom::GetRenderTargetView() const
 {
-	return m_pRenderTarget;
+	return m_pRenderTargetView;
 }
 
 const PingPongResource* Bloom::GetPingPongResource(unsigned int index) const
@@ -100,5 +100,5 @@ void Bloom::createBrightRenderTarget(
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
 	// Resource 0 will be used as the starting resource to read from during the blurring pass.
-	m_pRenderTarget = new RenderTargetView(device5, width, height, dhRTV,  &rtvDesc, m_Resources[0], true);
+	m_pRenderTargetView = new RenderTargetView(device5, width, height, dhRTV,  &rtvDesc, m_Resources[0], true);
 }

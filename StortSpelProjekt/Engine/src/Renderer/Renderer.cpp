@@ -764,7 +764,7 @@ void Renderer::initRenderTasks()
 	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
 	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
 	forwardRenderTask->SetSwapChain(m_pSwapChain);
-	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTarget());
+	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTargetView());
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 

@@ -45,7 +45,7 @@ namespace D3D12
 		bool IsActive();
 
 	private:
-		void setGPUMemorytate(ID3D12GraphicsCommandList* pCommandList, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState);
+		void setGPUResourceState(ID3D12GraphicsCommandList* pCommandList, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState);
 
 		ID3D12Device* m_pDevice = nullptr;
 		ID3D12QueryHeap* m_pQueryHeap_ = nullptr;
