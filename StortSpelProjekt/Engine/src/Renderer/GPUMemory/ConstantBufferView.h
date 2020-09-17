@@ -1,10 +1,9 @@
 #ifndef CONSTANTBUFFERVIEW_H
 #define CONSTANTBUFFERVIEW_H
 
-class DescriptorHeap;
-class Resource;
+#include "View.h"
 
-class ConstantBufferView
+class ConstantBufferView : public View
 {
 public:
 	ConstantBufferView(
@@ -15,13 +14,7 @@ public:
 
 	virtual ~ConstantBufferView();
 
-	unsigned int GetDescriptorHeapIndex() const;
-	const Resource* const GetResource() const;
-
 private:
-	Resource* m_pResource = nullptr;
-	unsigned int m_DescriptorHeapIndex = -1;
-
 	void createConstantBufferView(
 		ID3D12Device5* device,
 		DescriptorHeap* descriptorHeap_CBV_UAV_SRV,
