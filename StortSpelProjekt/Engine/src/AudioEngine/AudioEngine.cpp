@@ -59,7 +59,15 @@ void AudioEngine::SetListener(DirectX::XMFLOAT3 orientFront, DirectX::XMFLOAT3 o
 {
 	m_Listener.OrientFront = orientFront;
 	m_Listener.OrientTop = orientTop;
+	//// left handed to right handed coordinates z-change
+	//DirectX::XMFLOAT3 rhz;
+	//rhz.x = position.x;
+	//rhz.y = position.y;
+	//rhz.z = -position.z;
+	//m_Listener.Position = rhz;
 	m_Listener.Position = position;
+
+	//Log::Print("x: %f, y: %f, z:%f\n", m_Listener.Position.x, m_Listener.Position.y, m_Listener.Position.z);
 }
 
 X3DAUDIO_LISTENER* AudioEngine::GetListener()

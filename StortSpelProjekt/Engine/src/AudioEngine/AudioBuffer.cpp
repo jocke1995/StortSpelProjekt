@@ -165,7 +165,7 @@ void AudioBuffer::OpenFile(IXAudio2* pXAudio2, std::wstring path)
         Log::Print("Failed to submit source buffer\n");
     }
 
-    // flags to loop the sound, this is a temporary solution
+    // flags
     m_Buffer.Flags = 0;
     m_Buffer.LoopBegin = 0;
     m_Buffer.LoopLength = 0;

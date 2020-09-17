@@ -20,7 +20,7 @@ namespace component
 		void Update(double dt);
 
 		// update position and orientation of the emitter
-		void UpdatePosition();
+		void UpdatePosition(const std::wstring& name);
 
 		// Clones an audiobuffer to create a voice to the component
 		void AddVoice(const std::wstring& name);

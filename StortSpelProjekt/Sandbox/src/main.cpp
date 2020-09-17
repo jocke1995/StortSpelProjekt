@@ -254,10 +254,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         
         // 3d sound test
         component::Audio3DEmitterComponent* emitterTest = scene->GetEntity("stone")->GetComponent<component::Audio3DEmitterComponent>();
-        emitterTest->UpdatePosition();
+        emitterTest->UpdatePosition(L"Melody");
         component::Audio3DListenerComponent* listenerTest = scene->GetEntity("player")->GetComponent<component::Audio3DListenerComponent>();
         listenerTest->UpdatePosition();
-
+        //audioEmitter->Play(L"Melody");
 
 
         /* ------ Update ------ */

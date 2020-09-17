@@ -3,6 +3,8 @@
 #include <xaudio2.h>
 #include <x3daudio.h>
 #pragma comment(lib, "xaudio2")
+//#define XAUDIO2_HELPER_FUNCTIONS
+
 
 
 class AudioBuffer;
