@@ -50,7 +50,14 @@ void component::Audio3DEmitterComponent::UpdatePosition(const std::wstring &name
 	X3DAUDIO_LISTENER* listener = audioEngine->GetListener();
 	X3DAudioCalculate(*audioEngine->GetX3DInstance(), audioEngine->GetListener(), &m_Emitter, X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_EMITTER_ANGLE, &m_DSPSettings);
 
+	//float temp[4] = {0.0f, 1.0f, 0.0f, 1.0f};
+
+	float temp = m_DSPSettings.pMatrixCoefficients[1];
+	m_DSPSettings.pMatrixCoefficients[1] = m_DSPSettings.pMatrixCoefficients[2];
+	m_DSPSettings.pMatrixCoefficients[2] = temp;
+
 	m_Voices[name].GetSourceVoice()->SetOutputMatrix(audioEngine->GetMasterVoice(), 2, 2, m_DSPSettings.pMatrixCoefficients);
+	//m_Voices[name].GetSourceVoice()->SetOutputMatrix(audioEngine->GetMasterVoice(), 2, 2, temp);
 
 	//m_Voices[name].GetSourceVoice()->SetFrequencyRatio(audioEngine->Get3DFXSettings()->DopplerFactor); //needs X3DAUDIO_CALCULATE_DOPPLER flag in X3Daudiocalculate function
 	//XAUDIO2_FILTER_PARAMETERS FilterParameters = { LowPassFilter, 2.0f * sinf(X3DAUDIO_PI / 6.0f * audioEngine->Get3DFXSettings()->LPFDirectCoefficient), 1.0f };
