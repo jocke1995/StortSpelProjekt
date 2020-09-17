@@ -35,6 +35,13 @@ unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 			// ------------------- Critical region 2-------------------
 			threadInstance->m_Mutex.lock();
 			threadInstance->m_pTask = nullptr;
+
+			// If the main thread adds a new task while this thread is working, we won't wait next iteration.
+			if (!threadInstance->m_TaskQueue.empty())
+			{
+				SetEvent(threadInstance->m_BeginEvent);
+			}
+
 			threadInstance->m_Mutex.unlock();
 			// ------------------- Critical region 2-------------------
 		}
