@@ -31,7 +31,8 @@ void AudioVoice::initialize(XAUDIO2_BUFFER* buff, WAVEFORMATEXTENSIBLE* wfxForma
         Log::Print("Failed to submit source buffer\n");
     }
 
-    m_pSourceVoice->SetVolume(0.1);
+    m_pSourceVoice->SetVolume(1.0);
+    HRESULT hRes = m_pSourceVoice->SetOutputVoices(NULL);
 
     //// 3D Emitter settings, these values need to be set at initialization, rest will be updated later
     //m_Emitter = { 0 };

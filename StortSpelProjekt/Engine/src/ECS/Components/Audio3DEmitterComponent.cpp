@@ -12,17 +12,18 @@ component::Audio3DEmitterComponent::Audio3DEmitterComponent(Entity* parent) : Co
 	// 3D Emitter settings, these values need to be set at initialization, rest will be updated later
 	m_Emitter = { 0 };
 	m_Emitter.ChannelCount = 1;
-	m_Emitter.CurveDistanceScaler = FLT_MIN;
+	m_Emitter.CurveDistanceScaler = 1.0f;
 	//m_Emitter.CurveDistanceScaler = FLT_MAX;
 
 	// temporary emitter orientation
 	DirectX::XMFLOAT3 tempFloat;
 	tempFloat.x = 0.0;
 	tempFloat.y = 0.0;
-	tempFloat.z = 0.0;
+	tempFloat.z = -1.0;
 	m_Emitter.OrientFront = tempFloat;
 
 	tempFloat.y = 1.0;
+	tempFloat.z = 0.0;
 	m_Emitter.OrientTop = tempFloat;
 
 
@@ -30,7 +31,8 @@ component::Audio3DEmitterComponent::Audio3DEmitterComponent(Entity* parent) : Co
 
 component::Audio3DEmitterComponent::~Audio3DEmitterComponent()
 {
-	delete matrix;
+	delete m_DSPSettings.pMatrixCoefficients;
+	delete m_Emitter.pChannelAzimuths;
 }
 
 void component::Audio3DEmitterComponent::Update(double dt)
@@ -46,9 +48,10 @@ void component::Audio3DEmitterComponent::UpdatePosition(const std::wstring &name
 
 	AudioEngine* audioEngine = &AudioEngine::GetInstance();
 	X3DAUDIO_LISTENER* listener = audioEngine->GetListener();
-	X3DAudioCalculate(*audioEngine->GetX3DInstance(), audioEngine->GetListener(), &m_Emitter, X3DAUDIO_CALCULATE_MATRIX, &m_DSPSettings);
+	X3DAudioCalculate(*audioEngine->GetX3DInstance(), audioEngine->GetListener(), &m_Emitter, X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_EMITTER_ANGLE, &m_DSPSettings);
 
-	m_Voices[name].GetSourceVoice()->SetOutputMatrix(audioEngine->GetMasterVoice(), 1, audioEngine->GetDeviceDetails()->InputChannels, m_DSPSettings.pMatrixCoefficients);
+	m_Voices[name].GetSourceVoice()->SetOutputMatrix(audioEngine->GetMasterVoice(), 2, 2, m_DSPSettings.pMatrixCoefficients);
+
 	//m_Voices[name].GetSourceVoice()->SetFrequencyRatio(audioEngine->Get3DFXSettings()->DopplerFactor); //needs X3DAUDIO_CALCULATE_DOPPLER flag in X3Daudiocalculate function
 	//XAUDIO2_FILTER_PARAMETERS FilterParameters = { LowPassFilter, 2.0f * sinf(X3DAUDIO_PI / 6.0f * audioEngine->Get3DFXSettings()->LPFDirectCoefficient), 1.0f };
 	//m_Voices[name].GetSourceVoice()->SetFilterParameters(&FilterParameters);
@@ -60,11 +63,14 @@ void component::Audio3DEmitterComponent::AddVoice(const std::wstring& name)
 	if (m_Voices.count(name) == 0)
 	{
 		m_Voices.insert(std::make_pair(name, AssetLoader::Get()->GetAudio(name)->CloneVoice()));
+		XAUDIO2_VOICE_DETAILS details;
+		m_Voices[name].GetSourceVoice()->GetVoiceDetails(&details);
 
-		matrix = new FLOAT32[AudioEngine::GetInstance().GetDeviceDetails()->InputChannels];
-		m_DSPSettings.SrcChannelCount = 1;	// increase this per added voice?
+		m_Emitter.ChannelCount = details.InputChannels;
+		m_Emitter.pChannelAzimuths = new FLOAT32[details.InputChannels];
+		m_DSPSettings.SrcChannelCount = details.InputChannels;	// increase this per added voice?
 		m_DSPSettings.DstChannelCount = AudioEngine::GetInstance().GetDeviceDetails()->InputChannels;
-		m_DSPSettings.pMatrixCoefficients = matrix;
+		m_DSPSettings.pMatrixCoefficients = new FLOAT32[AudioEngine::GetInstance().GetDeviceDetails()->InputChannels * details.InputChannels];
 	}
 }
 

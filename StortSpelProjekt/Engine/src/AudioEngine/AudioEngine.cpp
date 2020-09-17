@@ -28,6 +28,10 @@ AudioEngine::AudioEngine()
 	m_3DFXSettings.DstChannelCount = deviceDetails.InputChannels;
 	m_3DFXSettings.pMatrixCoefficients = matrix;*/
 
+	m_AudioDebugInfo.TraceMask = XAUDIO2_LOG_ERRORS;
+	m_AudioDebugInfo.LogFileline = true;
+	m_pXAudio2->SetDebugConfiguration(&m_AudioDebugInfo);
+
 }
 
 AudioEngine& AudioEngine::GetInstance()

@@ -39,10 +39,8 @@ namespace component
 		// will probably need a map for separate dsp settings per voice
 		X3DAUDIO_DSP_SETTINGS m_DSPSettings = { 0 };
 		// matrix coefficients for m_3DFXSettings , maybe also one per voice?
-		FLOAT32* matrix;
 
 		Transform* m_pTransform = nullptr;
-
 	};
 }
 

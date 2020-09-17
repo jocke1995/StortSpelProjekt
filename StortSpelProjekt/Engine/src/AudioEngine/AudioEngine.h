@@ -44,6 +44,8 @@ private:
 	//// matrix coefficients for m_DSPSettings
 	//FLOAT32* matrix;
 	XAUDIO2_VOICE_DETAILS deviceDetails;
+
+	XAUDIO2_DEBUG_CONFIGURATION m_AudioDebugInfo;
 };
 
 #endif
