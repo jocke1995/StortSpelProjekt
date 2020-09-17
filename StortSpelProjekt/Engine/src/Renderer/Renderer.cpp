@@ -1387,11 +1387,11 @@ void Renderer::addComponents(Entity* entity)
 					codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 				}
 
-				std::map<TEXTURE_TYPE, Texture*> meshTextures = *mc->GetTexturesAt(i);
+				std::map<TEXTURE2D_TYPE, Texture*> meshTextures = *mc->GetTexturesAt(i);
 				// Textures
-				for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+				for (unsigned int i = 0; i < TEXTURE2D_TYPE::NUM_TYPES; i++)
 				{
-					TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
+					TEXTURE2D_TYPE type = static_cast<TEXTURE2D_TYPE>(i);
 					Texture* texture = meshTextures[type];
 
 					// Check if the texture is on GPU before submitting to be uploaded

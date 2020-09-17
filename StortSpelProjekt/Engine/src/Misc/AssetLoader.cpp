@@ -14,6 +14,11 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
+#include "../Renderer/Texture/Texture2D.h"
+
+
+
+
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
 	m_pDevice = device;
@@ -21,11 +26,11 @@ AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_C
 	m_pWindow = const_cast<Window*>(window);
 
 	// Load default textures
-	LoadTexture(m_FilePathDefaultTextures + L"default_ambient.png");
-	LoadTexture(m_FilePathDefaultTextures + L"default_diffuse.jpg");
-	LoadTexture(m_FilePathDefaultTextures + L"default_specular.png");
-	LoadTexture(m_FilePathDefaultTextures + L"default_normal.png");
-	LoadTexture(m_FilePathDefaultTextures + L"default_emissive.png");
+	LoadTexture2D(m_FilePathDefaultTextures + L"default_ambient.png");
+	LoadTexture2D(m_FilePathDefaultTextures + L"default_diffuse.jpg");
+	LoadTexture2D(m_FilePathDefaultTextures + L"default_specular.png");
+	LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.png");
+	LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.png");
 }
 
 AssetLoader::~AssetLoader()
@@ -92,7 +97,7 @@ Model* AssetLoader::LoadModel(const std::wstring path)
 	}
 	
 	std::vector<Mesh*> meshes;
-	std::vector<std::map<TEXTURE_TYPE, Texture*>> textures;
+	std::vector<std::map<TEXTURE2D_TYPE, Texture*>> textures;
 
 	meshes.reserve(assimpScene->mNumMeshes);
 	textures.reserve(assimpScene->mNumMeshes);
@@ -106,7 +111,7 @@ Model* AssetLoader::LoadModel(const std::wstring path)
 	return m_LoadedModels[path].second;
 }
 
-Texture* AssetLoader::LoadTexture(std::wstring path)
+Texture* AssetLoader::LoadTexture2D(std::wstring path)
 {
 	// Check if the texture already exists
 	if (m_LoadedTextures.count(path) != 0)
@@ -114,7 +119,7 @@ Texture* AssetLoader::LoadTexture(std::wstring path)
 		return m_LoadedTextures[path].second;
 	}
 
-	Texture* texture = new Texture();
+	Texture* texture = new Texture2D();
 	if (texture->Init(path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
 	{
 		delete texture;
@@ -140,11 +145,10 @@ std::pair<Font*, Texture*> AssetLoader::LoadFontFromFile(const std::wstring font
 	m_LoadedFonts[path].first = loadFont(path.c_str(), m_pWindow->GetScreenWidth(), m_pWindow->GetScreenHeight());
 
 	// and create the texture
-	Texture* texture = new Texture();
-	if (texture->Init(m_LoadedFonts[path].first->fontImage, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
+	Texture* texture = LoadTexture2D(m_LoadedFonts[path].first->fontImage);
+	if (texture == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "Could not init the font texture for %s.\n", to_string(fontName).c_str());
-		delete texture;
 		return m_LoadedFonts[path];
 	}
 	m_LoadedFonts[path].second = texture;
@@ -184,7 +188,7 @@ Shader* AssetLoader::loadShader(std::wstring fileName, ShaderType type)
 	return m_LoadedShaders[fileName];
 }
 
-void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
+void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE2D_TYPE, Texture*>>* textures, const std::string* filePath)
 {
 	// Go through all the m_Meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -200,12 +204,12 @@ void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vec
 	}
 }
 
-Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
+Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE2D_TYPE, Texture*>>* textures, const std::string* filePath)
 {
 	// Fill this data
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	std::map<TEXTURE_TYPE, Texture*> meshTextures;
+	std::map<TEXTURE2D_TYPE, Texture*> meshTextures;
 
 	// Get data from assimpMesh and store it
 	for (unsigned int i = 0; i < assimpMesh->mNumVertices; i++)
@@ -292,9 +296,9 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	filePathWithoutTexture = filePathWithoutTexture.substr(0, indicesInPath + 1);
 
 	// Add the textures to the m_pMesh
-	for (int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+	for (int i = 0; i < TEXTURE2D_TYPE::NUM_TYPES; i++)
 	{
-		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
+		TEXTURE2D_TYPE type = static_cast<TEXTURE2D_TYPE>(i);
 		Texture* texture = processTexture(mat, type, &filePathWithoutTexture);
 		meshTextures[type] = texture;
 	}
@@ -315,7 +319,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 }
 
 Texture* AssetLoader::processTexture(aiMaterial* mat,
-	TEXTURE_TYPE texture_type,
+	TEXTURE2D_TYPE texture_type,
 	const std::string* filePathWithoutTexture)
 {
 	aiTextureType type;
@@ -329,27 +333,27 @@ Texture* AssetLoader::processTexture(aiMaterial* mat,
 	// Find the textureType
 	switch (texture_type)
 	{
-	case::TEXTURE_TYPE::AMBIENT:
+	case::TEXTURE2D_TYPE::AMBIENT:
 		type = aiTextureType_AMBIENT;
 		defaultPath = m_FilePathDefaultTextures + L"default_ambient.png";
 		warningMessageTextureType = "Ambient";
 		break;
-	case::TEXTURE_TYPE::DIFFUSE:
+	case::TEXTURE2D_TYPE::DIFFUSE:
 		type = aiTextureType_DIFFUSE;
 		defaultPath = m_FilePathDefaultTextures + L"default_diffuse.jpg";
 		warningMessageTextureType = "Diffuse";
 		break;
-	case::TEXTURE_TYPE::SPECULAR:
+	case::TEXTURE2D_TYPE::SPECULAR:
 		type = aiTextureType_SPECULAR;
 		defaultPath = m_FilePathDefaultTextures + L"default_specular.png";
 		warningMessageTextureType = "Specular";
 		break;
-	case::TEXTURE_TYPE::NORMAL:
+	case::TEXTURE2D_TYPE::NORMAL:
 		type = aiTextureType_NORMALS;
 		defaultPath = m_FilePathDefaultTextures + L"default_normal.png";
 		warningMessageTextureType = "Normal";
 		break;
-	case::TEXTURE_TYPE::EMISSIVE:
+	case::TEXTURE2D_TYPE::EMISSIVE:
 		type = aiTextureType_EMISSIVE;
 		defaultPath = m_FilePathDefaultTextures + L"default_emissive.png";
 		warningMessageTextureType = "Emissive";
@@ -360,7 +364,7 @@ Texture* AssetLoader::processTexture(aiMaterial* mat,
 	std::string textureFile = str.C_Str();
 	if (textureFile.size() != 0)
 	{
-		texture = LoadTexture(to_wstring(*filePathWithoutTexture + textureFile).c_str());
+		texture = LoadTexture2D(to_wstring(*filePathWithoutTexture + textureFile).c_str());
 	}
 
 	if (texture != nullptr)
@@ -546,3 +550,4 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	Font* font = m_LoadedFonts[filename].first;
 	return m_LoadedFonts[filename].first;
 }
+

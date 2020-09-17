@@ -33,7 +33,7 @@ namespace component
 		return m_Model->GetMeshAt(index);
 	}
 
-	std::map<TEXTURE_TYPE, Texture*>* ModelComponent::GetTexturesAt(unsigned int index) const
+	std::map<TEXTURE2D_TYPE, Texture*>* ModelComponent::GetTexturesAt(unsigned int index) const
 	{
 		return m_Model->GetTexturesAt(index);
 	}

@@ -14,6 +14,8 @@ public:
 	Texture2D();
 	virtual ~Texture2D();
 
+	bool Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap);
+
 private:
 };
 

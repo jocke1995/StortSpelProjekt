@@ -13,7 +13,7 @@ public:
 	Texture();
 	virtual ~Texture();
 
-	bool Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap);
+	virtual bool Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap) = 0;
 
 	const UINT GetDescriptorHeapIndex() const;
 
@@ -23,7 +23,10 @@ protected:
 	friend class Renderer;
 	friend class Text;
 
+	TEXTURE_TYPE m_Type = TEXTURE_TYPE::UNKNOWN;
+
 	BYTE* m_pImageData = nullptr;
+	int m_ImageBytesPerRow = 0;
 	std::wstring m_FilePath = L"";
 	ShaderResourceView* m_pSRV = nullptr;
 	D3D12_SUBRESOURCE_DATA m_SubresourceData = {};
