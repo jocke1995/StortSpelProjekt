@@ -9,13 +9,10 @@ public:
 	Network();
 
 	bool ConnectToIP(std::string ip, int port);
-	void ListenConnection(int port);
 
 	sf::TcpSocket* GetSocket();
 
-	//Add string to at the end to the next packet
-	void AppendStringPacket(std::string str);
-	void SendPacket();
+	void SendPositionPacket();
 
 	std::string ListenPacket();
 
