@@ -1,6 +1,6 @@
 #include "Engine.h"
-
-Scene* GetDevScene(SceneManager* sm);
+#include "PlayerInputComponent.h"
+Scene* GetDemoScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -28,7 +28,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             /* ------ Update ------ */
             timer->Update();
             renderer->Update(timer->GetDeltaTime());
-
+            Physics::GetInstance().Update(timer->GetDeltaTime());
             /* ------ Sort ------ */
             renderer->SortObjectsByDistance();
 
@@ -40,7 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     return 0;
 }
 
-Scene* GetDevScene(SceneManager* sm)
+Scene* GetDemoScene(SceneManager* sm)
 {
     Scene* scene = sm->CreateScene("DevScene");
 
@@ -64,6 +64,7 @@ Scene* GetDevScene(SceneManager* sm)
     component::ModelComponent* mc = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::TransformComponent* tc = nullptr;
+    component::PlayerInputComponent* pic = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
     /*--------------------- Player ---------------------*/
@@ -73,14 +74,21 @@ Scene* GetDevScene(SceneManager* sm)
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true, CAMERA_FLAGS::USE_PLAYER_POSITION);
+    pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::AudioVoiceComponent>();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
+    pic->Init();
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, -30.0f);
+
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
+
     avc->AddVoice(L"Bruh");
     /*--------------------- Player ---------------------*/
 
@@ -92,12 +100,16 @@ Scene* GetDevScene(SceneManager* sm)
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
 
     mc->SetModel(rockModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
     tc->GetTransform()->SetScale(0.01f);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
     /*--------------------- Rock ---------------------*/
 
     /*--------------------- Floor ---------------------*/
