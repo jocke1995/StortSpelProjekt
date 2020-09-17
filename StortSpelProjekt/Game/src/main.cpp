@@ -46,9 +46,9 @@ Scene* GetDemoScene(SceneManager* sm)
 
 
     /*--------------------- Assets ---------------------*/
-    
+
     AssetLoader* al = AssetLoader::Get();
-    
+
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
@@ -61,6 +61,7 @@ Scene* GetDemoScene(SceneManager* sm)
     component::AudioVoiceComponent* avc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CameraComponent* cc = nullptr;
+    component::DirectionalLightComponent* dlc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::TransformComponent* tc = nullptr;
@@ -127,16 +128,64 @@ Scene* GetDemoScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /*--------------------- Floor ---------------------*/
 
-    /*--------------------- Light ---------------------*/
+    /*--------------------- PointLight 1 ---------------------*/
     // entity
-    entity = scene->AddEntity("pointLight");
+    entity = scene->AddEntity("pointLightA");
 
     // components
     plc = entity->AddComponent<component::PointLightComponent>();
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.0f, 5.0f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.0f, 0.5f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 10.0f, 0.0f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
-    /*--------------------- Light ---------------------*/
+    plc->SetPosition({ -30,1,30 });
+    /*--------------------- PointLight 1 ---------------------*/
 
+    /*--------------------- PointLight 2 ---------------------*/
+    // entity
+    entity = scene->AddEntity("pointLightB");
+
+    // components
+    plc = entity->AddComponent<component::PointLightComponent>();
+    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.5f, 0.0f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 0.0f, 0.0f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
+    plc->SetPosition({ 30,1,30 });
+    /*--------------------- PointLight 2 ---------------------*/
+
+    /*--------------------- PointLight 3 ---------------------*/
+    // entity
+    entity = scene->AddEntity("pointLightC");
+
+    // components
+    plc = entity->AddComponent<component::PointLightComponent>();
+    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.5f, 0.0f, 0.0f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 0.0f, 10.0f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
+    plc->SetPosition({ 30,1,-30 });
+    /*--------------------- PointLight 3 ---------------------*/
+
+    /*--------------------- PointLight 4 ---------------------*/
+    // entity
+    entity = scene->AddEntity("pointLightD");
+
+    // components
+    plc = entity->AddComponent<component::PointLightComponent>();
+    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.2f, 0.0f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 10.0f, 0.0f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
+    plc->SetPosition({ -30,1,-30 });
+    /*--------------------- PointLight 4 ---------------------*/
+
+    /*--------------------- DirectionalLight ---------------------*/
+    // entity
+    entity = scene->AddEntity("sun");
+
+    // components
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
+    dlc->SetDirection({1.0f, -1.0f, -1.0f});
+    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.1f, 0.1f, 0.1f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.1f, 0.1f, 0.1f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.5f, 0.5f, 0.5f, 1.0f });
+    /*--------------------- DirectionalLight ---------------------*/
     return scene;
 }
