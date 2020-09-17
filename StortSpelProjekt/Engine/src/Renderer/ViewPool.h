@@ -1,7 +1,7 @@
 #ifndef VIEWPOOL_H
 #define VIEWPOOL_H
 
-class ConstantBufferView;
+class ConstantBuffer;
 class DescriptorHeap;
 class ShadowInfo;
 class Light;
@@ -18,12 +18,12 @@ public:
 		DescriptorHeap* descriptorHeap_DSV);
 	virtual ~ViewPool();
 
-	ConstantBufferView* GetFreeCBV(unsigned int size, std::wstring resourceName = L"CBV_DEFAULTNAME");
+	ConstantBuffer* GetFreeCBV(unsigned int size, std::wstring resourceName = L"CBV_DEFAULTNAME");
 	ShadowInfo* GetFreeShadowInfo(LIGHT_TYPE type, SHADOW_RESOLUTION shadowResolution);
 
 	void ClearAll();
-	void ClearSpecificLight(LIGHT_TYPE type, ConstantBufferView* cbv, ShadowInfo* si);
-	void ClearSpecificCBV(unsigned int size, ConstantBufferView* cbv);
+	void ClearSpecificLight(LIGHT_TYPE type, ConstantBuffer* cbv, ShadowInfo* si);
+	void ClearSpecificCB(unsigned int size, ConstantBuffer* cbv);
 
 private:
 	ID3D12Device5* m_pDevice = nullptr;
@@ -32,8 +32,8 @@ private:
 	DescriptorHeap* m_pDescriptorHeap_RTV = nullptr;
 	DescriptorHeap* m_pDescriptorHeap_DSV = nullptr;
 
-	std::map<unsigned int, std::vector<std::pair<bool, ConstantBufferView*>>> m_CbvPool;
-	ConstantBufferView* createConstantBufferView(unsigned int size, std::wstring resourceName);
+	std::map<unsigned int, std::vector<std::pair<bool, ConstantBuffer*>>> m_CbPool;
+	ConstantBuffer* createConstantBuffer(unsigned int size, std::wstring resourceName);
 
 	std::map<LIGHT_TYPE, std::vector<std::tuple<bool, SHADOW_RESOLUTION, ShadowInfo*>>> m_ShadowPools;
 	ShadowInfo* createShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION shadowResolution);

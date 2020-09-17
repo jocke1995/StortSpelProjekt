@@ -6,6 +6,7 @@
 #include "Components/CameraComponent.h"
 #include "Components/BoundingBoxComponent.h"
 #include "Components/TextComponent.h"
+#include "Components/InputComponent.h"
 // Audio
 #include "Components/AudioVoiceComponent.h"
 #include "Components/Audio3DListenerComponent.h"

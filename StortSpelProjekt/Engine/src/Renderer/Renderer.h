@@ -14,14 +14,21 @@ class Window;
 // Renderer Engine
 class RootSignature;
 class SwapChain;
-class RenderTarget;
-class DepthStencilView;
-class ConstantBufferView;
+class RenderTargetView;
 class ViewPool;
 class BoundingBoxPool;
 class DescriptorHeap;
 class Mesh;
 
+// Views
+
+// GPU Resources
+class ConstantBuffer;
+class ShaderResource;
+class UnorderedAccess;
+class DepthStencil;
+
+// Enums
 enum COMMAND_INTERFACE_TYPE;
 enum class DESCRIPTOR_HEAP_TYPE;
 
@@ -32,7 +39,6 @@ class Bloom;
 
 // ECS
 class Scene;
-#include "../ECS/Components/BoundingBoxComponent.h"
 class Light;
 
 // Graphics
@@ -53,10 +59,13 @@ struct ID3D12CommandList;
 struct ID3D12Fence1;
 struct ID3D12Device5;
 
+// ECS
+class Entity;
 namespace component
 {
 	class ModelComponent;
 	class TransformComponent;
+	class BoundingBoxComponent;
 	class TextComponent;
 }
 
@@ -103,7 +112,7 @@ private:
 	Bloom* m_pBloomResources = nullptr;
 
 	// Depthbuffer
-	DepthStencilView* m_pMainDSV = nullptr;
+	DepthStencil* m_pMainDepthStencil = nullptr;
 
 	// Rootsignature
 	RootSignature* m_pRootSignature = nullptr;
@@ -118,8 +127,8 @@ private:
 	std::vector<RenderTask*>  m_RenderTasks;
 
 	// Since these tasks wont operate on all objects, they will not be set in the same map as the other "rendertasks".
-	WireframeRenderTask* m_pWireFrameTask = nullptr;
-	OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
+	//WireframeRenderTask* m_pWireFrameTask = nullptr;
+	//OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
 
 	Mesh* m_pFullScreenQuad = nullptr;
 
@@ -129,21 +138,20 @@ private:
 	std::vector<component::TextComponent*> m_TextComponents;
 
 	ViewPool* m_pViewPool = nullptr;
-	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBufferView*, ShadowInfo*>>> m_Lights;
+	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBuffer*, ShadowInfo*>>> m_Lights;
 
 	// Current scene to be drawn
 	Scene* m_pCurrActiveScene = nullptr;
 	CB_PER_SCENE_STRUCT* m_pCbPerSceneData = nullptr;
-	ConstantBufferView* m_pCbPerScene = nullptr;
+	ConstantBuffer* m_pCbPerScene = nullptr;
 
 	// update per frame
 	CB_PER_FRAME_STRUCT* m_pCbPerFrameData = nullptr;
-	ConstantBufferView* m_pCbPerFrame = nullptr;
+	ConstantBuffer* m_pCbPerFrame = nullptr;
 
 	// Commandlists holders
 	std::vector<ID3D12CommandList*> m_DirectCommandLists[NUM_SWAP_BUFFERS];
 	std::vector<ID3D12CommandList*> m_ComputeCommandLists[NUM_SWAP_BUFFERS];
-	ID3D12CommandList* m_CopyPerFrameCmdList[NUM_SWAP_BUFFERS];
 	ID3D12CommandList* m_CopyOnDemandCmdList[NUM_SWAP_BUFFERS];
 	
 	// DescriptorHeaps

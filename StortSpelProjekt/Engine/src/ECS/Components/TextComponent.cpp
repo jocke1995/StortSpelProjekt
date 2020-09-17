@@ -24,12 +24,12 @@ namespace component
 		m_TextVec.clear();
 	}
 
-	std::vector<TextData>* const TextComponent::GetTextDataVec()
+	std::map<std::string, TextData>* const TextComponent::GetTextDataMap()
 	{
-		return &m_TextDataVec;
+		return &m_TextDataMap;
 	}
 
-	void TextComponent::AddText()
+	void TextComponent::AddText(std::string name)
 	{
 		// Default text
 		TextData textData = {};
@@ -39,7 +39,15 @@ namespace component
 		textData.scale = { 1.0f, 1.0f };
 		textData.text = L"DEFAULT_TEXT";
 
-		m_TextDataVec.push_back(textData);
+		for (auto data : m_TextDataMap)
+		{
+			if (data.first == name)
+			{
+				Log::PrintSeverity(Log::Severity::WARNING, "It already exists a text with the name '%s'! Overwriting text data...\n", name.c_str());
+			}
+		}
+
+		m_TextDataMap[name] = (textData);
 	}
 
 	void TextComponent::SubmitText(Text* text)
@@ -53,29 +61,94 @@ namespace component
 		m_pFontTexture = font.second;
 	}
 
-	void TextComponent::SetText(std::string text, int pos)
+	void TextComponent::SetText(std::string text, std::string name)
 	{
-		m_TextDataVec.at(pos).text = to_wstring(text);
+		bool exists = false;
+		for (auto data : m_TextDataMap)
+		{
+			if (data.first == name)
+			{
+				m_TextDataMap[name].text = to_wstring(text);
+				exists = true;
+			}
+		}
+		
+		if (exists == false)
+		{
+			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set text.\n", name.c_str());
+		}
 	}
 
-	void TextComponent::SetPos(float2 textPos, int pos)
+	void TextComponent::SetPos(float2 textPos, std::string name)
 	{
-		m_TextDataVec.at(pos).pos = textPos;
+		bool exists = false;
+		for (auto data : m_TextDataMap)
+		{
+			if (data.first == name)
+			{
+				m_TextDataMap[name].pos = textPos;
+				exists = true;
+			}
+		}
+
+		if (exists == false)
+		{
+			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set position.\n", name.c_str());
+		}
 	}
 
-	void TextComponent::SetScale(float2 scale, int pos)
+	void TextComponent::SetScale(float2 scale, std::string name)
 	{
-		m_TextDataVec.at(pos).scale = scale;
+		bool exists = false;
+		for (auto data : m_TextDataMap)
+		{
+			if (data.first == name)
+			{
+				m_TextDataMap[name].scale = scale;
+				exists = true;
+			}
+		}
+
+		if (exists == false)
+		{
+			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set scale.\n", name.c_str());
+		}
 	}
 
-	void TextComponent::SetPadding(float2 padding, int pos)
+	void TextComponent::SetPadding(float2 padding, std::string name)
 	{
-		m_TextDataVec.at(pos).padding = padding;
+		bool exists = false;
+		for (auto data : m_TextDataMap)
+		{
+			if (data.first == name)
+			{
+				m_TextDataMap[name].padding = padding;
+				exists = true;
+			}
+		}
+
+		if (exists == false)
+		{
+			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set padding.\n", name.c_str());
+		}
 	}
 
-	void TextComponent::SetColor(float4 color, int pos)
+	void TextComponent::SetColor(float4 color, std::string name)
 	{
-		m_TextDataVec.at(pos).color = color;
+		bool exists = false;
+		for (auto data : m_TextDataMap)
+		{
+			if (data.first == name)
+			{
+				m_TextDataMap[name].color = color;
+				exists = true;
+			}
+		}
+
+		if (exists == false)
+		{
+			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set color.\n", name.c_str());
+		}
 	}
 
 	Font* TextComponent::GetFont() const
@@ -90,7 +163,7 @@ namespace component
 
 	Text* TextComponent::GetText(int pos) const
 	{
-		return m_TextVec.at(pos);
+ 		return m_TextVec.at(pos);
 	}
 
 	const int TextComponent::GetNumOfTexts() const
@@ -98,9 +171,9 @@ namespace component
 		return m_TextVec.size();
 	}
 
-	const int TextComponent::GetNumOfCharacters(int pos) const
+	const int TextComponent::GetNumOfCharacters(std::string name)
 	{
-		return m_TextDataVec.at(pos).text.size();
+		return m_TextDataMap[name].text.size();
 	}
 
 	void TextComponent::Update(double dt)
