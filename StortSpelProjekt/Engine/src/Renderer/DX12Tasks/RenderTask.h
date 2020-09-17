@@ -9,6 +9,7 @@
 class RootSignature;
 class Resource;
 
+class DepthStencil;
 class BaseCamera;
 class RenderTargetView;
 class SwapChain;
@@ -44,6 +45,7 @@ public:
 	void SetRenderComponents(
 		std::vector<std::pair<	component::ModelComponent*,
 								component::TransformComponent*>>* renderComponents);
+	void SetMainDepthStencil(DepthStencil* depthStencil);
 
 	void SetCamera(BaseCamera* camera);
 	void SetSwapChain(SwapChain* swapChain);
@@ -52,6 +54,7 @@ protected:
 	std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>> m_RenderComponents;
 	std::map<std::string, const RenderTargetView*> m_RenderTargets;
 	
+	DepthStencil* m_pDepthStencil = nullptr;
 	BaseCamera* m_pCamera = nullptr;
 	SwapChain* m_pSwapChain = nullptr;
 	ID3D12RootSignature* m_pRootSig = nullptr;

@@ -112,7 +112,7 @@ private:
 	Bloom* m_pBloomResources = nullptr;
 
 	// Depthbuffer
-	DepthStencil* m_pMainDSV = nullptr;
+	DepthStencil* m_pMainDepthStencil = nullptr;
 
 	// Rootsignature
 	RootSignature* m_pRootSignature = nullptr;

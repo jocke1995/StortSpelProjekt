@@ -84,7 +84,7 @@ Renderer::~Renderer()
 	delete m_pFullScreenQuad;
 	delete m_pSwapChain;
 	delete m_pBloomResources;
-	delete m_pMainDSV;
+	delete m_pMainDepthStencil;
 
 	for (auto& pair : m_DescriptorHeaps)
 	{
@@ -536,7 +536,7 @@ void Renderer::createMainDSV(const HWND* hwnd)
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-	m_pMainDSV = new DepthStencil(
+	m_pMainDepthStencil = new DepthStencil(
 		m_pDevice5,
 		width, height,	// width, height
 		L"MainDSV",
@@ -671,7 +671,7 @@ void Renderer::initRenderTasks()
 	// DepthStencil
 	depthPrePassDsd.StencilEnable = false;
 	gpsdDepthPrePass.DepthStencilState = depthPrePassDsd;
-	gpsdDepthPrePass.DSVFormat = m_pMainDSV->GetDSV()->GetDXGIFormat();
+	gpsdDepthPrePass.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdDepthPrePassVector;
 	gpsdDepthPrePassVector.push_back(&gpsdDepthPrePass);
@@ -685,6 +685,7 @@ void Renderer::initRenderTasks()
 
 	
 	// TODO: remove swapchain, using swapchains render view currently.
+	DepthPrePassRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	DepthPrePassRenderTask->SetSwapChain(m_pSwapChain);
 	DepthPrePassRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
@@ -725,7 +726,7 @@ void Renderer::initRenderTasks()
 	// DepthStencil
 	dsd.StencilEnable = false;
 	gpsdForwardRender.DepthStencilState = dsd;
-	gpsdForwardRender.DSVFormat = m_pMainDSV->GetDSV()->GetDXGIFormat();
+	gpsdForwardRender.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	/* Forward rendering with stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdForwardRenderStencilTest = gpsdForwardRender;
@@ -763,6 +764,7 @@ void Renderer::initRenderTasks()
 
 	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
 	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
+	forwardRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	forwardRenderTask->SetSwapChain(m_pSwapChain);
 	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTargetView());
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
@@ -793,7 +795,7 @@ void Renderer::initRenderTasks()
 	dsd.BackFace = stencilNotEqual;
 
 	gpsdModelOutlining.DepthStencilState = dsd;
-	gpsdModelOutlining.DSVFormat = m_pMainDSV->GetDSV()->GetDXGIFormat();
+	gpsdModelOutlining.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdOutliningVector;
 	gpsdOutliningVector.push_back(&gpsdModelOutlining);
@@ -805,6 +807,7 @@ void Renderer::initRenderTasks()
 		&gpsdOutliningVector,
 		L"outliningScaledPSO");
 	
+	m_pOutliningRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	m_pOutliningRenderTask->SetSwapChain(m_pSwapChain);
 	m_pOutliningRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
@@ -860,7 +863,7 @@ void Renderer::initRenderTasks()
 	dsdBlend.BackFace = blendStencilOP;
 
 	gpsdBlendFrontCull.DepthStencilState = dsdBlend;
-	gpsdBlendFrontCull.DSVFormat = m_pMainDSV->GetDSV()->GetDXGIFormat();
+	gpsdBlendFrontCull.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	// ------------------------ TASK 2: BLEND ---------------------------- BACKCULL
 
@@ -884,7 +887,7 @@ void Renderer::initRenderTasks()
 	dsdBlend.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 
 	gpsdBlendBackCull.DepthStencilState = dsdBlend;
-	gpsdBlendBackCull.DSVFormat = m_pMainDSV->GetDSV()->GetDXGIFormat();
+	gpsdBlendBackCull.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	gpsdBlendVector.push_back(&gpsdBlendFrontCull);
 	gpsdBlendVector.push_back(&gpsdBlendBackCull);
@@ -898,6 +901,7 @@ void Renderer::initRenderTasks()
 
 	blendRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
 	blendRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
+	blendRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	blendRenderTask->SetSwapChain(m_pSwapChain);
 	blendRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	

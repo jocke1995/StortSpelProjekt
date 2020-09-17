@@ -12,6 +12,8 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/BaseCamera.h"
 #include "../GPUMemory/RenderTargetView.h"
+#include "../GPUMemory/DepthStencil.h"
+#include "../GPUMemory/DepthStencilView.h"
 
 
 OutliningRenderTask::OutliningRenderTask(
@@ -47,7 +49,7 @@ void OutliningRenderTask::Execute()
 	DescriptorHeap* depthBufferHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 
 	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
-	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(m_pDepthStencil->GetDSV()->GetDescriptorHeapIndex());
 
 	// Check if there is an object to outline
 	if (m_ObjectToOutline.first == nullptr)
