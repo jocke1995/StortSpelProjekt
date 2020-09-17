@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "GameEntity.h"
 
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
@@ -72,13 +73,12 @@ Scene* LeosTestScene(SceneManager* sm)
 
     loopedSound->SetAudioLoop(0);
     /* ---------------------- Player ---------------------- */
-    Entity* entity = scene->AddEntity("player");
+    Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
-    ic = entity->AddComponent<component::InputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     tc = entity->AddComponent<component::TransformComponent>();
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::AudioVoiceComponent>();
-
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
@@ -86,6 +86,7 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0, 1, -30);
     avc->AddVoice(L"Music");
     avc->Play(L"Music");
+    ic->Init();
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
@@ -109,11 +110,11 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
     tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
+    tc->GetTransform()->SetPosition(0, 8.0f, -15.0f);
 
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.0f, 0.5f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 10.0f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.5f, 0.0f, 0.5f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 5.0f, 5.0f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
     /* ---------------------- PointLight1 ---------------------- */
 
     return scene;
