@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Model.h"
 #include "Mesh.h"
-#include "Texture.h"
+#include "Texture/Texture.h"
 #include "ShaderResourceView.h"
 #include "structs.h"
 

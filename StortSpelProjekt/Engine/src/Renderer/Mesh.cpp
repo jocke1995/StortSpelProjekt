@@ -4,7 +4,7 @@
 #include "Resource.h"
 #include "ShaderResourceView.h"
 #include "DescriptorHeap.h"
-#include "Texture.h"
+#include "Texture/Texture.h"
 
 Mesh::Mesh(	ID3D12Device5* device,
 			std::vector<Vertex> vertices,

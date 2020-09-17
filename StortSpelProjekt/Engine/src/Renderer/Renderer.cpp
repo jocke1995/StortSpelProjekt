@@ -24,7 +24,7 @@
 #include "Transform.h"
 #include "BaseCamera.h"
 #include "Mesh.h"
-#include "Texture.h"
+#include "Texture/Texture.h"
 #include "Text.h"
 #include "ShaderResourceView.h"
 

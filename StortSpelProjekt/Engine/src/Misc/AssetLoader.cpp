@@ -7,7 +7,7 @@
 #include "../Renderer/Model.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Shader.h"
-#include "../Renderer/Texture.h"
+#include "../Renderer/Texture/Texture.h"
 #include "../Renderer/Text.h"
 
 #include "assimp/Importer.hpp"

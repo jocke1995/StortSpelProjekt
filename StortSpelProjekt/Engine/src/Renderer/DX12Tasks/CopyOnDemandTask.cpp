@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CopyOnDemandTask.h"
 
-#include "../Texture.h"
+#include "../Texture/Texture.h"
 #include "../Resource.h"
 #include "../CommandInterface.h"
 
@@ -54,8 +54,8 @@ void CopyOnDemandTask::Execute()
 
 void CopyOnDemandTask::copyTexture(ID3D12GraphicsCommandList5* commandList, Texture* texture)
 {
-	ID3D12Resource* defaultHeap = texture->m_pResourceDefaultHeap->GetID3D12Resource1();
-	ID3D12Resource* uploadHeap = texture->m_pResourceUploadHeap->GetID3D12Resource1();
+	ID3D12Resource* defaultHeap = texture->m_pDefaultResource->GetID3D12Resource1();
+	ID3D12Resource* uploadHeap = texture->m_pUploadResource->GetID3D12Resource1();
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		defaultHeap,
