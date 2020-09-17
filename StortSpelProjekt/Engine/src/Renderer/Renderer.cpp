@@ -277,46 +277,42 @@ void Renderer::Execute()
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
 	int commandInterfaceIndex = m_FrameCounter++ % 2;
 
-	/* --------------------- Record copy command lists --------------------- */
+	CopyTask* copyTask = nullptr;
+	ComputeTask* computeTask = nullptr;
+	RenderTask* renderTask = nullptr;
+	/* --------------------- Record command lists --------------------- */
 	// Copy per frame
-	CopyTask* ct = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
-	ct->SetCommandInterfaceIndex(commandInterfaceIndex);
-	//threadpool->AddTask(ct, THREAD_FLAG::COPY_DATA);
-	ct->Execute();
-	//threadpool->WaitForThreads(THREAD_FLAG::COPY_DATA);
+	copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
+	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(copyTask, FLAG_THREAD::RENDER);
 
-
-	/* --------------------- Execute copy command lists --------------------- */
-	// Copy per frame
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(
-		1,
-		&m_CopyPerFrameCmdList[commandInterfaceIndex]);
-	UINT64 copyFenceValue = ++m_FenceFrameValue;
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(m_pFenceFrame, copyFenceValue);
-
-	/* --------------------- Record direct commandlists --------------------- */
 	// Recording shadowmaps
-	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetBackBufferIndex(backBufferIndex);
-	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::SHADOW], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SHADOW];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 
 	// Depth pre-pass
-	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS];
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 
 	// Drawing
-	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetBackBufferIndex(backBufferIndex);
-	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 
 	// Blending
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetBackBufferIndex(backBufferIndex);
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::BLEND], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::BLEND];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 
 	// Blurring for bloom
-	m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR], FLAG_THREAD::RENDER);
+	computeTask = m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR];
+	computeTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(computeTask, FLAG_THREAD::RENDER);
 
 	// Outlining, if an object is picked
 	m_pOutliningRenderTask->SetBackBufferIndex(backBufferIndex);
@@ -330,17 +326,18 @@ void Renderer::Execute()
 		m_pThreadPool->AddTask(m_pWireFrameTask, FLAG_THREAD::RENDER);
 	}
 
-	m_RenderTasks[RENDER_TASK_TYPE::TEXT]->SetBackBufferIndex(backBufferIndex);
-	m_RenderTasks[RENDER_TASK_TYPE::TEXT]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::TEXT], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TEXT];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 
-	m_RenderTasks[RENDER_TASK_TYPE::MERGE]->SetBackBufferIndex(backBufferIndex);
-	m_RenderTasks[RENDER_TASK_TYPE::MERGE]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::MERGE], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::MERGE];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 	
 	// Wait for the threads which records the commandlists to complete
 	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER | FLAG_THREAD::ALL);
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Wait(m_pFenceFrame, copyFenceValue);
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
 		m_DirectCommandLists[commandInterfaceIndex].size(), 
@@ -352,8 +349,6 @@ void Renderer::Execute()
 	m_FenceFrameValue++;
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
-
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Wait(m_pFenceFrame, m_FenceFrameValue);
 	waitForFrame();
 
 	HRESULT hr = dx12SwapChain->Present(0, 0);
@@ -1098,8 +1093,8 @@ void Renderer::initRenderTasks()
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 	// CopyTasks
-	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5);
-	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5);
+	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE);
+	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5, COMMAND_INTERFACE_TYPE::COPY_TYPE);
 
 	
 	// Add the tasks to desired vectors so they can be used in m_pRenderer
@@ -1110,11 +1105,6 @@ void Renderer::initRenderTasks()
 
 	m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME] = copyPerFrameTask;
 	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND] = copyOnDemandTask;
-
-	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-	{
-		m_CopyPerFrameCmdList[i] = copyPerFrameTask->GetCommandList(i);
-	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
@@ -1134,6 +1124,11 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::TEXT] = textTask;
 
 	// Pushback in the order of execution
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(copyPerFrameTask->GetCommandList(i));
+	}
+
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandList(i));
@@ -1216,7 +1211,7 @@ void Renderer::createFences()
 
 void Renderer::waitForFrame(unsigned int framesToBeAhead)
 {
-	static constexpr unsigned int nrOfFenceChangesPerFrame = 2;
+	static constexpr unsigned int nrOfFenceChangesPerFrame = 1;
 	unsigned int fenceValuesToBeAhead = framesToBeAhead * nrOfFenceChangesPerFrame;
 
 	//Wait if the CPU is "framesToBeAhead" number of frames ahead of the GPU

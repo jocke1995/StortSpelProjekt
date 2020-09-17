@@ -3,8 +3,8 @@
 
 #include "../CommandInterface.h"
 
-CopyPerFrameTask::CopyPerFrameTask(ID3D12Device5* device)
-	:CopyTask(device)
+CopyPerFrameTask::CopyPerFrameTask(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType)
+	:CopyTask(device, interfaceType)
 {
 
 }
