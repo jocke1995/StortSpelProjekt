@@ -100,9 +100,6 @@ Renderer::~Renderer()
 	for (RenderTask* renderTask : m_RenderTasks)
 		delete renderTask;
 
-	delete m_pWireFrameTask;
-	delete m_pOutliningRenderTask;
-
 	SAFE_RELEASE(&m_pDevice5);
 
 	delete m_pMousePicker;
@@ -315,15 +312,15 @@ void Renderer::Execute()
 	m_pThreadPool->AddTask(computeTask, FLAG_THREAD::RENDER);
 
 	// Outlining, if an object is picked
-	m_pOutliningRenderTask->SetBackBufferIndex(backBufferIndex);
-	m_pOutliningRenderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_pOutliningRenderTask, FLAG_THREAD::RENDER);
+	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE], FLAG_THREAD::RENDER);
 
 	if (DRAWBOUNDINGBOX == true)
 	{
-		m_pWireFrameTask->SetBackBufferIndex(backBufferIndex);
-		m_pWireFrameTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		m_pThreadPool->AddTask(m_pWireFrameTask, FLAG_THREAD::RENDER);
+		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetBackBufferIndex(backBufferIndex);
+		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetCommandInterfaceIndex(commandInterfaceIndex);
+		m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME], FLAG_THREAD::RENDER);
 	}
 
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TEXT];
@@ -377,12 +374,11 @@ void Renderer::setRenderTasksPrimaryCamera()
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
-
-	m_pOutliningRenderTask->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCamera(m_pScenePrimaryCamera);
 
 	if (DRAWBOUNDINGBOX == true)
 	{
-		m_pWireFrameTask->SetCamera(m_pScenePrimaryCamera);
+		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetCamera(m_pScenePrimaryCamera);
 	}
 }
 
@@ -611,14 +607,14 @@ void Renderer::updateMousePicker()
 		component::ModelComponent*		mc = parentOfPickedObject->GetComponent<component::ModelComponent>();
 		component::TransformComponent*	tc = parentOfPickedObject->GetComponent<component::TransformComponent>();
 
-		m_pOutliningRenderTask->SetObjectToOutline(&std::make_pair(mc, tc));
+		static_cast<OutliningRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE])->SetObjectToOutline(&std::make_pair(mc, tc));
 
 		m_pPickedEntity = parentOfPickedObject;
 	}
 	else
 	{
 		// No object was picked, reset the outlingRenderTask
-		m_pOutliningRenderTask->Clear();
+		static_cast<OutliningRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE])->Clear();
 		m_pPickedEntity = nullptr;
 	}
 }
@@ -795,16 +791,16 @@ void Renderer::initRenderTasks()
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdOutliningVector;
 	gpsdOutliningVector.push_back(&gpsdModelOutlining);
 
-	m_pOutliningRenderTask = new OutliningRenderTask(
+	RenderTask* outliningRenderTask = new OutliningRenderTask(
 		m_pDevice5,
 		m_pRootSignature,
 		L"OutlinedVertex.hlsl", L"OutlinedPixel.hlsl",
 		&gpsdOutliningVector,
 		L"outliningScaledPSO");
 	
-	m_pOutliningRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
-	m_pOutliningRenderTask->SetSwapChain(m_pSwapChain);
-	m_pOutliningRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+	outliningRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
+	outliningRenderTask->SetSwapChain(m_pSwapChain);
+	outliningRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion ModelOutlining
 
@@ -976,14 +972,14 @@ void Renderer::initRenderTasks()
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdWireFrameVector;
 	gpsdWireFrameVector.push_back(&gpsdWireFrame);
 
-	m_pWireFrameTask = new WireframeRenderTask(m_pDevice5,
+	RenderTask* wireFrameRenderTask = new WireframeRenderTask(m_pDevice5,
 		m_pRootSignature,
 		L"WhiteVertex.hlsl", L"WhitePixel.hlsl",
 		&gpsdWireFrameVector,
 		L"WireFramePSO");
 
-	m_pWireFrameTask->SetSwapChain(m_pSwapChain);
-	m_pWireFrameTask->SetDescriptorHeaps(m_DescriptorHeaps);
+	wireFrameRenderTask->SetSwapChain(m_pSwapChain);
+	wireFrameRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion WireFrame
 
 #pragma region MergePass
@@ -1124,6 +1120,8 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME] = wireFrameRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE] = outliningRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::MERGE] = mergeTask;
 	m_RenderTasks[RENDER_TASK_TYPE::TEXT] = textTask;
 
@@ -1160,14 +1158,14 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(m_pOutliningRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(outliningRenderTask->GetCommandList(i));
 	}
 
 	if (DRAWBOUNDINGBOX == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			m_DirectCommandLists[i].push_back(m_pWireFrameTask->GetCommandList(i));
+			m_DirectCommandLists[i].push_back(wireFrameRenderTask->GetCommandList(i));
 		}
 	}
 
@@ -1332,7 +1330,7 @@ void Renderer::removeComponents(Entity* entity)
 			// Stop drawing the wireFrame
 			if (DRAWBOUNDINGBOX == true)
 			{
-				m_pWireFrameTask->ClearSpecific(bbc);
+				static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->ClearSpecific(bbc);
 			}
 
 			// Stop picking this boundingBox
@@ -1553,7 +1551,7 @@ void Renderer::addComponents(Entity* entity)
 
 			bbc->SetMesh(m);
 
-			m_pWireFrameTask->AddObjectToDraw(bbc);
+			static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(bbc);
 		}
 
 		// Add to vector so the mouse picker can check for intersections
