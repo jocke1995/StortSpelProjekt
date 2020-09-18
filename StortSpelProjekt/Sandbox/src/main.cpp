@@ -29,7 +29,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
-    //sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
+    sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(TimScene(sceneManager));
     //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
