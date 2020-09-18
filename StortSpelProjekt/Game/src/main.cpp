@@ -66,6 +66,7 @@ Scene* GetDemoScene(SceneManager* sm)
     component::PointLightComponent* plc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PlayerInputComponent* pic = nullptr;
+    component::TextComponent* txc = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
     /*--------------------- Player ---------------------*/
@@ -101,7 +102,7 @@ Scene* GetDemoScene(SceneManager* sm)
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
 
 
     mc->SetModel(rockModel);
@@ -187,5 +188,32 @@ Scene* GetDemoScene(SceneManager* sm)
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.1f, 0.1f, 0.1f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.5f, 0.5f, 0.5f, 1.0f });
     /*--------------------- DirectionalLight ---------------------*/
+
+    /*--------------------- Text ---------------------*/
+
+    // font
+    std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
+    
+    // text properties
+    std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
+    float2 textPos = { 0.02f, 0.01f };
+    float2 textPadding = { 0.5f, 0.0f };
+    float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
+    float2 textScale = { 0.5f, 0.5f };
+
+    // entity
+    entity = scene->AddEntity("textbox");
+
+    //component
+    txc = entity->AddComponent<component::TextComponent>(arialFont);
+
+    txc->AddText("text");
+    txc->SetColor(textColor, "text");
+    txc->SetPadding(textPadding, "text");
+    txc->SetPos(textPos, "text");
+    txc->SetScale(textScale, "text");
+    txc->SetText(textToRender, "text");
+    /*--------------------- Text ---------------------*/
+
     return scene;
 }
