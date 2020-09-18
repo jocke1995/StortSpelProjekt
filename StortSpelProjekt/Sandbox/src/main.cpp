@@ -30,12 +30,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
-    //sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
+    sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(TimScene(sceneManager));
     //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
-    sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
+    //sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
 
     while (!window->ExitWindow())
     {
@@ -824,22 +824,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
 
-    entity = scene->AddEntity("stone0");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    // stone has it's up axis as Y so need to specify that. Default is set to Z axis so won't have to check
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-
-    mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(stoneModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(0.01f);
-    tc->GetTransform()->SetPosition(5.0f, 0.0f, 5.0f);
-    bbc->Init();
-    Physics::GetInstance().AddCollisionEntity(entity);
-
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 50; i++)
     {
         std::string name;
         name = "stone" + std::to_string(i + 1);

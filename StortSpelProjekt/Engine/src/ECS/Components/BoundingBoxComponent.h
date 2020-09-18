@@ -42,6 +42,7 @@ namespace component
 		const std::string GetPathOfModel() const;
 		const SlotInfo* GetSlotInfo() const;
 		unsigned int GetFlagOBB() const;
+		const DirectX::BoundingOrientedBox* GetOriginalOBB() const;
 
 		// Renderer calls this function when an entity is picked
 		bool& IsPickedThisFrame();
