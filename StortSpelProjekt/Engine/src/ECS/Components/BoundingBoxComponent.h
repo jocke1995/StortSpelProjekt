@@ -12,7 +12,6 @@ enum F_OBBFlags
 {
 	COLLISION = BIT(1),
 	PICKING = BIT(2),
-	Y_AXIS_UPP = BIT(3),
 };
 
 struct BoundingBoxData;

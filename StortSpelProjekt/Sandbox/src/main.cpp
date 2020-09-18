@@ -774,11 +774,12 @@ Scene* BjornsTestScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
     // initialize OBB after we have the transform info
     bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
 
 
     entity = scene->AddEntity("floor");
@@ -787,7 +788,7 @@ Scene* BjornsTestScene(SceneManager* sm)
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
@@ -796,28 +797,68 @@ Scene* BjornsTestScene(SceneManager* sm)
     entity = scene->AddEntity("dragon");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(dragonModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
+    bbc->Init();
     tc->GetTransform()->SetPosition(0.0f, -20.0f, 70.0f);
     tc->GetTransform()->SetRotationX(1.5708);
-
+ 
+    Physics::GetInstance().AddCollisionEntity(entity);
 
     entity = scene->AddEntity("stone");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     // stone has it's up axis as Y so need to specify that. Default is set to Z axis so won't have to check
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::Y_AXIS_UPP);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(stoneModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(0.01f);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
+
+    entity = scene->AddEntity("stone0");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    // stone has it's up axis as Y so need to specify that. Default is set to Z axis so won't have to check
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(stoneModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(0.01f);
+    tc->GetTransform()->SetPosition(5.0f, 0.0f, 5.0f);
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
+
+    for (int i = 0; i < 2; i++)
+    {
+        std::string name;
+        name = "stone" + std::to_string(i + 1);
+        entity = scene->AddEntity(name);
+        mc = entity->AddComponent<component::ModelComponent>();
+        tc = entity->AddComponent<component::TransformComponent>();
+        // stone has it's up axis as Y so need to specify that. Default is set to Z axis so won't have to check
+        bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+
+        mc = entity->GetComponent<component::ModelComponent>();
+        mc->SetModel(stoneModel);
+        mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+        tc = entity->GetComponent<component::TransformComponent>();
+        tc->GetTransform()->SetScale(0.01f);
+        float pos = (i + 1) * 10;
+        tc->GetTransform()->SetPosition(-pos, 0, -pos);
+        bbc->Init();
+        Physics::GetInstance().AddCollisionEntity(entity);
+    }
 
 
     entity = scene->AddEntity("pointLight2");
@@ -826,7 +867,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
     mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
 
@@ -843,7 +884,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
     mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
 
@@ -858,7 +899,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
     mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(-30.0f, 4.0f, -15.0f);
 
@@ -873,7 +914,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
     mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
 
