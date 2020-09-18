@@ -85,7 +85,7 @@ public:
 
 	// Call each frame
 	void Update(double dt);
-	void SortObjectsByDistance();
+	void SortObjects();
 	void Execute();
 
 private:
@@ -133,7 +133,7 @@ private:
 	Mesh* m_pFullScreenQuad = nullptr;
 
 	// Group of components that's needed for rendering:
-	std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>> m_RenderComponents;
+	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::TextComponent*> m_TextComponents;
 
