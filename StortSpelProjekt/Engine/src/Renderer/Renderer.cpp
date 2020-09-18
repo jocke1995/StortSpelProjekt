@@ -971,7 +971,6 @@ void Renderer::initRenderTasks()
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
 		gpsdWireFrame.BlendState.RenderTarget[i] = defaultRTdesc;
 
-
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdWireFrameVector;
 	gpsdWireFrameVector.push_back(&gpsdWireFrame);
 

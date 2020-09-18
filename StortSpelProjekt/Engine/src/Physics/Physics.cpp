@@ -72,5 +72,5 @@ void Physics::collisionChecks(double dt)
 
 void Physics::printCollisions(Collision* event)
 {
-	//Log::Print("%s collided with %s\n", event->ent1->GetName().c_str(), event->ent2->GetName().c_str());
+	Log::Print("%s collided with %s\n", event->ent1->GetName().c_str(), event->ent2->GetName().c_str());
 }

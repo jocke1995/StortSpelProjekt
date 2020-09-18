@@ -6,12 +6,12 @@
 #include<DirectXCollision.h>
 
 // used for enabling Collision and/or Picking.
-// write as "F_OBBFlags::COLLISION | F_OBBFlags::PICKING", without the "", if you want to have both
+// Y_AXIS_UPP is only used if the "up" axis of the model is in the Y axis
+// write as "F_OBBFlags::COLLISION | F_OBBFlags::PICKING", without the "", if you want to have more than one
 enum F_OBBFlags
 {
 	COLLISION = BIT(1),
 	PICKING = BIT(2),
-
 };
 
 struct BoundingBoxData;
@@ -42,6 +42,7 @@ namespace component
 		const std::string GetPathOfModel() const;
 		const SlotInfo* GetSlotInfo() const;
 		unsigned int GetFlagOBB() const;
+		const DirectX::BoundingOrientedBox* GetOriginalOBB() const;
 
 		// Renderer calls this function when an entity is picked
 		bool& IsPickedThisFrame();
