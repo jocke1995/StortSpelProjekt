@@ -3,17 +3,18 @@
 
 #include "../RenderView.h"
 #include "../RootSignature.h"
-#include "../ConstantBufferView.h"
 #include "../CommandInterface.h"
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../PipelineState.h"
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
 #include "../BaseCamera.h"
 #include "../SwapChain.h"
-#include "../RenderTarget.h"
+#include "../GPUMemory/RenderTargetView.h"
+#include "../GPUMemory/DepthStencil.h"
+#include "../GPUMemory/DepthStencilView.h"
 
 FowardRenderTask::FowardRenderTask(
 	ID3D12Device5* device,
@@ -34,11 +35,8 @@ void FowardRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
-	const RenderTarget* swapChainRenderTarget = m_pSwapChain->GetRenderTarget(m_BackBufferIndex);
+	const RenderTargetView* swapChainRenderTarget = m_pSwapChain->GetRTV(m_BackBufferIndex);
 	ID3D12Resource1* swapChainResource = swapChainRenderTarget->GetResource()->GetID3D12Resource1();
-
-	unsigned int a = 15;
-	ID3D12Resource1* BrightTargetResource = m_RenderTargets["brightTarget"]->GetResource()->GetID3D12Resource1();
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
@@ -68,15 +66,13 @@ void FowardRenderTask::Execute()
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhs[] = { cdhSwapChain, cdhBrightTarget };
 
 	// Depth
-	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(m_pDepthStencil->GetDSV()->GetDescriptorHeapIndex());
 
 	commandList->OMSetRenderTargets(2, cdhs, false, &dsh);
 
 	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	commandList->ClearRenderTargetView(cdhSwapChain, clearColor, 0, nullptr);
 	commandList->ClearRenderTargetView(cdhBrightTarget, clearColor, 0, nullptr);
-
-	commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
 	const D3D12_VIEWPORT viewPortSwapChain = *swapChainRenderTarget->GetRenderView()->GetViewPort();
 	const D3D12_VIEWPORT viewPortBrightTarget = *m_RenderTargets["brightTarget"]->GetRenderView()->GetViewPort();
@@ -104,6 +100,7 @@ void FowardRenderTask::Execute()
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 	for (int i = 0; i < m_RenderComponents.size(); i++)
 	{
+		
 		component::ModelComponent* mc = m_RenderComponents.at(i).first;
 		component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
@@ -141,27 +138,23 @@ void FowardRenderTask::drawRenderComponent(
 	const DirectX::XMMATRIX* viewProjTransposed,
 	ID3D12GraphicsCommandList5* cl)
 {
-	// Check if the object is to be drawn in forwardRendering
-	if (mc->GetDrawFlag() & FLAG_DRAW::ForwardRendering)
+	// Draw for every m_pMesh the meshComponent has
+	for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 	{
-		// Draw for every m_pMesh the meshComponent has
-		for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
-		{
-			Mesh* m = mc->GetMeshAt(i);
-			size_t num_Indices = m->GetNumIndices();
-			const SlotInfo* info = mc->GetSlotInfoAt(i);
+		Mesh* m = mc->GetMeshAt(i);
+		size_t num_Indices = m->GetNumIndices();
+		const SlotInfo* info = mc->GetSlotInfoAt(i);
 
-			Transform* transform = tc->GetTransform();
-			DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-			DirectX::XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
+		Transform* transform = tc->GetTransform();
+		DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+		DirectX::XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
 
-			// Create a CB_PER_OBJECT struct
-			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
+		// Create a CB_PER_OBJECT struct
+		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
 
-			cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+		cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-			cl->IASetIndexBuffer(m->GetIndexBufferView());
-			cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
-		}
+		cl->IASetIndexBuffer(m->GetIndexBufferView());
+		cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 	}
 }

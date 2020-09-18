@@ -3,8 +3,8 @@
 
 #include "Texture.h"
 #include "../Misc/Window.h"
-#include "Resource.h"
-#include "ShaderResourceView.h"
+#include "GPUMemory/Resource.h"
+#include "GPUMemory/ShaderResourceView.h"
 #include "DescriptorHeap.h"
 #include "Renderer.h"
 
@@ -97,7 +97,7 @@ void Text::initVertexData()
 		}
 
 		// don't overflow the buffer
-		if (numCharacters >= g_MaxNumTextCharacters)
+		if (numCharacters >= s_MaxNumTextCharacters)
 		{
 			break;
 		}

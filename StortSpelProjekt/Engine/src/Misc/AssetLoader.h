@@ -3,6 +3,7 @@
 
 #include "Core.h"
 #include "../AudioEngine/AudioBuffer.h"
+#include "assimp/matrix4x4.h"
 class DescriptorHeap;
 class Model;
 class Mesh;
@@ -14,7 +15,9 @@ struct aiNode;
 struct aiScene;
 struct aiMesh;
 struct aiMaterial;
-
+struct aiNodeAnim;
+struct Animation;
+struct NodeAnimation;
 
 class AssetLoader
 {
@@ -60,6 +63,7 @@ private:
     // Every model & texture also has a bool which indicates if its data is on the GPU or not
     std::map<std::wstring, std::pair<bool, Model*>> m_LoadedModels;
     std::vector<Mesh*> m_LoadedMeshes;
+    std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
     std::map<std::wstring, Shader*> m_LoadedShaders;
 	std::map<std::wstring, std::pair<Font*, Texture*>> m_LoadedFonts;
@@ -82,6 +86,12 @@ private:
         const std::string* filePath);
 
     Texture* processTexture(aiMaterial* mat, TEXTURE_TYPE texture_type, const std::string* filePathWithoutTexture);
+    
+    void processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations);
+    void processNodeAnimation(const aiNodeAnim* assimpNodeAnimation, NodeAnimation* nodeAnimation);
+
+    DirectX::XMFLOAT4X4 aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix);
+    
     Shader* loadShader(std::wstring fileName, ShaderType type);
 	Font* loadFont(LPCWSTR filename, int windowWidth, int windowHeight);
 };

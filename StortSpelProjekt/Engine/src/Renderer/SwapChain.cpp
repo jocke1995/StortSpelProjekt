@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "SwapChain.h"
 
-#include "Resource.h"
-#include "RenderTarget.h"
-#include "ShaderResourceView.h"
+#include "GPUMemory/Resource.h"
+#include "GPUMemory/RenderTargetView.h"
+#include "GPUMemory/ShaderResourceView.h"
 #include "DescriptorHeap.h"
 
 SwapChain::SwapChain(
@@ -17,7 +17,7 @@ SwapChain::SwapChain(
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_Resources[i] = new Resource();
-		m_RenderTargets[i] = new RenderTarget(width, height, descriptorHeap_RTV, m_Resources[i]);
+		m_RTVs[i] = new RenderTargetView(device, width, height, descriptorHeap_RTV, nullptr, m_Resources[i], false);
 	}
 
 	IDXGIFactory4* factory = nullptr;
@@ -67,15 +67,13 @@ SwapChain::SwapChain(
 	// Connect the m_RenderTargets to the swapchain, so that the swapchain can easily swap between these two m_RenderTargets
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		HRESULT hr = m_pSwapChain4->GetBuffer(i, IID_PPV_ARGS(m_RenderTargets[i]->GetResource()->GetID3D12Resource1PP()));
+		HRESULT hr = m_pSwapChain4->GetBuffer(i, IID_PPV_ARGS(const_cast<Resource*>(m_RTVs[i]->GetResource())->GetID3D12Resource1PP()));
 		if (FAILED(hr))
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to GetBuffer from RenderTarget to Swapchain\n");
 		}
 
-		//m_RenderTargets[i]-> = descriptorHeap_RTV->GetNextDescriptorHeapIndex(1);
-		D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_RTV->GetCPUHeapAt(m_RenderTargets[i]->GetDescriptorHeapIndex());
-		device->CreateRenderTargetView(m_RenderTargets[i]->GetResource()->GetID3D12Resource1(), nullptr, cdh);
+		m_RTVs[i]->CreateRTV(device, descriptorHeap_RTV, nullptr);
 	}
 
 	// Create SRVs
@@ -95,7 +93,7 @@ SwapChain::~SwapChain()
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		delete m_Resources[i];
-		delete m_RenderTargets[i];
+		delete m_RTVs[i];
 		delete m_SRVs[i];
 	}
 	SAFE_RELEASE(&m_pSwapChain4);
@@ -106,9 +104,9 @@ IDXGISwapChain4* SwapChain::GetDX12SwapChain() const
 	return m_pSwapChain4;
 }
 
-const RenderTarget* SwapChain::GetRenderTarget(unsigned int backBufferIndex) const
+const RenderTargetView* SwapChain::GetRTV(unsigned int backBufferIndex) const
 {
-	return m_RenderTargets[backBufferIndex];
+	return m_RTVs[backBufferIndex];
 }
 
 const ShaderResourceView* SwapChain::GetSRV(unsigned int backBufferIndex) const

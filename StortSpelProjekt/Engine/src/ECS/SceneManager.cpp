@@ -7,8 +7,8 @@
 
 // Renderer
 #include "../Renderer/CommandInterface.h"
-#include "../Renderer/ShaderResourceView.h"
-#include "../Renderer/ConstantBufferView.h"
+#include "../Renderer/GPUMemory/ShaderResourceView.h"
+#include "../Renderer/GPUMemory/ConstantBuffer.h"
 #include "../Renderer/ShadowInfo.h"
 #include "../Renderer/ViewPool.h"
 #include "../Renderer/Texture.h"
@@ -158,7 +158,7 @@ void SceneManager::resetScene()
 	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
 	static_cast<ShadowRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
 	m_pRenderer->m_pScenePrimaryCamera = nullptr;
-	m_pRenderer->m_pWireFrameTask->Clear();
+	static_cast<WireframeRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
 	m_pRenderer->m_BoundingBoxesToBePicked.clear();
 	m_pRenderer->m_TextComponents.clear();
 }
