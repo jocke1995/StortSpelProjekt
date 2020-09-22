@@ -1,6 +1,4 @@
 #include "AudioEngine.h"
-#include "AudioBuffer.h"
-#include "../ECS/Entity.h"
 
 AudioEngine::AudioEngine()
 {
@@ -25,9 +23,7 @@ AudioEngine::AudioEngine()
 
 	// debug info
 	//m_AudioDebugInfo.TraceMask = XAUDIO2_LOG_ERRORS;
-	m_AudioDebugInfo.LogFileline = true;
 	m_pXAudio2->SetDebugConfiguration(&m_AudioDebugInfo);
-
 }
 
 AudioEngine& AudioEngine::GetInstance()
@@ -71,4 +67,3 @@ X3DAUDIO_LISTENER* AudioEngine::GetListener()
 {
 	return m_pListener;
 }
-

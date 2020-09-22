@@ -183,7 +183,6 @@ void AudioBuffer::OpenFile(IXAudio2* pXAudio2, std::wstring path)
     m_pSourceVoice->SetVolume(Option::GetInstance().GetVariable("volume"));
 }
 
-
 void AudioBuffer::SetAudioLoop(int loopCount)
 {
     if (loopCount == 0)

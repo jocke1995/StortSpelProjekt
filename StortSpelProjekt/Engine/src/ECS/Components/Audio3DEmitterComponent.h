@@ -4,13 +4,21 @@
 #include "Component.h"
 #include <xaudio2.h>
 #include <x3daudio.h>
+#include "../AudioEngine/AudioVoice.h"
 
 class AudioVoice;
-class AudioEngine;
 class Transform;
 
-// Component used for setting/updating "Emitters" position and orientation in 3D audio playback
+// struct that holds all data needed for separate sounds
+struct EmitterData
+{
+	AudioVoice voice;
+	XAUDIO2_VOICE_DETAILS voiceDetails;
+	X3DAUDIO_EMITTER emitter;
+	X3DAUDIO_DSP_SETTINGS DSPSettings = { 0 };
+};
 
+// Component used for setting/updating "Emitters" position and orientation in 3D audio playback
 namespace component
 {
 	class Audio3DEmitterComponent : public Component
@@ -33,15 +41,7 @@ namespace component
 		void Stop(const std::wstring& name);
 
 	private:
-		std::map<std::wstring, AudioVoice> m_Voices;
-		// Emitter sets world positions of the audio source to be calculated for 3D sound
-		X3DAUDIO_EMITTER m_Emitter;
-		// structure needed for 3D audio and DSP (digital signal processing) effects, holds values returned from x3dAudioCalculate
-		// will probably need a map for separate dsp settings per voice
-		X3DAUDIO_DSP_SETTINGS m_DSPSettings = { 0 };
-		// put in map later
-		XAUDIO2_VOICE_DETAILS m_VoiceDetails;
-
+		std::map<std::wstring, EmitterData> m_VoiceEmitterData;
 		Transform* m_pTransform = nullptr;
 	};
 }

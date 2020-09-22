@@ -4,9 +4,6 @@
 #include <x3daudio.h>
 #pragma comment(lib, "xaudio2")
 
-class AudioBuffer;
-class Entity;
-
 class AudioEngine
 {
 public:

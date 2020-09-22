@@ -6,7 +6,7 @@ Scene* TimScene(SceneManager* sm);
 Scene* JockesTestScene(SceneManager* sm);
 Scene* FredriksTestScene(SceneManager* sm);
 Scene* WilliamsTestScene(SceneManager* sm);
-Scene* AndresScene(SceneManager* sm);
+Scene* AndresTestScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -23,6 +23,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     SceneManager* const sceneManager = engine.GetSceneHandler();
     Renderer* const renderer = engine.GetRenderer();
     Physics* const physics = engine.GetPhysics();
+    AudioEngine* const audioEngine = engine.GetAudioEngine();
 
     /*------ Load Option Variables ------*/
     Option::GetInstance().ReadFile();
@@ -35,7 +36,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
-    sceneManager->SetSceneToDraw(AndresScene(sceneManager));
+
+    // AndresTestScene is testing 3d audio sound. The Audio3DEmitterComponents (horse and melody) and Audio3DListenerComponent are automatically updateded through calls to renderer->update for testing purposes.
+    // Feel free to try and break it, I have tested so that same sound can be used for multiple entities, different sounds for different entities and same sound as 3d and background at same time.
+    sceneManager->SetSceneToDraw(AndresTestScene(sceneManager));
 
     while (!window->ExitWindow())
     {
@@ -746,24 +750,20 @@ Scene* WilliamsTestScene(SceneManager* sm)
 }
 
 
-Scene* AndresScene(SceneManager* sm)
+Scene* AndresTestScene(SceneManager* sm)
 {
 
     // Create Scene
-    Scene* scene = sm->CreateScene("AndresScene");
+    Scene* scene = sm->CreateScene("AndresTestScene");
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
-    component::AudioVoiceComponent* avc = nullptr;
     component::InputComponent* ic = nullptr;
-    component::Audio3DListenerComponent* audioListener = nullptr;   // needed in while loop for updates
-    component::Audio3DEmitterComponent* audioEmitter = nullptr;     // needed in while loop for updates
-    component::AudioVoiceComponent* backroundAudio = nullptr;       // background sound
-
-    //component::Audio3DEmitterComponent* audioEmitter = nullptr;
-    //component::Audio3DListenerComponent* audioListener = nullptr;
+    component::Audio3DListenerComponent* audioListener = nullptr;
+    component::Audio3DEmitterComponent* audioEmitter = nullptr;
+    component::AudioVoiceComponent* backgroundAudio = nullptr;
 
 
     AssetLoader* al = AssetLoader::Get();
@@ -797,7 +797,7 @@ Scene* AndresScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(5, 1, 15);
+    tc->GetTransform()->SetPosition(0, 1, 0);
 
     /* ---------------------- Player ---------------------- */
 
@@ -805,9 +805,9 @@ Scene* AndresScene(SceneManager* sm)
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    backroundAudio = entity->AddComponent<component::AudioVoiceComponent>();
-    backroundAudio->AddVoice(L"melody");
-    backroundAudio->Play(L"melody");
+    backgroundAudio = entity->AddComponent<component::AudioVoiceComponent>();
+    backgroundAudio->AddVoice(L"bruh");
+    backgroundAudio->Play(L"bruh");
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
@@ -823,8 +823,10 @@ Scene* AndresScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
     audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
-    audioEmitter->AddVoice(L"horse");
-    audioEmitter->Play(L"horse");
+    audioEmitter->AddVoice(L"melody");
+    //audioEmitter->AddVoice(L"horse");
+    audioEmitter->Play(L"melody");
+    //audioEmitter->Play(L"horse");
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
@@ -835,6 +837,27 @@ Scene* AndresScene(SceneManager* sm)
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 10.0f, 0.0f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
     /* ---------------------- PointLight1 ---------------------- */
+
+    /* ---------------------- PointLight2 ---------------------- */
+    entity = scene->AddEntity("pointLight2");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
+    //audioEmitter->AddVoice(L"melody");
+    audioEmitter->AddVoice(L"horse");
+    //audioEmitter->Play(L"melody");
+    audioEmitter->Play(L"horse");
+
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(0, 4.0f, -15.0f);
+
+    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.0f, 0.5f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 10.0f, 0.0f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
+    /* ---------------------- PointLight2 ---------------------- */
 
     return scene;
 }

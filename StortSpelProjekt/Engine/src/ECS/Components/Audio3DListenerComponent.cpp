@@ -17,7 +17,7 @@ component::Audio3DListenerComponent::~Audio3DListenerComponent()
 
 void component::Audio3DListenerComponent::Update(double dt)
 {
-	// Temporary for sandbox test
+	// Temporary for sandbox test, UpdateListener will later be explicitly called when needed
 	UpdateListener();
 }
 
@@ -31,7 +31,6 @@ void component::Audio3DListenerComponent::UpdateListener()
 	DirectX::XMStoreFloat3(&up, rotMat.r[1]);
 	position = m_pTransform->GetPositionXMFLOAT3();
 	SetListener(forward, up, position);
-	//Log::Print("x: %f, y: %f, z:%f\n", m_Listener.Position.x, m_Listener.Position.y, m_Listener.Position.z);
 }
 
 void component::Audio3DListenerComponent::SetListener(DirectX::XMFLOAT3 orientFront, DirectX::XMFLOAT3 orientTop, DirectX::XMFLOAT3 position)

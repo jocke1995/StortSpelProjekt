@@ -1,117 +1,124 @@
 #include "stdafx.h"
 #include "Audio3DEmitterComponent.h"
-#include "../AudioEngine/AudioEngine.h"
 #include "../AudioEngine/AudioVoice.h"
 #include "../Misc/AssetLoader.h"
 #include "../Renderer/Transform.h"
-#include "TransformComponent.h"
 #include "../Entity.h"
 
 component::Audio3DEmitterComponent::Audio3DEmitterComponent(Entity* parent) : Component(parent)
 {
-	// 3D Emitter settings, these values need to be set at initialization, rest will be updated later
-	m_Emitter = { 0 };
-	m_Emitter.ChannelCount = 1;
-	m_Emitter.CurveDistanceScaler = 1.0f;
-	//m_Emitter.CurveDistanceScaler = FLT_MAX;
-
-	// temporary emitter orientation
-	DirectX::XMFLOAT3 tempFloat;
-	tempFloat.x = 0.0;
-	tempFloat.y = 0.0;
-	tempFloat.z = -1.0;
-	m_Emitter.OrientFront = tempFloat;
-
-	tempFloat.y = 1.0;
-	tempFloat.z = 0.0;
-	m_Emitter.OrientTop = tempFloat;
 }
 
 component::Audio3DEmitterComponent::~Audio3DEmitterComponent()
 {
-	delete m_DSPSettings.pMatrixCoefficients;
-	delete m_Emitter.pChannelAzimuths;
+	for (auto audio : m_VoiceEmitterData)
+	{
+		delete audio.second.DSPSettings.pMatrixCoefficients;
+		delete audio.second.emitter.pChannelAzimuths;
+		audio.second.voice.GetSourceVoice()->DestroyVoice();
+	}
 }
 
 void component::Audio3DEmitterComponent::Update(double dt)
 {
-	// Temporary for sandbox test
-	//UpdateEmitter(L"melody");
-	UpdateEmitter(L"horse");
+	// Temporary for sandbox test, UpdateEmitter will later be explicitly called for specific sounds
+	for (auto it : m_VoiceEmitterData)
+	{
+		UpdateEmitter(it.first);
+	}
 }
 
 void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)
 {
-	// get parent entity and look for transform components and get their position/orientation and update m_Emitter
+	// get parent entity and look for transform components and get update position
 	m_pTransform = m_pParent->GetComponent<TransformComponent>()->GetTransform();
-	m_Emitter.Position = m_pTransform->GetPositionXMFLOAT3();
+	m_VoiceEmitterData[name].emitter.Position = m_pTransform->GetPositionXMFLOAT3();
+	// update front and top vectors
+	DirectX::XMMATRIX rotMat = m_pTransform->GetRotMatrix();
+	DirectX::XMFLOAT3 forward, up;
+	DirectX::XMStoreFloat3(&forward, rotMat.r[2]);
+	DirectX::XMStoreFloat3(&up, rotMat.r[1]);
+	m_VoiceEmitterData[name].emitter.OrientFront = forward;
+	m_VoiceEmitterData[name].emitter.OrientTop = up;
 
-	AudioEngine* audioEngine = &AudioEngine::GetInstance();
-	// calculates values relative to the emitter and listener and saves values in m_DSPSettings
-	X3DAudioCalculate(*audioEngine->GetX3DInstance(), audioEngine->GetListener(), &m_Emitter, X3DAUDIO_CALCULATE_MATRIX, &m_DSPSettings);
+	// calculates values relative to the emitter and listener and saves values in emitter.DSPSettings
+	X3DAudioCalculate(
+		*AudioEngine::GetInstance().GetX3DInstance(), 
+		AudioEngine::GetInstance().GetListener(), 
+		&m_VoiceEmitterData[name].emitter, 
+		X3DAUDIO_CALCULATE_MATRIX, 
+		&m_VoiceEmitterData[name].DSPSettings);
+
 	// temporary solution due to strange behaviour of the way matrixcoefficients are saved
-	float temp = m_DSPSettings.pMatrixCoefficients[1];
-	m_DSPSettings.pMatrixCoefficients[1] = m_DSPSettings.pMatrixCoefficients[2];
-	m_DSPSettings.pMatrixCoefficients[2] = temp;
-	// sets output matrix for the sound according to the matrix coefficients calculated earlier (changes the soundchannel levels)
-	m_Voices[name].GetSourceVoice()->SetOutputMatrix(audioEngine->GetMasterVoice(), m_VoiceDetails.InputChannels, AudioEngine::GetInstance().GetDeviceDetails()->InputChannels, m_DSPSettings.pMatrixCoefficients);
+	float temp = m_VoiceEmitterData[name].DSPSettings.pMatrixCoefficients[1];
+	m_VoiceEmitterData[name].DSPSettings.pMatrixCoefficients[1] = m_VoiceEmitterData[name].DSPSettings.pMatrixCoefficients[2];
+	m_VoiceEmitterData[name].DSPSettings.pMatrixCoefficients[2] = temp;
 
-	// filter tests
-	//m_Voices[name].GetSourceVoice()->SetFrequencyRatio(audioEngine->Get3DFXSettings()->DopplerFactor); //needs X3DAUDIO_CALCULATE_DOPPLER flag in X3Daudiocalculate function
-	//XAUDIO2_FILTER_PARAMETERS FilterParameters = { LowPassFilter, 2.0f * sinf(X3DAUDIO_PI / 6.0f * m_DSPSettings.LPFDirectCoefficient), 1.0f };
-	//m_Voices[name].GetSourceVoice()->SetFilterParameters(&FilterParameters);
-	//Log::Print("x: %f, y: %f, z:%f\n", m_Emitter.Position.x, m_Emitter.Position.y, m_Emitter.Position.z);
+	// sets output matrix for the sound according to the matrix coefficients calculated earlier (changes the soundchannel levels)
+	m_VoiceEmitterData[name].voice.GetSourceVoice()->SetOutputMatrix(
+		AudioEngine::GetInstance().GetMasterVoice(), 
+		m_VoiceEmitterData[name].voiceDetails.InputChannels, 
+		AudioEngine::GetInstance().GetDeviceDetails()->InputChannels, 
+		m_VoiceEmitterData[name].DSPSettings.pMatrixCoefficients);
 }
 
 void component::Audio3DEmitterComponent::AddVoice(const std::wstring& name)
 {
-	if (m_Voices.count(name) == 0)
+	if (m_VoiceEmitterData.count(name) == 0)
 	{
+		EmitterData emitterData;
 		// add new sound and get details
-		m_Voices.insert(std::make_pair(name, AssetLoader::Get()->GetAudio(name)->CloneVoice()));
-		m_Voices[name].GetSourceVoice()->GetVoiceDetails(&m_VoiceDetails);
+		emitterData.voice = AssetLoader::Get()->GetAudio(name)->CloneVoice();
+		emitterData.voice.GetSourceVoice()->GetVoiceDetails(&emitterData.voiceDetails);
 		// set emitter settings for 3d audio calculations
-		m_Emitter.ChannelCount = m_VoiceDetails.InputChannels;
-		m_Emitter.ChannelRadius = 0.25f;
-		m_Emitter.pChannelAzimuths = new FLOAT32[m_VoiceDetails.InputChannels];
-		m_Emitter.pChannelAzimuths[0] = X3DAUDIO_PI / 4;
-		m_Emitter.pChannelAzimuths[1] = 7 * X3DAUDIO_PI / 4;
-		// prepare m_DSPSettings according to the voice details
-		m_DSPSettings.SrcChannelCount = m_VoiceDetails.InputChannels;
-		m_DSPSettings.DstChannelCount = AudioEngine::GetInstance().GetDeviceDetails()->InputChannels;
-		int coefficients = m_DSPSettings.SrcChannelCount * m_DSPSettings.DstChannelCount;
-		m_DSPSettings.pMatrixCoefficients = new FLOAT32[coefficients];
+		emitterData.emitter = { 0 };
+		emitterData.emitter.ChannelCount = emitterData.voiceDetails.InputChannels;
+		emitterData.emitter.CurveDistanceScaler = 1.0f;
+		emitterData.emitter.OrientFront = DirectX::XMFLOAT3(0.0, 0.0, 0.0); // direction the sound will be facing, this is later updated to parent entity direction
+		emitterData.emitter.OrientTop = DirectX::XMFLOAT3(0.0, 1.0, 0.0); // up vector, this is later updated to change with the parent entitys up vector
+		emitterData.emitter.ChannelRadius = 5.25f;
+		emitterData.emitter.pChannelAzimuths = new FLOAT32[emitterData.voiceDetails.InputChannels];
+		emitterData.emitter.pChannelAzimuths[0] = X3DAUDIO_PI / 4;
+		emitterData.emitter.pChannelAzimuths[1] = 7 * X3DAUDIO_PI / 4;
+		 // prepare DSPSettings according to the voice details
+		emitterData.DSPSettings.SrcChannelCount = emitterData.voiceDetails.InputChannels;
+		emitterData.DSPSettings.DstChannelCount = AudioEngine::GetInstance().GetDeviceDetails()->InputChannels;
+		int coefficients = emitterData.DSPSettings.SrcChannelCount * emitterData.DSPSettings.DstChannelCount;
+		emitterData.DSPSettings.pMatrixCoefficients = new FLOAT32[coefficients];
+
+		// put emitterData struct in the map with key
+		m_VoiceEmitterData.emplace(std::make_pair(name, emitterData));
 	}
 }
 
 void component::Audio3DEmitterComponent::Play(const std::wstring& name)
 {
 #ifdef _DEBUG
-	if (m_Voices.count(name) != 0)
+	if (m_VoiceEmitterData.count(name) != 0)
 	{
-		m_Voices[name].Play();
+		m_VoiceEmitterData[name].voice.Play();
 	}
 	else
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "Tried to play Audio that has not been loaded!");
 	}
 #else
-	m_Voices[name].Play();
+	m_VoiceEmitterData[name].voice.Play();
 #endif
 }
 
 void component::Audio3DEmitterComponent::Stop(const std::wstring& name)
 {
 #ifdef _DEBUG
-	if (m_Voices.count(name) != 0)
+	if (m_VoiceEmitterData.count(name) != 0)
 	{
-		m_Voices[name].Stop();
+		m_VoiceEmitterData[name].voice.Stop();
 	}
 	else
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "Tried to stop Audio that has not been loaded!");
 	}
 #else
-	m_Voices[name].Play();
+	m_VoiceEmitterData[name].voice.Stop();
 #endif
 }

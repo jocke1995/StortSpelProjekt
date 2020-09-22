@@ -3,10 +3,8 @@
 
 #include "Component.h"
 class AudioVoice;
-class AudioEngine;
 
-// Component used for playing sounds
-
+// Component used for playing 2D/background sounds
 namespace component
 {
 	class AudioVoiceComponent : public Component
