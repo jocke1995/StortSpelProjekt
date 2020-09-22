@@ -37,6 +37,9 @@ public:
 
 	DirectX::XMFLOAT3 GetMovement() const;
 
+	float GetVelocity() const;
+	void SetVelocity(float vel);
+
 private:
 	DirectX::XMMATRIX m_WorldMat;
 	DirectX::XMMATRIX m_WorldMatTransposed;
@@ -49,6 +52,8 @@ private:
 	DirectX::XMMATRIX m_RotYMat;
 	DirectX::XMMATRIX m_RotZMat;
 	DirectX::XMMATRIX m_RotationMat;
+
+	float m_Velocity;
 };
 
 #endif
