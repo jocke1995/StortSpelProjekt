@@ -1,0 +1,8 @@
+# Blender MTL File: 'ball.blend'
+# Material Count: 1
+
+newmtl ballmat
+
+map_Kd Steel_albedo.tif
+map_Ks Steel_roughness.tif
+map_Kn Steel_normal.tif
