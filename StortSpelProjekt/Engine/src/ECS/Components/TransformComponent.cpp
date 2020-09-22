@@ -22,6 +22,12 @@ namespace component
 		m_pTransform->UpdateWorldMatrix();
 	}
 
+	//void TransformComponent::RenderUpdate(double dt)
+	//{
+	//	m_pTransform->MoveRender(dt);
+	//	m_pTransform->UpdateWorldMatrix();
+	//}
+
 	Transform* TransformComponent::GetTransform() const
 	{
 		return m_pTransform;
