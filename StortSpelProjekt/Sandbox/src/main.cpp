@@ -83,6 +83,7 @@ Scene* LeosTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::AudioVoiceComponent>();
+    component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -91,6 +92,7 @@ Scene* LeosTestScene(SceneManager* sm)
     avc->AddVoice(L"Music");
     avc->Play(L"Music");
     ic->Init();
+    bbc->Init();
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");

@@ -16,9 +16,14 @@ RenderTask::RenderTask(
 	LPCTSTR psoName)
 	:DX12Task(device, COMMAND_INTERFACE_TYPE::DIRECT_TYPE)
 {
-	for (auto gpsd : *gpsds)
-		m_PipelineStates.push_back(new GraphicsState(device, rootSignature, VSName, PSName, gpsd, psoName));
-
+	if (gpsds != nullptr)
+	{
+		for (auto gpsd : *gpsds)
+		{
+			m_PipelineStates.push_back(new GraphicsState(device, rootSignature, VSName, PSName, gpsd, psoName));
+		}
+	}
+	
 	m_pRootSig = rootSignature->GetRootSig();
 }
 

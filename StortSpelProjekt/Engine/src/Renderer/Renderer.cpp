@@ -50,6 +50,7 @@
 #include "DX12Tasks/ShadowRenderTask.h"
 #include "DX12Tasks/MergeRenderTask.h"
 #include "DX12Tasks/TextTask.h"
+#include "DX12Tasks/ImGuiRenderTask.h"
 
 // Copy 
 #include "DX12Tasks/CopyPerFrameTask.h"
@@ -201,12 +202,16 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
 
+	unsigned int imGuiTextureIndex = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1);
+
 	// Setup Platform/Renderer bindings
 	ImGui_ImplWin32_Init(*window->GetHwnd());
 	ImGui_ImplDX12_Init(m_pDevice5, NUM_SWAP_BUFFERS,
 		DXGI_FORMAT_R16G16B16A16_FLOAT, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetID3D12DescriptorHeap(),
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetID3D12DescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetID3D12DescriptorHeap()->GetGPUDescriptorHandleForHeapStart());
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetCPUHeapAt(imGuiTextureIndex),
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetGPUHeapAt(imGuiTextureIndex));
+
+	
 
 	initRenderTasks();
 
@@ -226,15 +231,6 @@ void Renderer::Update(double dt)
 {
 	// Update CB_PER_FRAME data
 	m_pCbPerFrameData->camPos = m_pScenePrimaryCamera->GetPositionFloat3();
-
-	// Start the Dear ImGui frame
-	ImGui_ImplDX12_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-	bool show_demo_window = true;
-
-	ImGui::ShowDemoWindow(&show_demo_window);
 
 	// Picking
 	updateMousePicker();
@@ -354,13 +350,6 @@ void Renderer::Execute()
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE], FLAG_THREAD::RENDER);
 
-	if (DRAWBOUNDINGBOX == true)
-	{
-		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetBackBufferIndex(backBufferIndex);
-		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetCommandInterfaceIndex(commandInterfaceIndex);
-		m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME], FLAG_THREAD::RENDER);
-	}
-
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TEXT];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
@@ -371,6 +360,24 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 	
+	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
+	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
+	{
+		renderTask = m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME];
+		renderTask->SetBackBufferIndex(backBufferIndex);
+		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+		m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	}
+
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
+		renderTask = m_RenderTasks[RENDER_TASK_TYPE::IMGUI];
+		renderTask->SetBackBufferIndex(backBufferIndex);
+		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+		m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	}
+	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
+
 	// Wait for the threads which records the commandlists to complete
 	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER | FLAG_THREAD::ALL);
 
@@ -414,7 +421,7 @@ void Renderer::setRenderTasksPrimaryCamera()
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCamera(m_pScenePrimaryCamera);
 
-	if (DRAWBOUNDINGBOX == true)
+	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
 		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetCamera(m_pScenePrimaryCamera);
 	}
@@ -1115,6 +1122,19 @@ void Renderer::initRenderTasks()
 
 #pragma endregion Text
 
+#pragma region IMGUIRENDERTASK
+	RenderTask* imGuiRenderTask = new ImGuiRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"", L"",
+		nullptr,
+		L"");
+
+	imGuiRenderTask->SetSwapChain(m_pSwapChain);
+	imGuiRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion IMGUIRENDERTASK
+
 	// ComputeTasks
 	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurHorizontal.hlsl", L"blurHorizontalPSO"));
@@ -1161,6 +1181,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE] = outliningRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::MERGE] = mergeTask;
 	m_RenderTasks[RENDER_TASK_TYPE::TEXT] = textTask;
+	m_RenderTasks[RENDER_TASK_TYPE::IMGUI] = imGuiRenderTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1198,7 +1219,7 @@ void Renderer::initRenderTasks()
 		m_DirectCommandLists[i].push_back(outliningRenderTask->GetCommandList(i));
 	}
 
-	if (DRAWBOUNDINGBOX == true)
+	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
@@ -1215,7 +1236,18 @@ void Renderer::initRenderTasks()
 	// Final pass (this pass will merge different textures together and put result in the swapchain backBuffer)
 	// This will be used for pp-effects such as bloom.
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(mergeTask->GetCommandList(i));
+	}
+
+	// GUI
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			m_DirectCommandLists[i].push_back(imGuiRenderTask->GetCommandList(i));
+		}
+	}
 }
 
 void Renderer::setRenderTasksRenderComponents()
@@ -1369,7 +1401,7 @@ void Renderer::removeComponents(Entity* entity)
 		if (bbc->GetParent() == entity)
 		{
 			// Stop drawing the wireFrame
-			if (DRAWBOUNDINGBOX == true)
+			if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 			{
 				static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->ClearSpecific(bbc);
 			}
@@ -1586,7 +1618,7 @@ void Renderer::addComponents(Entity* entity)
 	if (bbc != nullptr)
 	{
 		// Add it to m_pTask so it can be drawn
-		if (DRAWBOUNDINGBOX == true)
+		if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 		{
 			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel());
 			if (m == nullptr)
