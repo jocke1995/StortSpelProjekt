@@ -8,6 +8,7 @@ class ModifierInput;
 class MouseScroll;
 class MovementInput;
 class MouseMovement;
+struct MouseClick;
 class Transform;
 class PerspectiveCamera;
 class Collision;
@@ -46,6 +47,9 @@ namespace component
 
 		void move(MovementInput* evnt);
 		void rotate(MouseMovement* evnt);
+
+		void leftClick(MouseClick* evnt);
+
 		void grunt(Collision* evnt);
 	};
 }

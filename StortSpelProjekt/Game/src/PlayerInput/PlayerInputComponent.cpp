@@ -11,6 +11,7 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::zoom);
 	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::rotate);
 	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::move);
+	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::leftClick);
 	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::grunt);
 
 	m_CameraFlags = camFlags;
@@ -22,6 +23,9 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_Yaw = 1.0f;
 
 	m_CameraDistance = sqrt(m_Zoom * 4 * m_Zoom * 4 + m_Zoom * m_Zoom);
+
+	m_pCamera = nullptr;
+	m_pTransform = nullptr;
 }
 
 component::PlayerInputComponent::~PlayerInputComponent()
@@ -162,6 +166,11 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 		m_pTransform->SetMovement(forward.x * isMovingZ + right.x * isMovingX, m_pTransform->GetMovement().y, forward.z * isMovingZ + right.z * isMovingX);
 	}
+}
+
+void component::PlayerInputComponent::leftClick(MouseClick* evnt)
+{
+	Log::Print("Leftclick has been pressed \n");
 }
 
 void component::PlayerInputComponent::grunt(Collision* evnt)
