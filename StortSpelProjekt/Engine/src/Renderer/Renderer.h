@@ -83,9 +83,11 @@ public:
 	// Call once
 	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
-	// Call each frame
+	// Call on logic update *This should be moved to a more relevant logic class
 	void Update(double dt);
-	void SortObjectsByDistance();
+	// Call each frame
+	void RenderUpdate(double dt); //Please rename if logic update is removed
+	void SortObjects();
 	void Execute();
 
 private:
@@ -133,7 +135,7 @@ private:
 	Mesh* m_pFullScreenQuad = nullptr;
 
 	// Group of components that's needed for rendering:
-	std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>> m_RenderComponents;
+	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::TextComponent*> m_TextComponents;
 

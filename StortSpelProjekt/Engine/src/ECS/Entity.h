@@ -41,6 +41,7 @@ public:
 	void IncrementRefCount();
 	void DecrementRefCount();
 	void Update(double dt);
+	void RenderUpdate(double dt);
 
 private:
 	unsigned int m_Id = -1;
