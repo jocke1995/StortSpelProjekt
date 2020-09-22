@@ -47,6 +47,24 @@ void Transform::UpdateMovement(float x, float y, float z)
 
 void Transform::Move(float dt)
 {
+	float moveX = m_Position.x + (m_Movement.x * m_Velocity * dt);
+	float moveY = m_Position.y + (m_Movement.y * m_Velocity * dt);
+	float moveZ = m_Position.z + (m_Movement.z * m_Velocity * dt);
+
+	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
+}
+
+void Transform::MoveRender(float dt)
+{
+	float moveX = m_RenderPosition.x + (m_Movement.x * m_Velocity * dt);
+	float moveY = m_RenderPosition.y + (m_Movement.y * m_Velocity * dt);
+	float moveZ = m_RenderPosition.z + (m_Movement.z * m_Velocity * dt);
+
+	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
+}
+
+void Transform::NormalizedMove(float dt)
+{
 	DirectX::XMFLOAT3 normalizedMovement;
 	// Normalize movement
 	DirectX::XMVECTOR movementVector = DirectX::XMLoadFloat3(&m_Movement);
@@ -59,7 +77,7 @@ void Transform::Move(float dt)
 	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
 }
 
-void Transform::MoveRender(float dt)
+void Transform::NormalizedMoveRender(float dt)
 {
 	DirectX::XMFLOAT3 normalizedMovement;
 	// Normalize movement
@@ -179,4 +197,10 @@ void Transform::SetActualMovement(DirectX::XMFLOAT3 mov)
 {
 	m_Movement = mov;
 	m_Velocity = sqrt(mov.x * mov.x + mov.y * mov.y + mov.z * mov.z);
+}
+
+void Transform::UpdateActualMovement(float x, float y, float z)
+{
+	m_Movement = DirectX::XMFLOAT3(m_Movement.x + x, m_Movement.y + y, m_Movement.z + z);
+	DirectX::XMStoreFloat(&m_Velocity,DirectX::XMVector3Length(DirectX::XMLoadFloat3(&m_Movement)));
 }

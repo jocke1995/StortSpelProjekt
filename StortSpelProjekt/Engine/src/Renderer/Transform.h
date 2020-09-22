@@ -18,6 +18,9 @@ public:
 	void UpdateMovement(float x, float y, float z);
 	void Move(float dt);
 	void MoveRender(float dt);
+
+	void NormalizedMove(float dt);
+	void NormalizedMoveRender(float dt);
 	
 	void SetRotationX(float radians);
 	void SetRotationY(float radians);
@@ -47,6 +50,8 @@ public:
 	void SetActualMovement(float x, float y, float z);
 	// Sets the movement. Also sets the velocity to the length of the given vector.
 	void SetActualMovement(DirectX::XMFLOAT3 mov);
+
+	void UpdateActualMovement(float x, float y, float z);
 
 private:
 	DirectX::XMMATRIX m_WorldMat;
