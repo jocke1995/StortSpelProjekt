@@ -56,6 +56,7 @@ void Transform::Move(float dt)
 	float moveZ = m_Position.z + (normalizedMovement.z * 10 * dt);
 
 	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
+	m_RenderPosition = m_Position;
 }
 
 void Transform::MoveRender(float dt)
@@ -69,7 +70,7 @@ void Transform::MoveRender(float dt)
 	float moveY = m_RenderPosition.y + (normalizedMovement.y * 10 * dt);
 	float moveZ = m_RenderPosition.z + (normalizedMovement.z * 10 * dt);
 
-	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
+	m_RenderPosition = DirectX::XMFLOAT3(moveX, moveY, moveZ);
 }
 
 void Transform::SetRotationX(float radians)
@@ -109,7 +110,7 @@ void Transform::IncreaseScaleByPercent(float scale)
 
 void Transform::UpdateWorldMatrix()
 {
-	DirectX::XMMATRIX posMat = DirectX::XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+	DirectX::XMMATRIX posMat = DirectX::XMMatrixTranslation(m_RenderPosition.x, m_RenderPosition.y, m_RenderPosition.z);
 	DirectX::XMMATRIX sclMat = DirectX::XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
 	DirectX::XMMATRIX rotMat = m_RotationMat;
 
