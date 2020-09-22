@@ -29,7 +29,7 @@ namespace component
 
 		void Init();
 
-		void Update(double dt);
+		void RenderUpdate(double dt);
 
 	private:
 		unsigned int m_CameraFlags = 0;

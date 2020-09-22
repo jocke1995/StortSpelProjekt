@@ -4,6 +4,7 @@
 Transform::Transform()
 {
 	m_Position = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+	m_RenderPosition = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 	m_RotationMat = DirectX::XMMatrixIdentity();
 	m_Scale = DirectX::XMFLOAT3(1.0, 1.0, 1.0);
 	m_Movement = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -142,6 +143,20 @@ float3 Transform::GetPositionFloat3() const
 	pos.x = m_Position.x;
 	pos.y = m_Position.y;
 	pos.z = m_Position.z;
+	return pos;
+}
+
+DirectX::XMFLOAT3 Transform::GetRenderPositionXMFLOAT3() const
+{
+	return m_RenderPosition;
+}
+
+float3 Transform::GetRenderPositionFloat3() const
+{
+	float3 pos = {};
+	pos.x = m_RenderPosition.x;
+	pos.y = m_RenderPosition.y;
+	pos.z = m_RenderPosition.z;
 	return pos;
 }
 
