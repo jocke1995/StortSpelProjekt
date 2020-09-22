@@ -83,8 +83,10 @@ public:
 	// Call once
 	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
-	// Call each frame
+	// Call on logic update *This should be moved to a more relevant logic class
 	void Update(double dt);
+	// Call each frame
+	void RenderUpdate(double dt); //Please rename if logic update is removed
 	void SortObjects();
 	void Execute();
 

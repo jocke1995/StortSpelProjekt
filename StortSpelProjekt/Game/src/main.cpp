@@ -13,8 +13,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     /* ------ Engine  ------ */
     Engine engine;
-    engine.Init(hInstance, nCmdShow, fullscreen, screenWidth, screenHeight);
-	
+    engine.Init(hInstance, nCmdShow);
+
+    /*------ Load Option Variables ------*/
+    Option::GetInstance().ReadFile();
+    float updateRate = 1.0f / Option::GetInstance().GetVariable("updateRate");
+
 	/*  ------ Get references from engine  ------ */
 	Window* const window = engine.GetWindow();
 	Timer* const timer = engine.GetTimer();
@@ -24,6 +28,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	
     sceneManager->SetSceneToDraw(GetDemoScene(sceneManager));
 
+    double logicTimer = 0;
+
     if (renderer->GetActiveScene())
     {
         while (!window->ExitWindow())
@@ -32,7 +38,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
             /* ------ Update ------ */
             timer->Update();
-            renderer->Update(timer->GetDeltaTime());
+            logicTimer += timer->GetDeltaTime();
+
+            renderer->RenderUpdate(timer->GetDeltaTime());
+            if (logicTimer >= updateRate)
+            {
+                logicTimer = 0;
+                renderer->Update(updateRate);
+            }
+
             Physics::GetInstance().Update(timer->GetDeltaTime());
             /* ------ Sort ------ */
             renderer->SortObjects();

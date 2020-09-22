@@ -31,6 +31,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     /*------ Load Option Variables ------*/
     Option::GetInstance().ReadFile();
+    float updateRate = 1.0f / Option::GetInstance().GetVariable("updateRate");
 
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
@@ -42,12 +43,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
 
+    /*----- Timer ------*/
+    double logicTimer = 0;
+
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
         timer->Update();
-        renderer->Update(timer->GetDeltaTime());
-        physics->Update(timer->GetDeltaTime());
+        logicTimer += timer->GetDeltaTime();
+
+        renderer->RenderUpdate(timer->GetDeltaTime());
+        if (logicTimer >= updateRate)
+        {
+            logicTimer = 0;
+            physics->Update(updateRate);
+            renderer->Update(updateRate);
+        }
 
         /* ------ Sort ------ */
         renderer->SortObjects();
@@ -84,8 +95,8 @@ Scene* LeosTestScene(SceneManager* sm)
     /* ---------------------- Player ---------------------- */
     Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
-    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     tc = entity->AddComponent<component::TransformComponent>();
+    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::AudioVoiceComponent>();
 
@@ -771,8 +782,8 @@ Scene* BjornsTestScene(SceneManager* sm)
 
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
-    component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     tc = entity->AddComponent<component::TransformComponent>();
+    component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
     // adding OBB with collision
