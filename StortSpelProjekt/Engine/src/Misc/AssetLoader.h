@@ -31,6 +31,7 @@ public:
 
     // Texture ------------
     Texture* LoadTexture2D(const std::wstring path);
+    Texture* LoadTextureCubeMap(std::wstring path);
 
     // TEMP: FILIP
     // Create Geometry

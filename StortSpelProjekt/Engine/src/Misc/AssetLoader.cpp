@@ -15,6 +15,7 @@
 #include "assimp/scene.h"
 
 #include "../Renderer/Texture/Texture2D.h"
+#include "../Renderer/Texture/TextureCubeMap.h"
 
 #include <DirectXMath.h>
 
@@ -210,6 +211,26 @@ Texture* AssetLoader::LoadTexture2D(std::wstring path)
 	}
 
 	Texture* texture = new Texture2D();
+	if (texture->Init(path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
+	{
+		delete texture;
+		return nullptr;
+	}
+
+	m_LoadedTextures[path].first = false;
+	m_LoadedTextures[path].second = texture;
+	return texture;
+}
+
+Texture* AssetLoader::LoadTextureCubeMap(std::wstring path)
+{
+	// Check if the texture already exists
+	if (m_LoadedTextures.count(path) != 0)
+	{
+		return m_LoadedTextures[path].second;
+	}
+
+	Texture* texture = new TextureCubeMap();
 	if (texture->Init(path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
 	{
 		delete texture;

@@ -398,6 +398,9 @@ Scene* FloppipTestScene(SceneManager* sm)
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
 
+    Texture* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    //Texture* skyboxCubeMap = al->LoadTexture2D(L"../Vendor/Resources/Textures/Default/default_diffuse.jpg");
+
     // TEMP: FILIP
     //Mesh* skyboxMesh = al->CreateSkyboxMesh();
 
