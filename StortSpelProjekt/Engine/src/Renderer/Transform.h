@@ -15,6 +15,7 @@ public:
 	void SetMovement(DirectX::XMFLOAT3 mov);
 	void UpdateMovement(float x, float y, float z);
 	void Move(float dt);
+	void MoveRender(float dt);
 	
 	void SetRotationX(float radians);
 	void SetRotationY(float radians);
@@ -42,6 +43,7 @@ private:
 	DirectX::XMMATRIX m_WorldMatTransposed;
 
 	DirectX::XMFLOAT3 m_Position;
+	DirectX::XMFLOAT3 m_RenderPosition;
 	DirectX::XMFLOAT3 m_Movement;
 	DirectX::XMFLOAT3 m_Scale;
 
