@@ -26,9 +26,16 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	m_pTimer = new Timer(m_pWindow);
 
 	// ThreadPool
-	int numCores = std::thread::hardware_concurrency();
-	if (numCores == 0) numCores = 1; // function not supported
-	m_pThreadPool = new ThreadPool(numCores); // Set num m_Threads to number of cores of the cpu
+	int numThreads = std::thread::hardware_concurrency();
+	if (numThreads == 0) // function not supported
+	{
+		numThreads = 1;
+	}
+	else if (numThreads > m_ThreadLimit) // Limiting the number of threads to the threadLimit
+	{
+		numThreads = m_ThreadLimit;
+	}
+	m_pThreadPool = new ThreadPool(numThreads); // Set num m_Threads to number of cores of the cpu
 
 	// Sub-engines
 	m_pRenderer = new Renderer();
