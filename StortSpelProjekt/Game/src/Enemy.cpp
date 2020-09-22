@@ -1,15 +1,20 @@
 #include "Enemy.h"
 
-Enemy::Enemy(std::string name) : Entity(name)
+namespace component
 {
+	Enemy::Enemy(Entity* parent, std::string name) : Component(parent)
+	{
+		
+	}
+
+	Enemy::~Enemy()
+	{
+
+	}
+
+	void Enemy::Update(double dt)
+	{
+
+	}
 }
 
-Enemy::~Enemy()
-{
-
-}
-
-void Enemy::Update(double dt)
-{
-
-}

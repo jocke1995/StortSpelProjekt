@@ -1,19 +1,25 @@
 #pragma once
 #ifndef ENEMY_H
 #define ENEMY_H
-#include "..\..\Engine\src\ECS\Entity.h"
 
-class Enemy : public Entity
+#include "..\ECS\Components\Component.h"
+#include "Core.h"
+
+namespace component
 {
-public:
-	Enemy(std::string name);
-	~Enemy();
+	class Enemy : public Component
+	{
+	public:
+		Enemy(Entity* parent, std::string name);
+		~Enemy();
 
-	void Update(double dt);
+		void Update(double dt);
 
-private:
+	private:
 
 
-};
+	};
+}
+
 
 #endif
