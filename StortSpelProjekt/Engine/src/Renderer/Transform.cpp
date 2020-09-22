@@ -13,6 +13,7 @@ Transform::Transform()
 	m_RotXMat = DirectX::XMMatrixIdentity();
 	m_RotYMat = DirectX::XMMatrixIdentity();
 	m_RotZMat = DirectX::XMMatrixIdentity();
+	m_Velocity = 10;
 }
 
 Transform::~Transform()
@@ -51,9 +52,9 @@ void Transform::Move(float dt)
 	DirectX::XMVECTOR movementVector = DirectX::XMLoadFloat3(&m_Movement);
 	movementVector = DirectX::XMVector3Normalize(movementVector);
 	DirectX::XMStoreFloat3(&normalizedMovement, movementVector);
-	float moveX = m_Position.x + (normalizedMovement.x * 10 * dt);
-	float moveY = m_Position.y + (normalizedMovement.y * 10 * dt);
-	float moveZ = m_Position.z + (normalizedMovement.z * 10 * dt);
+	float moveX = m_Position.x + (normalizedMovement.x * m_Velocity * dt);
+	float moveY = m_Position.y + (normalizedMovement.y * m_Velocity * dt);
+	float moveZ = m_Position.z + (normalizedMovement.z * m_Velocity * dt);
 
 	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
 }
@@ -65,9 +66,9 @@ void Transform::MoveRender(float dt)
 	DirectX::XMVECTOR movementVector = DirectX::XMLoadFloat3(&m_Movement);
 	movementVector = DirectX::XMVector3Normalize(movementVector);
 	DirectX::XMStoreFloat3(&normalizedMovement, movementVector);
-	float moveX = m_RenderPosition.x + (normalizedMovement.x * 10 * dt);
-	float moveY = m_RenderPosition.y + (normalizedMovement.y * 10 * dt);
-	float moveZ = m_RenderPosition.z + (normalizedMovement.z * 10 * dt);
+	float moveX = m_RenderPosition.x + (normalizedMovement.x * m_Velocity * dt);
+	float moveY = m_RenderPosition.y + (normalizedMovement.y * m_Velocity * dt);
+	float moveZ = m_RenderPosition.z + (normalizedMovement.z * m_Velocity * dt);
 
 	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
 }
@@ -156,4 +157,26 @@ DirectX::XMMATRIX Transform::GetRotMatrix() const
 DirectX::XMFLOAT3 Transform::GetMovement() const
 {
 	return m_Movement;
+}
+
+float Transform::GetVelocity() const
+{
+	return m_Velocity;
+}
+
+void Transform::SetVelocity(float vel)
+{
+	m_Velocity = vel;
+}
+
+void Transform::SetActualMovement(float x, float y, float z)
+{
+	m_Movement = DirectX::XMFLOAT3(x, y, z);
+	m_Velocity = sqrt(x * x + y * y + z * z);
+}
+
+void Transform::SetActualMovement(DirectX::XMFLOAT3 mov)
+{
+	m_Movement = mov;
+	m_Velocity = sqrt(mov.x * mov.x + mov.y * mov.y + mov.z * mov.z);
 }
