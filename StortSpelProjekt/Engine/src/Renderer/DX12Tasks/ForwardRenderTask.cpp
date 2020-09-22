@@ -16,6 +16,11 @@
 #include "../GPUMemory/DepthStencil.h"
 #include "../GPUMemory/DepthStencilView.h"
 
+//ImGui
+#include "../ImGUI/imgui.h"
+#include "../ImGUI/imgui_impl_win32.h"
+#include "../ImGUI/imgui_impl_dx12.h"
+
 FowardRenderTask::FowardRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
@@ -115,6 +120,9 @@ void FowardRenderTask::Execute()
 		drawRenderComponent(mc, tc, viewProjMatTrans, commandList);
 	}
 
+	ImGui::Render();
+	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+
 	// Draw Rendercomponent with stencil testing enabled
 	if (outlinedModel.first != nullptr)
 	{
@@ -122,7 +130,7 @@ void FowardRenderTask::Execute()
 		commandList->OMSetStencilRef(1);
 		drawRenderComponent(outlinedModel.first, outlinedModel.second, viewProjMatTrans, commandList);
 	}
-	
+
 	// Change state on front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		swapChainResource,

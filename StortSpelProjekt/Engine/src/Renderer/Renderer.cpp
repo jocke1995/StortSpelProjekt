@@ -58,6 +58,11 @@
 // Compute
 #include "DX12Tasks/BlurComputeTask.h"
 
+//ImGui
+#include "../ImGUI/imgui.h"
+#include "../ImGUI/imgui_impl_win32.h"
+#include "../ImGUI/imgui_impl_dx12.h"
+
 Renderer::Renderer()
 {
 	m_RenderTasks.resize(RENDER_TASK_TYPE::NR_OF_RENDERTASKS);
@@ -109,6 +114,11 @@ Renderer::~Renderer()
 	delete m_pCbPerSceneData;
 	delete m_pCbPerFrame;
 	delete m_pCbPerFrameData;
+
+	// Cleanup ImGui
+	ImGui_ImplDX12_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
 
 void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
@@ -182,6 +192,22 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 
 	m_pCbPerFrameData = new CB_PER_FRAME_STRUCT();
 
+	// Setup ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+
+	// Setup ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsClassic();
+
+	// Setup Platform/Renderer bindings
+	ImGui_ImplWin32_Init(*window->GetHwnd());
+	ImGui_ImplDX12_Init(m_pDevice5, NUM_SWAP_BUFFERS,
+		DXGI_FORMAT_R16G16B16A16_FLOAT, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetID3D12DescriptorHeap(),
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetID3D12DescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetID3D12DescriptorHeap()->GetGPUDescriptorHandleForHeapStart());
+
 	initRenderTasks();
 
 	// Submit the fullscreenQuad to be uploaded, but it won't be uploaded until a scene has been set to Draw
@@ -200,6 +226,15 @@ void Renderer::Update(double dt)
 {
 	// Update CB_PER_FRAME data
 	m_pCbPerFrameData->camPos = m_pScenePrimaryCamera->GetPositionFloat3();
+
+	// Start the Dear ImGui frame
+	ImGui_ImplDX12_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	bool show_demo_window = true;
+
+	ImGui::ShowDemoWindow(&show_demo_window);
 
 	// Picking
 	updateMousePicker();
