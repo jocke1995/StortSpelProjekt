@@ -84,7 +84,7 @@ Scene* GetDemoScene(SceneManager* sm)
     avc = entity->AddComponent<component::AudioVoiceComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     // ================= GRAVITATION TEST, WILL BE REMOVED BEFORE MERGE!========================
-    ac = entity->AddComponent<component::AccelrationComponent>(4);
+    ac = entity->AddComponent<component::AccelrationComponent>(0.982);
 
     pic->Init();
 
