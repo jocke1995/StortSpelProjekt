@@ -13,7 +13,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     /* ------ Engine  ------ */
     Engine engine;
-    engine.Init(hInstance, nCmdShow);
+    engine.Init(hInstance, nCmdShow, fullscreen, screenWidth, screenHeight);
 
     /*------ Load Option Variables ------*/
     Option::GetInstance().ReadFile();
@@ -210,7 +210,7 @@ Scene* GetDemoScene(SceneManager* sm)
     /*--------------------- PointLight 3 ---------------------*/
 
     /*--------------------- PointLight 4 ---------------------*/
-    /*// entity
+    // entity
     entity = scene->AddEntity("pointLightD");
 
     // components
@@ -218,7 +218,7 @@ Scene* GetDemoScene(SceneManager* sm)
     plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.5f, 0.5f, 0.0f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 5.0f, 5.0f, 0.0f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
-    plc->SetPosition({ -30,1,-30 });*/
+    plc->SetPosition({ -30,1,-30 });
     /*--------------------- PointLight 4 ---------------------*/
 
     /*--------------------- DirectionalLight ---------------------*/
