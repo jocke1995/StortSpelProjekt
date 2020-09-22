@@ -30,7 +30,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             renderer->Update(timer->GetDeltaTime());
             Physics::GetInstance().Update(timer->GetDeltaTime());
             /* ------ Sort ------ */
-            renderer->SortObjectsByDistance();
+            renderer->SortObjects();
 
             /* ------ Draw ------ */
             renderer->Execute();
@@ -84,7 +84,7 @@ Scene* GetDemoScene(SceneManager* sm)
     pic->Init();
 
     mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, -30.0f);
 
@@ -106,7 +106,7 @@ Scene* GetDemoScene(SceneManager* sm)
 
 
     mc->SetModel(rockModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.01f);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
@@ -124,7 +124,7 @@ Scene* GetDemoScene(SceneManager* sm)
 
 
     mc->SetModel(floorModel);
-    mc->SetDrawFlag(FLAG_DRAW::ForwardRendering | FLAG_DRAW::Shadow);
+    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(35.0f, 1.0f, 35.0f);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /*--------------------- Floor ---------------------*/
