@@ -6,6 +6,7 @@
 #include "Components/CameraComponent.h"
 #include "Components/BoundingBoxComponent.h"
 #include "Components/TextComponent.h"
+#include "Components/InputComponent.h"
 // Audio
 #include "Components/AudioVoiceComponent.h"
 
@@ -38,6 +39,7 @@ public:
 	void IncrementRefCount();
 	void DecrementRefCount();
 	void Update(double dt);
+	void RenderUpdate(double dt);
 
 private:
 	unsigned int m_Id = -1;

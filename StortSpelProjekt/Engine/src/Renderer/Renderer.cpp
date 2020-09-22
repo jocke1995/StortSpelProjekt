@@ -100,9 +100,6 @@ Renderer::~Renderer()
 	for (RenderTask* renderTask : m_RenderTasks)
 		delete renderTask;
 
-	delete m_pWireFrameTask;
-	delete m_pOutliningRenderTask;
-
 	SAFE_RELEASE(&m_pDevice5);
 
 	delete m_pMousePicker;
@@ -201,17 +198,23 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 
 void Renderer::Update(double dt)
 {
+	// Update scene
+	m_pCurrActiveScene->Update(dt);
+}
+
+void Renderer::RenderUpdate(double dt)
+{
 	// Update CB_PER_FRAME data
 	m_pCbPerFrameData->camPos = m_pScenePrimaryCamera->GetPositionFloat3();
 
 	// Picking
 	updateMousePicker();
-	
+
 	// Update scene
-	m_pCurrActiveScene->UpdateScene(dt);
+	m_pCurrActiveScene->RenderUpdate(dt);
 }
 
-void Renderer::SortObjectsByDistance()
+void Renderer::SortObjects()
 {
 	struct DistFromCamera
 	{
@@ -220,53 +223,56 @@ void Renderer::SortObjectsByDistance()
 		component::TransformComponent* tc;
 	};
 
-	int numRenderComponents = m_RenderComponents.size();
-
-	DistFromCamera* distFromCamArr = new DistFromCamera[numRenderComponents];
-
-	// Get all the distances of each objects and store them by ID and distance
-	DirectX::XMFLOAT3 camPos = m_pScenePrimaryCamera->GetPosition();
-	for (int i = 0; i < numRenderComponents; i++)
+	for (auto& renderComponents : m_RenderComponents)
 	{
-		DirectX::XMFLOAT3 objectPos = m_RenderComponents.at(i).second->GetTransform()->GetPositionXMFLOAT3();
+		int numRenderComponents = renderComponents.second.size();
 
-		double distance = sqrt(	pow(camPos.x - objectPos.x, 2) +
-								pow(camPos.y - objectPos.y, 2) +
-								pow(camPos.z - objectPos.z, 2));
+		DistFromCamera* distFromCamArr = new DistFromCamera[numRenderComponents];
 
-		// Save the object alongside its distance to the m_pCamera
-		distFromCamArr[i].distance = distance;
-		distFromCamArr[i].mc = m_RenderComponents.at(i).first;
-		distFromCamArr[i].tc = m_RenderComponents.at(i).second;
-	}
-
-	// InsertionSort (because its best case is O(N)), 
-	// and since this is sorted ((((((EVERY FRAME)))))) this is a good choice of sorting algorithm
-	int j = 0;
-	DistFromCamera distFromCamArrTemp = {};
-	for (int i = 1; i < numRenderComponents; i++)
-	{
-		j = i;
-		while (j > 0 && (distFromCamArr[j - 1].distance > distFromCamArr[j].distance))
+		// Get all the distances of each objects and store them by ID and distance
+		DirectX::XMFLOAT3 camPos = m_pScenePrimaryCamera->GetPosition();
+		for (int i = 0; i < numRenderComponents; i++)
 		{
-			// Swap
-			distFromCamArrTemp = distFromCamArr[j - 1];
-			distFromCamArr[j - 1] = distFromCamArr[j];
-			distFromCamArr[j] = distFromCamArrTemp;
-			j--;
+			DirectX::XMFLOAT3 objectPos = renderComponents.second.at(i).second->GetTransform()->GetPositionXMFLOAT3();
+
+			double distance = sqrt(pow(camPos.x - objectPos.x, 2) +
+				pow(camPos.y - objectPos.y, 2) +
+				pow(camPos.z - objectPos.z, 2));
+
+			// Save the object alongside its distance to the m_pCamera
+			distFromCamArr[i].distance = distance;
+			distFromCamArr[i].mc = renderComponents.second.at(i).first;
+			distFromCamArr[i].tc = renderComponents.second.at(i).second;
 		}
+
+		// InsertionSort (because its best case is O(N)), 
+		// and since this is sorted ((((((EVERY FRAME)))))) this is a good choice of sorting algorithm
+		int j = 0;
+		DistFromCamera distFromCamArrTemp = {};
+		for (int i = 1; i < numRenderComponents; i++)
+		{
+			j = i;
+			while (j > 0 && (distFromCamArr[j - 1].distance > distFromCamArr[j].distance))
+			{
+				// Swap
+				distFromCamArrTemp = distFromCamArr[j - 1];
+				distFromCamArr[j - 1] = distFromCamArr[j];
+				distFromCamArr[j] = distFromCamArrTemp;
+				j--;
+			}
+		}
+
+		// Fill the vector with sorted array
+		renderComponents.second.clear();
+		for (int i = 0; i < numRenderComponents; i++)
+		{
+			renderComponents.second.push_back(std::make_pair(distFromCamArr[i].mc, distFromCamArr[i].tc));
+		}
+
+		// Free memory
+		delete distFromCamArr;
 	}
-
-	// Fill the vector with sorted array
-	m_RenderComponents.clear();
-	for (int i = 0; i < numRenderComponents; i++)
-	{
-		m_RenderComponents.push_back(std::make_pair(distFromCamArr[i].mc, distFromCamArr[i].tc));
-	}
-
-	// Free memory
-	delete distFromCamArr;
-
+	
 	// Update the entity-arrays inside the rendertasks
 	setRenderTasksRenderComponents();
 }
@@ -277,70 +283,67 @@ void Renderer::Execute()
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
 	int commandInterfaceIndex = m_FrameCounter++ % 2;
 
-	/* --------------------- Record copy command lists --------------------- */
+	CopyTask* copyTask = nullptr;
+	ComputeTask* computeTask = nullptr;
+	RenderTask* renderTask = nullptr;
+	/* --------------------- Record command lists --------------------- */
 	// Copy per frame
-	CopyTask* ct = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
-	ct->SetCommandInterfaceIndex(commandInterfaceIndex);
-	//threadpool->AddTask(ct, THREAD_FLAG::COPY_DATA);
-	ct->Execute();
-	//threadpool->WaitForThreads(THREAD_FLAG::COPY_DATA);
+	copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
+	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(copyTask, FLAG_THREAD::RENDER);
 
-
-	/* --------------------- Execute copy command lists --------------------- */
-	// Copy per frame
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(
-		1,
-		&m_CopyPerFrameCmdList[commandInterfaceIndex]);
-	UINT64 copyFenceValue = ++m_FenceFrameValue;
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(m_pFenceFrame, copyFenceValue);
-
-	/* --------------------- Record direct commandlists --------------------- */
 	// Recording shadowmaps
-	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetBackBufferIndex(backBufferIndex);
-	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::SHADOW], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SHADOW];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 
 	// Depth pre-pass
-	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS];
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 
 	// Drawing
-	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetBackBufferIndex(backBufferIndex);
-	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 
 	// Blending
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetBackBufferIndex(backBufferIndex);
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::BLEND], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::BLEND];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 
 	// Blurring for bloom
-	m_RenderTasks[RENDER_TASK_TYPE::BLUR]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::BLUR], FLAG_THREAD::RENDER);
+	computeTask = m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR];
+	computeTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(computeTask, FLAG_THREAD::RENDER);
 
 	// Outlining, if an object is picked
-	m_pOutliningRenderTask->SetBackBufferIndex(backBufferIndex);
-	m_pOutliningRenderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_pOutliningRenderTask, FLAG_THREAD::RENDER);
+	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE], FLAG_THREAD::RENDER);
 
 	if (DRAWBOUNDINGBOX == true)
 	{
-		m_pWireFrameTask->SetBackBufferIndex(backBufferIndex);
-		m_pWireFrameTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		m_pThreadPool->AddTask(m_pWireFrameTask, FLAG_THREAD::RENDER);
+		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetBackBufferIndex(backBufferIndex);
+		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetCommandInterfaceIndex(commandInterfaceIndex);
+		m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME], FLAG_THREAD::RENDER);
 	}
 
-	m_RenderTasks[RENDER_TASK_TYPE::TEXT]->SetBackBufferIndex(backBufferIndex);
-	m_RenderTasks[RENDER_TASK_TYPE::TEXT]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::TEXT], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TEXT];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 
-	m_RenderTasks[RENDER_TASK_TYPE::MERGE]->SetBackBufferIndex(backBufferIndex);
-	m_RenderTasks[RENDER_TASK_TYPE::MERGE]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::MERGE], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::MERGE];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 	
 	// Wait for the threads which records the commandlists to complete
 	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER | FLAG_THREAD::ALL);
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Wait(m_pFenceFrame, copyFenceValue);
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
 		m_DirectCommandLists[commandInterfaceIndex].size(), 
@@ -352,8 +355,6 @@ void Renderer::Execute()
 	m_FenceFrameValue++;
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
-
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Wait(m_pFenceFrame, m_FenceFrameValue);
 	waitForFrame();
 
 	HRESULT hr = dx12SwapChain->Present(0, 0);
@@ -382,12 +383,11 @@ void Renderer::setRenderTasksPrimaryCamera()
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
-
-	m_pOutliningRenderTask->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCamera(m_pScenePrimaryCamera);
 
 	if (DRAWBOUNDINGBOX == true)
 	{
-		m_pWireFrameTask->SetCamera(m_pScenePrimaryCamera);
+		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetCamera(m_pScenePrimaryCamera);
 	}
 }
 
@@ -578,7 +578,7 @@ void Renderer::createFullScreenQuad()
 	indexVector.push_back(2);
 	indexVector.push_back(3);
 
-	m_pFullScreenQuad = new Mesh(m_pDevice5, vertexVector, indexVector, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	m_pFullScreenQuad = new Mesh(m_pDevice5, &vertexVector, &indexVector, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 }
 
 void Renderer::updateMousePicker()
@@ -616,14 +616,14 @@ void Renderer::updateMousePicker()
 		component::ModelComponent*		mc = parentOfPickedObject->GetComponent<component::ModelComponent>();
 		component::TransformComponent*	tc = parentOfPickedObject->GetComponent<component::TransformComponent>();
 
-		m_pOutliningRenderTask->SetObjectToOutline(&std::make_pair(mc, tc));
+		static_cast<OutliningRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE])->SetObjectToOutline(&std::make_pair(mc, tc));
 
 		m_pPickedEntity = parentOfPickedObject;
 	}
 	else
 	{
 		// No object was picked, reset the outlingRenderTask
-		m_pOutliningRenderTask->Clear();
+		static_cast<OutliningRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE])->Clear();
 		m_pPickedEntity = nullptr;
 	}
 }
@@ -800,16 +800,16 @@ void Renderer::initRenderTasks()
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdOutliningVector;
 	gpsdOutliningVector.push_back(&gpsdModelOutlining);
 
-	m_pOutliningRenderTask = new OutliningRenderTask(
+	RenderTask* outliningRenderTask = new OutliningRenderTask(
 		m_pDevice5,
 		m_pRootSignature,
 		L"OutlinedVertex.hlsl", L"OutlinedPixel.hlsl",
 		&gpsdOutliningVector,
 		L"outliningScaledPSO");
 	
-	m_pOutliningRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
-	m_pOutliningRenderTask->SetSwapChain(m_pSwapChain);
-	m_pOutliningRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+	outliningRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
+	outliningRenderTask->SetSwapChain(m_pSwapChain);
+	outliningRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion ModelOutlining
 
@@ -977,18 +977,17 @@ void Renderer::initRenderTasks()
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
 		gpsdWireFrame.BlendState.RenderTarget[i] = defaultRTdesc;
 
-
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdWireFrameVector;
 	gpsdWireFrameVector.push_back(&gpsdWireFrame);
 
-	m_pWireFrameTask = new WireframeRenderTask(m_pDevice5,
+	RenderTask* wireFrameRenderTask = new WireframeRenderTask(m_pDevice5,
 		m_pRootSignature,
 		L"WhiteVertex.hlsl", L"WhitePixel.hlsl",
 		&gpsdWireFrameVector,
 		L"WireFramePSO");
 
-	m_pWireFrameTask->SetSwapChain(m_pSwapChain);
-	m_pWireFrameTask->SetDescriptorHeaps(m_DescriptorHeaps);
+	wireFrameRenderTask->SetSwapChain(m_pSwapChain);
+	wireFrameRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion WireFrame
 
 #pragma region MergePass
@@ -1091,7 +1090,7 @@ void Renderer::initRenderTasks()
 	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurHorizontal.hlsl", L"blurHorizontalPSO"));
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurVertical.hlsl", L"blurVerticalPSO"));
-	DX12Task* blurComputeTask = new BlurComputeTask(
+	ComputeTask* blurComputeTask = new BlurComputeTask(
 		m_pDevice5, m_pRootSignature,
 		csNamePSOName,
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
@@ -1102,8 +1101,8 @@ void Renderer::initRenderTasks()
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 	// CopyTasks
-	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5);
-	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5);
+	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE);
+	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5, COMMAND_INTERFACE_TYPE::COPY_TYPE);
 
 	
 	// Add the tasks to desired vectors so they can be used in m_pRenderer
@@ -1117,28 +1116,29 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_CopyPerFrameCmdList[i] = copyPerFrameTask->GetCommandList(i);
-	}
-
-	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-	{
 		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandList(i);
 	}
 
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
 	
-	// None atm
+	m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR] = blurComputeTask;
 
 	/* ------------------------- DirectQueue Tasks ---------------------- */
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS] = DepthPrePassRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
-	m_RenderTasks[RENDER_TASK_TYPE::BLUR] = static_cast<RenderTask*>(blurComputeTask);
+	m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME] = wireFrameRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE] = outliningRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::MERGE] = mergeTask;
 	m_RenderTasks[RENDER_TASK_TYPE::TEXT] = textTask;
 
 	// Pushback in the order of execution
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(copyPerFrameTask->GetCommandList(i));
+	}
+
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandList(i));
@@ -1166,14 +1166,14 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(m_pOutliningRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(outliningRenderTask->GetCommandList(i));
 	}
 
 	if (DRAWBOUNDINGBOX == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			m_DirectCommandLists[i].push_back(m_pWireFrameTask->GetCommandList(i));
+			m_DirectCommandLists[i].push_back(wireFrameRenderTask->GetCommandList(i));
 		}
 	}
 
@@ -1191,10 +1191,10 @@ void Renderer::initRenderTasks()
 
 void Renderer::setRenderTasksRenderComponents()
 {
-	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents);
-	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents);
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents);
-	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents);
+	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::NO_DEPTH]);
+	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPACITY]);
+	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
 	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 }
 
@@ -1221,7 +1221,7 @@ void Renderer::createFences()
 
 void Renderer::waitForFrame(unsigned int framesToBeAhead)
 {
-	static constexpr unsigned int nrOfFenceChangesPerFrame = 2;
+	static constexpr unsigned int nrOfFenceChangesPerFrame = 1;
 	unsigned int fenceValuesToBeAhead = framesToBeAhead * nrOfFenceChangesPerFrame;
 
 	//Wait if the CPU is "framesToBeAhead" number of frames ahead of the GPU
@@ -1249,14 +1249,18 @@ void Renderer::waitForCopyOnDemand()
 
 void Renderer::removeComponents(Entity* entity)
 {
-	// Check if the entity is a renderComponent
-	for (int i = 0; i < m_RenderComponents.size(); i++)
+	for (auto& renderComponents : m_RenderComponents)
 	{
-		Entity* parent = m_RenderComponents[i].first->GetParent();
-		if (parent == entity)
+		for (int i = 0; i < renderComponents.second.size(); i++)
 		{
-			m_RenderComponents.erase(m_RenderComponents.begin() + i);
-			setRenderTasksRenderComponents();
+			// Remove from all renderComponent-vectors if they are there
+			Entity* parent = nullptr;
+			parent = renderComponents.second[i].first->GetParent();
+			if (parent == entity)
+			{
+				renderComponents.second.erase(renderComponents.second.begin() + i);
+				setRenderTasksRenderComponents();
+			}
 		}
 	}
 
@@ -1338,7 +1342,7 @@ void Renderer::removeComponents(Entity* entity)
 			// Stop drawing the wireFrame
 			if (DRAWBOUNDINGBOX == true)
 			{
-				m_pWireFrameTask->ClearSpecific(bbc);
+				static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->ClearSpecific(bbc);
 			}
 
 			// Stop picking this boundingBox
@@ -1418,8 +1422,27 @@ void Renderer::addComponents(Entity* entity)
 				}
 			}
 
-			// Finally store the object in m_pRenderer so it will be drawn
-			m_RenderComponents.push_back(std::make_pair(mc, tc));
+			// Finally store the object in the corresponding renderComponent vectors so it will be drawn
+			if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
+			{
+				m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(mc, tc));
+			}
+
+			if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
+			{
+				m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
+			}
+
+			if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
+			{
+				m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
+			}
+
+			if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
+			{
+				m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(mc, tc));
+			}
+			
 		}
 	}
 
@@ -1559,7 +1582,7 @@ void Renderer::addComponents(Entity* entity)
 
 			bbc->SetMesh(m);
 
-			m_pWireFrameTask->AddObjectToDraw(bbc);
+			static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(bbc);
 		}
 
 		// Add to vector so the mouse picker can check for intersections

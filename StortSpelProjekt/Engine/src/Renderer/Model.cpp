@@ -4,15 +4,16 @@
 #include "Texture.h"
 #include "GPUMemory/ShaderResourceView.h"
 #include "structs.h"
+#include "Animation.h"
 
-Model::Model(const std::wstring path, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures)
+Model::Model(const std::wstring path, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures)
 {
 	m_Path = path;
 	m_Size = (*meshes).size();
 
-	// Just copy the pointers
-	m_Meshes = *meshes;
-	m_Textures = *textures;
+	m_Meshes = (*meshes);
+	m_Animations = (*animations);
+	m_Textures = (*textures);
 
 	// Fill SlotInfo with mesh+material info
 	for (unsigned int i = 0; i < (*meshes).size(); i++)

@@ -2,8 +2,8 @@
 #define TRANSFORMCOMPONENT_H
 
 #include "Component.h"
+#include <assimp\types.h>
 class Transform;
-class MovementInput;
 
 namespace component
 {
@@ -14,12 +14,11 @@ namespace component
         virtual ~TransformComponent();
 
         void Update(double dt);
+        void RenderUpdate(double dt);
 
         Transform* GetTransform() const;
     private:
         Transform* m_pTransform = nullptr;
-
-        void setMovement(MovementInput* evnt);
     };
 }
 

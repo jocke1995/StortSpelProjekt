@@ -102,7 +102,15 @@ std::string Scene::GetName() const
     return m_SceneName;
 }
 
-void Scene::UpdateScene(double dt)
+void Scene::RenderUpdate(double dt)
+{
+    for (auto pair : m_Entities)
+    {
+        pair.second->RenderUpdate(dt);
+    }
+}
+
+void Scene::Update(double dt)
 {
     for (auto pair : m_Entities)
     {

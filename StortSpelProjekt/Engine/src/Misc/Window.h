@@ -42,6 +42,7 @@ private:
 	LPCTSTR m_WindowTitle;
 
 	HWND m_Hwnd;
+	bool m_ShutDown;
 
 	bool initWindow(HINSTANCE hInstance, int nCmdShow);
 };

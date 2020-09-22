@@ -33,6 +33,7 @@ private:
 	BoundingBoxPool(BoundingBoxPool const&) = delete;
 	void operator=(BoundingBoxPool const&) = delete;
 
+
 	ID3D12Device5* m_pDevice = nullptr;
 	DescriptorHeap* m_pDescriptorHeap_CBV_UAV_SRV = nullptr;
 

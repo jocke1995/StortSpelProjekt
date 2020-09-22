@@ -10,6 +10,7 @@ class Resource;
 class ShaderResourceView;
 class DescriptorHeap;
 struct SlotInfo;
+struct Animation;
 
 // DX12 Forward Declarations
 struct ID3D12Device5;
@@ -20,6 +21,7 @@ class Model
 public:
     Model(const std::wstring path,
         std::vector<Mesh*>* meshes,
+        std::vector<Animation*>* animations,
         std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures);
     virtual ~Model();
 
@@ -39,8 +41,9 @@ private:
     std::wstring m_Path;
     unsigned int m_Size = 0;
     std::vector<Mesh*> m_Meshes;
+    std::vector<Animation*> m_Animations;
     std::vector<std::map<TEXTURE_TYPE, Texture*>> m_Textures;
-    std::vector<SlotInfo>  m_SlotInfos;
+    std::vector<SlotInfo> m_SlotInfos;
 };
 
 #endif

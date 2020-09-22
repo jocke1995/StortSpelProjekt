@@ -97,27 +97,23 @@ void ShadowRenderTask::Execute()
 			component::ModelComponent* mc = m_RenderComponents.at(i).first;
 			component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
-			// Check if the object is to be drawn in ShadowPass
-			if (mc->GetDrawFlag() & FLAG_DRAW::Shadow)
+			// Draw for every m_pMesh the meshComponent has
+			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 			{
-				// Draw for every m_pMesh the meshComponent has
-				for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
-				{
-					size_t num_Indices = mc->GetMeshAt(i)->GetNumIndices();
-					const SlotInfo* info = mc->GetSlotInfoAt(i);
+				size_t num_Indices = mc->GetMeshAt(i)->GetNumIndices();
+				const SlotInfo* info = mc->GetSlotInfoAt(i);
 
-					Transform* transform = tc->GetTransform();
-					DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-					DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+				Transform* transform = tc->GetTransform();
+				DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+				DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
-					// Create a CB_PER_OBJECT struct
-					CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
+				// Create a CB_PER_OBJECT struct
+				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
 
-					commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-					commandList->IASetIndexBuffer(mc->GetMeshAt(i)->GetIndexBufferView());
-					commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
-				}
+				commandList->IASetIndexBuffer(mc->GetMeshAt(i)->GetIndexBufferView());
+				commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 			}
 		}
 

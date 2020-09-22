@@ -106,6 +106,11 @@ namespace component
 		return m_FlagOBB;
 	}
 
+	const DirectX::BoundingOrientedBox* BoundingBoxComponent::GetOriginalOBB() const
+	{
+		return &m_OriginalBoundingBox;
+	}
+
 	bool& BoundingBoxComponent::IsPickedThisFrame()
 	{
 		return m_pParent->GetComponent<ModelComponent>()->m_IsPickedThisFrame;
@@ -121,9 +126,20 @@ namespace component
 			m_PathOfModel = mc->GetMeshAt(0)->GetPath();
 
 			BoundingBoxPool* bbp = BoundingBoxPool::Get();
+			// if the model we want to make an OBB for already has an OBB then take the neccessary data from it.
 			if (bbp->BoundingBoxDataExists(m_PathOfModel) == true)
 			{
 				m_pBbd = bbp->GetBoundingBoxData(m_PathOfModel);
+
+				// get the corners of the OBB and make the our OBB from them
+				DirectX::XMFLOAT3 corners[8];
+				for (int i = 0; i < 8; i++)
+				{
+					corners[i] = m_pBbd->boundingBoxVertices[i].pos;
+				}
+				m_OrientedBoundingBox.CreateFromPoints(m_OrientedBoundingBox, 8, corners, sizeof(DirectX::XMFLOAT3));
+				// also save to the Original OBB used for math in update
+				m_OriginalBoundingBox = m_OrientedBoundingBox;
 				return true;
 			}
 
@@ -159,10 +175,10 @@ namespace component
 			m_OrientedBoundingBox.Extents.z = absHalfLenghtOfRect.z;
 
 			// Set the position of the OBB
-			m_OrientedBoundingBox.Center.x = 0;
-			// y pos of models should be at 0, and we want the center of the model, so add the distance to center
-			m_OrientedBoundingBox.Center.y = ((minVertex.y) + (maxVertex.y)) / 2;
-			m_OrientedBoundingBox.Center.z = 0;
+			m_OrientedBoundingBox.Center.x = maxVertex.x - absHalfLenghtOfRect.x;
+			m_OrientedBoundingBox.Center.y = maxVertex.y - absHalfLenghtOfRect.y;
+			m_OrientedBoundingBox.Center.z = maxVertex.z - absHalfLenghtOfRect.z;
+	
 
 			// save this original state of the boundingBox so that we can apply the correct math in update()
 			m_OriginalBoundingBox = m_OrientedBoundingBox;

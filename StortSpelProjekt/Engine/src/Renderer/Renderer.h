@@ -83,9 +83,11 @@ public:
 	// Call once
 	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
-	// Call each frame
+	// Call on logic update *This should be moved to a more relevant logic class
 	void Update(double dt);
-	void SortObjectsByDistance();
+	// Call each frame
+	void RenderUpdate(double dt); //Please rename if logic update is removed
+	void SortObjects();
 	void Execute();
 
 private:
@@ -127,13 +129,13 @@ private:
 	std::vector<RenderTask*>  m_RenderTasks;
 
 	// Since these tasks wont operate on all objects, they will not be set in the same map as the other "rendertasks".
-	WireframeRenderTask* m_pWireFrameTask = nullptr;
-	OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
+	//WireframeRenderTask* m_pWireFrameTask = nullptr;
+	//OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
 
 	Mesh* m_pFullScreenQuad = nullptr;
 
 	// Group of components that's needed for rendering:
-	std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>> m_RenderComponents;
+	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::TextComponent*> m_TextComponents;
 
@@ -152,7 +154,6 @@ private:
 	// Commandlists holders
 	std::vector<ID3D12CommandList*> m_DirectCommandLists[NUM_SWAP_BUFFERS];
 	std::vector<ID3D12CommandList*> m_ComputeCommandLists[NUM_SWAP_BUFFERS];
-	ID3D12CommandList* m_CopyPerFrameCmdList[NUM_SWAP_BUFFERS];
 	ID3D12CommandList* m_CopyOnDemandCmdList[NUM_SWAP_BUFFERS];
 	
 	// DescriptorHeaps
