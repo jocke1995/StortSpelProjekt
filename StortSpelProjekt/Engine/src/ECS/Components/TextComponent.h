@@ -1,6 +1,8 @@
 #ifndef TEXTCOMPONENT_H
 #define TEXTCOMPONENT_H
 
+#include <map>
+#include <vector>
 #include "Component.h"
 class Text;
 class Window;
