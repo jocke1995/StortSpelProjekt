@@ -2,4 +2,4 @@ f_volume 0.5
 i_network 0
 s_ip localhost
 i_port 55555
-updateRate 30
+f_updateRate 30

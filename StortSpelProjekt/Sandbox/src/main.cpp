@@ -28,6 +28,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
+    float updateRate = std::atof(option->GetVariable("f_updateRate").c_str());
 
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
@@ -57,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         networkOn = true;
     }
-    double networkTimer = 0;
+    int networkCount = 0;
     double logicTimer = 0;
 
     while (!window->ExitWindow())
@@ -66,17 +67,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         timer->Update();
         logicTimer += timer->GetDeltaTime();
         logicTimer += timer->GetDeltaTime();
-        if (logicTimer >= 1.0f / 30.0f)
-        {
-            logicTimer = 0;
-            renderer->Update(timer->GetDeltaTime());
-            physics->Update(timer->GetDeltaTime());
-        }
 
         renderer->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
+            networkCount++;
             physics->Update(updateRate);
             renderer->Update(updateRate);
         }
@@ -84,9 +80,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ---- Network ---- */
         if (networkOn)
         {
-            networkTimer += timer->GetDeltaTime();
-            if (networkTimer >= 0.1) {
-                networkTimer = 0;
+            if (networkCount == 2) {
+                networkCount = 0;
 
                 network.SendPositionPacket();
                 network.GetPlayerPosition();
