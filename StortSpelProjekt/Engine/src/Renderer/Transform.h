@@ -11,7 +11,9 @@ public:
 
 	void SetPosition(float x, float y, float z);
 	void SetPosition(DirectX::XMFLOAT3 pos);
+	// Sets the movement direction. This will later be normalized to the velocity of the transform.
 	void SetMovement(float x, float y, float z);
+	// Sets the movement direction. This will later be normalized to the velocity of the transform.
 	void SetMovement(DirectX::XMFLOAT3 mov);
 	void UpdateMovement(float x, float y, float z);
 	void Move(float dt);
@@ -38,6 +40,14 @@ public:
 
 	DirectX::XMFLOAT3 GetMovement() const;
 
+	float GetVelocity() const;
+	void SetVelocity(float vel);
+
+	// Sets the movement. Also sets the velocity to the length of the given vector.
+	void SetActualMovement(float x, float y, float z);
+	// Sets the movement. Also sets the velocity to the length of the given vector.
+	void SetActualMovement(DirectX::XMFLOAT3 mov);
+
 private:
 	DirectX::XMMATRIX m_WorldMat;
 	DirectX::XMMATRIX m_WorldMatTransposed;
@@ -51,6 +61,8 @@ private:
 	DirectX::XMMATRIX m_RotYMat;
 	DirectX::XMMATRIX m_RotZMat;
 	DirectX::XMMATRIX m_RotationMat;
+
+	float m_Velocity;
 };
 
 #endif
