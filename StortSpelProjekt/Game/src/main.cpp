@@ -11,6 +11,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Engine engine;
     engine.Init(hInstance, nCmdShow);
 
+    /*------ Load Option Variables ------*/
+    Option::GetInstance().ReadFile();
+    float updateRate = 1.0f / Option::GetInstance().GetVariable("updateRate");
+
 	/*  ------ Get references from engine  ------ */
 	Window* const window = engine.GetWindow();
 	Timer* const timer = engine.GetTimer();
@@ -20,6 +24,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     sceneManager->SetSceneToDraw(GetDemoScene(sceneManager));
 
+    double logicTimer = 0;
+
     if (renderer->GetActiveScene())
     {
         while (!window->ExitWindow())
@@ -28,9 +34,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
             /* ------ Update ------ */
             timer->Update();
-            renderer->Update(timer->GetDeltaTime());
+            logicTimer += timer->GetDeltaTime();
+
             renderer->RenderUpdate(timer->GetDeltaTime());
-            Physics::GetInstance().Update(timer->GetDeltaTime());
+            if (logicTimer >= updateRate)
+            {
+                logicTimer = 0;
+                Physics::GetInstance().Update(updateRate);
+                renderer->Update(updateRate);
+            }
+
             /* ------ Sort ------ */
             renderer->SortObjects();
 
@@ -103,18 +116,18 @@ Scene* GetDemoScene(SceneManager* sm)
     /*--------------------- Rock ---------------------*/
     // entity
     entity = scene->AddEntity("rock");
-
+    
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
-
-
+    
+    
     mc->SetModel(rockModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.01f);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-
+    
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /*--------------------- Rock ---------------------*/
@@ -122,12 +135,12 @@ Scene* GetDemoScene(SceneManager* sm)
     /*--------------------- Floor ---------------------*/
     // entity
     entity = scene->AddEntity("floor");
-
+    
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-
-
+    
+    
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(35.0f, 1.0f, 35.0f);

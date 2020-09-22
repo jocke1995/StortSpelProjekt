@@ -47,13 +47,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         timer->Update();
         logicTimer += timer->GetDeltaTime();
 
+        renderer->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
             physics->Update(updateRate);
             renderer->Update(updateRate);
         }
-        renderer->RenderUpdate(timer->GetDeltaTime());
 
         /* ------ Sort ------ */
         renderer->SortObjects();
@@ -777,8 +777,8 @@ Scene* BjornsTestScene(SceneManager* sm)
 
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
-    component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     tc = entity->AddComponent<component::TransformComponent>();
+    component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
     // adding OBB with collision

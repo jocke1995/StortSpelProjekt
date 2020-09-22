@@ -23,7 +23,6 @@ void component::AccelrationComponent::Update(double dt)
 		trans->SetMovement({ trans->GetMovement().x, 0, trans->GetMovement().z });
 		trans->SetPosition(trans->GetPositionFloat3().x, 1, trans->GetPositionFloat3().z);
 	}
-
 }
 
 DirectX::XMFLOAT3 component::AccelrationComponent::GetDirection() const
