@@ -40,6 +40,9 @@ public:
 	float GetVelocity() const;
 	void SetVelocity(float vel);
 
+	void SetActualMovement(float x, float y, float z);
+	void SetActualMovement(DirectX::XMFLOAT3 mov);
+
 private:
 	DirectX::XMMATRIX m_WorldMat;
 	DirectX::XMMATRIX m_WorldMatTransposed;

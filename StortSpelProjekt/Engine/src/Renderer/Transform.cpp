@@ -154,3 +154,15 @@ void Transform::SetVelocity(float vel)
 {
 	m_Velocity = vel;
 }
+
+void Transform::SetActualMovement(float x, float y, float z)
+{
+	m_Movement = DirectX::XMFLOAT3(x, y, z);
+	m_Velocity = sqrt(x * x + y * y + z * z);
+}
+
+void Transform::SetActualMovement(DirectX::XMFLOAT3 mov)
+{
+	m_Movement = mov;
+	m_Velocity = sqrt(mov.x * mov.x + mov.y * mov.y + mov.z * mov.z);
+}
