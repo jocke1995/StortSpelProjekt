@@ -1,10 +1,17 @@
-struct SKYMAP_VS_OUTPUT    //output structure for skymap vertex shader
+#include "../../Headers/structs.h"
+
+struct VS_OUT    //output structure for skymap vertex shader
 {
     float4 Pos : SV_POSITION;
     float3 texCoord : TEXCOORD;
 };
 
-float4 SKYMAP_PS(SKYMAP_VS_OUTPUT input) : SV_Target
+ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
+TextureCube textures[] : register(t0);
+
+SamplerState cubeSampler : register (s2);
+
+float4 PS_main(VS_OUT input) : SV_Target
 {
-    return SkyMap.Sample(ObjSamplerState, input.texCoord);
+    return 5*textures[cbPerObject.info.textureAmbient].Sample(cubeSampler, input.texCoord);
 }

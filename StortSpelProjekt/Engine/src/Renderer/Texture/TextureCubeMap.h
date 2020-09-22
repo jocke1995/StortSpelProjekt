@@ -17,6 +17,12 @@ public:
 	bool Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap);
 
 private:
+	friend class CopyOnDemandTask;
+
+	std::vector<D3D12_SUBRESOURCE_DATA> subResourceData;
+	// TODO: FILIP temp not save
+	std::unique_ptr<uint8_t[]> ddsData;
+
 };
 
 #endif

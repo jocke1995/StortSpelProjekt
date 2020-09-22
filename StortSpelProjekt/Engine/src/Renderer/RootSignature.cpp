@@ -122,9 +122,9 @@ void RootSignature::createRootSignatureStructure()
 	rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
 	rsDesc.NumParameters = ARRAYSIZE(rootParam);
 	rsDesc.pParameters = rootParam;
-	rsDesc.NumStaticSamplers = 2;
+	rsDesc.NumStaticSamplers = 3;
 
-	D3D12_STATIC_SAMPLER_DESC ssd[2] = {};
+	D3D12_STATIC_SAMPLER_DESC ssd[3] = {};
 	ssd[0].ShaderRegister = 0;
 	ssd[0].Filter = D3D12_FILTER_ANISOTROPIC;
 	ssd[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -145,6 +145,17 @@ void RootSignature::createRootSignatureStructure()
 	ssd[1].MipLODBias = 0.0f;
 	ssd[1].MaxAnisotropy = 1;
 	ssd[1].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+
+	ssd[2].ShaderRegister = 2;
+	ssd[2].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	ssd[2].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	ssd[2].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	ssd[2].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	ssd[2].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	ssd[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	ssd[2].MinLOD = 0;
+	ssd[2].MaxLOD = D3D12_FLOAT32_MAX;
+	ssd[2].MipLODBias = 0.0f;
 
 	rsDesc.pStaticSamplers = ssd;
 

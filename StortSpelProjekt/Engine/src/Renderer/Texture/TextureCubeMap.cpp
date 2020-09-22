@@ -11,6 +11,7 @@
 TextureCubeMap::TextureCubeMap()
 	: Texture()
 {
+	m_Type = TEXTURE_TYPE::TEXTURECUBEMAP;
 }
 
 TextureCubeMap::~TextureCubeMap()
@@ -20,30 +21,31 @@ TextureCubeMap::~TextureCubeMap()
 bool TextureCubeMap::Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 {
 	m_FilePath = filePath;
+	HRESULT hr;
 
-	//DirectX::LoadDDSTextureFromFile(device, filePath, texture, );
+	m_pDefaultResource = new Resource();
+	
+	// Loads the texture and creates a default resource;
+	hr = DirectX::LoadDDSTextureFromFile(device, filePath.c_str(), (ID3D12Resource**)m_pDefaultResource->GetID3D12Resource1PP(), ddsData, subResourceData);
 
-	// Load image Data
-	unsigned int byteSize = LoadImageDataFromFile(&m_pImageData, &m_ResourceDescription, filePath, &m_ImageBytesPerRow);
-	if (byteSize == 0)
+	// Set resource desc created in LoadDDSTextureFromFile
+	m_ResourceDescription = m_pDefaultResource->GetID3D12Resource1()->GetDesc();
+
+
+	if (FAILED(hr))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(filePath).c_str());
+		delete m_pDefaultResource;
 		return false;
 	}
 
-	// Default heap
-	m_pDefaultResource = new Resource(
-		device,
-		&m_ResourceDescription,
-		nullptr,
-		m_FilePath + L"_DEFAULT_RESOURCE",
-		D3D12_RESOURCE_STATE_COMMON);
-
 	// Footprint
 	UINT64 textureUploadBufferSize;
+
+	// TODO: FILIP dubbelkolla
 	device->GetCopyableFootprints(
 		&m_ResourceDescription,
-		0, 1, 0,
+		0, 6, 0,
 		nullptr, nullptr, nullptr,
 		&textureUploadBufferSize);
 
@@ -57,19 +59,14 @@ bool TextureCubeMap::Init(std::wstring filePath, ID3D12Device5* device, Descript
 	D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
 	desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	desc.Format = m_ResourceDescription.Format;
-	desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	desc.Texture2D.MipLevels = 1;
+	desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+	desc.TextureCube.MipLevels = 1;
 
 	m_pSRV = new ShaderResourceView(
 		device,
 		descriptorHeap,
 		&desc,
 		m_pDefaultResource);
-
-	// Set SubResource info
-	m_SubresourceData.pData = &m_pImageData[0]; // pointer to our image data
-	m_SubresourceData.RowPitch = m_ImageBytesPerRow;
-	m_SubresourceData.SlicePitch = m_ImageBytesPerRow * m_ResourceDescription.Height;
 
 	return true;
 }

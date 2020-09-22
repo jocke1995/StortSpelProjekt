@@ -5,6 +5,8 @@
 #include "../Resource.h"
 #include "../CommandInterface.h"
 
+#include "../Texture/TextureCubeMap.h"
+
 CopyOnDemandTask::CopyOnDemandTask(ID3D12Device5* device)
 	:CopyTask(device)
 {
@@ -61,12 +63,31 @@ void CopyOnDemandTask::copyTexture(ID3D12GraphicsCommandList5* commandList, Text
 		defaultHeap,
 		D3D12_RESOURCE_STATE_COMMON,
 		D3D12_RESOURCE_STATE_COPY_DEST));
-
-	// Transfer the data
-	UpdateSubresources(commandList,
-		defaultHeap, uploadHeap,
-		0, 0, 1,
-		&texture->m_SubresourceData);
+	
+	// Check type
+	if (texture->m_Type == TEXTURE_TYPE::TEXTURE2D)
+	{
+		// Transfer the data
+		UpdateSubresources(commandList,
+			defaultHeap, uploadHeap,
+			0, 0, 1,
+			&texture->m_SubresourceData);
+	}
+	else if (texture->m_Type == TEXTURE_TYPE::TEXTURECUBEMAP)
+	{
+		TextureCubeMap* cubemap = static_cast<TextureCubeMap*>(texture);
+		unsigned int i = cubemap->GetDescriptorHeapIndex();
+		// Transfer the data
+		UpdateSubresources(commandList,
+			defaultHeap, uploadHeap,
+			0, 0, cubemap->subResourceData.size(), // Should always be 6
+			cubemap->subResourceData.data());
+	}
+	else
+	{
+		// Not supporting this texture type currently
+		Log::PrintSeverity(Log::Severity::CRITICAL, "CopyOnDemand: Not supporting TEXTURE_TYPE: %d", texture->m_Type);
+	}
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		defaultHeap,

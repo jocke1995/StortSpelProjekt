@@ -12,7 +12,7 @@
 Texture2D::Texture2D()
 	: Texture()
 {
-	
+	m_Type = TEXTURE_TYPE::TEXTURE2D;
 }
 
 Texture2D::~Texture2D()

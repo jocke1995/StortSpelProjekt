@@ -58,6 +58,7 @@ namespace component
 	class ModelComponent;
 	class TransformComponent;
 	class TextComponent;
+	class SkyboxComponent;
 }
 
 class Renderer
@@ -127,6 +128,7 @@ private:
 	std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::TextComponent*> m_TextComponents;
+	component::SkyboxComponent* m_Skybox;
 
 	ViewPool* m_pViewPool = nullptr;
 	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBufferView*, ShadowInfo*>>> m_Lights;

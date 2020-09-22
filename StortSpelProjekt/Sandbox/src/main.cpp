@@ -396,10 +396,11 @@ Scene* FloppipTestScene(SceneManager* sm)
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    
 
 
-    Texture* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
-    //Texture* skyboxCubeMap = al->LoadTexture2D(L"../Vendor/Resources/Textures/Default/default_diffuse.jpg");
+    Texture* skyboxTexture = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    //Texture* skyboxTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/Default/default_diffuse.jpg");
 
     // TEMP: FILIP
     //Mesh* skyboxMesh = al->CreateSkyboxMesh();
@@ -431,9 +432,14 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    sbc->SetModel(cubeModel);
-    sbc->GetTransform()->SetScale(5);
+    sbc->SetMesh(cubeModel->GetMeshAt(0));
+    sbc->SetTexture(skyboxTexture);
+    sbc->SetCamera(cc->GetCamera());
+    // TODO: FILIP KOLLA SETSCALE
+    sbc->GetTransform()->SetScale(50);
 
+    int* pot = int();
+    int a = sizeof(*pot);
 
     /* ---------------------- Skybox ---------------------- */
 

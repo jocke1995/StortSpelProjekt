@@ -1,18 +1,33 @@
-struct SKYMAP_VS_OUTPUT    //output structure for skymap vertex shader
+#include "../../Headers/structs.h"
+
+struct VS_OUT    //output structure for skymap vertex shader
 {
     float4 Pos : SV_POSITION;
     float3 texCoord : TEXCOORD;
 };
 
-
-SKYMAP_VS_OUTPUT SKYMAP_VS(float3 inPos : POSITION, float2 inTexCoord : TEXCOORD, float3 normal : NORMAL)
+struct vertex
 {
-    SKYMAP_VS_OUTPUT output = (SKYMAP_VS_OUTPUT)0;
+    float3 pos;
+    float2 uv;
+    float3 norm;
+    float3 tang;
+};
+
+ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
+StructuredBuffer<vertex> meshes[] : register(t0);
+
+VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
+{
+    VS_OUT output = (VS_OUT)0;
+
+    vertex v = meshes[cbPerObject.info.vertexDataIndex][vID];
+    float4 vertexPosition = float4(v.pos.xyz, 1.0f);
 
     //Set Pos to xyww instead of xyzw, so that z will always be 1 (furthest from camera)
-    output.Pos = mul(float4(inPos, 1.0f), WVP).xyww;
+    output.Pos = mul(vertexPosition, cbPerObject.WVP).xyww;
 
-    output.texCoord = inPos;
+    output.texCoord = v.pos;
 
     return output;
 }

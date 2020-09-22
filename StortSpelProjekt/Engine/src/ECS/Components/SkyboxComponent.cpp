@@ -3,6 +3,7 @@
 
 #include "../Renderer/Transform.h"
 #include "../Renderer/Model.h"
+#include "../Renderer/BaseCamera.h"
 
 component::SkyboxComponent::SkyboxComponent(Entity* parent)
 	:Component(parent)
@@ -17,13 +18,23 @@ component::SkyboxComponent::~SkyboxComponent()
 
 void component::SkyboxComponent::Update(double dt)
 {
-	m_pTransform->Move(dt);
+	m_pTransform->SetPosition(m_Camera->GetPosition());
 	m_pTransform->UpdateWorldMatrix();
 }
 
-void component::SkyboxComponent::SetModel(Model* model)
+void component::SkyboxComponent::SetMesh(Mesh* mesh)
 {
-	m_Model = model;
+	m_Mesh = mesh;
+}
+
+void component::SkyboxComponent::SetTexture(Texture* texture)
+{
+	m_Texture = texture;
+}
+
+void component::SkyboxComponent::SetCamera(BaseCamera* camera)
+{
+	m_Camera = camera;
 }
 
 Transform* component::SkyboxComponent::GetTransform() const
@@ -31,22 +42,12 @@ Transform* component::SkyboxComponent::GetTransform() const
 	return m_pTransform;
 }
 
-Mesh* component::SkyboxComponent::GetMeshAt(unsigned int index) const
+Mesh* component::SkyboxComponent::GetMesh() const
 {
-	return m_Model->GetMeshAt(index);
+	return m_Mesh;
 }
 
-std::map<TEXTURE2D_TYPE, Texture*>* component::SkyboxComponent::GetTexturesAt(unsigned int index) const
+Texture* component::SkyboxComponent::GetTexture() const
 {
-	return m_Model->GetTexturesAt(index);
-}
-
-SlotInfo* component::SkyboxComponent::GetSlotInfoAt(unsigned int index) const
-{
-	return m_Model->GetSlotInfoAt(index);
-}
-
-unsigned int component::SkyboxComponent::GetNrOfMeshes() const
-{
-	return m_Model->GetSize();
+	return m_Texture;
 }
