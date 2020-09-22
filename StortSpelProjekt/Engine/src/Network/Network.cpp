@@ -44,25 +44,28 @@ void Network::SendPositionPacket()
 
 void Network::GetPlayerPosition()
 {
-    sf::Packet packet = ListenPacket();
+    sf::Packet packet;
 
-    int id;
-    float3 pos;
-    float3 mov;
-    
-    packet >> id;
+    if (ListenPacket(&packet))
+    {
+        int id;
+        float3 pos;
+        float3 mov;
 
-    packet >> pos.x;
-    packet >> pos.y;
-    packet >> pos.z;
+        packet >> id;
 
-    packet >> mov.x;
-    packet >> mov.y;
-    packet >> mov.z;
+        packet >> pos.x;
+        packet >> pos.y;
+        packet >> pos.z;
+
+        packet >> mov.x;
+        packet >> mov.y;
+        packet >> mov.z;
 
 
-    m_Players.at(id)->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
-    m_Players.at(id)->GetComponent<component::TransformComponent>()->GetTransform()->SetMovement(mov.x, mov.y, mov.z);
+        m_Players.at(id)->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+        m_Players.at(id)->GetComponent<component::TransformComponent>()->GetTransform()->SetMovement(mov.x, mov.y, mov.z);
+    }
 }
 
 void Network::SetPlayerEntityPointer(Entity* playerEnitity, int id)
@@ -77,12 +80,14 @@ void Network::SetPlayerEntityPointer(Entity* playerEnitity, int id)
     }
 }
 
-sf::Packet Network::ListenPacket()
+bool Network::ListenPacket(sf::Packet* packet)
 {
     m_Socket.setBlocking(false);
 
-    sf::Packet packet;
-    m_Socket.receive(packet);
+    if (m_Socket.receive(*packet) == sf::Socket::Done)
+    {
+        return true;
+    }
 
-    return packet;
+    return false;
 }

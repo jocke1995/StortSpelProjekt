@@ -48,13 +48,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         networkOn = true;
     }
     double networkTimer = 0;
+    double logicTimer = 0;
 
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
         timer->Update();
-        renderer->Update(timer->GetDeltaTime());
-        physics->Update(timer->GetDeltaTime());
+        logicTimer += timer->GetDeltaTime();
+        if (logicTimer >= 1.0f / 30.0f)
+        {
+            logicTimer = 0;
+            renderer->Update(timer->GetDeltaTime());
+            physics->Update(timer->GetDeltaTime());
+        }
 
         /* ---- Network ---- */
         if (networkOn)

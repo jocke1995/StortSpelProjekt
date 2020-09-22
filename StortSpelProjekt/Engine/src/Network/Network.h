@@ -19,7 +19,7 @@ public:
 	//Give network the entity pointer for player.
 	void SetPlayerEntityPointer(Entity* playerEnitity, int id);
 
-	sf::Packet ListenPacket();
+	bool ListenPacket(sf::Packet* packet);
 
 private:
 	sf::TcpSocket m_Socket;

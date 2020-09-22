@@ -1,4 +1,4 @@
-f_volume 1.0
-i_network 1
-s_ip 31.208.165.20
+f_volume 0.5
+i_network 0
+s_ip localhost
 i_port 55555
