@@ -182,7 +182,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 
 	m_pCbPerFrameData = new CB_PER_FRAME_STRUCT();
 
-	initRenderTasks();
+	initRenderTasks(window);
 
 	// Submit the fullscreenQuad to be uploaded, but it won't be uploaded until a scene has been set to Draw
 	const void* datavertices = m_pFullScreenQuad->m_Vertices.data();
@@ -622,7 +622,7 @@ void Renderer::updateMousePicker()
 	}
 }
 
-void Renderer::initRenderTasks()
+void Renderer::initRenderTasks(const Window* window)
 {
 	// RenderTasks
 
@@ -1079,7 +1079,7 @@ void Renderer::initRenderTasks()
 	textTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion Text
-
+	
 	// ComputeTasks
 	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurHorizontal.hlsl", L"blurHorizontalPSO"));
@@ -1090,7 +1090,7 @@ void Renderer::initRenderTasks()
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		800, 600); // TODO: Send screen width/height from window after merge to develop
+		window->GetScreenWidth(), window->GetScreenHeight());
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 

@@ -170,7 +170,7 @@ private:
 	void createRootSignature();
 	void createFullScreenQuad();
 	void updateMousePicker();
-	void initRenderTasks();
+	void initRenderTasks(const Window* window);
 	void setRenderTasksRenderComponents();
 	void createDescriptorHeaps();
 	void createFences();

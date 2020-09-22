@@ -46,7 +46,10 @@ public:
 	Engine();
 	~Engine();
 
-	void Init(HINSTANCE hInstance, int nCmdShow);
+	void Init(HINSTANCE hInstance, 
+		int nCmdShow, 
+		bool fullscreen, 
+		int screenWidth, int screenHeight);
 
 	Window* const GetWindow() const;
 	Timer* const GetTimer() const;

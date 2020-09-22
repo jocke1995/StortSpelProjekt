@@ -19,10 +19,10 @@ Engine::~Engine()
 	delete m_pRenderer;
 }
 
-void Engine::Init(HINSTANCE hInstance, int nCmdShow)
+void Engine::Init(HINSTANCE hInstance, int nCmdShow, bool fullscreen, int screenWidth, int screenHeight)
 {
 	// Misc
-	m_pWindow = new Window(hInstance, nCmdShow, false);
+	m_pWindow = new Window(hInstance, nCmdShow, fullscreen, screenWidth, screenHeight);
 	m_pTimer = new Timer(m_pWindow);
 
 	// ThreadPool

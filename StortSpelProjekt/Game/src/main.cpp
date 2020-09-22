@@ -6,17 +6,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
+	// Window values (will be influenced by the option class)
+	bool fullscreen = false;
+	int screenWidth = 1920;
+	int screenHeight = 1080;
+
     /* ------ Engine  ------ */
     Engine engine;
-    engine.Init(hInstance, nCmdShow);
-
+    engine.Init(hInstance, nCmdShow, fullscreen, screenWidth, screenHeight);
+	
 	/*  ------ Get references from engine  ------ */
 	Window* const window = engine.GetWindow();
 	Timer* const timer = engine.GetTimer();
 	ThreadPool* const threadPool = engine.GetThreadPool();
 	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
-
+	
     sceneManager->SetSceneToDraw(GetDemoScene(sceneManager));
 
     if (renderer->GetActiveScene())
@@ -94,6 +99,31 @@ Scene* GetDemoScene(SceneManager* sm)
     avc->AddVoice(L"Bruh");
     /*--------------------- Player ---------------------*/
 
+	/*--------------------- Text ---------------------*/
+
+	// font
+	std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
+
+	// text properties
+	std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
+	float2 textPos = { 0.02f, 0.01f };
+	float2 textPadding = { 0.5f, 0.0f };
+	float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
+	float2 textScale = { 0.5f, 0.5f };
+
+	// entity
+	entity = scene->AddEntity("textbox");
+
+	//component
+	txc = entity->AddComponent<component::TextComponent>(arialFont);
+
+	txc->AddText("text");
+	txc->SetColor(textColor, "text");
+	txc->SetPadding(textPadding, "text");
+	txc->SetPos(textPos, "text");
+	txc->SetScale(textScale, "text");
+	txc->SetText(textToRender, "text");
+	/*--------------------- Text ---------------------*/
 
     /*--------------------- Rock ---------------------*/
     // entity
@@ -166,7 +196,7 @@ Scene* GetDemoScene(SceneManager* sm)
     /*--------------------- PointLight 3 ---------------------*/
 
     /*--------------------- PointLight 4 ---------------------*/
-    // entity
+    /*// entity
     entity = scene->AddEntity("pointLightD");
 
     // components
@@ -174,7 +204,7 @@ Scene* GetDemoScene(SceneManager* sm)
     plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.5f, 0.5f, 0.0f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 5.0f, 5.0f, 0.0f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
-    plc->SetPosition({ -30,1,-30 });
+    plc->SetPosition({ -30,1,-30 });*/
     /*--------------------- PointLight 4 ---------------------*/
 
     /*--------------------- DirectionalLight ---------------------*/
@@ -188,32 +218,6 @@ Scene* GetDemoScene(SceneManager* sm)
     dlc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.1f, 0.1f, 0.1f, 1.0f });
     dlc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.5f, 0.5f, 0.5f, 1.0f });
     /*--------------------- DirectionalLight ---------------------*/
-
-    /*--------------------- Text ---------------------*/
-
-    // font
-    std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
-    
-    // text properties
-    std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
-    float2 textPos = { 0.02f, 0.01f };
-    float2 textPadding = { 0.5f, 0.0f };
-    float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
-    float2 textScale = { 0.5f, 0.5f };
-
-    // entity
-    entity = scene->AddEntity("textbox");
-
-    //component
-    txc = entity->AddComponent<component::TextComponent>(arialFont);
-
-    txc->AddText("text");
-    txc->SetColor(textColor, "text");
-    txc->SetPadding(textPadding, "text");
-    txc->SetPos(textPos, "text");
-    txc->SetScale(textScale, "text");
-    txc->SetText(textToRender, "text");
-    /*--------------------- Text ---------------------*/
 
     return scene;
 }
