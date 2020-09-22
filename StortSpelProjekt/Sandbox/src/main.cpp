@@ -12,9 +12,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-    /* ------ Engine  ------ */
-    Engine engine = Engine();
-    engine.Init(hInstance, nCmdShow);
+	// Window values (will be influenced by the option class)
+	bool fullscreen = false;
+	int screenWidth = 1920;
+	int screenHeight = 1080;
+
+	/* ------ Engine  ------ */
+	Engine engine;
+	engine.Init(hInstance, nCmdShow, fullscreen, screenWidth, screenHeight);
 
     /*  ------ Get references from engine  ------ */
     Window* const window = engine.GetWindow();
