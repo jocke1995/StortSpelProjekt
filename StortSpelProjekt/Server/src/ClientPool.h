@@ -7,6 +7,7 @@
 struct Client 
 {
 	sf::TcpSocket socket;
+	int clientId;
 	bool connected = false;
 	int frameCount = 0;
 };
@@ -21,6 +22,7 @@ public:
 
 	void AddClient();
 	int GetNrOfClients();
+	int GetNrOfConnectedClients();
 
 	//Removes all open clients that have not connected or disconneted
 	void RemoveUnconnected();

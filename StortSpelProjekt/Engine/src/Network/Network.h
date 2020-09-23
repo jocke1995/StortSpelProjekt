@@ -4,6 +4,8 @@
 #include "../ECS/Entity.h"
 #include "../Renderer/Transform.h"
 #include "SFML/Network.hpp"
+#include "../Events/EventBus.h"
+
 
 class Network {
 public:
@@ -14,20 +16,34 @@ public:
 	sf::TcpSocket* GetSocket();
 
 	void SendPositionPacket();
-	void GetPlayerPosition();
 	
 	//Give network the entity pointer for player.
 	void SetPlayerEntityPointer(Entity* playerEnitity, int id);
 
-	bool ListenPacket(sf::Packet* packet);
+	bool ListenPacket();
 
 private:
+	enum PACKET_ID {
+		E_SERVER_DATA = 0,
+		E_PLAYER_DATA = 1
+	};
+
+	struct Player {
+		Entity* entityPointer;
+		int clientId;
+	};
+
+	void processPacket(sf::Packet *packet);
+	void processPlayerData(sf::Packet* packet);
+	void processServerData(sf::Packet* packet);
+
 	sf::TcpSocket m_Socket;
 	sf::TcpListener m_Listener;
 
-	std::vector<Entity*> m_Players;
+	std::vector<Player*> m_Players;
 
 	bool m_Connected;
+	int m_Id;
 };
 
 

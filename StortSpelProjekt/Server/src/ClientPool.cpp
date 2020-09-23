@@ -52,6 +52,19 @@ int ClientPool::GetNrOfClients()
 	return m_Clients.size();
 }
 
+int ClientPool::GetNrOfConnectedClients()
+{
+	int count = 0;
+	for (int i = 0; count < m_Clients.size(); i++)
+	{
+		if (m_Clients.at(i)->connected == true)
+		{
+			count++;
+		}
+	}
+	return count;
+}
+
 void ClientPool::RemoveUnconnected()
 {
 	for (int i = 0; i < m_Clients.size(); i++)
@@ -94,6 +107,25 @@ void ClientPool::newConnection()
 				{
 					m_AvailableClient = m_Clients.at(i);
 					break;
+				}
+			}
+
+			//Send a packet of server info to all clients
+			for (int i = 0; i < m_Clients.size(); i++)
+			{
+				if (m_Clients.at(i)->connected == true)
+				{
+					sf::Packet packet;
+					packet << m_Clients.at(i)->clientId;
+					packet << GetNrOfConnectedClients();
+					for (int j = 0; j < m_Clients.size(); j++)
+					{
+						if (m_Clients.at(j)->connected == true)
+						{
+							packet << m_Clients.at(j)->clientId;
+						}
+					}
+					m_Clients.at(i)->socket.send(packet);
 				}
 			}
 		}

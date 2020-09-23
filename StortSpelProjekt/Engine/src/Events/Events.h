@@ -47,3 +47,8 @@ struct Collision : public Event
 	Entity *ent1;
 	Entity *ent2;
 };
+
+struct PlayerConnection : public Event
+{
+	PlayerConnection() {};
+};
