@@ -130,15 +130,6 @@ Scene* GetDemoScene(SceneManager* sm)
     Physics::GetInstance().AddCollisionEntity(entity);
     /*--------------------- Rock ---------------------*/
 
-    EnemyHandler enH(scene);
-    enH.AddEnemy("stone", rockModel, float3{ 8, 0, 8 }, F_COMP_FLAGS::OBB, 0.01, float3{ 1.578, 0, 0 });
-    enH.AddEnemy("stone", rockModel, float3{ -10, 0, -10 }, F_COMP_FLAGS::OBB, 0.01);
-    enH.AddEnemy(float3{ 20, 0, 4 }, "stone", UINT_MAX, 0.005f);
-    for (int i = 1; i < 100; i++)
-    {
-        enH.AddEnemy("stone", float3{ (float)i * 8, (float)i * 8, (float)i * 8 });
-    }
-
     /*--------------------- Floor ---------------------*/
     // entity
     entity = scene->AddEntity("floor");
