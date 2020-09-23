@@ -65,7 +65,14 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 void Input::SetMouseButtonState(MOUSE_BUTTON button, bool pressed)
 {
 	m_MouseButtonState[button] = pressed;
-	EventBus::GetInstance().Publish(&MouseClick(button, pressed));
+	switch (pressed) {
+	case true:
+		EventBus::GetInstance().Publish(&MouseClick(button, pressed));
+		break;
+	case false:
+		EventBus::GetInstance().Publish(&MouseRelease(button, pressed));
+		break;
+	}
 }
 
 void Input::SetMouseScroll(SHORT scroll)
