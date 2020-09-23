@@ -18,7 +18,7 @@ namespace component
         SkyboxComponent(Entity* parent);
         virtual ~SkyboxComponent();
 
-        void Update(double dt);
+        void RenderUpdate(double dt);
 
         // Sets
         void SetMesh(Mesh* mesh);

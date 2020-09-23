@@ -4,8 +4,9 @@
 #include "../RootSignature.h"
 #include "../CommandInterface.h"
 #include "../GraphicsState.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../SwapChain.h"
+#include "../GPUMemory/DepthStencil.h"
 
 RenderTask::RenderTask(
 	ID3D12Device5* device,
@@ -32,7 +33,7 @@ PipelineState* RenderTask::GetPipelineState(unsigned int index)
 	return m_PipelineStates[index];
 }
 
-void RenderTask::AddRenderTarget(std::string name, const RenderTarget* renderTarget)
+void RenderTask::AddRenderTarget(std::string name, const RenderTargetView* renderTarget)
 {
 	m_RenderTargets[name] = renderTarget;
 }
@@ -41,6 +42,11 @@ void RenderTask::SetRenderComponents(std::vector<std::pair<	component::ModelComp
 															component::TransformComponent*>>*renderComponents)
 {
 	m_RenderComponents = *renderComponents;
+}
+
+void RenderTask::SetMainDepthStencil(DepthStencil* depthStencil)
+{
+	m_pDepthStencil = depthStencil;
 }
 
 void RenderTask::SetCamera(BaseCamera* camera)

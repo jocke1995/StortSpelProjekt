@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "TextureCubeMap.h"
 
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../CommandInterface.h"
-#include "../ShaderResourceView.h"
+#include "../GPUMemory/ShaderResourceView.h"
 #include "../DescriptorHeap.h"
 
 #include "TextureFunctions.h"
@@ -26,7 +26,7 @@ bool TextureCubeMap::Init(std::wstring filePath, ID3D12Device5* device, Descript
 	m_pDefaultResource = new Resource();
 	
 	// Loads the texture and creates a default resource;
-	hr = DirectX::LoadDDSTextureFromFile(device, filePath.c_str(), (ID3D12Resource**)m_pDefaultResource->GetID3D12Resource1PP(), ddsData, subResourceData);
+	hr = DirectX::LoadDDSTextureFromFile(device, filePath.c_str(), (ID3D12Resource**)m_pDefaultResource->GetID3D12Resource1PP(), m_DdsData, m_SubResourceData);
 
 	// Set resource desc created in LoadDDSTextureFromFile
 	m_ResourceDescription = m_pDefaultResource->GetID3D12Resource1()->GetDesc();

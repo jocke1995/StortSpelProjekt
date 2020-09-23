@@ -3,19 +3,20 @@
 
 #include "../RenderView.h"
 #include "../RootSignature.h"
-#include "../ConstantBufferView.h"
+#include "../GPUMemory/ConstantBuffer.h"
 #include "../CommandInterface.h"
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../PipelineState.h"
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
 #include "../BaseCamera.h"
 #include "../SwapChain.h"
-#include "../RenderTarget.h"
+#include "../GPUMemory/RenderTarget.h"
+#include "../GPUMemory/RenderTargetView.h"
 
-#include "../ShaderResourceView.h"
+#include "../GPUMemory/ShaderResourceView.h"
 #include "../Texture/TextureCubeMap.h"
 #include "../ECS/Components/SkyboxComponent.h"
 
@@ -39,11 +40,11 @@ void SkyboxRenderTask::SetSkybox(component::SkyboxComponent* skybox)
 	m_Skybox = skybox;
 }
 
-void SkyboxRenderTask::Execute()
+void SkyboxRenderTask::Execute() 
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
-	const RenderTarget* swapChainRenderTarget = m_pSwapChain->GetRenderTarget(m_BackBufferIndex);
+	const RenderTargetView* swapChainRenderTarget = m_pSwapChain->GetRTV(m_BackBufferIndex);
 	ID3D12Resource1* swapChainResource = swapChainRenderTarget->GetResource()->GetID3D12Resource1();
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);

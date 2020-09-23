@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "CopyTask.h"
 
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../CommandInterface.h"
 
-CopyTask::CopyTask(ID3D12Device5* device)
-	:DX12Task(device, COMMAND_INTERFACE_TYPE::COPY_TYPE)
+CopyTask::CopyTask(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType)
+	:DX12Task(device, interfaceType)
 {
 
 }

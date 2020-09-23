@@ -19,9 +19,10 @@ public:
 private:
 	friend class CopyOnDemandTask;
 
-	std::vector<D3D12_SUBRESOURCE_DATA> subResourceData;
+	// TODO: FILIP kolla så att texture hiraki är bra
+	std::vector<D3D12_SUBRESOURCE_DATA> m_SubResourceData;
 	// TODO: FILIP temp not save
-	std::unique_ptr<uint8_t[]> ddsData;
+	std::unique_ptr<uint8_t[]> m_DdsData;
 
 };
 

@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "Texture.h"
 
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../CommandInterface.h"
-#include "../ShaderResourceView.h"
+#include "../GPUMemory/ShaderResourceView.h"
 #include "../DescriptorHeap.h"
 
 Texture::Texture()

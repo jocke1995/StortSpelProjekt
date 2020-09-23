@@ -5,13 +5,15 @@
 #include "../RootSignature.h"
 #include "../CommandInterface.h"
 #include "../DescriptorHeap.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../GraphicsState.h"
 #include "../SwapChain.h"
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/BaseCamera.h"
-#include "../RenderTarget.h"
+#include "../GPUMemory/RenderTargetView.h"
+#include "../GPUMemory/DepthStencil.h"
+#include "../GPUMemory/DepthStencilView.h"
 
 
 OutliningRenderTask::OutliningRenderTask(
@@ -34,7 +36,7 @@ void OutliningRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
-	const RenderTarget* swapChainRenderTarget = m_pSwapChain->GetRenderTarget(m_BackBufferIndex);
+	const RenderTargetView* swapChainRenderTarget = m_pSwapChain->GetRTV(m_BackBufferIndex);
 	ID3D12Resource1* swapChainResource = swapChainRenderTarget->GetResource()->GetID3D12Resource1();
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
@@ -47,7 +49,7 @@ void OutliningRenderTask::Execute()
 	DescriptorHeap* depthBufferHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 
 	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
-	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(m_pDepthStencil->GetDSV()->GetDescriptorHeapIndex());
 
 	// Check if there is an object to outline
 	if (m_ObjectToOutline.first == nullptr)

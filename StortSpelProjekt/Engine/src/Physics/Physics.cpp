@@ -6,8 +6,6 @@
 
 Physics::Physics()
 {
-	// makes it so printCollisions() prints when a collision event happens
-	EventBus::GetInstance().Subscribe(this, &Physics::printCollisions);
 }
 
 Physics& Physics::GetInstance()
@@ -68,9 +66,4 @@ void Physics::collisionChecks(double dt)
 		}
 		m_timeSinceLastColCheck = 0;
 	}
-}
-
-void Physics::printCollisions(Collision* event)
-{
-	//Log::Print("%s collided with %s\n", event->ent1->GetName().c_str(), event->ent2->GetName().c_str());
 }

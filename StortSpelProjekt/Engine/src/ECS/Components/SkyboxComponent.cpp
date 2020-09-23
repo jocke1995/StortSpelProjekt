@@ -16,7 +16,7 @@ component::SkyboxComponent::~SkyboxComponent()
 	delete m_pTransform;
 }
 
-void component::SkyboxComponent::Update(double dt)
+void component::SkyboxComponent::RenderUpdate(double dt)
 {
 	m_pTransform->SetPosition(m_Camera->GetPosition());
 	m_pTransform->UpdateWorldMatrix();

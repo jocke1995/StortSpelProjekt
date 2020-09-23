@@ -14,14 +14,21 @@ class Window;
 // Renderer Engine
 class RootSignature;
 class SwapChain;
-class RenderTarget;
-class DepthStencilView;
-class ConstantBufferView;
+class RenderTargetView;
 class ViewPool;
 class BoundingBoxPool;
 class DescriptorHeap;
 class Mesh;
 
+// Views
+
+// GPU Resources
+class ConstantBuffer;
+class ShaderResource;
+class UnorderedAccess;
+class DepthStencil;
+
+// Enums
 enum COMMAND_INTERFACE_TYPE;
 enum class DESCRIPTOR_HEAP_TYPE;
 
@@ -32,7 +39,6 @@ class Bloom;
 
 // ECS
 class Scene;
-#include "../ECS/Components/BoundingBoxComponent.h"
 class Light;
 
 // Graphics
@@ -53,10 +59,13 @@ struct ID3D12CommandList;
 struct ID3D12Fence1;
 struct ID3D12Device5;
 
+// ECS
+class Entity;
 namespace component
 {
 	class ModelComponent;
 	class TransformComponent;
+	class BoundingBoxComponent;
 	class TextComponent;
 	class SkyboxComponent;
 }
@@ -75,9 +84,11 @@ public:
 	// Call once
 	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
-	// Call each frame
+	// Call on logic update *This should be moved to a more relevant logic class
 	void Update(double dt);
-	void SortObjectsByDistance();
+	// Call each frame
+	void RenderUpdate(double dt); //Please rename if logic update is removed
+	void SortObjects();
 	void Execute();
 
 private:
@@ -104,7 +115,7 @@ private:
 	Bloom* m_pBloomResources = nullptr;
 
 	// Depthbuffer
-	DepthStencilView* m_pMainDSV = nullptr;
+	DepthStencil* m_pMainDepthStencil = nullptr;
 
 	// Rootsignature
 	RootSignature* m_pRootSignature = nullptr;
@@ -119,33 +130,32 @@ private:
 	std::vector<RenderTask*>  m_RenderTasks;
 
 	// Since these tasks wont operate on all objects, they will not be set in the same map as the other "rendertasks".
-	WireframeRenderTask* m_pWireFrameTask = nullptr;
-	OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
+	//WireframeRenderTask* m_pWireFrameTask = nullptr;
+	//OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
 
 	Mesh* m_pFullScreenQuad = nullptr;
 
 	// Group of components that's needed for rendering:
-	std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>> m_RenderComponents;
+	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::TextComponent*> m_TextComponents;
-	component::SkyboxComponent* m_Skybox;
+	component::SkyboxComponent* m_Skybox = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
-	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBufferView*, ShadowInfo*>>> m_Lights;
+	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBuffer*, ShadowInfo*>>> m_Lights;
 
 	// Current scene to be drawn
 	Scene* m_pCurrActiveScene = nullptr;
 	CB_PER_SCENE_STRUCT* m_pCbPerSceneData = nullptr;
-	ConstantBufferView* m_pCbPerScene = nullptr;
+	ConstantBuffer* m_pCbPerScene = nullptr;
 
 	// update per frame
 	CB_PER_FRAME_STRUCT* m_pCbPerFrameData = nullptr;
-	ConstantBufferView* m_pCbPerFrame = nullptr;
+	ConstantBuffer* m_pCbPerFrame = nullptr;
 
 	// Commandlists holders
 	std::vector<ID3D12CommandList*> m_DirectCommandLists[NUM_SWAP_BUFFERS];
 	std::vector<ID3D12CommandList*> m_ComputeCommandLists[NUM_SWAP_BUFFERS];
-	ID3D12CommandList* m_CopyPerFrameCmdList[NUM_SWAP_BUFFERS];
 	ID3D12CommandList* m_CopyOnDemandCmdList[NUM_SWAP_BUFFERS];
 	
 	// DescriptorHeaps

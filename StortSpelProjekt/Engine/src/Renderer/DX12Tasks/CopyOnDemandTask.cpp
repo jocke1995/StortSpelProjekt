@@ -2,13 +2,12 @@
 #include "CopyOnDemandTask.h"
 
 #include "../Texture/Texture.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../CommandInterface.h"
 
 #include "../Texture/TextureCubeMap.h"
-
-CopyOnDemandTask::CopyOnDemandTask(ID3D12Device5* device)
-	:CopyTask(device)
+CopyOnDemandTask::CopyOnDemandTask(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType)
+	:CopyTask(device, interfaceType)
 {
 
 }
@@ -80,8 +79,8 @@ void CopyOnDemandTask::copyTexture(ID3D12GraphicsCommandList5* commandList, Text
 		// Transfer the data
 		UpdateSubresources(commandList,
 			defaultHeap, uploadHeap,
-			0, 0, cubemap->subResourceData.size(), // Should always be 6
-			cubemap->subResourceData.data());
+			0, 0, cubemap->m_SubResourceData.size(), // Should always be 6
+			cubemap->m_SubResourceData.data());
 	}
 	else
 	{
