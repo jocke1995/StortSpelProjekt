@@ -97,8 +97,6 @@ Scene* GetDemoScene(SceneManager* sm)
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::AudioVoiceComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    // ================= GRAVITATION TEST, WILL BE REMOVED BEFORE MERGE!========================
-    ac = entity->AddComponent<component::AccelerationComponent>(0.982);
 
     pic->Init();
 
