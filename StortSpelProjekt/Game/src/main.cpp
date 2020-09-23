@@ -1,6 +1,5 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
-#include "Components/AccelrationComponent.h"
 Scene* GetDemoScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -83,7 +82,6 @@ Scene* GetDemoScene(SceneManager* sm)
     component::TransformComponent* tc = nullptr;
     component::PlayerInputComponent* pic = nullptr;
     component::TextComponent* txc = nullptr;
-    component::AccelerationComponent* ac = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
     /*--------------------- Player ---------------------*/

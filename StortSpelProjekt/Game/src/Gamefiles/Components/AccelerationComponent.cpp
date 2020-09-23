@@ -1,4 +1,4 @@
-#include "AccelrationComponent.h"
+#include "AccelerationComponent.h"
 #include "ECS/Entity.h"
 #include "Renderer/Transform.h"
 component::AccelerationComponent::AccelerationComponent(Entity* parent, double gravity): Component(parent)
