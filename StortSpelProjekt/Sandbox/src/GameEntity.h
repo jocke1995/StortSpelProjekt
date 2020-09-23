@@ -2,7 +2,7 @@
 #define GAMEENTITY_H
 
 #include "Engine.h"
-#include "PlayerInputComponent.h"
+
 
 class GameEntity : public Entity
 {
