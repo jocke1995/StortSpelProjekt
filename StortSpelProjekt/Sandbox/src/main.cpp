@@ -109,6 +109,7 @@ Scene* LeosTestScene(SceneManager* sm)
     AudioBuffer* loopedSound = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"Music");
 
     loopedSound->SetAudioLoop(0);
+
     /* ---------------------- Player ---------------------- */
     Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
@@ -138,7 +139,6 @@ Scene* LeosTestScene(SceneManager* sm)
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-    /* ---------------------- Floor ---------------------- */
 
     /* ---------------------- PointLight1 ---------------------- */
     entity = scene->AddEntity("pointLight1");
@@ -154,11 +154,12 @@ Scene* LeosTestScene(SceneManager* sm)
     plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.5f, 0.0f, 0.5f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 5.0f, 5.0f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
-    /* ---------------------- PointLight1 ---------------------- */
 
+    // Set variiables for ImGui
     ImGuiHandler::GetInstance().SetFloat("LightPositionZ", -15.0f);
     ImGuiHandler::GetInstance().SetFloat4("LightColor", float4({ 1.0f, 1.0f, 1.0f, 1.0f }));
 
+    // Set UpdateScene function
     UpdateScene = &LeoUpdateScene;
 
     return scene;

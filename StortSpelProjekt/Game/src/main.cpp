@@ -1,5 +1,7 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
+#include "ImGUI/ImGuiHandler.h"
+
 Scene* GetDemoScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -30,6 +32,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         while (!window->ExitWindow())
         {
             // Currently no scene set, hence the m_pRenderer should not be working.
+
+            if (DEVELOPERMODE_DEVINTERFACE == true)
+            {
+                ImGuiHandler::GetInstance().NewFrame();
+            }
 
             /* ------ Update ------ */
             timer->Update();
