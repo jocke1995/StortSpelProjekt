@@ -12,6 +12,10 @@ class BaseCamera;
 
 namespace component
 {
+    // To use a skybox:
+    // 1. Create skyboxcompoenent on an entity
+    // 2. Set Mesh
+    // 3. Set Cubemap Texture
     class SkyboxComponent : public Component
     {
     public:

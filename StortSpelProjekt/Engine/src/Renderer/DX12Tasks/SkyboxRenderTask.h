@@ -25,9 +25,7 @@ public:
 	void Execute();
 
 private:
-	component::SkyboxComponent* m_Skybox = nullptr;
-
-	ID3D12SamplerState* cubemapSampler;
+	component::SkyboxComponent* m_pSkybox = nullptr;
 };
 
 #endif

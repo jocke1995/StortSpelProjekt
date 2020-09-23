@@ -37,7 +37,7 @@ SkyboxRenderTask::~SkyboxRenderTask()
 
 void SkyboxRenderTask::SetSkybox(component::SkyboxComponent* skybox)
 {
-	m_Skybox = skybox;
+	m_pSkybox = skybox;
 }
 
 void SkyboxRenderTask::Execute() 
@@ -96,20 +96,14 @@ void SkyboxRenderTask::Execute()
 
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
-	if (m_Skybox == nullptr)
-	{
-		return;
-	}
-
-
-	Mesh* m = m_Skybox->GetMesh();
+	Mesh* m = m_pSkybox->GetMesh();
 	size_t num_Indices = m->GetNumIndices();
 
 	SlotInfo info = { };
-	info.vertexDataIndex = m_Skybox->GetMesh()->m_pSRV->GetDescriptorHeapIndex();
-	info.textureAmbient = m_Skybox->GetTexture()->GetDescriptorHeapIndex();
+	info.vertexDataIndex = m_pSkybox->GetMesh()->m_pSRV->GetDescriptorHeapIndex();
+	info.textureAmbient = m_pSkybox->GetTexture()->GetDescriptorHeapIndex();
 
-	Transform* transform = m_Skybox->GetTransform();
+	Transform* transform = m_pSkybox->GetTransform();
 	DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
 	DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 

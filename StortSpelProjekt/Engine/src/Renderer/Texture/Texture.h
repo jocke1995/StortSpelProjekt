@@ -15,6 +15,7 @@ public:
 
 	virtual bool Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap) = 0;
 
+	TEXTURE_TYPE GetType() const;
 	const UINT GetDescriptorHeapIndex() const;
 
 protected:

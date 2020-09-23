@@ -5,6 +5,8 @@
 #include "../Renderer/Model.h"
 #include "../Renderer/BaseCamera.h"
 
+#include "../Renderer/Texture/Texture.h"
+
 component::SkyboxComponent::SkyboxComponent(Entity* parent)
 	:Component(parent)
 {
@@ -29,6 +31,10 @@ void component::SkyboxComponent::SetMesh(Mesh* mesh)
 
 void component::SkyboxComponent::SetTexture(Texture* texture)
 {
+	if (texture->GetType() != TEXTURE_TYPE::TEXTURECUBEMAP)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "SkyboxComponent: Texture needs to be of type TEXTURE_TYPE::TEXTURECUBEMAP");
+	}
 	m_Texture = texture;
 }
 

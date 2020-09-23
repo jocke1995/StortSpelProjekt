@@ -454,7 +454,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     sbc->SetMesh(cubeModel->GetMeshAt(0));
     sbc->SetTexture(skyboxCubemap);
     sbc->SetCamera(cc->GetCamera());
-    sbc->GetTransform()->SetScale(50);
+    sbc->GetTransform()->SetScale(5);
 
     /* ---------------------- Skybox ---------------------- */
 

@@ -35,6 +35,11 @@ Texture::~Texture()
 	}
 }
 
+TEXTURE_TYPE Texture::GetType() const
+{
+	return m_Type;
+}
+
 const UINT Texture::GetDescriptorHeapIndex() const
 {
 	return m_pSRV->GetDescriptorHeapIndex();

@@ -312,9 +312,12 @@ void Renderer::Execute()
 	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 
 	// Skybox
-	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetBackBufferIndex(backBufferIndex);
-	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX], FLAG_THREAD::RENDER);
+	if (DRAWSKYBOX == true)
+	{
+		m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetBackBufferIndex(backBufferIndex);
+		m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCommandInterfaceIndex(commandInterfaceIndex);
+		m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX], FLAG_THREAD::RENDER);
+	}
 
 	// Blending
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::BLEND];
@@ -390,8 +393,12 @@ void Renderer::setRenderTasksPrimaryCamera()
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
-	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCamera(m_pScenePrimaryCamera);
+
+	if (DRAWSKYBOX == true)
+	{
+		m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCamera(m_pScenePrimaryCamera);
+	}
 
 	if (DRAWBOUNDINGBOX == true)
 	{
@@ -1213,9 +1220,12 @@ void Renderer::initRenderTasks()
 		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
 	}
 
-	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	if (DRAWSKYBOX == true)
 	{
-		m_DirectCommandLists[i].push_back(skyboxRenderTask->GetCommandList(i));
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			m_DirectCommandLists[i].push_back(skyboxRenderTask->GetCommandList(i));
+		}
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1259,9 +1269,12 @@ void Renderer::setRenderTasksRenderComponents()
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPACITY]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
-	// Skybox is an skyboxcomponent
-	static_cast<SkyboxRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX])->SetSkybox(m_Skybox);
 	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
+
+	if (DRAWSKYBOX == true)
+	{
+		static_cast<SkyboxRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX])->SetSkybox(m_pSkyboxComponent);
+	}
 }
 
 void Renderer::createDescriptorHeaps()
@@ -1430,55 +1443,58 @@ void Renderer::removeComponents(Entity* entity)
 void Renderer::addComponents(Entity* entity)
 {
 	// TEMP: FILIP skybox
-	component::SkyboxComponent* sbc = entity->GetComponent<component::SkyboxComponent>();
-	if (sbc != nullptr)
+	if (DRAWSKYBOX == true)
 	{
-		
-		Mesh* mesh = sbc->GetMesh();
-		AssetLoader* al = AssetLoader::Get();
-		std::wstring modelPath = to_wstring(mesh->GetPath());
-		bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
-
-		// If the model isn't on GPU, it will be uploaded below
-		if (isModelOnGpu == false)
+		component::SkyboxComponent* sbc = entity->GetComponent<component::SkyboxComponent>();
+		if (sbc != nullptr)
 		{
-			al->m_LoadedModels[modelPath].first = true;
-		}
 
-		// Submit to the list which gets updated to the gpu each frame
-		CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+			Mesh* mesh = sbc->GetMesh();
+			AssetLoader* al = AssetLoader::Get();
+			std::wstring modelPath = to_wstring(mesh->GetPath());
+			bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
 
-		// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
-		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-		if (isModelOnGpu == false)
-		{
-			// Vertices
-			const void* data = static_cast<const void*>(mesh->m_Vertices.data());
-			Resource* uploadR = mesh->m_pUploadResourceVertices;
-			Resource* defaultR = mesh->m_pDefaultResourceVertices;
-			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-
-			// inidices
-			data = static_cast<const void*>(mesh->m_Indices.data());
-			uploadR = mesh->m_pUploadResourceIndices;
-			defaultR = mesh->m_pDefaultResourceIndices;
-			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-		}
-
-		Texture* texture = sbc->GetTexture();
-		// Check if the m_Texture is used
-		if (texture != nullptr)
-		{
-			// Check if the texture is on GPU before submitting to be uploaded
-			if (al->m_LoadedTextures[texture->m_FilePath].first == false)
+			// If the model isn't on GPU, it will be uploaded below
+			if (isModelOnGpu == false)
 			{
-				codt->SubmitTexture(texture);
-				al->m_LoadedTextures[texture->m_FilePath].first = true;
+				al->m_LoadedModels[modelPath].first = true;
 			}
-		}
 
-		// Finally store the object in m_pRenderer so it will be drawn
-		m_Skybox = sbc;
+			// Submit to the list which gets updated to the gpu each frame
+			CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+
+			// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
+			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+			if (isModelOnGpu == false)
+			{
+				// Vertices
+				const void* data = static_cast<const void*>(mesh->m_Vertices.data());
+				Resource* uploadR = mesh->m_pUploadResourceVertices;
+				Resource* defaultR = mesh->m_pDefaultResourceVertices;
+				codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+				// inidices
+				data = static_cast<const void*>(mesh->m_Indices.data());
+				uploadR = mesh->m_pUploadResourceIndices;
+				defaultR = mesh->m_pDefaultResourceIndices;
+				codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+			}
+
+			Texture* texture = sbc->GetTexture();
+			// Check if the m_Texture is used
+			if (texture != nullptr)
+			{
+				// Check if the texture is on GPU before submitting to be uploaded
+				if (al->m_LoadedTextures[texture->m_FilePath].first == false)
+				{
+					codt->SubmitTexture(texture);
+					al->m_LoadedTextures[texture->m_FilePath].first = true;
+				}
+			}
+
+			// Finally store the object in m_pRenderer so it will be drawn
+			m_pSkyboxComponent = sbc;
+		}
 	}
 
 	// Only add the m_Entities that actually should be drawn
