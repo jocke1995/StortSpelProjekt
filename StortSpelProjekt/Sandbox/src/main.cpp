@@ -116,9 +116,6 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0, 8.0f, -15.0f);
 
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.5f, 0.0f, 0.5f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 5.0f, 5.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
     /* ---------------------- PointLight1 ---------------------- */
 
     return scene;
@@ -189,9 +186,6 @@ Scene* TimScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
 
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.0f, 0.5f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 10.0f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
     /* ---------------------- PointLight1 ---------------------- */
 
     return scene;
@@ -256,9 +250,8 @@ Scene* JockesTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
 
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.05f, 0.05f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 1.0f, 1.0f, 1.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.9f, 1.0f });
+    plc->SetIntensity({1.0f, 0.0f, 1.0f, 1.0f});
+
     /* ---------------------- PointLight ---------------------- */
 
     return scene;
@@ -330,9 +323,6 @@ Scene* FredriksTestScene(SceneManager* sm)
 	tc->GetTransform()->SetScale(0.5f);
 	tc->GetTransform()->SetPosition(-30.0f, 4.0f, 15.0f);
 
-	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.05f, 0.0f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 10.0f, 0.0f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
 	/* ---------------------- PointLight1 ---------------------- */
 
 	/* ---------------------- PointLigh2 ---------------------- */
@@ -345,10 +335,6 @@ Scene* FredriksTestScene(SceneManager* sm)
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
 	tc->GetTransform()->SetScale(0.5f);
 	tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
-
-	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.00f, 0.05f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 0.00f, 10.0f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.00f, 0.9f, 1.0f });
 
 	plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
 	/* ---------------------- PointLight2 ---------------------- */
@@ -364,9 +350,6 @@ Scene* FredriksTestScene(SceneManager* sm)
 	tc->GetTransform()->SetScale(0.5f);
 	tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
 
-	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.05f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 10.0f, 10.0f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
 	/* ---------------------- PointLight3 ---------------------- */
 
 	/* ---------------------- PointLight4 ---------------------- */
@@ -380,10 +363,6 @@ Scene* FredriksTestScene(SceneManager* sm)
 	tc->GetTransform()->SetScale(0.5f);
 	tc->GetTransform()->SetPosition(-30.0f, 4.0f, -15.0f);
 
-	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.0f, 0.0f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 30.0f, 0.0f, 0.0f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.0f, 0.0f, 1.0f });
-
 	/* ---------------------- PointLight4 ---------------------- */
 
 	/* ---------------------- PointLigh5 ---------------------- */
@@ -396,10 +375,6 @@ Scene* FredriksTestScene(SceneManager* sm)
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
 	tc->GetTransform()->SetScale(0.5f);
 	tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
-
-	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.0f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 15.0f, 0.0f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.0f, 1.0f });
 
 	plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
 
@@ -416,10 +391,6 @@ Scene* FredriksTestScene(SceneManager* sm)
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
 	tc->GetTransform()->SetScale(0.5f);
 	tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
-
-	plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.0f, 0.05f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 0.0f, 30.0f, 1.0f });
-	plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.0f, 0.9f, 1.0f });
 
 	/* ---------------------- PointLight6 ---------------------- */
 
@@ -529,11 +500,6 @@ Scene* WilliamsTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(-30.0f, 4.0f, 15.0f);
 
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.05f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 10.0f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.9f, 0.0f, 1.0f });
-
-
     entity = scene->AddEntity("pointLight2");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -543,10 +509,6 @@ Scene* WilliamsTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
-
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.00f, 0.05f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 0.00f, 10.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.00f, 0.9f, 1.0f });
 
     plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
 
@@ -561,11 +523,6 @@ Scene* WilliamsTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
 
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.05f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 10.0f, 10.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
-
-
     entity = scene->AddEntity("pointLight4");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -575,11 +532,6 @@ Scene* WilliamsTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(-30.0f, 4.0f, -15.0f);
-
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.0f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 30.0f, 0.0f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.0f, 0.0f, 1.0f });
-
 
     entity = scene->AddEntity("pointLight5");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -591,12 +543,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
 
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 15.0f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.0f, 1.0f });
-
     plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
-
 
     entity = scene->AddEntity("pointLight6");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -607,11 +554,6 @@ Scene* WilliamsTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
-
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.0f, 0.05f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 0.0f, 30.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.0f, 0.9f, 1.0f });
-
 
     return scene;
 }
@@ -729,10 +671,6 @@ Scene* BjornsTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
 
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.00f, 0.05f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 0.00f, 10.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.00f, 0.9f, 1.0f });
-
     plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
 
 
@@ -746,11 +684,6 @@ Scene* BjornsTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
 
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.05f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 10.0f, 10.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
-
-
     entity = scene->AddEntity("pointLight4");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -760,11 +693,6 @@ Scene* BjornsTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(-30.0f, 4.0f, -15.0f);
-
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.0f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 30.0f, 0.0f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.0f, 0.0f, 1.0f });
-
 
     entity = scene->AddEntity("pointLight5");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -776,14 +704,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
 
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 15.0f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.0f, 1.0f });
-
     plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
-
-
-
 
     return scene;
 }

@@ -79,9 +79,7 @@ struct CB_PER_SCENE_STRUCT
 
 struct BaseLight
 {
-	float4 ambient;
-	float4 diffuse;
-	float4 specular;
+	float4 intensity;
 
 	float castShadow;
 	float3 pad1;

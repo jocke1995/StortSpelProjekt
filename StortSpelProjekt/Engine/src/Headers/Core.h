@@ -36,14 +36,6 @@ inline T Max(T a, T b)
 	return b;
 }
 
-enum class COLOR_TYPE
-{
-	LIGHT_AMBIENT,
-	LIGHT_DIFFUSE,
-	LIGHT_SPECULAR,
-	NUM_COLOR_TYPES
-};
-
 enum TEXTURE_TYPE
 {
 	ALBEDO,
