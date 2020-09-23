@@ -365,20 +365,20 @@ Texture* AssetLoader::processTexture(aiMaterial* mat,
 	// Find the textureType
 	switch (texture_type)
 	{
-	case::TEXTURE_TYPE::AMBIENT:
-		type = aiTextureType_AMBIENT;
-		defaultPath = m_FilePathDefaultTextures + L"default_ambient.png";
-		warningMessageTextureType = "Ambient";
-		break;
-	case::TEXTURE_TYPE::DIFFUSE:
+	case::TEXTURE_TYPE::ALBEDO:
 		type = aiTextureType_DIFFUSE;
 		defaultPath = m_FilePathDefaultTextures + L"default_diffuse.jpg";
-		warningMessageTextureType = "Diffuse";
+		warningMessageTextureType = "Albedo";
 		break;
-	case::TEXTURE_TYPE::SPECULAR:
+	case::TEXTURE_TYPE::ROUGHNESS:
 		type = aiTextureType_SPECULAR;
 		defaultPath = m_FilePathDefaultTextures + L"default_specular.png";
-		warningMessageTextureType = "Specular";
+		warningMessageTextureType = "Roughness";
+		break;
+	case::TEXTURE_TYPE::METALNESS:
+		type = aiTextureType_AMBIENT;
+		defaultPath = m_FilePathDefaultTextures + L"default_ambient.png";
+		warningMessageTextureType = "Metalness";
 		break;
 	case::TEXTURE_TYPE::NORMAL:
 		type = aiTextureType_NORMALS;
