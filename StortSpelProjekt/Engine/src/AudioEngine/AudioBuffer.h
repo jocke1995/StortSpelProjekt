@@ -30,9 +30,7 @@ public:
 	//Set how many times audio should loop. 0 = "infinte"; 1 = "play once"; 1> = "play multiple"
 	void SetAudioLoop(int loopCount);
 
-	/// <summary>
-	/// Creates a voice object which may play the loaded audio.
-	/// </summary>
+	// Creates a voice object which may play the loaded audio.
 	AudioVoice CloneVoice();
 
 private:

@@ -76,7 +76,7 @@ void component::Audio3DEmitterComponent::AddVoice(const std::wstring& name)
 		emitterData.emitter.CurveDistanceScaler = 1.0f;
 		emitterData.emitter.OrientFront = DirectX::XMFLOAT3(0.0, 0.0, 0.0); // direction the sound will be facing, this is later updated to parent entity direction
 		emitterData.emitter.OrientTop = DirectX::XMFLOAT3(0.0, 1.0, 0.0); // up vector, this is later updated to change with the parent entitys up vector
-		emitterData.emitter.ChannelRadius = 5.25f;
+		emitterData.emitter.ChannelRadius = 0.25f;
 		emitterData.emitter.pChannelAzimuths = new FLOAT32[emitterData.voiceDetails.InputChannels];
 		emitterData.emitter.pChannelAzimuths[0] = X3DAUDIO_PI / 4;
 		emitterData.emitter.pChannelAzimuths[1] = 7 * X3DAUDIO_PI / 4;
@@ -100,7 +100,7 @@ void component::Audio3DEmitterComponent::Play(const std::wstring& name)
 	}
 	else
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Tried to play Audio that has not been loaded!");
+		Log::PrintSeverity(Log::Severity::WARNING, "Tried to play Audio that has not been loaded: %S \n", name.c_str());
 	}
 #else
 	m_VoiceEmitterData[name].voice.Play();
@@ -116,7 +116,7 @@ void component::Audio3DEmitterComponent::Stop(const std::wstring& name)
 	}
 	else
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Tried to stop Audio that has not been loaded!");
+		Log::PrintSeverity(Log::Severity::WARNING, "Tried to stop Audio that has not been loaded: %S \n", name.c_str());
 	}
 #else
 	m_VoiceEmitterData[name].voice.Stop();

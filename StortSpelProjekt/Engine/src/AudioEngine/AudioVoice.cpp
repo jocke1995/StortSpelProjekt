@@ -33,7 +33,6 @@ void AudioVoice::initialize(XAUDIO2_BUFFER* buff, WAVEFORMATEXTENSIBLE* wfxForma
 
     m_pSourceVoice->SetVolume(Option::GetInstance().GetVariable("volume"));
     HRESULT hRes = m_pSourceVoice->SetOutputVoices(NULL);
-
 }
 
 void AudioVoice::Initialize(AudioBuffer& audio)

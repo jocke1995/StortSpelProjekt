@@ -39,7 +39,7 @@ void component::AudioVoiceComponent::Play(const std::wstring& name)
 	}
 	else
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Tried to play Audio that has not been loaded!");
+		Log::PrintSeverity(Log::Severity::WARNING, "Tried to play Audio that has not been loaded: %S \n", name.c_str());
 	}
 #else
 	m_Voices[name].Play();
@@ -55,7 +55,7 @@ void component::AudioVoiceComponent::Stop(const std::wstring& name)
 	}
 	else
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Tried to stop Audio that has not been loaded!");
+		Log::PrintSeverity(Log::Severity::WARNING, "Tried to stop Audio that has not been loaded: %S \n", name.c_str());
 	}
 #else
 	m_Voices[name].Stop();
