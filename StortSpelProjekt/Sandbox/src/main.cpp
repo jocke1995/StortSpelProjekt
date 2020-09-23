@@ -1,5 +1,5 @@
 #include "Engine.h"
-#include "PlayerInput/PlayerInputComponent.h"
+#include "Components/PlayerInputComponent.h"
 
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);

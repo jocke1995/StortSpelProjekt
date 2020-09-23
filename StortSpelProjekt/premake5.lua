@@ -82,15 +82,17 @@ project "Sandbox"
     language "C++"
     targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
     objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
-    files { "%{prj.location}/src/**.cpp", "%{prj.location}/src/**.h", "%{prj.location}/src/**.hlsl", "%{prj.location}/../Game/src/files/**.cpp", "%{prj.location}/../Game/src/files/**.h" }
-    
+    files { "%{prj.location}/src/**.cpp", "%{prj.location}/src/**.h", "%{prj.location}/src/**.hlsl", "%{prj.location}/../Game/src/Gamefiles/**.cpp", "%{prj.location}/../Game/src/Gamefiles/**.h" }
+
+    vpaths {["Gamefiles"] = {"*.cpp", "*.h"}}
+
     filter { "files:**.hlsl" }
         flags "ExcludeFromBuild"
     
     filter "configurations:*"
         cppdialect "C++17"
     
-    includedirs {"Vendor/Include/", "Engine/src/", "Engine/src/Headers/", "Game/src/files/" }
+    includedirs {"Vendor/Include/", "Engine/src/", "Engine/src/Headers/", "Game/src/Gamefiles/" }
     libdirs { "Vendor/Lib/**" }
     links {
         "Engine"
