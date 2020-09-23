@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
+#include "ImGUI/ImGuiHandler.h"
 
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
@@ -7,6 +8,12 @@ Scene* JockesTestScene(SceneManager* sm);
 Scene* FredriksTestScene(SceneManager* sm);
 Scene* WilliamsTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
+
+
+void(*UpdateScene)(SceneManager*);
+void LeoUpdateScene(SceneManager* sm);
+
+void DefaultUpdateScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -31,6 +38,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
+    UpdateScene = &DefaultUpdateScene;
+
     sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(TimScene(sceneManager));
     //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
@@ -43,6 +52,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     while (!window->ExitWindow())
     {
+        if (DEVELOPERMODE_DEVINTERFACE == true)
+        {
+            ImGuiHandler::GetInstance().NewFrame();
+        }
+
         /* ------ Update ------ */
         timer->Update();
         logicTimer += timer->GetDeltaTime();
@@ -58,6 +72,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ------ Sort ------ */
         renderer->SortObjects();
 
+        /* ------ ImGui ------*/
+        if (DEVELOPERMODE_DEVINTERFACE == true)
+        {
+            ImGuiHandler::GetInstance().UpdateFrame();
+        }
+        
+        UpdateScene(sceneManager);
+
         /* ------ Draw ------ */
         renderer->Execute();
     }
@@ -67,7 +89,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 Scene* LeosTestScene(SceneManager* sm)
 {
     // Create scene
-    Scene* scene = sm->CreateScene("ThatSceneWithThemThereCameraFeaturesAndStuff");
+    Scene* scene = sm->CreateScene("ThatSceneWithThemThereImGuiFeaturesAndStuff");
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
@@ -133,6 +155,11 @@ Scene* LeosTestScene(SceneManager* sm)
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 5.0f, 5.0f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
     /* ---------------------- PointLight1 ---------------------- */
+
+    ImGuiHandler::GetInstance().SetFloat("LightPositionZ", -15.0f);
+    ImGuiHandler::GetInstance().SetFloat4("LightColor", float4({ 1.0f, 1.0f, 1.0f, 1.0f }));
+
+    UpdateScene = &LeoUpdateScene;
 
     return scene;
 }
@@ -926,4 +953,23 @@ Scene* BjornsTestScene(SceneManager* sm)
 
 
     return scene;
+}
+
+void LeoUpdateScene(SceneManager* sm)
+{
+
+    if (DEVELOPERMODE_DEVINTERFACE == true)
+    {
+        float lightPos = ImGuiHandler::GetInstance().GetFloat("LightPositionZ");
+        float4 lightColor = ImGuiHandler::GetInstance().GetFloat4("LightColor");
+
+        sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("pointLight1")->GetComponent<component::PointLightComponent>()->SetColor(COLOR_TYPE::LIGHT_AMBIENT, lightColor);
+        sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("pointLight1")->GetComponent<component::PointLightComponent>()->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { lightColor.x * 16.0f, lightColor.y * 16.0f, lightColor.z * 16.0f, lightColor.w });
+        sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("pointLight1")->GetComponent<component::PointLightComponent>()->SetColor(COLOR_TYPE::LIGHT_SPECULAR, lightColor);
+        sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("pointLight1")->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(DirectX::XMFLOAT3(0.0f, 8.0f, lightPos));
+    }
+}
+
+void DefaultUpdateScene(SceneManager* sm)
+{
 }
