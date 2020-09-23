@@ -1,9 +1,8 @@
 #include "PlayerInputComponent.h"
 #include "../Events/EventBus.h"
-#include "GameEntity.h"
+#include "../ECS/Entity.h"
 #include "../Renderer/PerspectiveCamera.h"
 #include "../Renderer/Transform.h"
-#include "stdafx.h"
 
 component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned int camFlags)
 	:InputComponent(parent)
@@ -12,6 +11,8 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::zoom);
 	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::rotate);
 	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::move);
+	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::mouseClick);
+	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::grunt);
 
 	m_CameraFlags = camFlags;
 
@@ -22,6 +23,9 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_Yaw = 1.0f;
 
 	m_CameraDistance = sqrt(m_Zoom * 4 * m_Zoom * 4 + m_Zoom * m_Zoom);
+
+	m_pCamera = nullptr;
+	m_pTransform = nullptr;
 }
 
 component::PlayerInputComponent::~PlayerInputComponent()
@@ -161,5 +165,25 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		int isMovingX = static_cast<int>(Input::GetInstance().GetKeyState(SCAN_CODES::D)) - static_cast<int>(Input::GetInstance().GetKeyState(SCAN_CODES::A));
 
 		m_pTransform->SetMovement(forward.x * isMovingZ + right.x * isMovingX, m_pTransform->GetMovement().y, forward.z * isMovingZ + right.z * isMovingX);
+	}
+}
+
+void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
+{
+	switch (evnt->button) {
+	case MOUSE_BUTTON::LEFT_DOWN:
+		Log::Print("Left Mouse button down \n");
+		break;
+	case MOUSE_BUTTON::RIGHT_DOWN:
+		Log::Print("Right Mouse button down \n");
+		break;
+	}
+}
+
+void component::PlayerInputComponent::grunt(Collision* evnt)
+{
+	if (evnt->ent1 == GetParent() || evnt->ent2 == GetParent())
+	{
+		GetParent()->GetComponent<component::AudioVoiceComponent>()->Play(L"Bruh");
 	}
 }

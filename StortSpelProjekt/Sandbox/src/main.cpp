@@ -1,5 +1,5 @@
 #include "Engine.h"
-#include "GameEntity.h"
+#include "Components/PlayerInputComponent.h"
 
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
@@ -88,7 +88,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     loopedSound->SetAudioLoop(0);
     /* ---------------------- Player ---------------------- */
-    Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
+    Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
@@ -231,7 +231,7 @@ Scene* JockesTestScene(SceneManager* sm)
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
     /* ---------------------- Player ---------------------- */
-    Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
+    Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
