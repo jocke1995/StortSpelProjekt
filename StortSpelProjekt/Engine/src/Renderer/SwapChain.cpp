@@ -38,7 +38,7 @@ SwapChain::SwapChain(
 	scDesc.SampleDesc.Quality = 0;
 	scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	scDesc.BufferCount = NUM_SWAP_BUFFERS;
-	scDesc.Scaling = DXGI_SCALING_NONE;
+	scDesc.Scaling = DXGI_SCALING_STRETCH;
 	scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	scDesc.Flags = 0;
 	scDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;

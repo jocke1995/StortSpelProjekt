@@ -6,6 +6,7 @@
 #include "../Misc/AssetLoader.h"
 #include "../Misc/Thread.h"
 #include "../Misc/Window.h"
+#include "../Misc/Option.h"
 
 // ECS
 #include "../ECS/Scene.h"
@@ -134,11 +135,10 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	createSwapChain(window->GetHwnd());
 	m_pBloomResources = new Bloom(m_pDevice5, 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
-		window->GetHwnd());
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 
 	// Create Main DepthBuffer
-	createMainDSV(window->GetHwnd());
+	createMainDSV();
 
 	// Picking
 	m_pMousePicker = new MousePicker();
@@ -502,14 +502,8 @@ void Renderer::createCommandQueues()
 
 void Renderer::createSwapChain(const HWND *hwnd)
 {
-	RECT rect;
-	unsigned int width = 0;
-	unsigned int height = 0;
-	if (GetWindowRect(*hwnd, &rect))
-	{
-		width = rect.right - rect.left;
-		height = rect.bottom - rect.top;
-	}
+	int width = Option::GetInstance().GetVariable("resolutionWidth");
+	int height = Option::GetInstance().GetVariable("resolutionHeight");
 
 	m_pSwapChain = new SwapChain(
 		m_pDevice5,
@@ -520,25 +514,19 @@ void Renderer::createSwapChain(const HWND *hwnd)
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 }
 
-void Renderer::createMainDSV(const HWND* hwnd)
+void Renderer::createMainDSV()
 {
-	RECT rect;
-	unsigned int width = 0;
-	unsigned int height = 0;
-	if (GetWindowRect(*hwnd, &rect))
-	{
-		width = rect.right - rect.left;
-		height = rect.bottom - rect.top;
-	}
-
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
 	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
+	int width = Option::GetInstance().GetVariable("resolutionWidth");
+	int height = Option::GetInstance().GetVariable("resolutionHeight");
+
 	m_pMainDepthStencil = new DepthStencil(
 		m_pDevice5,
-		width, height,	// width, height
+		width, height,
 		L"MainDSV",
 		&dsvDesc,
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
@@ -1085,6 +1073,9 @@ void Renderer::initRenderTasks()
 	textTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion Text
+	
+	int width = Option::GetInstance().GetVariable("resolutionWidth");
+	int height = Option::GetInstance().GetVariable("resolutionHeight");
 
 	// ComputeTasks
 	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
@@ -1096,7 +1087,7 @@ void Renderer::initRenderTasks()
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		800, 600); // TODO: Send screen width/height from window after merge to develop
+		width, height);
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
