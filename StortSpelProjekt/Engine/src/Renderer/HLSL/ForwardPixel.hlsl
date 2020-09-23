@@ -25,7 +25,7 @@ ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b4, space3);
 PS_OUTPUT PS_main(VS_OUT input)
 {
 	// Sample from textures
-	float2 uvScaled = float2(input.uv.x / 2, input.uv.y / 2);
+	float2 uvScaled = float2(input.uv.x, input.uv.y);
 	float4 albedo   = textures[cbPerObject.info.textureAlbedo	].Sample(samplerTypeWrap, uvScaled);
 	float roughness = textures[cbPerObject.info.textureRoughness].Sample(samplerTypeWrap, uvScaled).r;
 	float metallic  = textures[cbPerObject.info.textureMetallic	].Sample(samplerTypeWrap, uvScaled).r;
@@ -43,18 +43,21 @@ PS_OUTPUT PS_main(VS_OUT input)
 	float3 baseReflectivity = lerp(float3(0.04f, 0.04f, 0.04f), albedo.rgb, metallic);
 
 	// DirectionalLight contributions
-	//for (unsigned int i = 0; i < cbPerScene.Num_Dir_Lights; i++)
-	//{
-	//	int index = cbPerScene.dirLightIndices[i].x;
-	//	finalColor += CalcDirLight(
-	//		dirLight[index],
-	//		camPos,
-	//		input.worldPos,
-	//		metallicMap.rgb,
-	//		albedoMap.rgb,
-	//		roughnessMap.rgb,
-	//		normal.rgb);
-	//}
+	for (unsigned int i = 0; i < cbPerScene.Num_Dir_Lights; i++)
+	{
+		int index = cbPerScene.dirLightIndices[i].x;
+	
+		finalColor += CalcDirLight(
+			dirLight[index],
+			camPos,
+			viewDir,
+			input.worldPos,
+			metallic,
+			albedo.rgb,
+			roughness,
+			normal.rgb,
+			baseReflectivity);
+	}
 
 	// PointLight contributions
 	for (unsigned int i = 0; i < cbPerScene.Num_Point_Lights; i++)
@@ -74,23 +77,26 @@ PS_OUTPUT PS_main(VS_OUT input)
 	}
 
 	// SpotLight  contributions
-	//for (unsigned int i = 0; i < cbPerScene.Num_Spot_Lights; i++)
-	//{
-	//	int index = cbPerScene.spotLightIndices[i].x;
-	//	finalColor += CalcSpotLight(
-	//		spotLight[index],
-	//		camPos,
-	//		input.worldPos,
-	//		metallicMap.rgb,
-	//		albedoMap.rgb,
-	//		roughnessMap.rgb,
-	//		normal.rgb);
-	//}
+	for (unsigned int i = 0; i < cbPerScene.Num_Spot_Lights; i++)
+	{
+		int index = cbPerScene.spotLightIndices[i].x;
+
+		finalColor += CalcSpotLight(
+			spotLight[index],
+			camPos,
+			viewDir,
+			input.worldPos,
+			metallic,
+			albedo.rgb,
+			roughness,
+			normal.rgb,
+			baseReflectivity);
+	}
 	
 	float3 ambient = float3(0.03f, 0.03f, 0.03f) * albedo;
 	finalColor += ambient;
 
-	//finalColor += emissiveMap.rgb;
+	finalColor += emissive.rgb;
 
 	PS_OUTPUT output;
 	output.sceneColor = float4(finalColor.rgb, 1.0f);

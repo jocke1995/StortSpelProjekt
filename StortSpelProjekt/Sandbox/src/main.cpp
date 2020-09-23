@@ -214,6 +214,7 @@ Scene* JockesTestScene(SceneManager* sm)
     component::BoundingBoxComponent* bbc = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
+    component::SpotLightComponent* slc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -254,14 +255,36 @@ Scene* JockesTestScene(SceneManager* sm)
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
     mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
 
-    plc->SetColor({3.0f, 3.0f, 3.0f });
-    plc->SetAttenuation({1.0f, 0.027f, 0.0028f});
-
+    plc->SetColor({2.0f, 0.0f, 2.0f });
+    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
     /* ---------------------- PointLight ---------------------- */
+
+    /* ---------------------- dirLight ---------------------- */
+    entity = scene->AddEntity("dirLight");
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION);
+    dlc->SetColor({ 1.0f, 1.0f, 1.0f });
+    dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
+    /* ---------------------- dirLight ---------------------- */
+
+    /* ---------------------- Spotlight ---------------------- */
+    entity = scene->AddEntity("Spotlight");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(30.0f, 4.0f, 10.0f);
+
+    slc->SetColor({ 0.0f, 0.0f, 4.0f });
+    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetDirection({ -2.0, -1.0, 0.0f });
+    /* ---------------------- Spotlight ---------------------- */
 
     return scene;
 }

@@ -37,7 +37,7 @@ namespace component
 		
 		if (m_pCamera != nullptr)
 		{
-			m_pCamera->SetPosition(-direction.x * 10, -direction.y * 10, -direction.z * 10);
+			m_pCamera->SetPosition(-direction.x * 30, -direction.y * 30, -direction.z * 30);
 			m_pCamera->SetDirection(direction.x, direction.y, direction.z);
 		}
 	}

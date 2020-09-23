@@ -63,15 +63,48 @@ float CalculateShadow(
 float3 CalcDirLight(
 	in DirectionalLight dirLight,
 	in float3 camPos,
+	in float3 viewDir,
 	in float4 fragPos,
-	in float3 metallic,
+	in float metallic,
 	in float3 albedo,
-	in float3 roughness,
-	in float3 normal)
+	in float roughness,
+	in float3 normal,
+	in float3 baseReflectivity)
 {
 	float3 DirLightContribution = float3(0.0f, 0.0f, 0.0f);
 
-	return DirLightContribution;
+	float3 lightDir = normalize(-dirLight.direction.rgb);
+	float3 normalized_bisector = normalize(viewDir + lightDir);
+
+	float3 radiance = dirLight.baseLight.color.rgb;
+
+	// Cook-Torrance BRDF
+	float NdotV = max(dot(normal, viewDir), 0.0000001);
+	float NdotL = max(dot(normal, lightDir), 0.0000001);
+	float HdotV = dot(normalized_bisector, viewDir);
+	float HdotN = dot(normalized_bisector, normal);
+
+	float  D = NormalDistributionGGX(HdotN, roughness);
+	float  G = GeometrySmith(NdotV, NdotL, roughness);
+	float3 F = CalculateFresnelEffect(HdotV, baseReflectivity);
+
+	float3 specular = D * G * F / (4.0f * NdotV * NdotL);
+
+	// Energy conservation
+	float3 kD = float3(1.0f, 1.0f, 1.0f) - F;
+	kD *= 1.0f - metallic;
+
+	// Shadows
+	float shadow = 0.0f;
+	if (dirLight.baseLight.castShadow == true)
+	{
+		float4 fragPosLightSpace = mul(fragPos, dirLight.viewProj);
+
+		shadow = CalculateShadow(fragPosLightSpace, dirLight.textureShadowMap);
+	}
+
+	DirLightContribution = (kD * albedo / PI + specular) * radiance * NdotL;
+	return DirLightContribution * (1.0f - shadow);
 }
 
 float3 CalcPointLight(
@@ -122,46 +155,51 @@ float3 CalcPointLight(
 float3 CalcSpotLight(
 	in SpotLight spotLight,
 	in float3 camPos,
+	in float3 viewDir,
 	in float4 fragPos,
-	in float3 metallic,
+	in float metallic,
 	in float3 albedo,
-	in float3 roughness,
-	in float3 normal)
+	in float roughness,
+	in float3 normal,
+	in float3 baseReflectivity)
 {
 	float3 spotLightContribution = float3(0.0f, 0.0f, 0.0f);
-	/*
-	float3 lightDir = normalize(spotLight.position_cutOff.xyz - fragPos);
+	
+	float3 lightDir = normalize(spotLight.position_cutOff.xyz - fragPos.xyz);
+	float3 normalized_bisector = normalize(viewDir + lightDir);
 	
 	// Calculate the angle between lightdir and the direction of the light
 	float theta = dot(lightDir, normalize(-spotLight.direction_outerCutoff.xyz));
 
 	// To smooth edges
 	float epsilon = (spotLight.position_cutOff.w - spotLight.direction_outerCutoff.w);
-	float intensity = clamp((theta - spotLight.direction_outerCutoff.w) / epsilon, 0.0f, 1.0f);
-
-	float3 spotLightContribution = float3(0.0f, 0.0f, 0.0f);
-
-	// Ambient
-	float3 ambient = ambientMap * spotLight.baseLight.intensity.rgb * materialAttributes.ambientMul + materialAttributes.ambientAdd;;
-
-	// Diffuse
-	float alpha = max(dot(normalMap, lightDir), 0.0f);
-	float3 diffuse = diffuseMap * alpha * spotLight.baseLight.intensity.rgb * materialAttributes.diffuseMul + materialAttributes.diffuseAdd;;
-
-	// Specular
-	float3 vecToCam = normalize(camPos - fragPos);
-	float3 reflection = normalize(reflect(-lightDir.xyz, normalMap.xyz));
-	float spec = pow(max(dot(reflection, vecToCam), 0.0), 100);
-	float3 specular = (specularMap.rgb * spotLight.baseLight.intensity.rgb * materialAttributes.specularMul + materialAttributes.specularAdd) * spec;
+	float edgeIntensity = clamp((theta - spotLight.direction_outerCutoff.w) / epsilon, 0.0f, 1.0f);
 
 	// Attenuation
 	float constantFactor = spotLight.attenuation.x;
 	float linearFactor = spotLight.attenuation.y;
 	float quadraticFactor = spotLight.attenuation.z;
-
 	float distancePixelToLight = length(spotLight.position_cutOff.xyz - fragPos);
 	float attenuation = 1.0f / (constantFactor + (linearFactor * distancePixelToLight) + (quadraticFactor * pow(distancePixelToLight, 2)));
-		
+
+	float3 radiance = spotLight.baseLight.color.rgb * attenuation;
+
+	// Cook-Torrance BRDF
+	float NdotV = max(dot(normal, viewDir), 0.0000001);
+	float NdotL = max(dot(normal, lightDir), 0.0000001);
+	float HdotV = dot(normalized_bisector, viewDir);
+	float HdotN = dot(normalized_bisector, normal);
+
+	float  D = NormalDistributionGGX(HdotN, roughness);
+	float  G = GeometrySmith(NdotV, NdotL, roughness);
+	float3 F = CalculateFresnelEffect(HdotV, baseReflectivity);
+
+	float3 specular = D * G * F / (4.0f * NdotV * NdotL);
+
+	// Energy conservation
+	float3 kD = float3(1.0f, 1.0f, 1.0f) - F;
+	kD *= 1.0f - metallic;
+
 	float shadow = 0.0f;
 	if (spotLight.baseLight.castShadow == true)
 	{
@@ -170,7 +208,7 @@ float3 CalcSpotLight(
 		shadow = CalculateShadow(fragPosLightSpace, spotLight.textureShadowMap);
 	}
 
-	spotLightContribution =  float3(ambient.rgb + (1.0f - shadow) * attenuation* (diffuse.rgb + specular.rgb)) * intensity;
-	*/
+	spotLightContribution = ((kD * albedo / PI + specular) * radiance * NdotL) * edgeIntensity;
+	spotLightContribution = spotLightContribution * (1.0f - shadow);
 	return spotLightContribution;
 }
