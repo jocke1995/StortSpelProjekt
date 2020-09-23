@@ -4,5 +4,5 @@ resolutionWidth 1920
 resolutionHeight 1080
 windowWidth 800
 windowHeight 600
-fullscreen 1
+fullscreen 0
 amountOfBlur 6
