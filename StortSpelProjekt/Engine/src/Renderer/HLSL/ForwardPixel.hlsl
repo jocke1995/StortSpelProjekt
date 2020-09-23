@@ -29,11 +29,11 @@ PS_OUTPUT PS_main(VS_OUT input)
 
 	// Sample from textures
 	float2 uvScaled = float2(input.uv.x * materialAttributes.uvScale.x, input.uv.y * materialAttributes.uvScale.y);
-	float4 ambientMap  = textures[cbPerObject.info.textureAmbient ].Sample(samplerTypeWrap, uvScaled);
-	float4 diffuseMap  = textures[cbPerObject.info.textureDiffuse ].Sample(samplerTypeWrap, uvScaled);
-	float4 specularMap = textures[cbPerObject.info.textureSpecular].Sample(samplerTypeWrap, uvScaled);
-	float4 emissiveMap = textures[cbPerObject.info.textureEmissive].Sample(samplerTypeWrap, uvScaled);
-	float4 normalMap   = textures[cbPerObject.info.textureNormal  ].Sample(samplerTypeWrap, uvScaled);
+	float4 albedoMap  = textures[cbPerObject.info.textureAlbedo		].Sample(samplerTypeWrap, uvScaled);
+	float4 roughnessMap = textures[cbPerObject.info.textureRoughness].Sample(samplerTypeWrap, uvScaled);
+	float4 metallicMap  = textures[cbPerObject.info.textureMetallic	].Sample(samplerTypeWrap, uvScaled);
+	float4 emissiveMap = textures[cbPerObject.info.textureEmissive	].Sample(samplerTypeWrap, uvScaled);
+	float4 normalMap   = textures[cbPerObject.info.textureNormal	].Sample(samplerTypeWrap, uvScaled);
 
 	normalMap = (2.0f * normalMap) - 1.0f;
 	float4 normal = float4(normalize(mul(normalMap.xyz, input.tbn)), 1.0f);
@@ -46,9 +46,9 @@ PS_OUTPUT PS_main(VS_OUT input)
 			dirLight[index],
 			camPos,
 			input.worldPos,
-			ambientMap.rgb,
-			diffuseMap.rgb,
-			specularMap.rgb,
+			metallicMap.rgb,
+			albedoMap.rgb,
+			roughnessMap.rgb,
 			normal.rgb);
 	}
 
@@ -60,9 +60,9 @@ PS_OUTPUT PS_main(VS_OUT input)
 			pointLight[index],
 			camPos,
 			input.worldPos,
-			ambientMap.rgb,
-			diffuseMap.rgb,
-			specularMap.rgb,
+			metallicMap.rgb,
+			albedoMap.rgb,
+			roughnessMap.rgb,
 			normal.rgb);
 	}
 
@@ -74,9 +74,9 @@ PS_OUTPUT PS_main(VS_OUT input)
 			spotLight[index],
 			camPos,
 			input.worldPos,
-			ambientMap.rgb,
-			diffuseMap.rgb,
-			specularMap.rgb,
+			metallicMap.rgb,
+			albedoMap.rgb,
+			roughnessMap.rgb,
 			normal.rgb);
 	}
 

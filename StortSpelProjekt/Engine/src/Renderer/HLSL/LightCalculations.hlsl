@@ -63,34 +63,13 @@ float3 CalcDirLight(
 	in DirectionalLight dirLight,
 	in float3 camPos,
 	in float4 fragPos,
-	in float3 ambientMap,
-	in float3 diffuseMap,
-	in float3 specularMap,
+	in float3 metallicMap,
+	in float3 albedoMap,
+	in float3 roughnessMap,
 	in float3 normalMap)
 {
-	// Ambient
-	float3 ambient = ambientMap * dirLight.baseLight.intensity.rgb * materialAttributes.ambientMul + materialAttributes.ambientAdd;
+	float3 DirLightContribution = float3(0.0f, 0.0f, 0.0f);
 
-	// Diffuse
-	float3 lightDir = normalize(-dirLight.direction.xyz);
-	float alpha = max(dot(normalMap, lightDir), 0.0f);
-	float3 diffuse = diffuseMap * alpha * dirLight.baseLight.intensity.rgb * materialAttributes.diffuseMul + materialAttributes.diffuseAdd;
-
-	// Specular
-	float3 vecToCam = normalize(camPos - fragPos.xyz);
-	float3 reflection = normalize(reflect(-lightDir.xyz, normalMap.xyz));
-	float spec = pow(max(dot(reflection, vecToCam), 0.0), materialAttributes.shininess);
-	float3 specular = (specularMap.rgb * dirLight.baseLight.intensity.rgb * materialAttributes.specularMul + materialAttributes.specularAdd) * spec;
-
-	float shadow = 0.0f;
-	if (dirLight.baseLight.castShadow == true)
-	{
-		float4 fragPosLightSpace = mul(fragPos, dirLight.viewProj);
-
-		shadow = CalculateShadow(fragPosLightSpace, dirLight.textureShadowMap);
-	}
-
-	float3 DirLightContribution = ambient.rgb + ((1.0f - shadow) * (diffuse.rgb + specular.rgb));
 	return DirLightContribution;
 }
 
@@ -98,49 +77,27 @@ float3 CalcPointLight(
 	in PointLight pointLight,
 	in float3 camPos,
 	in float4 fragPos,
-	in float3 ambientMap,
-	in float3 diffuseMap,
-	in float3 specularMap,
+	in float3 metallicMap,
+	in float3 albedoMap,
+	in float3 roughnessMap,
 	in float3 normalMap)
 {
 	float3 pointLightContribution = float3(0.0f, 0.0f, 0.0f);
 
-	// Ambient
-	float3 ambient = ambientMap * pointLight.baseLight.intensity.rgb * materialAttributes.ambientMul + materialAttributes.ambientAdd;
-
-	// Diffuse
-	float3 lightDir = normalize(pointLight.position.xyz - fragPos.xyz);
-	float alpha = max(dot(normalMap, lightDir), 0.0f);
-	float3 diffuse = diffuseMap * alpha * pointLight.baseLight.intensity.rgb * materialAttributes.diffuseMul + materialAttributes.diffuseAdd;
-
-	// Specular
-	float3 vecToCam = normalize(camPos - fragPos.xyz);
-	float3 reflection = normalize(reflect(-lightDir.xyz, normalMap.xyz));
-	float spec = pow(max(dot(reflection, vecToCam), 0.0), 100);
-	float3 specular = (specularMap.rgb * pointLight.baseLight.intensity.rgb * materialAttributes.specularMul + materialAttributes.specularAdd) * spec;
-
-	// Attenuation
-	float constantFactor = pointLight.attenuation.x;
-	float linearFactor = pointLight.attenuation.y;
-	float quadraticFactor = pointLight.attenuation.z;
-
-	float distancePixelToLight = length(pointLight.position.xyz - fragPos.xyz);
-	float attenuation = 1.0f / (constantFactor + (linearFactor * distancePixelToLight) + (quadraticFactor * pow(distancePixelToLight, 2)));
-
-	pointLightContribution = float3(ambient.rgb + attenuation * (diffuse.rgb + specular.rgb));
-
-	return pointLightContribution;
+	return albedoMap;
 }
 
 float3 CalcSpotLight(
 	in SpotLight spotLight,
 	in float3 camPos,
 	in float4 fragPos,
-	in float3 ambientMap,
-	in float3 diffuseMap,
-	in float3 specularMap,
+	in float3 metallicMap,
+	in float3 albedoMap,
+	in float3 roughnessMap,
 	in float3 normalMap)
 {
+	float3 spotLightContribution = float3(0.0f, 0.0f, 0.0f);
+	/*
 	float3 lightDir = normalize(spotLight.position_cutOff.xyz - fragPos);
 	
 	// Calculate the angle between lightdir and the direction of the light
@@ -182,6 +139,6 @@ float3 CalcSpotLight(
 	}
 
 	spotLightContribution =  float3(ambient.rgb + (1.0f - shadow) * attenuation* (diffuse.rgb + specular.rgb)) * intensity;
-	
+	*/
 	return spotLightContribution;
 }

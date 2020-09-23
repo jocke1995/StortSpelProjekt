@@ -20,13 +20,13 @@ struct SlotInfo
 {
 	unsigned int vertexDataIndex;
 	// TextureIndices
-	unsigned int textureAmbient;
-	unsigned int textureDiffuse;
-	unsigned int textureSpecular;
+	unsigned int textureAlbedo;
+	unsigned int textureRoughness;
+	unsigned int textureMetallic;
 	unsigned int textureNormal;
 	unsigned int textureEmissive;
 
-	unsigned int pad1[1];
+	unsigned int pad[2];
 };
 
 struct MaterialAttributes
