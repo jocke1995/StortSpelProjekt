@@ -42,7 +42,7 @@ namespace component
 		return m_PrimaryCamera;
 	}
 
-	void CameraComponent::Update(double dt)
+	void CameraComponent::RenderUpdate(double dt)
 	{
 		m_pCamera->Update(dt);
 	}

@@ -1,5 +1,5 @@
 #include "Engine.h"
-#include "GameEntity.h"
+#include "Components/PlayerInputComponent.h"
 
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
@@ -12,9 +12,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-    /* ------ Engine  ------ */
-    Engine engine = Engine();
-    engine.Init(hInstance, nCmdShow);
+	/*------ Load Option Variables ------*/
+	Option::GetInstance().ReadFile();
+	float updateRate = 1.0f / Option::GetInstance().GetVariable("updateRate");
+
+	/* ------ Engine  ------ */
+	Engine engine;
+	engine.Init(hInstance, nCmdShow);
 
     /*  ------ Get references from engine  ------ */
     Window* const window = engine.GetWindow();
@@ -23,9 +27,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     SceneManager* const sceneManager = engine.GetSceneHandler();
     Renderer* const renderer = engine.GetRenderer();
     Physics* const physics = engine.GetPhysics();
-
-    /*------ Load Option Variables ------*/
-    Option::GetInstance().ReadFile();
 
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
@@ -37,12 +38,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
 
+    /*----- Timer ------*/
+    double logicTimer = 0;
+
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
         timer->Update();
-        renderer->Update(timer->GetDeltaTime());
-        physics->Update(timer->GetDeltaTime());
+        logicTimer += timer->GetDeltaTime();
+
+        renderer->RenderUpdate(timer->GetDeltaTime());
+        if (logicTimer >= updateRate)
+        {
+            logicTimer = 0;
+            physics->Update(updateRate);
+            renderer->Update(updateRate);
+        }
 
         /* ------ Sort ------ */
         renderer->SortObjects();
@@ -77,10 +88,10 @@ Scene* LeosTestScene(SceneManager* sm)
 
     loopedSound->SetAudioLoop(0);
     /* ---------------------- Player ---------------------- */
-    Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
+    Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
-    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     tc = entity->AddComponent<component::TransformComponent>();
+    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::AudioVoiceComponent>();
 
@@ -210,7 +221,7 @@ Scene* JockesTestScene(SceneManager* sm)
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
     /* ---------------------- Player ---------------------- */
-    Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
+    Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
@@ -579,8 +590,8 @@ Scene* BjornsTestScene(SceneManager* sm)
 
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
-    component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     tc = entity->AddComponent<component::TransformComponent>();
+    component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
     // adding OBB with collision

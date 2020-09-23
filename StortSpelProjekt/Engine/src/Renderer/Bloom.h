@@ -14,8 +14,7 @@ class Bloom
 public:
 	Bloom(
 		ID3D12Device5* device,
-		DescriptorHeap* dhRTV, DescriptorHeap* dh_CBV_UAV_SRV,
-		const HWND* hwnd);
+		DescriptorHeap* dhRTV, DescriptorHeap* dh_CBV_UAV_SRV);
 	virtual ~Bloom();
 
 	const RenderTargetView* const GetRenderTargetView() const;
