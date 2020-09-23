@@ -32,10 +32,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
-    sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
+    //sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(TimScene(sceneManager));
     //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
-    //sceneManager->SetSceneToDraw(FloppipTestScene(sceneManager));
+    sceneManager->SetSceneToDraw(FloppipTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
@@ -105,8 +105,14 @@ Scene* LeosTestScene(SceneManager* sm)
     avc->Play(L"Music");
     ic->Init();
 
-
-
+    // Skybox
+    Texture* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = static_cast<GameEntity*>(scene->AddEntity("skybox"));
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    sbc->SetMesh(cubeModel->GetMeshAt(0));
+    sbc->SetTexture(skyboxCubemap);
+    sbc->SetCamera(cc->GetCamera());
+    sbc->GetTransform()->SetScale(50);
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
@@ -421,21 +427,8 @@ Scene* FloppipTestScene(SceneManager* sm)
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     
-
-
+    // Textures
     Texture* skyboxTexture = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
-    //Texture* skyboxTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/Default/default_diffuse.jpg");
-
-    // TEMP: FILIP
-    //Mesh* skyboxMesh = al->CreateSkyboxMesh();
-
-    //std::vector<Mesh*> skyboxMeshes;
-    //skyboxMeshes.push_back(skyboxMesh);
-
-    //std::vector<std::map<TEXTURE2D_TYPE, Texture*>> textures;
-    //textures.push_back(*floorModel->GetTexturesAt(0));
-
-    //Model* sphereModel = new Model(L"NOPATH", &skyboxMeshes, &textures);
 
     /* ---------------------- Player ---------------------- */
     Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
@@ -454,16 +447,14 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     /* ---------------------- Skybox ---------------------- */
 
-    entity = scene->AddEntity("skybox");
+    // Skybox
+    Texture* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = static_cast<GameEntity*>(scene->AddEntity("skybox"));
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
     sbc->SetMesh(cubeModel->GetMeshAt(0));
-    sbc->SetTexture(skyboxTexture);
+    sbc->SetTexture(skyboxCubemap);
     sbc->SetCamera(cc->GetCamera());
-    // TODO: FILIP KOLLA SETSCALE
     sbc->GetTransform()->SetScale(50);
-
-    int* pot = int();
-    int a = sizeof(*pot);
 
     /* ---------------------- Skybox ---------------------- */
 
