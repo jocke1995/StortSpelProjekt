@@ -16,8 +16,15 @@ public:
 	// Sets the movement direction. This will later be normalized to the velocity of the transform.
 	void SetMovement(DirectX::XMFLOAT3 mov);
 	void UpdateMovement(float x, float y, float z);
+	// Moves the object in the direction of the current movement multiplied by the set speed.
 	void Move(float dt);
+	// Moves the object in the direction of the current movement multiplied by the set speed.
 	void MoveRender(float dt);
+
+	// Moves the object in the direction of the current movement, but at the set speed. (Moves the object a maximum distance of the current speed * dt)
+	void NormalizedMove(float dt);
+	// Moves the object in the direction of the current movement, but at the set speed. (Moves the object a maximum distance of the current speed * dt)
+	void NormalizedMoveRender(float dt);
 	
 	void SetRotationX(float radians);
 	void SetRotationY(float radians);
@@ -49,6 +56,8 @@ public:
 	void SetActualMovement(float x, float y, float z);
 	// Sets the movement. Also sets the velocity to the length of the given vector.
 	void SetActualMovement(DirectX::XMFLOAT3 mov);
+
+	void UpdateActualMovement(float x, float y, float z);
 
 private:
 	DirectX::XMMATRIX m_WorldMat;

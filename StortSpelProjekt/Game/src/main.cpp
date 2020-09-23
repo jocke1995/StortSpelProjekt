@@ -1,6 +1,5 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
-
 Scene* GetDemoScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -40,10 +39,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             if (logicTimer >= updateRate)
             {
                 logicTimer = 0;
+                
+                Physics::GetInstance().Update(updateRate);
                 renderer->Update(updateRate);
             }
 
-            Physics::GetInstance().Update(timer->GetDeltaTime());
             /* ------ Sort ------ */
             renderer->SortObjects();
 
@@ -113,18 +113,18 @@ Scene* GetDemoScene(SceneManager* sm)
     /*--------------------- Rock ---------------------*/
     // entity
     entity = scene->AddEntity("rock");
-
+    
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
-
-
+    
+    
     mc->SetModel(rockModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.01f);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-
+    
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /*--------------------- Rock ---------------------*/
@@ -132,12 +132,12 @@ Scene* GetDemoScene(SceneManager* sm)
     /*--------------------- Floor ---------------------*/
     // entity
     entity = scene->AddEntity("floor");
-
+    
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-
-
+    
+    
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(35.0f, 1.0f, 35.0f);
@@ -204,31 +204,31 @@ Scene* GetDemoScene(SceneManager* sm)
     dlc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.5f, 0.5f, 0.5f, 1.0f });
     /*--------------------- DirectionalLight ---------------------*/
 
-    /*--------------------- Text ---------------------*/
-
-    // font
-    std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
-    
-    // text properties
-    std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
-    float2 textPos = { 0.02f, 0.01f };
-    float2 textPadding = { 0.5f, 0.0f };
-    float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
-    float2 textScale = { 0.5f, 0.5f };
-
-    // entity
-    entity = scene->AddEntity("textbox");
-
-    //component
-    txc = entity->AddComponent<component::TextComponent>(arialFont);
-
-    txc->AddText("text");
-    txc->SetColor(textColor, "text");
-    txc->SetPadding(textPadding, "text");
-    txc->SetPos(textPos, "text");
-    txc->SetScale(textScale, "text");
-    txc->SetText(textToRender, "text");
-    /*--------------------- Text ---------------------*/
+    ///*--------------------- Text ---------------------*/
+    //
+    //// font
+    //std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
+    //
+    //// text properties
+    //std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
+    //float2 textPos = { 0.02f, 0.01f };
+    //float2 textPadding = { 0.5f, 0.0f };
+    //float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
+    //float2 textScale = { 0.5f, 0.5f };
+    //
+    //// entity
+    //entity = scene->AddEntity("textbox");
+    //
+    ////component
+    //txc = entity->AddComponent<component::TextComponent>(arialFont);
+    //
+    //txc->AddText("text");
+    //txc->SetColor(textColor, "text");
+    //txc->SetPadding(textPadding, "text");
+    //txc->SetPos(textPos, "text");
+    //txc->SetScale(textScale, "text");
+    //txc->SetText(textToRender, "text");
+    ///*--------------------- Text ---------------------*/
 
     return scene;
 }
