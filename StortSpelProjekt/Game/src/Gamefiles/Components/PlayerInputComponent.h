@@ -3,13 +3,19 @@
 #include "EngineMath.h"
 #include "..\ECS\Components\InputComponent.h"
 #include "Core.h"
+
+//Camera
 class BaseCamera;
-class ModifierInput;
-class MouseScroll;
-class MovementInput;
-class MouseMovement;
 class Transform;
 class PerspectiveCamera;
+//Collision
+class Collision;
+//Events
+struct MouseScroll;
+struct MovementInput;
+struct MouseMovement;
+struct MouseClick;
+struct ModifierInput;
 
 enum CAMERA_FLAGS
 {
@@ -45,6 +51,10 @@ namespace component
 
 		void move(MovementInput* evnt);
 		void rotate(MouseMovement* evnt);
+
+		void mouseClick(MouseClick* evnt);
+
+		void grunt(Collision* evnt);
 	};
 }
 
