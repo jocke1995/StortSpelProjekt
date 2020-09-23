@@ -16,14 +16,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	Option::GetInstance().ReadFile();
 	float updateRate = 1.0f / Option::GetInstance().GetVariable("updateRate");
 
-	// Window values (will be influenced by the option class)
-	bool fullscreen = true;
-	int windowWidth = Option::GetInstance().GetVariable("windowWidth");
-	int windowHeight = Option::GetInstance().GetVariable("windowHeight");
-
 	/* ------ Engine  ------ */
 	Engine engine;
-	engine.Init(hInstance, nCmdShow, fullscreen, windowWidth, windowHeight);
+	engine.Init(hInstance, nCmdShow);
 
     /*  ------ Get references from engine  ------ */
     Window* const window = engine.GetWindow();

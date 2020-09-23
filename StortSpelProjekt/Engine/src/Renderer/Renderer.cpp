@@ -135,11 +135,10 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	createSwapChain(window->GetHwnd());
 	m_pBloomResources = new Bloom(m_pDevice5, 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
-		window->GetHwnd());
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 
 	// Create Main DepthBuffer
-	createMainDSV(window->GetHwnd());
+	createMainDSV();
 
 	// Picking
 	m_pMousePicker = new MousePicker();
@@ -183,7 +182,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 
 	m_pCbPerFrameData = new CB_PER_FRAME_STRUCT();
 
-	initRenderTasks(window);
+	initRenderTasks();
 
 	// Submit the fullscreenQuad to be uploaded, but it won't be uploaded until a scene has been set to Draw
 	const void* datavertices = m_pFullScreenQuad->m_Vertices.data();
@@ -515,7 +514,7 @@ void Renderer::createSwapChain(const HWND *hwnd)
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 }
 
-void Renderer::createMainDSV(const HWND* hwnd)
+void Renderer::createMainDSV()
 {
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
 	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
@@ -617,7 +616,7 @@ void Renderer::updateMousePicker()
 	}
 }
 
-void Renderer::initRenderTasks(const Window* window)
+void Renderer::initRenderTasks()
 {
 	// RenderTasks
 

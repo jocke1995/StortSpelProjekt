@@ -11,8 +11,7 @@
 Bloom::Bloom(
 	ID3D12Device5* device,
 	DescriptorHeap* dh_RTV,
-	DescriptorHeap* dh_CBV_UAV_SRV,
-	const HWND* hwnd)
+	DescriptorHeap* dh_CBV_UAV_SRV)
 {
 	int width = Option::GetInstance().GetVariable("resolutionWidth");
 	int height = Option::GetInstance().GetVariable("resolutionHeight");

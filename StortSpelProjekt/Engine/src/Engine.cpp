@@ -19,10 +19,15 @@ Engine::~Engine()
 	delete m_pRenderer;
 }
 
-void Engine::Init(HINSTANCE hInstance, int nCmdShow, bool fullscreen, int screenWidth, int screenHeight)
+void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 {
+	// Window values
+	bool fullscreen = Option::GetInstance().GetVariable("fullscreen");
+	int windowWidth = Option::GetInstance().GetVariable("windowWidth");
+	int windowHeight = Option::GetInstance().GetVariable("windowHeight");
+
 	// Misc
-	m_pWindow = new Window(hInstance, nCmdShow, fullscreen, screenWidth, screenHeight);
+	m_pWindow = new Window(hInstance, nCmdShow, fullscreen, windowWidth, windowHeight);
 	m_pTimer = new Timer(m_pWindow);
 
 	// ThreadPool

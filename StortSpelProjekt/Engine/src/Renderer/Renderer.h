@@ -168,11 +168,11 @@ private:
 	bool createDevice();
 	void createCommandQueues();
 	void createSwapChain(const HWND *hwnd);
-	void createMainDSV(const HWND* hwnd);
+	void createMainDSV();
 	void createRootSignature();
 	void createFullScreenQuad();
 	void updateMousePicker();
-	void initRenderTasks(const Window* window);
+	void initRenderTasks();
 	void setRenderTasksRenderComponents();
 	void createDescriptorHeaps();
 	void createFences();

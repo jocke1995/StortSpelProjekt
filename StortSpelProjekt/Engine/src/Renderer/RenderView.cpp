@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "RenderView.h"
-#include "..\Misc\Option.h"
 
 RenderView::RenderView(unsigned int width, unsigned int height)
 {
@@ -29,8 +28,8 @@ void RenderView::createViewport()
 {
 	m_Viewport.TopLeftX = 0.0f;
 	m_Viewport.TopLeftY = 0.0f;
-	m_Viewport.Width = Option::GetInstance().GetVariable("resolutionWidth");// m_Width;
-	m_Viewport.Height = Option::GetInstance().GetVariable("resolutionHeight"); // m_Height;
+	m_Viewport.Width = m_Width;
+	m_Viewport.Height = m_Height;
 	m_Viewport.MinDepth = 0.0f;
 	m_Viewport.MaxDepth = 1.0f;
 }
@@ -38,7 +37,7 @@ void RenderView::createViewport()
 void RenderView::createScissorRect()
 {
 	m_ScissorRect.left = 0;
-	m_ScissorRect.right = Option::GetInstance().GetVariable("resolutionWidth"); //m_Width;
+	m_ScissorRect.right = m_Width;
 	m_ScissorRect.top = 0;
-	m_ScissorRect.bottom = Option::GetInstance().GetVariable("resolutionHeight"); //m_Height;
+	m_ScissorRect.bottom = m_Height;
 }
