@@ -31,6 +31,11 @@ namespace component
 		}
 	}
 
+	void DirectionalLightComponent::Init(Renderer* renderer)
+	{
+		Log::Print("DirectionalLightComponent Init called!\n");
+	}
+
 	void DirectionalLightComponent::SetDirection(float3 direction)
 	{
 		directionalLight->direction = { direction.x, direction.y, direction.z, 0.0f };

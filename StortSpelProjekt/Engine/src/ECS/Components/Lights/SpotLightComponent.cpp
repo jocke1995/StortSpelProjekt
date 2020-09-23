@@ -54,6 +54,11 @@ namespace component
         }  
     }
 
+    void SpotLightComponent::Init(Renderer* renderer)
+    {
+        Log::Print("SpotLightComponent Init called!\n");
+    }
+
     void SpotLightComponent::SetPosition(float3 position)
     {
         m_pSpotLight->position_cutOff.x = position.x;

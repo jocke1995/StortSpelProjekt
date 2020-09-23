@@ -19,6 +19,7 @@ namespace component
 		bool IsPrimary() const;
 
 		void RenderUpdate(double dt);
+		void Init(Renderer* renderer);
 
 	private:
 		BaseCamera* m_pCamera = nullptr;

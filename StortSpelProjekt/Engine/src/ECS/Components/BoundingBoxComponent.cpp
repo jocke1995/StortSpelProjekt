@@ -37,6 +37,11 @@ namespace component
 		createOrientedBoundingBox();
 	}
 
+	void BoundingBoxComponent::Init(Renderer* renderer)
+	{
+		Log::Print("BoundingBoxComponent Init called!\n");
+	}
+
 	void BoundingBoxComponent::Update(double dt)
 	{
 		// No need for equations every frame if the object doesn't have collision enabled 

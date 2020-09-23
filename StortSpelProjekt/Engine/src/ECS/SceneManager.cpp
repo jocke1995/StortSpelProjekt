@@ -105,10 +105,15 @@ void SceneManager::SetSceneToDraw(Scene* scene)
 	{
 		// Add renderer component returns 0
 		m_pRenderer->addComponents(entity);
+		
+		// for each component in entity: call init()
+		std::vector<Component*>* components = entity->GetAllComponents();
+		for (int i = 0; i < components->size(); i++)
+		{
+			components->at(i)->Init(m_pRenderer);
+		}
 
 		// Add sound component
-		// load sound files that are to be used in scene
-		// m_pAudioEngine->LoadAudioFiles(entity);
 
 		// Add game component
 

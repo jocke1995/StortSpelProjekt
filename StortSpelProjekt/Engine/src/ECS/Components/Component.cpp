@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Component.h"
+#include "../Renderer/Renderer.h"
 
 Component::Component(Entity* parent)
 {
@@ -16,6 +17,11 @@ void Component::Update(double dt)
 
 void Component::RenderUpdate(double dt)
 {
+}
+
+void Component::Init(Renderer* renderer)
+{
+	Log::Print("PAPA COMPONENT Init called!\n");
 }
 
 Entity* const Component::GetParent() const

@@ -28,6 +28,11 @@ namespace component
 
 	}
 
+	void ModelComponent::Init(Renderer* renderer)
+	{
+		Log::Print("ModelComponent Init called!\n");
+	}
+
 	Mesh* ModelComponent::GetMeshAt(unsigned int index) const
 	{
 		return m_Model->GetMeshAt(index);

@@ -2,6 +2,7 @@
 #define COMPONENT_H
 
 class Entity;
+class Renderer;
 
 class Component
 {
@@ -13,6 +14,8 @@ public:
 	virtual void Update(double dt);
 	//Use render update for all things rendering. It will be using variable timestep
 	virtual void RenderUpdate(double dt);
+	//SceneInit
+	virtual void Init(Renderer* renderer);
 
 	Entity* const GetParent() const;
 

@@ -29,6 +29,8 @@ namespace component
 		virtual ~BoundingBoxComponent();
 
 		void Init();
+		void Init(Renderer* renderer);
+
 		//updates the position and rotation of m_OrientedBoundingBox
 		void Update(double dt);
 

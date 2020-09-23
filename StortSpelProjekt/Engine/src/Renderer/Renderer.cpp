@@ -367,6 +367,11 @@ void Renderer::Execute()
 #endif
 }
 
+void Renderer::Test()
+{
+
+}
+
 Entity* const Renderer::GetPickedEntity() const
 {
 	return m_pPickedEntity;

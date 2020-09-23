@@ -90,6 +90,8 @@ public:
 	void SortObjects();
 	void Execute();
 
+	void Test();
+
 private:
 	friend class SceneManager;
 	friend class Text;

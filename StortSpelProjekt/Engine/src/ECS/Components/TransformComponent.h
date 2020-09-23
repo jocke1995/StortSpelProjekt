@@ -15,6 +15,7 @@ namespace component
 
         void Update(double dt);
         void RenderUpdate(double dt);
+        void Init(Renderer* renderer);
 
         Transform* GetTransform() const;
     private:

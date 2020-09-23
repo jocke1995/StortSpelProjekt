@@ -18,6 +18,7 @@ namespace component
         virtual ~ModelComponent();
 
         void Update(double dt);
+        void Init(Renderer* renderer);
 
         // Sets
         void SetModel(Model* model);

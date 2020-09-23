@@ -27,6 +27,11 @@ namespace component
 		m_pTransform->UpdateWorldMatrix();
 	}
 
+	void TransformComponent::Init(Renderer* renderer)
+	{
+		Log::Print("TransformComponent Init called!\n");
+	}
+
 	Transform* TransformComponent::GetTransform() const
 	{
 		return m_pTransform;

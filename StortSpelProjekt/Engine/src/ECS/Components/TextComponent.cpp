@@ -179,4 +179,8 @@ namespace component
 	void TextComponent::Update(double dt)
 	{
 	}
+	void TextComponent::Init(Renderer* renderer)
+	{
+		Log::Print("TextComponent Init called!\n");
+	}
 }

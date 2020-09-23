@@ -41,6 +41,11 @@ namespace component
 		}
 	}
 
+	void PointLightComponent::Init(Renderer* renderer)
+	{
+		Log::Print("PointLightComponent Init called!\n");
+	}
+
 	void PointLightComponent::SetPosition(float3 position)
 	{
 		m_pPointLight->position = { position.x, position.y, position.z, 1.0f };
