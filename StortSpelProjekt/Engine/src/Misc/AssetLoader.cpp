@@ -22,9 +22,9 @@ AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_C
 	m_pWindow = const_cast<Window*>(window);
 
 	// Load default textures
-	LoadTexture(m_FilePathDefaultTextures + L"default_ambient.png");
-	LoadTexture(m_FilePathDefaultTextures + L"default_diffuse.jpg");
-	LoadTexture(m_FilePathDefaultTextures + L"default_specular.png");
+	LoadTexture(m_FilePathDefaultTextures + L"default_albedo.jpg");
+	LoadTexture(m_FilePathDefaultTextures + L"default_roughness.png");
+	LoadTexture(m_FilePathDefaultTextures + L"default_metallic.png");
 	LoadTexture(m_FilePathDefaultTextures + L"default_normal.png");
 	LoadTexture(m_FilePathDefaultTextures + L"default_emissive.png");
 }
@@ -367,18 +367,18 @@ Texture* AssetLoader::processTexture(aiMaterial* mat,
 	{
 	case::TEXTURE_TYPE::ALBEDO:
 		type = aiTextureType_DIFFUSE;
-		defaultPath = m_FilePathDefaultTextures + L"default_diffuse.jpg";
+		defaultPath = m_FilePathDefaultTextures + L"default_albedo.jpg";
 		warningMessageTextureType = "Albedo";
 		break;
 	case::TEXTURE_TYPE::ROUGHNESS:
 		type = aiTextureType_SPECULAR;
-		defaultPath = m_FilePathDefaultTextures + L"default_specular.png";
+		defaultPath = m_FilePathDefaultTextures + L"default_roughness.png";
 		warningMessageTextureType = "Roughness";
 		break;
-	case::TEXTURE_TYPE::METALNESS:
+	case::TEXTURE_TYPE::METALLIC:
 		type = aiTextureType_AMBIENT;
-		defaultPath = m_FilePathDefaultTextures + L"default_ambient.png";
-		warningMessageTextureType = "Metalness";
+		defaultPath = m_FilePathDefaultTextures + L"default_metallic.png";
+		warningMessageTextureType = "Metallic";
 		break;
 	case::TEXTURE_TYPE::NORMAL:
 		type = aiTextureType_NORMALS;

@@ -21,7 +21,7 @@ Model::Model(const std::wstring path, std::vector<Mesh*>* meshes, std::vector<An
 		m_SlotInfos.push_back(
 			{
 			(*meshes)[i]->m_pSRV->GetDescriptorHeapIndex(),
-			(*textures)[i][TEXTURE_TYPE::METALNESS]->GetDescriptorHeapIndex(),
+			(*textures)[i][TEXTURE_TYPE::METALLIC]->GetDescriptorHeapIndex(),
 			(*textures)[i][TEXTURE_TYPE::ALBEDO]->GetDescriptorHeapIndex(),
 			(*textures)[i][TEXTURE_TYPE::ROUGHNESS]->GetDescriptorHeapIndex(),
 			(*textures)[i][TEXTURE_TYPE::NORMAL]->GetDescriptorHeapIndex(),
