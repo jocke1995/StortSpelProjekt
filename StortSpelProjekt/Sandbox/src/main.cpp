@@ -53,8 +53,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
-            physics->Update(updateRate);
             renderer->Update(updateRate);
+            physics->Update(updateRate);
         }
 
         /* ------ Sort ------ */
@@ -107,7 +107,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     // Skybox
     Texture* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
-    entity = static_cast<GameEntity*>(scene->AddEntity("skybox"));
+    entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
     sbc->SetMesh(cubeModel->GetMeshAt(0));
     sbc->SetTexture(skyboxCubemap);
@@ -426,15 +426,12 @@ Scene* FloppipTestScene(SceneManager* sm)
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
-    
-    // Textures
-    Texture* skyboxTexture = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
     /* ---------------------- Player ---------------------- */
-    Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
+    Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
-    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     tc = entity->AddComponent<component::TransformComponent>();
+    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::AudioVoiceComponent>();
     ic->Init();
@@ -449,12 +446,13 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Skybox
     Texture* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
-    entity = static_cast<GameEntity*>(scene->AddEntity("skybox"));
+    entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
     sbc->SetMesh(cubeModel->GetMeshAt(0));
     sbc->SetTexture(skyboxCubemap);
+
     sbc->SetCamera(cc->GetCamera());
-    sbc->GetTransform()->SetScale(5);
+    sbc->GetTransform()->SetScale(1);
 
     /* ---------------------- Skybox ---------------------- */
 

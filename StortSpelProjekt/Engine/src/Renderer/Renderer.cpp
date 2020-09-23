@@ -206,14 +206,15 @@ void Renderer::Update(double dt)
 
 void Renderer::RenderUpdate(double dt)
 {
+	// Update scene
+	m_pCurrActiveScene->RenderUpdate(dt);
+
 	// Update CB_PER_FRAME data
 	m_pCbPerFrameData->camPos = m_pScenePrimaryCamera->GetPositionFloat3();
 
 	// Picking
 	updateMousePicker();
-
-	// Update scene
-	m_pCurrActiveScene->RenderUpdate(dt);
+	
 }
 
 void Renderer::SortObjects()
@@ -870,8 +871,6 @@ void Renderer::initRenderTasks()
 		&gpsdSkyboxRenderVector,
 		L"SkyboxRenderingPSO");
 
-	skyboxRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
-	skyboxRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
 	skyboxRenderTask->SetSwapChain(m_pSwapChain);
 	skyboxRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
@@ -1273,7 +1272,14 @@ void Renderer::setRenderTasksRenderComponents()
 
 	if (DRAWSKYBOX == true)
 	{
-		static_cast<SkyboxRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX])->SetSkybox(m_pSkyboxComponent);
+		if (m_pSkyboxComponent == nullptr)
+		{
+			Log::PrintSeverity(Log::Severity::CRITICAL, "Renderer::addComponents: Skybox not found, set DRAWSKYBOX to false if or create a SkyboxComponent\n");
+		}
+		else
+		{
+			static_cast<SkyboxRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX])->SetSkybox(m_pSkyboxComponent);
+		}
 	}
 }
 
@@ -1448,8 +1454,12 @@ void Renderer::addComponents(Entity* entity)
 		component::SkyboxComponent* sbc = entity->GetComponent<component::SkyboxComponent>();
 		if (sbc != nullptr)
 		{
-
 			Mesh* mesh = sbc->GetMesh();
+			if (mesh == nullptr)
+			{
+				Log::PrintSeverity(Log::Severity::CRITICAL, "Renderer::addComponents: Skybox have to have a mesh\n");
+			}
+
 			AssetLoader* al = AssetLoader::Get();
 			std::wstring modelPath = to_wstring(mesh->GetPath());
 			bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
@@ -1490,6 +1500,10 @@ void Renderer::addComponents(Entity* entity)
 					codt->SubmitTexture(texture);
 					al->m_LoadedTextures[texture->m_FilePath].first = true;
 				}
+			}
+			else
+			{
+				Log::PrintSeverity(Log::Severity::CRITICAL, "Renderer::addComponents: Skybox have to have a mesh\n");
 			}
 
 			// Finally store the object in m_pRenderer so it will be drawn

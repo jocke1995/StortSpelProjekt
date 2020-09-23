@@ -109,7 +109,7 @@ enum class CAMERA_TYPE
 #define NUM_SWAP_BUFFERS 2
 #define BIT(x) (1 << x)
 #define MAXNUMBER 10000000.0f
-#define DRAWBOUNDINGBOX false
+#define DRAWBOUNDINGBOX true
 #define DRAWSKYBOX		true
 
 enum FLAG_DRAW
