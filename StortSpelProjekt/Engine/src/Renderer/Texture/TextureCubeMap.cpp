@@ -24,13 +24,12 @@ bool TextureCubeMap::Init(std::wstring filePath, ID3D12Device5* device, Descript
 	HRESULT hr;
 
 	m_pDefaultResource = new Resource();
+	// DDSLoader uses this data type to load the image data
+	// converts this to m_pImageData when it is used.
+	std::unique_ptr<uint8_t[]> m_DdsData;
 	
 	// Loads the texture and creates a default resource;
-	hr = DirectX::LoadDDSTextureFromFile(device, filePath.c_str(), (ID3D12Resource**)m_pDefaultResource->GetID3D12Resource1PP(), m_DdsData, m_SubResourceData);
-
-	// Set resource desc created in LoadDDSTextureFromFile
-	m_ResourceDescription = m_pDefaultResource->GetID3D12Resource1()->GetDesc();
-
+	hr = DirectX::LoadDDSTextureFromFile(device, filePath.c_str(), (ID3D12Resource**)m_pDefaultResource->GetID3D12Resource1PP(), m_DdsData, m_SubresourceData);
 
 	if (FAILED(hr))
 	{
@@ -39,13 +38,19 @@ bool TextureCubeMap::Init(std::wstring filePath, ID3D12Device5* device, Descript
 		return false;
 	}
 
+	// Set resource desc created in LoadDDSTextureFromFile
+	m_ResourceDescription = m_pDefaultResource->GetID3D12Resource1()->GetDesc();
+	m_ImageBytesPerRow = m_SubresourceData[0].RowPitch;
+	// copy m_DdsData to our BYTE* format
+	m_pImageData = static_cast<BYTE*>(m_DdsData.get());
+	m_DdsData.release(); // lose the pointer, let m_pImageData delete the data.
+
 	// Footprint
 	UINT64 textureUploadBufferSize;
 
-	// TODO: FILIP dubbelkolla
 	device->GetCopyableFootprints(
 		&m_ResourceDescription,
-		0, 6, 0,
+		0, m_ResourceDescription.DepthOrArraySize, 0, // 6
 		nullptr, nullptr, nullptr,
 		&textureUploadBufferSize);
 

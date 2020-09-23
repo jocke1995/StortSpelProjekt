@@ -30,7 +30,7 @@ protected:
 	int m_ImageBytesPerRow = 0;
 	std::wstring m_FilePath = L"";
 	ShaderResourceView* m_pSRV = nullptr;
-	D3D12_SUBRESOURCE_DATA m_SubresourceData = {};
+	std::vector<D3D12_SUBRESOURCE_DATA> m_SubresourceData;
 	D3D12_RESOURCE_DESC m_ResourceDescription = {};
 	Resource* m_pDefaultResource = nullptr;
 	Resource* m_pUploadResource = nullptr;

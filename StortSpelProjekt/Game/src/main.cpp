@@ -67,6 +67,8 @@ Scene* GetDemoScene(SceneManager* sm)
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/cube.obj");
+
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     /*--------------------- Assets ---------------------*/
@@ -108,6 +110,20 @@ Scene* GetDemoScene(SceneManager* sm)
 
     avc->AddVoice(L"Bruh");
     /*--------------------- Player ---------------------*/
+
+    /* ---------------------- Skybox ---------------------- */
+
+    // Skybox
+    Texture* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    sbc->SetMesh(cubeModel->GetMeshAt(0));
+    sbc->SetTexture(skyboxCubemap);
+
+    sbc->SetCamera(cc->GetCamera());
+    sbc->GetTransform()->SetScale(1);
+
+    /* ---------------------- Skybox ---------------------- */
 
 
     /*--------------------- Rock ---------------------*/

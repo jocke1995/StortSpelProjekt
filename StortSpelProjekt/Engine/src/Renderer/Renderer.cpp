@@ -1448,7 +1448,6 @@ void Renderer::removeComponents(Entity* entity)
 
 void Renderer::addComponents(Entity* entity)
 {
-	// TEMP: FILIP skybox
 	if (DRAWSKYBOX == true)
 	{
 		component::SkyboxComponent* sbc = entity->GetComponent<component::SkyboxComponent>();

@@ -68,9 +68,10 @@ bool Texture2D::Init(std::wstring filePath, ID3D12Device5* device, DescriptorHea
 		m_pDefaultResource);
 
 	// Set SubResource info
-	m_SubresourceData.pData = &m_pImageData[0]; // pointer to our image data
-	m_SubresourceData.RowPitch = m_ImageBytesPerRow;
-	m_SubresourceData.SlicePitch = m_ImageBytesPerRow * m_ResourceDescription.Height;
+	m_SubresourceData.push_back({});
+	m_SubresourceData[0].pData = &m_pImageData[0]; // pointer to our image data
+	m_SubresourceData[0].RowPitch = m_ImageBytesPerRow;
+	m_SubresourceData[0].SlicePitch = m_ImageBytesPerRow * m_ResourceDescription.Height;
 
 	return true;
 }
