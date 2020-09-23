@@ -6,11 +6,11 @@ class Entity;
 
 namespace component 
 {
-	class AccelrationComponent : public Component
+	class AccelerationComponent : public Component
 	{
 	public:
-		AccelrationComponent(Entity* parent, double gravity = 0);
-		virtual ~AccelrationComponent();
+		AccelerationComponent(Entity* parent, double gravity = 0);
+		virtual ~AccelerationComponent();
 
 		void Update(double dt);
 

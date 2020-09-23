@@ -1,18 +1,18 @@
 #include "AccelrationComponent.h"
 #include "ECS/Entity.h"
 #include "Renderer/Transform.h"
-component::AccelrationComponent::AccelrationComponent(Entity* parent, double gravity): Component(parent)
+component::AccelerationComponent::AccelerationComponent(Entity* parent, double gravity): Component(parent)
 {
 	m_AccDir = { 0.0f,0.0f,0.0f };
 	m_AccSpeed = 0;
 	m_Gravity = gravity;
 }
 
-component::AccelrationComponent::~AccelrationComponent()
+component::AccelerationComponent::~AccelerationComponent()
 {
 }
 
-void component::AccelrationComponent::Update(double dt)
+void component::AccelerationComponent::Update(double dt)
 {
 	Transform* trans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
 	trans->UpdateMovement((m_AccDir.x * m_AccSpeed)*dt, (m_AccDir.y * m_AccSpeed - m_Gravity) * dt, (m_AccDir.z * m_AccSpeed)*dt);
@@ -25,22 +25,22 @@ void component::AccelrationComponent::Update(double dt)
 	}
 }
 
-DirectX::XMFLOAT3 component::AccelrationComponent::GetDirection() const
+DirectX::XMFLOAT3 component::AccelerationComponent::GetDirection() const
 {
 	return m_AccDir;
 }
 
-float component::AccelrationComponent::GetAccSpeed() const
+float component::AccelerationComponent::GetAccSpeed() const
 {
 	return m_AccSpeed;
 }
 
-void component::AccelrationComponent::SetAccelrationDirection(DirectX::XMFLOAT3 dir)
+void component::AccelerationComponent::SetAccelrationDirection(DirectX::XMFLOAT3 dir)
 {
 	DirectX::XMStoreFloat3(&m_AccDir, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&dir)));
 }
 
-void component::AccelrationComponent::SetAccelrationSpeed(float speed)
+void component::AccelerationComponent::SetAccelrationSpeed(float speed)
 {
 	m_AccSpeed = speed;
 }
