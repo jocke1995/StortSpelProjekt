@@ -229,14 +229,20 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 
 void Renderer::Update(double dt)
 {
+	// Update scene
+	m_pCurrActiveScene->Update(dt);
+}
+
+void Renderer::RenderUpdate(double dt)
+{
 	// Update CB_PER_FRAME data
 	m_pCbPerFrameData->camPos = m_pScenePrimaryCamera->GetPositionFloat3();
 
 	// Picking
 	updateMousePicker();
-	
+
 	// Update scene
-	m_pCurrActiveScene->UpdateScene(dt);
+	m_pCurrActiveScene->RenderUpdate(dt);
 }
 
 void Renderer::SortObjects()

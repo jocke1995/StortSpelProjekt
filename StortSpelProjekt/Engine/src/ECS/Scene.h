@@ -25,7 +25,8 @@ public:
 	BaseCamera* GetMainCamera() const;
 	std::string GetName() const;
 
-	void UpdateScene(double dt);
+	void Update(double dt);
+	void RenderUpdate(double dt);
 	
 private:
 	std::string m_SceneName;

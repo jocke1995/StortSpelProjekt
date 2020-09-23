@@ -10,6 +10,14 @@ Component::~Component()
 {
 }
 
+void Component::Update(double dt)
+{
+}
+
+void Component::RenderUpdate(double dt)
+{
+}
+
 Entity* const Component::GetParent() const
 {
 	return m_pParent;
