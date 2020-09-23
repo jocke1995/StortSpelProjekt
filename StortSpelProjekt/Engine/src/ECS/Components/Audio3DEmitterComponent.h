@@ -4,6 +4,7 @@
 #include "Component.h"
 #include <xaudio2.h>
 #include <x3daudio.h>
+#include <Windows.h>
 #include "../AudioEngine/AudioVoice.h"
 
 class AudioVoice;

@@ -2,6 +2,8 @@
 #define AUDIOVOICECOMPONENT_H
 
 #include "Component.h"
+#include <Windows.h>
+
 class AudioVoice;
 
 // Component used for playing 2D/background sounds
