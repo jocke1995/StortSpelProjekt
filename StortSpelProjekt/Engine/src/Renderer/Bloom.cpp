@@ -5,6 +5,7 @@
 #include "GPUMemory/Resource.h"
 #include "PingPongResource.h"
 #include "../Misc/Window.h"
+#include "../Misc/Option.h"
 
 
 Bloom::Bloom(
@@ -13,14 +14,8 @@ Bloom::Bloom(
 	DescriptorHeap* dh_CBV_UAV_SRV,
 	const HWND* hwnd)
 {
-	RECT rect;
-	unsigned int width = 0;
-	unsigned int height = 0;
-	if (GetWindowRect(*hwnd, &rect))
-	{
-		width = rect.right - rect.left;
-		height = rect.bottom - rect.top;
-	}
+	int width = Option::GetInstance().GetVariable("resolutionWidth");
+	int height = Option::GetInstance().GetVariable("resolutionHeight");
 
 	createResources(device, width, height);
 
