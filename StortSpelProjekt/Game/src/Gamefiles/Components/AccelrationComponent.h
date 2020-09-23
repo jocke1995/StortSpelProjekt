@@ -1,5 +1,5 @@
-#ifndef ACCELRATIONCOMPONENT_H
-#define ACCELRATIONCOMPONENT_H
+#ifndef ACCELERATIONCOMPONENT_H
+#define ACCELERATIONCOMPONENT_H
 #include "../ECS/Components/Component.h"
 #include "EngineMath.h"
 class Entity;
