@@ -1,5 +1,5 @@
 #include "Engine.h"
-#include "PlayerInputComponent.h"
+#include "Components/PlayerInputComponent.h"
 Scene* GetDemoScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -44,10 +44,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             if (logicTimer >= updateRate)
             {
                 logicTimer = 0;
+                
+                Physics::GetInstance().Update(updateRate);
                 renderer->Update(updateRate);
             }
 
-            Physics::GetInstance().Update(timer->GetDeltaTime());
             /* ------ Sort ------ */
             renderer->SortObjects();
 
@@ -142,18 +143,18 @@ Scene* GetDemoScene(SceneManager* sm)
     /*--------------------- Rock ---------------------*/
     // entity
     entity = scene->AddEntity("rock");
-
+    
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
-
-
+    
+    
     mc->SetModel(rockModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.01f);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-
+    
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /*--------------------- Rock ---------------------*/
@@ -161,12 +162,12 @@ Scene* GetDemoScene(SceneManager* sm)
     /*--------------------- Floor ---------------------*/
     // entity
     entity = scene->AddEntity("floor");
-
+    
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-
-
+    
+    
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(35.0f, 1.0f, 35.0f);
