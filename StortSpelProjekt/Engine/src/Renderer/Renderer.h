@@ -170,7 +170,7 @@ private:
 	bool createDevice();
 	void createCommandQueues();
 	void createSwapChain(const HWND *hwnd);
-	void createMainDSV(const HWND* hwnd);
+	void createMainDSV();
 	void createRootSignature();
 	void createFullScreenQuad();
 	void updateMousePicker();
