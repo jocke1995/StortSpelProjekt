@@ -40,6 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             if (logicTimer >= updateRate)
             {
                 logicTimer = 0;
+                
                 Physics::GetInstance().Update(updateRate);
                 renderer->Update(updateRate);
             }
