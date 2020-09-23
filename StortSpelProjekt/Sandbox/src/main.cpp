@@ -206,11 +206,8 @@ Scene* JockesTestScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
-    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
-    Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
-    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
-    Model* PBRModel = al->LoadModel(L"../Vendor/Resources/Models/Sphere/ball.obj");
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
     /* ---------------------- Player ---------------------- */
     Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
@@ -220,7 +217,7 @@ Scene* JockesTestScene(SceneManager* sm)
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
 
-    mc->SetModel(PBRModel);
+    mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
@@ -245,12 +242,13 @@ Scene* JockesTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
-    mc->SetModel(cubeModel);
+    mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
 
-    plc->SetIntensity({1.0f, 0.0f, 1.0f, 1.0f});
+    plc->SetColor({3.0f, 3.0f, 3.0f });
+    plc->SetAttenuation({1.0f, 0.027f, 0.0028f});
 
     /* ---------------------- PointLight ---------------------- */
 

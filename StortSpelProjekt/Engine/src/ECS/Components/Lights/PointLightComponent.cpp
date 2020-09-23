@@ -60,6 +60,6 @@ namespace component
 
 	void PointLightComponent::UpdateLightIntensity()
 	{
-		m_pPointLight->baseLight.intensity = m_pBaseLight->intensity;
+		m_pPointLight->baseLight.color = m_pBaseLight->color;
 	}
 }

@@ -33,7 +33,7 @@ public:
 
 	virtual void Update(double dt) = 0;
 
-	void SetIntensity(float4 color);
+	void SetColor(float3 color);
 
 	// Gets
 	unsigned int GetLightFlags() const;

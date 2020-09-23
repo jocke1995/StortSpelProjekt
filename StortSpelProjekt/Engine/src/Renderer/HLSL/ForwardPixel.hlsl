@@ -24,63 +24,73 @@ ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b4, space3);
 
 PS_OUTPUT PS_main(VS_OUT input)
 {
+	// Sample from textures
+	float2 uvScaled = float2(input.uv.x / 2, input.uv.y / 2);
+	float4 albedo   = textures[cbPerObject.info.textureAlbedo	].Sample(samplerTypeWrap, uvScaled);
+	float roughness = textures[cbPerObject.info.textureRoughness].Sample(samplerTypeWrap, uvScaled).r;
+	float metallic  = textures[cbPerObject.info.textureMetallic	].Sample(samplerTypeWrap, uvScaled).r;
+	float4 emissive = textures[cbPerObject.info.textureEmissive	].Sample(samplerTypeWrap, uvScaled);
+	float4 normal   = textures[cbPerObject.info.textureNormal	].Sample(samplerTypeWrap, uvScaled);
+
+	normal = (2.0f * normal) - 1.0f;
+	normal = float4(normalize(mul(normal.xyz, input.tbn)), 1.0f);
+
 	float3 camPos = cbPerFrame.camPos;
 	float3 finalColor = float3(0.0f, 0.0f, 0.0f);
+	float3 viewDir = normalize(camPos - input.worldPos.xyz);
 
-	// Sample from textures
-	float2 uvScaled = float2(input.uv.x * materialAttributes.uvScale.x, input.uv.y * materialAttributes.uvScale.y);
-	float4 albedoMap  = textures[cbPerObject.info.textureAlbedo		].Sample(samplerTypeWrap, uvScaled);
-	float4 roughnessMap = textures[cbPerObject.info.textureRoughness].Sample(samplerTypeWrap, uvScaled);
-	float4 metallicMap  = textures[cbPerObject.info.textureMetallic	].Sample(samplerTypeWrap, uvScaled);
-	float4 emissiveMap = textures[cbPerObject.info.textureEmissive	].Sample(samplerTypeWrap, uvScaled);
-	float4 normalMap   = textures[cbPerObject.info.textureNormal	].Sample(samplerTypeWrap, uvScaled);
-
-	normalMap = (2.0f * normalMap) - 1.0f;
-	float4 normal = float4(normalize(mul(normalMap.xyz, input.tbn)), 1.0f);
+	// Linear interpolation
+	float3 baseReflectivity = lerp(float3(0.04f, 0.04f, 0.04f), albedo.rgb, metallic);
 
 	// DirectionalLight contributions
-	for (unsigned int i = 0; i < cbPerScene.Num_Dir_Lights; i++)
-	{
-		int index = cbPerScene.dirLightIndices[i].x;
-		finalColor += CalcDirLight(
-			dirLight[index],
-			camPos,
-			input.worldPos,
-			metallicMap.rgb,
-			albedoMap.rgb,
-			roughnessMap.rgb,
-			normal.rgb);
-	}
+	//for (unsigned int i = 0; i < cbPerScene.Num_Dir_Lights; i++)
+	//{
+	//	int index = cbPerScene.dirLightIndices[i].x;
+	//	finalColor += CalcDirLight(
+	//		dirLight[index],
+	//		camPos,
+	//		input.worldPos,
+	//		metallicMap.rgb,
+	//		albedoMap.rgb,
+	//		roughnessMap.rgb,
+	//		normal.rgb);
+	//}
 
 	// PointLight contributions
 	for (unsigned int i = 0; i < cbPerScene.Num_Point_Lights; i++)
 	{
 		int index = cbPerScene.pointLightIndices[i].x;
+
 		finalColor += CalcPointLight(
 			pointLight[index],
 			camPos,
+			viewDir,
 			input.worldPos,
-			metallicMap.rgb,
-			albedoMap.rgb,
-			roughnessMap.rgb,
-			normal.rgb);
+			metallic,
+			albedo.rgb,
+			roughness,
+			normal.rgb,
+			baseReflectivity);
 	}
 
 	// SpotLight  contributions
-	for (unsigned int i = 0; i < cbPerScene.Num_Spot_Lights; i++)
-	{
-		int index = cbPerScene.spotLightIndices[i].x;
-		finalColor += CalcSpotLight(
-			spotLight[index],
-			camPos,
-			input.worldPos,
-			metallicMap.rgb,
-			albedoMap.rgb,
-			roughnessMap.rgb,
-			normal.rgb);
-	}
+	//for (unsigned int i = 0; i < cbPerScene.Num_Spot_Lights; i++)
+	//{
+	//	int index = cbPerScene.spotLightIndices[i].x;
+	//	finalColor += CalcSpotLight(
+	//		spotLight[index],
+	//		camPos,
+	//		input.worldPos,
+	//		metallicMap.rgb,
+	//		albedoMap.rgb,
+	//		roughnessMap.rgb,
+	//		normal.rgb);
+	//}
+	
+	float3 ambient = float3(0.03f, 0.03f, 0.03f) * albedo;
+	finalColor += ambient;
 
-	finalColor += emissiveMap.rgb;
+	//finalColor += emissiveMap.rgb;
 
 	PS_OUTPUT output;
 	output.sceneColor = float4(finalColor.rgb, 1.0f);

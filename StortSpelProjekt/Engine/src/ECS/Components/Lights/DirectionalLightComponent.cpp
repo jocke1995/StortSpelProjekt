@@ -72,6 +72,6 @@ namespace component
 
 	void DirectionalLightComponent::UpdateLightIntensity()
 	{
-		m_pDirectionalLight->baseLight.intensity = m_pBaseLight->intensity;
+		m_pDirectionalLight->baseLight.color = m_pBaseLight->color;
 	}
 }

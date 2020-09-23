@@ -18,9 +18,6 @@ ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b4, space3);
 
 float4 PS_main(VS_OUT input) : SV_TARGET0
 {
-	float3 camPos = cbPerFrame.camPos;
-	float3 finalColor = float3(0.0f, 0.0f, 0.0f);
-
 	// Sample from textures
 	float2 uvScaled = float2(input.uv.x * materialAttributes.uvScale.x, input.uv.y * materialAttributes.uvScale.y);
 	float4 albedoMap = textures[cbPerObject.info.textureAlbedo		].Sample(samplerTypeWrap, uvScaled);
@@ -31,6 +28,13 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 
 	normalMap = (2.0f * normalMap) - 1.0f;
 	float4 normal = float4(normalize(mul(normalMap.xyz, input.tbn)), 1.0f);
+
+	float3 camPos = cbPerFrame.camPos;
+	float3 finalColor = float3(0.0f, 0.0f, 0.0f);
+	float3 viewDir = normalize(camPos - input.worldPos.xyz);
+
+	// Linear interpolation
+	float3 baseReflectivity = lerp(float3(0.04f, 0.04f, 0.04f), albedoMap, metallicMap);
 
 	// DirectionalLight contributions
 	for (unsigned int i = 0; i < cbPerScene.Num_Dir_Lights; i++)
@@ -53,11 +57,13 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 		finalColor += CalcPointLight(
 			pointLight[index],
 			camPos,
+			viewDir,
 			input.worldPos,
-			metallicMap.rgb,
+			metallicMap.r,
 			albedoMap.rgb,
-			roughnessMap.rgb,
-			normal.rgb);
+			roughnessMap.r,
+			normal.rgb,
+			baseReflectivity);
 	}
 
 	// SpotLight  contributions

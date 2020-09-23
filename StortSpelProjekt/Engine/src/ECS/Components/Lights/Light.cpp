@@ -13,7 +13,7 @@ Light::Light(CAMERA_TYPE camType, unsigned int lightFlags)
 	m_LightFlags = lightFlags;
 
 	m_pBaseLight = new BaseLight();
-	m_pBaseLight->intensity= { 1.0f, 1.0f, 1.0f, 1.0f };
+	m_pBaseLight->color= { 1.0f, 1.0f, 1.0f };
 	m_pBaseLight->castShadow = false;
 	m_CameraType = camType;
 }
@@ -30,9 +30,9 @@ bool Light::operator==(const Light& other)
 	return m_Id == other.m_Id;
 }
 
-void Light::SetIntensity(float4 color)
+void Light::SetColor(float3 color)
 {
-	m_pBaseLight->intensity = color;
+	m_pBaseLight->color = color;
 
 	UpdateLightIntensity();
 }
