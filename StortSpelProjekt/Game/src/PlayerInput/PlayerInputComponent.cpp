@@ -38,7 +38,7 @@ void component::PlayerInputComponent::Init()
 	m_pTransform = static_cast<Transform*>(m_pParent->GetComponent<component::TransformComponent>()->GetTransform());
 }
 
-void component::PlayerInputComponent::Update(double dt)
+void component::PlayerInputComponent::RenderUpdate(double dt)
 {
 	// Lock camera to player
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)

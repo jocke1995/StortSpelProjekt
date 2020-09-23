@@ -14,7 +14,7 @@ namespace component
         virtual ~TransformComponent();
 
         void Update(double dt);
-        //void RenderUpdate(double dt);
+        void RenderUpdate(double dt);
 
         Transform* GetTransform() const;
     private:
