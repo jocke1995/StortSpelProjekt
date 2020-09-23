@@ -62,7 +62,7 @@ project "Game"
     filter "configurations:*"
         cppdialect "C++17"
     
-    includedirs {"Vendor/Include/", "Engine/src/", "Engine/src/Headers/"}
+    includedirs {"Vendor/Include/", "Engine/src/", "Engine/src/Headers/", "Game/src/gamefiles"}
     libdirs { "Vendor/Lib/**" }
     links {
         "Engine"
