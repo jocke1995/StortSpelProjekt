@@ -19,6 +19,11 @@ namespace component
 	void TransformComponent::Update(double dt)
 	{
 		m_pTransform->Move(dt);
+	}
+
+	void TransformComponent::RenderUpdate(double dt)
+	{
+		m_pTransform->MoveRender(dt);
 		m_pTransform->UpdateWorldMatrix();
 	}
 

@@ -1,8 +1,10 @@
 #ifndef MODELCOMPONENT_H
 #define MODELCOMPONENT_H
 
+#include <map>
 #include "Component.h"
 #include "structs.h"
+#include "Core.h"
 class Mesh;
 class Model;
 class Texture;

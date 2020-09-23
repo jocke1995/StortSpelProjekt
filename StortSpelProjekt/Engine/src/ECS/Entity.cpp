@@ -58,3 +58,11 @@ void Entity::Update(double dt)
 		component->Update(dt);
 	}
 }
+
+void Entity::RenderUpdate(double dt)
+{
+	for (Component* component : m_Components)
+	{
+		component->RenderUpdate(dt);
+	}
+}

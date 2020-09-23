@@ -1,0 +1,2 @@
+volume 1.0
+updateRate 30
