@@ -812,7 +812,6 @@ Scene* BjornsTestScene(SceneManager* sm)
     entity = scene->AddEntity("stone");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    // stone has it's up axis as Y so need to specify that. Default is set to Z axis so won't have to check
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     mc = entity->GetComponent<component::ModelComponent>();
