@@ -150,12 +150,12 @@ void Network::processServerData(sf::Packet* packet)
                 break;
             }
         }
-        //If player is not found the create a new one
+        //If player is not found then create a new one
         if (playerFound == false)
         {
             m_Players.push_back(new Player);
             m_Players.at(m_Players.size() - 1)->clientId = playerId;
-            EventBus::GetInstance().Publish(&PlayerConnection());
+            EventBus::GetInstance().Publish(&PlayerConnection(playerId, nullptr, this));
         }
     }
 }
