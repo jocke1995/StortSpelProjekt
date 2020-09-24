@@ -6,6 +6,7 @@
 #include "../Misc/AssetLoader.h"
 #include "../Misc/Thread.h"
 #include "../Misc/Window.h"
+#include "../Misc/Option.h"
 
 // ECS
 #include "../ECS/Scene.h"
@@ -50,6 +51,7 @@
 #include "DX12Tasks/ShadowRenderTask.h"
 #include "DX12Tasks/MergeRenderTask.h"
 #include "DX12Tasks/TextTask.h"
+#include "DX12Tasks/ImGuiRenderTask.h"
 
 // Copy 
 #include "DX12Tasks/CopyPerFrameTask.h"
@@ -57,6 +59,13 @@
 
 // Compute
 #include "DX12Tasks/BlurComputeTask.h"
+
+//ImGui
+#include "../ImGUI/imgui.h"
+#include "../ImGUI/imgui_impl_win32.h"
+#include "../ImGUI/imgui_impl_dx12.h"
+
+#include "../ImGUI/ImGuiHandler.h"
 
 Renderer::Renderer()
 {
@@ -109,6 +118,11 @@ Renderer::~Renderer()
 	delete m_pCbPerSceneData;
 	delete m_pCbPerFrame;
 	delete m_pCbPerFrameData;
+
+	// Cleanup ImGui
+	ImGui_ImplDX12_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
 
 void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
@@ -134,11 +148,10 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	createSwapChain(window->GetHwnd());
 	m_pBloomResources = new Bloom(m_pDevice5, 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
-		window->GetHwnd());
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 
 	// Create Main DepthBuffer
-	createMainDSV(window->GetHwnd());
+	createMainDSV();
 
 	// Picking
 	m_pMousePicker = new MousePicker();
@@ -182,6 +195,26 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 
 	m_pCbPerFrameData = new CB_PER_FRAME_STRUCT();
 
+	// Setup ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+
+	// Setup ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsClassic();
+
+	unsigned int imGuiTextureIndex = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1);
+
+	// Setup Platform/Renderer bindings
+	ImGui_ImplWin32_Init(*window->GetHwnd());
+	ImGui_ImplDX12_Init(m_pDevice5, NUM_SWAP_BUFFERS,
+		DXGI_FORMAT_R16G16B16A16_FLOAT, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetID3D12DescriptorHeap(),
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetCPUHeapAt(imGuiTextureIndex),
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetGPUHeapAt(imGuiTextureIndex));
+
+	
+
 	initRenderTasks();
 
 	// Submit the fullscreenQuad to be uploaded, but it won't be uploaded until a scene has been set to Draw
@@ -204,6 +237,11 @@ void Renderer::Update(double dt)
 
 void Renderer::RenderUpdate(double dt)
 {
+	/* ------ ImGui ------*/
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
+		ImGuiHandler::GetInstance().NewFrame();
+	}
 	// Update CB_PER_FRAME data
 	m_pCbPerFrameData->camPos = m_pScenePrimaryCamera->GetPositionFloat3();
 
@@ -212,6 +250,12 @@ void Renderer::RenderUpdate(double dt)
 
 	// Update scene
 	m_pCurrActiveScene->RenderUpdate(dt);
+
+	/* ------ ImGui ------*/
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
+		ImGuiHandler::GetInstance().UpdateFrame();
+	}
 }
 
 void Renderer::SortObjects()
@@ -325,13 +369,6 @@ void Renderer::Execute()
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE], FLAG_THREAD::RENDER);
 
-	if (DRAWBOUNDINGBOX == true)
-	{
-		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetBackBufferIndex(backBufferIndex);
-		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetCommandInterfaceIndex(commandInterfaceIndex);
-		m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME], FLAG_THREAD::RENDER);
-	}
-
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TEXT];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
@@ -342,6 +379,24 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 	
+	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
+	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
+	{
+		renderTask = m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME];
+		renderTask->SetBackBufferIndex(backBufferIndex);
+		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+		m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	}
+
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
+		renderTask = m_RenderTasks[RENDER_TASK_TYPE::IMGUI];
+		renderTask->SetBackBufferIndex(backBufferIndex);
+		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+		m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	}
+	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
+
 	// Wait for the threads which records the commandlists to complete
 	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER | FLAG_THREAD::ALL);
 
@@ -385,7 +440,7 @@ void Renderer::setRenderTasksPrimaryCamera()
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCamera(m_pScenePrimaryCamera);
 
-	if (DRAWBOUNDINGBOX == true)
+	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
 		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetCamera(m_pScenePrimaryCamera);
 	}
@@ -502,14 +557,8 @@ void Renderer::createCommandQueues()
 
 void Renderer::createSwapChain(const HWND *hwnd)
 {
-	RECT rect;
-	unsigned int width = 0;
-	unsigned int height = 0;
-	if (GetWindowRect(*hwnd, &rect))
-	{
-		width = rect.right - rect.left;
-		height = rect.bottom - rect.top;
-	}
+	int width = Option::GetInstance().GetVariable("resolutionWidth");
+	int height = Option::GetInstance().GetVariable("resolutionHeight");
 
 	m_pSwapChain = new SwapChain(
 		m_pDevice5,
@@ -520,25 +569,19 @@ void Renderer::createSwapChain(const HWND *hwnd)
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 }
 
-void Renderer::createMainDSV(const HWND* hwnd)
+void Renderer::createMainDSV()
 {
-	RECT rect;
-	unsigned int width = 0;
-	unsigned int height = 0;
-	if (GetWindowRect(*hwnd, &rect))
-	{
-		width = rect.right - rect.left;
-		height = rect.bottom - rect.top;
-	}
-
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
 	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
+	int width = Option::GetInstance().GetVariable("resolutionWidth");
+	int height = Option::GetInstance().GetVariable("resolutionHeight");
+
 	m_pMainDepthStencil = new DepthStencil(
 		m_pDevice5,
-		width, height,	// width, height
+		width, height,
 		L"MainDSV",
 		&dsvDesc,
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
@@ -1085,6 +1128,22 @@ void Renderer::initRenderTasks()
 	textTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion Text
+	
+	int width = Option::GetInstance().GetVariable("resolutionWidth");
+	int height = Option::GetInstance().GetVariable("resolutionHeight");
+
+#pragma region IMGUIRENDERTASK
+	RenderTask* imGuiRenderTask = new ImGuiRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"", L"",
+		nullptr,
+		L"");
+
+	imGuiRenderTask->SetSwapChain(m_pSwapChain);
+	imGuiRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion IMGUIRENDERTASK
 
 	// ComputeTasks
 	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
@@ -1096,7 +1155,7 @@ void Renderer::initRenderTasks()
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		800, 600); // TODO: Send screen width/height from window after merge to develop
+		width, height);
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
@@ -1132,6 +1191,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE] = outliningRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::MERGE] = mergeTask;
 	m_RenderTasks[RENDER_TASK_TYPE::TEXT] = textTask;
+	m_RenderTasks[RENDER_TASK_TYPE::IMGUI] = imGuiRenderTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1169,7 +1229,7 @@ void Renderer::initRenderTasks()
 		m_DirectCommandLists[i].push_back(outliningRenderTask->GetCommandList(i));
 	}
 
-	if (DRAWBOUNDINGBOX == true)
+	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
@@ -1186,7 +1246,18 @@ void Renderer::initRenderTasks()
 	// Final pass (this pass will merge different textures together and put result in the swapchain backBuffer)
 	// This will be used for pp-effects such as bloom.
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(mergeTask->GetCommandList(i));
+	}
+
+	// GUI
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			m_DirectCommandLists[i].push_back(imGuiRenderTask->GetCommandList(i));
+		}
+	}
 }
 
 void Renderer::setRenderTasksRenderComponents()
@@ -1340,7 +1411,7 @@ void Renderer::removeComponents(Entity* entity)
 		if (bbc->GetParent() == entity)
 		{
 			// Stop drawing the wireFrame
-			if (DRAWBOUNDINGBOX == true)
+			if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 			{
 				static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->ClearSpecific(bbc);
 			}
@@ -1557,7 +1628,7 @@ void Renderer::addComponents(Entity* entity)
 	if (bbc != nullptr)
 	{
 		// Add it to m_pTask so it can be drawn
-		if (DRAWBOUNDINGBOX == true)
+		if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 		{
 			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel());
 			if (m == nullptr)
