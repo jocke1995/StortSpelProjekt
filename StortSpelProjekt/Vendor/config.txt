@@ -1,4 +1,4 @@
-volume 0.5
+volume 1.0
 backgroundVolume 0.1
 updateRate 30
 resolutionWidth 768

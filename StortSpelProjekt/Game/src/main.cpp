@@ -74,7 +74,7 @@ Scene* GetDemoScene(SceneManager* sm)
 
     /*--------------------- Component declarations ---------------------*/
     Entity* entity = nullptr;
-    component::AudioVoiceComponent* avc = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CameraComponent* cc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
@@ -94,7 +94,7 @@ Scene* GetDemoScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    avc = entity->AddComponent<component::AudioVoiceComponent>();
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     pic->Init();

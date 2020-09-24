@@ -9,11 +9,11 @@ class AudioVoice;
 // Component used for playing 2D/background sounds
 namespace component
 {
-	class AudioVoiceComponent : public Component
+	class Audio2DVoiceComponent : public Component
 	{
 	public:
-		AudioVoiceComponent(Entity* parent);
-		virtual ~AudioVoiceComponent();
+		Audio2DVoiceComponent(Entity* parent);
+		virtual ~Audio2DVoiceComponent();
 		void Update(double dt);
 
 		// Clones an audiobuffer to create a voice to the component

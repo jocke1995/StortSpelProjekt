@@ -89,7 +89,7 @@ Scene* LeosTestScene(SceneManager* sm)
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
-    component::AudioVoiceComponent* avc = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
     component::InputComponent* ic = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
@@ -110,7 +110,7 @@ Scene* LeosTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    avc = entity->AddComponent<component::AudioVoiceComponent>();
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     mc->SetModel(playerModel);
@@ -169,7 +169,7 @@ Scene* TimScene(SceneManager* sm)
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
-    component::AudioVoiceComponent* avc = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -189,7 +189,7 @@ Scene* TimScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    avc = entity->AddComponent<component::AudioVoiceComponent>();
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
 
 
     mc->SetModel(playerModel);
@@ -790,7 +790,7 @@ Scene* AndresTestScene(SceneManager* sm)
     component::InputComponent* ic = nullptr;
     component::Audio3DListenerComponent* audioListener = nullptr;
     component::Audio3DEmitterComponent* audioEmitter = nullptr;
-    component::AudioVoiceComponent* backgroundAudio = nullptr;
+    component::Audio2DVoiceComponent* backgroundAudio = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -831,7 +831,7 @@ Scene* AndresTestScene(SceneManager* sm)
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    backgroundAudio = entity->AddComponent<component::AudioVoiceComponent>();
+    backgroundAudio = entity->AddComponent<component::Audio2DVoiceComponent>();
     backgroundAudio->AddVoice(L"bruh");
     backgroundAudio->Play(L"bruh");
 
@@ -850,9 +850,7 @@ Scene* AndresTestScene(SceneManager* sm)
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
     audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
     audioEmitter->AddVoice(L"melody");
-    //audioEmitter->AddVoice(L"horse");
-    audioEmitter->Play(L"melody");
-    //audioEmitter->Play(L"horse");
+    //audioEmitter->Play(L"melody"); // for sandbox this is moved to Audio3DEmitterComponent Update to spare your eardrums. This commented out call is how you would play specific sounds "normally"
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
@@ -870,10 +868,8 @@ Scene* AndresTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
     audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
-    //audioEmitter->AddVoice(L"melody");
     audioEmitter->AddVoice(L"horse");
-    //audioEmitter->Play(L"melody");
-    audioEmitter->Play(L"horse");
+    //audioEmitter->Play(L"horse"); // for sandbox this ismoved to Audio3DEmitterComponent Update to spare your eardrums. This commented out call is how you would play specific sounds "normally"
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
@@ -899,7 +895,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     component::PointLightComponent* plc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
-    component::AudioVoiceComponent* avc = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -923,7 +919,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     ic->Init();
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    avc = entity->AddComponent<component::AudioVoiceComponent>();
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     avc->AddVoice(L"Bruh");
 
     mc->SetModel(playerModel);
