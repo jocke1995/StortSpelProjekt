@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "SphereComponent.h"
+#include "SphereCollisionComponent.h"
 #include "../Renderer/Transform.h"
 
 component::SphereCollisionComponent::SphereCollisionComponent(Entity* parent, Transform* trans, float mass, float rad):
@@ -21,9 +21,9 @@ void component::SphereCollisionComponent::CheckCollision(CollisionComponent* oth
 void component::SphereCollisionComponent::CheckCollisionSphere(SphereCollisionComponent* other)
 {
 	DirectX::XMFLOAT3 lineOfAction = {
-		m_pTrans->GetPositionXMFLOAT3().x - other->m_pTrans->GetPositionXMFLOAT3().x,
-		m_pTrans->GetPositionXMFLOAT3().y - other->m_pTrans->GetPositionXMFLOAT3().y,
-		m_pTrans->GetPositionXMFLOAT3().z - other->m_pTrans->GetPositionXMFLOAT3().z
+		(m_pTrans->GetPositionXMFLOAT3().x + m_pTrans->GetMovement().x * 1 / 30) - (other->m_pTrans->GetPositionXMFLOAT3().x + other->m_pTrans->GetMovement().x * 1 / 30),
+		(m_pTrans->GetPositionXMFLOAT3().y + m_pTrans->GetMovement().x * 1 / 30) - (other->m_pTrans->GetPositionXMFLOAT3().y + other->m_pTrans->GetMovement().y * 1 / 30),
+		(m_pTrans->GetPositionXMFLOAT3().z + m_pTrans->GetMovement().x * 1 / 30) - (other->m_pTrans->GetPositionXMFLOAT3().z + other->m_pTrans->GetMovement().z * 1 / 30)
 	};
 
 	float distSquared = lineOfAction.x * lineOfAction.x + lineOfAction.y * lineOfAction.y + lineOfAction.z * lineOfAction.z;

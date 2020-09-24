@@ -7,6 +7,10 @@
 
 class Entity;
 class Collision;
+namespace component 
+{
+	class CollisionComponent;
+}
 class Physics
 {
 public:
@@ -20,23 +24,25 @@ public:
 	// Add an entity with collision enabled to the collision entities vector
 	void AddCollisionEntity(Entity* ent);
 
-
+	void AddCollisionComponent(component::CollisionComponent* comp);
+	void RemoveCollisionComponent(component::CollisionComponent* comp);
 
 private:
 	Physics();
 	double m_timeSinceLastColCheck = 0;
 	// How often the collisions are checked
-	const double m_CollisionUpdateInterval = 0.2;
+	const double m_CollisionUpdateInterval = 0.1;
 	// Vector containing all objects collision will be checked for
 	std::vector<Entity*> m_CollisionEntities;
+	std::vector<component::CollisionComponent*> m_CollisionComponents;
 
 	// Checks collision for all entities in the collison entities vector
 	// publishes an event if a collision has happened
 	void collisionChecks(double dt);
+	// Checks collision for all added collision components
+	void collisionComponentChecks();
 	// prints which entities that have collieded to the consol
 	void printCollisions(Collision* event);
-
-
 };
 
 #endif

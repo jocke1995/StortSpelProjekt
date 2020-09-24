@@ -41,9 +41,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*----- Timer ------*/
     double logicTimer = 0;
 
-    Entity* box1 = sceneManager->GetScene("DevScene")->GetEntity("Box1");
-    Entity* box2 = sceneManager->GetScene("DevScene")->GetEntity("Box2");
-
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
@@ -56,7 +53,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             logicTimer = 0;
             physics->Update(updateRate);
             renderer->Update(updateRate);
-            box1->GetComponent<component::SphereCollisionComponent>()->CheckCollision(box2->GetComponent<component::SphereCollisionComponent>());
         }
 
         /* ------ Sort ------ */
@@ -181,6 +177,7 @@ Scene* TimScene(SceneManager* sm)
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::AudioVoiceComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform(), 1000);
 
 
     pic->Init();
@@ -189,7 +186,7 @@ Scene* TimScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, -30.0f);
-
+    Physics::GetInstance().AddCollisionComponent(scc);
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
 
@@ -203,14 +200,14 @@ Scene* TimScene(SceneManager* sm)
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform());
+    scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform(),1);
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
     tc->GetTransform()->SetActualMovement(0.0f, 0.0f, 2.0f);
-
+    Physics::GetInstance().AddCollisionComponent(scc);
     /*--------------------- Box1 ---------------------*/
 
     /*--------------------- Box2 ---------------------*/
@@ -227,6 +224,7 @@ Scene* TimScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
     tc->GetTransform()->SetActualMovement(0.0f, 0.0f, 0.0f);
+    Physics::GetInstance().AddCollisionComponent(scc);
 
     /*--------------------- Box2 ---------------------*/
 

@@ -11,7 +11,7 @@
 #include "Components/AudioVoiceComponent.h"
 
 // physics/collisions
-#include "Components/Collision/SphereComponent.h"
+#include "Components/Collision/SphereCollisionComponent.h"
 
 // Lights
 class DirectionalLightComponent;

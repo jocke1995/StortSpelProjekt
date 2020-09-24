@@ -3,7 +3,7 @@
 
 #include"../ECS/Entity.h"
 #include "../Events/EventBus.h"
-
+#include "../ECS/Components/Collision/CollisionComponent.h"
 Physics::Physics()
 {
 }
@@ -42,12 +42,27 @@ void Physics::AddCollisionEntity(Entity *ent)
 	}
 }
 
+void Physics::AddCollisionComponent(component::CollisionComponent* comp)
+{
+	m_CollisionComponents.push_back(comp);
+}
+
+void Physics::RemoveCollisionComponent(component::CollisionComponent* comp)
+{
+	for (int i = 0; i < m_CollisionComponents.size(); i++)
+	{
+		if (m_CollisionComponents.at(i) == comp)
+			m_CollisionComponents.erase(m_CollisionComponents.begin() + i);
+	}
+}
+
 void Physics::collisionChecks(double dt)
 {
 	m_timeSinceLastColCheck += dt;
 
 	if (m_timeSinceLastColCheck > m_CollisionUpdateInterval)
 	{
+		collisionComponentChecks();
 		// if there is 0 or only 1 object in our vector then we don't have to check collision
 		if (m_CollisionEntities.size() > 1)
 		{
@@ -65,5 +80,19 @@ void Physics::collisionChecks(double dt)
 			}
 		}
 		m_timeSinceLastColCheck = 0;
+	}
+}
+
+void Physics::collisionComponentChecks()
+{
+	// This is done in collisionChecks which is called before. Saved for future reference.
+	//m_timeSinceLastColCheck += dt;
+
+	for (int i = 0; i < m_CollisionComponents.size(); i++)
+	{
+		for (int j = i + 1; j < m_CollisionComponents.size(); j++)
+		{
+			m_CollisionComponents[i]->CheckCollision(m_CollisionComponents[j]);
+		}
 	}
 }
