@@ -68,6 +68,7 @@ Scene* GetDemoScene(SceneManager* sm)
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    Model* golemModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     /*--------------------- Assets ---------------------*/
@@ -128,6 +129,23 @@ Scene* GetDemoScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /*--------------------- Rock ---------------------*/
+
+    EnemyFactory enH(scene);
+    enH.AddEnemy("golem", golemModel, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.3, float3{ 0, 0, 0 });
+
+    // looping through and adding already existing enemy type with only new position
+    float xVal = 8;
+    float zVal = 0;
+    for (int i = 0; i < 75; i++)
+    {
+        zVal += 8;
+        enH.AddExistingEnemy("golem", float3{ xVal, 0, zVal });
+        if ((i + 1) % 5 == 0)
+        {
+            xVal += 8;
+            zVal = 0;
+        }
+    }
 
     /*--------------------- Floor ---------------------*/
     // entity

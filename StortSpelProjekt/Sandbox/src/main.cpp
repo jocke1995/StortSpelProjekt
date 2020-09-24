@@ -857,15 +857,15 @@ Scene* BjornsTestScene(SceneManager* sm)
 
     // looping through and adding already existing enemy type with only new position
     float xVal = 8;
-    float yVal = 0;
+    float zVal = 0;
     for (int i = 0; i < 50; i++)
     {
-        yVal += 8;
-        enH.AddExistingEnemy("rock", float3{ xVal, 0, yVal });
+        zVal += 8;
+        enH.AddExistingEnemy("rock", float3{ xVal, 0, zVal });
         if ((i + 1) % 5 == 0)
         {
             xVal += 8;
-            yVal = 0;
+            zVal = 0;
         }
     }
 
