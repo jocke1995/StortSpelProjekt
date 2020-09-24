@@ -13,7 +13,6 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-	// TODO: Cleanup deconstructor
 	if (m_pImageData != nullptr)
 	{
 		delete m_pImageData;

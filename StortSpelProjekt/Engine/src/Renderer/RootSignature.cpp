@@ -152,7 +152,7 @@ void RootSignature::createRootSignatureStructure()
 	ssd[2].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	ssd[2].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	ssd[2].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-	ssd[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	ssd[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	ssd[2].MinLOD = 0;
 	ssd[2].MaxLOD = D3D12_FLOAT32_MAX;
 	ssd[2].MipLODBias = 0.0f;

@@ -220,7 +220,7 @@ unsigned int LoadImageDataFromFile(BYTE** imageData, D3D12_RESOURCE_DESC* resour
 	unsigned int imageSize = *bytesPerRow * textureHeight; // total image size in bytes
 
 	// Allocate enough memory for the raw image data, and set imageData to point to that memory
-	*imageData = (BYTE*)malloc(imageSize);
+	*imageData = static_cast<BYTE*>(malloc(imageSize));
 
 	// Copy (decoded) raw image data into the newly allocated memory (imageData)
 	if (imageConverted)

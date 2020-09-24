@@ -6,11 +6,19 @@
 #include "../Renderer/BaseCamera.h"
 
 #include "../Renderer/Texture/Texture.h"
+#include "../Renderer/Renderer.h"
+
+#include "../Misc/AssetLoader.h"
 
 component::SkyboxComponent::SkyboxComponent(Entity* parent)
 	:Component(parent)
 {
 	m_pTransform = new Transform();
+	
+	// Set default mesh and texture
+	AssetLoader* al = AssetLoader::Get();
+	m_pMesh = al->LoadModel(L"../Vendor/Resources/Models/Cube/cube.obj")->GetMeshAt(0);
+	m_pTexture = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 }
 
 component::SkyboxComponent::~SkyboxComponent()
@@ -20,13 +28,13 @@ component::SkyboxComponent::~SkyboxComponent()
 
 void component::SkyboxComponent::RenderUpdate(double dt)
 {
-	m_pTransform->SetPosition(m_Camera->GetPosition());
+	m_pTransform->SetPosition(m_pCamera->GetPosition());
 	m_pTransform->UpdateWorldMatrix();
 }
 
 void component::SkyboxComponent::SetMesh(Mesh* mesh)
 {
-	m_Mesh = mesh;
+	m_pMesh = mesh;
 }
 
 void component::SkyboxComponent::SetTexture(Texture* texture)
@@ -35,12 +43,12 @@ void component::SkyboxComponent::SetTexture(Texture* texture)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "SkyboxComponent: Texture needs to be of type TEXTURE_TYPE::TEXTURECUBEMAP");
 	}
-	m_Texture = texture;
+	m_pTexture = texture;
 }
 
 void component::SkyboxComponent::SetCamera(BaseCamera* camera)
 {
-	m_Camera = camera;
+	m_pCamera = camera;
 }
 
 Transform* component::SkyboxComponent::GetTransform() const
@@ -50,10 +58,15 @@ Transform* component::SkyboxComponent::GetTransform() const
 
 Mesh* component::SkyboxComponent::GetMesh() const
 {
-	return m_Mesh;
+	return m_pMesh;
 }
 
 Texture* component::SkyboxComponent::GetTexture() const
 {
-	return m_Texture;
+	return m_pTexture;
+}
+
+BaseCamera* component::SkyboxComponent::GetCamera() const
+{
+	return m_pCamera;
 }

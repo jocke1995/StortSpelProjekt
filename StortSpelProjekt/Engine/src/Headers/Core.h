@@ -110,7 +110,6 @@ enum class CAMERA_TYPE
 #define BIT(x) (1 << x)
 #define MAXNUMBER 10000000.0f
 #define DRAWBOUNDINGBOX false
-#define DRAWSKYBOX		true
 
 enum FLAG_DRAW
 {

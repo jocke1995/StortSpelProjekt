@@ -43,7 +43,7 @@ private:
     std::vector<Mesh*> m_Meshes;
     std::vector<std::map<TEXTURE2D_TYPE, Texture*>> m_Textures;
     std::vector<SlotInfo> m_SlotInfos;
-    std::vector<Animation*> m_Animations;
+    std::vector<Animation*> m_Animations;    
 };
 
 #endif

@@ -35,6 +35,7 @@ bool TextureCubeMap::Init(std::wstring filePath, ID3D12Device5* device, Descript
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(filePath).c_str());
 		delete m_pDefaultResource;
+		m_pDefaultResource = nullptr;
 		return false;
 	}
 

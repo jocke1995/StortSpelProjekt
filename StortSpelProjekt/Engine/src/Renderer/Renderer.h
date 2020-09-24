@@ -92,6 +92,7 @@ public:
 	void Execute();
 
 private:
+	friend class component::SkyboxComponent;
 	friend class SceneManager;
 	friend class Text;
 	ThreadPool* m_pThreadPool = nullptr;

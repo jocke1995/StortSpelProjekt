@@ -19,6 +19,8 @@
 #include "../GPUMemory/ShaderResourceView.h"
 #include "../Texture/TextureCubeMap.h"
 #include "../ECS/Components/SkyboxComponent.h"
+#include "../GPUMemory/DepthStencilView.h"
+#include "../GPUMemory/DepthStencil.h"
 
 SkyboxRenderTask::SkyboxRenderTask(
 	ID3D12Device5* device,
@@ -42,6 +44,11 @@ void SkyboxRenderTask::SetSkybox(component::SkyboxComponent* skybox)
 
 void SkyboxRenderTask::Execute() 
 {
+	if (m_pSkybox == nullptr)
+	{
+		// Don't draw the skybox if there is none
+		return;
+	}
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
 	const RenderTargetView* swapChainRenderTarget = m_pSwapChain->GetRTV(m_BackBufferIndex);
@@ -73,19 +80,16 @@ void SkyboxRenderTask::Execute()
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhs[] = { cdhSwapChain };
 
 	// Depth
-	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
+	const unsigned int mainDepthHeapIndex = m_pDepthStencil->GetDSV()->GetDescriptorHeapIndex();
+	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(mainDepthHeapIndex);
 
 	commandList->OMSetRenderTargets(1, cdhs, false, &dsh);
 
 	const D3D12_VIEWPORT viewPortSwapChain = *swapChainRenderTarget->GetRenderView()->GetViewPort();
-	const D3D12_VIEWPORT viewPorts[1] = { viewPortSwapChain };
-
 	const D3D12_RECT rectSwapChain = *swapChainRenderTarget->GetRenderView()->GetScissorRect();
-	const D3D12_RECT rects[1] = { rectSwapChain };
 
-	const D3D12_RECT* rect = swapChainRenderTarget->GetRenderView()->GetScissorRect();
-	commandList->RSSetViewports(1, viewPorts);
-	commandList->RSSetScissorRects(1, rects);
+	commandList->RSSetViewports(1, &viewPortSwapChain);
+	commandList->RSSetScissorRects(1, &rectSwapChain);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();

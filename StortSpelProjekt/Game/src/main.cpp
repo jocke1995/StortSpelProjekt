@@ -117,11 +117,6 @@ Scene* GetDemoScene(SceneManager* sm)
     Texture* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
     entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    sbc->SetMesh(cubeModel->GetMeshAt(0));
-    sbc->SetTexture(skyboxCubemap);
-
-    sbc->SetCamera(cc->GetCamera());
-    sbc->GetTransform()->SetScale(1);
 
     /* ---------------------- Skybox ---------------------- */
 

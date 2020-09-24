@@ -1,5 +1,5 @@
-#ifndef SKYBOXTASK_H
-#define SKYBOXTASK_H
+#ifndef SKYBOXRENDERTASK_H
+#define SKYBOXRENDERTASK_H
 
 #include "RenderTask.h"
 

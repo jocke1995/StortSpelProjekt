@@ -33,14 +33,15 @@ namespace component
         Transform* GetTransform() const;
         Mesh* GetMesh() const;
         Texture* GetTexture() const;
+        BaseCamera* GetCamera() const;
 
     private:
-        Mesh* m_Mesh = nullptr;
-        Texture* m_Texture = nullptr;
+        Mesh* m_pMesh = nullptr;
+        Texture* m_pTexture = nullptr;
         Transform* m_pTransform = nullptr;
 
-        // Always set pos to cameras
-        BaseCamera* m_Camera = nullptr;
+        // Always set pos to camera
+        BaseCamera* m_pCamera = nullptr;
     };
 }
 #endif
