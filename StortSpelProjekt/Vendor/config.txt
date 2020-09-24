@@ -1,8 +1,8 @@
 volume 1.0
 updateRate 30
-resolutionWidth 1920
-resolutionHeight 1080
-windowWidth 800
-windowHeight 600
+resolutionWidth 768
+resolutionHeight 432
+windowWidth 768
+windowHeight 432
 fullscreen 0
-amountOfBlur 6
+amountOfBlur 2

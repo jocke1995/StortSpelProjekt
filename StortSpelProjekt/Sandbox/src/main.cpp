@@ -10,6 +10,12 @@ Scene* WilliamsTestScene(SceneManager* sm);
 // showing example of AddEnemy() from enemy handler
 Scene* BjornsTestScene(SceneManager* sm);
 
+
+void(*UpdateScene)(SceneManager*);
+void LeoUpdateScene(SceneManager* sm);
+
+void DefaultUpdateScene(SceneManager* sm);
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -33,12 +39,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
-   // sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
+    UpdateScene = &DefaultUpdateScene;
+
+    sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(TimScene(sceneManager));
     //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
-    sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
+    //sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
 
     /*----- Timer ------*/
     double logicTimer = 0;
@@ -59,6 +67,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         /* ------ Sort ------ */
         renderer->SortObjects();
+        
+        UpdateScene(sceneManager);
 
         /* ------ Draw ------ */
         renderer->Execute();
@@ -69,7 +79,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 Scene* LeosTestScene(SceneManager* sm)
 {
     // Create scene
-    Scene* scene = sm->CreateScene("ThatSceneWithThemThereCameraFeaturesAndStuff");
+    Scene* scene = sm->CreateScene("ThatSceneWithThemThereImGuiFeaturesAndStuff");
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
@@ -89,6 +99,7 @@ Scene* LeosTestScene(SceneManager* sm)
     AudioBuffer* loopedSound = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"Music");
 
     loopedSound->SetAudioLoop(0);
+
     /* ---------------------- Player ---------------------- */
     Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
@@ -96,6 +107,7 @@ Scene* LeosTestScene(SceneManager* sm)
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::AudioVoiceComponent>();
+    component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -104,6 +116,7 @@ Scene* LeosTestScene(SceneManager* sm)
     avc->AddVoice(L"Music");
     avc->Play(L"Music");
     ic->Init();
+    bbc->Init();
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
@@ -116,7 +129,6 @@ Scene* LeosTestScene(SceneManager* sm)
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-    /* ---------------------- Floor ---------------------- */
 
     /* ---------------------- PointLight1 ---------------------- */
     entity = scene->AddEntity("pointLight1");
@@ -132,7 +144,13 @@ Scene* LeosTestScene(SceneManager* sm)
     plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.5f, 0.0f, 0.5f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 5.0f, 5.0f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
-    /* ---------------------- PointLight1 ---------------------- */
+
+    // Set variiables for ImGui
+    ImGuiHandler::GetInstance().SetFloat("LightPositionZ", -15.0f);
+    ImGuiHandler::GetInstance().SetFloat4("LightColor", float4({ 1.0f, 1.0f, 1.0f, 1.0f }));
+
+    // Set UpdateScene function
+    UpdateScene = &LeoUpdateScene;
 
     return scene;
 }
@@ -944,4 +962,23 @@ Scene* BjornsTestScene(SceneManager* sm)
     dlc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.5f, 0.5f, 0.5f, 1.0f });
 
     return scene;
+}
+
+void LeoUpdateScene(SceneManager* sm)
+{
+
+    if (DEVELOPERMODE_DEVINTERFACE == true)
+    {
+        float lightPos = ImGuiHandler::GetInstance().GetFloat("LightPositionZ");
+        float4 lightColor = ImGuiHandler::GetInstance().GetFloat4("LightColor");
+
+        sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("pointLight1")->GetComponent<component::PointLightComponent>()->SetColor(COLOR_TYPE::LIGHT_AMBIENT, lightColor);
+        sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("pointLight1")->GetComponent<component::PointLightComponent>()->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { lightColor.x * 16.0f, lightColor.y * 16.0f, lightColor.z * 16.0f, lightColor.w });
+        sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("pointLight1")->GetComponent<component::PointLightComponent>()->SetColor(COLOR_TYPE::LIGHT_SPECULAR, lightColor);
+        sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("pointLight1")->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(DirectX::XMFLOAT3(0.0f, 8.0f, lightPos));
+    }
+}
+
+void DefaultUpdateScene(SceneManager* sm)
+{
 }
