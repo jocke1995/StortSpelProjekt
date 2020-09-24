@@ -1,8 +1,0 @@
-f_volume 1.0
-i_network 1
-s_ip localhost
-i_port 55555
-f_updateRate 30
-i_fullscreen 1
-i_windowWidth 1080
-i_windowHeight 1920
