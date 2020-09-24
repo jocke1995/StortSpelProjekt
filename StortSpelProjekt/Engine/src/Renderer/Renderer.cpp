@@ -26,6 +26,7 @@
 #include "BaseCamera.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "Material.h"
 #include "Text.h"
 
 // GPUMemory
@@ -1397,12 +1398,12 @@ void Renderer::addComponents(Entity* entity)
 					codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 				}
 
-				std::map<TEXTURE_TYPE, Texture*> meshTextures = *mc->GetTexturesAt(i);
+				Material* meshMat = mc->GetMaterialAt(i);
 				// Textures
 				for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
 				{
 					TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-					Texture* texture = meshTextures[type];
+					Texture* texture = meshMat->GetTexture(type);
 
 					// Check if the texture is on GPU before submitting to be uploaded
 					if (al->m_LoadedTextures[texture->m_FilePath].first == false)

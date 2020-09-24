@@ -8,6 +8,7 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Texture.h"
+#include "../Renderer/Material.h"
 #include "../Renderer/Text.h"
 #include "../Renderer/Animation.h"
 
@@ -47,6 +48,12 @@ AssetLoader::~AssetLoader()
 	for (auto pair : m_LoadedModels)
 	{
 		delete pair.second.second;
+	}
+
+	// For every Material
+	for (auto material : m_LoadedMaterials)
+	{
+		delete material.second.second;
 	}
 
 	// For every texture
@@ -99,18 +106,18 @@ Model* AssetLoader::LoadModel(const std::wstring path)
 	}
 	std::vector<Mesh*> meshes;
 	std::vector<Animation*> animations;
-	std::vector<std::map<TEXTURE_TYPE, Texture*>> textures;
+	std::vector<Material*> materials;
 
 	meshes.reserve(assimpScene->mNumMeshes);
-	textures.reserve(assimpScene->mNumMeshes);
+	materials.reserve(assimpScene->mNumMeshes);
 	animations.reserve(assimpScene->mNumAnimations);
 	m_LoadedModels[path].first = false;
 	
 
-	processNode(assimpScene->mRootNode, assimpScene, &meshes, &textures, &filePath);
+	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, &filePath);
 	processAnimations(assimpScene, &animations);
 
-	m_LoadedModels[path].second = new Model(path, &meshes, &animations, &textures);
+	m_LoadedModels[path].second = new Model(path, &meshes, &animations, &materials);
 
 	return m_LoadedModels[path].second;
 }
@@ -193,29 +200,29 @@ Shader* AssetLoader::loadShader(std::wstring fileName, ShaderType type)
 	return m_LoadedShaders[fileName];
 }
 
-void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
+void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::string* filePath)
 {
 	// Go through all the m_Meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = assimpScene->mMeshes[node->mMeshes[i]];
-		meshes->push_back(processMesh(mesh, assimpScene, meshes, textures, filePath));
+		meshes->push_back(processMesh(mesh, assimpScene, meshes, materials, filePath));
 	}
 	
 	// If the node has more node children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], assimpScene, meshes, textures, filePath);
+		processNode(node->mChildren[i], assimpScene, meshes, materials, filePath);
 	}
 }
 
-Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
+Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::string* filePath)
 {
 	// Fill this data
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Bone> bones;
-	std::map<TEXTURE_TYPE, Texture*> meshTextures;
+	
 
 	// Get data from assimpMesh and store it
 	for (unsigned int i = 0; i < assimpMesh->mNumVertices; i++)
@@ -256,8 +263,8 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "Mesh has no tangents\n");
 		}
-		
-		
+
+
 		// Get texture coordinates if there are any
 		if (assimpMesh->HasTextureCoords(0))
 		{
@@ -276,7 +283,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	for (unsigned int i = 0; i < assimpMesh->mNumFaces; i++)
 	{
 		aiFace face = assimpMesh->mFaces[i];
-	
+
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
 		{
 			indices.push_back(face.mIndices[j]);
@@ -291,7 +298,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 
 		// Store the name of the bone
 		bone.name = assimpBone->mName.C_Str();	// Possible loss of data, returns pointer.
-		
+
 		// Store the offset matrix of the bone
 		bone.offsetMatrix = aiMatrix4x4ToXMFloat4x4(&assimpBone->mOffsetMatrix);
 
@@ -308,7 +315,6 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 		bones.push_back(bone);
 	}
 
-
 	// Create Mesh
 	Mesh* mesh = new Mesh(
 		m_pDevice,
@@ -319,27 +325,21 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	// save mesh
 	m_LoadedMeshes.push_back(mesh);
 
-	// ---------- Get Textures and set them to the m_pMesh START----------
-	aiMaterial* mat = assimpScene->mMaterials[assimpMesh->mMaterialIndex];
-	
 	// Split filepath
 	std::string filePathWithoutTexture = *filePath;
 	std::size_t indicesInPath = filePathWithoutTexture.find_last_of("/\\");
 	filePathWithoutTexture = filePathWithoutTexture.substr(0, indicesInPath + 1);
 
-	// Add the textures to the m_pMesh
-	for (int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
-	{
-		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-		Texture* texture = processTexture(mat, type, &filePathWithoutTexture);
-		meshTextures[type] = texture;
-	}
+	// Get material from assimp
+	aiMaterial* mat = assimpScene->mMaterials[assimpMesh->mMaterialIndex];
+	Material* material;
+	// Create our material
+	material = loadMaterial(mat, &filePathWithoutTexture);
 	// add the texture to the correct mesh (later for models slotinfo)
-	textures->push_back(meshTextures);
-	// ---------- Get Textures and set them to the m_pMesh END----------
+	materials->push_back(material);
 
 	// Set shininess
-	float shininess = 100;
+	// float shininess = 100;
 	// Todo: looks to bright with these values, bad models or bad scene?
 	// if (AI_SUCCESS != aiGetMaterialFloat(mat, AI_MATKEY_SHININESS, &shininess))
 	// {
@@ -348,6 +348,44 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	// }
 
 	return mesh;
+}
+
+Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::string* folderPath)
+{
+	// Get material name
+	aiString tempName;
+	mat->Get(AI_MATKEY_NAME, tempName);
+	std::string matName = (tempName.C_Str());
+
+	// Check if material don't exists
+	if (m_LoadedMaterials.count(matName) == 0)
+	{
+		// Load material
+		std::map<TEXTURE_TYPE, Texture*> matTextures;
+
+		// Add the textures to the m_pMesh
+		for (int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+		{
+			TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
+			Texture* texture = processTexture(mat, type, folderPath);
+			matTextures[type] = texture;
+		}
+
+		Material* material = new Material(&matName, &matTextures);
+		m_LoadedMaterials[matName].first = false;
+		m_LoadedMaterials[matName].second = material;
+
+		return material;
+	}
+	else
+	{
+		// Don't print for default material
+		if (matName != "DefaultMaterial")
+		{
+			Log::PrintSeverity(Log::Severity::WARNING, "AssetLoader: Loaded same material name more than once, first loaded material will be used <%s>\n", matName.c_str());
+		}
+		return m_LoadedMaterials[matName].second;
+	}
 }
 
 Texture* AssetLoader::processTexture(aiMaterial* mat,

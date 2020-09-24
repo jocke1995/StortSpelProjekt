@@ -9,6 +9,7 @@ class Model;
 class Mesh;
 class Shader;
 class Texture;
+class Material;
 class Window;
 struct Font;
 struct aiNode;
@@ -63,6 +64,7 @@ private:
     // Every model & texture also has a bool which indicates if its data is on the GPU or not
     std::map<std::wstring, std::pair<bool, Model*>> m_LoadedModels;
     std::vector<Mesh*> m_LoadedMeshes;
+    std::map<std::string, std::pair<bool, Material*>> m_LoadedMaterials;
     std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
     std::map<std::wstring, Shader*> m_LoadedShaders;
@@ -76,14 +78,16 @@ private:
     void processNode(aiNode* node, 
         const aiScene* assimpScene,
         std::vector<Mesh*> *meshes,
-        std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures,
+        std::vector<Material*>* materials,
         const std::string* filePath);
 
     Mesh* processMesh(aiMesh* mesh, 
         const aiScene* assimpScene,
         std::vector<Mesh*>* meshes,
-        std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures,
+        std::vector<Material*>* materials,
         const std::string* filePath);
+
+    Material* loadMaterial(aiMaterial* mat, const std::string* folderPath);
 
     Texture* processTexture(aiMaterial* mat, TEXTURE_TYPE texture_type, const std::string* filePathWithoutTexture);
     

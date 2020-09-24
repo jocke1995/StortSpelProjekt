@@ -5,7 +5,7 @@
 
 
 class Mesh;
-class Texture;
+class Material;
 class Resource;
 class ShaderResourceView;
 class DescriptorHeap;
@@ -22,7 +22,7 @@ public:
     Model(const std::wstring path,
         std::vector<Mesh*>* meshes,
         std::vector<Animation*>* animations,
-        std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures);
+        std::vector<Material*>* materials);
     virtual ~Model();
 
     std::wstring GetPath() const;
@@ -32,7 +32,7 @@ public:
     Mesh* GetMeshAt(unsigned int index);
 
     // Material
-    std::map<TEXTURE_TYPE, Texture*>* GetTexturesAt(unsigned int index);
+    Material* GetMaterialAt(unsigned int index);
 
     // SlotInfo
     SlotInfo* GetSlotInfoAt(unsigned int index);
@@ -42,7 +42,7 @@ private:
     unsigned int m_Size = 0;
     std::vector<Mesh*> m_Meshes;
     std::vector<Animation*> m_Animations;
-    std::vector<std::map<TEXTURE_TYPE, Texture*>> m_Textures;
+    std::vector<Material*> m_Materials;
     std::vector<SlotInfo> m_SlotInfos;
 };
 

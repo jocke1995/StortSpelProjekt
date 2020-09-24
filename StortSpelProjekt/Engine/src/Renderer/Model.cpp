@@ -1,31 +1,32 @@
 #include "stdafx.h"
 #include "Model.h"
 #include "Mesh.h"
+#include "Material.h"
 #include "Texture.h"
 #include "GPUMemory/ShaderResourceView.h"
 #include "structs.h"
 #include "Animation.h"
 
-Model::Model(const std::wstring path, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures)
+Model::Model(const std::wstring path, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<Material*>* materials)
 {
 	m_Path = path;
 	m_Size = (*meshes).size();
 
 	m_Meshes = (*meshes);
 	m_Animations = (*animations);
-	m_Textures = (*textures);
+	m_Materials = (*materials);
 
 	// Fill SlotInfo with mesh+material info
 	for (unsigned int i = 0; i < (*meshes).size(); i++)
 	{
 		m_SlotInfos.push_back(
 			{
-			(*meshes)[i]->m_pSRV->GetDescriptorHeapIndex(),
-			(*textures)[i][TEXTURE_TYPE::AMBIENT]->GetDescriptorHeapIndex(),
-			(*textures)[i][TEXTURE_TYPE::DIFFUSE]->GetDescriptorHeapIndex(),
-			(*textures)[i][TEXTURE_TYPE::SPECULAR]->GetDescriptorHeapIndex(),
-			(*textures)[i][TEXTURE_TYPE::NORMAL]->GetDescriptorHeapIndex(),
-			(*textures)[i][TEXTURE_TYPE::EMISSIVE]->GetDescriptorHeapIndex(),
+			m_Meshes[i]->m_pSRV->GetDescriptorHeapIndex(),
+			m_Materials[i]->GetTexture(TEXTURE_TYPE::AMBIENT)->GetDescriptorHeapIndex(),
+			m_Materials[i]->GetTexture(TEXTURE_TYPE::DIFFUSE)->GetDescriptorHeapIndex(),
+			m_Materials[i]->GetTexture(TEXTURE_TYPE::SPECULAR)->GetDescriptorHeapIndex(),
+			m_Materials[i]->GetTexture(TEXTURE_TYPE::NORMAL)->GetDescriptorHeapIndex(),
+			m_Materials[i]->GetTexture(TEXTURE_TYPE::EMISSIVE)->GetDescriptorHeapIndex()
 			});
 	}
 }
@@ -49,9 +50,9 @@ Mesh* Model::GetMeshAt(unsigned int index)
 	return m_Meshes[index];
 }
 
-std::map<TEXTURE_TYPE, Texture*>* Model::GetTexturesAt(unsigned int index)
+Material* Model::GetMaterialAt(unsigned int index)
 {
-	return &m_Textures[index];
+	return m_Materials[index];;
 }
 
 SlotInfo* Model::GetSlotInfoAt(unsigned int index)
