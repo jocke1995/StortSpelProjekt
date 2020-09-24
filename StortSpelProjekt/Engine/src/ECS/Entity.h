@@ -10,6 +10,9 @@
 // Audio
 #include "Components/AudioVoiceComponent.h"
 
+// physics/collisions
+#include "Components/Collision/SphereComponent.h"
+
 // Lights
 class DirectionalLightComponent;
 class PointLightComponent;
