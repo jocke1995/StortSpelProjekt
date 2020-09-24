@@ -1,6 +1,6 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
-#include "EnemyHandler.h"
+#include "EnemyFactory.h"
 Scene* GetDemoScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)

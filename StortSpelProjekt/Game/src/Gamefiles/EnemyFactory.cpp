@@ -1,34 +1,34 @@
-#include "EnemyHandler.h"
+#include "EnemyFactory.h"
 #include "ECS/Scene.h"
 #include "Engine.h"
 
-EnemyHandler::EnemyHandler(Scene* scene)
+EnemyFactory::EnemyFactory(Scene* scene)
 {
 	m_pScene = scene;
 }
 
-EnemyHandler::~EnemyHandler()
+EnemyFactory::~EnemyFactory()
 {
-	for (auto pair : m_enemyComps)
+	for (auto pair : m_EnemyComps)
 	{
 		if (pair.second != nullptr)
 		{
 			delete pair.second;
 		}
 	}
-	m_enemyComps.clear();
+	m_EnemyComps.clear();
 }
 
-Entity* EnemyHandler::AddEnemy(std::string entityName, Model* model, float3 pos, unsigned int flag, float scale, float3 rot)
+Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, float3 pos, unsigned int flag, float scale, float3 rot)
 {
-	for (auto pair : m_enemyComps)
+	for (auto pair : m_EnemyComps)
 	{
 		// An entity with this m_Name already exists
 		// so make use of the overloaded version of this function
 		if (pair.first == entityName)
 		{
 			Log::PrintSeverity(Log::Severity::WARNING, "Enemy of this type \"%s\" already exists! Overloaded funtion will be used instead!\n", entityName.c_str());
-			return AddEnemy(pos, entityName, flag, scale, rot);
+			return AddExistingEnemyWithChanges(entityName, pos, flag, scale, rot);
 		}
 	}
 	Entity *ent = m_pScene->AddEntity(entityName);
@@ -36,19 +36,19 @@ Entity* EnemyHandler::AddEnemy(std::string entityName, Model* model, float3 pos,
 	component::TransformComponent* tc = nullptr;
 	component::BoundingBoxComponent* bbc = nullptr;
 	// TODO: Add more components when they are made such as HealthComponent
-	m_enemyComps[entityName] = new EnemyComps;
+	m_EnemyComps[entityName] = new EnemyComps;
 
-	m_enemyComps[entityName]->enemiesOfThisType++;
-	m_enemyComps[entityName]->compFlags = flag;
-	m_enemyComps[entityName]->pos = pos;
-	m_enemyComps[entityName]->scale = scale;
-	m_enemyComps[entityName]->rot = rot;
-	m_enemyComps[entityName]->model = model;
+	m_EnemyComps[entityName]->enemiesOfThisType++;
+	m_EnemyComps[entityName]->compFlags = flag;
+	m_EnemyComps[entityName]->pos = pos;
+	m_EnemyComps[entityName]->scale = scale;
+	m_EnemyComps[entityName]->rot = rot;
+	m_EnemyComps[entityName]->model = model;
 
 	mc = ent->AddComponent<component::ModelComponent>();
 	tc = ent->AddComponent<component::TransformComponent>();	
 
-	mc->SetModel(m_enemyComps[entityName]->model/*model*/);
+	mc->SetModel(m_EnemyComps[entityName]->model/*model*/);
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 	tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
 	tc->GetTransform()->SetScale(scale);
@@ -65,17 +65,17 @@ Entity* EnemyHandler::AddEnemy(std::string entityName, Model* model, float3 pos,
 	return ent;
 }
 
-Entity* EnemyHandler::AddEnemy(std::string entityName, float3 pos)
+Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
 {
-	for (auto pair : m_enemyComps)
+	for (auto pair : m_EnemyComps)
 	{
 		// An entity with this m_Name already exists
 		// so create a new onen of the same type
 		if (pair.first == entityName)
 		{
-			std::string name = entityName + std::to_string(m_enemyComps[entityName]->enemiesOfThisType);
+			std::string name = entityName + std::to_string(m_EnemyComps[entityName]->enemiesOfThisType);
 			Entity* ent = m_pScene->AddEntity(name);
-			m_enemyComps[entityName]->enemiesOfThisType++;
+			m_EnemyComps[entityName]->enemiesOfThisType++;
 			component::ModelComponent* mc = nullptr;
 			component::TransformComponent* tc = nullptr;
 			component::BoundingBoxComponent* bbc = nullptr;
@@ -84,15 +84,15 @@ Entity* EnemyHandler::AddEnemy(std::string entityName, float3 pos)
 			mc = ent->AddComponent<component::ModelComponent>();
 			tc = ent->AddComponent<component::TransformComponent>();
 
-			mc->SetModel(m_enemyComps[entityName]->model);
+			mc->SetModel(m_EnemyComps[entityName]->model);
 			mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 			tc->GetTransform()->SetPosition(pos.x, pos.y , pos.z);
-			tc->GetTransform()->SetScale(m_enemyComps[entityName]->scale);
-			tc->GetTransform()->SetRotationX(m_enemyComps[entityName]->rot.x);
-			tc->GetTransform()->SetRotationY(m_enemyComps[entityName]->rot.y);
-			tc->GetTransform()->SetRotationZ(m_enemyComps[entityName]->rot.z);
+			tc->GetTransform()->SetScale(m_EnemyComps[entityName]->scale);
+			tc->GetTransform()->SetRotationX(m_EnemyComps[entityName]->rot.x);
+			tc->GetTransform()->SetRotationY(m_EnemyComps[entityName]->rot.y);
+			tc->GetTransform()->SetRotationZ(m_EnemyComps[entityName]->rot.z);
 
-			if (F_COMP_FLAGS::OBB & m_enemyComps[entityName]->compFlags)
+			if (F_COMP_FLAGS::OBB & m_EnemyComps[entityName]->compFlags)
 			{
 				bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 				bbc->Init();
@@ -108,9 +108,9 @@ Entity* EnemyHandler::AddEnemy(std::string entityName, float3 pos)
 	}
 }
 
-Entity* EnemyHandler::AddEnemy(float3 pos, std::string entityName, unsigned int flag, float scale, float3 rot)
+Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3 pos, unsigned int flag, float scale, float3 rot)
 {
-	for (auto pair : m_enemyComps)
+	for (auto pair : m_EnemyComps)
 	{
 		// An entity with this m_Name already exists
 		// so create a new onen of the same type
@@ -125,7 +125,7 @@ Entity* EnemyHandler::AddEnemy(float3 pos, std::string entityName, unsigned int 
 			}
 			else
 			{
-				newFlag = m_enemyComps[entityName]->compFlags;
+				newFlag = m_EnemyComps[entityName]->compFlags;
 			}
 			float newScale;
 			if (scale != FLT_MAX)
@@ -134,7 +134,7 @@ Entity* EnemyHandler::AddEnemy(float3 pos, std::string entityName, unsigned int 
 			}
 			else
 			{
-				newScale = m_enemyComps[entityName]->scale;
+				newScale = m_EnemyComps[entityName]->scale;
 			}
 			float3 newRot;
 			if (rot.x != FLT_MAX)
@@ -143,12 +143,12 @@ Entity* EnemyHandler::AddEnemy(float3 pos, std::string entityName, unsigned int 
 			}
 			else
 			{
-				newRot = m_enemyComps[entityName]->rot;
+				newRot = m_EnemyComps[entityName]->rot;
 			}
 
-			std::string name = entityName + std::to_string(m_enemyComps[entityName]->enemiesOfThisType);
+			std::string name = entityName + std::to_string(m_EnemyComps[entityName]->enemiesOfThisType);
 			Entity* ent = m_pScene->AddEntity(name);
-			m_enemyComps[entityName]->enemiesOfThisType++;
+			m_EnemyComps[entityName]->enemiesOfThisType++;
 			component::ModelComponent* mc = nullptr;
 			component::TransformComponent* tc = nullptr;
 			component::BoundingBoxComponent* bbc = nullptr;
@@ -157,7 +157,7 @@ Entity* EnemyHandler::AddEnemy(float3 pos, std::string entityName, unsigned int 
 			mc = ent->AddComponent<component::ModelComponent>();
 			tc = ent->AddComponent<component::TransformComponent>();
 
-			mc->SetModel(m_enemyComps[entityName]->model);
+			mc->SetModel(m_EnemyComps[entityName]->model);
 			mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 			tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
 			tc->GetTransform()->SetScale(newScale);

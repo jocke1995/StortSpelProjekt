@@ -1,6 +1,6 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
-#include "EnemyHandler.h"
+#include "EnemyFactory.h"
 
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
@@ -33,12 +33,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
-    sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
+   // sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(TimScene(sceneManager));
     //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
-    //sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
+    sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
 
     /*----- Timer ------*/
     double logicTimer = 0;
@@ -846,19 +846,27 @@ Scene* BjornsTestScene(SceneManager* sm)
     //Physics::GetInstance().AddCollisionEntity(entity);
 
     // Adding enemy example
-    EnemyHandler enH(scene);
+    EnemyFactory enH(scene);
     enH.AddEnemy("rock", stoneModel, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.01, float3{ 1.578, 0, 0 });
     // showing that using the wrong overload will send Warning to Log. 
     // and then automaticly use the correct overloaded function 
-    enH.AddEnemy("rock", stoneModel, float3{ -10, 0, -10 }, F_COMP_FLAGS::OBB, 0.01);
+   // enH.AddEnemy("rock", stoneModel, float3{ -10, 0, -10 }, F_COMP_FLAGS::OBB, 0.01);
 
     // adding an already existing enemy type but changing the scale of it
-    enH.AddEnemy(float3{ 20, 0, 4 }, "rock", UINT_MAX, 0.005f);
+    enH.AddExistingEnemyWithChanges("rock", float3{ 20, 0, 4 }, UINT_MAX, 0.005f);
 
     // looping through and adding already existing enemy type with only new position
+    float xVal = 8;
+    float yVal = 0;
     for (int i = 0; i < 50; i++)
     {
-        enH.AddEnemy("rock", float3{ (float)i * 8 - 16, (float)i * 8, (float)i * 8 - 16});
+        yVal += 8;
+        enH.AddExistingEnemy("rock", float3{ xVal, 0, yVal });
+        if ((i + 1) % 5 == 0)
+        {
+            xVal += 8;
+            yVal = 0;
+        }
     }
 
 
