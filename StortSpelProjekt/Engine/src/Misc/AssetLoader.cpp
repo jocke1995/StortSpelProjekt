@@ -101,7 +101,7 @@ Model* AssetLoader::LoadModel(const std::wstring path)
 
 	if (assimpScene == nullptr)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to load model with path: \'%s\'\n", filePath.c_str());
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to load model with path: \'%s\'\n", path.c_str());
 		return nullptr;
 	}
 	std::vector<Mesh*> meshes;
@@ -114,7 +114,7 @@ Model* AssetLoader::LoadModel(const std::wstring path)
 	m_LoadedModels[path].first = false;
 	
 
-	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, &filePath);
+	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, &path);
 	processAnimations(assimpScene, &animations);
 
 	m_LoadedModels[path].second = new Model(path, &meshes, &animations, &materials);
@@ -200,7 +200,7 @@ Shader* AssetLoader::loadShader(std::wstring fileName, ShaderType type)
 	return m_LoadedShaders[fileName];
 }
 
-void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::string* filePath)
+void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring* filePath)
 {
 	// Go through all the m_Meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -216,7 +216,7 @@ void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vec
 	}
 }
 
-Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::string* filePath)
+Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring* filePath)
 {
 	// Fill this data
 	std::vector<Vertex> vertices;
@@ -326,8 +326,8 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	m_LoadedMeshes.push_back(mesh);
 
 	// Split filepath
-	std::string filePathWithoutTexture = *filePath;
-	std::size_t indicesInPath = filePathWithoutTexture.find_last_of("/\\");
+	std::wstring filePathWithoutTexture = *filePath;
+	std::size_t indicesInPath = filePathWithoutTexture.find_last_of(L"/\\");
 	filePathWithoutTexture = filePathWithoutTexture.substr(0, indicesInPath + 1);
 
 	// Get material from assimp
@@ -350,12 +350,12 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	return mesh;
 }
 
-Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::string* folderPath)
+Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring* folderPath)
 {
 	// Get material name
 	aiString tempName;
 	mat->Get(AI_MATKEY_NAME, tempName);
-	std::string matName = (tempName.C_Str());
+	std::wstring matName = to_wstring(tempName.C_Str());
 
 	// Check if material don't exists
 	if (m_LoadedMaterials.count(matName) == 0)
@@ -380,7 +380,7 @@ Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::string* folderPa
 	else
 	{
 		// Don't print for default material
-		if (matName != "DefaultMaterial")
+		if (matName != L"DefaultMaterial")
 		{
 			Log::PrintSeverity(Log::Severity::WARNING, "AssetLoader: Loaded same material name more than once, first loaded material will be used <%s>\n", matName.c_str());
 		}
@@ -390,7 +390,7 @@ Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::string* folderPa
 
 Texture* AssetLoader::processTexture(aiMaterial* mat,
 	TEXTURE_TYPE texture_type,
-	const std::string* filePathWithoutTexture)
+	const std::wstring* filePathWithoutTexture)
 {
 	aiTextureType type;
 	aiString str;
@@ -431,10 +431,10 @@ Texture* AssetLoader::processTexture(aiMaterial* mat,
 	}
 
 	mat->GetTexture(type, 0, &str);
-	std::string textureFile = str.C_Str();
+	std::wstring textureFile = to_wstring(str.C_Str());
 	if (textureFile.size() != 0)
 	{
-		texture = LoadTexture(to_wstring(*filePathWithoutTexture + textureFile).c_str());
+		texture = LoadTexture(*filePathWithoutTexture + textureFile);
 	}
 
 	if (texture != nullptr)

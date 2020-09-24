@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Material.h"
 
-Material::Material(const std::string* path, std::map<TEXTURE_TYPE, Texture*>* textures)
+Material::Material(const std::wstring* path, std::map<TEXTURE_TYPE, Texture*>* textures)
 {
 	m_Path = *path;
 
@@ -13,7 +13,7 @@ Material::~Material()
 {
 }
 
-std::string Material::GetPath() const
+std::wstring Material::GetPath() const
 {
 	return m_Path;
 }

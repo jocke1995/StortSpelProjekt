@@ -1364,7 +1364,7 @@ void Renderer::addComponents(Entity* entity)
 		{
 			Mesh* mesh = mc->GetMeshAt(0);
 			AssetLoader* al = AssetLoader::Get();
-			std::wstring modelPath = to_wstring(mesh->GetPath());
+			std::wstring modelPath = mesh->GetPath();
 			bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
 
 			// If the model isn't on GPU, it will be uploaded below

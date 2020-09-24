@@ -64,7 +64,7 @@ private:
     // Every model & texture also has a bool which indicates if its data is on the GPU or not
     std::map<std::wstring, std::pair<bool, Model*>> m_LoadedModels;
     std::vector<Mesh*> m_LoadedMeshes;
-    std::map<std::string, std::pair<bool, Material*>> m_LoadedMaterials;
+    std::map<std::wstring, std::pair<bool, Material*>> m_LoadedMaterials;
     std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
     std::map<std::wstring, Shader*> m_LoadedShaders;
@@ -79,17 +79,17 @@ private:
         const aiScene* assimpScene,
         std::vector<Mesh*> *meshes,
         std::vector<Material*>* materials,
-        const std::string* filePath);
+        const std::wstring* filePath);
 
     Mesh* processMesh(aiMesh* mesh, 
         const aiScene* assimpScene,
         std::vector<Mesh*>* meshes,
         std::vector<Material*>* materials,
-        const std::string* filePath);
+        const std::wstring* filePath);
 
-    Material* loadMaterial(aiMaterial* mat, const std::string* folderPath);
+    Material* loadMaterial(aiMaterial* mat, const std::wstring* folderPath);
 
-    Texture* processTexture(aiMaterial* mat, TEXTURE_TYPE texture_type, const std::string* filePathWithoutTexture);
+    Texture* processTexture(aiMaterial* mat, TEXTURE_TYPE texture_type, const std::wstring* filePathWithoutTexture);
     
     void processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations);
     void processNodeAnimation(const aiNodeAnim* assimpNodeAnimation, NodeAnimation* nodeAnimation);
