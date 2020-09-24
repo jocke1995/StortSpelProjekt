@@ -68,7 +68,7 @@ Scene* GetDemoScene(SceneManager* sm)
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
-    Model* golemModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
+    Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     /*--------------------- Assets ---------------------*/
@@ -130,8 +130,10 @@ Scene* GetDemoScene(SceneManager* sm)
     Physics::GetInstance().AddCollisionEntity(entity);
     /*--------------------- Rock ---------------------*/
 
+    /*--------------------- Adding 76 Enemies for preformance check ---------------------*/
+
     EnemyFactory enH(scene);
-    enH.AddEnemy("golem", golemModel, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.3, float3{ 0, 0, 0 });
+    enH.AddEnemy("barb", barbModel, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.3, float3{ 0, 0, 0 });
 
     // looping through and adding already existing enemy type with only new position
     float xVal = 8;
@@ -139,13 +141,14 @@ Scene* GetDemoScene(SceneManager* sm)
     for (int i = 0; i < 75; i++)
     {
         zVal += 8;
-        enH.AddExistingEnemy("golem", float3{ xVal, 0, zVal });
+        enH.AddExistingEnemy("barb", float3{ xVal, 0, zVal });
         if ((i + 1) % 5 == 0)
         {
             xVal += 8;
             zVal = 0;
         }
     }
+    /*--------------------- Adding 76 Enemies for preformance check ---------------------*/
 
     /*--------------------- Floor ---------------------*/
     // entity
