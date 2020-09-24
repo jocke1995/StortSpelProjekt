@@ -29,6 +29,13 @@ struct MouseClick : public Event
 	bool pressed;
 };
 
+struct MouseRelease : public Event
+{
+	MouseRelease(MOUSE_BUTTON button, bool pressed) : button{ button }, pressed{ pressed } {};
+	MOUSE_BUTTON button;
+	bool pressed;
+};
+
 struct MouseScroll : public Event
 {
 	MouseScroll(int scroll) : scroll{ scroll } {};

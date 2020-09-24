@@ -1,5 +1,5 @@
 #include "Engine.h"
-#include "GameEntity.h"
+#include "Components/PlayerInputComponent.h"
 
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
@@ -15,9 +15,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-    /* ------ Engine  ------ */
-    Engine engine = Engine();
-    engine.Init(hInstance, nCmdShow);
+	/*------ Load Option Variables ------*/
+	Option::GetInstance().ReadFile();
+	float updateRate = 1.0f / Option::GetInstance().GetVariable("updateRate");
+
+	/* ------ Engine  ------ */
+	Engine engine;
+	engine.Init(hInstance, nCmdShow);
 
     /*  ------ Get references from engine  ------ */
     Window* const window = engine.GetWindow();
@@ -119,7 +123,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     loopedSound->SetAudioLoop(0);
     /* ---------------------- Player ---------------------- */
-    Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
+    Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
@@ -325,7 +329,7 @@ Scene* JockesTestScene(SceneManager* sm)
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
     /* ---------------------- Player ---------------------- */
-    Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
+    Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
