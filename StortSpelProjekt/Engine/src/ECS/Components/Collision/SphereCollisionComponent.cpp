@@ -21,9 +21,9 @@ void component::SphereCollisionComponent::CheckCollision(CollisionComponent* oth
 void component::SphereCollisionComponent::CheckCollisionSphere(SphereCollisionComponent* other)
 {
 	DirectX::XMFLOAT3 lineOfAction = {
-		(m_pTrans->GetPositionXMFLOAT3().x + m_pTrans->GetMovement().x * 1 / 30) - (other->m_pTrans->GetPositionXMFLOAT3().x + other->m_pTrans->GetMovement().x * 1 / 30),
-		(m_pTrans->GetPositionXMFLOAT3().y + m_pTrans->GetMovement().x * 1 / 30) - (other->m_pTrans->GetPositionXMFLOAT3().y + other->m_pTrans->GetMovement().y * 1 / 30),
-		(m_pTrans->GetPositionXMFLOAT3().z + m_pTrans->GetMovement().x * 1 / 30) - (other->m_pTrans->GetPositionXMFLOAT3().z + other->m_pTrans->GetMovement().z * 1 / 30)
+		(m_pTrans->GetPositionXMFLOAT3().x) - (other->m_pTrans->GetPositionXMFLOAT3().x),
+		(m_pTrans->GetPositionXMFLOAT3().y) - (other->m_pTrans->GetPositionXMFLOAT3().y),
+		(m_pTrans->GetPositionXMFLOAT3().z) - (other->m_pTrans->GetPositionXMFLOAT3().z)
 	};
 
 	float distSquared = lineOfAction.x * lineOfAction.x + lineOfAction.y * lineOfAction.y + lineOfAction.z * lineOfAction.z;
@@ -32,11 +32,19 @@ void component::SphereCollisionComponent::CheckCollisionSphere(SphereCollisionCo
 	{
 		// Collision has occured. Resolve it here.
 
+
 		DirectX::XMFLOAT3 normLOA;
 		DirectX::XMStoreFloat3(&normLOA, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&lineOfAction)));
 
 		DirectX::XMFLOAT3 velFirst = m_pTrans->GetMovement();
 		DirectX::XMFLOAT3 velSecond = other->m_pTrans->GetMovement();
+
+		// If the spheres are moving away from eachother, don't resolve another collision...
+		if (velFirst.x * normLOA.x + velFirst.y * normLOA.y + velFirst.z * normLOA.z < 0.0f &&
+			velSecond.x * normLOA.x + velSecond.y * normLOA.y + velSecond.z * normLOA.z < 0.0f)
+		{
+			return;
+		}
 
 		// Calculate the velocity along the line of action.
 		float v1p = velFirst.x * normLOA.x + velFirst.y * normLOA.y + velFirst.z * normLOA.z;
