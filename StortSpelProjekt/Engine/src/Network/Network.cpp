@@ -6,6 +6,15 @@ Network::Network()
     m_Connected = false;
 
     m_Players.push_back(new Player);
+    m_Players.at(0)->clientId = 0;
+}
+
+Network::~Network()
+{
+    for (int i = 0; i < m_Players.size(); i++)
+    {
+        delete m_Players.at(i);
+    }
 }
 
 bool Network::ConnectToIP(std::string ip, int port)
@@ -46,20 +55,24 @@ void Network::SendPositionPacket()
 
     float3 pos = m_Players.at(0)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
     DirectX::XMFLOAT3 mov = m_Players.at(0)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->GetMovement();
-    float vel = m_Players.at(0)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->GetVelocity();
 
-    packet << m_Id << pos.x << pos.y << pos.z << mov.x * vel << mov.y * vel << mov.z * vel;
+    packet << PACKET_ID::E_PLAYER_DATA << m_Id << pos.x << pos.y << pos.z << mov.x << mov.y << mov.z;
 
     m_Socket.send(packet);
 }
 
 void Network::SetPlayerEntityPointer(Entity* playerEnitity, int id)
 {
-    if (id < m_Players.size())
-    {
-        m_Players.at(id)->entityPointer = playerEnitity;
+    bool found = false;
+    for (int i = 0; i < m_Players.size(); i++) {
+        if (m_Players.at(i)->clientId == id)
+        {
+            found = true;
+            m_Players.at(i)->entityPointer = playerEnitity;
+            break;
+        }
     }
-    else 
+    if (found == false)
     {
         Log::PrintSeverity(Log::Severity::CRITICAL, "Attempted to add entity pointer to non-existing player id " + std::to_string(id));
     }
@@ -140,11 +153,12 @@ void Network::processServerData(sf::Packet* packet)
         int playerId;
         *packet >> playerId;
 
+
         //Check if the player already exist in our list
         bool playerFound = false;
-        for (int j = 0; j < m_Players.size(); i++)
+        for (int j = 0; j < m_Players.size(); j++)
         {
-            if (m_Players.at(i)->clientId = playerId)
+            if (m_Players.at(j)->clientId == playerId)
             {
                 playerFound = true;
                 break;
@@ -155,7 +169,7 @@ void Network::processServerData(sf::Packet* packet)
         {
             m_Players.push_back(new Player);
             m_Players.at(m_Players.size() - 1)->clientId = playerId;
-            EventBus::GetInstance().Publish(&PlayerConnection(playerId, nullptr, this));
+            EventBus::GetInstance().Publish(&PlayerConnection(playerId));
         }
     }
 }

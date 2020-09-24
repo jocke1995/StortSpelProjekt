@@ -14,10 +14,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Engine engine;
     engine.Init(hInstance, nCmdShow);
 
-    /*------ Load Option Variables ------*/
-    Option::GetInstance().ReadFile();
-    float updateRate = 1.0f / Option::GetInstance().GetVariable("f_updateRate");
-
 	/*  ------ Get references from engine  ------ */
 	Window* const window = engine.GetWindow();
 	Timer* const timer = engine.GetTimer();

@@ -6,10 +6,19 @@
 #include "SFML/Network.hpp"
 #include "../Events/EventBus.h"
 
-
 class Network {
 public:
+	enum PACKET_ID {
+		E_SERVER_DATA = 0,
+		E_PLAYER_DATA = 1
+	};
+	struct Player {
+		Entity* entityPointer;
+		int clientId;
+	};
+
 	Network();
+	~Network();
 
 	bool ConnectToIP(std::string ip, int port);
 
@@ -23,15 +32,6 @@ public:
 	bool ListenPacket();
 
 private:
-	enum PACKET_ID {
-		E_SERVER_DATA = 0,
-		E_PLAYER_DATA = 1
-	};
-
-	struct Player {
-		Entity* entityPointer;
-		int clientId;
-	};
 
 	void processPacket(sf::Packet *packet);
 	void processPlayerData(sf::Packet* packet);

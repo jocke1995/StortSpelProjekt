@@ -3,6 +3,7 @@
 
 #include "SFML/Network.hpp"
 #include <vector>
+#include "Network/Network.h"
 
 struct Client 
 {
@@ -36,6 +37,7 @@ private:
 	sf::SocketSelector m_Selector;
 
 	Client* m_AvailableClient;
+	int m_AvailableClientId;
 
 	std::string m_ConsoleString;
 

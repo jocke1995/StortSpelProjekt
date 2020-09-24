@@ -11,6 +11,7 @@ ClientPool::ClientPool(int port)
 	m_Selector.add(m_Listener);
 
 	m_AvailableClient = nullptr;
+	m_AvailableClientId = 0;
 }
 
 void ClientPool::ListenMessages()
@@ -55,7 +56,7 @@ int ClientPool::GetNrOfClients()
 int ClientPool::GetNrOfConnectedClients()
 {
 	int count = 0;
-	for (int i = 0; count < m_Clients.size(); i++)
+	for (int i = 0; i < m_Clients.size(); i++)
 	{
 		if (m_Clients.at(i)->connected == true)
 		{
@@ -95,6 +96,7 @@ void ClientPool::newConnection()
 		{
 			m_AvailableClient->connected = true;
 			m_Selector.add(m_AvailableClient->socket);
+			m_AvailableClient->clientId = m_AvailableClientId++;
 
 			m_ConsoleString.append(m_AvailableClient->socket.getRemoteAddress().toString() + " connected to server\n");
 
@@ -116,6 +118,7 @@ void ClientPool::newConnection()
 				if (m_Clients.at(i)->connected == true)
 				{
 					sf::Packet packet;
+					packet << Network::E_SERVER_DATA;
 					packet << m_Clients.at(i)->clientId;
 					packet << GetNrOfConnectedClients();
 					for (int j = 0; j < m_Clients.size(); j++)

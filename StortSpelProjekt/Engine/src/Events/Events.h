@@ -58,8 +58,6 @@ struct Collision : public Event
 
 struct PlayerConnection : public Event
 {
-	PlayerConnection(int id, Scene* scene, Network* network) : id{ id }, scene{ scene }, network{ network } {};
-	int id;
-	Scene* scene;
-	Network* network;
+	PlayerConnection(int playerId) : playerId{ playerId } {};
+	int playerId;
 };

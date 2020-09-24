@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
+#include "GameNetwork.h"
 
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
@@ -10,14 +11,14 @@ Scene* BjornsTestScene(SceneManager* sm);
 Scene* AntonTestScene(SceneManager* sm);
 
 
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	/*------ Load Option Variables ------*/
-	Option::GetInstance().ReadFile();
-	float updateRate = 1.0f / Option::GetInstance().GetVariable("updateRate");
+    /*------ Load Option Variables ------*/
+    Option* option = &Option::GetInstance();
+    option->ReadFile();
+    float updateRate = 1.0f / std::atof(option->GetVariable("f_updateRate").c_str());
 
 	/* ------ Engine  ------ */
 	Engine engine;
@@ -31,10 +32,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Renderer* const renderer = engine.GetRenderer();
     Physics* const physics = engine.GetPhysics();
 
-    /*------ Load Option Variables ------*/
-    Option* option = &Option::GetInstance();
-    option->ReadFile();
-    float updateRate = 1.0f / std::atof(option->GetVariable("f_updateRate").c_str());
 
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
@@ -47,22 +44,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
     sceneManager->SetSceneToDraw(AntonTestScene(sceneManager));
 
+    GameNetwork gameNetwork;
+    gameNetwork.SetScene(sceneManager->GetScene("AntonScene"));
+    gameNetwork.SetSceneManager(sceneManager);
+
     /*------ Network Init -----*/
     bool networkOn = false;
     Network network;
 
+    gameNetwork.SetNetwork(&network);
+
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
+        network.SetPlayerEntityPointer(sceneManager->GetScene("AntonScene")->GetEntity("player"), 0);
         network.ConnectToIP(option->GetVariable("s_ip"), std::atoi(option->GetVariable("i_port").c_str()));
-
-        network.SetPlayerEntityPointer(sceneManager->GetScene("AntonScene")->GetEntities()->find("player")->second, 0);
-        network.SetPlayerEntityPointer(sceneManager->GetScene("AntonScene")->GetEntities()->find("player2")->second, 1);
-        network.SetPlayerEntityPointer(sceneManager->GetScene("AntonScene")->GetEntities()->find("player3")->second, 2);
 
         networkOn = true;
     }
     int networkCount = 0;
     double logicTimer = 0;
+    int count = 0;
 
     while (!window->ExitWindow())
     {
@@ -86,7 +87,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                 networkCount = 0;
 
                 network.SendPositionPacket();
-                network.ListenPacket();
+                while(network.ListenPacket());
             }
         }
 
@@ -123,7 +124,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     loopedSound->SetAudioLoop(0);
     /* ---------------------- Player ---------------------- */
-    Entity* entity = (scene->AddEntity("player"));
+    Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
@@ -252,7 +253,6 @@ Scene* AntonTestScene(SceneManager* sm)
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
-    component::AudioVoiceComponent* avc = nullptr;
     component::InputComponent* ic = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
@@ -262,8 +262,8 @@ Scene* AntonTestScene(SceneManager* sm)
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
-    /* ---------------------- Player ---------------------- */
-    Entity* entity = static_cast<GameEntity*>(scene->AddEntity("player"));
+    /* ---------------------- Player 0 ---------------------- */
+    Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
@@ -304,7 +304,6 @@ Scene* AntonTestScene(SceneManager* sm)
     plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
     /* ---------------------- PointLight1 ---------------------- */
 
-    return scene;
     return scene;
 }
 

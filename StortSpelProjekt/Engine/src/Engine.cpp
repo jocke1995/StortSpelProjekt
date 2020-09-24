@@ -22,9 +22,9 @@ Engine::~Engine()
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 {
 	// Window values
-	bool fullscreen = Option::GetInstance().GetVariable("fullscreen");
-	int windowWidth = Option::GetInstance().GetVariable("windowWidth");
-	int windowHeight = Option::GetInstance().GetVariable("windowHeight");
+	bool fullscreen = std::atoi(Option::GetInstance().GetVariable("i_fullscreen").c_str());
+	int windowWidth = std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str());
+	int windowHeight = std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str());
 
 	// Misc
 	m_pWindow = new Window(hInstance, nCmdShow, fullscreen, windowWidth, windowHeight);
