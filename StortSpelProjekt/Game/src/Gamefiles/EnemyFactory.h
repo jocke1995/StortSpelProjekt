@@ -1,5 +1,5 @@
-#ifndef ENEMY_HANDLER_H
-#define ENEMY_HANDLER_H
+#ifndef ENEMY_FACTORY_H
+#define ENEMY_FACTORY_H
 
 #include "EngineMath.h"
 #include "Core.h"
