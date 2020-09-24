@@ -259,10 +259,7 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	// Remove the topbar of the window if we are in fullscreen
-	if (m_FullScreen)
-	{
-		SetWindowLong(m_Hwnd, GWL_STYLE, 0);
-	}
+	SetWindowLong(m_Hwnd, GWL_STYLE, 0);
 
 	ShowWindow(m_Hwnd, nCmdShow);
 	ShowCursor(false);
