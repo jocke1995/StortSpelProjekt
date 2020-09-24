@@ -64,6 +64,8 @@
 #include "../ImGUI/imgui_impl_win32.h"
 #include "../ImGUI/imgui_impl_dx12.h"
 
+#include "../ImGUI/ImGuiHandler.h"
+
 Renderer::Renderer()
 {
 	m_RenderTasks.resize(RENDER_TASK_TYPE::NR_OF_RENDERTASKS);
@@ -235,6 +237,11 @@ void Renderer::Update(double dt)
 
 void Renderer::RenderUpdate(double dt)
 {
+	/* ------ ImGui ------*/
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
+		ImGuiHandler::GetInstance().NewFrame();
+	}
 	// Update CB_PER_FRAME data
 	m_pCbPerFrameData->camPos = m_pScenePrimaryCamera->GetPositionFloat3();
 
@@ -243,6 +250,12 @@ void Renderer::RenderUpdate(double dt)
 
 	// Update scene
 	m_pCurrActiveScene->RenderUpdate(dt);
+
+	/* ------ ImGui ------*/
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
+		ImGuiHandler::GetInstance().UpdateFrame();
+	}
 }
 
 void Renderer::SortObjects()

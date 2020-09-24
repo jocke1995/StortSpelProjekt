@@ -33,11 +33,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         {
             // Currently no scene set, hence the m_pRenderer should not be working.
 
-            if (DEVELOPERMODE_DEVINTERFACE == true)
-            {
-                ImGuiHandler::GetInstance().NewFrame();
-            }
-
             /* ------ Update ------ */
             timer->Update();
             logicTimer += timer->GetDeltaTime();

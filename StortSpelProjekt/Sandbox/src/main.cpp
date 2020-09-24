@@ -1,6 +1,5 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
-#include "ImGUI/ImGuiHandler.h"
 
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
@@ -52,11 +51,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     while (!window->ExitWindow())
     {
-        if (DEVELOPERMODE_DEVINTERFACE == true)
-        {
-            ImGuiHandler::GetInstance().NewFrame();
-        }
-
         /* ------ Update ------ */
         timer->Update();
         logicTimer += timer->GetDeltaTime();
@@ -71,12 +65,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         /* ------ Sort ------ */
         renderer->SortObjects();
-
-        /* ------ ImGui ------*/
-        if (DEVELOPERMODE_DEVINTERFACE == true)
-        {
-            ImGuiHandler::GetInstance().UpdateFrame();
-        }
         
         UpdateScene(sceneManager);
 
