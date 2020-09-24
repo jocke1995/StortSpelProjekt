@@ -45,7 +45,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
+    //sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(TimScene(sceneManager));
     //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
@@ -54,8 +54,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     sceneManager->SetSceneToDraw(AntonTestScene(sceneManager));
 
     GameNetwork gameNetwork;
-    gameNetwork.SetScene(sceneManager->GetScene("AntonScene"));
-    gameNetwork.SetSceneManager(sceneManager);
 
     /*------ Network Init -----*/
     bool networkOn = false;
@@ -65,6 +63,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
+        gameNetwork.SetScene(sceneManager->GetScene("AntonScene"));
+        gameNetwork.SetSceneManager(sceneManager);
+
         network.SetPlayerEntityPointer(sceneManager->GetScene("AntonScene")->GetEntity("player"), 0);
         network.ConnectToIP(option->GetVariable("s_ip"), std::atoi(option->GetVariable("i_port").c_str()));
 

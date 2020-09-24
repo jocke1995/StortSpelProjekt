@@ -2,8 +2,8 @@ f_volume 1.0
 f_updateRate 30
 i_resolutionWidth 1920
 i_resolutionHeight 1080
-i_windowWidth 800
-i_windowHeight 600
+i_windowWidth 1200	
+i_windowHeight 800
 i_fullscreen 0
 i_amountOfBlur 6
 i_network 1
