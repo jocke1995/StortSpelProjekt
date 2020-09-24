@@ -10,7 +10,7 @@ class Window
 {
 public:
 	// Varying screensize constructor
-	Window(
+	Window( // Default values
 		HINSTANCE hInstance,
 		int nCmdShow,
 		bool fullScreen = false,
@@ -41,7 +41,7 @@ private:
 	LPCTSTR m_WindowName;
 	LPCTSTR m_WindowTitle;
 
-	HWND m_Hwnd;
+	HWND m_Hwnd = nullptr;
 	bool m_ShutDown;
 
 	bool initWindow(HINSTANCE hInstance, int nCmdShow);
