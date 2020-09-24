@@ -29,10 +29,10 @@ public:
 
     /* Load Functions */
     // Model ---------------
-    Model* LoadModel(const std::wstring path);
+    Model* LoadModel(const std::wstring& path);
 
     // Texture ------------
-    Texture* LoadTexture(const std::wstring path);
+    Texture* LoadTexture(std::wstring& path);
 
     // Load Audio
     AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
@@ -40,7 +40,7 @@ public:
     // ??
 
 	// Fonts -------------
-	std::pair<Font*, Texture*> LoadFontFromFile(const std::wstring fontName);
+	std::pair<Font*, Texture*> LoadFontFromFile(const std::wstring& fontName);
 
 private:
     // PipelineState loads all shaders
@@ -79,24 +79,24 @@ private:
         const aiScene* assimpScene,
         std::vector<Mesh*> *meshes,
         std::vector<Material*>* materials,
-        const std::wstring* filePath);
+        const std::wstring& filePath);
 
     Mesh* processMesh(aiMesh* mesh, 
         const aiScene* assimpScene,
         std::vector<Mesh*>* meshes,
         std::vector<Material*>* materials,
-        const std::wstring* filePath);
+        const std::wstring& filePath);
 
-    Material* loadMaterial(aiMaterial* mat, const std::wstring* folderPath);
+    Material* loadMaterial(aiMaterial* mat, const std::wstring& folderPath);
 
-    Texture* processTexture(aiMaterial* mat, TEXTURE_TYPE texture_type, const std::wstring* filePathWithoutTexture);
+    Texture* processTexture(aiMaterial* mat, TEXTURE_TYPE texture_type, const std::wstring& filePathWithoutTexture);
     
     void processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations);
     void processNodeAnimation(const aiNodeAnim* assimpNodeAnimation, NodeAnimation* nodeAnimation);
 
     DirectX::XMFLOAT4X4 aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix);
     
-    Shader* loadShader(std::wstring fileName, ShaderType type);
+    Shader* loadShader(const std::wstring& fileName, ShaderType type);
 	Font* loadFont(LPCWSTR filename, int windowWidth, int windowHeight);
 };
 

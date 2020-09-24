@@ -41,7 +41,7 @@ namespace component
 		return m_Model->GetMaterialAt(index);
 	}
 
-	SlotInfo* ModelComponent::GetSlotInfoAt(unsigned int index) const
+	const SlotInfo* ModelComponent::GetSlotInfoAt(unsigned int index) const
 	{
 		return m_Model->GetSlotInfoAt(index);
 	}

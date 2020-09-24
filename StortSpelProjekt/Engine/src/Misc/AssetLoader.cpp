@@ -85,7 +85,7 @@ AssetLoader* AssetLoader::Get(ID3D12Device5* device, DescriptorHeap* descriptorH
 	return &instance;
 }
 
-Model* AssetLoader::LoadModel(const std::wstring path)
+Model* AssetLoader::LoadModel(const std::wstring& path)
 {
 	// Check if the model already exists
 	if (m_LoadedModels.count(path) != 0)
@@ -114,15 +114,15 @@ Model* AssetLoader::LoadModel(const std::wstring path)
 	m_LoadedModels[path].first = false;
 	
 
-	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, &path);
+	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
 	processAnimations(assimpScene, &animations);
 
-	m_LoadedModels[path].second = new Model(path, &meshes, &animations, &materials);
+	m_LoadedModels[path].second = new Model(&path, &meshes, &animations, &materials);
 
 	return m_LoadedModels[path].second;
 }
 
-Texture* AssetLoader::LoadTexture(std::wstring path)
+Texture* AssetLoader::LoadTexture(std::wstring& path)
 {
 	// Check if the texture already exists
 	if (m_LoadedTextures.count(path) != 0)
@@ -131,7 +131,7 @@ Texture* AssetLoader::LoadTexture(std::wstring path)
 	}
 
 	Texture* texture = new Texture();
-	if (texture->Init(path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
+	if (texture->Init(&path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
 	{
 		delete texture;
 		return nullptr;
@@ -142,7 +142,7 @@ Texture* AssetLoader::LoadTexture(std::wstring path)
 	return texture;
 }
 
-std::pair<Font*, Texture*> AssetLoader::LoadFontFromFile(const std::wstring fontName)
+std::pair<Font*, Texture*> AssetLoader::LoadFontFromFile(const std::wstring& fontName)
 {
 	const std::wstring path = m_FilePathFonts + fontName;
 
@@ -157,9 +157,9 @@ std::pair<Font*, Texture*> AssetLoader::LoadFontFromFile(const std::wstring font
 
 	// and create the texture
 	Texture* texture = new Texture();
-	if (texture->Init(m_LoadedFonts[path].first->fontImage, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
+	if (texture->Init(&m_LoadedFonts[path].first->fontImage, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Could not init the font texture for %s.\n", to_string(fontName).c_str());
+		Log::PrintSeverity(Log::Severity::WARNING, "Could not init the font texture for %s.\n", fontName.c_str());
 		delete texture;
 		return m_LoadedFonts[path];
 	}
@@ -184,7 +184,7 @@ AudioBuffer* AssetLoader::GetAudio(const std::wstring& name)
 	return &m_LoadedAudios[name];
 }
 
-Shader* AssetLoader::loadShader(std::wstring fileName, ShaderType type)
+Shader* AssetLoader::loadShader(const std::wstring& fileName, ShaderType type)
 {
 	// Check if the shader already exists
 	if (m_LoadedShaders.count(fileName) != 0)
@@ -200,7 +200,7 @@ Shader* AssetLoader::loadShader(std::wstring fileName, ShaderType type)
 	return m_LoadedShaders[fileName];
 }
 
-void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring* filePath)
+void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
 {
 	// Go through all the m_Meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -216,7 +216,7 @@ void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vec
 	}
 }
 
-Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring* filePath)
+Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
 {
 	// Fill this data
 	std::vector<Vertex> vertices;
@@ -320,13 +320,13 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 		m_pDevice,
 		&vertices, &indices, &bones,
 		m_pDescriptorHeap_CBV_UAV_SRV,
-		*filePath);
+		filePath);
 
 	// save mesh
 	m_LoadedMeshes.push_back(mesh);
 
 	// Split filepath
-	std::wstring filePathWithoutTexture = *filePath;
+	std::wstring filePathWithoutTexture = filePath;
 	std::size_t indicesInPath = filePathWithoutTexture.find_last_of(L"/\\");
 	filePathWithoutTexture = filePathWithoutTexture.substr(0, indicesInPath + 1);
 
@@ -334,7 +334,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	aiMaterial* mat = assimpScene->mMaterials[assimpMesh->mMaterialIndex];
 	Material* material;
 	// Create our material
-	material = loadMaterial(mat, &filePathWithoutTexture);
+	material = loadMaterial(mat, filePathWithoutTexture);
 	// add the texture to the correct mesh (later for models slotinfo)
 	materials->push_back(material);
 
@@ -350,7 +350,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	return mesh;
 }
 
-Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring* folderPath)
+Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring& folderPath)
 {
 	// Get material name
 	aiString tempName;
@@ -390,7 +390,7 @@ Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring* folderP
 
 Texture* AssetLoader::processTexture(aiMaterial* mat,
 	TEXTURE_TYPE texture_type,
-	const std::wstring* filePathWithoutTexture)
+	const std::wstring& filePathWithoutTexture)
 {
 	aiTextureType type;
 	aiString str;
@@ -434,7 +434,7 @@ Texture* AssetLoader::processTexture(aiMaterial* mat,
 	std::wstring textureFile = to_wstring(str.C_Str());
 	if (textureFile.size() != 0)
 	{
-		texture = LoadTexture(*filePathWithoutTexture + textureFile);
+		texture = LoadTexture(filePathWithoutTexture + textureFile);
 	}
 
 	if (texture != nullptr)
@@ -443,9 +443,10 @@ Texture* AssetLoader::processTexture(aiMaterial* mat,
 	}
 	else
 	{
+		std::string tempString = std::string(filePathWithoutTexture.begin(), filePathWithoutTexture.end());
 		// No texture, warn and apply default Texture
 		Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType + 
-			" on mesh with path: \'%s\'\n", filePathWithoutTexture->c_str());
+			" on mesh with path: \'%s\'\n", tempString.c_str());
 		return m_LoadedTextures[defaultPath].second;
 	}
 

@@ -7,9 +7,9 @@
 #include "structs.h"
 #include "Animation.h"
 
-Model::Model(const std::wstring path, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<Material*>* materials)
+Model::Model(const std::wstring* path, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<Material*>* materials)
 {
-	m_Path = path;
+	m_Path = *path;
 	m_Size = (*meshes).size();
 
 	m_Meshes = (*meshes);
@@ -35,9 +35,9 @@ Model::~Model()
 {
 }
 
-std::wstring Model::GetPath() const
+const std::wstring* Model::GetPath() const
 {
-	return m_Path;
+	return &m_Path;
 }
 
 unsigned int Model::GetSize() const
@@ -45,17 +45,17 @@ unsigned int Model::GetSize() const
 	return m_Size;
 }
 
-Mesh* Model::GetMeshAt(unsigned int index)
+Mesh* Model::GetMeshAt(unsigned int index) const
 {
 	return m_Meshes[index];
 }
 
-Material* Model::GetMaterialAt(unsigned int index)
+Material* Model::GetMaterialAt(unsigned int index) const
 {
 	return m_Materials[index];;
 }
 
-SlotInfo* Model::GetSlotInfoAt(unsigned int index)
+const SlotInfo* Model::GetSlotInfoAt(unsigned int index) const
 {
 	return &m_SlotInfos[index];
 }

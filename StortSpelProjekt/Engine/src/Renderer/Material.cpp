@@ -3,7 +3,7 @@
 
 Material::Material(const std::wstring* path, std::map<TEXTURE_TYPE, Texture*>* textures)
 {
-	m_Path = *path;
+	m_Name = *path;
 
 	// copy the texture pointers
 	m_Textures = *textures;
@@ -13,9 +13,9 @@ Material::~Material()
 {
 }
 
-std::wstring Material::GetPath() const
+const std::wstring* Material::GetPath() const
 {
-	return m_Path;
+	return &m_Name;
 }
 
 Texture* Material::GetTexture(unsigned int index) const

@@ -1079,7 +1079,7 @@ void Renderer::initRenderTasks()
 	int height = Option::GetInstance().GetVariable("resolutionHeight");
 
 	// ComputeTasks
-	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
+	std::vector<std::pair<std::wstring, std::wstring>> csNamePSOName;
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurHorizontal.hlsl", L"blurHorizontalPSO"));
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurVertical.hlsl", L"blurVerticalPSO"));
 	ComputeTask* blurComputeTask = new BlurComputeTask(
@@ -1364,7 +1364,7 @@ void Renderer::addComponents(Entity* entity)
 		{
 			Mesh* mesh = mc->GetMeshAt(0);
 			AssetLoader* al = AssetLoader::Get();
-			std::wstring modelPath = mesh->GetPath();
+			std::wstring modelPath = *mesh->GetPath();
 			bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
 
 			// If the model isn't on GPU, it will be uploaded below

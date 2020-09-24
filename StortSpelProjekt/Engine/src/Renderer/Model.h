@@ -19,23 +19,23 @@ struct D3D12_INDEX_BUFFER_VIEW;
 class Model
 {
 public:
-    Model(const std::wstring path,
+    Model(const std::wstring* path,
         std::vector<Mesh*>* meshes,
         std::vector<Animation*>* animations,
         std::vector<Material*>* materials);
     virtual ~Model();
 
-    std::wstring GetPath() const;
+    const std::wstring* GetPath() const;
     unsigned int GetSize() const;
 
     // Mesh
-    Mesh* GetMeshAt(unsigned int index);
+    Mesh* GetMeshAt(unsigned int index) const;
 
     // Material
-    Material* GetMaterialAt(unsigned int index);
+    Material* GetMaterialAt(unsigned int index) const;
 
     // SlotInfo
-    SlotInfo* GetSlotInfoAt(unsigned int index);
+    const SlotInfo* GetSlotInfoAt(unsigned int index) const;
 
 private:
     std::wstring m_Path;

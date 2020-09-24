@@ -18,14 +18,13 @@ public:
     Material(const std::wstring* path, std::map<TEXTURE_TYPE, Texture*>* textures);
     virtual ~Material();
 
-    std::wstring GetPath() const;
+    const std::wstring* GetPath() const;
 
     // Material
     Texture* GetTexture(unsigned int index) const;
 
 private:
-    std::wstring m_Path;
-    unsigned int m_Size = 0;
+    std::wstring m_Name;
     std::map<TEXTURE_TYPE, Texture*> m_Textures;
 };
 

@@ -7,7 +7,7 @@
 #include "Texture.h"
 #include "Animation.h"
 
-Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, DescriptorHeap* descriptorHeap_SRV, const std::wstring path)
+Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, DescriptorHeap* descriptorHeap_SRV, const std::wstring& path)
 {
 	m_Path = path;
 
@@ -17,7 +17,7 @@ Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<uns
 	initMesh(device, descriptorHeap_SRV);
 }
 
-Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, std::vector<Bone>* bones, DescriptorHeap* descriptorHeap_SRV, const std::wstring path)
+Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, std::vector<Bone>* bones, DescriptorHeap* descriptorHeap_SRV, const std::wstring& path)
 {
 	m_Path = path;
 
@@ -88,9 +88,9 @@ const D3D12_INDEX_BUFFER_VIEW* Mesh::GetIndexBufferView() const
 	return m_pIndexBufferView;
 }
 
-std::wstring Mesh::GetPath()
+const std::wstring* Mesh::GetPath() const
 {
-	return m_Path;
+	return &m_Path;
 }
 
 void Mesh::initMesh(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV)

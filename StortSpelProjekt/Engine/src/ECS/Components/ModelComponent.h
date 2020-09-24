@@ -26,7 +26,7 @@ namespace component
         // Gets
         Mesh* GetMeshAt(unsigned int index) const;
         Material* GetMaterialAt(unsigned int index) const;
-        SlotInfo* GetSlotInfoAt(unsigned int index) const;
+        const SlotInfo* GetSlotInfoAt(unsigned int index) const;
         unsigned int GetDrawFlag() const;
         unsigned int GetNrOfMeshes() const;
         bool IsPickedThisFrame() const;
