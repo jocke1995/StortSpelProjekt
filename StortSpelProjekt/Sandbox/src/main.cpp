@@ -14,9 +14,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-    /* ------ Engine  ------ */
-    Engine engine = Engine();
-    engine.Init(hInstance, nCmdShow);
+	/*------ Load Option Variables ------*/
+	Option::GetInstance().ReadFile();
+	float updateRate = 1.0f / Option::GetInstance().GetVariable("updateRate");
+
+	/* ------ Engine  ------ */
+	Engine engine;
+	engine.Init(hInstance, nCmdShow);
 
     /*  ------ Get references from engine  ------ */
     Window* const window = engine.GetWindow();
@@ -25,10 +29,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     SceneManager* const sceneManager = engine.GetSceneHandler();
     Renderer* const renderer = engine.GetRenderer();
     Physics* const physics = engine.GetPhysics();
-
-    /*------ Load Option Variables ------*/
-    Option::GetInstance().ReadFile();
-    float updateRate = 1.0f / Option::GetInstance().GetVariable("updateRate");
 
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
