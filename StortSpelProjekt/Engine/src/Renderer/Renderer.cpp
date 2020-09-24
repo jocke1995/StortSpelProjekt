@@ -239,6 +239,9 @@ void Renderer::Update(double dt)
 
 void Renderer::RenderUpdate(double dt)
 {
+	// Update scene
+	m_pCurrActiveScene->RenderUpdate(dt);
+
 	/* ------ ImGui ------*/
 	if (DEVELOPERMODE_DEVINTERFACE == true)
 	{
@@ -249,9 +252,6 @@ void Renderer::RenderUpdate(double dt)
 
 	// Picking
 	updateMousePicker();
-
-	// Update scene
-	m_pCurrActiveScene->RenderUpdate(dt);
 
 	/* ------ ImGui ------*/
 	if (DEVELOPERMODE_DEVINTERFACE == true)
