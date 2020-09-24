@@ -52,6 +52,7 @@
 #include "DX12Tasks/ShadowRenderTask.h"
 #include "DX12Tasks/MergeRenderTask.h"
 #include "DX12Tasks/TextTask.h"
+#include "DX12Tasks/ImGuiRenderTask.h"
 #include "DX12Tasks/SkyboxRenderTask.h"
 
 // Copy 
@@ -60,6 +61,13 @@
 
 // Compute
 #include "DX12Tasks/BlurComputeTask.h"
+
+//ImGui
+#include "../ImGUI/imgui.h"
+#include "../ImGUI/imgui_impl_win32.h"
+#include "../ImGUI/imgui_impl_dx12.h"
+
+#include "../ImGUI/ImGuiHandler.h"
 
 Renderer::Renderer()
 {
@@ -112,6 +120,11 @@ Renderer::~Renderer()
 	delete m_pCbPerSceneData;
 	delete m_pCbPerFrame;
 	delete m_pCbPerFrameData;
+
+	// Cleanup ImGui
+	ImGui_ImplDX12_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
 
 void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
@@ -184,6 +197,26 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 
 	m_pCbPerFrameData = new CB_PER_FRAME_STRUCT();
 
+	// Setup ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+
+	// Setup ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsClassic();
+
+	unsigned int imGuiTextureIndex = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1);
+
+	// Setup Platform/Renderer bindings
+	ImGui_ImplWin32_Init(*window->GetHwnd());
+	ImGui_ImplDX12_Init(m_pDevice5, NUM_SWAP_BUFFERS,
+		DXGI_FORMAT_R16G16B16A16_FLOAT, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetID3D12DescriptorHeap(),
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetCPUHeapAt(imGuiTextureIndex),
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetGPUHeapAt(imGuiTextureIndex));
+
+	
+
 	initRenderTasks();
 
 	// Submit the fullscreenQuad to be uploaded, but it won't be uploaded until a scene has been set to Draw
@@ -206,15 +239,25 @@ void Renderer::Update(double dt)
 
 void Renderer::RenderUpdate(double dt)
 {
-	// Update scene
-	m_pCurrActiveScene->RenderUpdate(dt);
-
+	/* ------ ImGui ------*/
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
+		ImGuiHandler::GetInstance().NewFrame();
+	}
 	// Update CB_PER_FRAME data
 	m_pCbPerFrameData->camPos = m_pScenePrimaryCamera->GetPositionFloat3();
 
 	// Picking
 	updateMousePicker();
-	
+
+	// Update scene
+	m_pCurrActiveScene->RenderUpdate(dt);
+
+	/* ------ ImGui ------*/
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
+		ImGuiHandler::GetInstance().UpdateFrame();
+	}
 }
 
 void Renderer::SortObjects()
@@ -333,13 +376,6 @@ void Renderer::Execute()
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE], FLAG_THREAD::RENDER);
 
-	if (DRAWBOUNDINGBOX == true)
-	{
-		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetBackBufferIndex(backBufferIndex);
-		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetCommandInterfaceIndex(commandInterfaceIndex);
-		m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME], FLAG_THREAD::RENDER);
-	}
-
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TEXT];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
@@ -350,6 +386,24 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 	
+	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
+	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
+	{
+		renderTask = m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME];
+		renderTask->SetBackBufferIndex(backBufferIndex);
+		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+		m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	}
+
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
+		renderTask = m_RenderTasks[RENDER_TASK_TYPE::IMGUI];
+		renderTask->SetBackBufferIndex(backBufferIndex);
+		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+		m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	}
+	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
+
 	// Wait for the threads which records the commandlists to complete
 	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER | FLAG_THREAD::ALL);
 
@@ -394,7 +448,7 @@ void Renderer::setRenderTasksPrimaryCamera()
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCamera(m_pScenePrimaryCamera);
 
-	if (DRAWBOUNDINGBOX == true)
+	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
 		m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME]->SetCamera(m_pScenePrimaryCamera);
 	}
@@ -1134,6 +1188,19 @@ void Renderer::initRenderTasks()
 	int width = Option::GetInstance().GetVariable("resolutionWidth");
 	int height = Option::GetInstance().GetVariable("resolutionHeight");
 
+#pragma region IMGUIRENDERTASK
+	RenderTask* imGuiRenderTask = new ImGuiRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"", L"",
+		nullptr,
+		L"");
+
+	imGuiRenderTask->SetSwapChain(m_pSwapChain);
+	imGuiRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion IMGUIRENDERTASK
+
 	// ComputeTasks
 	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurHorizontal.hlsl", L"blurHorizontalPSO"));
@@ -1180,6 +1247,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE] = outliningRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::MERGE] = mergeTask;
 	m_RenderTasks[RENDER_TASK_TYPE::TEXT] = textTask;
+	m_RenderTasks[RENDER_TASK_TYPE::IMGUI] = imGuiRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX] = skyboxRenderTask;
 
 	// Pushback in the order of execution
@@ -1223,7 +1291,7 @@ void Renderer::initRenderTasks()
 		m_DirectCommandLists[i].push_back(outliningRenderTask->GetCommandList(i));
 	}
 
-	if (DRAWBOUNDINGBOX == true)
+	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
@@ -1240,7 +1308,18 @@ void Renderer::initRenderTasks()
 	// Final pass (this pass will merge different textures together and put result in the swapchain backBuffer)
 	// This will be used for pp-effects such as bloom.
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(mergeTask->GetCommandList(i));
+	}
+
+	// GUI
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			m_DirectCommandLists[i].push_back(imGuiRenderTask->GetCommandList(i));
+		}
+	}
 }
 
 void Renderer::setRenderTasksRenderComponents()
@@ -1396,7 +1475,7 @@ void Renderer::removeComponents(Entity* entity)
 		if (bbc->GetParent() == entity)
 		{
 			// Stop drawing the wireFrame
-			if (DRAWBOUNDINGBOX == true)
+			if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 			{
 				static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->ClearSpecific(bbc);
 			}
@@ -1660,7 +1739,7 @@ void Renderer::addComponents(Entity* entity)
 	if (bbc != nullptr)
 	{
 		// Add it to m_pTask so it can be drawn
-		if (DRAWBOUNDINGBOX == true)
+		if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 		{
 			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel());
 			if (m == nullptr)
