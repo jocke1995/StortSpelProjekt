@@ -179,8 +179,9 @@ namespace component
 	void TextComponent::Update(double dt)
 	{
 	}
-	void TextComponent::Init(Renderer* renderer)
+	void TextComponent::InitScene(Renderer* renderer)
 	{
-		Log::Print("TextComponent Init called!\n");
+		Log::Print("TextComponent InitScene called!\n");
+		renderer->InitTextComponent(GetParent());
 	}
 }

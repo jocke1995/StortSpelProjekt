@@ -90,7 +90,15 @@ public:
 	void SortObjects();
 	void Execute();
 
-	void Test();
+	// Render inits, these functions are called by respective components through SetScene to prepare 
+	void InitComponent(std::string componentType);
+	void InitModelComponent(Entity* entity);
+	void InitDirectionalLightComponent(Entity* entity);
+	void InitPointLightComponent(Entity* entity);
+	void InitSpotLightComponent(Entity* entity);
+	void InitCameraComponent(Entity* entity);
+	void InitBoundingBoxComponent(Entity* entity);
+	void InitTextComponent(Entity* entity);
 
 private:
 	friend class SceneManager;

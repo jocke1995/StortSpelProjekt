@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Component.h"
 #include "../Renderer/Renderer.h"
+#include "../Engine.h"
 
 Component::Component(Entity* parent)
 {
@@ -19,9 +20,9 @@ void Component::RenderUpdate(double dt)
 {
 }
 
-void Component::Init(Renderer* renderer)
+void Component::InitScene(Renderer* renderer)
 {
-	Log::Print("PAPA COMPONENT Init called!\n");
+	Log::Print("COMPONENT InitScene called! Declare and define your own InitScene in your component class.\n");
 }
 
 Entity* const Component::GetParent() const

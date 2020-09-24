@@ -15,6 +15,12 @@ void component::AudioVoiceComponent::Update(double dt)
 {
 }
 
+void component::AudioVoiceComponent::InitScene(Renderer* renderer)
+{
+	Log::Print("AudioVoiceComponent InitScene called!\n");
+
+}
+
 void component::AudioVoiceComponent::AddVoice(const std::wstring& name)
 {
 	if (m_Voices.count(name) == 0)

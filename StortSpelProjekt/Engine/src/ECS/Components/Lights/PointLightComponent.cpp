@@ -4,6 +4,7 @@
 // Renderer
 #include "../Renderer/Transform.h"
 #include "../Renderer/BaseCamera.h"
+#include "../Renderer/Renderer.h"
 
 // ECS
 #include "../ECS/Entity.h"
@@ -41,9 +42,10 @@ namespace component
 		}
 	}
 
-	void PointLightComponent::Init(Renderer* renderer)
+	void PointLightComponent::InitScene(Renderer* renderer)
 	{
 		Log::Print("PointLightComponent Init called!\n");
+		renderer->InitPointLightComponent(GetParent());
 	}
 
 	void PointLightComponent::SetPosition(float3 position)

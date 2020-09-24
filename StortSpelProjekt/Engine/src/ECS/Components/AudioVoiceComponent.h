@@ -15,6 +15,7 @@ namespace component
 		AudioVoiceComponent(Entity* parent);
 		virtual ~AudioVoiceComponent();
 		void Update(double dt);
+		void InitScene(Renderer* renderer);
 
 		// Clones an audiobuffer to create a voice to the component
 		void AddVoice(const std::wstring& name);

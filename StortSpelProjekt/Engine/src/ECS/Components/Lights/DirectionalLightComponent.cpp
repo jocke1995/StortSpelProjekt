@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "DirectionalLightComponent.h"
 #include "../Renderer/BaseCamera.h"
+#include "../Renderer/Renderer.h"
 
 namespace component
 {
@@ -31,9 +32,10 @@ namespace component
 		}
 	}
 
-	void DirectionalLightComponent::Init(Renderer* renderer)
+	void DirectionalLightComponent::InitScene(Renderer* renderer)
 	{
 		Log::Print("DirectionalLightComponent Init called!\n");
+		renderer->InitDirectionalLightComponent(GetParent());
 	}
 
 	void DirectionalLightComponent::SetDirection(float3 direction)

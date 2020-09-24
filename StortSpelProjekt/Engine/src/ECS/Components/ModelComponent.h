@@ -8,6 +8,7 @@
 class Mesh;
 class Model;
 class Texture;
+class Engine;
 
 namespace component
 {
@@ -18,7 +19,7 @@ namespace component
         virtual ~ModelComponent();
 
         void Update(double dt);
-        void Init(Renderer* renderer);
+        void InitScene(Renderer* renderer);
 
         // Sets
         void SetModel(Model* model);
@@ -35,6 +36,7 @@ namespace component
     private:
         // The boundingBox will update the "m_IsPickedThisFrame"
         friend class BoundingBoxComponent;
+        friend class Engine;
         bool m_IsPickedThisFrame = false;
 
         Model* m_Model = nullptr;

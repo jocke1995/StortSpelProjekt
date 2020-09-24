@@ -23,6 +23,8 @@ namespace component
 
 		virtual void RenderUpdate(double dt) = 0;
 
+		void InitScene(Renderer* renderer);
+
 	};
 }
 

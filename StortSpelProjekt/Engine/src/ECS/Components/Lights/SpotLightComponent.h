@@ -13,7 +13,7 @@ namespace component
 		virtual ~SpotLightComponent();
 
 		void Update(double dt);
-		void Init(Renderer* renderer);
+		void InitScene(Renderer* renderer);
 
 		void SetPosition(float3 position);
 		void SetCutOff(float cutOff);

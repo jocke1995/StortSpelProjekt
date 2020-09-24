@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "ModelComponent.h"
 #include "../Renderer/Model.h"
+#include "../Renderer/Renderer.h"
+#include "../Entity.h"
+#include "../Engine.h"
+
 namespace component
 {
 	ModelComponent::ModelComponent(Entity* parent)
@@ -28,9 +32,15 @@ namespace component
 
 	}
 
-	void ModelComponent::Init(Renderer* renderer)
+	void ModelComponent::InitScene(Renderer* renderer)
 	{
-		Log::Print("ModelComponent Init called!\n");
+		Log::Print("ModelComponent InitScene called!\n");
+		// check if model has transform component
+		component::TransformComponent* tc = GetParent()->GetComponent<component::TransformComponent>();
+		if (tc != nullptr)
+		{
+			renderer->InitModelComponent(GetParent());
+		}
 	}
 
 	Mesh* ModelComponent::GetMeshAt(unsigned int index) const

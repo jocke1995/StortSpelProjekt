@@ -5,7 +5,6 @@
 #include "../Renderer/Renderer.h"
 #include "../../Renderer/PerspectiveCamera.h"
 #include "../../Renderer/OrthographicCamera.h"
-#include "../ECS/Entity.h"
 
 namespace component
 {
@@ -48,10 +47,10 @@ namespace component
 		m_pCamera->Update(dt);
 	}
 
-	void CameraComponent::Init(Renderer* renderer)
+	void CameraComponent::InitScene(Renderer* renderer)
 	{
-		Log::Print("CameraComponent Init called!\n");
-		renderer->Test();
+		Log::Print("CameraComponent InitScene called!\n");
+		renderer->InitCameraComponent(GetParent());
 	}
 
 	BaseCamera* CameraComponent::createPerspective(DirectX::XMVECTOR position, DirectX::XMVECTOR direction, double fov, double aspectRatio, double nearZ, double farZ)

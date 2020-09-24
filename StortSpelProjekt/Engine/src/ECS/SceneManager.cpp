@@ -104,13 +104,13 @@ void SceneManager::SetSceneToDraw(Scene* scene)
 	for (auto const& [entityName, entity] : entities)
 	{
 		// Add renderer component returns 0
-		m_pRenderer->addComponents(entity);
+		//m_pRenderer->addComponents(entity);
 		
-		// for each component in entity: call init()
+		// for each component in entity: call their implementation of InitScene(), which calls their specific init function in renderer
 		std::vector<Component*>* components = entity->GetAllComponents();
 		for (int i = 0; i < components->size(); i++)
 		{
-			components->at(i)->Init(m_pRenderer);
+			components->at(i)->InitScene(m_pRenderer);
 		}
 
 		// Add sound component

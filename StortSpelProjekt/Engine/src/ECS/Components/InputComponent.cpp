@@ -12,3 +12,7 @@ component::InputComponent::InputComponent(Entity* parent)
 component::InputComponent::~InputComponent()
 {
 }
+
+void component::InputComponent::InitScene(Renderer* renderer)
+{
+}

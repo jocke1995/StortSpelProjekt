@@ -14,6 +14,7 @@
 
 #include "../Renderer/Mesh.h"
 #include "../Renderer/GPUMemory/ShaderResourceView.h"
+#include "../Renderer/Renderer.h"
 
 
 
@@ -37,9 +38,10 @@ namespace component
 		createOrientedBoundingBox();
 	}
 
-	void BoundingBoxComponent::Init(Renderer* renderer)
+	void BoundingBoxComponent::InitScene(Renderer* renderer)
 	{
-		Log::Print("BoundingBoxComponent Init called!\n");
+		Log::Print("BoundingBoxComponent InitScene called!\n");
+		renderer->InitBoundingBoxComponent(GetParent());
 	}
 
 	void BoundingBoxComponent::Update(double dt)

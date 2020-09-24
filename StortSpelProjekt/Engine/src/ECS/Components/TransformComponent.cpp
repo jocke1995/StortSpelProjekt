@@ -27,9 +27,9 @@ namespace component
 		m_pTransform->UpdateWorldMatrix();
 	}
 
-	void TransformComponent::Init(Renderer* renderer)
+	void TransformComponent::InitScene(Renderer* renderer)
 	{
-		Log::Print("TransformComponent Init called!\n");
+		Log::Print("TransformComponent InitScene called!\n");
 	}
 
 	Transform* TransformComponent::GetTransform() const

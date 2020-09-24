@@ -5,6 +5,7 @@
 // Renderer
 #include "../Renderer/Transform.h"
 #include "../Renderer/BaseCamera.h"
+#include "../Renderer/Renderer.h"
 
 // ECS
 #include "../ECS/Entity.h"
@@ -54,9 +55,10 @@ namespace component
         }  
     }
 
-    void SpotLightComponent::Init(Renderer* renderer)
+    void SpotLightComponent::InitScene(Renderer* renderer)
     {
         Log::Print("SpotLightComponent Init called!\n");
+        renderer->InitSpotLightComponent(GetParent());
     }
 
     void SpotLightComponent::SetPosition(float3 position)
