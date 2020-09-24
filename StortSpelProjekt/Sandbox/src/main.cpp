@@ -1,11 +1,13 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
+#include "EnemyFactory.h"
 
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
 Scene* JockesTestScene(SceneManager* sm);
 Scene* FredriksTestScene(SceneManager* sm);
 Scene* WilliamsTestScene(SceneManager* sm);
+// showing example of AddEnemy() from enemy handler
 Scene* BjornsTestScene(SceneManager* sm);
 
 
@@ -18,9 +20,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-    /* ------ Engine  ------ */
-    Engine engine = Engine();
-    engine.Init(hInstance, nCmdShow);
+	/*------ Load Option Variables ------*/
+	Option::GetInstance().ReadFile();
+	float updateRate = 1.0f / Option::GetInstance().GetVariable("updateRate");
+
+	/* ------ Engine  ------ */
+	Engine engine;
+	engine.Init(hInstance, nCmdShow);
 
     /*  ------ Get references from engine  ------ */
     Window* const window = engine.GetWindow();
@@ -29,10 +35,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     SceneManager* const sceneManager = engine.GetSceneHandler();
     Renderer* const renderer = engine.GetRenderer();
     Physics* const physics = engine.GetPhysics();
-
-    /*------ Load Option Variables ------*/
-    Option::GetInstance().ReadFile();
-    float updateRate = 1.0f / Option::GetInstance().GetVariable("updateRate");
 
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
@@ -782,7 +784,9 @@ Scene* BjornsTestScene(SceneManager* sm)
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
+    component::DirectionalLightComponent* dlc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
+    component::AudioVoiceComponent* avc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -792,6 +796,11 @@ Scene* BjornsTestScene(SceneManager* sm)
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
 
+    // Get the audio needed and add settings to it.
+    AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+
+    // Audio may loop infinetly (0) once (1) or otherwise specified amount of times!
+    bruhSound->SetAudioLoop(1);
 
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -801,6 +810,8 @@ Scene* BjornsTestScene(SceneManager* sm)
     ic->Init();
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    avc = entity->AddComponent<component::AudioVoiceComponent>();
+    avc->AddVoice(L"Bruh");
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -838,76 +849,78 @@ Scene* BjornsTestScene(SceneManager* sm)
  
     Physics::GetInstance().AddCollisionEntity(entity);
 
-    entity = scene->AddEntity("stone");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    // stone has it's up axis as Y so need to specify that. Default is set to Z axis so won't have to check
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    //entity = scene->AddEntity("stone");
+    //mc = entity->AddComponent<component::ModelComponent>();
+    //tc = entity->AddComponent<component::TransformComponent>();
+    //bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
-    mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(stoneModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(0.01f);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-    bbc->Init();
-    Physics::GetInstance().AddCollisionEntity(entity);
+    //mc = entity->GetComponent<component::ModelComponent>();
+    //mc->SetModel(stoneModel);
+    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    //tc = entity->GetComponent<component::TransformComponent>();
+    //tc->GetTransform()->SetScale(0.01f);
+    //tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    //bbc->Init();
+    //Physics::GetInstance().AddCollisionEntity(entity);
 
+    // Adding enemy example
+    EnemyFactory enH(scene);
+    enH.AddEnemy("rock", stoneModel, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.01, float3{ 1.578, 0, 0 });
+    // showing that using the wrong overload will send Warning to Log. 
+    // and then automaticly use the correct overloaded function 
+   // enH.AddEnemy("rock", stoneModel, float3{ -10, 0, -10 }, F_COMP_FLAGS::OBB, 0.01);
+
+    // adding an already existing enemy type but changing the scale of it
+    enH.AddExistingEnemyWithChanges("rock", float3{ 20, 0, 4 }, UINT_MAX, 0.005f);
+
+    // looping through and adding already existing enemy type with only new position
+    float xVal = 8;
+    float yVal = 0;
     for (int i = 0; i < 50; i++)
     {
-        std::string name;
-        name = "stone" + std::to_string(i + 1);
-        entity = scene->AddEntity(name);
-        mc = entity->AddComponent<component::ModelComponent>();
-        tc = entity->AddComponent<component::TransformComponent>();
-        // stone has it's up axis as Y so need to specify that. Default is set to Z axis so won't have to check
-        bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-
-        mc = entity->GetComponent<component::ModelComponent>();
-        mc->SetModel(stoneModel);
-        mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-        tc = entity->GetComponent<component::TransformComponent>();
-        tc->GetTransform()->SetScale(0.01f);
-        float pos = (i + 1) * 10;
-        tc->GetTransform()->SetPosition(-pos, 0, -pos);
-        bbc->Init();
-        Physics::GetInstance().AddCollisionEntity(entity);
+        yVal += 8;
+        enH.AddExistingEnemy("rock", float3{ xVal, 0, yVal });
+        if ((i + 1) % 5 == 0)
+        {
+            xVal += 8;
+            yVal = 0;
+        }
     }
 
 
-    entity = scene->AddEntity("pointLight2");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    //entity = scene->AddEntity("pointLight2");
+    //mc = entity->AddComponent<component::ModelComponent>();
+    //tc = entity->AddComponent<component::TransformComponent>();
+    //plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
+    //mc->SetModel(cubeModel);
+    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    //tc->GetTransform()->SetScale(0.5f);
+    //tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
 
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.00f, 0.05f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 0.00f, 10.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.00f, 0.9f, 1.0f });
+    //plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.00f, 0.05f, 1.0f });
+    //plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 10.0f, 0.00f, 10.0f, 1.0f });
+    //plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.00f, 0.9f, 1.0f });
 
-    plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
-
-
-    entity = scene->AddEntity("pointLight3");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
-
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.05f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 10.0f, 10.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
+    //plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
 
 
-    entity = scene->AddEntity("pointLight4");
+    //entity = scene->AddEntity("pointLight3");
+    //mc = entity->AddComponent<component::ModelComponent>();
+    //tc = entity->AddComponent<component::TransformComponent>();
+    //plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+    //mc->SetModel(cubeModel);
+    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    //tc->GetTransform()->SetScale(0.5f);
+    //tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
+
+    //plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.05f, 1.0f });
+    //plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 10.0f, 10.0f, 1.0f });
+    //plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
+
+
+ /*   entity = scene->AddEntity("pointLight4");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
@@ -919,27 +932,34 @@ Scene* BjornsTestScene(SceneManager* sm)
 
     plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.05f, 0.0f, 0.0f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 30.0f, 0.0f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.0f, 0.0f, 1.0f });
+    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.9f, 0.0f, 0.0f, 1.0f });*/
 
 
-    entity = scene->AddEntity("pointLight5");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+   entity = scene->AddEntity("pointLight5");
+   mc = entity->AddComponent<component::ModelComponent>();
+   tc = entity->AddComponent<component::TransformComponent>();
+   plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
+   mc->SetModel(cubeModel);
+   mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+   tc->GetTransform()->SetScale(0.5f);
+   tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
 
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 15.0f, 0.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.0f, 1.0f });
+   plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.0f, 0.05f, 0.0f, 1.0f });
+   plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 8.0f, 5.0f, 5.0f, 1.0f });
+   plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.0f, 1.0f });
 
-    plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
+   plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
 
 
+    // Directional lighting
+    entity = scene->AddEntity("sun");
 
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
+    dlc->SetDirection({ 1.0f, -1.0f, -1.0f });
+    dlc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.1f, 0.1f, 0.1f, 1.0f });
+    dlc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.5f, 0.5f, 0.5f, 1.0f });
+    dlc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.5f, 0.5f, 0.5f, 1.0f });
 
     return scene;
 }
