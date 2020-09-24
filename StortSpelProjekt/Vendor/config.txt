@@ -5,4 +5,4 @@ resolutionHeight 432
 windowWidth 768
 windowHeight 432
 fullscreen 0
-amountOfBlur 0
+amountOfBlur 2
