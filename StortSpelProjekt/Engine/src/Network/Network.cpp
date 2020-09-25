@@ -56,7 +56,7 @@ void Network::SendPositionPacket()
     float3 pos = m_Players.at(0)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
     DirectX::XMFLOAT3 mov = m_Players.at(0)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->GetMovement();
 
-    packet << PACKET_ID::E_PLAYER_DATA << m_Id << pos.x << pos.y << pos.z << mov.x << mov.y << mov.z;
+    packet << E_PACKET_ID::PLAYER_DATA << m_Id << pos.x << pos.y << pos.z << mov.x << mov.y << mov.z;
 
     m_Socket.send(packet);
 }
@@ -97,8 +97,8 @@ void Network::processPacket(sf::Packet* packet)
 
     switch (packetId)
     {
-    case PACKET_ID::E_SERVER_DATA: processServerData(packet); break;
-    case PACKET_ID::E_PLAYER_DATA: processPlayerData(packet); break;
+    case E_PACKET_ID::SERVER_DATA: processServerData(packet); break;
+    case E_PACKET_ID::PLAYER_DATA: processPlayerData(packet); break;
     default: Log::PrintSeverity(Log::Severity::CRITICAL, "Unkown packet id recieved with enum " + std::to_string(packetId));
     }
 }

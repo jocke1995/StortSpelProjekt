@@ -118,7 +118,7 @@ void ClientPool::newConnection()
 				if (m_Clients.at(i)->connected == true)
 				{
 					sf::Packet packet;
-					packet << Network::E_SERVER_DATA;
+					packet << Network::SERVER_DATA;
 					packet << m_Clients.at(i)->clientId;
 					packet << GetNrOfConnectedClients();
 					for (int j = 0; j < m_Clients.size(); j++)

@@ -8,9 +8,9 @@
 
 class Network {
 public:
-	enum PACKET_ID {
-		E_SERVER_DATA = 0,
-		E_PLAYER_DATA = 1
+	enum E_PACKET_ID {
+		SERVER_DATA = 0,
+		PLAYER_DATA = 1
 	};
 	struct Player {
 		Entity* entityPointer;
