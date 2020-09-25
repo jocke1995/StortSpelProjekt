@@ -1,8 +1,10 @@
 volume 1.0
 updateRate 30
-resolutionWidth 768
-resolutionHeight 432
-windowWidth 768
-windowHeight 432
-fullscreen 0
+resolutionWidth 1920
+resolutionHeight 1080
+windowWidth 1920
+windowHeight 1080
+fullscreen 1
+windowedFullscreen 0
+stretchedWindow 0
 amountOfBlur 2

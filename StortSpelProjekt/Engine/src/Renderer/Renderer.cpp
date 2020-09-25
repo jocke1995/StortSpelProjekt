@@ -148,7 +148,9 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	createSwapChain(window->GetHwnd());
 	m_pBloomResources = new Bloom(m_pDevice5, 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
+		m_pSwapChain
+		);
 
 	// Create Main DepthBuffer
 	createMainDSV();
@@ -557,13 +559,13 @@ void Renderer::createCommandQueues()
 
 void Renderer::createSwapChain(const HWND *hwnd)
 {
-	int width = Option::GetInstance().GetVariable("resolutionWidth");
-	int height = Option::GetInstance().GetVariable("resolutionHeight");
+	UINT resolutionWidth = Option::GetInstance().GetVariable("resolutionWidth");
+	UINT resolutionHeight = Option::GetInstance().GetVariable("resolutionHeight");
 
 	m_pSwapChain = new SwapChain(
 		m_pDevice5,
 		hwnd,
-		width, height,
+		resolutionWidth, resolutionHeight,
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
@@ -576,12 +578,16 @@ void Renderer::createMainDSV()
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-	int width = Option::GetInstance().GetVariable("resolutionWidth");
-	int height = Option::GetInstance().GetVariable("resolutionHeight");
-
+	UINT resolutionWidth = Option::GetInstance().GetVariable("resolutionWidth");
+	UINT resolutionHeight = Option::GetInstance().GetVariable("resolutionHeight");
+	if (Option::GetInstance().GetVariable("fullscreen"))
+	{
+		m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
+	}
+	
 	m_pMainDepthStencil = new DepthStencil(
 		m_pDevice5,
-		width, height,
+		resolutionWidth, resolutionHeight,
 		L"MainDSV",
 		&dsvDesc,
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
@@ -1128,9 +1134,6 @@ void Renderer::initRenderTasks()
 	textTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion Text
-	
-	int width = Option::GetInstance().GetVariable("resolutionWidth");
-	int height = Option::GetInstance().GetVariable("resolutionHeight");
 
 #pragma region IMGUIRENDERTASK
 	RenderTask* imGuiRenderTask = new ImGuiRenderTask(
@@ -1145,6 +1148,13 @@ void Renderer::initRenderTasks()
 
 #pragma endregion IMGUIRENDERTASK
 
+	UINT resolutionWidth = Option::GetInstance().GetVariable("resolutionWidth");
+	UINT resolutionHeight = Option::GetInstance().GetVariable("resolutionHeight");
+	if (Option::GetInstance().GetVariable("fullscreen"))
+	{
+		m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
+	}
+
 	// ComputeTasks
 	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurHorizontal.hlsl", L"blurHorizontalPSO"));
@@ -1155,7 +1165,7 @@ void Renderer::initRenderTasks()
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		width, height);
+		resolutionWidth, resolutionHeight);
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 

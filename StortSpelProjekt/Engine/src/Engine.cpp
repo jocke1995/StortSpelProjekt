@@ -22,7 +22,7 @@ Engine::~Engine()
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 {
 	// Window values
-	bool fullscreen = Option::GetInstance().GetVariable("fullscreen");
+	bool fullscreen = Option::GetInstance().GetVariable("windowedFullscreen");
 	int windowWidth = Option::GetInstance().GetVariable("windowWidth");
 	int windowHeight = Option::GetInstance().GetVariable("windowHeight");
 

@@ -5,6 +5,7 @@
 #include "GPUMemory/RenderTargetView.h"
 #include "GPUMemory/ShaderResourceView.h"
 #include "DescriptorHeap.h"
+#include "../Misc/Option.h"
 
 SwapChain::SwapChain(
 	ID3D12Device5* device,
@@ -14,11 +15,7 @@ SwapChain::SwapChain(
 	DescriptorHeap* descriptorHeap_RTV,
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
 {
-	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
-	{
-		m_Resources[i] = new Resource();
-		m_RTVs[i] = new RenderTargetView(device, width, height, descriptorHeap_RTV, nullptr, m_Resources[i], false);
-	}
+	fullscreen = Option::GetInstance().GetVariable("fullscreen");
 
 	IDXGIFactory4* factory = nullptr;
 	HRESULT hr = CreateDXGIFactory(IID_PPV_ARGS(&factory));
@@ -38,19 +35,46 @@ SwapChain::SwapChain(
 	scDesc.SampleDesc.Quality = 0;
 	scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	scDesc.BufferCount = NUM_SWAP_BUFFERS;
-	scDesc.Scaling = DXGI_SCALING_STRETCH;
 	scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	scDesc.Scaling = DXGI_SCALING_NONE;
 	scDesc.Flags = 0;
 	scDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 
 	IDXGISwapChain1* swapChain1 = nullptr;
-	if (SUCCEEDED(factory->CreateSwapChainForHwnd(
-		commandQueue,
-		*hwnd,
-		&scDesc,
-		nullptr,
-		nullptr,
-		&swapChain1)))
+	if (fullscreen)
+	{
+		scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+		DXGI_SWAP_CHAIN_FULLSCREEN_DESC scFullscreenDesc = {};
+		scFullscreenDesc.Scaling = DXGI_MODE_SCALING_STRETCHED;
+		scFullscreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		scFullscreenDesc.Windowed = false;
+
+		hr = factory->CreateSwapChainForHwnd(
+			commandQueue,
+			*hwnd,
+			&scDesc,
+			&scFullscreenDesc,
+			nullptr,
+			&swapChain1);
+	}
+	else
+	{
+		if (Option::GetInstance().GetVariable("stretchedWindow"))
+		{
+			scDesc.Scaling = DXGI_SCALING_STRETCH;
+		}
+
+		hr = factory->CreateSwapChainForHwnd(
+			commandQueue,
+			*hwnd,
+			&scDesc,
+			nullptr,
+			nullptr,
+			&swapChain1);
+	}
+
+	if (SUCCEEDED(hr))
 	{
 		if (SUCCEEDED(swapChain1->QueryInterface(IID_PPV_ARGS(&m_pSwapChain4))))
 		{
@@ -64,6 +88,17 @@ SwapChain::SwapChain(
 
 	SAFE_RELEASE(&factory);
 
+	if (fullscreen)
+	{
+		m_pSwapChain4->GetSourceSize(&width, &height);
+	}
+
+	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_Resources[i] = new Resource();
+		m_RTVs[i] = new RenderTargetView(device, width, height, descriptorHeap_RTV, nullptr, m_Resources[i], false);
+	}
+
 	// Connect the m_RenderTargets to the swapchain, so that the swapchain can easily swap between these two m_RenderTargets
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
@@ -74,6 +109,11 @@ SwapChain::SwapChain(
 		}
 
 		m_RTVs[i]->CreateRTV(device, descriptorHeap_RTV, nullptr);
+	}
+
+	if (fullscreen)
+	{
+		m_pSwapChain4->SetFullscreenState(true, NULL);
 	}
 
 	// Create SRVs
@@ -96,6 +136,13 @@ SwapChain::~SwapChain()
 		delete m_RTVs[i];
 		delete m_SRVs[i];
 	}
+
+	// You can not release the swapchain in fullscreen mode
+	if (fullscreen)
+	{
+		m_pSwapChain4->SetFullscreenState(false, NULL);
+	}
+
 	SAFE_RELEASE(&m_pSwapChain4);
 }
 
