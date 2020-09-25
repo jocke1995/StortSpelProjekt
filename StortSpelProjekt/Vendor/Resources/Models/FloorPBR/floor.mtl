@@ -1,0 +1,10 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl None
+
+map_Ka wood_metallic.png
+map_Kd wood_albedo.png
+map_Ks wood_roughness.png
+map_Kn wood_normal.png
+# map_Ke floor0_emissive.png

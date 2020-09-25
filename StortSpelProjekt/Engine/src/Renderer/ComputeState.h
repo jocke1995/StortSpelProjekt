@@ -11,8 +11,8 @@ class ComputeState : public PipelineState
 public:
 	ComputeState(	ID3D12Device5* device, 
 					RootSignature* rootSignature, 
-					LPCWSTR CSName,
-					LPCTSTR psoName);
+					std::wstring& CSName,
+					std::wstring& psoName);
 
 	virtual ~ComputeState();
 

@@ -20,13 +20,13 @@ struct SlotInfo
 {
 	unsigned int vertexDataIndex;
 	// TextureIndices
-	unsigned int textureAmbient;
-	unsigned int textureDiffuse;
-	unsigned int textureSpecular;
+	unsigned int textureAlbedo;
+	unsigned int textureRoughness;
+	unsigned int textureMetallic;
 	unsigned int textureNormal;
 	unsigned int textureEmissive;
 
-	unsigned int pad1[1];
+	unsigned int pad[2];
 };
 
 struct MaterialAttributes
@@ -79,12 +79,11 @@ struct CB_PER_SCENE_STRUCT
 
 struct BaseLight
 {
-	float4 ambient;
-	float4 diffuse;
-	float4 specular;
+	float3 color;
+	float pad1;
 
 	float castShadow;
-	float3 pad1;
+	float3 pad2;
 };
 
 struct DirectionalLight

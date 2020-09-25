@@ -96,7 +96,7 @@ namespace component
 		return m_pBbd;
 	}
 
-	const std::string BoundingBoxComponent::GetPathOfModel() const
+	const std::wstring BoundingBoxComponent::GetPathOfModel() const
 	{
 		return m_PathOfModel;
 	}
@@ -123,7 +123,7 @@ namespace component
 			// Use the same m_pTransform as the model
 			m_pTransform = m_pParent->GetComponent<TransformComponent>()->GetTransform();
 			ModelComponent* mc = m_pParent->GetComponent<ModelComponent>();
-			m_PathOfModel = mc->GetMeshAt(0)->GetPath();
+			m_PathOfModel = *mc->GetMeshAt(0)->GetPath();
 
 			BoundingBoxPool* bbp = BoundingBoxPool::Get();
 			// if the model we want to make an OBB for already has an OBB then take the neccessary data from it.
