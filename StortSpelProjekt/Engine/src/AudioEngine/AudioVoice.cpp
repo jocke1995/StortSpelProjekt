@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "AudioVoice.h"
 #include "AudioBuffer.h"
-#include "AudioEngine.h"
+#include "../Misc/Option.h"
 
 AudioVoice::AudioVoice()
 {
@@ -31,12 +31,18 @@ void AudioVoice::initialize(XAUDIO2_BUFFER* buff, WAVEFORMATEXTENSIBLE* wfxForma
         Log::Print("Failed to submit source buffer\n");
     }
 
-    m_pSourceVoice->SetVolume(0.1);
+    m_pSourceVoice->SetVolume(Option::GetInstance().GetVariable("volume"));
+    HRESULT hRes = m_pSourceVoice->SetOutputVoices(NULL);
 }
 
 void AudioVoice::Initialize(AudioBuffer& audio)
 {
     initialize(&audio.m_Buffer, &audio.m_Wfx);
+}
+
+IXAudio2SourceVoice* AudioVoice::GetSourceVoice()
+{
+    return m_pSourceVoice;
 }
 
 void AudioVoice::Play()
