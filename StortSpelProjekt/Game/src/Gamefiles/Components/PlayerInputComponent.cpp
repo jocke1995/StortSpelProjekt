@@ -184,6 +184,6 @@ void component::PlayerInputComponent::grunt(Collision* evnt)
 {
 	if (evnt->ent1 == GetParent() || evnt->ent2 == GetParent())
 	{
-		GetParent()->GetComponent<component::AudioVoiceComponent>()->Play(L"Bruh");
+		GetParent()->GetComponent<component::Audio2DVoiceComponent>()->Play(L"Bruh");
 	}
 }

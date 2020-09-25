@@ -39,7 +39,8 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	m_pRenderer = new Renderer();
 	m_pRenderer->InitD3D12(m_pWindow, hInstance, m_pThreadPool);
 
-	//m_pAudioEngine = &AudioEngine::GetInstance();
+	// Audio engine
+	m_pAudioEngine = &AudioEngine::GetInstance();
 
 	// ECS
 	m_pSceneManager = new SceneManager(m_pRenderer);
