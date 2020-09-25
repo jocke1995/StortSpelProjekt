@@ -68,7 +68,7 @@ Scene* GetDemoScene(SceneManager* sm)
 
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     //Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
-    Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    //Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
