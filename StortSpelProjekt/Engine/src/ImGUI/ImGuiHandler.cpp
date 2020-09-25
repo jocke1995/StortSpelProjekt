@@ -19,7 +19,7 @@ void ImGuiHandler::NewFrame()
 
 void ImGuiHandler::UpdateFrame()
 {
-    // Set the size and position of the debug info window and set it to start not collapsed
+    // Set the size and position of the debug info window and set it to start not collapsed. m_NumberOfDebuggingLines is set in constructor
     ImGui::SetNextWindowSize(ImVec2(Option::GetInstance().GetVariable("windowWidth") / 2, ImGui::GetTextLineHeightWithSpacing() * (2 + m_NumberOfDebuggingLines)));
     ImGui::SetNextWindowPos(ImVec2(Option::GetInstance().GetVariable("windowWidth") / 2, 0));
     ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
@@ -29,6 +29,10 @@ void ImGuiHandler::UpdateFrame()
     // This is where debug info should be added
 #pragma region debugInfo
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
+    {
+        ImGui::Text("Bounding boxes are turned %s", m_BoolMap["boundingBoxToggle"] ? "on" : "off");
+    }
 #pragma endregion debugInfo
     ImGui::End();
 
@@ -318,13 +322,31 @@ void ImGuiHandler::ExecCommand(const char* command_line)
     }
     else if (Stricmp(command.c_str(), "BOUNDINGBOX") == 0)
     {
-        if (Stricmp(arguments[0].c_str(), "TRUE") == 0 || Stricmp(arguments[0].c_str(), "ON") == 0)
+        if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
         {
-            m_BoolMap["boundingBoxToggle"] = true;
+            if (Stricmp(arguments[0].c_str(), "TRUE") == 0 || Stricmp(arguments[0].c_str(), "ON") == 0)
+            {
+                m_BoolMap["boundingBoxToggle"] = true;
+                AddLog("Bounding boxes have been turned on\n");
+            }
+            else if (Stricmp(arguments[0].c_str(), "FALSE") == 0 || Stricmp(arguments[0].c_str(), "OFF") == 0)
+            {
+                m_BoolMap["boundingBoxToggle"] = false;
+                AddLog("Bounding boxes have been turned off\n");
+            }
+            else if (Stricmp(arguments[0].c_str(), "-1") == 0)
+            {
+                m_BoolMap["boundingBoxToggle"] = !m_BoolMap["boundingBoxToggle"];
+                AddLog("Bounding boxes have been turned %s\n", m_BoolMap["boundingBoxToggle"] ? "on" : "off");
+            }
+            else
+            {
+                AddLog("Valid arguments are:\n\tTRUE\n\tFALSE\n\tON\n\tOFF");
+            }
         }
-        else if (Stricmp(arguments[0].c_str(), "FALSE") == 0 || Stricmp(arguments[0].c_str(), "OFF") == 0)
+        else
         {
-            m_BoolMap["boundingBoxToggle"] = false;
+            AddLog("Developer mode bounding boxes have not been activated\n");
         }
     }
     else
@@ -469,6 +491,10 @@ int ImGuiHandler::TextEditCallback(ImGuiInputTextCallbackData* data)
 ImGuiHandler::ImGuiHandler()
 {
     m_NumberOfDebuggingLines = 1;
+    if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
+    {
+        ++m_NumberOfDebuggingLines;
+    }
 
     ClearLog();
     memset(m_InputBuf, 0, sizeof(m_InputBuf));
@@ -478,10 +504,13 @@ ImGuiHandler::ImGuiHandler()
     m_Commands.push_back("HELP");
     m_Commands.push_back("HISTORY");
     m_Commands.push_back("CLEAR");
-    m_Commands.push_back("BOUNDINGBOX");
     m_ScrollToBottom = false;
 
-    m_BoolMap["boundingBoxToggle"] = DEVELOPERMODE_DRAWBOUNDINGBOX;
+    if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
+    {
+        m_Commands.push_back("BOUNDINGBOX");
+        m_BoolMap["boundingBoxToggle"] = DEVELOPERMODE_DRAWBOUNDINGBOX;
+    }
 
     AddLog("Console initiated!");
 }
