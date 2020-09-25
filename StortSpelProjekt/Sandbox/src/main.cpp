@@ -145,10 +145,6 @@ Scene* LeosTestScene(SceneManager* sm)
     plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 5.0f, 5.0f, 1.0f });
     plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
 
-    // Set variiables for ImGui
-    ImGuiHandler::GetInstance().SetFloat("LightPositionZ", -15.0f);
-    ImGuiHandler::GetInstance().SetFloat4("LightColor", float4({ 1.0f, 1.0f, 1.0f, 1.0f }));
-
     // Set UpdateScene function
     UpdateScene = &LeoUpdateScene;
 
@@ -966,17 +962,6 @@ Scene* BjornsTestScene(SceneManager* sm)
 
 void LeoUpdateScene(SceneManager* sm)
 {
-
-    if (DEVELOPERMODE_DEVINTERFACE == true)
-    {
-        float lightPos = ImGuiHandler::GetInstance().GetFloat("LightPositionZ");
-        float4 lightColor = ImGuiHandler::GetInstance().GetFloat4("LightColor");
-
-        sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("pointLight1")->GetComponent<component::PointLightComponent>()->SetColor(COLOR_TYPE::LIGHT_AMBIENT, lightColor);
-        sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("pointLight1")->GetComponent<component::PointLightComponent>()->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { lightColor.x * 16.0f, lightColor.y * 16.0f, lightColor.z * 16.0f, lightColor.w });
-        sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("pointLight1")->GetComponent<component::PointLightComponent>()->SetColor(COLOR_TYPE::LIGHT_SPECULAR, lightColor);
-        sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("pointLight1")->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(DirectX::XMFLOAT3(0.0f, 8.0f, lightPos));
-    }
 }
 
 void DefaultUpdateScene(SceneManager* sm)

@@ -19,78 +19,60 @@ void ImGuiHandler::NewFrame()
 
 void ImGuiHandler::UpdateFrame()
 {
+    // Set the size and position of the debug info window and set it to start not collapsed
+    ImGui::SetNextWindowSize(ImVec2(Option::GetInstance().GetVariable("windowWidth") / 2, ImGui::GetTextLineHeightWithSpacing() * (2 + m_NumberOfDebuggingLines)));
+    ImGui::SetNextWindowPos(ImVec2(Option::GetInstance().GetVariable("windowWidth") / 2, 0));
+    ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
+
+    // Initiate the debug info window
+    ImGui::Begin("Debugging info");
+    // This is where debug info should be added
+#pragma region debugInfo
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+#pragma endregion debugInfo
+    ImGui::End();
+
     DrawConsole("Console");
 }
 
-void ImGuiHandler::SetFloat(std::string name, float value)
+int ImGuiHandler::Stricmp(const char* s1, const char* s2)
 {
-    m_FloatMap[name] = value;
+    int d;
+    while ((d = toupper(*s2) - toupper(*s1)) == 0 && *s1)
+    {
+        s1++;
+        s2++;
+    }
+    return d;
 }
 
-void ImGuiHandler::SetVec4(std::string name, ImVec4 value)
+int ImGuiHandler::Strnicmp(const char* s1, const char* s2, int n)
 {
-    m_Vec4Map[name] = value;
+    int d = 0;
+    while (n > 0 && (d = toupper(*s2) - toupper(*s1)) == 0 && *s1)
+    {
+        s1++;
+        s2++;
+        n--;
+    }
+    return d;
 }
 
-void ImGuiHandler::SetFloat4(std::string name, float4 value)
+char* ImGuiHandler::Strdup(const char* s)
 {
-    m_Vec4Map[name] = ImVec4(value.x, value.y, value.z, value.w);
+    size_t len = strlen(s) + 1;
+    void* buf = malloc(len);
+    IM_ASSERT(buf);
+    return static_cast<char*>(memcpy(buf, static_cast<const void*>(s), len));
 }
 
-void ImGuiHandler::SetXMFLOAT4(std::string name, DirectX::XMFLOAT4 value)
+void ImGuiHandler::Strtrim(char* s)
 {
-    m_Vec4Map[name] = ImVec4(value.x, value.y, value.z, value.w);
-}
-
-float ImGuiHandler::GetFloat(std::string name)
-{
-    if (m_FloatMap.find(name) == m_FloatMap.end())
+    char* str_end = s + strlen(s);
+    while (str_end > s && str_end[-1] == ' ')
     {
-        Log::PrintSeverity(Log::Severity::WARNING, "ImGui variable %s does not exist\n", name);
-        return 0.0f;
-    }
-    else
-    {
-        return m_FloatMap[name];
-    }
-}
-
-ImVec4 ImGuiHandler::GetVec4(std::string name)
-{
-    if (m_Vec4Map.find(name) == m_Vec4Map.end())
-    {
-        Log::PrintSeverity(Log::Severity::WARNING, "ImGui variable %s does not exist\n", name);
-        return ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
-    }
-    else
-    {
-        return m_Vec4Map[name];
-    }
-}
-
-float4 ImGuiHandler::GetFloat4(std::string name)
-{
-    if (m_Vec4Map.find(name) == m_Vec4Map.end())
-    {
-        Log::PrintSeverity(Log::Severity::WARNING, "ImGui variable %s does not exist\n", name);
-        return float4({ 0.0f, 0.0f, 0.0f, 0.0f });
-    }
-    else
-    {
-        return float4({ m_Vec4Map[name].x, m_Vec4Map[name].y, m_Vec4Map[name].z, m_Vec4Map[name].w });
-    }
-}
-
-DirectX::XMFLOAT4 ImGuiHandler::GetXMFLOAT4(std::string name)
-{
-    if (m_Vec4Map.find(name) == m_Vec4Map.end())
-    {
-        Log::PrintSeverity(Log::Severity::WARNING, "ImGui variable %s does not exist\n", name);
-        return DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
-    }
-    else
-    {
-        return DirectX::XMFLOAT4( m_Vec4Map[name].x, m_Vec4Map[name].y, m_Vec4Map[name].z, m_Vec4Map[name].w );
+        str_end--;
+        *str_end = 0;
     }
 }
 
@@ -116,9 +98,10 @@ void ImGuiHandler::AddLog(const char* fmt, ...) IM_FMTARGS(2)
 
 void ImGuiHandler::DrawConsole(const char* title)
 {
+    // Set the size and position of the console window and set it to start collapsed
     ImGui::SetNextWindowSize(ImVec2(Option::GetInstance().GetVariable("windowWidth") / 2, Option::GetInstance().GetVariable("windowHeight")));
     ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowCollapsed(true, ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowCollapsed(true, ImGuiCond_Appearing);
     if (!ImGui::Begin(title))
     {
         ImGui::End();
@@ -127,6 +110,7 @@ void ImGuiHandler::DrawConsole(const char* title)
 
     ImGui::TextWrapped("Enter 'HELP' for help.");
 
+    // Create button to clear the console
     if (ImGui::SmallButton("Clear"))
     {
         ClearLog();
@@ -134,12 +118,17 @@ void ImGuiHandler::DrawConsole(const char* title)
 
     ImGui::Separator();
 
+    // Add a text filter
     m_Filter.Draw("Filter (\"incl,-excl\")", 180);
     ImGui::Separator();
 
     // Reserve enough left-over height for 1 separator + 1 input text
     const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+
+    // Create the console
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+    // Add context window on right click
     if (ImGui::BeginPopupContextWindow())
     {
         if (ImGui::Selectable("Clear"))
@@ -233,26 +222,48 @@ void ImGuiHandler::ExecCommand(const char* command_line)
         }
     m_History.push_back(Strdup(command_line));
 
-    char command[256];
-    for (int i = 0; i < 256; ++i)
-    {
-        if (!command_line[i])
-        {
-            break;
-        }
-        else if (command_line[i] == ':')
-        {
+    std::string command_line_string(command_line);
 
-        }
-        command[i] = command_line[i];
+    // Divide the entry into command and arguments
+    INT64 dividerPos = command_line_string.find(':');
+    std::string command = command_line_string.substr(0, dividerPos);
+    INT64 dividerOffset = 1;
+
+    // Ignore spaces after divider
+    while (command_line_string[dividerPos + dividerOffset] == ' ')
+    {
+        ++dividerOffset;
+    }
+    std::string argumentList = command_line_string.substr(dividerPos + dividerOffset);
+
+    // If there are no arguments, set argument to -1
+    if (dividerPos == -1 || argumentList == "")
+    {
+        argumentList = "-1";
     }
 
-    // Process command
-    if (Stricmp(command_line, "CLEAR") == 0)
+    // Divide the argument list and store in vector
+    std::vector<std::string> arguments;
+    INT64 prevDivider = -1;
+    dividerPos = argumentList.find(',');
+
+    while (dividerPos != -1)
+    {
+        arguments.push_back(argumentList.substr(prevDivider + 1, dividerPos - prevDivider - 1));
+        prevDivider = dividerPos;
+        dividerPos = argumentList.find(',', dividerPos + 1);
+    }
+    if (argumentList.substr(prevDivider + 1) != "")
+    {
+        arguments.push_back(argumentList.substr(prevDivider + 1));
+    }
+
+    // Process command. All new commands should be added here and in constructor
+    if (Stricmp(command.c_str(), "CLEAR") == 0)
     {
         ClearLog();
     }
-    else if (Stricmp(command_line, "HELP") == 0)
+    else if (Stricmp(command.c_str(), "HELP") == 0)
     {
         AddLog("Commands:");
         for (int i = 0; i < m_Commands.Size; ++i)
@@ -260,24 +271,46 @@ void ImGuiHandler::ExecCommand(const char* command_line)
             AddLog("- %s", m_Commands[i]);
         }
     }
-    else if (Stricmp(command_line, "HISTORY") == 0)
+    else if (Stricmp(command.c_str(), "HISTORY") == 0)
     {
-        int first = m_History.Size - 10;
-        for (int i = first > 0 ? first : 0; i < m_History.Size; ++i)
+        if (arguments[0] != "-1")
         {
-            AddLog("%3d: %s\n", i, m_History[i]);
+            int index;
+            for (int i = 0; i < arguments.size(); ++i)
+            {
+                if (std::isdigit(arguments[i][0]))
+                {
+                    index = std::stoi(arguments[i]);
+                    if (index != -1 && index < m_History.Size)
+                    {
+                        AddLog("%3d: %s\n", index, m_History[index]);
+                    }
+                    else if (index >= m_History.Size)
+                    {
+                        AddLog("Index %d is out of range for HISTORY\n", index);
+                    }
+                }
+                else
+                {
+                    AddLog("%s is not a number\n", arguments[i].c_str());
+                }
+            }
         }
-    }
-    else if (Stricmp(command_line, "UNLOCK CAMERA") == 0)
-    {
-        EventBus::GetInstance().Publish(&ModifierInput(SCAN_CODES::LEFT_CTRL, true));
+        else
+        {
+            int first = m_History.Size - 10;
+            for (int i = first > 0 ? first : 0; i < m_History.Size; ++i)
+            {
+                AddLog("%3d: %s\n", i, m_History[i]);
+            }
+        }
     }
     else
     {
-        AddLog("Unknown command: '%s'\n", command_line);
+        AddLog("Unknown command: '%s'\n", command.c_str());
     }
 
-    // On command input, we scroll to bottom even if AutoScroll==false
+    // On command input, we scroll to bottom
     m_ScrollToBottom = true;
 }
 
@@ -329,7 +362,6 @@ int ImGuiHandler::TextEditCallback(ImGuiInputTextCallbackData* data)
                 // Single match. Delete the beginning of the word and replace it entirely so we've got nice casing.
                 data->DeleteChars((int)(word_start - data->Buf), static_cast<int>(word_end - word_start));
                 data->InsertChars(data->CursorPos, candidates[0]);
-                data->InsertChars(data->CursorPos, " ");
             }
             else
             {
@@ -414,16 +446,16 @@ int ImGuiHandler::TextEditCallback(ImGuiInputTextCallbackData* data)
 
 ImGuiHandler::ImGuiHandler()
 {
-    m_TextMap["console"] = " ";
+    m_NumberOfDebuggingLines = 1;
 
     ClearLog();
     memset(m_InputBuf, 0, sizeof(m_InputBuf));
     m_HistoryPos = -1;
 
+    // Add the valid commands to a vector. All new commands should be added here and in ExecCommand
     m_Commands.push_back("HELP");
     m_Commands.push_back("HISTORY");
     m_Commands.push_back("CLEAR");
-    m_Commands.push_back("UNLOCK CAMERA");
     m_ScrollToBottom = false;
     AddLog("Console initiated!");
 }
