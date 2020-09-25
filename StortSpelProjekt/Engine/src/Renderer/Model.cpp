@@ -22,9 +22,9 @@ Model::Model(const std::wstring* path, std::vector<Mesh*>* meshes, std::vector<A
 		m_SlotInfos.push_back(
 			{
 			m_Meshes[i]->m_pSRV->GetDescriptorHeapIndex(),
-			m_Materials[i]->GetTexture(TEXTURE_TYPE::AMBIENT)->GetDescriptorHeapIndex(),
-			m_Materials[i]->GetTexture(TEXTURE_TYPE::DIFFUSE)->GetDescriptorHeapIndex(),
-			m_Materials[i]->GetTexture(TEXTURE_TYPE::SPECULAR)->GetDescriptorHeapIndex(),
+			m_Materials[i]->GetTexture(TEXTURE_TYPE::ALBEDO)->GetDescriptorHeapIndex(),
+			m_Materials[i]->GetTexture(TEXTURE_TYPE::ROUGHNESS)->GetDescriptorHeapIndex(),
+			m_Materials[i]->GetTexture(TEXTURE_TYPE::METALLIC)->GetDescriptorHeapIndex(),
 			m_Materials[i]->GetTexture(TEXTURE_TYPE::NORMAL)->GetDescriptorHeapIndex(),
 			m_Materials[i]->GetTexture(TEXTURE_TYPE::EMISSIVE)->GetDescriptorHeapIndex()
 			});

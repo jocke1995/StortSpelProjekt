@@ -13,5 +13,5 @@ ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
 
 float4 PS_main(VS_OUT input) : SV_TARGET0
 {
-	return float4(input.color.rgb, input.color.a * textures[cbPerObject.info.textureDiffuse].Sample(samplerTypeWrap, input.texCoord).a);
+	return float4(input.color.rgb, input.color.a * textures[cbPerObject.info.textureAlbedo].Sample(samplerTypeWrap, input.texCoord).a);
 }

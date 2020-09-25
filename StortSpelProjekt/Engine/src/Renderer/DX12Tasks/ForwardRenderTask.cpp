@@ -122,7 +122,7 @@ void FowardRenderTask::Execute()
 		commandList->OMSetStencilRef(1);
 		drawRenderComponent(outlinedModel.first, outlinedModel.second, viewProjMatTrans, commandList);
 	}
-	
+
 	// Change state on front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		swapChainResource,
