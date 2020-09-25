@@ -7,17 +7,13 @@ ThreadPool::ThreadPool(int nrOfThreads)
 	
 	// Create Threads
 	for (int i = 0; i < m_NrOfThreads; i++)
-	{
 		m_Threads.push_back(new Thread());
-	}
 }
 
 ThreadPool::~ThreadPool()
 {
 	for (Thread* thread : m_Threads)
-	{
 		delete thread;
-	}
 }
 
 void ThreadPool::WaitForThreads(unsigned int flag)

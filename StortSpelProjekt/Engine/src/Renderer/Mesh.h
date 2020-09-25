@@ -32,13 +32,13 @@ public:
             std::vector<Vertex>* vertices,
             std::vector<unsigned int>* indices,
             DescriptorHeap* descriptorHeap_SRV,
-            const std::string path = "");
+            const std::wstring& path = L"NOPATH");
     Mesh(   ID3D12Device5* device,
             std::vector<Vertex>* vertices,
             std::vector<unsigned int>* indices,
             std::vector<Bone>* bones,
             DescriptorHeap* descriptorHeap_SRV,
-            const std::string path = "");
+            const std::wstring& path = L"NOPATH");
     virtual ~Mesh();
 
     // Vertices
@@ -55,7 +55,7 @@ public:
     const D3D12_INDEX_BUFFER_VIEW* GetIndexBufferView() const;
 
     // Material
-    std::string GetPath();
+    const std::wstring* GetPath() const;
 
 private:
     friend class MergeRenderTask;
@@ -67,7 +67,7 @@ private:
     std::vector<Vertex> m_Vertices;
     std::vector<unsigned int> m_Indices;
     std::vector<Bone> m_Bones;
-    std::string m_Path = "";
+    std::wstring m_Path = L"NOPATH";
 
     Resource* m_pUploadResourceVertices = nullptr;
     Resource* m_pUploadResourceIndices = nullptr;
@@ -75,7 +75,7 @@ private:
     Resource* m_pDefaultResourceIndices = nullptr;
 
     ShaderResourceView* m_pSRV = nullptr;
-    D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;;
+    D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;
     
     void initMesh(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV);
     void createIndexBufferView();

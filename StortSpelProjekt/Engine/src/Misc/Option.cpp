@@ -25,13 +25,13 @@ void Option::ReadFile()
 		while (!file.eof())
 		{
 			std::string tempName;
-			std::string tempFloat;
+			std::string tempValue;
 
 			std::getline(file, tempName, ' ');
-			std::getline(file, tempFloat, '\n');
+			std::getline(file, tempValue, '\n');
 
 			if (tempName != "")
-				m_Variables.push_back(std::pair(tempName, std::atof(tempFloat.c_str())));
+				m_Variables.push_back(std::pair(tempName, tempValue));
 		}
 	}
 }
@@ -55,7 +55,7 @@ void Option::WriteFile()
 	}
 }
 
-float Option::GetVariable(std::string name) const
+std::string Option::GetVariable(std::string name) const
 {
 	//Search all variable names for one matching the given name
 	for (unsigned int i = 0; i < m_Variables.size(); i++) 
@@ -71,7 +71,7 @@ float Option::GetVariable(std::string name) const
 	return NULL;
 }
 
-void Option::SetVariable(std::string name, const float value)
+void Option::SetVariable(std::string name, const std::string value)
 {
 	//Search all variable names for one matching the given name
 	bool found = false;

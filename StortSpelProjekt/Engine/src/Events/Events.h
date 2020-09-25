@@ -1,5 +1,6 @@
 #pragma once
 #include "../Input/Input.h"
+#include "../ECS/Scene.h"
 
 class Entity;
 class Event
@@ -53,4 +54,10 @@ struct Collision : public Event
 	Collision(Entity *ent1, Entity *ent2) : ent1{ ent1 }, ent2{ ent2 } {};
 	Entity *ent1;
 	Entity *ent2;
+};
+
+struct PlayerConnection : public Event
+{
+	PlayerConnection(int playerId) : playerId{ playerId } {};
+	int playerId;
 };

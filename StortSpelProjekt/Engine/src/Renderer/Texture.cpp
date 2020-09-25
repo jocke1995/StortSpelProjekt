@@ -129,14 +129,14 @@ const UINT Texture::GetDescriptorHeapIndex() const
 	return m_pSRV->GetDescriptorHeapIndex();
 }
 
-bool Texture::Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
+bool Texture::Init(std::wstring* filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 {
-	m_FilePath = filePath;
+	m_FilePath = *filePath;
 	unsigned int descriptorHeapIndex = descriptorHeap->GetNextDescriptorHeapIndex(0);
 
 	if (createTexture(filePath, device, descriptorHeapIndex) == false)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(filePath).c_str());
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(*filePath).c_str());
 		return false;
 	}
 
@@ -177,7 +177,7 @@ bool Texture::Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap*
 	return true;
 }
 
-bool Texture::createTexture(std::wstring filePath, ID3D12Device5* device, UINT descriptorHeapIndex_SRV)
+bool Texture::createTexture(std::wstring* filePath, ID3D12Device5* device, UINT descriptorHeapIndex_SRV)
 {
 	static IWICImagingFactory* wicFactory;
 

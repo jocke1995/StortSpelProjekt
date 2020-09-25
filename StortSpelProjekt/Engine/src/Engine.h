@@ -33,9 +33,6 @@
 // Network
 #include "Network/Network.h"
 
-// Network
-#include "Network/Network.h"
-
 #include "Misc/AssetLoader.h"
 
 #include "Input/Input.h"
@@ -73,6 +70,8 @@ private:
 	SceneManager* m_pSceneManager = nullptr;
 	Physics* m_pPhysics = nullptr;
 	AudioEngine* m_pAudioEngine = nullptr;
+
+	int m_ThreadLimit = 4;
 };
 
 #endif
