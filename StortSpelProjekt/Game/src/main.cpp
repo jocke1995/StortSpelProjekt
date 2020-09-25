@@ -69,6 +69,7 @@ Scene* GetDemoScene(SceneManager* sm)
     component::PointLightComponent* plc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
     component::SpotLightComponent* slc = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -81,6 +82,7 @@ Scene* GetDemoScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     ic->Init();
 
     mc->SetModel(sphereModel);
