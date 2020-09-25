@@ -91,6 +91,9 @@ Scene* LeosTestScene(SceneManager* sm)
     component::SpotLightComponent* slc = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
     component::InputComponent* ic = nullptr;
+    component::Audio3DListenerComponent* lc = nullptr;
+    component::Audio3DEmitterComponent* ec = nullptr;
+    component::BoundingBoxComponent* bbc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -110,15 +113,13 @@ Scene* LeosTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
-    component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    lc = entity->AddComponent<component::Audio3DListenerComponent>();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
-    avc->AddVoice(L"Music");
-    avc->Play(L"Music");
     ic->Init();
     bbc->Init();
 
@@ -151,6 +152,9 @@ Scene* LeosTestScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    ec = entity->AddComponent<component::Audio3DEmitterComponent>();
+    ec->AddVoice(L"Music");
 
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
@@ -160,6 +164,8 @@ Scene* LeosTestScene(SceneManager* sm)
     slc->SetColor({ 50.0f, 0.0f, 50.0f });
     slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
     slc->SetDirection({ 0.0, 0.0, 1.0f });
+
+    bbc->Init();
 
     /* ---------------------- dirLight ---------------------- */
     entity = scene->AddEntity("dirLight");
@@ -897,6 +903,9 @@ Scene* BjornsTestScene(SceneManager* sm)
 
 void LeoUpdateScene(SceneManager* sm)
 {
+    component::Audio3DEmitterComponent* ec = sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("Spotlight")->GetComponent<component::Audio3DEmitterComponent>();
+    ec->UpdateEmitter(L"Music");
+    ec->Play(L"Music");
 }
 
 void DefaultUpdateScene(SceneManager* sm)

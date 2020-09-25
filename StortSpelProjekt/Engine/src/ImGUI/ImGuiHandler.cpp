@@ -35,6 +35,17 @@ void ImGuiHandler::UpdateFrame()
     DrawConsole("Console");
 }
 
+void ImGuiHandler::SetBool(std::string name, bool value)
+{
+    m_BoolMap[name] = value;
+}
+
+bool ImGuiHandler::GetBool(std::string name)
+{
+    bool toReturn = m_BoolMap.find(name) == m_BoolMap.end() ? false : m_BoolMap[name];
+    return toReturn;
+}
+
 int ImGuiHandler::Stricmp(const char* s1, const char* s2)
 {
     int d;
@@ -108,7 +119,7 @@ void ImGuiHandler::DrawConsole(const char* title)
         return;
     }
 
-    ImGui::TextWrapped("Enter 'HELP' for help.");
+    ImGui::TextWrapped("To use:\nEnter a valid command and press ENTER. The console is not case sensitive.\nIf the command takes arguments, enter these after \':\'\nSeparate arguments using \',\'\nExample: COMMAND:ARG1,ARG2\nEnter 'HELP' for help.");
 
     // Create button to clear the console
     if (ImGui::SmallButton("Clear"))
@@ -305,6 +316,17 @@ void ImGuiHandler::ExecCommand(const char* command_line)
             }
         }
     }
+    else if (Stricmp(command.c_str(), "BOUNDINGBOX") == 0)
+    {
+        if (Stricmp(arguments[0].c_str(), "TRUE") == 0 || Stricmp(arguments[0].c_str(), "ON") == 0)
+        {
+            m_BoolMap["boundingBoxToggle"] = true;
+        }
+        else if (Stricmp(arguments[0].c_str(), "FALSE") == 0 || Stricmp(arguments[0].c_str(), "OFF") == 0)
+        {
+            m_BoolMap["boundingBoxToggle"] = false;
+        }
+    }
     else
     {
         AddLog("Unknown command: '%s'\n", command.c_str());
@@ -456,7 +478,11 @@ ImGuiHandler::ImGuiHandler()
     m_Commands.push_back("HELP");
     m_Commands.push_back("HISTORY");
     m_Commands.push_back("CLEAR");
+    m_Commands.push_back("BOUNDINGBOX");
     m_ScrollToBottom = false;
+
+    m_BoolMap["boundingBoxToggle"] = DEVELOPERMODE_DRAWBOUNDINGBOX;
+
     AddLog("Console initiated!");
 }
 

@@ -19,9 +19,12 @@ public:
 	/// </summary>
 	void UpdateFrame();
 
-	// For console
+	void SetBool(std::string name, bool value);
+	bool GetBool(std::string name);
 
-	// Portable helpers
+	/*---------------- For console ----------------*/
+
+	/*--------- Portable helpers -----------*/
 	
 	/// <summary>
 	/// Compares two char arrays, diregarding casing.
@@ -79,6 +82,8 @@ public:
 private:
 	ImGuiHandler();
 	~ImGuiHandler();
+
+	std::map<std::string, bool> m_BoolMap;
 
 	// Buffer for text input in the console
 	char m_InputBuf[256];
