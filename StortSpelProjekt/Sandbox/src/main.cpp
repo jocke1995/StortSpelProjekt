@@ -52,7 +52,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
-    sceneManager->SetSceneToDraw(AntonTestScene(sceneManager));
+    //sceneManager->SetSceneToDraw(AntonTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(AndresTestScene(sceneManager)); // example play and updateEmitter functions in AndresTestScene
 
     GameNetwork gameNetwork;
