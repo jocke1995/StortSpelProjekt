@@ -306,21 +306,20 @@ Scene* AntonTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /* ---------------------- Floor ---------------------- */
 
-    /* ---------------------- PointLight1 ---------------------- */
-    entity = scene->AddEntity("pointLight1");
+    /* ---------------------- PointLight ---------------------- */
+    entity = scene->AddEntity("pointLight");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
     mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0, 8.0f, -15.0f);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
 
-    plc->SetColor(COLOR_TYPE::LIGHT_AMBIENT, { 0.5f, 0.0f, 0.5f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.0f, 5.0f, 5.0f, 1.0f });
-    plc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.0f, 0.9f, 0.9f, 1.0f });
-    /* ---------------------- PointLight1 ---------------------- */
+    plc->SetColor({ 2.0f, 0.0f, 2.0f });
+    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+    /* ---------------------- PointLight ---------------------- */
 
     return scene;
 }
