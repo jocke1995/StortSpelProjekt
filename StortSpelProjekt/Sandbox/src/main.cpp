@@ -727,6 +727,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
+    component::SpotLightComponent* slc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
     AssetLoader* al = AssetLoader::Get();
@@ -737,6 +738,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     Model* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
     // Get the audio needed and add settings to it.
     AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
@@ -830,50 +832,43 @@ Scene* BjornsTestScene(SceneManager* sm)
     }
 
 
-    //entity = scene->AddEntity("pointLight2");
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    //mc->SetModel(cubeModel);
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    //tc->GetTransform()->SetScale(0.5f);
-    //tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
-
-    plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
-
-
-    //entity = scene->AddEntity("pointLight3");
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    //mc->SetModel(cubeModel);
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    //tc->GetTransform()->SetScale(0.5f);
-    //tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
-
-    entity = scene->AddEntity("pointLight4");
+    /* ---------------------- PointLight ---------------------- */
+    entity = scene->AddEntity("pointLight");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(-30.0f, 4.0f, -15.0f);
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
 
-    entity = scene->AddEntity("pointLight5");
+    plc->SetColor({ 2.0f, 0.0f, 2.0f });
+    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+    /* ---------------------- PointLight ---------------------- */
+
+    /* ---------------------- dirLight ---------------------- */
+    entity = scene->AddEntity("dirLight");
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION);
+    dlc->SetColor({ 1.0f, 1.0f, 1.0f });
+    dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
+    /* ---------------------- dirLight ---------------------- */
+
+    /* ---------------------- Spotlight ---------------------- */
+    entity = scene->AddEntity("Spotlight");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION);
 
-   mc->SetModel(cubeModel);
-   mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-   tc->GetTransform()->SetScale(0.5f);
-   tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(30.0f, 4.0f, 10.0f);
 
-    plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
+    slc->SetColor({ 0.0f, 0.0f, 4.0f });
+    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetDirection({ -2.0, -1.0, 0.0f });
+    /* ---------------------- Spotlight ---------------------- */
 
     return scene;
 }

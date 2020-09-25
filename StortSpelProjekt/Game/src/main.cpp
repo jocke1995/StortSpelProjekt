@@ -67,17 +67,17 @@ Scene* GetDemoScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
-    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    //Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     /*--------------------- Assets ---------------------*/
 
     /*--------------------- Component declarations ---------------------*/
     Entity* entity = nullptr;
-    component::AudioVoiceComponent* avc = nullptr;
-    component::BoundingBoxComponent* bbc = nullptr;
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
@@ -87,25 +87,27 @@ Scene* GetDemoScene(SceneManager* sm)
     component::DirectionalLightComponent* dlc = nullptr;
     component::SpotLightComponent* slc = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
-    AssetLoader* al = AssetLoader::Get();
 
-    // Get the models needed
-    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
-    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
     /* ---------------------- Player ---------------------- */
-    Entity* entity = (scene->AddEntity("player"));
+    entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     ic->Init();
+    // adding OBB with collision
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    avc->AddVoice(L"Bruh");
 
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
+    // initialize OBB after we have the transform info
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
     /* ---------------------- Player ---------------------- */
 
     /* ---------------------- Floor ---------------------- */
@@ -132,7 +134,7 @@ Scene* GetDemoScene(SceneManager* sm)
     for (int i = 0; i < 75; i++)
     {
         zVal += 8;
-        enH.AddExistingEnemy("barb", float3{ xVal, 0, zVal });
+        enH.AddExistingEnemy("barb", float3{ xVal - 64, 0, zVal });
         if ((i + 1) % 5 == 0)
         {
             xVal += 8;
@@ -141,11 +143,8 @@ Scene* GetDemoScene(SceneManager* sm)
     }
     /*--------------------- Adding 76 Enemies for preformance check ---------------------*/
 
-    /*--------------------- Floor ---------------------*/
-    // entity
-    entity = scene->AddEntity("floor");
-    
-    // components
+    /* ---------------------- PointLight ---------------------- */
+    entity = scene->AddEntity("pointLight");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
