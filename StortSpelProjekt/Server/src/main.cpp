@@ -1,44 +1,104 @@
 #include "Engine.h"
+#include "ConsoleCommand.h"
+#include "ThreadPool.h"
+#include "Thread.h"
+#include "MultiThreadedTask.h"
+#include "ClientPool.h"
+
 #include <iostream>
 
-int main() {
+int main()
+{
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	Network network;
+	std::vector<sf::TcpSocket*> clients;
 
-	std::string ip;
+	int nrOfClients = 0;
 
-
-	//This is for testing
-	std::cout << "Write 1 to be client or 0 to be server" << std::endl;
-	std::cin >> ip;
-
-	if (ip == "1")
+	// ThreadPool
+	int numCores = std::thread::hardware_concurrency();
+	if (numCores == 0)
 	{
-		std::cout << "What ip to connect to. (\"localhost\" to connect to own machine)" << std::endl;
-		std::cin >> ip;
-		std::cout << "Connecting to " + ip << std::endl;
-		network.ConnectToIP(ip, 55555);
+		numCores = 1; // function not supported
+	}
+	ThreadPool* threadPool = new ThreadPool(numCores); // Set num m_Threads to number of cores of the cpu
 
-		std::cout << "Write message" << std::endl;
-		std::string str = "";
-		std::cin >> str;
-		network.AppendStringPacket(str);
-		network.SendPacket();
+	Console console;
+	sf::SocketSelector selector;
+
+	std::string str = "";
+
+	std::cout << "Write 1 for server or 0 for client" << std::endl;
+	std::cin >> str;
+
+	if (str == "1")
+	{
+		ClientPool server(55555);
+		threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
+
+			while (strcmp(str.c_str(), "quit") != 0)
+			{
+				str = "";
+				console.GetInput(&str);
+
+				if (strcmp(str.c_str(), "") != 0)
+				{
+					threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
+				}
+				if (strcmp(str.c_str(), "AddClient") == 0)
+				{
+					server.AddClient();
+					std::cout << server.GetNrOfClients() << " Client slots in total" << std::endl;
+				}
+
+				server.ListenMessages();
+				str = server.GetConsoleString();
+
+				if (str != "")
+				{
+					std::cout << str;
+				}
+			}
 	}
 	else
 	{
-		std::cout << "Listening for connections" << std::endl;
-		network.ListenConnection(55555);
+		std::cout << "Write ip to connect to" << std::endl;
+		std::cin >> str;
 
-		std::string str = "";
-		str = network.ListenPacket();
+		clients.push_back(new sf::TcpSocket);
 
-		std::cout << "Message recieved: ";
-		std::cout << str;
+		clients.at(0)->connect(str, 55555);
+		clients.at(0)->setBlocking(false);
+
+		threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
+
+		sf::Packet packet;
+
+		while (strcmp(str.c_str(), "quit") != 0)
+		{
+			str = "";
+			console.GetInput(&str);
+
+			if (strcmp(str.c_str(), "") != 0)
+			{
+				packet.clear();
+				packet << str;
+				clients.at(0)->send(packet);
+				threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
+			}
+
+			clients.at(0)->receive(packet);
+			std::string temp = "";
+			packet >> temp;
+			if(temp != "")
+				std::cout << temp << std::endl;
+		}
+
+
 	}
 
-	std::getchar();
-	// TESTING
+	threadPool->ExitThreads();
+	delete threadPool;
 
 	return 0;
 }
