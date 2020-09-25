@@ -18,13 +18,12 @@ namespace component
 		void* GetLightData() const;
 	
 	protected:
-		void UpdateLightData(COLOR_TYPE type);
+		void UpdateLightIntensity();
 
 	private:
-		DirectionalLight* directionalLight = nullptr;
+		DirectionalLight* m_pDirectionalLight = nullptr;
 
 		void initFlagUsages();
-
 	};
 }
 #endif

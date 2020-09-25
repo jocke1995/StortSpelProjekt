@@ -140,19 +140,8 @@ namespace component
         }
     }
 
-    void SpotLightComponent::UpdateLightData(COLOR_TYPE type)
+    void SpotLightComponent::UpdateLightIntensity()
     {
-        switch (type)
-        {
-        case COLOR_TYPE::LIGHT_AMBIENT:
-            m_pSpotLight->baseLight.ambient = m_pBaseLight->ambient;
-            break;
-        case COLOR_TYPE::LIGHT_DIFFUSE:
-            m_pSpotLight->baseLight.diffuse = m_pBaseLight->diffuse;
-            break;
-        case COLOR_TYPE::LIGHT_SPECULAR:
-            m_pSpotLight->baseLight.specular = m_pBaseLight->specular;
-            break;
-        }
+        m_pSpotLight->baseLight.color = m_pBaseLight->color;
     }
 }

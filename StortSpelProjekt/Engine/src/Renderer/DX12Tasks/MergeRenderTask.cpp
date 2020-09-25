@@ -49,7 +49,7 @@ void MergeRenderTask::CreateSlotInfo()
 
 	// Textures
 	// The descriptorHeapIndices for the SRVs are currently put inside the textureSlots inside SlotInfo
-	m_Info.textureDiffuse = m_SRVIndices[0];	// Blurred srv
+	m_Info.textureAlbedo = m_SRVIndices[0];	// Blurred srv
 }
 
 void MergeRenderTask::Execute()
@@ -94,7 +94,7 @@ void MergeRenderTask::Execute()
 
 	// Draw a fullscreen quad 
 	// The descriptorHeapIndices for the SRVs are currently put inside the textureSlots inside SlotInfo
-	m_Info.textureAmbient = m_pSwapChain->GetSRV(m_BackBufferIndex)->GetDescriptorHeapIndex();
+	m_Info.textureMetallic = m_pSwapChain->GetSRV(m_BackBufferIndex)->GetDescriptorHeapIndex();
 
 	DirectX::XMMATRIX identityMatrix = DirectX::XMMatrixIdentity();
 

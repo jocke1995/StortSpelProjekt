@@ -93,3 +93,13 @@ in the function SetKeyState, add an else if statement in the following way:
 or add an additional SCAN_CODE to the conditions of one of the existing statements. 
 
 Then subscribe to the correct event type as previously described.
+
+
+### PBR TEXTURES:
+In a .mtl file the textures should be placed as follows.
+
+map_Kd "Albedo_texture.suffix" (albedo/diffuse)
+map_Ks "Roughness_texture.suffix" (roughness/specular)
+map_Ka "Metalness_texture.suffix" (metalness/ambient)
+map_Kn "Normals_texture.suffix" (normals)
+map_Ke "Emissive_texture.suffix" (emissive)
