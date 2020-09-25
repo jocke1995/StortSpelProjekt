@@ -3,7 +3,8 @@
 
 #include "SFML/Network.hpp"
 #include <vector>
-#include "Network/Network.h"
+
+class Network;
 
 struct Client 
 {

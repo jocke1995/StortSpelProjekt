@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ClientPool.h"
+#include "Network/Network.h"
 
 ClientPool::ClientPool(int port)
 {

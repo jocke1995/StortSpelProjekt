@@ -1,6 +1,7 @@
 #include "ConsoleCommand.h"
 #include <iostream>
 
+
 Console::Console()
 {
 	m_ConsoleInput = "";
