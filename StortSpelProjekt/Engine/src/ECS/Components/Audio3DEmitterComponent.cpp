@@ -21,12 +21,6 @@ component::Audio3DEmitterComponent::~Audio3DEmitterComponent()
 
 void component::Audio3DEmitterComponent::Update(double dt)
 {
-	// Temporary for sandbox test, UpdateEmitter and play will later be explicitly called for specific sounds when needed
-	for (auto it : m_VoiceEmitterData)
-	{
-		UpdateEmitter(it.first);
-		it.second.voice.Play();
-	}
 }
 
 void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)

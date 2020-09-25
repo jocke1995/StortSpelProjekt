@@ -48,9 +48,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
-    sceneManager->SetSceneToDraw(AndresTestScene(sceneManager));
-    // AndresTestScene is testing 3d audio sound. The Audio3DEmitterComponents (horse and melody) and Audio3DListenerComponent are automatically updateded through calls to renderer->update for testing purposes.
-    // Feel free to try and break it, I have tested so that same sound can be used for multiple entities, different sounds for different entities and same sound as 3d and background at same time.
+    sceneManager->SetSceneToDraw(AndresTestScene(sceneManager)); // example play and updateEmitter functions in AndresTestScene
 
     /*----- Timer ------*/
     double logicTimer = 0;
@@ -850,7 +848,8 @@ Scene* AndresTestScene(SceneManager* sm)
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
     audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
     audioEmitter->AddVoice(L"melody");
-    //audioEmitter->Play(L"melody"); // for sandbox this is moved to Audio3DEmitterComponent Update to spare your eardrums. This commented out call is how you would play specific sounds "normally"
+    //audioEmitter->Play(L"melody"); // example how to play the sound, commented away because without updateEmitter, they seem to be positioned very close to the ear (loud!)
+    //audioEmitter->UpdateEmitter(L"melody");   // this needs to be in an update function to work properly, only here to show how to call it
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
@@ -869,7 +868,8 @@ Scene* AndresTestScene(SceneManager* sm)
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
     audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
     audioEmitter->AddVoice(L"horse");
-    //audioEmitter->Play(L"horse"); // for sandbox this ismoved to Audio3DEmitterComponent Update to spare your eardrums. This commented out call is how you would play specific sounds "normally"
+    //audioEmitter->Play(L"horse"); // example how to play the sound, commented away because without updateEmitter, they seem to be positioned very close to the ear (loud!)
+    //audioEmitter->UpdateEmitter(L"horse");    // this needs to be in an update function to work properly, only here to show how to call it
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
