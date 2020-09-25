@@ -38,10 +38,10 @@ namespace component
 		createOrientedBoundingBox();
 	}
 
-	void BoundingBoxComponent::InitScene(Renderer* renderer)
+	void BoundingBoxComponent::InitScene()
 	{
 		Log::Print("BoundingBoxComponent InitScene called!\n");
-		renderer->InitBoundingBoxComponent(GetParent());
+		Renderer::GetInstance().InitBoundingBoxComponent(GetParent());
 	}
 
 	void BoundingBoxComponent::Update(double dt)

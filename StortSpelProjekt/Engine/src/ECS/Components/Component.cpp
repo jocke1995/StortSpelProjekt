@@ -20,7 +20,7 @@ void Component::RenderUpdate(double dt)
 {
 }
 
-void Component::InitScene(Renderer* renderer)
+void Component::InitScene()
 {
 	Log::Print("COMPONENT InitScene called! Declare and define your own InitScene in your component class.\n");
 }

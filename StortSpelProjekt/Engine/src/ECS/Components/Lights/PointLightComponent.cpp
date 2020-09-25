@@ -42,10 +42,10 @@ namespace component
 		}
 	}
 
-	void PointLightComponent::InitScene(Renderer* renderer)
+	void PointLightComponent::InitScene()
 	{
 		Log::Print("PointLightComponent Init called!\n");
-		renderer->InitPointLightComponent(GetParent());
+		Renderer::GetInstance().InitPointLightComponent(GetParent());
 	}
 
 	void PointLightComponent::SetPosition(float3 position)

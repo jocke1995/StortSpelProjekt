@@ -55,10 +55,10 @@ namespace component
         }  
     }
 
-    void SpotLightComponent::InitScene(Renderer* renderer)
+    void SpotLightComponent::InitScene()
     {
         Log::Print("SpotLightComponent Init called!\n");
-        renderer->InitSpotLightComponent(GetParent());
+        Renderer::GetInstance().InitSpotLightComponent(GetParent());
     }
 
     void SpotLightComponent::SetPosition(float3 position)

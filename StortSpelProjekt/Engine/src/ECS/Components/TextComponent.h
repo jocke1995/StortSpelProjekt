@@ -37,7 +37,7 @@ namespace component
 		const int GetNumOfCharacters(std::string name);
 
 		void Update(double dt);
-		void InitScene(Renderer* renderer);
+		void InitScene();
 
 	private:
 		std::map<std::string, TextData> m_TextDataMap = {};

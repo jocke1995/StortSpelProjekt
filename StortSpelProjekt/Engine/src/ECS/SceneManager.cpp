@@ -110,7 +110,7 @@ void SceneManager::SetSceneToDraw(Scene* scene)
 		std::vector<Component*>* components = entity->GetAllComponents();
 		for (int i = 0; i < components->size(); i++)
 		{
-			components->at(i)->InitScene(m_pRenderer);
+			components->at(i)->InitScene();
 		}
 
 		// Add sound component

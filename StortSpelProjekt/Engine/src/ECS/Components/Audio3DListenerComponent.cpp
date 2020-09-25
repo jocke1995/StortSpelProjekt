@@ -21,7 +21,7 @@ void component::Audio3DListenerComponent::Update(double dt)
 	UpdateListener();
 }
 
-void component::Audio3DListenerComponent::InitScene(Renderer* renderer)
+void component::Audio3DListenerComponent::InitScene()
 {
 	Log::Print("Audio3DListenerComponent InitScene called!\n");
 }

@@ -16,7 +16,7 @@ Engine::~Engine()
 	delete m_pThreadPool;
 
 	delete m_pSceneManager;
-	delete m_pRenderer;
+	//delete m_pRenderer;
 }
 
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
@@ -36,7 +36,8 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	m_pThreadPool = new ThreadPool(numCores); // Set num m_Threads to number of cores of the cpu
 
 	// Sub-engines
-	m_pRenderer = new Renderer();
+	//m_pRenderer = new Renderer();
+	m_pRenderer = &Renderer::GetInstance();
 	m_pRenderer->InitD3D12(m_pWindow, hInstance, m_pThreadPool);
 
 	// Audio engine

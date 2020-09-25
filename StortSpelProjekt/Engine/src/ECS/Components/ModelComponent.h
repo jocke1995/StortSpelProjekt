@@ -19,7 +19,7 @@ namespace component
         virtual ~ModelComponent();
 
         void Update(double dt);
-        void InitScene(Renderer* renderer);
+        void InitScene();
 
         // Sets
         void SetModel(Model* model);

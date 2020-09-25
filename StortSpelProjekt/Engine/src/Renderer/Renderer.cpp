@@ -74,6 +74,12 @@ Renderer::Renderer()
 	m_ComputeTasks.resize(COMPUTE_TASK_TYPE::NR_OF_COMPUTETASKS);
 }
 
+Renderer& Renderer::GetInstance()
+{
+	static Renderer instance;
+	return instance;
+}
+
 Renderer::~Renderer()
 {
 	Log::Print("----------------------------  Deleting Renderer  ----------------------------------\n");

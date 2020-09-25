@@ -13,6 +13,6 @@ component::InputComponent::~InputComponent()
 {
 }
 
-void component::InputComponent::InitScene(Renderer* renderer)
+void component::InputComponent::InitScene()
 {
 }

@@ -32,14 +32,14 @@ namespace component
 
 	}
 
-	void ModelComponent::InitScene(Renderer* renderer)
+	void ModelComponent::InitScene()
 	{
 		Log::Print("ModelComponent InitScene called!\n");
 		// check if model has transform component
 		component::TransformComponent* tc = GetParent()->GetComponent<component::TransformComponent>();
 		if (tc != nullptr)
 		{
-			renderer->InitModelComponent(GetParent());
+			Renderer::GetInstance().InitModelComponent(GetParent());
 		}
 	}
 

@@ -15,7 +15,7 @@ public:
 	//Use render update for all things rendering. It will be using variable timestep
 	virtual void RenderUpdate(double dt);
 	//SceneInit
-	virtual void InitScene(Renderer* renderer);
+	virtual void InitScene();
 
 	Entity* const GetParent() const;
 

@@ -16,7 +16,7 @@ namespace component
 		Audio3DListenerComponent(Entity* parent);
 		virtual ~Audio3DListenerComponent();
 		void Update(double dt);
-		void InitScene(Renderer* renderer);
+		void InitScene();
 
 		// updates position and orientation of the listener
 		void UpdateListener();

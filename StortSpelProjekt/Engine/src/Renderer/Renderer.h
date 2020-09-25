@@ -72,7 +72,8 @@ namespace component
 class Renderer
 {
 public:
-	Renderer();
+	//Renderer();
+	static Renderer& GetInstance();
 	virtual ~Renderer();
 
 	// PickedEntity
@@ -103,6 +104,8 @@ public:
 private:
 	friend class SceneManager;
 	friend class Text;
+	Renderer();
+
 	ThreadPool* m_pThreadPool = nullptr;
 
 	// Camera
