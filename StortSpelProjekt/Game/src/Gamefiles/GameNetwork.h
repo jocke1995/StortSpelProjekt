@@ -14,7 +14,7 @@ public:
 private:
 	SceneManager* m_pSceneManager;
 	Scene* m_pScene;
-	Network* m_petwork;
+	Network* m_pNetwork;
 
 	void addNewPlayerEntity(PlayerConnection* evnt);
 
