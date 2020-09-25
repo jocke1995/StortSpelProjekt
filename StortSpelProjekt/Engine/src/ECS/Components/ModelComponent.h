@@ -7,7 +7,7 @@
 #include "Core.h"
 class Mesh;
 class Model;
-class Texture;
+class Material;
 
 namespace component
 {
@@ -25,8 +25,8 @@ namespace component
 
         // Gets
         Mesh* GetMeshAt(unsigned int index) const;
-        std::map<TEXTURE_TYPE, Texture*>* GetTexturesAt(unsigned int index) const;
-        SlotInfo* GetSlotInfoAt(unsigned int index) const;
+        Material* GetMaterialAt(unsigned int index) const;
+        const SlotInfo* GetSlotInfoAt(unsigned int index) const;
         unsigned int GetDrawFlag() const;
         unsigned int GetNrOfMeshes() const;
         bool IsPickedThisFrame() const;

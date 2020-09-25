@@ -20,13 +20,13 @@ public:
 	~BoundingBoxPool();
 	static BoundingBoxPool* Get(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr);
 
-	bool BoundingBoxDataExists(std::string uniquePath) const;
-	bool BoundingBoxMeshExists(std::string uniquePath) const;
+	bool BoundingBoxDataExists(std::wstring uniquePath) const;
+	bool BoundingBoxMeshExists(std::wstring uniquePath) const;
 
-	BoundingBoxData* GetBoundingBoxData(std::string uniquePath);
-	BoundingBoxData* CreateBoundingBoxData(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::string uniquePath);
+	BoundingBoxData* GetBoundingBoxData(std::wstring uniquePath);
+	BoundingBoxData* CreateBoundingBoxData(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::wstring uniquePath);
 
-	Mesh* CreateBoundingBoxMesh(std::string uniquePath);
+	Mesh* CreateBoundingBoxMesh(std::wstring uniquePath);
 	
 private:
 	BoundingBoxPool(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr);
@@ -37,8 +37,8 @@ private:
 	ID3D12Device5* m_pDevice = nullptr;
 	DescriptorHeap* m_pDescriptorHeap_CBV_UAV_SRV = nullptr;
 
-	std::map<std::string, BoundingBoxData*> m_BoundingBoxesData;
-	std::map<std::string, Mesh*> m_BoundingBoxesMesh;
+	std::map<std::wstring, BoundingBoxData*> m_BoundingBoxesData;
+	std::map<std::wstring, Mesh*> m_BoundingBoxesMesh;
 
 };
 

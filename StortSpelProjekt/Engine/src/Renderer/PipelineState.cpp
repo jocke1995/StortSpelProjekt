@@ -5,7 +5,7 @@
 #include "RootSignature.h"
 #include "../Misc/AssetLoader.h"
 
-PipelineState::PipelineState(LPCTSTR psoName)
+PipelineState::PipelineState(const std::wstring& psoName)
 {
 	m_PsoName = psoName;
 }
@@ -20,7 +20,7 @@ ID3D12PipelineState* PipelineState::GetPSO() const
 	return m_pPSO;
 }
 
-Shader* PipelineState::createShader(LPCTSTR fileName, ShaderType type)
+Shader* PipelineState::createShader(const std::wstring& fileName, ShaderType type)
 {
 	if (type == ShaderType::VS)
 	{
