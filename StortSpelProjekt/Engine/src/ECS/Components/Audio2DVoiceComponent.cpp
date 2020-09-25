@@ -16,10 +16,6 @@ component::Audio2DVoiceComponent::~Audio2DVoiceComponent()
 	}
 }
 
-void component::Audio2DVoiceComponent::Update(double dt)
-{
-}
-
 void component::Audio2DVoiceComponent::AddVoice(const std::wstring& name)
 {
 	if (m_Voices.count(name) == 0)

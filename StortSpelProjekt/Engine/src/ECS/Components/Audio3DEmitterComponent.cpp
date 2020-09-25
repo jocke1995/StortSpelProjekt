@@ -19,10 +19,6 @@ component::Audio3DEmitterComponent::~Audio3DEmitterComponent()
 	}
 }
 
-void component::Audio3DEmitterComponent::Update(double dt)
-{
-}
-
 void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)
 {
 	// get parent entity and look for transform components and get update position

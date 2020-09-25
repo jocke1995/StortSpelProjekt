@@ -23,11 +23,6 @@ namespace component
 		m_DrawFlag = drawFlag;
 	}
 
-	void ModelComponent::Update(double dt)
-	{
-
-	}
-
 	Mesh* ModelComponent::GetMeshAt(unsigned int index) const
 	{
 		return m_Model->GetMeshAt(index);

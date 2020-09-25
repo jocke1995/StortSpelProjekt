@@ -17,8 +17,6 @@ namespace component
         ModelComponent(Entity* parent);
         virtual ~ModelComponent();
 
-        void Update(double dt);
-
         // Sets
         void SetModel(Model* model);
         void SetDrawFlag(unsigned int drawFlag);
