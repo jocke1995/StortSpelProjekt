@@ -12,7 +12,7 @@ void GameNetwork::SetScene(Scene* scene)
 
 void GameNetwork::SetNetwork(Network* network)
 {
-    m_petwork = network;
+    m_pNetwork = network;
 }
 
 void GameNetwork::SetSceneManager(SceneManager* sceneManager)
@@ -35,6 +35,6 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
-    m_petwork->SetPlayerEntityPointer(entity, evnt->playerId);
+    m_pNetwork->SetPlayerEntityPointer(entity, evnt->playerId);
     m_pSceneManager->SetSceneToDraw(m_pScene);
 }
