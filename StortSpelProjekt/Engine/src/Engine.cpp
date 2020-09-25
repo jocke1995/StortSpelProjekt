@@ -40,7 +40,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	{
 		numThreads = m_ThreadLimit;
 	}
-	m_pThreadPool = new ThreadPool(numThreads); // Set num m_Threads to number of cores of the cpu
+	m_pThreadPool = new ThreadPool(numThreads);
 
 	// Sub-engines
 	m_pRenderer = new Renderer();
