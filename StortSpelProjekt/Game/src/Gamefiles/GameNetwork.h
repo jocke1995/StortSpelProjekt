@@ -12,9 +12,9 @@ public:
 	void SetSceneManager(SceneManager* sceneManager);
 
 private:
-	SceneManager* m_pSceneManager;
-	Scene* m_pScene;
-	Network* m_pNetwork;
+	SceneManager* m_SceneManager;
+	Scene* m_Scene;
+	Network* m_Network;
 
 	void addNewPlayerEntity(PlayerConnection* evnt);
 
