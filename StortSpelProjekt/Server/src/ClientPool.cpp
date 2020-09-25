@@ -10,7 +10,7 @@ ClientPool::ClientPool(int port)
 	}
 	m_Selector.add(m_Listener);
 
-	m_AvailableClient = nullptr;
+	m_pAvailableClient = nullptr;
 	m_AvailableClientId = 0;
 }
 
@@ -42,9 +42,9 @@ void ClientPool::ListenMessages()
 void ClientPool::AddClient()
 {
 	m_Clients.push_back(new Client);
-	if (m_AvailableClient == nullptr)
+	if (m_pAvailableClient == nullptr)
 	{
-		m_AvailableClient = m_Clients.at(m_Clients.size() - 1);
+		m_pAvailableClient = m_Clients.at(m_Clients.size() - 1);
 	}
 }
 
@@ -89,25 +89,25 @@ std::string ClientPool::GetConsoleString()
 void ClientPool::newConnection()
 {
 	//Check if there is an available client slot
-	if (m_AvailableClient != nullptr)
+	if (m_pAvailableClient != nullptr)
 	{
 		//Attempt to accept connection
-		if (m_Listener.accept(m_AvailableClient->socket) == sf::Socket::Done)
+		if (m_Listener.accept(m_pAvailableClient->socket) == sf::Socket::Done)
 		{
-			m_AvailableClient->connected = true;
-			m_Selector.add(m_AvailableClient->socket);
-			m_AvailableClient->clientId = m_AvailableClientId++;
+			m_pAvailableClient->connected = true;
+			m_Selector.add(m_pAvailableClient->socket);
+			m_pAvailableClient->clientId = m_AvailableClientId++;
 
-			m_ConsoleString.append(m_AvailableClient->socket.getRemoteAddress().toString() + " connected to server\n");
+			m_ConsoleString.append(m_pAvailableClient->socket.getRemoteAddress().toString() + " connected to server\n");
 
-			m_AvailableClient = nullptr;
+			m_pAvailableClient = nullptr;
 
 			//Find a new available client slot
 			for (int i = 0; i < m_Clients.size(); i++)
 			{
 				if (m_Clients.at(i)->connected == false)
 				{
-					m_AvailableClient = m_Clients.at(i);
+					m_pAvailableClient = m_Clients.at(i);
 					break;
 				}
 			}

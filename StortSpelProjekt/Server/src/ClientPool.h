@@ -36,7 +36,7 @@ private:
 	sf::TcpListener m_Listener;
 	sf::SocketSelector m_Selector;
 
-	Client* m_AvailableClient;
+	Client* m_pAvailableClient;
 	int m_AvailableClientId;
 
 	std::string m_ConsoleString;
