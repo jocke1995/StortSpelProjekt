@@ -8,6 +8,7 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Texture.h"
+#include "../Renderer/Material.h"
 #include "../Renderer/Text.h"
 #include "../Renderer/Animation.h"
 
@@ -49,6 +50,12 @@ AssetLoader::~AssetLoader()
 		delete pair.second.second;
 	}
 
+	// For every Material
+	for (auto material : m_LoadedMaterials)
+	{
+		delete material.second.second;
+	}
+
 	// For every texture
 	for (auto pair : m_LoadedTextures)
 	{
@@ -78,7 +85,7 @@ AssetLoader* AssetLoader::Get(ID3D12Device5* device, DescriptorHeap* descriptorH
 	return &instance;
 }
 
-Model* AssetLoader::LoadModel(const std::wstring path)
+Model* AssetLoader::LoadModel(const std::wstring& path)
 {
 	// Check if the model already exists
 	if (m_LoadedModels.count(path) != 0)
@@ -94,28 +101,28 @@ Model* AssetLoader::LoadModel(const std::wstring path)
 
 	if (assimpScene == nullptr)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to load model with path: \'%s\'\n", filePath.c_str());
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to load model with path: \'%s\'\n", path.c_str());
 		return nullptr;
 	}
 	std::vector<Mesh*> meshes;
 	std::vector<Animation*> animations;
-	std::vector<std::map<TEXTURE_TYPE, Texture*>> textures;
+	std::vector<Material*> materials;
 
 	meshes.reserve(assimpScene->mNumMeshes);
-	textures.reserve(assimpScene->mNumMeshes);
+	materials.reserve(assimpScene->mNumMeshes);
 	animations.reserve(assimpScene->mNumAnimations);
 	m_LoadedModels[path].first = false;
 	
 
-	processNode(assimpScene->mRootNode, assimpScene, &meshes, &textures, &filePath);
+	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
 	processAnimations(assimpScene, &animations);
 
-	m_LoadedModels[path].second = new Model(path, &meshes, &animations, &textures);
+	m_LoadedModels[path].second = new Model(&path, &meshes, &animations, &materials);
 
 	return m_LoadedModels[path].second;
 }
 
-Texture* AssetLoader::LoadTexture(std::wstring path)
+Texture* AssetLoader::LoadTexture(std::wstring& path)
 {
 	// Check if the texture already exists
 	if (m_LoadedTextures.count(path) != 0)
@@ -124,7 +131,7 @@ Texture* AssetLoader::LoadTexture(std::wstring path)
 	}
 
 	Texture* texture = new Texture();
-	if (texture->Init(path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
+	if (texture->Init(&path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
 	{
 		delete texture;
 		return nullptr;
@@ -135,7 +142,7 @@ Texture* AssetLoader::LoadTexture(std::wstring path)
 	return texture;
 }
 
-std::pair<Font*, Texture*> AssetLoader::LoadFontFromFile(const std::wstring fontName)
+std::pair<Font*, Texture*> AssetLoader::LoadFontFromFile(const std::wstring& fontName)
 {
 	const std::wstring path = m_FilePathFonts + fontName;
 
@@ -150,9 +157,9 @@ std::pair<Font*, Texture*> AssetLoader::LoadFontFromFile(const std::wstring font
 
 	// and create the texture
 	Texture* texture = new Texture();
-	if (texture->Init(m_LoadedFonts[path].first->fontImage, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
+	if (texture->Init(&m_LoadedFonts[path].first->fontImage, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Could not init the font texture for %s.\n", to_string(fontName).c_str());
+		Log::PrintSeverity(Log::Severity::WARNING, "Could not init the font texture for %s.\n", fontName.c_str());
 		delete texture;
 		return m_LoadedFonts[path];
 	}
@@ -177,7 +184,7 @@ AudioBuffer* AssetLoader::GetAudio(const std::wstring& name)
 	return &m_LoadedAudios[name];
 }
 
-Shader* AssetLoader::loadShader(std::wstring fileName, ShaderType type)
+Shader* AssetLoader::loadShader(const std::wstring& fileName, ShaderType type)
 {
 	// Check if the shader already exists
 	if (m_LoadedShaders.count(fileName) != 0)
@@ -193,29 +200,29 @@ Shader* AssetLoader::loadShader(std::wstring fileName, ShaderType type)
 	return m_LoadedShaders[fileName];
 }
 
-void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
+void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
 {
 	// Go through all the m_Meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = assimpScene->mMeshes[node->mMeshes[i]];
-		meshes->push_back(processMesh(mesh, assimpScene, meshes, textures, filePath));
+		meshes->push_back(processMesh(mesh, assimpScene, meshes, materials, filePath));
 	}
 	
 	// If the node has more node children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], assimpScene, meshes, textures, filePath);
+		processNode(node->mChildren[i], assimpScene, meshes, materials, filePath);
 	}
 }
 
-Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
+Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
 {
 	// Fill this data
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Bone> bones;
-	std::map<TEXTURE_TYPE, Texture*> meshTextures;
+	
 
 	// Get data from assimpMesh and store it
 	for (unsigned int i = 0; i < assimpMesh->mNumVertices; i++)
@@ -256,8 +263,8 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "Mesh has no tangents\n");
 		}
-		
-		
+
+
 		// Get texture coordinates if there are any
 		if (assimpMesh->HasTextureCoords(0))
 		{
@@ -276,7 +283,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	for (unsigned int i = 0; i < assimpMesh->mNumFaces; i++)
 	{
 		aiFace face = assimpMesh->mFaces[i];
-	
+
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
 		{
 			indices.push_back(face.mIndices[j]);
@@ -291,7 +298,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 
 		// Store the name of the bone
 		bone.name = assimpBone->mName.C_Str();	// Possible loss of data, returns pointer.
-		
+
 		// Store the offset matrix of the bone
 		bone.offsetMatrix = aiMatrix4x4ToXMFloat4x4(&assimpBone->mOffsetMatrix);
 
@@ -308,38 +315,31 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 		bones.push_back(bone);
 	}
 
-
 	// Create Mesh
 	Mesh* mesh = new Mesh(
 		m_pDevice,
 		&vertices, &indices, &bones,
 		m_pDescriptorHeap_CBV_UAV_SRV,
-		*filePath);
+		filePath);
 
 	// save mesh
 	m_LoadedMeshes.push_back(mesh);
 
-	// ---------- Get Textures and set them to the m_pMesh START----------
-	aiMaterial* mat = assimpScene->mMaterials[assimpMesh->mMaterialIndex];
-	
 	// Split filepath
-	std::string filePathWithoutTexture = *filePath;
-	std::size_t indicesInPath = filePathWithoutTexture.find_last_of("/\\");
+	std::wstring filePathWithoutTexture = filePath;
+	std::size_t indicesInPath = filePathWithoutTexture.find_last_of(L"/\\");
 	filePathWithoutTexture = filePathWithoutTexture.substr(0, indicesInPath + 1);
 
-	// Add the textures to the m_pMesh
-	for (int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
-	{
-		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-		Texture* texture = processTexture(mat, type, &filePathWithoutTexture);
-		meshTextures[type] = texture;
-	}
+	// Get material from assimp
+	aiMaterial* mat = assimpScene->mMaterials[assimpMesh->mMaterialIndex];
+	Material* material;
+	// Create our material
+	material = loadMaterial(mat, filePathWithoutTexture);
 	// add the texture to the correct mesh (later for models slotinfo)
-	textures->push_back(meshTextures);
-	// ---------- Get Textures and set them to the m_pMesh END----------
+	materials->push_back(material);
 
 	// Set shininess
-	float shininess = 100;
+	// float shininess = 100;
 	// Todo: looks to bright with these values, bad models or bad scene?
 	// if (AI_SUCCESS != aiGetMaterialFloat(mat, AI_MATKEY_SHININESS, &shininess))
 	// {
@@ -350,9 +350,47 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	return mesh;
 }
 
+Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring& folderPath)
+{
+	// Get material name
+	aiString tempName;
+	mat->Get(AI_MATKEY_NAME, tempName);
+	std::wstring matName = to_wstring(tempName.C_Str());
+
+	// Check if material don't exists
+	if (m_LoadedMaterials.count(matName) == 0)
+	{
+		// Load material
+		std::map<TEXTURE_TYPE, Texture*> matTextures;
+
+		// Add the textures to the m_pMesh
+		for (int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+		{
+			TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
+			Texture* texture = processTexture(mat, type, folderPath);
+			matTextures[type] = texture;
+		}
+
+		Material* material = new Material(&matName, &matTextures);
+		m_LoadedMaterials[matName].first = false;
+		m_LoadedMaterials[matName].second = material;
+
+		return material;
+	}
+	else
+	{
+		// Don't print for default material
+		if (matName != L"DefaultMaterial")
+		{
+			Log::PrintSeverity(Log::Severity::WARNING, "AssetLoader: Loaded same material name more than once, first loaded material will be used <%s>\n", matName.c_str());
+		}
+		return m_LoadedMaterials[matName].second;
+	}
+}
+
 Texture* AssetLoader::processTexture(aiMaterial* mat,
 	TEXTURE_TYPE texture_type,
-	const std::string* filePathWithoutTexture)
+	const std::wstring& filePathWithoutTexture)
 {
 	aiTextureType type;
 	aiString str;
@@ -393,10 +431,10 @@ Texture* AssetLoader::processTexture(aiMaterial* mat,
 	}
 
 	mat->GetTexture(type, 0, &str);
-	std::string textureFile = str.C_Str();
+	std::wstring textureFile = to_wstring(str.C_Str());
 	if (textureFile.size() != 0)
 	{
-		texture = LoadTexture(to_wstring(*filePathWithoutTexture + textureFile).c_str());
+		texture = LoadTexture(filePathWithoutTexture + textureFile);
 	}
 
 	if (texture != nullptr)
@@ -405,9 +443,10 @@ Texture* AssetLoader::processTexture(aiMaterial* mat,
 	}
 	else
 	{
+		std::string tempString = std::string(filePathWithoutTexture.begin(), filePathWithoutTexture.end());
 		// No texture, warn and apply default Texture
 		Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType + 
-			" on mesh with path: \'%s\'\n", filePathWithoutTexture->c_str());
+			" on mesh with path: \'%s\'\n", tempString.c_str());
 		return m_LoadedTextures[defaultPath].second;
 	}
 

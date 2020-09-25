@@ -16,7 +16,7 @@
 BlurComputeTask::BlurComputeTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
-	std::vector<std::pair< LPCWSTR, LPCTSTR>> csNamePSOName,
+	std::vector<std::pair< std::wstring, std::wstring>> csNamePSOName,
 	COMMAND_INTERFACE_TYPE interfaceType,
 	const PingPongResource* Bloom0_RESOURCE,
 	const PingPongResource* Bloom1_RESOURCE,

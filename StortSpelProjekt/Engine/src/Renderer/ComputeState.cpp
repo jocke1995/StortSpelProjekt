@@ -4,7 +4,7 @@
 #include "RootSignature.h"
 #include "Shader.h"
 
-ComputeState::ComputeState(ID3D12Device5* device, RootSignature* rootSignature, LPCWSTR CSName, LPCTSTR psoName)
+ComputeState::ComputeState(ID3D12Device5* device, RootSignature* rootSignature, std::wstring& CSName, std::wstring& psoName)
 	:PipelineState(psoName)
 {
 	m_Cpsd.pRootSignature = rootSignature->GetRootSig();
@@ -19,7 +19,7 @@ ComputeState::ComputeState(ID3D12Device5* device, RootSignature* rootSignature, 
 	// Create pipelineStateObject
 	HRESULT hr = device->CreateComputePipelineState(&m_Cpsd, IID_PPV_ARGS(&m_pPSO));
 
-	m_pPSO->SetName(psoName);
+	m_pPSO->SetName(psoName.c_str());
 	if (!SUCCEEDED(hr))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create %S\n", psoName);
