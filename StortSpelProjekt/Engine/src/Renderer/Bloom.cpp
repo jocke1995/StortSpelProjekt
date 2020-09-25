@@ -13,8 +13,8 @@ Bloom::Bloom(
 	DescriptorHeap* dh_RTV,
 	DescriptorHeap* dh_CBV_UAV_SRV)
 {
-	int width = Option::GetInstance().GetVariable("resolutionWidth");
-	int height = Option::GetInstance().GetVariable("resolutionHeight");
+	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
 
 	createResources(device, width, height);
 

@@ -3,6 +3,18 @@
 
 Network::Network()
 {
+    m_Connected = false;
+
+    m_Players.push_back(new Player);
+    m_Players.at(0)->clientId = 0;
+}
+
+Network::~Network()
+{
+    for (int i = 0; i < m_Players.size(); i++)
+    {
+        delete m_Players.at(i);
+    }
 }
 
 bool Network::ConnectToIP(std::string ip, int port)
@@ -16,43 +28,148 @@ bool Network::ConnectToIP(std::string ip, int port)
     }
     else {
         Log::Print("Connected to " + ip + "\n");
+        m_Connected = true;
+
+        //Await server respone for info
+        m_Socket.setBlocking(true);
+        //Expecting server info
+        if (!ListenPacket())
+        {
+            Log::PrintSeverity(Log::Severity::CRITICAL, "Server info was not recieved!");
+        }
+        //Set socket to non-blocking for future listen
+        m_Socket.setBlocking(false);
+
         return true;
     }
 }
 
-void Network::ListenConnection(int port)
+sf::TcpSocket* Network::GetSocket()
 {
-    // bind the listener to a port
-    if (m_Listener.listen(port) != sf::Socket::Done)
-    {
-        Log::PrintSeverity(Log::Severity::WARNING, "Failed attempting to listen to port: " + std::to_string(port) + " failed\n");
+    return &m_Socket;
+}
+
+void Network::SendPositionPacket()
+{
+    sf::Packet packet;
+
+    float3 pos = m_Players.at(0)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+    DirectX::XMFLOAT3 mov = m_Players.at(0)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->GetMovement();
+
+    packet << E_PACKET_ID::PLAYER_DATA << m_Id << pos.x << pos.y << pos.z << mov.x << mov.y << mov.z;
+
+    m_Socket.send(packet);
+}
+
+void Network::SetPlayerEntityPointer(Entity* playerEnitity, int id)
+{
+    bool found = false;
+    for (int i = 0; i < m_Players.size(); i++) {
+        if (m_Players.at(i)->clientId == id)
+        {
+            found = true;
+            m_Players.at(i)->entityPointer = playerEnitity;
+            break;
+        }
     }
-    // Accept connection
-    if (m_Listener.accept(m_Socket) != sf::Socket::Done)
+    if (found == false)
     {
-        Log::PrintSeverity(Log::Severity::WARNING, "Failed connection to " + m_Socket.getRemoteAddress().toString() + "\n");
+        Log::PrintSeverity(Log::Severity::CRITICAL, "Attempted to add entity pointer to non-existing player id " + std::to_string(id));
+    }
+}
+
+bool Network::ListenPacket()
+{
+    sf::Packet packet;
+    if (m_Socket.receive(packet) == sf::Socket::Done)
+    {
+        processPacket(&packet);
+        return true;
     }
 
-    Log::Print("Connected to " + m_Socket.getRemoteAddress().toString() + "\n");
+    return false;
 }
 
-void Network::AppendStringPacket(std::string str)
+void Network::processPacket(sf::Packet* packet)
 {
-    m_PacketSend << str;
+    int packetId;
+    *packet >> packetId;
+
+    switch (packetId)
+    {
+    case E_PACKET_ID::SERVER_DATA: processServerData(packet); break;
+    case E_PACKET_ID::PLAYER_DATA: processPlayerData(packet); break;
+    default: Log::PrintSeverity(Log::Severity::CRITICAL, "Unkown packet id recieved with enum " + std::to_string(packetId));
+    }
 }
 
-void Network::SendPacket()
+void Network::processPlayerData(sf::Packet* packet)
 {
-    m_Socket.send(m_PacketSend);
-    m_PacketSend.clear();
+    /* Expected packet configuration
+    int client id
+    float3 player position
+    float3 player movment(velocity and direction)
+    */
+
+    int id;
+    float3 pos;
+    float3 mov;
+
+    *packet >> id;
+
+    *packet >> pos.x;
+    *packet >> pos.y;
+    *packet >> pos.z;
+
+    *packet >> mov.x;
+    *packet >> mov.y;
+    *packet >> mov.z;
+
+    for (int i = 0; i < m_Players.size(); i++)
+    {
+        if (m_Players.at(i)->clientId == id)
+        {
+            m_Players.at(i)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+            m_Players.at(i)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->SetActualMovement(mov.x, mov.y, mov.z);
+        }
+    }
 }
 
-std::string Network::ListenPacket()
+void Network::processServerData(sf::Packet* packet)
 {
-    m_Socket.setBlocking(true);
-    m_Socket.receive(m_PacketRecieve);
-    std::string str;
-    m_PacketRecieve >> str;
+    /* Expected packet configuration
+    int ClientID
+    int amount of players
+    for amount of players
+        int player id
+    */
+    *packet >> m_Id;
+    m_Players.at(0)->clientId = m_Id;
+    int playerCount;
+    *packet >> playerCount;
 
-    return str;
+    for (int i = 0; i < playerCount; i++)
+    {
+        int playerId;
+        *packet >> playerId;
+
+
+        //Check if the player already exist in our list
+        bool playerFound = false;
+        for (int j = 0; j < m_Players.size(); j++)
+        {
+            if (m_Players.at(j)->clientId == playerId)
+            {
+                playerFound = true;
+                break;
+            }
+        }
+        //If player is not found then create a new one
+        if (playerFound == false)
+        {
+            m_Players.push_back(new Player);
+            m_Players.at(m_Players.size() - 1)->clientId = playerId;
+            EventBus::GetInstance().Publish(&PlayerConnection(playerId));
+        }
+    }
 }

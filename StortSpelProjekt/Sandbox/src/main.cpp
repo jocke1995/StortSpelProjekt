@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
 #include "EnemyFactory.h"
+#include "GameNetwork.h"
 
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
@@ -9,6 +10,7 @@ Scene* FredriksTestScene(SceneManager* sm);
 Scene* WilliamsTestScene(SceneManager* sm);
 Scene* AndresTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
+Scene* AntonTestScene(SceneManager* sm);
 
 
 void(*UpdateScene)(SceneManager*);
@@ -20,9 +22,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	/*------ Load Option Variables ------*/
-	Option::GetInstance().ReadFile();
-	float updateRate = 1.0f / Option::GetInstance().GetVariable("updateRate");
+    /*------ Load Option Variables ------*/
+    Option* option = &Option::GetInstance();
+    option->ReadFile();
+    float updateRate = 1.0f / std::atof(option->GetVariable("f_updateRate").c_str());
 
 	/* ------ Engine  ------ */
 	Engine engine;
@@ -37,6 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Physics* const physics = engine.GetPhysics();
     AudioEngine* const audioEngine = engine.GetAudioEngine();
 
+
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
@@ -48,10 +52,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
+    //sceneManager->SetSceneToDraw(AntonTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(AndresTestScene(sceneManager)); // example play and updateEmitter functions in AndresTestScene
 
-    /*----- Timer ------*/
+    GameNetwork gameNetwork;
+
+    /*------ Network Init -----*/
+    bool networkOn = false;
+    Network network;
+
+    gameNetwork.SetNetwork(&network);
+
+    if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
+    {
+        gameNetwork.SetScene(sceneManager->GetScene("AntonScene"));
+        gameNetwork.SetSceneManager(sceneManager);
+
+        network.SetPlayerEntityPointer(sceneManager->GetScene("AntonScene")->GetEntity("player"), 0);
+        network.ConnectToIP(option->GetVariable("s_ip"), std::atoi(option->GetVariable("i_port").c_str()));
+
+        networkOn = true;
+    }
+    int networkCount = 0;
     double logicTimer = 0;
+    int count = 0;
 
     while (!window->ExitWindow())
     {
@@ -63,8 +87,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
+            networkCount++;
             physics->Update(updateRate);
             renderer->Update(updateRate);
+        }
+
+        /* ---- Network ---- */
+        if (networkOn)
+        {
+            if (networkCount == 2) {
+                networkCount = 0;
+
+                network.SendPositionPacket();
+                while(network.ListenPacket());
+            }
         }
 
         /* ------ Sort ------ */
@@ -108,7 +144,7 @@ Scene* LeosTestScene(SceneManager* sm)
     loopedSound->SetAudioLoop(0);
 
     /* ---------------------- Player ---------------------- */
-    Entity* entity = (scene->AddEntity("player"));
+    Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
@@ -245,6 +281,68 @@ Scene* TimScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
 
     /* ---------------------- PointLight1 ---------------------- */
+
+    return scene;
+}
+
+Scene* AntonTestScene(SceneManager* sm)
+{
+    // Create scene
+    Scene* scene = sm->CreateScene("AntonScene");
+
+    component::CameraComponent* cc = nullptr;
+    component::ModelComponent* mc = nullptr;
+    component::TransformComponent* tc = nullptr;
+    component::PointLightComponent* plc = nullptr;
+    component::InputComponent* ic = nullptr;
+    AssetLoader* al = AssetLoader::Get();
+
+    // Get the models needed
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+
+    /* ---------------------- Player 0 ---------------------- */
+    Entity* entity = (scene->AddEntity("player"));
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+
+    mc->SetModel(playerModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(0, 1, -30);
+    ic->Init();
+
+    /* ---------------------- Floor ---------------------- */
+    entity = scene->AddEntity("floor");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(floorModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(35, 1, 35);
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    /* ---------------------- Floor ---------------------- */
+
+    /* ---------------------- PointLight ---------------------- */
+    entity = scene->AddEntity("pointLight");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
+
+    plc->SetColor({ 2.0f, 0.0f, 2.0f });
+    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+    /* ---------------------- PointLight ---------------------- */
 
     return scene;
 }

@@ -31,7 +31,7 @@ void AudioVoice::initialize(XAUDIO2_BUFFER* buff, WAVEFORMATEXTENSIBLE* wfxForma
         Log::Print("Failed to submit source buffer\n");
     }
 
-    m_pSourceVoice->SetVolume(Option::GetInstance().GetVariable("volume"));
+    m_pSourceVoice->SetVolume(std::atof(Option::GetInstance().GetVariable("f_volume").c_str()));
     HRESULT hRes = m_pSourceVoice->SetOutputVoices(NULL);
 }
 

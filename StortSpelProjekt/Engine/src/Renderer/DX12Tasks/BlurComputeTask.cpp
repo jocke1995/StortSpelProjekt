@@ -66,7 +66,7 @@ void BlurComputeTask::Execute()
 	// Send the indices to gpu
 	commandList->SetComputeRoot32BitConstants(RS::CB_INDICES_CONSTANTS, sizeof(DescriptorHeapIndices) / sizeof(UINT), &m_DhIndices, 0);
 
-	unsigned int timesToBlur = Option::GetInstance().GetVariable("amountOfBlur");
+	unsigned int timesToBlur = std::atoi(Option::GetInstance().GetVariable("i_amountOfBlur").c_str());
 	for (unsigned int i = 0; i < timesToBlur; i++)
 	{
 		// The resource to read (Resource Barrier)
