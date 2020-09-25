@@ -13,7 +13,7 @@ public:
 	Texture();
 	virtual ~Texture();
 	
-	bool Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap);
+	bool Init(std::wstring* filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap);
 
 	const UINT GetDescriptorHeapIndex() const;
 
@@ -30,7 +30,7 @@ private:
 	Resource* m_pResourceDefaultHeap = nullptr;
 	Resource* m_pResourceUploadHeap = nullptr;
 
-	bool createTexture(std::wstring filePath, ID3D12Device5* device, UINT descriptorHeapIndex_SRV);
+	bool createTexture(std::wstring* filePath, ID3D12Device5* device, UINT descriptorHeapIndex_SRV);
 
 
 

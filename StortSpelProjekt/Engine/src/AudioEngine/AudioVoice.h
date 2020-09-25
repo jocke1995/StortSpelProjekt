@@ -25,6 +25,8 @@ public:
 	/// </summary>
 	void Initialize(AudioBuffer& audio);
 
+	IXAudio2SourceVoice* GetSourceVoice();
+
 	/// <summary>
 	/// Plays audio.
 	/// </summary>

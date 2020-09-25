@@ -1,8 +1,9 @@
 volume 1.0
+backgroundVolume 0.1
 updateRate 30
-resolutionWidth 768
-resolutionHeight 432
-windowWidth 768
-windowHeight 432
+resolutionWidth 800
+resolutionHeight 600
+windowWidth 800
+windowHeight 600
 fullscreen 0
 amountOfBlur 2
