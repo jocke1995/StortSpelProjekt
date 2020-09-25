@@ -58,19 +58,8 @@ namespace component
 		return m_pPointLight;
 	}
 
-	void PointLightComponent::UpdateLightData(COLOR_TYPE type)
+	void PointLightComponent::UpdateLightIntensity()
 	{
-		switch (type)
-		{
-		case COLOR_TYPE::LIGHT_AMBIENT:
-			m_pPointLight->baseLight.ambient = m_pBaseLight->ambient;
-			break;
-		case COLOR_TYPE::LIGHT_DIFFUSE:
-			m_pPointLight->baseLight.diffuse = m_pBaseLight->diffuse;
-			break;
-		case COLOR_TYPE::LIGHT_SPECULAR:
-			m_pPointLight->baseLight.specular = m_pBaseLight->specular;
-			break;
-		}
+		m_pPointLight->baseLight.color = m_pBaseLight->color;
 	}
 }
