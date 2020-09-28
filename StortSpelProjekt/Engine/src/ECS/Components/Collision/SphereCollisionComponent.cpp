@@ -20,27 +20,27 @@ void component::SphereCollisionComponent::CheckCollision(CollisionComponent* oth
 
 void component::SphereCollisionComponent::CheckCollisionSphere(SphereCollisionComponent* other)
 {
-	DirectX::XMFLOAT3 lineOfAction = {
+	DirectX::XMFLOAT3 distVec = {
 		(m_pTrans->GetPositionXMFLOAT3().x) - (other->m_pTrans->GetPositionXMFLOAT3().x),
 		(m_pTrans->GetPositionXMFLOAT3().y) - (other->m_pTrans->GetPositionXMFLOAT3().y),
 		(m_pTrans->GetPositionXMFLOAT3().z) - (other->m_pTrans->GetPositionXMFLOAT3().z)
 	};
 
-	float distSquared = lineOfAction.x * lineOfAction.x + lineOfAction.y * lineOfAction.y + lineOfAction.z * lineOfAction.z;
-
-	if (distSquared <= (m_Rad + other->m_Rad) * (m_Rad + other->m_Rad))
+	float distSquared = distVec.x * distVec.x + distVec.y * distVec.y + distVec.z * distVec.z;
+	float minColDistSquared = (m_Rad + other->m_Rad) * (m_Rad + other->m_Rad);
+	if (distSquared <= minColDistSquared)
 	{
 		// Collision has occured. Resolve it here.
 
 
 		DirectX::XMFLOAT3 normLOA;
-		DirectX::XMStoreFloat3(&normLOA, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&lineOfAction)));
+		DirectX::XMStoreFloat3(&normLOA, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&distVec)));
 
 		DirectX::XMFLOAT3 velFirst = m_pTrans->GetMovement();
 		DirectX::XMFLOAT3 velSecond = other->m_pTrans->GetMovement();
 
 		// If the spheres are moving away from eachother, don't resolve another collision...
-		if (velFirst.x * normLOA.x + velFirst.y * normLOA.y + velFirst.z * normLOA.z < 0.0f &&
+		if (-velFirst.x * normLOA.x - velFirst.y * normLOA.y - velFirst.z * normLOA.z < 0.0f &&
 			velSecond.x * normLOA.x + velSecond.y * normLOA.y + velSecond.z * normLOA.z < 0.0f)
 		{
 			return;
@@ -68,6 +68,32 @@ void component::SphereCollisionComponent::CheckCollisionSphere(SphereCollisionCo
 			velSecond.y + (u2p - v2p) * (normLOA.y),
 			velSecond.z + (u2p - v2p) * (normLOA.z)
 		};
+
+		// Calculate how far the spheres need to move to not be colliding with eachother
+
+		// Calculate length of each velocity vector
+		float firstVel = sqrtf(postVelFirst.x * postVelFirst.x + postVelFirst.y * postVelFirst.y + postVelFirst.z * postVelFirst.z);
+		float secVel = sqrtf(postVelFirst.x * postVelFirst.x + postVelFirst.y * postVelFirst.y + postVelFirst.z * postVelFirst.z);
+		float actualDiff = sqrtf(minColDistSquared) - sqrtf(distSquared);
+
+		float velTot = firstVel + secVel;
+		float firstToMove = firstVel * actualDiff / velTot;
+		float secToMove = secVel * actualDiff / velTot;
+
+		m_pTrans->SetPosition
+		(
+			m_pTrans->GetPositionXMFLOAT3().x + postVelFirst.x * firstToMove, 
+			m_pTrans->GetPositionXMFLOAT3().y + postVelFirst.y * firstToMove, 
+			m_pTrans->GetPositionXMFLOAT3().z + postVelFirst.z * firstToMove
+		);
+
+		other->m_pTrans->SetPosition
+		(
+			other->m_pTrans->GetPositionXMFLOAT3().x + postVelSec.x * secToMove,
+			other->m_pTrans->GetPositionXMFLOAT3().y + postVelSec.y * secToMove,
+			other->m_pTrans->GetPositionXMFLOAT3().z + postVelSec.z * secToMove
+		);
+
 
 		m_pTrans->SetActualMovement(postVelFirst.x, postVelFirst.y, postVelFirst.z);
 		other->m_pTrans->SetActualMovement(postVelSec.x, postVelSec.y, postVelSec.z);

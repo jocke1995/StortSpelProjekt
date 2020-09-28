@@ -1,6 +1,6 @@
 #ifndef COLLISIONBODYCOMPONENT_H
 #define COLLISIONBODYCOMPONENT_H
-#define COR 0.8f
+#define COR 1.0f
 #include "../Component.h"
 
 class Transform;

@@ -11,7 +11,6 @@ namespace component
 		virtual void CheckCollision(CollisionComponent* other);
 	private:
 		float m_Rad;
-
 		void CheckCollisionSphere(SphereCollisionComponent* other);
 	};
 }
