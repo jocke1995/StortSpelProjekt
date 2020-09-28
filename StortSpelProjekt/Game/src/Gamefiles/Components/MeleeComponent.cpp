@@ -77,13 +77,6 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 
 component::MeleeComponent::~MeleeComponent()
 {
-	if (DRAWBOUNDINGBOX)
-	{
-		if (m_pMesh != nullptr)
-		{
-			delete m_pMesh;
-		}
-	}
 }
 
 void component::MeleeComponent::Update(double dt)
