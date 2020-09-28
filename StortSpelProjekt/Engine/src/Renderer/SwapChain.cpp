@@ -131,7 +131,6 @@ SwapChain::SwapChain(
 		// release the output adapter
 		output->Release();
 
-		// if the current resolution is not supported, switch to the lowest supported resolution
 		bool supportedMode = false;
 		for (unsigned int i = 0; i < numberOfSupportedModes; i++)
 		{
@@ -143,6 +142,7 @@ SwapChain::SwapChain(
 			}
 		}
 
+		// if the current resolution is not supported, switch to the lowest supported resolution
 		if (!supportedMode)
 		{
 			// print a warning 
@@ -153,6 +153,22 @@ SwapChain::SwapChain(
 			currentModeDescription = supportedModes[0];
 			width = currentModeDescription.Width;
 			height = currentModeDescription.Height;
+
+			Log::Print("Supported resolutions:\n");
+			int latestWidth = 0;
+			int latestHeight = 0;
+			for (unsigned int i = 0; i < numberOfSupportedModes; i++)
+			{
+				// We don't care about other attributes, only the resolution
+				if (supportedModes[i].Width == latestWidth && supportedModes[i].Height == latestHeight)
+				{
+					continue;
+				}
+				Log::Print("(%d, %d)\n", supportedModes[i].Width, supportedModes[i].Height);
+				latestWidth = supportedModes[i].Width;
+				latestHeight = supportedModes[i].Height;
+			}
+			Log::Print("----------------------\n");
 		}
 
 		if (FAILED(m_pSwapChain4->ResizeTarget(&currentModeDescription)))
