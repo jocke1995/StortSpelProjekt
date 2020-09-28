@@ -6,7 +6,7 @@ i_resolutionHeight 432
 i_windowWidth 768	
 i_windowHeight 432
 i_fullscreen 0
-i_amountOfBlur 6
+i_amountOfBlur 2
 i_network 0
 s_ip localhost
 i_port 55555
