@@ -13,7 +13,8 @@ namespace component
 		CollisionComponent(Entity* parent, Transform* trans, float mass = 1.0f);
 		virtual ~CollisionComponent();
 		// Checks for collision between two objects. If collision occurs, the transform is adjusted accordingly.
-		virtual void CheckCollision(CollisionComponent* other) = 0;
+		//virtual void CheckCollision(CollisionComponent* other) = 0;
+		void SetMovement(float x, float y, float z);
 		btRigidBody* GetBody();
 	protected:
 		float m_Mass;

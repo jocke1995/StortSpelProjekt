@@ -204,7 +204,7 @@ Scene* TimScene(SceneManager* sm)
 
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
-    tc->GetTransform()->SetActualMovement(0.0f, 0.0f, 2.0f);
+    scc->SetMovement(0.0f, 0.0f, 20.0f);
     scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform(),1);
 
     mc->SetModel(cubeModel);
@@ -223,7 +223,7 @@ Scene* TimScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
-    tc->GetTransform()->SetActualMovement(0.0f, 0.0f, 0.0f);
+    scc->SetMovement(0.0f, 0.0f, 0.0f);
     scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform(), 1000);
 
     mc->SetModel(cubeModel);

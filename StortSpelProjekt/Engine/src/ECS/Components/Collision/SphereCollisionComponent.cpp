@@ -45,6 +45,7 @@ void component::SphereCollisionComponent::Update(double dt)
 
 void component::SphereCollisionComponent::CheckCollisionSphere(SphereCollisionComponent* other)
 {
+	/*
 	DirectX::XMFLOAT3 distVec = {
 		(m_pTrans->GetPositionXMFLOAT3().x) - (other->m_pTrans->GetPositionXMFLOAT3().x),
 		(m_pTrans->GetPositionXMFLOAT3().y) - (other->m_pTrans->GetPositionXMFLOAT3().y),
@@ -122,5 +123,5 @@ void component::SphereCollisionComponent::CheckCollisionSphere(SphereCollisionCo
 
 		m_pTrans->SetActualMovement(postVelFirst.x, postVelFirst.y, postVelFirst.z);
 		other->m_pTrans->SetActualMovement(postVelSec.x, postVelSec.y, postVelSec.z);
-	}
+	}*/
 }

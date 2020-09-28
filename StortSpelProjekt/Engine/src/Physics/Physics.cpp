@@ -131,7 +131,7 @@ void Physics::collisionComponentChecks()
 	{
 		for (int j = i + 1; j < m_CollisionComponents.size(); j++)
 		{
-			m_CollisionComponents[i]->CheckCollision(m_CollisionComponents[j]);
+			//m_CollisionComponents[i]->CheckCollision(m_CollisionComponents[j]);
 		}
 	}
 }
