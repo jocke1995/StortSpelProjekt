@@ -126,6 +126,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
+    component::BoundingBoxComponent* bbc = nullptr;
     component::MeleeComponent* melc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
@@ -140,12 +141,13 @@ Scene* JacobsTestScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    melc = entity->AddComponent<component::MeleeComponent>();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
+    melc = entity->AddComponent<component::MeleeComponent>();
     /* ---------------------- Player ---------------------- */
 
     /* ---------------------- Floor ---------------------- */
