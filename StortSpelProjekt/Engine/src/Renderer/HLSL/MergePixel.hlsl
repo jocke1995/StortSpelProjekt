@@ -13,8 +13,8 @@ SamplerState samplerTypeWrap	: register (s0);
 
 float4 PS_main(VS_OUT input) : SV_TARGET0
 {
-	float4 sceneColor = textures[cbPerObject.info.textureAmbient].Sample(samplerTypeWrap, input.uv);
-	float4 blurColor = textures[cbPerObject.info.textureDiffuse].Sample(samplerTypeWrap, input.uv);
+	float4 sceneColor = textures[cbPerObject.info.textureMetallic].Sample(samplerTypeWrap, input.uv);
+	float4 blurColor = textures[cbPerObject.info.textureAlbedo].Sample(samplerTypeWrap, input.uv);
 
 	// Darken down the base image in areas where there is a lot of bloom
 	sceneColor *= (1 - saturate(blurColor));

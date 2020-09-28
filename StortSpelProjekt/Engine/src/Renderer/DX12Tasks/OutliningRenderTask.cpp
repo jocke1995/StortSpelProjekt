@@ -19,9 +19,9 @@
 OutliningRenderTask::OutliningRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
-	LPCWSTR VSName, LPCWSTR PSName,
+	const std::wstring& VSName, const std::wstring& PSName,
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
-	LPCTSTR psoName)
+	const std::wstring& psoName)
 	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName)
 {
 	// Init with nullptr
