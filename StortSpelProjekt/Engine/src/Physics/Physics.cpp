@@ -4,8 +4,16 @@
 #include"../ECS/Entity.h"
 #include "../Events/EventBus.h"
 #include "../ECS/Components/Collision/CollisionComponent.h"
+
+#include <btBulletDynamicsCommon.h>
 Physics::Physics()
 {
+	m_pCollisionConfig = new btDefaultCollisionConfiguration();
+	m_pDispatcher = new btCollisionDispatcher(m_pCollisionConfig);
+	m_pBroadphase = new btDbvtBroadphase();
+	m_pSolver = new btSequentialImpulseConstraintSolver();
+	m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher,m_pBroadphase,m_pSolver,m_pCollisionConfig);
+	m_pWorld->setGravity({ 0.0f,-9.82f,0.0f });
 }
 
 Physics& Physics::GetInstance()
@@ -16,6 +24,11 @@ Physics& Physics::GetInstance()
 
 Physics::~Physics()
 {
+	delete m_pBroadphase;
+	delete m_pDispatcher;
+	delete m_pCollisionConfig;
+	delete m_pSolver;
+	delete m_pWorld;
 }
 
 void Physics::Update(double dt)

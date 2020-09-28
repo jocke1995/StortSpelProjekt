@@ -14,6 +14,7 @@ project "Engine"
     objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
     files { "%{prj.location}/src/**.cpp", "%{prj.location}/src/**.h", "%{prj.location}/src/**.hlsl" }
     forceincludes { "stdafx.h" }
+    staticruntime "On"
     
     filter { "files:**.hlsl" }
         flags "ExcludeFromBuild"
@@ -36,28 +37,27 @@ project "Engine"
     {
         ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Game"),
         ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Sandbox"),
-        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/EngineTests"),
         ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Server")
     }
     defines{"_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE"}
         filter "configurations:Debug"
             links {
-                "BulletCollision_Debug",
-                "BulletDynamics_Debug",
-                "BulletSoftBody_Debug",
-                "LinearMath_Debug"
+                "BulletSoftBody_vs2010_X64_debug",
+                "BulletDynamics_vs2010_X64_debug",
+                "BulletCollision_vs2010_X64_debug",
+                "LinearMath_vs2010_X64_debug"
             }
-            defines { "_DEBUG" }
+            defines { "_DEBUG", "BT_USE_DOUBLE_PRECISION"  }
             symbols "On"
 
         filter "configurations:Release"
             links {
-                "BulletCollision",
-                "BulletDynamics",
-                "BulletSoftBody",
-                "LinearMath"
+                "BulletSoftBody_vs2010_X64_release",
+                "BulletDynamics_vs2010_X64_release",
+                "BulletCollision_vs2010_X64_release",
+                "LinearMath_vs2010_X64_release"
             }
-            defines { "NDEBUG" }
+            defines { "NDEBUG", "BT_USE_DOUBLE_PRECISION" }
             optimize "On"
 
 project "Game"
@@ -67,7 +67,8 @@ project "Game"
     targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
     objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
     files { "%{prj.location}/src/**.cpp", "%{prj.location}/src/**.h", "%{prj.location}/src/**.hlsl" }
-    
+    staticruntime "On"
+
     filter { "files:**.hlsl" }
         flags "ExcludeFromBuild"
     
@@ -94,8 +95,8 @@ project "Sandbox"
     language "C++"
     targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
     objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
+    staticruntime "On"
     files { "%{prj.location}/src/**.cpp", "%{prj.location}/src/**.h", "%{prj.location}/src/**.hlsl", "%{prj.location}/../Game/src/Gamefiles/**.cpp", "%{prj.location}/../Game/src/Gamefiles/**.h" }
-
     vpaths {["Gamefiles"] = {"*.cpp", "*.h"}}
 
     filter { "files:**.hlsl" }
@@ -118,42 +119,13 @@ project "Sandbox"
         defines { "NDEBUG" }
         optimize "On"
 
-project "GTest"
-    location "googletest"
-    kind "StaticLib"
-    targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
-    objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
-    files { "googletest/gtest/googletest/src/gtest-all.cc" }
-    includedirs { "googletest/gtest/googletest/include", "googletest/gtest/googletest" }
-    filter "configurations:Debug"
-        defines { "_DEBUG" }
-        symbols "On"
-
-    filter "configurations:Release"
-        defines { "NDEBUG" }
-        optimize "On"
-
-project "EngineTests"
-    location "EngineTests"
-    kind "ConsoleApp"
-    targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
-    objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
-    files {"%{prj.location}/src/**.cpp", "src/**.h"}
-    includedirs { "Engine/src/", "googletest/gtest/googletest/include/"}
-    links {"Engine", "GTest" }
-    filter "configurations:Debug"
-        defines { "_DEBUG", "_CONSOLE" }
-        symbols "On"
-
-    filter "configurations:Release"
-        defines { "NDEBUG", "_CONSOLE" }
-        optimize "On"
 
 project "Server"
     location "Server"
     kind "ConsoleApp"
     targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
     objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
+    staticruntime "On"
     files {"%{prj.location}/src/**.cpp", "src/**.h"}
     includedirs {"Vendor/Include/", "Engine/src/", "Engine/src/Headers/"}
     links {"Engine"}

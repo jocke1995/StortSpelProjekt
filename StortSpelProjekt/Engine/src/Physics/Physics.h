@@ -11,6 +11,14 @@ namespace component
 {
 	class CollisionComponent;
 }
+
+// Bullet physics forward declaration.
+class btDynamicsWorld;
+class btDispatcher;
+class btCollisionConfiguration;
+class btDbvtBroadphase;
+class btConstraintSolver;
+
 class Physics
 {
 public:
@@ -31,10 +39,17 @@ private:
 	Physics();
 	double m_timeSinceLastColCheck = 0;
 	// How often the collisions are checked
-	const double m_CollisionUpdateInterval = 0.1;
+	const double m_CollisionUpdateInterval = 0.01;
 	// Vector containing all objects collision will be checked for
 	std::vector<Entity*> m_CollisionEntities;
 	std::vector<component::CollisionComponent*> m_CollisionComponents;
+
+	// bullet physics variables dynamicly allocated as their classes are abstract.
+	btDynamicsWorld* m_pWorld;
+	btDispatcher* m_pDispatcher;
+	btCollisionConfiguration* m_pCollisionConfig;
+	btDbvtBroadphase* m_pBroadphase;
+	btConstraintSolver* m_pSolver;
 
 	// Checks collision for all entities in the collison entities vector
 	// publishes an event if a collision has happened
