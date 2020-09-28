@@ -27,6 +27,10 @@ namespace component
 		m_pTransform->UpdateWorldMatrix();
 	}
 
+	void TransformComponent::InitScene()
+	{
+	}
+
 	Transform* TransformComponent::GetTransform() const
 	{
 		return m_pTransform;

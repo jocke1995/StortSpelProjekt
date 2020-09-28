@@ -176,4 +176,11 @@ namespace component
 		return m_TextDataMap[name].text.size();
 	}
 
+	void TextComponent::Update(double dt)
+	{
+	}
+	void TextComponent::InitScene()
+	{
+		Renderer::GetInstance().InitTextComponent(GetParent());
+	}
 }

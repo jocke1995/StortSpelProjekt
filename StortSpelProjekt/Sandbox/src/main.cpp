@@ -46,14 +46,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    sceneManager->SetSceneToDraw(LeosTestScene(sceneManager));
-    //sceneManager->SetSceneToDraw(TimScene(sceneManager));
-    //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
-    //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
-    //sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
-    //sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
-    //sceneManager->SetSceneToDraw(AntonTestScene(sceneManager));
-    //sceneManager->SetSceneToDraw(AndresTestScene(sceneManager)); // example play and updateEmitter functions in AndresTestScene
+    sceneManager->SetScene(LeosTestScene(sceneManager));
+    //sceneManager->SetScene(TimScene(sceneManager));
+    //sceneManager->SetScene(JockesTestScene(sceneManager));
+    //sceneManager->SetScene(FredriksTestScene(sceneManager));
+    //sceneManager->SetScene(WilliamsTestScene(sceneManager));
+    //sceneManager->SetScene(BjornsTestScene(sceneManager));
+    //sceneManager->SetScene(AntonTestScene(sceneManager));
+    //sceneManager->SetScene(AndresTestScene(sceneManager)); // example play and updateEmitter functions in AndresTestScene
 
     GameNetwork gameNetwork;
 
