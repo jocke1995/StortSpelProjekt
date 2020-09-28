@@ -382,7 +382,7 @@ Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring& folderP
 		// Don't print for default material
 		if (matName != L"DefaultMaterial")
 		{
-			Log::PrintSeverity(Log::Severity::WARNING, "AssetLoader: Loaded same material name more than once, first loaded material will be used <%s>\n", matName.c_str());
+			Log::PrintSeverity(Log::Severity::WARNING, "AssetLoader: Loaded same material name more than once, first loaded material will be used <%S>\n", matName.c_str());
 		}
 		return m_LoadedMaterials[matName].second;
 	}
