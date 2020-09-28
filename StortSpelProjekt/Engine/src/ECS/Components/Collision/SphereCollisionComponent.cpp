@@ -1,11 +1,25 @@
 #include "stdafx.h"
 #include "SphereCollisionComponent.h"
 #include "../Renderer/Transform.h"
-
-component::SphereCollisionComponent::SphereCollisionComponent(Entity* parent, Transform* trans, float mass, float rad):
+component::SphereCollisionComponent::SphereCollisionComponent(Entity* parent, Transform* trans, float mass, float rad) :
 	CollisionComponent(parent, trans, mass),
 	m_Rad(rad)
 {
+	btTransform btTrans;
+	btTrans.setIdentity();
+	btTrans.setOrigin({ trans->GetPositionFloat3().x, trans->GetPositionFloat3().y, trans->GetPositionFloat3().z });
+	m_pSphere = new btSphereShape(rad);
+	btVector3 inertia = { 0.0f,0.0f,0.0f };
+	m_pSphere->calculateLocalInertia(mass, inertia);
+	m_pMotionState = new btDefaultMotionState(btTrans);
+	btRigidBody::btRigidBodyConstructionInfo info(mass, m_pMotionState, m_pSphere);
+	m_pBody = new btRigidBody(info);
+}
+
+component::SphereCollisionComponent::~SphereCollisionComponent()
+{
+	delete m_pSphere;
+	delete m_pMotionState;
 }
 
 void component::SphereCollisionComponent::CheckCollision(CollisionComponent* other)
@@ -16,6 +30,17 @@ void component::SphereCollisionComponent::CheckCollision(CollisionComponent* oth
 	{
 		CheckCollisionSphere(scc);
 	}
+}
+
+void component::SphereCollisionComponent::Update(double dt)
+{
+	btTransform trans;
+	m_pBody->getMotionState()->getWorldTransform(trans);
+	double mat[16];
+	float x = trans.getOrigin().x();
+	float y = trans.getOrigin().y();
+	float z = trans.getOrigin().z();
+	m_pTrans->SetPosition(x, y, z);
 }
 
 void component::SphereCollisionComponent::CheckCollisionSphere(SphereCollisionComponent* other)

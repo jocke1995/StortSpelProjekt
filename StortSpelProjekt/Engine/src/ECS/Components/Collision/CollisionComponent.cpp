@@ -7,3 +7,13 @@ m_pTrans(trans),
 m_Mass(mass)
 {
 }
+
+component::CollisionComponent::~CollisionComponent()
+{
+	delete m_pBody;
+}
+
+btRigidBody* component::CollisionComponent::GetBody()
+{
+	return m_pBody;
+}

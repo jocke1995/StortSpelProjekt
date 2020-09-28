@@ -14,7 +14,7 @@ Engine::~Engine()
 	m_pThreadPool->WaitForThreads(FLAG_THREAD::ALL);
 	m_pThreadPool->ExitThreads();
 	delete m_pThreadPool;
-
+	Physics::GetInstance().DestroyPhysics();
 	delete m_pSceneManager;
 	delete m_pRenderer;
 }

@@ -5,15 +5,24 @@
 #include "../Events/EventBus.h"
 #include "../ECS/Components/Collision/CollisionComponent.h"
 
-#include <btBulletDynamicsCommon.h>
 Physics::Physics()
 {
 	m_pCollisionConfig = new btDefaultCollisionConfiguration();
 	m_pDispatcher = new btCollisionDispatcher(m_pCollisionConfig);
 	m_pBroadphase = new btDbvtBroadphase();
 	m_pSolver = new btSequentialImpulseConstraintSolver();
-	m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher,m_pBroadphase,m_pSolver,m_pCollisionConfig);
+	m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher,m_pBroadphase,m_pSolver, m_pCollisionConfig);
 	m_pWorld->setGravity({ 0.0f,-9.82f,0.0f });
+
+	//similar to createSphere
+	btTransform t;
+	t.setIdentity();
+	t.setOrigin(btVector3(0, 0, 0));
+	btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
+	btMotionState* motion = new btDefaultMotionState(t);
+	btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, plane);
+	m_pBottomPlane = new btRigidBody(info);
+	m_pWorld->addRigidBody(m_pBottomPlane);
 }
 
 Physics& Physics::GetInstance()
@@ -24,8 +33,22 @@ Physics& Physics::GetInstance()
 
 Physics::~Physics()
 {
-	delete m_pBroadphase;
+}
+
+void Physics::DestroyPhysics()
+{
+	m_pWorld->removeCollisionObject(m_pBottomPlane);
+	delete m_pBottomPlane->getMotionState();
+	delete m_pBottomPlane->getCollisionShape();
+	delete m_pBottomPlane;
+
+	for (int i = 0; i < m_CollisionComponents.size(); i++)
+	{
+		m_pWorld->removeCollisionObject(m_CollisionComponents[i]->GetBody());
+	}
+
 	delete m_pDispatcher;
+	delete m_pBroadphase;
 	delete m_pCollisionConfig;
 	delete m_pSolver;
 	delete m_pWorld;
@@ -58,6 +81,7 @@ void Physics::AddCollisionEntity(Entity *ent)
 void Physics::AddCollisionComponent(component::CollisionComponent* comp)
 {
 	m_CollisionComponents.push_back(comp);
+	m_pWorld->addRigidBody(comp->GetBody());
 }
 
 void Physics::RemoveCollisionComponent(component::CollisionComponent* comp)
@@ -67,6 +91,7 @@ void Physics::RemoveCollisionComponent(component::CollisionComponent* comp)
 		if (m_CollisionComponents.at(i) == comp)
 			m_CollisionComponents.erase(m_CollisionComponents.begin() + i);
 	}
+	//m_pWorld->removeRigidBody(comp->GetBody());
 }
 
 void Physics::collisionChecks(double dt)
@@ -93,6 +118,7 @@ void Physics::collisionChecks(double dt)
 			}
 		}
 		m_timeSinceLastColCheck = 0;
+		m_pWorld->stepSimulation(dt);
 	}
 }
 

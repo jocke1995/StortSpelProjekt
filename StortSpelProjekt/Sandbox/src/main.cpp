@@ -177,6 +177,8 @@ Scene* TimScene(SceneManager* sm)
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::AudioVoiceComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(0.0f, 1.0f, -30.0f);
     scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform(), 1000);
 
 
@@ -184,8 +186,7 @@ Scene* TimScene(SceneManager* sm)
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0.0f, 1.0f, -30.0f);
+
     Physics::GetInstance().AddCollisionComponent(scc);
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
@@ -200,13 +201,15 @@ Scene* TimScene(SceneManager* sm)
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
+    tc->GetTransform()->SetActualMovement(0.0f, 0.0f, 2.0f);
     scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform(),1);
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
-    tc->GetTransform()->SetActualMovement(0.0f, 0.0f, 2.0f);
+
     Physics::GetInstance().AddCollisionComponent(scc);
     /*--------------------- Box1 ---------------------*/
 
@@ -218,12 +221,12 @@ Scene* TimScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc = entity->AddComponent<component::TransformComponent>();
-    scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform(), 1000);
-
-    mc->SetModel(cubeModel);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
     tc->GetTransform()->SetActualMovement(0.0f, 0.0f, 0.0f);
+    scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform(), 1000);
+
+    mc->SetModel(cubeModel);
     Physics::GetInstance().AddCollisionComponent(scc);
 
     /*--------------------- Box2 ---------------------*/
@@ -254,7 +257,6 @@ Scene* TimScene(SceneManager* sm)
     dlc->SetColor(COLOR_TYPE::LIGHT_DIFFUSE, { 0.1f, 0.1f, 0.1f, 1.0f });
     dlc->SetColor(COLOR_TYPE::LIGHT_SPECULAR, { 0.5f, 0.5f, 0.5f, 1.0f });
     /*--------------------- DirectionalLight ---------------------*/
-
     return scene;
 }
 

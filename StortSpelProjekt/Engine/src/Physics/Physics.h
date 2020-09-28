@@ -18,12 +18,15 @@ class btDispatcher;
 class btCollisionConfiguration;
 class btDbvtBroadphase;
 class btConstraintSolver;
+class btRigidBody;
 
 class Physics
 {
 public:
 	static Physics& GetInstance();
 	~Physics();
+	// Needs to be called before any collisioncomponents are destroyed (before scenemanager kills them...)
+	void DestroyPhysics();
 
 	void Update(double dt);
 	// returns true if there is an intersection between the OBBs
@@ -50,6 +53,7 @@ private:
 	btCollisionConfiguration* m_pCollisionConfig;
 	btDbvtBroadphase* m_pBroadphase;
 	btConstraintSolver* m_pSolver;
+	btRigidBody* m_pBottomPlane;
 
 	// Checks collision for all entities in the collison entities vector
 	// publishes an event if a collision has happened
