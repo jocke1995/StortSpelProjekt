@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "DirectionalLightComponent.h"
 #include "../Renderer/BaseCamera.h"
+#include "../Renderer/Renderer.h"
 
 namespace component
 {
@@ -29,6 +30,11 @@ namespace component
 			m_pCamera->Update(dt);
 			m_pDirectionalLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
 		}
+	}
+
+	void DirectionalLightComponent::InitScene()
+	{
+		Renderer::GetInstance().InitDirectionalLightComponent(GetParent());
 	}
 
 	void DirectionalLightComponent::SetDirection(float3 direction)

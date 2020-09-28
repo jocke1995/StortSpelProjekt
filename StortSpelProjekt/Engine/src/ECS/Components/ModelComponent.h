@@ -17,6 +17,9 @@ namespace component
         ModelComponent(Entity* parent);
         virtual ~ModelComponent();
 
+        void Update(double dt);
+        void InitScene();
+
         // Sets
         void SetModel(Model* model);
         void SetDrawFlag(unsigned int drawFlag);
@@ -32,6 +35,7 @@ namespace component
     private:
         // The boundingBox will update the "m_IsPickedThisFrame"
         friend class BoundingBoxComponent;
+        friend class Engine;
         bool m_IsPickedThisFrame = false;
 
         Model* m_Model = nullptr;

@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
 #include "EnemyFactory.h"
+
 Scene* GetDemoScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -22,7 +23,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
 	
-    sceneManager->SetSceneToDraw(GetDemoScene(sceneManager));
+    sceneManager->SetScene(GetDemoScene(sceneManager));
 
     double logicTimer = 0;
 
@@ -41,8 +42,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             {
                 logicTimer = 0;
                 
-                Physics::GetInstance().Update(updateRate);
                 renderer->Update(updateRate);
+                Physics::GetInstance().Update(updateRate);
             }
 
             /* ------ Sort ------ */
@@ -90,6 +91,15 @@ Scene* GetDemoScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
     /* ---------------------- Player ---------------------- */
+
+    /* ---------------------- Skybox ---------------------- */
+
+    // Skybox
+    TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = scene->AddEntity("skybox");
+
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    /* ---------------------- Skybox ---------------------- */
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
