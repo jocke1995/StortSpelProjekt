@@ -35,9 +35,9 @@ Model::~Model()
 {
 }
 
-const std::wstring* Model::GetPath() const
+const std::wstring& Model::GetPath() const
 {
-	return &m_Path;
+	return m_Path;
 }
 
 unsigned int Model::GetSize() const

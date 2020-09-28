@@ -521,6 +521,9 @@ Scene* FloppipTestScene(SceneManager* sm)
     plc->SetColor({ 2.0f, 0.0f, 2.0f });
     plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
 
+    component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>();
+    bbc->Init();
+
     /* ---------------------- PointLight1 ---------------------- */
 
 

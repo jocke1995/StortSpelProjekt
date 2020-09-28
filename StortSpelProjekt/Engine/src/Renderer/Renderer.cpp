@@ -443,51 +443,17 @@ void Renderer::Execute()
 void Renderer::InitSkyboxComponent(Entity* entity)
 {
 	component::SkyboxComponent* sbc = entity->GetComponent<component::SkyboxComponent>();
-	if (sbc != nullptr)
-	{
-		Mesh* mesh = sbc->GetMesh();
 
-		AssetLoader* al = AssetLoader::Get();
-		std::wstring modelPath = mesh->GetPath();
-		bool isModelOnGpu = al->IsModelLoadedOnGpu(modelPath);
+	Mesh* mesh = sbc->GetMesh();
 
-		// If the model isn't on GPU, it will be uploaded below
-		if (isModelOnGpu == false)
-		{
-			al->m_LoadedModels[modelPath].first = true;
-		}
+	loadMesh(mesh);
 
-		// Submit to the list which gets updated to the gpu each frame
-		CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+	Texture* texture = static_cast<TextureCubeMap*>(sbc->GetTexture());
+	
+	loadTexture(texture);
 
-		// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
-		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-		if (isModelOnGpu == false)
-		{
-			// Vertices
-			const void* data = static_cast<const void*>(mesh->m_Vertices.data());
-			Resource* uploadR = mesh->m_pUploadResourceVertices;
-			Resource* defaultR = mesh->m_pDefaultResourceVertices;
-			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-
-			// inidices
-			data = static_cast<const void*>(mesh->m_Indices.data());
-			uploadR = mesh->m_pUploadResourceIndices;
-			defaultR = mesh->m_pDefaultResourceIndices;
-			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-		}
-
-		Texture* texture = static_cast<TextureCubeMap*>(sbc->GetTexture());
-		// Check if the texture is on GPU before submitting to be uploaded
-		if (al->m_LoadedTextures[texture->m_FilePath].first == false)
-		{
-			codt->SubmitTexture(texture);
-			al->m_LoadedTextures[texture->m_FilePath].first = true;
-		}
-
-		// Finally store the object in m_pRenderer so it will be drawn
-		m_pSkyboxComponent = sbc;
-	}
+	// Finally store the object in m_pRenderer so it will be drawn
+	m_pSkyboxComponent = sbc;
 }
 
 void Renderer::InitModelComponent(Entity* entity)
@@ -496,57 +462,8 @@ void Renderer::InitModelComponent(Entity* entity)
 	component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
 	component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
 
-	Mesh* mesh = mc->GetMeshAt(0);
-	AssetLoader* al = AssetLoader::Get();
-	std::wstring modelPath = mesh->GetPath();
-	bool isModelOnGpu = al->IsModelLoadedOnGpu(modelPath);
-
-	// If the model isn't on GPU, it will be uploaded below
-	if (isModelOnGpu == false)
-	{
-		al->m_LoadedModels[modelPath].first = true;
-	}
-
-	// Submit Mesh/texture data to GPU if they haven't already been uploaded
-	for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
-	{
-		mesh = mc->GetMeshAt(i);
-
-		// Submit to the list which gets updated to the gpu each frame
-		CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-
-		// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
-		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-		if (isModelOnGpu == false)
-		{
-			// Vertices
-			const void* data = static_cast<const void*>(mesh->m_Vertices.data());
-			Resource* uploadR = mesh->m_pUploadResourceVertices;
-			Resource* defaultR = mesh->m_pDefaultResourceVertices;
-			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-
-			// inidices
-			data = static_cast<const void*>(mesh->m_Indices.data());
-			uploadR = mesh->m_pUploadResourceIndices;
-			defaultR = mesh->m_pDefaultResourceIndices;
-			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-		}
-
-		Material* meshMat = mc->GetMaterialAt(i);
-		// Textures
-		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
-		{
-			TEXTURE2D_TYPE type = static_cast<TEXTURE2D_TYPE>(i);
-			Texture* texture = meshMat->GetTexture(type);
-
-			// Check if the texture is on GPU before submitting to be uploaded
-			if (al->IsTextureLoadedOnGpu(texture->m_FilePath) == false)
-			{
-				codt->SubmitTexture(texture);
-				al->m_LoadedTextures[texture->m_FilePath].first = true;
-			}
-		}
-	}
+	// Makes sure the model gets created/sent to gpu
+	loadModel(mc);
 
 	// Finally store the object in the corresponding renderComponent vectors so it will be drawn
 	if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
@@ -683,28 +600,17 @@ void Renderer::InitBoundingBoxComponent(Entity* entity)
 	// Add it to m_pTask so it can be drawn
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
-		Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel());
-		if (m == nullptr)
+		Mesh* mesh = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel());
+		if (mesh == nullptr)
 		{
 			Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", bbc->GetParent()->GetName().c_str());
 			return;
 		}
 
 		// Submit to GPU
-		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-		// Vertices
-		const void* data = static_cast<const void*>(m->m_Vertices.data());
-		Resource* uploadR = m->m_pUploadResourceVertices;
-		Resource* defaultR = m->m_pDefaultResourceVertices;
-		codt->Submit(&std::tuple(uploadR, defaultR, data));
+		loadMesh(mesh);
 
-		// inidices
-		data = static_cast<const void*>(m->m_Indices.data());
-		uploadR = m->m_pUploadResourceIndices;
-		defaultR = m->m_pDefaultResourceIndices;
-		codt->Submit(&std::tuple(uploadR, defaultR, data));
-
-		bbc->SetMesh(m);
+		bbc->SetMesh(mesh);
 
 		static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(bbc);
 	}
@@ -1685,6 +1591,71 @@ void Renderer::waitForFrame(unsigned int framesToBeAhead)
 	{
 		m_pFenceFrame->SetEventOnCompletion(m_FenceFrameValue - fenceValuesToBeAhead, m_EventHandle);
 		WaitForSingleObject(m_EventHandle, INFINITE);
+	}
+}
+
+void Renderer::loadModel(component::ModelComponent* mc) const
+{
+	AssetLoader* al = AssetLoader::Get();
+
+	std::wstring modelPath = mc->GetModelPath();
+	// If the model isn't on GPU, it will be uploaded below
+	if (!al->IsModelLoadedOnGpu(modelPath))
+	{
+		Mesh* mesh;
+		// Submit Mesh & Texture Data to GPU
+		for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+		{
+			// Upload Mesh
+			mesh = mc->GetMeshAt(i);
+
+			loadMesh(mesh);
+
+			// Upload Texture
+			Material* meshMat = mc->GetMaterialAt(i);
+			for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
+			{
+				TEXTURE2D_TYPE type = static_cast<TEXTURE2D_TYPE>(i);
+				Texture* texture = meshMat->GetTexture(type);
+
+				loadTexture(texture);
+			}
+		}
+
+		// Set model as loadedOnGpu
+		al->m_LoadedModels[modelPath].first = true;
+	}
+}
+
+void Renderer::loadMesh(Mesh* mesh) const
+{
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+
+	// TODO: Maybe want to check if mesh is on gpu before upload
+
+	// Vertices
+	const void* data = static_cast<const void*>(mesh->m_Vertices.data());
+	Resource* uploadR = mesh->m_pUploadResourceVertices;
+	Resource* defaultR = mesh->m_pDefaultResourceVertices;
+	codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+	// inidices
+	data = static_cast<const void*>(mesh->m_Indices.data());
+	uploadR = mesh->m_pUploadResourceIndices;
+	defaultR = mesh->m_pDefaultResourceIndices;
+	codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+}
+
+void Renderer::loadTexture(Texture* texture) const
+{
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+	AssetLoader* al = AssetLoader::Get();
+
+	// Check if the texture is on GPU before submitting to be uploaded
+	if (!al->IsTextureLoadedOnGpu(texture->m_FilePath))
+	{
+		codt->SubmitTexture(texture);
+		al->m_LoadedTextures[texture->m_FilePath].first = true;
 	}
 }
 

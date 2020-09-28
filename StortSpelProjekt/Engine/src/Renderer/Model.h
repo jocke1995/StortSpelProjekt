@@ -25,7 +25,7 @@ public:
         std::vector<Material*>* materials);
     virtual ~Model();
 
-    const std::wstring* GetPath() const;
+    const std::wstring& GetPath() const;
     unsigned int GetSize() const;
 
     // Mesh

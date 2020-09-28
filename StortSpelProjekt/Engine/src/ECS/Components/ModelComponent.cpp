@@ -67,6 +67,10 @@ namespace component
 	{
 		return m_Model->GetSize();
 	}
+	const std::wstring& ModelComponent::GetModelPath() const
+	{
+		return m_Model->GetPath();
+	}
 	bool ModelComponent::IsPickedThisFrame() const
 	{
 		return m_IsPickedThisFrame;

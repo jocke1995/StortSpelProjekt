@@ -30,6 +30,7 @@ namespace component
         const SlotInfo* GetSlotInfoAt(unsigned int index) const;
         unsigned int GetDrawFlag() const;
         unsigned int GetNrOfMeshes() const;
+        const std::wstring& GetModelPath() const;
         bool IsPickedThisFrame() const;
 
     private:

@@ -19,6 +19,7 @@ class ViewPool;
 class BoundingBoxPool;
 class DescriptorHeap;
 class Mesh;
+class Texture;
 
 // Views
 
@@ -194,6 +195,12 @@ private:
 	void createDescriptorHeaps();
 	void createFences();
 	void waitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
+
+	// Load Gpu Memory Function
+	void loadModel(component::ModelComponent* mc) const;
+	void loadMesh(Mesh* mesh) const;
+	void loadTexture(Texture* texture) const;
+
 
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene
 	void waitForCopyOnDemand();
