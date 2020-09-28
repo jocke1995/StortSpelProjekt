@@ -38,8 +38,11 @@ public:
     SlotInfo* GetSlotInfoAt(unsigned int index);
 
 private:
+    void updateAnimations();
+
     std::wstring m_Path;
     unsigned int m_Size = 0;
+    Animation* m_pActiveAnimation;
     std::vector<Mesh*> m_Meshes;
     std::vector<Animation*> m_Animations;
     std::vector<std::map<TEXTURE_TYPE, Texture*>> m_Textures;

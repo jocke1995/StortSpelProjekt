@@ -37,8 +37,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetSceneToDraw(TimScene(sceneManager));
     //sceneManager->SetSceneToDraw(JockesTestScene(sceneManager));
     //sceneManager->SetSceneToDraw(FredriksTestScene(sceneManager));
-    //sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
-    sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
+    sceneManager->SetSceneToDraw(WilliamsTestScene(sceneManager));
+    //sceneManager->SetSceneToDraw(BjornsTestScene(sceneManager));
 
     /*----- Timer ------*/
     double logicTimer = 0;

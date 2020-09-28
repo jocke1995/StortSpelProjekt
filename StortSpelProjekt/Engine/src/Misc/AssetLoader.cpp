@@ -214,7 +214,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	// Fill this data
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<Bone> bones;
+	std::vector<BoneNode> bones;
 	std::map<TEXTURE_TYPE, Texture*> meshTextures;
 
 	// Get data from assimpMesh and store it
@@ -286,7 +286,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	// Get bones
 	for (unsigned int i = 0; i < assimpMesh->mNumBones; i++)
 	{
-		Bone bone;
+		BoneNode bone;
 		aiBone* assimpBone = assimpMesh->mBones[i];
 
 		// Store the name of the bone
@@ -590,7 +590,7 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 		Animation* animation = new Animation();
 		aiAnimation* assimpAnimation = assimpScene->mAnimations[i];
 
-		animation->duration = assimpAnimation->mDuration;
+		animation->durationInTicks = assimpAnimation->mDuration;
 		animation->ticksPerSecond = assimpAnimation->mTicksPerSecond;
 
 		// Store the transform data for each nodeAnimation

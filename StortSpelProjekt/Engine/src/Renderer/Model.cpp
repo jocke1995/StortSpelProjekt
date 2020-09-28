@@ -58,3 +58,12 @@ SlotInfo* Model::GetSlotInfoAt(unsigned int index)
 {
 	return &m_SlotInfos[index];
 }
+
+void Model::updateAnimations()
+{
+	if (m_pActiveAnimation != nullptr)
+	{
+		float AnimationTime = fmod(m_pActiveAnimation->durationInTicks, m_pActiveAnimation->ticksPerSecond);
+		//updateBones(animationTime, ROOTNODE, DirectX::XMMatrixIdentity())
+	}
+}
