@@ -43,6 +43,8 @@ public:
 	void Update(double dt);
 	void RenderUpdate(double dt);
 
+	std::vector<Component*>* GetAllComponents();
+
 private:
 	unsigned int m_Id = -1;
 	std::string m_Name = "";

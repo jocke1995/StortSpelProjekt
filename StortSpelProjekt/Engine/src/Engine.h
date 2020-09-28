@@ -65,6 +65,8 @@ public:
 	AudioEngine* const GetAudioEngine() const;
 
 private:
+	friend class ModelComponent;
+
 	Window* m_pWindow = nullptr;
 	Timer* m_pTimer = nullptr;
 	ThreadPool* m_pThreadPool = nullptr;

@@ -23,6 +23,7 @@ namespace component
         virtual ~SkyboxComponent();
 
         void RenderUpdate(double dt);
+        void InitScene();
 
         // Sets
         void SetMesh(Mesh* mesh);

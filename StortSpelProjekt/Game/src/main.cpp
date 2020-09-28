@@ -23,7 +23,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
 	
-    sceneManager->SetSceneToDraw(GetDemoScene(sceneManager));
+    sceneManager->SetScene(GetDemoScene(sceneManager));
 
     double logicTimer = 0;
 

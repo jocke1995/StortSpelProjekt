@@ -32,6 +32,11 @@ void component::SkyboxComponent::RenderUpdate(double dt)
 	m_pTransform->UpdateWorldMatrix();
 }
 
+void component::SkyboxComponent::InitScene()
+{
+	Renderer::GetInstance().InitSkyboxComponent(GetParent());
+}
+
 void component::SkyboxComponent::SetMesh(Mesh* mesh)
 {
 	m_pMesh = mesh;
