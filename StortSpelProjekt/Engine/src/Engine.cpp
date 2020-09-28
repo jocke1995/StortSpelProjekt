@@ -22,12 +22,12 @@ Engine::~Engine()
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 {
 	// Window values
-	bool fullscreen = std::atoi(Option::GetInstance().GetVariable("i_fullscreen").c_str());
+	bool windowedFullScreen = std::atoi(Option::GetInstance().GetVariable("b_windowedFullscreen").c_str());
 	int windowWidth = std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str());
 	int windowHeight = std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str());
 
 	// Misc
-	m_pWindow = new Window(hInstance, nCmdShow, fullscreen, windowWidth, windowHeight);
+	m_pWindow = new Window(hInstance, nCmdShow, windowedFullScreen, windowWidth, windowHeight);
 	m_pTimer = new Timer(m_pWindow);
 
 	// ThreadPool

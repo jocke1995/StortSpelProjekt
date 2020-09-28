@@ -122,13 +122,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 Window::Window(
 	HINSTANCE hInstance,
 	int nCmdShow,
-	bool fullScreen,
+	bool windowedFullScreen,
 	int screenWidth, int screenHeight,
 	LPCTSTR windowName, LPCTSTR windowTitle)
 {
 	m_ScreenWidth = screenWidth;
 	m_ScreenHeight = screenHeight;
-	m_FullScreen = fullScreen;
+	m_WindowedFullScreen = windowedFullScreen;
 	m_WindowName = windowName;
 	m_WindowTitle = windowTitle;
 
@@ -150,7 +150,7 @@ void Window::SetWindowTitle(std::wstring newTitle)
 
 bool Window::IsFullScreen() const
 {
-	return m_FullScreen;
+	return m_WindowedFullScreen;
 }
 
 int Window::GetScreenWidth() const
@@ -209,7 +209,7 @@ bool Window::WasTabPressed()
 
 bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 {
-	if (m_FullScreen)
+	if (m_WindowedFullScreen)
 	{
 		HMONITOR hmon = MonitorFromWindow(m_Hwnd, MONITOR_DEFAULTTONEAREST);
 		MONITORINFO mi = { sizeof(mi) };

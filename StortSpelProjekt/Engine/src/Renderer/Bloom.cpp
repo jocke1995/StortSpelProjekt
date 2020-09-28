@@ -15,11 +15,9 @@ Bloom::Bloom(
 	DescriptorHeap* dh_CBV_UAV_SRV,
 	SwapChain* swapChain)
 {
-	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
-	UINT resolutionWidth = Option::GetInstance().GetVariable("resolutionWidth");
-	UINT resolutionHeight = Option::GetInstance().GetVariable("resolutionHeight");
-	if (Option::GetInstance().GetVariable("fullscreen"))
+	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	if (swapChain->IsFullscreen())
 	{
 		swapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
 	}

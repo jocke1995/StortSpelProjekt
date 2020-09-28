@@ -28,6 +28,7 @@ public:
 	IDXGISwapChain4* GetDX12SwapChain() const;
 	const RenderTargetView* GetRTV(unsigned int backBufferIndex) const;
 	const ShaderResourceView* GetSRV(unsigned int backBufferIndex) const;
+	const bool IsFullscreen() const;
 
 private:
 	std::array<Resource*, NUM_SWAP_BUFFERS> m_Resources;

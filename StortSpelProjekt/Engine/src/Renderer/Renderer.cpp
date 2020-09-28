@@ -560,10 +560,8 @@ void Renderer::createCommandQueues()
 
 void Renderer::createSwapChain(const HWND *hwnd)
 {
-	UINT resolutionWidth = Option::GetInstance().GetVariable("resolutionWidth");
-	UINT resolutionHeight = Option::GetInstance().GetVariable("resolutionHeight");
-	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
 
 	m_pSwapChain = new SwapChain(
 		m_pDevice5,
@@ -581,15 +579,12 @@ void Renderer::createMainDSV()
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-	UINT resolutionWidth = Option::GetInstance().GetVariable("resolutionWidth");
-	UINT resolutionHeight = Option::GetInstance().GetVariable("resolutionHeight");
-	if (Option::GetInstance().GetVariable("fullscreen"))
+	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	if (m_pSwapChain->IsFullscreen())
 	{
 		m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
 	}
-	
-	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
 
 	m_pMainDepthStencil = new DepthStencil(
 		m_pDevice5,
@@ -1157,9 +1152,9 @@ void Renderer::initRenderTasks()
 
 #pragma endregion IMGUIRENDERTASK
 
-	UINT resolutionWidth = Option::GetInstance().GetVariable("resolutionWidth");
-	UINT resolutionHeight = Option::GetInstance().GetVariable("resolutionHeight");
-	if (Option::GetInstance().GetVariable("fullscreen"))
+	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	if (m_pSwapChain->IsFullscreen())
 	{
 		m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
 	}
