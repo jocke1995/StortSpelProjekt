@@ -107,10 +107,10 @@ Model* AssetLoader::LoadModel(const std::wstring path)
 	m_LoadedModels[path].first = false;
 	
 
-	processNode(assimpScene->mRootNode, assimpScene, &meshes, &textures, &filePath);
+	NodeTemp* rootNode = processNode(assimpScene->mRootNode, assimpScene, &meshes, &textures, &filePath);
 	processAnimations(assimpScene, &animations);
 
-	m_LoadedModels[path].second = new Model(path, &meshes, &animations, &textures);
+	m_LoadedModels[path].second = new Model(path, rootNode, &meshes, &animations, &textures);
 
 	return m_LoadedModels[path].second;
 }
@@ -193,8 +193,13 @@ Shader* AssetLoader::loadShader(std::wstring fileName, ShaderType type)
 	return m_LoadedShaders[fileName];
 }
 
-void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
+NodeTemp* AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
 {
+	NodeTemp* currNode = new NodeTemp();
+	currNode->name = node->mName.C_Str();
+	currNode->defaultTransformation = aiMatrix4x4ToXMFloat4x4(&node->mTransformation);
+	DirectX::XMStoreFloat4x4(&currNode->finalTransformation, DirectX::XMMatrixIdentity());
+
 	// Go through all the m_Meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
@@ -205,8 +210,10 @@ void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vec
 	// If the node has more node children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], assimpScene, meshes, textures, filePath);
+		currNode->children.push_back(processNode(node->mChildren[i], assimpScene, meshes, textures, filePath));
 	}
+
+	return currNode;
 }
 
 Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
@@ -214,7 +221,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	// Fill this data
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<BoneNode> bones;
+	std::vector<Bone> bones;
 	std::map<TEXTURE_TYPE, Texture*> meshTextures;
 
 	// Get data from assimpMesh and store it
@@ -286,7 +293,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	// Get bones
 	for (unsigned int i = 0; i < assimpMesh->mNumBones; i++)
 	{
-		BoneNode bone;
+		Bone bone;
 		aiBone* assimpBone = assimpMesh->mBones[i];
 
 		// Store the name of the bone
@@ -582,6 +589,7 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	Font* font = m_LoadedFonts[filename].first;
 	return m_LoadedFonts[filename].first;
 }
+
 void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations)
 {
 	// Store the animations
@@ -599,7 +607,7 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 			NodeAnimation nodeAnimation;
 			aiNodeAnim* assimpNodeAnimation = assimpAnimation->mChannels[j];
 			processNodeAnimation(assimpAnimation->mChannels[j], &nodeAnimation);
-			animation->nodeAnimations.push_back(nodeAnimation);
+			animation->nodeAnimations.insert(std::pair(nodeAnimation.name, nodeAnimation));
 		}
 
 		// Save the pointer both in the model and the asset loader
@@ -617,32 +625,41 @@ void AssetLoader::processNodeAnimation(const aiNodeAnim* assimpNodeAnimation, No
 	// Store the positions
 	for (unsigned int i = 0; i < assimpNodeAnimation->mNumPositionKeys; i++)
 	{
-		nodeAnimation->positions.push_back(
-			DirectX::XMFLOAT3(
-				assimpNodeAnimation->mPositionKeys[i].mValue.x,
-				assimpNodeAnimation->mPositionKeys[i].mValue.y,
-				assimpNodeAnimation->mPositionKeys[i].mValue.z));
+		Float3Key key;
+		key.time = assimpNodeAnimation->mPositionKeys[i].mTime;
+		key.xyz = DirectX::XMFLOAT3(
+			assimpNodeAnimation->mPositionKeys[i].mValue.x,
+			assimpNodeAnimation->mPositionKeys[i].mValue.y,
+			assimpNodeAnimation->mPositionKeys[i].mValue.z);
+
+		nodeAnimation->positions.push_back(key);
 	}
 
 	// Store the rotation quaternions
 	for (unsigned int i = 0; i < assimpNodeAnimation->mNumRotationKeys; i++)
 	{
-		nodeAnimation->rotationQuaternions.push_back(
-			DirectX::XMFLOAT4(
-				assimpNodeAnimation->mRotationKeys[i].mValue.x,
-				assimpNodeAnimation->mRotationKeys[i].mValue.y,
-				assimpNodeAnimation->mRotationKeys[i].mValue.z,
-				assimpNodeAnimation->mRotationKeys[i].mValue.w));
+		Float4Key key;
+		key.time = assimpNodeAnimation->mRotationKeys[i].mTime;
+		key.xyzw = DirectX::XMFLOAT4(
+			assimpNodeAnimation->mRotationKeys[i].mValue.x,
+			assimpNodeAnimation->mRotationKeys[i].mValue.y,
+			assimpNodeAnimation->mRotationKeys[i].mValue.z,
+			assimpNodeAnimation->mRotationKeys[i].mValue.w);
+
+		nodeAnimation->rotationQuaternions.push_back(key);
 	}
 
 	// Store the scale values
 	for (unsigned int i = 0; i < assimpNodeAnimation->mNumScalingKeys; i++)
 	{
-		nodeAnimation->scalings.push_back(
-			DirectX::XMFLOAT3(
-				assimpNodeAnimation->mScalingKeys[i].mValue.x,
-				assimpNodeAnimation->mScalingKeys[i].mValue.y,
-				assimpNodeAnimation->mScalingKeys[i].mValue.z));
+		Float3Key key;
+		key.time = assimpNodeAnimation->mScalingKeys[i].mTime;
+		key.xyz = DirectX::XMFLOAT3(
+			assimpNodeAnimation->mScalingKeys[i].mValue.x,
+			assimpNodeAnimation->mScalingKeys[i].mValue.y,
+			assimpNodeAnimation->mScalingKeys[i].mValue.z);
+
+		nodeAnimation->scalings.push_back(key);
 	}
 }
 

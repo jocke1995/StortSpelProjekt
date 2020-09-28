@@ -24,7 +24,7 @@ Mesh::Mesh(	ID3D12Device5* device,
 Mesh::Mesh(	ID3D12Device5* device,
 			std::vector<Vertex>* vertices,
 			std::vector<unsigned int>* indices,
-			std::vector<BoneNode>* bones,
+			std::vector<Bone>* bones,
 			DescriptorHeap* descriptorHeap_SRV,
 			const std::string path)
 {

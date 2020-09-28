@@ -7,23 +7,40 @@ struct VertexWeight
 	float weight;
 };
 
-struct BoneNode
+struct Bone
 {
 	std::string name;
-	BoneNode* parent;
-	std::vector<BoneNode*> children;
 	std::vector<VertexWeight> weights;
+	DirectX::XMFLOAT4X4 finalTransform;
 	DirectX::XMFLOAT4X4 offsetMatrix;
+};
+
+struct NodeTemp
+{
+	std::string name;
+	std::vector<NodeTemp*> children;
 	DirectX::XMFLOAT4X4 defaultTransformation;
 	DirectX::XMFLOAT4X4 finalTransformation;
+};
+
+struct Float3Key
+{
+	float time;
+	DirectX::XMFLOAT3 xyz;
+};
+
+struct Float4Key
+{
+	float time;
+	DirectX::XMFLOAT4 xyzw;
 };
 
 struct NodeAnimation
 {
 	std::string name;
-	std::vector<DirectX::XMFLOAT3> positions;	// Maybe should not be float3
-	std::vector<DirectX::XMFLOAT4> rotationQuaternions;
-	std::vector<DirectX::XMFLOAT3> scalings;	// Maybe should not be float3
+	std::vector<Float3Key> positions;
+	std::vector<Float4Key> rotationQuaternions;
+	std::vector<Float3Key> scalings;
 };
 
 struct Animation
