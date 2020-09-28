@@ -432,10 +432,6 @@ void Renderer::Execute()
 #endif
 }
 
-void Renderer::InitComponent(std::string componentType)
-{
-}
-
 void Renderer::InitModelComponent(Entity* entity)
 {
 	component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();

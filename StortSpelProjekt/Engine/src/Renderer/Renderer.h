@@ -72,7 +72,6 @@ namespace component
 class Renderer
 {
 public:
-	//Renderer();
 	static Renderer& GetInstance();
 	virtual ~Renderer();
 	// For control of safe release of DirectX resources
@@ -93,8 +92,7 @@ public:
 	void SortObjects();
 	void Execute();
 
-	// Render inits, these functions are called by respective components through SetScene to prepare 
-	void InitComponent(std::string componentType);
+	// Render inits, these functions are called by respective components through SetScene to prepare for drawing
 	void InitModelComponent(Entity* entity);
 	void InitDirectionalLightComponent(Entity* entity);
 	void InitPointLightComponent(Entity* entity);
