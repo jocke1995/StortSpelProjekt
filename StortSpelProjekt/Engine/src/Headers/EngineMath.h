@@ -2,6 +2,7 @@
 #define ENGINEMATH_H
 
 #include <DirectXMath.h>
+#include <DirectXCollision.h>
 
 typedef DirectX::XMMATRIX float4x4;
 

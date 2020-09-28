@@ -3,12 +3,10 @@
 
 #include "Core.h"
 #include "EngineMath.h"
-
+#include <vector>
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
 #include "../ECS/Components/Component.h"
-
-#include <vector>
 
 class Entity;
 

@@ -1,7 +1,6 @@
 #include "Headers/stdafx.h"
 #include "ECS/Entity.h"
 #include "MeleeComponent.h"
-
 #include "../Renderer/BoundingBoxPool.h"
 
 
