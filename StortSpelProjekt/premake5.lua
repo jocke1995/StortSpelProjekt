@@ -19,9 +19,9 @@ project "Engine"
         flags "ExcludeFromBuild"
     
     filter "configurations:*"
-    cppdialect "C++17"
-    includedirs {"Vendor/Include/", "%{prj.location}/src/Headers/"}
-    libdirs { "Vendor/Lib/**" }
+        cppdialect "C++17"
+        includedirs {"Vendor/Include/", "%{prj.location}/src/Headers/", "Vendor/Include/Bullet/"}
+        libdirs { "Vendor/Lib/**" }
 
     links {
         "d3d12",
@@ -29,7 +29,7 @@ project "Engine"
         "d3dcompiler",
         "assimp-vc140-mt",
 	    "sfml-system-d",
-	    "sfml-network-d"
+        "sfml-network-d",
     }
 
     postbuildcommands
@@ -41,10 +41,22 @@ project "Engine"
     }
     defines{"_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE"}
         filter "configurations:Debug"
+            links {
+                "BulletCollision_Debug",
+                "BulletDynamics_Debug",
+                "BulletSoftBody_Debug",
+                "LinearMath_Debug"
+            }
             defines { "_DEBUG" }
             symbols "On"
 
         filter "configurations:Release"
+            links {
+                "BulletCollision",
+                "BulletDynamics",
+                "BulletSoftBody",
+                "LinearMath"
+            }
             defines { "NDEBUG" }
             optimize "On"
 
