@@ -36,8 +36,6 @@ namespace component
 		const int GetNumOfTexts() const;
 		const int GetNumOfCharacters(std::string name);
 
-		void Update(double dt);
-
 	private:
 		std::map<std::string, TextData> m_TextDataMap = {};
 		std::vector<Text*> m_TextVec = {};
