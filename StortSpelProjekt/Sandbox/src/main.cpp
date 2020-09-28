@@ -163,7 +163,7 @@ Scene* TimScene(SceneManager* sm)
     component::TransformComponent* tc = nullptr;
     component::PlayerInputComponent* pic = nullptr;
     component::TextComponent* txc = nullptr;
-    component::SphereCollisionComponent* scc = nullptr;
+    component::CubeCollisionComponent* ccc = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
     /*--------------------- Player ---------------------*/
@@ -179,7 +179,7 @@ Scene* TimScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, -30.0f);
-    scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform(), 1000);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(tc->GetTransform(), 1000, 1.0f, 1.0f, 1.0f);
 
 
     pic->Init();
@@ -187,7 +187,7 @@ Scene* TimScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
 
-    Physics::GetInstance().AddCollisionComponent(scc);
+    Physics::GetInstance().AddCollisionComponent(ccc);
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
 
@@ -204,13 +204,13 @@ Scene* TimScene(SceneManager* sm)
 
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
-    scc->SetMovement(0.0f, 0.0f, 20.0f);
-    scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform(),1);
+    ccc->SetMovement(0.0f, 0.0f, 20.0f);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(tc->GetTransform(),1, 1.0f, 1.0f, 1.0f);
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
 
-    Physics::GetInstance().AddCollisionComponent(scc);
+    Physics::GetInstance().AddCollisionComponent(ccc);
     /*--------------------- Box1 ---------------------*/
 
     /*--------------------- Box2 ---------------------*/
@@ -223,11 +223,11 @@ Scene* TimScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
-    scc->SetMovement(0.0f, 0.0f, 0.0f);
-    scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform(), 1000);
+    ccc->SetMovement(0.0f, 0.0f, 0.0f);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(tc->GetTransform(), 1000, 1.0f, 1.0f, 1.0f);
 
     mc->SetModel(cubeModel);
-    Physics::GetInstance().AddCollisionComponent(scc);
+    Physics::GetInstance().AddCollisionComponent(ccc);
 
     /*--------------------- Box2 ---------------------*/
 

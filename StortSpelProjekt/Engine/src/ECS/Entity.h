@@ -12,6 +12,7 @@
 
 // physics/collisions
 #include "Components/Collision/SphereCollisionComponent.h"
+#include "Components/Collision/CubeCollisionComponent.h"
 
 // Lights
 class DirectionalLightComponent;
