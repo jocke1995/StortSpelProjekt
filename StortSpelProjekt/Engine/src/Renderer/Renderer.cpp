@@ -449,7 +449,7 @@ void Renderer::InitSkyboxComponent(Entity* entity)
 
 		AssetLoader* al = AssetLoader::Get();
 		std::wstring modelPath = mesh->GetPath();
-		bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
+		bool isModelOnGpu = al->IsModelLoadedOnGpu(modelPath);
 
 		// If the model isn't on GPU, it will be uploaded below
 		if (isModelOnGpu == false)
@@ -499,7 +499,7 @@ void Renderer::InitModelComponent(Entity* entity)
 	Mesh* mesh = mc->GetMeshAt(0);
 	AssetLoader* al = AssetLoader::Get();
 	std::wstring modelPath = mesh->GetPath();
-	bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
+	bool isModelOnGpu = al->IsModelLoadedOnGpu(modelPath);
 
 	// If the model isn't on GPU, it will be uploaded below
 	if (isModelOnGpu == false)
@@ -540,7 +540,7 @@ void Renderer::InitModelComponent(Entity* entity)
 			Texture* texture = meshMat->GetTexture(type);
 
 			// Check if the texture is on GPU before submitting to be uploaded
-			if (al->m_LoadedTextures[texture->m_FilePath].first == false)
+			if (al->IsTextureLoadedOnGpu(texture->m_FilePath) == false)
 			{
 				codt->SubmitTexture(texture);
 				al->m_LoadedTextures[texture->m_FilePath].first = true;

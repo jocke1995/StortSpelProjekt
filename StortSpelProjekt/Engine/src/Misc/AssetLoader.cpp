@@ -34,6 +34,21 @@ AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_C
 	LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.png");
 }
 
+bool AssetLoader::IsModelLoadedOnGpu(const std::wstring& name) const
+{
+	return m_LoadedModels.at(name).first;
+}
+
+bool AssetLoader::IsMaterialLoadedOnGpu(const std::wstring& name) const
+{
+	return m_LoadedMaterials.at(name).first;
+}
+
+bool AssetLoader::IsTextureLoadedOnGpu(const std::wstring& name) const
+{
+	return m_LoadedTextures.at(name).first;
+}
+
 AssetLoader::~AssetLoader()
 {
 	// For every Mesh

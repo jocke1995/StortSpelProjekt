@@ -62,17 +62,23 @@ private:
     ID3D12Device5* m_pDevice = nullptr;
     DescriptorHeap* m_pDescriptorHeap_CBV_UAV_SRV = nullptr;
     Window* m_pWindow = nullptr;
+    
+    // IsLoadedFunctions
+    bool IsModelLoadedOnGpu(const std::wstring& name) const;
+    bool IsMaterialLoadedOnGpu(const std::wstring& name) const;
+    bool IsTextureLoadedOnGpu(const std::wstring& name) const;
 
     const std::wstring m_FilePathShaders = L"../Engine/src/Renderer/HLSL/";
     const std::wstring m_FilePathDefaultTextures = L"../Vendor/Resources/Textures/Default/";
     const std::wstring m_FilePathFonts = L"../Vendor/Resources/Fonts/";
 
     // Every model & texture also has a bool which indicates if its data is on the GPU or not
+    // name, pair<isOnGpu, Model*>
     std::map<std::wstring, std::pair<bool, Model*>> m_LoadedModels;
-    std::vector<Mesh*> m_LoadedMeshes;
     std::map<std::wstring, std::pair<bool, Material*>> m_LoadedMaterials;
-    std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
+    std::vector<Mesh*> m_LoadedMeshes;
+    std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, Shader*> m_LoadedShaders;
     std::map<std::wstring, std::pair<Font*, Texture*>> m_LoadedFonts;
     std::map<std::wstring, AudioBuffer> m_LoadedAudios;
