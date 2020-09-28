@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "Components/MeleeComponent.h"
 #include "Components/PlayerInputComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
@@ -130,6 +131,7 @@ Scene* LeosTestScene(SceneManager* sm)
     component::Audio3DListenerComponent* lc = nullptr;
     component::Audio3DEmitterComponent* ec = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
+    component::MeleeComponent* melc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
