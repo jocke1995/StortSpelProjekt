@@ -495,81 +495,78 @@ void Renderer::InitModelComponent(Entity* entity)
 	// Only add the m_Entities that actually should be drawn
 	component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
 	component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
-	if (tc != nullptr)
-	{
-		Mesh* mesh = mc->GetMeshAt(0);
-		AssetLoader* al = AssetLoader::Get();
-		std::wstring modelPath = mesh->GetPath();
-		bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
 
-		// If the model isn't on GPU, it will be uploaded below
+	Mesh* mesh = mc->GetMeshAt(0);
+	AssetLoader* al = AssetLoader::Get();
+	std::wstring modelPath = mesh->GetPath();
+	bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
+
+	// If the model isn't on GPU, it will be uploaded below
+	if (isModelOnGpu == false)
+	{
+		al->m_LoadedModels[modelPath].first = true;
+	}
+
+	// Submit Mesh/texture data to GPU if they haven't already been uploaded
+	for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+	{
+		mesh = mc->GetMeshAt(i);
+
+		// Submit to the list which gets updated to the gpu each frame
+		CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+
+		// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
+		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 		if (isModelOnGpu == false)
 		{
-			al->m_LoadedModels[modelPath].first = true;
+			// Vertices
+			const void* data = static_cast<const void*>(mesh->m_Vertices.data());
+			Resource* uploadR = mesh->m_pUploadResourceVertices;
+			Resource* defaultR = mesh->m_pDefaultResourceVertices;
+			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+			// inidices
+			data = static_cast<const void*>(mesh->m_Indices.data());
+			uploadR = mesh->m_pUploadResourceIndices;
+			defaultR = mesh->m_pDefaultResourceIndices;
+			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 		}
 
-		// Submit Mesh/texture data to GPU if they haven't already been uploaded
-		for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+		Material* meshMat = mc->GetMaterialAt(i);
+		// Textures
+		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
 		{
-			mesh = mc->GetMeshAt(i);
+			TEXTURE2D_TYPE type = static_cast<TEXTURE2D_TYPE>(i);
+			Texture* texture = meshMat->GetTexture(type);
 
-			// Submit to the list which gets updated to the gpu each frame
-			CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-
-			// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
-			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-			if (isModelOnGpu == false)
+			// Check if the texture is on GPU before submitting to be uploaded
+			if (al->m_LoadedTextures[texture->m_FilePath].first == false)
 			{
-				// Vertices
-				const void* data = static_cast<const void*>(mesh->m_Vertices.data());
-				Resource* uploadR = mesh->m_pUploadResourceVertices;
-				Resource* defaultR = mesh->m_pDefaultResourceVertices;
-				codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-
-				// inidices
-				data = static_cast<const void*>(mesh->m_Indices.data());
-				uploadR = mesh->m_pUploadResourceIndices;
-				defaultR = mesh->m_pDefaultResourceIndices;
-				codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-			}
-
-			Material* meshMat = mc->GetMaterialAt(i);
-			// Textures
-			for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
-			{
-				TEXTURE2D_TYPE type = static_cast<TEXTURE2D_TYPE>(i);
-				Texture* texture = meshMat->GetTexture(type);
-
-				// Check if the texture is on GPU before submitting to be uploaded
-				if (al->m_LoadedTextures[texture->m_FilePath].first == false)
-				{
-					codt->SubmitTexture(texture);
-					al->m_LoadedTextures[texture->m_FilePath].first = true;
-				}
+				codt->SubmitTexture(texture);
+				al->m_LoadedTextures[texture->m_FilePath].first = true;
 			}
 		}
+	}
 
-		// Finally store the object in the corresponding renderComponent vectors so it will be drawn
-		if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
-		{
-			m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(mc, tc));
-		}
+	// Finally store the object in the corresponding renderComponent vectors so it will be drawn
+	if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
+	{
+		m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(mc, tc));
+	}
 
-		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
-		{
-			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
-		}
+	if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
+	{
+		m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
+	}
 
-		if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
-		{
-			m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
-		}
+	if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
+	{
+		m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
+	}
 
-		if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
-		{
-			m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(mc, tc));
-		}
-
+	if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
+	{
+		m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(mc, tc));
 	}
 }
 
