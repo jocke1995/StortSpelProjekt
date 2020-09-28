@@ -21,7 +21,8 @@ namespace component
 
 		virtual void Init() = 0;
 
-		virtual void RenderUpdate(double dt) = 0;
+		virtual void Update(double dt);
+		virtual void RenderUpdate(double dt);
 
 		void InitScene();
 

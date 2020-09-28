@@ -70,14 +70,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				if (key == SCAN_CODES::LEFT_SHIFT && !Input::GetInstance().GetKeyState(SCAN_CODES::LEFT_SHIFT) && !(inputData.Flags % 2))
 				{
 					ShowCursor(true);
+					Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
 				}
 				else if (key == SCAN_CODES::LEFT_SHIFT && (inputData.Flags % 2))
 				{
 					ShowCursor(false);
+					Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
 				}
 			}
-
-			Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
+			if (DEVELOPERMODE_DEVINTERFACE == false || !Input::GetInstance().GetKeyState(SCAN_CODES::LEFT_SHIFT))
+			{
+				Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
+			}
 		}
 		else if (raw->header.dwType == RIM_TYPEMOUSE)
 		{
