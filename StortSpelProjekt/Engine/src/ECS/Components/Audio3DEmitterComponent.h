@@ -27,7 +27,6 @@ namespace component
 	public:
 		Audio3DEmitterComponent(Entity* parent);
 		virtual ~Audio3DEmitterComponent();
-		void Update(double dt);
 
 		// update position and orientation of the emitter
 		void UpdateEmitter(const std::wstring& name);

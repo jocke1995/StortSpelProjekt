@@ -176,7 +176,4 @@ namespace component
 		return m_TextDataMap[name].text.size();
 	}
 
-	void TextComponent::Update(double dt)
-	{
-	}
 }
