@@ -25,7 +25,6 @@ void component::Audio3DEmitterComponent::Update(double dt)
 
 void component::Audio3DEmitterComponent::InitScene()
 {
-	Log::Print("Audio3DEmitterComponent InitScene called!\n");
 }
 
 void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)

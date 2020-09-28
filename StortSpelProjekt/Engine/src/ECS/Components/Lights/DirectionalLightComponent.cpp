@@ -34,7 +34,6 @@ namespace component
 
 	void DirectionalLightComponent::InitScene()
 	{
-		Log::Print("DirectionalLightComponent Init called!\n");
 		Renderer::GetInstance().InitDirectionalLightComponent(GetParent());
 	}
 

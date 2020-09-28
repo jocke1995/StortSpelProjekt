@@ -83,6 +83,14 @@ Renderer& Renderer::GetInstance()
 
 Renderer::~Renderer()
 {
+	// Cleanup ImGui
+	ImGui_ImplDX12_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+}
+
+void Renderer::DeleteDxResources()
+{
 	Log::Print("----------------------------  Deleting Renderer  ----------------------------------\n");
 	waitForFrame(0);
 
@@ -125,11 +133,6 @@ Renderer::~Renderer()
 	delete m_pCbPerSceneData;
 	delete m_pCbPerFrame;
 	delete m_pCbPerFrameData;
-
-	// Cleanup ImGui
-	ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
 }
 
 void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* threadPool)

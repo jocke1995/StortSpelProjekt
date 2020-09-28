@@ -49,7 +49,6 @@ namespace component
 
 	void CameraComponent::InitScene()
 	{
-		Log::Print("CameraComponent InitScene called!\n");
 		Renderer::GetInstance().InitCameraComponent(GetParent());
 	}
 

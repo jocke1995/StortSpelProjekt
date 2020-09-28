@@ -23,7 +23,6 @@ void component::Audio3DListenerComponent::Update(double dt)
 
 void component::Audio3DListenerComponent::InitScene()
 {
-	Log::Print("Audio3DListenerComponent InitScene called!\n");
 }
 
 void component::Audio3DListenerComponent::UpdateListener()

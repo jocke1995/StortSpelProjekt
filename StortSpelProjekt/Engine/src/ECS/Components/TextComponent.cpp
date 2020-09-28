@@ -181,7 +181,6 @@ namespace component
 	}
 	void TextComponent::InitScene()
 	{
-		Log::Print("TextComponent InitScene called!\n");
 		Renderer::GetInstance().InitTextComponent(GetParent());
 	}
 }

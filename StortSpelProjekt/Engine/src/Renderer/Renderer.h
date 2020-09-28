@@ -75,6 +75,8 @@ public:
 	//Renderer();
 	static Renderer& GetInstance();
 	virtual ~Renderer();
+	// For control of safe release of DirectX resources
+	void DeleteDxResources();
 
 	// PickedEntity
 	Entity* const GetPickedEntity() const;
@@ -191,7 +193,7 @@ private:
 	void createFences();
 	void waitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
 
-	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetSceneToDraw
+	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene
 	void waitForCopyOnDemand();
 
 	// Manage components

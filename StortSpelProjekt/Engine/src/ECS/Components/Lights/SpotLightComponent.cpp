@@ -57,7 +57,6 @@ namespace component
 
     void SpotLightComponent::InitScene()
     {
-        Log::Print("SpotLightComponent Init called!\n");
         Renderer::GetInstance().InitSpotLightComponent(GetParent());
     }
 

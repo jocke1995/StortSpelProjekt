@@ -22,7 +22,6 @@ void component::Audio2DVoiceComponent::Update(double dt)
 
 void component::Audio2DVoiceComponent::InitScene()
 {
-	Log::Print("Audio2DVoiceComponent InitScene called!\n");
 }
 
 void component::Audio2DVoiceComponent::AddVoice(const std::wstring& name)

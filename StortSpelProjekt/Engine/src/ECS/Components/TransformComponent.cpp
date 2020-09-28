@@ -29,7 +29,6 @@ namespace component
 
 	void TransformComponent::InitScene()
 	{
-		Log::Print("TransformComponent InitScene called!\n");
 	}
 
 	Transform* TransformComponent::GetTransform() const

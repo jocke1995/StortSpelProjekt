@@ -40,7 +40,6 @@ namespace component
 
 	void BoundingBoxComponent::InitScene()
 	{
-		Log::Print("BoundingBoxComponent InitScene called!\n");
 		Renderer::GetInstance().InitBoundingBoxComponent(GetParent());
 	}
 

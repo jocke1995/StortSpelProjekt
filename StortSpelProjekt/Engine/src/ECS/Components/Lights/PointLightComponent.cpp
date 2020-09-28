@@ -44,7 +44,6 @@ namespace component
 
 	void PointLightComponent::InitScene()
 	{
-		Log::Print("PointLightComponent Init called!\n");
 		Renderer::GetInstance().InitPointLightComponent(GetParent());
 	}
 
