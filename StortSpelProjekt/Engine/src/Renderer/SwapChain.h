@@ -34,7 +34,7 @@ private:
 	std::array<RenderTargetView*, NUM_SWAP_BUFFERS> m_RTVs;
 	std::array<ShaderResourceView*, NUM_SWAP_BUFFERS> m_SRVs;
 	IDXGISwapChain4* m_pSwapChain4 = nullptr;
-	bool fullscreen = false;
+	bool m_Fullscreen = false;
 };
 
 #endif

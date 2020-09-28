@@ -15,7 +15,7 @@ SwapChain::SwapChain(
 	DescriptorHeap* descriptorHeap_RTV,
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
 {
-	fullscreen = Option::GetInstance().GetVariable("fullscreen");
+	m_Fullscreen = Option::GetInstance().GetVariable("fullscreen");
 
 	IDXGIFactory4* factory = nullptr;
 	HRESULT hr = CreateDXGIFactory(IID_PPV_ARGS(&factory));
@@ -41,13 +41,17 @@ SwapChain::SwapChain(
 	scDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 
 	IDXGISwapChain1* swapChain1 = nullptr;
-	if (fullscreen)
-	{
-		scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	if (m_Fullscreen)
+	{	
+		// Microsoft recommends zeroing out the refresh rate of the description before resizing the targets
+		DXGI_RATIONAL zeroRefreshRate = {};
+		zeroRefreshRate.Numerator = 0;
+		zeroRefreshRate.Denominator = 0;
 
 		DXGI_SWAP_CHAIN_FULLSCREEN_DESC scFullscreenDesc = {};
+		scFullscreenDesc.RefreshRate = zeroRefreshRate;
 		scFullscreenDesc.Scaling = DXGI_MODE_SCALING_STRETCHED;
-		scFullscreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		scFullscreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
 		scFullscreenDesc.Windowed = false;
 
 		hr = factory->CreateSwapChainForHwnd(
@@ -60,7 +64,7 @@ SwapChain::SwapChain(
 	}
 	else
 	{
-		if (Option::GetInstance().GetVariable("stretchedWindow"))
+		if (Option::GetInstance().GetVariable("stretchedWindow") || Option::GetInstance().GetVariable("windowedFullscreen"))
 		{
 			scDesc.Scaling = DXGI_SCALING_STRETCH;
 		}
@@ -88,11 +92,13 @@ SwapChain::SwapChain(
 
 	SAFE_RELEASE(&factory);
 
-	if (fullscreen)
+	// If fullscreen, get the width and height for the RTV
+	if (m_Fullscreen)
 	{
 		m_pSwapChain4->GetSourceSize(&width, &height);
 	}
 
+	// Set RTVs
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_Resources[i] = new Resource();
@@ -111,7 +117,8 @@ SwapChain::SwapChain(
 		m_RTVs[i]->CreateRTV(device, descriptorHeap_RTV, nullptr);
 	}
 
-	if (fullscreen)
+	// Activate fullscreen state
+	if (m_Fullscreen)
 	{
 		m_pSwapChain4->SetFullscreenState(true, NULL);
 	}
@@ -138,7 +145,7 @@ SwapChain::~SwapChain()
 	}
 
 	// You can not release the swapchain in fullscreen mode
-	if (fullscreen)
+	if (m_Fullscreen)
 	{
 		m_pSwapChain4->SetFullscreenState(false, NULL);
 	}
