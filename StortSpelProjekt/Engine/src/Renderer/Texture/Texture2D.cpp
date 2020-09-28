@@ -20,7 +20,7 @@ Texture2D::~Texture2D()
 	
 }
 
-bool Texture2D::Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
+bool Texture2D::Init(const std::wstring& filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 {
 	m_FilePath = filePath;
 	

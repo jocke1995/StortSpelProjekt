@@ -7,7 +7,7 @@
 #include "Core.h"
 class Mesh;
 class Model;
-class Texture;
+class Material;
 
 namespace component
 {
@@ -17,16 +17,14 @@ namespace component
         ModelComponent(Entity* parent);
         virtual ~ModelComponent();
 
-        void Update(double dt);
-
         // Sets
         void SetModel(Model* model);
         void SetDrawFlag(unsigned int drawFlag);
 
         // Gets
         Mesh* GetMeshAt(unsigned int index) const;
-        std::map<TEXTURE2D_TYPE, Texture*>* GetTexturesAt(unsigned int index) const;
-        SlotInfo* GetSlotInfoAt(unsigned int index) const;
+        Material* GetMaterialAt(unsigned int index) const;
+        const SlotInfo* GetSlotInfoAt(unsigned int index) const;
         unsigned int GetDrawFlag() const;
         unsigned int GetNrOfMeshes() const;
         bool IsPickedThisFrame() const;

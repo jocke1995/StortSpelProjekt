@@ -1,31 +1,32 @@
 #include "stdafx.h"
 #include "Model.h"
 #include "Mesh.h"
-#include "Texture/Texture.h"
+#include "Material.h"
+#include "Texture/Texture2D.h"
 #include "GPUMemory/ShaderResourceView.h"
 #include "structs.h"
 #include "Animation.h"
 
-Model::Model(const std::wstring path, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<std::map<TEXTURE2D_TYPE, Texture*>>* textures)
+Model::Model(const std::wstring* path, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<Material*>* materials)
 {
-	m_Path = path;
+	m_Path = *path;
 	m_Size = (*meshes).size();
 
 	m_Meshes = (*meshes);
 	m_Animations = (*animations);
-	m_Textures = (*textures);
+	m_Materials = (*materials);
 
 	// Fill SlotInfo with mesh+material info
 	for (unsigned int i = 0; i < (*meshes).size(); i++)
 	{
 		m_SlotInfos.push_back(
 			{
-			(*meshes)[i]->m_pSRV->GetDescriptorHeapIndex(),
-			(*textures)[i][TEXTURE2D_TYPE::AMBIENT]->GetDescriptorHeapIndex(),
-			(*textures)[i][TEXTURE2D_TYPE::DIFFUSE]->GetDescriptorHeapIndex(),
-			(*textures)[i][TEXTURE2D_TYPE::SPECULAR]->GetDescriptorHeapIndex(),
-			(*textures)[i][TEXTURE2D_TYPE::NORMAL]->GetDescriptorHeapIndex(),
-			(*textures)[i][TEXTURE2D_TYPE::EMISSIVE]->GetDescriptorHeapIndex(),
+			m_Meshes[i]->m_pSRV->GetDescriptorHeapIndex(),
+			m_Materials[i]->GetTexture(TEXTURE2D_TYPE::ALBEDO)->GetDescriptorHeapIndex(),
+			m_Materials[i]->GetTexture(TEXTURE2D_TYPE::ROUGHNESS)->GetDescriptorHeapIndex(),
+			m_Materials[i]->GetTexture(TEXTURE2D_TYPE::METALLIC)->GetDescriptorHeapIndex(),
+			m_Materials[i]->GetTexture(TEXTURE2D_TYPE::NORMAL)->GetDescriptorHeapIndex(),
+			m_Materials[i]->GetTexture(TEXTURE2D_TYPE::EMISSIVE)->GetDescriptorHeapIndex()
 			});
 	}
 }
@@ -34,9 +35,9 @@ Model::~Model()
 {
 }
 
-std::wstring Model::GetPath() const
+const std::wstring* Model::GetPath() const
 {
-	return m_Path;
+	return &m_Path;
 }
 
 unsigned int Model::GetSize() const
@@ -44,17 +45,17 @@ unsigned int Model::GetSize() const
 	return m_Size;
 }
 
-Mesh* Model::GetMeshAt(unsigned int index)
+Mesh* Model::GetMeshAt(unsigned int index) const
 {
 	return m_Meshes[index];
 }
 
-std::map<TEXTURE2D_TYPE, Texture*>* Model::GetTexturesAt(unsigned int index)
+Material* Model::GetMaterialAt(unsigned int index) const
 {
-	return &m_Textures[index];
+	return m_Materials[index];;
 }
 
-SlotInfo* Model::GetSlotInfoAt(unsigned int index)
+const SlotInfo* Model::GetSlotInfoAt(unsigned int index) const
 {
 	return &m_SlotInfos[index];
 }

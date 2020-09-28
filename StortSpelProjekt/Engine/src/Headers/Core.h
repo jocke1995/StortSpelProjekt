@@ -36,14 +36,6 @@ inline T Max(T a, T b)
 	return b;
 }
 
-enum class COLOR_TYPE
-{
-	LIGHT_AMBIENT,
-	LIGHT_DIFFUSE,
-	LIGHT_SPECULAR,
-	NUM_COLOR_TYPES
-};
-
 enum class TEXTURE_TYPE
 {
 	UNKNOWN,
@@ -52,11 +44,11 @@ enum class TEXTURE_TYPE
 	NUM_TYPES
 };
 
-enum TEXTURE2D_TYPE
+enum class TEXTURE2D_TYPE
 {
-	AMBIENT,
-	DIFFUSE,
-	SPECULAR,
+	ALBEDO,
+	ROUGHNESS,
+	METALLIC,
 	NORMAL,
 	EMISSIVE,
 	NUM_TYPES

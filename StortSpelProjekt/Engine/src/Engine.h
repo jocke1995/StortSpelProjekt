@@ -28,11 +28,12 @@
 #include "Physics/Physics.h"
 #include "AudioEngine/AudioBuffer.h"
 
+// Textures
+#include "Renderer/Texture/Texture2D.h"
+#include "Renderer/Texture/TextureCubeMap.h"
+
 // Event-handling
 #include "Events/EventBus.h"
-
-// Network
-#include "Network/Network.h"
 
 // Network
 #include "Network/Network.h"
@@ -72,6 +73,8 @@ private:
 	SceneManager* m_pSceneManager = nullptr;
 	Physics* m_pPhysics = nullptr;
 	AudioEngine* m_pAudioEngine = nullptr;
+
+	int m_ThreadLimit = 4;
 };
 
 #endif

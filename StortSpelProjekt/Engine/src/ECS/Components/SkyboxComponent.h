@@ -6,7 +6,7 @@
 
 class Mesh;
 class Model;
-class Texture;
+class TextureCubeMap;
 class Transform;
 class BaseCamera;
 
@@ -26,18 +26,18 @@ namespace component
 
         // Sets
         void SetMesh(Mesh* mesh);
-        void SetTexture(Texture* texture);
+        void SetTexture(TextureCubeMap* texture);
         void SetCamera(BaseCamera* camera);
 
         // Gets
         Transform* GetTransform() const;
         Mesh* GetMesh() const;
-        Texture* GetTexture() const;
+        TextureCubeMap* GetTexture() const;
         BaseCamera* GetCamera() const;
 
     private:
         Mesh* m_pMesh = nullptr;
-        Texture* m_pTexture = nullptr;
+        TextureCubeMap* m_pTexture = nullptr;
         Transform* m_pTransform = nullptr;
 
         // Always set pos to camera

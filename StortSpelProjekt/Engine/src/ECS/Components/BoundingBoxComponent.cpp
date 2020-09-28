@@ -96,7 +96,7 @@ namespace component
 		return m_pBbd;
 	}
 
-	const std::string BoundingBoxComponent::GetPathOfModel() const
+	const std::wstring BoundingBoxComponent::GetPathOfModel() const
 	{
 		return m_PathOfModel;
 	}

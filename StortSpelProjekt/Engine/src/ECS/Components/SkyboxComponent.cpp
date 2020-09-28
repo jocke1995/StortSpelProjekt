@@ -5,7 +5,7 @@
 #include "../Renderer/Model.h"
 #include "../Renderer/BaseCamera.h"
 
-#include "../Renderer/Texture/Texture.h"
+#include "../Renderer/Texture/TextureCubeMap.h"
 #include "../Renderer/Renderer.h"
 
 #include "../Misc/AssetLoader.h"
@@ -37,7 +37,7 @@ void component::SkyboxComponent::SetMesh(Mesh* mesh)
 	m_pMesh = mesh;
 }
 
-void component::SkyboxComponent::SetTexture(Texture* texture)
+void component::SkyboxComponent::SetTexture(TextureCubeMap* texture)
 {
 	if (texture->GetType() != TEXTURE_TYPE::TEXTURECUBEMAP)
 	{
@@ -61,7 +61,7 @@ Mesh* component::SkyboxComponent::GetMesh() const
 	return m_pMesh;
 }
 
-Texture* component::SkyboxComponent::GetTexture() const
+TextureCubeMap* component::SkyboxComponent::GetTexture() const
 {
 	return m_pTexture;
 }

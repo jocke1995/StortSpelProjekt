@@ -12,9 +12,9 @@ class GraphicsState : public PipelineState
 public:
 	GraphicsState(ID3D12Device5* device,
 		RootSignature* rootSignature,
-		LPCWSTR VSName, LPCWSTR PSName,
+		const std::wstring& VSName, const std::wstring& PSName,
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC* gpsd,
-		LPCTSTR psoName);
+		const std::wstring& psoName);
 
 	virtual ~GraphicsState();
 

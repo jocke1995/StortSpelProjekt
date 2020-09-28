@@ -5,7 +5,7 @@
 
 
 class Mesh;
-class Texture;
+class Material;
 class Resource;
 class ShaderResourceView;
 class DescriptorHeap;
@@ -19,31 +19,31 @@ struct D3D12_INDEX_BUFFER_VIEW;
 class Model
 {
 public:
-    Model(const std::wstring path,
+    Model(const std::wstring* path,
         std::vector<Mesh*>* meshes,
         std::vector<Animation*>* animations,
-        std::vector<std::map<TEXTURE2D_TYPE, Texture*>>* textures);
+        std::vector<Material*>* materials);
     virtual ~Model();
 
-    std::wstring GetPath() const;
+    const std::wstring* GetPath() const;
     unsigned int GetSize() const;
 
     // Mesh
-    Mesh* GetMeshAt(unsigned int index);
+    Mesh* GetMeshAt(unsigned int index) const;
 
     // Material
-    std::map<TEXTURE2D_TYPE, Texture*>* GetTexturesAt(unsigned int index);
+    Material* GetMaterialAt(unsigned int index) const;
 
     // SlotInfo
-    SlotInfo* GetSlotInfoAt(unsigned int index);
+    const SlotInfo* GetSlotInfoAt(unsigned int index) const;
 
 private:
     std::wstring m_Path;
     unsigned int m_Size = 0;
     std::vector<Mesh*> m_Meshes;
-    std::vector<std::map<TEXTURE2D_TYPE, Texture*>> m_Textures;
-    std::vector<SlotInfo> m_SlotInfos;
-    std::vector<Animation*> m_Animations;    
+    std::vector<Material*> m_Materials;
+    std::vector<Animation*> m_Animations;
+    std::vector<SlotInfo> m_SlotInfos; 
 };
 
 #endif

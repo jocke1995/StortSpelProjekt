@@ -27,6 +27,8 @@
 #include "BaseCamera.h"
 #include "Mesh.h"
 #include "Texture/Texture.h"
+#include "Texture/TextureCubeMap.h"
+#include "Material.h"
 #include "Text.h"
 
 // GPUMemory
@@ -565,8 +567,8 @@ void Renderer::createCommandQueues()
 
 void Renderer::createSwapChain(const HWND *hwnd)
 {
-	int width = Option::GetInstance().GetVariable("resolutionWidth");
-	int height = Option::GetInstance().GetVariable("resolutionHeight");
+	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
 
 	m_pSwapChain = new SwapChain(
 		m_pDevice5,
@@ -584,8 +586,8 @@ void Renderer::createMainDSV()
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-	int width = Option::GetInstance().GetVariable("resolutionWidth");
-	int height = Option::GetInstance().GetVariable("resolutionHeight");
+	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
 
 	m_pMainDepthStencil = new DepthStencil(
 		m_pDevice5,
@@ -1185,8 +1187,8 @@ void Renderer::initRenderTasks()
 
 #pragma endregion Text
 	
-	int width = Option::GetInstance().GetVariable("resolutionWidth");
-	int height = Option::GetInstance().GetVariable("resolutionHeight");
+	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
 
 #pragma region IMGUIRENDERTASK
 	RenderTask* imGuiRenderTask = new ImGuiRenderTask(
@@ -1202,7 +1204,7 @@ void Renderer::initRenderTasks()
 #pragma endregion IMGUIRENDERTASK
 
 	// ComputeTasks
-	std::vector<std::pair<LPCWSTR, LPCTSTR>> csNamePSOName;
+	std::vector<std::pair<std::wstring, std::wstring>> csNamePSOName;
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurHorizontal.hlsl", L"blurHorizontalPSO"));
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurVertical.hlsl", L"blurVerticalPSO"));
 	ComputeTask* blurComputeTask = new BlurComputeTask(
@@ -1504,7 +1506,7 @@ void Renderer::addComponents(Entity* entity)
 		Mesh* mesh = sbc->GetMesh();
 
 		AssetLoader* al = AssetLoader::Get();
-		std::wstring modelPath = to_wstring(mesh->GetPath());
+		std::wstring modelPath = mesh->GetPath();
 		bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
 
 		// If the model isn't on GPU, it will be uploaded below
@@ -1533,7 +1535,7 @@ void Renderer::addComponents(Entity* entity)
 			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 		}
 
-		Texture* texture = sbc->GetTexture();
+		Texture* texture = static_cast<TextureCubeMap*>(sbc->GetTexture());
 		// Check if the texture is on GPU before submitting to be uploaded
 		if (al->m_LoadedTextures[texture->m_FilePath].first == false)
 		{
@@ -1554,7 +1556,7 @@ void Renderer::addComponents(Entity* entity)
 		{
 			Mesh* mesh = mc->GetMeshAt(0);
 			AssetLoader* al = AssetLoader::Get();
-			std::wstring modelPath = to_wstring(mesh->GetPath());
+			std::wstring modelPath = mesh->GetPath();
 			bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
 
 			// If the model isn't on GPU, it will be uploaded below
@@ -1588,12 +1590,12 @@ void Renderer::addComponents(Entity* entity)
 					codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 				}
 
-				std::map<TEXTURE2D_TYPE, Texture*> meshTextures = *mc->GetTexturesAt(i);
+				Material* meshMat = mc->GetMaterialAt(i);
 				// Textures
-				for (unsigned int i = 0; i < TEXTURE2D_TYPE::NUM_TYPES; i++)
+				for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
 				{
 					TEXTURE2D_TYPE type = static_cast<TEXTURE2D_TYPE>(i);
-					Texture* texture = meshTextures[type];
+					Texture* texture = meshMat->GetTexture(type);
 
 					// Check if the texture is on GPU before submitting to be uploaded
 					if (al->m_LoadedTextures[texture->m_FilePath].first == false)
@@ -1817,9 +1819,9 @@ void Renderer::prepareScene(Scene* scene)
 
 	// -------------------- DEBUG STUFF --------------------
 	// Test to change m_pCamera to the shadow casting m_lights cameras
-	//auto& tuple = m_pRenderer->m_lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
-	//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
-	//m_pRenderer->ScenePrimaryCamera = tempCam;
+	// auto& tuple = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].at(0);
+	// BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
+	// m_pScenePrimaryCamera = tempCam;
 	if (m_pScenePrimaryCamera == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scene: %s\n", scene->GetName());

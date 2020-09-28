@@ -101,7 +101,7 @@ void SkyboxRenderTask::Execute()
 
 	SlotInfo info = { };
 	info.vertexDataIndex = m_pSkybox->GetMesh()->m_pSRV->GetDescriptorHeapIndex();
-	info.textureAmbient = m_pSkybox->GetTexture()->GetDescriptorHeapIndex();
+	info.textureAlbedo = m_pSkybox->GetTexture()->GetDescriptorHeapIndex();
 
 	Transform* transform = m_pSkybox->GetTransform();
 	DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();

@@ -18,7 +18,7 @@ TextureCubeMap::~TextureCubeMap()
 {
 }
 
-bool TextureCubeMap::Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
+bool TextureCubeMap::Init(const std::wstring& filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 {
 	m_FilePath = filePath;
 	HRESULT hr;

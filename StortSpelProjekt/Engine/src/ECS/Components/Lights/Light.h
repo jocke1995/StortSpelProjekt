@@ -33,7 +33,7 @@ public:
 
 	virtual void Update(double dt) = 0;
 
-	void SetColor(COLOR_TYPE type, float4 color);
+	void SetColor(float3 color);
 
 	// Gets
 	unsigned int GetLightFlags() const;
@@ -49,7 +49,7 @@ protected:
 	CAMERA_TYPE m_CameraType;
 	void CreateCamera(float3 position, float3 direction);
 
-	virtual void UpdateLightData(COLOR_TYPE type) = 0;
+	virtual void UpdateLightIntensity() = 0;
 
 };
 

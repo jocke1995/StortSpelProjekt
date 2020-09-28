@@ -2,6 +2,8 @@
 #define TEXTURE_H
 
 #include "Core.h"
+#include "../../Headers/d3dx12.h"
+
 class Resource;
 class CommandInterface;
 class ShaderResourceView;
@@ -13,7 +15,7 @@ public:
 	Texture();
 	virtual ~Texture();
 
-	virtual bool Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap) = 0;
+	virtual bool Init(const std::wstring& filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap) = 0;
 
 	TEXTURE_TYPE GetType() const;
 	const UINT GetDescriptorHeapIndex() const;

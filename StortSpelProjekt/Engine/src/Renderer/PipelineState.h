@@ -11,7 +11,7 @@ struct ID3D12PipelineState;
 class PipelineState
 {
 public:
-	PipelineState(LPCTSTR psoName);
+	PipelineState(const std::wstring& psoName);
 	virtual ~PipelineState();
 
 	ID3D12PipelineState* GetPSO() const;
@@ -19,9 +19,9 @@ public:
 
 protected:
 	ID3D12PipelineState* m_pPSO = nullptr;
-	LPCTSTR m_PsoName;
+	std::wstring m_PsoName;
 
-	Shader* createShader(LPCTSTR fileName, ShaderType type);
+	Shader* createShader(const std::wstring& fileName, ShaderType type);
 };
 
 #endif

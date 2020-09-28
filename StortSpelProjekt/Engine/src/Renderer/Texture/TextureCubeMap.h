@@ -14,7 +14,7 @@ public:
 	TextureCubeMap();
 	virtual ~TextureCubeMap();
 
-	bool Init(std::wstring filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap);
+	bool Init(const std::wstring& filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap);
 
 private:
 	friend class CopyOnDemandTask;
