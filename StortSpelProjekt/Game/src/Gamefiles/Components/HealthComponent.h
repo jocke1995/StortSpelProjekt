@@ -14,6 +14,9 @@ namespace component
 		HealthComponent(Entity* parent, int hp);
 		~HealthComponent();
 
+		// here to avoid prints to output because of function missing
+		void InitScene();
+
 		// will publish a death event if hp reaches 0 or bellow
 		void SetHealth(int hp);
 		// Meant to be used for taking damage (input negative numbers)

@@ -17,6 +17,10 @@ component::HealthComponent::~HealthComponent()
 
 }
 
+void component::HealthComponent::InitScene()
+{
+}
+
 void component::HealthComponent::SetHealth(int hp)
 {
 	m_Health = hp;
