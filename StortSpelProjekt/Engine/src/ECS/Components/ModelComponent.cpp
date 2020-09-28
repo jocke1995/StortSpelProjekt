@@ -3,6 +3,8 @@
 
 #include "../Renderer/Model.h"
 #include "../Renderer/Material.h"
+#include "../Renderer/Renderer.h"
+#include "../Entity.h"
 
 namespace component
 {
@@ -24,6 +26,21 @@ namespace component
 	void ModelComponent::SetDrawFlag(unsigned int drawFlag)
 	{
 		m_DrawFlag = drawFlag;
+	}
+
+	void ModelComponent::Update(double dt)
+	{
+
+	}
+
+	void ModelComponent::InitScene()
+	{
+		// check if model has transform component
+		component::TransformComponent* tc = GetParent()->GetComponent<component::TransformComponent>();
+		if (tc != nullptr)
+		{
+			Renderer::GetInstance().InitModelComponent(GetParent());
+		}
 	}
 
 	Mesh* ModelComponent::GetMeshAt(unsigned int index) const
