@@ -7,7 +7,8 @@
 component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 {
 	DirectX::XMFLOAT3 corners[8];
-	parent->GetComponent<component::BoundingBoxComponent>()->GetOBB()->GetCorners(corners);
+	component::BoundingBoxComponent* bbc = parent->GetComponent<component::BoundingBoxComponent>();
+	bbc->GetOBB()->GetCorners(corners);
 	tempHitbox.CreateFromPoints(tempHitbox, 8, corners, sizeof(DirectX::XMFLOAT3));
 	Hitbox = tempHitbox;
 
@@ -63,6 +64,12 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	{
 		m_BoundingBoxIndicesLocal.push_back(indices[i]);
 	}
+
+	BoundingBoxData bbd = {};
+	bbd.boundingBoxVertices = m_BoundingBoxVerticesLocal;
+	bbd.boundingBoxIndices = m_BoundingBoxIndicesLocal;
+
+	bbc->AddBoundingBox(&bbd, &m_MeleeTransformTwo, L"sword");
 
 	m_pMeleeTransform = parent->GetComponent<component::TransformComponent>()->GetTransform();
 

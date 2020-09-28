@@ -45,31 +45,41 @@ namespace component
 
 	void BoundingBoxComponent::Update(double dt)
 	{
-		// No need for equations every frame if the object doesn't have collision enabled 
-		if (m_FlagOBB & F_OBBFlags::COLLISION)
+		for (unsigned int i = 0; i < m_Transforms.size(); i++)
 		{
-			// Making a temporary OBB which takes the original state of the OBB
-			DirectX::BoundingOrientedBox obb;
-			obb.Center = m_OriginalBoundingBox.Center;
-			obb.Extents = m_OriginalBoundingBox.Extents;
-			obb.Orientation = m_OriginalBoundingBox.Orientation;
+			// No need for equations every frame if the object doesn't have collision enabled 
+			if (m_FlagOBB & F_OBBFlags::COLLISION)
+			{
+				// Making a temporary OBB which takes the original state of the OBB
+				DirectX::BoundingOrientedBox obb;
+				obb.Center = m_OriginalBoundingBox.Center;
+				obb.Extents = m_OriginalBoundingBox.Extents;
+				obb.Orientation = m_OriginalBoundingBox.Orientation;
 
-			// then do all the transformations on this temoporary OBB so we don't change the original state
-			obb.Transform(obb, *m_pTransform->GetWorldMatrix());
+				// then do all the transformations on this temoporary OBB so we don't change the original state
+				obb.Transform(obb, *m_Transforms[i]->GetWorldMatrix());
 
-			// now save the transformations to the OBB that is used in collision detection
-			m_OrientedBoundingBox.Center = obb.Center;
-			m_OrientedBoundingBox.Extents = obb.Extents;
-			m_OrientedBoundingBox.Orientation = obb.Orientation;
+				// now save the transformations to the OBB that is used in collision detection
+				m_OrientedBoundingBox.Center = obb.Center;
+				m_OrientedBoundingBox.Extents = obb.Extents;
+				m_OrientedBoundingBox.Orientation = obb.Orientation;
+			}
 		}
 	}
 
-	void BoundingBoxComponent::SetMesh(Mesh* mesh)
+	void BoundingBoxComponent::AddMesh(Mesh* mesh)
 	{
-		m_pMesh = mesh;
+		m_Meshes.push_back(mesh);
 
 		m_SlotInfo->vertexDataIndex = mesh->m_pSRV->GetDescriptorHeapIndex();
 		// Textures are not used in the WireframeRenderTask
+	}
+
+	void BoundingBoxComponent::AddBoundingBox(BoundingBoxData* bbd, Transform* transform, std::wstring path)
+	{
+		BoundingBoxPool* bbp = BoundingBoxPool::Get();
+		m_Bbds.push_back(bbp->CreateBoundingBoxData(bbd->boundingBoxVertices, bbd->boundingBoxIndices, path));
+		m_Transforms.push_back(transform);
 	}
 
 	const DirectX::BoundingOrientedBox* BoundingBoxComponent::GetOBB() const
@@ -82,14 +92,14 @@ namespace component
 		return &m_OrientedBoundingBox;
 	}
 
-	Transform* BoundingBoxComponent::GetTransform() const
+	Transform* BoundingBoxComponent::GetTransformAt(unsigned int index) const
 	{
-		return m_pTransform;
+		return m_Transforms[index];
 	}
 
-	const Mesh* BoundingBoxComponent::GetMesh() const
+	const Mesh* BoundingBoxComponent::GetMeshAt(unsigned int index) const
 	{
-		return m_pMesh;
+		return m_Meshes[index];
 	}
 
 	const SlotInfo* BoundingBoxComponent::GetSlotInfo() const
@@ -97,9 +107,14 @@ namespace component
 		return m_SlotInfo;
 	}
 
-	const BoundingBoxData* BoundingBoxComponent::GetBoundingBoxData() const
+	const BoundingBoxData* BoundingBoxComponent::GetBoundingBoxDataAt(unsigned int index) const
 	{
-		return m_pBbd;
+		return m_Bbds[index];
+	}
+
+	const unsigned int BoundingBoxComponent::GetNumBoundingBoxes() const
+	{
+		return m_Bbds.size();
 	}
 
 	const std::wstring BoundingBoxComponent::GetPathOfModel() const
@@ -127,7 +142,7 @@ namespace component
 		if (m_pParent->HasComponent<ModelComponent>() == true && m_pParent->HasComponent<TransformComponent>() == true)
 		{
 			// Use the same m_pTransform as the model
-			m_pTransform = m_pParent->GetComponent<TransformComponent>()->GetTransform();
+			m_Transforms.push_back(m_pParent->GetComponent<TransformComponent>()->GetTransform());
 			ModelComponent* mc = m_pParent->GetComponent<ModelComponent>();
 			m_PathOfModel = *mc->GetMeshAt(0)->GetPath();
 
@@ -135,13 +150,14 @@ namespace component
 			// if the model we want to make an OBB for already has an OBB then take the neccessary data from it.
 			if (bbp->BoundingBoxDataExists(m_PathOfModel) == true)
 			{
-				m_pBbd = bbp->GetBoundingBoxData(m_PathOfModel);
+				m_Bbds.push_back(bbp->GetBoundingBoxData(m_PathOfModel));
 
 				// get the corners of the OBB and make the our OBB from them
 				DirectX::XMFLOAT3 corners[8];
 				for (int i = 0; i < 8; i++)
 				{
-					corners[i] = m_pBbd->boundingBoxVertices[i].pos;
+
+					corners[i] = m_Bbds.back()->boundingBoxVertices[i].pos;
 				}
 				m_OrientedBoundingBox.CreateFromPoints(m_OrientedBoundingBox, 8, corners, sizeof(DirectX::XMFLOAT3));
 				// also save to the Original OBB used for math in update
@@ -246,7 +262,7 @@ namespace component
 				boundingBoxIndicesLocal.push_back(indices[i]);
 			}
 
-			m_pBbd = bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, m_PathOfModel);
+			m_Bbds.push_back(bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, m_PathOfModel));
 
 
 			return true;

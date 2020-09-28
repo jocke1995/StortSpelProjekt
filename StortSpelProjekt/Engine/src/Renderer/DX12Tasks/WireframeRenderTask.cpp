@@ -100,23 +100,25 @@ void WireframeRenderTask::Execute()
 		// Draw for every m_pMesh
 		for (int i = 0; i < m_ObjectsToDraw.size(); i++)
 		{
-			const Mesh* m = m_ObjectsToDraw[i]->GetMesh();
-			Transform* t = m_ObjectsToDraw[i]->GetTransform();
+			for (int j = 0; j < m_ObjectsToDraw[i]->GetNumBoundingBoxes(); j++)
+			{
+				const Mesh* m = m_ObjectsToDraw[i]->GetMeshAt(j);
+				Transform* t = m_ObjectsToDraw[i]->GetTransformAt(j);
 
-			size_t num_Indices = m->GetNumIndices();
-			const SlotInfo* info = m_ObjectsToDraw[i]->GetSlotInfo();
+				size_t num_Indices = m->GetNumIndices();
+				const SlotInfo* info = m_ObjectsToDraw[i]->GetSlotInfo();
 
-			DirectX::XMMATRIX* WTransposed = t->GetWorldMatrixTransposed();
-			DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+				DirectX::XMMATRIX* WTransposed = t->GetWorldMatrixTransposed();
+				DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
-			// Create a CB_PER_OBJECT struct
-			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed,  *info };
+				// Create a CB_PER_OBJECT struct
+				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed,  *info };
 
-			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
-			//commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_OBJECT_CBV, )
+				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-			commandList->IASetIndexBuffer(m->GetIndexBufferView());
-			commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+				commandList->IASetIndexBuffer(m->GetIndexBufferView());
+				commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+			}
 		}
 	}
 

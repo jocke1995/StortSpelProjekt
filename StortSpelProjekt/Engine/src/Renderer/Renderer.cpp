@@ -623,30 +623,33 @@ void Renderer::InitBoundingBoxComponent(Entity* entity)
 	// Add it to m_pTask so it can be drawn
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
-		Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel());
-		if (m == nullptr)
+		for (unsigned int i = 0; i < bbc->GetNumBoundingBoxes(); i++)
 		{
-			Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", bbc->GetParent()->GetName().c_str());
-			return;
+			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel());
+			if (m == nullptr)
+			{
+				Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", bbc->GetParent()->GetName().c_str());
+				return;
+			}
+
+			// Submit to GPU
+			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+			// Vertices
+			const void* data = static_cast<const void*>(m->m_Vertices.data());
+			Resource* uploadR = m->m_pUploadResourceVertices;
+			Resource* defaultR = m->m_pDefaultResourceVertices;
+			codt->Submit(&std::tuple(uploadR, defaultR, data));
+
+			// inidices
+			data = static_cast<const void*>(m->m_Indices.data());
+			uploadR = m->m_pUploadResourceIndices;
+			defaultR = m->m_pDefaultResourceIndices;
+			codt->Submit(&std::tuple(uploadR, defaultR, data));
+
+			bbc->AddMesh(m);
+
+			static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(bbc);
 		}
-
-		// Submit to GPU
-		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-		// Vertices
-		const void* data = static_cast<const void*>(m->m_Vertices.data());
-		Resource* uploadR = m->m_pUploadResourceVertices;
-		Resource* defaultR = m->m_pDefaultResourceVertices;
-		codt->Submit(&std::tuple(uploadR, defaultR, data));
-
-		// inidices
-		data = static_cast<const void*>(m->m_Indices.data());
-		uploadR = m->m_pUploadResourceIndices;
-		defaultR = m->m_pDefaultResourceIndices;
-		codt->Submit(&std::tuple(uploadR, defaultR, data));
-
-		bbc->SetMesh(m);
-
-		static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(bbc);
 	}
 
 	// Add to vector so the mouse picker can check for intersections
@@ -906,13 +909,16 @@ void Renderer::updateMousePicker()
 		// Reset picked m_Entities from last frame
 		bbc->IsPickedThisFrame() = false;
 
-		if (m_pMousePicker->Pick(bbc, tempDist) == true)
+		for (unsigned int i = 0; i < bbc->GetNumBoundingBoxes(); i++)
 		{
-			if (tempDist < closestDist)
+			if (m_pMousePicker->Pick(bbc, tempDist, i) == true)
 			{
-				pickedBoundingBox = bbc;
+				if (tempDist < closestDist)
+				{
+					pickedBoundingBox = bbc;
 
-				closestDist = tempDist;
+					closestDist = tempDist;
+				}
 			}
 		}
 	}

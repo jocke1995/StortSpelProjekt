@@ -4,6 +4,7 @@
 #include "Component.h"
 #include "EngineMath.h"
 #include<DirectXCollision.h>
+#include <vector>
 
 // used for enabling Collision and/or Picking.
 // Y_AXIS_UPP is only used if the "up" axis of the model is in the Y axis
@@ -34,13 +35,18 @@ namespace component
 		//updates the position and rotation of m_OrientedBoundingBox
 		void Update(double dt);
 
-		void SetMesh(Mesh* mesh);
+		void AddMesh(Mesh* mesh);
+
+		// This function allows for using the boundingBoxComponent from sibling components
+		// Example usage: MeleeComponent needs to create a boundingBox for the area of attack
+		void AddBoundingBox(BoundingBoxData* bbd, Transform* transform, std::wstring path);
 
 		// Will write warning to Log if Collision is not enabled for object
 		const DirectX::BoundingOrientedBox* GetOBB() const;
-		Transform* GetTransform() const;
-		const Mesh* GetMesh() const;
-		const BoundingBoxData* GetBoundingBoxData() const;
+		Transform* GetTransformAt(unsigned int index) const;
+		const Mesh* GetMeshAt(unsigned int index) const;
+		const BoundingBoxData* GetBoundingBoxDataAt(unsigned int index) const;
+		const unsigned int GetNumBoundingBoxes() const;
 		const std::wstring GetPathOfModel() const;
 		const SlotInfo* GetSlotInfo() const;
 		unsigned int GetFlagOBB() const;
@@ -54,12 +60,12 @@ namespace component
 		DirectX::BoundingOrientedBox m_OrientedBoundingBox;
 		// inital state of the OBB, used for math in update()
 		DirectX::BoundingOrientedBox m_OriginalBoundingBox;
-		Transform* m_pTransform = nullptr;
+		std::vector<Transform*> m_Transforms;
 		// If picking and or collision should be enabled
 		unsigned int m_FlagOBB = 0;
-		Mesh* m_pMesh = nullptr;
 		std::wstring m_PathOfModel = L"";
-		BoundingBoxData* m_pBbd = nullptr;
+		std::vector<Mesh*> m_Meshes;
+		std::vector<BoundingBoxData*> m_Bbds;
 		SlotInfo* m_SlotInfo;
 
 		bool createOrientedBoundingBox();
