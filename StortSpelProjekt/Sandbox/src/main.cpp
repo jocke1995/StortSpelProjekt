@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
+#include "Components/HealthComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 
@@ -851,6 +852,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     component::SpotLightComponent* slc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
+    component::HealthComponent* hc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -873,6 +875,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
+    hc = entity->AddComponent<component::HealthComponent>(15);
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
@@ -930,7 +933,7 @@ Scene* BjornsTestScene(SceneManager* sm)
 
     // Adding enemy example
     EnemyFactory enH(scene);
-    enH.AddEnemy("rock", stoneModel, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.01, float3{ 1.578, 0, 0 });
+    enH.AddEnemy("rock", stoneModel, 5, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.01, float3{ 1.578, 0, 0 });
     // showing that using the wrong overload will send Warning to Log. 
     // and then automaticly use the correct overloaded function 
    // enH.AddEnemy("rock", stoneModel, float3{ -10, 0, -10 }, F_COMP_FLAGS::OBB, 0.01);
