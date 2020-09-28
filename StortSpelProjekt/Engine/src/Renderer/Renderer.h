@@ -196,7 +196,6 @@ private:
 
 	// Manage components
 	void removeComponents(Entity* entity);
-	void addComponents(Entity* entity);
 
 	// Setup the whole scene
 	void prepareScene(Scene* scene);
