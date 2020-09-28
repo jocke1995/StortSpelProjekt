@@ -24,6 +24,7 @@ struct EnemyComps
 	float3 pos;
 	float3 rot;
 	float scale;
+	std::string targetName;
 	int enemiesOfThisType = 0;
 };
 
@@ -37,7 +38,7 @@ public:
 	// flag is used for selecting which specific components are needed for this enemy e.g. OBB. 
 	// Components that enemies have as default won't have a flag
 	// will allways draw_opaque and give shadows
-	Entity* AddEnemy(std::string entityName, Model* model, float3 pos, unsigned int flag = 0, float scale = 1, float3 rot = { 0, 0, 0 });
+	Entity* AddEnemy(std::string entityName, Model* model, float3 pos, unsigned int flag = 0, float scale = 1, float3 rot = { 0, 0, 0 }, std::string aiTarget = "player");
 	// used if you want to add an already existing enemy type to the scene with only the pos being different
 	Entity* AddExistingEnemy(std::string entityName, float3 pos);
 	// used if you want to add an already existing enemy but change some of the values; flag, scale or rot.
