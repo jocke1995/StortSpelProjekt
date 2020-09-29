@@ -132,6 +132,7 @@ Scene* LeosTestScene(SceneManager* sm)
     component::Audio3DEmitterComponent* ec = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::AccelerationComponent* ac = nullptr;
+    component::HealthComponent* hc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -153,6 +154,7 @@ Scene* LeosTestScene(SceneManager* sm)
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     lc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    hc = entity->AddComponent<component::HealthComponent>(10);
     //ac = entity->AddComponent<component::AccelerationComponent>(0.982);
 
     mc->SetModel(playerModel);
