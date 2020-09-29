@@ -41,10 +41,10 @@ void ThreadPool::WaitForThreads(unsigned int flag)
 	}
 }
 
-void ThreadPool::AddTask(MultiThreadedTask* task, unsigned int flag)
+void ThreadPool::AddTask(MultiThreadedTask* task)
 {
 	// Adds a m_pTask to a m_Thread
-	m_Threads.at(m_ThreadCounter % m_NrOfThreads)->AddTask(task, flag);
+	m_Threads.at(m_ThreadCounter % m_NrOfThreads)->AddTask(task);
 	m_ThreadCounter++;
 }
 

@@ -7,18 +7,6 @@
 
 class MultiThreadedTask;
 
-enum FLAG_THREAD
-{
-	RENDER = BIT(1),
-	COPY_DATA = BIT(2),
-	NETWORK = BIT(3),
-	// CopyTextures,
-	// PrepareNextScene ..
-	// etc
-	ALL = BIT(4)
-	// etc..
-};
-
 class Thread
 {
 public:
@@ -27,11 +15,10 @@ public:
 
 	bool IsTaskNullptr();
 
-	void AddTask(MultiThreadedTask* task, unsigned int taskFlag);
+	void AddTask(MultiThreadedTask* task);
 	void ExitThread();
 
 	bool IsQueueEmpty();
-	unsigned int GetTaskFlag();
 private:
 	HANDLE m_Thread;
 	HANDLE m_BeginEvent;
@@ -42,7 +29,6 @@ private:
 	std::mutex m_Mutex;
 
 	MultiThreadedTask* m_pTask= nullptr;
-	unsigned int m_TaskFlag = 0;
 
 	bool m_IsRunning = true;
 };

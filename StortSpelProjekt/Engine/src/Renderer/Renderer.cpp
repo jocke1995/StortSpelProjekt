@@ -344,50 +344,50 @@ void Renderer::Execute()
 	// Copy per frame
 	copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
 	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(copyTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(copyTask);
 
 	// Recording shadowmaps
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SHADOW];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(renderTask);
 
 	// Depth pre-pass
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS];
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(renderTask);
 
 	// Drawing
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(renderTask);
 
 	// Blending
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::BLEND];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(renderTask);
 
 	// Blurring for bloom
 	computeTask = m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR];
 	computeTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(computeTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(computeTask);
 
 	// Outlining, if an object is picked
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetBackBufferIndex(backBufferIndex);
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE], FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]);
 
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TEXT];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(renderTask);
 
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::MERGE];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(renderTask);
 	
 	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
@@ -395,7 +395,7 @@ void Renderer::Execute()
 		renderTask = m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME];
 		renderTask->SetBackBufferIndex(backBufferIndex);
 		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+		m_pThreadPool->AddTask(renderTask);
 	}
 
 	if (DEVELOPERMODE_DEVINTERFACE == true)
@@ -403,7 +403,7 @@ void Renderer::Execute()
 		renderTask = m_RenderTasks[RENDER_TASK_TYPE::IMGUI];
 		renderTask->SetBackBufferIndex(backBufferIndex);
 		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+		m_pThreadPool->AddTask(renderTask);
 	}
 	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
 
@@ -420,6 +420,8 @@ void Renderer::Execute()
 	m_FenceFrameValue++;
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+
+	// 
 	waitForFrame();
 
 	HRESULT hr = dx12SwapChain->Present(0, 0);
@@ -992,7 +994,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"DepthVertex.hlsl", L"DepthPixel.hlsl",
 		&gpsdDepthPrePassVector,
-		L"DepthPrePassPSO");
+		L"DepthPrePassPSO",
+		FLAG_THREAD::RENDER);
 
 	
 	// TODO: remove swapchain, using swapchains render view currently.
@@ -1071,7 +1074,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"ForwardVertex.hlsl", L"ForwardPixel.hlsl",
 		&gpsdForwardRenderVector,
-		L"ForwardRenderingPSO");
+		L"ForwardRenderingPSO",
+		FLAG_THREAD::RENDER);
 
 	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
 	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
@@ -1116,7 +1120,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"OutlinedVertex.hlsl", L"OutlinedPixel.hlsl",
 		&gpsdOutliningVector,
-		L"outliningScaledPSO");
+		L"outliningScaledPSO",
+		FLAG_THREAD::RENDER);
 	
 	outliningRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	outliningRenderTask->SetSwapChain(m_pSwapChain);
@@ -1208,7 +1213,8 @@ void Renderer::initRenderTasks()
 		L"BlendVertex.hlsl",
 		L"BlendPixel.hlsl",
 		&gpsdBlendVector,
-		L"BlendPSO");
+		L"BlendPSO",
+		FLAG_THREAD::RENDER);
 
 	blendRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
 	blendRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
@@ -1264,7 +1270,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"DepthVertex.hlsl", L"DepthPixel.hlsl",
 		&gpsdShadowVector,
-		L"ShadowPSO");
+		L"ShadowPSO",
+		FLAG_THREAD::RENDER);
 
 	shadowRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion ShadowPass
@@ -1295,7 +1302,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"WhiteVertex.hlsl", L"WhitePixel.hlsl",
 		&gpsdWireFrameVector,
-		L"WireFramePSO");
+		L"WireFramePSO",
+		FLAG_THREAD::RENDER);
 
 	wireFrameRenderTask->SetSwapChain(m_pSwapChain);
 	wireFrameRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
@@ -1334,7 +1342,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"MergeVertex.hlsl", L"MergePixel.hlsl",
 		&gpsdMergePassVector,
-		L"MergePassPSO");
+		L"MergePassPSO",
+		FLAG_THREAD::RENDER);
 
 	static_cast<MergeRenderTask*>(mergeTask)->SetFullScreenQuad(m_pFullScreenQuad);
 	static_cast<MergeRenderTask*>(mergeTask)->AddSRVIndexToMerge(m_pBloomResources->GetPingPongResource(0)->GetSRV()->GetDescriptorHeapIndex());
@@ -1390,7 +1399,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"TextVertex.hlsl", L"TextPixel.hlsl",
 		&gpsdTextVector,
-		L"TextPSO");
+		L"TextPSO",
+		FLAG_THREAD::RENDER);
 
 	textTask->SetSwapChain(m_pSwapChain);
 	textTask->SetDescriptorHeaps(m_DescriptorHeaps);
@@ -1406,7 +1416,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"", L"",
 		nullptr,
-		L"");
+		L"",
+		FLAG_THREAD::RENDER);
 
 	imGuiRenderTask->SetSwapChain(m_pSwapChain);
 	imGuiRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
@@ -1423,13 +1434,14 @@ void Renderer::initRenderTasks()
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		width, height);
+		width, height,
+		FLAG_THREAD::RENDER);
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 	// CopyTasks
-	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE);
-	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5, COMMAND_INTERFACE_TYPE::COPY_TYPE);
+	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE, FLAG_THREAD::RENDER);
+	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5, COMMAND_INTERFACE_TYPE::COPY_TYPE, FLAG_THREAD::RENDER);
 
 	
 	// Add the tasks to desired vectors so they can be used in m_pRenderer

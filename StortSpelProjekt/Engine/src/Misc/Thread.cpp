@@ -80,12 +80,8 @@ void Thread::ExitThread()
 	m_IsRunning = false;
 }
 
-void Thread::AddTask(MultiThreadedTask* task, unsigned int taskFlag)
+void Thread::AddTask(MultiThreadedTask* task)
 {
-	// Specify the type of m_pTask
-	m_TaskFlag = taskFlag;
-	m_TaskFlag |= FLAG_THREAD::ALL;
-	
 	// Add the m_pTask to the m_Thread and m_Start executing
 	m_Mutex.lock();
 	m_TaskQueue.push(task);
@@ -99,9 +95,4 @@ void Thread::AddTask(MultiThreadedTask* task, unsigned int taskFlag)
 bool Thread::IsQueueEmpty()
 {
 	return m_TaskQueue.empty();
-}
-
-unsigned int Thread::GetTaskFlag()
-{
-	return m_TaskFlag;
 }

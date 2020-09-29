@@ -107,6 +107,17 @@ enum FLAG_DRAW
 	// etc..
 };
 
+enum FLAG_THREAD
+{
+	RENDER = BIT(1),
+	NETWORK = BIT(2),
+	// CopyTextures,
+	// PrepareNextScene ..
+	// etc
+	ALL = BIT(8)
+	// etc..
+};
+
 namespace Log
 {
 	enum class Severity
