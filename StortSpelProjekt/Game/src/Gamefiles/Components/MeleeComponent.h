@@ -29,6 +29,9 @@ namespace component
 		void AddEntityRock(Entity* ent);
 		void CheckCollision();
 
+		void createCornersHitbox();
+		void createDrawnHitbox(component::BoundingBoxComponent* bbc);
+
 	private:
 
 		std::vector<Vertex> m_BoundingBoxVerticesLocal;
@@ -45,6 +48,9 @@ namespace component
 		Transform m_MeleeTransformTwo;
 
 		Mesh* m_pMesh;
+
+		DirectX::XMFLOAT3 corners[8];
+		component::BoundingBoxComponent* bbc;
 
 		DirectX::BoundingOrientedBox Hitbox;
 		DirectX::BoundingOrientedBox tempHitbox;

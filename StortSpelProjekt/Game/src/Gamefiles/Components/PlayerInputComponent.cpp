@@ -184,8 +184,8 @@ void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 
 void component::PlayerInputComponent::grunt(Collision* evnt)
 {
-	if (evnt->ent1 == GetParent() || evnt->ent2 == GetParent())
+	/*if (evnt->ent1 == GetParent() || evnt->ent2 == GetParent())
 	{
 		GetParent()->GetComponent<component::Audio2DVoiceComponent>()->Play(L"Bruh");
-	}
+	}*/
 }
