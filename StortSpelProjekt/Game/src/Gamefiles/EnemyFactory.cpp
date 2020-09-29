@@ -173,7 +173,7 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3
 			}
 			else
 			{
-				hp = m_EnemyComps[entityName]->hp;
+				newHP = m_EnemyComps[entityName]->hp;
 			}
 
 			std::string name = entityName + std::to_string(m_EnemyComps[entityName]->enemiesOfThisType);
