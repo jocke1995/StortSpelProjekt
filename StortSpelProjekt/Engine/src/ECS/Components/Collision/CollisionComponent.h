@@ -16,6 +16,8 @@ namespace component
 		//virtual void CheckCollision(CollisionComponent* other) = 0;
 		void SetMovement(float x, float y, float z);
 		btRigidBody* GetBody();
+
+		void Update(double dt);
 	protected:
 		float m_Mass;
 		Transform* m_pTrans;

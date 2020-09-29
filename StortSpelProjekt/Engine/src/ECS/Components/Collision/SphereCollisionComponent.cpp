@@ -32,17 +32,6 @@ void component::SphereCollisionComponent::CheckCollision(CollisionComponent* oth
 	}
 }
 
-void component::SphereCollisionComponent::Update(double dt)
-{
-	btTransform trans;
-	m_pBody->getMotionState()->getWorldTransform(trans);
-	double mat[16];
-	float x = trans.getOrigin().x();
-	float y = trans.getOrigin().y();
-	float z = trans.getOrigin().z();
-	m_pTrans->SetPosition(x, y, z);
-}
-
 void component::SphereCollisionComponent::CheckCollisionSphere(SphereCollisionComponent* other)
 {
 	/*

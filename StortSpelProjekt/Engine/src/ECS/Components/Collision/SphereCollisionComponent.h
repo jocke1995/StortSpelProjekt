@@ -14,7 +14,6 @@ namespace component
 		SphereCollisionComponent(Entity* parent, Transform* trans, float mass = 1.0f, float rad = 1.0f);
 		~SphereCollisionComponent();
 		virtual void CheckCollision(CollisionComponent* other);
-		void Update(double dt);
 	private:
 		float m_Rad;
 		btSphereShape* m_pSphere;
