@@ -13,7 +13,11 @@ component::CubeCollisionComponent::CubeCollisionComponent(Entity* parent, Transf
 	btVector3 inertia = { 0.0f,0.0f,0.0f };
 	m_pBox->calculateLocalInertia(mass, inertia);
 	m_pMotionState = new btDefaultMotionState(btTrans);
-	btRigidBody::btRigidBodyConstructionInfo info(mass, m_pMotionState, m_pBox);
+	btRigidBody::btRigidBodyConstructionInfo info(mass, m_pMotionState, m_pBox, inertia);
+
+	info.m_restitution = 0.5;
+	info.m_friction = 1.0;
+
 	m_pBody = new btRigidBody(info);
 }
 

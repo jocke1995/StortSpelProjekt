@@ -21,6 +21,7 @@ Physics::Physics()
 	btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
 	btMotionState* motion = new btDefaultMotionState(t);
 	btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, plane);
+	info.m_restitution = 0.5;
 	m_pBottomPlane = new btRigidBody(info);
 	m_pWorld->addRigidBody(m_pBottomPlane);
 }

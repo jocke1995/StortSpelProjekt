@@ -9,10 +9,14 @@ component::SphereCollisionComponent::SphereCollisionComponent(Entity* parent, Tr
 	btTrans.setIdentity();
 	btTrans.setOrigin({ trans->GetPositionFloat3().x, trans->GetPositionFloat3().y, trans->GetPositionFloat3().z });
 	m_pSphere = new btSphereShape(rad);
-	btVector3 inertia = { 0.0f,0.0f,0.0f };
+	btVector3 inertia = { 1.0f,1.0f,1.0f };
 	m_pSphere->calculateLocalInertia(mass, inertia);
 	m_pMotionState = new btDefaultMotionState(btTrans);
-	btRigidBody::btRigidBodyConstructionInfo info(mass, m_pMotionState, m_pSphere);
+	btRigidBody::btRigidBodyConstructionInfo info(mass, m_pMotionState, m_pSphere, inertia);
+
+	info.m_restitution = 0.8;
+	info.m_friction = 0.0;
+
 	m_pBody = new btRigidBody(info);
 }
 

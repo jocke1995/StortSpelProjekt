@@ -15,6 +15,7 @@ namespace component
 		// Checks for collision between two objects. If collision occurs, the transform is adjusted accordingly.
 		//virtual void CheckCollision(CollisionComponent* other) = 0;
 		void SetMovement(float x, float y, float z);
+		void SetRotation(double roll, double pitch, double yaw);
 		btRigidBody* GetBody();
 
 		void Update(double dt);

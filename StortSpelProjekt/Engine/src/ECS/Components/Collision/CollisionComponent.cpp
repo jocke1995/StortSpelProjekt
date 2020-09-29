@@ -18,6 +18,20 @@ void component::CollisionComponent::SetMovement(float x, float y, float z)
 	m_pBody->setLinearVelocity({ x,y,z });
 }
 
+void component::CollisionComponent::SetRotation(double roll, double pitch, double yaw)
+{
+	btTransform trans;
+	m_pBody->getMotionState()->getWorldTransform(trans);
+	btQuaternion quat;
+	quat.setEulerZYX(roll, pitch, yaw);
+	trans.setRotation(quat);
+	m_pBody->getMotionState()->setWorldTransform(trans);
+
+	m_pBody->getMotionState()->getWorldTransform(trans);
+	yaw = 0;
+	trans.getRotation().getEulerZYX(roll, pitch, yaw);
+}
+
 btRigidBody* component::CollisionComponent::GetBody()
 {
 	return m_pBody;
@@ -27,15 +41,17 @@ void component::CollisionComponent::Update(double dt)
 {
 	btTransform trans;
 	m_pBody->getMotionState()->getWorldTransform(trans);
-	double mat[16];
 	float x = trans.getOrigin().x();
 	float y = trans.getOrigin().y();
 	float z = trans.getOrigin().z();
 	m_pTrans->SetPosition(x, y, z);
 
-	double angles[3];
-	trans.getRotation().getEulerZYX(angles[2], angles[1], angles[0]);
-	m_pTrans->SetRotationX(angles[1]);
-	m_pTrans->SetRotationY(angles[1]);
-	m_pTrans->SetRotationZ(angles[2]);
+	double roll;
+	double pitch;
+	double yaw;
+
+	trans.getRotation().getEulerZYX(roll, pitch, yaw);
+	m_pTrans->SetRotationX(yaw);
+	m_pTrans->SetRotationY(pitch);
+	m_pTrans->SetRotationZ(roll);
 }

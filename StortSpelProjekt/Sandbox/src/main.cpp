@@ -241,6 +241,7 @@ Scene* TimScene(SceneManager* sm)
     component::PlayerInputComponent* pic = nullptr;
     component::TextComponent* txc = nullptr;
     component::CubeCollisionComponent* ccc = nullptr;
+    component::SphereCollisionComponent* scc = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
     /*--------------------- Player ---------------------*/
@@ -255,11 +256,11 @@ Scene* TimScene(SceneManager* sm)
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(1.0f, 1.0f, -20.0f);
+    tc->GetTransform()->SetPosition(0.0f, 10.0f, 0.0f);
     
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(tc->GetTransform(), 10.0f, 1.0f, 1.0f, 1.0f);
-    ccc->SetMovement(0.0f, 0.0f, 20.0f);
-
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(tc->GetTransform());
+    ccc->SetMovement(0.0f, 0.0f, 0.0f);
+    ccc->SetRotation(0, 0, 3.14/2);
     pic->Init();
 
     mc->SetModel(playerModel);
@@ -280,13 +281,13 @@ Scene* TimScene(SceneManager* sm)
 
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(tc->GetTransform(), 1.0f, 1.0f, 1.0f, 1.0f);
-    ccc->SetMovement(0.0f, 0.0f, 0.0f);
+    scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform());
+    scc->SetMovement(0.0f, 0.0f, 0.0f);
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
 
-    Physics::GetInstance().AddCollisionComponent(ccc);
+    Physics::GetInstance().AddCollisionComponent(scc);
     /*--------------------- Box1 ---------------------*/
 
     /*--------------------- Box2 ---------------------*/
