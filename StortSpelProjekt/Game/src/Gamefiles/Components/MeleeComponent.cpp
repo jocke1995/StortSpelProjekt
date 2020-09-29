@@ -8,7 +8,31 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 {
 	DirectX::XMFLOAT3 corners[8];
 	component::BoundingBoxComponent* bbc = parent->GetComponent<component::BoundingBoxComponent>();
-	bbc->GetOBB()->GetCorners(corners);
+	//bbc->GetOBB()->GetCorners(corners);
+	corners[0].x = 10;
+	corners[0].y = 10;
+	corners[0].z = 10;
+	corners[1].x = 10;
+	corners[1].y = 10;
+	corners[1].z = 10;
+	corners[2].x = 10;
+	corners[2].y = 10;
+	corners[2].z = 10;
+	corners[3].x = 10;
+	corners[3].y = 10;
+	corners[3].z = 10;
+	corners[4].x = 10;
+	corners[4].y = 10;
+	corners[4].z = 10;
+	corners[5].x = 10;
+	corners[5].y = 10;
+	corners[5].z = 10;
+	corners[6].x = 10;
+	corners[6].y = 100;
+	corners[6].z = 10;
+	corners[7].x = 100;
+	corners[7].y = 10;
+	corners[7].z = 100;
 	tempHitbox.CreateFromPoints(tempHitbox, 8, corners, sizeof(DirectX::XMFLOAT3));
 	Hitbox = tempHitbox;
 
@@ -88,9 +112,9 @@ component::MeleeComponent::~MeleeComponent()
 void component::MeleeComponent::Update(double dt)
 {
 	m_MeleeTransformTwo = *m_pMeleeTransform;
-	float positonX = m_MeleeTransformTwo.GetPositionFloat3().x + 4;
-	float positonY = m_MeleeTransformTwo.GetPositionFloat3().y + 4;
-	float positonZ = m_MeleeTransformTwo.GetPositionFloat3().z + 4;
+	float positonX = m_MeleeTransformTwo.GetPositionFloat3().x;
+	float positonY = m_MeleeTransformTwo.GetPositionFloat3().y;
+	float positonZ = m_MeleeTransformTwo.GetPositionFloat3().z + 2;
 	m_MeleeTransformTwo.SetPosition(positonX, positonY, positonZ);
 	m_MeleeTransformTwo.Move(dt);
 	m_MeleeTransformTwo.UpdateWorldMatrix();

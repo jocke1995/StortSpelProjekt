@@ -47,7 +47,7 @@ namespace component
 		const Mesh* GetMeshAt(unsigned int index) const;
 		const BoundingBoxData* GetBoundingBoxDataAt(unsigned int index) const;
 		const unsigned int GetNumBoundingBoxes() const;
-		const std::wstring GetPathOfModel() const;
+		const std::wstring GetPathOfModel(unsigned int index) const;
 		const SlotInfo* GetSlotInfo() const;
 		unsigned int GetFlagOBB() const;
 		const DirectX::BoundingOrientedBox* GetOriginalOBB() const;
@@ -63,7 +63,7 @@ namespace component
 		std::vector<Transform*> m_Transforms;
 		// If picking and or collision should be enabled
 		unsigned int m_FlagOBB = 0;
-		std::wstring m_PathOfModel = L"";
+		std::vector<std::wstring> m_Identifier;
 		std::vector<Mesh*> m_Meshes;
 		std::vector<BoundingBoxData*> m_Bbds;
 		SlotInfo* m_SlotInfo;

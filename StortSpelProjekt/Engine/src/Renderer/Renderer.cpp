@@ -625,7 +625,7 @@ void Renderer::InitBoundingBoxComponent(Entity* entity)
 	{
 		for (unsigned int i = 0; i < bbc->GetNumBoundingBoxes(); i++)
 		{
-			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel());
+			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel(i));
 			if (m == nullptr)
 			{
 				Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", bbc->GetParent()->GetName().c_str());
@@ -647,9 +647,8 @@ void Renderer::InitBoundingBoxComponent(Entity* entity)
 			codt->Submit(&std::tuple(uploadR, defaultR, data));
 
 			bbc->AddMesh(m);
-
-			static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(bbc);
 		}
+		static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(bbc);
 	}
 
 	// Add to vector so the mouse picker can check for intersections

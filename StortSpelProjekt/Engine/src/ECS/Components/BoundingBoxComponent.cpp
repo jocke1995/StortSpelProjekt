@@ -80,6 +80,7 @@ namespace component
 		BoundingBoxPool* bbp = BoundingBoxPool::Get();
 		m_Bbds.push_back(bbp->CreateBoundingBoxData(bbd->boundingBoxVertices, bbd->boundingBoxIndices, path));
 		m_Transforms.push_back(transform);
+		m_Identifier.push_back(path);
 	}
 
 	const DirectX::BoundingOrientedBox* BoundingBoxComponent::GetOBB() const
@@ -117,9 +118,9 @@ namespace component
 		return m_Bbds.size();
 	}
 
-	const std::wstring BoundingBoxComponent::GetPathOfModel() const
+	const std::wstring BoundingBoxComponent::GetPathOfModel(unsigned int index) const
 	{
-		return m_PathOfModel;
+		return m_Identifier[index];
 	}
 
 	unsigned int BoundingBoxComponent::GetFlagOBB() const
@@ -144,13 +145,13 @@ namespace component
 			// Use the same m_pTransform as the model
 			m_Transforms.push_back(m_pParent->GetComponent<TransformComponent>()->GetTransform());
 			ModelComponent* mc = m_pParent->GetComponent<ModelComponent>();
-			m_PathOfModel = *mc->GetMeshAt(0)->GetPath();
+			m_Identifier.push_back(*mc->GetMeshAt(0)->GetPath());
 
 			BoundingBoxPool* bbp = BoundingBoxPool::Get();
 			// if the model we want to make an OBB for already has an OBB then take the neccessary data from it.
-			if (bbp->BoundingBoxDataExists(m_PathOfModel) == true)
+			if (bbp->BoundingBoxDataExists(m_Identifier[0]) == true)
 			{
-				m_Bbds.push_back(bbp->GetBoundingBoxData(m_PathOfModel));
+				m_Bbds.push_back(bbp->GetBoundingBoxData(m_Identifier[0]));
 
 				// get the corners of the OBB and make the our OBB from them
 				DirectX::XMFLOAT3 corners[8];
@@ -262,7 +263,7 @@ namespace component
 				boundingBoxIndicesLocal.push_back(indices[i]);
 			}
 
-			m_Bbds.push_back(bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, m_PathOfModel));
+			m_Bbds.push_back(bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, m_Identifier[0]));
 
 
 			return true;
