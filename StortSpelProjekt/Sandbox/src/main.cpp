@@ -81,9 +81,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
+
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
+        UpdateScene(sceneManager);
+
         timer->Update();
         logicTimer += timer->GetDeltaTime();
 
@@ -109,8 +112,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         /* ------ Sort ------ */
         renderer->SortObjects();
-
-        UpdateScene(sceneManager);
 
         /* ------ Draw ------ */
         renderer->Execute();
@@ -274,7 +275,7 @@ Scene* LeosBounceScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 10.0f, 0.0f);
 
-    bcc = entity->AddComponent<component::CubeCollisionComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 100.0f);
     pic->Init();
 
     mc->SetModel(playerModel);
@@ -307,7 +308,7 @@ Scene* LeosBounceScene(SceneManager* sm)
 
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(-5.0f, 1.0f, 3.5f);
-    bcc = entity->AddComponent<component::SphereCollisionComponent>(5.0f, 1.0f, 1.0f, 1.5f);
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(5.0f, 0.0f, 1.0f, 1.5f);
 
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
@@ -1237,9 +1238,13 @@ void LeoBounceUpdateScene(SceneManager* sm)
         cc->SetPosition(5.0f, 1.0f, 4.0f);
         cc->SetVelVector(0.0f, 0.0f, 0.0f);
         cc->SetRotation(0.0f, 0.0f, 0.0f);
+        cc->SetAngularVelocity(0.0f, 0.0f, 0.0f);
     }
-    component::CollisionComponent* cc = sm->GetScene("BounceScene")->GetEntity("Box")->GetComponent<component::CollisionComponent>();
-    cc->SetAngularVelocity(0.0f, 10.0f, 0.0f);
+    else
+    {
+        component::CollisionComponent* cc = sm->GetScene("BounceScene")->GetEntity("Box")->GetComponent<component::CollisionComponent>();
+        cc->SetAngularVelocity(0.0f, 10.0f, 0.0f);
+    }
 }
 
 void TimUpdateScene(SceneManager* sm)
