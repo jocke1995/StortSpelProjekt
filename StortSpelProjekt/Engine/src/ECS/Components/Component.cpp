@@ -22,7 +22,6 @@ void Component::RenderUpdate(double dt)
 
 void Component::InitScene()
 {
-	Log::PrintSeverity(Log::Severity::WARNING, "COMPONENT InitScene called! Declare and define your own InitScene in your component class.\n");
 }
 
 Entity* const Component::GetParent() const
