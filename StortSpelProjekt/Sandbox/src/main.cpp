@@ -15,6 +15,7 @@ Scene* AntonTestScene(SceneManager* sm);
 
 void(*UpdateScene)(SceneManager*);
 void LeoUpdateScene(SceneManager* sm);
+void TimUpdateScene(SceneManager* sm);
 
 void DefaultUpdateScene(SceneManager* sm);
 
@@ -347,6 +348,9 @@ Scene* TimScene(SceneManager* sm)
     dlc->SetDirection({ 1.0f, -1.0f, -1.0f });
     dlc->SetColor({ 0.5f, 0.5f, 0.5f});
     /*--------------------- DirectionalLight ---------------------*/
+
+    UpdateScene = &TimUpdateScene;
+
     return scene;
 }
 
@@ -1068,4 +1072,17 @@ void LeoUpdateScene(SceneManager* sm)
 
 void DefaultUpdateScene(SceneManager* sm)
 {
+}
+
+void TimUpdateScene(SceneManager* sm)
+{
+    if (ImGuiHandler::GetInstance().GetBool("reset"))
+    {
+        ImGuiHandler::GetInstance().SetBool("reset", false);
+
+        sm->GetScene("DevScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
+        sm->GetScene("DevScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetPosition(0, 10, 0);
+        sm->GetScene("DevScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
+        sm->GetScene("DevScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetPosition(1, 1, 1);
+    }
 }

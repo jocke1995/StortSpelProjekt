@@ -12,7 +12,3 @@ component::CubeCollisionComponent::CubeCollisionComponent(Entity* parent, float 
 component::CubeCollisionComponent::~CubeCollisionComponent()
 {
 }
-
-void component::CubeCollisionComponent::CheckCollision(CollisionComponent* other)
-{
-}

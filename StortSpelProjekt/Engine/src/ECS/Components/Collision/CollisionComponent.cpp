@@ -71,6 +71,7 @@ void component::CollisionComponent::InitScene()
 void component::CollisionComponent::SetPosition(double x, double y, double z)
 {
 	m_pBody->getWorldTransform().setOrigin({ x, y, z });
+	m_pTrans->SetPosition({ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)});
 }
 
 void component::CollisionComponent::SetRotation(double roll, double pitch, double yaw)
