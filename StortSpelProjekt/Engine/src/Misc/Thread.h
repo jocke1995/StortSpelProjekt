@@ -10,7 +10,7 @@ class MultiThreadedTask;
 class Thread
 {
 public:
-	Thread();
+	Thread(unsigned int threadId);
 	~Thread();
 
 	bool IsTaskNullptr();
@@ -20,6 +20,8 @@ public:
 	void ExitThread();
 
 	bool IsQueueEmpty();
+
+	bool WakeUpThread();
 private:
 	HANDLE m_Thread;
 	HANDLE m_Event;
@@ -32,5 +34,6 @@ private:
 	MultiThreadedTask* m_pActiveTask = nullptr;
 
 	bool m_IsRunning = true;
+	unsigned int m_ThreadId = 0;
 };
 #endif

@@ -8,7 +8,7 @@ ThreadPool::ThreadPool(unsigned int nrOfThreads)
 	// Create Threads
 	for (int i = 0; i < m_NrOfThreads; i++)
 	{
-		m_Threads.push_back(new Thread());
+		m_Threads.push_back(new Thread(i));
 	}
 }
 

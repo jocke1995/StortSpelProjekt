@@ -53,12 +53,18 @@ unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 		}
 		// ------------------- Critical region 2-------------------
 	}
+
+#ifdef _DEBUG
+	Log::Print("Engine thread with id:%d Exiting!\n", threadInstance->m_ThreadId);
+#endif
 	return 0;
 }
 
-Thread::Thread()
+Thread::Thread(unsigned int threadId)
 {
-	m_Thread = (HANDLE)_beginthreadex(0, 0, threadFunc, this, 0, 0);
+	m_ThreadId = threadId;
+
+	m_Thread = reinterpret_cast<HANDLE>(_beginthreadex(0, 0, threadFunc, this, 0, 0));
 	SetThreadPriority(m_Thread, THREAD_PRIORITY_TIME_CRITICAL);
 	m_Event = CreateEvent(
 		NULL,               // default security attributes
@@ -95,6 +101,7 @@ const unsigned int Thread::GetActiveTaskThreadFlag() const
 void Thread::ExitThread()
 {
 	m_IsRunning = false;
+	WakeUpThread();
 }
 
 void Thread::AddTask(MultiThreadedTask* task)
@@ -105,14 +112,14 @@ void Thread::AddTask(MultiThreadedTask* task)
 
 #ifdef _DEBUG
 	// Start the thread and catch errors (if any)
-	bool eventError = SetEvent(m_Event);
+	bool eventError = WakeUpThread();
 
 	if (eventError == false)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to SetEvent in thread\n");
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to wake up thread\n");
 	}
 #else
-	SetEvent(m_Event);
+	WakeUpThread();
 #endif
 	
 	m_Mutex.unlock();
@@ -126,4 +133,9 @@ bool Thread::IsQueueEmpty()
 	m_Mutex.unlock();
 
 	return isEmpty;
+}
+
+bool Thread::WakeUpThread()
+{
+	return SetEvent(m_Event);
 }
