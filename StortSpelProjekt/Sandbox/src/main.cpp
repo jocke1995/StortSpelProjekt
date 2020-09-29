@@ -165,11 +165,11 @@ Scene* JacobsTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, -30.0f);
+    bbc->Init();
     mcc = entity->AddComponent<component::MeleeComponent>();
 
 
 
-    bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
 
     /*--------------------- Player ---------------------*/
@@ -178,18 +178,18 @@ Scene* JacobsTestScene(SceneManager* sm)
     // entity
     entity = scene->AddEntity("rock");
     mcc->AddEntityRock(entity);
-
+    
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-
-
+    
+    
     mc->SetModel(rockModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.01f);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-
+    
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /*--------------------- Rock ---------------------*/

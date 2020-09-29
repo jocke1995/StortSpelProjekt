@@ -48,7 +48,7 @@ namespace component
 		const BoundingBoxData* GetBoundingBoxDataAt(unsigned int index) const;
 		const unsigned int GetNumBoundingBoxes() const;
 		const std::wstring GetPathOfModel(unsigned int index) const;
-		const SlotInfo* GetSlotInfo() const;
+		const SlotInfo* GetSlotInfo(unsigned int index) const;
 		unsigned int GetFlagOBB() const;
 		const DirectX::BoundingOrientedBox* GetOriginalOBB() const;
 
@@ -66,7 +66,7 @@ namespace component
 		std::vector<std::wstring> m_Identifier;
 		std::vector<Mesh*> m_Meshes;
 		std::vector<BoundingBoxData*> m_Bbds;
-		SlotInfo* m_SlotInfo;
+		std::vector<SlotInfo*> m_SlotInfos;
 
 		bool createOrientedBoundingBox();
 	};

@@ -24,13 +24,14 @@ namespace component
 		:Component(parent)
 	{
 		m_FlagOBB = flagOBB;
-
-		m_SlotInfo = new SlotInfo();
 	}
 
 	BoundingBoxComponent::~BoundingBoxComponent()
 	{
-		delete m_SlotInfo;
+		for (SlotInfo* slotinfo : m_SlotInfos)
+		{
+			delete slotinfo;
+		}
 	}
 
 	void BoundingBoxComponent::Init()
@@ -71,7 +72,9 @@ namespace component
 	{
 		m_Meshes.push_back(mesh);
 
-		m_SlotInfo->vertexDataIndex = mesh->m_pSRV->GetDescriptorHeapIndex();
+		m_SlotInfos.push_back(new SlotInfo());
+
+		m_SlotInfos.back()->vertexDataIndex = mesh->m_pSRV->GetDescriptorHeapIndex();
 		// Textures are not used in the WireframeRenderTask
 	}
 
@@ -103,9 +106,9 @@ namespace component
 		return m_Meshes[index];
 	}
 
-	const SlotInfo* BoundingBoxComponent::GetSlotInfo() const
+	const SlotInfo* BoundingBoxComponent::GetSlotInfo(unsigned int index) const
 	{
-		return m_SlotInfo;
+		return m_SlotInfos[index];
 	}
 
 	const BoundingBoxData* BoundingBoxComponent::GetBoundingBoxDataAt(unsigned int index) const
@@ -148,23 +151,6 @@ namespace component
 			m_Identifier.push_back(*mc->GetMeshAt(0)->GetPath());
 
 			BoundingBoxPool* bbp = BoundingBoxPool::Get();
-			// if the model we want to make an OBB for already has an OBB then take the neccessary data from it.
-			if (bbp->BoundingBoxDataExists(m_Identifier[0]) == true)
-			{
-				m_Bbds.push_back(bbp->GetBoundingBoxData(m_Identifier[0]));
-
-				// get the corners of the OBB and make the our OBB from them
-				DirectX::XMFLOAT3 corners[8];
-				for (int i = 0; i < 8; i++)
-				{
-
-					corners[i] = m_Bbds.back()->boundingBoxVertices[i].pos;
-				}
-				m_OrientedBoundingBox.CreateFromPoints(m_OrientedBoundingBox, 8, corners, sizeof(DirectX::XMFLOAT3));
-				// also save to the Original OBB used for math in update
-				m_OriginalBoundingBox = m_OrientedBoundingBox;
-				return true;
-			}
 
 			// Create new bounding box
 			float3 minVertex = { MAXNUMBER, MAXNUMBER, MAXNUMBER };
@@ -263,7 +249,7 @@ namespace component
 				boundingBoxIndicesLocal.push_back(indices[i]);
 			}
 
-			m_Bbds.push_back(bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, m_Identifier[0]));
+			m_Bbds.push_back(bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, m_Identifier.back()));
 
 
 			return true;
