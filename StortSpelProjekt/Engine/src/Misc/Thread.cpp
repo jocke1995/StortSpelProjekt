@@ -64,19 +64,30 @@ Thread::Thread(unsigned int threadId)
 {
 	m_ThreadId = threadId;
 
+	// Create and start the thread function
 	m_ThreadHandle = reinterpret_cast<HANDLE>(_beginthreadex(0, 0, threadFunc, this, 0, 0));
-	SetThreadPriority(m_ThreadHandle, THREAD_PRIORITY_TIME_CRITICAL);
+
+	// Set Thread Priority
+	if (SetThreadPriority(m_ThreadHandle, THREAD_PRIORITY_TIME_CRITICAL) == false)
+	{
+		Log::PrintSeverity(Log::Severity::WARNING, "Failed to 'SetThreadPriority' belonging to a thread with id: %d\n", m_ThreadId);
+	}
+
+	// Create an event for the thread
 	m_EventHandle = CreateEvent(
-		NULL,               // default security attributes
-		FALSE,               // manual-reset event
-		FALSE,              // initial state is nonsignaled
-		NULL // object m_Name
+		NULL,   // default security attributes
+		FALSE,  // manual-reset event
+		FALSE,  // initial state is nonsignaled
+		NULL	// object m_Name
 	);
 }
 
 Thread::~Thread()
 {
-	CloseHandle(m_ThreadHandle);
+	if (CloseHandle(m_ThreadHandle) == false)
+	{
+		Log::PrintSeverity(Log::Severity::WARNING, "Failed to 'CloseHandle' belonging to a thread with id: %d\n", m_ThreadId);
+	}
 }
 
 bool Thread::isTaskNullptr()
