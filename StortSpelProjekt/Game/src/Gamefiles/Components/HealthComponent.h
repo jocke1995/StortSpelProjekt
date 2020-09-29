@@ -1,8 +1,8 @@
 #ifndef HEALTH_COMPONENT_H
 #define HEALTH_COMPONENT_H
 
-#include "..\..\Engine\src\ECS\Components\Component.h"
-#include "..\Events\Events.h"
+#include "../../Engine/src/ECS/Components/Component.h"
+#include "../Events/Events.h"
 #include "EngineMath.h"
 
 class Entity;
@@ -27,7 +27,8 @@ namespace component
 		int m_Health;
 		bool m_Dead = false;
 		// temporary function that decreases health by 1 everytime collision happens
-		void decreaseHealth(Collision* event);
+		// void decreaseHealth(Collision* event);
+
 		// temporary function that prints when death event is published
 		// and m_parent was the entity that died
 		void printDeath(Death* event);
