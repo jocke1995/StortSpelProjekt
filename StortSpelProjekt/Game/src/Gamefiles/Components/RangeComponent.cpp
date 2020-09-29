@@ -38,7 +38,7 @@ void component::RangeComponent::Attack(MouseClick* event)
 		DirectX::XMFLOAT3 forward = m_pScene->GetMainCamera()->GetDirection();
 		mc->SetModel(m_pModel);
 		mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-		tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);//pos.x + (forward.x * 2), pos.y + (forward.y * 2), pos.z + (forward.z * 2));
+		tc->GetTransform()->SetPosition(pos.x + (forward.x * 0.5), pos.y + (forward.y * 0.5), pos.z + (forward.z * 0.5));
 		tc->GetTransform()->SetScale(m_Scale);
 		tc->GetTransform()->SetVelocity(m_Velocity);
 		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
