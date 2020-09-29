@@ -16,6 +16,8 @@
 #include "Components/Collision/SphereCollisionComponent.h"
 #include "Components/Collision/CubeCollisionComponent.h"
 
+#include "../../Game/src/Gamefiles/Components/GameComponents.h"
+
 // Lights
 class DirectionalLightComponent;
 class PointLightComponent;
