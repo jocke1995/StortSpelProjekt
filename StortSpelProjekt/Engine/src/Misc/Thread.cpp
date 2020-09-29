@@ -79,7 +79,7 @@ Thread::~Thread()
 	CloseHandle(m_ThreadHandle);
 }
 
-bool Thread::IsTaskNullptr()
+bool Thread::isTaskNullptr()
 {
 	bool result = false;
 
@@ -93,13 +93,13 @@ bool Thread::IsTaskNullptr()
 	return result;
 }
 
-void Thread::ExitThread()
+void Thread::exitThread()
 {
 	m_IsRunning = false;
-	WakeUpThread();
+	wakeUpThread();
 }
 
-void Thread::AddTask(MultiThreadedTask* task)
+void Thread::addTask(MultiThreadedTask* task)
 {
 	// Add the m_pTask to the m_Thread and m_Start executing
 	m_Mutex.lock();
@@ -107,20 +107,20 @@ void Thread::AddTask(MultiThreadedTask* task)
 
 #ifdef _DEBUG
 	// Start the thread and catch errors (if any)
-	bool eventError = WakeUpThread();
+	bool eventError = wakeUpThread();
 
 	if (eventError == false)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to wake up thread\n");
 	}
 #else
-	WakeUpThread();
+	wakeUpThread();
 #endif
 	
 	m_Mutex.unlock();
 }
 
-bool Thread::IsQueueEmpty()
+bool Thread::isQueueEmpty()
 {
 	bool isEmpty = false;
 	m_Mutex.lock();
@@ -130,7 +130,7 @@ bool Thread::IsQueueEmpty()
 	return isEmpty;
 }
 
-bool Thread::WakeUpThread()
+bool Thread::wakeUpThread()
 {
 	return SetEvent(m_EventHandle);
 }

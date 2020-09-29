@@ -13,14 +13,8 @@ public:
 	Thread(unsigned int threadId);
 	~Thread();
 
-	bool IsTaskNullptr();
-
-	void AddTask(MultiThreadedTask* task);
-	void ExitThread();
-
-	bool IsQueueEmpty();
-	bool WakeUpThread();
 private:
+	friend class ThreadPool;
 	HANDLE m_ThreadHandle;
 	HANDLE m_EventHandle;
 
@@ -33,5 +27,11 @@ private:
 
 	bool m_IsRunning = true;
 	unsigned int m_ThreadId = 0;
+
+	bool isTaskNullptr();
+	void addTask(MultiThreadedTask* task);
+	void exitThread();
+	bool isQueueEmpty();
+	bool wakeUpThread();
 };
 #endif

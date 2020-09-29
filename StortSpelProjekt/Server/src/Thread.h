@@ -25,7 +25,7 @@ public:
 	Thread();
 	~Thread();
 
-	bool IsTaskNullptr();
+	bool isTaskNullptr();
 
 	void AddTask(MultiThreadedTask* task, unsigned int taskFlag);
 	void ExitThread();

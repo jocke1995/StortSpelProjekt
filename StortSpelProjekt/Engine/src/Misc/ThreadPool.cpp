@@ -44,7 +44,7 @@ void ThreadPool::WaitForThreads(unsigned int flag)
 void ThreadPool::AddTask(MultiThreadedTask* task)
 {
 	// Adds a m_pTask to a m_Thread
-	m_Threads.at(m_ThreadCounter % m_NrOfThreads)->AddTask(task);
+	m_Threads.at(m_ThreadCounter % m_NrOfThreads)->addTask(task);
 	m_ThreadCounter++;
 }
 
@@ -52,7 +52,7 @@ void ThreadPool::ExitThreads()
 {
 	for (auto thread : m_Threads)
 	{
-		thread->ExitThread();
+		thread->exitThread();
 	}
 }
 
@@ -60,7 +60,7 @@ bool ThreadPool::isAllFinished(unsigned int flag)
 {
 	for (Thread* thread : m_Threads)
 	{
-		if (thread->IsTaskNullptr() == false)
+		if (thread->isTaskNullptr() == false)
 		{
 			return false;
 		}
@@ -72,7 +72,7 @@ bool ThreadPool::isThreadsQueuesEmpty(unsigned int flag)
 {
 	for (auto thread : m_Threads)
 	{
-		if (thread->IsQueueEmpty() == false)
+		if (thread->isQueueEmpty() == false)
 		{
 			return false;
 		}
