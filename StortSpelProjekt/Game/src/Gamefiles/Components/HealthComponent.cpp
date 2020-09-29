@@ -6,7 +6,8 @@ component::HealthComponent::HealthComponent(Entity* parent, int hp) : Component(
 {
 	m_Health = hp;
 	// temp so that we can decrease health when collided with
-	EventBus::GetInstance().Subscribe(this, &HealthComponent::decreaseHealth);
+	//EventBus::GetInstance().Subscribe(this, &HealthComponent::decreaseHealth);
+
 	// temp so that we can print when health = 0
 	EventBus::GetInstance().Subscribe(this, &HealthComponent::printDeath);
 	
@@ -15,10 +16,6 @@ component::HealthComponent::HealthComponent(Entity* parent, int hp) : Component(
 component::HealthComponent::~HealthComponent()
 {
 
-}
-
-void component::HealthComponent::InitScene()
-{
 }
 
 void component::HealthComponent::SetHealth(int hp)
@@ -46,14 +43,14 @@ int component::HealthComponent::GetHealth()
 	return m_Health;
 }
 
-void component::HealthComponent::decreaseHealth(Collision* event)
-{
-	if (event->ent1 == m_pParent || event->ent2 == m_pParent)
-	{
-		ChangeHealth(-1);
-		//Log::Print("%d\n", m_Health);
-	}
-}
+//void component::HealthComponent::decreaseHealth(Collision* event)
+//{
+//	if (event->ent1 == m_pParent || event->ent2 == m_pParent)
+//	{
+//		// TODO: get the damage from the attacking entity
+//		ChangeHealth(-1);
+//	}
+//}
 
 void component::HealthComponent::printDeath(Death* event)
 {

@@ -214,7 +214,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    enH.AddEnemy("sphere", sphereModel, float3{ 0, 10, -5 }, F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
+    enH.AddEnemy("sphere", sphereModel, 10, float3{ 0, 10, -5 }, F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
     enH.AddExistingEnemy("sphere", float3{ 0, 10, -55 });
     enH.AddExistingEnemy("sphere", float3{ 25, 10, -30 });
     enH.AddExistingEnemy("sphere", float3{ -25, 10, -30 });
