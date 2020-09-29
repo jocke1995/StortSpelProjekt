@@ -117,7 +117,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 Scene* LeosTestScene(SceneManager* sm)
 {
     // Create scene
-    Scene* scene = sm->CreateScene("ThatSceneWithThemThereImGuiFeaturesAndStuff");
+    Scene* scene = sm->CreateScene("ThatSceneWithThemThereAiFeaturesAndStuff");
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
@@ -130,6 +130,7 @@ Scene* LeosTestScene(SceneManager* sm)
     component::Audio3DListenerComponent* lc = nullptr;
     component::Audio3DEmitterComponent* ec = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
+    component::AccelerationComponent* ac = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -151,6 +152,7 @@ Scene* LeosTestScene(SceneManager* sm)
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     lc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    //ac = entity->AddComponent<component::AccelerationComponent>(0.982);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -209,8 +211,17 @@ Scene* LeosTestScene(SceneManager* sm)
     dlc->SetColor({ 0.0f, 0.5f, 0.5f });
     dlc->SetDirection({ -1.0f, -1.0f, 1.0f });
 
+    /* ---------------------- Enemy -------------------------------- */
+    EnemyFactory enH(scene);
+    enH.AddEnemy("sphere", sphereModel, float3{ 0, 10, -5 }, F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
+    enH.AddExistingEnemy("sphere", float3{ 0, 10, -55 });
+    enH.AddExistingEnemy("sphere", float3{ 25, 10, -30 });
+    enH.AddExistingEnemy("sphere", float3{ -25, 10, -30 });
+
     /* ---------------------- Update Function ---------------------- */
     UpdateScene = &LeoUpdateScene;
+
+    srand(time(NULL));
 
     return scene;
 }
@@ -996,7 +1007,7 @@ Scene* BjornsTestScene(SceneManager* sm)
 
 void LeoUpdateScene(SceneManager* sm)
 {
-    component::Audio3DEmitterComponent* ec = sm->GetScene("ThatSceneWithThemThereImGuiFeaturesAndStuff")->GetEntity("Spotlight")->GetComponent<component::Audio3DEmitterComponent>();
+    component::Audio3DEmitterComponent* ec = sm->GetScene("ThatSceneWithThemThereAiFeaturesAndStuff")->GetEntity("Spotlight")->GetComponent<component::Audio3DEmitterComponent>();
     ec->UpdateEmitter(L"Music");
     ec->Play(L"Music");
 }
