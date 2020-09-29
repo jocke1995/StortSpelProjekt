@@ -23,8 +23,7 @@ btRigidBody* component::CollisionComponent::GetBody()
 
 void component::CollisionComponent::Update(double dt)
 {
-	btTransform trans;
-	m_pBody->getMotionState()->getWorldTransform(trans);
+	btTransform trans = m_pBody->getWorldTransform();
 	float x = trans.getOrigin().x();
 	float y = trans.getOrigin().y();
 	float z = trans.getOrigin().z();
@@ -65,22 +64,26 @@ void component::CollisionComponent::InitScene()
 
 	m_pBody = new btRigidBody(info);
 	m_pBody->setLinearVelocity({ m_pTrans->GetMovement().x, m_pTrans->GetMovement().y, m_pTrans->GetMovement().z });
+	m_pBody->setActivationState(DISABLE_DEACTIVATION);
 	Physics::GetInstance().AddCollisionComponent(this);
 }
 
 void component::CollisionComponent::SetPosition(double x, double y, double z)
 {
-	m_pBody->getWorldTransform().setOrigin({ x, y, z });
-	m_pTrans->SetPosition({ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)});
+	btTransform trans;
+	trans = m_pBody->getWorldTransform();
+	trans.setOrigin({ x,y,z });
+	m_pBody->setWorldTransform(trans);
 }
 
 void component::CollisionComponent::SetRotation(double roll, double pitch, double yaw)
 {
-	btQuaternion quat = m_pBody->getWorldTransform().getRotation();
+	btTransform trans = m_pBody->getWorldTransform();
+	btQuaternion quat = trans.getRotation();
 
 	quat.setEulerZYX(roll, pitch, yaw);
-
-	m_pBody->getWorldTransform().setRotation(quat);
+	trans.setRotation(quat);
+	m_pBody->setWorldTransform(trans);
 }
 
 void component::CollisionComponent::SetVelVector(double x, double y, double z)
@@ -100,4 +103,9 @@ void component::CollisionComponent::SetNormalizedVelVector(double x, double y, d
 	}
 
 	m_pBody->setLinearVelocity({ x, y, z });
+}
+
+void component::CollisionComponent::SetAngularVelocity(double x, double y, double z)
+{
+	m_pBody->setAngularVelocity({ x,y,z });
 }

@@ -24,6 +24,7 @@ namespace component
 		void SetRotation(double roll, double pitch, double yaw);
 		void SetVelVector(double x, double y, double z);
 		void SetNormalizedVelVector(double x, double y, double z);
+		void SetAngularVelocity(double x, double y, double z);
 	protected:
 		float m_Mass;
 		Transform* m_pTrans;
