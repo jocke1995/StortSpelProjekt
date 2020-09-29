@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
+#include "Components/HealthComponent.h"
 #include "Components/RangeComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
@@ -132,6 +133,7 @@ Scene* LeosTestScene(SceneManager* sm)
     component::Audio3DEmitterComponent* ec = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::AccelerationComponent* ac = nullptr;
+    component::HealthComponent* hc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -153,6 +155,7 @@ Scene* LeosTestScene(SceneManager* sm)
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     lc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    hc = entity->AddComponent<component::HealthComponent>(10);
     //ac = entity->AddComponent<component::AccelerationComponent>(0.982);
 
     mc->SetModel(playerModel);
@@ -214,7 +217,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    enH.AddEnemy("sphere", sphereModel, float3{ 0, 10, -5 }, F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
+    enH.AddEnemy("sphere", sphereModel, 10, float3{ 0, 10, -5 }, F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
     enH.AddExistingEnemy("sphere", float3{ 0, 10, -55 });
     enH.AddExistingEnemy("sphere", float3{ 25, 10, -30 });
     enH.AddExistingEnemy("sphere", float3{ -25, 10, -30 });
@@ -863,6 +866,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     component::SpotLightComponent* slc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
+    component::HealthComponent* hc = nullptr;
     component::RangeComponent* rc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
@@ -887,6 +891,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
+    hc = entity->AddComponent<component::HealthComponent>(15);
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
@@ -945,7 +950,7 @@ Scene* BjornsTestScene(SceneManager* sm)
 
     // Adding enemy example
     EnemyFactory enH(scene);
-    enH.AddEnemy("rock", stoneModel, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.01, float3{ 1.578, 0, 0 });
+    enH.AddEnemy("rock", stoneModel, 5, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.01, float3{ 1.578, 0, 0 });
     // showing that using the wrong overload will send Warning to Log. 
     // and then automaticly use the correct overloaded function 
    // enH.AddEnemy("rock", stoneModel, float3{ -10, 0, -10 }, F_COMP_FLAGS::OBB, 0.01);
