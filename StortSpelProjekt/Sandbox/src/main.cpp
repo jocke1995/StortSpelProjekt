@@ -1089,5 +1089,9 @@ void TimUpdateScene(SceneManager* sm)
         sm->GetScene("DevScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
         sm->GetScene("DevScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
         sm->GetScene("DevScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetPosition(1, 1, 1);
+
+        sm->GetScene("DevScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 3.14, 0);
+        sm->GetScene("DevScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetFriction(0);
+
     }
 }

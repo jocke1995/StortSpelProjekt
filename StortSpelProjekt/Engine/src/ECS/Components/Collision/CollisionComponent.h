@@ -25,6 +25,8 @@ namespace component
 		void SetVelVector(double x, double y, double z);
 		void SetNormalizedVelVector(double x, double y, double z);
 		void SetAngularVelocity(double x, double y, double z);
+		void SetFriction(double fric);
+		void SetRestitution(double rest);
 	protected:
 		float m_Mass;
 		Transform* m_pTrans;

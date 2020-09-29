@@ -109,3 +109,13 @@ void component::CollisionComponent::SetAngularVelocity(double x, double y, doubl
 {
 	m_pBody->setAngularVelocity({ x,y,z });
 }
+
+void component::CollisionComponent::SetFriction(double fric)
+{
+	m_pBody->setFriction(fric);
+}
+
+void component::CollisionComponent::SetRestitution(double rest)
+{
+	m_pBody->setRestitution(rest);
+}
