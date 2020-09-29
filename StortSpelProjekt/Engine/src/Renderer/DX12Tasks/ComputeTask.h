@@ -12,7 +12,7 @@ class ComputeTask : public DX12Task
 public:
 	ComputeTask(ID3D12Device5* device,
 		RootSignature* rootSignature,
-		std::vector<std::pair< LPCWSTR, LPCTSTR>> csNamePSOName,
+		std::vector<std::pair< std::wstring, std::wstring>> csNamePSOName,
 		COMMAND_INTERFACE_TYPE interfaceType = COMMAND_INTERFACE_TYPE::COMPUTE_TYPE);
 	virtual ~ComputeTask();
 

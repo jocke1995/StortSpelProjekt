@@ -5,6 +5,7 @@
 // Renderer
 #include "../Renderer/Transform.h"
 #include "../Renderer/BaseCamera.h"
+#include "../Renderer/Renderer.h"
 
 // ECS
 #include "../ECS/Entity.h"
@@ -52,6 +53,11 @@ namespace component
             m_pCamera->Update(dt);
             m_pSpotLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
         }  
+    }
+
+    void SpotLightComponent::InitScene()
+    {
+        Renderer::GetInstance().InitSpotLightComponent(GetParent());
     }
 
     void SpotLightComponent::SetPosition(float3 position)
@@ -133,19 +139,8 @@ namespace component
         }
     }
 
-    void SpotLightComponent::UpdateLightData(COLOR_TYPE type)
+    void SpotLightComponent::UpdateLightIntensity()
     {
-        switch (type)
-        {
-        case COLOR_TYPE::LIGHT_AMBIENT:
-            m_pSpotLight->baseLight.ambient = m_pBaseLight->ambient;
-            break;
-        case COLOR_TYPE::LIGHT_DIFFUSE:
-            m_pSpotLight->baseLight.diffuse = m_pBaseLight->diffuse;
-            break;
-        case COLOR_TYPE::LIGHT_SPECULAR:
-            m_pSpotLight->baseLight.specular = m_pBaseLight->specular;
-            break;
-        }
+        m_pSpotLight->baseLight.color = m_pBaseLight->color;
     }
 }

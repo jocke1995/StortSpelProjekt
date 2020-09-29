@@ -2,9 +2,9 @@
 #include "CameraComponent.h"
 
 // Renderer
+#include "../Renderer/Renderer.h"
 #include "../../Renderer/PerspectiveCamera.h"
 #include "../../Renderer/OrthographicCamera.h"
-#include "../ECS/Entity.h"
 
 namespace component
 {
@@ -45,6 +45,11 @@ namespace component
 	void CameraComponent::RenderUpdate(double dt)
 	{
 		m_pCamera->Update(dt);
+	}
+
+	void CameraComponent::InitScene()
+	{
+		Renderer::GetInstance().InitCameraComponent(GetParent());
 	}
 
 	BaseCamera* CameraComponent::createPerspective(DirectX::XMVECTOR position, DirectX::XMVECTOR direction, double fov, double aspectRatio, double nearZ, double farZ)

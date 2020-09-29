@@ -4,6 +4,7 @@
 // Renderer
 #include "../Renderer/Transform.h"
 #include "../Renderer/BaseCamera.h"
+#include "../Renderer/Renderer.h"
 
 // ECS
 #include "../ECS/Entity.h"
@@ -41,6 +42,11 @@ namespace component
 		}
 	}
 
+	void PointLightComponent::InitScene()
+	{
+		Renderer::GetInstance().InitPointLightComponent(GetParent());
+	}
+
 	void PointLightComponent::SetPosition(float3 position)
 	{
 		m_pPointLight->position = { position.x, position.y, position.z, 1.0f };
@@ -58,19 +64,8 @@ namespace component
 		return m_pPointLight;
 	}
 
-	void PointLightComponent::UpdateLightData(COLOR_TYPE type)
+	void PointLightComponent::UpdateLightIntensity()
 	{
-		switch (type)
-		{
-		case COLOR_TYPE::LIGHT_AMBIENT:
-			m_pPointLight->baseLight.ambient = m_pBaseLight->ambient;
-			break;
-		case COLOR_TYPE::LIGHT_DIFFUSE:
-			m_pPointLight->baseLight.diffuse = m_pBaseLight->diffuse;
-			break;
-		case COLOR_TYPE::LIGHT_SPECULAR:
-			m_pPointLight->baseLight.specular = m_pBaseLight->specular;
-			break;
-		}
+		m_pPointLight->baseLight.color = m_pBaseLight->color;
 	}
 }

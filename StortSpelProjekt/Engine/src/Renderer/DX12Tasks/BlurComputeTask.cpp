@@ -11,10 +11,12 @@
 #include "../GPUMemory/Resource.h"
 #include "../DescriptorHeap.h"
 
+#include "../Misc/Option.h"
+
 BlurComputeTask::BlurComputeTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
-	std::vector<std::pair< LPCWSTR, LPCTSTR>> csNamePSOName,
+	std::vector<std::pair< std::wstring, std::wstring>> csNamePSOName,
 	COMMAND_INTERFACE_TYPE interfaceType,
 	const PingPongResource* Bloom0_RESOURCE,
 	const PingPongResource* Bloom1_RESOURCE,
@@ -64,7 +66,7 @@ void BlurComputeTask::Execute()
 	// Send the indices to gpu
 	commandList->SetComputeRoot32BitConstants(RS::CB_INDICES_CONSTANTS, sizeof(DescriptorHeapIndices) / sizeof(UINT), &m_DhIndices, 0);
 
-	unsigned int timesToBlur = 6;
+	unsigned int timesToBlur = std::atoi(Option::GetInstance().GetVariable("i_amountOfBlur").c_str());
 	for (unsigned int i = 0; i < timesToBlur; i++)
 	{
 		// The resource to read (Resource Barrier)

@@ -11,10 +11,11 @@ enum FLAG_THREAD
 {
 	RENDER = BIT(1),
 	COPY_DATA = BIT(2),
+	NETWORK = BIT(3),
 	// CopyTextures,
 	// PrepareNextScene ..
 	// etc
-	ALL = BIT(3)
+	ALL = BIT(4)
 	// etc..
 };
 

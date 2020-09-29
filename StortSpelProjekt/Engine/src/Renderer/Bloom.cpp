@@ -5,22 +5,16 @@
 #include "GPUMemory/Resource.h"
 #include "PingPongResource.h"
 #include "../Misc/Window.h"
+#include "../Misc/Option.h"
 
 
 Bloom::Bloom(
 	ID3D12Device5* device,
 	DescriptorHeap* dh_RTV,
-	DescriptorHeap* dh_CBV_UAV_SRV,
-	const HWND* hwnd)
+	DescriptorHeap* dh_CBV_UAV_SRV)
 {
-	RECT rect;
-	unsigned int width = 0;
-	unsigned int height = 0;
-	if (GetWindowRect(*hwnd, &rect))
-	{
-		width = rect.right - rect.left;
-		height = rect.bottom - rect.top;
-	}
+	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
 
 	createResources(device, width, height);
 

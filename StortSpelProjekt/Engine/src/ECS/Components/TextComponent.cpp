@@ -179,4 +179,8 @@ namespace component
 	void TextComponent::Update(double dt)
 	{
 	}
+	void TextComponent::InitScene()
+	{
+		Renderer::GetInstance().InitTextComponent(GetParent());
+	}
 }
