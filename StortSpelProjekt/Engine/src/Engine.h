@@ -6,6 +6,7 @@
 #include "Misc/Timer.h"
 #include "Misc/ThreadPool.h"
 #include "Misc/Option.h"
+#include "Misc/NavMesh.h"
 
 // Entity Component System
 #include "ECS/SceneManager.h"

@@ -77,6 +77,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
+
+    //NAV TEST
+    NavMesh navmesh;
+    float3 pos;
+    float2 size;
+    pos.x = 0;
+    pos.y = 0;
+    pos.z = 0;
+    size.x = 1;
+    size.y = 1;
+    NavQuad* nav1 = navmesh.AddNavQuad(pos, size);
+
+    pos.x = 2;
+    pos.y = 0;
+    pos.z = 0;
+    size.x = 1;
+    size.y = 1;
+    NavQuad* nav2 = navmesh.AddNavQuad(pos, size);
+    pos.x = 1;
+    pos.y = 0.5;
+    pos.z = 0;
+    navmesh.ConnectNavQuads(nav1, nav2, pos);
+
+    nav1 = navmesh.GetQuad(pos);
+    nav1 = nav1->connections.at(0)->GetConnectedQuad(nav1);
+
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
