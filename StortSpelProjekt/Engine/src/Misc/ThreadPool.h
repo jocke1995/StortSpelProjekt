@@ -5,6 +5,7 @@
 
 class Thread;
 class MultiThreadedTask;
+
 class ThreadPool
 {
 public:
@@ -22,7 +23,7 @@ private:
 	unsigned int m_NrOfThreads;
 	unsigned int m_ThreadCounter = 0;
 
-	bool isAllFinished(unsigned int flag);
+	bool isAllLastActiveTasksFinished(unsigned int flag);
 	bool isThreadsQueuesEmpty(unsigned int flag);
 };
 

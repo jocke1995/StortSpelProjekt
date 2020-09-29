@@ -59,7 +59,7 @@ Thread::~Thread()
 	CloseHandle(m_ThreadHandle);
 }
 
-bool Thread::isTaskNullptr()
+bool Thread::isLastActiveTaskNullptr()
 {
 	m_Mutex.lock();
 	bool result = (m_pActiveTask == nullptr);

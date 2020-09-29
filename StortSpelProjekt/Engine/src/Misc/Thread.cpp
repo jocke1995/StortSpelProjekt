@@ -2,7 +2,7 @@
 #include "Thread.h"
 #include "MultiThreadedTask.h"
 
-unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
+unsigned int __stdcall Thread::threadFunc(void* lpParameter)
 {
 	Thread* threadInstance = (Thread*)lpParameter;
 	bool waitNextIteration = true;
@@ -17,15 +17,15 @@ unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 		}
 		
 		// ------------------- Critical region 1-------------------
-		if (threadInstance->m_TaskQueue.empty() == false)
+		if (threadInstance->m_TaskDeque.empty() == false)
 		{
 			threadInstance->m_Mutex.lock();
 
-			// Get a task from the queue
-			threadInstance->m_pActiveTask = threadInstance->m_TaskQueue.front();
+			// Get a task from the deque
+			threadInstance->m_pActiveTask = threadInstance->m_TaskDeque.front();
 
-			// Remove the m_pTask from the queue
-			threadInstance->m_TaskQueue.pop();
+			// Remove the m_pTask from the deque
+			threadInstance->m_TaskDeque.pop_front();
 
 			threadInstance->m_Mutex.unlock();
 		}
@@ -40,7 +40,7 @@ unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 			threadInstance->m_pActiveTask = nullptr;
 
 			// If the main thread adds a new task while this thread is working, we won't wait next iteration.
-			if (threadInstance->m_TaskQueue.empty() == true)
+			if (threadInstance->m_TaskDeque.empty() == true)
 			{
 				waitNextIteration = true;
 			}
@@ -65,12 +65,12 @@ Thread::Thread(unsigned int threadId)
 	m_ThreadId = threadId;
 
 	// Create and start the thread function
-	m_ThreadHandle = reinterpret_cast<HANDLE>(_beginthreadex(0, 0, threadFunc, this, 0, 0));
+	m_ThreadHandle = reinterpret_cast<HANDLE>(_beginthreadex(0, 0, threadFunc, static_cast<void*>(this), 0, 0));
 
 	// Set Thread Priority
 	if (SetThreadPriority(m_ThreadHandle, THREAD_PRIORITY_TIME_CRITICAL) == false)
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Failed to 'SetThreadPriority' belonging to a thread with id: %d\n", m_ThreadId);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to 'SetThreadPriority' belonging to a thread with id: %d\n", m_ThreadId);
 	}
 
 	// Create an event for the thread
@@ -90,12 +90,16 @@ Thread::~Thread()
 	}
 }
 
-bool Thread::isTaskNullptr()
+bool Thread::isLastActiveTaskNullptr(unsigned int flag)
 {
 	bool result = false;
 
 	m_Mutex.lock();
 	if (m_pActiveTask == nullptr)
+	{
+		result = true;
+	}
+	else if(m_pActiveTask->GetThreadFlags() & flag == 0)
 	{
 		result = true;
 	}
@@ -114,7 +118,7 @@ void Thread::addTask(MultiThreadedTask* task)
 {
 	// Add the m_pTask to the m_Thread and m_Start executing
 	m_Mutex.lock();
-	m_TaskQueue.push(task);
+	m_TaskDeque.push_back(task);
 
 #ifdef _DEBUG
 	// Start the thread and catch errors (if any)
@@ -131,14 +135,21 @@ void Thread::addTask(MultiThreadedTask* task)
 	m_Mutex.unlock();
 }
 
-bool Thread::isQueueEmpty()
+bool Thread::isQueueEmptyFromTasksWithSpecifiedFlags(unsigned int flag)
 {
-	bool isEmpty = false;
+	bool isEmptyFromTasksWithSpecifiedFlag = true;
 	m_Mutex.lock();
-	isEmpty = m_TaskQueue.empty();
+	for (MultiThreadedTask* task : m_TaskDeque)
+	{
+		if (task->GetThreadFlags() & flag)
+		{
+			isEmptyFromTasksWithSpecifiedFlag = false;
+			break;
+		}
+	}
 	m_Mutex.unlock();
 
-	return isEmpty;
+	return isEmptyFromTasksWithSpecifiedFlag;
 }
 
 bool Thread::wakeUpThread()

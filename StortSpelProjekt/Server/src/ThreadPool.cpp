@@ -58,7 +58,7 @@ bool ThreadPool::isAllFinished(unsigned int flag)
 	{
 		if (thread->GetTaskFlag() & flag)
 		{
-			if (thread->isTaskNullptr() == false)
+			if (thread->isLastActiveTaskNullptr() == false)
 			{
 				return false;
 			}

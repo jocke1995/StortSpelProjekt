@@ -34,7 +34,7 @@ void ThreadPool::WaitForThreads(unsigned int flag)
 	{
 		isEmpty = isThreadsQueuesEmpty(flag);
 
-		if (isEmpty && isAllFinished(flag))
+		if (isEmpty && isAllLastActiveTasksFinished(flag))
 		{
 			break;
 		}
@@ -56,11 +56,11 @@ void ThreadPool::ExitThreads()
 	}
 }
 
-bool ThreadPool::isAllFinished(unsigned int flag)
+bool ThreadPool::isAllLastActiveTasksFinished(unsigned int flag)
 {
 	for (Thread* thread : m_Threads)
 	{
-		if (thread->isTaskNullptr() == false)
+		if (thread->isLastActiveTaskNullptr(flag) == false)
 		{
 			return false;
 		}
@@ -72,7 +72,7 @@ bool ThreadPool::isThreadsQueuesEmpty(unsigned int flag)
 {
 	for (auto thread : m_Threads)
 	{
-		if (thread->isQueueEmpty() == false)
+		if (thread->isQueueEmptyFromTasksWithSpecifiedFlags(flag) == false)
 		{
 			return false;
 		}

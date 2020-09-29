@@ -111,6 +111,7 @@ enum FLAG_THREAD
 {
 	RENDER = BIT(1),
 	NETWORK = BIT(2),
+	TEST = BIT(3),
 	// CopyTextures,
 	// PrepareNextScene ..
 	// etc

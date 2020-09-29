@@ -20,7 +20,7 @@ private:
 
 	static unsigned int __stdcall threadFunc(LPVOID lpParameter);
 
-	std::queue<MultiThreadedTask*> m_TaskQueue;
+	std::deque<MultiThreadedTask*> m_TaskDeque;
 	std::mutex m_Mutex;
 
 	MultiThreadedTask* m_pActiveTask = nullptr;
@@ -28,10 +28,10 @@ private:
 	bool m_IsRunning = true;
 	unsigned int m_ThreadId = 0;
 
-	bool isTaskNullptr();
+	bool isLastActiveTaskNullptr(unsigned int flag);
 	void addTask(MultiThreadedTask* task);
 	void exitThread();
-	bool isQueueEmpty();
+	bool isQueueEmptyFromTasksWithSpecifiedFlags(unsigned int flag);
 	bool wakeUpThread();
 };
 #endif
