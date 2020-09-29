@@ -1,5 +1,6 @@
 #include "HealthComponent.h"
 #include "../Events/EventBus.h"
+#include "../Events/Events.h"
 #include "ECS/Entity.h"
 
 component::HealthComponent::HealthComponent(Entity* parent, int hp) : Component(parent)

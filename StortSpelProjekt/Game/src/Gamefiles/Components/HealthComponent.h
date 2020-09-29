@@ -2,9 +2,9 @@
 #define HEALTH_COMPONENT_H
 
 #include "../../Engine/src/ECS/Components/Component.h"
-#include "../Events/Events.h"
 #include "EngineMath.h"
 
+struct Death;
 class Entity;
 namespace component
 {
