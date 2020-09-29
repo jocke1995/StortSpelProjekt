@@ -45,7 +45,7 @@ void component::CollisionComponent::InitScene()
 #ifdef _DEBUG
 	if (!m_pParent->HasComponent<component::TransformComponent>())
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "No Transform provided for collisioncomponent in entity %s", m_pParent->GetName().c_str());
+		Log::PrintSeverity(Log::Severity::CRITICAL, "No Transform provided for collisioncomponent in entity %s\n", m_pParent->GetName().c_str());
 		return;
 	}
 #endif
@@ -66,4 +66,37 @@ void component::CollisionComponent::InitScene()
 	m_pBody = new btRigidBody(info);
 	m_pBody->setLinearVelocity({ m_pTrans->GetMovement().x, m_pTrans->GetMovement().y, m_pTrans->GetMovement().z });
 	Physics::GetInstance().AddCollisionComponent(this);
+}
+
+void component::CollisionComponent::SetPosition(double x, double y, double z)
+{
+	m_pBody->getWorldTransform().setOrigin({ x, y, z });
+}
+
+void component::CollisionComponent::SetRotation(double roll, double pitch, double yaw)
+{
+	btQuaternion quat = m_pBody->getWorldTransform().getRotation();
+
+	quat.setEulerZYX(roll, pitch, yaw);
+
+	m_pBody->getWorldTransform().setRotation(quat);
+}
+
+void component::CollisionComponent::SetVelVector(double x, double y, double z)
+{
+	m_pBody->setLinearVelocity({ x, y, z });
+}
+
+void component::CollisionComponent::SetNormalizedVelVector(double x, double y, double z)
+{
+	double length = sqrt(x * x + y * y + z * z);
+
+	if (length > 1.0)
+	{
+		x = x / length;
+		y = y / length;
+		z = z / length;
+	}
+
+	m_pBody->setLinearVelocity({ x, y, z });
 }

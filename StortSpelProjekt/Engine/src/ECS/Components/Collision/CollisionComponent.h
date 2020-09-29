@@ -20,6 +20,10 @@ namespace component
 
 		void Update(double dt);
 		void InitScene();
+		void SetPosition(double x, double y, double z);
+		void SetRotation(double roll, double pitch, double yaw);
+		void SetVelVector(double x, double y, double z);
+		void SetNormalizedVelVector(double x, double y, double z);
 	protected:
 		float m_Mass;
 		Transform* m_pTrans;
