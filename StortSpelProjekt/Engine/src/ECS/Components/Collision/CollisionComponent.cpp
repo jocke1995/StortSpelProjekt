@@ -3,9 +3,14 @@
 #include "../ECS/Entity.h"
 #include "../Renderer/Transform.h"
 #include "../Physics/Physics.h"
-component::CollisionComponent::CollisionComponent(Entity* parent, float mass) : Component(parent), 
+component::CollisionComponent::CollisionComponent(Entity* parent, double mass, double friction, double restitution) : Component(parent),
 m_pTrans(nullptr),
-m_Mass(mass)
+m_pBody(nullptr),
+m_pMotionState(nullptr),
+m_pShape(nullptr),
+m_Mass(mass),
+m_Fric(friction),
+m_Rest(restitution)
 {
 }
 
@@ -59,8 +64,8 @@ void component::CollisionComponent::InitScene()
 	m_pMotionState = new btDefaultMotionState(btTrans);
 	btRigidBody::btRigidBodyConstructionInfo info(m_Mass, m_pMotionState, m_pShape, inertia);
 
-	info.m_restitution = 0.5;
-	info.m_friction = 1.0;
+	info.m_restitution = m_Rest;
+	info.m_friction = m_Fric;
 
 	m_pBody = new btRigidBody(info);
 	m_pBody->setLinearVelocity({ m_pTrans->GetMovement().x, m_pTrans->GetMovement().y, m_pTrans->GetMovement().z });

@@ -12,7 +12,7 @@ namespace component
 	class CollisionComponent : public Component
 	{
 	public:
-		CollisionComponent(Entity* parent, float mass = 1.0f);
+		CollisionComponent(Entity* parent, double mass = 1.0, double friction = 1.0, double restitution = 0.5);
 		virtual ~CollisionComponent();
 		// Checks for collision between two objects. If collision occurs, the transform is adjusted accordingly.
 		//virtual void CheckCollision(CollisionComponent* other) = 0;
@@ -28,7 +28,9 @@ namespace component
 		void SetFriction(double fric);
 		void SetRestitution(double rest);
 	protected:
-		float m_Mass;
+		double m_Mass;
+		double m_Fric;
+		double m_Rest;
 		Transform* m_pTrans;
 		btCollisionShape* m_pShape;
 		btRigidBody* m_pBody;

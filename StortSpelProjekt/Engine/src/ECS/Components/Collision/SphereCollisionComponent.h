@@ -8,7 +8,7 @@ namespace component
 	class SphereCollisionComponent : public CollisionComponent
 	{
 	public:
-		SphereCollisionComponent(Entity* parent, float mass = 1.0f, float rad = 1.0f);
+		SphereCollisionComponent(Entity* parent, double mass = 1.0, double friction = 1.0, double restitution = 0.5, float rad = 1.0f);
 		~SphereCollisionComponent();
 	private:
 		float m_Rad;
