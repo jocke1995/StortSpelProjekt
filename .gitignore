@@ -14,3 +14,4 @@ StortSpelProjekt/*.bat
 **.vs
 **bin/
 **bin-int/
+StortSpelProjekt/Sandbox/imgui.ini

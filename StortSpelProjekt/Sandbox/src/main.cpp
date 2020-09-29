@@ -4,6 +4,7 @@
 #include "GameNetwork.h"
 
 Scene* LeosTestScene(SceneManager* sm);
+Scene* LeosBounceScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
 Scene* JockesTestScene(SceneManager* sm);
 Scene* FredriksTestScene(SceneManager* sm);
@@ -15,6 +16,7 @@ Scene* AntonTestScene(SceneManager* sm);
 
 void(*UpdateScene)(SceneManager*);
 void LeoUpdateScene(SceneManager* sm);
+void LeoBounceUpdateScene(SceneManager* sm);
 void TimUpdateScene(SceneManager* sm);
 
 void DefaultUpdateScene(SceneManager* sm);
@@ -28,9 +30,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     option->ReadFile();
     float updateRate = 1.0f / std::atof(option->GetVariable("f_updateRate").c_str());
 
-	/* ------ Engine  ------ */
-	Engine engine;
-	engine.Init(hInstance, nCmdShow);
+    /* ------ Engine  ------ */
+    Engine engine;
+    engine.Init(hInstance, nCmdShow);
 
     /*  ------ Get references from engine  ------ */
     Window* const window = engine.GetWindow();
@@ -48,7 +50,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //sceneManager->SetScene(LeosTestScene(sceneManager));
-    sceneManager->SetScene(TimScene(sceneManager));
+    sceneManager->SetScene(LeosBounceScene(sceneManager));
+    //sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
@@ -100,13 +103,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                 networkCount = 0;
 
                 network.SendPositionPacket();
-                while(network.ListenPacket());
+                while (network.ListenPacket());
             }
         }
 
         /* ------ Sort ------ */
         renderer->SortObjects();
-        
+
         UpdateScene(sceneManager);
 
         /* ------ Draw ------ */
@@ -227,6 +230,142 @@ Scene* LeosTestScene(SceneManager* sm)
     return scene;
 }
 
+Scene* LeosBounceScene(SceneManager* sm)
+{
+    Scene* scene = sm->CreateScene("BounceScene");
+
+    AssetLoader* al = AssetLoader::Get();
+
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+
+    AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    /*--------------------- Assets ---------------------*/
+
+    /*--------------------- Component declarations ---------------------*/
+    Entity* entity = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
+    component::BoundingBoxComponent* bbc = nullptr;
+    component::CameraComponent* cc = nullptr;
+    component::DirectionalLightComponent* dlc = nullptr;
+    component::ModelComponent* mc = nullptr;
+    component::PointLightComponent* plc = nullptr;
+    component::TransformComponent* tc = nullptr;
+    component::PlayerInputComponent* pic = nullptr;
+    component::TextComponent* txc = nullptr;
+    component::CollisionComponent* bcc = nullptr;
+
+    /*--------------------- Player ---------------------*/
+    // entity
+    entity = scene->AddEntity("player");
+
+    // components
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+
+    Transform* t = tc->GetTransform();
+
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(0.0f, 10.0f, 0.0f);
+
+    bcc = entity->AddComponent<component::CubeCollisionComponent>();
+    pic->Init();
+
+    mc->SetModel(playerModel);
+    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
+
+    avc->AddVoice(L"Bruh");
+
+    /*--------------------- Sphere1 ---------------------*/
+    // entity
+    entity = scene->AddEntity("Sphere1");
+
+    // components
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(1.0f, 1.0f, 1.0f, 1.5f);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    
+    /*--------------------- Sphere2 ---------------------*/
+    // entity
+    entity = scene->AddEntity("Sphere2");
+
+    // components
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(-5.0f, 1.0f, 3.5f);
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(5.0f, 1.0f, 1.0f, 1.5f);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+
+    /*--------------------- Box ---------------------*/
+    // entity
+    entity = scene->AddEntity("Box");
+
+    // components
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(5.0f, 1.0f, 4.0f);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1000.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+
+    mc->SetModel(cubeModel);
+
+    /*--------------------- Floor ---------------------*/
+    // entity
+    entity = scene->AddEntity("floor");
+
+    // components
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+
+
+    mc->SetModel(floorModel);
+    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(35.0f, 1.0f, 35.0f);
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+
+    /* ---------------------- PointLight1 ---------------------- */
+    entity = scene->AddEntity("pointLight1");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
+
+    /*--------------------- DirectionalLight ---------------------*/
+    // entity
+    entity = scene->AddEntity("sun");
+
+    // components
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
+    dlc->SetDirection({ 1.0f, -1.0f, -1.0f });
+    dlc->SetColor({ 0.5f, 0.5f, 0.5f });
+
+    /* ---------------------- Update Function ---------------------- */
+    UpdateScene = &LeoBounceUpdateScene;
+
+    return scene;
+}
+
 Scene* TimScene(SceneManager* sm)
 {
     Scene* scene = sm->CreateScene("DevScene");
@@ -266,10 +405,10 @@ Scene* TimScene(SceneManager* sm)
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
-    
+
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 10.0f, 0.0f);
-    
+
     ccc = entity->AddComponent<component::CubeCollisionComponent>();
     pic->Init();
 
@@ -346,7 +485,7 @@ Scene* TimScene(SceneManager* sm)
     // components
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
     dlc->SetDirection({ 1.0f, -1.0f, -1.0f });
-    dlc->SetColor({ 0.5f, 0.5f, 0.5f});
+    dlc->SetColor({ 0.5f, 0.5f, 0.5f });
     /*--------------------- DirectionalLight ---------------------*/
 
     UpdateScene = &TimUpdateScene;
@@ -473,7 +612,7 @@ Scene* JockesTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
 
-    plc->SetColor({2.0f, 0.0f, 2.0f });
+    plc->SetColor({ 2.0f, 0.0f, 2.0f });
     plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
     /* ---------------------- PointLight ---------------------- */
 
@@ -505,166 +644,166 @@ Scene* JockesTestScene(SceneManager* sm)
 
 Scene* FredriksTestScene(SceneManager* sm)
 {
-	// Create Scene
-	Scene* scene = sm->CreateScene("scene1");
+    // Create Scene
+    Scene* scene = sm->CreateScene("scene1");
 
-	component::CameraComponent* cc = nullptr;
-	component::ModelComponent* mc = nullptr;
-	component::TransformComponent* tc = nullptr;
-	component::PointLightComponent* plc = nullptr;
-	AssetLoader* al = AssetLoader::Get();
+    component::CameraComponent* cc = nullptr;
+    component::ModelComponent* mc = nullptr;
+    component::TransformComponent* tc = nullptr;
+    component::PointLightComponent* plc = nullptr;
+    AssetLoader* al = AssetLoader::Get();
 
-	// Get the models needed
-	Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
-	Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
-	Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
-	Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    // Get the models needed
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
-	/* ---------------------- Player ---------------------- */
-	Entity* entity = scene->AddEntity("player");
-	mc = entity->AddComponent<component::ModelComponent>();
-	tc = entity->AddComponent<component::TransformComponent>();
-	cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    /* ---------------------- Player ---------------------- */
+    Entity* entity = scene->AddEntity("player");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
 
-	mc->SetModel(playerModel);
-	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-	tc->GetTransform()->SetScale(1.0f);
-	tc->GetTransform()->SetPosition(0, 1, -30);
-	/* ---------------------- Player ---------------------- */
+    mc->SetModel(playerModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(0, 1, -30);
+    /* ---------------------- Player ---------------------- */
 
-	/* ---------------------- Floor ---------------------- */
-	entity = scene->AddEntity("floor");
-	mc = entity->AddComponent<component::ModelComponent>();
-	tc = entity->AddComponent<component::TransformComponent>();
+    /* ---------------------- Floor ---------------------- */
+    entity = scene->AddEntity("floor");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
 
-	mc = entity->GetComponent<component::ModelComponent>();
-	mc->SetModel(floorModel);
-	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-	tc = entity->GetComponent<component::TransformComponent>();
-	tc->GetTransform()->SetScale(35, 1, 35);
-	tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-	/* ---------------------- Floor ---------------------- */
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(floorModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(35, 1, 35);
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    /* ---------------------- Floor ---------------------- */
 
-	/* ---------------------- Stone ---------------------- */
-	entity = scene->AddEntity("stone");
-	mc = entity->AddComponent<component::ModelComponent>();
-	tc = entity->AddComponent<component::TransformComponent>();
+    /* ---------------------- Stone ---------------------- */
+    entity = scene->AddEntity("stone");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
 
-	mc = entity->GetComponent<component::ModelComponent>();
-	mc->SetModel(stoneModel);
-	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-	tc = entity->GetComponent<component::TransformComponent>();
-	tc->GetTransform()->SetScale(0.01f);
-	tc->GetTransform()->SetPosition(-8.0f, 0.0f, 0.0f);
-	/* ---------------------- Stone ---------------------- */
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(stoneModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(0.01f);
+    tc->GetTransform()->SetPosition(-8.0f, 0.0f, 0.0f);
+    /* ---------------------- Stone ---------------------- */
 
-	/* ---------------------- PointLight1 ---------------------- */
-	entity = scene->AddEntity("pointLight1");
-	mc = entity->AddComponent<component::ModelComponent>();
-	tc = entity->AddComponent<component::TransformComponent>();
-	plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    /* ---------------------- PointLight1 ---------------------- */
+    entity = scene->AddEntity("pointLight1");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
-	mc->SetModel(cubeModel);
-	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-	tc->GetTransform()->SetScale(0.5f);
-	tc->GetTransform()->SetPosition(-30.0f, 4.0f, 15.0f);
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(-30.0f, 4.0f, 15.0f);
 
-	/* ---------------------- PointLight1 ---------------------- */
+    /* ---------------------- PointLight1 ---------------------- */
 
-	/* ---------------------- PointLigh2 ---------------------- */
-	entity = scene->AddEntity("pointLight2");
-	mc = entity->AddComponent<component::ModelComponent>();
-	tc = entity->AddComponent<component::TransformComponent>();
-	plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    /* ---------------------- PointLigh2 ---------------------- */
+    entity = scene->AddEntity("pointLight2");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
-	mc->SetModel(cubeModel);
-	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-	tc->GetTransform()->SetScale(0.5f);
-	tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
 
-	plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
-	/* ---------------------- PointLight2 ---------------------- */
+    plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
+    /* ---------------------- PointLight2 ---------------------- */
 
-	/* ---------------------- PointLight3 ---------------------- */
-	entity = scene->AddEntity("pointLight3");
-	mc = entity->AddComponent<component::ModelComponent>();
-	tc = entity->AddComponent<component::TransformComponent>();
-	plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    /* ---------------------- PointLight3 ---------------------- */
+    entity = scene->AddEntity("pointLight3");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
-	mc->SetModel(cubeModel);
-	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-	tc->GetTransform()->SetScale(0.5f);
-	tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
 
-	/* ---------------------- PointLight3 ---------------------- */
+    /* ---------------------- PointLight3 ---------------------- */
 
-	/* ---------------------- PointLight4 ---------------------- */
-	entity = scene->AddEntity("pointLight4");
-	mc = entity->AddComponent<component::ModelComponent>();
-	tc = entity->AddComponent<component::TransformComponent>();
-	plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    /* ---------------------- PointLight4 ---------------------- */
+    entity = scene->AddEntity("pointLight4");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
-	mc->SetModel(cubeModel);
-	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-	tc->GetTransform()->SetScale(0.5f);
-	tc->GetTransform()->SetPosition(-30.0f, 4.0f, -15.0f);
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(-30.0f, 4.0f, -15.0f);
 
-	/* ---------------------- PointLight4 ---------------------- */
+    /* ---------------------- PointLight4 ---------------------- */
 
-	/* ---------------------- PointLigh5 ---------------------- */
-	entity = scene->AddEntity("pointLight5");
-	mc = entity->AddComponent<component::ModelComponent>();
-	tc = entity->AddComponent<component::TransformComponent>();
-	plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    /* ---------------------- PointLigh5 ---------------------- */
+    entity = scene->AddEntity("pointLight5");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
-	mc->SetModel(cubeModel);
-	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-	tc->GetTransform()->SetScale(0.5f);
-	tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
 
-	plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
+    plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
 
 
-	/* ---------------------- PointLight5 ---------------------- */
+    /* ---------------------- PointLight5 ---------------------- */
 
-	/* ---------------------- PointLight6 ---------------------- */
-	entity = scene->AddEntity("pointLight6");
-	mc = entity->AddComponent<component::ModelComponent>();
-	tc = entity->AddComponent<component::TransformComponent>();
-	plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    /* ---------------------- PointLight6 ---------------------- */
+    entity = scene->AddEntity("pointLight6");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
-	mc->SetModel(cubeModel);
-	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-	tc->GetTransform()->SetScale(0.5f);
-	tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
 
-	/* ---------------------- PointLight6 ---------------------- */
+    /* ---------------------- PointLight6 ---------------------- */
 
-	/* ------------------------- Text --------------------------- */
+    /* ------------------------- Text --------------------------- */
 
-	// Load fonts
-	std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
+    // Load fonts
+    std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
 
-	std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
-	float2 textPos = { 0.02f, 0.01f };
-	float2 textPadding = { 0.5f, 0.0f };
-	float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
-	float2 textScale = { 0.5f, 0.5f };
+    std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
+    float2 textPos = { 0.02f, 0.01f };
+    float2 textPadding = { 0.5f, 0.0f };
+    float4 textColor = { 1.0f, 0.2f, 1.0f, 1.0f };
+    float2 textScale = { 0.5f, 0.5f };
 
-	scene->AddEntity("text");
+    scene->AddEntity("text");
 
-	entity = scene->GetEntity("text");
-	component::TextComponent* textComp = entity->AddComponent<component::TextComponent>(arialFont);
-	textComp->AddText("text");
-	textComp->SetColor(textColor, "text");
-	textComp->SetPadding(textPadding, "text");
-	textComp->SetPos(textPos, "text");
-	textComp->SetScale(textScale, "text");
-	textComp->SetText(textToRender, "text");
+    entity = scene->GetEntity("text");
+    component::TextComponent* textComp = entity->AddComponent<component::TextComponent>(arialFont);
+    textComp->AddText("text");
+    textComp->SetColor(textColor, "text");
+    textComp->SetPadding(textPadding, "text");
+    textComp->SetPos(textPos, "text");
+    textComp->SetScale(textScale, "text");
+    textComp->SetText(textToRender, "text");
 
-	/* ---------------------------------------------------------- */
+    /* ---------------------------------------------------------- */
 
-	return scene;
+    return scene;
 
 }
 
@@ -980,7 +1119,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     bbc->Init();
     tc->GetTransform()->SetPosition(0.0f, -20.0f, 70.0f);
     tc->GetTransform()->SetRotationX(1.5708);
- 
+
     Physics::GetInstance().AddCollisionEntity(entity);
 
     //entity = scene->AddEntity("stone");
@@ -1070,8 +1209,37 @@ void LeoUpdateScene(SceneManager* sm)
     ec->Play(L"Music");
 }
 
-void DefaultUpdateScene(SceneManager* sm)
+void LeoBounceUpdateScene(SceneManager* sm)
 {
+    if (ImGuiHandler::GetInstance().GetBool("reset") == true)
+    {
+        ImGuiHandler::GetInstance().SetBool("reset", false);
+
+        component::CollisionComponent* cc = sm->GetScene("BounceScene")->GetEntity("player")->GetComponent<component::CollisionComponent>();
+        cc->SetPosition(0.0f, 10.0f, 0.0f);
+        cc->SetVelVector(0.0f, 0.0f, 0.0f);
+        cc->SetRotation(0.0f, 0.0f, 0.0f);
+        cc->SetAngularVelocity(0.0f, 0.0f, 0.0f);
+
+        cc = sm->GetScene("BounceScene")->GetEntity("Sphere1")->GetComponent<component::CollisionComponent>();
+        cc->SetPosition(1.0f, 1.0f, 1.0f);
+        cc->SetVelVector(0.0f, 0.0f, 0.0f);
+        cc->SetRotation(0.0f, 0.0f, 0.0f);
+        cc->SetAngularVelocity(0.0f, 0.0f, 0.0f);
+
+        cc = sm->GetScene("BounceScene")->GetEntity("Sphere2")->GetComponent<component::CollisionComponent>();
+        cc->SetPosition(-5.0f, 1.0f, 3.5f);
+        cc->SetVelVector(0.0f, 0.0f, 0.0f);
+        cc->SetRotation(0.0f, 0.0f, 0.0f);
+        cc->SetAngularVelocity(0.0f, 0.0f, 0.0f);
+
+        cc = sm->GetScene("BounceScene")->GetEntity("Box")->GetComponent<component::CollisionComponent>();
+        cc->SetPosition(5.0f, 1.0f, 4.0f);
+        cc->SetVelVector(0.0f, 0.0f, 0.0f);
+        cc->SetRotation(0.0f, 0.0f, 0.0f);
+    }
+    component::CollisionComponent* cc = sm->GetScene("BounceScene")->GetEntity("Box")->GetComponent<component::CollisionComponent>();
+    cc->SetAngularVelocity(0.0f, 10.0f, 0.0f);
 }
 
 void TimUpdateScene(SceneManager* sm)
@@ -1094,4 +1262,8 @@ void TimUpdateScene(SceneManager* sm)
         sm->GetScene("DevScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetFriction(0);
 
     }
+}
+
+void DefaultUpdateScene(SceneManager* sm)
+{
 }
