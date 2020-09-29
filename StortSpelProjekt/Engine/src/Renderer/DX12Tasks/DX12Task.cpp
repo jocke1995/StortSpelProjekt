@@ -44,9 +44,9 @@ void DX12Task::AddResource(std::string id, const Resource* resource)
 	}
 }
 
-ID3D12GraphicsCommandList5* DX12Task::GetCommandList(unsigned int index) const
+CommandInterface* const DX12Task::GetCommandInterface() const
 {
-	return m_pCommandInterface->GetCommandList(index);
+	return m_pCommandInterface;
 }
 
 void DX12Task::TransResourceState(ID3D12GraphicsCommandList5* cl, Resource* resource, D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter)

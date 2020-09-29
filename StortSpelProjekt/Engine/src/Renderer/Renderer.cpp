@@ -324,11 +324,75 @@ void Renderer::SortObjects()
 	setRenderTasksRenderComponents();
 }
 
-void Renderer::Execute()
+void Renderer::Execute(const HWND* hwnd)
 {
 	IDXGISwapChain4* dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
 	int commandInterfaceIndex = m_FrameCounter++ % 2;
+
+	static int a = 0;
+	// Look if we toggle between fullscreen or windowed
+	if (!std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()) && a == 0)
+	{
+		a++;
+
+		m_FenceFrameValue++;
+		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+
+		// Wait for all frames
+		waitForFrame(0);
+
+		for (auto task : m_RenderTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->Reset(i);
+			}
+		}
+		for (auto task : m_CopyTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->Reset(i);
+			}
+		}
+		for (auto task : m_ComputeTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->Reset(i);
+			}
+		}
+
+		m_pSwapChain->Toggle(m_pDevice5,
+			hwnd,
+			m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
+			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
+			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+		dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
+
+		for (auto task : m_RenderTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->GetCommandList(i)->Close();
+			}
+		}
+		for (auto task : m_CopyTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->GetCommandList(i)->Close();
+			}
+		}
+		for (auto task : m_ComputeTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->GetCommandList(i)->Close();
+			}
+		}
+	}
 
 	CopyTask* copyTask = nullptr;
 	ComputeTask* computeTask = nullptr;
@@ -1136,9 +1200,6 @@ void Renderer::initRenderTasks()
 
 #pragma endregion Text
 	
-	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
-
 #pragma region IMGUIRENDERTASK
 	RenderTask* imGuiRenderTask = new ImGuiRenderTask(
 		m_pDevice5,
@@ -1189,7 +1250,7 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandList(i);
+		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandInterface()->GetCommandList(i);
 	}
 
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
@@ -1210,58 +1271,58 @@ void Renderer::initRenderTasks()
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(copyPerFrameTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(copyPerFrameTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(DepthPrePassRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(DepthPrePassRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(textTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(textTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(outliningRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(outliningRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			m_DirectCommandLists[i].push_back(wireFrameRenderTask->GetCommandList(i));
+			m_DirectCommandLists[i].push_back(wireFrameRenderTask->GetCommandInterface()->GetCommandList(i));
 		}
 	}
 
 	// Compute shader to blur the RTV from forwardRenderTask
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(blurComputeTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(blurComputeTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	// Final pass (this pass will merge different textures together and put result in the swapchain backBuffer)
 	// This will be used for pp-effects such as bloom.
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(mergeTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(mergeTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	// GUI
@@ -1269,7 +1330,7 @@ void Renderer::initRenderTasks()
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			m_DirectCommandLists[i].push_back(imGuiRenderTask->GetCommandList(i));
+			m_DirectCommandLists[i].push_back(imGuiRenderTask->GetCommandInterface()->GetCommandList(i));
 		}
 	}
 }
@@ -1689,7 +1750,7 @@ void Renderer::addComponents(Entity* entity)
 
 			Text* text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, textComp->GetTexture());
 			text->SetTextData(&textData.second, textComp->GetFont());
-
+			
 			textComp->SubmitText(text);
 
 			// Look if data is already on the GPU

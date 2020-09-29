@@ -107,9 +107,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         renderer->SortObjects();
         
         UpdateScene(sceneManager);
-
+		
         /* ------ Draw ------ */
-        renderer->Execute();
+        renderer->Execute(window->GetHwnd());
     }
     return 0;
 }

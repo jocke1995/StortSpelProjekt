@@ -5,6 +5,7 @@
 #include "../ImGUI/imgui.h"
 #include "../ImGUI/imgui_impl_win32.h"
 #include "../ImGUI/imgui_impl_dx12.h"
+#include "Option.h"
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -30,9 +31,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			spacePressed = true;
 		}
-		if (wParam == VK_TAB)
+		/*if (wParam == VK_TAB)
 		{
 			tabPressed = true;
+		}*/
+		if (wParam == VK_RETURN)
+		{
+			Option::GetInstance().SetVariable("b_fullscreen", "0");
 		}
 		
 		return 0;
@@ -120,6 +125,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		return 0;
 	}
+
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 

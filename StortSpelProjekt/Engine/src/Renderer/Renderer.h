@@ -88,7 +88,7 @@ public:
 	// Call each frame
 	void RenderUpdate(double dt); //Please rename if logic update is removed
 	void SortObjects();
-	void Execute();
+	void Execute(const HWND* hwnd);
 
 private:
 	friend class SceneManager;

@@ -2,6 +2,7 @@
 #define WINDOW_H
 #include <Windows.h>
 #include <string>
+
 // Temp
 static bool spacePressed = false;
 static bool tabPressed = false;
