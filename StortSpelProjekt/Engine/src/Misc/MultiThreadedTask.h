@@ -11,15 +11,10 @@ public:
 
 	virtual void Execute() = 0;
 
-	void Activate();
-	void Deactivate();
-
 	const unsigned int GetThreadFlags() const;
-	const bool IsRunning() const;
 
 private:
 	unsigned int m_Flags = 0;
-	bool m_IsRunning = false;
 };
 
 #endif

@@ -9,7 +9,7 @@ unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 	while (threadInstance->m_IsRunning)
 	{
 		DWORD eventResult = WaitForSingleObject(
-			threadInstance->m_Event, // event handle
+			threadInstance->m_EventHandle, // event handle
 			INFINITE);    // indefinite wait
 
 		// ------------------- Critical region 1-------------------
@@ -44,9 +44,9 @@ unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 
 Thread::Thread()
 {
-	m_Thread = (HANDLE)_beginthreadex(0, 0, threadFunc, this, 0, 0);
-	SetThreadPriority(m_Thread, THREAD_PRIORITY_TIME_CRITICAL);
-	m_Event = CreateEvent(
+	m_ThreadHandle = (HANDLE)_beginthreadex(0, 0, threadFunc, this, 0, 0);
+	SetThreadPriority(m_ThreadHandle, THREAD_PRIORITY_TIME_CRITICAL);
+	m_EventHandle = CreateEvent(
 		NULL,               // default security attributes
 		FALSE,               // manual-reset event
 		FALSE,              // initial state is nonsignaled
@@ -56,7 +56,7 @@ Thread::Thread()
 
 Thread::~Thread()
 {
-	CloseHandle(m_Thread);
+	CloseHandle(m_ThreadHandle);
 }
 
 bool Thread::IsTaskNullptr()
@@ -82,7 +82,7 @@ void Thread::AddTask(MultiThreadedTask* task, unsigned int taskFlag)
 	// Add the m_pTask to the m_Thread and m_Start executing
 	m_Mutex.lock();
 	m_TaskQueue.push(task);
-	if (!SetEvent(m_Event))
+	if (!SetEvent(m_EventHandle))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to SetEvent in thread\n");
 	}

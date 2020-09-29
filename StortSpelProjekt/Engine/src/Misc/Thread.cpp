@@ -12,7 +12,7 @@ unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 		if (waitNextIteration == true)
 		{
 			DWORD eventResult = WaitForSingleObject(
-				threadInstance->m_Event, // event handle
+				threadInstance->m_EventHandle, // event handle
 				INFINITE);    // indefinite wait
 		}
 		
@@ -64,9 +64,9 @@ Thread::Thread(unsigned int threadId)
 {
 	m_ThreadId = threadId;
 
-	m_Thread = reinterpret_cast<HANDLE>(_beginthreadex(0, 0, threadFunc, this, 0, 0));
-	SetThreadPriority(m_Thread, THREAD_PRIORITY_TIME_CRITICAL);
-	m_Event = CreateEvent(
+	m_ThreadHandle = reinterpret_cast<HANDLE>(_beginthreadex(0, 0, threadFunc, this, 0, 0));
+	SetThreadPriority(m_ThreadHandle, THREAD_PRIORITY_TIME_CRITICAL);
+	m_EventHandle = CreateEvent(
 		NULL,               // default security attributes
 		FALSE,               // manual-reset event
 		FALSE,              // initial state is nonsignaled
@@ -76,7 +76,7 @@ Thread::Thread(unsigned int threadId)
 
 Thread::~Thread()
 {
-	CloseHandle(m_Thread);
+	CloseHandle(m_ThreadHandle);
 }
 
 bool Thread::IsTaskNullptr()
@@ -91,11 +91,6 @@ bool Thread::IsTaskNullptr()
 	m_Mutex.unlock();
 
 	return result;
-}
-
-const unsigned int Thread::GetActiveTaskThreadFlag() const
-{
-	return m_pActiveTask->GetThreadFlags();
 }
 
 void Thread::ExitThread()
@@ -137,5 +132,5 @@ bool Thread::IsQueueEmpty()
 
 bool Thread::WakeUpThread()
 {
-	return SetEvent(m_Event);
+	return SetEvent(m_EventHandle);
 }

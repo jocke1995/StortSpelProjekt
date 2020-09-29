@@ -14,17 +14,15 @@ public:
 	~Thread();
 
 	bool IsTaskNullptr();
-	const unsigned int GetActiveTaskThreadFlag() const;
 
 	void AddTask(MultiThreadedTask* task);
 	void ExitThread();
 
 	bool IsQueueEmpty();
-
 	bool WakeUpThread();
 private:
-	HANDLE m_Thread;
-	HANDLE m_Event;
+	HANDLE m_ThreadHandle;
+	HANDLE m_EventHandle;
 
 	static unsigned int __stdcall threadFunc(LPVOID lpParameter);
 

@@ -33,8 +33,8 @@ public:
 	bool IsQueueEmpty();
 	unsigned int GetTaskFlag();
 private:
-	HANDLE m_Thread;
-	HANDLE m_Event;
+	HANDLE m_ThreadHandle;
+	HANDLE m_EventHandle;
 
 	static unsigned int __stdcall threadFunc(LPVOID lpParameter);
 
