@@ -269,15 +269,11 @@ Scene* TimScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 10.0f, 0.0f);
     
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(tc->GetTransform());
-    ccc->SetMovement(0.0f, 0.0f, 0.0f);
-    ccc->SetRotation(0, 0, 3.14/2);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>();
     pic->Init();
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-
-    Physics::GetInstance().AddCollisionComponent(ccc);
 
     avc->AddVoice(L"Bruh");
     /*--------------------- Player ---------------------*/
@@ -292,13 +288,11 @@ Scene* TimScene(SceneManager* sm)
 
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
-    scc = entity->AddComponent<component::SphereCollisionComponent>(tc->GetTransform());
-    scc->SetMovement(0.0f, 0.0f, 0.0f);
+    scc = entity->AddComponent<component::SphereCollisionComponent>();
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
 
-    Physics::GetInstance().AddCollisionComponent(scc);
     /*--------------------- Box1 ---------------------*/
 
     /*--------------------- Box2 ---------------------*/
@@ -311,11 +305,9 @@ Scene* TimScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(tc->GetTransform(), 1000.0f, 1.0f, 1.0f, 1.0f);
-    ccc->SetMovement(0.0f, 0.0f, 0.0f);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(1000.0f, 1.0f, 1.0f, 1.0f);
 
     mc->SetModel(cubeModel);
-    Physics::GetInstance().AddCollisionComponent(ccc);
 
     /*--------------------- Box2 ---------------------*/
 

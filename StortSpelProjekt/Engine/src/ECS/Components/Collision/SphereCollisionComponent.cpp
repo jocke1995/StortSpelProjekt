@@ -1,29 +1,15 @@
 #include "stdafx.h"
 #include "SphereCollisionComponent.h"
 #include "../Renderer/Transform.h"
-component::SphereCollisionComponent::SphereCollisionComponent(Entity* parent, Transform* trans, float mass, float rad) :
-	CollisionComponent(parent, trans, mass),
+component::SphereCollisionComponent::SphereCollisionComponent(Entity* parent, float mass, float rad) :
+	CollisionComponent(parent, mass),
 	m_Rad(rad)
 {
-	btTransform btTrans;
-	btTrans.setIdentity();
-	btTrans.setOrigin({ trans->GetPositionFloat3().x, trans->GetPositionFloat3().y, trans->GetPositionFloat3().z });
-	m_pSphere = new btSphereShape(rad);
-	btVector3 inertia = { 1.0f,1.0f,1.0f };
-	m_pSphere->calculateLocalInertia(mass, inertia);
-	m_pMotionState = new btDefaultMotionState(btTrans);
-	btRigidBody::btRigidBodyConstructionInfo info(mass, m_pMotionState, m_pSphere, inertia);
-
-	info.m_restitution = 0.8;
-	info.m_friction = 0.0;
-
-	m_pBody = new btRigidBody(info);
+	m_pShape = new btSphereShape(rad);
 }
 
 component::SphereCollisionComponent::~SphereCollisionComponent()
 {
-	delete m_pSphere;
-	delete m_pMotionState;
 }
 
 void component::SphereCollisionComponent::CheckCollision(CollisionComponent* other)

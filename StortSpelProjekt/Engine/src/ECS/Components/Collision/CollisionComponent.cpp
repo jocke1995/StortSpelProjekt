@@ -2,8 +2,9 @@
 #include "CollisionComponent.h"
 #include "../ECS/Entity.h"
 #include "../Renderer/Transform.h"
-component::CollisionComponent::CollisionComponent(Entity* parent , Transform* trans, float mass) : Component(parent), 
-m_pTrans(trans), 
+#include "../Physics/Physics.h"
+component::CollisionComponent::CollisionComponent(Entity* parent, float mass) : Component(parent), 
+m_pTrans(nullptr),
 m_Mass(mass)
 {
 }
@@ -11,25 +12,8 @@ m_Mass(mass)
 component::CollisionComponent::~CollisionComponent()
 {
 	delete m_pBody;
-}
-
-void component::CollisionComponent::SetMovement(float x, float y, float z)
-{
-	m_pBody->setLinearVelocity({ x,y,z });
-}
-
-void component::CollisionComponent::SetRotation(double roll, double pitch, double yaw)
-{
-	btTransform trans;
-	m_pBody->getMotionState()->getWorldTransform(trans);
-	btQuaternion quat;
-	quat.setEulerZYX(roll, pitch, yaw);
-	trans.setRotation(quat);
-	m_pBody->getMotionState()->setWorldTransform(trans);
-
-	m_pBody->getMotionState()->getWorldTransform(trans);
-	yaw = 0;
-	trans.getRotation().getEulerZYX(roll, pitch, yaw);
+	delete m_pMotionState;
+	delete m_pShape;
 }
 
 btRigidBody* component::CollisionComponent::GetBody()
@@ -54,4 +38,32 @@ void component::CollisionComponent::Update(double dt)
 	m_pTrans->SetRotationX(yaw);
 	m_pTrans->SetRotationY(pitch);
 	m_pTrans->SetRotationZ(roll);
+}
+
+void component::CollisionComponent::InitScene()
+{
+#ifdef _DEBUG
+	if (!m_pParent->HasComponent<component::TransformComponent>())
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "No Transform provided for collisioncomponent in entity %s", m_pParent->GetName().c_str());
+		return;
+	}
+#endif
+
+	m_pTrans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
+
+	btTransform btTrans;
+	btTrans.setIdentity();
+	btTrans.setOrigin({ m_pTrans->GetPositionFloat3().x, m_pTrans->GetPositionFloat3().y, m_pTrans->GetPositionFloat3().z });
+	btVector3 inertia = { 0.0f,0.0f,0.0f };
+	m_pShape->calculateLocalInertia(m_Mass, inertia);
+	m_pMotionState = new btDefaultMotionState(btTrans);
+	btRigidBody::btRigidBodyConstructionInfo info(m_Mass, m_pMotionState, m_pShape, inertia);
+
+	info.m_restitution = 0.5;
+	info.m_friction = 1.0;
+
+	m_pBody = new btRigidBody(info);
+	m_pBody->setLinearVelocity({ m_pTrans->GetMovement().x, m_pTrans->GetMovement().y, m_pTrans->GetMovement().z });
+	Physics::GetInstance().AddCollisionComponent(this);
 }
