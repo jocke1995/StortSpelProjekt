@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ThreadPool.h"
 #include "Thread.h"
-ThreadPool::ThreadPool(int nrOfThreads)
+ThreadPool::ThreadPool(unsigned int nrOfThreads)
 {
 	m_NrOfThreads = nrOfThreads;
 	
@@ -60,12 +60,9 @@ bool ThreadPool::isAllFinished(unsigned int flag)
 {
 	for (Thread* thread : m_Threads)
 	{
-		if (thread->GetTaskFlag() & flag)
+		if (thread->IsTaskNullptr() == false)
 		{
-			if (thread->IsTaskNullptr() == false)
-			{
-				return false;
-			}
+			return false;
 		}
 	}
 	return true;
@@ -75,12 +72,9 @@ bool ThreadPool::isThreadsQueuesEmpty(unsigned int flag)
 {
 	for (auto thread : m_Threads)
 	{
-		if (thread->GetTaskFlag() & flag)
+		if (thread->IsQueueEmpty() == false)
 		{
-			if (thread->IsQueueEmpty() == false)
-			{
-				return false;
-			}
+			return false;
 		}
 	}
 	return true;

@@ -8,7 +8,7 @@ class MultiThreadedTask;
 class ThreadPool
 {
 public:
-	ThreadPool(int nrOfThreads);
+	ThreadPool(unsigned int nrOfThreads);
 	~ThreadPool();
 
 	void WaitForThreads(unsigned int flag);
@@ -19,7 +19,7 @@ public:
 private:
 	std::vector<Thread*> m_Threads;
 
-	int m_NrOfThreads;
+	unsigned int m_NrOfThreads;
 	unsigned int m_ThreadCounter = 0;
 
 	bool isAllFinished(unsigned int flag);

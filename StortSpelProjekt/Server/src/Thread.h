@@ -34,14 +34,14 @@ public:
 	unsigned int GetTaskFlag();
 private:
 	HANDLE m_Thread;
-	HANDLE m_BeginEvent;
+	HANDLE m_Event;
 
 	static unsigned int __stdcall threadFunc(LPVOID lpParameter);
 
 	std::queue<MultiThreadedTask*> m_TaskQueue;
 	std::mutex m_Mutex;
 
-	MultiThreadedTask* m_pTask= nullptr;
+	MultiThreadedTask* m_pActiveTask= nullptr;
 	unsigned int m_TaskFlag = 0;
 
 	bool m_IsRunning = true;
