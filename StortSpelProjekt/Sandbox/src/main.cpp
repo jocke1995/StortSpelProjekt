@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
+#include "Components/RangeComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 
@@ -46,12 +47,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    sceneManager->SetScene(LeosTestScene(sceneManager));
+    //sceneManager->SetScene(LeosTestScene(sceneManager));
     //sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
-    //sceneManager->SetScene(BjornsTestScene(sceneManager));
+    sceneManager->SetScene(BjornsTestScene(sceneManager));
     //sceneManager->SetScene(AntonTestScene(sceneManager));
     //sceneManager->SetScene(AndresTestScene(sceneManager)); // example play and updateEmitter functions in AndresTestScene
 
@@ -862,6 +863,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     component::SpotLightComponent* slc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
+    component::RangeComponent* rc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -871,6 +873,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+    Model* arrowModel = al->LoadModel(L"../Vendor/Resources/Models/Arrow/Arrow.obj");
 
     // Get the audio needed and add settings to it.
     AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
@@ -888,6 +891,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     avc->AddVoice(L"Bruh");
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, arrowModel);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);

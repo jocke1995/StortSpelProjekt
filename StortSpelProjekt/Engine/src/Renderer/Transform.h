@@ -46,6 +46,8 @@ public:
 	DirectX::XMFLOAT3 GetScale() const;
 	// gets the rotation of the transform in all axisis
 	DirectX::XMMATRIX GetRotMatrix() const;
+	DirectX::XMFLOAT3 GetForwardVec() const;
+	DirectX::XMFLOAT3 GetUpVec() const;
 
 	DirectX::XMFLOAT3 GetMovement() const;
 
