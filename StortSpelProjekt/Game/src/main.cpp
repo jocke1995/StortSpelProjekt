@@ -2,6 +2,7 @@
 #include "Components/PlayerInputComponent.h"
 #include "Components/HealthComponent.h"
 #include "EnemyFactory.h"
+
 Scene* GetDemoScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -42,8 +43,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             {
                 logicTimer = 0;
                 
-                Physics::GetInstance().Update(updateRate);
                 renderer->Update(updateRate);
+                Physics::GetInstance().Update(updateRate);
             }
 
             /* ------ Sort ------ */
@@ -111,6 +112,15 @@ Scene* GetDemoScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /* ---------------------- Player ---------------------- */
+
+    /* ---------------------- Skybox ---------------------- */
+
+    // Skybox
+    TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = scene->AddEntity("skybox");
+
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    /* ---------------------- Skybox ---------------------- */
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
