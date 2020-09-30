@@ -87,6 +87,7 @@ void component::PlayerInputComponent::zoom(MouseScroll* evnt)
 
 void component::PlayerInputComponent::move(MovementInput* evnt)
 {
+	// Check if the player is in the air. If not, allow movement
 	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, 1.0) != -1)
 	{
 		// Check if the key has just been pressed or jsut been released and convert to a float. Multiply by two and subtract one to get 1 for true and -1 for false. If
@@ -103,7 +104,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 
 		double jump = static_cast<double>(evnt->key == SCAN_CODES::SPACE) * pressedSpace;
 
-		// Get the rotation matrix to determine in which direction to move
+		// Get the forward and right vectors to determine in which direction to move
 		float3 forward = m_pTransform->GetForwardFloat3();
 		float3 right = m_pTransform->GetRightFloat3();
 
@@ -111,10 +112,13 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		double moveY = jump;
 		double moveZ = forward.z * moveForward + right.z * moveRight;
 
+		// Get the current linear velocity of the player
 		double3 vel = m_pCC->GetLinearVelocity();
+
+		// If the camera uses the players position, update the player's velocity. Otherwise update the camera's movement.
 		(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? m_pCC->SetVelVector(vel.x + moveX * m_pTransform->GetVelocity(), vel.y + moveY * 2 * m_pTransform->GetVelocity(), vel.z + moveZ * m_pTransform->GetVelocity()) : m_pCamera->UpdateMovement(-moveRight, moveUp, moveForward);
 
-		// If all buttons are released, reset the movement
+		// If all buttons are released, reset the movement (but keep falling/jumping)
 		if (!(Input::GetInstance().GetKeyState(SCAN_CODES::W)) &&
 			!(Input::GetInstance().GetKeyState(SCAN_CODES::A)) &&
 			!(Input::GetInstance().GetKeyState(SCAN_CODES::S)) &&
@@ -147,15 +151,15 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		// Determine how much to rotate in radians
 		rotateX = (static_cast<double>(x)) / 400.0 * PI;
 
-		// Get rotation to determine current rotation angle
+		// Get forawrd vector to determine current rotation angle
 		float3 forward = m_pTransform->GetForwardFloat3();
-
 		float angle = std::atan2(forward.x, forward.z);
 
 		// Set the new rotation
 		m_pCC->Rotate({ 0.0, 1.0, 0.0 }, rotateX);
 		m_pCC->SetAngularVelocity(0.0, 0.0, 0.0);
 
+		// Check if in air. If not, change movement direction to match up with camera direction
 		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, 1.0) != -1)
 		{
 			// Get new direction
@@ -166,7 +170,10 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 			INT64 isMovingZ = static_cast<int>(Input::GetInstance().GetKeyState(SCAN_CODES::W)) - static_cast<INT64>(Input::GetInstance().GetKeyState(SCAN_CODES::S));
 			INT64 isMovingX = static_cast<int>(Input::GetInstance().GetKeyState(SCAN_CODES::D)) - static_cast<INT64>(Input::GetInstance().GetKeyState(SCAN_CODES::A));
 
+			// Get the current linear velocity of the player
 			double3 vel = m_pCC->GetLinearVelocity();
+
+			// Update the player's velocity
 			m_pCC->SetVelVector((static_cast<double>(forward.x) * isMovingZ + static_cast<double>(right.x) * isMovingX) * m_pTransform->GetVelocity(), vel.y, (static_cast<double>(forward.z) * isMovingZ + static_cast<double>(right.z) * isMovingX) * m_pTransform->GetVelocity());
 		}
 	}
