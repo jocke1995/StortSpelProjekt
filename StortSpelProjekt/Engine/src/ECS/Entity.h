@@ -12,6 +12,8 @@
 #include "Components/Audio3DListenerComponent.h"
 #include "Components/Audio3DEmitterComponent.h"
 
+#include "../../Game/src/Gamefiles/Components/GameComponents.h"
+
 // Lights
 class DirectionalLightComponent;
 class PointLightComponent;
