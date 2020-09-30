@@ -16,6 +16,7 @@ Scene* AntonTestScene(SceneManager* sm);
 
 void(*UpdateScene)(SceneManager*);
 void LeoUpdateScene(SceneManager* sm);
+void DemoUpdateScene(SceneManager* sm);
 
 void DefaultUpdateScene(SceneManager* sm);
 
@@ -47,14 +48,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    sceneManager->SetScene(LeosTestScene(sceneManager));
+    //sceneManager->SetScene(LeosTestScene(sceneManager));
     //sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
     //sceneManager->SetScene(BjornsTestScene(sceneManager));
     //sceneManager->SetScene(AntonTestScene(sceneManager));
-    //sceneManager->SetScene(AndresTestScene(sceneManager)); // example play and updateEmitter functions in AndresTestScene
+    sceneManager->SetScene(AndresTestScene(sceneManager)); // demoscene for sprint2
 
     GameNetwork gameNetwork;
 
@@ -215,11 +216,11 @@ Scene* LeosTestScene(SceneManager* sm)
     dlc->SetDirection({ -1.0f, -1.0f, 1.0f });
 
     /* ---------------------- Enemy -------------------------------- */
-    EnemyFactory enH(scene);
-    enH.AddEnemy("sphere", sphereModel, 10, float3{ 0, 10, -5 }, F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
-    enH.AddExistingEnemy("sphere", float3{ 0, 10, -55 });
-    enH.AddExistingEnemy("sphere", float3{ 25, 10, -30 });
-    enH.AddExistingEnemy("sphere", float3{ -25, 10, -30 });
+    //EnemyFactory enH(scene);
+    //enH.AddEnemy("sphere", sphereModel, 10, float3{ 0, 10, -5 }, F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
+    //enH.AddExistingEnemy("sphere", float3{ 0, 10, -55 });
+    //enH.AddExistingEnemy("sphere", float3{ 25, 10, -30 });
+    //enH.AddExistingEnemy("sphere", float3{ -25, 10, -30 });
 
     /* ---------------------- Update Function ---------------------- */
     UpdateScene = &LeoUpdateScene;
@@ -756,30 +757,38 @@ Scene* AndresTestScene(SceneManager* sm)
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
+    component::DirectionalLightComponent* dlc = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::InputComponent* ic = nullptr;
     component::Audio3DListenerComponent* audioListener = nullptr;
     component::Audio3DEmitterComponent* audioEmitter = nullptr;
-    component::Audio2DVoiceComponent* backgroundAudio = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
+    component::HealthComponent* hc = nullptr;
+    component::BoundingBoxComponent* bbc = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
-    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    //Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+    Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
 
     // Get the audio needed and add settings to it.
     AudioBuffer* melodySound = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"melody");
-    AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"bruh");
+    AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     AudioBuffer* horseSound = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"horse");
-
+    AudioBuffer* attackSound = al->LoadAudio(L"../Vendor/Resources/Audio/attack.wav", L"attack");
 
     // Audio may loop infinetly (0) once (1) or otherwise specified amount of times!
     bruhSound->SetAudioLoop(0);
     melodySound->SetAudioLoop(0);
     horseSound->SetAudioLoop(0);
+    attackSound->SetAudioLoop(1);
 
     /* ---------------------- Player ---------------------- */
     Entity* entity = scene->AddEntity("player");
@@ -789,11 +798,19 @@ Scene* AndresTestScene(SceneManager* sm)
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     audioListener = entity->AddComponent<component::Audio3DListenerComponent>();
     ic->Init();
+    hc = entity->AddComponent<component::HealthComponent>(15);
+    // adding OBB with collision
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    //avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    //avc->AddVoice(L"Bruh");
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, 0);
+    // initialize OBB after we have the transform info
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
 
     /* ---------------------- Player ---------------------- */
 
@@ -801,52 +818,90 @@ Scene* AndresTestScene(SceneManager* sm)
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    backgroundAudio = entity->AddComponent<component::Audio2DVoiceComponent>();
-    backgroundAudio->AddVoice(L"bruh");
-    backgroundAudio->Play(L"bruh");
+    //backgroundAudio = entity->AddComponent<component::Audio2DVoiceComponent>();
+    //backgroundAudio->AddVoice(L"bruh");
+    //backgroundAudio->Play(L"bruh");
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(35, 1, 35);
+    tc->GetTransform()->SetScale(50, 1, 50);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /* ---------------------- Floor ---------------------- */
+
+    /* ---------------------- dirLight ---------------------- */
+    entity = scene->AddEntity("dirLight");
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION);
+    dlc->SetColor({ 0.0f, 0.5f, 0.5f });
+    dlc->SetDirection({ -1.0f, -1.0f, 1.0f });
+    /* ---------------------- dirLight ---------------------- */
+
+    /* ---------------------- Stefan ---------------------- */
+    entity = scene->AddEntity("stefan");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+
+    mc->SetModel(posterModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(50, 50, 1);
+    tc->GetTransform()->SetPosition(0.0f, 30.0f, 50.0f);
+    tc->GetTransform()->SetRotationX(3 * 3.1415 / 2);
+    tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
+    /* ---------------------- Stefan ---------------------- */
+
+
+    /* ---------------------- Enemy -------------------------------- */
+    EnemyFactory enH(scene);
+    entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB, 0.3, float3{ 0, 0, 0 });
+
+    entity = enH.AddExistingEnemy("enemy", float3{ 40, 10, 0 });
+    entity = enH.AddExistingEnemy("enemy", float3{ 0, 10, -40 });
+    entity = enH.AddExistingEnemy("enemy", float3{ -40, 10, 0 });
+
+
+    /* ---------------------- Update Function ---------------------- */
+    UpdateScene = &DemoUpdateScene;
+
+    srand(time(NULL));
+    /* ---------------------- Update Function ---------------------- */
+
 
     /* ---------------------- PointLight1 ---------------------- */
     entity = scene->AddEntity("pointLight1");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-    audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
-    audioEmitter->AddVoice(L"melody");
-    //audioEmitter->Play(L"melody"); // example how to play the sound, commented away because without updateEmitter, they seem to be positioned very close to the ear (loud!)
-    //audioEmitter->UpdateEmitter(L"melody");   // this needs to be in an update function to work properly, only here to show how to call it
+    //audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
+    //audioEmitter->AddVoice(L"melody");
+    ////audioEmitter->Play(L"melody"); // example how to play the sound, commented away because without updateEmitter, they seem to be positioned very close to the ear (loud!)
+    ////audioEmitter->UpdateEmitter(L"melody");   // this needs to be in an update function to work properly, only here to show how to call it
 
-    mc->SetModel(cubeModel);
+    mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetScale(0.05f);
     tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
 
     plc->SetColor({ 1.0f, 0.0f, 1.0f });
     /* ---------------------- PointLight1 ---------------------- */
 
     /* ---------------------- PointLight2 ---------------------- */
-    entity = scene->AddEntity("pointLight2");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-    audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
-    audioEmitter->AddVoice(L"horse");
+    //entity = scene->AddEntity("pointLight2");
+    //mc = entity->AddComponent<component::ModelComponent>();
+    //tc = entity->AddComponent<component::TransformComponent>();
+    //plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    //audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
+    //audioEmitter->AddVoice(L"horse");
     //audioEmitter->Play(L"horse"); // example how to play the sound, commented away because without updateEmitter, they seem to be positioned very close to the ear (loud!)
     //audioEmitter->UpdateEmitter(L"horse");    // this needs to be in an update function to work properly, only here to show how to call it
 
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0, 4.0f, -15.0f);
+    //mc->SetModel(cubeModel);
+    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    //tc->GetTransform()->SetScale(0.5f);
+    //tc->GetTransform()->SetPosition(0, 4.0f, -15.0f);
 
-    plc->SetColor({ 1.0f, 1.0f, 0.0f });
+    //plc->SetColor({ 1.0f, 1.0f, 0.0f });
     /* ---------------------- PointLight2 ---------------------- */
 
     return scene;
@@ -946,13 +1001,13 @@ Scene* BjornsTestScene(SceneManager* sm)
 
     // Adding enemy example
     EnemyFactory enH(scene);
-    enH.AddEnemy("rock", stoneModel, 5, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.01, float3{ 1.578, 0, 0 });
+    //enH.AddEnemy("rock", stoneModel, 5, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.01, float3{ 1.578, 0, 0 });
     // showing that using the wrong overload will send Warning to Log. 
     // and then automaticly use the correct overloaded function 
    // enH.AddEnemy("rock", stoneModel, float3{ -10, 0, -10 }, F_COMP_FLAGS::OBB, 0.01);
 
     // adding an already existing enemy type but changing the scale of it
-    enH.AddExistingEnemyWithChanges("rock", float3{ 20, 0, 4 }, UINT_MAX, 0.005f);
+    //enH.AddExistingEnemyWithChanges("rock", float3{ 20, 0, 4 }, UINT_MAX, 0.005f);
 
     // looping through and adding already existing enemy type with only new position
     float xVal = 8;
@@ -1019,4 +1074,20 @@ void LeoUpdateScene(SceneManager* sm)
 
 void DefaultUpdateScene(SceneManager* sm)
 {
+}
+
+void DemoUpdateScene(SceneManager* sm)
+{
+    component::Audio3DEmitterComponent* ec = sm->GetScene("AndresTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
+    ec->UpdateEmitter(L"Bruh");
+    //ec->Play(L"Bruh");
+    ec = sm->GetScene("AndresTestScene")->GetEntity("enemy1")->GetComponent<component::Audio3DEmitterComponent>();
+    ec->UpdateEmitter(L"Bruh");
+    //ec->Play(L"Bruh");
+    ec = sm->GetScene("AndresTestScene")->GetEntity("enemy2")->GetComponent<component::Audio3DEmitterComponent>();
+    ec->UpdateEmitter(L"Bruh");
+    //ec->Play(L"Bruh");
+    ec = sm->GetScene("AndresTestScene")->GetEntity("enemy3")->GetComponent<component::Audio3DEmitterComponent>();
+    ec->UpdateEmitter(L"Bruh");
+    //ec->Play(L"Bruh");
 }

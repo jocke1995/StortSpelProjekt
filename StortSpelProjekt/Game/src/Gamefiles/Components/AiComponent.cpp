@@ -33,6 +33,8 @@ void component::AiComponent::Update(double dt)
 		{
 			parentTrans->SetVelocity(7.5);
 			parentTrans->SetMovement(direction.x / distance, direction.y / distance, direction.z / distance);
+			// for demoscene! 
+			GetParent()->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
 		}
 		else
 		{
@@ -53,6 +55,8 @@ void component::AiComponent::Update(double dt)
 		Log::Print("%s attacking player!\n", m_pParent->GetName().c_str());
 		// TODO: fix this when meele attack is implemented
 		m_pTarget->GetComponent<component::HealthComponent>()->ChangeHealth(-1);
+		// for demoscene!
+		GetParent()->GetComponent<component::Audio2DVoiceComponent>()->Play(L"attack");
 	}
 }
 
