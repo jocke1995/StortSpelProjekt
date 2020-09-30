@@ -15,25 +15,21 @@ Texture::~Texture()
 {
 	if (m_pImageData != nullptr)
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Texture::~Texture(): %s was not nullptr\n", "m_pImageData");
 		delete m_pImageData;
 	}
 
 	if (m_pDefaultResource != nullptr)
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Texture::~Texture(): %s was not nullptr\n", "m_pDefaultResource");
 		delete m_pDefaultResource;
 	}
 
 	if (m_pUploadResource != nullptr)
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Texture::~Texture(): %s was not nullptr\n", "m_pUploadResource");
 		delete m_pUploadResource;
 	}
 
 	if (m_pSRV != nullptr)
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Texture::~Texture(): %s was not nullptr\n", "m_pSRV");
 		delete m_pSRV;
 	}
 }
