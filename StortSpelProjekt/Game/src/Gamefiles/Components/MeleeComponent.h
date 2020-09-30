@@ -26,7 +26,8 @@ namespace component
 
 		void Update(double dt);
 		void Attack(bool attack);
-		void CheckCollision();
+		
+		void setAttackIntervall(float intervall);
 
 		void createCornersHitbox();
 		void createDrawnHitbox(component::BoundingBoxComponent* bbc);
@@ -38,8 +39,8 @@ namespace component
 
 		bool m_Attacking;
 		bool m_Cooldown;
-		float m_attackIntervall;
-		float m_timeSinceLastAttackCheck;
+		float m_AttackIntervall;
+		float m_TimeSinceLastAttackCheck;
 
 		//std::vector<Entity*> collideList;
 
@@ -48,11 +49,13 @@ namespace component
 
 		Mesh* m_pMesh;
 
-		DirectX::XMFLOAT3 corners[8];
-		component::BoundingBoxComponent* bbc;
+		DirectX::XMFLOAT3 m_Corners[8];
+		component::BoundingBoxComponent* m_pBbc;
 
-		DirectX::BoundingOrientedBox Hitbox;
-		DirectX::BoundingOrientedBox tempHitbox;
+		DirectX::BoundingOrientedBox m_Hitbox;
+		DirectX::BoundingOrientedBox m_TempHitbox;
+
+		void CheckCollision();
 
 	};
 }

@@ -33,8 +33,7 @@ std::vector<Entity*> Physics::SpecificCollisionCheck(const DirectX::BoundingOrie
 	std::vector<Entity*> entityHitList;
 	for (int i = 0; i < m_CollisionEntities.size(); i++)
 	{
-		if (obb1 != m_CollisionEntities.at(i)->GetComponent<component::BoundingBoxComponent>()->GetOBB() /*&&
-			m_CollisionEntities.at(i)->GetName() !=  "player" */)
+		if (obb1 != m_CollisionEntities.at(i)->GetComponent<component::BoundingBoxComponent>()->GetOBB())
 		{
 			if (CheckOBBCollision(obb1, m_CollisionEntities.at(i)->GetComponent<component::BoundingBoxComponent>()->GetOBB()))
 			{
