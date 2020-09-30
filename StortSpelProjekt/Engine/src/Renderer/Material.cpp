@@ -13,9 +13,9 @@ Material::~Material()
 {
 }
 
-const std::wstring* Material::GetPath() const
+const std::wstring& Material::GetPath() const
 {
-	return &m_Name;
+	return m_Name;
 }
 
 Texture* Material::GetTexture(TEXTURE2D_TYPE type) const

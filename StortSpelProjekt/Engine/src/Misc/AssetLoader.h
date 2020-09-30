@@ -65,8 +65,11 @@ private:
     
     // IsLoadedFunctions
     bool IsModelLoadedOnGpu(const std::wstring& name) const;
+    bool IsModelLoadedOnGpu(const Model* model) const;
     bool IsMaterialLoadedOnGpu(const std::wstring& name) const;
+    bool IsMaterialLoadedOnGpu(const Material* material) const;
     bool IsTextureLoadedOnGpu(const std::wstring& name) const;
+    bool IsTextureLoadedOnGpu(const Texture* texture) const;
 
     const std::wstring m_FilePathShaders = L"../Engine/src/Renderer/HLSL/";
     const std::wstring m_FilePathDefaultTextures = L"../Vendor/Resources/Textures/Default/";

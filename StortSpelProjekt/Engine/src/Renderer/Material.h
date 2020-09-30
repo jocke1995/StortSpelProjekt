@@ -18,13 +18,15 @@ public:
     Material(const std::wstring* path, std::map<TEXTURE2D_TYPE, Texture*>* textures);
     virtual ~Material();
 
-    const std::wstring* GetPath() const;
+    const std::wstring& GetPath() const;
 
     // Material
     Texture* GetTexture(TEXTURE2D_TYPE type) const;
     Texture* GetTexture(unsigned int index) const;
 
 private:
+    friend class Renderer;
+
     std::wstring m_Name;
     std::map<TEXTURE2D_TYPE, Texture*> m_Textures;
 };

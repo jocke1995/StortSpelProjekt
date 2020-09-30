@@ -1643,14 +1643,7 @@ void Renderer::loadModel(component::ModelComponent* mc) const
 			loadMesh(mesh);
 
 			// Upload Texture
-			Material* meshMat = mc->GetMaterialAt(i);
-			for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
-			{
-				TEXTURE2D_TYPE type = static_cast<TEXTURE2D_TYPE>(i);
-				Texture* texture = meshMat->GetTexture(type);
-
-				loadTexture(texture);
-			}
+			loadMaterial(mc->GetMaterialAt(i));
 		}
 
 		// Set model as loadedOnGpu
@@ -1684,7 +1677,7 @@ void Renderer::loadMesh(Mesh* mesh) const
 	// Check if mesh has a resource
 	if (mesh->m_pDefaultResourceVertices == nullptr)
 	{
-		// Set vertices resource
+		// create vertices resource
 		mesh->m_pUploadResourceVertices = new Resource(m_pDevice5, mesh->GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
 		mesh->m_pDefaultResourceVertices = new Resource(m_pDevice5, mesh->GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
 
@@ -1692,7 +1685,6 @@ void Renderer::loadMesh(Mesh* mesh) const
 		const void* data = static_cast<const void*>(mesh->m_Vertices.data());
 		Resource* uploadR = mesh->m_pUploadResourceVertices;
 		Resource* defaultR = mesh->m_pDefaultResourceVertices;
-		codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 
 		// Create SRV
 		D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
@@ -1703,6 +1695,7 @@ void Renderer::loadMesh(Mesh* mesh) const
 		dsrv.Buffer.NumElements = mesh->GetNumVertices();
 		dsrv.Buffer.StructureByteStride = sizeof(Vertex);
 
+		// Set view to mesh
 		mesh->m_pSRV = new ShaderResourceView(
 			m_pDevice5,
 			m_DescriptorHeaps.at(DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV),
@@ -1724,16 +1717,27 @@ void Renderer::loadMesh(Mesh* mesh) const
 		mesh->m_pIndexBufferView->BufferLocation = mesh->m_pDefaultResourceIndices->GetGPUVirtualAdress();
 		mesh->m_pIndexBufferView->Format = DXGI_FORMAT_R32_UINT;
 		mesh->m_pIndexBufferView->SizeInBytes = mesh->GetSizeOfIndices();
+
+		// Copy the upload to default resource
+		codt->Submit(&std::make_tuple(mesh->m_pUploadResourceVertices, mesh->m_pDefaultResourceVertices, static_cast<const void*>(mesh->m_Vertices.data())));
+		codt->Submit(&std::make_tuple(mesh->m_pUploadResourceIndices, mesh->m_pDefaultResourceIndices, static_cast<const void*>(mesh->m_Indices.data())));
 	}
-	
+}
 
-	// Create resource
+void Renderer::loadMaterial(Material* material) const
+{
+	AssetLoader* al = AssetLoader::Get();
+	if (!al->IsMaterialLoadedOnGpu(material))
+	{
+		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
+		{
+			TEXTURE2D_TYPE type = static_cast<TEXTURE2D_TYPE>(i);
+			Texture* texture = material->GetTexture(type);
 
-
-	// Create view
-
-
-	// Set view to mesh
+			loadTexture(texture);
+		}
+		al->m_LoadedMaterials[material->GetPath()].first = true;
+	}
 }
 
 void Renderer::loadTexture(Texture* texture) const
@@ -1744,9 +1748,82 @@ void Renderer::loadTexture(Texture* texture) const
 	// Check if the texture is on GPU before submitting to be uploaded
 	if (!al->IsTextureLoadedOnGpu(texture->m_FilePath))
 	{
+		// Create texture resource
+		texture->Init(m_pDevice5, m_DescriptorHeaps.at(DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV));
+
 		codt->SubmitTexture(texture);
 		al->m_LoadedTextures[texture->m_FilePath].first = true;
 	}
+}
+
+void Renderer::unloadModel(component::ModelComponent* mc) const
+{
+	AssetLoader* al = AssetLoader::Get();
+
+	std::wstring path = mc->GetModelPath();
+	// Debug check if model is already unloaded
+	if (!al->IsModelLoadedOnGpu(path))
+	{
+		Log::PrintSeverity(Log::Severity::WARNING, "Renderer::unloadModel: unloadModel called on already unloaded model %S\n", path);
+	}
+
+	Model* model = mc->m_Model;
+	for (unsigned int i = 0; i < model->GetSize(); i++)
+	{
+		// unloadMeshes
+		Mesh* mesh = model->GetMeshAt(i);
+		unloadMesh(mesh);
+
+		// unloadMaterial
+		Material* meshmat = model->GetMaterialAt(i);
+		unloadMaterial(meshmat);
+
+		// Set slotinfo = 0;
+		model->m_SlotInfos[i] = {};
+	}
+}
+
+void Renderer::unloadMesh(Mesh* mesh) const
+{
+	// Delete the VRAM
+	delete mesh->m_pDefaultResourceVertices;
+	delete mesh->m_pUploadResourceVertices;
+	delete mesh->m_pDefaultResourceIndices;
+	delete mesh->m_pUploadResourceIndices;
+
+	delete mesh->m_pSRV;
+	delete mesh->m_pIndexBufferView;
+
+	// Set to nullptr
+	mesh->m_pDefaultResourceVertices = nullptr;
+	mesh->m_pUploadResourceVertices = nullptr;
+	mesh->m_pDefaultResourceIndices = nullptr;
+	mesh->m_pUploadResourceIndices = nullptr;
+
+	mesh->m_pSRV = nullptr;
+	mesh->m_pIndexBufferView = nullptr;
+}
+
+void Renderer::unloadMaterial(Material* material) const
+{
+	for (unsigned int i = 0; i < material->m_Textures.size(); i++)
+	{
+		Texture* texture = material->m_Textures.at(static_cast<TEXTURE2D_TYPE>(i));
+		unloadTexture(texture);
+	}
+}
+
+void Renderer::unloadTexture(Texture* texture) const
+{
+	// Delete VRAM
+	delete texture->m_pUploadResource;
+	delete texture->m_pDefaultResource;
+	delete texture->m_pSRV;
+
+	// Set nullptr
+	texture->m_pUploadResource = nullptr;
+	texture->m_pDefaultResource = nullptr;
+	texture->m_pSRV = nullptr;
 }
 
 void Renderer::waitForCopyOnDemand()

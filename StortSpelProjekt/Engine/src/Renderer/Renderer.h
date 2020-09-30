@@ -47,6 +47,7 @@ class RenderTask;
 class WireframeRenderTask;
 class OutliningRenderTask;
 class BaseCamera;
+class Material;
 
 // Copy
 class CopyTask;
@@ -196,10 +197,17 @@ private:
 	void createFences();
 	void waitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
 
-	// Load Gpu Memory Function
+	// Load Gpu Memory Functions
 	void loadModel(component::ModelComponent* mc) const;
 	void loadMesh(Mesh* mesh) const;
+	void loadMaterial(Material* material) const;
 	void loadTexture(Texture* texture) const;
+
+	// Unload Gpu Memory Functions
+	void unloadModel(component::ModelComponent* mc) const;
+	void unloadMesh(Mesh* mesh) const;
+	void unloadMaterial(Material* material) const;
+	void unloadTexture(Texture* texture) const;
 
 
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene

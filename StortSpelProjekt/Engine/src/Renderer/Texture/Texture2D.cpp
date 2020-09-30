@@ -9,10 +9,11 @@
 // For loading textures
 #include "TextureFunctions.h"
 
-Texture2D::Texture2D()
-	: Texture()
+Texture2D::Texture2D(const std::wstring& filePath)
+	: Texture(filePath)
 {
 	m_Type = TEXTURE_TYPE::TEXTURE2D;
+	m_SubresourceData.resize(1); // 1 subresource
 }
 
 Texture2D::~Texture2D()
@@ -20,15 +21,13 @@ Texture2D::~Texture2D()
 	
 }
 
-bool Texture2D::Init(const std::wstring& filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
+bool Texture2D::Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 {
-	m_FilePath = filePath;
-	
 	// Load image Data
-	unsigned int byteSize = LoadImageDataFromFile(&m_pImageData, &m_ResourceDescription, filePath, &m_ImageBytesPerRow);
+	unsigned int byteSize = LoadImageDataFromFile(&m_pImageData, &m_ResourceDescription, m_FilePath, &m_ImageBytesPerRow);
 	if (byteSize == 0)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(filePath).c_str());
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(m_FilePath).c_str());
 		return false;
 	}
 
@@ -68,7 +67,6 @@ bool Texture2D::Init(const std::wstring& filePath, ID3D12Device5* device, Descri
 		m_pDefaultResource);
 
 	// Set SubResource info
-	m_SubresourceData.push_back({});
 	m_SubresourceData[0].pData = &m_pImageData[0]; // pointer to our image data
 	m_SubresourceData[0].RowPitch = m_ImageBytesPerRow;
 	m_SubresourceData[0].SlicePitch = m_ImageBytesPerRow * m_ResourceDescription.Height;
