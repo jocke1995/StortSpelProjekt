@@ -18,7 +18,7 @@ Physics::Physics()
 	btTransform t;
 	t.setIdentity();
 	t.setOrigin(btVector3(0, 0, 0));
-	btBoxShape* plane = new btBoxShape({ 35,0.1,35 });
+	btBoxShape* plane = new btBoxShape({ 35,0.0,35 });
 	btMotionState* motion = new btDefaultMotionState(t);
 	btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, plane);
 	info.m_restitution = 0.5;
@@ -93,6 +93,11 @@ void Physics::RemoveCollisionComponent(component::CollisionComponent* comp)
 			m_CollisionComponents.erase(m_CollisionComponents.begin() + i);
 	}
 	//m_pWorld->removeRigidBody(comp->GetBody());
+}
+
+const btDynamicsWorld* Physics::GetWorld()
+{
+	return m_pWorld;
 }
 
 void Physics::collisionChecks(double dt)

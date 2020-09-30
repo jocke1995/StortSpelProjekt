@@ -214,3 +214,35 @@ double3 component::CollisionComponent::GetLinearFactor()
 	btVector3 factor = m_pBody->getLinearFactor();
 	return { factor.x(), factor.y(), factor.z() };
 }
+
+double component::CollisionComponent::CastRay(double3 castTo)
+{
+	btVector3 btFrom = m_pBody->getWorldTransform().getOrigin();
+	btVector3 btTo(castTo.x, castTo.y, castTo.z);
+	btCollisionWorld::ClosestRayResultCallback res(btFrom, btTo);
+
+	Physics::GetInstance().GetWorld()->rayTest(btFrom, btTo, res); // m_btWorld is btDiscreteDynamicsWorld
+
+	if (res.hasHit()) {
+		return (res.m_hitPointWorld - btFrom).length();
+	}
+	return -1;
+}
+
+double component::CollisionComponent::CastRay(double3 direction, double length)
+{
+	btVector3 btFrom = m_pBody->getWorldTransform().getOrigin();
+	btVector3 btTo(direction.x, direction.y, direction.z);
+
+	btTo = btTo.normalize() * length;
+
+	btCollisionWorld::ClosestRayResultCallback res(btFrom, btTo);
+
+	Physics::GetInstance().GetWorld()->rayTest(btFrom, btTo, res); // m_btWorld is btDiscreteDynamicsWorld
+
+	if (res.hasHit()) {
+		return (res.m_hitPointWorld - btFrom).length();
+	}
+	return -1;
+}
+

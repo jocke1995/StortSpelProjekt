@@ -37,7 +37,7 @@ public:
 
 	void AddCollisionComponent(component::CollisionComponent* comp);
 	void RemoveCollisionComponent(component::CollisionComponent* comp);
-
+	const btDynamicsWorld* GetWorld();
 private:
 	Physics();
 	double m_timeSinceLastColCheck = 0;

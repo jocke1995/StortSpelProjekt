@@ -41,6 +41,9 @@ namespace component
 		double GetRestitution();
 		double3 GetAngularFactor();
 		double3 GetLinearFactor();
+
+		double CastRay(double3 castTo);
+		double CastRay(double3 direction, double length);
 	protected:
 		double m_Mass;
 		double m_Fric;
