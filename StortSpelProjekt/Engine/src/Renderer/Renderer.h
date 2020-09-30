@@ -20,6 +20,7 @@ class BoundingBoxPool;
 class DescriptorHeap;
 class Mesh;
 class Texture;
+class Model;
 
 // Views
 
@@ -201,13 +202,13 @@ private:
 	void waitForGPU();
 
 	// Load Gpu Memory Functions
-	void loadModel(component::ModelComponent* mc) const;
+	void loadModel(Model* model) const;
 	void loadMesh(Mesh* mesh) const;
 	void loadMaterial(Material* material) const;
 	void loadTexture(Texture* texture) const;
 
 	// Unload Gpu Memory Functions
-	void unloadModel(component::ModelComponent* mc) const;
+	void unloadModel(Model* model) const;
 	void unloadMesh(Mesh* mesh) const;
 	void unloadMaterial(Material* material) const;
 	void unloadTexture(Texture* texture) const;

@@ -96,8 +96,10 @@ void SceneManager::AddEntity(Entity* entity)
 
 void SceneManager::SetScene(Scene* scene)
 {
-	ResetScene();
-
+	if (m_pActiveScene != scene)
+	{
+		ResetScene();
+	}
 	m_pActiveScene = scene;
 
 	std::map<std::string, Entity*> entities = *(m_pActiveScene->GetEntities());

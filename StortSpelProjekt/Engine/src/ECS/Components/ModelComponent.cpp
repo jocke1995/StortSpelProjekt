@@ -20,7 +20,7 @@ namespace component
 
 	void ModelComponent::SetModel(Model* model)
 	{
-		m_Model = model;
+		m_pModel = model;
 	}
 
 	void ModelComponent::SetDrawFlag(unsigned int drawFlag)
@@ -45,17 +45,17 @@ namespace component
 
 	Mesh* ModelComponent::GetMeshAt(unsigned int index) const
 	{
-		return m_Model->GetMeshAt(index);
+		return m_pModel->GetMeshAt(index);
 	}
 
 	Material* ModelComponent::GetMaterialAt(unsigned int index) const
 	{
-		return m_Model->GetMaterialAt(index);
+		return m_pModel->GetMaterialAt(index);
 	}
 
 	const SlotInfo* ModelComponent::GetSlotInfoAt(unsigned int index) const
 	{
-		return m_Model->GetSlotInfoAt(index);
+		return m_pModel->GetSlotInfoAt(index);
 	}
 
 	unsigned int ModelComponent::GetDrawFlag() const
@@ -65,11 +65,11 @@ namespace component
 
 	unsigned int ModelComponent::GetNrOfMeshes() const
 	{
-		return m_Model->GetSize();
+		return m_pModel->GetSize();
 	}
 	const std::wstring& ModelComponent::GetModelPath() const
 	{
-		return m_Model->GetPath();
+		return m_pModel->GetPath();
 	}
 	bool ModelComponent::IsPickedThisFrame() const
 	{

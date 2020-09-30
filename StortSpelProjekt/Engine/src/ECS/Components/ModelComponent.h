@@ -40,7 +40,7 @@ namespace component
         friend class Renderer;
         bool m_IsPickedThisFrame = false;
 
-        Model* m_Model = nullptr;
+        Model* m_pModel = nullptr;
         unsigned int m_DrawFlag = 0;
     };
 }

@@ -483,6 +483,8 @@ Scene* FloppipTestScene(SceneManager* sm)
     component::PointLightComponent* plc = nullptr;
     component::InputComponent* ic = nullptr;
 
+    Entity* entity = nullptr;
+
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -490,7 +492,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
     /* ---------------------- Player ---------------------- */
-    Entity* entity = scene->AddEntity("player");
+    entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
@@ -516,12 +518,9 @@ Scene* FloppipTestScene(SceneManager* sm)
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-
-    mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /* ---------------------- Floor ---------------------- */

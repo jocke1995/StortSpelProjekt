@@ -98,7 +98,7 @@ Renderer::~Renderer()
 void Renderer::DeleteDxResources()
 {
 	Log::Print("----------------------------  Deleting Renderer  ----------------------------------\n");
-	waitForFrame(0);
+	waitForGPU();
 
 	SAFE_RELEASE(&m_pFenceFrame);
 	if (!CloseHandle(m_EventHandle))
@@ -521,7 +521,7 @@ void Renderer::InitModelComponent(Entity* entity)
 	component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
 
 	// Makes sure the model gets created/sent to gpu
-	loadModel(mc);
+	loadModel(mc->m_pModel);
 
 	// Finally store the object in the corresponding renderComponent vectors so it will be drawn
 	if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
@@ -716,6 +716,7 @@ void Renderer::InitTextComponent(Entity* entity)
 
 void Renderer::UnloadRenderComponents()
 {
+	/*
 	for (auto mapPair : m_RenderComponents)
 	{
 		for (unsigned int i = 0; i < mapPair.second.size(); i++)
@@ -723,6 +724,19 @@ void Renderer::UnloadRenderComponents()
 			unloadModel(mapPair.second[i].first);
 		}
 	}
+	*/
+
+	AssetLoader* al = AssetLoader::Get();
+
+	for (auto models : al->m_LoadedModels)
+	{
+		if (models.second.first == true)
+		{
+			// unload it
+			unloadModel(models.second.second);
+		}
+	}
+
 	m_RenderComponents.clear();
 }
 
@@ -1727,34 +1741,33 @@ void Renderer::waitForFrame(unsigned int framesToBeAhead)
 	}
 }
 
-void Renderer::loadModel(component::ModelComponent* mc) const
+void Renderer::loadModel(Model* model) const
 {
 	AssetLoader* al = AssetLoader::Get();
 
-	std::wstring modelPath = mc->GetModelPath();
+	std::wstring modelPath = model->GetPath();
 	// If the model isn't on GPU, it will be uploaded below
 	if (!al->IsModelLoadedOnGpu(modelPath))
 	{
 		Mesh* mesh;
 		// Submit Mesh & Texture Data to GPU
-		for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+		for (unsigned int i = 0; i < model->GetSize(); i++)
 		{
 			// Upload Mesh
-			mesh = mc->GetMeshAt(i);
+			mesh = model->GetMeshAt(i);
 
 			loadMesh(mesh);
 
 			// Upload Texture
-			loadMaterial(mc->GetMaterialAt(i));
+			loadMaterial(model->GetMaterialAt(i));
 		}
 
 		// Set model as loadedOnGpu
 		al->m_LoadedModels[modelPath].first = true;
 	}
 
-	Model* model = mc->m_Model;
 	// Fill SlotInfo with mesh+material info
-	for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+	for (unsigned int i = 0; i < model->GetSize(); i++)
 	{
 		Mesh* mesh = model->GetMeshAt(i);
 		Material* meshMat = model->GetMaterialAt(i);
@@ -1848,7 +1861,7 @@ void Renderer::loadTexture(Texture* texture) const
 	AssetLoader* al = AssetLoader::Get();
 
 	// Check if the texture is on GPU before submitting to be uploaded
-	if (!al->IsTextureLoadedOnGpu(texture->m_FilePath))
+	if (!al->IsTextureLoadedOnGpu(texture->GetPath()))
 	{
 		// Create texture resource
 		texture->Init(m_pDevice5, m_DescriptorHeaps.at(DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV));
@@ -1858,11 +1871,11 @@ void Renderer::loadTexture(Texture* texture) const
 	}
 }
 
-void Renderer::unloadModel(component::ModelComponent* mc) const
+void Renderer::unloadModel(Model* model) const
 {
 	AssetLoader* al = AssetLoader::Get();
 
-	std::wstring path = mc->GetModelPath();
+	std::wstring path = model->GetPath();
 	// Debug check if model is already unloaded
 	if (!al->IsModelLoadedOnGpu(path))
 	{
@@ -1871,7 +1884,6 @@ void Renderer::unloadModel(component::ModelComponent* mc) const
 	}
 	else
 	{
-		Model* model = mc->m_Model;
 		for (unsigned int i = 0; i < model->GetSize(); i++)
 		{
 			// unloadMeshes
@@ -1931,17 +1943,20 @@ void Renderer::unloadTexture(Texture* texture) const
 {
 	AssetLoader* al = AssetLoader::Get();
 
-	// Delete VRAM
-	delete texture->m_pUploadResource;
-	delete texture->m_pDefaultResource;
-	delete texture->m_pSRV;
+	if (!al->IsTextureLoadedOnGpu(texture->GetPath()))
+	{
+		// Delete VRAM
+		delete texture->m_pUploadResource;
+		delete texture->m_pDefaultResource;
+		delete texture->m_pSRV;
 
-	// Set nullptr
-	texture->m_pUploadResource = nullptr;
-	texture->m_pDefaultResource = nullptr;
-	texture->m_pSRV = nullptr;
+		// Set nullptr
+		texture->m_pUploadResource = nullptr;
+		texture->m_pDefaultResource = nullptr;
+		texture->m_pSRV = nullptr;
 
-	al->m_LoadedTextures[texture->m_FilePath].first = false;
+		al->m_LoadedTextures[texture->m_FilePath].first = false;
+	}
 }
 
 void Renderer::waitForCopyOnDemand()
@@ -1961,6 +1976,7 @@ void Renderer::waitForCopyOnDemand()
 
 void Renderer::removeComponents(Entity* entity)
 {
+	//TODO: FILIP FIXA SETSCENE
 	for (auto& renderComponents : m_RenderComponents)
 	{
 		for (int i = 0; i < renderComponents.second.size(); i++)
@@ -1970,6 +1986,7 @@ void Renderer::removeComponents(Entity* entity)
 			parent = renderComponents.second[i].first->GetParent();
 			if (parent == entity)
 			{
+
 				renderComponents.second.erase(renderComponents.second.begin() + i);
 				setRenderTasksRenderComponents();
 			}

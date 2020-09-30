@@ -16,6 +16,7 @@ Engine::~Engine()
 	delete m_pThreadPool;
 
 	delete m_pSceneManager;
+
 	m_pRenderer->DeleteDxResources();
 }
 

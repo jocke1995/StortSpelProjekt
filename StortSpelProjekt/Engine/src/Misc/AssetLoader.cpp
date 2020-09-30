@@ -72,14 +72,8 @@ AssetLoader::~AssetLoader()
 		delete mesh;
 	}
 
-	// For every Animation
-	for (auto animation : m_LoadedAnimations)
-	{
-		delete animation;
-	}
-
-	// For every model
-	for (auto pair : m_LoadedModels)
+	// For every texture
+	for (auto pair : m_LoadedTextures)
 	{
 		delete pair.second.second;
 	}
@@ -90,8 +84,14 @@ AssetLoader::~AssetLoader()
 		delete material.second.second;
 	}
 
-	// For every texture
-	for (auto pair : m_LoadedTextures)
+	// For every Animation
+	for (auto animation : m_LoadedAnimations)
+	{
+		delete animation;
+	}
+
+	// For every model
+	for (auto pair : m_LoadedModels)
 	{
 		delete pair.second.second;
 	}
