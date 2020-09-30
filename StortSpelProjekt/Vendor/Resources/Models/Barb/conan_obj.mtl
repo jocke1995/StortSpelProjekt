@@ -1,0 +1,13 @@
+newmtl conan_body_mat
+
+map_Kd Body_Color.jpg
+map_Ks Body_Spec.jpg
+map_Kn Body_Normal.jpg
+map_Ka Body_Gloss.jpg
+
+newmtl EyeBallL
+
+map_Kd Body_Color.jpg
+map_Ks Body_Spec.jpg
+map_Kn Body_Normal.jpg
+map_Ka Body_Gloss.jpg
