@@ -12,6 +12,7 @@
 #include "../ECS/Scene.h"
 #include "../ECS/Entity.h"
 #include "../ECS/Components/TextComponent.h"
+#include "../ECS/Components/SkyboxComponent.h"
 #include "../ECS/Components/BoundingBoxComponent.h"
 
 // Renderer-Engine 
@@ -25,7 +26,8 @@
 #include "Transform.h"
 #include "BaseCamera.h"
 #include "Mesh.h"
-#include "Texture.h"
+#include "Texture/Texture.h"
+#include "Texture/TextureCubeMap.h"
 #include "Material.h"
 #include "Text.h"
 
@@ -53,6 +55,7 @@
 #include "DX12Tasks/MergeRenderTask.h"
 #include "DX12Tasks/TextTask.h"
 #include "DX12Tasks/ImGuiRenderTask.h"
+#include "DX12Tasks/SkyboxRenderTask.h"
 
 // Copy 
 #include "DX12Tasks/CopyPerFrameTask.h"
@@ -247,6 +250,9 @@ void Renderer::Update(double dt)
 
 void Renderer::RenderUpdate(double dt)
 {
+	// Update scene
+	m_pCurrActiveScene->RenderUpdate(dt);
+
 	/* ------ ImGui ------*/
 	if (DEVELOPERMODE_DEVINTERFACE == true)
 	{
@@ -257,9 +263,6 @@ void Renderer::RenderUpdate(double dt)
 
 	// Picking
 	updateMousePicker();
-
-	// Update scene
-	m_pCurrActiveScene->RenderUpdate(dt);
 
 	/* ------ ImGui ------*/
 	if (DEVELOPERMODE_DEVINTERFACE == true)
@@ -363,6 +366,11 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
 
+	// Skybox
+	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetBackBufferIndex(backBufferIndex);
+	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX], FLAG_THREAD::RENDER);
+
 	// Blending
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::BLEND];
 	renderTask->SetBackBufferIndex(backBufferIndex);
@@ -432,13 +440,65 @@ void Renderer::Execute()
 #endif
 }
 
+void Renderer::InitSkyboxComponent(Entity* entity)
+{
+	component::SkyboxComponent* sbc = entity->GetComponent<component::SkyboxComponent>();
+	if (sbc != nullptr)
+	{
+		Mesh* mesh = sbc->GetMesh();
+
+		AssetLoader* al = AssetLoader::Get();
+		std::wstring modelPath = mesh->GetPath();
+		bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
+
+		// If the model isn't on GPU, it will be uploaded below
+		if (isModelOnGpu == false)
+		{
+			al->m_LoadedModels[modelPath].first = true;
+		}
+
+		// Submit to the list which gets updated to the gpu each frame
+		CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+
+		// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
+		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+		if (isModelOnGpu == false)
+		{
+			// Vertices
+			const void* data = static_cast<const void*>(mesh->m_Vertices.data());
+			Resource* uploadR = mesh->m_pUploadResourceVertices;
+			Resource* defaultR = mesh->m_pDefaultResourceVertices;
+			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+			// inidices
+			data = static_cast<const void*>(mesh->m_Indices.data());
+			uploadR = mesh->m_pUploadResourceIndices;
+			defaultR = mesh->m_pDefaultResourceIndices;
+			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+		}
+
+		Texture* texture = static_cast<TextureCubeMap*>(sbc->GetTexture());
+		// Check if the texture is on GPU before submitting to be uploaded
+		if (al->m_LoadedTextures[texture->m_FilePath].first == false)
+		{
+			codt->SubmitTexture(texture);
+			al->m_LoadedTextures[texture->m_FilePath].first = true;
+		}
+
+		// Finally store the object in m_pRenderer so it will be drawn
+		m_pSkyboxComponent = sbc;
+	}
+}
+
 void Renderer::InitModelComponent(Entity* entity)
 {
+	// Only add the m_Entities that actually should be drawn
 	component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
 	component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
+
 	Mesh* mesh = mc->GetMeshAt(0);
 	AssetLoader* al = AssetLoader::Get();
-	std::wstring modelPath = *mesh->GetPath();
+	std::wstring modelPath = mesh->GetPath();
 	bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
 
 	// If the model isn't on GPU, it will be uploaded below
@@ -474,9 +534,9 @@ void Renderer::InitModelComponent(Entity* entity)
 
 		Material* meshMat = mc->GetMaterialAt(i);
 		// Textures
-		for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
+		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
 		{
-			TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
+			TEXTURE2D_TYPE type = static_cast<TEXTURE2D_TYPE>(i);
 			Texture* texture = meshMat->GetTexture(type);
 
 			// Check if the texture is on GPU before submitting to be uploaded
@@ -707,6 +767,7 @@ void Renderer::setRenderTasksPrimaryCamera()
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCamera(m_pScenePrimaryCamera);
 
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
@@ -1124,6 +1185,54 @@ void Renderer::initRenderTasks()
 
 #pragma endregion ModelOutlining
 
+
+#pragma region SkyboxRendering
+	/* Forward rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdSkyboxRender = {};
+	gpsdSkyboxRender.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdSkyboxRender.NumRenderTargets = 1;
+	gpsdSkyboxRender.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	// Depthstencil usage
+	gpsdSkyboxRender.SampleDesc.Count = 1;
+	gpsdSkyboxRender.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdSkyboxRender.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdSkyboxRender.RasterizerState.CullMode = D3D12_CULL_MODE_FRONT;
+	gpsdSkyboxRender.RasterizerState.FrontCounterClockwise = false;
+
+	// Specify Blend descriptions
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdSkyboxRender.BlendState.RenderTarget[i] = defaultRTdesc; // Defined in ForwardRendering
+
+	// Depth descriptor
+	D3D12_DEPTH_STENCIL_DESC dsdSkybox = {};
+	dsdSkybox.DepthEnable = true;
+	dsdSkybox.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	dsdSkybox.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
+	// DepthStencil
+	dsdSkybox.StencilEnable = false;
+	gpsdSkyboxRender.DepthStencilState = dsdSkybox;
+	gpsdSkyboxRender.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdSkyboxRenderVector;
+	gpsdSkyboxRenderVector.push_back(&gpsdSkyboxRender);
+
+	RenderTask* skyboxRenderTask = new SkyboxRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"SkyboxVertex.hlsl", L"SkyboxPixel.hlsl",
+		&gpsdSkyboxRenderVector,
+		L"SkyboxRenderingPSO");
+
+	skyboxRenderTask->SetSwapChain(m_pSwapChain);
+	skyboxRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
+	skyboxRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion SkyboxRendering
+
 #pragma region Blend
 	// ------------------------ TASK 2: BLEND ---------------------------- FRONTCULL
 
@@ -1460,6 +1569,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::MERGE] = mergeTask;
 	m_RenderTasks[RENDER_TASK_TYPE::TEXT] = textTask;
 	m_RenderTasks[RENDER_TASK_TYPE::IMGUI] = imGuiRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX] = skyboxRenderTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1480,6 +1590,11 @@ void Renderer::initRenderTasks()
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(skyboxRenderTask->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1535,6 +1650,8 @@ void Renderer::setRenderTasksRenderComponents()
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPACITY]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
 	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
+
+	static_cast<SkyboxRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX])->SetSkybox(m_pSkyboxComponent);
 }
 
 void Renderer::createDescriptorHeaps()
@@ -1716,6 +1833,20 @@ void Renderer::prepareScene(Scene* scene)
 
 		// Todo: Set default m_pCamera
 	}
+	if (m_pSkyboxComponent == nullptr)
+	{
+		Log::PrintSeverity(Log::Severity::WARNING, "Renderer::prepareScene: Skybox not found, please set one\n");
+	}
+	else
+	{
+		if (m_pSkyboxComponent->GetCamera() == nullptr)
+		{
+			// Set primary camera, skyboxcomponent does not have access to m_pScenePrimaryCamera
+			// which is the reason it is set camera here.
+			m_pSkyboxComponent->SetCamera(m_pScenePrimaryCamera);
+		}
+	}
+
 
 	m_pMousePicker->SetPrimaryCamera(m_pScenePrimaryCamera);
 	scene->SetPrimaryCamera(m_pScenePrimaryCamera);
