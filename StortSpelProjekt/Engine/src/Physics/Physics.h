@@ -17,6 +17,8 @@ public:
 	// returns true if there is an intersection between the OBBs
 	bool CheckOBBCollision(const DirectX::BoundingOrientedBox* obb1, const DirectX::BoundingOrientedBox* obb2) const;
 
+	std::vector<Entity*> SpecificCollisionCheck(const DirectX::BoundingOrientedBox* obb1);
+
 	// Add an entity with collision enabled to the collision entities vector
 	void AddCollisionEntity(Entity* ent);
 

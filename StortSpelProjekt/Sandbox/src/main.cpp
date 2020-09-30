@@ -177,7 +177,6 @@ Scene* JacobsTestScene(SceneManager* sm)
     /*--------------------- Rock ---------------------*/
     // entity
     entity = scene->AddEntity("rock");
-    mcc->AddEntityRock(entity);
     
     // components
     mc = entity->AddComponent<component::ModelComponent>();

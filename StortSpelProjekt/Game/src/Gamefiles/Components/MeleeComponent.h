@@ -7,6 +7,7 @@
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
 #include "../ECS/Components/Component.h"
+#include "../Physics/Physics.h"
 
 class Entity;
 
@@ -25,8 +26,6 @@ namespace component
 
 		void Update(double dt);
 		void Attack(bool attack);
-
-		void AddEntityRock(Entity* ent);
 		void CheckCollision();
 
 		void createCornersHitbox();
@@ -42,7 +41,7 @@ namespace component
 		float m_attackIntervall;
 		float m_timeSinceLastAttackCheck;
 
-		Entity* collide;
+		//std::vector<Entity*> collideList;
 
 		Transform* m_pMeleeTransform;
 		Transform m_MeleeTransformTwo;
