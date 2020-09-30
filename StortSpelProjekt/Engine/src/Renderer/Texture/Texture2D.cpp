@@ -31,7 +31,7 @@ bool Texture2D::Init(const std::wstring& filePath, ID3D12Device5* device, Descri
 	std::unique_ptr<uint8_t[]> m_DdsData;
 
 	// Loads the texture and creates a default resource;
-	hr = DirectX::LoadDDSTextureFromFile(device, filePath.c_str(), (ID3D12Resource**)m_pDefaultResource->GetID3D12Resource1PP(), m_DdsData, m_SubresourceData);
+	hr = DirectX::LoadDDSTextureFromFile(device, filePath.c_str(), reinterpret_cast<ID3D12Resource**>(m_pDefaultResource->GetID3D12Resource1PP()), m_DdsData, m_SubresourceData);
 	
 	if (FAILED(hr))
 	{

@@ -118,13 +118,14 @@ void RootSignature::createRootSignatureStructure()
 	rootParam[RS::CB_PER_SCENE].Descriptor.RegisterSpace = 3;	// space3
 	rootParam[RS::CB_PER_SCENE].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
+	const unsigned int numStaticSamplers = 6;
 	D3D12_ROOT_SIGNATURE_DESC rsDesc;
 	rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
 	rsDesc.NumParameters = ARRAYSIZE(rootParam);
 	rsDesc.pParameters = rootParam;
-	rsDesc.NumStaticSamplers = 6;
+	rsDesc.NumStaticSamplers = numStaticSamplers;
 
-	D3D12_STATIC_SAMPLER_DESC ssd[6] = {};
+	D3D12_STATIC_SAMPLER_DESC ssd[numStaticSamplers] = {};
 
 	// Anisotropic Wrap
 	for (unsigned int i = 1; i < 5; i++)
