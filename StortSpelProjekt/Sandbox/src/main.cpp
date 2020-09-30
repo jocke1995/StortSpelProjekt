@@ -55,7 +55,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     sceneManager->SetScene(LeosBounceScene(sceneManager));
     //sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
-    sceneManager->SetScene(FloppipTestScene(sceneManager));
+    //sceneManager->SetScene(FloppipTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
     //sceneManager->SetScene(BjornsTestScene(sceneManager));
@@ -140,6 +140,7 @@ Scene* LeosTestScene(SceneManager* sm)
     component::BoundingBoxComponent* bbc = nullptr;
     component::AccelerationComponent* ac = nullptr;
     component::HealthComponent* hc = nullptr;
+    component::CollisionComponent* bcc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -162,6 +163,7 @@ Scene* LeosTestScene(SceneManager* sm)
     lc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     hc = entity->AddComponent<component::HealthComponent>(10);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1);
     //ac = entity->AddComponent<component::AccelerationComponent>(0.982);
 
     mc->SetModel(playerModel);
@@ -182,6 +184,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
 
@@ -585,6 +588,7 @@ Scene* JockesTestScene(SceneManager* sm)
     component::PointLightComponent* plc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
     component::SpotLightComponent* slc = nullptr;
+    component::CollisionComponent* bcc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -597,6 +601,7 @@ Scene* JockesTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5);
     ic->Init();
 
     mc->SetModel(sphereModel);
@@ -609,6 +614,7 @@ Scene* JockesTestScene(SceneManager* sm)
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
@@ -676,6 +682,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::InputComponent* ic = nullptr;
+    component::CollisionComponent* bcc = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -689,6 +696,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5);
     ic->Init();
 
     mc->SetModel(sphereModel);
@@ -711,6 +719,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
@@ -850,6 +859,7 @@ Scene* FredriksTestScene(SceneManager* sm)
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
+    component::CollisionComponent* bcc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -863,6 +873,7 @@ Scene* FredriksTestScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -874,6 +885,7 @@ Scene* FredriksTestScene(SceneManager* sm)
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
@@ -1015,6 +1027,8 @@ Scene* WilliamsTestScene(SceneManager* sm)
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
+    component::CollisionComponent* bcc = nullptr;
+
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -1025,6 +1039,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     Model* amongUsModel = al->LoadModel(L"../Vendor/Resources/Models/amongus/AmongUs.fbx");
 
     Entity* entity = scene->AddEntity("player");
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1);
     mc = entity->AddComponent<component::ModelComponent>();
     component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     tc = entity->AddComponent<component::TransformComponent>();
@@ -1040,6 +1055,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
@@ -1154,6 +1170,7 @@ Scene* AndresTestScene(SceneManager* sm)
     component::Audio3DListenerComponent* audioListener = nullptr;
     component::Audio3DEmitterComponent* audioEmitter = nullptr;
     component::Audio2DVoiceComponent* backgroundAudio = nullptr;
+    component::CollisionComponent* bcc = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1180,6 +1197,7 @@ Scene* AndresTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1);
     audioListener = entity->AddComponent<component::Audio3DListenerComponent>();
     ic->Init();
 
@@ -1194,6 +1212,7 @@ Scene* AndresTestScene(SceneManager* sm)
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
     backgroundAudio = entity->AddComponent<component::Audio2DVoiceComponent>();
     backgroundAudio->AddVoice(L"bruh");
     backgroundAudio->Play(L"bruh");
@@ -1259,6 +1278,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     component::BoundingBoxComponent* bbc = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
     component::HealthComponent* hc = nullptr;
+    component::CollisionComponent* bcc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -1278,6 +1298,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1);
     component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
@@ -1297,6 +1318,7 @@ Scene* BjornsTestScene(SceneManager* sm)
 
 
     entity = scene->AddEntity("floor");
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
 

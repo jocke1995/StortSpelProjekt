@@ -28,6 +28,7 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 
 	m_pCamera = nullptr;
 	m_pTransform = nullptr;
+	m_pCC = nullptr;
 }
 
 component::PlayerInputComponent::~PlayerInputComponent()
@@ -40,6 +41,23 @@ void component::PlayerInputComponent::Init()
 	m_pTransform = static_cast<Transform*>(m_pParent->GetComponent<component::TransformComponent>()->GetTransform());
 
 	m_pCC = m_pParent->GetComponent<component::CollisionComponent>();
+
+#ifdef _DEBUG
+	if (!m_pCC)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a collision component!");
+	}
+
+	if (!m_pCamera)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a Camera component!");
+	}
+
+	if (!m_pTransform)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a Transform component!");
+	}
+#endif
 }
 
 void component::PlayerInputComponent::RenderUpdate(double dt)
