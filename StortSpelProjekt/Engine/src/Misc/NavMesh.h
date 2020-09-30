@@ -40,6 +40,7 @@ class NavMesh
 {
 public:
 	NavMesh();
+	~NavMesh();
 
 	NavQuad* AddNavQuad(float3 position, float2 size);
 

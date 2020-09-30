@@ -5,6 +5,20 @@ NavMesh::NavMesh()
 {
 }
 
+NavMesh::~NavMesh()
+{
+	while (m_NavQuads.size() > 0)
+	{
+		delete m_NavQuads.at(0);
+		m_NavQuads.erase(m_NavQuads.begin());
+	}
+	while (m_Connections.size() > 0)
+	{
+		delete m_Connections.at(0);
+		m_Connections.erase(m_Connections.begin());
+	}
+}
+
 NavQuad* NavMesh::AddNavQuad(float3 position, float2 size)
 {
 	NavQuad* temp = new NavQuad();
