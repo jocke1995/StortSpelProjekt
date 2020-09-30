@@ -1,26 +1,30 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
+#define MAX_BONES_PER_VERTEX 10
+
 struct VertexWeight
 {
-	unsigned int vertexID;
-	float weight;
+	unsigned int boneIDs[MAX_BONES_PER_VERTEX];
+	float weights[MAX_BONES_PER_VERTEX];
 };
 
-struct Bone
+struct SkeletonNode
 {
 	std::string name;
-	std::vector<VertexWeight> weights;
-	DirectX::XMFLOAT4X4 finalTransform;
-	DirectX::XMFLOAT4X4 offsetMatrix;
-};
-
-struct NodeTemp
-{
-	std::string name;
-	std::vector<NodeTemp*> children;
+	std::vector<SkeletonNode*> children;
 	DirectX::XMFLOAT4X4 defaultTransformation;
-	DirectX::XMFLOAT4X4 finalTransformation;
+	DirectX::XMFLOAT4X4 inverseBindPoseMatrix;
+	DirectX::XMFLOAT4X4 modelSpaceTransform;
+
+	~SkeletonNode()
+	{
+		for (auto& child : children)
+		{
+			delete child;
+		}
+		children.clear();
+	}
 };
 
 struct Float3Key

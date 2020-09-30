@@ -6,10 +6,11 @@
 #include "structs.h"
 #include "Animation.h"
 
-Model::Model(const std::wstring path, NodeTemp* rootNode, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures)
+Model::Model(const std::wstring path, SkeletonNode* rootNode, std::map<unsigned int, VertexWeight>* perVertexBoneData, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures)
 {
 	m_Path = path;
-	m_pRootNode = rootNode;
+	m_pSkeleton = rootNode;
+	m_PerVertexBoneData = *perVertexBoneData;
 	m_Size = (*meshes).size();
 
 	m_Meshes = (*meshes);
@@ -33,7 +34,7 @@ Model::Model(const std::wstring path, NodeTemp* rootNode, std::vector<Mesh*>* me
 
 Model::~Model()
 {
-	// Delete node tree
+	delete m_pSkeleton;
 }
 
 std::wstring Model::GetPath() const
@@ -66,11 +67,11 @@ void Model::updateAnimations()
 	if (m_pActiveAnimation != nullptr)
 	{
 		float animationTime = fmod(m_pActiveAnimation->durationInTicks, m_pActiveAnimation->ticksPerSecond);
-		updateBones(animationTime, m_pRootNode, DirectX::XMMatrixIdentity());
+		updateBones(animationTime, m_pSkeleton, DirectX::XMMatrixIdentity());
 	}
 }
 
-void Model::updateBones(float animationTime, NodeTemp* node, DirectX::XMMATRIX parentTransform)
+void Model::updateBones(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform)
 {
 	NodeAnimation* nodeAnimation = &m_pActiveAnimation->nodeAnimations[node->name];
 
@@ -90,8 +91,17 @@ void Model::updateBones(float animationTime, NodeTemp* node, DirectX::XMMATRIX p
 
 	modelSpaceTransform = parentTransform * modelSpaceTransform;
 
+	// Find the correct bone (skeleton node)
 
+	// Store the new transform in the bone
 
+	// Update the child bones. The children will be dependent on their parent transform.
+	for (unsigned int i = 0; i < node->children.size(); i++)
+	{
+		updateBones(animationTime, node->children[i], modelSpaceTransform);
+	}
+
+	// Multiply with inverse bind
 }
 
 DirectX::XMMATRIX Model::interpolateScaling(float animationTime, NodeAnimation* nodeAnimation)

@@ -98,19 +98,21 @@ Model* AssetLoader::LoadModel(const std::wstring path)
 		return nullptr;
 	}
 	std::vector<Mesh*> meshes;
-	std::vector<Animation*> animations;
 	std::vector<std::map<TEXTURE_TYPE, Texture*>> textures;
 
 	meshes.reserve(assimpScene->mNumMeshes);
 	textures.reserve(assimpScene->mNumMeshes);
-	animations.reserve(assimpScene->mNumAnimations);
 	m_LoadedModels[path].first = false;
 	
+	processNode(assimpScene->mRootNode, assimpScene, &meshes, &textures, &filePath);
 
-	NodeTemp* rootNode = processNode(assimpScene->mRootNode, assimpScene, &meshes, &textures, &filePath);
+	std::vector<Animation*> animations;
+	animations.reserve(assimpScene->mNumAnimations);
+	std::map<unsigned int, VertexWeight> perVertexBoneData;
+	SkeletonNode* rootNode = processSkeleton(assimpScene->mRootNode, assimpScene, &perVertexBoneData);
 	processAnimations(assimpScene, &animations);
 
-	m_LoadedModels[path].second = new Model(path, rootNode, &meshes, &animations, &textures);
+	m_LoadedModels[path].second = new Model(path, rootNode, &perVertexBoneData, &meshes, &animations, &textures);
 
 	return m_LoadedModels[path].second;
 }
@@ -193,27 +195,21 @@ Shader* AssetLoader::loadShader(std::wstring fileName, ShaderType type)
 	return m_LoadedShaders[fileName];
 }
 
-NodeTemp* AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
+void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
 {
-	NodeTemp* currNode = new NodeTemp();
-	currNode->name = node->mName.C_Str();
-	currNode->defaultTransformation = aiMatrix4x4ToXMFloat4x4(&node->mTransformation);
-	DirectX::XMStoreFloat4x4(&currNode->finalTransformation, DirectX::XMMatrixIdentity());
-
 	// Go through all the m_Meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
-		aiMesh* mesh = assimpScene->mMeshes[node->mMeshes[i]];
-		meshes->push_back(processMesh(mesh, assimpScene, meshes, textures, filePath));
+		aiMesh* assimpMesh = assimpScene->mMeshes[node->mMeshes[i]];
+		Mesh* mesh = processMesh(assimpMesh, assimpScene, meshes, textures, filePath);
+		meshes->push_back(mesh);
 	}
 	
 	// If the node has more node children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		currNode->children.push_back(processNode(node->mChildren[i], assimpScene, meshes, textures, filePath));
+		processNode(node->mChildren[i], assimpScene, meshes, textures, filePath);
 	}
-
-	return currNode;
 }
 
 Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures, const std::string* filePath)
@@ -221,7 +217,6 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	// Fill this data
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<Bone> bones;
 	std::map<TEXTURE_TYPE, Texture*> meshTextures;
 
 	// Get data from assimpMesh and store it
@@ -290,36 +285,10 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 		}
 	}
 
-	// Get bones
-	for (unsigned int i = 0; i < assimpMesh->mNumBones; i++)
-	{
-		Bone bone;
-		aiBone* assimpBone = assimpMesh->mBones[i];
-
-		// Store the name of the bone
-		bone.name = assimpBone->mName.C_Str();	// Possible loss of data, returns pointer.
-		
-		// Store the offset matrix of the bone
-		bone.offsetMatrix = aiMatrix4x4ToXMFloat4x4(&assimpBone->mOffsetMatrix);
-
-		// Store the weights of the bone
-		for (unsigned int j = 0; j < assimpBone->mNumWeights; j++)
-		{
-			VertexWeight weight;
-			weight.vertexID = assimpBone->mWeights[j].mVertexId;
-			weight.weight = assimpBone->mWeights[j].mWeight;
-			bone.weights.push_back(weight);
-		}
-
-		// Store the bone in the mesh
-		bones.push_back(bone);
-	}
-
-
 	// Create Mesh
 	Mesh* mesh = new Mesh(
 		m_pDevice,
-		&vertices, &indices, &bones,
+		&vertices, &indices,
 		m_pDescriptorHeap_CBV_UAV_SRV,
 		*filePath);
 
@@ -419,6 +388,53 @@ Texture* AssetLoader::processTexture(aiMaterial* mat,
 	}
 
 	return nullptr;
+}
+
+SkeletonNode* AssetLoader::processSkeleton(aiNode* assimpNode, const aiScene* assimpScene, std::map<unsigned int, VertexWeight>* perVertexBoneData)
+{
+	static std::map<aiBone*, int> boneCounter;
+	SkeletonNode* currentNode = new SkeletonNode();
+	// Store the defaultTransform and initialize the modelSpaceTransform
+
+	for (unsigned int i = 0; i < assimpNode->mNumMeshes; i++)
+	{
+		aiMesh* assimpMesh = assimpScene->mMeshes[assimpNode->mMeshes[i]];	// The aiNode only contains indices to the meshes
+		processBones(boneCounter, assimpMesh, perVertexBoneData);
+	}
+
+	for (unsigned int i = 0; i < assimpNode->mNumChildren; i++)
+	{
+		currentNode->children.push_back(processSkeleton(assimpNode->mChildren[i], assimpScene, perVertexBoneData));
+	}
+
+	return currentNode;
+}
+
+void AssetLoader::processBones(static std::map<aiBone*, int> boneCounter, const aiMesh* assimpMesh, std::map<unsigned int, VertexWeight>* perVertexBoneData)
+{
+	std::map<unsigned int, unsigned int> vertexCounter;
+	for (unsigned int i = 0; i < assimpMesh->mNumBones; i++)
+	{
+		aiBone* assimpBone = assimpMesh->mBones[i];
+		// Give each bone an ID. If we already gave it an ID we don't want to change it
+		if (boneCounter.find(assimpBone) != boneCounter.end())
+		{
+			boneCounter[assimpBone] = boneCounter.size();
+		}
+
+		// Add the vertexID and weight to the map of VertexWeights
+		for (unsigned int j = 0; j < assimpBone->mNumWeights; j++)
+		{
+			aiVertexWeight assimpWeight = assimpBone->mWeights[j];
+			assert(vertexCounter[assimpWeight.mVertexId] < MAX_BONES_PER_VERTEX);
+			// Set the bone ID in the correct vertex
+			perVertexBoneData->operator[](
+				assimpWeight.mVertexId).boneIDs[vertexCounter[assimpWeight.mVertexId]] = boneCounter[assimpBone];
+			// Set the weight of the vertex
+			perVertexBoneData->operator[](
+				assimpWeight.mVertexId).weights[vertexCounter[assimpWeight.mVertexId]++] = assimpWeight.mWeight;
+		}
+	}
 }
 
 Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)

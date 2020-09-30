@@ -11,8 +11,9 @@ class ShaderResourceView;
 class DescriptorHeap;
 struct SlotInfo;
 struct Animation;
-struct NodeTemp;
+struct SkeletonNode;
 struct NodeAnimation;
+struct VertexWeight;
 
 // DX12 Forward Declarations
 struct ID3D12Device5;
@@ -22,7 +23,8 @@ class Model
 {
 public:
     Model(const std::wstring path,
-        NodeTemp* rootNode,
+        SkeletonNode* rootNode,
+        std::map<unsigned int, VertexWeight>* perVertexBoneData,
         std::vector<Mesh*>* meshes,
         std::vector<Animation*>* animations,
         std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures);
@@ -42,19 +44,22 @@ public:
 
 private:
     void updateAnimations();
-    void updateBones(float animationTime, NodeTemp* node, DirectX::XMMATRIX parentTransform);
+    void updateBones(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform);
     DirectX::XMMATRIX interpolateScaling(float animationTime, NodeAnimation* nodeAnimation);
     DirectX::XMMATRIX interpolateRotation(float animationTime, NodeAnimation* nodeAnimation);
     DirectX::XMMATRIX interpolateTranslation(float animationTime, NodeAnimation* nodeAnimation);
 
     std::wstring m_Path;
     unsigned int m_Size = 0;
-    Animation* m_pActiveAnimation;
-    NodeTemp* m_pRootNode;
+
     std::vector<Mesh*> m_Meshes;
-    std::vector<Animation*> m_Animations;
     std::vector<std::map<TEXTURE_TYPE, Texture*>> m_Textures;
     std::vector<SlotInfo> m_SlotInfos;
+
+    Animation* m_pActiveAnimation;
+    std::vector<Animation*> m_Animations;
+    SkeletonNode* m_pSkeleton;
+    std::map<unsigned int, VertexWeight> m_PerVertexBoneData; // AKA weights
 };
 
 #endif

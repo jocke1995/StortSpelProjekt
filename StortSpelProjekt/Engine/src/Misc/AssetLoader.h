@@ -17,8 +17,10 @@ struct aiMesh;
 struct aiMaterial;
 struct aiNodeAnim;
 struct Animation;
-struct NodeTemp;
+struct SkeletonNode;
 struct NodeAnimation;
+struct VertexWeight;
+struct aiBone;
 
 class AssetLoader
 {
@@ -74,7 +76,7 @@ private:
     // add map for audio (path, AudioObject)
 
     /* --------------- Functions --------------- */
-    NodeTemp* processNode(aiNode* node, 
+    void processNode(aiNode* node, 
         const aiScene* assimpScene,
         std::vector<Mesh*> *meshes,
         std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures,
@@ -88,6 +90,8 @@ private:
 
     Texture* processTexture(aiMaterial* mat, TEXTURE_TYPE texture_type, const std::string* filePathWithoutTexture);
     
+    SkeletonNode* processSkeleton(aiNode* assimpNode, const aiScene* assimpScene, std::map<unsigned int, VertexWeight>* perVertexBoneData);
+    void processBones(static std::map<aiBone*, int> boneCounter, const aiMesh* assimpMesh, std::map<unsigned int, VertexWeight>* perVertexBoneData);
     void processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations);
     void processNodeAnimation(const aiNodeAnim* assimpNodeAnimation, NodeAnimation* nodeAnimation);
 
