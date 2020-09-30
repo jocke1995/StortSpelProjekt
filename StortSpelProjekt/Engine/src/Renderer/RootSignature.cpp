@@ -122,40 +122,48 @@ void RootSignature::createRootSignatureStructure()
 	rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
 	rsDesc.NumParameters = ARRAYSIZE(rootParam);
 	rsDesc.pParameters = rootParam;
-	rsDesc.NumStaticSamplers = 3;
+	rsDesc.NumStaticSamplers = 6;
 
-	D3D12_STATIC_SAMPLER_DESC ssd[3] = {};
-	ssd[0].ShaderRegister = 0;
-	ssd[0].Filter = D3D12_FILTER_ANISOTROPIC;
-	ssd[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	ssd[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	ssd[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	ssd[0].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-	ssd[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	D3D12_STATIC_SAMPLER_DESC ssd[6] = {};
 
-	ssd[1].ShaderRegister = 1;
-	ssd[1].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-	ssd[1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-	ssd[1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-	ssd[1].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-	ssd[1].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-	ssd[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	ssd[1].MinLOD = 0;
-	ssd[1].MaxLOD = D3D12_FLOAT32_MAX;
-	ssd[1].MipLODBias = 0.0f;
-	ssd[1].MaxAnisotropy = 1;
-	ssd[1].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+	// Anisotropic Wrap
+	for (unsigned int i = 1; i < 5; i++)
+	{
+		ssd[i - 1].ShaderRegister = i - 1;
+		ssd[i - 1].Filter = D3D12_FILTER_ANISOTROPIC;
+		ssd[i - 1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		ssd[i - 1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		ssd[i - 1].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		ssd[i - 1].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		ssd[i - 1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		ssd[i - 1].MinLOD = 0;
+		ssd[i - 1].MaxLOD = D3D12_FLOAT32_MAX;
+		ssd[i - 1].MaxAnisotropy = 2 * i;
+	}
 
-	ssd[2].ShaderRegister = 2;
-	ssd[2].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-	ssd[2].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	ssd[2].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	ssd[2].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	ssd[2].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-	ssd[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	ssd[2].MinLOD = 0;
-	ssd[2].MaxLOD = D3D12_FLOAT32_MAX;
-	ssd[2].MipLODBias = 0.0f;
+	ssd[4].ShaderRegister = 4;
+	ssd[4].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+	ssd[4].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	ssd[4].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	ssd[4].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	ssd[4].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	ssd[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	ssd[4].MinLOD = 0;
+	ssd[4].MaxLOD = D3D12_FLOAT32_MAX;
+	ssd[4].MipLODBias = 0.0f;
+	ssd[4].MaxAnisotropy = 1;
+	ssd[4].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+
+	ssd[5].ShaderRegister = 5;
+	ssd[5].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	ssd[5].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	ssd[5].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	ssd[5].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	ssd[5].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	ssd[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	ssd[5].MinLOD = 0;
+	ssd[5].MaxLOD = D3D12_FLOAT32_MAX;
+	ssd[5].MipLODBias = 0.0f;
 
 	rsDesc.pStaticSamplers = ssd;
 

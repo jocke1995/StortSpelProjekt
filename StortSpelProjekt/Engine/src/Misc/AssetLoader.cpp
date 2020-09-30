@@ -27,11 +27,11 @@ AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_C
 	m_pWindow = const_cast<Window*>(window);
 
 	// Load default textures
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.jpg");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.png");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.png");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.png");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.png");
+	LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.dds");
+	LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.dds");
+	LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
+	LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
+	LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
 }
 
 AssetLoader::~AssetLoader()
@@ -429,27 +429,27 @@ Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_typ
 	{
 	case::TEXTURE2D_TYPE::ALBEDO:
 		type = aiTextureType_DIFFUSE;
-		defaultPath = m_FilePathDefaultTextures + L"default_albedo.jpg";
+		defaultPath = m_FilePathDefaultTextures + L"default_albedo.dds";
 		warningMessageTextureType = "Albedo";
 		break;
 	case::TEXTURE2D_TYPE::ROUGHNESS:
 		type = aiTextureType_SPECULAR;
-		defaultPath = m_FilePathDefaultTextures + L"default_roughness.png";
+		defaultPath = m_FilePathDefaultTextures + L"default_roughness.dds";
 		warningMessageTextureType = "Roughness";
 		break;
 	case::TEXTURE2D_TYPE::METALLIC:
 		type = aiTextureType_AMBIENT;
-		defaultPath = m_FilePathDefaultTextures + L"default_metallic.png";
+		defaultPath = m_FilePathDefaultTextures + L"default_metallic.dds";
 		warningMessageTextureType = "Metallic";
 		break;
 	case::TEXTURE2D_TYPE::NORMAL:
 		type = aiTextureType_NORMALS;
-		defaultPath = m_FilePathDefaultTextures + L"default_normal.png";
+		defaultPath = m_FilePathDefaultTextures + L"default_normal.dds";
 		warningMessageTextureType = "Normal";
 		break;
 	case::TEXTURE2D_TYPE::EMISSIVE:
 		type = aiTextureType_EMISSIVE;
-		defaultPath = m_FilePathDefaultTextures + L"default_emissive.png";
+		defaultPath = m_FilePathDefaultTextures + L"default_emissive.dds";
 		warningMessageTextureType = "Emissive";
 		break;
 	}

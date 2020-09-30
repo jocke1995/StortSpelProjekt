@@ -9,9 +9,9 @@ struct VS_OUT    //output structure for skymap vertex shader
 ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
 TextureCube textures[] : register(t0);
 
-SamplerState cubeSampler : register (s2);
+SamplerState point_Wrap : register (s5);
 
 float4 PS_main(VS_OUT input) : SV_Target
 {
-    return 5*textures[cbPerObject.info.textureAlbedo].Sample(cubeSampler, input.texCoord);
+    return 5*textures[cbPerObject.info.textureAlbedo].Sample(point_Wrap, input.texCoord);
 }
