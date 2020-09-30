@@ -15,7 +15,6 @@ namespace component
 		RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, int damage = 1, float velocity = 2.5);
 		~RangeComponent();
 
-		void Attack(MouseClick* event);
 
 	private:
 		int m_Damage;
@@ -27,6 +26,7 @@ namespace component
 		SceneManager* m_pSceneMan = nullptr;
 		Scene* m_pScene = nullptr;
 
+		void Attack(MouseClick* event);
 	};
 }
 
