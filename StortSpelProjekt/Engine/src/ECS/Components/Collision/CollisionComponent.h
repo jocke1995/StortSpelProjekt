@@ -22,15 +22,25 @@ namespace component
 		void InitScene();
 		void SetPosition(double x, double y, double z);
 		void SetRotation(double roll, double pitch, double yaw);
-		void SetRotation(float3 axis, double angle);
-		void Rotate(float3 axis, double angle);
+		void SetRotation(double3 axis, double angle);
+		void Rotate(double3 axis, double angle);
 		void SetVelVector(double x, double y, double z);
 		void SetNormalizedVelVector(double x, double y, double z);
 		void SetAngularVelocity(double x, double y, double z);
 		void SetFriction(double fric);
 		void SetRestitution(double rest);
-		void SetAngularFactor(float3& factor);
-		void SetLinearFactor(float3& factor);
+		void SetAngularFactor(double3& factor);
+		void SetLinearFactor(double3& factor);
+
+		double3 GetPosition();
+		double3 GetRotationEuler();
+		double4 GetRotationQuaternion();
+		double3 GetLinearVelocity();
+		double3 GetAngularVelocity();
+		double GetFriction();
+		double GetRestitution();
+		double3 GetAngularFactor();
+		double3 GetLinearFactor();
 	protected:
 		double m_Mass;
 		double m_Fric;

@@ -90,7 +90,7 @@ void component::CollisionComponent::SetRotation(double roll, double pitch, doubl
 	m_pBody->setWorldTransform(trans);
 }
 
-void component::CollisionComponent::SetRotation(float3 axis, double angle)
+void component::CollisionComponent::SetRotation(double3 axis, double angle)
 {
 	btTransform trans = m_pBody->getWorldTransform();
 
@@ -101,7 +101,7 @@ void component::CollisionComponent::SetRotation(float3 axis, double angle)
 	m_pBody->setWorldTransform(trans);
 }
 
-void component::CollisionComponent::Rotate(float3 axis, double angle)
+void component::CollisionComponent::Rotate(double3 axis, double angle)
 {
 	btTransform trans = m_pBody->getWorldTransform();
 	btQuaternion quat = trans.getRotation();
@@ -148,12 +148,69 @@ void component::CollisionComponent::SetRestitution(double rest)
 	m_pBody->setRestitution(rest);
 }
 
-void component::CollisionComponent::SetAngularFactor(float3& factor)
+void component::CollisionComponent::SetAngularFactor(double3& factor)
 {
 	m_pBody->setAngularFactor({ factor.x, factor.y, factor.z });
 }
 
-void component::CollisionComponent::SetLinearFactor(float3& factor)
+void component::CollisionComponent::SetLinearFactor(double3& factor)
 {
 	m_pBody->setLinearFactor({ factor.x, factor.y, factor.z });
+}
+
+double3 component::CollisionComponent::GetPosition()
+{
+	btVector3& pos = m_pBody->getWorldTransform().getOrigin();
+	return { pos.x(), pos.y(), pos.z()};
+}
+
+double3 component::CollisionComponent::GetRotationEuler()
+{
+	btQuaternion& rot = m_pBody->getWorldTransform().getRotation();
+
+	double roll, pitch, yaw;
+
+	rot.getEulerZYX(roll, pitch, yaw);
+
+	return { pitch, yaw, roll };
+}
+
+double4 component::CollisionComponent::GetRotationQuaternion()
+{
+	btQuaternion& rot = m_pBody->getWorldTransform().getRotation();
+	return {rot.x(), rot.y(), rot.z(), rot.getAngle()};
+}
+
+double3 component::CollisionComponent::GetLinearVelocity()
+{
+	btVector3 vel = m_pBody->getLinearVelocity();
+	return { vel.x(), vel.y(), vel.z() };
+}
+
+double3 component::CollisionComponent::GetAngularVelocity()
+{
+	btVector3 vel = m_pBody->getAngularVelocity();
+	return { vel.x(), vel.y(), vel.z() };
+}
+
+double component::CollisionComponent::GetFriction()
+{
+	return m_pBody->getFriction();
+}
+
+double component::CollisionComponent::GetRestitution()
+{
+	return m_pBody->getRestitution();
+}
+
+double3 component::CollisionComponent::GetAngularFactor()
+{
+	btVector3 factor = m_pBody->getAngularFactor();
+	return {factor.x(), factor.y(), factor.z()};
+}
+
+double3 component::CollisionComponent::GetLinearFactor()
+{
+	btVector3 factor = m_pBody->getLinearFactor();
+	return { factor.x(), factor.y(), factor.z() };
 }
