@@ -36,14 +36,22 @@ inline T Max(T a, T b)
 	return b;
 }
 
-enum TEXTURE_TYPE
+enum class TEXTURE_TYPE
+{
+	UNKNOWN,
+	TEXTURE2D,
+	TEXTURECUBEMAP,
+	NUM_TYPES
+};
+
+enum class TEXTURE2D_TYPE
 {
 	ALBEDO,
 	ROUGHNESS,
 	METALLIC,
 	NORMAL,
 	EMISSIVE,
-	NUM_TEXTURE_TYPES
+	NUM_TYPES
 };
 
 enum LIGHT_TYPE

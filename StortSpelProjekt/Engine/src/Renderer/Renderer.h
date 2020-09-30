@@ -67,6 +67,7 @@ namespace component
 	class TransformComponent;
 	class BoundingBoxComponent;
 	class TextComponent;
+	class SkyboxComponent;
 }
 
 class Renderer
@@ -93,6 +94,7 @@ public:
 	void Execute();
 
 	// Render inits, these functions are called by respective components through SetScene to prepare for drawing
+	void InitSkyboxComponent(Entity* entity);
 	void InitModelComponent(Entity* entity);
 	void InitDirectionalLightComponent(Entity* entity);
 	void InitPointLightComponent(Entity* entity);
@@ -102,6 +104,7 @@ public:
 	void InitTextComponent(Entity* entity);
 
 private:
+	friend class component::SkyboxComponent;
 	friend class SceneManager;
 	friend class Text;
 	Renderer();
@@ -151,6 +154,7 @@ private:
 	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::TextComponent*> m_TextComponents;
+	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
 	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBuffer*, ShadowInfo*>>> m_Lights;
