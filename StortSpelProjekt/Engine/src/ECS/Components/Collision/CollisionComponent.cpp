@@ -136,3 +136,13 @@ void component::CollisionComponent::SetRestitution(double rest)
 {
 	m_pBody->setRestitution(rest);
 }
+
+void component::CollisionComponent::SetAngularFactor(float3& factor)
+{
+	m_pBody->setAngularFactor({ factor.x, factor.y, factor.z });
+}
+
+void component::CollisionComponent::SetLinearFactor(float3& factor)
+{
+	m_pBody->setLinearFactor({ factor.x, factor.y, factor.z });
+}

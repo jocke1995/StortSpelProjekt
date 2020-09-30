@@ -28,6 +28,8 @@ namespace component
 		void SetAngularVelocity(double x, double y, double z);
 		void SetFriction(double fric);
 		void SetRestitution(double rest);
+		void SetAngularFactor(float3& factor);
+		void SetLinearFactor(float3& factor);
 	protected:
 		double m_Mass;
 		double m_Fric;
