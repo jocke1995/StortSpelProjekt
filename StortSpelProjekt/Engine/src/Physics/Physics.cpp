@@ -12,7 +12,7 @@ Physics::Physics()
 	m_pBroadphase = new btDbvtBroadphase();
 	m_pSolver = new btSequentialImpulseConstraintSolver();
 	m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher,m_pBroadphase,m_pSolver, m_pCollisionConfig);
-	m_pWorld->setGravity({ 0.0, -9.82, 0.0 });
+	m_pWorld->setGravity({ 0.0, -50, 0.0 });
 
 	//similar to createSphere
 	btTransform t;

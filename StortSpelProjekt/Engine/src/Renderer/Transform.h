@@ -49,6 +49,13 @@ public:
 
 	DirectX::XMFLOAT3 GetMovement() const;
 
+	DirectX::XMFLOAT3 GetForwardXMFLOAT3() const;
+	float3 GetForwardFloat3() const;
+	DirectX::XMFLOAT3 GetRightXMFLOAT3() const;
+	float3 GetRightFloat3() const;
+	DirectX::XMFLOAT3 GetUpXMFLOAT3() const;
+	float3 GetUpFloat3() const;
+
 	float GetVelocity() const;
 	void SetVelocity(float vel);
 

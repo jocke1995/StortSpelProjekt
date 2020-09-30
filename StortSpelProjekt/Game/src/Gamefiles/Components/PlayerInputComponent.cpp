@@ -43,13 +43,8 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	// Lock camera to player
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
-		Transform* tc = m_pParent->GetComponent<TransformComponent>()->GetTransform();
-		float3 playerPosition = tc->GetRenderPositionFloat3();
-
-		DirectX::XMMATRIX rotMat = tc->GetRotMatrix();
-		DirectX::XMFLOAT3 forward, right;
-		DirectX::XMStoreFloat3(&forward, rotMat.r[2]);
-		DirectX::XMStoreFloat3(&right, rotMat.r[0]);
+		float3 playerPosition = m_pTransform->GetRenderPositionFloat3();
+		float3 forward = m_pTransform->GetForwardFloat3();
 
 		float zoomBack = sqrt(m_CameraDistance * m_CameraDistance - (m_Zoom * m_Pitch) * (m_Zoom * m_Pitch));
 
@@ -100,10 +95,8 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	float moveForward = (static_cast<float>(evnt->key == SCAN_CODES::W) - static_cast<float>(evnt->key == SCAN_CODES::S)) * pressed;
 
 	// Get the rotation matrix to determine in which direction to move
-	DirectX::XMMATRIX rotMat = m_pTransform->GetRotMatrix();
-	DirectX::XMFLOAT3 forward, right;
-	DirectX::XMStoreFloat3(&forward, rotMat.r[2]);
-	DirectX::XMStoreFloat3(&right, rotMat.r[0]);
+	float3 forward = m_pTransform->GetForwardFloat3();
+	float3 right = m_pTransform->GetRightFloat3();
 
 	float moveX = forward.x * moveForward + right.x * moveRight;
 	float moveY = moveUp;
@@ -121,8 +114,6 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	{
 		(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? m_pTransform->SetMovement(0.0f, 0.0f, 0.0f) : m_pCamera->SetMovement(0.0f, 0.0f, 0.0f);;
 	}
-
-
 }
 
 void component::PlayerInputComponent::rotate(MouseMovement* evnt)
@@ -145,10 +136,8 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		rotateX = (static_cast<float>(x) / 400.0) * 3.1415;
 
 		// Get rotation to determine current rotation angle
-		DirectX::XMMATRIX rotMat = m_pTransform->GetRotMatrix();
-		DirectX::XMFLOAT3 forward, right;
-		DirectX::XMStoreFloat3(&forward, rotMat.r[2]);
-		DirectX::XMStoreFloat3(&right, rotMat.r[0]);
+		float3 forward = m_pTransform->GetForwardFloat3();
+		float3 right = m_pTransform->GetRightFloat3();
 
 		float angle = std::atan2(forward.x, forward.z);
 
@@ -156,9 +145,8 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		m_pTransform->SetRotationY(angle + rotateX);
 
 		// Get new direction
-		rotMat = m_pTransform->GetRotMatrix();
-		DirectX::XMStoreFloat3(&forward, rotMat.r[2]);
-		DirectX::XMStoreFloat3(&right, rotMat.r[0]);
+		forward = m_pTransform->GetForwardFloat3();
+		right = m_pTransform->GetRightFloat3();
 
 		// Determine if player is currently moving, if yes, update movement direction
 		int isMovingZ = static_cast<int>(Input::GetInstance().GetKeyState(SCAN_CODES::W)) - static_cast<int>(Input::GetInstance().GetKeyState(SCAN_CODES::S));
