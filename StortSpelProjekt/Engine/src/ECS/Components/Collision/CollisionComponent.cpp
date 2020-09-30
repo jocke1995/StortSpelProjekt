@@ -18,7 +18,6 @@ component::CollisionComponent::~CollisionComponent()
 {
 	delete m_pBody;
 	delete m_pMotionState;
-	delete m_pShape;
 }
 
 btRigidBody* component::CollisionComponent::GetBody()
