@@ -14,6 +14,8 @@ ThreadPool::ThreadPool(unsigned int nrOfThreads)
 
 ThreadPool::~ThreadPool()
 {
+	exitThreads();
+
 	for (Thread* thread : m_Threads)
 	{
 		delete thread;
@@ -48,14 +50,6 @@ void ThreadPool::AddTask(MultiThreadedTask* task)
 	m_ThreadCounter++;
 }
 
-void ThreadPool::ExitThreads()
-{
-	for (auto thread : m_Threads)
-	{
-		thread->exitThread();
-	}
-}
-
 bool ThreadPool::isAllLastActiveTasksFinished(unsigned int flag)
 {
 	for (Thread* thread : m_Threads)
@@ -78,4 +72,17 @@ bool ThreadPool::isThreadsQueuesEmpty(unsigned int flag)
 		}
 	}
 	return true;
+}
+
+
+void ThreadPool::exitThreads()
+{
+	WaitForThreads(FLAG_THREAD::ALL);
+	std::vector<HANDLE> handles;
+	for (auto thread : m_Threads)
+	{
+		handles.push_back(thread->m_ThreadHandle);
+		thread->exitThread();
+	}
+	WaitForMultipleObjects(m_NrOfThreads, handles.data(), true, INFINITE);
 }

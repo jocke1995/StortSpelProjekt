@@ -2,9 +2,9 @@
 #include "Thread.h"
 #include "MultiThreadedTask.h"
 
-unsigned int __stdcall Thread::threadFunc(void* lpParameter)
+unsigned int __stdcall Thread::threadFunc(void* threadParam)
 {
-	Thread* threadInstance = (Thread*)lpParameter;
+	Thread* threadInstance = static_cast<Thread*>(threadParam);
 	bool waitNextIteration = true;
 
 	while (threadInstance->m_IsRunning)
@@ -57,6 +57,7 @@ unsigned int __stdcall Thread::threadFunc(void* lpParameter)
 #ifdef _DEBUG
 	Log::Print("Engine thread with id:%d Exiting!\n", threadInstance->m_ThreadId);
 #endif
+
 	return 0;
 }
 

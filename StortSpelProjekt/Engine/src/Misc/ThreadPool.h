@@ -16,7 +16,7 @@ public:
 
 	void AddTask(MultiThreadedTask* task);
 
-	void ExitThreads();
+	
 private:
 	std::vector<Thread*> m_Threads;
 
@@ -25,6 +25,7 @@ private:
 
 	bool isAllLastActiveTasksFinished(unsigned int flag);
 	bool isThreadsQueuesEmpty(unsigned int flag);
+	void exitThreads();
 };
 
 #endif
