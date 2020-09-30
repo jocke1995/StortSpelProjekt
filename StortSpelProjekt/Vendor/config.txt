@@ -1,5 +1,5 @@
 f_volume 1.0
-f_backgroundVolume 1.0
+f_backgroundVolume 0.3
 f_updateRate 30
 i_resolutionWidth 1280
 i_resolutionHeight 720

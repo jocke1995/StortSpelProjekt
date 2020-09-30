@@ -52,7 +52,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetScene(LeosTestScene(sceneManager));
     //sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
-    sceneManager->SetScene(FloppipTestScene(sceneManager));
+    //sceneManager->SetScene(FloppipTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
     //sceneManager->SetScene(BjornsTestScene(sceneManager));
@@ -952,6 +952,7 @@ Scene* AndresTestScene(SceneManager* sm)
     component::TransformComponent* tc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
     component::PointLightComponent* plc = nullptr;
+    component::SpotLightComponent* slc = nullptr;
     component::InputComponent* ic = nullptr;
     component::Audio3DListenerComponent* audioListener = nullptr;
     component::Audio3DEmitterComponent* audioEmitter = nullptr;
@@ -1026,9 +1027,67 @@ Scene* AndresTestScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
     entity = scene->AddEntity("dirLight");
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION);
-    dlc->SetColor({ 0.0f, 0.5f, 0.5f });
-    dlc->SetDirection({ -1.0f, -1.0f, 1.0f });
+    dlc->SetColor({ 0.3f, 0.3f, 0.3f });
+    dlc->SetDirection({ -0.01f, -1.0f, 0.01f });
     /* ---------------------- dirLight ---------------------- */
+
+    /* ---------------------- Spotlights ---------------------- */
+    entity = scene->AddEntity("SpotlightRed");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(-50.0f, 3.0f, 50.0f);
+
+    slc->SetColor({ 20.0f, 0.0f, 0.0f });
+    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetDirection({ 1.0, -0.5, -1.0f });
+
+    entity = scene->AddEntity("SpotlightGreen");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(50.0f, 3.0f, 50.0f);
+
+    slc->SetColor({ 0.0f, 20.0f, 0.0f });
+    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetDirection({ -1.0, -0.5, -1.0f });
+
+    entity = scene->AddEntity("SpotlightBlue");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(50.0f, 3.0f, -50.0f);
+
+    slc->SetColor({ 0.0f, 0.0f, 20.0f });
+    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetDirection({ -1.0, -0.5, 1.0f });
+
+    entity = scene->AddEntity("SpotlightYellow");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(-50.0f, 3.0f, -50.0f);
+
+    slc->SetColor({ 20.0f, 20.0f, 0.0f });
+    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetDirection({ 1.0, -0.5, 1.0f });
+    /* ---------------------- Spotlights ---------------------- */
 
     /* ---------------------- Stefan ---------------------- */
     entity = scene->AddEntity("stefan");
@@ -1039,7 +1098,7 @@ Scene* AndresTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(50, 50, 1);
-    tc->GetTransform()->SetPosition(0.0f, 30.0f, 50.0f);
+    tc->GetTransform()->SetPosition(0.0f, 30.0f, 500.0f);
     tc->GetTransform()->SetRotationX(3 * 3.1415 / 2);
     tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
     /* ---------------------- Stefan ---------------------- */
@@ -1052,6 +1111,15 @@ Scene* AndresTestScene(SceneManager* sm)
     entity = enH.AddExistingEnemy("enemy", float3{ 40, 10, 0 });
     entity = enH.AddExistingEnemy("enemy", float3{ 0, 10, -40 });
     entity = enH.AddExistingEnemy("enemy", float3{ -40, 10, 0 });
+    /* ---------------------- Enemy -------------------------------- */
+
+
+    /* ---------------------- Skybox ---------------------- */
+    TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = scene->AddEntity("skybox");
+
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    /* ---------------------- Skybox ---------------------- */
 
 
     /* ---------------------- Update Function ---------------------- */
@@ -1061,23 +1129,23 @@ Scene* AndresTestScene(SceneManager* sm)
     /* ---------------------- Update Function ---------------------- */
 
 
-    /* ---------------------- PointLight1 ---------------------- */
-    entity = scene->AddEntity("pointLight1");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-    //audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
-    //audioEmitter->AddVoice(L"melody");
-    ////audioEmitter->Play(L"melody"); // example how to play the sound, commented away because without updateEmitter, they seem to be positioned very close to the ear (loud!)
-    ////audioEmitter->UpdateEmitter(L"melody");   // this needs to be in an update function to work properly, only here to show how to call it
+    ///* ---------------------- PointLight1 ---------------------- */
+    //entity = scene->AddEntity("pointLight1");
+    //mc = entity->AddComponent<component::ModelComponent>();
+    //tc = entity->AddComponent<component::TransformComponent>();
+    //plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    ////audioEmitter = entity->AddComponent<component::Audio3DEmitterComponent>();
+    ////audioEmitter->AddVoice(L"melody");
+    //////audioEmitter->Play(L"melody"); // example how to play the sound, commented away because without updateEmitter, they seem to be positioned very close to the ear (loud!)
+    //////audioEmitter->UpdateEmitter(L"melody");   // this needs to be in an update function to work properly, only here to show how to call it
 
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.05f);
-    tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
+    //mc->SetModel(sphereModel);
+    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    //tc->GetTransform()->SetScale(0.05f);
+    //tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
 
-    plc->SetColor({ 1.0f, 0.0f, 1.0f });
-    /* ---------------------- PointLight1 ---------------------- */
+    //plc->SetColor({ 1.0f, 0.0f, 1.0f });
+    ///* ---------------------- PointLight1 ---------------------- */
 
     /* ---------------------- PointLight2 ---------------------- */
     //entity = scene->AddEntity("pointLight2");
