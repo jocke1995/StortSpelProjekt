@@ -90,7 +90,6 @@ void component::MeleeComponent::CheckCollision()
 				Log::Print("Melee Component collied with %s\n", list.at(i)->GetName().c_str());
 			}
 		}
-
 	}
 	list.empty();
 }
