@@ -9,22 +9,6 @@ SamplerState Anisotropic8_Wrap	: register (s2);
 SamplerState Anisotropic16_Wrap	: register (s3);
 SamplerState samplerTypeBorder	: register (s4);
 
-static const MaterialAttributes materialAttributes = {
-	100,
-	0, 0, 0,
-	
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-
-	1, 1, 1, 1,
-	1, 1, 1, 1,
-	1, 1, 1, 1,
-
-	1, 1,
-	0, 0
-};
-
 float CalculateShadow(
 	in float4 fragPosLightSpace,
 	in float shadowMapIndex)
