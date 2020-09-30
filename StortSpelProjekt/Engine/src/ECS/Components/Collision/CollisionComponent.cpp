@@ -90,6 +90,17 @@ void component::CollisionComponent::SetRotation(double roll, double pitch, doubl
 	m_pBody->setWorldTransform(trans);
 }
 
+void component::CollisionComponent::SetRotation(float3 axis, double angle)
+{
+	btTransform trans = m_pBody->getWorldTransform();
+
+	btQuaternion rotQuat;
+	rotQuat.setRotation({ axis.x, axis.y, axis.z }, angle);
+
+	trans.setRotation(rotQuat);
+	m_pBody->setWorldTransform(trans);
+}
+
 void component::CollisionComponent::Rotate(float3 axis, double angle)
 {
 	btTransform trans = m_pBody->getWorldTransform();
