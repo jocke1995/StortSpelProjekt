@@ -11,6 +11,7 @@
 // ECS
 #include "../ECS/Scene.h"
 #include "../ECS/Entity.h"
+#include "../ECS/Components/ModelComponent.h"
 #include "../ECS/Components/TextComponent.h"
 #include "../ECS/Components/SkyboxComponent.h"
 #include "../ECS/Components/BoundingBoxComponent.h"
@@ -25,6 +26,7 @@
 #include "DescriptorHeap.h"
 #include "Transform.h"
 #include "BaseCamera.h"
+#include "Model.h"
 #include "Mesh.h"
 #include "Texture/Texture.h"
 #include "Texture/TextureCubeMap.h"
@@ -32,6 +34,7 @@
 #include "Text.h"
 
 // GPUMemory
+#include "GPUMemory/Resource.h"
 #include "GPUMemory/ConstantBuffer.h"
 #include "GPUMemory/UnorderedAccess.h"
 // Views
@@ -227,19 +230,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetGPUHeapAt(imGuiTextureIndex));
 
 	
-
 	initRenderTasks();
-
-	// Submit the fullscreenQuad to be uploaded, but it won't be uploaded until a scene has been set to Draw
-	const void* datavertices = m_pFullScreenQuad->m_Vertices.data();
-	Resource* uplResourceVertices = m_pFullScreenQuad->m_pUploadResourceVertices;
-	Resource* defResourceVertices = m_pFullScreenQuad->m_pDefaultResourceVertices;
-	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Submit(&std::make_tuple(uplResourceVertices, defResourceVertices, datavertices));
-
-	const void* dataindices = m_pFullScreenQuad->m_Indices.data();
-	Resource* uplResourceindices = m_pFullScreenQuad->m_pUploadResourceIndices;
-	Resource* defResourceindices = m_pFullScreenQuad->m_pDefaultResourceIndices;
-	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Submit(&std::make_tuple(uplResourceindices, defResourceindices, dataindices));
 }
 
 void Renderer::Update(double dt)
@@ -857,6 +848,46 @@ void Renderer::createFullScreenQuad()
 	indexVector.push_back(3);
 
 	m_pFullScreenQuad = new Mesh(m_pDevice5, &vertexVector, &indexVector, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+
+	// Load fullscreen mesh
+	// Set vertices resource
+	m_pFullScreenQuad->m_pUploadResourceVertices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
+	m_pFullScreenQuad->m_pDefaultResourceVertices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
+
+	// Vertices
+	const void* data = static_cast<const void*>(m_pFullScreenQuad->m_Vertices.data());
+	Resource* uploadR = m_pFullScreenQuad->m_pUploadResourceVertices;
+	Resource* defaultR = m_pFullScreenQuad->m_pDefaultResourceVertices;
+
+	// Create SRV
+	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
+	dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	dsrv.Buffer.FirstElement = 0;
+	dsrv.Format = DXGI_FORMAT_UNKNOWN;
+	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	dsrv.Buffer.NumElements = m_pFullScreenQuad->GetNumVertices();
+	dsrv.Buffer.StructureByteStride = sizeof(Vertex);
+
+	m_pFullScreenQuad->m_pSRV = new ShaderResourceView(
+		m_pDevice5,
+		m_DescriptorHeaps.at(DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV),
+		&dsrv,
+		m_pFullScreenQuad->m_pDefaultResourceVertices);
+
+	// Set indices resource
+	m_pFullScreenQuad->m_pUploadResourceIndices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
+	m_pFullScreenQuad->m_pDefaultResourceIndices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
+
+	// inidices
+	data = static_cast<const void*>(m_pFullScreenQuad->m_Indices.data());
+	uploadR = m_pFullScreenQuad->m_pUploadResourceIndices;
+	defaultR = m_pFullScreenQuad->m_pDefaultResourceIndices;
+
+	// Set indexBufferView
+	m_pFullScreenQuad->m_pIndexBufferView = new D3D12_INDEX_BUFFER_VIEW();
+	m_pFullScreenQuad->m_pIndexBufferView->BufferLocation = m_pFullScreenQuad->m_pDefaultResourceIndices->GetGPUVirtualAdress();
+	m_pFullScreenQuad->m_pIndexBufferView->Format = DXGI_FORMAT_R32_UINT;
+	m_pFullScreenQuad->m_pIndexBufferView->SizeInBytes = m_pFullScreenQuad->GetSizeOfIndices();
 }
 
 void Renderer::updateMousePicker()
@@ -1625,6 +1656,23 @@ void Renderer::loadModel(component::ModelComponent* mc) const
 		// Set model as loadedOnGpu
 		al->m_LoadedModels[modelPath].first = true;
 	}
+
+	Model* model = mc->m_Model;
+	// Fill SlotInfo with mesh+material info
+	for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+	{
+		Mesh* mesh = model->GetMeshAt(i);
+		Material* meshMat = model->GetMaterialAt(i);
+		model->m_SlotInfos[i] = 
+			{
+			mesh->m_pSRV->GetDescriptorHeapIndex(),
+			meshMat->GetTexture(TEXTURE2D_TYPE::ALBEDO)->GetDescriptorHeapIndex(),
+			meshMat->GetTexture(TEXTURE2D_TYPE::ROUGHNESS)->GetDescriptorHeapIndex(),
+			meshMat->GetTexture(TEXTURE2D_TYPE::METALLIC)->GetDescriptorHeapIndex(),
+			meshMat->GetTexture(TEXTURE2D_TYPE::NORMAL)->GetDescriptorHeapIndex(),
+			meshMat->GetTexture(TEXTURE2D_TYPE::EMISSIVE)->GetDescriptorHeapIndex()
+			};
+	}
 }
 
 void Renderer::loadMesh(Mesh* mesh) const
@@ -1633,17 +1681,59 @@ void Renderer::loadMesh(Mesh* mesh) const
 
 	// TODO: Maybe want to check if mesh is on gpu before upload
 
-	// Vertices
-	const void* data = static_cast<const void*>(mesh->m_Vertices.data());
-	Resource* uploadR = mesh->m_pUploadResourceVertices;
-	Resource* defaultR = mesh->m_pDefaultResourceVertices;
-	codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+	// Check if mesh has a resource
+	if (mesh->m_pDefaultResourceVertices == nullptr)
+	{
+		// Set vertices resource
+		mesh->m_pUploadResourceVertices = new Resource(m_pDevice5, mesh->GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
+		mesh->m_pDefaultResourceVertices = new Resource(m_pDevice5, mesh->GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
 
-	// inidices
-	data = static_cast<const void*>(mesh->m_Indices.data());
-	uploadR = mesh->m_pUploadResourceIndices;
-	defaultR = mesh->m_pDefaultResourceIndices;
-	codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+		// Vertices
+		const void* data = static_cast<const void*>(mesh->m_Vertices.data());
+		Resource* uploadR = mesh->m_pUploadResourceVertices;
+		Resource* defaultR = mesh->m_pDefaultResourceVertices;
+		codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+		// Create SRV
+		D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
+		dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		dsrv.Buffer.FirstElement = 0;
+		dsrv.Format = DXGI_FORMAT_UNKNOWN;
+		dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		dsrv.Buffer.NumElements = mesh->GetNumVertices();
+		dsrv.Buffer.StructureByteStride = sizeof(Vertex);
+
+		mesh->m_pSRV = new ShaderResourceView(
+			m_pDevice5,
+			m_DescriptorHeaps.at(DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV),
+			&dsrv,
+			mesh->m_pDefaultResourceVertices);
+
+		// Set indices resource
+		mesh->m_pUploadResourceIndices = new Resource(m_pDevice5, mesh->GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
+		mesh->m_pDefaultResourceIndices = new Resource(m_pDevice5, mesh->GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
+
+		// inidices
+		data = static_cast<const void*>(mesh->m_Indices.data());
+		uploadR = mesh->m_pUploadResourceIndices;
+		defaultR = mesh->m_pDefaultResourceIndices;
+		codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+		// Set indexBufferView
+		mesh->m_pIndexBufferView = new D3D12_INDEX_BUFFER_VIEW();
+		mesh->m_pIndexBufferView->BufferLocation = mesh->m_pDefaultResourceIndices->GetGPUVirtualAdress();
+		mesh->m_pIndexBufferView->Format = DXGI_FORMAT_R32_UINT;
+		mesh->m_pIndexBufferView->SizeInBytes = mesh->GetSizeOfIndices();
+	}
+	
+
+	// Create resource
+
+
+	// Create view
+
+
+	// Set view to mesh
 }
 
 void Renderer::loadTexture(Texture* texture) const

@@ -38,6 +38,8 @@ public:
     const SlotInfo* GetSlotInfoAt(unsigned int index) const;
 
 private:
+    friend class Renderer;
+
     std::wstring m_Path;
     unsigned int m_Size = 0;
     std::vector<Mesh*> m_Meshes;

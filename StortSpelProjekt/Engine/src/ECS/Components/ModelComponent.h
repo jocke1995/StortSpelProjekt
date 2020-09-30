@@ -37,6 +37,7 @@ namespace component
         // The boundingBox will update the "m_IsPickedThisFrame"
         friend class BoundingBoxComponent;
         friend class Engine;
+        friend class Renderer;
         bool m_IsPickedThisFrame = false;
 
         Model* m_Model = nullptr;
