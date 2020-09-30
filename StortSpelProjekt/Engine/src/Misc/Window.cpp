@@ -31,13 +31,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			spacePressed = true;
 		}
-		/*if (wParam == VK_TAB)
+		if (wParam == VK_TAB)
 		{
 			tabPressed = true;
-		}*/
+		}
 		if (wParam == VK_RETURN)
 		{
-			Option::GetInstance().SetVariable("b_fullscreen", "0");
+			Option::GetInstance().SetVariable("b_fullscreen", "1");
 		}
 		
 		return 0;

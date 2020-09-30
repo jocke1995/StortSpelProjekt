@@ -49,7 +49,13 @@ private:
 	DXGI_MODE_DESC* m_pSupportedModes = {};		// list of all supported screen modes for the desired colour format
 	DXGI_MODE_DESC m_CurrentModeDescription = {};	// description of the currently active screen mode
 
-	void clearSwapBuffers();
+	const void initFullscreen(unsigned int* width, unsigned int* height);
+	const void resize(unsigned int width, unsigned int height);
+	const void createSwapBuffers(ID3D12Device5* device,
+		unsigned int width, unsigned int height,
+		DescriptorHeap* descriptorHeap_RTV,
+		DescriptorHeap* descriptorHeap_CBV_UAV_SRV);
+	const void clearSwapBuffers() const;
 };
 
 #endif

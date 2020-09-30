@@ -332,7 +332,7 @@ void Renderer::Execute(const HWND* hwnd)
 
 	static int a = 0;
 	// Look if we toggle between fullscreen or windowed
-	if (!std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()) && a == 0)
+	if (std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()) && a == 0)
 	{
 		a++;
 
@@ -370,6 +370,7 @@ void Renderer::Execute(const HWND* hwnd)
 			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 		dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
+		backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
 
 		for (auto task : m_RenderTasks)
 		{
