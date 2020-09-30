@@ -93,7 +93,7 @@ public:
 	// Call each frame
 	void RenderUpdate(double dt); //Please rename if logic update is removed
 	void SortObjects();
-	void Execute();
+	void Execute(const HWND* hwnd);
 
 	// Render inits, these functions are called by respective components through SetScene to prepare for drawing
 	void InitSkyboxComponent(Entity* entity);
@@ -104,6 +104,8 @@ public:
 	void InitCameraComponent(Entity* entity);
 	void InitBoundingBoxComponent(Entity* entity);
 	void InitTextComponent(Entity* entity);
+
+	void UnloadRenderComponents();
 
 private:
 	friend class component::SkyboxComponent;
@@ -196,6 +198,7 @@ private:
 	void createDescriptorHeaps();
 	void createFences();
 	void waitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
+	void waitForGPU();
 
 	// Load Gpu Memory Functions
 	void loadModel(component::ModelComponent* mc) const;

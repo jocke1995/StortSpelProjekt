@@ -21,14 +21,16 @@ public:
 	void RemoveEntity(Entity* entity);
 	void AddEntity(Entity* entity);
 	void SetScene(Scene* scene);
+	void ResetScene();
 private:
 	Renderer* m_pRenderer;
 
 	std::map<std::string, Scene*> m_pScenes;
+	Scene* m_pActiveScene = nullptr;
 
 	bool sceneExists(std::string sceneName) const;
 	void executeCopyOnDemand();
-	void resetScene();
+	
 };
 
 #endif

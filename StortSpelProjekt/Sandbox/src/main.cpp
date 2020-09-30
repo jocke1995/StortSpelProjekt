@@ -124,10 +124,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         renderer->SortObjects();
         
         UpdateScene(sceneManager);
-
+		
         /* ------ Draw ------ */
-        renderer->Execute();
+        renderer->Execute(window->GetHwnd());
     }
+    sceneManager->ResetScene();
     return 0;
 }
 
@@ -418,6 +419,10 @@ Scene* JockesTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /* ---------------------- Floor ---------------------- */
+
+    // Skybox
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
 
     /* ---------------------- PointLight ---------------------- */
     entity = scene->AddEntity("pointLight");

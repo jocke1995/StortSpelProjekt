@@ -164,7 +164,9 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	createSwapChain(window->GetHwnd());
 	m_pBloomResources = new Bloom(m_pDevice5, 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
+		m_pSwapChain
+		);
 
 	// Create Main DepthBuffer
 	createMainDSV();
@@ -325,11 +327,76 @@ void Renderer::SortObjects()
 	setRenderTasksRenderComponents();
 }
 
-void Renderer::Execute()
+void Renderer::Execute(const HWND* hwnd)
 {
 	IDXGISwapChain4* dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
 	int commandInterfaceIndex = m_FrameCounter++ % 2;
+
+	static int a = 0;
+	// Look if we toggle between fullscreen or windowed
+	if (std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()) && a == 0)
+	{
+		a++;
+
+		m_FenceFrameValue++;
+		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+
+		// Wait for all frames
+		waitForFrame(0);
+
+		for (auto task : m_RenderTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->Reset(i);
+			}
+		}
+		for (auto task : m_CopyTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->Reset(i);
+			}
+		}
+		for (auto task : m_ComputeTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->Reset(i);
+			}
+		}
+
+		m_pSwapChain->Toggle(m_pDevice5,
+			hwnd,
+			m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
+			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
+			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+		dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
+		backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
+
+		for (auto task : m_RenderTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->GetCommandList(i)->Close();
+			}
+		}
+		for (auto task : m_CopyTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->GetCommandList(i)->Close();
+			}
+		}
+		for (auto task : m_ComputeTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->GetCommandList(i)->Close();
+			}
+		}
+	}
 
 	CopyTask* copyTask = nullptr;
 	ComputeTask* computeTask = nullptr;
@@ -647,6 +714,18 @@ void Renderer::InitTextComponent(Entity* entity)
 	m_TextComponents.push_back(textComp);
 }
 
+void Renderer::UnloadRenderComponents()
+{
+	for (auto mapPair : m_RenderComponents)
+	{
+		for (unsigned int i = 0; i < mapPair.second.size(); i++)
+		{
+			unloadModel(mapPair.second[i].first);
+		}
+	}
+	m_RenderComponents.clear();
+}
+
 Entity* const Renderer::GetPickedEntity() const
 {
 	return m_pPickedEntity;
@@ -783,13 +862,13 @@ void Renderer::createCommandQueues()
 
 void Renderer::createSwapChain(const HWND *hwnd)
 {
-	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
 
 	m_pSwapChain = new SwapChain(
 		m_pDevice5,
 		hwnd,
-		width, height,
+		resolutionWidth, resolutionHeight,
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
@@ -802,12 +881,16 @@ void Renderer::createMainDSV()
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	if (m_pSwapChain->IsFullscreen())
+	{
+		m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
+	}
 
 	m_pMainDepthStencil = new DepthStencil(
 		m_pDevice5,
-		width, height,
+		resolutionWidth, resolutionHeight,
 		L"MainDSV",
 		&dsvDesc,
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
@@ -1443,9 +1526,6 @@ void Renderer::initRenderTasks()
 
 #pragma endregion Text
 	
-	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
-
 #pragma region IMGUIRENDERTASK
 	RenderTask* imGuiRenderTask = new ImGuiRenderTask(
 		m_pDevice5,
@@ -1459,6 +1539,13 @@ void Renderer::initRenderTasks()
 
 #pragma endregion IMGUIRENDERTASK
 
+	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	if (m_pSwapChain->IsFullscreen())
+	{
+		m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
+	}
+
 	// ComputeTasks
 	std::vector<std::pair<std::wstring, std::wstring>> csNamePSOName;
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurHorizontal.hlsl", L"blurHorizontalPSO"));
@@ -1469,7 +1556,7 @@ void Renderer::initRenderTasks()
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		width, height);
+		resolutionWidth, resolutionHeight);
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
@@ -1489,7 +1576,7 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandList(i);
+		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandInterface()->GetCommandList(i);
 	}
 
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
@@ -1511,63 +1598,63 @@ void Renderer::initRenderTasks()
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(copyPerFrameTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(copyPerFrameTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(DepthPrePassRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(DepthPrePassRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(skyboxRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(skyboxRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(textTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(textTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(outliningRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(outliningRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			m_DirectCommandLists[i].push_back(wireFrameRenderTask->GetCommandList(i));
+			m_DirectCommandLists[i].push_back(wireFrameRenderTask->GetCommandInterface()->GetCommandList(i));
 		}
 	}
 
 	// Compute shader to blur the RTV from forwardRenderTask
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(blurComputeTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(blurComputeTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	// Final pass (this pass will merge different textures together and put result in the swapchain backBuffer)
 	// This will be used for pp-effects such as bloom.
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(mergeTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(mergeTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	// GUI
@@ -1575,7 +1662,7 @@ void Renderer::initRenderTasks()
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			m_DirectCommandLists[i].push_back(imGuiRenderTask->GetCommandList(i));
+			m_DirectCommandLists[i].push_back(imGuiRenderTask->GetCommandInterface()->GetCommandList(i));
 		}
 	}
 }
@@ -1610,6 +1697,21 @@ void Renderer::createFences()
 
 	// Event handle to use for GPU synchronization
 	m_EventHandle = CreateEvent(0, false, false, 0);
+}
+
+void Renderer::waitForGPU()
+{
+	//Signal and increment the fence value.
+	const UINT64 oldFenceValue = m_FenceFrameValue;
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, oldFenceValue);
+	m_FenceFrameValue++;
+
+	//Wait until command queue is done.
+	if (m_pFenceFrame->GetCompletedValue() < oldFenceValue)
+	{
+		m_pFenceFrame->SetEventOnCompletion(oldFenceValue, m_EventHandle);
+		WaitForSingleObject(m_EventHandle, INFINITE);
+	}
 }
 
 void Renderer::waitForFrame(unsigned int framesToBeAhead)
@@ -1764,57 +1866,71 @@ void Renderer::unloadModel(component::ModelComponent* mc) const
 	// Debug check if model is already unloaded
 	if (!al->IsModelLoadedOnGpu(path))
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Renderer::unloadModel: unloadModel called on already unloaded model %S\n", path);
+		// Do nothing
+		//Log::PrintSeverity(Log::Severity::WARNING, "Renderer::unloadModel: unloadModel called on already unloaded model %S\n", path);
 	}
-
-	Model* model = mc->m_Model;
-	for (unsigned int i = 0; i < model->GetSize(); i++)
+	else
 	{
-		// unloadMeshes
-		Mesh* mesh = model->GetMeshAt(i);
-		unloadMesh(mesh);
+		Model* model = mc->m_Model;
+		for (unsigned int i = 0; i < model->GetSize(); i++)
+		{
+			// unloadMeshes
+			Mesh* mesh = model->GetMeshAt(i);
+			unloadMesh(mesh);
 
-		// unloadMaterial
-		Material* meshmat = model->GetMaterialAt(i);
-		unloadMaterial(meshmat);
+			// unloadMaterial
+			Material* meshmat = model->GetMaterialAt(i);
+			unloadMaterial(meshmat);
 
-		// Set slotinfo = 0;
-		model->m_SlotInfos[i] = {};
+			// Set slotinfo = 0;
+			model->m_SlotInfos[i] = {};
+		}
+		// Set as unloaded
+		al->m_LoadedModels[path].first = false;
 	}
 }
 
 void Renderer::unloadMesh(Mesh* mesh) const
 {
-	// Delete the VRAM
-	delete mesh->m_pDefaultResourceVertices;
-	delete mesh->m_pUploadResourceVertices;
-	delete mesh->m_pDefaultResourceIndices;
-	delete mesh->m_pUploadResourceIndices;
+	// TODO: Bool for isMeshOnGPU
+	if (mesh->m_pDefaultResourceVertices != nullptr)
+	{
+		// Delete the VRAM
+		delete mesh->m_pDefaultResourceVertices;
+		delete mesh->m_pUploadResourceVertices;
+		delete mesh->m_pDefaultResourceIndices;
+		delete mesh->m_pUploadResourceIndices;
 
-	delete mesh->m_pSRV;
-	delete mesh->m_pIndexBufferView;
+		delete mesh->m_pSRV;
+		delete mesh->m_pIndexBufferView;
 
-	// Set to nullptr
-	mesh->m_pDefaultResourceVertices = nullptr;
-	mesh->m_pUploadResourceVertices = nullptr;
-	mesh->m_pDefaultResourceIndices = nullptr;
-	mesh->m_pUploadResourceIndices = nullptr;
+		// Set to nullptr
+		mesh->m_pDefaultResourceVertices = nullptr;
+		mesh->m_pUploadResourceVertices = nullptr;
+		mesh->m_pDefaultResourceIndices = nullptr;
+		mesh->m_pUploadResourceIndices = nullptr;
 
-	mesh->m_pSRV = nullptr;
-	mesh->m_pIndexBufferView = nullptr;
+		mesh->m_pSRV = nullptr;
+		mesh->m_pIndexBufferView = nullptr;
+	}
 }
 
 void Renderer::unloadMaterial(Material* material) const
 {
+	AssetLoader* al = AssetLoader::Get();
+
 	for (unsigned int i = 0; i < material->m_Textures.size(); i++)
 	{
 		Texture* texture = material->m_Textures.at(static_cast<TEXTURE2D_TYPE>(i));
 		unloadTexture(texture);
 	}
+	al->m_LoadedMaterials[material->m_Name].first = false;
 }
 
 void Renderer::unloadTexture(Texture* texture) const
 {
+	AssetLoader* al = AssetLoader::Get();
+
 	// Delete VRAM
 	delete texture->m_pUploadResource;
 	delete texture->m_pDefaultResource;
@@ -1824,6 +1940,8 @@ void Renderer::unloadTexture(Texture* texture) const
 	texture->m_pUploadResource = nullptr;
 	texture->m_pDefaultResource = nullptr;
 	texture->m_pSRV = nullptr;
+
+	al->m_LoadedTextures[texture->m_FilePath].first = false;
 }
 
 void Renderer::waitForCopyOnDemand()

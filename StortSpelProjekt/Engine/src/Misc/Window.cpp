@@ -5,6 +5,7 @@
 #include "../ImGUI/imgui.h"
 #include "../ImGUI/imgui_impl_win32.h"
 #include "../ImGUI/imgui_impl_dx12.h"
+#include "Option.h"
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -33,6 +34,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (wParam == VK_TAB)
 		{
 			tabPressed = true;
+		}
+		if (wParam == VK_RETURN)
+		{
+			Option::GetInstance().SetVariable("b_fullscreen", "1");
 		}
 		
 		return 0;
@@ -120,19 +125,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		return 0;
 	}
+
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 Window::Window(
 	HINSTANCE hInstance,
 	int nCmdShow,
-	bool fullScreen,
+	bool windowedFullScreen,
 	int screenWidth, int screenHeight,
 	LPCTSTR windowName, LPCTSTR windowTitle)
 {
 	m_ScreenWidth = screenWidth;
 	m_ScreenHeight = screenHeight;
-	m_FullScreen = fullScreen;
+	m_WindowedFullScreen = windowedFullScreen;
 	m_WindowName = windowName;
 	m_WindowTitle = windowTitle;
 
@@ -154,7 +160,7 @@ void Window::SetWindowTitle(std::wstring newTitle)
 
 bool Window::IsFullScreen() const
 {
-	return m_FullScreen;
+	return m_WindowedFullScreen;
 }
 
 int Window::GetScreenWidth() const
@@ -213,7 +219,7 @@ bool Window::WasTabPressed()
 
 bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 {
-	if (m_FullScreen)
+	if (m_WindowedFullScreen)
 	{
 		HMONITOR hmon = MonitorFromWindow(m_Hwnd, MONITOR_DEFAULTTONEAREST);
 		MONITORINFO mi = { sizeof(mi) };

@@ -96,11 +96,13 @@ void SceneManager::AddEntity(Entity* entity)
 
 void SceneManager::SetScene(Scene* scene)
 {
-	resetScene();
+	ResetScene();
 
-	std::map<std::string, Entity*> entities = *scene->GetEntities();
+	m_pActiveScene = scene;
+
+	std::map<std::string, Entity*> entities = *(m_pActiveScene->GetEntities());
 	for (auto const& [entityName, entity] : entities)
-	{		
+	{
 		// for each component in entity: call their implementation of InitScene(),
 		// which calls their specific init function (render, audio, game, physics etc)
 		std::vector<Component*>* components = entity->GetAllComponents();
@@ -115,6 +117,34 @@ void SceneManager::SetScene(Scene* scene)
 	return;
 }
 
+void SceneManager::ResetScene()
+{
+
+	/* ------------------------- GPU -------------------------*/
+	// Reset
+	m_pRenderer->waitForGPU();
+
+	// unload all rendercomponents models
+	m_pRenderer->UnloadRenderComponents();
+
+	for (auto& light : m_pRenderer->m_Lights)
+	{
+		light.second.clear();
+	}
+	m_pRenderer->m_pViewPool->ClearAll();
+	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
+	static_cast<ShadowRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
+	m_pRenderer->m_pScenePrimaryCamera = nullptr;
+	static_cast<WireframeRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
+	m_pRenderer->m_BoundingBoxesToBePicked.clear();
+	m_pRenderer->m_TextComponents.clear();
+
+	/* ------------------------- GPU -------------------------*/
+
+	/* ------------------------- Audio -------------------------*/
+
+	/* ------------------------- Audio -------------------------*/
+}
 
 bool SceneManager::sceneExists(std::string sceneName) const
 {
@@ -139,19 +169,3 @@ void SceneManager::executeCopyOnDemand()
 	m_pRenderer->waitForCopyOnDemand();
 }
 
-void SceneManager::resetScene()
-{
-	// Reset
-	m_pRenderer->m_RenderComponents.clear();
-	for (auto& light : m_pRenderer->m_Lights)
-	{
-		light.second.clear();
-	}
-	m_pRenderer->m_pViewPool->ClearAll();
-	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
-	static_cast<ShadowRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
-	m_pRenderer->m_pScenePrimaryCamera = nullptr;
-	static_cast<WireframeRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
-	m_pRenderer->m_BoundingBoxesToBePicked.clear();
-	m_pRenderer->m_TextComponents.clear();
-}

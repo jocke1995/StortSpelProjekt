@@ -2,6 +2,7 @@
 #define WINDOW_H
 #include <Windows.h>
 #include <string>
+
 // Temp
 static bool spacePressed = false;
 static bool tabPressed = false;
@@ -13,7 +14,7 @@ public:
 	Window( // Default values
 		HINSTANCE hInstance,
 		int nCmdShow,
-		bool fullScreen = false,
+		bool windowedFullScreen = false,
 		int screenWidth = 800,
 		int screenHeight = 600,
 		LPCTSTR windowName = L"windowName",
@@ -37,7 +38,7 @@ public:
 private:
 	int m_ScreenWidth;
 	int m_ScreenHeight;
-	bool m_FullScreen;
+	bool m_WindowedFullScreen;
 	LPCTSTR m_WindowName;
 	LPCTSTR m_WindowTitle;
 
