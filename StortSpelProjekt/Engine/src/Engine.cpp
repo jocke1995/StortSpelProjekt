@@ -13,6 +13,7 @@ Engine::~Engine()
 
 	m_pThreadPool->WaitForThreads(FLAG_THREAD::ALL);
 	m_pThreadPool->ExitThreads();
+	m_pThreadPool->WaitForThreads(FLAG_THREAD::ALL);
 	delete m_pThreadPool;
 
 	delete m_pSceneManager;
@@ -40,7 +41,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	{
 		numThreads = m_ThreadLimit;
 	}
-	m_pThreadPool = new ThreadPool(numThreads);
+	m_pThreadPool = new ThreadPool(4);
 
 	// Sub-engines
 	//m_pRenderer = new Renderer();
