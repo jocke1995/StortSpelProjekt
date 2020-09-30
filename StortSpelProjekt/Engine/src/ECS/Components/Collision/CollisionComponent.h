@@ -22,6 +22,7 @@ namespace component
 		void InitScene();
 		void SetPosition(double x, double y, double z);
 		void SetRotation(double roll, double pitch, double yaw);
+		void Rotate(float3 axis, double angle);
 		void SetVelVector(double x, double y, double z);
 		void SetNormalizedVelVector(double x, double y, double z);
 		void SetAngularVelocity(double x, double y, double z);

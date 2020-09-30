@@ -90,6 +90,19 @@ void component::CollisionComponent::SetRotation(double roll, double pitch, doubl
 	m_pBody->setWorldTransform(trans);
 }
 
+void component::CollisionComponent::Rotate(float3 axis, double angle)
+{
+	btTransform trans = m_pBody->getWorldTransform();
+	btQuaternion quat = trans.getRotation();
+
+	btQuaternion rotQuat;
+	rotQuat.setRotation({ axis.x, axis.y, axis.z }, angle);
+
+	quat = quat * rotQuat;
+	trans.setRotation(quat);
+	m_pBody->setWorldTransform(trans);
+}
+
 void component::CollisionComponent::SetVelVector(double x, double y, double z)
 {
 	m_pBody->setLinearVelocity({ x, y, z });
