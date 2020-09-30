@@ -25,6 +25,8 @@ enum CAMERA_FLAGS
 
 namespace component
 {
+	class CollisionComponent;
+
 	class PlayerInputComponent : public InputComponent
 	{
 	public:
@@ -45,6 +47,8 @@ namespace component
 		float m_CameraDistance;
 		PerspectiveCamera* m_pCamera;
 		Transform* m_pTransform;
+
+		CollisionComponent* m_pCC;
 
 		void toggleCameraLock(ModifierInput* evnt);
 		void zoom(MouseScroll* evnt);

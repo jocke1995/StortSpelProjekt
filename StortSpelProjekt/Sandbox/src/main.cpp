@@ -273,9 +273,9 @@ Scene* LeosBounceScene(SceneManager* sm)
     Transform* t = tc->GetTransform();
 
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0.0f, 10.0f, 0.0f);
+    tc->GetTransform()->SetPosition(-15.0f, 10.0f, 0.0f);
 
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 100.0f, 0.8f);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f);
     pic->Init();
 
     mc->SetModel(playerModel);
