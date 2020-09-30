@@ -17,6 +17,7 @@ namespace component
 	class CollisionComponent : public Component
 	{
 	public:
+		// if Mass is zero, the object is static (It will not move because of collisions).
 		CollisionComponent(Entity* parent, double mass = 1.0, double friction = 1.0, double restitution = 0.5);
 		virtual ~CollisionComponent();
 		

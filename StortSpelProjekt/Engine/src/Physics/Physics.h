@@ -53,7 +53,6 @@ private:
 	btCollisionConfiguration* m_pCollisionConfig;
 	btDbvtBroadphase* m_pBroadphase;
 	btConstraintSolver* m_pSolver;
-	btRigidBody* m_pBottomPlane;
 
 	// Checks collision for all entities in the collison entities vector
 	// publishes an event if a collision has happened

@@ -13,17 +13,6 @@ Physics::Physics()
 	m_pSolver = new btSequentialImpulseConstraintSolver();
 	m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher,m_pBroadphase,m_pSolver, m_pCollisionConfig);
 	m_pWorld->setGravity({ 0.0, -50, 0.0 });
-
-	//similar to createSphere
-	btTransform t;
-	t.setIdentity();
-	t.setOrigin(btVector3(0, 0, 0));
-	btBoxShape* plane = new btBoxShape({ 35,0.0,35 });
-	btMotionState* motion = new btDefaultMotionState(t);
-	btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, plane);
-	info.m_restitution = 0.5;
-	m_pBottomPlane = new btRigidBody(info);
-	m_pWorld->addRigidBody(m_pBottomPlane);
 }
 
 Physics& Physics::GetInstance()
@@ -38,11 +27,6 @@ Physics::~Physics()
 
 void Physics::DestroyPhysics()
 {
-	m_pWorld->removeCollisionObject(m_pBottomPlane);
-	delete m_pBottomPlane->getMotionState();
-	delete m_pBottomPlane->getCollisionShape();
-	delete m_pBottomPlane;
-
 	for (int i = 0; i < m_CollisionComponents.size(); i++)
 	{
 		m_pWorld->removeCollisionObject(m_CollisionComponents[i]->GetBody());
