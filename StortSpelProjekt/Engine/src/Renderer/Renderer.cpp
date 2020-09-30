@@ -68,8 +68,6 @@
 
 #include "../ImGUI/ImGuiHandler.h"
 
-#include "testClass.h"
-
 Renderer::Renderer()
 {
 	m_RenderTasks.resize(RENDER_TASK_TYPE::NR_OF_RENDERTASKS);
@@ -339,10 +337,6 @@ void Renderer::Execute()
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
 	int commandInterfaceIndex = m_FrameCounter++ % 2;
 
-	static testClass0 t0;
-	static testClass1 t1;
-	static testClass2 t2;
-
 	CopyTask* copyTask = nullptr;
 	ComputeTask* computeTask = nullptr;
 	RenderTask* renderTask = nullptr;
@@ -414,9 +408,6 @@ void Renderer::Execute()
 	}
 	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
 
-	m_pThreadPool->AddTask(&t0);
-	m_pThreadPool->AddTask(&t1);
-	m_pThreadPool->AddTask(&t2);
 	// Wait for the threads which records the commandlists to complete
 	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER);
 
@@ -424,9 +415,6 @@ void Renderer::Execute()
 		m_DirectCommandLists[commandInterfaceIndex].size(), 
 		m_DirectCommandLists[commandInterfaceIndex].data());
 
-	m_pThreadPool->WaitForThreads(FLAG_THREAD::TEST);
-	if((counter1 + counter2 + counter3) % 3 != 0)
-		Log::Print("test: %d\n", (counter1 + counter2 + counter3) % 3);
 	/* --------------------------------------------------------------- */
 
 	// Wait if the CPU is to far ahead of the gpu

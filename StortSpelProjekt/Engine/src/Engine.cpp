@@ -39,10 +39,9 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	{
 		numThreads = m_ThreadLimit;
 	}
-	m_pThreadPool = new ThreadPool(4);
+	m_pThreadPool = new ThreadPool(numThreads);
 
 	// Sub-engines
-	//m_pRenderer = new Renderer();
 	m_pRenderer = &Renderer::GetInstance();
 	m_pRenderer->InitD3D12(m_pWindow, hInstance, m_pThreadPool);
 
