@@ -12,13 +12,13 @@ Physics::Physics()
 	m_pBroadphase = new btDbvtBroadphase();
 	m_pSolver = new btSequentialImpulseConstraintSolver();
 	m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher,m_pBroadphase,m_pSolver, m_pCollisionConfig);
-	m_pWorld->setGravity({ 0.0f,-9.82f,0.0f });
+	m_pWorld->setGravity({ 0.0, -9.82, 0.0 });
 
 	//similar to createSphere
 	btTransform t;
 	t.setIdentity();
 	t.setOrigin(btVector3(0, 0, 0));
-	btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
+	btBoxShape* plane = new btBoxShape({ 35,0.1,35 });
 	btMotionState* motion = new btDefaultMotionState(t);
 	btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, plane);
 	info.m_restitution = 0.5;

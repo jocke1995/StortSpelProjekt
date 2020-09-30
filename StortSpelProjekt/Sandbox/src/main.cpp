@@ -446,7 +446,7 @@ Scene* TimScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(1000.0f, 1.0f, 1.0f, 1.0f);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(1000.0);
 
     mc->SetModel(cubeModel);
 
