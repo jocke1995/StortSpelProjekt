@@ -275,7 +275,7 @@ Scene* LeosBounceScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 10.0f, 0.0f);
 
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 100.0f, 0.8f);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 100.0f, 0.8f);
     pic->Init();
 
     mc->SetModel(playerModel);
@@ -293,7 +293,7 @@ Scene* LeosBounceScene(SceneManager* sm)
 
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
-    bcc = entity->AddComponent<component::SphereCollisionComponent>(1.0f, 1.0f, 1.0f, 1.5f);
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(1.0f, 1.5f, 1.0f, 1.0f);
 
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
@@ -308,7 +308,7 @@ Scene* LeosBounceScene(SceneManager* sm)
 
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(-5.0f, 1.0f, 3.5f);
-    bcc = entity->AddComponent<component::SphereCollisionComponent>(5.0f, 0.0f, 1.0f, 1.5f);
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(5.0f, 1.5f, 0.0f, 1.0f);
 
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
@@ -323,7 +323,7 @@ Scene* LeosBounceScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(5.0f, 1.0f, 4.0f);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1000.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1000.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
 
     mc->SetModel(cubeModel);
 
