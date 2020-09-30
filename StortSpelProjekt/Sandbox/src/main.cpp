@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
+#include "Components/HealthComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 
@@ -7,6 +8,7 @@ Scene* LeosTestScene(SceneManager* sm);
 Scene* LeosBounceScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
 Scene* JockesTestScene(SceneManager* sm);
+Scene* FloppipTestScene(SceneManager* sm);
 Scene* FredriksTestScene(SceneManager* sm);
 Scene* WilliamsTestScene(SceneManager* sm);
 Scene* AndresTestScene(SceneManager* sm);
@@ -53,6 +55,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     sceneManager->SetScene(LeosBounceScene(sceneManager));
     //sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
+    sceneManager->SetScene(FloppipTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
     //sceneManager->SetScene(BjornsTestScene(sceneManager));
@@ -95,8 +98,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         {
             logicTimer = 0;
             networkCount++;
-            physics->Update(updateRate);
             renderer->Update(updateRate);
+            physics->Update(updateRate);
         }
 
         /* ---- Network ---- */
@@ -136,6 +139,7 @@ Scene* LeosTestScene(SceneManager* sm)
     component::Audio3DEmitterComponent* ec = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::AccelerationComponent* ac = nullptr;
+    component::HealthComponent* hc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -157,6 +161,7 @@ Scene* LeosTestScene(SceneManager* sm)
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     lc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    hc = entity->AddComponent<component::HealthComponent>(10);
     //ac = entity->AddComponent<component::AccelerationComponent>(0.982);
 
     mc->SetModel(playerModel);
@@ -165,6 +170,15 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0, 1, -30);
     ic->Init();
     bbc->Init();
+
+    // Skybox
+    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    sbc->SetMesh(sphereModel->GetMeshAt(0));
+    sbc->SetTexture(skyboxCubemap);
+    sbc->SetCamera(cc->GetCamera());
+    sbc->GetTransform()->SetScale(50);
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
@@ -218,7 +232,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    enH.AddEnemy("sphere", sphereModel, float3{ 0, 10, -5 }, F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
+    enH.AddEnemy("sphere", sphereModel, 10, float3{ 0, 10, -5 }, F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
     enH.AddExistingEnemy("sphere", float3{ 0, 10, -55 });
     enH.AddExistingEnemy("sphere", float3{ 25, 10, -30 });
     enH.AddExistingEnemy("sphere", float3{ -25, 10, -30 });
@@ -642,6 +656,188 @@ Scene* JockesTestScene(SceneManager* sm)
     slc->SetDirection({ -2.0, -1.0, 0.0f });
     /* ---------------------- Spotlight ---------------------- */
 
+    /* ---------------------- PointLight6 ---------------------- */
+
+
+
+
+
+    return scene;
+
+}
+
+Scene* FloppipTestScene(SceneManager* sm)
+{
+    // Create Scene
+    Scene* scene = sm->CreateScene("floppipScene");
+
+    component::CameraComponent* cc = nullptr;
+    component::ModelComponent* mc = nullptr;
+    component::TransformComponent* tc = nullptr;
+    component::PointLightComponent* plc = nullptr;
+    component::InputComponent* ic = nullptr;
+
+    AssetLoader* al = AssetLoader::Get();
+
+    // Get the models needed
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+
+    /* ---------------------- Player ---------------------- */
+    Entity* entity = scene->AddEntity("player");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    ic->Init();
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(0, 1, -30);
+    /* ---------------------- Player ---------------------- */
+
+    /* ---------------------- Skybox ---------------------- */
+
+    // Skybox
+    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    sbc->SetTexture(skyboxCubemap);
+
+    /* ---------------------- Skybox ---------------------- */
+
+    /* ---------------------- Floor ---------------------- */
+    entity = scene->AddEntity("floor");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(floorModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(35, 1, 35);
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    /* ---------------------- Floor ---------------------- */
+
+    
+    /* ---------------------- PointLight1 ---------------------- */
+    entity = scene->AddEntity("pointLight1");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(-30.0f, 4.0f, 15.0f);
+
+    plc->SetColor({ 2.0f, 0.0f, 2.0f });
+    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+
+    /* ---------------------- PointLight1 ---------------------- */
+
+
+
+    /* ---------------------- PointLigh2 ---------------------- */
+    entity = scene->AddEntity("pointLight2");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
+
+    plc->SetColor({ 0.0f, 2.0f, 0.0f });
+    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+
+    /* ---------------------- PointLight2 ---------------------- */
+
+
+
+    /* ---------------------- PointLight3 ---------------------- */
+    entity = scene->AddEntity("pointLight3");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
+
+    plc->SetColor({ 0.0f, 0.0f, 2.0f });
+    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+
+    /* ---------------------- PointLight3 ---------------------- */
+
+
+
+    /* ---------------------- PointLight4 ---------------------- */
+    entity = scene->AddEntity("pointLight4");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(-30.0f, 4.0f, -15.0f);
+
+    plc->SetColor({ 4.0f, 2.0f, 2.0f });
+    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+
+    /* ---------------------- PointLight4 ---------------------- */
+
+
+
+    /* ---------------------- PointLigh5 ---------------------- */
+    entity = scene->AddEntity("pointLight5");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
+
+    plc->SetColor({ 2.0f, 2.0f, 5.0f });
+    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+
+
+    /* ---------------------- PointLight5 ---------------------- */
+
+
+
+    /* ---------------------- PointLight6 ---------------------- */
+    entity = scene->AddEntity("pointLight6");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
+
+    plc->SetColor({ 2.0f, 2.0f, 2.0f });
+    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+
+    /* ---------------------- PointLight6 ---------------------- */
+
+    /* ---------------------- The Sun ---------------------- */
+    entity = scene->AddEntity("sun");
+    component::DirectionalLightComponent* dlc;
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION);
+    
+    dlc->SetColor({ 2.0f, 2.0f, 2.0f });
+
+    dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
+    /* ---------------------- The Sun ---------------------- */
+
     return scene;
 }
 
@@ -1062,6 +1258,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     component::SpotLightComponent* slc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
+    component::HealthComponent* hc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -1084,6 +1281,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
+    hc = entity->AddComponent<component::HealthComponent>(15);
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
@@ -1141,7 +1339,7 @@ Scene* BjornsTestScene(SceneManager* sm)
 
     // Adding enemy example
     EnemyFactory enH(scene);
-    enH.AddEnemy("rock", stoneModel, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.01, float3{ 1.578, 0, 0 });
+    enH.AddEnemy("rock", stoneModel, 5, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.01, float3{ 1.578, 0, 0 });
     // showing that using the wrong overload will send Warning to Log. 
     // and then automaticly use the correct overloaded function 
    // enH.AddEnemy("rock", stoneModel, float3{ -10, 0, -10 }, F_COMP_FLAGS::OBB, 0.01);

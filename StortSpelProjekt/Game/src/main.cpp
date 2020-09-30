@@ -1,6 +1,8 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
+#include "Components/HealthComponent.h"
 #include "EnemyFactory.h"
+
 Scene* GetDemoScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -41,8 +43,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             {
                 logicTimer = 0;
                 
-                Physics::GetInstance().Update(updateRate);
                 renderer->Update(updateRate);
+                Physics::GetInstance().Update(updateRate);
             }
 
             /* ------ Sort ------ */
@@ -98,6 +100,7 @@ Scene* GetDemoScene(SceneManager* sm)
     ic->Init();
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    entity->AddComponent<component::HealthComponent>(10);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     avc->AddVoice(L"Bruh");
 
@@ -109,6 +112,15 @@ Scene* GetDemoScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /* ---------------------- Player ---------------------- */
+
+    /* ---------------------- Skybox ---------------------- */
+
+    // Skybox
+    TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = scene->AddEntity("skybox");
+
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    /* ---------------------- Skybox ---------------------- */
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
@@ -126,7 +138,7 @@ Scene* GetDemoScene(SceneManager* sm)
     /*--------------------- Adding 76 Enemies for preformance check ---------------------*/
 
     EnemyFactory enH(scene);
-    enH.AddEnemy("barb", barbModel, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.3, float3{ 0, 0, 0 });
+    enH.AddEnemy("barb", barbModel, 5, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.3, float3{ 0, 0, 0 });
 
     // looping through and adding already existing enemy type with only new position
     float xVal = 8;

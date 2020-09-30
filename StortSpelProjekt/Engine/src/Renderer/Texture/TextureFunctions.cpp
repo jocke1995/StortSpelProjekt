@@ -1,10 +1,4 @@
-#include "stdafx.h"
-#include "Texture.h"
-
-#include "GPUMemory/Resource.h"
-#include "CommandInterface.h"
-#include "GPUMemory/ShaderResourceView.h"
-#include "DescriptorHeap.h"
+#include "TextureFunctions.h"
 
 // For loading textures
 #include <wincodec.h>
@@ -103,90 +97,18 @@ int GetDXGIFormatBitsPerPixel(DXGI_FORMAT& dxgiFormat)
 }
 #pragma endregion HelpFunctions
 
-Texture::Texture()
+// returns byte size of image
+unsigned int LoadImageDataFromFile(BYTE** imageData, D3D12_RESOURCE_DESC* resourceDesc, std::wstring path, int* bytesPerRow)
 {
-	
-}
+	HRESULT hr;
+	bool imageConverted = false;
 
-Texture::~Texture()
-{
-	if (m_pResourceDefaultHeap != nullptr)
-	{
-		delete m_pResourceDefaultHeap;
-	}
-
-	if (m_pResourceUploadHeap != nullptr)
-	{
-		delete m_pResourceUploadHeap;
-	}
-	
-	delete m_pSRV;
-	free(const_cast<void*>(m_SubresourceData.pData));
-}
-
-const UINT Texture::GetDescriptorHeapIndex() const
-{
-	return m_pSRV->GetDescriptorHeapIndex();
-}
-
-bool Texture::Init(std::wstring* filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
-{
-	m_FilePath = *filePath;
-	unsigned int descriptorHeapIndex = descriptorHeap->GetNextDescriptorHeapIndex(0);
-
-	if (createTexture(filePath, device, descriptorHeapIndex) == false)
-	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(*filePath).c_str());
-		return false;
-	}
-
-	// Default heap
-	m_pResourceDefaultHeap = new Resource(
-		device,
-		&m_ResourceDescription,
-		nullptr,
-		m_FilePath + L"_DEFAULT_RESOURCE",
-		D3D12_RESOURCE_STATE_COMMON);
-
-	UINT64 textureUploadBufferSize;
-	device->GetCopyableFootprints(
-		&m_ResourceDescription,
-		0, 1, 0,
-		nullptr, nullptr, nullptr,
-		&textureUploadBufferSize);
-
-	// Upload heap
-	m_pResourceUploadHeap = new Resource(device,
-	textureUploadBufferSize,
-	RESOURCE_TYPE::UPLOAD,
-		m_FilePath + L"_UPLOAD_RESOURCE");
-
-	// Create srv
-	D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
-	desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	desc.Format = m_ResourceDescription.Format;
-	desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	desc.Texture2D.MipLevels = 1;
-
-	m_pSRV = new ShaderResourceView(
-		device,
-		descriptorHeap,
-		&desc,
-		m_pResourceDefaultHeap);
-
-	return true;
-}
-
-bool Texture::createTexture(std::wstring* filePath, ID3D12Device5* device, UINT descriptorHeapIndex_SRV)
-{
 	static IWICImagingFactory* wicFactory;
 
 	// Reset decoder
 	IWICBitmapDecoder* wicDecoder = NULL;
 	IWICBitmapFrameDecode* wicFrame = NULL;
 	IWICFormatConverter* wicConverter = NULL;
-
-	HRESULT hr;
 
 	if (wicFactory == NULL)
 	{
@@ -201,12 +123,12 @@ bool Texture::createTexture(std::wstring* filePath, ID3D12Device5* device, UINT 
 		if (FAILED(hr))
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to \'coCreateInstance\' when loading texture from file.\n");
-			return false;
+			return 0;
 		}
 	}
 
 	// Load a decoder for the image
-	LPCWSTR tempName = m_FilePath.c_str();
+	LPCWSTR tempName = path.c_str();
 	hr = wicFactory->CreateDecoderFromFilename(
 		tempName,                        // Image we want to load in
 		NULL,                            // This is a vendor ID, we do not prefer a specific one so set to null
@@ -217,7 +139,7 @@ bool Texture::createTexture(std::wstring* filePath, ID3D12Device5* device, UINT 
 	if (FAILED(hr))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to \'CreateDecoderFromFilename\' when loading texture from file.\n");
-		return false;
+		return 0;
 	}
 
 	// Get image from decoder (this will decode the "frame")
@@ -225,7 +147,7 @@ bool Texture::createTexture(std::wstring* filePath, ID3D12Device5* device, UINT 
 	if (FAILED(hr))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to \'GetFrame\' when loading texture from file.\n");
-		return false;
+		return 0;
 	}
 
 	// Get wic pixel format of image
@@ -234,21 +156,20 @@ bool Texture::createTexture(std::wstring* filePath, ID3D12Device5* device, UINT 
 	if (FAILED(hr))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to \'GetPixelFormat\' when loading texture from file.\n");
-		return false;
+		return 0;
 	}
 
 	// Get size of image
-	UINT textureWidth, textureHeight;
+	unsigned int textureWidth, textureHeight;
 	hr = wicFrame->GetSize(&textureWidth, &textureHeight);
 	if (FAILED(hr))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to \'GetSize\' when loading texture from file.\n");
-		return false;
+		return 0;
 	}
 
 	DXGI_FORMAT dxgiFormat = GetDXGIFormatFromWICFormat(pixelFormat);
 
-	bool imageConverted = false;
 	// If the format of the image is not a supported dxgi format, try to convert it
 	if (dxgiFormat == DXGI_FORMAT_UNKNOWN)
 	{
@@ -259,7 +180,7 @@ bool Texture::createTexture(std::wstring* filePath, ID3D12Device5* device, UINT 
 		if (convertToPixelFormat == GUID_WICPixelFormatDontCare)
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "No dxgi compatible format was found for texture.\n");
-			return false;
+			return 0;
 		}
 
 		// Set the dxgi format
@@ -270,7 +191,7 @@ bool Texture::createTexture(std::wstring* filePath, ID3D12Device5* device, UINT 
 		if (FAILED(hr))
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to \'CreateFormatConverter\' when loading texture from file.\n");
-			return false;
+			return 0;
 		}
 
 		// Make sure we can convert to the dxgi compatible format
@@ -279,7 +200,7 @@ bool Texture::createTexture(std::wstring* filePath, ID3D12Device5* device, UINT 
 		if (FAILED(hr) || !canConvert)
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to \'canConvert\' when loading texture from file.\n");
-			return false;
+			return 0;
 		}
 
 		// Do the conversion (wicConverter will contain the converted image)
@@ -287,7 +208,7 @@ bool Texture::createTexture(std::wstring* filePath, ID3D12Device5* device, UINT 
 		if (FAILED(hr))
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to \'Initialize\' when loading texture from file.\n");
-			return false;
+			return 0;
 		}
 
 		// This is so we know to get the image data from the wicConverter (otherwise we will get from wicFrame)
@@ -295,42 +216,39 @@ bool Texture::createTexture(std::wstring* filePath, ID3D12Device5* device, UINT 
 	}
 
 	int bitsPerPixel = GetDXGIFormatBitsPerPixel(dxgiFormat); // number of bits per pixel
-	unsigned int bytesPerRow = (textureWidth * bitsPerPixel) / 8; // number of bytes in each row of the image data
-	unsigned int imageSize = bytesPerRow * textureHeight; // total image size in bytes
+	*bytesPerRow = (textureWidth * bitsPerPixel) / 8; // number of bytes in each row of the image data
+	unsigned int imageSize = *bytesPerRow * textureHeight; // total image size in bytes
 
 	// Allocate enough memory for the raw image data, and set imageData to point to that memory
-	BYTE* imageData = (BYTE*)malloc(imageSize);
+	*imageData = static_cast<BYTE*>(malloc(imageSize));
 
 	// Copy (decoded) raw image data into the newly allocated memory (imageData)
 	if (imageConverted)
 	{
 		// If image format needed to be converted, the wic converter will contain the converted image
-		hr = wicConverter->CopyPixels(0, bytesPerRow, imageSize, imageData);
+		hr = wicConverter->CopyPixels(0, *bytesPerRow, imageSize, *imageData);
 		if (FAILED(hr)) return 0;
 	}
 	else
 	{
 		// No need to convert, just copy data from the wic frame
-		hr = wicFrame->CopyPixels(0, bytesPerRow, imageSize, imageData);
+		hr = wicFrame->CopyPixels(0, *bytesPerRow, imageSize, *imageData);
 		if (FAILED(hr)) return 0;
 	}
 
-	m_SubresourceData.pData = &imageData[0]; // pointer to our image data
-	m_SubresourceData.RowPitch = bytesPerRow;
-	m_SubresourceData.SlicePitch = bytesPerRow * m_ResourceDescription.Height;
-
 	// Now describe the texture with the information we have obtained from the image
-	m_ResourceDescription.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	m_ResourceDescription.Alignment = 0; // may be 0, 4KB, 64KB, or 4MB. 0 will let runtime decide between 64KB and 4MB (4MB for multi-sampled textures)
-	m_ResourceDescription.Width = textureWidth; // width of the texture
-	m_ResourceDescription.Height = textureHeight; // height of the texture
-	m_ResourceDescription.DepthOrArraySize = 1; // if 3d image, depth of 3d image. Otherwise an array of 1D or 2D textures (we only have one image, so we set 1)
-	m_ResourceDescription.MipLevels = 1; // Number of mipmaps. We are not generating mipmaps for this texture, so we have only one level
-	m_ResourceDescription.Format = dxgiFormat; // This is the dxgi format of the image (format of the pixels)
-	m_ResourceDescription.SampleDesc.Count = 1; // This is the number of samples per pixel, we just want 1 sample
-	m_ResourceDescription.SampleDesc.Quality = 0; // The quality level of the samples. Higher is better quality, but worse performance
-	m_ResourceDescription.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN; // The arrangement of the pixels. Setting to unknown lets the driver choose the most efficient one
-	m_ResourceDescription.Flags = D3D12_RESOURCE_FLAG_NONE; // no flags
+	*resourceDesc = {};
+	resourceDesc->Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	resourceDesc->Alignment = 0; // may be 0, 4KB, 64KB, or 4MB. 0 will let runtime decide between 64KB and 4MB (4MB for multi-sampled textures)
+	resourceDesc->Width = textureWidth; // width of the texture
+	resourceDesc->Height = textureHeight; // height of the texture
+	resourceDesc->DepthOrArraySize = 1; // if 3d image, depth of 3d image. Otherwise an array of 1D or 2D textures (we only have one image, so we set 1)
+	resourceDesc->MipLevels = 1; // Number of mipmaps. We are not generating mipmaps for this texture, so we have only one level
+	resourceDesc->Format = dxgiFormat; // This is the dxgi format of the image (format of the pixels)
+	resourceDesc->SampleDesc.Count = 1; // This is the number of samples per pixel, we just want 1 sample
+	resourceDesc->SampleDesc.Quality = 0; // The quality level of the samples. Higher is better quality, but worse performance
+	resourceDesc->Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN; // The arrangement of the pixels. Setting to unknown lets the driver choose the most efficient one
+	resourceDesc->Flags = D3D12_RESOURCE_FLAG_NONE; // no flags
 
-	return true;
+	return imageSize;
 }

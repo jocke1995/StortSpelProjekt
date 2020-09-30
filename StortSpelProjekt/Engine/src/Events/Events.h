@@ -61,3 +61,9 @@ struct PlayerConnection : public Event
 	PlayerConnection(int playerId) : playerId{ playerId } {};
 	int playerId;
 };
+
+struct Death : public Event
+{
+	Death(Entity* ent) : ent{ ent } {};
+	Entity* ent;
+};

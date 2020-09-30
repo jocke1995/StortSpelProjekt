@@ -11,7 +11,7 @@
 #include "../Renderer/GPUMemory/ConstantBuffer.h"
 #include "../Renderer/ShadowInfo.h"
 #include "../Renderer/ViewPool.h"
-#include "../Renderer/Texture.h"
+#include "../Renderer/Texture/Texture.h"
 #include "../Renderer/Mesh.h"
 
 // CopyTasks
