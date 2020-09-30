@@ -1217,7 +1217,7 @@ void LeoBounceUpdateScene(SceneManager* sm)
         ImGuiHandler::GetInstance().SetBool("reset", false);
 
         component::CollisionComponent* cc = sm->GetScene("BounceScene")->GetEntity("player")->GetComponent<component::CollisionComponent>();
-        cc->SetPosition(0.0f, 10.0f, 0.0f);
+        cc->SetPosition(-15.0f, 10.0f, 0.0f);
         cc->SetVelVector(0.0f, 0.0f, 0.0f);
         cc->SetRotation(0.0f, 0.0f, 0.0f);
         cc->SetAngularVelocity(0.0f, 0.0f, 0.0f);

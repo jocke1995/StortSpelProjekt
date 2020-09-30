@@ -243,7 +243,7 @@ double component::CollisionComponent::CastRay(double3 direction, double length)
 	btVector3 btFrom = m_pBody->getWorldTransform().getOrigin();
 	btVector3 btTo(direction.x, direction.y, direction.z);
 
-	btTo = btTo.normalize() * length;
+	btTo = btFrom + btTo.normalize() * length;
 
 	btCollisionWorld::ClosestRayResultCallback res(btFrom, btTo);
 
