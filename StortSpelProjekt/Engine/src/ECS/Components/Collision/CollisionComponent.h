@@ -9,29 +9,45 @@ class btCollisionShape;
 class btMotionState;
 namespace component
 {
+	/* 
+		The CollisionComponent is a base class for all collision detection and collision response. It should not be used on its 
+		own as it requires a collisionshape for usage. When initalized it will be thrown into the world held by the physics 
+		sub-engine.
+	*/
 	class CollisionComponent : public Component
 	{
 	public:
 		CollisionComponent(Entity* parent, double mass = 1.0, double friction = 1.0, double restitution = 0.5);
 		virtual ~CollisionComponent();
-		// Checks for collision between two objects. If collision occurs, the transform is adjusted accordingly.
-		//virtual void CheckCollision(CollisionComponent* other) = 0;
-		btRigidBody* GetBody();
-
+		
 		void Update(double dt);
+
+		// Initializes the component and gives it to the physics sub-engine. Needs to be called before any methods are used.
 		void InitScene();
+		
+		// Sets the position of the object. This affects the transform from a transformcomponent as well.
 		void SetPosition(double x, double y, double z);
+		// Sets the rotation of the object using three angles (x,y,z). This affects the transform from a transformcomponent as well.
 		void SetRotation(double roll, double pitch, double yaw);
+		// Sets the rotation of the object using a quaternion. This affects the transform from a transformcomponent as well.
 		void SetRotation(double3 axis, double angle);
+		// Rotates the object by the given quaternion.
 		void Rotate(double3 axis, double angle);
+		// Sets a velocity for the object. This velocity is not constant and may dissapear due to friction.
 		void SetVelVector(double x, double y, double z);
-		void SetNormalizedVelVector(double x, double y, double z);
+		// Sets an angular velocity for the object, rotating it along the given axis. This velocity is not constant and may dissapear due to friction.
 		void SetAngularVelocity(double x, double y, double z);
+		// Sets the friction of the object.
 		void SetFriction(double fric);
+		// Sets the Restitution of the object (bounciness).
 		void SetRestitution(double rest);
+		// Sets the angular factor, how much the object may rotate in the world. 0 will stop it from rotating in that axis.
 		void SetAngularFactor(double3& factor);
+		// Sets the linear factor, how much the object may move in the world. 0 will stop it from moving in that axis.
 		void SetLinearFactor(double3& factor);
 
+
+		btRigidBody* GetBody();
 		double3 GetPosition();
 		double3 GetRotationEuler();
 		double4 GetRotationQuaternion();
@@ -42,7 +58,9 @@ namespace component
 		double3 GetAngularFactor();
 		double3 GetLinearFactor();
 
+		// Casts a ray from the object to a given position, returning the minimal distance to another object. returns -1 if nothing is hit.
 		double CastRay(double3 castTo);
+		// Casts a ray from the object in the given direction and length, returning the minimal distance to another object. returns -1 if nothing is hit.
 		double CastRay(double3 direction, double length);
 	protected:
 		double m_Mass;

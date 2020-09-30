@@ -46,6 +46,7 @@ void component::CollisionComponent::Update(double dt)
 void component::CollisionComponent::InitScene()
 {
 #ifdef _DEBUG
+	// If no transform is given, this component is useless!
 	if (!m_pParent->HasComponent<component::TransformComponent>())
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "No Transform provided for collisioncomponent in entity %s\n", m_pParent->GetName().c_str());
@@ -53,6 +54,7 @@ void component::CollisionComponent::InitScene()
 	}
 #endif
 
+	// Initiate the body with a given shape. This shape should be defined in an inherited class.
 	m_pTrans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
 
 	btTransform btTrans;
@@ -68,7 +70,12 @@ void component::CollisionComponent::InitScene()
 
 	m_pBody = new btRigidBody(info);
 	m_pBody->setLinearVelocity({ m_pTrans->GetMovement().x, m_pTrans->GetMovement().y, m_pTrans->GetMovement().z });
+	
+	// Will be removed in the future!
+	// If it isn't called, objects may be deactivated as Bullet deduces they wont be colliding with anything, but if user then changes position bullet does not react.
 	m_pBody->setActivationState(DISABLE_DEACTIVATION);
+	
+	// Add the collisioncomponent to the physics sub-engine.
 	Physics::GetInstance().AddCollisionComponent(this);
 }
 
@@ -125,20 +132,6 @@ void component::CollisionComponent::Rotate(double3 axis, double angle)
 
 void component::CollisionComponent::SetVelVector(double x, double y, double z)
 {
-	m_pBody->setLinearVelocity({ x, y, z });
-}
-
-void component::CollisionComponent::SetNormalizedVelVector(double x, double y, double z)
-{
-	double length = sqrt(x * x + y * y + z * z);
-
-	if (length > 1.0)
-	{
-		x = x / length;
-		y = y / length;
-		z = z / length;
-	}
-
 	m_pBody->setLinearVelocity({ x, y, z });
 }
 
@@ -226,11 +219,13 @@ double3 component::CollisionComponent::GetLinearFactor()
 
 double component::CollisionComponent::CastRay(double3 castTo)
 {
+	// The ray does not collide with the object itself (tested on cube).
+	// Probably the ray only collides with frontface of any triangle of objects.
 	btVector3 btFrom = m_pBody->getWorldTransform().getOrigin();
 	btVector3 btTo(castTo.x, castTo.y, castTo.z);
 	btCollisionWorld::ClosestRayResultCallback res(btFrom, btTo);
 
-	Physics::GetInstance().GetWorld()->rayTest(btFrom, btTo, res); // m_btWorld is btDiscreteDynamicsWorld
+	Physics::GetInstance().GetWorld()->rayTest(btFrom, btTo, res);
 
 	if (res.hasHit()) {
 		return (res.m_hitPointWorld - btFrom).length();
@@ -240,6 +235,9 @@ double component::CollisionComponent::CastRay(double3 castTo)
 
 double component::CollisionComponent::CastRay(double3 direction, double length)
 {
+	// The ray does not collide with the object itself (tested on cube).
+	// Probably the ray only collides with frontface of any triangle of objects.
+
 	btVector3 btFrom = m_pBody->getWorldTransform().getOrigin();
 	btVector3 btTo(direction.x, direction.y, direction.z);
 
@@ -247,7 +245,7 @@ double component::CollisionComponent::CastRay(double3 direction, double length)
 
 	btCollisionWorld::ClosestRayResultCallback res(btFrom, btTo);
 
-	Physics::GetInstance().GetWorld()->rayTest(btFrom, btTo, res); // m_btWorld is btDiscreteDynamicsWorld
+	Physics::GetInstance().GetWorld()->rayTest(btFrom, btTo, res);
 
 	if (res.hasHit()) {
 		return (res.m_hitPointWorld - btFrom).length();
