@@ -1212,6 +1212,7 @@ void LeoUpdateScene(SceneManager* sm)
 
 void LeoBounceUpdateScene(SceneManager* sm)
 {
+    // Check if the command "RESET" has been executed
     if (ImGuiHandler::GetInstance().GetBool("reset") == true)
     {
         ImGuiHandler::GetInstance().SetBool("reset", false);
