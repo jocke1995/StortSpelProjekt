@@ -61,6 +61,9 @@
 // Compute
 #include "DX12Tasks/BlurComputeTask.h"
 
+// Event
+#include "../Events/EventBus.h"
+
 //ImGui
 #include "../ImGUI/imgui.h"
 #include "../ImGUI/imgui_impl_win32.h"
@@ -70,6 +73,7 @@
 
 Renderer::Renderer()
 {
+	EventBus::GetInstance().Subscribe(this, &Renderer::toggleFullscreen);
 	m_RenderTasks.resize(RENDER_TASK_TYPE::NR_OF_RENDERTASKS);
 	m_CopyTasks.resize(COPY_TASK_TYPE::NR_OF_COPYTASKS);
 	m_ComputeTasks.resize(COMPUTE_TASK_TYPE::NR_OF_COMPUTETASKS);
@@ -129,6 +133,7 @@ Renderer::~Renderer()
 void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
 {
 	m_pThreadPool = threadPool;
+	m_Window = window;
 
 	// Create Device
 	if (!createDevice())
@@ -146,7 +151,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	createFences();
 
 	// Rendertargets
-	createSwapChain(window->GetHwnd());
+	createSwapChain();
 	m_pBloomResources = new Bloom(m_pDevice5, 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
@@ -166,7 +171,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	createFullScreenQuad();
 
 	// Init Assetloader
-	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], window);
+	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], m_Window);
 
 	// Init BoundingBoxPool
 	BoundingBoxPool::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
@@ -210,7 +215,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	unsigned int imGuiTextureIndex = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1);
 
 	// Setup Platform/Renderer bindings
-	ImGui_ImplWin32_Init(*window->GetHwnd());
+	ImGui_ImplWin32_Init(*m_Window->GetHwnd());
 	ImGui_ImplDX12_Init(m_pDevice5, NUM_SWAP_BUFFERS,
 		DXGI_FORMAT_R16G16B16A16_FLOAT, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetID3D12DescriptorHeap(),
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetCPUHeapAt(imGuiTextureIndex),
@@ -324,76 +329,11 @@ void Renderer::SortObjects()
 	setRenderTasksRenderComponents();
 }
 
-void Renderer::Execute(const HWND* hwnd)
+void Renderer::Execute()
 {
 	IDXGISwapChain4* dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
 	int commandInterfaceIndex = m_FrameCounter++ % 2;
-
-	static int a = 0;
-	// Look if we toggle between fullscreen or windowed
-	if (std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()) && a == 0)
-	{
-		a++;
-
-		m_FenceFrameValue++;
-		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
-
-		// Wait for all frames
-		waitForFrame(0);
-
-		for (auto task : m_RenderTasks)
-		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->Reset(i);
-			}
-		}
-		for (auto task : m_CopyTasks)
-		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->Reset(i);
-			}
-		}
-		for (auto task : m_ComputeTasks)
-		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->Reset(i);
-			}
-		}
-
-		m_pSwapChain->Toggle(m_pDevice5,
-			hwnd,
-			m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
-			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
-			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
-		dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
-		backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
-
-		for (auto task : m_RenderTasks)
-		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->GetCommandList(i)->Close();
-			}
-		}
-		for (auto task : m_CopyTasks)
-		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->GetCommandList(i)->Close();
-			}
-		}
-		for (auto task : m_ComputeTasks)
-		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->GetCommandList(i)->Close();
-			}
-		}
-	}
 
 	CopyTask* copyTask = nullptr;
 	ComputeTask* computeTask = nullptr;
@@ -623,14 +563,14 @@ void Renderer::createCommandQueues()
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->SetName(L"CopyQueue");
 }
 
-void Renderer::createSwapChain(const HWND *hwnd)
+void Renderer::createSwapChain()
 {
 	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
 	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
 
 	m_pSwapChain = new SwapChain(
 		m_pDevice5,
-		hwnd,
+		m_Window->GetHwnd(),
 		resolutionWidth, resolutionHeight,
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
@@ -1866,5 +1806,67 @@ void Renderer::prepareCBPerFrame()
 	{
 		data = static_cast<void*>(m_pCbPerFrameData);
 		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetDefaultResource(), data));
+	}
+}
+
+void Renderer::toggleFullscreen(ModifierInput* evnt)
+{
+	if (evnt->key == SCAN_CODES::LEFT_CTRL && evnt->pressed)
+	{
+		m_FenceFrameValue++;
+		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+
+		// Wait for all frames
+		waitForFrame(0);
+
+		for (auto task : m_RenderTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->Reset(i);
+			}
+		}
+		for (auto task : m_CopyTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->Reset(i);
+			}
+		}
+		for (auto task : m_ComputeTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->Reset(i);
+			}
+		}
+
+		m_pSwapChain->ToggleWindowMode(m_pDevice5,
+			m_Window->GetHwnd(),
+			m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
+			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
+			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+
+		for (auto task : m_RenderTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->GetCommandList(i)->Close();
+			}
+		}
+		for (auto task : m_CopyTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->GetCommandList(i)->Close();
+			}
+		}
+		for (auto task : m_ComputeTasks)
+		{
+			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+			{
+				task->GetCommandInterface()->GetCommandList(i)->Close();
+			}
+		}
 	}
 }

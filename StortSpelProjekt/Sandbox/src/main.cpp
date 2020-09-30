@@ -109,7 +109,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         UpdateScene(sceneManager);
 		
         /* ------ Draw ------ */
-        renderer->Execute(window->GetHwnd());
+        renderer->Execute();
     }
     return 0;
 }

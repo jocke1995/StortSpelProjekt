@@ -69,6 +69,9 @@ namespace component
 	class TextComponent;
 }
 
+// Events
+struct ModifierInput;
+
 class Renderer
 {
 public:
@@ -88,7 +91,7 @@ public:
 	// Call each frame
 	void RenderUpdate(double dt); //Please rename if logic update is removed
 	void SortObjects();
-	void Execute(const HWND* hwnd);
+	void Execute();
 
 private:
 	friend class SceneManager;
@@ -99,6 +102,9 @@ private:
 	BaseCamera* m_pScenePrimaryCamera = nullptr;
 
 	unsigned int m_FrameCounter = 0;
+
+	// Window
+	const Window* m_Window;
 
 	// Device
 	ID3D12Device5* m_pDevice5 = nullptr;
@@ -167,7 +173,7 @@ private:
 	void setRenderTasksPrimaryCamera();
 	bool createDevice();
 	void createCommandQueues();
-	void createSwapChain(const HWND *hwnd);
+	void createSwapChain();
 	void createMainDSV();
 	void createRootSignature();
 	void createFullScreenQuad();
@@ -191,6 +197,8 @@ private:
 	void prepareCBPerScene();
 	// Submit per-frame data to the copyQueue that updates each frame
 	void prepareCBPerFrame();
+
+	void toggleFullscreen(ModifierInput* evnt);
 };
 
 #endif

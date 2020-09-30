@@ -6,6 +6,7 @@
 #include "GPUMemory/ShaderResourceView.h"
 #include "DescriptorHeap.h"
 #include "../Misc/Option.h"
+#include "../Events/EventBus.h"
 
 SwapChain::SwapChain(
 	ID3D12Device5* device,
@@ -118,8 +119,6 @@ SwapChain::~SwapChain()
 		m_pSwapChain4->SetFullscreenState(false, NULL);
 	}
 
-	delete[] m_pSupportedModes;
-
 	SAFE_RELEASE(&m_pSwapChain4);
 }
 
@@ -143,13 +142,20 @@ const bool SwapChain::IsFullscreen() const
 	return m_Fullscreen;
 }
 
-void SwapChain::Toggle(ID3D12Device5* device,
+void SwapChain::ToggleWindowMode(ID3D12Device5* device,
 	const HWND* hwnd,
 	ID3D12CommandQueue* commandQueue,
 	DescriptorHeap* descriptorHeap_RTV,
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
 {
-	m_Fullscreen = std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str());
+	if (m_Fullscreen)
+	{
+		m_Fullscreen = false;
+	}
+	else
+	{
+		m_Fullscreen = true;
+	}
 
 	clearSwapBuffers();
 
@@ -170,8 +176,6 @@ void SwapChain::Toggle(ID3D12Device5* device,
 	resize(width, height);
 
 	createSwapBuffers(device, width, height, descriptorHeap_RTV, descriptorHeap_CBV_UAV_SRV);
-
-	Option::GetInstance().SetVariable("b_fullscreen", "0");
 }
 
 const void SwapChain::initFullscreen(unsigned int* width, unsigned int* height)
@@ -247,6 +251,8 @@ const void SwapChain::initFullscreen(unsigned int* width, unsigned int* height)
 		}
 		Log::Print("----------------------\n");
 	}
+
+	delete[] m_pSupportedModes;
 }
 
 const void SwapChain::resize(unsigned int width, unsigned int height)

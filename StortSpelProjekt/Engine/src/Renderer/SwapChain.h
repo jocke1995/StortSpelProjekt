@@ -29,7 +29,7 @@ public:
 	const RenderTargetView* GetRTV(unsigned int backBufferIndex) const;
 	const ShaderResourceView* GetSRV(unsigned int backBufferIndex) const;
 	const bool IsFullscreen() const;
-	void Toggle(ID3D12Device5* device,
+	void ToggleWindowMode(ID3D12Device5* device,
 		const HWND* hwnd,
 		ID3D12CommandQueue* commandQueue,
 		DescriptorHeap* descriptorHeap_RTV,
