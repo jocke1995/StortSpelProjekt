@@ -31,8 +31,8 @@ NavQuad* NavMesh::GetQuad(float3 position)
 	for (int i = 0; i < m_NavQuads.size(); i++)
 	{
 		NavQuad* temp = m_NavQuads.at(i);
-		if (temp->position.x - temp->size.x <= position.x <= temp->position.x + temp->size.x &&
-			temp->position.y - temp->size.y <= position.y <= temp->position.y + temp->size.y &&
+		if (temp->position.x - temp->size.x <= position.x && position.x <= temp->position.x + temp->size.x &&
+			temp->position.y - temp->size.y <= position.y && position.y <= temp->position.y + temp->size.y &&
 			temp->position.z == position.z)
 		{
 			return temp;

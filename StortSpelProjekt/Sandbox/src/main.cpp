@@ -46,13 +46,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    sceneManager->SetScene(LeosTestScene(sceneManager));
+    //sceneManager->SetScene(LeosTestScene(sceneManager));
     //sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
     //sceneManager->SetScene(BjornsTestScene(sceneManager));
-    //sceneManager->SetScene(AntonTestScene(sceneManager));
+    sceneManager->SetScene(AntonTestScene(sceneManager));
     //sceneManager->SetScene(AndresTestScene(sceneManager)); // example play and updateEmitter functions in AndresTestScene
 
     GameNetwork gameNetwork;
@@ -76,32 +76,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     int networkCount = 0;
     double logicTimer = 0;
     int count = 0;
-
-
-    //NAV TEST
-    NavMesh navmesh;
-    float3 pos;
-    float2 size;
-    pos.x = 0;
-    pos.y = 0;
-    pos.z = 0;
-    size.x = 1;
-    size.y = 1;
-    NavQuad* nav1 = navmesh.AddNavQuad(pos, size);
-
-    pos.x = 2;
-    pos.y = 0;
-    pos.z = 0;
-    size.x = 1;
-    size.y = 1;
-    NavQuad* nav2 = navmesh.AddNavQuad(pos, size);
-    pos.x = 1;
-    pos.y = 0.5;
-    pos.z = 0;
-    navmesh.ConnectNavQuads(nav1, nav2, pos);
-
-    nav1 = navmesh.GetQuad(pos);
-    nav1 = nav1->connections.at(0)->GetConnectedQuad(nav1);
 
     while (!window->ExitWindow())
     {
@@ -369,6 +343,45 @@ Scene* AntonTestScene(SceneManager* sm)
     plc->SetColor({ 2.0f, 0.0f, 2.0f });
     plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
     /* ---------------------- PointLight ---------------------- */
+
+    //NAV TEST
+    NavMesh navmesh;
+    float3 pos;
+    float2 size;
+    pos.x = 0;
+    pos.y = 0;
+    pos.z = 0;
+    size.x = 0.5;
+    size.y = 0.5;
+    NavQuad* nav1 = navmesh.AddNavQuad(pos, size);
+
+    pos.x = 1;
+    pos.y = 0;
+    pos.z = 0;
+    size.x = 0.5;
+    size.y = 0.5;
+    NavQuad* nav2 = navmesh.AddNavQuad(pos, size);
+    pos.x = 0.5;
+    pos.y = 0;
+    navmesh.ConnectNavQuads(nav1, nav2, pos);
+
+    pos.x = 1;
+    pos.y = 1.5;
+    pos.z = 0;
+    size.x = 1;
+    size.y = 1;
+    NavQuad* nav3 = navmesh.AddNavQuad(pos, size);
+    pos.x = 0.0;
+    pos.y = 0.5;
+    navmesh.ConnectNavQuads(nav3, nav1, pos);
+    pos.x = 1.0;
+    pos.y = 0.5;
+    navmesh.ConnectNavQuads(nav3, nav2, pos);
+
+    pos.x = 1.1;
+    pos.y = 0.3;
+    nav1 = navmesh.GetQuad(pos);
+    nav1 = nav1->connections.at(0)->GetConnectedQuad(nav1);
 
     return scene;
 }
