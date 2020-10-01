@@ -13,7 +13,8 @@ public:
 		RootSignature* rootSignature,
 		const std::wstring& VSName, const std::wstring& PSName,
 		std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
-		const std::wstring& psoName);
+		const std::wstring& psoName,
+		unsigned int FLAG_THREAD);
 	~OutliningRenderTask();
 
 	void Execute();

@@ -5,6 +5,7 @@
 // Renderer
 #include "../Renderer/Transform.h"
 #include "../Renderer/BaseCamera.h"
+#include "../Renderer/Renderer.h"
 
 // ECS
 #include "../ECS/Entity.h"
@@ -52,6 +53,11 @@ namespace component
             m_pCamera->Update(dt);
             m_pSpotLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
         }  
+    }
+
+    void SpotLightComponent::InitScene()
+    {
+        Renderer::GetInstance().InitSpotLightComponent(GetParent());
     }
 
     void SpotLightComponent::SetPosition(float3 position)

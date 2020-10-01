@@ -62,6 +62,12 @@ struct PlayerConnection : public Event
 	int playerId;
 };
 
+struct Death : public Event
+{
+	Death(Entity* ent) : ent{ ent } {};
+	Entity* ent;
+};
+
 struct WindowChange : public Event
 {
 	WindowChange() {};

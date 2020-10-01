@@ -67,6 +67,7 @@ namespace component
 	class TransformComponent;
 	class BoundingBoxComponent;
 	class TextComponent;
+	class SkyboxComponent;
 }
 
 // Events
@@ -75,8 +76,10 @@ struct WindowChange;
 class Renderer
 {
 public:
-	Renderer();
+	static Renderer& GetInstance();
 	virtual ~Renderer();
+	// For control of safe release of DirectX resources
+	void DeleteDxResources();
 
 	// PickedEntity
 	Entity* const GetPickedEntity() const;
@@ -93,9 +96,22 @@ public:
 	void SortObjects();
 	void Execute();
 
+	// Render inits, these functions are called by respective components through SetScene to prepare for drawing
+	void InitSkyboxComponent(Entity* entity);
+	void InitModelComponent(Entity* entity);
+	void InitDirectionalLightComponent(Entity* entity);
+	void InitPointLightComponent(Entity* entity);
+	void InitSpotLightComponent(Entity* entity);
+	void InitCameraComponent(Entity* entity);
+	void InitBoundingBoxComponent(Entity* entity);
+	void InitTextComponent(Entity* entity);
+
 private:
+	friend class component::SkyboxComponent;
 	friend class SceneManager;
 	friend class Text;
+	Renderer();
+
 	ThreadPool* m_pThreadPool = nullptr;
 
 	// Camera
@@ -144,6 +160,7 @@ private:
 	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::TextComponent*> m_TextComponents;
+	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
 	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBuffer*, ShadowInfo*>>> m_Lights;
@@ -184,12 +201,11 @@ private:
 	void createFences();
 	void waitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
 
-	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetSceneToDraw
+	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene
 	void waitForCopyOnDemand();
 
 	// Manage components
 	void removeComponents(Entity* entity);
-	void addComponents(Entity* entity);
 
 	// Setup the whole scene
 	void prepareScene(Scene* scene);

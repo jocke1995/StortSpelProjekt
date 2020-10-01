@@ -36,14 +36,22 @@ inline T Max(T a, T b)
 	return b;
 }
 
-enum TEXTURE_TYPE
+enum class TEXTURE_TYPE
+{
+	UNKNOWN,
+	TEXTURE2D,
+	TEXTURECUBEMAP,
+	NUM_TYPES
+};
+
+enum class TEXTURE2D_TYPE
 {
 	ALBEDO,
 	ROUGHNESS,
 	METALLIC,
 	NORMAL,
 	EMISSIVE,
-	NUM_TEXTURE_TYPES
+	NUM_TYPES
 };
 
 enum LIGHT_TYPE
@@ -104,6 +112,17 @@ enum FLAG_DRAW
 	GIVE_SHADOW = BIT(4),
 	NUM_FLAG_DRAWS = 4,
 	// animation = BIT(4),
+	// etc..
+};
+
+enum FLAG_THREAD
+{
+	RENDER = BIT(1),
+	NETWORK = BIT(2),
+	// CopyTextures,
+	// PrepareNextScene ..
+	// etc
+	ALL = BIT(8)
 	// etc..
 };
 

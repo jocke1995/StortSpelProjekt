@@ -4,11 +4,13 @@
 #include "Core.h"
 #include "../AudioEngine/AudioBuffer.h"
 #include "assimp/matrix4x4.h"
+
 class DescriptorHeap;
 class Model;
 class Mesh;
 class Shader;
 class Texture;
+class TextureCubeMap;
 class Material;
 class Window;
 struct Font;
@@ -25,14 +27,18 @@ class AssetLoader
 public:
     ~AssetLoader();
 
-	static AssetLoader* Get(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr, const Window* window = nullptr);
+    static AssetLoader* Get(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr, const Window* window = nullptr);
 
     /* Load Functions */
     // Model ---------------
     Model* LoadModel(const std::wstring& path);
 
     // Texture ------------
-    Texture* LoadTexture(std::wstring& path);
+    Texture* LoadTexture2D(const std::wstring& path);
+    TextureCubeMap* LoadTextureCubeMap(const std::wstring& path);
+
+    // Create Geometry
+
 
     // Load Audio
     AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
@@ -55,11 +61,11 @@ private:
 
     ID3D12Device5* m_pDevice = nullptr;
     DescriptorHeap* m_pDescriptorHeap_CBV_UAV_SRV = nullptr;
-	Window* m_pWindow = nullptr;
+    Window* m_pWindow = nullptr;
 
     const std::wstring m_FilePathShaders = L"../Engine/src/Renderer/HLSL/";
     const std::wstring m_FilePathDefaultTextures = L"../Vendor/Resources/Textures/Default/";
-	const std::wstring m_FilePathFonts = L"../Vendor/Resources/Fonts/";
+    const std::wstring m_FilePathFonts = L"../Vendor/Resources/Fonts/";
 
     // Every model & texture also has a bool which indicates if its data is on the GPU or not
     std::map<std::wstring, std::pair<bool, Model*>> m_LoadedModels;
@@ -68,20 +74,20 @@ private:
     std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
     std::map<std::wstring, Shader*> m_LoadedShaders;
-	std::map<std::wstring, std::pair<Font*, Texture*>> m_LoadedFonts;
+    std::map<std::wstring, std::pair<Font*, Texture*>> m_LoadedFonts;
     std::map<std::wstring, AudioBuffer> m_LoadedAudios;
 
     // Audio
     // add map for audio (path, AudioObject)
 
     /* --------------- Functions --------------- */
-    void processNode(aiNode* node, 
+    void processNode(aiNode* node,
         const aiScene* assimpScene,
-        std::vector<Mesh*> *meshes,
+        std::vector<Mesh*>* meshes,
         std::vector<Material*>* materials,
         const std::wstring& filePath);
 
-    Mesh* processMesh(aiMesh* mesh, 
+    Mesh* processMesh(aiMesh* mesh,
         const aiScene* assimpScene,
         std::vector<Mesh*>* meshes,
         std::vector<Material*>* materials,
@@ -89,7 +95,7 @@ private:
 
     Material* loadMaterial(aiMaterial* mat, const std::wstring& folderPath);
 
-    Texture* processTexture(aiMaterial* mat, TEXTURE_TYPE texture_type, const std::wstring& filePathWithoutTexture);
+    Texture* processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture);
     
     void processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations);
     void processNodeAnimation(const aiNodeAnim* assimpNodeAnimation, NodeAnimation* nodeAnimation);

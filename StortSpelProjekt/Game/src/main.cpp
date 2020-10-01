@@ -1,6 +1,8 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
+#include "Components/HealthComponent.h"
 #include "EnemyFactory.h"
+
 Scene* GetDemoScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -22,7 +24,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
 	
-    sceneManager->SetSceneToDraw(GetDemoScene(sceneManager));
+    sceneManager->SetScene(GetDemoScene(sceneManager));
 
     double logicTimer = 0;
 
@@ -38,10 +40,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 				timer->Update();
 				logicTimer += timer->GetDeltaTime();
 
-				renderer->RenderUpdate(timer->GetDeltaTime());
-				if (logicTimer >= updateRate)
-				{
-					logicTimer = 0;
+            renderer->RenderUpdate(timer->GetDeltaTime());
+            if (logicTimer >= updateRate)
+            {
+                logicTimer = 0;
+                
+                renderer->Update(updateRate);
+                Physics::GetInstance().Update(updateRate);
+            }
 
 					Physics::GetInstance().Update(updateRate);
 					renderer->Update(updateRate);
@@ -66,6 +72,23 @@ Scene* GetDemoScene(SceneManager* sm)
     // Create Scene
     Scene* scene = sm->CreateScene("devScene");
 
+
+    /*--------------------- Assets ---------------------*/
+
+    AssetLoader* al = AssetLoader::Get();
+
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    //Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    //Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+
+    AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    /*--------------------- Assets ---------------------*/
+
+    /*--------------------- Component declarations ---------------------*/
+    Entity* entity = nullptr;
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
@@ -75,26 +98,38 @@ Scene* GetDemoScene(SceneManager* sm)
     component::DirectionalLightComponent* dlc = nullptr;
     component::SpotLightComponent* slc = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
-    AssetLoader* al = AssetLoader::Get();
 
-    // Get the models needed
-    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
-    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
     /* ---------------------- Player ---------------------- */
-    Entity* entity = (scene->AddEntity("player"));
+    entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     ic->Init();
+    // adding OBB with collision
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    entity->AddComponent<component::HealthComponent>(10);
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    avc->AddVoice(L"Bruh");
 
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
+    // initialize OBB after we have the transform info
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
     /* ---------------------- Player ---------------------- */
+
+    /* ---------------------- Skybox ---------------------- */
+
+    // Skybox
+    TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = scene->AddEntity("skybox");
+
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    /* ---------------------- Skybox ---------------------- */
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
@@ -108,6 +143,26 @@ Scene* GetDemoScene(SceneManager* sm)
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /* ---------------------- Floor ---------------------- */
+
+    /*--------------------- Adding 76 Enemies for preformance check ---------------------*/
+
+    EnemyFactory enH(scene);
+    enH.AddEnemy("barb", barbModel, 5, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.3, float3{ 0, 0, 0 });
+
+    // looping through and adding already existing enemy type with only new position
+    float xVal = 8;
+    float zVal = 0;
+    for (int i = 0; i < 75; i++)
+    {
+        zVal += 8;
+        enH.AddExistingEnemy("barb", float3{ xVal - 64, 0, zVal });
+        if ((i + 1) % 5 == 0)
+        {
+            xVal += 8;
+            zVal = 0;
+        }
+    }
+    /*--------------------- Adding 76 Enemies for preformance check ---------------------*/
 
     /* ---------------------- PointLight ---------------------- */
     entity = scene->AddEntity("pointLight");

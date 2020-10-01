@@ -4,6 +4,7 @@
 // Renderer
 #include "../Renderer/Transform.h"
 #include "../Renderer/BaseCamera.h"
+#include "../Renderer/Renderer.h"
 
 // ECS
 #include "../ECS/Entity.h"
@@ -39,6 +40,11 @@ namespace component
 			m_pPointLight->position.y = position.y;
 			m_pPointLight->position.z = position.z;
 		}
+	}
+
+	void PointLightComponent::InitScene()
+	{
+		Renderer::GetInstance().InitPointLightComponent(GetParent());
 	}
 
 	void PointLightComponent::SetPosition(float3 position)

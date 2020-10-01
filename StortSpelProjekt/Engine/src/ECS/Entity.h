@@ -12,6 +12,8 @@
 #include "Components/Audio3DListenerComponent.h"
 #include "Components/Audio3DEmitterComponent.h"
 
+#include "../../Game/src/Gamefiles/Components/GameComponents.h"
+
 // Lights
 class DirectionalLightComponent;
 class PointLightComponent;
@@ -42,6 +44,8 @@ public:
 	void DecrementRefCount();
 	void Update(double dt);
 	void RenderUpdate(double dt);
+
+	std::vector<Component*>* GetAllComponents();
 
 private:
 	unsigned int m_Id = -1;

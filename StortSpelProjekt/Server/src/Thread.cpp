@@ -9,7 +9,7 @@ unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 	while (threadInstance->m_IsRunning)
 	{
 		DWORD eventResult = WaitForSingleObject(
-			threadInstance->m_BeginEvent, // event handle
+			threadInstance->m_EventHandle, // event handle
 			INFINITE);    // indefinite wait
 
 		// ------------------- Critical region 1-------------------
@@ -18,12 +18,12 @@ unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 		if (!threadInstance->m_TaskQueue.empty())
 		{
 			// Get a m_pTask from the queue
-			threadInstance->m_pTask = threadInstance->m_TaskQueue.front();
+			threadInstance->m_pActiveTask = threadInstance->m_TaskQueue.front();
 			// Remove the m_pTask from the queue
 			threadInstance->m_TaskQueue.pop();
 		}
 
-		MultiThreadedTask* task = threadInstance->m_pTask;
+		MultiThreadedTask* task = threadInstance->m_pActiveTask;
 		threadInstance->m_Mutex.unlock();
 		// ------------------- Critical region 1-------------------
 
@@ -34,7 +34,7 @@ unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 
 			// ------------------- Critical region 2-------------------
 			threadInstance->m_Mutex.lock();
-			threadInstance->m_pTask = nullptr;
+			threadInstance->m_pActiveTask = nullptr;
 			threadInstance->m_Mutex.unlock();
 			// ------------------- Critical region 2-------------------
 		}
@@ -44,9 +44,9 @@ unsigned int __stdcall Thread::threadFunc(LPVOID lpParameter)
 
 Thread::Thread()
 {
-	m_Thread = (HANDLE)_beginthreadex(0, 0, threadFunc, this, 0, 0);
-	SetThreadPriority(m_Thread, THREAD_PRIORITY_TIME_CRITICAL);
-	m_BeginEvent = CreateEvent(
+	m_ThreadHandle = (HANDLE)_beginthreadex(0, 0, threadFunc, this, 0, 0);
+	SetThreadPriority(m_ThreadHandle, THREAD_PRIORITY_TIME_CRITICAL);
+	m_EventHandle = CreateEvent(
 		NULL,               // default security attributes
 		FALSE,               // manual-reset event
 		FALSE,              // initial state is nonsignaled
@@ -56,13 +56,13 @@ Thread::Thread()
 
 Thread::~Thread()
 {
-	CloseHandle(m_Thread);
+	CloseHandle(m_ThreadHandle);
 }
 
-bool Thread::IsTaskNullptr()
+bool Thread::isLastActiveTaskNullptr()
 {
 	m_Mutex.lock();
-	bool result = (m_pTask == nullptr);
+	bool result = (m_pActiveTask == nullptr);
 	m_Mutex.unlock();
 
 	return result;
@@ -82,7 +82,7 @@ void Thread::AddTask(MultiThreadedTask* task, unsigned int taskFlag)
 	// Add the m_pTask to the m_Thread and m_Start executing
 	m_Mutex.lock();
 	m_TaskQueue.push(task);
-	if (!SetEvent(m_BeginEvent))
+	if (!SetEvent(m_EventHandle))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to SetEvent in thread\n");
 	}
