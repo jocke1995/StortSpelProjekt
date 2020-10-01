@@ -48,21 +48,23 @@ namespace component
 		void SetLinearFactor(double3& factor);
 
 
-		btRigidBody* GetBody();
-		double3 GetPosition();
-		double3 GetRotationEuler();
-		double4 GetRotationQuaternion();
-		double3 GetLinearVelocity();
-		double3 GetAngularVelocity();
-		double GetFriction();
-		double GetRestitution();
-		double3 GetAngularFactor();
-		double3 GetLinearFactor();
+		btRigidBody* GetBody() const;
+		double3 GetPosition() const;
+		double3 GetRotationEuler() const;
+		double4 GetRotationQuaternion() const;
+		double3 GetLinearVelocity() const;
+		double3 GetAngularVelocity() const;
+		double GetFriction() const;
+		double GetRestitution() const;
+		double3 GetAngularFactor() const;
+		double3 GetLinearFactor() const;
 
 		// Casts a ray from the object to a given position, returning the minimal distance to another object. returns -1 if nothing is hit.
-		double CastRay(double3 castTo);
+		double CastRay(double3 castTo) const;
 		// Casts a ray from the object in the given direction and length, returning the minimal distance to another object. returns -1 if nothing is hit.
-		double CastRay(double3 direction, double length);
+		double CastRay(double3 direction, double length) const;
+
+		virtual double GetDistanceToBottom() const = 0;
 	protected:
 		double m_Mass;
 		double m_Fric;

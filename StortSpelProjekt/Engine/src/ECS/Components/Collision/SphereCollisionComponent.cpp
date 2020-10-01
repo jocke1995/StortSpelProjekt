@@ -11,3 +11,8 @@ component::SphereCollisionComponent::~SphereCollisionComponent()
 {
 	delete m_pShape;
 }
+
+double component::SphereCollisionComponent::GetDistanceToBottom() const
+{
+	return dynamic_cast<btSphereShape*>(m_pShape)->getRadius();
+}

@@ -11,3 +11,8 @@ component::CapsuleCollisionComponent::~CapsuleCollisionComponent()
 {
 	delete m_pShape;
 }
+
+double component::CapsuleCollisionComponent::GetDistanceToBottom() const
+{
+	return dynamic_cast<btCapsuleShape*>(m_pShape)->getHalfHeight();
+}

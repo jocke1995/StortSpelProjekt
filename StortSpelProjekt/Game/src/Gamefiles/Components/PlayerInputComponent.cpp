@@ -106,7 +106,7 @@ void component::PlayerInputComponent::zoom(MouseScroll* evnt)
 void component::PlayerInputComponent::move(MovementInput* evnt)
 {
 	// Check if the player is in the air. If not, allow movement
-	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, 1.0) != -1)
+	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1)
 	{
 		// Check if the key has just been pressed or jsut been released and convert to a float. Multiply by two and subtract one to get 1 for true and -1 for false. If
 		// the key has been pressed, the player should start moving in the direction specified by the key -- hence the value 1. If the key has been released, the player's

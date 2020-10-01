@@ -20,11 +20,6 @@ component::CollisionComponent::~CollisionComponent()
 	delete m_pMotionState;
 }
 
-btRigidBody* component::CollisionComponent::GetBody()
-{
-	return m_pBody;
-}
-
 void component::CollisionComponent::Update(double dt)
 {
 	btTransform trans = m_pBody->getWorldTransform();
@@ -160,13 +155,18 @@ void component::CollisionComponent::SetLinearFactor(double3& factor)
 	m_pBody->setLinearFactor({ factor.x, factor.y, factor.z });
 }
 
-double3 component::CollisionComponent::GetPosition()
+btRigidBody* component::CollisionComponent::GetBody() const
+{
+	return m_pBody;
+}
+
+double3 component::CollisionComponent::GetPosition() const
 {
 	btVector3& pos = m_pBody->getWorldTransform().getOrigin();
 	return { pos.x(), pos.y(), pos.z()};
 }
 
-double3 component::CollisionComponent::GetRotationEuler()
+double3 component::CollisionComponent::GetRotationEuler() const
 {
 	btQuaternion& rot = m_pBody->getWorldTransform().getRotation();
 
@@ -177,47 +177,47 @@ double3 component::CollisionComponent::GetRotationEuler()
 	return { pitch, yaw, roll };
 }
 
-double4 component::CollisionComponent::GetRotationQuaternion()
+double4 component::CollisionComponent::GetRotationQuaternion() const
 {
 	btQuaternion& rot = m_pBody->getWorldTransform().getRotation();
 	return {rot.x(), rot.y(), rot.z(), rot.getAngle()};
 }
 
-double3 component::CollisionComponent::GetLinearVelocity()
+double3 component::CollisionComponent::GetLinearVelocity() const
 {
 	btVector3 vel = m_pBody->getLinearVelocity();
 	return { vel.x(), vel.y(), vel.z() };
 }
 
-double3 component::CollisionComponent::GetAngularVelocity()
+double3 component::CollisionComponent::GetAngularVelocity() const
 {
 	btVector3 vel = m_pBody->getAngularVelocity();
 	return { vel.x(), vel.y(), vel.z() };
 }
 
-double component::CollisionComponent::GetFriction()
+double component::CollisionComponent::GetFriction() const
 {
 	return m_pBody->getFriction();
 }
 
-double component::CollisionComponent::GetRestitution()
+double component::CollisionComponent::GetRestitution() const
 {
 	return m_pBody->getRestitution();
 }
 
-double3 component::CollisionComponent::GetAngularFactor()
+double3 component::CollisionComponent::GetAngularFactor() const
 {
 	btVector3 factor = m_pBody->getAngularFactor();
 	return {factor.x(), factor.y(), factor.z()};
 }
 
-double3 component::CollisionComponent::GetLinearFactor()
+double3 component::CollisionComponent::GetLinearFactor() const
 {
 	btVector3 factor = m_pBody->getLinearFactor();
 	return { factor.x(), factor.y(), factor.z() };
 }
 
-double component::CollisionComponent::CastRay(double3 castTo)
+double component::CollisionComponent::CastRay(double3 castTo) const
 {
 	// The ray does not collide with the object itself (tested on cube).
 	// Probably the ray only collides with frontface of any triangle of objects.
@@ -233,7 +233,7 @@ double component::CollisionComponent::CastRay(double3 castTo)
 	return -1;
 }
 
-double component::CollisionComponent::CastRay(double3 direction, double length)
+double component::CollisionComponent::CastRay(double3 direction, double length) const
 {
 	// The ray does not collide with the object itself (tested on cube).
 	// Probably the ray only collides with frontface of any triangle of objects.
@@ -252,4 +252,3 @@ double component::CollisionComponent::CastRay(double3 direction, double length)
 	}
 	return -1;
 }
-

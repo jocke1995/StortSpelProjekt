@@ -13,3 +13,8 @@ component::CubeCollisionComponent::~CubeCollisionComponent()
 {
 	delete m_pShape;
 }
+
+double component::CubeCollisionComponent::GetDistanceToBottom() const
+{
+	return dynamic_cast<btBoxShape*>(m_pShape)->getHalfExtentsWithMargin().y();
+}

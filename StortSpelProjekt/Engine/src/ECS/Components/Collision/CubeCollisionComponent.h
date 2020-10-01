@@ -9,6 +9,7 @@ namespace component
 	public:
 		CubeCollisionComponent(Entity* parent, double mass = 1.0, double halfWidth = 1.0, double halfHeight = 1.0, double halfDepth = 1.0, double friction = 1.0, double restitution = 0.5);
 		~CubeCollisionComponent();
+		virtual double GetDistanceToBottom() const;
 	private:
 	};
 }
