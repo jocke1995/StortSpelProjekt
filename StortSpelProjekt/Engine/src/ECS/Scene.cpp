@@ -20,7 +20,6 @@ Scene::~Scene()
             pair.second->DecrementRefCount();
         }
     }
-    m_Entities.clear();
 }
 
 Entity* Scene::AddEntityFromOther(Entity* other)
@@ -48,6 +47,7 @@ Entity* Scene::AddEntity(std::string entityName)
     }
 
     m_Entities[entityName] = new Entity(entityName);
+    m_Entities[entityName]->IncrementRefCount();
     m_NrOfEntities++;
     return m_Entities[entityName];
 }

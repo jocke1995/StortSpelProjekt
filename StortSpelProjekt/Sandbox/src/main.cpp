@@ -116,13 +116,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         }
 
         static bool currentScene = true;
+        static int nameCounter = 0;
         if (window->WasSpacePressed())
         {
+            static Model* mmm = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+            Entity* a = new Entity(std::to_string(nameCounter++));
+
+            component::ModelComponent* mc = a->AddComponent<component::ModelComponent>();
+            component::TransformComponent* tc = a->AddComponent<component::TransformComponent>();
+            mc->SetModel(mmm);
+            mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+            tc->GetTransform()->SetScale(4.0f);
+            tc->GetTransform()->SetPosition(jockeScene->GetMainCamera()->GetPosition());
+
+            jockeScene->AddEntityFromOther(a);
+            sceneManager->SetScene(2, activeScene);
+
             // Test change scene
             if (currentScene)
             {
                 sceneManager->UnloadScene(jockeScene);
-                sceneManager->SetScene(1, activeScene);
+                sceneManager->SetScene(2, activeScene);
             }
             else
             {
@@ -409,6 +423,7 @@ Scene* JockesTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    scene->SetPrimaryCamera(cc->GetCamera());
     ic->Init();
 
     mc->SetModel(sphereModel);

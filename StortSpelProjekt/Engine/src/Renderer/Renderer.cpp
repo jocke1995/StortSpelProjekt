@@ -1957,7 +1957,6 @@ void Renderer::waitForCopyOnDemand()
 
 void Renderer::removeComponents(Entity* entity)
 {
-	//TODO: FILIP FIXA SETSCENE
 	for (auto& renderComponents : m_RenderComponents)
 	{
 		for (int i = 0; i < renderComponents.second.size(); i++)
@@ -1967,7 +1966,6 @@ void Renderer::removeComponents(Entity* entity)
 			parent = renderComponents.second[i].first->GetParent();
 			if (parent == entity)
 			{
-
 				renderComponents.second.erase(renderComponents.second.begin() + i);
 				setRenderTasksRenderComponents();
 			}

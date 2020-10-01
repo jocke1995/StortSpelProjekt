@@ -5,8 +5,6 @@ Entity::Entity(std::string entityName)
 {
 	m_Id = staticID++;
 	m_Name = entityName;
-
-	m_ReferenceCount = 1;
 }
 
 bool Entity::operator==(const Entity* rhs) const
