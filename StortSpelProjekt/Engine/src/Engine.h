@@ -47,8 +47,10 @@
 #include "ImGUI/imgui_impl_dx12.h"
 #include "ImGUI/ImGuiHandler.h"
 
+// TODO: FULLSCREEN
 extern bool g_ProgramStarted;
 extern bool g_ProgramPaused;
+extern bool g_Fullscreen;
 
 class Engine
 {

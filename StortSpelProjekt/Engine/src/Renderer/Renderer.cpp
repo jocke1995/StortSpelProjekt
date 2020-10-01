@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "Renderer.h"
 
+// TODO: FULLSCREEN
+#include "../Engine.h"
+
 // Misc
 #include "../Misc/ThreadPool.h"
 #include "../Misc/AssetLoader.h"
@@ -170,17 +173,21 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 		m_pSwapChain
 		);
 
+	// TODO: FULLSCREEN
 	// Disables window changes
-	/*IDXGIFactory6* pFactory = NULL;
-	if (SUCCEEDED(m_pSwapChain->GetDX12SwapChain()->GetParent(__uuidof (IDXGIFactory6), (void**)&pFactory)))
+	if (!g_Fullscreen)
 	{
-		pFactory->MakeWindowAssociation(*const_cast<HWND*>(m_Window->GetHwnd()), DXGI_MWA_NO_WINDOW_CHANGES | DXGI_MWA_NO_WINDOW_CHANGES);
+		IDXGIFactory6* pFactory = NULL;
+		if (SUCCEEDED(m_pSwapChain->GetDX12SwapChain()->GetParent(__uuidof (IDXGIFactory6), (void**)&pFactory)))
+		{
+			pFactory->MakeWindowAssociation(*const_cast<HWND*>(m_Window->GetHwnd()), DXGI_MWA_NO_WINDOW_CHANGES | DXGI_MWA_NO_WINDOW_CHANGES);
+		}
+		else
+		{
+			Log::PrintSeverity(Log::Severity::CRITICAL, "Could not get Swapchain parent. The window may be unsafe!\n");
+		}
+		pFactory->Release();
 	}
-	else
-	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not get Swapchain parent. The window may be unsafe!\n");
-	}
-	pFactory->Release();*/
 
 	// Create Main DepthBuffer
 	createMainDSV();
@@ -244,8 +251,6 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 		DXGI_FORMAT_R16G16B16A16_FLOAT, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetID3D12DescriptorHeap(),
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetCPUHeapAt(imGuiTextureIndex),
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetGPUHeapAt(imGuiTextureIndex));
-
-	
 
 	initRenderTasks();
 
@@ -355,6 +360,9 @@ void Renderer::SortObjects()
 
 void Renderer::Execute()
 {
+	// TODO: FULLSCREEN
+	g_ProgramStarted = true;
+
 	IDXGISwapChain4* dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
 	int commandInterfaceIndex = m_FrameCounter++ % 2;
@@ -1974,62 +1982,59 @@ void Renderer::prepareCBPerFrame()
 
 void Renderer::toggleFullscreen(WindowChange* evnt)
 {
-	//if (*const_cast<HWND*>(m_Window->GetHwnd()) == GetActiveWindow())
-	//{
-		m_FenceFrameValue++;
-		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+	m_FenceFrameValue++;
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
 
-		// Wait for all frames
-		waitForFrame(0);
+	// Wait for all frames
+	waitForFrame(0);
 
-		for (auto task : m_RenderTasks)
+	for (auto task : m_RenderTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->Reset(i);
-			}
+			task->GetCommandInterface()->Reset(i);
 		}
-		for (auto task : m_CopyTasks)
+	}
+	for (auto task : m_CopyTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->Reset(i);
-			}
+			task->GetCommandInterface()->Reset(i);
 		}
-		for (auto task : m_ComputeTasks)
+	}
+	for (auto task : m_ComputeTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->Reset(i);
-			}
+			task->GetCommandInterface()->Reset(i);
 		}
+	}
 
-		m_pSwapChain->ToggleWindowMode(m_pDevice5,
-			m_Window->GetHwnd(),
-			m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
-			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
-			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	m_pSwapChain->ToggleWindowMode(m_pDevice5,
+		m_Window->GetHwnd(),
+		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 
-		for (auto task : m_RenderTasks)
+	for (auto task : m_RenderTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->GetCommandList(i)->Close();
-			}
+			task->GetCommandInterface()->GetCommandList(i)->Close();
 		}
-		for (auto task : m_CopyTasks)
+	}
+	for (auto task : m_CopyTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->GetCommandList(i)->Close();
-			}
+			task->GetCommandInterface()->GetCommandList(i)->Close();
 		}
-		for (auto task : m_ComputeTasks)
+	}
+	for (auto task : m_ComputeTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->GetCommandList(i)->Close();
-			}
+			task->GetCommandInterface()->GetCommandList(i)->Close();
 		}
-	//}
+	}
 }

@@ -32,31 +32,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     {
         while (!window->ExitWindow())
         {
-			//while (g_ProgramPaused == false)
-			//{
-				// Currently no scene set, hence the m_pRenderer should not be working.
+			// Currently no scene set, hence the m_pRenderer should not be working.
 
-				/* ------ Update ------ */
-				timer->Update();
-				logicTimer += timer->GetDeltaTime();
+			/* ------ Update ------ */
+			timer->Update();
+			logicTimer += timer->GetDeltaTime();
 
-				renderer->RenderUpdate(timer->GetDeltaTime());
-				if (logicTimer >= updateRate)
-				{
-				    logicTimer = 0;
-				    
-				    renderer->Update(updateRate);
-				    Physics::GetInstance().Update(updateRate);
-				}
+			renderer->RenderUpdate(timer->GetDeltaTime());
+			if (logicTimer >= updateRate)
+			{
+			    logicTimer = 0;
+			    
+			    renderer->Update(updateRate);
+			    Physics::GetInstance().Update(updateRate);
+			}
 
-				/* ------ Sort ------ */
-				renderer->SortObjects();
+			/* ------ Sort ------ */
+			renderer->SortObjects();
 
-				g_ProgramStarted = true;
-
-				/* ------ Draw ------ */
-				renderer->Execute();
-			//}
+			/* ------ Draw ------ */
+			renderer->Execute();
         }
     }
 

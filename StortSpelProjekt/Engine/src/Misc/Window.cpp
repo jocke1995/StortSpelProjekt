@@ -8,8 +8,6 @@
 #include "Option.h"
 #include "../Events/EventBus.h"
 #include "../Engine.h"
-#include "../Renderer/Renderer.h"
-#include "../Renderer/SwapChain.h"
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -24,50 +22,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return true;
 	}
 
-	Renderer* renderer = &Renderer::GetInstance();
-	SwapChain* swapChain = renderer->GetSwapChain();
-	BOOL fullscreen = false;
 	switch (msg)
 	{
-	case WM_WINDOWPOSCHANGED:
-		if (g_ProgramStarted == true)
+	// TODO: FULLSCREEN
+	case WM_WINDOWPOSCHANGED: // This happens immediately when the window is about to change
+		if (std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()) && g_ProgramStarted && !g_ProgramPaused && g_Fullscreen)
 		{
-			renderer->GetSwapChain()->GetDX12SwapChain()->GetFullscreenState(&fullscreen, NULL);
-		}
-		if (std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()) && g_ProgramStarted && g_ProgramPaused == false)
-		//if (fullscreen)
-		{
+			// Pause and wait until the task is finished!
 			g_ProgramPaused = true;
 			EventBus::GetInstance().Publish(&WindowChange());
-			g_ProgramPaused = false;
+		}
+		else if (!std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()) && g_ProgramStarted && !g_ProgramPaused && g_Fullscreen)
+		{
+			// Pause and wait until the task is finished!
+			g_ProgramPaused = true;
+			EventBus::GetInstance().Publish(&WindowChange());
 		}
 		return 0;
-			//return DefWindowProc(hWnd, msg, wParam, lParam);
-		//}
 
-		/*
-		// check for fullscreen switch
-		if (dxApp->hasStarted)
-		{
-			BOOL fullscreen;
-			dxApp->d3d->swapChain->GetFullscreenState(&fullscreen, nullptr);
-			if (fullscreen != dxApp->d3d->currentlyInFullscreen)
-			{
-				// fullscreen mode changed, pause the application, resize everything and unpause the application again
-				dxApp->isPaused = true;
-				dxApp->timer->stop();
-				dxApp->onResize();
-				dxApp->timer->start();
-				dxApp->isPaused = false;
-			}
-		}
-		return 0;*/
+	case WM_DISPLAYCHANGE: // This happens when the window has changed
+		g_ProgramPaused = false;
+		return 0;
 
 	case WM_KEYDOWN:
 		if (wParam == VK_ESCAPE)
 		{
 			//if (MessageBox(0, L"Are you sure you want to exit?", L"Exit", MB_YESNO | MB_ICONQUESTION) == IDYES)
 			//{
+			// TODO: FULLSCREEN
 			g_ProgramStarted = false;
 			DestroyWindow(hWnd);
 			//}
