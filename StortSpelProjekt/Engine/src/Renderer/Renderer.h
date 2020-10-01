@@ -70,7 +70,7 @@ namespace component
 }
 
 // Events
-struct ModifierInput;
+struct WindowChange;
 
 class Renderer
 {
@@ -198,7 +198,7 @@ private:
 	// Submit per-frame data to the copyQueue that updates each frame
 	void prepareCBPerFrame();
 
-	void toggleFullscreen(ModifierInput* evnt);
+	void toggleFullscreen(WindowChange* evnt);
 };
 
 #endif

@@ -6,18 +6,54 @@
 #include "../ImGUI/imgui_impl_win32.h"
 #include "../ImGUI/imgui_impl_dx12.h"
 #include "Option.h"
+#include "../Events/EventBus.h"
+#include "../Engine.h"
+#include "../Renderer/Renderer.h"
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+struct WindowChange;
 
 // callback function for windows messages
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+	{
 		return true;
+	}
 
 	switch (msg)
 	{
+	case WM_WINDOWPOSCHANGED:
+		if (std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()) && g_ProgramStarted && g_ProgramPaused == false)
+		{
+			g_ProgramPaused = true;
+			EventBus::GetInstance().Publish(&WindowChange());
+			g_ProgramPaused = false;
+		}
+		return 0;
+			//return DefWindowProc(hWnd, msg, wParam, lParam);
+		//}
+
+		/*
+		// check for fullscreen switch
+		if (dxApp->hasStarted)
+		{
+			BOOL fullscreen;
+			dxApp->d3d->swapChain->GetFullscreenState(&fullscreen, nullptr);
+			if (fullscreen != dxApp->d3d->currentlyInFullscreen)
+			{
+				// fullscreen mode changed, pause the application, resize everything and unpause the application again
+				dxApp->isPaused = true;
+				dxApp->timer->stop();
+				dxApp->onResize();
+				dxApp->timer->start();
+				dxApp->isPaused = false;
+			}
+		}
+		return 0;*/
+
 	case WM_KEYDOWN:
 		if (wParam == VK_ESCAPE)
 		{
@@ -34,10 +70,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (wParam == VK_TAB)
 		{
 			tabPressed = true;
-		}
-		if (wParam == VK_RETURN)
-		{
-			Option::GetInstance().SetVariable("b_fullscreen", "1");
 		}
 		
 		return 0;

@@ -176,6 +176,8 @@ void SwapChain::ToggleWindowMode(ID3D12Device5* device,
 	resize(width, height);
 
 	createSwapBuffers(device, width, height, descriptorHeap_RTV, descriptorHeap_CBV_UAV_SRV);
+
+	Option::GetInstance().SetVariable("b_fullscreen", std::to_string(m_Fullscreen));
 }
 
 const void SwapChain::initFullscreen(unsigned int* width, unsigned int* height)

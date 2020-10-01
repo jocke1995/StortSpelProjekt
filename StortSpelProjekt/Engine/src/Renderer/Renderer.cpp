@@ -158,6 +158,18 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 		m_pSwapChain
 		);
 
+	// Disables window changes
+	IDXGIFactory6* pFactory = NULL;
+	if (SUCCEEDED(m_pSwapChain->GetDX12SwapChain()->GetParent(__uuidof (IDXGIFactory6), (void**)&pFactory)))
+	{
+		pFactory->MakeWindowAssociation(*const_cast<HWND*>(m_Window->GetHwnd()), DXGI_MWA_NO_WINDOW_CHANGES | DXGI_MWA_NO_WINDOW_CHANGES);
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not get Swapchain parent. The window may be unsafe!\n");
+	}
+	pFactory->Release();
+
 	// Create Main DepthBuffer
 	createMainDSV();
 
@@ -484,7 +496,7 @@ bool Renderer::createDevice()
 	IDXGIAdapter1* adapter = nullptr;
 
 	CreateDXGIFactory(IID_PPV_ARGS(&factory));
-	
+
 	for (unsigned int adapterIndex = 0;; ++adapterIndex)
 	{
 		adapter = nullptr;
@@ -523,7 +535,7 @@ bool Renderer::createDevice()
 		factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
 		D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pDevice5));
 	}
-	
+
 	SAFE_RELEASE(&factory);
 
 	return deviceCreated;
@@ -1809,10 +1821,10 @@ void Renderer::prepareCBPerFrame()
 	}
 }
 
-void Renderer::toggleFullscreen(ModifierInput* evnt)
+void Renderer::toggleFullscreen(WindowChange* evnt)
 {
-	if (evnt->key == SCAN_CODES::LEFT_CTRL && evnt->pressed)
-	{
+	//if (*const_cast<HWND*>(m_Window->GetHwnd()) == GetActiveWindow())
+	//{
 		m_FenceFrameValue++;
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
 
@@ -1868,5 +1880,5 @@ void Renderer::toggleFullscreen(ModifierInput* evnt)
 				task->GetCommandInterface()->GetCommandList(i)->Close();
 			}
 		}
-	}
+	//}
 }

@@ -5,7 +5,7 @@ i_resolutionWidth 1920
 i_resolutionHeight 1080
 i_windowWidth 1920
 i_windowHeight 1080
-b_fullscreen 0
+b_fullscreen 1
 b_windowedFullscreen 0
 b_stretchedWindow 0
 i_amountOfBlur 6

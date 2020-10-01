@@ -42,6 +42,9 @@
 #include "ImGUI/imgui_impl_dx12.h"
 #include "ImGUI/ImGuiHandler.h"
 
+extern bool g_ProgramStarted;
+extern bool g_ProgramPaused;
+
 class Engine
 {
 public:

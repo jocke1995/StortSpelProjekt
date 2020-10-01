@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "Engine.h"
 #include "Misc/Thread.h"
+
+bool g_ProgramStarted = false;
+bool g_ProgramPaused = false;
+
 Engine::Engine()
 {
 	

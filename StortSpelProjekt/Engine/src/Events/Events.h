@@ -61,3 +61,8 @@ struct PlayerConnection : public Event
 	PlayerConnection(int playerId) : playerId{ playerId } {};
 	int playerId;
 };
+
+struct WindowChange : public Event
+{
+	WindowChange() {};
+};
