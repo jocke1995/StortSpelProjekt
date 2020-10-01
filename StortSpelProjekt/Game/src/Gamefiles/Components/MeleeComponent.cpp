@@ -85,10 +85,7 @@ void component::MeleeComponent::CheckCollision()
 	{
 		for (int i = 0; i < list.size(); i++) 
 		{
-			if (list.at(i)->GetName() != "player")
-			{
-				Log::Print("Melee Component collied with %s\n", list.at(i)->GetName().c_str());
-			}
+			Log::Print("Melee Component collied with %s\n", list.at(i)->GetName().c_str());
 		}
 	}
 	list.empty();
@@ -100,13 +97,13 @@ void component::MeleeComponent::createCornersHitbox()
 	// Front vertices
 	m_Corners[0].x =  3;	m_Corners[0].y =  1;	m_Corners[0].z = -1;
 	m_Corners[1].x =  3;	m_Corners[1].y = -1;	m_Corners[1].z = -1;
-	m_Corners[2].x = -3;	m_Corners[2].y =  1;	m_Corners[2].z = -1;
-	m_Corners[3].x = -3;	m_Corners[3].y = -1;	m_Corners[3].z = -1;
+	m_Corners[2].x = -3;	m_Corners[2].y = -1;	m_Corners[2].z = -1;
+	m_Corners[3].x = -3;	m_Corners[3].y =  1;	m_Corners[3].z = -1;
 	// Back vertices
 	m_Corners[4].x =  3;	m_Corners[4].y =  1;	m_Corners[4].z = 2;
 	m_Corners[5].x =  3;	m_Corners[5].y = -1;	m_Corners[5].z = 2;
-	m_Corners[6].x = -3;	m_Corners[6].y =  1;	m_Corners[6].z = 2;
-	m_Corners[7].x = -3;	m_Corners[7].y = -1;	m_Corners[7].z = 2;
+	m_Corners[6].x = -3;	m_Corners[6].y = -1;	m_Corners[6].z = 2;
+	m_Corners[7].x = -3;	m_Corners[7].y =  1;	m_Corners[7].z = 2;
 }
 
 void component::MeleeComponent::createDrawnHitbox(component::BoundingBoxComponent* bbc)
@@ -137,26 +134,26 @@ void component::MeleeComponent::createDrawnHitbox(component::BoundingBoxComponen
 	unsigned int indices[36] = {};
 	// Front Face
 	indices[0] = 0; indices[1] = 1; indices[2] = 3;
-	indices[3] = 0; indices[4] = 2; indices[5] = 3;
+	indices[3] = 1; indices[4] = 2; indices[5] = 3;
 
 	// Back Face
 	indices[6] = 4; indices[7] = 5; indices[8] = 7;
-	indices[9] = 4; indices[10] = 6; indices[11] = 7;
+	indices[9] = 5; indices[10] = 6; indices[11] = 7;
 
 	// Top Face
-	indices[12] = 5; indices[13] = 6; indices[14] = 1;
-	indices[15] = 1; indices[16] = 6; indices[17] = 2;
+	indices[12] = 0; indices[13] = 3; indices[14] = 4;
+	indices[15] = 3; indices[16] = 4; indices[17] = 7;
 
 	// Bottom Face
-	indices[18] = 3; indices[19] = 4; indices[20] = 1;
-	indices[21] = 3; indices[22] = 7; indices[23] = 4;
+	indices[18] = 1; indices[19] = 2; indices[20] = 5;
+	indices[21] = 2; indices[22] = 5; indices[23] = 6;
 
 	// Right Face
-	indices[24] = 4; indices[25] = 5; indices[26] = 0;
-	indices[27] = 5; indices[28] = 1; indices[29] = 0;
+	indices[24] = 0; indices[25] = 1; indices[26] = 4;
+	indices[27] = 1; indices[28] = 4; indices[29] = 5;
 
 	// Left Face
-	indices[30] = 3; indices[31] = 2; indices[32] = 7;
+	indices[30] = 2; indices[31] = 3; indices[32] = 7;
 	indices[33] = 2; indices[34] = 6; indices[35] = 7;
 
 	for (unsigned int i = 0; i < 36; i++)
