@@ -28,8 +28,7 @@ component::SkyboxComponent::~SkyboxComponent()
 
 void component::SkyboxComponent::RenderUpdate(double dt)
 {
-	m_pTransform->SetPosition(m_pCamera->GetPosition());
-	m_pTransform->UpdateWorldMatrix();
+	
 }
 
 void component::SkyboxComponent::InitScene()

@@ -13,5 +13,5 @@ SamplerState cubeSampler : register (s2);
 
 float4 PS_main(VS_OUT input) : SV_Target
 {
-    return 5*textures[cbPerObject.info.textureAlbedo].Sample(cubeSampler, input.texCoord);
+    return 1*textures[cbPerObject.info.textureAlbedo].Sample(cubeSampler, input.texCoord);
 }

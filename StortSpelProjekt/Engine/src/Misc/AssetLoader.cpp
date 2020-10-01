@@ -155,6 +155,8 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 	m_LoadedModels[path].second = new Model(&path, &meshes, &animations, &materials);
 
+	// load to vram
+
 	return m_LoadedModels[path].second;
 }
 

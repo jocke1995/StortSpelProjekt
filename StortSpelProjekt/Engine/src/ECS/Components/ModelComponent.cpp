@@ -35,12 +35,7 @@ namespace component
 
 	void ModelComponent::InitScene()
 	{
-		// check if model has transform component
-		component::TransformComponent* tc = GetParent()->GetComponent<component::TransformComponent>();
-		if (tc != nullptr)
-		{
-			Renderer::GetInstance().InitModelComponent(GetParent());
-		}
+		Renderer::GetInstance().InitModelComponent(GetParent());
 	}
 
 	Mesh* ModelComponent::GetMeshAt(unsigned int index) const

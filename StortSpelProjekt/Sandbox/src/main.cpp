@@ -28,9 +28,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     option->ReadFile();
     float updateRate = 1.0f / std::atof(option->GetVariable("f_updateRate").c_str());
 
-	/* ------ Engine  ------ */
-	Engine engine;
-	engine.Init(hInstance, nCmdShow);
+    /* ------ Engine  ------ */
+    Engine engine;
+    engine.Init(hInstance, nCmdShow);
 
     /*  ------ Get references from engine  ------ */
     Window* const window = engine.GetWindow();
@@ -47,15 +47,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    //sceneManager->SetScene(LeosTestScene(sceneManager));
-    //sceneManager->SetScene(TimScene(sceneManager));
-    sceneManager->SetScene(JockesTestScene(sceneManager));
-    sceneManager->SetScene(FloppipTestScene(sceneManager));
-    //sceneManager->SetScene(FredriksTestScene(sceneManager));
-    //sceneManager->SetScene(WilliamsTestScene(sceneManager));
-    //sceneManager->SetScene(BjornsTestScene(sceneManager));
-    //sceneManager->SetScene(AntonTestScene(sceneManager));
-    //sceneManager->SetScene(AndresTestScene(sceneManager)); // example play and updateEmitter functions in AndresTestScene
+    // Create scenes
+    //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* timScene = TimScene(sceneManager);
+    Scene* jockeScene = JockesTestScene(sceneManager);
+    Scene* filipScene = FloppipTestScene(sceneManager);
+    //Scene* fredrikScene = FredriksTestScene(sceneManager);
+    //Scene* williamScene = WilliamsTestScene(sceneManager);
+    //Scene* bjornScene = BjornsTestScene(sceneManager);
+    //Scene* antonScene = AntonTestScene(sceneManager);
+    //Scene* andresScene = AndresTestScene(sceneManager); // example play and updateEmitter functions in AndresTestScene
+
+    // Load Scenes *** Unload with UnloadScene()
+    sceneManager->LoadScene(jockeScene);
+    sceneManager->LoadScene(filipScene);
+
+    Scene* activeScene[] = { jockeScene, filipScene };
+
+    // Set scene
+    sceneManager->SetScene(2, activeScene);
 
     GameNetwork gameNetwork;
 
@@ -85,12 +95,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         timer->Update();
         logicTimer += timer->GetDeltaTime();
 
-        renderer->RenderUpdate(timer->GetDeltaTime());
+        sceneManager->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
             networkCount++;
-            renderer->Update(updateRate);
+            sceneManager->Update(updateRate);
             physics->Update(updateRate);
         }
 
@@ -111,11 +121,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             // Test change scene
             if (currentScene)
             {
-                sceneManager->SetScene(sceneManager->GetScene("scene1"));
+                sceneManager->SetScene(1, &filipScene);
             }
             else
             {
-                sceneManager->SetScene(sceneManager->GetScene("floppipScene"));
+                sceneManager->SetScene(1, &jockeScene);
             }
             currentScene = !currentScene;
         }

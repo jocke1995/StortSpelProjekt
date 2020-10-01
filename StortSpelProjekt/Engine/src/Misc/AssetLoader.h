@@ -37,9 +37,6 @@ public:
     Texture* LoadTexture2D(const std::wstring& path);
     TextureCubeMap* LoadTextureCubeMap(const std::wstring& path);
 
-    // Create Geometry
-
-
     // Load Audio
     AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
     AudioBuffer* GetAudio(const std::wstring& name);

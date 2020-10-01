@@ -221,7 +221,9 @@ private:
 	void removeComponents(Entity* entity);
 
 	// Setup the whole scene
-	void prepareScene(Scene* scene);
+	void prepareScenes(std::vector<Scene*>* scenes);
+	// Setup what should be drawn in the scene
+	void prepareRenderComponents(std::vector<Scene*>* scenes);
 	// Setup Per-scene data and send to GPU
 	void prepareCBPerScene();
 	// Submit per-frame data to the copyQueue that updates each frame

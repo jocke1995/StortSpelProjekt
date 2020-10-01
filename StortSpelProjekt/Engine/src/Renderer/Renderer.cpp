@@ -237,15 +237,11 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 
 void Renderer::Update(double dt)
 {
-	// Update scene
-	m_pCurrActiveScene->Update(dt);
+	
 }
 
 void Renderer::RenderUpdate(double dt)
 {
-	// Update scene
-	m_pCurrActiveScene->RenderUpdate(dt);
-
 	/* ------ ImGui ------*/
 	if (DEVELOPERMODE_DEVINTERFACE == true)
 	{
@@ -520,28 +516,29 @@ void Renderer::InitModelComponent(Entity* entity)
 	component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
 	component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
 
-	// Makes sure the model gets created/sent to gpu
-	loadModel(mc->m_pModel);
-
-	// Finally store the object in the corresponding renderComponent vectors so it will be drawn
-	if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
+	// check if model has transform component
+	if (tc != nullptr)
 	{
-		m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(mc, tc));
-	}
+		// Finally store the object in the corresponding renderComponent vectors so it will be drawn
+		if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
+		{
+			m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(mc, tc));
+		}
 
-	if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
-	{
-		m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
-	}
+		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
+		{
+			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
+		}
 
-	if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
-	{
-		m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
-	}
+		if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
+		{
+			m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
+		}
 
-	if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
-	{
-		m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(mc, tc));
+		if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
+		{
+			m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(mc, tc));
+		}
 	}
 }
 
@@ -712,32 +709,6 @@ void Renderer::InitTextComponent(Entity* entity)
 
 	// Finally store the text in m_pRenderer so it will be drawn
 	m_TextComponents.push_back(textComp);
-}
-
-void Renderer::UnloadRenderComponents()
-{
-	/*
-	for (auto mapPair : m_RenderComponents)
-	{
-		for (unsigned int i = 0; i < mapPair.second.size(); i++)
-		{
-			unloadModel(mapPair.second[i].first);
-		}
-	}
-	*/
-
-	AssetLoader* al = AssetLoader::Get();
-
-	for (auto models : al->m_LoadedModels)
-	{
-		if (models.second.first == true)
-		{
-			// unload it
-			unloadModel(models.second.second);
-		}
-	}
-
-	m_RenderComponents.clear();
 }
 
 Entity* const Renderer::GetPickedEntity() const
@@ -1741,6 +1712,8 @@ void Renderer::waitForFrame(unsigned int framesToBeAhead)
 	}
 }
 
+// TODO: Put all these functions in assetloader
+// Then gets called by LoadModel()
 void Renderer::loadModel(Model* model) const
 {
 	AssetLoader* al = AssetLoader::Get();
@@ -1753,25 +1726,17 @@ void Renderer::loadModel(Model* model) const
 		// Submit Mesh & Texture Data to GPU
 		for (unsigned int i = 0; i < model->GetSize(); i++)
 		{
-			// Upload Mesh
-			mesh = model->GetMeshAt(i);
+			Mesh* mesh = model->GetMeshAt(i);
+			Material* meshMat = model->GetMaterialAt(i);
 
+			// Upload Mesh
 			loadMesh(mesh);
 
-			// Upload Texture
+			// Upload Material
 			loadMaterial(model->GetMaterialAt(i));
-		}
 
-		// Set model as loadedOnGpu
-		al->m_LoadedModels[modelPath].first = true;
-	}
-
-	// Fill SlotInfo with mesh+material info
-	for (unsigned int i = 0; i < model->GetSize(); i++)
-	{
-		Mesh* mesh = model->GetMeshAt(i);
-		Material* meshMat = model->GetMaterialAt(i);
-		model->m_SlotInfos[i] = 
+			// Set Slotinfo
+			model->m_SlotInfos[i] =
 			{
 			mesh->m_pSRV->GetDescriptorHeapIndex(),
 			meshMat->GetTexture(TEXTURE2D_TYPE::ALBEDO)->GetDescriptorHeapIndex(),
@@ -1780,6 +1745,10 @@ void Renderer::loadModel(Model* model) const
 			meshMat->GetTexture(TEXTURE2D_TYPE::NORMAL)->GetDescriptorHeapIndex(),
 			meshMat->GetTexture(TEXTURE2D_TYPE::EMISSIVE)->GetDescriptorHeapIndex()
 			};
+		}
+
+		// Set model as loadedOnGpu
+		al->m_LoadedModels[modelPath].first = true;
 	}
 }
 
@@ -2090,7 +2059,7 @@ void Renderer::removeComponents(Entity* entity)
 	return;
 }
 
-void Renderer::prepareScene(Scene* scene)
+void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 {
 	prepareCBPerFrame();
 	prepareCBPerScene();
@@ -2102,7 +2071,7 @@ void Renderer::prepareScene(Scene* scene)
 	// m_pScenePrimaryCamera = tempCam;
 	if (m_pScenePrimaryCamera == nullptr)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scene: %s\n", scene->GetName());
+		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scenes\n");
 
 		// Todo: Set default m_pCamera
 	}
@@ -2112,21 +2081,14 @@ void Renderer::prepareScene(Scene* scene)
 	}
 	else
 	{
-		if (m_pSkyboxComponent->GetCamera() == nullptr)
-		{
-			// Set primary camera, skyboxcomponent does not have access to m_pScenePrimaryCamera
-			// which is the reason it is set camera here.
-			m_pSkyboxComponent->SetCamera(m_pScenePrimaryCamera);
-		}
+
 	}
 
 
 	m_pMousePicker->SetPrimaryCamera(m_pScenePrimaryCamera);
-	scene->SetPrimaryCamera(m_pScenePrimaryCamera);
+	//scene->SetPrimaryCamera(m_pScenePrimaryCamera);
 	setRenderTasksRenderComponents();
 	setRenderTasksPrimaryCamera();
-
-	m_pCurrActiveScene = scene;
 }
 
 void Renderer::prepareCBPerScene()
