@@ -23,36 +23,43 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	SceneManager* const sceneManager = engine.GetSceneHandler();
 	Renderer* const renderer = engine.GetRenderer();
 	
-    sceneManager->SetScene(GetDemoScene(sceneManager));
+    Scene* demoScene = GetDemoScene(sceneManager);
+
+    // Load Scenes *** Unload with UnloadScene()
+    sceneManager->LoadScene(demoScene);
+
+    Scene* activeScene[] = { demoScene };
+
+    // Set scene
+    sceneManager->SetScene(1, activeScene);
 
     double logicTimer = 0;
 
-    if (renderer->GetActiveScene())
+
+    while (!window->ExitWindow())
     {
-        while (!window->ExitWindow())
+        // Currently no scene set, hence the m_pRenderer should not be working.
+
+        /* ------ Update ------ */
+        timer->Update();
+        logicTimer += timer->GetDeltaTime();
+
+        sceneManager->RenderUpdate(timer->GetDeltaTime());
+        if (logicTimer >= updateRate)
         {
-            // Currently no scene set, hence the m_pRenderer should not be working.
-
-            /* ------ Update ------ */
-            timer->Update();
-            logicTimer += timer->GetDeltaTime();
-
-            renderer->RenderUpdate(timer->GetDeltaTime());
-            if (logicTimer >= updateRate)
-            {
-                logicTimer = 0;
+            logicTimer = 0;
                 
-                renderer->Update(updateRate);
-                Physics::GetInstance().Update(updateRate);
-            }
-
-            /* ------ Sort ------ */
-            renderer->SortObjects();
-
-            /* ------ Draw ------ */
-            renderer->Execute();
+            sceneManager->Update(updateRate);
+            Physics::GetInstance().Update(updateRate);
         }
+
+        /* ------ Sort ------ */
+        renderer->SortObjects();
+
+        /* ------ Draw ------ */
+        renderer->Execute(window->GetHwnd());
     }
+    
 
     return 0;
 }
@@ -109,7 +116,6 @@ Scene* GetDemoScene(SceneManager* sm)
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /* ---------------------- Floor ---------------------- */
