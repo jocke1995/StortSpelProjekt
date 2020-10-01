@@ -1173,6 +1173,7 @@ Scene* AndresTestScene(SceneManager* sm)
     component::HealthComponent* hc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* bcc = nullptr;
+    component::RangeComponent* rc = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1208,6 +1209,7 @@ Scene* AndresTestScene(SceneManager* sm)
     audioListener = entity->AddComponent<component::Audio3DListenerComponent>();
     ic->Init();
     hc = entity->AddComponent<component::HealthComponent>(15);
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 5);
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     //avc = entity->AddComponent<component::Audio2DVoiceComponent>();
