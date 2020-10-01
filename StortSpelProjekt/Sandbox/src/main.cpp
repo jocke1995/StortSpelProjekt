@@ -1260,7 +1260,7 @@ Scene* AndresTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(-50.0f, 3.0f, 50.0f);
 
-    slc->SetColor({ 1.0f, 0.0f, 0.0f });
+    slc->SetColor({ 10.0f, 0.0f, 0.0f });
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ 1.0, -0.5, -1.0f });
 
@@ -1274,7 +1274,7 @@ Scene* AndresTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(50.0f, 3.0f, 50.0f);
 
-    slc->SetColor({ 0.0f, 1.0f, 0.0f });
+    slc->SetColor({ 0.0f, 10.0f, 0.0f });
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ -1.0, -0.5, -1.0f });
 
@@ -1288,7 +1288,7 @@ Scene* AndresTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(50.0f, 3.0f, -50.0f);
 
-    slc->SetColor({ 0.0f, 0.0f, 1.0f });
+    slc->SetColor({ 0.0f, 0.0f, 10.0f });
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ -1.0, -0.5, 1.0f });
 
@@ -1302,7 +1302,7 @@ Scene* AndresTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(-50.0f, 3.0f, -50.0f);
 
-    slc->SetColor({ 1.0f, 1.0f, 0.0f });
+    slc->SetColor({ 10.0f, 10.0f, 0.0f });
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ 1.0, -0.5, 1.0f });
     /* ---------------------- Spotlights ---------------------- */
