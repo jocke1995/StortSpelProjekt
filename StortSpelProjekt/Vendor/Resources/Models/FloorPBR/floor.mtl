@@ -1,7 +1,7 @@
 # Blender MTL File: 'None'
 # Material Count: 1
 
-newmtl None
+newmtl floorMat
 
 map_Ka wood_metallic.dds
 map_Kd wood_albedo.dds
