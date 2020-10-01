@@ -95,7 +95,7 @@ or add an additional SCAN_CODE to the conditions of one of the existing statemen
 Then subscribe to the correct event type as previously described.
 
 
-### PBR TEXTURES:
+## PBR TEXTURES:
 In a .mtl file the textures should be placed as follows.
 
 map_Kd "Albedo_texture.suffix" (albedo/diffuse)
@@ -103,3 +103,42 @@ map_Ks "Roughness_texture.suffix" (roughness/specular)
 map_Ka "Metalness_texture.suffix" (metalness/ambient)
 map_Kn "Normals_texture.suffix" (normals)
 map_Ke "Emissive_texture.suffix" (emissive)
+
+## DDS Texture Extension
+If you want to reduce aliasing at large distances, you should convert your textures to the .dds image format.
+
+In the following link you can download a .dds-converter which converts a texture from a given format into the .dds format.
+https://vvvv.org/contribution/texconvgui
+
+### Settings in the texConvGui-tool
+You will not need to change every setting in the tool, only the ones mentioned below:
+
+#### Folders
+In the program, you will have to enter the source & destination folders for the textures
+
+#### File Mask
+Set the "File Mask" to the format of the textures you want to convert from. 
+If you want to convert from jpg to dds, set the "File Mask" to .jpg
+
+#### Resizing
+In order for the creation of mipmaps to work, the texture needs to be in "common sizes" such as 512x512, 1024x1024, 2048x2048.
+If your texture is close to either one of them, (for example 500x500), you can use the "resizing" option to resize the texture to 512x512.
+Set to 0 if you do not want to resize the texture.
+
+#### Adressing Mode
+Set this to wrap
+
+#### Output Options
+Set this to B8G8R8A8_UNORM
+
+#### Mip Map Level
+Set this to 0 to generate mipmaps
+
+### Object File modification
+When you have created your new textures, you will have to modify how your object file reads the new texture (depending on object file format)
+
+#### .Obj-file modifications (changing the .mtl file)
+This is the file format which will be most commonly used in our project, and all you need to do is change the file extensions of the textures to .dds from whatever file extension it had earlier
+
+#### Other
+If you wish to use other object formats where the textures are embedded, you will have to change them using external programs such as "Blender" or "Maya".
