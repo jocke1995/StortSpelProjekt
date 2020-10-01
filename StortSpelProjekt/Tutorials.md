@@ -141,4 +141,4 @@ When you created your new textures, you will have to modify how your object file
 This is the file format which will be most commonly used in our project, and all you need to do is change the file extensions of the textures to .dds from whatever file extension it had earlier
 
 #### Other
-If you wish to use other object formats were the textures are embedded, you will have to change them using a extern program such as "Blender" or "Maya".
+If you wish to use other object formats were the textures are embedded, you will have to change them using external programs such as "Blender" or "Maya".
