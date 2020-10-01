@@ -16,6 +16,7 @@
 #include "assimp/scene.h"
 
 #include "../Renderer/Texture/Texture2D.h"
+#include "../Renderer/Texture/Texture2DGUI.h"
 #include "../Renderer/Texture/TextureCubeMap.h"
 
 #include <DirectXMath.h>
@@ -136,7 +137,18 @@ Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
 		return m_LoadedTextures[path].second;
 	}
 
-	Texture* texture = new Texture2D();
+	// Check if the texture is DDS or of other commonType
+	std::string fileEnding = GetFileExtension(to_string(path));
+	Texture* texture = nullptr;
+	if (fileEnding == "dds")
+	{
+		texture = new Texture2D();
+	}
+	else
+	{
+		texture = new Texture2DGUI();
+	}
+
 	if (texture->Init(path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
 	{
 		delete texture;
