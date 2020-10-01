@@ -19,10 +19,9 @@ public:
     virtual ~Material();
 
     const std::wstring* GetPath() const;
-
-    // Material
     Texture* GetTexture(TEXTURE2D_TYPE type) const;
-    Texture* GetTexture(unsigned int index) const;
+
+    void SetTexture(TEXTURE2D_TYPE type, Texture* texture);
 
 private:
     std::wstring m_Name;

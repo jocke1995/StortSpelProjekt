@@ -46,9 +46,6 @@ void component::PlayerInputComponent::Init()
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::grunt);
 	}
 
-#ifdef _DEBUG
-	
-
 	if (!m_pCC)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a collision component!\n");
@@ -63,7 +60,6 @@ void component::PlayerInputComponent::Init()
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a Transform component!\n");
 	}
-#endif
 }
 
 void component::PlayerInputComponent::RenderUpdate(double dt)
@@ -193,7 +189,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		m_pCC->SetAngularVelocity(0.0, 0.0, 0.0);
 
 		// Check if in air. If not, change movement direction to match up with camera direction
-		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, 1.0) != -1)
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1)
 		{
 			// Get new direction
 			forward = m_pTransform->GetForwardFloat3();
