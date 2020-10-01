@@ -69,8 +69,6 @@ Scene* GetDemoScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
-    //Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
-    //Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
@@ -104,7 +102,7 @@ Scene* GetDemoScene(SceneManager* sm)
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     avc->AddVoice(L"Bruh");
 
-    mc->SetModel(sphereModel);
+    mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
