@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Engine.h"
 #include "Misc/Thread.h"
+
 Engine::Engine()
 {
 	
@@ -11,8 +12,6 @@ Engine::~Engine()
 	delete m_pWindow;
 	delete m_pTimer;
 
-	m_pThreadPool->WaitForThreads(FLAG_THREAD::ALL);
-	m_pThreadPool->ExitThreads();
 	delete m_pThreadPool;
 
 	delete m_pSceneManager;
@@ -43,7 +42,6 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	m_pThreadPool = new ThreadPool(numThreads);
 
 	// Sub-engines
-	//m_pRenderer = new Renderer();
 	m_pRenderer = &Renderer::GetInstance();
 	m_pRenderer->InitD3D12(m_pWindow, hInstance, m_pThreadPool);
 

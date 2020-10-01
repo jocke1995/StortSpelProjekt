@@ -60,7 +60,7 @@ void Light::CreateCamera(float3 position, float3 direction)
 			m_pCamera = new PerspectiveCamera(
 				{ position.x, position.y, position.z, 1.0f},
 				{ direction.x, direction.y, direction.z , 0.0f},
-				60.0f);	// Field of view
+				160.0f);	// Field of view
 			break;
 	}
 }

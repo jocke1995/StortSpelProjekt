@@ -50,8 +50,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     //sceneManager->SetScene(LeosTestScene(sceneManager));
     //sceneManager->SetScene(TimScene(sceneManager));
-    //sceneManager->SetScene(JockesTestScene(sceneManager));
-    sceneManager->SetScene(FloppipTestScene(sceneManager));
+    sceneManager->SetScene(JockesTestScene(sceneManager));
+    //sceneManager->SetScene(FloppipTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
     //sceneManager->SetScene(BjornsTestScene(sceneManager));

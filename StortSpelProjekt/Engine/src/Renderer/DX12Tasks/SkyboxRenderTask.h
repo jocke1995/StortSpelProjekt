@@ -17,7 +17,8 @@ public:
 		RootSignature* rootSignature,
 		LPCWSTR VSName, LPCWSTR PSName,
 		std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
-		LPCTSTR psoName);
+		LPCTSTR psoName,
+		unsigned int FLAG_THREAD);
 	~SkyboxRenderTask();
 
 	void SetSkybox(component::SkyboxComponent* skybox);
