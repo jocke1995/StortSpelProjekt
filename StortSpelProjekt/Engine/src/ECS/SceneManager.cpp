@@ -39,10 +39,17 @@ SceneManager::SceneManager(Renderer* r)
 
 SceneManager::~SceneManager()
 {
-    for (auto pair : m_pScenes)
-    {
-        delete pair.second;
-    }
+	// Unload all active scenes
+	for (auto scene : m_ActiveScenes)
+	{
+		UnloadScene(scene);
+	}
+
+	for (auto pair : m_pScenes)
+	{
+		delete pair.second;
+	}
+
     m_pScenes.clear();
 }
 
@@ -121,9 +128,6 @@ void SceneManager::SetScene(unsigned int numScenes, Scene** scenes)
 {
 	ResetScene();
 
-	// unload old active scenes if they are no longer used
-	std::vector<Scene*> oldActiveScenes = m_ActiveScenes;
-
 	// Set the active scenes
 	m_ActiveScenes.clear();
 	// Load all scenes if they are not loaded
@@ -132,7 +136,7 @@ void SceneManager::SetScene(unsigned int numScenes, Scene** scenes)
 		if (m_LoadedScenes.count(scenes[i]) < 1)
 		{
 			// load the scene if not loaded
-			LoadScene(scenes[i]);
+ 			LoadScene(scenes[i]);
 		}
 
 		// init the active scenes
@@ -168,11 +172,15 @@ void SceneManager::LoadScene(Scene* scene)
 	// Makes sure the model gets created/sent to gpu
 	for (auto const& [name, entity] : *scene->GetEntities())
 	{
-		component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
-		if (mc != nullptr)
+		// Load only first time entity is referenced in a c
+		if (true)
 		{
-			// TODO: fix code with assetloader
-			m_pRenderer->loadModel(AssetLoader::Get()->LoadModel(mc->GetModelPath()));
+			component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
+			if (mc != nullptr)
+			{
+				// TODO: fix code with assetloader
+				m_pRenderer->loadModel(AssetLoader::Get()->LoadModel(mc->GetModelPath()));
+			}
 		}
 	}
 
@@ -181,14 +189,22 @@ void SceneManager::LoadScene(Scene* scene)
 
 void SceneManager::UnloadScene(Scene* scene)
 {
+	// GPU can't be running when removing resources
+	m_pRenderer->waitForGPU();
+
 	// Unload the scene
 	for (auto const& [name, entity] : *scene->GetEntities())
 	{
-		component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
-		if (mc != nullptr)
+		// don't unload entities used by other scenes
+		if (true)
 		{
-			// TODO: fix code with assetloader
-			m_pRenderer->unloadModel(AssetLoader::Get()->LoadModel(mc->GetModelPath()));
+			// Unload the entity
+  			component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
+			if (mc != nullptr)
+			{
+				// TODO: fix code with assetloader
+				m_pRenderer->unloadModel(AssetLoader::Get()->LoadModel(mc->GetModelPath()));
+			}
 		}
 	}
 

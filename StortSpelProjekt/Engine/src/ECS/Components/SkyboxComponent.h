@@ -39,10 +39,6 @@ namespace component
     private:
         Mesh* m_pMesh = nullptr;
         TextureCubeMap* m_pTexture = nullptr;
-        Transform* m_pTransform = nullptr;
-
-        // Always set pos to camera
-        BaseCamera* m_pCamera = nullptr;
     };
 }
 #endif

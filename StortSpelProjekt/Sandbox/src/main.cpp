@@ -121,11 +121,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             // Test change scene
             if (currentScene)
             {
-                sceneManager->SetScene(1, &filipScene);
+                sceneManager->UnloadScene(jockeScene);
+                sceneManager->SetScene(1, activeScene);
             }
             else
             {
-                sceneManager->SetScene(1, &jockeScene);
+                sceneManager->UnloadScene(filipScene);
+                sceneManager->SetScene(1, activeScene);
             }
             currentScene = !currentScene;
         }
@@ -193,8 +195,6 @@ Scene* LeosTestScene(SceneManager* sm)
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
     sbc->SetMesh(sphereModel->GetMeshAt(0));
     sbc->SetTexture(skyboxCubemap);
-    sbc->SetCamera(cc->GetCamera());
-    sbc->GetTransform()->SetScale(50);
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
