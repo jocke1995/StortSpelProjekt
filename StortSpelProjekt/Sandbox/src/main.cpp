@@ -1306,7 +1306,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     avc->AddVoice(L"Bruh");
-    rc = entity->AddComponent<component::RangeComponent>(sm, scene, dragonModel);
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);

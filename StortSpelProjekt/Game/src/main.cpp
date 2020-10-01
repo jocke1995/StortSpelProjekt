@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include "Components/PlayerInputComponent.h"
 #include "Components/HealthComponent.h"
+#include "Components/RangeComponent.h"
 #include "EnemyFactory.h"
 
 Scene* GetDemoScene(SceneManager* sm);
@@ -90,6 +91,7 @@ Scene* GetDemoScene(SceneManager* sm)
     component::SpotLightComponent* slc = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
     component::CollisionComponent* bcc = nullptr;
+    component::RangeComponent* rc = nullptr;
 
 
     /* ---------------------- Player ---------------------- */
@@ -103,6 +105,7 @@ Scene* GetDemoScene(SceneManager* sm)
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     entity->AddComponent<component::HealthComponent>(10);
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 5);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     avc->AddVoice(L"Bruh");
 

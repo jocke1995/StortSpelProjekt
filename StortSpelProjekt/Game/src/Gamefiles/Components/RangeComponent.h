@@ -12,14 +12,14 @@ namespace component
 	class RangeComponent : public Component
 	{
 	public:
-		RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, int damage = 1, float velocity = 2.5);
+		RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale = 1, int damage = 1, float velocity = 2.5);
 		~RangeComponent();
 
 
 	private:
 		int m_Damage;
 		float m_Velocity;
-		float m_Scale = 0.05;
+		float m_Scale;
 		int m_NrOfProjectiles = 0;
 
 		Model* m_pModel = nullptr;

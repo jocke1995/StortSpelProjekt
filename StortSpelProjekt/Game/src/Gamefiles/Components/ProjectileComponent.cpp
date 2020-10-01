@@ -23,6 +23,8 @@ void component::ProjectileComponent::Update(float dt)
 
 void component::ProjectileComponent::hit(Collision* event)
 {
+	// if we are the one that collided then make 
+	// the other object lose health (if it has health)
 	if (event->ent1 == m_pParent)
 	{
 		if (event->ent2->HasComponent<component::HealthComponent>())
