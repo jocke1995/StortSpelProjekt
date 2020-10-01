@@ -111,7 +111,7 @@ In the following link you can download a .dds-converter which converts a texture
 https://vvvv.org/contribution/texconvgui
 
 ### Settings in the texConvGui-tool
-You wont need to change every setting in the tool, only the ones mentioned below:
+You will not need to change every setting in the tool, only the ones mentioned below:
 
 #### Folders
 In the program, you will have to enter the source & destination folders for the textures
@@ -121,9 +121,9 @@ Set the "File Mask" to the format of the textures you want to convert from.
 If you want to convert from jpg to dds, set the "File Mask" to .jpg
 
 #### Resizing
-In order for the creation of mipmaps to work, the texture need to be in "common sizes" such as 512x512, 1024x1024, 2048x2048.
+In order for the creation of mipmaps to work, the texture needs to be in "common sizes" such as 512x512, 1024x1024, 2048x2048.
 If your texture is close to either one of them, (for example 500x500), you can use the "resizing" option to resize the texture to 512x512.
-Set to 0 if you dont want to resize the texture.
+Set to 0 if you do not want to resize the texture.
 
 #### Adressing Mode
 Set this to wrap
@@ -135,10 +135,10 @@ Set this to B8G8R8A8_UNORM
 Set this to 0 to generate mipmaps
 
 ### Object File modification
-When you created your new textures, you will have to modify how your object file reads the new texture (depending on object file format)
+When you have created your new textures, you will have to modify how your object file reads the new texture (depending on object file format)
 
 #### .Obj-file modifications (changing the .mtl file)
 This is the file format which will be most commonly used in our project, and all you need to do is change the file extensions of the textures to .dds from whatever file extension it had earlier
 
 #### Other
-If you wish to use other object formats were the textures are embedded, you will have to change them using external programs such as "Blender" or "Maya".
+If you wish to use other object formats where the textures are embedded, you will have to change them using external programs such as "Blender" or "Maya".
