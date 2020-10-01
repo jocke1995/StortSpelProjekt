@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-Console::Console()
+Console::Console() : MultiThreadedTask(FLAG_THREAD::NETWORK)
 {
 	m_ConsoleInput = "";
 	m_Done = false;
