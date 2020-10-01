@@ -46,9 +46,6 @@ void component::PlayerInputComponent::Init()
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::grunt);
 	}
 
-#ifdef _DEBUG
-	
-
 	if (!m_pCC)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a collision component!\n");
@@ -63,7 +60,6 @@ void component::PlayerInputComponent::Init()
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a Transform component!\n");
 	}
-#endif
 }
 
 void component::PlayerInputComponent::RenderUpdate(double dt)

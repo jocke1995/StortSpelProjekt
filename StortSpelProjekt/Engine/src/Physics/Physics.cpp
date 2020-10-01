@@ -5,14 +5,16 @@
 #include "../Events/EventBus.h"
 #include "../ECS/Components/Collision/CollisionComponent.h"
 
-Physics::Physics()
+Physics::Physics() : m_CollisionUpdateInterval(0.01)
 {
 	m_pCollisionConfig = new btDefaultCollisionConfiguration();
 	m_pDispatcher = new btCollisionDispatcher(m_pCollisionConfig);
 	m_pBroadphase = new btDbvtBroadphase();
 	m_pSolver = new btSequentialImpulseConstraintSolver();
 	m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher,m_pBroadphase,m_pSolver, m_pCollisionConfig);
-	m_pWorld->setGravity({ 0.0, -50, 0.0 });
+	m_pWorld->setGravity({ 0.0, -50.0, 0.0 });
+
+	m_TimeSinceLastColCheck = 0;
 }
 
 Physics& Physics::GetInstance()
@@ -86,11 +88,10 @@ const btDynamicsWorld* Physics::GetWorld()
 
 void Physics::collisionChecks(double dt)
 {
-	m_timeSinceLastColCheck += dt;
+	m_TimeSinceLastColCheck += dt;
 
-	if (m_timeSinceLastColCheck > m_CollisionUpdateInterval)
+	if (m_TimeSinceLastColCheck > m_CollisionUpdateInterval)
 	{
-		collisionComponentChecks();
 		// if there is 0 or only 1 object in our vector then we don't have to check collision
 		if (m_CollisionEntities.size() > 1)
 		{
@@ -107,21 +108,8 @@ void Physics::collisionChecks(double dt)
 				}
 			}
 		}
-		m_timeSinceLastColCheck = 0;
+		m_TimeSinceLastColCheck = 0;
 		m_pWorld->stepSimulation(dt);
 	}
 }
 
-void Physics::collisionComponentChecks()
-{
-	// This is done in collisionChecks which is called before. Saved for future reference.
-	//m_timeSinceLastColCheck += dt;
-
-	for (int i = 0; i < m_CollisionComponents.size(); i++)
-	{
-		for (int j = i + 1; j < m_CollisionComponents.size(); j++)
-		{
-			//m_CollisionComponents[i]->CheckCollision(m_CollisionComponents[j]);
-		}
-	}
-}
