@@ -108,30 +108,30 @@ map_Ke "Emissive_texture.suffix" (emissive)
 If you want to reduce aliasing at large distances, you should convert your textures to the .dds image format.
 
 In the following link you can download a .dds-converter which converts a texture from a given format into the .dds format.
-https://vvvv.org/contribution/texconvgui
+[a link]https://vvvv.org/contribution/texconvgui
 
 ## Settings in the texConvGui-tool
 You wont need to change every setting in the tool, only the ones mentioned below:
 
-#Folders
+# Folders
 In the program, you will have to enter the source & destination folders for the textures
 
-#File Mask
+# File Mask
 Set the "File Mask" to the format of the textures you want to convert from. 
 If you want to convert from jpg to dds, set the "File Mask" to .jpg
 
-#Resizing
+# Resizing
 In order for the creation of mipmaps to work, the texture need to be in "common sizes" such as 512x512, 1024x1024, 2048x2048.
 If your texture is close to either one of them, (for example 500x500), you can use the "resizing" option to resize the texture to 512x512.
 Set to 0 if you dont want to resize the texture.
 
-#Adressing Mode
+# Adressing Mode
 Set this to wrap
 
-#Output Options
+# Output Options
 Set this to B8G8R8A8_UNORM
 
-#Mip Map Level
+# Mip Map Level
 Set this to 0 to generate mipmaps
 
 ## Object File modification
