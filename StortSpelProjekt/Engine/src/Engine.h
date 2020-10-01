@@ -18,6 +18,7 @@
 #include "ECS/Components/Lights/SpotLightComponent.h"
 #include "ECS/Components/CameraComponent.h"
 #include "ECS/Components/TextComponent.h"
+#include "ECS/Components/SkyboxComponent.h"
 
 // Sub-engines
 #include "Renderer/Renderer.h"
@@ -27,6 +28,10 @@
 #include "Renderer/BaseCamera.h"
 #include "Physics/Physics.h"
 #include "AudioEngine/AudioBuffer.h"
+
+// Textures
+#include "Renderer/Texture/Texture2D.h"
+#include "Renderer/Texture/TextureCubeMap.h"
 
 // Event-handling
 #include "Events/EventBus.h"
