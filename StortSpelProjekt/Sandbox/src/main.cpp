@@ -1108,9 +1108,22 @@ Scene* AndresTestScene(SceneManager* sm)
     EnemyFactory enH(scene);
     entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB, 0.3, float3{ 0, 0, 0 });
 
-    entity = enH.AddExistingEnemy("enemy", float3{ 40, 10, 0 });
+    /*entity = enH.AddExistingEnemy("enemy", float3{ 40, 10, 0 });
     entity = enH.AddExistingEnemy("enemy", float3{ 0, 10, -40 });
-    entity = enH.AddExistingEnemy("enemy", float3{ -40, 10, 0 });
+    entity = enH.AddExistingEnemy("enemy", float3{ -40, 10, 0 });*/
+    // add bunch of enemies
+    float xVal = 8;
+    float zVal = 60;
+    for (int i = 0; i < 75; i++)
+    {
+        zVal += 8;
+        entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 0, zVal });
+        if ((i + 1) % 5 == 0)
+        {
+            xVal += 8;
+            zVal = 30;
+        }
+    }
     /* ---------------------- Enemy -------------------------------- */
 
 
@@ -1339,16 +1352,27 @@ void DefaultUpdateScene(SceneManager* sm)
 
 void DemoUpdateScene(SceneManager* sm)
 {
+    /*component::Audio3DEmitterComponent* ec = sm->GetScene("AndresTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
+    ec->UpdateEmitter(L"Bruh");*/
+    ////ec->Play(L"Bruh");
+    //ec = sm->GetScene("AndresTestScene")->GetEntity("enemy1")->GetComponent<component::Audio3DEmitterComponent>();
+    //ec->UpdateEmitter(L"Bruh");
+    ////ec->Play(L"Bruh");
+    //ec = sm->GetScene("AndresTestScene")->GetEntity("enemy2")->GetComponent<component::Audio3DEmitterComponent>();
+    //ec->UpdateEmitter(L"Bruh");
+    ////ec->Play(L"Bruh");
+    //ec = sm->GetScene("AndresTestScene")->GetEntity("enemy3")->GetComponent<component::Audio3DEmitterComponent>();
+    //ec->UpdateEmitter(L"Bruh");
+    //ec->Play(L"Bruh");
+
     component::Audio3DEmitterComponent* ec = sm->GetScene("AndresTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
     ec->UpdateEmitter(L"Bruh");
-    //ec->Play(L"Bruh");
-    ec = sm->GetScene("AndresTestScene")->GetEntity("enemy1")->GetComponent<component::Audio3DEmitterComponent>();
-    ec->UpdateEmitter(L"Bruh");
-    //ec->Play(L"Bruh");
-    ec = sm->GetScene("AndresTestScene")->GetEntity("enemy2")->GetComponent<component::Audio3DEmitterComponent>();
-    ec->UpdateEmitter(L"Bruh");
-    //ec->Play(L"Bruh");
-    ec = sm->GetScene("AndresTestScene")->GetEntity("enemy3")->GetComponent<component::Audio3DEmitterComponent>();
-    ec->UpdateEmitter(L"Bruh");
-    //ec->Play(L"Bruh");
+
+    std::string name = "enemy";
+    for (int i = 1; i < 76; i++)
+    {
+        name = "enemy" + std::to_string(i);
+        ec = sm->GetScene("AndresTestScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
+        ec->UpdateEmitter(L"Bruh");
+    }
 }

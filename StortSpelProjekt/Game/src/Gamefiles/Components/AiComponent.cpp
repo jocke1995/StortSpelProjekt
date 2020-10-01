@@ -43,6 +43,9 @@ void component::AiComponent::Update(double dt)
 			float randZ = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
 			parentTrans->UpdateMovement(randX, 0.0f, randZ);
 			parentTrans->SetMovement(min(max(parentTrans->GetMovement().x, -5.0f), 5.0f), 0.0f, min(max(parentTrans->GetMovement().z, -5.0f), 5.0f));
+
+			// for demoscene! 
+			GetParent()->GetComponent<component::Audio3DEmitterComponent>()->Stop(L"Bruh");
 		}
 	}
 	else
