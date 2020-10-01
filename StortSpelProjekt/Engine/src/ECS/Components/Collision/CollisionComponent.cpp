@@ -40,14 +40,12 @@ void component::CollisionComponent::Update(double dt)
 
 void component::CollisionComponent::InitScene()
 {
-#ifdef _DEBUG
 	// If no transform is given, this component is useless!
 	if (!m_pParent->HasComponent<component::TransformComponent>())
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "No Transform provided for collisioncomponent in entity %s\n", m_pParent->GetName().c_str());
 		return;
 	}
-#endif
 
 	// Initiate the body with a given shape. This shape should be defined in an inherited class.
 	m_pTrans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
