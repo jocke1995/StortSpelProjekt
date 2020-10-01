@@ -130,9 +130,10 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		double moveY = jump;
 		double moveZ = forward.z * moveForward + right.z * moveRight;
 
-		double moveLength = sqrt(moveX * moveX + moveZ * moveZ);
+		double moveLength = sqrt(moveX * moveX + moveY * moveY + moveZ * moveZ);
 
 		moveX /= moveLength;
+		moveY /= moveLength;
 		moveZ /= moveLength;
 
 		// Get the current linear velocity of the player
