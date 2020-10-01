@@ -176,6 +176,12 @@ Scene* JacobsTestScene(SceneManager* sm)
 
     pic->Init();
 
+    // Skybox
+    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    sbc->SetTexture(skyboxCubemap);
+
 
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
