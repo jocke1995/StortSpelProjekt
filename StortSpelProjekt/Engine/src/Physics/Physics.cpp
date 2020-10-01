@@ -54,7 +54,7 @@ bool Physics::CheckOBBCollision(const DirectX::BoundingOrientedBox* obb1, const 
 std::vector<Entity*> Physics::SpecificCollisionCheck(const DirectX::BoundingOrientedBox* obb1)
 {
 	std::vector<Entity*> entityHitList;
-	for (int i = 0; i < m_CollisionEntities.size(); i++)
+	for (unsigned int i = 0; i < m_CollisionEntities.size(); i++)
 	{
 		if (obb1 != m_CollisionEntities.at(i)->GetComponent<component::BoundingBoxComponent>()->GetOBB())
 		{
