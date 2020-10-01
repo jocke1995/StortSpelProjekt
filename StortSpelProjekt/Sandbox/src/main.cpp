@@ -2,6 +2,7 @@
 #include "Components/MeleeComponent.h"
 #include "Components/PlayerInputComponent.h"
 #include "Components/HealthComponent.h"
+#include "Components/RangeComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 
@@ -1417,6 +1418,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     component::BoundingBoxComponent* bbc = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
     component::HealthComponent* hc = nullptr;
+    component::RangeComponent* rc = nullptr;
     component::CollisionComponent* bcc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
@@ -1446,6 +1448,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     avc->AddVoice(L"Bruh");
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
