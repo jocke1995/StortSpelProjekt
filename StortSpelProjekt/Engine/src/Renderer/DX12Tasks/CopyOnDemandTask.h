@@ -7,7 +7,7 @@ class Texture;
 class CopyOnDemandTask : public CopyTask
 {
 public:
-	CopyOnDemandTask(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType);
+	CopyOnDemandTask(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType, unsigned int FLAG_THREAD);
 	virtual ~CopyOnDemandTask();
 
 	void SubmitTexture(Texture* texture);

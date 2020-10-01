@@ -46,7 +46,7 @@ enum COPY_TASK_TYPE
 class DX12Task : public MultiThreadedTask
 {
 public:
-	DX12Task(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType);
+	DX12Task(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType, unsigned int FLAG_THREAD);
 	virtual ~DX12Task();
 
 	void SetBackBufferIndex(int backBufferIndex);
