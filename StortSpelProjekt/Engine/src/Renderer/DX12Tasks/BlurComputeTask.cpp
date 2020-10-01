@@ -20,8 +20,9 @@ BlurComputeTask::BlurComputeTask(
 	COMMAND_INTERFACE_TYPE interfaceType,
 	const PingPongResource* Bloom0_RESOURCE,
 	const PingPongResource* Bloom1_RESOURCE,
-	unsigned int screenWidth, unsigned int screenHeight)
-	:ComputeTask(device, rootSignature, csNamePSOName, interfaceType)
+	unsigned int screenWidth, unsigned int screenHeight,
+	unsigned int FLAG_THREAD)
+	:ComputeTask(device, rootSignature, csNamePSOName, FLAG_THREAD, interfaceType)
 {
 	m_PingPongResources[0] = Bloom0_RESOURCE;
 	m_PingPongResources[1] = Bloom1_RESOURCE;

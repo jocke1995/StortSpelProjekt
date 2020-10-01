@@ -5,7 +5,8 @@
 #include "../DescriptorHeap.h"
 #include "../GPUMemory/Resource.h"
 
-DX12Task::DX12Task(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType)
+DX12Task::DX12Task(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType, unsigned int FLAG_THREAD)
+	:MultiThreadedTask(FLAG_THREAD)
 {
 	m_pCommandInterface = new CommandInterface(device, interfaceType);
 }

@@ -2,6 +2,7 @@
 #include "Components/PlayerInputComponent.h"
 #include "Components/HealthComponent.h"
 #include "EnemyFactory.h"
+
 Scene* GetDemoScene(SceneManager* sm);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -42,8 +43,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             {
                 logicTimer = 0;
                 
-                Physics::GetInstance().Update(updateRate);
                 renderer->Update(updateRate);
+                Physics::GetInstance().Update(updateRate);
             }
 
             /* ------ Sort ------ */
@@ -88,12 +89,14 @@ Scene* GetDemoScene(SceneManager* sm)
     component::DirectionalLightComponent* dlc = nullptr;
     component::SpotLightComponent* slc = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
+    component::CollisionComponent* bcc = nullptr;
 
 
     /* ---------------------- Player ---------------------- */
     entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
@@ -106,23 +109,32 @@ Scene* GetDemoScene(SceneManager* sm)
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0, 1, -30);
+    tc->GetTransform()->SetPosition(0, 2, -25);
     // initialize OBB after we have the transform info
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /* ---------------------- Player ---------------------- */
 
+    /* ---------------------- Skybox ---------------------- */
+
+    // Skybox
+    TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = scene->AddEntity("skybox");
+
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    /* ---------------------- Skybox ---------------------- */
+
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35,0,35);
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    tc->GetTransform()->SetPosition(0.0, 0.0, 0.0);
     /* ---------------------- Floor ---------------------- */
 
     /*--------------------- Adding 76 Enemies for preformance check ---------------------*/

@@ -54,11 +54,11 @@ public:
     const size_t GetNumIndices() const;
     const D3D12_INDEX_BUFFER_VIEW* GetIndexBufferView() const;
 
-    // Material
-    const std::wstring* GetPath() const;
+    const std::wstring& GetPath() const;
 
 private:
     friend class MergeRenderTask;
+    friend class SkyboxRenderTask;
     friend class Renderer;
     friend class SceneManager;
     friend class Model;

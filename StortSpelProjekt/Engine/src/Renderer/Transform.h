@@ -51,6 +51,37 @@ public:
 
 	DirectX::XMFLOAT3 GetMovement() const;
 
+	/// <summary>
+	/// Gets the forward vector of the transform as an XMFLOAT3
+	/// </summary>
+	/// <returns>XMFLOAT3 containing the forward vector</returns>
+	DirectX::XMFLOAT3 GetForwardXMFLOAT3() const;
+	/// <summary>
+	/// Gets the forward vector of the transform as an float3
+	/// </summary>
+	/// <returns>float3 containing the forward vector</returns>
+	float3 GetForwardFloat3() const;
+	/// <summary>
+	/// Gets the right vector of the transform as an XMFLOAT3
+	/// </summary>
+	/// <returns>XMFLOAT3 containing the right vector</returns>
+	DirectX::XMFLOAT3 GetRightXMFLOAT3() const;
+	/// <summary>
+	/// Gets the right vector of the transform as an float3
+	/// </summary>
+	/// <returns>float3 containing the right vector</returns>
+	float3 GetRightFloat3() const;
+	/// <summary>
+	/// Gets the up vector of the transform as an XMFLOAT3
+	/// </summary>
+	/// <returns>XMFLOAT3 containing the up vector</returns>
+	DirectX::XMFLOAT3 GetUpXMFLOAT3() const;
+	/// <summary>
+	/// Gets the up vector of the transform as an float3
+	/// </summary>
+	/// <returns>float3 containing the up vector</returns>
+	float3 GetUpFloat3() const;
+
 	float GetVelocity() const;
 	void SetVelocity(float vel);
 

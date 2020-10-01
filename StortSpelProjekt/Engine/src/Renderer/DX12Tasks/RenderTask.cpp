@@ -13,8 +13,9 @@ RenderTask::RenderTask(
 	RootSignature* rootSignature,
 	const std::wstring& VSName, const std::wstring& PSName,
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
-	const std::wstring& psoName)
-	:DX12Task(device, COMMAND_INTERFACE_TYPE::DIRECT_TYPE)
+	const std::wstring& psoName,
+	unsigned int FLAG_THREAD)
+	:DX12Task(device, COMMAND_INTERFACE_TYPE::DIRECT_TYPE, FLAG_THREAD)
 {
 	if (gpsds != nullptr)
 	{

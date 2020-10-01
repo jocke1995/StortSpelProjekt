@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Text.h"
 
-#include "Texture.h"
+#include "Texture/Texture.h"
 #include "../Misc/Window.h"
 #include "GPUMemory/Resource.h"
 #include "GPUMemory/ShaderResourceView.h"

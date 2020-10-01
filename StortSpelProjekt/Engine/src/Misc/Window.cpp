@@ -181,7 +181,7 @@ bool Window::ExitWindow()
 	{
 
 		TranslateMessage(&msg);
-		DispatchMessage(&msg);	// Går in i "CALLBACK" funktionen
+		DispatchMessage(&msg);	// Gï¿½r in i "CALLBACK" funktionen
 
 		if (msg.message == WM_QUIT)
 		{

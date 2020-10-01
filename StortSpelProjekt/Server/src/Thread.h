@@ -25,7 +25,7 @@ public:
 	Thread();
 	~Thread();
 
-	bool IsTaskNullptr();
+	bool isLastActiveTaskNullptr();
 
 	void AddTask(MultiThreadedTask* task, unsigned int taskFlag);
 	void ExitThread();
@@ -33,15 +33,15 @@ public:
 	bool IsQueueEmpty();
 	unsigned int GetTaskFlag();
 private:
-	HANDLE m_Thread;
-	HANDLE m_BeginEvent;
+	HANDLE m_ThreadHandle;
+	HANDLE m_EventHandle;
 
 	static unsigned int __stdcall threadFunc(LPVOID lpParameter);
 
 	std::queue<MultiThreadedTask*> m_TaskQueue;
 	std::mutex m_Mutex;
 
-	MultiThreadedTask* m_pTask= nullptr;
+	MultiThreadedTask* m_pActiveTask= nullptr;
 	unsigned int m_TaskFlag = 0;
 
 	bool m_IsRunning = true;
