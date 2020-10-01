@@ -193,7 +193,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		m_pCC->SetAngularVelocity(0.0, 0.0, 0.0);
 
 		// Check if in air. If not, change movement direction to match up with camera direction
-		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, 1.0) != -1)
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1)
 		{
 			// Get new direction
 			forward = m_pTransform->GetForwardFloat3();
