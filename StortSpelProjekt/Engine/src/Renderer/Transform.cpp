@@ -190,20 +190,6 @@ DirectX::XMMATRIX Transform::GetRotMatrix() const
 	return m_RotationMat;
 }
 
-DirectX::XMFLOAT3 Transform::GetForwardVec() const
-{
-	DirectX::XMFLOAT3 forward;
-	DirectX::XMStoreFloat3(&forward, m_RotationMat.r[2]);
-	return forward;
-}
-
-DirectX::XMFLOAT3 Transform::GetUpVec() const
-{
-	DirectX::XMFLOAT3 up;
-	DirectX::XMStoreFloat3(&up, m_RotationMat.r[1]);
-	return up;
-}
-
 DirectX::XMFLOAT3 Transform::GetMovement() const
 {
 	return m_Movement;
