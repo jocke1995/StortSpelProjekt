@@ -392,7 +392,8 @@ Texture* AssetLoader::processTexture(aiMaterial* mat,
 
 SkeletonNode* AssetLoader::processSkeleton(aiNode* assimpNode, const aiScene* assimpScene, std::map<unsigned int, VertexWeight>* perVertexBoneData)
 {
-	static std::map<aiBone*, int> boneCounter;
+	// This map gives each bone a unique boneID
+	static std::map<aiBone*, unsigned int> boneCounter;
 	SkeletonNode* currentNode = new SkeletonNode();
 	// Store the defaultTransform and initialize the modelSpaceTransform
 
@@ -410,8 +411,10 @@ SkeletonNode* AssetLoader::processSkeleton(aiNode* assimpNode, const aiScene* as
 	return currentNode;
 }
 
-void AssetLoader::processBones(static std::map<aiBone*, int> boneCounter, const aiMesh* assimpMesh, std::map<unsigned int, VertexWeight>* perVertexBoneData)
+void AssetLoader::processBones(std::map<aiBone*, unsigned int> boneCounter, const aiMesh* assimpMesh, std::map<unsigned int, VertexWeight>* perVertexBoneData)
 {
+	// This map keeps track of how many weights and boneIDs have been added to every vertex
+	// First value is the vertexID and the second value is the amount of weights and boneIDs added
 	std::map<unsigned int, unsigned int> vertexCounter;
 	for (unsigned int i = 0; i < assimpMesh->mNumBones; i++)
 	{
