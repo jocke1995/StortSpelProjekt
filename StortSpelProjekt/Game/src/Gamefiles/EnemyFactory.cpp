@@ -36,7 +36,7 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, flo
 	component::ModelComponent* mc = nullptr;
 	component::TransformComponent* tc = nullptr;
 	component::BoundingBoxComponent* bbc = nullptr;
-	component::AccelerationComponent* ac = nullptr;
+	component::CollisionComponent* cc = nullptr;
 	component::AiComponent* ai = nullptr;
 	component::Audio3DEmitterComponent* ae = nullptr;
 	component::Audio2DVoiceComponent* avc = nullptr;
@@ -57,7 +57,7 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, flo
 	tc = ent->AddComponent<component::TransformComponent>();	
 	ent->AddComponent<component::HealthComponent>(hp);
 	tc = ent->AddComponent<component::TransformComponent>();
-	ac = ent->AddComponent<component::AccelerationComponent>(0.982);
+	cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, 1.0, 2.0);
 	Entity* target = m_pScene->GetEntity(aiTarget);
 	if (target != nullptr)
 	{
@@ -100,7 +100,7 @@ Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
 			component::ModelComponent* mc = nullptr;
 			component::TransformComponent* tc = nullptr;
 			component::BoundingBoxComponent* bbc = nullptr;
-			component::AccelerationComponent* ac = nullptr;
+			component::CollisionComponent* cc = nullptr;
 			component::AiComponent* ai = nullptr;
 			component::Audio3DEmitterComponent* ae = nullptr;
 			component::Audio2DVoiceComponent* avc = nullptr;
@@ -108,7 +108,7 @@ Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
 			mc = ent->AddComponent<component::ModelComponent>();
 			tc = ent->AddComponent<component::TransformComponent>();
 			ent->AddComponent<component::HealthComponent>(m_EnemyComps[entityName]->hp);
-			ac = ent->AddComponent<component::AccelerationComponent>(0.982);
+			cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, 1.0, 2.0);
 			Entity* target = m_pScene->GetEntity(m_EnemyComps[entityName]->targetName);
 			if (target != nullptr)
 			{
@@ -197,13 +197,13 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3
 			component::ModelComponent* mc = nullptr;
 			component::TransformComponent* tc = nullptr;
 			component::BoundingBoxComponent* bbc = nullptr;
-			component::AccelerationComponent* ac = nullptr;
+			component::CollisionComponent* cc = nullptr;
 			component::AiComponent* ai = nullptr;
 
 			mc = ent->AddComponent<component::ModelComponent>();
 			tc = ent->AddComponent<component::TransformComponent>();
 			ent->AddComponent<component::HealthComponent>(newHP);
-			ac = ent->AddComponent<component::AccelerationComponent>(0.982);
+			cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, 1.0, 2.0);
 			Entity* target = m_pScene->GetEntity(m_EnemyComps[entityName]->targetName);
 			if (target != nullptr)
 			{
