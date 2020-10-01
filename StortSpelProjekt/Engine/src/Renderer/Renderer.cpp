@@ -1716,40 +1716,47 @@ void Renderer::waitForFrame(unsigned int framesToBeAhead)
 // Then gets called by LoadModel()
 void Renderer::loadModel(Model* model) const
 {
-	AssetLoader* al = AssetLoader::Get();
+	model->m_ActiveRefCount++;
 
-	std::wstring modelPath = model->GetPath();
-	// If the model isn't on GPU, it will be uploaded below
-	if (!al->IsModelLoadedOnGpu(modelPath))
+	// only load when it is first referenced
+	if (model->m_ActiveRefCount == 1)
 	{
-		Mesh* mesh;
-		// Submit Mesh & Texture Data to GPU
-		for (unsigned int i = 0; i < model->GetSize(); i++)
+		AssetLoader* al = AssetLoader::Get();
+
+		std::wstring modelPath = model->GetPath();
+		// If the model isn't on GPU, it will be uploaded below
+		if (!al->IsModelLoadedOnGpu(modelPath))
 		{
-			Mesh* mesh = model->GetMeshAt(i);
-			Material* meshMat = model->GetMaterialAt(i);
-
-			// Upload Mesh
-			loadMesh(mesh);
-
-			// Upload Material
-			loadMaterial(model->GetMaterialAt(i));
-
-			// Set Slotinfo
-			model->m_SlotInfos[i] =
+			Mesh* mesh;
+			// Submit Mesh & Texture Data to GPU
+			for (unsigned int i = 0; i < model->GetSize(); i++)
 			{
-			mesh->m_pSRV->GetDescriptorHeapIndex(),
-			meshMat->GetTexture(TEXTURE2D_TYPE::ALBEDO)->GetDescriptorHeapIndex(),
-			meshMat->GetTexture(TEXTURE2D_TYPE::ROUGHNESS)->GetDescriptorHeapIndex(),
-			meshMat->GetTexture(TEXTURE2D_TYPE::METALLIC)->GetDescriptorHeapIndex(),
-			meshMat->GetTexture(TEXTURE2D_TYPE::NORMAL)->GetDescriptorHeapIndex(),
-			meshMat->GetTexture(TEXTURE2D_TYPE::EMISSIVE)->GetDescriptorHeapIndex()
-			};
-		}
+				Mesh* mesh = model->GetMeshAt(i);
+				Material* meshMat = model->GetMaterialAt(i);
 
-		// Set model as loadedOnGpu
-		al->m_LoadedModels[modelPath].first = true;
+				// Upload Mesh
+				loadMesh(mesh);
+
+				// Upload Material
+				loadMaterial(model->GetMaterialAt(i));
+
+				// Set Slotinfo
+				model->m_SlotInfos[i] =
+				{
+				mesh->m_pSRV->GetDescriptorHeapIndex(),
+				meshMat->GetTexture(TEXTURE2D_TYPE::ALBEDO)->GetDescriptorHeapIndex(),
+				meshMat->GetTexture(TEXTURE2D_TYPE::ROUGHNESS)->GetDescriptorHeapIndex(),
+				meshMat->GetTexture(TEXTURE2D_TYPE::METALLIC)->GetDescriptorHeapIndex(),
+				meshMat->GetTexture(TEXTURE2D_TYPE::NORMAL)->GetDescriptorHeapIndex(),
+				meshMat->GetTexture(TEXTURE2D_TYPE::EMISSIVE)->GetDescriptorHeapIndex()
+				};
+			}
+
+			// Set model as loadedOnGpu
+			al->m_LoadedModels[modelPath].first = true;
+		}
 	}
+	
 }
 
 void Renderer::loadMesh(Mesh* mesh) const
@@ -1842,32 +1849,37 @@ void Renderer::loadTexture(Texture* texture) const
 
 void Renderer::unloadModel(Model* model) const
 {
-	AssetLoader* al = AssetLoader::Get();
+	model->m_ActiveRefCount--;
+	// Unload if model is not referenced anymore
+	if (model->m_ActiveRefCount == 0)
+	{
+		AssetLoader* al = AssetLoader::Get();
 
-	std::wstring path = model->GetPath();
-	// Debug check if model is already unloaded
-	if (!al->IsModelLoadedOnGpu(path))
-	{
-		// Do nothing
-		//Log::PrintSeverity(Log::Severity::WARNING, "Renderer::unloadModel: unloadModel called on already unloaded model %S\n", path);
-	}
-	else
-	{
-		for (unsigned int i = 0; i < model->GetSize(); i++)
+		std::wstring path = model->GetPath();
+		// Debug check if model is already unloaded
+		if (!al->IsModelLoadedOnGpu(path))
 		{
-			// unloadMeshes
-			Mesh* mesh = model->GetMeshAt(i);
-			unloadMesh(mesh);
-
-			// unloadMaterial
-			Material* meshmat = model->GetMaterialAt(i);
-			unloadMaterial(meshmat);
-
-			// Set slotinfo = 0;
-			model->m_SlotInfos[i] = {};
+			// Do nothing
+			//Log::PrintSeverity(Log::Severity::WARNING, "Renderer::unloadModel: unloadModel called on already unloaded model %S\n", path);
 		}
-		// Set as unloaded
-		al->m_LoadedModels[path].first = false;
+		else
+		{
+			for (unsigned int i = 0; i < model->GetSize(); i++)
+			{
+				// unloadMeshes
+				Mesh* mesh = model->GetMeshAt(i);
+				unloadMesh(mesh);
+
+				// unloadMaterial
+				Material* meshmat = model->GetMaterialAt(i);
+				unloadMaterial(meshmat);
+
+				// Set slotinfo = 0;
+				model->m_SlotInfos[i] = {};
+			}
+			// Set as unloaded
+			al->m_LoadedModels[path].first = false;
+		}
 	}
 }
 

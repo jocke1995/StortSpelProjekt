@@ -127,7 +127,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             else
             {
                 sceneManager->UnloadScene(filipScene);
-                sceneManager->SetScene(1, activeScene);
+                sceneManager->SetScene(2, activeScene);
             }
             currentScene = !currentScene;
         }

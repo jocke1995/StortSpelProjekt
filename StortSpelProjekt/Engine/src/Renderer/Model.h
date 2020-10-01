@@ -45,7 +45,11 @@ private:
     std::vector<Mesh*> m_Meshes;
     std::vector<Material*> m_Materials;
     std::vector<Animation*> m_Animations;
-    std::vector<SlotInfo> m_SlotInfos; 
+    std::vector<SlotInfo> m_SlotInfos;
+
+    // Counts how many loaded references to model
+    // This is to not delete models in use by other scenes
+    unsigned int m_ActiveRefCount = 0;
 };
 
 #endif

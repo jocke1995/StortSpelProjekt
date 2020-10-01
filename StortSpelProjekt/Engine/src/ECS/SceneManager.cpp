@@ -172,8 +172,9 @@ void SceneManager::LoadScene(Scene* scene)
 	// Makes sure the model gets created/sent to gpu
 	for (auto const& [name, entity] : *scene->GetEntities())
 	{
-		// Load only first time entity is referenced in a c
-		if (true)
+		entity->m_loadedInNrScenes++;
+		// Load only first time entity is referenced in a scene
+		if (entity->m_loadedInNrScenes == 1)
 		{
 			component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
 			if (mc != nullptr)
@@ -195,8 +196,10 @@ void SceneManager::UnloadScene(Scene* scene)
 	// Unload the scene
 	for (auto const& [name, entity] : *scene->GetEntities())
 	{
+		entity->m_loadedInNrScenes--;
+
 		// don't unload entities used by other scenes
-		if (true)
+		if (entity->m_loadedInNrScenes == 0)
 		{
 			// Unload the entity
   			component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
