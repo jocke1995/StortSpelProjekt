@@ -45,12 +45,9 @@ int component::HealthComponent::GetHealth()
 
 void component::HealthComponent::printDeath(Death* event)
 {
+	// TODO: When more of the game is inplace make an improved version of this function
 	if (event->ent == m_pParent)
 	{
 		Log::Print("%s died!\n", event->ent->GetName().c_str());
-		//if (m_pParent->HasComponent<component::AiComponent>())
-		//{
-		//	m_pParent->GetComponent<component::AiComponent>()
-		//}
 	}
 }

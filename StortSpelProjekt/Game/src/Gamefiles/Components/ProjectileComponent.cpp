@@ -18,7 +18,7 @@ component::ProjectileComponent::~ProjectileComponent()
 
 void component::ProjectileComponent::Update(float dt)
 {
-	//m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->Move(dt);
+	
 }
 
 void component::ProjectileComponent::hit(Collision* event)
