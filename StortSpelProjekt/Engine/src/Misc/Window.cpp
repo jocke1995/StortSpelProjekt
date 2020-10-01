@@ -9,6 +9,7 @@
 #include "../Events/EventBus.h"
 #include "../Engine.h"
 #include "../Renderer/Renderer.h"
+#include "../Renderer/SwapChain.h"
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -23,10 +24,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return true;
 	}
 
+	Renderer* renderer = &Renderer::GetInstance();
+	SwapChain* swapChain = renderer->GetSwapChain();
+	BOOL fullscreen = false;
 	switch (msg)
 	{
 	case WM_WINDOWPOSCHANGED:
+		if (g_ProgramStarted == true)
+		{
+			renderer->GetSwapChain()->GetDX12SwapChain()->GetFullscreenState(&fullscreen, NULL);
+		}
 		if (std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()) && g_ProgramStarted && g_ProgramPaused == false)
+		//if (fullscreen)
 		{
 			g_ProgramPaused = true;
 			EventBus::GetInstance().Publish(&WindowChange());
@@ -59,7 +68,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			//if (MessageBox(0, L"Are you sure you want to exit?", L"Exit", MB_YESNO | MB_ICONQUESTION) == IDYES)
 			//{
-				DestroyWindow(hWnd);
+			g_ProgramStarted = false;
+			DestroyWindow(hWnd);
 			//}
 		}
 		// Temp to create objects during runtime

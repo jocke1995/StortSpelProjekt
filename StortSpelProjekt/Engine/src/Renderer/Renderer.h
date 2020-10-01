@@ -106,6 +106,8 @@ public:
 	void InitBoundingBoxComponent(Entity* entity);
 	void InitTextComponent(Entity* entity);
 
+	SwapChain* GetSwapChain();
+
 private:
 	friend class component::SkyboxComponent;
 	friend class SceneManager;

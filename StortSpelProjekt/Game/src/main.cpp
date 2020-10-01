@@ -32,25 +32,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     {
         while (!window->ExitWindow())
         {
-			while (g_ProgramPaused == false)
-			{
+			//while (g_ProgramPaused == false)
+			//{
 				// Currently no scene set, hence the m_pRenderer should not be working.
 
 				/* ------ Update ------ */
 				timer->Update();
 				logicTimer += timer->GetDeltaTime();
 
-            renderer->RenderUpdate(timer->GetDeltaTime());
-            if (logicTimer >= updateRate)
-            {
-                logicTimer = 0;
-                
-                renderer->Update(updateRate);
-                Physics::GetInstance().Update(updateRate);
-            }
-
-					Physics::GetInstance().Update(updateRate);
-					renderer->Update(updateRate);
+				renderer->RenderUpdate(timer->GetDeltaTime());
+				if (logicTimer >= updateRate)
+				{
+				    logicTimer = 0;
+				    
+				    renderer->Update(updateRate);
+				    Physics::GetInstance().Update(updateRate);
 				}
 
 				/* ------ Sort ------ */
@@ -60,11 +56,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 				/* ------ Draw ------ */
 				renderer->Execute();
-			}
+			//}
         }
     }
 
-    return 0;
+	return 0;
 }
 
 Scene* GetDemoScene(SceneManager* sm)

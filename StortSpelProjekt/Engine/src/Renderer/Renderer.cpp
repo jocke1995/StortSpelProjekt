@@ -171,7 +171,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 		);
 
 	// Disables window changes
-	IDXGIFactory6* pFactory = NULL;
+	/*IDXGIFactory6* pFactory = NULL;
 	if (SUCCEEDED(m_pSwapChain->GetDX12SwapChain()->GetParent(__uuidof (IDXGIFactory6), (void**)&pFactory)))
 	{
 		pFactory->MakeWindowAssociation(*const_cast<HWND*>(m_Window->GetHwnd()), DXGI_MWA_NO_WINDOW_CHANGES | DXGI_MWA_NO_WINDOW_CHANGES);
@@ -180,7 +180,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not get Swapchain parent. The window may be unsafe!\n");
 	}
-	pFactory->Release();
+	pFactory->Release();*/
 
 	// Create Main DepthBuffer
 	createMainDSV();
@@ -771,6 +771,11 @@ void Renderer::InitTextComponent(Entity* entity)
 
 	// Finally store the text in m_pRenderer so it will be drawn
 	m_TextComponents.push_back(textComp);
+}
+
+SwapChain* Renderer::GetSwapChain()
+{
+	return m_pSwapChain;
 }
 
 Entity* const Renderer::GetPickedEntity() const
@@ -1573,7 +1578,7 @@ void Renderer::initRenderTasks()
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		resolutionWidth, resolutionHeight);
+		resolutionWidth, resolutionHeight,
 		FLAG_THREAD::RENDER);
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
@@ -1636,12 +1641,11 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(skyboxRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(skyboxRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandList(i));
 		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
