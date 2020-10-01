@@ -73,10 +73,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScene(sceneManager->GetScene("AntonScene"));
+        gameNetwork.SetScene(sceneManager->GetScene("AndresTestScene"));
         gameNetwork.SetSceneManager(sceneManager);
 
-        network.SetPlayerEntityPointer(sceneManager->GetScene("AntonScene")->GetEntity("player"), 0);
+        network.SetPlayerEntityPointer(sceneManager->GetScene("AndresTestScene")->GetEntity("player"), 0);
         network.ConnectToIP(option->GetVariable("s_ip"), std::atoi(option->GetVariable("i_port").c_str()));
 
         networkOn = true;
