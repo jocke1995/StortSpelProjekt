@@ -43,6 +43,7 @@
 #include <set>
 #include <unordered_set>
 #include <queue>
+#include <deque>
 
 typedef DirectX::XMMATRIX float4x4;
 
