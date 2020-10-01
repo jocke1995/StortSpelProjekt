@@ -20,8 +20,9 @@ WireframeRenderTask::WireframeRenderTask(
 	RootSignature* rootSignature,
 	const std::wstring& VSName, const std::wstring& PSName,
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
-	const std::wstring& psoName)
-	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName)
+	const std::wstring& psoName,
+	unsigned int FLAG_THREAD)
+	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
 	
 }

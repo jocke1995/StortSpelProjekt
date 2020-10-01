@@ -4,8 +4,8 @@
 #include "../GPUMemory/Resource.h"
 #include "../CommandInterface.h"
 
-CopyTask::CopyTask(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType)
-	:DX12Task(device, interfaceType)
+CopyTask::CopyTask(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType, unsigned int FLAG_THREAD)
+	:DX12Task(device, interfaceType, FLAG_THREAD)
 {
 
 }
