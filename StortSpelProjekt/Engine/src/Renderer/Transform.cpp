@@ -195,6 +195,51 @@ DirectX::XMFLOAT3 Transform::GetMovement() const
 	return m_Movement;
 }
 
+DirectX::XMFLOAT3 Transform::GetForwardXMFLOAT3() const
+{
+	DirectX::XMFLOAT3 forward;
+	DirectX::XMStoreFloat3(&forward, m_RotationMat.r[2]);
+
+	return forward;
+}
+
+float3 Transform::GetForwardFloat3() const
+{
+	DirectX::XMFLOAT3 forward;
+	DirectX::XMStoreFloat3(&forward, m_RotationMat.r[2]);
+
+	return { forward.x, forward.y, forward.z };
+}
+
+DirectX::XMFLOAT3 Transform::GetRightXMFLOAT3() const
+{
+	DirectX::XMFLOAT3 right;
+	DirectX::XMStoreFloat3(&right, m_RotationMat.r[0]);
+
+	return right;
+}
+float3 Transform::GetRightFloat3() const
+{
+	DirectX::XMFLOAT3 right;
+	DirectX::XMStoreFloat3(&right, m_RotationMat.r[0]);
+
+	return { right.x, right.y, right.z };
+}
+DirectX::XMFLOAT3 Transform::GetUpXMFLOAT3() const
+{
+	DirectX::XMFLOAT3 up;
+	DirectX::XMStoreFloat3(&up, m_RotationMat.r[1]);
+
+	return up;
+}
+float3 Transform::GetUpFloat3() const
+{
+	DirectX::XMFLOAT3 up;
+	DirectX::XMStoreFloat3(&up, m_RotationMat.r[1]);
+
+	return { up.x, up.y, up.z };
+}
+
 float Transform::GetVelocity() const
 {
 	return m_Velocity;

@@ -9,7 +9,7 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 {
 	m_Attacking = false;
 	m_Cooldown = false;
-	m_AttackIntervall = 1.0;
+	m_AttackInterval = 1.0;
 	m_TimeSinceLastAttackCheck = 0;
 	m_pMesh = nullptr;
 
@@ -35,11 +35,13 @@ component::MeleeComponent::~MeleeComponent()
 
 void component::MeleeComponent::Update(double dt)
 {
+	// Takes the transform of the player cube and moves it forward to act as a hitbox
 	m_MeleeTransformTwo = *m_pMeleeTransform;
 	float positonX = m_MeleeTransformTwo.GetPositionFloat3().x + 2*m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[0];
 	float positonY = m_MeleeTransformTwo.GetPositionFloat3().y + 2*m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[1];
 	float positonZ = m_MeleeTransformTwo.GetPositionFloat3().z + 2*m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[2];
 	
+	// Sets the position and updates the matrix to reflect movement of the player
 	m_MeleeTransformTwo.SetPosition(positonX, positonY, positonZ);
 	m_MeleeTransformTwo.Move(dt);
 	m_MeleeTransformTwo.UpdateWorldMatrix();
@@ -47,17 +49,22 @@ void component::MeleeComponent::Update(double dt)
 	DirectX::BoundingOrientedBox temp;
 	temp = m_TempHitbox;
 
+	//Check how long time has passed sinces last attack
 	m_TimeSinceLastAttackCheck += dt;
-	if (m_TimeSinceLastAttackCheck > m_AttackIntervall)
+	if (m_TimeSinceLastAttackCheck > m_AttackInterval)
 	{
+		//Checks if the player has attacked at some point. 
 		if (m_Attacking == true)
 		{
+			// Sets the attacking state to false (=able to attack again)
 			Log::Print("Attack off cooldown \n");
 			m_Attacking = false;
 			m_Cooldown = false;
 		}
 		m_TimeSinceLastAttackCheck = 0;
 	}
+
+	// Updates the hitzone to follow the player
 	temp.Transform(temp, *m_MeleeTransformTwo.GetWorldMatrix());
 	m_Hitbox = temp;
 
@@ -69,27 +76,27 @@ void component::MeleeComponent::Attack(bool attack)
 	{
 		Log::Print("Attacking now \n");
 		m_Attacking = attack;
+		//Checks collision of entities
 		CheckCollision();
 		m_Cooldown = true;
+		m_TimeSinceLastAttackCheck = 0;
 	}
 }
 
-void component::MeleeComponent::setAttackIntervall(float intervall)
+void component::MeleeComponent::setAttackInterval(float interval)
 {
-	m_AttackIntervall = intervall;
+	m_AttackInterval = interval;
 }
 
 void component::MeleeComponent::CheckCollision()
 {
 	std::vector<Entity*> list = Physics::GetInstance().SpecificCollisionCheck(&m_Hitbox);
-	if (list.size() != 0)
+	for (unsigned int i = 0; i < list.size(); i++) 
 	{
-		for (int i = 0; i < list.size(); i++) 
+		// Checks if the collision occurs on something with a healthcomponent and is not the player themselves
+		if (list.at(i)->GetName() != "player" && list.at(i)->GetComponent<component::HealthComponent>() != nullptr)
 		{
-			if (list.at(i)->GetName() != "player" && list.at(i)->GetComponent<component::HealthComponent>() != nullptr)
-			{
-				list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-100);
-			}
+			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-100);
 		}
 	}
 	list.empty();
@@ -128,13 +135,14 @@ void component::MeleeComponent::createDrawnHitbox(component::BoundingBoxComponen
 	v[6].pos = m_Corners[6];
 	v[7].pos = m_Corners[7];
 
-
+	//PUshing back the vertices to the vector
 	for (unsigned int i = 0; i < 8; i++)
 	{
 		m_BoundingBoxVerticesLocal.push_back(v[i]);
 	}
 
-	// Indices
+	// Indices 
+	// These for each of the faces for the hitzone, hardcoded as there is no model to load from.
 	unsigned int indices[36] = {};
 	// Front Face
 	indices[0] = 0; indices[1] = 1; indices[2] = 3;
@@ -160,6 +168,7 @@ void component::MeleeComponent::createDrawnHitbox(component::BoundingBoxComponen
 	indices[30] = 2; indices[31] = 3; indices[32] = 7;
 	indices[33] = 2; indices[34] = 6; indices[35] = 7;
 
+	//Pushing back the indices to the vector
 	for (unsigned int i = 0; i < 36; i++)
 	{
 		m_BoundingBoxIndicesLocal.push_back(indices[i]);

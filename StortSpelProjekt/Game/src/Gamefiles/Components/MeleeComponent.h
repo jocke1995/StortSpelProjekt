@@ -27,7 +27,7 @@ namespace component
 		void Update(double dt);
 		void Attack(bool attack);
 		
-		void setAttackIntervall(float intervall);
+		void setAttackInterval(float interval);
 
 		void createCornersHitbox();
 		void createDrawnHitbox(component::BoundingBoxComponent* bbc);
@@ -39,7 +39,7 @@ namespace component
 
 		bool m_Attacking;
 		bool m_Cooldown;
-		float m_AttackIntervall;
+		float m_AttackInterval;
 		float m_TimeSinceLastAttackCheck;
 
 		//std::vector<Entity*> collideList;

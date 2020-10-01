@@ -36,10 +36,20 @@ inline T Max(T a, T b)
 	return b;
 }
 
+inline std::string GetFileExtension(const std::string& FileName)
+{
+	if (FileName.find_last_of(".") != std::string::npos)
+	{
+		return FileName.substr(FileName.find_last_of(".") + 1);
+	}
+	return "";
+}
+
 enum class TEXTURE_TYPE
 {
 	UNKNOWN,
 	TEXTURE2D,
+	TEXTURE2DGUI,
 	TEXTURECUBEMAP,
 	NUM_TYPES
 };

@@ -3,7 +3,9 @@
 
 #include "Component.h"
 #include "EngineMath.h"
-#include<DirectXCollision.h>
+
+#include <DirectXCollision.h>
+
 #include <vector>
 
 // used for enabling Collision and/or Picking.
