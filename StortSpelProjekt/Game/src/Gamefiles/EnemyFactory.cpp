@@ -1,6 +1,7 @@
 #include "EnemyFactory.h"
 #include "ECS/Scene.h"
 #include "Engine.h"
+#include "Components/HealthComponent.h"
 
 EnemyFactory::EnemyFactory(Scene* scene)
 {
@@ -19,7 +20,7 @@ EnemyFactory::~EnemyFactory()
 	m_EnemyComps.clear();
 }
 
-Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, float3 pos, unsigned int flag, float scale, float3 rot)
+Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, float3 pos, unsigned int flag, float scale, float3 rot, std::string aiTarget)
 {
 	for (auto pair : m_EnemyComps)
 	{
@@ -35,7 +36,8 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, float3 pos,
 	component::ModelComponent* mc = nullptr;
 	component::TransformComponent* tc = nullptr;
 	component::BoundingBoxComponent* bbc = nullptr;
-	// TODO: Add more components when they are made such as HealthComponent
+	component::AccelerationComponent* ac = nullptr;
+	component::AiComponent* ai = nullptr;
 	m_EnemyComps[entityName] = new EnemyComps;
 
 	m_EnemyComps[entityName]->enemiesOfThisType++;
@@ -44,9 +46,19 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, float3 pos,
 	m_EnemyComps[entityName]->scale = scale;
 	m_EnemyComps[entityName]->rot = rot;
 	m_EnemyComps[entityName]->model = model;
+	m_EnemyComps[entityName]->targetName = aiTarget;
+	m_EnemyComps[entityName]->hp = hp;
 
 	mc = ent->AddComponent<component::ModelComponent>();
 	tc = ent->AddComponent<component::TransformComponent>();	
+	ent->AddComponent<component::HealthComponent>(hp);
+	tc = ent->AddComponent<component::TransformComponent>();
+	ac = ent->AddComponent<component::AccelerationComponent>(0.982);
+	Entity* target = m_pScene->GetEntity(aiTarget);
+	if (target != nullptr)
+	{
+		ai = ent->AddComponent<component::AiComponent>(target);
+	}
 
 	mc->SetModel(m_EnemyComps[entityName]->model/*model*/);
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -55,6 +67,7 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, float3 pos,
 	tc->GetTransform()->SetRotationX(rot.x);
 	tc->GetTransform()->SetRotationY(rot.y);
 	tc->GetTransform()->SetRotationZ(rot.z);
+	tc->GetTransform()->SetVelocity(2.5);
 	if (F_COMP_FLAGS::OBB & flag)
 	{
 		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
@@ -70,7 +83,7 @@ Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
 	for (auto pair : m_EnemyComps)
 	{
 		// An entity with this m_Name already exists
-		// so create a new onen of the same type
+		// so create a new one of the same type
 		if (pair.first == entityName)
 		{
 			std::string name = entityName + std::to_string(m_EnemyComps[entityName]->enemiesOfThisType);
@@ -79,10 +92,18 @@ Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
 			component::ModelComponent* mc = nullptr;
 			component::TransformComponent* tc = nullptr;
 			component::BoundingBoxComponent* bbc = nullptr;
-			// TODO: Add more components as they are made such as HealthComponent
+			component::AccelerationComponent* ac = nullptr;
+			component::AiComponent* ai = nullptr;
 			
 			mc = ent->AddComponent<component::ModelComponent>();
 			tc = ent->AddComponent<component::TransformComponent>();
+			ent->AddComponent<component::HealthComponent>(m_EnemyComps[entityName]->hp);
+			ac = ent->AddComponent<component::AccelerationComponent>(0.982);
+			Entity* target = m_pScene->GetEntity(m_EnemyComps[entityName]->targetName);
+			if (target != nullptr)
+			{
+				ai = ent->AddComponent<component::AiComponent>(target);
+			}
 
 			mc->SetModel(m_EnemyComps[entityName]->model);
 			mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -108,7 +129,7 @@ Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
 	}
 }
 
-Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3 pos, unsigned int flag, float scale, float3 rot)
+Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3 pos, unsigned int flag, float scale, float3 rot, int hp)
 {
 	for (auto pair : m_EnemyComps)
 	{
@@ -145,6 +166,15 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3
 			{
 				newRot = m_EnemyComps[entityName]->rot;
 			}
+			int newHP;
+			if (hp != INT_MAX)
+			{
+				newHP = hp;
+			}
+			else
+			{
+				newHP = m_EnemyComps[entityName]->hp;
+			}
 
 			std::string name = entityName + std::to_string(m_EnemyComps[entityName]->enemiesOfThisType);
 			Entity* ent = m_pScene->AddEntity(name);
@@ -152,10 +182,19 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3
 			component::ModelComponent* mc = nullptr;
 			component::TransformComponent* tc = nullptr;
 			component::BoundingBoxComponent* bbc = nullptr;
-			// TODO: Add more components as they are made such as HealthComponent
+			component::AccelerationComponent* ac = nullptr;
+			component::AiComponent* ai = nullptr;
 
 			mc = ent->AddComponent<component::ModelComponent>();
 			tc = ent->AddComponent<component::TransformComponent>();
+			ent->AddComponent<component::HealthComponent>(newHP);
+			ac = ent->AddComponent<component::AccelerationComponent>(0.982);
+			Entity* target = m_pScene->GetEntity(m_EnemyComps[entityName]->targetName);
+			if (target != nullptr)
+			{
+				ai = ent->AddComponent<component::AiComponent>(target);
+			}
+
 
 			mc->SetModel(m_EnemyComps[entityName]->model);
 			mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);

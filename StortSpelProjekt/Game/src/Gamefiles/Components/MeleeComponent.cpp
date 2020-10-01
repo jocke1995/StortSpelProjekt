@@ -1,6 +1,7 @@
 #include "Headers/stdafx.h"
 #include "ECS/Entity.h"
 #include "MeleeComponent.h"
+#include "HealthComponent.h"
 #include "../Renderer/BoundingBoxPool.h"
 
 
@@ -85,7 +86,10 @@ void component::MeleeComponent::CheckCollision()
 	{
 		for (int i = 0; i < list.size(); i++) 
 		{
-			Log::Print("Melee Component collied with %s\n", list.at(i)->GetName().c_str());
+			if (list.at(i)->GetName() != "player" && list.at(i)->GetComponent<component::HealthComponent>() != nullptr)
+			{
+				list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-100);
+			}
 		}
 	}
 	list.empty();

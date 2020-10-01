@@ -148,7 +148,7 @@ namespace component
 			// Use the same m_pTransform as the model
 			m_Transforms.push_back(m_pParent->GetComponent<TransformComponent>()->GetTransform());
 			ModelComponent* mc = m_pParent->GetComponent<ModelComponent>();
-			m_Identifier.push_back(*mc->GetMeshAt(0)->GetPath());
+			m_Identifier.push_back(mc->GetMeshAt(0)->GetPath());
 
 			BoundingBoxPool* bbp = BoundingBoxPool::Get();
 

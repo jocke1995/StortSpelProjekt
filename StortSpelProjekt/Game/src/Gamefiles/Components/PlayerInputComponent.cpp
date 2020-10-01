@@ -12,7 +12,6 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::zoom);
 	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::rotate);
 	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::move);
-	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::mouseClick);
 	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::grunt);
 
 	m_CameraFlags = camFlags;
@@ -37,6 +36,11 @@ void component::PlayerInputComponent::Init()
 {
 	m_pCamera = static_cast<PerspectiveCamera*>(m_pParent->GetComponent<component::CameraComponent>()->GetCamera());
 	m_pTransform = static_cast<Transform*>(m_pParent->GetComponent<component::TransformComponent>()->GetTransform());
+	if (m_pParent->GetComponent<component::MeleeComponent>() != nullptr)
+	{
+		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::mouseClick);
+	}
+
 }
 
 void component::PlayerInputComponent::RenderUpdate(double dt)

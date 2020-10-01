@@ -41,9 +41,9 @@ private:
     std::wstring m_Path;
     unsigned int m_Size = 0;
     std::vector<Mesh*> m_Meshes;
-    std::vector<Animation*> m_Animations;
     std::vector<Material*> m_Materials;
-    std::vector<SlotInfo> m_SlotInfos;
+    std::vector<Animation*> m_Animations;
+    std::vector<SlotInfo> m_SlotInfos; 
 };
 
 #endif
