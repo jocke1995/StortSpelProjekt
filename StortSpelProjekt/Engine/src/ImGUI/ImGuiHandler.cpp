@@ -349,6 +349,10 @@ void ImGuiHandler::ExecCommand(const char* command_line)
             AddLog("Developer mode bounding boxes have not been activated\n");
         }
     }
+    else if (Stricmp(command.c_str(), "RESET") == 0)
+    {
+        m_BoolMap["reset"] = true;
+    }
     else
     {
         AddLog("Unknown command: '%s'\n", command.c_str());
@@ -504,6 +508,7 @@ ImGuiHandler::ImGuiHandler()
     m_Commands.push_back("HELP");
     m_Commands.push_back("HISTORY");
     m_Commands.push_back("CLEAR");
+    m_Commands.push_back("RESET");
     m_ScrollToBottom = false;
 
     if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
