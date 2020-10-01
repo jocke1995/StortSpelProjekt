@@ -859,7 +859,6 @@ Scene* FredriksTestScene(SceneManager* sm)
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
-    component::CollisionComponent* bcc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -873,7 +872,6 @@ Scene* FredriksTestScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -885,7 +883,6 @@ Scene* FredriksTestScene(SceneManager* sm)
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
@@ -1039,7 +1036,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     Model* amongUsModel = al->LoadModel(L"../Vendor/Resources/Models/amongus/AmongUs.fbx");
 
     Entity* entity = scene->AddEntity("player");
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.1);
     mc = entity->AddComponent<component::ModelComponent>();
     component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     tc = entity->AddComponent<component::TransformComponent>();
@@ -1197,7 +1194,7 @@ Scene* AndresTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.1);
     audioListener = entity->AddComponent<component::Audio3DListenerComponent>();
     ic->Init();
 
@@ -1298,7 +1295,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.1);
     component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
