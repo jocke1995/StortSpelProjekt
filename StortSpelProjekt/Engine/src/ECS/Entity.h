@@ -15,6 +15,7 @@
 // physics/collisions
 #include "Components/Collision/SphereCollisionComponent.h"
 #include "Components/Collision/CubeCollisionComponent.h"
+#include "Components/Collision/CapsuleCollisionComponent.h"
 
 #include "../../Game/src/Gamefiles/Components/GameComponents.h"
 

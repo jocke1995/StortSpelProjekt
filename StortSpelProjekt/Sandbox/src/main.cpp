@@ -51,8 +51,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    //sceneManager->SetScene(LeosTestScene(sceneManager));
-    sceneManager->SetScene(LeosBounceScene(sceneManager));
+    sceneManager->SetScene(LeosTestScene(sceneManager));
+    //sceneManager->SetScene(LeosBounceScene(sceneManager));
     //sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
     //sceneManager->SetScene(FloppipTestScene(sceneManager));
@@ -144,7 +144,7 @@ Scene* LeosTestScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/playerBall.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
@@ -163,13 +163,12 @@ Scene* LeosTestScene(SceneManager* sm)
     lc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     hc = entity->AddComponent<component::HealthComponent>(10);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1);
-    //ac = entity->AddComponent<component::AccelerationComponent>(0.982);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0, 1, -30);
+    tc->GetTransform()->SetPosition(0, 5, 0);
     ic->Init();
     bbc->Init();
 
@@ -235,10 +234,10 @@ Scene* LeosTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    enH.AddEnemy("sphere", sphereModel, 10, float3{ 0, 10, -5 }, F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
-    enH.AddExistingEnemy("sphere", float3{ 0, 10, -55 });
-    enH.AddExistingEnemy("sphere", float3{ 25, 10, -30 });
-    enH.AddExistingEnemy("sphere", float3{ -25, 10, -30 });
+    enH.AddEnemy("sphere", sphereModel, 10, float3{ 0, 10, 25 }, F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
+    enH.AddExistingEnemy("sphere", float3{ 0, 10, -25 });
+    enH.AddExistingEnemy("sphere", float3{ 25, 10, 0 });
+    enH.AddExistingEnemy("sphere", float3{ -25, 10, 0 });
 
     /* ---------------------- Update Function ---------------------- */
     UpdateScene = &LeoUpdateScene;
@@ -601,7 +600,7 @@ Scene* JockesTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5);
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
     ic->Init();
 
     mc->SetModel(sphereModel);
@@ -696,7 +695,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5);
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
     ic->Init();
 
     mc->SetModel(sphereModel);
