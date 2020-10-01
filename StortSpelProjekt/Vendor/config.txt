@@ -8,5 +8,5 @@ i_windowHeight 1080
 i_fullscreen 0
 i_amountOfBlur 1
 i_network 0
-s_ip localhost
+s_ip wiko97.ddns.net
 i_port 55555

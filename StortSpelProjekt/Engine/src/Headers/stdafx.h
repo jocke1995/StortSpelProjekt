@@ -50,6 +50,6 @@ typedef DirectX::XMMATRIX float4x4;
 #include "Core.h"
 #include "structs.h"
 
-#include <btBulletDynamicsCommon.h>
+#include <Bullet/btBulletDynamicsCommon.h>
 
 #endif
