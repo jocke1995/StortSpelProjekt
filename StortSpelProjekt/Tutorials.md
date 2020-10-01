@@ -108,7 +108,7 @@ map_Ke "Emissive_texture.suffix" (emissive)
 If you want to reduce aliasing at large distances, you should convert your textures to the .dds image format.
 
 In the following link you can download a .dds-converter which converts a texture from a given format into the .dds format.
-[a link]https://vvvv.org/contribution/texconvgui
+https://vvvv.org/contribution/texconvgui
 
 ### Settings in the texConvGui-tool
 You wont need to change every setting in the tool, only the ones mentioned below:
