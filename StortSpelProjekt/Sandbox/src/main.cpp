@@ -1286,7 +1286,6 @@ Scene* BjornsTestScene(SceneManager* sm)
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    Model* arrowModel = al->LoadModel(L"../Vendor/Resources/Models/Arrow/Arrow.obj");
 
     // Get the audio needed and add settings to it.
     AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
