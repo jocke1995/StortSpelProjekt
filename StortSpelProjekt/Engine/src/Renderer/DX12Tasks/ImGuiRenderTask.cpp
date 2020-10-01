@@ -22,8 +22,9 @@ ImGuiRenderTask::ImGuiRenderTask(
 	RootSignature* rootSignature,
 	LPCWSTR VSName, LPCWSTR PSName,
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
-	LPCTSTR psoName)
-	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName)
+	LPCTSTR psoName,
+	unsigned int FLAG_THREAD)
+	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
 }
 
