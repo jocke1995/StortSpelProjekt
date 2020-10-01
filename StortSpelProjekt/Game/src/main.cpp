@@ -96,7 +96,7 @@ Scene* GetDemoScene(SceneManager* sm)
     entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5,0.1);
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();

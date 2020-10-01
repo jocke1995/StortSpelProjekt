@@ -9,12 +9,6 @@
 component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned int camFlags)
 	:InputComponent(parent)
 {
-	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::toggleCameraLock);
-	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::zoom);
-	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::rotate);
-	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::move);
-	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::mouseClick);
-	EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::grunt);
 
 	m_CameraFlags = camFlags;
 
@@ -41,21 +35,33 @@ void component::PlayerInputComponent::Init()
 	m_pTransform = static_cast<Transform*>(m_pParent->GetComponent<component::TransformComponent>()->GetTransform());
 
 	m_pCC = m_pParent->GetComponent<component::CollisionComponent>();
+	
+	if (m_pCC && m_pCamera && m_pTransform)
+	{
+		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::toggleCameraLock);
+		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::zoom);
+		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::rotate);
+		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::move);
+		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::mouseClick);
+		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::grunt);
+	}
 
 #ifdef _DEBUG
+	
+
 	if (!m_pCC)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a collision component!");
+		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a collision component!\n");
 	}
 
 	if (!m_pCamera)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a Camera component!");
+		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a Camera component!\n");
 	}
 
 	if (!m_pTransform)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a Transform component!");
+		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a Transform component!\n");
 	}
 #endif
 }
@@ -132,9 +138,12 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 
 		double moveLength = sqrt(moveX * moveX + moveY * moveY + moveZ * moveZ);
 
-		moveX /= moveLength;
-		moveY /= moveLength;
-		moveZ /= moveLength;
+		if (abs(moveLength) > 0.001)
+		{
+			moveX /= moveLength;
+			moveY /= moveLength;
+			moveZ /= moveLength;
+		}
 
 		// Get the current linear velocity of the player
 		double3 vel = m_pCC->GetLinearVelocity();
@@ -184,7 +193,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		m_pCC->SetAngularVelocity(0.0, 0.0, 0.0);
 
 		// Check if in air. If not, change movement direction to match up with camera direction
-		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, 1.0) != -1)
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1)
 		{
 			// Get new direction
 			forward = m_pTransform->GetForwardFloat3();
