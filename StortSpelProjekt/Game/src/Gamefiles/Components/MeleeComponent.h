@@ -20,10 +20,6 @@ namespace component
 
 		virtual ~MeleeComponent();
 
-		//void Init();
-
-		//void RenderUpdate(double dt);
-
 		void Update(double dt);
 		void Attack(bool attack);
 		
@@ -41,8 +37,6 @@ namespace component
 		bool m_Cooldown;
 		float m_AttackInterval;
 		float m_TimeSinceLastAttackCheck;
-
-		//std::vector<Entity*> collideList;
 
 		Transform* m_pMeleeTransform;
 		Transform m_MeleeTransformTwo;
