@@ -45,6 +45,13 @@ inline std::string GetFileExtension(const std::string& FileName)
 	return "";
 }
 
+enum class WINDOW_MODE
+{
+	WINDOWED,
+	WINDOWED_FULLSCREEN,
+	FULLSCREEN
+};
+
 enum class TEXTURE_TYPE
 {
 	UNKNOWN,

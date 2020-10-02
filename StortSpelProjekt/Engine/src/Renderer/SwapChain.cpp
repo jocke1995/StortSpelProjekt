@@ -16,7 +16,10 @@ SwapChain::SwapChain(
 	DescriptorHeap* descriptorHeap_RTV,
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
 {
-	m_Fullscreen = std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str());
+	if (std::atoi(Option::GetInstance().GetVariable("i_windowMode").c_str()) == static_cast<int>(WINDOW_MODE::FULLSCREEN))
+	{
+		m_Fullscreen = true;
+	}
 
 	IDXGIFactory4* factory = nullptr;
 	HRESULT hr = CreateDXGIFactory(IID_PPV_ARGS(&factory));
@@ -68,7 +71,8 @@ SwapChain::SwapChain(
 	else
 	{
 		if (std::atoi(Option::GetInstance().GetVariable("b_stretchedWindow").c_str()) 
-			|| std::atoi(Option::GetInstance().GetVariable("b_windowedFullscreen").c_str()))
+			|| (std::atoi(Option::GetInstance().GetVariable("i_windowMode").c_str()) 
+				== static_cast<int>(WINDOW_MODE::WINDOWED_FULLSCREEN)))
 		{
 			scDesc.Scaling = DXGI_SCALING_STRETCH;
 		}
@@ -159,8 +163,8 @@ void SwapChain::ToggleWindowMode(ID3D12Device5* device,
 
 	clearSwapBuffers();
 
-	unsigned int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	unsigned int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	unsigned int width = std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str());
+	unsigned int height = std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str());
 
 	if (m_Fullscreen)
 	{
@@ -177,7 +181,7 @@ void SwapChain::ToggleWindowMode(ID3D12Device5* device,
 
 	createSwapBuffers(device, width, height, descriptorHeap_RTV, descriptorHeap_CBV_UAV_SRV);
 
-	Option::GetInstance().SetVariable("b_fullscreen", std::to_string(m_Fullscreen));
+	Option::GetInstance().SetVariable("i_windowMode", std::to_string(m_Fullscreen));
 }
 
 const void SwapChain::initFullscreen(unsigned int* width, unsigned int* height)
@@ -305,7 +309,7 @@ const void SwapChain::createSwapBuffers(ID3D12Device5* device,
 	}
 }
 
-const void SwapChain::clearSwapBuffers() const
+void SwapChain::clearSwapBuffers()
 {
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{

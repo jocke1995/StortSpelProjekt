@@ -1966,6 +1966,9 @@ void Renderer::toggleFullscreen(WindowChange* evnt)
 	// Wait for all frames
 	waitForFrame(0);
 
+	// Wait for the threads which records the commandlists to complete
+	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER);
+
 	for (auto task : m_RenderTasks)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)

@@ -32,7 +32,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 		return 0;
 	case WM_ACTIVATEAPP: // alt+tab, windows key and more
-		if (!wParam && programRunning && std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()))
+		if (!wParam && programRunning
+			&& (std::atoi(Option::GetInstance().GetVariable("i_windowMode").c_str()) == static_cast<int>(WINDOW_MODE::FULLSCREEN)))
 		{
 			EventBus::GetInstance().Publish(&WindowChange());
 		}
