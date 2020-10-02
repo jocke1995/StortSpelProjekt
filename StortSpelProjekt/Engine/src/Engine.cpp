@@ -2,11 +2,6 @@
 #include "Engine.h"
 #include "Misc/Thread.h"
 
-// TODO: FULLSCREEN
-bool g_ProgramStarted = false;
-bool g_ProgramPaused = false;
-bool g_Fullscreen = false;
-
 Engine::Engine()
 {
 	
@@ -25,9 +20,6 @@ Engine::~Engine()
 
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 {
-	// TODO: FULLSCREEN
-	g_Fullscreen = std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str());
-
 	// Window values
 	bool windowedFullScreen = std::atoi(Option::GetInstance().GetVariable("b_windowedFullscreen").c_str());
 	int windowWidth = std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str());

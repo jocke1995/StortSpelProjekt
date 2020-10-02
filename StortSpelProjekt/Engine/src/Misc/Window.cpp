@@ -1,13 +1,12 @@
 #include "stdafx.h"
 #include "Window.h"
-#include "..\Input\Input.h"
+#include "Option.h"
 
+#include "../Input/Input.h"
 #include "../ImGUI/imgui.h"
 #include "../ImGUI/imgui_impl_win32.h"
 #include "../ImGUI/imgui_impl_dx12.h"
-#include "Option.h"
 #include "../Events/EventBus.h"
-#include "../Engine.h"
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -17,6 +16,8 @@ struct WindowChange;
 // callback function for windows messages
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	static bool programRunning = true;
+
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
 	{
 		return true;
@@ -24,24 +25,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	switch (msg)
 	{
-	// TODO: FULLSCREEN
-	case WM_WINDOWPOSCHANGED: // This happens immediately when the window is about to change
-		if (std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()) && g_ProgramStarted && !g_ProgramPaused && g_Fullscreen)
+	case WM_SYSKEYDOWN: // alt+enter
+		if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000)
 		{
-			// Pause and wait until the task is finished!
-			g_ProgramPaused = true;
-			EventBus::GetInstance().Publish(&WindowChange());
-		}
-		else if (!std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()) && g_ProgramStarted && !g_ProgramPaused && g_Fullscreen)
-		{
-			// Pause and wait until the task is finished!
-			g_ProgramPaused = true;
 			EventBus::GetInstance().Publish(&WindowChange());
 		}
 		return 0;
-
-	case WM_DISPLAYCHANGE: // This happens when the window has changed
-		g_ProgramPaused = false;
+	case WM_ACTIVATEAPP: // alt+tab, windows key and more
+		if (!wParam && programRunning && std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()))
+		{
+			EventBus::GetInstance().Publish(&WindowChange());
+		}
 		return 0;
 
 	case WM_KEYDOWN:
@@ -49,8 +43,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			//if (MessageBox(0, L"Are you sure you want to exit?", L"Exit", MB_YESNO | MB_ICONQUESTION) == IDYES)
 			//{
-			// TODO: FULLSCREEN
-			g_ProgramStarted = false;
+			programRunning = false;
 			DestroyWindow(hWnd);
 			//}
 		}

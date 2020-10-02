@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "Renderer.h"
 
-// TODO: FULLSCREEN
-#include "../Engine.h"
-
 // Misc
 #include "../Misc/ThreadPool.h"
 #include "../Misc/AssetLoader.h"
@@ -172,22 +169,6 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
 		m_pSwapChain
 		);
-
-	// TODO: FULLSCREEN
-	// Disables window changes
-	if (!g_Fullscreen)
-	{
-		IDXGIFactory6* pFactory = NULL;
-		if (SUCCEEDED(m_pSwapChain->GetDX12SwapChain()->GetParent(__uuidof (IDXGIFactory6), (void**)&pFactory)))
-		{
-			pFactory->MakeWindowAssociation(*const_cast<HWND*>(m_Window->GetHwnd()), DXGI_MWA_NO_WINDOW_CHANGES | DXGI_MWA_NO_WINDOW_CHANGES);
-		}
-		else
-		{
-			Log::PrintSeverity(Log::Severity::CRITICAL, "Could not get Swapchain parent. The window may be unsafe!\n");
-		}
-		pFactory->Release();
-	}
 
 	// Create Main DepthBuffer
 	createMainDSV();
@@ -360,9 +341,6 @@ void Renderer::SortObjects()
 
 void Renderer::Execute()
 {
-	// TODO: FULLSCREEN
-	g_ProgramStarted = true;
-
 	IDXGISwapChain4* dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
 	int commandInterfaceIndex = m_FrameCounter++ % 2;
