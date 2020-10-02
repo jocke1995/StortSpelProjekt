@@ -2,6 +2,7 @@
 #define ENGINEMATH_H
 
 #include <DirectXMath.h>
+#include <DirectXCollision.h>
 
 # define PI           3.14159265358979323846  /* pi */
 
