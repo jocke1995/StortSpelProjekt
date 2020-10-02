@@ -56,8 +56,8 @@ project "Engine"
                 "BulletDynamics_vs2010_X64_release",
                 "BulletCollision_vs2010_X64_release",
                 "LinearMath_vs2010_X64_release",
-                "sfml-system-s",
-                "sfml-network-s"
+                "sfml-system",
+                "sfml-network"
             }
             defines { "NDEBUG", "BT_USE_DOUBLE_PRECISION" }
             optimize "On"
