@@ -11,9 +11,10 @@ public:
 
 struct MovementInput : public Event
 {
-	MovementInput(SCAN_CODES key, bool pressed) : key{ key }, pressed{ pressed } {};
+	MovementInput(SCAN_CODES key, bool pressed, bool doubleTap) : key{ key }, pressed{ pressed }, doubleTap{ doubleTap } {};
 	SCAN_CODES key;
 	bool pressed;
+	bool doubleTap;
 };
 
 struct MouseMovement : public Event

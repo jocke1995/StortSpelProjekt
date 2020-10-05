@@ -328,14 +328,14 @@ Scene* LeosTestScene(SceneManager* sm)
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 350.0, 0.0, 350.0);
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
 
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(35, 1, 35);
+    tc->GetTransform()->SetScale(350, 1, 350);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
     /* ---------------------- Stefan ---------------------- */
@@ -378,11 +378,11 @@ Scene* LeosTestScene(SceneManager* sm)
     dlc->SetDirection({ -1.0f, -1.0f, 1.0f });
 
     /* ---------------------- Enemy -------------------------------- */
-    EnemyFactory enH(scene);
+    /*EnemyFactory enH(scene);
     enH.AddEnemy("sphere", sphereModel, 10, float3{ 0, 10, 25 },L"Bruh", L"attack", F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
     enH.AddExistingEnemy("sphere", float3{ 0, 10, -25 });
     enH.AddExistingEnemy("sphere", float3{ 25, 10, 0 });
-    enH.AddExistingEnemy("sphere", float3{ -25, 10, 0 });
+    enH.AddExistingEnemy("sphere", float3{ -25, 10, 0 });*/
 
     /* ---------------------- Update Function ---------------------- */
     UpdateScene = &LeoUpdateScene;

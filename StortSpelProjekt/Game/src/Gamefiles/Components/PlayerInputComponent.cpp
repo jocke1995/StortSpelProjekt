@@ -10,7 +10,7 @@
 component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned int camFlags)
 	:InputComponent(parent)
 {
-
+	m_DashTimer = std::chrono::system_clock::now();
 	m_CameraFlags = camFlags;
 
 	m_Zoom = 3.0f;
@@ -24,6 +24,8 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_pCamera = nullptr;
 	m_pTransform = nullptr;
 	m_pCC = nullptr;
+
+	m_Dashing = false;
 }
 
 component::PlayerInputComponent::~PlayerInputComponent()
@@ -87,6 +89,17 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	{
 		m_pCamera->SetDirection(cos(m_Yaw), m_Pitch * -2, sin(m_Yaw));
 	}
+
+	std::chrono::duration<double> elapsed_time = std::chrono::system_clock::now() - m_DashTimer;
+	double time = elapsed_time.count();
+	m_DashReady = time > 1.5;
+	if (time > 0.5 && m_Dashing)
+	{
+		double3 vel = m_pCC->GetLinearVelocity();
+		vel /= 6.0;
+		m_pCC->SetVelVector(vel.x, vel.y, vel.z);
+		m_Dashing = false;
+	}
 }
 
 void component::PlayerInputComponent::toggleCameraLock(ModifierInput* evnt)
@@ -110,6 +123,7 @@ void component::PlayerInputComponent::zoom(MouseScroll* evnt)
 
 void component::PlayerInputComponent::move(MovementInput* evnt)
 {
+
 	// Check if the player is in the air. If not, allow movement
 	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1)
 	{
@@ -145,6 +159,18 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 			vel.y + move.y * 2 * m_pTransform->GetVelocity(),
 			vel.z + move.z * m_pTransform->GetVelocity()
 		};
+
+		bool wasDashing = m_Dashing;
+		m_Dashing = m_DashReady && evnt->doubleTap;
+		if (m_Dashing)
+		{
+			m_DashTimer = std::chrono::system_clock::now();
+			vel *= 6.0;
+		}
+		else
+		{
+			m_Dashing = wasDashing;
+		}
 
 		// If the camera uses the players position, update the player's velocity. Otherwise update the camera's movement.
 		(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? m_pCC->SetVelVector(vel.x, vel.y, vel.z) : m_pCamera->UpdateMovement(-moveRight, moveUp, moveForward);

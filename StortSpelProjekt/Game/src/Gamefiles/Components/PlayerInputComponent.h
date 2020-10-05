@@ -3,6 +3,7 @@
 #include "EngineMath.h"
 #include "..\ECS\Components\InputComponent.h"
 #include "Core.h"
+#include <chrono>
 
 //Camera
 class BaseCamera;
@@ -49,6 +50,10 @@ namespace component
 		Transform* m_pTransform;
 
 		CollisionComponent* m_pCC;
+
+		std::chrono::system_clock::time_point m_DashTimer;
+		bool m_DashReady;
+		bool m_Dashing;
 
 		void toggleCameraLock(ModifierInput* evnt);
 		void zoom(MouseScroll* evnt);

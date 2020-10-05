@@ -1,5 +1,6 @@
 #include "Input.h"
 #include "..\Events\EventBus.h"
+#include "..\Misc\Timer.h"
 
 Input& Input::GetInstance()
 {
@@ -36,17 +37,31 @@ void Input::RegisterDevices(const HWND* hWnd)
 
 void Input::SetKeyState(SCAN_CODES key, bool pressed)
 {
+
 	bool justPressed = !m_KeyState[key];
+	bool doubleTap = false;
+	if (justPressed)
+	{
+		std::chrono::system_clock::time_point timeLast = m_KeyTimer[key];
+		m_KeyTimer[key] = std::chrono::system_clock::now();
+		std::chrono::duration<double> elapsed_time = m_KeyTimer[key] - timeLast;
+		auto time = elapsed_time.count();
+
+		if (time < 0.2)
+		{
+			doubleTap = true;
+		}
+	}
 	m_KeyState[key] = pressed;
 	if (key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::Q || key == SCAN_CODES::E || key == SCAN_CODES::SPACE)
 	{
 		if (justPressed)
 		{
-			EventBus::GetInstance().Publish(&MovementInput(key, justPressed));
+			EventBus::GetInstance().Publish(&MovementInput(key, justPressed, doubleTap));
 		}
 		else if (!pressed)
 		{
-			EventBus::GetInstance().Publish(&MovementInput(key, pressed));
+			EventBus::GetInstance().Publish(&MovementInput(key, pressed, doubleTap));
 		}
 	}
 	else if (key == SCAN_CODES::LEFT_CTRL)
@@ -98,4 +113,5 @@ bool Input::GetMouseButtonState(MOUSE_BUTTON button)
 
 Input::Input()
 {
+	m_KeyTimer[SCAN_CODES::W] = m_KeyTimer[SCAN_CODES::A] = m_KeyTimer[SCAN_CODES::S] = m_KeyTimer[SCAN_CODES::D] = m_KeyTimer[SCAN_CODES::SPACE] = std::chrono::system_clock::now();
 }
