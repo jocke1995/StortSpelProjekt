@@ -35,7 +35,7 @@ bool Network::ConnectToIP(std::string ip, int port)
         //Expecting server info
         if (!ListenPacket())
         {
-            Log::PrintSeverity(Log::Severity::CRITICAL, "Server info was not recieved!");
+            Log::PrintSeverity(Log::Severity::CRITICAL, "Server info was not recieved!\n");
         }
         //Set socket to non-blocking for future listen
         m_Socket.setBlocking(false);

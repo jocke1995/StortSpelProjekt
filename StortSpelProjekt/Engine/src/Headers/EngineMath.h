@@ -16,8 +16,37 @@ typedef union
 
 typedef union
 {
-	struct { float x; float y; float z; };
-	struct { float r; float g; float b; };
+	struct { float x; float y; float z;};
+	struct { float r; float g; float b;};
+
+	float length()
+	{
+		return sqrt(x * x + y * y + z * z);
+	};
+	void normalize()
+	{
+		float length = this->length();
+		if (length > 0.001)
+		{
+			x /= length;
+			y /= length;
+			z /= length;
+		}
+	};
+
+	void operator /= (float denom)
+	{
+		x /= denom;
+		y /= denom;
+		z /= denom;
+	};
+	void operator *= (float factor)
+	{
+		x *= factor;
+		y *= factor;
+		z *= factor;
+	};
+	
 } float3;
 
 typedef union
@@ -36,6 +65,34 @@ typedef union
 {
 	struct { double x; double y; double z; };
 	struct { double r; double g; double b; };
+
+	double length()
+	{
+		return sqrt(x * x + y * y + z * z);
+	};
+	void normalize()
+	{
+		double length = this->length();
+		if (length > 0.001)
+		{
+			x /= length;
+			y /= length;
+			z /= length;
+		}
+	};
+
+	void operator /= (double denom)
+	{
+		x /= denom;
+		y /= denom;
+		z /= denom;
+	};
+	void operator *= (double factor)
+	{
+		x *= factor;
+		y *= factor;
+		z *= factor;
+	};
 } double3;
 
 typedef union

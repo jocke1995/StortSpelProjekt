@@ -55,7 +55,6 @@ int main()
 
 				if (str != "")
 				{
-					threadPool->WaitForThreads(FLAG_THREAD::NETWORK);
 					std::cout << str;
 				}
 			}
