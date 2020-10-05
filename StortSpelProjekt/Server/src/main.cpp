@@ -29,7 +29,8 @@ int main()
 		ClientPool server(55555);
 		threadPool->AddTask(&console);
 
-			while (true)
+
+		while (true)
 			{
 				str = "";
 				console.GetInput(&str);

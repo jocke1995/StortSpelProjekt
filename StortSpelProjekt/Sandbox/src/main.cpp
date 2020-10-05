@@ -35,6 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Option* option = &Option::GetInstance();
     option->ReadFile();
     float updateRate = 1.0f / std::atof(option->GetVariable("f_updateRate").c_str());
+    float networkUpdateRate = 1.0f / std::atof(option->GetVariable("f_networkUpdateRate").c_str());
 
     /* ------ Engine  ------ */
     Engine engine;
@@ -77,10 +78,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScene(sceneManager->GetScene("AndresTestScene"));
+        gameNetwork.SetScene(sceneManager->GetScene("ThatSceneWithThemThereAiFeaturesAndStuff"));
         gameNetwork.SetSceneManager(sceneManager);
     }
-    int networkCount = 0;
+    double networkTimer = 0;
     double logicTimer = 0;
     int count = 0;
 
@@ -92,12 +93,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         timer->Update();
         logicTimer += timer->GetDeltaTime();
+        if (networkOn)
+        {
+            networkTimer += timer->GetDeltaTime();
+        }
 
         renderer->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
-            networkCount++;
             renderer->Update(updateRate);
             physics->Update(updateRate);
         }
@@ -105,8 +109,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ---- Network ---- */
         if (network.IsConnected())
         {
-            if (networkCount == 2) {
-                networkCount = 0;
+            if (networkTimer >= networkUpdateRate) {
+                networkTimer = 0;
 
                 network.SendPositionPacket();
                 while (network.ListenPacket());
@@ -371,13 +375,6 @@ Scene* LeosTestScene(SceneManager* sm)
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION);
     dlc->SetColor({ 0.0f, 0.5f, 0.5f });
     dlc->SetDirection({ -1.0f, -1.0f, 1.0f });
-
-    /* ---------------------- Enemy -------------------------------- */
-    EnemyFactory enH(scene);
-    enH.AddEnemy("sphere", sphereModel, 10, float3{ 0, 10, 25 },L"Bruh", L"attack", F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
-    enH.AddExistingEnemy("sphere", float3{ 0, 10, -25 });
-    enH.AddExistingEnemy("sphere", float3{ 25, 10, 0 });
-    enH.AddExistingEnemy("sphere", float3{ -25, 10, 0 });
 
     /* ---------------------- Update Function ---------------------- */
     UpdateScene = &LeoUpdateScene;
