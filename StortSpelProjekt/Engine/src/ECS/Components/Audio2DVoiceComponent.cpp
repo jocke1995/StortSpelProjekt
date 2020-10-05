@@ -12,7 +12,10 @@ component::Audio2DVoiceComponent::~Audio2DVoiceComponent()
 {
 	for (auto audio : m_Voices)
 	{
-		audio.second.GetSourceVoice()->DestroyVoice();
+		if (audio.second.GetSourceVoice() != nullptr)
+		{
+			audio.second.GetSourceVoice()->DestroyVoice();
+		}
 	}
 }
 
