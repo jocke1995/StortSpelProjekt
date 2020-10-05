@@ -11,7 +11,9 @@ SamplerState samplerTypeBorder	: register (s4);
 
 float CalculateShadow(
 	in float4 fragPosLightSpace,
-	in float shadowMapIndex)
+	in float shadowMapIndex,
+	in float3 normal,
+	in float3 lightDir)
 {
 	// Perform perspective divide
 	float2 texCoord = fragPosLightSpace.xy / fragPosLightSpace.w;
@@ -25,7 +27,10 @@ float CalculateShadow(
 
 	// Check whether current fragPos is in shadow
 	float shadow = 0.0f;
-	float bias = 0.0003f;
+	float biasMin = 0.0002f;
+	float biasMax = 0.0004f;
+
+	float bias = max(biasMax * (1.0 - dot(normal, lightDir)), biasMin);
 
 	// Anti aliasing
 	float2 texelSize = float2(0.0f, 0.0f);
@@ -88,7 +93,7 @@ float3 CalcDirLight(
 	{
 		float4 fragPosLightSpace = mul(fragPos, dirLight.viewProj);
 
-		shadow = CalculateShadow(fragPosLightSpace, dirLight.textureShadowMap);
+		shadow = CalculateShadow(fragPosLightSpace, dirLight.textureShadowMap, normal, lightDir);
 	}
 
 	DirLightContribution = (kD * albedo / PI + specular) * radiance * NdotL;
@@ -193,7 +198,7 @@ float3 CalcSpotLight(
 	{
 		float4 fragPosLightSpace = mul(fragPos, spotLight.viewProj);
 
-		shadow = CalculateShadow(fragPosLightSpace, spotLight.textureShadowMap);
+		shadow = CalculateShadow(fragPosLightSpace, spotLight.textureShadowMap, normal, lightDir);
 	}
 
 	spotLightContribution = ((kD * albedo / PI + specular) * radiance * NdotL) * edgeIntensity;
