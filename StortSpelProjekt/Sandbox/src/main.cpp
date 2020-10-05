@@ -5,6 +5,9 @@
 #include "Components/RangeComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
+// upgrades
+#include "Components/UpgradeComponents/UpgradeComponent.h"
+#include "Components/UpgradeComponents/UpgradeRangeComponent.h"
 
 Scene* JacobsTestScene(SceneManager* sm);
 Scene* LeosTestScene(SceneManager* sm);
@@ -1317,6 +1320,7 @@ Scene* AndresTestScene(SceneManager* sm)
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* bcc = nullptr;
     component::RangeComponent* rc = nullptr;
+    component::UpgradeComponent* upgradeComp = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1355,8 +1359,10 @@ Scene* AndresTestScene(SceneManager* sm)
     rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 10);
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    //avc = entity->AddComponent<component::Audio2DVoiceComponent>();
-    //avc->AddVoice(L"Bruh");
+    // upgrade component
+    //upgradeComp = entity->AddComponent<component::UpgradeComponent>();
+    //upgradeComp = entity->AddComponent<component::UpgradeRangeComponent>();
+
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -1488,20 +1494,20 @@ Scene* AndresTestScene(SceneManager* sm)
     /*entity = enH.AddExistingEnemy("enemy", float3{ 40, 10, 0 });
     entity = enH.AddExistingEnemy("enemy", float3{ 0, 10, -40 });
     entity = enH.AddExistingEnemy("enemy", float3{ -40, 10, 0 });*/
-    // add bunch of enemies
-    float xVal = 8;
-    float zVal = 20;
-    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 75; i++)
-    {
-        zVal += 8;
-        entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
-        if ((i + 1) % 5 == 0)
-        {
-            xVal += 8;
-            zVal = 10;
-        }
-    }
+    //// add bunch of enemies
+    //float xVal = 8;
+    //float zVal = 20;
+    //// extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
+    //for (int i = 0; i < 2; i++)
+    //{
+    //    zVal += 8;
+    //    entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
+    //    if ((i + 1) % 5 == 0)
+    //    {
+    //        xVal += 8;
+    //        zVal = 10;
+    //    }
+    //}
     /* ---------------------- Enemy -------------------------------- */
 
 
@@ -1759,11 +1765,11 @@ void DemoUpdateScene(SceneManager* sm)
     component::Audio3DEmitterComponent* ec = sm->GetScene("AndresTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
     ec->UpdateEmitter(L"Bruh");
 
-    std::string name = "enemy";
-    for (int i = 1; i < 76; i++)
-    {
-        name = "enemy" + std::to_string(i);
-        ec = sm->GetScene("AndresTestScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
-        ec->UpdateEmitter(L"Bruh");
-    }
+    //std::string name = "enemy";
+    //for (int i = 1; i < 3; i++)
+    //{
+    //    name = "enemy" + std::to_string(i);
+    //    ec = sm->GetScene("AndresTestScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
+    //    ec->UpdateEmitter(L"Bruh");
+    //}
 }
