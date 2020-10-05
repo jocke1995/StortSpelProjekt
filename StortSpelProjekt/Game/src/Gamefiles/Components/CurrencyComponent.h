@@ -18,7 +18,7 @@ namespace component
 		void ChangeBalance(int change);
 		int GetBalace() const;
 	private:
-		int m_balance;
+		int m_Balance;
 	};
 }
 
