@@ -87,6 +87,45 @@ std::string ClientPool::GetConsoleString()
 	return temp;
 }
 
+void ClientPool::disconnect(int id)
+{
+	int index = -1;
+	//Find the client with id
+	for (int i = 0; i < m_Clients.size(); i++)
+	{
+		if (m_Clients.at(i)->clientId == id)
+		{
+			index = i;
+			break;
+		}
+	}
+
+	if (index == -1)
+	{
+		m_ConsoleString += "No client with ID " + std::to_string(id) + " was found\n";
+	}
+	else
+	{
+		m_Selector.remove(m_Clients.at(index)->socket);
+		m_Clients.at(index)->connected = false;
+		m_Clients.at(index)->socket.disconnect();
+
+		sf::Packet packet;
+		packet << Network::E_PACKET_ID::PLAYER_DISCONNECT;
+		packet << m_Clients.at(index)->clientId;
+		
+		for (int i = 0; i < m_Clients.size(); i++)
+		{
+			if (m_Clients.at(i)->connected)
+			{
+				m_Clients.at(i)->socket.send(packet);
+			}
+		}
+
+		m_ConsoleString += "Player " + std::to_string(index) + " was disconnected. There are " + std::to_string(GetNrOfConnectedClients()) + " clients connected\n";
+	}
+}
+
 void ClientPool::newConnection()
 {
 	//Check if there is an available client slot

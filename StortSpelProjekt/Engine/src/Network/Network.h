@@ -10,7 +10,8 @@ class Network {
 public:
 	enum E_PACKET_ID {
 		SERVER_DATA = 0,
-		PLAYER_DATA = 1
+		PLAYER_DATA = 1,
+		PLAYER_DISCONNECT = 2
 	};
 	struct Player {
 		Entity* entityPointer;
@@ -37,6 +38,7 @@ private:
 	void processPacket(sf::Packet *packet);
 	void processPlayerData(sf::Packet* packet);
 	void processServerData(sf::Packet* packet);
+	void processPlayerDisconnect(sf::Packet* packet);
 
 	sf::TcpSocket m_Socket;
 	sf::TcpListener m_Listener;

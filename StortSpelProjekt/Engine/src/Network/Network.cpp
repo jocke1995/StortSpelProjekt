@@ -109,6 +109,7 @@ void Network::processPacket(sf::Packet* packet)
     {
     case E_PACKET_ID::SERVER_DATA: processServerData(packet); break;
     case E_PACKET_ID::PLAYER_DATA: processPlayerData(packet); break;
+    case E_PACKET_ID::PLAYER_DISCONNECT: processPlayerDisconnect(packet); break;
     default: Log::PrintSeverity(Log::Severity::CRITICAL, "Unkown packet id recieved with enum " + std::to_string(packetId));
     }
 }
@@ -181,5 +182,38 @@ void Network::processServerData(sf::Packet* packet)
             m_Players.at(m_Players.size() - 1)->clientId = playerId;
             EventBus::GetInstance().Publish(&PlayerConnection(playerId));
         }
+    }
+}
+
+void Network::processPlayerDisconnect(sf::Packet* packet)
+{
+    /* Expected packet configuration
+    int playerID;
+    */
+
+    int playerId;
+    *packet >> playerId;
+
+    int index = -1;
+
+    //Find player with id
+    for (int i = 0; i < m_Players.size(); i++)
+    {
+        if (m_Players.at(i)->clientId == playerId)
+        {
+            index = i;
+        }
+    }
+
+    if (index == -1)
+    {
+        Log::Print("Recieved to disconnect from unkown player id " + std::to_string(playerId));
+    }
+    else
+    {
+        delete m_Players.at(index)->entityPointer; //This entity removal is incomplete and should be remade when dynamic entity removal is implemented
+        delete m_Players.at(index);
+
+        Log::Print("Player " + std::to_string(playerId) + " was disconnected");
     }
 }

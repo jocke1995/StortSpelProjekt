@@ -42,6 +42,7 @@ private:
 
 	std::string m_ConsoleString;
 
+	void disconnect(int id);
 	void newConnection();
 	void newPacket(int socket);
 };
