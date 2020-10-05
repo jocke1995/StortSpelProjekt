@@ -55,10 +55,7 @@ namespace component
 
 	void DirectionalLightComponent::initFlagUsages()
 	{
-		if (m_LightFlags & FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION ||
-			m_LightFlags & FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION ||
-			m_LightFlags & FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION ||
-			m_LightFlags & FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION)
+		if (m_LightFlags & FLAG_LIGHT::CAST_SHADOW)
 		{
 			CreateCamera(
 				{
