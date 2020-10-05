@@ -43,6 +43,10 @@ public:
 	void Update(double dt);
 	void RenderUpdate(double dt);
 
+	void InitScene();
+	void LoadScene();
+	void UnloadScene();
+
 	std::vector<Component*>* GetAllComponents();
 
 private:

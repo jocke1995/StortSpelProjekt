@@ -129,7 +129,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             tc->GetTransform()->SetScale(4.0f);
             tc->GetTransform()->SetPosition(jockeScene->GetMainCamera()->GetPosition());
 
-            jockeScene->AddEntityFromOther(a);
+            sceneManager->AddEntity(a, jockeScene);
             sceneManager->SetScene(2, activeScene);
 
             // Test change scene
@@ -144,6 +144,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                 sceneManager->SetScene(2, activeScene);
             }
             currentScene = !currentScene;
+        }
+        else if (window->WasTabPressed())
+        {
+            sceneManager->RemoveEntity(jockeScene->GetEntity(std::to_string(--nameCounter)), jockeScene);
         }
 
         /* ------ Sort ------ */

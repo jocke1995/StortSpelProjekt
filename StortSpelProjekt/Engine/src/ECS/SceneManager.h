@@ -22,8 +22,8 @@ public:
 
 	Scene* GetScene(std::string sceneName) const;
 
-	void RemoveEntity(Entity* entity);
-	void AddEntity(Entity* entity);
+	void RemoveEntity(Entity* entity, Scene* scene);
+	void AddEntity(Entity* entity, Scene* scene);
 	void SetScene(unsigned int numScenes, Scene** scene);
 	void LoadScene(Scene* scene);
 	void UnloadScene(Scene* scene);

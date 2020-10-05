@@ -98,30 +98,32 @@ Scene* SceneManager::GetScene(std::string sceneName) const
     return nullptr;
 }
 
-void SceneManager::RemoveEntity(Entity* entity)
+void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
-	// Removing renderer component
-	m_pRenderer->removeComponents(entity);
+	// Unload the entity
+	entity->UnloadScene();
 
-	// Remove sound component
+	// Remove from the scene
+	scene->RemoveEntity(entity->GetName());
 
-	// Remove game component
+	// TODO: Temp fix, re init the scene
+	SetScene(m_ActiveScenes.size(), m_ActiveScenes.data());
 
-	// Remove physic component
-
-	executeCopyOnDemand();
+	//executeCopyOnDemand();
 }
 
-void SceneManager::AddEntity(Entity* entity)
+void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
-	// Add all components
-	std::vector<Component*>* components = entity->GetAllComponents();
-	for (int i = 0; i < components->size(); i++)
-	{
-		components->at(i)->InitScene();
-	}
+	// Load the enity
+	entity->LoadScene();
 
-	executeCopyOnDemand();
+	// Add it to the scene
+	scene->AddEntityFromOther(entity);
+
+	// TODO: Temp fix, re init the scene
+	SetScene(m_ActiveScenes.size(), m_ActiveScenes.data());
+
+	//executeCopyOnDemand();
 }
 
 void SceneManager::SetScene(unsigned int numScenes, Scene** scenes)
@@ -143,13 +145,7 @@ void SceneManager::SetScene(unsigned int numScenes, Scene** scenes)
 		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
 		for (auto const& [entityName, entity] : entities)
 		{
-			// for each component in entity: call their implementation of InitScene(),
-			// which calls their specific init function (render, audio, game, physics etc)
-			std::vector<Component*>* components = entity->GetAllComponents();
-			for (int i = 0; i < components->size(); i++)
-			{
-				components->at(i)->InitScene();
-			}
+			entity->InitScene();
 		}
 
 		m_ActiveScenes.push_back(scenes[i]);
@@ -176,12 +172,7 @@ void SceneManager::LoadScene(Scene* scene)
 		// Load only first time entity is referenced in a scene
 		if (entity->m_loadedInNrScenes == 1)
 		{
-			component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
-			if (mc != nullptr)
-			{
-				// TODO: fix code with assetloader
-				m_pRenderer->loadModel(AssetLoader::Get()->LoadModel(mc->GetModelPath()));
-			}
+			entity->LoadScene();
 		}
 	}
 
@@ -201,13 +192,7 @@ void SceneManager::UnloadScene(Scene* scene)
 		// don't unload entities used by other scenes
 		if (entity->m_loadedInNrScenes == 0)
 		{
-			// Unload the entity
-  			component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
-			if (mc != nullptr)
-			{
-				// TODO: fix code with assetloader
-				m_pRenderer->unloadModel(AssetLoader::Get()->LoadModel(mc->GetModelPath()));
-			}
+			entity->UnloadScene();
 		}
 	}
 

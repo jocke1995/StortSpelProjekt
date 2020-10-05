@@ -65,6 +65,36 @@ void Entity::RenderUpdate(double dt)
 	}
 }
 
+void Entity::InitScene()
+{
+	// for each component in entity: call their implementation of InitScene(),
+	// which calls their specific init function (render, audio, game, physics etc)
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		m_Components.at(i)->OnInitScene();
+	}
+}
+
+void Entity::LoadScene()
+{
+	// for each component in entity: call their implementation of InitScene(),
+	// which calls their specific init function (render, audio, game, physics etc)
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		m_Components.at(i)->OnLoadScene();
+	}
+}
+
+void Entity::UnloadScene()
+{
+	// for each component in entity: call their implementation of InitScene(),
+	// which calls their specific init function (render, audio, game, physics etc)
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		m_Components.at(i)->OnUnloadScene();
+	}
+}
+
 std::vector<Component*>* Entity::GetAllComponents()
 {
 	return &m_Components;

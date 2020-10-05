@@ -54,7 +54,7 @@ Entity* Scene::AddEntity(std::string entityName)
 
 bool Scene::RemoveEntity(std::string entityName)
 {
-    if (EntityExists(entityName) == false)
+    if (!EntityExists(entityName))
     {
         return false;
     }

@@ -14,6 +14,10 @@ namespace component
 
 		void Update(double dt);
 
+		void OnInitScene();
+		void OnLoadScene();
+		void OnUnloadScene();
+
 		DirectX::XMFLOAT3 GetDirection() const;
 		float GetAccSpeed() const;
 

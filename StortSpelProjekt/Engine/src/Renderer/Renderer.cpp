@@ -500,11 +500,11 @@ void Renderer::InitSkyboxComponent(Entity* entity)
 
 	Mesh* mesh = sbc->GetMesh();
 
-	loadMesh(mesh);
+	LoadMesh(mesh);
 
 	Texture* texture = static_cast<TextureCubeMap*>(sbc->GetTexture());
 	
-	loadTexture(texture);
+	LoadTexture(texture);
 
 	// Finally store the object in m_pRenderer so it will be drawn
 	m_pSkyboxComponent = sbc;
@@ -663,7 +663,7 @@ void Renderer::InitBoundingBoxComponent(Entity* entity)
 		}
 
 		// Submit to GPU
-		loadMesh(mesh);
+		LoadMesh(mesh);
 
 		bbc->SetMesh(mesh);
 
@@ -1714,7 +1714,7 @@ void Renderer::waitForFrame(unsigned int framesToBeAhead)
 
 // TODO: Put all these functions in assetloader
 // Then gets called by LoadModel()
-void Renderer::loadModel(Model* model) const
+void Renderer::LoadModel(Model* model) const
 {
 	model->m_ActiveRefCount++;
 
@@ -1735,10 +1735,10 @@ void Renderer::loadModel(Model* model) const
 				Material* meshMat = model->GetMaterialAt(i);
 
 				// Upload Mesh
-				loadMesh(mesh);
+				LoadMesh(mesh);
 
 				// Upload Material
-				loadMaterial(model->GetMaterialAt(i));
+				LoadMaterial(model->GetMaterialAt(i));
 
 				// Set Slotinfo
 				model->m_SlotInfos[i] =
@@ -1759,7 +1759,7 @@ void Renderer::loadModel(Model* model) const
 	
 }
 
-void Renderer::loadMesh(Mesh* mesh) const
+void Renderer::LoadMesh(Mesh* mesh) const
 {
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 
@@ -1815,7 +1815,7 @@ void Renderer::loadMesh(Mesh* mesh) const
 	}
 }
 
-void Renderer::loadMaterial(Material* material) const
+void Renderer::LoadMaterial(Material* material) const
 {
 	AssetLoader* al = AssetLoader::Get();
 	if (!al->IsMaterialLoadedOnGpu(material))
@@ -1825,13 +1825,13 @@ void Renderer::loadMaterial(Material* material) const
 			TEXTURE2D_TYPE type = static_cast<TEXTURE2D_TYPE>(i);
 			Texture* texture = material->GetTexture(type);
 
-			loadTexture(texture);
+			LoadTexture(texture);
 		}
 		al->m_LoadedMaterials[material->GetPath()].first = true;
 	}
 }
 
-void Renderer::loadTexture(Texture* texture) const
+void Renderer::LoadTexture(Texture* texture) const
 {
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	AssetLoader* al = AssetLoader::Get();
@@ -1847,7 +1847,7 @@ void Renderer::loadTexture(Texture* texture) const
 	}
 }
 
-void Renderer::unloadModel(Model* model) const
+void Renderer::UnloadModel(Model* model) const
 {
 	model->m_ActiveRefCount--;
 	// Unload if model is not referenced anymore
@@ -1868,11 +1868,11 @@ void Renderer::unloadModel(Model* model) const
 			{
 				// unloadMeshes
 				Mesh* mesh = model->GetMeshAt(i);
-				unloadMesh(mesh);
+				UnloadMesh(mesh);
 
 				// unloadMaterial
 				Material* meshmat = model->GetMaterialAt(i);
-				unloadMaterial(meshmat);
+				UnloadMaterial(meshmat);
 
 				// Set slotinfo = 0;
 				model->m_SlotInfos[i] = {};
@@ -1883,7 +1883,7 @@ void Renderer::unloadModel(Model* model) const
 	}
 }
 
-void Renderer::unloadMesh(Mesh* mesh) const
+void Renderer::UnloadMesh(Mesh* mesh) const
 {
 	// TODO: Bool for isMeshOnGPU
 	if (mesh->m_pDefaultResourceVertices != nullptr)
@@ -1908,19 +1908,19 @@ void Renderer::unloadMesh(Mesh* mesh) const
 	}
 }
 
-void Renderer::unloadMaterial(Material* material) const
+void Renderer::UnloadMaterial(Material* material) const
 {
 	AssetLoader* al = AssetLoader::Get();
 
 	for (unsigned int i = 0; i < material->m_Textures.size(); i++)
 	{
 		Texture* texture = material->m_Textures.at(static_cast<TEXTURE2D_TYPE>(i));
-		unloadTexture(texture);
+		UnloadTexture(texture);
 	}
 	al->m_LoadedMaterials[material->m_Name].first = false;
 }
 
-void Renderer::unloadTexture(Texture* texture) const
+void Renderer::UnloadTexture(Texture* texture) const
 {
 	AssetLoader* al = AssetLoader::Get();
 

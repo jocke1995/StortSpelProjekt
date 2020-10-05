@@ -27,7 +27,15 @@ namespace component
 		m_pTransform->UpdateWorldMatrix();
 	}
 
-	void TransformComponent::InitScene()
+	void TransformComponent::OnInitScene()
+	{
+	}
+
+	void TransformComponent::OnLoadScene()
+	{
+	}
+
+	void TransformComponent::OnUnloadScene()
 	{
 	}
 

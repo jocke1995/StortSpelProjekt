@@ -20,9 +20,19 @@ void Component::RenderUpdate(double dt)
 {
 }
 
-void Component::InitScene()
+void Component::OnInitScene()
 {
 	Log::PrintSeverity(Log::Severity::WARNING, "COMPONENT InitScene called! Declare and define your own InitScene in your component class.\n");
+}
+
+void Component::OnLoadScene()
+{
+	Log::PrintSeverity(Log::Severity::WARNING, "COMPONENT OnLoadScene called! Declare and define your own OnLoadScene in your component class.\n");
+}
+
+void Component::OnUnloadScene()
+{
+	Log::PrintSeverity(Log::Severity::WARNING, "COMPONENT OnUnloadScene called! Declare and define your own OnUnloadScene in your component class.\n");
 }
 
 Entity* const Component::GetParent() const

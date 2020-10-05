@@ -18,7 +18,9 @@ namespace component
         virtual ~ModelComponent();
 
         void Update(double dt);
-        void InitScene();
+        void OnInitScene();
+        void OnLoadScene();
+        void OnUnloadScene();
 
         // Sets
         void SetModel(Model* model);

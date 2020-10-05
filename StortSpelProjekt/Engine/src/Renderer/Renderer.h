@@ -106,6 +106,18 @@ public:
 	void InitBoundingBoxComponent(Entity* entity);
 	void InitTextComponent(Entity* entity);
 
+	// Load Gpu Memory Functions
+	void LoadModel(Model* model) const;
+	void LoadMesh(Mesh* mesh) const;
+	void LoadMaterial(Material* material) const;
+	void LoadTexture(Texture* texture) const;
+
+	// Unload Gpu Memory Functions
+	void UnloadModel(Model* model) const;
+	void UnloadMesh(Mesh* mesh) const;
+	void UnloadMaterial(Material* material) const;
+	void UnloadTexture(Texture* texture) const;
+
 	void UnloadRenderComponents();
 
 private:
@@ -201,17 +213,7 @@ private:
 	void waitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
 	void waitForGPU();
 
-	// Load Gpu Memory Functions
-	void loadModel(Model* model) const;
-	void loadMesh(Mesh* mesh) const;
-	void loadMaterial(Material* material) const;
-	void loadTexture(Texture* texture) const;
-
-	// Unload Gpu Memory Functions
-	void unloadModel(Model* model) const;
-	void unloadMesh(Mesh* mesh) const;
-	void unloadMaterial(Material* material) const;
-	void unloadTexture(Texture* texture) const;
+	
 
 
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene

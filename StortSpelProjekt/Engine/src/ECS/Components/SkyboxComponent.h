@@ -23,7 +23,9 @@ namespace component
         virtual ~SkyboxComponent();
 
         void RenderUpdate(double dt);
-        void InitScene();
+        void OnInitScene();
+        void OnLoadScene();
+        void OnUnloadScene();
 
         // Sets
         void SetMesh(Mesh* mesh);

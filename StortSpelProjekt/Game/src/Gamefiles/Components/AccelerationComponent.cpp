@@ -25,6 +25,18 @@ void component::AccelerationComponent::Update(double dt)
 	}
 }
 
+void component::AccelerationComponent::OnInitScene()
+{
+}
+
+void component::AccelerationComponent::OnLoadScene()
+{
+}
+
+void component::AccelerationComponent::OnUnloadScene()
+{
+}
+
 DirectX::XMFLOAT3 component::AccelerationComponent::GetDirection() const
 {
 	return m_AccDir;
