@@ -67,25 +67,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			if (DEVELOPERMODE_DEVINTERFACE == true)
 			{
-				if (key == SCAN_CODES::LEFT_SHIFT && !Input::GetInstance().GetKeyState(SCAN_CODES::LEFT_SHIFT) && !(inputData.Flags % 2))
+				if (key == SCAN_CODES::ALT && !Input::GetInstance().GetKeyState(SCAN_CODES::ALT) && !(inputData.Flags % 2))
 				{
 					ShowCursor(true);
 					Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
 				}
-				else if (key == SCAN_CODES::LEFT_SHIFT && (inputData.Flags % 2))
+				else if (key == SCAN_CODES::ALT && (inputData.Flags % 2))
 				{
 					ShowCursor(false);
 					Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
 				}
 			}
-			if (DEVELOPERMODE_DEVINTERFACE == false || !Input::GetInstance().GetKeyState(SCAN_CODES::LEFT_SHIFT))
+			if (DEVELOPERMODE_DEVINTERFACE == false || !Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
 			{
 				Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
 			}
 		}
 		else if (raw->header.dwType == RIM_TYPEMOUSE)
 		{
-			if (DEVELOPERMODE_DEVINTERFACE == false || !Input::GetInstance().GetKeyState(SCAN_CODES::LEFT_SHIFT))
+			if (DEVELOPERMODE_DEVINTERFACE == false || !Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
 			{
 				auto inputData = raw->data.mouse;
 				MOUSE_BUTTON button = static_cast<MOUSE_BUTTON>(inputData.usButtonFlags);

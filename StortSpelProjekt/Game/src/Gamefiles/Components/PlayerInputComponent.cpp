@@ -100,6 +100,29 @@ void component::PlayerInputComponent::toggleCameraLock(ModifierInput* evnt)
 		m_Yaw = sqrt(2);
 		m_Pitch = 0.0f;
 	}
+	else if (evnt->key == SCAN_CODES::LEFT_SHIFT && evnt->pressed)
+	{
+		m_pTransform->SetVelocity(30);
+		// Check if the player is in the air. If not, allow movement
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1)
+		{
+			// Get the current linear velocity of the player
+			double3 vel = m_pCC->GetLinearVelocity();
+			vel *= 3;
+			m_pCC->SetVelVector(vel.x, vel.y, vel.z);
+		}
+	}
+	else if (evnt->key == SCAN_CODES::LEFT_SHIFT && !evnt->pressed)
+	{
+		m_pTransform->SetVelocity(10);
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1)
+		{
+			// Get the current linear velocity of the player
+			double3 vel = m_pCC->GetLinearVelocity();
+			vel /= 3;
+			m_pCC->SetVelVector(vel.x, vel.y, vel.z);
+		}
+	}
 }
 
 void component::PlayerInputComponent::zoom(MouseScroll* evnt)
