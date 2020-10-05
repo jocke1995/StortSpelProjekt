@@ -7,12 +7,11 @@
 
 // Renderer
 #include "../Renderer/CommandInterface.h"
-#include "../Renderer/ShaderResourceView.h"
-#include "../Renderer/ConstantBufferView.h"
-#include "../Renderer/Material.h"
+#include "../Renderer/GPUMemory/ShaderResourceView.h"
+#include "../Renderer/GPUMemory/ConstantBuffer.h"
 #include "../Renderer/ShadowInfo.h"
 #include "../Renderer/ViewPool.h"
-#include "../Renderer/Texture.h"
+#include "../Renderer/Texture/Texture.h"
 #include "../Renderer/Mesh.h"
 
 // CopyTasks
@@ -85,38 +84,33 @@ void SceneManager::RemoveEntity(Entity* entity)
 
 void SceneManager::AddEntity(Entity* entity)
 {
-	// Add renderer component
-	m_pRenderer->addComponents(entity);
-
-	// Add sound component
-
-	// Add game component
-
-	// Add physic component
+	// Add all components
+	std::vector<Component*>* components = entity->GetAllComponents();
+	for (int i = 0; i < components->size(); i++)
+	{
+		components->at(i)->InitScene();
+	}
 
 	executeCopyOnDemand();
 }
 
-void SceneManager::SetSceneToDraw(Scene* scene)
+void SceneManager::SetScene(Scene* scene)
 {
 	resetScene();
 
 	std::map<std::string, Entity*> entities = *scene->GetEntities();
 	for (auto const& [entityName, entity] : entities)
-	{
-		// Add renderer component returns 0
-		m_pRenderer->addComponents(entity);
-
-		// Add sound component
-
-		// Add game component
-
-		// Add physic component
-
+	{		
+		// for each component in entity: call their implementation of InitScene(),
+		// which calls their specific init function (render, audio, game, physics etc)
+		std::vector<Component*>* components = entity->GetAllComponents();
+		for (int i = 0; i < components->size(); i++)
+		{
+			components->at(i)->InitScene();
+		}
 	}
 	
 	m_pRenderer->prepareScene(scene);
-
 	executeCopyOnDemand();
 	return;
 }
@@ -157,6 +151,7 @@ void SceneManager::resetScene()
 	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
 	static_cast<ShadowRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
 	m_pRenderer->m_pScenePrimaryCamera = nullptr;
-	m_pRenderer->m_pWireFrameTask->Clear();
+	static_cast<WireframeRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
 	m_pRenderer->m_BoundingBoxesToBePicked.clear();
+	m_pRenderer->m_TextComponents.clear();
 }

@@ -5,6 +5,7 @@
 // Renderer
 #include "../Renderer/Transform.h"
 #include "../Renderer/BaseCamera.h"
+#include "../Renderer/Renderer.h"
 
 // ECS
 #include "../ECS/Entity.h"
@@ -54,6 +55,11 @@ namespace component
         }  
     }
 
+    void SpotLightComponent::InitScene()
+    {
+        Renderer::GetInstance().InitSpotLightComponent(GetParent());
+    }
+
     void SpotLightComponent::SetPosition(float3 position)
     {
         m_pSpotLight->position_cutOff.x = position.x;
@@ -79,7 +85,7 @@ namespace component
 
         if (m_pCamera != nullptr)
         {
-            m_pCamera->SetLookAt(direction.x, direction.y, direction.z);
+            m_pCamera->SetDirection(direction.x, direction.y, direction.z);
         }
     }
 
@@ -133,19 +139,8 @@ namespace component
         }
     }
 
-    void SpotLightComponent::UpdateLightData(COLOR_TYPE type)
+    void SpotLightComponent::UpdateLightIntensity()
     {
-        switch (type)
-        {
-        case COLOR_TYPE::LIGHT_AMBIENT:
-            m_pSpotLight->baseLight.ambient = m_pBaseLight->ambient;
-            break;
-        case COLOR_TYPE::LIGHT_DIFFUSE:
-            m_pSpotLight->baseLight.diffuse = m_pBaseLight->diffuse;
-            break;
-        case COLOR_TYPE::LIGHT_SPECULAR:
-            m_pSpotLight->baseLight.specular = m_pBaseLight->specular;
-            break;
-        }
+        m_pSpotLight->baseLight.color = m_pBaseLight->color;
     }
 }

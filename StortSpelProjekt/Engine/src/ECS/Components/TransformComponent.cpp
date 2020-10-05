@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "TransformComponent.h"
 #include "../../Renderer/Transform.h"
+#include "../ECS/Entity.h"
 
 namespace component
 {
@@ -17,8 +18,17 @@ namespace component
 
 	void TransformComponent::Update(double dt)
 	{
+		m_pTransform->NormalizedMove(dt);
+	}
 
+	void TransformComponent::RenderUpdate(double dt)
+	{
+		m_pTransform->NormalizedMoveRender(dt);
 		m_pTransform->UpdateWorldMatrix();
+	}
+
+	void TransformComponent::InitScene()
+	{
 	}
 
 	Transform* TransformComponent::GetTransform() const

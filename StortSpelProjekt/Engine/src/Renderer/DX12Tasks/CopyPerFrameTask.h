@@ -6,7 +6,7 @@
 class CopyPerFrameTask : public CopyTask
 {
 public:
-	CopyPerFrameTask(ID3D12Device5* device);
+	CopyPerFrameTask(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType, unsigned int FLAG_THREAD);
 	virtual ~CopyPerFrameTask();
 
 	// The submit is inside CopyTask

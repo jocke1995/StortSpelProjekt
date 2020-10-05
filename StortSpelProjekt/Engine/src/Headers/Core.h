@@ -36,22 +36,32 @@ inline T Max(T a, T b)
 	return b;
 }
 
-enum class COLOR_TYPE
+inline std::string GetFileExtension(const std::string& FileName)
 {
-	LIGHT_AMBIENT,
-	LIGHT_DIFFUSE,
-	LIGHT_SPECULAR,
-	NUM_COLOR_TYPES
+	if (FileName.find_last_of(".") != std::string::npos)
+	{
+		return FileName.substr(FileName.find_last_of(".") + 1);
+	}
+	return "";
+}
+
+enum class TEXTURE_TYPE
+{
+	UNKNOWN,
+	TEXTURE2D,
+	TEXTURE2DGUI,
+	TEXTURECUBEMAP,
+	NUM_TYPES
 };
 
-enum TEXTURE_TYPE
+enum class TEXTURE2D_TYPE
 {
-	AMBIENT,
-	DIFFUSE,
-	SPECULAR,
+	ALBEDO,
+	ROUGHNESS,
+	METALLIC,
 	NORMAL,
 	EMISSIVE,
-	NUM_TEXTURE_TYPES
+	NUM_TYPES
 };
 
 enum LIGHT_TYPE
@@ -101,14 +111,28 @@ enum class CAMERA_TYPE
 #define NUM_SWAP_BUFFERS 2
 #define BIT(x) (1 << x)
 #define MAXNUMBER 10000000.0f
-#define DRAWBOUNDINGBOX false
+#define DEVELOPERMODE_DRAWBOUNDINGBOX false
+#define DEVELOPERMODE_DEVINTERFACE true
 
 enum FLAG_DRAW
 {
-	ForwardRendering = BIT(1),
-	Blend = BIT(2),
-	Shadow = BIT(3),
+	NO_DEPTH = BIT(1),
+	DRAW_OPAQUE = BIT(2),
+	DRAW_OPACITY = BIT(3),
+	GIVE_SHADOW = BIT(4),
+	NUM_FLAG_DRAWS = 4,
 	// animation = BIT(4),
+	// etc..
+};
+
+enum FLAG_THREAD
+{
+	RENDER = BIT(1),
+	NETWORK = BIT(2),
+	// CopyTextures,
+	// PrepareNextScene ..
+	// etc
+	ALL = BIT(8)
 	// etc..
 };
 
@@ -159,6 +183,50 @@ namespace Log
 		sprintf(inputBuffer.data(), string.c_str(), args...);
 
 		OutputDebugStringA(inputBuffer.data());
+	}
+
+	template <typename... Args>
+	inline void PrintToFile(const std::string string, const Args&...args)
+	{
+		std::FILE* file = std::fopen("ERROR.txt", "a");
+		if (file)
+		{
+			fprintf(file, string.c_str(), args...);
+			std::fclose(file);
+		}
+	}
+
+	template <typename... Args>
+	inline void PrintSeverityToFile(const Severity type, const std::string string, const Args&...args)
+	{
+		std::FILE* file = std::fopen("ERROR.txt", "a");
+		if (file)
+		{
+			switch (type)
+			{
+			case Severity::CRITICAL:
+				fprintf(file, "CRITICAL ERROR: ");
+				break;
+
+			case Severity::WARNING:
+				fprintf(file, "WARNING: ");
+				break;
+
+			default:
+				fprintf(file, "");
+				break;
+			}
+
+			fprintf(file, string.c_str(), args...);
+			std::fclose(file);
+		}
+	}
+
+	inline void ResetFile()
+	{
+		std::FILE* file = std::fopen("ERROR.txt", "w");
+
+		std::fclose(file);
 	}
 }
 

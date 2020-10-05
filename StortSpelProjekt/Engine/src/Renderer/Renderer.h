@@ -9,24 +9,36 @@
 
 // Misc
 class ThreadPool;
+class Window;
 
 // Renderer Engine
 class RootSignature;
 class SwapChain;
-class DepthStencilView;
-class ConstantBufferView;
-class MousePicker;
+class RenderTargetView;
 class ViewPool;
 class BoundingBoxPool;
-class ShadowInfo;
 class DescriptorHeap;
+class Mesh;
 
+// Views
+
+// GPU Resources
+class ConstantBuffer;
+class ShaderResource;
+class UnorderedAccess;
+class DepthStencil;
+
+// Enums
 enum COMMAND_INTERFACE_TYPE;
 enum class DESCRIPTOR_HEAP_TYPE;
 
+// techniques
+class ShadowInfo;
+class MousePicker;
+class Bloom;
+
 // ECS
 class Scene;
-#include "../ECS/Components/BoundingBoxComponent.h"
 class Light;
 
 // Graphics
@@ -47,17 +59,24 @@ struct ID3D12CommandList;
 struct ID3D12Fence1;
 struct ID3D12Device5;
 
+// ECS
+class Entity;
 namespace component
 {
-	class MeshComponent;
+	class ModelComponent;
 	class TransformComponent;
+	class BoundingBoxComponent;
+	class TextComponent;
+	class SkyboxComponent;
 }
 
 class Renderer
 {
 public:
-	Renderer();
+	static Renderer& GetInstance();
 	virtual ~Renderer();
+	// For control of safe release of DirectX resources
+	void DeleteDxResources();
 
 	// PickedEntity
 	Entity* const GetPickedEntity() const;
@@ -65,15 +84,31 @@ public:
 	Scene* const GetActiveScene() const;
 
 	// Call once
-	void InitD3D12(const HWND *hwnd, HINSTANCE hInstance, ThreadPool* threadPool);
+	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
-	// Call each frame
+	// Call on logic update *This should be moved to a more relevant logic class
 	void Update(double dt);
-	void SortObjectsByDistance();
+	// Call each frame
+	void RenderUpdate(double dt); //Please rename if logic update is removed
+	void SortObjects();
 	void Execute();
 
+	// Render inits, these functions are called by respective components through SetScene to prepare for drawing
+	void InitSkyboxComponent(Entity* entity);
+	void InitModelComponent(Entity* entity);
+	void InitDirectionalLightComponent(Entity* entity);
+	void InitPointLightComponent(Entity* entity);
+	void InitSpotLightComponent(Entity* entity);
+	void InitCameraComponent(Entity* entity);
+	void InitBoundingBoxComponent(Entity* entity);
+	void InitTextComponent(Entity* entity);
+
 private:
+	friend class component::SkyboxComponent;
 	friend class SceneManager;
+	friend class Text;
+	Renderer();
+
 	ThreadPool* m_pThreadPool = nullptr;
 
 	// Camera
@@ -87,11 +122,15 @@ private:
 	// CommandQueues
 	std::map<COMMAND_INTERFACE_TYPE, ID3D12CommandQueue*> m_CommandQueues;
 
+	// RenderTargets
 	// Swapchain (inheriting from 'RenderTarget')
 	SwapChain* m_pSwapChain = nullptr;
+	
+	// Bloom (includes rtv, uav and srv)
+	Bloom* m_pBloomResources = nullptr;
 
 	// Depthbuffer
-	DepthStencilView* m_pMainDSV = nullptr;
+	DepthStencil* m_pMainDepthStencil = nullptr;
 
 	// Rootsignature
 	RootSignature* m_pRootSignature = nullptr;
@@ -106,30 +145,32 @@ private:
 	std::vector<RenderTask*>  m_RenderTasks;
 
 	// Since these tasks wont operate on all objects, they will not be set in the same map as the other "rendertasks".
-	WireframeRenderTask* m_pWireFrameTask = nullptr;
-	OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
+	//WireframeRenderTask* m_pWireFrameTask = nullptr;
+	//OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
+
+	Mesh* m_pFullScreenQuad = nullptr;
 
 	// Group of components that's needed for rendering:
-	std::vector<std::pair<component::MeshComponent*, component::TransformComponent*>> m_RenderComponents;
-
+	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
+	std::vector<component::TextComponent*> m_TextComponents;
+	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
-	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBufferView*, ShadowInfo*>>> m_Lights;
+	std::map<LIGHT_TYPE, std::vector<std::tuple<Light*, ConstantBuffer*, ShadowInfo*>>> m_Lights;
 
 	// Current scene to be drawn
 	Scene* m_pCurrActiveScene = nullptr;
 	CB_PER_SCENE_STRUCT* m_pCbPerSceneData = nullptr;
-	ConstantBufferView* m_pCbPerScene = nullptr;
+	ConstantBuffer* m_pCbPerScene = nullptr;
 
 	// update per frame
 	CB_PER_FRAME_STRUCT* m_pCbPerFrameData = nullptr;
-	ConstantBufferView* m_pCbPerFrame = nullptr;
+	ConstantBuffer* m_pCbPerFrame = nullptr;
 
 	// Commandlists holders
 	std::vector<ID3D12CommandList*> m_DirectCommandLists[NUM_SWAP_BUFFERS];
 	std::vector<ID3D12CommandList*> m_ComputeCommandLists[NUM_SWAP_BUFFERS];
-	ID3D12CommandList* m_CopyPerFrameCmdList[NUM_SWAP_BUFFERS];
 	ID3D12CommandList* m_CopyOnDemandCmdList[NUM_SWAP_BUFFERS];
 	
 	// DescriptorHeaps
@@ -140,14 +181,13 @@ private:
 	ID3D12Fence1* m_pFenceFrame = nullptr;
 	UINT64 m_FenceFrameValue = 0;
 
-
-
 	void setRenderTasksPrimaryCamera();
 	bool createDevice();
 	void createCommandQueues();
 	void createSwapChain(const HWND *hwnd);
-	void createMainDSV(const HWND* hwnd);
+	void createMainDSV();
 	void createRootSignature();
+	void createFullScreenQuad();
 	void updateMousePicker();
 	void initRenderTasks();
 	void setRenderTasksRenderComponents();
@@ -155,12 +195,11 @@ private:
 	void createFences();
 	void waitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
 
-	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetSceneToDraw
+	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene
 	void waitForCopyOnDemand();
 
 	// Manage components
 	void removeComponents(Entity* entity);
-	void addComponents(Entity* entity);
 
 	// Setup the whole scene
 	void prepareScene(Scene* scene);

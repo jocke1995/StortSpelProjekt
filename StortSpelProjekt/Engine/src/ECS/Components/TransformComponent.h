@@ -2,6 +2,7 @@
 #define TRANSFORMCOMPONENT_H
 
 #include "Component.h"
+#include <assimp\types.h>
 class Transform;
 
 namespace component
@@ -13,6 +14,8 @@ namespace component
         virtual ~TransformComponent();
 
         void Update(double dt);
+        void RenderUpdate(double dt);
+        void InitScene();
 
         Transform* GetTransform() const;
     private:

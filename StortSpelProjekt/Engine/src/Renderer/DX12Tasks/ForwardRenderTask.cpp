@@ -3,24 +3,27 @@
 
 #include "../RenderView.h"
 #include "../RootSignature.h"
-#include "../ConstantBufferView.h"
 #include "../CommandInterface.h"
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../PipelineState.h"
-#include "../Material.h"
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
 #include "../BaseCamera.h"
+#include "../SwapChain.h"
+#include "../GPUMemory/RenderTargetView.h"
+#include "../GPUMemory/DepthStencil.h"
+#include "../GPUMemory/DepthStencilView.h"
 
 FowardRenderTask::FowardRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
-	LPCWSTR VSName, LPCWSTR PSName,
+	const std::wstring& VSName, const std::wstring& PSName,
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
-	LPCTSTR psoName)
-	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName)
+	const std::wstring& psoName,
+	unsigned int FLAG_THREAD)
+	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
 	
 }
@@ -33,7 +36,8 @@ void FowardRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
-	ID3D12Resource1* swapChainResource = m_RenderTargets["swapChain"]->GetResource(m_BackBufferIndex)->GetID3D12Resource1();
+	const RenderTargetView* swapChainRenderTarget = m_pSwapChain->GetRTV(m_BackBufferIndex);
+	ID3D12Resource1* swapChainResource = swapChainRenderTarget->GetResource()->GetID3D12Resource1();
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
@@ -55,21 +59,33 @@ void FowardRenderTask::Execute()
 	DescriptorHeap* renderTargetHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
 	DescriptorHeap* depthBufferHeap  = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 
-	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
-	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
+	// RenderTargets
+	const unsigned int swapChainIndex = swapChainRenderTarget->GetDescriptorHeapIndex();
+	const unsigned int brightTargetIndex = m_RenderTargets["brightTarget"]->GetDescriptorHeapIndex();
+	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(swapChainIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE cdhBrightTarget = renderTargetHeap->GetCPUHeapAt(brightTargetIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE cdhs[] = { cdhSwapChain, cdhBrightTarget };
 
-	commandList->OMSetRenderTargets(1, &cdh, true, &dsh);
+	// Depth
+	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(m_pDepthStencil->GetDSV()->GetDescriptorHeapIndex());
 
-	float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	commandList->ClearRenderTargetView(cdh, clearColor, 0, nullptr);
+	commandList->OMSetRenderTargets(2, cdhs, false, &dsh);
 
-	commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	commandList->ClearRenderTargetView(cdhSwapChain, clearColor, 0, nullptr);
+	commandList->ClearRenderTargetView(cdhBrightTarget, clearColor, 0, nullptr);
 
-	SwapChain* sc = static_cast<SwapChain*>(m_RenderTargets["swapChain"]);
-	const D3D12_VIEWPORT* viewPort = sc->GetRenderView()->GetViewPort();
-	const D3D12_RECT* rect = sc->GetRenderView()->GetScissorRect();
-	commandList->RSSetViewports(1, viewPort);
-	commandList->RSSetScissorRects(1, rect);
+	const D3D12_VIEWPORT viewPortSwapChain = *swapChainRenderTarget->GetRenderView()->GetViewPort();
+	const D3D12_VIEWPORT viewPortBrightTarget = *m_RenderTargets["brightTarget"]->GetRenderView()->GetViewPort();
+	const D3D12_VIEWPORT viewPorts[2] = { viewPortSwapChain, viewPortBrightTarget };
+
+	const D3D12_RECT rectSwapChain = *swapChainRenderTarget->GetRenderView()->GetScissorRect();
+	const D3D12_RECT rectBrightTarget = *m_RenderTargets["brightTarget"]->GetRenderView()->GetScissorRect();
+	const D3D12_RECT rects[2] = { rectSwapChain, rectBrightTarget };
+
+	const D3D12_RECT* rect = swapChainRenderTarget->GetRenderView()->GetScissorRect();
+	commandList->RSSetViewports(2, viewPorts);
+	commandList->RSSetScissorRects(2, rects);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Set cbvs
@@ -79,13 +95,14 @@ void FowardRenderTask::Execute()
 	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
 
 	// This pair for m_RenderComponents will be used for model-outlining in case any model is picked.
-	std::pair<component::MeshComponent*, component::TransformComponent*> outlinedModel = std::make_pair(nullptr, nullptr);
+	std::pair<component::ModelComponent*, component::TransformComponent*> outlinedModel = std::make_pair(nullptr, nullptr);
 
 	// Draw for every Rendercomponent with stencil testing disabled
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 	for (int i = 0; i < m_RenderComponents.size(); i++)
 	{
-		component::MeshComponent* mc = m_RenderComponents.at(i).first;
+		
+		component::ModelComponent* mc = m_RenderComponents.at(i).first;
 		component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
 		// If the model is picked, we dont draw it with default stencil buffer.
@@ -106,7 +123,7 @@ void FowardRenderTask::Execute()
 		commandList->OMSetStencilRef(1);
 		drawRenderComponent(outlinedModel.first, outlinedModel.second, viewProjMatTrans, commandList);
 	}
-	
+
 	// Change state on front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		swapChainResource,
@@ -117,33 +134,28 @@ void FowardRenderTask::Execute()
 }
 
 void FowardRenderTask::drawRenderComponent(
-	component::MeshComponent* mc,
+	component::ModelComponent* mc,
 	component::TransformComponent* tc,
 	const DirectX::XMMATRIX* viewProjTransposed,
 	ID3D12GraphicsCommandList5* cl)
 {
-	// Check if the object is to be drawn in forwardRendering
-	if (mc->GetDrawFlag() & FLAG_DRAW::ForwardRendering)
+	// Draw for every m_pMesh the meshComponent has
+	for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 	{
-		// Draw for every m_pMesh the meshComponent has
-		for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
-		{
-			Mesh* m = mc->GetMesh(i);
-			size_t num_Indices = m->GetNumIndices();
-			const SlotInfo* info = m->GetSlotInfo();
+		Mesh* m = mc->GetMeshAt(i);
+		size_t num_Indices = m->GetNumIndices();
+		const SlotInfo* info = mc->GetSlotInfoAt(i);
 
-			Transform* transform = tc->GetTransform();
-			DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-			DirectX::XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
+		Transform* transform = tc->GetTransform();
+		DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+		DirectX::XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
 
-			// Create a CB_PER_OBJECT struct
-			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
+		// Create a CB_PER_OBJECT struct
+		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
 
-			cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
-			cl->SetGraphicsRootConstantBufferView(RS::CB_PER_OBJECT_CBV, m->GetMaterial()->GetConstantBufferView()->GetCBVResource()->GetGPUVirtualAdress());
+		cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-			cl->IASetIndexBuffer(m->GetIndexBufferView());
-			cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
-		}
+		cl->IASetIndexBuffer(m->GetIndexBufferView());
+		cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 	}
 }

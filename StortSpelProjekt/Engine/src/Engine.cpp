@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Engine.h"
 #include "Misc/Thread.h"
+
 Engine::Engine()
 {
 	
@@ -8,57 +9,85 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-	delete m_Window;
-	delete m_Timer;
+	delete m_pWindow;
+	delete m_pTimer;
 
-	m_ThreadPool->WaitForThreads(FLAG_THREAD::ALL);
-	m_ThreadPool->ExitThreads();
-	delete m_ThreadPool;
-
-	delete m_SceneManager;
-	delete m_Renderer;
+	delete m_pThreadPool;
+	Physics::GetInstance().DestroyPhysics();
+	delete m_pSceneManager;
+	m_pRenderer->DeleteDxResources();
 }
 
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 {
+	// Window values
+	bool fullscreen = std::atoi(Option::GetInstance().GetVariable("i_fullscreen").c_str());
+	int windowWidth = std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str());
+	int windowHeight = std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str());
+
 	// Misc
-	m_Window = new Window(hInstance, nCmdShow, false);
-	m_Timer = new Timer(m_Window);
+	m_pWindow = new Window(hInstance, nCmdShow, fullscreen, windowWidth, windowHeight);
+	m_pTimer = new Timer(m_pWindow);
 
 	// ThreadPool
-	int numCores = std::thread::hardware_concurrency();
-	if (numCores == 0) numCores = 1; // function not supported
-	m_ThreadPool = new ThreadPool(numCores); // Set num m_Threads to number of cores of the cpu
+	int numThreads = std::thread::hardware_concurrency();
+	if (numThreads == 0) // function not supported
+	{
+		numThreads = 1;
+	}
+	else if (numThreads > m_ThreadLimit) // Limiting the number of threads to the threadLimit
+	{
+		numThreads = m_ThreadLimit;
+	}
+	m_pThreadPool = new ThreadPool(numThreads);
 
 	// Sub-engines
-	m_Renderer = new Renderer();
-	m_Renderer->InitD3D12(m_Window->GetHwnd(), hInstance, m_ThreadPool);
+	m_pRenderer = &Renderer::GetInstance();
+	m_pRenderer->InitD3D12(m_pWindow, hInstance, m_pThreadPool);
+
+	// Audio engine
+	m_pAudioEngine = &AudioEngine::GetInstance();
 
 	// ECS
-	m_SceneManager = new SceneManager(m_Renderer);
+	m_pSceneManager = new SceneManager(m_pRenderer);
+
+	// Physics
+	m_pPhysics = &Physics::GetInstance();
+
+	Input::GetInstance().RegisterDevices(m_pWindow->GetHwnd());
 }
 
 Window* const Engine::GetWindow() const
 {
-	return m_Window;
+	return m_pWindow;
 }
 
 Timer* const Engine::GetTimer() const
 {
-	return m_Timer;
+	return m_pTimer;
 }
 
 ThreadPool* const Engine::GetThreadPool() const
 {
-	return m_ThreadPool;
+	return m_pThreadPool;
 }
 
 SceneManager* const Engine::GetSceneHandler() const
 {
-	return m_SceneManager;
+	return m_pSceneManager;
+}
+
+Physics* const Engine::GetPhysics() const
+{
+	return m_pPhysics;
+}
+
+AudioEngine* const Engine::GetAudioEngine() const
+{
+	return m_pAudioEngine;
 }
 
 Renderer* const Engine::GetRenderer() const
 {
-	return m_Renderer;
+	return m_pRenderer;
 }

@@ -1,10 +1,23 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 // Renderer
-#include "Components/MeshComponent.h"
+#include "Components/ModelComponent.h"
 #include "Components/TransformComponent.h"
 #include "Components/CameraComponent.h"
 #include "Components/BoundingBoxComponent.h"
+#include "Components/TextComponent.h"
+#include "Components/InputComponent.h"
+// Audio
+#include "Components/Audio2DVoiceComponent.h"
+#include "Components/Audio3DListenerComponent.h"
+#include "Components/Audio3DEmitterComponent.h"
+
+// physics/collisions
+#include "Components/Collision/SphereCollisionComponent.h"
+#include "Components/Collision/CubeCollisionComponent.h"
+#include "Components/Collision/CapsuleCollisionComponent.h"
+
+#include "../../Game/src/Gamefiles/Components/GameComponents.h"
 
 // Lights
 class DirectionalLightComponent;
@@ -35,6 +48,9 @@ public:
 	void IncrementRefCount();
 	void DecrementRefCount();
 	void Update(double dt);
+	void RenderUpdate(double dt);
+
+	std::vector<Component*>* GetAllComponents();
 
 private:
 	unsigned int m_Id = -1;

@@ -2,9 +2,9 @@
 #include "ShadowRenderTask.h"
 
 #include "../DescriptorHeap.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../RenderView.h"
-#include "../DepthStencilView.h"
+#include "../GPUMemory/DepthStencilView.h"
 #include "../RootSignature.h"
 #include "../CommandInterface.h"
 #include "../PipelineState.h"
@@ -16,10 +16,11 @@
 ShadowRenderTask::ShadowRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
-	LPCWSTR VSName, LPCWSTR PSName,
+	const std::wstring& VSName, const std::wstring& PSName,
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
-	LPCTSTR psoName)
-	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName)
+	const std::wstring& psoName,
+	unsigned int FLAG_THREAD)
+	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
 
 }
@@ -94,30 +95,26 @@ void ShadowRenderTask::Execute()
 		// Draw for every Rendercomponent
 		for (int i = 0; i < m_RenderComponents.size(); i++)
 		{
-			component::MeshComponent* mc = m_RenderComponents.at(i).first;
+			component::ModelComponent* mc = m_RenderComponents.at(i).first;
 			component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
-			// Check if the object is to be drawn in ShadowPass
-			if (mc->GetDrawFlag() & FLAG_DRAW::Shadow)
+			// Draw for every m_pMesh the meshComponent has
+			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 			{
-				// Draw for every m_pMesh the meshComponent has
-				for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
-				{
-					size_t num_Indices = mc->GetMesh(i)->GetNumIndices();
-					const SlotInfo* info = mc->GetMesh(i)->GetSlotInfo();
+				size_t num_Indices = mc->GetMeshAt(i)->GetNumIndices();
+				const SlotInfo* info = mc->GetSlotInfoAt(i);
 
-					Transform* transform = tc->GetTransform();
-					DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-					DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+				Transform* transform = tc->GetTransform();
+				DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+				DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
-					// Create a CB_PER_OBJECT struct
-					CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
+				// Create a CB_PER_OBJECT struct
+				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
 
-					commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-					commandList->IASetIndexBuffer(mc->GetMesh(i)->GetIndexBufferView());
-					commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
-				}
+				commandList->IASetIndexBuffer(mc->GetMeshAt(i)->GetIndexBufferView());
+				commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 			}
 		}
 

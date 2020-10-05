@@ -1,24 +1,25 @@
 #include "stdafx.h"
 #include "DirectionalLightComponent.h"
 #include "../Renderer/BaseCamera.h"
+#include "../Renderer/Renderer.h"
 
 namespace component
 {
 	DirectionalLightComponent::DirectionalLightComponent(Entity* parent, unsigned int lightFlags)
 		:Component(parent), Light(CAMERA_TYPE::ORTHOGRAPHIC, lightFlags)
 	{
-		directionalLight = new DirectionalLight();
-		directionalLight->direction = { -1.0f,  -0.5f,  0.0f, 0.0f };
-		directionalLight->baseLight = *m_pBaseLight;
+		m_pDirectionalLight = new DirectionalLight();
+		m_pDirectionalLight->direction = { -1.0f,  -0.5f,  0.0f, 0.0f };
+		m_pDirectionalLight->baseLight = *m_pBaseLight;
 
-		directionalLight->textureShadowMap = 0;
+		m_pDirectionalLight->textureShadowMap = 0;
 
 		initFlagUsages();
 	}
 
 	DirectionalLightComponent::~DirectionalLightComponent()
 	{
-		delete directionalLight;
+		delete m_pDirectionalLight;
 	}
 
 
@@ -27,24 +28,29 @@ namespace component
 		if (m_pCamera != nullptr)
 		{
 			m_pCamera->Update(dt);
-			directionalLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
+			m_pDirectionalLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
 		}
+	}
+
+	void DirectionalLightComponent::InitScene()
+	{
+		Renderer::GetInstance().InitDirectionalLightComponent(GetParent());
 	}
 
 	void DirectionalLightComponent::SetDirection(float3 direction)
 	{
-		directionalLight->direction = { direction.x, direction.y, direction.z, 0.0f };
+		m_pDirectionalLight->direction = { direction.x, direction.y, direction.z, 0.0f };
 		
 		if (m_pCamera != nullptr)
 		{
-			m_pCamera->SetPosition(-direction.x * 10, -direction.y * 10, -direction.z * 10);
-			m_pCamera->SetLookAt(direction.x, direction.y, direction.z);
+			m_pCamera->SetPosition(-direction.x * 30, -direction.y * 30, -direction.z * 30);
+			m_pCamera->SetDirection(direction.x, direction.y, direction.z);
 		}
 	}
 
 	void* DirectionalLightComponent::GetLightData() const
 	{
-		return directionalLight;
+		return m_pDirectionalLight;
 	}
 
 	void DirectionalLightComponent::initFlagUsages()
@@ -56,33 +62,22 @@ namespace component
 		{
 			CreateCamera(
 				{
-				-directionalLight->direction.x * 10,
-				-directionalLight->direction.y * 10,
-				-directionalLight->direction.z * 10 },
+				-m_pDirectionalLight->direction.x * 10,
+				-m_pDirectionalLight->direction.y * 10,
+				-m_pDirectionalLight->direction.z * 10 },
 				{
-				directionalLight->direction.x,
-				directionalLight->direction.y,
-				directionalLight->direction.z });
+				m_pDirectionalLight->direction.x,
+				m_pDirectionalLight->direction.y,
+				m_pDirectionalLight->direction.z });
 
-			directionalLight->baseLight.castShadow = true;
+			m_pDirectionalLight->baseLight.castShadow = true;
 
-			directionalLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
+			m_pDirectionalLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
 		}
 	}
 
-	void DirectionalLightComponent::UpdateLightData(COLOR_TYPE type)
+	void DirectionalLightComponent::UpdateLightIntensity()
 	{
-		switch (type)
-		{
-		case COLOR_TYPE::LIGHT_AMBIENT:
-			directionalLight->baseLight.ambient = m_pBaseLight->ambient;
-			break;
-		case COLOR_TYPE::LIGHT_DIFFUSE:
-			directionalLight->baseLight.diffuse = m_pBaseLight->diffuse;
-			break;
-		case COLOR_TYPE::LIGHT_SPECULAR:
-			directionalLight->baseLight.specular = m_pBaseLight->specular;
-			break;
-		}
+		m_pDirectionalLight->baseLight.color = m_pBaseLight->color;
 	}
 }

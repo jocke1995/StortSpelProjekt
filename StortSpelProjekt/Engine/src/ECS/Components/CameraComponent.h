@@ -10,40 +10,16 @@ namespace component
 	class CameraComponent : public Component
 	{
 	public:
-		// Temp Constructor to handle input
-		CameraComponent(Entity* parent, HINSTANCE hInstance, HWND hwnd, bool primary = false);
-		
 		// Default Settings
 		CameraComponent(Entity* parent, CAMERA_TYPE camType, bool primary = false);
-
-		// Perspective Constructor
-		CameraComponent(Entity* parent,
-			bool primary = false,
-			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
-			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
-			double fov = 45.0f,
-			double aspectRatio = 16.0f / 9.0f,
-			double zNear = 0.1f,
-			double zFar = 1000.0f);
-
-		// Orthographic Constructor
-		CameraComponent(Entity* parent,
-			bool primary = false,
-			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
-			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
-			float left = -40.0f,
-			float right = 40.0f,
-			float bot = -40.0f,
-			float top = 40.0f,
-			float nearZ = 0.01f,
-			float farZ = 1000.0f);
 
 		virtual ~CameraComponent();
 
 		BaseCamera* GetCamera() const;
 		bool IsPrimary() const;
 
-		void Update(double dt);
+		void RenderUpdate(double dt);
+		void InitScene();
 
 	private:
 		BaseCamera* m_pCamera = nullptr;
@@ -53,16 +29,16 @@ namespace component
 		// Todo: add and calculate m_pMesh to be able to draw frustrum in wireframe
 
 		BaseCamera* createPerspective(
-			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
-			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
+			DirectX::XMVECTOR position = { 0.0, 4.0, -10.0 },
+			DirectX::XMVECTOR direction = { 0.0f, -2.0f, 10.0f },
 			double fov = 45.0f,
 			double aspectRatio = 16.0f / 9.0f,
 			double zNear = 0.1f,
 			double zFar = 1000.0f);
 
 		BaseCamera* createOrthographic(
-			DirectX::XMVECTOR position = { 0.0f, 0.0f, 0.0f },
-			DirectX::XMVECTOR lookAt = { 1.0f, 1.0f, 1.0f },
+			DirectX::XMVECTOR position = { 0.0, 4.0, -10.0 },
+			DirectX::XMVECTOR direction = { 0.0f, -2.0f, 10.0f },
 			float left = -40.0f,
 			float right = 40.0f,
 			float bot = -40.0f,

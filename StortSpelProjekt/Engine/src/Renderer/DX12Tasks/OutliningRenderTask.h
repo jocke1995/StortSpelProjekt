@@ -11,17 +11,18 @@ class OutliningRenderTask : public RenderTask
 public:
 	OutliningRenderTask(ID3D12Device5* device,
 		RootSignature* rootSignature,
-		LPCWSTR VSName, LPCWSTR PSName,
+		const std::wstring& VSName, const std::wstring& PSName,
 		std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
-		LPCTSTR psoName);
+		const std::wstring& psoName,
+		unsigned int FLAG_THREAD);
 	~OutliningRenderTask();
 
 	void Execute();
 
-	void SetObjectToOutline(std::pair<component::MeshComponent*, component::TransformComponent*>* objectToOutline);
+	void SetObjectToOutline(std::pair<component::ModelComponent*, component::TransformComponent*>* objectToOutline);
 	void Clear();
 private:
-	std::pair<component::MeshComponent*, component::TransformComponent*> m_ObjectToOutline;
+	std::pair<component::ModelComponent*, component::TransformComponent*> m_ObjectToOutline;
 };
 
 #endif

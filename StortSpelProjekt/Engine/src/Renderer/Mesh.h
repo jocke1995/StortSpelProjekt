@@ -4,11 +4,14 @@
 #include "EngineMath.h"
 #include "Core.h"
 
+#include "../ECS/Components/BoundingBoxComponent.h"
+
+class Texture;
 class Resource;
 class ShaderResourceView;
-class Material;
 class DescriptorHeap;
 struct SlotInfo;
+struct Bone;
 
 // DX12 Forward Declarations
 struct ID3D12Device5;
@@ -26,11 +29,16 @@ class Mesh
 {
 public:
     Mesh(   ID3D12Device5* device,
-            std::vector<Vertex> vertices,
-            std::vector<unsigned int> indices,
+            std::vector<Vertex>* vertices,
+            std::vector<unsigned int>* indices,
             DescriptorHeap* descriptorHeap_SRV,
-            const std::string path = "");
-    Mesh(const Mesh* other);
+            const std::wstring& path = L"NOPATH");
+    Mesh(   ID3D12Device5* device,
+            std::vector<Vertex>* vertices,
+            std::vector<unsigned int>* indices,
+            std::vector<Bone>* bones,
+            DescriptorHeap* descriptorHeap_SRV,
+            const std::wstring& path = L"NOPATH");
     virtual ~Mesh();
 
     // Vertices
@@ -46,17 +54,20 @@ public:
     const size_t GetNumIndices() const;
     const D3D12_INDEX_BUFFER_VIEW* GetIndexBufferView() const;
 
-    const SlotInfo* GetSlotInfo() const;
-    std::string GetPath();
-    Material* GetMaterial() const;
+    const std::wstring& GetPath() const;
 
 private:
+    friend class MergeRenderTask;
+    friend class SkyboxRenderTask;
     friend class Renderer;
     friend class SceneManager;
+    friend class Model;
+    friend class component::BoundingBoxComponent;
 
     std::vector<Vertex> m_Vertices;
     std::vector<unsigned int> m_Indices;
-    std::string m_Path = "";
+    std::vector<Bone> m_Bones;
+    std::wstring m_Path = L"NOPATH";
 
     Resource* m_pUploadResourceVertices = nullptr;
     Resource* m_pUploadResourceIndices = nullptr;
@@ -64,16 +75,10 @@ private:
     Resource* m_pDefaultResourceIndices = nullptr;
 
     ShaderResourceView* m_pSRV = nullptr;
-    D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;;
-
-    // Material will write descriptorIndices to "slotinfo" in mesh 
-    Material* m_pMaterial = nullptr;
-    SlotInfo* m_pSlotInfo = nullptr;
-
+    D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;
+    
+    void initMesh(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV);
     void createIndexBufferView();
-
-    // Temporay solution to make sure each "new" mesh only gets deleted once
-    bool m_IsCopied = false;
 };
 
 #endif

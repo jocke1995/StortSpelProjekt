@@ -4,6 +4,8 @@ StortSpelProjekt/build/
 StortSpelProjekt/bin/
 StortSpelProjekt/*.bat
 
+**ERROR.txt
+
 **.sln
 **.vcxproj
 **.user
@@ -12,3 +14,6 @@ StortSpelProjekt/*.bat
 **.vs
 **bin/
 **bin-int/
+StortSpelProjekt/Sandbox/imgui.ini
+
+StortSpelProjekt/Game/imgui.ini

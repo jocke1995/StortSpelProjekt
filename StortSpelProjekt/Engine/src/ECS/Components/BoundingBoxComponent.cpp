@@ -1,92 +1,156 @@
 #include "stdafx.h"
 #include "BoundingBoxComponent.h"
-#include "../Renderer/Mesh.h"
+
 
 #include "../Entity.h"
 
 // Creating the BB out of the model
-#include "MeshComponent.h"
+#include "ModelComponent.h"
 
 // Using the same m_pTransform as the models m_pTransform
+#include "../Renderer/Transform.h"
 #include "TransformComponent.h"
-
 #include "../Renderer/BoundingBoxPool.h"
+
+#include "../Renderer/Mesh.h"
+#include "../Renderer/GPUMemory/ShaderResourceView.h"
+#include "../Renderer/Renderer.h"
+
+
 
 namespace component
 {
-	BoundingBoxComponent::BoundingBoxComponent(Entity* parent, bool pick)
+	BoundingBoxComponent::BoundingBoxComponent(Entity* parent, unsigned int flagOBB)
 		:Component(parent)
 	{
-		m_CanBePicked = pick;
+		m_FlagOBB = flagOBB;
 	}
 
 	BoundingBoxComponent::~BoundingBoxComponent()
 	{
-		
+		for (SlotInfo* slotinfo : m_SlotInfos)
+		{
+			delete slotinfo;
+		}
 	}
 
 	void BoundingBoxComponent::Init()
 	{
-		createBoundingBox();
+		createOrientedBoundingBox();
+	}
+
+	void BoundingBoxComponent::InitScene()
+	{
+		Renderer::GetInstance().InitBoundingBoxComponent(GetParent());
 	}
 
 	void BoundingBoxComponent::Update(double dt)
 	{
+		for (unsigned int i = 0; i < m_Transforms.size(); i++)
+		{
+			// No need for equations every frame if the object doesn't have collision enabled 
+			if (m_FlagOBB & F_OBBFlags::COLLISION)
+			{
+				// Making a temporary OBB which takes the original state of the OBB
+				DirectX::BoundingOrientedBox obb;
+				obb.Center = m_OriginalBoundingBox.Center;
+				obb.Extents = m_OriginalBoundingBox.Extents;
+				obb.Orientation = m_OriginalBoundingBox.Orientation;
 
+				// then do all the transformations on this temoporary OBB so we don't change the original state
+				obb.Transform(obb, *m_Transforms[i]->GetWorldMatrix());
+
+				// now save the transformations to the OBB that is used in collision detection
+				m_OrientedBoundingBox.Center = obb.Center;
+				m_OrientedBoundingBox.Extents = obb.Extents;
+				m_OrientedBoundingBox.Orientation = obb.Orientation;
+			}
+		}
 	}
 
-	void BoundingBoxComponent::SetMesh(Mesh* mesh)
+	void BoundingBoxComponent::AddMesh(Mesh* mesh)
 	{
-		m_pMesh = mesh;
+		m_Meshes.push_back(mesh);
+
+		m_SlotInfos.push_back(new SlotInfo());
+
+		m_SlotInfos.back()->vertexDataIndex = mesh->m_pSRV->GetDescriptorHeapIndex();
+		// Textures are not used in the WireframeRenderTask
 	}
 
-	Transform* BoundingBoxComponent::GetTransform() const
+	void BoundingBoxComponent::AddBoundingBox(BoundingBoxData* bbd, Transform* transform, std::wstring path)
 	{
-		return m_pTransform;
+		BoundingBoxPool* bbp = BoundingBoxPool::Get();
+		m_Bbds.push_back(bbp->CreateBoundingBoxData(bbd->boundingBoxVertices, bbd->boundingBoxIndices, path));
+		m_Transforms.push_back(transform);
+		m_Identifier.push_back(path);
 	}
 
-	const Mesh* BoundingBoxComponent::GetMesh() const
+	const DirectX::BoundingOrientedBox* BoundingBoxComponent::GetOBB() const
 	{
-		return m_pMesh;
+		if ((m_FlagOBB & F_OBBFlags::COLLISION) == false)
+		{
+			Log::PrintSeverity(Log::Severity::WARNING, "Object \"%s\" does not have collision enabled!\n", m_pParent->GetName().c_str());
+		}
+
+		return &m_OrientedBoundingBox;
 	}
 
-	const BoundingBoxData* BoundingBoxComponent::GetBoundingBoxData() const
+	Transform* BoundingBoxComponent::GetTransformAt(unsigned int index) const
 	{
-		return m_pBbd;
+		return m_Transforms[index];
 	}
 
-	const std::string BoundingBoxComponent::GetPathOfModel() const
+	const Mesh* BoundingBoxComponent::GetMeshAt(unsigned int index) const
 	{
-		return m_pPathOfModel;
+		return m_Meshes[index];
 	}
 
-
-	bool BoundingBoxComponent::CanBePicked() const
+	const SlotInfo* BoundingBoxComponent::GetSlotInfo(unsigned int index) const
 	{
-		return m_CanBePicked;
+		return m_SlotInfos[index];
 	}
 
-	// Writes from BoundingBoxComponent to MeshComponent, which uses this in m_pRenderer
+	const BoundingBoxData* BoundingBoxComponent::GetBoundingBoxDataAt(unsigned int index) const
+	{
+		return m_Bbds[index];
+	}
+
+	const unsigned int BoundingBoxComponent::GetNumBoundingBoxes() const
+	{
+		return m_Bbds.size();
+	}
+
+	const std::wstring BoundingBoxComponent::GetPathOfModel(unsigned int index) const
+	{
+		return m_Identifier[index];
+	}
+
+	unsigned int BoundingBoxComponent::GetFlagOBB() const
+	{
+		return m_FlagOBB;
+	}
+
+	const DirectX::BoundingOrientedBox* BoundingBoxComponent::GetOriginalOBB() const
+	{
+		return &m_OriginalBoundingBox;
+	}
+
 	bool& BoundingBoxComponent::IsPickedThisFrame()
 	{
-		return m_pParent->GetComponent<MeshComponent>()->m_IsPickedThisFrame;
+		return m_pParent->GetComponent<ModelComponent>()->m_IsPickedThisFrame;
 	}
 
-	bool BoundingBoxComponent::createBoundingBox()
+	bool BoundingBoxComponent::createOrientedBoundingBox()
 	{
-		if (m_pParent->HasComponent<MeshComponent>() == true && m_pParent->HasComponent<TransformComponent>() == true)
+		if (m_pParent->HasComponent<ModelComponent>() == true && m_pParent->HasComponent<TransformComponent>() == true)
 		{
 			// Use the same m_pTransform as the model
-			m_pTransform = m_pParent->GetComponent<TransformComponent>()->GetTransform();
-			MeshComponent* mc = m_pParent->GetComponent<MeshComponent>();
-			m_pPathOfModel = mc->GetMesh(0)->GetPath();
-			
+			m_Transforms.push_back(m_pParent->GetComponent<TransformComponent>()->GetTransform());
+			ModelComponent* mc = m_pParent->GetComponent<ModelComponent>();
+			m_Identifier.push_back(mc->GetMeshAt(0)->GetPath());
+
 			BoundingBoxPool* bbp = BoundingBoxPool::Get();
-			if (bbp->BoundingBoxDataExists(m_pPathOfModel) == true)
-			{
-				m_pBbd = bbp->GetBoundingBoxData(m_pPathOfModel);
-				return true;
-			}
 
 			// Create new bounding box
 			float3 minVertex = { MAXNUMBER, MAXNUMBER, MAXNUMBER };
@@ -97,7 +161,7 @@ namespace component
 
 			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 			{
-				std::vector<Vertex> modelVertices = *mc->GetMesh(i)->GetVertices();
+				std::vector<Vertex> modelVertices = *mc->GetMeshAt(i)->GetVertices();
 
 				for (unsigned int j = 0; j < modelVertices.size(); j++)
 				{
@@ -111,20 +175,43 @@ namespace component
 				}
 			}
 
-			// Create bounding box
+			// Extents are from middle of box to the edge of the box in all axisis
+			float3 absHalfLenghtOfRect = { (abs(minVertex.x) + abs(maxVertex.x)) / 2 ,
+											(abs(minVertex.y) + abs(maxVertex.y)) / 2 ,
+											(abs(minVertex.z) + abs(maxVertex.z)) / 2 };
+			m_OrientedBoundingBox.Extents.x = absHalfLenghtOfRect.x;
+			m_OrientedBoundingBox.Extents.y = absHalfLenghtOfRect.y;
+			m_OrientedBoundingBox.Extents.z = absHalfLenghtOfRect.z;
+
+			// Set the position of the OBB
+			m_OrientedBoundingBox.Center.x = maxVertex.x - absHalfLenghtOfRect.x;
+			m_OrientedBoundingBox.Center.y = maxVertex.y - absHalfLenghtOfRect.y;
+			m_OrientedBoundingBox.Center.z = maxVertex.z - absHalfLenghtOfRect.z;
+	
+
+			// save this original state of the boundingBox so that we can apply the correct math in update()
+			m_OriginalBoundingBox = m_OrientedBoundingBox;
+
+			// Saving down OBB corners
+			DirectX::XMFLOAT3 corners[8];
+			m_OrientedBoundingBox.GetCorners(corners);
+
+			// Create the drawn bounding box
 			Vertex v[8] = {};
 
+			// The vertices are the corners of the OBB so send them
 			// Front vertices
-			v[0].pos = { minVertex.x, minVertex.y, minVertex.z };
-			v[1].pos = { minVertex.x, maxVertex.y, minVertex.z };
-			v[2].pos = { maxVertex.x, maxVertex.y, minVertex.z };
-			v[3].pos = { maxVertex.x, minVertex.y, minVertex.z };
+			v[0].pos = corners[0];
+			v[1].pos = corners[1];
+			v[2].pos = corners[2];
+			v[3].pos = corners[3];
 
 			// Back vertices
-			v[4].pos = { minVertex.x, minVertex.y, maxVertex.z };
-			v[5].pos = { minVertex.x, maxVertex.y, maxVertex.z };
-			v[6].pos = { maxVertex.x, maxVertex.y, maxVertex.z };
-			v[7].pos = { maxVertex.x, minVertex.y, maxVertex.z };
+			v[4].pos = corners[4];
+			v[5].pos = corners[5];
+			v[6].pos = corners[6];
+			v[7].pos = corners[7];
+
 
 			for (unsigned int i = 0; i < 8; i++)
 			{
@@ -136,23 +223,23 @@ namespace component
 			// Front Face
 			indices[0] = 0; indices[1] = 1; indices[2] = 3;
 			indices[3] = 1; indices[4] = 2; indices[5] = 3;
-			
+
 			// Back Face
 			indices[6] = 6; indices[7] = 5; indices[8] = 4;
 			indices[9] = 7; indices[10] = 6; indices[11] = 4;
-			
+
 			// Top Face
 			indices[12] = 5; indices[13] = 6; indices[14] = 1;
 			indices[15] = 1; indices[16] = 6; indices[17] = 2;
-			
+
 			// Bottom Face
 			indices[18] = 3; indices[19] = 4; indices[20] = 0;
 			indices[21] = 3; indices[22] = 7; indices[23] = 4;
-			
+
 			// Right Face
 			indices[24] = 4; indices[25] = 5; indices[26] = 0;
 			indices[27] = 5; indices[28] = 1; indices[29] = 0;
-			
+
 			// Left Face
 			indices[30] = 3; indices[31] = 2; indices[32] = 7;
 			indices[33] = 2; indices[34] = 6; indices[35] = 7;
@@ -162,8 +249,9 @@ namespace component
 				boundingBoxIndicesLocal.push_back(indices[i]);
 			}
 
-			m_pBbd = bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, m_pPathOfModel);
-			
+			m_Bbds.push_back(bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, m_Identifier.back()));
+
+
 			return true;
 		}
 		else

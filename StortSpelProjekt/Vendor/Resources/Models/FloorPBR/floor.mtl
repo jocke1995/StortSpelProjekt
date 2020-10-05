@@ -1,0 +1,10 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl floorMat
+
+map_Ka wood_metallic.dds
+map_Kd wood_albedo.dds
+map_Ks wood_roughness.dds
+map_Kn wood_normal.dds
+# map_Ke floor0_emissive.dds

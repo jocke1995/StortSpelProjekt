@@ -2,45 +2,30 @@
 #define MATERIAL_H
 
 #include "Core.h"
-// For slotInfo and MaterialAttributes
-#include "structs.h"
 
-#include <map>
-
-// Forward Declarations
 class Texture;
-class ConstantBufferView;
+class Resource;
+class ShaderResourceView;
+class DescriptorHeap;
+
+// DX12 Forward Declarations
+struct ID3D12Device5;
+struct D3D12_INDEX_BUFFER_VIEW;
 
 class Material
 {
 public:
-	Material(SlotInfo* slotInfo);
-	Material(const Material* other, SlotInfo* slotInfo);
-	virtual ~Material();
+    Material(const std::wstring* path, std::map<TEXTURE2D_TYPE, Texture*>* textures);
+    virtual ~Material();
 
-	// Sets
-	void SetTexture(TEXTURE_TYPE textureType, Texture* texture);
-	void SetShininess(float shininess);
-	void SetColorAdd(COLOR_TYPE type, float4 color);
-	void SetColorMul(COLOR_TYPE type, float4 color);
-	void SetUVScale(float u, float v);
+    const std::wstring* GetPath() const;
+    Texture* GetTexture(TEXTURE2D_TYPE type) const;
 
-	// For usage in m_pRenderer
-	void SetCBV(ConstantBufferView* cbv);
-
-	// Gets
-	Texture* GetTexture(TEXTURE_TYPE textureType);
-	MaterialAttributes* GetMaterialAttributes() const;
-	const ConstantBufferView* const GetConstantBufferView() const;
+    void SetTexture(TEXTURE2D_TYPE type, Texture* texture);
 
 private:
-	std::map<TEXTURE_TYPE, Texture*> m_Textures;
-	SlotInfo* m_pSlotInfo = nullptr;
-
-	// a constantBuffer containing the materialAttributesData
-	ConstantBufferView* m_pCbv = nullptr;
-	MaterialAttributes* m_pMaterialAttributes = nullptr;
-
+    std::wstring m_Name;
+    std::map<TEXTURE2D_TYPE, Texture*> m_Textures;
 };
 
 #endif

@@ -5,20 +5,25 @@
 #include "../RootSignature.h"
 #include "../CommandInterface.h"
 #include "../DescriptorHeap.h"
-#include "../Resource.h"
+#include "../GPUMemory/Resource.h"
 #include "../GraphicsState.h"
 #include "../SwapChain.h"
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/BaseCamera.h"
+#include "../GPUMemory/RenderTargetView.h"
+#include "../GPUMemory/DepthStencil.h"
+#include "../GPUMemory/DepthStencilView.h"
+
 
 OutliningRenderTask::OutliningRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
-	LPCWSTR VSName, LPCWSTR PSName,
+	const std::wstring& VSName, const std::wstring& PSName,
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
-	LPCTSTR psoName)
-	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName)
+	const std::wstring& psoName,
+	unsigned int FLAG_THREAD)
+	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
 	// Init with nullptr
 	Clear();
@@ -32,7 +37,8 @@ void OutliningRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
-	ID3D12Resource1* swapChainResource = m_RenderTargets["swapChain"]->GetResource(m_BackBufferIndex)->GetID3D12Resource1();
+	const RenderTargetView* swapChainRenderTarget = m_pSwapChain->GetRTV(m_BackBufferIndex);
+	ID3D12Resource1* swapChainResource = swapChainRenderTarget->GetResource()->GetID3D12Resource1();
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
@@ -44,7 +50,7 @@ void OutliningRenderTask::Execute()
 	DescriptorHeap* depthBufferHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 
 	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
-	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(0);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(m_pDepthStencil->GetDSV()->GetDescriptorHeapIndex());
 
 	// Check if there is an object to outline
 	if (m_ObjectToOutline.first == nullptr)
@@ -66,9 +72,8 @@ void OutliningRenderTask::Execute()
 
 	commandList->OMSetRenderTargets(1, &cdh, true, &dsh);
 
-	SwapChain* sc = static_cast<SwapChain*>(m_RenderTargets["swapChain"]);
-	const D3D12_VIEWPORT* viewPort = sc->GetRenderView()->GetViewPort();
-	const D3D12_RECT* rect = sc->GetRenderView()->GetScissorRect();
+	const D3D12_VIEWPORT* viewPort = swapChainRenderTarget->GetRenderView()->GetViewPort();
+	const D3D12_RECT* rect = swapChainRenderTarget->GetRenderView()->GetScissorRect();
 	commandList->RSSetViewports(1, viewPort);
 	commandList->RSSetScissorRects(1, rect);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -80,14 +85,16 @@ void OutliningRenderTask::Execute()
 	// Draw for every m_pMesh
 	for (int i = 0; i < m_ObjectToOutline.first->GetNrOfMeshes(); i++)
 	{
-		Mesh* m = m_ObjectToOutline.first->GetMesh(i);
+		Mesh* m = m_ObjectToOutline.first->GetMeshAt(i);
 		Transform* t = m_ObjectToOutline.second->GetTransform();
 		Transform newScaledTransform = *t;
 		newScaledTransform.IncreaseScaleByPercent(0.02f);
 		newScaledTransform.UpdateWorldMatrix();
 
+		component::ModelComponent* mc = m_ObjectToOutline.first;
+
 		size_t num_Indices = m->GetNumIndices();
-		const SlotInfo* info = m->GetSlotInfo();
+		const SlotInfo* info = mc->GetSlotInfoAt(i);
 
 		DirectX::XMMATRIX* WTransposed = newScaledTransform.GetWorldMatrixTransposed();
 		DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
@@ -112,7 +119,7 @@ void OutliningRenderTask::Execute()
 	commandList->Close();
 }
 
-void OutliningRenderTask::SetObjectToOutline(std::pair<component::MeshComponent*, component::TransformComponent*>* objectToOutline)
+void OutliningRenderTask::SetObjectToOutline(std::pair<component::ModelComponent*, component::TransformComponent*>* objectToOutline)
 {
 	m_ObjectToOutline = *objectToOutline;
 }

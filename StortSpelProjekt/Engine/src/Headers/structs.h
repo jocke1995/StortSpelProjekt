@@ -5,18 +5,28 @@
 #define MAX_POINT_LIGHTS 10
 #define MAX_SPOT_LIGHTS  10
 
+// This struct can be used to send specific indices as a root constant to the GPU.
+// Example usage is when the indices for pp-effects are sent to gpu.
+struct DescriptorHeapIndices
+{
+	unsigned int index0;
+	unsigned int index1;
+	unsigned int index2;
+	unsigned int index3;
+};
+
 // Indicies of where the descriptors are stored in the descriptorHeap
 struct SlotInfo
 {
 	unsigned int vertexDataIndex;
 	// TextureIndices
-	unsigned int textureAmbient;
-	unsigned int textureDiffuse;
-	unsigned int textureSpecular;
+	unsigned int textureAlbedo;
+	unsigned int textureRoughness;
+	unsigned int textureMetallic;
 	unsigned int textureNormal;
 	unsigned int textureEmissive;
 
-	unsigned int pad1[1];
+	unsigned int pad[2];
 };
 
 struct MaterialAttributes
@@ -69,12 +79,11 @@ struct CB_PER_SCENE_STRUCT
 
 struct BaseLight
 {
-	float4 ambient;
-	float4 diffuse;
-	float4 specular;
+	float3 color;
+	float pad1;
 
 	float castShadow;
-	float3 pad1;
+	float3 pad2;
 };
 
 struct DirectionalLight

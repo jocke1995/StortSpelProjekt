@@ -19,7 +19,7 @@ public:
 	void UpdateRay();
 
 	// returns true if the BoundingBox intersected with ray
-	bool Pick(component::BoundingBoxComponent* bbc, float& distance);
+	bool Pick(component::BoundingBoxComponent* bbc, float& distance, unsigned int bbdIndex);
 
 private:
 	BaseCamera* m_pPrimaryCamera = nullptr;

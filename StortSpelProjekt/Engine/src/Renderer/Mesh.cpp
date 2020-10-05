@@ -1,101 +1,47 @@
 #include "stdafx.h"
 #include "Mesh.h"
 
-#include "Resource.h"
-#include "ShaderResourceView.h"
-#include "Material.h"
+#include "GPUMemory/Resource.h"
+#include "GPUMemory/ShaderResourceView.h"
 #include "DescriptorHeap.h"
+#include "Animation.h"
+#include "Texture/Texture.h"
 
-Mesh::Mesh(	ID3D12Device5* device,
-			std::vector<Vertex> vertices,
-			std::vector<unsigned int> indices,
-			DescriptorHeap* descriptorHeap_SRV,
-			const std::string path)
+Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, DescriptorHeap* descriptorHeap_SRV, const std::wstring& path)
 {
-	m_Vertices = vertices;
-	m_Indices = indices;
-
 	m_Path = path;
 
-	// Set vertices
-	m_pUploadResourceVertices = new Resource(device, GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
+	m_Vertices = *vertices;
+	m_Indices = *indices;
 
-	m_pDefaultResourceVertices = new Resource(device, GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
-
-	// Set indices
-	m_pUploadResourceIndices = new Resource(device, GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
-	m_pDefaultResourceIndices = new Resource(device, GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
-	createIndexBufferView();
-
-	// Create SRV
-	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
-	dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	dsrv.Buffer.FirstElement = 0;
-	dsrv.Format = DXGI_FORMAT_UNKNOWN;
-	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	dsrv.Buffer.NumElements = GetNumVertices();
-	dsrv.Buffer.StructureByteStride = sizeof(Vertex);
-
-	m_pSRV = new ShaderResourceView(
-		device,
-		descriptorHeap_SRV,
-		&dsrv,
-		m_pDefaultResourceVertices);
-
-	m_pSlotInfo = new SlotInfo();
-	m_pSlotInfo->vertexDataIndex = m_pSRV->GetDescriptorHeapIndex();
-	m_pMaterial = new Material(m_pSlotInfo);
+	initMesh(device, descriptorHeap_SRV);
 }
 
-Mesh::Mesh(const Mesh* other)
+Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, std::vector<Bone>* bones, DescriptorHeap* descriptorHeap_SRV, const std::wstring& path)
 {
-	m_IsCopied = true;
+	m_Path = path;
 
-	// TODO: use the same vertices instead of copy
-	m_Vertices = other->m_Vertices;
-	m_Indices = other->m_Indices;
-	m_Path = other->m_Path;
+	m_Vertices = *vertices;
+	m_Indices = *indices;
+	m_Bones = *bones;
 
-	m_pSlotInfo = new SlotInfo();
-	m_pSlotInfo->vertexDataIndex = other->m_pSlotInfo->vertexDataIndex;
-
-	// Set material properties
-	Material* mat = other->GetMaterial();
-	m_pMaterial = new Material(mat, m_pSlotInfo);
-	for (unsigned int i = 0; i < TEXTURE_TYPE::NUM_TEXTURE_TYPES; i++)
-	{
-		TEXTURE_TYPE type = static_cast<TEXTURE_TYPE>(i);
-		m_pMaterial->SetTexture(type, mat->GetTexture(type));
-	}
-
-	m_pUploadResourceVertices = other->m_pUploadResourceVertices;
-	m_pDefaultResourceVertices = other->m_pDefaultResourceVertices;
-
-	m_pUploadResourceIndices = other->m_pUploadResourceIndices;
-	m_pDefaultResourceIndices = other->m_pDefaultResourceIndices;
-
-	m_pIndexBufferView = other->m_pIndexBufferView;
-
-	m_pSRV = other->m_pSRV;
+	initMesh(device, descriptorHeap_SRV);
 }
 
 Mesh::~Mesh()
 {
-	delete m_pSlotInfo;
-	delete m_pMaterial;
+	delete m_pUploadResourceVertices;
 
-	if (m_IsCopied == false)
-	{
-		delete m_pUploadResourceVertices;
-		delete m_pDefaultResourceVertices;
+	delete m_pDefaultResourceVertices;
 
-		delete m_pUploadResourceIndices;
-		delete m_pDefaultResourceIndices;
+	// Set indices
+	delete m_pUploadResourceIndices;
+	delete m_pDefaultResourceIndices;
 
-		delete m_pSRV;
-		delete m_pIndexBufferView;
-	}
+	delete m_pSRV;
+	delete m_pIndexBufferView;
 }
+
 
 Resource* Mesh::GetDefaultResourceVertices() const
 {
@@ -142,19 +88,36 @@ const D3D12_INDEX_BUFFER_VIEW* Mesh::GetIndexBufferView() const
 	return m_pIndexBufferView;
 }
 
-const SlotInfo* Mesh::GetSlotInfo() const
-{
-	return m_pSlotInfo;
-}
-
-std::string Mesh::GetPath()
+const std::wstring& Mesh::GetPath() const
 {
 	return m_Path;
 }
 
-Material* Mesh::GetMaterial() const
+void Mesh::initMesh(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV)
 {
-	return m_pMaterial;
+	// Set vertices
+	m_pUploadResourceVertices = new Resource(device, GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
+	m_pDefaultResourceVertices = new Resource(device, GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
+
+	// Set indices
+	m_pUploadResourceIndices = new Resource(device, GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
+	m_pDefaultResourceIndices = new Resource(device, GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
+	createIndexBufferView();
+
+	// Create SRV
+	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
+	dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	dsrv.Buffer.FirstElement = 0;
+	dsrv.Format = DXGI_FORMAT_UNKNOWN;
+	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	dsrv.Buffer.NumElements = GetNumVertices();
+	dsrv.Buffer.StructureByteStride = sizeof(Vertex);
+
+	m_pSRV = new ShaderResourceView(
+		device,
+		descriptorHeap_SRV,
+		&dsrv,
+		m_pDefaultResourceVertices);
 }
 
 void Mesh::createIndexBufferView()
