@@ -29,8 +29,6 @@ project "Engine"
         "dxgi",
         "d3dcompiler",
         "assimp-vc140-mt",
-	    "sfml-system-d",
-        "sfml-network-d",
     }
 
     postbuildcommands
@@ -45,7 +43,9 @@ project "Engine"
                 "BulletSoftBody_vs2010_X64_debug",
                 "BulletDynamics_vs2010_X64_debug",
                 "BulletCollision_vs2010_X64_debug",
-                "LinearMath_vs2010_X64_debug"
+                "LinearMath_vs2010_X64_debug",
+                "sfml-system-d",
+                "sfml-network-d"
             }
             defines { "_DEBUG", "BT_USE_DOUBLE_PRECISION"  }
             symbols "On"
@@ -55,7 +55,9 @@ project "Engine"
                 "BulletSoftBody_vs2010_X64_release",
                 "BulletDynamics_vs2010_X64_release",
                 "BulletCollision_vs2010_X64_release",
-                "LinearMath_vs2010_X64_release"
+                "LinearMath_vs2010_X64_release",
+                "sfml-system",
+                "sfml-network"
             }
             defines { "NDEBUG", "BT_USE_DOUBLE_PRECISION" }
             optimize "On"
