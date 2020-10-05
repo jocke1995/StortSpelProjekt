@@ -495,12 +495,12 @@ Scene* LeosBounceScene(SceneManager* sm)
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 350.0, 0.0, 350.0);
 
 
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(35.0f, 1.0f, 35.0f);
+    tc->GetTransform()->SetScale(350.0f, 1.0f, 350.0f);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
     /* ---------------------- PointLight1 ---------------------- */
