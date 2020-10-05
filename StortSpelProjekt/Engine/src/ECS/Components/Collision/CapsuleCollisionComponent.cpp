@@ -14,5 +14,5 @@ component::CapsuleCollisionComponent::~CapsuleCollisionComponent()
 
 double component::CapsuleCollisionComponent::GetDistanceToBottom() const
 {
-	return dynamic_cast<btCapsuleShape*>(m_pShape)->getHalfHeight();
+	return dynamic_cast<btCapsuleShape*>(m_pShape)->getHalfHeight() + dynamic_cast<btCapsuleShape*>(m_pShape)->getRadius();
 }

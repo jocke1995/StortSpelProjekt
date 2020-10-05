@@ -308,7 +308,7 @@ Scene* LeosTestScene(SceneManager* sm)
     lc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     hc = entity->AddComponent<component::HealthComponent>(10);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f);
+    bcc = entity->AddComponent<component::CapsuleCollisionComponent>(1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
