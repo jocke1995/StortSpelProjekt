@@ -353,6 +353,13 @@ void ImGuiHandler::ExecCommand(const char* command_line)
     {
         m_BoolMap["reset"] = true;
     }
+    else if (Stricmp(command.c_str(), "CONNECT") == 0)
+    {
+        if (arguments.size() > 0)
+        {
+            EventBus::GetInstance().Publish(&ConnectToServer(arguments.at(0).c_str()));
+        }
+    }
     else
     {
         AddLog("Unknown command: '%s'\n", command.c_str());
@@ -509,6 +516,7 @@ ImGuiHandler::ImGuiHandler()
     m_Commands.push_back("HISTORY");
     m_Commands.push_back("CLEAR");
     m_Commands.push_back("RESET");
+    m_Commands.push_back("CONNECT");
     m_ScrollToBottom = false;
 
     if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)

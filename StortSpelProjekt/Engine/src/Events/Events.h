@@ -62,6 +62,12 @@ struct PlayerConnection : public Event
 	int playerId;
 };
 
+struct ConnectToServer : public Event
+{
+	ConnectToServer(std::string ip) : ip{ ip } {};
+	std::string ip;
+};
+
 struct Death : public Event
 {
 	Death(Entity* ent) : ent{ ent } {};

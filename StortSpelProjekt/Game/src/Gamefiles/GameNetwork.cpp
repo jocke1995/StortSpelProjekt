@@ -3,6 +3,7 @@
 GameNetwork::GameNetwork()
 {
     EventBus::GetInstance().Subscribe(this, &GameNetwork::addNewPlayerEntity);
+    EventBus::GetInstance().Subscribe(this, &GameNetwork::connectToServer);
 }
 
 void GameNetwork::SetScene(Scene* scene)
@@ -18,6 +19,12 @@ void GameNetwork::SetNetwork(Network* network)
 void GameNetwork::SetSceneManager(SceneManager* sceneManager)
 {
     m_pSceneManager = sceneManager;
+}
+
+void GameNetwork::connectToServer(ConnectToServer* evnt)
+{
+    m_pNetwork->ConnectToIP(evnt->ip, std::atoi(Option::GetInstance().GetVariable("i_port").c_str()));
+    m_pNetwork->SetPlayerEntityPointer(m_pScene->GetEntity("player"), 0);
 }
 
 void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)

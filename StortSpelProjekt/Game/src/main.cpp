@@ -55,9 +55,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         gameNetwork.SetScene(sceneManager->GetScene("DemoScene"));
         gameNetwork.SetSceneManager(sceneManager);
 
-        network.SetPlayerEntityPointer(sceneManager->GetScene("DemoScene")->GetEntity("player"), 0);
-        network.ConnectToIP(option->GetVariable("s_ip"), std::atoi(option->GetVariable("i_port").c_str()));
-
         networkOn = true;
     }
     int networkCount = 0;
@@ -83,7 +80,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         }
 
         /* ---- Network ---- */
-        if (networkOn)
+        if (network.IsConnected())
         {
             if (networkCount == 2) {
                 networkCount = 0;

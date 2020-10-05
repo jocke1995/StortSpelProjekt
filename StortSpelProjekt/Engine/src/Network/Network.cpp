@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Network.h"
 
+#include "../ImGUI/ImGuiHandler.h"
+
 Network::Network()
 {
     m_Connected = false;
@@ -23,10 +25,12 @@ bool Network::ConnectToIP(std::string ip, int port)
 
     if (status != 0) 
     {
+        ImGuiHandler::GetInstance().AddLog("Connection to %s failed", ip);
         Log::PrintSeverity(Log::Severity::WARNING, "Connection to " + ip + " failed\n");
         return false;
     }
     else {
+        ImGuiHandler::GetInstance().AddLog("Connected to %s succesfully", ip);
         Log::Print("Connected to " + ip + "\n");
         m_Connected = true;
 
@@ -42,6 +46,11 @@ bool Network::ConnectToIP(std::string ip, int port)
 
         return true;
     }
+}
+
+bool Network::IsConnected()
+{
+    return m_Connected;
 }
 
 sf::TcpSocket* Network::GetSocket()
