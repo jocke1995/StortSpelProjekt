@@ -1,7 +1,7 @@
 #ifndef CURRENCY_COMPONENT_H
 #define CURRENCY_COMPONENT_H
 
-#include "../Engine/src/ECS/Components/Component.h"
+#include "../ECS/Components/Component.h"
 
 namespace component
 {
