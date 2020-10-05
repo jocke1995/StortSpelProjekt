@@ -163,8 +163,8 @@ void SwapChain::ToggleWindowMode(ID3D12Device5* device,
 
 	clearSwapBuffers();
 
-	unsigned int width = std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str());
-	unsigned int height = std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str());
+	unsigned int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	unsigned int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
 
 	if (m_Fullscreen)
 	{
