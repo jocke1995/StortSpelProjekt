@@ -514,7 +514,7 @@ ImGuiHandler::ImGuiHandler()
     if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
     {
         m_Commands.push_back("BOUNDINGBOX");
-        m_BoolMap["boundingBoxToggle"] = DEVELOPERMODE_DRAWBOUNDINGBOX;
+        m_BoolMap["boundingBoxToggle"] = false;
     }
 
     AddLog("Console initiated!");

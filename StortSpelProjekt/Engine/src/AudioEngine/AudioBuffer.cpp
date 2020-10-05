@@ -199,5 +199,12 @@ void AudioBuffer::SetAudioLoop(int loopCount)
 
 AudioVoice AudioBuffer::CloneVoice()
 {
-    return AudioVoice(*this);
+    if (m_pSourceVoice != nullptr)
+    {
+        return AudioVoice(*this);
+    }
+    else
+    {
+        return AudioVoice();
+    }
 }
