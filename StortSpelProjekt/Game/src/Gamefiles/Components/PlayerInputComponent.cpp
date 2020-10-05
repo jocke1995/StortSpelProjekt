@@ -1,4 +1,5 @@
 #include "PlayerInputComponent.h"
+#include "Components/MeleeComponent.h"
 #include "../Events/EventBus.h"
 #include "../ECS/Entity.h"
 #include "../Renderer/PerspectiveCamera.h"
@@ -42,8 +43,10 @@ void component::PlayerInputComponent::Init()
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::zoom);
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::rotate);
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::move);
-		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::mouseClick);
-		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::grunt);
+		if (m_pParent->GetComponent<component::MeleeComponent>() != nullptr)
+		{
+			EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::mouseClick);
+		}
 	}
 
 	if (!m_pCC)
@@ -211,18 +214,10 @@ void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 {
 	switch (evnt->button) {
 	case MOUSE_BUTTON::LEFT_DOWN:
-		Log::Print("Left Mouse button down \n");
+		m_pParent->GetComponent<component::MeleeComponent>()->Attack(true);
 		break;
 	case MOUSE_BUTTON::RIGHT_DOWN:
 		Log::Print("Right Mouse button down \n");
 		break;
-	}
-}
-
-void component::PlayerInputComponent::grunt(Collision* evnt)
-{
-	if (evnt->ent1 == GetParent() || evnt->ent2 == GetParent())
-	{
-		//GetParent()->GetComponent<component::Audio2DVoiceComponent>()->Play(L"Bruh");
 	}
 }

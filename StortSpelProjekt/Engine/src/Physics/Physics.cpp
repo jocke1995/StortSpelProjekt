@@ -51,6 +51,22 @@ bool Physics::CheckOBBCollision(const DirectX::BoundingOrientedBox* obb1, const 
 	return obb1->Intersects(*obb2);
 }
 
+std::vector<Entity*> Physics::SpecificCollisionCheck(const DirectX::BoundingOrientedBox* obb1)
+{
+	std::vector<Entity*> entityHitList;
+	for (unsigned int i = 0; i < m_CollisionEntities.size(); i++)
+	{
+		if (obb1 != m_CollisionEntities.at(i)->GetComponent<component::BoundingBoxComponent>()->GetOBB())
+		{
+			if (CheckOBBCollision(obb1, m_CollisionEntities.at(i)->GetComponent<component::BoundingBoxComponent>()->GetOBB()))
+			{
+				entityHitList.push_back(m_CollisionEntities.at(i));
+			}
+		}
+	}
+	return entityHitList;
+}
+
 void Physics::AddCollisionEntity(Entity *ent)
 {
 	if (ent->GetComponent<component::BoundingBoxComponent>()->GetFlagOBB() & F_OBBFlags::COLLISION)

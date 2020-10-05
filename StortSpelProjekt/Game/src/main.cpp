@@ -2,6 +2,7 @@
 #include "Components/PlayerInputComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/RangeComponent.h"
+#include "Components/MeleeComponent.h"
 #include "EnemyFactory.h"
 
 Scene* GetDemoScene(SceneManager* sm);
@@ -90,6 +91,7 @@ Scene* GetDemoScene(SceneManager* sm)
     component::Audio2DVoiceComponent* avc = nullptr;
     component::CollisionComponent* bcc = nullptr;
     component::RangeComponent* rc = nullptr;
+    component::MeleeComponent* mec = nullptr;
 
 
     /* ---------------------- Player ---------------------- */
@@ -99,6 +101,7 @@ Scene* GetDemoScene(SceneManager* sm)
     bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    mec = entity->AddComponent<component::MeleeComponent>();
     ic->Init();
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
