@@ -15,6 +15,7 @@ Network::~Network()
 {
     for (int i = 0; i < m_Players.size(); i++)
     {
+        m_Players.at(i)->entityPointer = nullptr;
         delete m_Players.at(i);
     }
 }
@@ -67,9 +68,11 @@ void Network::Disconnect()
         //Default the first position
         m_Players.at(0)->entityPointer = nullptr; 
         m_Players.at(0)->clientId = 0;
-        for (int i = 1; i < m_Players.size(); i++)
+        int size = m_Players.size();
+        for (int i = 1; i < size; i++)
         {
             delete m_Players.at(i);
+            m_Players.erase(m_Players.begin() + i);
         }
         m_Socket.disconnect();
         m_Socket.setBlocking(true);

@@ -40,6 +40,22 @@ void ClientPool::ListenMessages()
 	}
 }
 
+void ClientPool::Update(double dt)
+{
+	for (int i = 0; i < m_Clients.size(); i++)
+	{
+		if (m_Clients.at(i)->connected)
+		{
+			m_Clients.at(i)->lastPacket += dt;
+			if (m_Clients.at(i)->lastPacket >= CLIENT_TIMEOUT)
+			{
+				m_ConsoleString += "Client " + std::to_string(m_Clients.at(i)->clientId) + " has timed out\n";
+				disconnect(m_Clients.at(i)->clientId);
+			}
+		}
+	}
+}
+
 void ClientPool::AddClient()
 {
 	m_Clients.push_back(new Client);
@@ -193,6 +209,8 @@ void ClientPool::newPacket(int socket)
 	sf::Packet packet;
 	if (m_Clients.at(socket)->socket.receive(packet) == sf::Socket::Done)
 	{
+		m_Clients.at(socket)->lastPacket = 0; //We recieved a packet so zero the timeout timer
+
 		int packetId;
 		packet >> packetId;
 		m_ConsoleString.append("Recieved a packet ID of " + std::to_string(packetId) + " from client " + std::to_string(socket) + "; " + std::to_string(packet.getDataSize()) + " BYTES\n");

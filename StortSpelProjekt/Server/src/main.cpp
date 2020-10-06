@@ -2,6 +2,7 @@
 #include "ThreadPool.h"
 #include "ClientPool.h"
 
+#include <chrono>
 #include <iostream>
 
 int main()
@@ -24,6 +25,12 @@ int main()
 	std::cout << "Write 1 for server or 0 for client" << std::endl;
 	std::cin >> str;
 
+	auto start = std::chrono::system_clock::now();
+	std::chrono::time_point<std::chrono::system_clock> timeNow;
+	std::chrono::time_point<std::chrono::system_clock> timeLast;
+
+	double dt = 0;
+
 	if (str == "1")
 	{
 		ClientPool server(55555);
@@ -32,6 +39,10 @@ int main()
 
 		while (true)
 			{
+				timeLast = timeNow;
+				timeNow = std::chrono::system_clock::now();
+				std::chrono::duration<double> elapsed_time = timeNow - timeLast;
+				dt = elapsed_time.count();
 				str = "";
 				console.GetInput(&str);
 
@@ -46,6 +57,7 @@ int main()
 				}
 
 				server.ListenMessages();
+				server.Update(dt);
 
 				if (strcmp(str.c_str(), "quit") == 0)
 				{
