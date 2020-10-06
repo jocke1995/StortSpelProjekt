@@ -1349,9 +1349,9 @@ void Renderer::initRenderTasks()
 	// Rasterizer behaviour
 	gpsdShadow.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 	gpsdShadow.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
-	gpsdShadow.RasterizerState.DepthBias = 0;
+	gpsdShadow.RasterizerState.DepthBias = 1000;
 	gpsdShadow.RasterizerState.DepthBiasClamp = 0.0f;
-	gpsdShadow.RasterizerState.SlopeScaledDepthBias = 0.0f;
+	gpsdShadow.RasterizerState.SlopeScaledDepthBias = 3.0f;
 	gpsdShadow.RasterizerState.FrontCounterClockwise = false;
 
 	// Depth descriptor
@@ -1901,7 +1901,7 @@ void Renderer::prepareCBPerScene()
 		index++;
 	}
 	// ----- spot m_lights -----
-
+	
 	// Upload CB_PER_SCENE to defaultheap
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	const void* data = static_cast<const void*>(m_pCbPerSceneData);

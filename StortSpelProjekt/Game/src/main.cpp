@@ -189,8 +189,8 @@ Scene* GetDemoScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
     entity = scene->AddEntity("dirLight");
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    dlc->SetColor({ 0.3f, 0.3f, 0.3f });
-    dlc->SetDirection({ -0.01f, -1.0f, 0.01f });
+    dlc->SetColor({ 1.0f, 1.0f, 1.0f });
+    dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Spotlights ---------------------- */
@@ -198,42 +198,42 @@ Scene* GetDemoScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
-
+    
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(-50.0f, 3.0f, 50.0f);
-
+    
     slc->SetColor({ 10.0f, 0.0f, 0.0f });
-    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetAttenuation({ 1.0f, 0.14, 0.07f});
     slc->SetDirection({ 1.0, -0.5, -1.0f });
-
+    
     entity = scene->AddEntity("SpotlightGreen");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
-
+    
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(50.0f, 3.0f, 50.0f);
-
+    
     slc->SetColor({ 0.0f, 10.0f, 0.0f });
-    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetAttenuation({ 1.0f, 0.14, 0.07f });
     slc->SetDirection({ -1.0, -0.5, -1.0f });
-
+    
     entity = scene->AddEntity("SpotlightBlue");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
-
+    
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(50.0f, 3.0f, -50.0f);
-
+    
     slc->SetColor({ 0.0f, 0.0f, 10.0f });
-    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetAttenuation({ 1.0f, 0.14, 0.07f });
     slc->SetDirection({ -1.0, -0.5, 1.0f });
 
     entity = scene->AddEntity("SpotlightYellow");
@@ -247,7 +247,7 @@ Scene* GetDemoScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(-50.0f, 3.0f, -50.0f);
 
     slc->SetColor({ 10.0f, 10.0f, 0.0f });
-    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetAttenuation({ 1.0f, 0.14, 0.07f });
     slc->SetDirection({ 1.0, -0.5, 1.0f });
     /* ---------------------- Spotlights ---------------------- */
 
@@ -290,16 +290,16 @@ Scene* GetDemoScene(SceneManager* sm)
     float xVal = 8;
     float zVal = 20;
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 75; i++)
-    {
-        zVal += 8;
-        entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
-        if ((i + 1) % 5 == 0)
-        {
-            xVal += 8;
-            zVal = 10;
-        }
-    }
+    //for (int i = 0; i < 75; i++)
+    //{
+    //    zVal += 8;
+    //    entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
+    //    if ((i + 1) % 5 == 0)
+    //    {
+    //        xVal += 8;
+    //        zVal = 10;
+    //    }
+    //}
     /* ---------------------- Enemy -------------------------------- */
 
 
@@ -328,7 +328,7 @@ void DemoUpdateScene(SceneManager* sm)
     ec->UpdateEmitter(L"Bruh");
 
     std::string name = "enemy";
-    for (int i = 1; i < 76; i++)
+    for (int i = 1; i < 1; i++)
     {
         name = "enemy" + std::to_string(i);
         ec = sm->GetScene("DemoScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();

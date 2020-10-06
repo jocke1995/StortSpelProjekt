@@ -9,6 +9,8 @@ SamplerState Anisotropic8_Wrap	: register (s2);
 SamplerState Anisotropic16_Wrap	: register (s3);
 SamplerState samplerTypeBorder	: register (s4);
 
+ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b4, space3);
+
 float CalculateShadow(
 	in float4 fragPosLightSpace,
 	in float shadowMapIndex,
@@ -27,10 +29,8 @@ float CalculateShadow(
 
 	// Check whether current fragPos is in shadow
 	float shadow = 0.0f;
-	float biasMin = 0.0002f;
-	float biasMax = 0.0004f;
 
-	float bias = max(biasMax * (1.0 - dot(normal, lightDir)), biasMin);
+	float bias = 0.0f;//max(cbPerScene.maxBias * (1.0 - dot(normal, lightDir)), cbPerScene.minBias);
 
 	// Anti aliasing
 	float2 texelSize = float2(0.0f, 0.0f);

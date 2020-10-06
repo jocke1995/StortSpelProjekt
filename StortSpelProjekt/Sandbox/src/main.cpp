@@ -818,9 +818,9 @@ Scene* JockesTestScene(SceneManager* sm)
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.3f);
-    tc->GetTransform()->SetPosition(30.0f, 0.2f, 10.0f);
+    tc->GetTransform()->SetPosition(30.0f, 4.0f, 10.0f);
 
-    slc->SetColor({ 0.0f, 0.0f, 4.0f });
+    slc->SetColor({ 0.0f, 0.0f, 8.0f });
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ -2.0, -1.0, 0.0f });
     /* ---------------------- Spotlight ---------------------- */
