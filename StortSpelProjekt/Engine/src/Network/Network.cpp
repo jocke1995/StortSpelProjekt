@@ -48,6 +48,34 @@ bool Network::ConnectToIP(std::string ip, int port)
     }
 }
 
+void Network::Disconnect()
+{
+    /* Expected packet configuration
+    int playerID;
+    */
+    
+    if (m_Connected) //We should only disconnect if we have connected
+    {
+        sf::Packet packet;
+
+        packet << E_PACKET_ID::PLAYER_DISCONNECT;
+        packet << m_Players.at(0)->clientId;
+
+        m_Socket.send(packet);
+
+        m_Connected = false;
+        //Default the first position
+        m_Players.at(0)->entityPointer = nullptr; 
+        m_Players.at(0)->clientId = 0;
+        for (int i = 1; i < m_Players.size(); i++)
+        {
+            delete m_Players.at(i);
+        }
+        m_Socket.disconnect();
+        m_Socket.setBlocking(true);
+    }
+}
+
 bool Network::IsConnected()
 {
     return m_Connected;
@@ -211,8 +239,9 @@ void Network::processPlayerDisconnect(sf::Packet* packet)
     }
     else
     {
-        delete m_Players.at(index)->entityPointer; //This entity removal is incomplete and should be remade when dynamic entity removal is implemented
+        m_Players.at(index)->entityPointer = nullptr; //This does not remove entity. Should be remade when dynamic entity removal is implemented
         delete m_Players.at(index);
+        m_Players.erase(m_Players.begin() + index);
 
         Log::Print("Player " + std::to_string(playerId) + " was disconnected");
     }

@@ -360,6 +360,10 @@ void ImGuiHandler::ExecCommand(const char* command_line)
             EventBus::GetInstance().Publish(&ConnectToServer(arguments.at(0).c_str()));
         }
     }
+    else if (Stricmp(command.c_str(), "DISCONNECT") == 0)
+    {
+        EventBus::GetInstance().Publish(&Disconnect());
+    }
     else
     {
         AddLog("Unknown command: '%s'\n", command.c_str());
@@ -517,6 +521,7 @@ ImGuiHandler::ImGuiHandler()
     m_Commands.push_back("CLEAR");
     m_Commands.push_back("RESET");
     m_Commands.push_back("CONNECT");
+    m_Commands.push_back("DISCONNECT");
     m_ScrollToBottom = false;
 
     if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)

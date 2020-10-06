@@ -22,12 +22,13 @@ public:
 	~Network();
 
 	bool ConnectToIP(std::string ip, int port);
-	bool IsConnected();
 
+
+	bool IsConnected();
 	sf::TcpSocket* GetSocket();
 
 	void SendPositionPacket();
-	
+	void Disconnect();
 	//Give network the entity pointer for player.
 	void SetPlayerEntityPointer(Entity* playerEnitity, int id);
 
