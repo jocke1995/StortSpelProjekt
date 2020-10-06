@@ -184,6 +184,7 @@ void Network::processServerData(sf::Packet* packet)
     }
 }
 
+// Function to send packages from socket
 void Network::sendPacket(sf::Packet packet)
 {
     m_Socket.send(packet);
