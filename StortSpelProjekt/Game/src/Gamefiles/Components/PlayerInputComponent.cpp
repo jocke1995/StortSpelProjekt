@@ -1,4 +1,5 @@
 #include "PlayerInputComponent.h"
+#include "Components/MeleeComponent.h"
 #include "../Events/EventBus.h"
 #include "../ECS/Entity.h"
 #include "../Renderer/PerspectiveCamera.h"
@@ -42,8 +43,10 @@ void component::PlayerInputComponent::Init()
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::zoom);
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::rotate);
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::move);
-		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::mouseClick);
-		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::grunt);
+		if (m_pParent->GetComponent<component::MeleeComponent>() != nullptr)
+		{
+			EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::mouseClick);
+		}
 	}
 
 	if (!m_pCC)
@@ -128,24 +131,23 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		float3 forward = m_pTransform->GetForwardFloat3();
 		float3 right = m_pTransform->GetRightFloat3();
 
-		double moveX = forward.x * moveForward + right.x * moveRight;
-		double moveY = jump;
-		double moveZ = forward.z * moveForward + right.z * moveRight;
-
-		double moveLength = sqrt(moveX * moveX + moveY * moveY + moveZ * moveZ);
-
-		if (abs(moveLength) > 0.001)
-		{
-			moveX /= moveLength;
-			moveY /= moveLength;
-			moveZ /= moveLength;
-		}
+		double3 move = {
+			forward.x * moveForward + right.x * moveRight,
+			jump,
+			forward.z * moveForward + right.z * moveRight
+		};
 
 		// Get the current linear velocity of the player
 		double3 vel = m_pCC->GetLinearVelocity();
+		vel =
+		{
+			vel.x + move.x * m_pTransform->GetVelocity(),
+			vel.y + move.y * 2 * m_pTransform->GetVelocity(),
+			vel.z + move.z * m_pTransform->GetVelocity()
+		};
 
 		// If the camera uses the players position, update the player's velocity. Otherwise update the camera's movement.
-		(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? m_pCC->SetVelVector(vel.x + moveX * m_pTransform->GetVelocity(), vel.y + moveY * 2 * m_pTransform->GetVelocity(), vel.z + moveZ * m_pTransform->GetVelocity()) : m_pCamera->UpdateMovement(-moveRight, moveUp, moveForward);
+		(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? m_pCC->SetVelVector(vel.x, vel.y, vel.z) : m_pCamera->UpdateMovement(-moveRight, moveUp, moveForward);
 
 		// If all buttons are released, reset the movement (but keep falling/jumping)
 		if (!(Input::GetInstance().GetKeyState(SCAN_CODES::W)) &&
@@ -156,7 +158,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 			!(Input::GetInstance().GetKeyState(SCAN_CODES::E)) &&
 			!(Input::GetInstance().GetKeyState(SCAN_CODES::SPACE)))
 		{
-			(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? m_pCC->SetVelVector(0.0f, vel.y + moveY * 2 * m_pTransform->GetVelocity(), 0.0f) : m_pCamera->SetMovement(0.0f, 0.0f, 0.0f);;
+			(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? m_pCC->SetVelVector(0.0f, vel.y, 0.0f) : m_pCamera->SetMovement(0.0f, 0.0f, 0.0f);;
 		}
 	}
 }
@@ -212,18 +214,10 @@ void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 {
 	switch (evnt->button) {
 	case MOUSE_BUTTON::LEFT_DOWN:
-		Log::Print("Left Mouse button down \n");
+		m_pParent->GetComponent<component::MeleeComponent>()->Attack(true);
 		break;
 	case MOUSE_BUTTON::RIGHT_DOWN:
 		Log::Print("Right Mouse button down \n");
 		break;
-	}
-}
-
-void component::PlayerInputComponent::grunt(Collision* evnt)
-{
-	if (evnt->ent1 == GetParent() || evnt->ent2 == GetParent())
-	{
-		GetParent()->GetComponent<component::Audio2DVoiceComponent>()->Play(L"Bruh");
 	}
 }

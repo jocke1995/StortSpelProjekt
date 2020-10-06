@@ -57,8 +57,6 @@ namespace component
 		void rotate(MouseMovement* evnt);
 
 		void mouseClick(MouseClick* evnt);
-
-		void grunt(Collision* evnt);
 	};
 }
 

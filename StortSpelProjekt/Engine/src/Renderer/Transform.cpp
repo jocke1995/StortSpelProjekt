@@ -185,6 +185,12 @@ DirectX::XMFLOAT3 Transform::GetScale() const
 	return m_Scale;
 }
 
+float4 Transform::GetRotation()
+{
+	DirectX::XMVECTOR quat = DirectX::XMQuaternionRotationMatrix(m_RotationMat);
+	return { quat.m128_f32[0], quat.m128_f32[1], quat.m128_f32[2], quat.m128_f32[3] };
+}
+
 DirectX::XMMATRIX Transform::GetRotMatrix() const
 {
 	return m_RotationMat;
