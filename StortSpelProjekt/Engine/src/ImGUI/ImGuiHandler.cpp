@@ -355,7 +355,7 @@ void ImGuiHandler::ExecCommand(const char* command_line)
     }
     else if (Stricmp(command.c_str(), "CONNECT") == 0)
     {
-        if (arguments.size() > 0)
+        if (arguments.size() == 1 && std::atoi(Option::GetInstance().GetVariable("i_network").c_str()) == 1)
         {
             EventBus::GetInstance().Publish(&ConnectToServer(arguments.at(0).c_str()));
         }
@@ -516,7 +516,10 @@ ImGuiHandler::ImGuiHandler()
     m_Commands.push_back("HISTORY");
     m_Commands.push_back("CLEAR");
     m_Commands.push_back("RESET");
-    m_Commands.push_back("CONNECT");
+    if (std::atoi(Option::GetInstance().GetVariable("i_network").c_str()) == 1)
+    {
+        m_Commands.push_back("CONNECT");
+    }
     m_ScrollToBottom = false;
 
     if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)

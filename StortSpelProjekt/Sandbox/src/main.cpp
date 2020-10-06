@@ -71,7 +71,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     GameNetwork gameNetwork;
 
     /*------ Network Init -----*/
-    bool networkOn = false;
     Network network;
 
     gameNetwork.SetNetwork(&network);
@@ -93,7 +92,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         timer->Update();
         logicTimer += timer->GetDeltaTime();
-        if (networkOn)
+        if (network.IsConnected())
         {
             networkTimer += timer->GetDeltaTime();
         }
