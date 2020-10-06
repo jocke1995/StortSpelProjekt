@@ -58,14 +58,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetScene(JacobsTestScene(sceneManager));
     //sceneManager->SetScene(LeosTestScene(sceneManager));
     //sceneManager->SetScene(LeosBounceScene(sceneManager));
-    //sceneManager->SetScene(TimScene(sceneManager));
+    sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
     //sceneManager->SetScene(FloppipTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
     //sceneManager->SetScene(BjornsTestScene(sceneManager));
     //sceneManager->SetScene(AntonTestScene(sceneManager));
-    sceneManager->SetScene(AndresTestScene(sceneManager)); // demoscene for sprint2
+    //sceneManager->SetScene(AndresTestScene(sceneManager)); // demoscene for sprint2
 
     GameNetwork gameNetwork;
 
@@ -541,6 +541,8 @@ Scene* TimScene(SceneManager* sm)
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+
+    Texture* heightmap = al->LoadTexture2D(L"../Vendor/Resources/Textures/HeightMaps/plainSec.png");
     /*--------------------- Assets ---------------------*/
 
     /*--------------------- Component declarations ---------------------*/
@@ -554,7 +556,7 @@ Scene* TimScene(SceneManager* sm)
     component::TransformComponent* tc = nullptr;
     component::PlayerInputComponent* pic = nullptr;
     component::TextComponent* txc = nullptr;
-    component::CubeCollisionComponent* ccc = nullptr;
+    component::CollisionComponent* ccc = nullptr;
     component::SphereCollisionComponent* scc = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
@@ -572,7 +574,7 @@ Scene* TimScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 10.0f, 0.0f);
 
-    ccc = entity->AddComponent<component::CubeCollisionComponent>();
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(1,10,10,10);
     pic->Init();
 
     mc->SetModel(playerModel);
@@ -591,7 +593,7 @@ Scene* TimScene(SceneManager* sm)
 
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
-    scc = entity->AddComponent<component::SphereCollisionComponent>();
+    //scc = entity->AddComponent<component::SphereCollisionComponent>();
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
@@ -608,7 +610,7 @@ Scene* TimScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(1000.0);
+    //ccc = entity->AddComponent<component::CubeCollisionComponent>(1000.0);
 
     mc->SetModel(cubeModel);
 
@@ -621,8 +623,16 @@ Scene* TimScene(SceneManager* sm)
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0,35.0,0.0,35.0);
+    //ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0,35.0,0.0,35.0);
 
+    HeightMapInfo inf;
+    inf.data = heightmap->GetData();
+    inf.length = 65.0;
+    inf.width = 65.0;
+    inf.maxHeight = 1;
+    inf.minHeight = 0;
+
+    ccc = entity->AddComponent<component::HeightmapCollisionComponent>(inf);
 
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
