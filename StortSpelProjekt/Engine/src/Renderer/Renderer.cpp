@@ -64,6 +64,9 @@
 // Compute
 #include "DX12Tasks/BlurComputeTask.h"
 
+// Event
+#include "../Events/EventBus.h"
+
 //ImGui
 #include "../ImGUI/imgui.h"
 #include "../ImGUI/imgui_impl_win32.h"
@@ -73,6 +76,7 @@
 
 Renderer::Renderer()
 {
+	EventBus::GetInstance().Subscribe(this, &Renderer::toggleFullscreen);
 	m_RenderTasks.resize(RENDER_TASK_TYPE::NR_OF_RENDERTASKS);
 	m_CopyTasks.resize(COPY_TASK_TYPE::NR_OF_COPYTASKS);
 	m_ComputeTasks.resize(COMPUTE_TASK_TYPE::NR_OF_COMPUTETASKS);
@@ -141,6 +145,7 @@ void Renderer::DeleteDxResources()
 void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
 {
 	m_pThreadPool = threadPool;
+	m_pWindow = window;
 
 	// Create Device
 	if (!createDevice())
@@ -158,10 +163,12 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	createFences();
 
 	// Rendertargets
-	createSwapChain(window->GetHwnd());
+	createSwapChain();
 	m_pBloomResources = new Bloom(m_pDevice5, 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
-		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
+		m_pSwapChain
+		);
 
 	// Create Main DepthBuffer
 	createMainDSV();
@@ -176,7 +183,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	createFullScreenQuad();
 
 	// Init Assetloader
-	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], window);
+	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], m_pWindow);
 
 	// Init BoundingBoxPool
 	BoundingBoxPool::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
@@ -220,13 +227,11 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	unsigned int imGuiTextureIndex = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1);
 
 	// Setup Platform/Renderer bindings
-	ImGui_ImplWin32_Init(*window->GetHwnd());
+	ImGui_ImplWin32_Init(*m_pWindow->GetHwnd());
 	ImGui_ImplDX12_Init(m_pDevice5, NUM_SWAP_BUFFERS,
 		DXGI_FORMAT_R16G16B16A16_FLOAT, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetID3D12DescriptorHeap(),
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetCPUHeapAt(imGuiTextureIndex),
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetGPUHeapAt(imGuiTextureIndex));
-
-	
 
 	initRenderTasks();
 
@@ -750,6 +755,11 @@ void Renderer::InitTextComponent(Entity* entity)
 	m_TextComponents.push_back(textComp);
 }
 
+SwapChain* Renderer::GetSwapChain()
+{
+	return m_pSwapChain;
+}
+
 Entity* const Renderer::GetPickedEntity() const
 {
 	return m_pPickedEntity;
@@ -805,7 +815,7 @@ bool Renderer::createDevice()
 	IDXGIAdapter1* adapter = nullptr;
 
 	CreateDXGIFactory(IID_PPV_ARGS(&factory));
-	
+
 	for (unsigned int adapterIndex = 0;; ++adapterIndex)
 	{
 		adapter = nullptr;
@@ -844,7 +854,7 @@ bool Renderer::createDevice()
 		factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
 		D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pDevice5));
 	}
-	
+
 	SAFE_RELEASE(&factory);
 
 	return deviceCreated;
@@ -884,15 +894,15 @@ void Renderer::createCommandQueues()
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->SetName(L"CopyQueue");
 }
 
-void Renderer::createSwapChain(const HWND *hwnd)
+void Renderer::createSwapChain()
 {
-	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
 
 	m_pSwapChain = new SwapChain(
 		m_pDevice5,
-		hwnd,
-		width, height,
+		m_pWindow->GetHwnd(),
+		resolutionWidth, resolutionHeight,
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
@@ -905,12 +915,16 @@ void Renderer::createMainDSV()
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	if (m_pSwapChain->IsFullscreen())
+	{
+		m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
+	}
 
 	m_pMainDepthStencil = new DepthStencil(
 		m_pDevice5,
-		width, height,
+		resolutionWidth, resolutionHeight,
 		L"MainDSV",
 		&dsvDesc,
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV]);
@@ -1087,7 +1101,7 @@ void Renderer::initRenderTasks()
 	// Specify Blend descriptions
 	D3D12_RENDER_TARGET_BLEND_DESC defaultRTdesc = {
 		false, false,
-		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		D3D12_BLEND_ZERO, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
 		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
 		D3D12_LOGIC_OP_NOOP, D3D12_COLOR_WRITE_ENABLE_ALL };
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
@@ -1518,9 +1532,6 @@ void Renderer::initRenderTasks()
 
 #pragma endregion Text
 	
-	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
-
 #pragma region IMGUIRENDERTASK
 	RenderTask* imGuiRenderTask = new ImGuiRenderTask(
 		m_pDevice5,
@@ -1535,6 +1546,13 @@ void Renderer::initRenderTasks()
 
 #pragma endregion IMGUIRENDERTASK
 
+	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
+	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	if (m_pSwapChain->IsFullscreen())
+	{
+		m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
+	}
+
 	// ComputeTasks
 	std::vector<std::pair<std::wstring, std::wstring>> csNamePSOName;
 	csNamePSOName.push_back(std::make_pair(L"ComputeBlurHorizontal.hlsl", L"blurHorizontalPSO"));
@@ -1545,7 +1563,7 @@ void Renderer::initRenderTasks()
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		width, height,
+		resolutionWidth, resolutionHeight,
 		FLAG_THREAD::RENDER);
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
@@ -1566,7 +1584,7 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandList(i);
+		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandInterface()->GetCommandList(i);
 	}
 
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
@@ -1588,63 +1606,63 @@ void Renderer::initRenderTasks()
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(copyPerFrameTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(copyPerFrameTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(DepthPrePassRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(DepthPrePassRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(skyboxRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(skyboxRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(textTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(textTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(outliningRenderTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(outliningRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			m_DirectCommandLists[i].push_back(wireFrameRenderTask->GetCommandList(i));
+			m_DirectCommandLists[i].push_back(wireFrameRenderTask->GetCommandInterface()->GetCommandList(i));
 		}
 	}
 
 	// Compute shader to blur the RTV from forwardRenderTask
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(blurComputeTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(blurComputeTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	// Final pass (this pass will merge different textures together and put result in the swapchain backBuffer)
 	// This will be used for pp-effects such as bloom.
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(mergeTask->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(mergeTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	// GUI
@@ -1652,7 +1670,7 @@ void Renderer::initRenderTasks()
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
-			m_DirectCommandLists[i].push_back(imGuiRenderTask->GetCommandList(i));
+			m_DirectCommandLists[i].push_back(imGuiRenderTask->GetCommandInterface()->GetCommandList(i));
 		}
 	}
 }
@@ -1936,5 +1954,67 @@ void Renderer::prepareCBPerFrame()
 	{
 		data = static_cast<void*>(m_pCbPerFrameData);
 		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetDefaultResource(), data));
+	}
+}
+
+void Renderer::toggleFullscreen(WindowChange* evnt)
+{
+	m_FenceFrameValue++;
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+
+	// Wait for all frames
+	waitForFrame(0);
+
+	// Wait for the threads which records the commandlists to complete
+	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER);
+
+	for (auto task : m_RenderTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			task->GetCommandInterface()->Reset(i);
+		}
+	}
+	for (auto task : m_CopyTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			task->GetCommandInterface()->Reset(i);
+		}
+	}
+	for (auto task : m_ComputeTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			task->GetCommandInterface()->Reset(i);
+		}
+	}
+
+	m_pSwapChain->ToggleWindowMode(m_pDevice5,
+		m_pWindow->GetHwnd(),
+		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+
+	for (auto task : m_RenderTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			task->GetCommandInterface()->GetCommandList(i)->Close();
+		}
+	}
+	for (auto task : m_CopyTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			task->GetCommandInterface()->GetCommandList(i)->Close();
+		}
+	}
+	for (auto task : m_ComputeTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			task->GetCommandInterface()->GetCommandList(i)->Close();
+		}
 	}
 }
