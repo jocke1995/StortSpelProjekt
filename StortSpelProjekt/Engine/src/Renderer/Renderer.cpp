@@ -145,7 +145,7 @@ void Renderer::DeleteDxResources()
 void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
 {
 	m_pThreadPool = threadPool;
-	m_Window = window;
+	m_pWindow = window;
 
 	// Create Device
 	if (!createDevice())
@@ -183,7 +183,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	createFullScreenQuad();
 
 	// Init Assetloader
-	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], m_Window);
+	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], m_pWindow);
 
 	// Init BoundingBoxPool
 	BoundingBoxPool::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
@@ -227,7 +227,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	unsigned int imGuiTextureIndex = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1);
 
 	// Setup Platform/Renderer bindings
-	ImGui_ImplWin32_Init(*m_Window->GetHwnd());
+	ImGui_ImplWin32_Init(*m_pWindow->GetHwnd());
 	ImGui_ImplDX12_Init(m_pDevice5, NUM_SWAP_BUFFERS,
 		DXGI_FORMAT_R16G16B16A16_FLOAT, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetID3D12DescriptorHeap(),
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetCPUHeapAt(imGuiTextureIndex),
@@ -907,7 +907,7 @@ void Renderer::createSwapChain()
 
 	m_pSwapChain = new SwapChain(
 		m_pDevice5,
-		m_Window->GetHwnd(),
+		m_pWindow->GetHwnd(),
 		resolutionWidth, resolutionHeight,
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
@@ -1997,7 +1997,7 @@ void Renderer::toggleFullscreen(WindowChange* evnt)
 	}
 
 	m_pSwapChain->ToggleWindowMode(m_pDevice5,
-		m_Window->GetHwnd(),
+		m_pWindow->GetHwnd(),
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);

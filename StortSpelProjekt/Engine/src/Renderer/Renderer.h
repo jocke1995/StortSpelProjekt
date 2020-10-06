@@ -122,7 +122,7 @@ private:
 	unsigned int m_FrameCounter = 0;
 
 	// Window
-	const Window* m_Window;
+	const Window* m_pWindow;
 
 	// Device
 	ID3D12Device5* m_pDevice5 = nullptr;
