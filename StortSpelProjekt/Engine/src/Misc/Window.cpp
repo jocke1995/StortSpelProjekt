@@ -237,14 +237,17 @@ bool Window::WasTabPressed()
 
 bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 {
-	if (m_WindowedFullScreen)
-	{
-		HMONITOR hmon = MonitorFromWindow(m_Hwnd, MONITOR_DEFAULTTONEAREST);
-		MONITORINFO mi = { sizeof(mi) };
-		GetMonitorInfo(hmon, &mi);
+	HMONITOR hmon = MonitorFromWindow(m_Hwnd, MONITOR_DEFAULTTONEAREST);
+	MONITORINFO mi = { sizeof(mi) };
+	GetMonitorInfo(hmon, &mi);
 
-		m_ScreenWidth = mi.rcMonitor.right - mi.rcMonitor.left;
-		m_ScreenHeight = mi.rcMonitor.bottom - mi.rcMonitor.top;
+	int width = mi.rcMonitor.right - mi.rcMonitor.left;
+	int height = mi.rcMonitor.bottom - mi.rcMonitor.top;
+
+	if (m_WindowedFullScreen || (width < m_ScreenWidth || height < m_ScreenHeight))
+	{
+		m_ScreenWidth = width;
+		m_ScreenHeight = height;
 	}
 
 	WNDCLASSEX wc;

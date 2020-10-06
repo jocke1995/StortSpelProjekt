@@ -36,7 +36,7 @@ SwapChain::SwapChain(
 	int m_ScreenHeight = mi.rcMonitor.bottom - mi.rcMonitor.top;
 
 	// If the chosen resolution is higher than the screen resolution, set the resolution to the screen resolution
-	if (m_ScreenWidth < width)
+	if (m_ScreenWidth < width || m_ScreenHeight < height)
 	{
 		m_CurrentModeDescription.Width = m_ScreenWidth;
 		m_CurrentModeDescription.Height = m_ScreenHeight;
@@ -282,6 +282,21 @@ const void SwapChain::resize(const HWND* hwnd)
 		// Make sure that the window starts at the top left corner
 		int windowWidth = std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str());
 		int windowHeight = std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str());
+
+		HMONITOR hmon = MonitorFromWindow(const_cast<HWND>(*hwnd), MONITOR_DEFAULTTONEAREST);
+		MONITORINFO mi = { sizeof(mi) };
+		GetMonitorInfo(hmon, &mi);
+
+		int m_ScreenWidth = mi.rcMonitor.right - mi.rcMonitor.left;
+		int m_ScreenHeight = mi.rcMonitor.bottom - mi.rcMonitor.top;
+
+		// If the chosen resolution is higher than the screen resolution, set the resolution to the screen resolution
+		if (m_ScreenWidth < windowWidth || m_ScreenWidth < windowHeight)
+		{
+			windowWidth = m_ScreenWidth;
+			windowHeight = m_ScreenHeight;
+		}
+
 		SetWindowPos(const_cast<HWND>(*hwnd), 0, 0, 0, windowWidth, windowHeight, SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
 		MoveWindow(const_cast<HWND>(*hwnd), 0, 0, windowWidth, windowHeight, false);
 	}
