@@ -290,16 +290,16 @@ Scene* GetDemoScene(SceneManager* sm)
     float xVal = 8;
     float zVal = 20;
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    //for (int i = 0; i < 75; i++)
-    //{
-    //    zVal += 8;
-    //    entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
-    //    if ((i + 1) % 5 == 0)
-    //    {
-    //        xVal += 8;
-    //        zVal = 10;
-    //    }
-    //}
+    for (int i = 0; i < 75; i++)
+    {
+        zVal += 8;
+        entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
+        if ((i + 1) % 5 == 0)
+        {
+            xVal += 8;
+            zVal = 10;
+        }
+    }
     /* ---------------------- Enemy -------------------------------- */
 
 
@@ -328,7 +328,7 @@ void DemoUpdateScene(SceneManager* sm)
     ec->UpdateEmitter(L"Bruh");
 
     std::string name = "enemy";
-    for (int i = 1; i < 1; i++)
+    for (int i = 1; i < 76; i++)
     {
         name = "enemy" + std::to_string(i);
         ec = sm->GetScene("DemoScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();

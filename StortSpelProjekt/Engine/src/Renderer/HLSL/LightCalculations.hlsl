@@ -13,9 +13,7 @@ ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b4, space3);
 
 float CalculateShadow(
 	in float4 fragPosLightSpace,
-	in float shadowMapIndex,
-	in float3 normal,
-	in float3 lightDir)
+	in float shadowMapIndex)
 {
 	// Perform perspective divide
 	float2 texCoord = fragPosLightSpace.xy / fragPosLightSpace.w;
@@ -30,8 +28,6 @@ float CalculateShadow(
 	// Check whether current fragPos is in shadow
 	float shadow = 0.0f;
 
-	float bias = 0.0f;//max(cbPerScene.maxBias * (1.0 - dot(normal, lightDir)), cbPerScene.minBias);
-
 	// Anti aliasing
 	float2 texelSize = float2(0.0f, 0.0f);
 	textures[shadowMapIndex].GetDimensions(texelSize.x, texelSize.y);
@@ -42,7 +38,7 @@ float CalculateShadow(
 		for (int y = -1; y <= 1; ++y)
 		{
 			float pcfDepth = textures[shadowMapIndex].Sample(samplerTypeBorder, texCoord + float2(x,y) * texelSize).r;
-			if (depthFromLightToFragPos - bias > pcfDepth)
+			if (depthFromLightToFragPos > pcfDepth)
 			{
 				shadow += 1.0f;
 			}
@@ -93,7 +89,7 @@ float3 CalcDirLight(
 	{
 		float4 fragPosLightSpace = mul(fragPos, dirLight.viewProj);
 
-		shadow = CalculateShadow(fragPosLightSpace, dirLight.textureShadowMap, normal, lightDir);
+		shadow = CalculateShadow(fragPosLightSpace, dirLight.textureShadowMap);
 	}
 
 	DirLightContribution = (kD * albedo / PI + specular) * radiance * NdotL;
@@ -198,7 +194,7 @@ float3 CalcSpotLight(
 	{
 		float4 fragPosLightSpace = mul(fragPos, spotLight.viewProj);
 
-		shadow = CalculateShadow(fragPosLightSpace, spotLight.textureShadowMap, normal, lightDir);
+		shadow = CalculateShadow(fragPosLightSpace, spotLight.textureShadowMap);
 	}
 
 	spotLightContribution = ((kD * albedo / PI + specular) * radiance * NdotL) * edgeIntensity;
