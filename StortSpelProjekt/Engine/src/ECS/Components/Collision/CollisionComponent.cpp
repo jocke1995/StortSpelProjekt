@@ -53,11 +53,17 @@ void component::CollisionComponent::InitScene()
 	btTransform btTrans;
 	btTrans.setIdentity();
 	btTrans.setOrigin({ m_pTrans->GetPositionFloat3().x, m_pTrans->GetPositionFloat3().y, m_pTrans->GetPositionFloat3().z });
+	
+	// Set rotation
+	float4 dxQuat = m_pTrans->GetRotation();
+	btQuaternion quat(dxQuat.x, dxQuat.y, dxQuat.z, dxQuat.w);
+	btTrans.setRotation(quat);
+	
 	btVector3 inertia = { 0.0f,0.0f,0.0f };
 	m_pShape->calculateLocalInertia(m_Mass, inertia);
 	m_pMotionState = new btDefaultMotionState(btTrans);
 	btRigidBody::btRigidBodyConstructionInfo info(m_Mass, m_pMotionState, m_pShape, inertia);
-
+	
 	info.m_restitution = m_Rest;
 	info.m_friction = m_Fric;
 
