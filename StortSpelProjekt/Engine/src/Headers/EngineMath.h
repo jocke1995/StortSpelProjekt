@@ -46,7 +46,16 @@ typedef union
 		y *= factor;
 		z *= factor;
 	};
-	
+	float3 cross(float3* that)
+	{
+		return
+		{
+			this->y * that->z - this->z * that->y,
+			this->z * that->x - this->x * that->z,
+			this->x * that->y - this->y * that->x,
+		};
+	};
+
 } float3;
 
 typedef union
