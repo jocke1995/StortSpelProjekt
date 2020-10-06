@@ -6,7 +6,6 @@
 #include "GPUMemory/ShaderResourceView.h"
 #include "DescriptorHeap.h"
 #include "../Misc/Option.h"
-#include "../Events/EventBus.h"
 
 SwapChain::SwapChain(
 	ID3D12Device5* device,
@@ -18,7 +17,7 @@ SwapChain::SwapChain(
 {
 	if (std::atoi(Option::GetInstance().GetVariable("i_windowMode").c_str()) == static_cast<int>(WINDOW_MODE::FULLSCREEN))
 	{
-		m_Fullscreen = true;
+		m_WindowMode = static_cast<int>(WINDOW_MODE::FULLSCREEN);
 	}
 
 	IDXGIFactory4* factory = nullptr;
@@ -33,7 +32,7 @@ SwapChain::SwapChain(
 	DXGI_SWAP_CHAIN_DESC1 scDesc = {};
 	scDesc.Width = width;
 	scDesc.Height = height;
-	scDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	scDesc.Format = m_DesiredColourFormat;
 	scDesc.Stereo = FALSE;
 	scDesc.SampleDesc.Count = 1;
 	scDesc.SampleDesc.Quality = 0;
@@ -44,29 +43,19 @@ SwapChain::SwapChain(
 	scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	scDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 
+	// Microsoft recommends zeroing out the refresh rate of the description before resizing the targets
+	m_ZeroRefreshRate.Numerator = 144;
+	m_ZeroRefreshRate.Denominator = 1;
+
+	m_ScFullscreenDesc.RefreshRate = m_ZeroRefreshRate;
+	m_ScFullscreenDesc.Scaling = DXGI_MODE_SCALING_STRETCHED;
+	m_ScFullscreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
+
 	IDXGISwapChain1* swapChain1 = nullptr;
-	if (m_Fullscreen)
+	if (m_WindowMode == static_cast<int>(WINDOW_MODE::FULLSCREEN))
 	{	
 		scDesc.Scaling = DXGI_SCALING_STRETCH;
-
-		// Microsoft recommends zeroing out the refresh rate of the description before resizing the targets
-		DXGI_RATIONAL zeroRefreshRate = {};
-		zeroRefreshRate.Numerator = 0;
-		zeroRefreshRate.Denominator = 0;
-
-		DXGI_SWAP_CHAIN_FULLSCREEN_DESC scFullscreenDesc = {};
-		scFullscreenDesc.RefreshRate = zeroRefreshRate;
-		scFullscreenDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-		scFullscreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
-		scFullscreenDesc.Windowed = false;
-
-		hr = factory->CreateSwapChainForHwnd(
-			commandQueue,
-			*hwnd,
-			&scDesc,
-			&scFullscreenDesc,
-			nullptr,
-			&swapChain1);
+		m_ScFullscreenDesc.Windowed = false;
 	}
 	else
 	{
@@ -77,14 +66,16 @@ SwapChain::SwapChain(
 			scDesc.Scaling = DXGI_SCALING_STRETCH;
 		}
 
-		hr = factory->CreateSwapChainForHwnd(
-			commandQueue,
-			*hwnd,
-			&scDesc,
-			nullptr,
-			nullptr,
-			&swapChain1);
+		m_ScFullscreenDesc.Windowed = true;
 	}
+
+	hr = factory->CreateSwapChainForHwnd(
+		commandQueue,
+		*hwnd,
+		&scDesc,
+		&m_ScFullscreenDesc,
+		nullptr,
+		&swapChain1);
 
 	if (SUCCEEDED(hr))
 	{
@@ -100,14 +91,14 @@ SwapChain::SwapChain(
 
 	SAFE_RELEASE(&factory);
 	
-	if (m_Fullscreen)
+	if (m_WindowMode == static_cast<int>(WINDOW_MODE::FULLSCREEN))
 	{
-		initFullscreen(&width, &height);
-
-		resize(width, height);
-
 		// Finally, activate fullscreen state
 		m_pSwapChain4->SetFullscreenState(true, NULL);
+
+		initFullscreen(&width, &height);
+
+		resize(hwnd, width, height);
 	}
 
 	createSwapBuffers(device, width, height, descriptorHeap_RTV, descriptorHeap_CBV_UAV_SRV);
@@ -118,7 +109,7 @@ SwapChain::~SwapChain()
 	clearSwapBuffers();
 
 	// You can not release the swapchain in fullscreen mode
-	if (m_Fullscreen)
+	if (m_WindowMode == static_cast<int>(WINDOW_MODE::FULLSCREEN))
 	{
 		m_pSwapChain4->SetFullscreenState(false, NULL);
 	}
@@ -143,7 +134,13 @@ const ShaderResourceView* SwapChain::GetSRV(unsigned int backBufferIndex) const
 
 const bool SwapChain::IsFullscreen() const
 {
-	return m_Fullscreen;
+	bool fullscreen = false;
+	if (m_WindowMode == static_cast<int>(WINDOW_MODE::FULLSCREEN))
+	{
+		fullscreen = true;
+	}
+
+	return fullscreen;
 }
 
 void SwapChain::ToggleWindowMode(ID3D12Device5* device,
@@ -152,13 +149,13 @@ void SwapChain::ToggleWindowMode(ID3D12Device5* device,
 	DescriptorHeap* descriptorHeap_RTV,
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV)
 {
-	if (m_Fullscreen)
+	if (m_WindowMode == static_cast<int>(WINDOW_MODE::FULLSCREEN))
 	{
-		m_Fullscreen = false;
+		m_WindowMode = 0;
 	}
 	else
 	{
-		m_Fullscreen = true;
+		m_WindowMode = 2;
 	}
 
 	clearSwapBuffers();
@@ -166,22 +163,38 @@ void SwapChain::ToggleWindowMode(ID3D12Device5* device,
 	unsigned int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
 	unsigned int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
 
-	if (m_Fullscreen)
+	if (m_WindowMode == static_cast<int>(WINDOW_MODE::FULLSCREEN))
 	{
-		initFullscreen(&width, &height);
+		m_ScDesc.Scaling = DXGI_SCALING_STRETCH;
+		m_ScFullscreenDesc.Windowed = false;
 
 		m_pSwapChain4->SetFullscreenState(true, nullptr);
+
+		initFullscreen(&width, &height);
+
+		Option::GetInstance().SetVariable("i_windowMode", std::to_string(2));
 	}
 	else
 	{
+		m_ScFullscreenDesc.Windowed = true;
 		m_pSwapChain4->SetFullscreenState(false, nullptr);
+
+		// If windowed fullscreen
+		if (std::atoi(Option::GetInstance().GetVariable("i_windowMode").c_str()) == static_cast<int>(WINDOW_MODE::WINDOWED_FULLSCREEN))
+		{
+			m_WindowMode = 1;
+			m_ScDesc.Scaling = DXGI_SCALING_STRETCH;
+		}
+		else
+		{
+			//m_ScDesc.Scaling = DXGI_SCALING_NONE;
+			Option::GetInstance().SetVariable("i_windowMode", std::to_string(0));
+		}
 	}
 
-	resize(width, height);
+	resize(hwnd, width, height);
 
 	createSwapBuffers(device, width, height, descriptorHeap_RTV, descriptorHeap_CBV_UAV_SRV);
-
-	Option::GetInstance().SetVariable("i_windowMode", std::to_string(m_Fullscreen));
 }
 
 const void SwapChain::initFullscreen(unsigned int* width, unsigned int* height)
@@ -219,8 +232,8 @@ const void SwapChain::initFullscreen(unsigned int* width, unsigned int* height)
 		if (*width == m_pSupportedModes[i].Width && *height == m_pSupportedModes[i].Height)
 		{
 			DXGI_RATIONAL rat = {};
-			rat.Numerator = 0;
-			rat.Denominator = 0;
+			rat.Numerator = 144;
+			rat.Denominator = 1;
 
 			supportedMode = true;
 			m_CurrentModeDescription = m_pSupportedModes[i];
@@ -229,7 +242,7 @@ const void SwapChain::initFullscreen(unsigned int* width, unsigned int* height)
 		}
 	}
 
-	// if the current resolution is not supported, switch to the lowest supported resolution
+	// if the current resolution is not supported, switch to the heighest supported resolution
 	if (!supportedMode)
 	{
 		// print a warning 
@@ -237,7 +250,7 @@ const void SwapChain::initFullscreen(unsigned int* width, unsigned int* height)
 			"The desired screen resolution is not supported! Resizing to the lowest supported resolution...\n");
 
 		// set the mode to the lowest supported resolution
-		m_CurrentModeDescription = m_pSupportedModes[0];
+		m_CurrentModeDescription = m_pSupportedModes[m_NumberOfSupportedModes-1];
 		*width = m_CurrentModeDescription.Width;
 		*height = m_CurrentModeDescription.Height;
 
@@ -261,15 +274,33 @@ const void SwapChain::initFullscreen(unsigned int* width, unsigned int* height)
 	delete[] m_pSupportedModes;
 }
 
-const void SwapChain::resize(unsigned int width, unsigned int height)
+const void SwapChain::resize(const HWND* hwnd, unsigned int width, unsigned int height)
 {
+	// If windowed fullscreen, get screen size
+	if (m_WindowMode == static_cast<int>(WINDOW_MODE::WINDOWED_FULLSCREEN))
+	{
+		HMONITOR hmon = MonitorFromWindow(const_cast<HWND>(*hwnd), MONITOR_DEFAULTTONEAREST);
+		MONITORINFO mi = { sizeof(mi) };
+		GetMonitorInfo(hmon, &mi);
+
+		m_CurrentModeDescription.Width = mi.rcMonitor.right - mi.rcMonitor.left;
+		m_CurrentModeDescription.Height = mi.rcMonitor.bottom - mi.rcMonitor.top;
+	}
+
 	if (FAILED(m_pSwapChain4->ResizeTarget(&m_CurrentModeDescription)))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Unable to resize target to a supported display mode!");
 	}
 	else
 	{
-		m_pSwapChain4->ResizeBuffers(NUM_SWAP_BUFFERS, width, height, m_DesiredColourFormat, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+		m_pSwapChain4->ResizeBuffers(NUM_SWAP_BUFFERS, width, height, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+	}
+
+	// If windowed fullscreen, fit the window to the screen
+	if (m_WindowMode == static_cast<int>(WINDOW_MODE::WINDOWED_FULLSCREEN))
+	{
+		// Make sure that the window starts at the top left corner
+		MoveWindow(const_cast<HWND>(*hwnd), 0, 0, m_CurrentModeDescription.Width, m_CurrentModeDescription.Height, true);
 	}
 }
 
@@ -300,9 +331,10 @@ const void SwapChain::createSwapBuffers(ID3D12Device5* device,
 	// Create SRVs
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	srvDesc.Format = m_DesiredColourFormat;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
+
 	for (unsigned int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_SRVs[i] = new ShaderResourceView(device, descriptorHeap_CBV_UAV_SRV, &srvDesc, m_Resources[i]);

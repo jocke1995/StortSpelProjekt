@@ -28,6 +28,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_SYSKEYDOWN: // alt+enter
 		if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000)
 		{
+			if (std::atoi(Option::GetInstance().GetVariable("i_windowMode").c_str()) == static_cast<int>(WINDOW_MODE::FULLSCREEN))
+			{
+				// Go from fullscreen to windowed fullscreen
+				Option::GetInstance().SetVariable("i_windowMode", std::to_string(1));
+			}
 			EventBus::GetInstance().Publish(&WindowChange());
 		}
 		return 0;
@@ -35,6 +40,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (!wParam && programRunning
 			&& (std::atoi(Option::GetInstance().GetVariable("i_windowMode").c_str()) == static_cast<int>(WINDOW_MODE::FULLSCREEN)))
 		{
+			// Go from fullscreen to windowed fullscreen
+			Option::GetInstance().SetVariable("i_windowMode", std::to_string(1));
 			EventBus::GetInstance().Publish(&WindowChange());
 		}
 		return 0;
