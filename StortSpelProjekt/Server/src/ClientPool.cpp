@@ -129,7 +129,7 @@ void ClientPool::newConnection()
 							packet << m_Clients.at(j)->clientId;
 						}
 					}
-					m_Clients.at(i)->socket.send(packet);
+					sendPacket(i, packet);
 				}
 			}
 		}
@@ -148,9 +148,16 @@ void ClientPool::newPacket(int socket)
 			{
 				if (m_Clients.at(i)->connected)
 				{
-					m_Clients.at(i)->socket.send(packet);
+					sendPacket(i, packet);
+					
 				}
 			}
 		}
 	}
+}
+
+void ClientPool::sendPacket(int index, sf::Packet packet)
+{
+	m_ConsoleString.append("Sent a packet; " + std::to_string(packet.getDataSize()) + " BYTES\n");
+	m_Clients.at(index)->socket.send(packet);
 }

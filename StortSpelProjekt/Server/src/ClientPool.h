@@ -44,6 +44,7 @@ private:
 
 	void newConnection();
 	void newPacket(int socket);
+	void sendPacket(int index, sf::Packet packet);
 };
 
 #endif // !CLIENTPOOL_H
