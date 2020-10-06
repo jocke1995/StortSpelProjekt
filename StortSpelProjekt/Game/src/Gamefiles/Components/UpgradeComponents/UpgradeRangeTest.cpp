@@ -1,16 +1,27 @@
 #include "UpgradeRangeTest.h"
 #include "stdafx.h"
+#include "../ECS/Entity.h"
 
-component::UpgradeRangeTest::UpgradeRangeTest(Entity* parent)
-	:UpgradeRangeComponent(parent)
-{
+component::UpgradeRangeTest::UpgradeRangeTest(Entity* parent, std::string name)
+	:UpgradeRangeComponent(parent, name)
+{	
+
 }
 
 component::UpgradeRangeTest::~UpgradeRangeTest()
 {
 }
 
-void component::UpgradeRangeTest::RangedHit()
+void component::UpgradeRangeTest::OnHit()
 {
-	Log::Print("UpgradeRangeTest called\n");
+	Log::Print("UpgradeRangeTest OnHit called\n");
+	m_pParent->GetComponent<component::AccelerationComponent>()->SetAccelerationDirection(0, 1, 0);
+	m_pParent->GetComponent<component::AccelerationComponent>()->SetAccelerationSpeed(1000);
+	//m_pParent->GetComponent<component::UpgradeRangeComponent>()->OnHit();
+
+}
+
+void component::UpgradeRangeTest::RangedFlight()
+{
+	Log::Print("UpgradeRangeTest RangedFlight called\n");
 }

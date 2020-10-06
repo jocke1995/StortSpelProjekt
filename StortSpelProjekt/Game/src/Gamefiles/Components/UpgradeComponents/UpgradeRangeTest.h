@@ -8,10 +8,11 @@ namespace component
 	class UpgradeRangeTest : public UpgradeRangeComponent
 	{
 	public: 
-		UpgradeRangeTest(Entity* parent);
+		UpgradeRangeTest(Entity* parent, std::string name);
 		~UpgradeRangeTest();
 
-		void RangedHit();
+		void OnHit();
+		void RangedFlight();
 	};
 }
 

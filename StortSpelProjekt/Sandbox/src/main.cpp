@@ -68,7 +68,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
     //sceneManager->SetScene(BjornsTestScene(sceneManager));
     //sceneManager->SetScene(AntonTestScene(sceneManager));
-    sceneManager->SetScene(AndresTestScene(sceneManager)); // demoscene for sprint2
+    sceneManager->SetScene(AndresTestScene(sceneManager)); // upgrade testing
 
     GameNetwork gameNetwork;
 
@@ -1356,7 +1356,7 @@ Scene* AndresTestScene(SceneManager* sm)
     audioListener = entity->AddComponent<component::Audio3DListenerComponent>();
     ic->Init();
     hc = entity->AddComponent<component::HealthComponent>(15);
-    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 10);
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     // upgrade component

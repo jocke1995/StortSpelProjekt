@@ -33,10 +33,12 @@ void component::ProjectileComponent::hit(Collision* event)
 			event->ent2->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 		}
 		// testing ranged upgrade
-		if (m_pParent->HasComponent<component::UpgradeRangeComponent>())
+		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
-			m_pParent->GetComponent<component::UpgradeRangeComponent>()->RangedHit();
+			m_pParent->GetComponent<component::UpgradeRangeComponent>()->OnHit();
+			//upgradeHandler.rangedHit()
 		}
+		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}
 	else if (event->ent2 == m_pParent)
 	{
@@ -45,9 +47,10 @@ void component::ProjectileComponent::hit(Collision* event)
 			event->ent1->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 		}
 		// testing ranged upgrade
-		if (m_pParent->HasComponent<component::UpgradeRangeComponent>())
+		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
-			m_pParent->GetComponent<component::UpgradeRangeComponent>()->RangedHit();
+			m_pParent->GetComponent<component::UpgradeRangeComponent>()->OnHit();
 		}
+		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}
 }
