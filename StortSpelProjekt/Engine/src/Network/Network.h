@@ -38,6 +38,8 @@ private:
 	void processPlayerData(sf::Packet* packet);
 	void processServerData(sf::Packet* packet);
 
+	void sendPacket(sf::Packet packet);
+
 	sf::TcpSocket m_Socket;
 	sf::TcpListener m_Listener;
 

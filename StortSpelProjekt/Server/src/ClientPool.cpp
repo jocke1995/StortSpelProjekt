@@ -141,7 +141,21 @@ void ClientPool::newPacket(int socket)
 	sf::Packet packet;
 	if (m_Clients.at(socket)->socket.receive(packet) == sf::Socket::Done)
 	{
-		m_ConsoleString.append("Recieved a packet from client " + std::to_string(socket) + "; " + std::to_string(packet.getDataSize()) + " BYTES\n");
+		if (m_ClockReceived.StopTimer() > 1.0)
+		{
+			std::ostringstream oss;
+			oss << std::setprecision(8) << m_NrOfBytesReceived;
+			std::string str = oss.str();
+
+			m_ConsoleString.append("Total packages received: " + std::to_string(m_NrOfPackagesReceived) + " Size: " + str + " BYTES\n");
+
+			m_ClockReceived.StartTimer();
+			m_NrOfBytesReceived = 0;
+			m_NrOfPackagesReceived = 0;
+		}	
+		m_NrOfBytesReceived += packet.getDataSize();
+		m_NrOfPackagesReceived += 1;
+
 		for (int i = 0; i < m_Clients.size(); i++)
 		{
 			if (i != socket)
@@ -158,6 +172,21 @@ void ClientPool::newPacket(int socket)
 
 void ClientPool::sendPacket(int index, sf::Packet packet)
 {
-	m_ConsoleString.append("Sent a packet; " + std::to_string(packet.getDataSize()) + " BYTES\n");
 	m_Clients.at(index)->socket.send(packet);
+	m_NrOfBytesSent += packet.getDataSize();
+	m_NrOfPackagesSent += 1;
+
+	if (m_ClockSent.StopTimer() > 1.0)
+	{
+		std::ostringstream oss;
+		oss << std::setprecision(8) << m_NrOfBytesSent;
+		std::string str = oss.str();
+
+		m_ConsoleString.append("Total packages sent: " + std::to_string(m_NrOfPackagesSent) + " Size: " + str + " BYTES\n");
+		
+		m_ClockSent.StartTimer();
+		m_NrOfBytesSent = 0;
+		m_NrOfPackagesSent = 0;
+	}
+	
 }

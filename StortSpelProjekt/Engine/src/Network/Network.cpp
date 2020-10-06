@@ -68,7 +68,7 @@ void Network::SendPositionPacket()
 
     packet << E_PACKET_ID::PLAYER_DATA << m_Id << pos.x << pos.y << pos.z << mov.x << mov.y << mov.z;
 
-    m_Socket.send(packet);
+    sendPacket(packet);
 }
 
 void Network::SetPlayerEntityPointer(Entity* playerEnitity, int id)
@@ -182,4 +182,9 @@ void Network::processServerData(sf::Packet* packet)
             EventBus::GetInstance().Publish(&PlayerConnection(playerId));
         }
     }
+}
+
+void Network::sendPacket(sf::Packet packet)
+{
+    m_Socket.send(packet);
 }

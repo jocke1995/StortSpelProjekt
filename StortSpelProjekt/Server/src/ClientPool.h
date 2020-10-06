@@ -2,11 +2,14 @@
 #define CLIENTPOOL_H
 
 #include "SFML/Network.hpp"
+#include "Misc/Timer.h"
+#include <iomanip>
 #include <vector>
+#include <limits>
 
 class Network;
 
-struct Client 
+struct Client
 {
 	sf::TcpSocket socket;
 	int clientId;
@@ -41,6 +44,15 @@ private:
 	int m_AvailableClientId;
 
 	std::string m_ConsoleString;
+
+	float m_NrOfBytesSent = 0.0;
+	int m_NrOfPackagesSent = 0;
+
+	float m_NrOfBytesReceived = 0.0;
+	int m_NrOfPackagesReceived = 0;
+
+	Timer m_ClockSent;
+	Timer m_ClockReceived;
 
 	void newConnection();
 	void newPacket(int socket);
