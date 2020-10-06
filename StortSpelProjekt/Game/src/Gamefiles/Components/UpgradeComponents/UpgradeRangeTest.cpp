@@ -17,8 +17,6 @@ void component::UpgradeRangeTest::OnHit()
 	Log::Print("UpgradeRangeTest OnHit called\n");
 	m_pParent->GetComponent<component::AccelerationComponent>()->SetAccelerationDirection(0, 1, 0);
 	m_pParent->GetComponent<component::AccelerationComponent>()->SetAccelerationSpeed(1000);
-	//m_pParent->GetComponent<component::UpgradeRangeComponent>()->OnHit();
-
 }
 
 void component::UpgradeRangeTest::RangedFlight()
