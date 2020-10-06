@@ -30,6 +30,8 @@ public:
         std::vector<std::map<TEXTURE_TYPE, Texture*>>* textures);
     virtual ~Model();
 
+    void Update();
+
     std::wstring GetPath() const;
     unsigned int GetSize() const;
 
@@ -43,11 +45,8 @@ public:
     SlotInfo* GetSlotInfoAt(unsigned int index);
 
 private:
-    void updateAnimations();
-    void updateBones(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform);
-    DirectX::XMMATRIX interpolateScaling(float animationTime, NodeAnimation* nodeAnimation);
-    DirectX::XMMATRIX interpolateRotation(float animationTime, NodeAnimation* nodeAnimation);
-    DirectX::XMMATRIX interpolateTranslation(float animationTime, NodeAnimation* nodeAnimation);
+
+    void updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform);
 
     std::wstring m_Path;
     unsigned int m_Size = 0;
@@ -59,6 +58,7 @@ private:
     Animation* m_pActiveAnimation;
     std::vector<Animation*> m_Animations;
     SkeletonNode* m_pSkeleton;
+    DirectX::XMFLOAT4X4 m_GlobalInverseTransform;
     std::map<unsigned int, VertexWeight> m_PerVertexBoneData; // AKA weights
 };
 
