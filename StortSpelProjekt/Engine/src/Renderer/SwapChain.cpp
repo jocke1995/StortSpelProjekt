@@ -28,10 +28,30 @@ SwapChain::SwapChain(
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create DXGIFactory for SwapChain\n");
 	}
 
+	HMONITOR hmon = MonitorFromWindow(const_cast<HWND>(*hwnd), MONITOR_DEFAULTTONEAREST);
+	MONITORINFO mi = { sizeof(mi) };
+	GetMonitorInfo(hmon, &mi);
+
+	int m_ScreenWidth = mi.rcMonitor.right - mi.rcMonitor.left;
+	int m_ScreenHeight = mi.rcMonitor.bottom - mi.rcMonitor.top;
+
+	// If the chosen resolution is higher than the screen resolution, set the resolution to the screen resolution
+	if (m_ScreenWidth < width)
+	{
+		m_CurrentModeDescription.Width = m_ScreenWidth;
+		m_CurrentModeDescription.Height = m_ScreenHeight;
+		Log::Print("Choosing (%d, %d) as the new resolution...\n", m_CurrentModeDescription.Width, m_CurrentModeDescription.Height);
+	}
+	else
+	{
+		m_CurrentModeDescription.Width = width;
+		m_CurrentModeDescription.Height = height;
+	}
+
 	//Create descriptor
 	DXGI_SWAP_CHAIN_DESC1 scDesc = {};
-	scDesc.Width = width;
-	scDesc.Height = height;
+	scDesc.Width = m_CurrentModeDescription.Width;
+	scDesc.Height = m_CurrentModeDescription.Height;
 	scDesc.Format = m_DesiredColourFormat;
 	scDesc.Stereo = FALSE;
 	scDesc.SampleDesc.Count = 1;
@@ -39,41 +59,23 @@ SwapChain::SwapChain(
 	scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	scDesc.BufferCount = NUM_SWAP_BUFFERS;
 	scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	scDesc.Scaling = DXGI_SCALING_NONE;
+	scDesc.Scaling = DXGI_SCALING_STRETCH;
 	scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	scDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 
-	// Microsoft recommends zeroing out the refresh rate of the description before resizing the targets
-	m_ZeroRefreshRate.Numerator = 144;
-	m_ZeroRefreshRate.Denominator = 1;
+	m_RefreshRate.Numerator = 200;
+	m_RefreshRate.Denominator = 1;
 
-	m_ScFullscreenDesc.RefreshRate = m_ZeroRefreshRate;
-	m_ScFullscreenDesc.Scaling = DXGI_MODE_SCALING_STRETCHED;
-	m_ScFullscreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
+	m_CurrentModeDescription.Width = width;
+	m_CurrentModeDescription.Height = height;
+	m_CurrentModeDescription.RefreshRate = m_RefreshRate;
 
 	IDXGISwapChain1* swapChain1 = nullptr;
-	if (m_WindowMode == static_cast<int>(WINDOW_MODE::FULLSCREEN))
-	{	
-		scDesc.Scaling = DXGI_SCALING_STRETCH;
-		m_ScFullscreenDesc.Windowed = false;
-	}
-	else
-	{
-		if (std::atoi(Option::GetInstance().GetVariable("b_stretchedWindow").c_str()) 
-			|| (std::atoi(Option::GetInstance().GetVariable("i_windowMode").c_str()) 
-				== static_cast<int>(WINDOW_MODE::WINDOWED_FULLSCREEN)))
-		{
-			scDesc.Scaling = DXGI_SCALING_STRETCH;
-		}
-
-		m_ScFullscreenDesc.Windowed = true;
-	}
-
 	hr = factory->CreateSwapChainForHwnd(
 		commandQueue,
 		*hwnd,
 		&scDesc,
-		&m_ScFullscreenDesc,
+		nullptr,
 		nullptr,
 		&swapChain1);
 
@@ -96,9 +98,7 @@ SwapChain::SwapChain(
 		// Finally, activate fullscreen state
 		m_pSwapChain4->SetFullscreenState(true, NULL);
 
-		initFullscreen(&width, &height);
-
-		resize(hwnd, width, height);
+		resize(hwnd);
 	}
 
 	createSwapBuffers(device, width, height, descriptorHeap_RTV, descriptorHeap_CBV_UAV_SRV);
@@ -160,44 +160,25 @@ void SwapChain::ToggleWindowMode(ID3D12Device5* device,
 
 	clearSwapBuffers();
 
-	unsigned int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	unsigned int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
-
 	if (m_WindowMode == static_cast<int>(WINDOW_MODE::FULLSCREEN))
 	{
-		m_ScDesc.Scaling = DXGI_SCALING_STRETCH;
-		m_ScFullscreenDesc.Windowed = false;
-
 		m_pSwapChain4->SetFullscreenState(true, nullptr);
-
-		initFullscreen(&width, &height);
 
 		Option::GetInstance().SetVariable("i_windowMode", std::to_string(2));
 	}
 	else
 	{
-		m_ScFullscreenDesc.Windowed = true;
 		m_pSwapChain4->SetFullscreenState(false, nullptr);
 
-		// If windowed fullscreen
-		if (std::atoi(Option::GetInstance().GetVariable("i_windowMode").c_str()) == static_cast<int>(WINDOW_MODE::WINDOWED_FULLSCREEN))
-		{
-			m_WindowMode = 1;
-			m_ScDesc.Scaling = DXGI_SCALING_STRETCH;
-		}
-		else
-		{
-			//m_ScDesc.Scaling = DXGI_SCALING_NONE;
-			Option::GetInstance().SetVariable("i_windowMode", std::to_string(0));
-		}
+		Option::GetInstance().SetVariable("i_windowMode", std::to_string(0));
 	}
 
-	resize(hwnd, width, height);
+	resize(hwnd);
 
-	createSwapBuffers(device, width, height, descriptorHeap_RTV, descriptorHeap_CBV_UAV_SRV);
+	createSwapBuffers(device, m_CurrentModeDescription.Width, m_CurrentModeDescription.Height, descriptorHeap_RTV, descriptorHeap_CBV_UAV_SRV);
 }
 
-const void SwapChain::initFullscreen(unsigned int* width, unsigned int* height)
+const void SwapChain::lookForSupportedResolutions(unsigned int* width, unsigned int* height)
 {
 	// enumerate all available display modes
 	// get representation of the output adapter
@@ -242,17 +223,24 @@ const void SwapChain::initFullscreen(unsigned int* width, unsigned int* height)
 		}
 	}
 
-	// if the current resolution is not supported, switch to the heighest supported resolution
+	// if the current resolution is not supported, switch to the nearest supported resolution
 	if (!supportedMode)
 	{
 		// print a warning 
 		Log::PrintSeverity(Log::Severity::WARNING,
-			"The desired screen resolution is not supported! Resizing to the lowest supported resolution...\n");
+			"The desired screen resolution is not supported! Resizing to the nearest supported resolution...\n");
 
-		// set the mode to the lowest supported resolution
-		m_CurrentModeDescription = m_pSupportedModes[m_NumberOfSupportedModes-1];
-		*width = m_CurrentModeDescription.Width;
-		*height = m_CurrentModeDescription.Height;
+		for (unsigned int i = 0; i < m_NumberOfSupportedModes; i++)
+		{
+			// We don't care about other attributes, only the resolution
+			if (m_pSupportedModes[i].Width > static_cast<UINT>(*width))
+			{
+				// set the mode to the nearest supported resolution
+				*width = m_pSupportedModes[i].Width;
+				*height = m_pSupportedModes[i].Height;
+				break;
+			}
+		}
 
 		Log::Print("Supported resolutions:\n");
 		int latestWidth = 0;
@@ -274,33 +262,28 @@ const void SwapChain::initFullscreen(unsigned int* width, unsigned int* height)
 	delete[] m_pSupportedModes;
 }
 
-const void SwapChain::resize(const HWND* hwnd, unsigned int width, unsigned int height)
+const void SwapChain::resize(const HWND* hwnd)
 {
-	// If windowed fullscreen, get screen size
-	if (m_WindowMode == static_cast<int>(WINDOW_MODE::WINDOWED_FULLSCREEN))
-	{
-		HMONITOR hmon = MonitorFromWindow(const_cast<HWND>(*hwnd), MONITOR_DEFAULTTONEAREST);
-		MONITORINFO mi = { sizeof(mi) };
-		GetMonitorInfo(hmon, &mi);
-
-		m_CurrentModeDescription.Width = mi.rcMonitor.right - mi.rcMonitor.left;
-		m_CurrentModeDescription.Height = mi.rcMonitor.bottom - mi.rcMonitor.top;
-	}
-
 	if (FAILED(m_pSwapChain4->ResizeTarget(&m_CurrentModeDescription)))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Unable to resize target to a supported display mode!");
 	}
 	else
 	{
-		m_pSwapChain4->ResizeBuffers(NUM_SWAP_BUFFERS, width, height, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+		m_pSwapChain4->ResizeBuffers(NUM_SWAP_BUFFERS, 
+			m_CurrentModeDescription.Width, m_CurrentModeDescription.Height,
+			DXGI_FORMAT_UNKNOWN,
+			DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
 	}
 
-	// If windowed fullscreen, fit the window to the screen
-	if (m_WindowMode == static_cast<int>(WINDOW_MODE::WINDOWED_FULLSCREEN))
+	// If not fullscreen, fit the window to the screen
+	if (m_WindowMode == static_cast<int>(WINDOW_MODE::WINDOWED))
 	{
 		// Make sure that the window starts at the top left corner
-		MoveWindow(const_cast<HWND>(*hwnd), 0, 0, m_CurrentModeDescription.Width, m_CurrentModeDescription.Height, true);
+		int windowWidth = std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str());
+		int windowHeight = std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str());
+		SetWindowPos(const_cast<HWND>(*hwnd), 0, 0, 0, windowWidth, windowHeight, SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+		MoveWindow(const_cast<HWND>(*hwnd), 0, 0, windowWidth, windowHeight, false);
 	}
 }
 

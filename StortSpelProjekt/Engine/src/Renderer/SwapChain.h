@@ -41,19 +41,16 @@ private:
 	std::array<ShaderResourceView*, NUM_SWAP_BUFFERS> m_SRVs;
 	IDXGISwapChain4* m_pSwapChain4 = nullptr;
 	DXGI_SWAP_CHAIN_DESC1 m_ScDesc = {};
+	DXGI_RATIONAL m_RefreshRate = {};
 	int m_WindowMode = 0;
 
-	DXGI_RATIONAL m_ZeroRefreshRate = {};
-	DXGI_SWAP_CHAIN_FULLSCREEN_DESC m_ScFullscreenDesc = {};
-
-	// colour format
 	DXGI_FORMAT m_DesiredColourFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	unsigned int m_NumberOfSupportedModes = 0;		// the number of supported screen modes for the desired colour format
 	DXGI_MODE_DESC* m_pSupportedModes = nullptr;	// list of all supported screen modes for the desired colour format
 	DXGI_MODE_DESC m_CurrentModeDescription = {};	// description of the currently active screen mode
 
-	const void initFullscreen(unsigned int* width, unsigned int* height);
-	const void resize(const HWND* hwnd, unsigned int width, unsigned int height);
+	const void lookForSupportedResolutions(unsigned int* width, unsigned int* height);
+	const void resize(const HWND* hwnd);
 	const void createSwapBuffers(ID3D12Device5* device,
 		unsigned int width, unsigned int height,
 		DescriptorHeap* descriptorHeap_RTV,

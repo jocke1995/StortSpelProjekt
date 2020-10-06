@@ -184,21 +184,12 @@ Make sure that you have the latest *Java Runtime* installed.
 **Resolution width** and **height** are the sizes of the rendered scene, while **window width** and **height** are the sizes of the window which 
 the scene is rendered in. These can be changed in *config.txt*.
 
-The **stretched window** variable can also be changed in the config.txt file. If this one is active *(1)*, the rendering resolution will
-adjust to the size of the window. This means that if we have a window of *800x600* and a resolution of *1920x1080*, then the
-resolution will be *crammed* into the *800x600* window. This means that the program will run as if it was running in *1920x1080* but
-will be displayed as *800x600*. The opposite is also true, which means that a *800x600* resolution will be *stretched* if the size
-of the window is bigger, for example, if the window size is *1920x1080*. This means that you can run a lower resolution on a bigger window.
-
-However, if the **stretched window** variable is inactive *(0)*, then the resolution and the size of the window wont affect each other. This 
-means that if you have a window size of *800x600* but a resolution of *1920x1080*, then the window wont display all of the rendered scene,
-but rather a portion of it. And if the resolution is smaller than the size of the window, then the rendered scene will be shown in
-a portion of the window, while the rest of the window is black.
-
-Finally, the **window mode** variable, which also can be found the config.txt file, controls whether the user wants a **window** *(0)*, 
+The **window mode** variable, which also can be found the config.txt file, controls whether the user wants a **window** *(0)*, 
 **windowed fullscreen** *(1)* or **exclusive fullscreen** *(2)*:
+
 **Windowed fullscreen** means that the window will cover all of your screen with the chosen resolution and therefore *overrides* the chosen 
-window size. This allows other applications and windows to continue running in the background. 
+window size. This allows other applications and windows to continue running in the background.
+
 **Exclusive fullscreen** mode gives your game complete ownership of the display and allocation of resources of your graphics card. This means that
 exclusive fullscreen may save a couple of your frames per second and is therefore recommended while playing. It should also be noted that the
 exclusive fullscreen mode will also override the window size settings until you loose focus by, for example, pressing the *alt+enter* combination on
