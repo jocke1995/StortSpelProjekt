@@ -1,12 +1,13 @@
 f_volume 1.0
 f_backgroundVolume 0.2
 f_updateRate 30
-i_resolutionWidth 1920
-i_resolutionHeight 1080
-i_windowWidth 1920
-i_windowHeight 1080
+i_resolutionWidth 800
+i_resolutionHeight 600
+i_windowWidth 800
+i_windowHeight 600
 i_fullscreen 0
 i_amountOfBlur 1
+i_shadowResolution 2
 i_network 0
 s_ip wiko97.ddns.net
 i_port 55555

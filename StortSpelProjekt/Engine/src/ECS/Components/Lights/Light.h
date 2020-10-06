@@ -10,13 +10,10 @@ enum FLAG_LIGHT
 	USE_TRANSFORM_POSITION = BIT(1),
 
 	// Option to make the light cast shadows or not with different resolutions
-	CAST_SHADOW_LOW_RESOLUTION = BIT(2),
-	CAST_SHADOW_MEDIUM_RESOLUTION = BIT(3),
-	CAST_SHADOW_HIGH_RESOLUTION = BIT(4),
-	CAST_SHADOW_ULTRA_RESOLUTION = BIT(5),
+	CAST_SHADOW = BIT(2)
 
 	// If this is set, m_pRenderer only need to copy data once to GPU
-	// STATIC_DATA .. = BIT(6),
+	// STATIC_DATA .. = BIT(3),
 
 	// etc..
 };
