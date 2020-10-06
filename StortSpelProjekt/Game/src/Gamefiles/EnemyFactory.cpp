@@ -57,7 +57,41 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, flo
 	tc = ent->AddComponent<component::TransformComponent>();	
 	ent->AddComponent<component::HealthComponent>(hp);
 	tc = ent->AddComponent<component::TransformComponent>();
-	cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, 1.0, 2.0);
+
+	for (unsigned int i = 0; i < model->GetSize(); i++)
+	{
+		std::vector<Vertex> modelVertices = *model->GetMeshAt(i)->GetVertices();
+		float3 minVertex = { 100.0, 100.0, 100.0 }, maxVertex = { -100.0, -100.0, -100.0 };
+		for (unsigned int i = 0; i < modelVertices.size(); i++)
+		{
+			minVertex.x = Min(minVertex.x, modelVertices[i].pos.x);
+			minVertex.y = Min(minVertex.y, modelVertices[i].pos.y);
+			minVertex.z = Min(minVertex.z, modelVertices[i].pos.z);
+
+			maxVertex.x = Max(maxVertex.x, modelVertices[i].pos.x);
+			maxVertex.y = Max(maxVertex.y, modelVertices[i].pos.y);
+			maxVertex.z = Max(maxVertex.z, modelVertices[i].pos.z);
+		}
+		m_EnemyComps[entityName]->dim = { maxVertex.x - minVertex.x, maxVertex.y - minVertex.y, maxVertex.z - minVertex.z };
+	}
+
+	if (m_EnemyComps[entityName]->compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
+	{
+		cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, m_EnemyComps[entityName]->dim.x / 2.0, m_EnemyComps[entityName]->dim.y / 2.0);
+	}
+	else if (m_EnemyComps[entityName]->compFlags & F_COMP_FLAGS::SPHERE_COLLISION)
+	{
+		cc = ent->AddComponent<component::SphereCollisionComponent>(1.0, m_EnemyComps[entityName]->dim.y / 2.0);
+	}
+	else if (m_EnemyComps[entityName]->compFlags & F_COMP_FLAGS::CUBE_COLLISION)
+	{
+		cc = ent->AddComponent<component::CubeCollisionComponent>(1.0, m_EnemyComps[entityName]->dim.x / 2.0, m_EnemyComps[entityName]->dim.y / 2.0, m_EnemyComps[entityName]->dim.z / 2.0);
+	}
+	else
+	{
+		cc = ent->AddComponent<component::CubeCollisionComponent>(0.0, 0.0, 0.0, 0.0);
+	}
+
 	Entity* target = m_pScene->GetEntity(aiTarget);
 	if (target != nullptr)
 	{
@@ -108,7 +142,22 @@ Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
 			mc = ent->AddComponent<component::ModelComponent>();
 			tc = ent->AddComponent<component::TransformComponent>();
 			ent->AddComponent<component::HealthComponent>(m_EnemyComps[entityName]->hp);
-			cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, 1.0, 2.0);
+			if (m_EnemyComps[entityName]->compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
+			{
+				cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, m_EnemyComps[entityName]->dim.x / 2.0, m_EnemyComps[entityName]->dim.y / 2.0);
+			}
+			else if (m_EnemyComps[entityName]->compFlags & F_COMP_FLAGS::SPHERE_COLLISION)
+			{
+				cc = ent->AddComponent<component::SphereCollisionComponent>(1.0, m_EnemyComps[entityName]->dim.y / 2.0);
+			}
+			else if (m_EnemyComps[entityName]->compFlags & F_COMP_FLAGS::CUBE_COLLISION)
+			{
+				cc = ent->AddComponent<component::CubeCollisionComponent>(1.0, m_EnemyComps[entityName]->dim.x / 2.0, m_EnemyComps[entityName]->dim.y / 2.0, m_EnemyComps[entityName]->dim.z / 2.0);
+			}
+			else
+			{
+				cc = ent->AddComponent<component::CubeCollisionComponent>(0.0, 0.0, 0.0, 0.0);
+			}
 			Entity* target = m_pScene->GetEntity(m_EnemyComps[entityName]->targetName);
 			if (target != nullptr)
 			{
@@ -203,7 +252,22 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3
 			mc = ent->AddComponent<component::ModelComponent>();
 			tc = ent->AddComponent<component::TransformComponent>();
 			ent->AddComponent<component::HealthComponent>(newHP);
-			cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, 1.0, 2.0);
+			if (m_EnemyComps[entityName]->compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
+			{
+				cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, m_EnemyComps[entityName]->dim.x / 2.0, m_EnemyComps[entityName]->dim.y / 2.0);
+			}
+			else if (m_EnemyComps[entityName]->compFlags & F_COMP_FLAGS::SPHERE_COLLISION)
+			{
+				cc = ent->AddComponent<component::SphereCollisionComponent>(1.0, m_EnemyComps[entityName]->dim.y / 2.0);
+			}
+			else if (m_EnemyComps[entityName]->compFlags & F_COMP_FLAGS::CUBE_COLLISION)
+			{
+				cc = ent->AddComponent<component::CubeCollisionComponent>(1.0, m_EnemyComps[entityName]->dim.x / 2.0, m_EnemyComps[entityName]->dim.y / 2.0, m_EnemyComps[entityName]->dim.z / 2.0);
+			}
+			else
+			{
+				cc = ent->AddComponent<component::CubeCollisionComponent>(0.0, 0.0, 0.0, 0.0);
+			}
 			Entity* target = m_pScene->GetEntity(m_EnemyComps[entityName]->targetName);
 			if (target != nullptr)
 			{

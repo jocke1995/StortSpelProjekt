@@ -13,6 +13,9 @@ class Entity;
 enum F_COMP_FLAGS
 {
 	OBB = BIT(1),
+	CUBE_COLLISION = BIT(2),
+	SPHERE_COLLISION = BIT(3),
+	CAPSULE_COLLISION = BIT(4),
 };
 
 // saves the info about a type of enemy
@@ -29,6 +32,7 @@ struct EnemyComps
 	int enemiesOfThisType = 0;
 	std::wstring sound3D;
 	std::wstring sound2D;
+	float3 dim;
 };
 
 class EnemyFactory
