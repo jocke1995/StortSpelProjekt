@@ -70,6 +70,8 @@ void component::CollisionComponent::InitScene()
 	
 	// Add the collisioncomponent to the physics sub-engine.
 	Physics::GetInstance().AddCollisionComponent(this);
+
+	SetAngularFactor(double3({ 0.0, 0.0, 0.0 }));
 }
 
 void component::CollisionComponent::SetPosition(double x, double y, double z)
