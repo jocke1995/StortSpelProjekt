@@ -523,8 +523,8 @@ ImGuiHandler::ImGuiHandler()
     if (std::atoi(Option::GetInstance().GetVariable("i_network").c_str()) == 1)
     {
         m_Commands.push_back("CONNECT");
+        m_Commands.push_back("DISCONNECT");
     }
-    m_Commands.push_back("DISCONNECT");
     m_ScrollToBottom = false;
 
     if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)

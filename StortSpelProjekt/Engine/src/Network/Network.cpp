@@ -71,6 +71,7 @@ void Network::Disconnect()
         int size = m_Players.size();
         for (int i = 1; i < size; i++)
         {
+            m_Players.at(i)->entityPointer = nullptr;
             delete m_Players.at(i);
             m_Players.erase(m_Players.begin() + i);
         }
