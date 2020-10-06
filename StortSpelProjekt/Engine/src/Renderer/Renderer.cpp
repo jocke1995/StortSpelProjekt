@@ -589,21 +589,18 @@ void Renderer::InitDirectionalLightComponent(Entity* entity)
 	// Check if the light is to cast shadows
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
 
-	if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION)
+	int shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	if (shadowRes == 0)
 	{
 		resolution = SHADOW_RESOLUTION::LOW;
 	}
-	else if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION)
+	else if (shadowRes == 1)
 	{
 		resolution = SHADOW_RESOLUTION::MEDIUM;
 	}
-	else if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION)
+	else if (shadowRes == 2)
 	{
 		resolution = SHADOW_RESOLUTION::HIGH;
-	}
-	else if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION)
-	{
-		resolution = SHADOW_RESOLUTION::ULTRA;
 	}
 
 	// Assign views required for shadows from the lightPool
@@ -646,21 +643,18 @@ void Renderer::InitSpotLightComponent(Entity* entity)
 	// Check if the light is to cast shadows
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
 
-	if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION)
+	int shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	if (shadowRes == 0)
 	{
 		resolution = SHADOW_RESOLUTION::LOW;
 	}
-	else if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION)
+	else if (shadowRes == 1)
 	{
 		resolution = SHADOW_RESOLUTION::MEDIUM;
 	}
-	else if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION)
+	else if (shadowRes == 2)
 	{
 		resolution = SHADOW_RESOLUTION::HIGH;
-	}
-	else if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION)
-	{
-		resolution = SHADOW_RESOLUTION::ULTRA;
 	}
 
 	// Assign views required for shadows from the lightPool
@@ -1369,9 +1363,9 @@ void Renderer::initRenderTasks()
 	// Rasterizer behaviour
 	gpsdShadow.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 	gpsdShadow.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
-	gpsdShadow.RasterizerState.DepthBias = 0;
+	gpsdShadow.RasterizerState.DepthBias = 1000;
 	gpsdShadow.RasterizerState.DepthBiasClamp = 0.0f;
-	gpsdShadow.RasterizerState.SlopeScaledDepthBias = 0.0f;
+	gpsdShadow.RasterizerState.SlopeScaledDepthBias = 3.0f;
 	gpsdShadow.RasterizerState.FrontCounterClockwise = false;
 
 	// Depth descriptor
@@ -1925,7 +1919,7 @@ void Renderer::prepareCBPerScene()
 		index++;
 	}
 	// ----- spot m_lights -----
-
+	
 	// Upload CB_PER_SCENE to defaultheap
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	const void* data = static_cast<const void*>(m_pCbPerSceneData);
