@@ -49,7 +49,7 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			EventBus::GetInstance().Publish(&MovementInput(key, pressed));
 		}
 	}
-	else if (key == SCAN_CODES::LEFT_CTRL)
+	else if (key == SCAN_CODES::LEFT_CTRL || key == SCAN_CODES::LEFT_SHIFT)
 	{
 		if (justPressed)
 		{

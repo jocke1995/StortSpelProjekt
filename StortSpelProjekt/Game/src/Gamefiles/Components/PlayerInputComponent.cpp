@@ -39,7 +39,7 @@ void component::PlayerInputComponent::Init()
 	
 	if (m_pCC && m_pCamera && m_pTransform)
 	{
-		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::toggleCameraLock);
+		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::alternativeInput);
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::zoom);
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::rotate);
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::move);
@@ -89,7 +89,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	}
 }
 
-void component::PlayerInputComponent::toggleCameraLock(ModifierInput* evnt)
+void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 {
 	if (evnt->key == SCAN_CODES::LEFT_CTRL && evnt->pressed)
 	{
@@ -99,6 +99,32 @@ void component::PlayerInputComponent::toggleCameraLock(ModifierInput* evnt)
 		m_pTransform->SetMovement(0.0f, 0.0f, 0.0f);
 		m_Yaw = sqrt(2);
 		m_Pitch = 0.0f;
+	}
+	// If shift is pressed and held, increase velocity (Number not set in stone)
+	else if (evnt->key == SCAN_CODES::LEFT_SHIFT && evnt->pressed)
+	{
+		m_pTransform->SetVelocity(30);
+		// Check if the player is in the air. If not, allow sprint
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1)
+		{
+			// Get the current linear velocity of the player
+			double3 vel = m_pCC->GetLinearVelocity();
+			vel *= 3;
+			m_pCC->SetVelVector(vel.x, vel.y, vel.z);
+		}
+	}
+	// If shift is released, decrease velocity to "normal" values
+	else if (evnt->key == SCAN_CODES::LEFT_SHIFT && !evnt->pressed)
+	{
+		m_pTransform->SetVelocity(10);
+		// Check if the player is in the air. If not, allow sprint
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1)
+		{
+			// Get the current linear velocity of the player
+			double3 vel = m_pCC->GetLinearVelocity();
+			vel /= 3;
+			m_pCC->SetVelVector(vel.x, vel.y, vel.z);
+		}
 	}
 }
 
@@ -142,7 +168,8 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		vel =
 		{
 			vel.x + move.x * m_pTransform->GetVelocity(),
-			vel.y + move.y * 2 * m_pTransform->GetVelocity(),
+			//Constant value to compensate for sprint velocity
+			vel.y + move.y * 20,
 			vel.z + move.z * m_pTransform->GetVelocity()
 		};
 
