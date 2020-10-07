@@ -7,7 +7,7 @@ namespace component
 	class UpgradeRangeTest : public UpgradeComponent
 	{
 	public: 
-		UpgradeRangeTest(Entity* parent, std::string name, int type);
+		UpgradeRangeTest(Entity* parent);
 		~UpgradeRangeTest();
 
 		void OnHit();

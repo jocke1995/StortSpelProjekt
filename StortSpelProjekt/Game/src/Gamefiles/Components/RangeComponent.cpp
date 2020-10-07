@@ -43,7 +43,7 @@ void component::RangeComponent::Attack(MouseClick* event)
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
 		// upgrade-test
 		ac = ent->AddComponent <component::AccelerationComponent>(50);
-		urc = ent->AddComponent<component::UpgradeRangeTest>("rangeupgradetest", E_Type::RANGE);
+		urc = ent->AddComponent<component::UpgradeRangeTest>();
 
 		// get the pos of parent object and forward of camera 
 		// so we know where to spawn and in which direction

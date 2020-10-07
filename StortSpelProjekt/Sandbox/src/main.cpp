@@ -68,7 +68,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
     //sceneManager->SetScene(BjornsTestScene(sceneManager));
     //sceneManager->SetScene(AntonTestScene(sceneManager));
-    sceneManager->SetScene(AndresTestScene(sceneManager)); // upgrade testing
+    sceneManager->SetScene(AndresTestScene(sceneManager)); // upgrade-test
 
     GameNetwork gameNetwork;
 
@@ -299,8 +299,10 @@ Scene* LeosTestScene(SceneManager* sm)
 
     // Get the audio needed and add settings to it.
     AudioBuffer* loopedSound = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"Music");
+    AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
 
     loopedSound->SetAudioLoop(0);
+    bruhSound->SetAudioLoop(0);
 
     /* ---------------------- Player ---------------------- */
     Entity* entity = scene->AddEntity("player");
@@ -1320,9 +1322,9 @@ Scene* AndresTestScene(SceneManager* sm)
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* bcc = nullptr;
     component::RangeComponent* rc = nullptr;
-    component::UpgradeComponent* upgradeComp = nullptr;
-    component::UpgradeRangeTest* upgradeTest = nullptr;
-    component::AccelerationComponent* ac = nullptr;
+    //component::UpgradeComponent* upgradeComp = nullptr;
+    //component::UpgradeRangeTest* upgradeTest = nullptr;
+    //component::AccelerationComponent* ac = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1461,9 +1463,6 @@ Scene* AndresTestScene(SceneManager* sm)
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    // upgrade testing
-    ac = entity->AddComponent<component::AccelerationComponent>();
-    upgradeTest = entity->AddComponent<component::UpgradeRangeTest>("upgradeTest", E_Type::RANGE);
 
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);

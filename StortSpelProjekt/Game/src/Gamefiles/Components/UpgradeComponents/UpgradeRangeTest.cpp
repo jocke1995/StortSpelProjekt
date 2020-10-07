@@ -2,9 +2,12 @@
 #include "stdafx.h"
 #include "../ECS/Entity.h"
 
-component::UpgradeRangeTest::UpgradeRangeTest(Entity* parent, std::string name, int type)
-	:UpgradeComponent(parent, name, type)
-{	
+component::UpgradeRangeTest::UpgradeRangeTest(Entity* parent)
+	:UpgradeComponent(parent)
+{
+	SetName("UpgradeRangeTest");
+	SetType(E_Type::RANGE);
+	IncreaseLevel();
 }
 
 component::UpgradeRangeTest::~UpgradeRangeTest()
