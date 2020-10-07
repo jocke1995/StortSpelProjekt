@@ -50,7 +50,7 @@ void ClientPool::Update(double dt)
 			if (m_Clients.at(i)->lastPacket >= CLIENT_TIMEOUT)
 			{
 				m_ConsoleString += "Client " + std::to_string(m_Clients.at(i)->clientId) + " has timed out\n";
-				disconnect(m_Clients.at(i)->clientId);
+				disconnect(i);
 			}
 		}
 	}
