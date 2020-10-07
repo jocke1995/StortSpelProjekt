@@ -28,6 +28,8 @@ public:
 	int GetNrOfClients();
 	int GetNrOfConnectedClients();
 
+	void toggleShowPackage();
+
 	//Removes all open clients that have not connected or disconneted
 	void RemoveUnconnected();
 
@@ -43,6 +45,8 @@ private:
 	int m_AvailableClientId;
 
 	std::string m_ConsoleString;
+	
+	bool m_ShowPackage = false;
 
 	float m_NrOfBytesSent = 0.0;
 	int m_NrOfPackagesSent = 0;

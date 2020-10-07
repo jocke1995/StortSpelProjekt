@@ -67,6 +67,11 @@ int ClientPool::GetNrOfConnectedClients()
 	return count;
 }
 
+void ClientPool::toggleShowPackage()
+{
+	m_ShowPackage = !m_ShowPackage;
+}
+
 void ClientPool::RemoveUnconnected()
 {
 	for (int i = 0; i < m_Clients.size(); i++)
@@ -141,7 +146,10 @@ void ClientPool::newPacket(int socket)
 	sf::Packet packet;
 	if (m_Clients.at(socket)->socket.receive(packet) == sf::Socket::Done)
 	{
-		m_ConsoleString.append("Recieved a packet from client " + std::to_string(socket) + "; " + std::to_string(packet.getDataSize()) + " BYTES\n");
+		if (m_ShowPackage)
+		{
+			m_ConsoleString.append("Recieved a packet from client " + std::to_string(socket) + "; " + std::to_string(packet.getDataSize()) + " BYTES\n");
+		}
 
 		if (DEVELOPERMODE_NETWORKLOG)
 		{

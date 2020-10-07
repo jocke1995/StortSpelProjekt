@@ -44,6 +44,10 @@ int main()
 					server.AddClient();
 					std::cout << server.GetNrOfClients() << " Client slots in total" << std::endl;
 				}
+				if (strcmp(str.c_str(), "Packet") == 0)
+				{
+					server.toggleShowPackage();
+				}
 
 				server.ListenMessages();
 
