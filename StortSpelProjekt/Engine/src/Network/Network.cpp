@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Network.h"
 
+#include "../ImGUI/ImGuiHandler.h"
+
 Network::Network()
 {
     m_Connected = false;
@@ -23,10 +25,12 @@ bool Network::ConnectToIP(std::string ip, int port)
 
     if (status != 0) 
     {
+        ImGuiHandler::GetInstance().AddLog("Connection to %s failed", ip.c_str());
         Log::PrintSeverity(Log::Severity::WARNING, "Connection to " + ip + " failed\n");
         return false;
     }
     else {
+        ImGuiHandler::GetInstance().AddLog("Connected to %s succesfully", ip.c_str());
         Log::Print("Connected to " + ip + "\n");
         m_Connected = true;
 
@@ -44,6 +48,11 @@ bool Network::ConnectToIP(std::string ip, int port)
     }
 }
 
+bool Network::IsConnected()
+{
+    return m_Connected;
+}
+
 sf::TcpSocket* Network::GetSocket()
 {
     return &m_Socket;
@@ -54,7 +63,8 @@ void Network::SendPositionPacket()
     sf::Packet packet;
 
     float3 pos = m_Players.at(0)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
-    DirectX::XMFLOAT3 mov = m_Players.at(0)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->GetMovement();
+    double3 mov = m_Players.at(0)->entityPointer->GetComponent<component::CollisionComponent>()->GetLinearVelocity();
+    
 
     packet << E_PACKET_ID::PLAYER_DATA << m_Id << pos.x << pos.y << pos.z << mov.x << mov.y << mov.z;
 
@@ -108,12 +118,12 @@ void Network::processPlayerData(sf::Packet* packet)
     /* Expected packet configuration
     int client id
     float3 player position
-    float3 player movment(velocity and direction)
+    double3 player movment(velocity and direction)
     */
 
     int id;
     float3 pos;
-    float3 mov;
+    double3 mov;
 
     *packet >> id;
 
@@ -129,8 +139,8 @@ void Network::processPlayerData(sf::Packet* packet)
     {
         if (m_Players.at(i)->clientId == id)
         {
-            m_Players.at(i)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
-            m_Players.at(i)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->SetActualMovement(mov.x, mov.y, mov.z);
+            m_Players.at(i)->entityPointer->GetComponent<component::CollisionComponent>()->SetPosition(pos.x, pos.y, pos.z);
+            m_Players.at(i)->entityPointer->GetComponent<component::CollisionComponent>()->SetVelVector(mov.x, mov.y, mov.z);
         }
     }
 }

@@ -21,6 +21,7 @@ public:
 	~Network();
 
 	bool ConnectToIP(std::string ip, int port);
+	bool IsConnected();
 
 	sf::TcpSocket* GetSocket();
 
