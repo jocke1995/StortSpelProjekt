@@ -14,10 +14,6 @@ namespace component
 		HealthComponent(Entity* parent, int hp);
 		~HealthComponent();
 
-		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
-
 		// will publish a death event if hp reaches 0 or bellow
 		void SetHealth(int hp);
 		// Meant to be used for taking damage (input negative numbers)

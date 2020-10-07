@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <utility>
 #include <Windows.h>
+#include <chrono>
 
 enum class SCAN_CODES
 {
@@ -180,6 +181,7 @@ private:
 
 	std::unordered_map<SCAN_CODES, bool> m_KeyState;
 	std::unordered_map<MOUSE_BUTTON, bool> m_MouseButtonState;
+	std::unordered_map<SCAN_CODES, std::chrono::system_clock::time_point> m_KeyTimer;
 };
 
 #endif // !INPUT_H

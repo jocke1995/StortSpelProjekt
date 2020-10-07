@@ -16,18 +16,6 @@ component::ProjectileComponent::~ProjectileComponent()
 
 }
 
-void component::ProjectileComponent::OnInitScene()
-{
-}
-
-void component::ProjectileComponent::OnLoadScene()
-{
-}
-
-void component::ProjectileComponent::OnUnloadScene()
-{
-}
-
 void component::ProjectileComponent::Update(float dt)
 {
 	

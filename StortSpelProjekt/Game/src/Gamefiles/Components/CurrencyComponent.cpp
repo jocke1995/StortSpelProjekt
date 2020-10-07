@@ -9,18 +9,6 @@ component::CurrencyComponent::~CurrencyComponent()
 {
 }
 
-void component::CurrencyComponent::OnInitScene()
-{
-}
-
-void component::CurrencyComponent::OnLoadScene()
-{
-}
-
-void component::CurrencyComponent::OnUnloadScene()
-{
-}
-
 void component::CurrencyComponent::SetBalance(int newBalance)
 {
 	m_Balance = newBalance;
