@@ -75,7 +75,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* activeScenes[] = { leoScene };
 
     // Set scene
-    sceneManager->SetScene(1, activeScenes);
+    sceneManager->SetScenes(1, activeScenes);
 
     GameNetwork gameNetwork;
 
@@ -147,12 +147,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             if (currentScene)
             {
                 sceneManager->UnloadScene(activeScene);
-                sceneManager->SetScene(1, &activeScene);
+                sceneManager->SetScenes(1, &activeScene);
             }
             else
             {
                 sceneManager->UnloadScene(activeScene);
-                sceneManager->SetScene(1, &activeScene);
+                sceneManager->SetScenes(1, &activeScene);
             }
             currentScene = !currentScene;
         }
@@ -351,7 +351,6 @@ Scene* LeosTestScene(SceneManager* sm)
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 350.0, 0.0, 350.0);

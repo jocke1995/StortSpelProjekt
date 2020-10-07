@@ -11,13 +11,18 @@ Scene::~Scene()
 {
     for (auto pair : m_Entities)
     {
+        if (pair.second->GetName() == "RangeAttack1")
+        {
+            int asd = 0;
+        }
+        
         if (pair.second != nullptr)
         {
-            if (pair.second->GetRefCount() == 1)
+            pair.second->DecrementRefCount();
+            if (pair.second->GetRefCount() == 0)
             {
                 delete pair.second;
             }
-            pair.second->DecrementRefCount();
         }
     }
 }

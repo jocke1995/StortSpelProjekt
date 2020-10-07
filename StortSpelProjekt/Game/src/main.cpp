@@ -42,7 +42,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     /*----- Set the scene -----*/
     Scene* demoScene = GetDemoScene(sceneManager);
-    sceneManager->SetScene(1, &demoScene);
+    sceneManager->SetScenes(1, &demoScene);
 
     GameNetwork gameNetwork;
 

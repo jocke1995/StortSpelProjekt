@@ -17,6 +17,10 @@ namespace component
 		void Update(double dt);
 		void RenderUpdate(double dt);
 
+		void OnInitScene();
+		void OnLoadScene();
+		void OnUnloadScene();
+
 	private:
 		Entity* m_pTarget;
 		float m_DetectionRadius;

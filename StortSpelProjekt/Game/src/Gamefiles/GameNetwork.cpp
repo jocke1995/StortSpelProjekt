@@ -47,5 +47,5 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
 
     // TODO: Network setscene/addentity correct
     m_pSceneManager->AddEntity(entity, m_pSceneManager->GetActiveScenes()->at(0));
-    m_pSceneManager->SetScene(1, &m_pScene);
+    m_pSceneManager->SetScenes(1, &m_pScene);
 }
