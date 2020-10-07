@@ -2,10 +2,9 @@
 #include "stdafx.h"
 #include "../ECS/Entity.h"
 
-component::UpgradeRangeTest::UpgradeRangeTest(Entity* parent, std::string name)
-	:UpgradeRangeComponent(parent, name)
+component::UpgradeRangeTest::UpgradeRangeTest(Entity* parent, std::string name, int type)
+	:UpgradeComponent(parent, name, type)
 {	
-
 }
 
 component::UpgradeRangeTest::~UpgradeRangeTest()
@@ -19,7 +18,3 @@ void component::UpgradeRangeTest::OnHit()
 	m_pParent->GetComponent<component::AccelerationComponent>()->SetAccelerationSpeed(1000);
 }
 
-void component::UpgradeRangeTest::RangedFlight()
-{
-	Log::Print("UpgradeRangeTest RangedFlight called\n");
-}

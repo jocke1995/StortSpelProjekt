@@ -38,8 +38,6 @@ void component::AiComponent::Update(double dt)
 				vel = 7.5;
 				parentTrans->SetVelocity(vel);
 				cc->SetVelVector(vel * direction.x / distance, vel * 2 * direction.y / distance, vel * direction.z / distance);
-				// for demoscene! 
-				GetParent()->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
 			}
 			else
 			{
@@ -48,8 +46,6 @@ void component::AiComponent::Update(double dt)
 				float randX = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
 				float randZ = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
 				cc->SetVelVector(min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel), 0.0f, min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel));
-				// for demoscene! 
-				GetParent()->GetComponent<component::Audio3DEmitterComponent>()->Stop(L"Bruh");
 			}
 
 			if (distance <= m_AttackingDistance)
@@ -57,8 +53,6 @@ void component::AiComponent::Update(double dt)
 				Log::Print("%s attacking player!\n", m_pParent->GetName().c_str());
 				// TODO: fix this when meele attack is implemented
 				m_pTarget->GetComponent<component::HealthComponent>()->ChangeHealth(-1);
-				// for demoscene!
-				GetParent()->GetComponent<component::Audio2DVoiceComponent>()->Play(L"attack");
 			}
 		}
 	}

@@ -7,7 +7,7 @@
 #include "GameNetwork.h"
 // upgrades
 #include "Components/UpgradeComponents/UpgradeComponent.h"
-#include "Components/UpgradeComponents/UpgradeRangeComponent.h"
+#include "Components/UpgradeComponents/UpgradeRangeTest.h"
 
 Scene* JacobsTestScene(SceneManager* sm);
 Scene* LeosTestScene(SceneManager* sm);
@@ -26,7 +26,7 @@ void(*UpdateScene)(SceneManager*);
 void LeoUpdateScene(SceneManager* sm);
 void LeoBounceUpdateScene(SceneManager* sm);
 void TimUpdateScene(SceneManager* sm);
-void DemoUpdateScene(SceneManager* sm);
+void AndresUpdateScene(SceneManager* sm);
 
 void DefaultUpdateScene(SceneManager* sm);
 
@@ -382,7 +382,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    enH.AddEnemy("sphere", sphereModel, 10, float3{ 0, 10, 25 },L"Bruh", L"attack", F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
+    enH.AddEnemy("sphere", sphereModel, 10, float3{ 0, 10, 25 },L"Bruh", F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
     enH.AddExistingEnemy("sphere", float3{ 0, 10, -25 });
     enH.AddExistingEnemy("sphere", float3{ 25, 10, 0 });
     enH.AddExistingEnemy("sphere", float3{ -25, 10, 0 });
@@ -1321,6 +1321,8 @@ Scene* AndresTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::RangeComponent* rc = nullptr;
     component::UpgradeComponent* upgradeComp = nullptr;
+    component::UpgradeRangeTest* upgradeTest = nullptr;
+    component::AccelerationComponent* ac = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1359,10 +1361,6 @@ Scene* AndresTestScene(SceneManager* sm)
     rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    // upgrade component
-    //upgradeComp = entity->AddComponent<component::UpgradeComponent>();
-    //upgradeComp = entity->AddComponent<component::UpgradeRangeComponent>();
-
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -1463,6 +1461,9 @@ Scene* AndresTestScene(SceneManager* sm)
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    // upgrade testing
+    ac = entity->AddComponent<component::AccelerationComponent>();
+    upgradeTest = entity->AddComponent<component::UpgradeRangeTest>("upgradeTest", E_Type::RANGE);
 
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
@@ -1489,7 +1490,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB, 0.3, float3{ 0, 0, 0 });
+    entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", F_COMP_FLAGS::OBB, 0.3, float3{ 0, 0, 0 });
 
     /*entity = enH.AddExistingEnemy("enemy", float3{ 40, 10, 0 });
     entity = enH.AddExistingEnemy("enemy", float3{ 0, 10, -40 });
@@ -1519,7 +1520,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
 
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &DemoUpdateScene;
+    UpdateScene = &AndresUpdateScene;
     srand(time(NULL));
     /* ---------------------- Update Function ---------------------- */
 
@@ -1760,7 +1761,7 @@ void DefaultUpdateScene(SceneManager* sm)
 {
 }
 
-void DemoUpdateScene(SceneManager* sm)
+void AndresUpdateScene(SceneManager* sm)
 {
     component::Audio3DEmitterComponent* ec = sm->GetScene("AndresTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
     ec->UpdateEmitter(L"Bruh");

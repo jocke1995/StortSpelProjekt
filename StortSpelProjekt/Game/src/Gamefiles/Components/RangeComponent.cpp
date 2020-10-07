@@ -35,13 +35,15 @@ void component::RangeComponent::Attack(MouseClick* event)
 		component::BoundingBoxComponent* bbc = nullptr;
 		component::AccelerationComponent* ac = nullptr;
 		component::ProjectileComponent* pc = nullptr;
+		// upgrade-test
 		component::UpgradeRangeTest* urc = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
+		// upgrade-test
 		ac = ent->AddComponent <component::AccelerationComponent>(50);
-		urc = ent->AddComponent<component::UpgradeRangeTest>("rangeupgradetest");
+		urc = ent->AddComponent<component::UpgradeRangeTest>("rangeupgradetest", E_Type::RANGE);
 
 		// get the pos of parent object and forward of camera 
 		// so we know where to spawn and in which direction

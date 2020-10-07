@@ -20,7 +20,7 @@ EnemyFactory::~EnemyFactory()
 	m_EnemyComps.clear();
 }
 
-Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int flag, float scale, float3 rot, std::string aiTarget)
+Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, unsigned int flag, float scale, float3 rot, std::string aiTarget)
 {
 	for (auto pair : m_EnemyComps)
 	{
@@ -39,7 +39,6 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, flo
 	component::CollisionComponent* cc = nullptr;
 	component::AiComponent* ai = nullptr;
 	component::Audio3DEmitterComponent* ae = nullptr;
-	component::Audio2DVoiceComponent* avc = nullptr;
 	m_EnemyComps[entityName] = new EnemyComps;
 
 	m_EnemyComps[entityName]->enemiesOfThisType++;
@@ -51,7 +50,6 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, flo
 	m_EnemyComps[entityName]->targetName = aiTarget;
 	m_EnemyComps[entityName]->hp = hp;
 	m_EnemyComps[entityName]->sound3D = sound3D;
-	m_EnemyComps[entityName]->sound2D = sound2D;
 
 	mc = ent->AddComponent<component::ModelComponent>();
 	tc = ent->AddComponent<component::TransformComponent>();	
@@ -65,8 +63,6 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, flo
 	}
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
 	ae->AddVoice(sound3D);
-	avc = ent->AddComponent<component::Audio2DVoiceComponent>();
-	avc->AddVoice(sound2D);
 
 	mc->SetModel(m_EnemyComps[entityName]->model/*model*/);
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -103,7 +99,6 @@ Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
 			component::CollisionComponent* cc = nullptr;
 			component::AiComponent* ai = nullptr;
 			component::Audio3DEmitterComponent* ae = nullptr;
-			component::Audio2DVoiceComponent* avc = nullptr;
 			
 			mc = ent->AddComponent<component::ModelComponent>();
 			tc = ent->AddComponent<component::TransformComponent>();
@@ -116,9 +111,6 @@ Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
 			}
 			ae = ent->AddComponent<component::Audio3DEmitterComponent>();
 			ae->AddVoice(m_EnemyComps[entityName]->sound3D);
-			avc = ent->AddComponent<component::Audio2DVoiceComponent>();
-			avc->AddVoice(m_EnemyComps[entityName]->sound2D);
-
 
 			mc->SetModel(m_EnemyComps[entityName]->model);
 			mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);

@@ -3,7 +3,7 @@
 #include "Events/Events.h"
 #include "../ECS/Entity.h"
 #include "HealthComponent.h"
-#include "Components/UpgradeComponents/UpgradeRangeComponent.h"
+#include "UpgradeComponents/UpgradeComponent.h"
 
 component::ProjectileComponent::ProjectileComponent(Entity* parent, int damage) : Component(parent)
 {
@@ -32,11 +32,10 @@ void component::ProjectileComponent::hit(Collision* event)
 		{
 			event->ent2->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 		}
-		// testing ranged upgrade
+		// upgrade-test
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
-			m_pParent->GetComponent<component::UpgradeRangeComponent>()->OnHit();
-			//upgradeHandler.rangedHit()
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit();
 		}
 		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}
@@ -46,10 +45,10 @@ void component::ProjectileComponent::hit(Collision* event)
 		{
 			event->ent1->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 		}
-		// testing ranged upgrade
+		// upgrade-test
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
-			m_pParent->GetComponent<component::UpgradeRangeComponent>()->OnHit();
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit();
 		}
 		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}
