@@ -40,6 +40,7 @@ typedef union float3
 		y /= denom;
 		z /= denom;
 	};
+
 	void operator *= (float factor)
 	{
 		x *= factor;
@@ -57,7 +58,7 @@ typedef union float3
 		return { x - other.x, y - other.y, z - other.z };
 	};
 
-	float3 cross(float3* that)
+	float3 cross(float3* that) const
 	{
 		return
 		{
@@ -69,10 +70,20 @@ typedef union float3
 
 } float3;
 
-typedef union
+typedef union float2
 {
 	struct { float x; float y; };
 	struct { float u; float v; };
+
+	float2 operator +(const float2& other) const
+	{
+		return { x + other.x, y + other.y };
+	}
+
+	float2 operator -(const float2& other) const
+	{
+		return { x - other.x, y - other.y };
+	}
 } float2;
 
 typedef union

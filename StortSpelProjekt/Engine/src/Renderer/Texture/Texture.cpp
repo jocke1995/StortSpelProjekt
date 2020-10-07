@@ -48,3 +48,13 @@ BYTE* Texture::GetData() const
 {
 	return m_pImageData;
 }
+
+unsigned int Texture::GetWidth()
+{
+	return m_ResourceDescription.Width;
+}
+
+unsigned int Texture::GetHeight()
+{
+	return m_ResourceDescription.Height;
+}

@@ -20,6 +20,8 @@ public:
 	TEXTURE_TYPE GetType() const;
 	const unsigned int GetDescriptorHeapIndex() const;
 	BYTE* GetData() const;
+	unsigned int GetWidth();
+	unsigned int GetHeight();
 
 protected:
 	// CopyOnDemandTask & Renderer uses the private members of the texture class to upload data to the gpu

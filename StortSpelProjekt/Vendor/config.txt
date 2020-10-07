@@ -1,8 +1,8 @@
 f_volume 1.0
 f_backgroundVolume 0.2
 f_updateRate 30
-i_resolutionWidth 1920
-i_resolutionHeight 1080
+i_resolutionWidth 800
+i_resolutionHeight 600
 i_windowWidth 800
 i_windowHeight 600
 i_windowMode 0
