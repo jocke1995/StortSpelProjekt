@@ -35,6 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Option* option = &Option::GetInstance();
     option->ReadFile();
     float updateRate = 1.0f / std::atof(option->GetVariable("f_updateRate").c_str());
+    float networkUpdateRate = 1.0f / std::atof(option->GetVariable("f_networkUpdateRate").c_str());
 
     /* ------ Engine  ------ */
     Engine engine;
@@ -65,27 +66,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
     //sceneManager->SetScene(BjornsTestScene(sceneManager));
     //sceneManager->SetScene(AntonTestScene(sceneManager));
-    //sceneManager->SetScene(AndresTestScene(sceneManager)); // demoscene for sprint2
+    //sceneManager->SetScene(AndresTestScene(sceneManager));
 
     GameNetwork gameNetwork;
 
     /*------ Network Init -----*/
-    bool networkOn = false;
     Network network;
 
     gameNetwork.SetNetwork(&network);
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScene(sceneManager->GetScene("AndresTestScene"));
+        gameNetwork.SetScene(sceneManager->GetScene("ThatSceneWithThemThereDashFeaturesAndStuff"));
         gameNetwork.SetSceneManager(sceneManager);
-
-        network.SetPlayerEntityPointer(sceneManager->GetScene("AndresTestScene")->GetEntity("player"), 0);
-        network.ConnectToIP(option->GetVariable("s_ip"), std::atoi(option->GetVariable("i_port").c_str()));
-
-        networkOn = true;
     }
-    int networkCount = 0;
+    double networkTimer = 0;
     double logicTimer = 0;
     int count = 0;
 
@@ -97,21 +92,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         timer->Update();
         logicTimer += timer->GetDeltaTime();
+        if (network.IsConnected())
+        {
+            networkTimer += timer->GetDeltaTime();
+        }
 
         renderer->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
-            networkCount++;
             renderer->Update(updateRate);
             physics->Update(updateRate);
         }
 
         /* ---- Network ---- */
-        if (networkOn)
+        if (network.IsConnected())
         {
-            if (networkCount == 2) {
-                networkCount = 0;
+            if (networkTimer >= networkUpdateRate) {
+                networkTimer = 0;
 
                 network.SendPositionPacket();
                 while (network.ListenPacket());
@@ -346,12 +344,6 @@ Scene* LeosTestScene(SceneManager* sm)
     plc->SetColor({ 2.0f, 0.0f, 2.0f });
     plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
 
-    /* ---------------------- dirLight ---------------------- */
-    entity = scene->AddEntity("dirLight");
-    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    dlc->SetColor({ 1.0f, 1.0f, 1.0f });
-    dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
-
     /* ---------------------- Spotlight ---------------------- */
     entity = scene->AddEntity("Spotlight1");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -406,6 +398,12 @@ Scene* LeosTestScene(SceneManager* sm)
     slc->SetDirection({ 0.0, 0.0, 1.0f });
 
     bbc->Init();
+
+    /* ---------------------- dirLight ---------------------- */
+    entity = scene->AddEntity("dirLight");
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
+    dlc->SetColor({ 0.0f, 0.5f, 0.5f });
+    dlc->SetDirection({ -1.0f, -1.0f, 1.0f });
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
