@@ -14,7 +14,7 @@ Transform::Transform()
 	m_RotXMat = DirectX::XMMatrixIdentity();
 	m_RotYMat = DirectX::XMMatrixIdentity();
 	m_RotZMat = DirectX::XMMatrixIdentity();
-	m_Velocity = 10;
+	m_Velocity = 30;
 }
 
 Transform::~Transform()

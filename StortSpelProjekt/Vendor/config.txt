@@ -7,7 +7,9 @@ i_resolutionHeight 800
 i_windowWidth 1200
 i_windowHeight 800
 i_fullscreen 0
+i_windowMode 0
 i_amountOfBlur 1
+i_shadowResolution 2
 i_network 1
 s_ip wiko97.ddns.net
 i_port 55555

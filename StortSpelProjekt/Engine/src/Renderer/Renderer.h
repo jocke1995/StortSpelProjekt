@@ -70,6 +70,9 @@ namespace component
 	class SkyboxComponent;
 }
 
+// Events
+struct WindowChange;
+
 class Renderer
 {
 public:
@@ -103,6 +106,8 @@ public:
 	void InitBoundingBoxComponent(Entity* entity);
 	void InitTextComponent(Entity* entity);
 
+	SwapChain* GetSwapChain();
+
 private:
 	friend class component::SkyboxComponent;
 	friend class SceneManager;
@@ -115,6 +120,9 @@ private:
 	BaseCamera* m_pScenePrimaryCamera = nullptr;
 
 	unsigned int m_FrameCounter = 0;
+
+	// Window
+	const Window* m_pWindow;
 
 	// Device
 	ID3D12Device5* m_pDevice5 = nullptr;
@@ -184,7 +192,7 @@ private:
 	void setRenderTasksPrimaryCamera();
 	bool createDevice();
 	void createCommandQueues();
-	void createSwapChain(const HWND *hwnd);
+	void createSwapChain();
 	void createMainDSV();
 	void createRootSignature();
 	void createFullScreenQuad();
@@ -207,6 +215,8 @@ private:
 	void prepareCBPerScene();
 	// Submit per-frame data to the copyQueue that updates each frame
 	void prepareCBPerFrame();
+
+	void toggleFullscreen(WindowChange* evnt);
 };
 
 #endif
