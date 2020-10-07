@@ -5,8 +5,11 @@
 component::UpgradeRangeTest::UpgradeRangeTest(Entity* parent)
 	:UpgradeComponent(parent)
 {
+	// name the upgrade!
 	SetName("UpgradeRangeTest");
+	// set the upgrade type
 	SetType(E_Type::RANGE);
+	// increase upgrade level
 	IncreaseLevel();
 }
 

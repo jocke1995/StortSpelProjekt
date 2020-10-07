@@ -57,3 +57,30 @@ void component::UpgradeComponent::OnHit()
 {
 }
 
+void component::UpgradeComponent::RangedHit()
+{
+}
+
+void component::UpgradeComponent::MeleeHit()
+{
+}
+
+void component::UpgradeComponent::OnDamage()
+{
+}
+
+void component::UpgradeComponent::OnPickUp()
+{
+}
+
+void component::UpgradeComponent::OnDeath()
+{
+}
+
+void component::UpgradeComponent::RangedFlight()
+{
+}
+
+void component::UpgradeComponent::RangedModifier()
+{
+}

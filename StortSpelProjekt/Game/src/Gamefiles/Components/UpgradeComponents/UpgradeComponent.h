@@ -50,11 +50,10 @@ namespace component
 		virtual void OnPickUp();
 		// upgrades triggered on death
 		virtual void OnDeath();
-
-		//// upgrades that affect the flight pattern (ex: gravity, speed)
-		//virtual void RangedFlight();
-		//// upgrades that modify the ranged attack (ex: multiple projectiles)
-		//virtual void RangedModifier();
+		// upgrades that affect the flight pattern (ex: gravity, speed)
+		virtual void RangedFlight();
+		// upgrades that modify the ranged attack (ex: multiple projectiles)
+		virtual void RangedModifier();
 
 	private:
 		// Name of the upgrade-component, for ease of access in shop or upgrade handlers
