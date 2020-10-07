@@ -152,7 +152,8 @@ void ClientPool::newPacket(int socket)
 			m_ClockReceived.StartTimer();
 			m_NrOfBytesReceived = 0;
 			m_NrOfPackagesReceived = 0;
-		}	
+		}
+
 		m_NrOfBytesReceived += packet.getDataSize();
 		m_NrOfPackagesReceived += 1;
 
