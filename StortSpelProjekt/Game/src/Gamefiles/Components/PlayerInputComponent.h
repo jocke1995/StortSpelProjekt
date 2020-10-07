@@ -50,7 +50,7 @@ namespace component
 
 		CollisionComponent* m_pCC;
 
-		void toggleCameraLock(ModifierInput* evnt);
+		void alternativeInput(ModifierInput* evnt);
 		void zoom(MouseScroll* evnt);
 
 		void move(MovementInput* evnt);

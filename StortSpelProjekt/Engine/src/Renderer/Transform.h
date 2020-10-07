@@ -44,6 +44,8 @@ public:
 	DirectX::XMFLOAT3 GetRenderPositionXMFLOAT3() const;
 	float3 GetRenderPositionFloat3() const;
 	DirectX::XMFLOAT3 GetScale() const;
+	// gets a quaternion representation of the rotation matrix
+	float4 GetRotation();
 	// gets the rotation of the transform in all axisis
 	DirectX::XMMATRIX GetRotMatrix() const;
 
