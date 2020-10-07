@@ -35,6 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Option* option = &Option::GetInstance();
     option->ReadFile();
     float updateRate = 1.0f / std::atof(option->GetVariable("f_updateRate").c_str());
+    float networkUpdateRate = 1.0f / std::atof(option->GetVariable("f_networkUpdateRate").c_str());
 
     /* ------ Engine  ------ */
     Engine engine;
@@ -70,22 +71,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     GameNetwork gameNetwork;
 
     /*------ Network Init -----*/
-    bool networkOn = false;
     Network network;
 
     gameNetwork.SetNetwork(&network);
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScene(sceneManager->GetScene("AndresTestScene"));
+        gameNetwork.SetScene(sceneManager->GetScene("ThatSceneWithThemThereDashFeaturesAndStuff"));
         gameNetwork.SetSceneManager(sceneManager);
-
-        network.SetPlayerEntityPointer(sceneManager->GetScene("AndresTestScene")->GetEntity("player"), 0);
-        network.ConnectToIP(option->GetVariable("s_ip"), std::atoi(option->GetVariable("i_port").c_str()));
-
-        networkOn = true;
     }
-    int networkCount = 0;
+    double networkTimer = 0;
     double logicTimer = 0;
     int count = 0;
 
@@ -96,21 +91,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         timer->Update();
         logicTimer += timer->GetDeltaTime();
+        if (network.IsConnected())
+        {
+            networkTimer += timer->GetDeltaTime();
+        }
 
         renderer->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
-            networkCount++;
             renderer->Update(updateRate);
             physics->Update(updateRate);
         }
 
         /* ---- Network ---- */
-        if (networkOn)
+        if (network.IsConnected())
         {
-            if (networkCount == 2) {
-                networkCount = 0;
+            if (networkTimer >= networkUpdateRate) {
+                networkTimer = 0;
 
                 network.SendPositionPacket();
                 while (network.ListenPacket());
@@ -284,7 +282,7 @@ Scene* LeosTestScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Gandalf/gandalf.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Capsule/capsule.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
@@ -296,6 +294,11 @@ Scene* LeosTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+
+    mc->SetModel(playerModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(3.0f);
+    tc->GetTransform()->SetPosition(0.0, 1.0, -30.0);
 
     double3 playerDim = { 1.0, 1.0, 1.0 };
     for (unsigned int i = 0; i < playerModel->GetSize(); i++)
@@ -315,16 +318,12 @@ Scene* LeosTestScene(SceneManager* sm)
         playerDim = { maxVertex.x - minVertex.x, maxVertex.y - minVertex.y, maxVertex.z - minVertex.z };
     }
 
-    double rad = playerDim.x / 2.0;
-    double halfHeight = (playerDim.y - rad) / 2.0;
+    double rad = (playerDim.x / 2.0) * tc->GetTransform()->GetScale().x;
+    double halfHeight = (playerDim.y) / 2.0 * tc->GetTransform()->GetScale().y;
     bcc = entity->AddComponent<component::CapsuleCollisionComponent>(1.0, rad, halfHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(50);
     ic->Init();
 
-    mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0, 1, -30);
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
@@ -383,8 +382,8 @@ Scene* LeosTestScene(SceneManager* sm)
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ -2.0, -1.0, 0.0f });
 
-    /* ---------------------- Spotlight2 ---------------------- */
-    entity = scene->AddEntity("Spotlight2");
+    /* ---------------------- SpotlightHasse ---------------------- */
+    entity = scene->AddEntity("SpotlightHasse");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
@@ -393,18 +392,36 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.3f);
-    tc->GetTransform()->SetPosition(0.0f, 17.5f, 0.0f);
+    tc->GetTransform()->SetPosition(-35.0f, 35.0f, 35.0f);
 
     slc->SetColor({ 50.0f, 0.0f, 50.0f });
     slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-    slc->SetDirection({ 0.0, 0.0, 1.0f });
+    slc->SetDirection({ 1.0, 0.0, 0.0f });
+
+    bbc->Init();
+
+    /* ---------------------- SpotlightStefan ---------------------- */
+    entity = scene->AddEntity("SpotlightStefan");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(35.0f, 35.0f, 35.0f);
+
+    slc->SetColor({ 50.0f, 0.0f, 50.0f });
+    slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+    slc->SetDirection({ -1.0, 0.0, 0.0f });
 
     bbc->Init();
 
     /* ---------------------- dirLight ---------------------- */
     entity = scene->AddEntity("dirLight");
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    dlc->SetColor({ 0.0f, 0.5f, 0.5f });
+    dlc->SetColor({ 0.0f, 0.05f, 0.05f });
     dlc->SetDirection({ -1.0f, -1.0f, 1.0f });
 
     /* ---------------------- Skybox ----------------------- */
@@ -416,25 +433,27 @@ Scene* LeosTestScene(SceneManager* sm)
     sbc->SetCamera(cc->GetCamera());
     sbc->GetTransform()->SetScale(50);
 
-    /* ---------------------- Stefan ---------------------- */
-    entity = scene->AddEntity("stefan");
+    /* ---------------------- Stefan&Hasse ---------------------- */
+    entity = scene->AddEntity("stefan&hasse");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
 
     mc->SetModel(posterModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(35, 35, 1);
-    tc->GetTransform()->SetPosition(0.0f, 17.5f, 35.0f);
-    tc->GetTransform()->SetRotationX(3 * 3.1415 / 2);
+    tc->GetTransform()->SetScale(35, 1, 35);
+    //tc->GetTransform()->SetRotationX(3 * 3.1415 / 2);
     tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
+    tc->GetTransform()->SetPosition(0.0f, 35.0f, 35.0f);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    enH.AddEnemy("sphere", sphereModel, 10, float3{ 0, 10, 25 },L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, 1.0, float3{ 1.578, 0, 0 });
-    enH.AddExistingEnemy("sphere", float3{ 0, 10, -25 });
-    enH.AddExistingEnemy("sphere", float3{ 25, 10, 0 });
-    enH.AddExistingEnemy("sphere", float3{ -25, 10, 0 });
+    enH.AddEnemy("sphere", sphereModel, 10, float3{ -50, 10, 50 },L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, 10.0, float3{ 1.578, 0, 0 });
+    enH.AddExistingEnemy("sphere", float3{ 50, 10, -50 });
+    enH.AddExistingEnemy("sphere", float3{ 50, 10, 50 });
+    enH.AddExistingEnemy("sphere", float3{ -50, 10, -50 });
+    enH.AddExistingEnemyWithChanges("sphere", float3{ 0, 15, 0 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION | F_COMP_FLAGS::CAN_JUMP, 0.5);
 
     /* ---------------------- Update Function ---------------------- */
     UpdateScene = &LeoUpdateScene;

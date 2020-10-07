@@ -4,11 +4,12 @@
 #include "../Misc/EngineRand.h"
 #include "Components/HealthComponent.h"
 
-component::AiComponent::AiComponent(Entity* parent, Entity* target, float detectionRadius, float attackingDistance) : Component(parent)
+component::AiComponent::AiComponent(Entity* parent, Entity* target, bool canJump, float detectionRadius, float attackingDistance) : Component(parent)
 {
 	m_pTarget = target;
 	m_DetectionRadius = detectionRadius;
 	m_AttackingDistance = attackingDistance;
+	m_CanJump = canJump;
 }
 
 component::AiComponent::~AiComponent()
@@ -26,8 +27,7 @@ void component::AiComponent::Update(double dt)
 		float3 targetPos = targetTrans->GetPositionFloat3();
 		float3 pos = parentTrans->GetPositionFloat3();
 
-		//float3 direction = { targetPos.x - pos.x, targetPos.y - pos.y, targetPos.z - pos.z };
-		float3 direction = { targetPos.x - pos.x, 0.0, targetPos.z - pos.z };
+		float3 direction = { targetPos.x - pos.x, (targetPos.y - pos.y) * static_cast<float>(m_CanJump), targetPos.z - pos.z };
 
 		float distance = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
 

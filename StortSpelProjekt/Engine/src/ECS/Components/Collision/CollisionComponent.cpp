@@ -79,7 +79,7 @@ void component::CollisionComponent::InitScene()
 	Physics::GetInstance().AddCollisionComponent(this);
 	if (!m_CanFall)
 	{
-		m_pBody->setAngularFactor({ 0.1, 1.0, 0.1 });
+		m_pBody->setAngularFactor({ 0.0, 1.0, 0.0 });
 	}
 }
 

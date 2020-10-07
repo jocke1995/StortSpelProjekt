@@ -19,6 +19,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Option* option = &Option::GetInstance();
     option->ReadFile();
     float updateRate = 1.0f / std::atof(option->GetVariable("f_updateRate").c_str());
+    float networkUpdateRate = 1.0f / std::atof(option->GetVariable("f_networkUpdateRate").c_str());
 
     /* ------ Engine  ------ */
     Engine engine;
@@ -55,12 +56,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         gameNetwork.SetScene(sceneManager->GetScene("DemoScene"));
         gameNetwork.SetSceneManager(sceneManager);
 
-        network.SetPlayerEntityPointer(sceneManager->GetScene("DemoScene")->GetEntity("player"), 0);
-        network.ConnectToIP(option->GetVariable("s_ip"), std::atoi(option->GetVariable("i_port").c_str()));
-
         networkOn = true;
     }
-    int networkCount = 0;
+    double networkTimer = 0;
     double logicTimer = 0;
     int count = 0;
 
@@ -72,21 +70,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         timer->Update();
         logicTimer += timer->GetDeltaTime();
+        if (networkOn)
+        {
+            networkTimer += timer->GetDeltaTime();
+        }
 
         renderer->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
-            networkCount++;
             renderer->Update(updateRate);
             physics->Update(updateRate);
         }
 
         /* ---- Network ---- */
-        if (networkOn)
+        if (network.IsConnected())
         {
-            if (networkCount == 2) {
-                networkCount = 0;
+            if (networkTimer >= networkUpdateRate)
+            {
+                networkTimer = 0;
 
                 network.SendPositionPacket();
                 while (network.ListenPacket());
@@ -290,7 +292,7 @@ Scene* GetDemoScene(SceneManager* sm)
     float xVal = 8;
     float zVal = 20;
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 75; i++)
+    for (int i = 0; i < 5; i++)
     {
         zVal += 8;
         entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
@@ -328,7 +330,7 @@ void DemoUpdateScene(SceneManager* sm)
     ec->UpdateEmitter(L"Bruh");
 
     std::string name = "enemy";
-    for (int i = 1; i < 76; i++)
+    for (int i = 1; i <= 5; i++)
     {
         name = "enemy" + std::to_string(i);
         ec = sm->GetScene("DemoScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();

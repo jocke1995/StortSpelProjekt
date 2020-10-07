@@ -3,6 +3,7 @@
 GameNetwork::GameNetwork()
 {
     EventBus::GetInstance().Subscribe(this, &GameNetwork::addNewPlayerEntity);
+    EventBus::GetInstance().Subscribe(this, &GameNetwork::connectToServer);
 }
 
 void GameNetwork::SetScene(Scene* scene)
@@ -20,6 +21,12 @@ void GameNetwork::SetSceneManager(SceneManager* sceneManager)
     m_pSceneManager = sceneManager;
 }
 
+void GameNetwork::connectToServer(ConnectToServer* evnt)
+{
+    m_pNetwork->SetPlayerEntityPointer(m_pScene->GetEntity("player"), 0);
+    m_pNetwork->ConnectToIP(evnt->ip, std::atoi(Option::GetInstance().GetVariable("i_port").c_str()));
+}
+
 void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
 {
     Log::Print("New player connected with ID " + std::to_string(evnt->playerId) + "\n");
@@ -27,6 +34,7 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
     Entity* entity = m_pScene->AddEntity("player" + std::to_string(evnt->playerId));
     component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
     component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
+    component::CubeCollisionComponent* bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f);
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(AssetLoader::Get()->LoadModel(L"../Vendor/Resources/Models/Player/player.obj"));
