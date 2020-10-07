@@ -333,8 +333,7 @@ Model* AssetLoader::LoadHeightmap(const std::wstring& path)
 
 	std::vector<Animation*> animations;
 	std::vector<Material*> materials;
-	//loadMaterial()
-	materials.push_back(m_LoadedMaterials[L"DefaultMaterial"].second);
+	materials.push_back(loadMaterialFromMTL(materialPath));
 
 	m_LoadedModels[path].first = false;
 	m_LoadedModels[path].second = new Model(&path, &meshes, &animations, &materials);
@@ -639,6 +638,89 @@ Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring& folderP
 	}
 }
 
+Material* AssetLoader::loadMaterialFromMTL(const std::wstring& path)
+{
+	std::wifstream ifstream(path);
+	Material* mat = nullptr;
+	if (ifstream.is_open())
+	{
+		std::wstring relPath = path.substr(0, path.find_last_of('/') + 1);
+		std::wstring currMatName;
+		std::wstring line;
+		std::wstring varName;
+		std::wstring varVal;
+		std::map<TEXTURE2D_TYPE, Texture*> matTextures;
+
+		std::vector<std::wstring> defaultNames;
+		defaultNames.reserve(static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES));
+		defaultNames.push_back(L"default_albedo.dds");
+		defaultNames.push_back(L"default_roughness.dds");
+		defaultNames.push_back(L"default_metallic.dds");
+		defaultNames.push_back(L"default_normal.dds");
+		defaultNames.push_back(L"default_emissive.dds");
+
+		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
+		{
+			matTextures[static_cast<TEXTURE2D_TYPE>(i)] = m_LoadedTextures[m_FilePathDefaultTextures + defaultNames[i]].second;
+		}
+
+		while (!ifstream.eof())
+		{
+			std::getline(ifstream, varName, L' ');
+
+			if (varName == L"newmtl")
+			{
+				std::getline(ifstream, currMatName);
+				if (m_LoadedMaterials.count(currMatName) > 0)
+				{
+					ifstream.close();
+					return m_LoadedMaterials[currMatName].second;
+				}
+			}
+			else if (varName == L"map_Ka")
+			{
+				std::getline(ifstream, varVal);
+				matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Kd")
+			{
+				std::getline(ifstream, varVal);
+				matTextures[TEXTURE2D_TYPE::ALBEDO] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Ks")
+			{
+				std::getline(ifstream, varVal);
+				matTextures[TEXTURE2D_TYPE::ROUGHNESS] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Kn")
+			{
+				std::getline(ifstream, varVal);
+				matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Ke")
+			{
+				std::getline(ifstream, varVal);
+				matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(relPath + varVal);
+			}
+			else
+			{
+				std::getline(ifstream, varVal);
+			}
+		}
+
+		mat = new Material(&currMatName, &matTextures);
+		m_LoadedMaterials[currMatName].first = false;
+		m_LoadedMaterials[currMatName].second = mat;
+
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open mtl file with path %S", path.c_str());
+	}
+
+	return mat;
+}
+
 Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture)
 {
 	aiTextureType type;
@@ -870,6 +952,26 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	Font* font = m_LoadedFonts[filename].first;
 	return m_LoadedFonts[filename].first;
 }
+
+void AssetLoader::getHeightMapResources(const std::wstring& path, std::wstring& heightMapPath, std::wstring& materialPath)
+{
+	std::wifstream input(path);
+	
+	if (input.is_open())
+	{
+		std::wstring relFolderPath = path.substr(0, path.find_last_of('/') + 1);
+		std::getline(input, heightMapPath);
+		heightMapPath = relFolderPath + heightMapPath;
+		std::getline(input, materialPath);
+		materialPath = relFolderPath + materialPath;
+		input.close();
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load heightmap info file with path %S", path.c_str());
+	}
+}
+
 void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations)
 {
 	// Store the animations

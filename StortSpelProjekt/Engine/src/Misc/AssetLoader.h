@@ -32,7 +32,8 @@ public:
     /* Load Functions */
     // Model ---------------
     Model* LoadModel(const std::wstring& path);
-
+    // Creates a heightmap from a given image. This will also load the given image as a texture.
+    Model* LoadHeightmap(const std::wstring& path);
     // Textures ------------
     Texture* LoadTexture2D(const std::wstring& path);
     TextureCubeMap* LoadTextureCubeMap(const std::wstring& path);
@@ -94,6 +95,7 @@ private:
         const std::wstring& filePath);
 
     Material* loadMaterial(aiMaterial* mat, const std::wstring& folderPath);
+    Material* loadMaterialFromMTL(const std::wstring& path);
 
     Texture* processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture);
     
@@ -104,6 +106,8 @@ private:
     
     Shader* loadShader(const std::wstring& fileName, ShaderType type);
 	Font* loadFont(LPCWSTR filename, int windowWidth, int windowHeight);
+
+    void getHeightMapResources(const std::wstring& path, std::wstring& heightMapPath, std::wstring& materialPath);
 };
 
 #endif
