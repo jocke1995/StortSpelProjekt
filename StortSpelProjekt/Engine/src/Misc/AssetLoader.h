@@ -33,7 +33,7 @@ public:
     // Model ---------------
     Model* LoadModel(const std::wstring& path);
 
-    // Texture ------------
+    // Textures ------------
     Texture* LoadTexture2D(const std::wstring& path);
     TextureCubeMap* LoadTextureCubeMap(const std::wstring& path);
 

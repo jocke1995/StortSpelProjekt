@@ -19,7 +19,7 @@ public:
 
 	const std::wstring& GetPath() const;
 	TEXTURE_TYPE GetType() const;
-	const UINT GetDescriptorHeapIndex() const;
+	const unsigned int GetDescriptorHeapIndex() const;
 
 protected:
 	// CopyOnDemandTask & Renderer uses the private members of the texture class to upload data to the gpu

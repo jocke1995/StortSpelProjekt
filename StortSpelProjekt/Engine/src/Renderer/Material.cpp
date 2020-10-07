@@ -23,7 +23,7 @@ Texture* Material::GetTexture(TEXTURE2D_TYPE type) const
 	return m_Textures.at(type);
 }
 
-Texture* Material::GetTexture(unsigned int index) const
+void Material::SetTexture(TEXTURE2D_TYPE type, Texture* texture)
 {
-	return m_Textures.at(static_cast<TEXTURE2D_TYPE>(index));
+	m_Textures[type] = texture;
 }

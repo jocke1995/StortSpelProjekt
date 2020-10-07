@@ -33,13 +33,13 @@ void MousePicker::UpdateRay()
 	m_RayInWorldSpaceDir = DirectX::XMVector3TransformNormal(m_RayInWorldSpaceDir, *m_pPrimaryCamera->GetViewMatrixInverse());
 }
 
-bool MousePicker::Pick(component::BoundingBoxComponent* bbc, float& distance)
+bool MousePicker::Pick(component::BoundingBoxComponent* bbc, float& distance, unsigned int bbdIndex)
 {
-	const BoundingBoxData* bbd = bbc->GetBoundingBoxData();
+	const BoundingBoxData* bbd = bbc->GetBoundingBoxDataAt(bbdIndex);
 	distance = -1;
 	std::vector<Vertex> vertices = bbd->boundingBoxVertices;
 	std::vector<unsigned int> indices = bbd->boundingBoxIndices;
-	DirectX::XMMATRIX worldMatrix = *bbc->GetTransform()->GetWorldMatrix();
+	DirectX::XMMATRIX worldMatrix = *bbc->GetTransformAt(bbdIndex)->GetWorldMatrix();
 
 	// For each triangle
 	for (unsigned int i = 0; i < indices.size() / 3; i++)

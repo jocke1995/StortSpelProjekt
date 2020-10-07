@@ -73,6 +73,9 @@ namespace component
 	class SkyboxComponent;
 }
 
+// Events
+struct WindowChange;
+
 class Renderer
 {
 public:
@@ -94,7 +97,7 @@ public:
 	// Call each frame
 	void RenderUpdate(double dt); //Please rename if logic update is removed
 	void SortObjects();
-	void Execute(const HWND* hwnd);
+	void Execute();
 
 	// Render inits, these functions are called by respective components through SetScene to prepare for drawing
 	void InitSkyboxComponent(Entity* entity);
@@ -105,6 +108,10 @@ public:
 	void InitCameraComponent(Entity* entity);
 	void InitBoundingBoxComponent(Entity* entity);
 	void InitTextComponent(Entity* entity);
+
+	void OnResetScene();
+
+	SwapChain* GetSwapChain();
 
 	// Load Gpu Memory Functions
 	void LoadModel(Model* model) const;
@@ -132,6 +139,9 @@ private:
 	BaseCamera* m_pScenePrimaryCamera = nullptr;
 
 	unsigned int m_FrameCounter = 0;
+
+	// Window
+	const Window* m_pWindow;
 
 	// Device
 	ID3D12Device5* m_pDevice5 = nullptr;
@@ -201,7 +211,7 @@ private:
 	void setRenderTasksPrimaryCamera();
 	bool createDevice();
 	void createCommandQueues();
-	void createSwapChain(const HWND *hwnd);
+	void createSwapChain();
 	void createMainDSV();
 	void createRootSignature();
 	void createFullScreenQuad();
@@ -230,6 +240,8 @@ private:
 	void prepareCBPerScene();
 	// Submit per-frame data to the copyQueue that updates each frame
 	void prepareCBPerFrame();
+
+	void toggleFullscreen(WindowChange* evnt);
 };
 
 #endif

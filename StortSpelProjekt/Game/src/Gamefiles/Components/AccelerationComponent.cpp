@@ -47,12 +47,24 @@ float component::AccelerationComponent::GetAccSpeed() const
 	return m_AccSpeed;
 }
 
-void component::AccelerationComponent::SetAccelrationDirection(DirectX::XMFLOAT3 dir)
+void component::AccelerationComponent::SetAccelerationDirection(DirectX::XMFLOAT3 dir)
 {
 	DirectX::XMStoreFloat3(&m_AccDir, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&dir)));
 }
 
-void component::AccelerationComponent::SetAccelrationSpeed(float speed)
+void component::AccelerationComponent::SetAccelerationDirection(float3 dir)
+{
+	DirectX::XMFLOAT3 direction(dir.x, dir.y, dir.z);
+	DirectX::XMStoreFloat3(&m_AccDir, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&direction)));
+}
+
+void component::AccelerationComponent::SetAccelerationDirection(float x, float y, float z)
+{
+	DirectX::XMFLOAT3 direction(x, y, z);
+	DirectX::XMStoreFloat3(&m_AccDir, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&direction)));
+}
+
+void component::AccelerationComponent::SetAccelerationSpeed(float speed)
 {
 	m_AccSpeed = speed;
 }

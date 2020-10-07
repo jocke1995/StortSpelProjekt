@@ -22,7 +22,8 @@ public:
 
     // Material
     Texture* GetTexture(TEXTURE2D_TYPE type) const;
-    Texture* GetTexture(unsigned int index) const;
+
+    void SetTexture(TEXTURE2D_TYPE type, Texture* texture);
 
 private:
     friend class Renderer;

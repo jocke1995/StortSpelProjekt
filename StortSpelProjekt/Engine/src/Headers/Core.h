@@ -36,10 +36,27 @@ inline T Max(T a, T b)
 	return b;
 }
 
+inline std::string GetFileExtension(const std::string& FileName)
+{
+	if (FileName.find_last_of(".") != std::string::npos)
+	{
+		return FileName.substr(FileName.find_last_of(".") + 1);
+	}
+	return "";
+}
+
+enum class WINDOW_MODE
+{
+	WINDOWED,
+	WINDOWED_FULLSCREEN,
+	FULLSCREEN
+};
+
 enum class TEXTURE_TYPE
 {
 	UNKNOWN,
 	TEXTURE2D,
+	TEXTURE2DGUI,
 	TEXTURECUBEMAP,
 	NUM_TYPES
 };
@@ -67,7 +84,6 @@ enum SHADOW_RESOLUTION
 	LOW,
 	MEDIUM,
 	HIGH,
-	ULTRA,
 	NUM_SHADOW_RESOLUTIONS,
 	UNDEFINED
 };
@@ -101,7 +117,7 @@ enum class CAMERA_TYPE
 #define NUM_SWAP_BUFFERS 2
 #define BIT(x) (1 << x)
 #define MAXNUMBER 10000000.0f
-#define DEVELOPERMODE_DRAWBOUNDINGBOX true
+#define DEVELOPERMODE_DRAWBOUNDINGBOX false
 #define DEVELOPERMODE_DEVINTERFACE true
 
 enum FLAG_DRAW
@@ -112,6 +128,17 @@ enum FLAG_DRAW
 	GIVE_SHADOW = BIT(4),
 	NUM_FLAG_DRAWS = 4,
 	// animation = BIT(4),
+	// etc..
+};
+
+enum FLAG_THREAD
+{
+	RENDER = BIT(1),
+	NETWORK = BIT(2),
+	// CopyTextures,
+	// PrepareNextScene ..
+	// etc
+	ALL = BIT(8)
 	// etc..
 };
 

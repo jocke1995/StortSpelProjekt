@@ -36,5 +36,8 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
     m_pNetwork->SetPlayerEntityPointer(entity, evnt->playerId);
+
+    // TODO: Network setscene/addentity correct
+    m_pSceneManager->AddEntity(entity, m_pSceneManager->GetActiveScenes()->at(0));
     m_pSceneManager->SetScene(1, &m_pScene);
 }

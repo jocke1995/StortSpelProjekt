@@ -12,6 +12,13 @@
 #include "Components/Audio3DListenerComponent.h"
 #include "Components/Audio3DEmitterComponent.h"
 
+// physics/collisions
+#include "Components/Collision/SphereCollisionComponent.h"
+#include "Components/Collision/CubeCollisionComponent.h"
+#include "Components/Collision/CapsuleCollisionComponent.h"
+
+#include "../../Game/src/Gamefiles/Components/GameComponents.h"
+
 // Lights
 class DirectionalLightComponent;
 class PointLightComponent;

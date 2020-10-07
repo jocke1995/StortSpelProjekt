@@ -2,24 +2,14 @@
 #include "PBRMath.hlsl"
 
 Texture2D textures[]   : register (t0);
-SamplerState samplerTypeWrap	: register (s0);
-SamplerState samplerTypeBorder	: register (s1);
 
-static const MaterialAttributes materialAttributes = {
-	100,
-	0, 0, 0,
-	
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+SamplerState Anisotropic2_Wrap	: register (s0);
+SamplerState Anisotropic4_Wrap	: register (s1);
+SamplerState Anisotropic8_Wrap	: register (s2);
+SamplerState Anisotropic16_Wrap	: register (s3);
+SamplerState samplerTypeBorder	: register (s4);
 
-	1, 1, 1, 1,
-	1, 1, 1, 1,
-	1, 1, 1, 1,
-
-	1, 1,
-	0, 0
-};
+ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b4, space3);
 
 float CalculateShadow(
 	in float4 fragPosLightSpace,
@@ -37,7 +27,6 @@ float CalculateShadow(
 
 	// Check whether current fragPos is in shadow
 	float shadow = 0.0f;
-	float bias = 0.0003f;
 
 	// Anti aliasing
 	float2 texelSize = float2(0.0f, 0.0f);
@@ -49,7 +38,7 @@ float CalculateShadow(
 		for (int y = -1; y <= 1; ++y)
 		{
 			float pcfDepth = textures[shadowMapIndex].Sample(samplerTypeBorder, texCoord + float2(x,y) * texelSize).r;
-			if (depthFromLightToFragPos - bias > pcfDepth)
+			if (depthFromLightToFragPos > pcfDepth)
 			{
 				shadow += 1.0f;
 			}

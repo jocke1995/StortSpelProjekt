@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "../Renderer/MousePicker.h"
 #include <set>
+#include <unordered_map>
 
 class Entity;
 class Renderer;
@@ -20,6 +21,7 @@ public:
 
 	Scene* CreateScene(std::string sceneName);
 
+	const std::vector<Scene*>* GetActiveScenes() const;
 	Scene* GetScene(std::string sceneName) const;
 
 	void RemoveEntity(Entity* entity, Scene* scene);
@@ -34,6 +36,8 @@ private:
 	std::map<std::string, Scene*> m_pScenes;
 	std::vector<Scene*> m_ActiveScenes;
 	std::set<Scene*> m_LoadedScenes;
+
+	std::unordered_map<Entity*, bool> m_IsEntityInited;
 
 	bool sceneExists(std::string sceneName) const;
 	void executeCopyOnDemand();

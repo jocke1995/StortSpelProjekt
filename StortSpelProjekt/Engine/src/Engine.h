@@ -29,7 +29,7 @@
 #include "AudioEngine/AudioBuffer.h"
 
 // Textures
-#include "Renderer/Texture/Texture2D.h"
+#include "Renderer/Material.h"
 #include "Renderer/Texture/TextureCubeMap.h"
 
 // Event-handling

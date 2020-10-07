@@ -4,6 +4,7 @@
 #include "../Misc/AssetLoader.h"
 
 #include "../Renderer/Renderer.h"
+#include "../Physics/Physics.h"
 
 // Renderer
 #include "../Renderer/CommandInterface.h"
@@ -87,6 +88,11 @@ Scene* SceneManager::CreateScene(std::string sceneName)
     return m_pScenes[sceneName];
 }
 
+const std::vector<Scene*>* SceneManager::GetActiveScenes() const
+{
+	return &m_ActiveScenes;
+}
+
 Scene* SceneManager::GetScene(std::string sceneName) const
 {
     if (sceneExists(sceneName))
@@ -145,13 +151,37 @@ void SceneManager::SetScene(unsigned int numScenes, Scene** scenes)
 		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
 		for (auto const& [entityName, entity] : entities)
 		{
-			entity->InitScene();
+			
+			// Only init once per scene (in case a entity is in both scenes)
+			if (m_IsEntityInited.count(entity) == 0)
+			{
+				entity->InitScene();
+				m_IsEntityInited[entity] = true;
+			}
 		}
 
 		m_ActiveScenes.push_back(scenes[i]);
 	}
 	
 	m_pRenderer->prepareScenes(&m_ActiveScenes);
+
+
+
+	// TODO: for reviewer:
+	// Dear reviewer.
+	// Currently many features being developed uses scene->GetPrimaryCamera() which is not often set in the scene.
+	// To prevent setting the camera manually, set it here to renderers camera if it's nullpointer?
+	// Please come up with a discussion about this or a solution
+	for (Scene* scene : m_ActiveScenes)
+	{
+		if (scene->GetMainCamera() == nullptr)
+		{
+			scene->SetPrimaryCamera(m_pRenderer->m_pScenePrimaryCamera);
+		}
+	}
+
+
+
 	executeCopyOnDemand();
 	return;
 }
@@ -201,23 +231,20 @@ void SceneManager::UnloadScene(Scene* scene)
 
 void SceneManager::ResetScene()
 {
+	// Reset isEntityInited
+	m_IsEntityInited.clear();
 
 	/* ------------------------- GPU -------------------------*/
 	
-	m_pRenderer->m_RenderComponents.clear();
-	for (auto& light : m_pRenderer->m_Lights)
-	{
-		light.second.clear();
-	}
-	m_pRenderer->m_pViewPool->ClearAll();
-	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
-	static_cast<ShadowRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
-	m_pRenderer->m_pScenePrimaryCamera = nullptr;
-	static_cast<WireframeRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
-	m_pRenderer->m_BoundingBoxesToBePicked.clear();
-	m_pRenderer->m_TextComponents.clear();
+	m_pRenderer->OnResetScene();
 
 	/* ------------------------- GPU -------------------------*/
+
+	/* ------------------------- PHYSICS -------------------------*/
+
+	Physics::GetInstance().OnResetScene();
+
+	/* ------------------------- PHYSICS -------------------------*/
 
 	/* ------------------------- Audio -------------------------*/
 

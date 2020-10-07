@@ -7,44 +7,31 @@
 
 class MultiThreadedTask;
 
-enum FLAG_THREAD
-{
-	RENDER = BIT(1),
-	COPY_DATA = BIT(2),
-	NETWORK = BIT(3),
-	// CopyTextures,
-	// PrepareNextScene ..
-	// etc
-	ALL = BIT(4)
-	// etc..
-};
-
 class Thread
 {
 public:
-	Thread();
+	Thread(unsigned int threadId);
 	~Thread();
 
-	bool IsTaskNullptr();
-
-	void AddTask(MultiThreadedTask* task, unsigned int taskFlag);
-	void ExitThread();
-
-	bool IsQueueEmpty();
-	unsigned int GetTaskFlag();
 private:
-	HANDLE m_Thread;
-	HANDLE m_BeginEvent;
+	friend class ThreadPool;
+	HANDLE m_ThreadHandle;
+	HANDLE m_EventHandle;
 
 	static unsigned int __stdcall threadFunc(LPVOID lpParameter);
 
-	std::queue<MultiThreadedTask*> m_TaskQueue;
+	std::deque<MultiThreadedTask*> m_TaskDeque;
 	std::mutex m_Mutex;
 
-	MultiThreadedTask* m_pTask= nullptr;
-	unsigned int m_TaskFlag = 0;
+	MultiThreadedTask* m_pActiveTask = nullptr;
 
 	bool m_IsRunning = true;
-};
+	unsigned int m_ThreadId = 0;
 
+	bool isLastActiveTaskNullptr(unsigned int flag);
+	void addTask(MultiThreadedTask* task);
+	void exitThread();
+	bool isQueueEmptyFromTasksWithSpecifiedFlags(unsigned int flag);
+	bool wakeUpThread();
+};
 #endif

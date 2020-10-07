@@ -44,10 +44,43 @@ public:
 	DirectX::XMFLOAT3 GetRenderPositionXMFLOAT3() const;
 	float3 GetRenderPositionFloat3() const;
 	DirectX::XMFLOAT3 GetScale() const;
+	// gets a quaternion representation of the rotation matrix
+	float4 GetRotation();
 	// gets the rotation of the transform in all axisis
 	DirectX::XMMATRIX GetRotMatrix() const;
 
 	DirectX::XMFLOAT3 GetMovement() const;
+
+	/// <summary>
+	/// Gets the forward vector of the transform as an XMFLOAT3
+	/// </summary>
+	/// <returns>XMFLOAT3 containing the forward vector</returns>
+	DirectX::XMFLOAT3 GetForwardXMFLOAT3() const;
+	/// <summary>
+	/// Gets the forward vector of the transform as an float3
+	/// </summary>
+	/// <returns>float3 containing the forward vector</returns>
+	float3 GetForwardFloat3() const;
+	/// <summary>
+	/// Gets the right vector of the transform as an XMFLOAT3
+	/// </summary>
+	/// <returns>XMFLOAT3 containing the right vector</returns>
+	DirectX::XMFLOAT3 GetRightXMFLOAT3() const;
+	/// <summary>
+	/// Gets the right vector of the transform as an float3
+	/// </summary>
+	/// <returns>float3 containing the right vector</returns>
+	float3 GetRightFloat3() const;
+	/// <summary>
+	/// Gets the up vector of the transform as an XMFLOAT3
+	/// </summary>
+	/// <returns>XMFLOAT3 containing the up vector</returns>
+	DirectX::XMFLOAT3 GetUpXMFLOAT3() const;
+	/// <summary>
+	/// Gets the up vector of the transform as an float3
+	/// </summary>
+	/// <returns>float3 containing the up vector</returns>
+	float3 GetUpFloat3() const;
 
 	float GetVelocity() const;
 	void SetVelocity(float vel);

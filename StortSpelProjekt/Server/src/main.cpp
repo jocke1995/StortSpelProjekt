@@ -1,8 +1,5 @@
-#include "Engine.h"
 #include "ConsoleCommand.h"
 #include "ThreadPool.h"
-#include "Thread.h"
-#include "MultiThreadedTask.h"
 #include "ClientPool.h"
 
 #include <iostream>
@@ -16,11 +13,7 @@ int main()
 	int nrOfClients = 0;
 
 	// ThreadPool
-	int numCores = std::thread::hardware_concurrency();
-	if (numCores == 0)
-	{
-		numCores = 1; // function not supported
-	}
+	int numCores = 4;
 	ThreadPool* threadPool = new ThreadPool(numCores); // Set num m_Threads to number of cores of the cpu
 
 	Console console;
@@ -34,16 +27,16 @@ int main()
 	if (str == "1")
 	{
 		ClientPool server(55555);
-		threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
+		threadPool->AddTask(&console);
 
-			while (strcmp(str.c_str(), "quit") != 0)
+			while (true)
 			{
 				str = "";
 				console.GetInput(&str);
 
 				if (strcmp(str.c_str(), "") != 0)
 				{
-					threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
+					threadPool->AddTask(&console);
 				}
 				if (strcmp(str.c_str(), "AddClient") == 0)
 				{
@@ -52,6 +45,12 @@ int main()
 				}
 
 				server.ListenMessages();
+
+				if (strcmp(str.c_str(), "quit") == 0)
+				{
+					break;
+				}
+
 				str = server.GetConsoleString();
 
 				if (str != "")
@@ -70,7 +69,7 @@ int main()
 		clients.at(0)->connect(str, 55555);
 		clients.at(0)->setBlocking(false);
 
-		threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
+		threadPool->AddTask(&console);
 
 		sf::Packet packet;
 
@@ -84,7 +83,7 @@ int main()
 				packet.clear();
 				packet << str;
 				clients.at(0)->send(packet);
-				threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
+				threadPool->AddTask(&console);
 			}
 
 			clients.at(0)->receive(packet);
@@ -97,7 +96,6 @@ int main()
 
 	}
 
-	threadPool->ExitThreads();
 	delete threadPool;
 
 	return 0;

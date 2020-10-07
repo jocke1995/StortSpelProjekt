@@ -67,6 +67,9 @@
 // Compute
 #include "DX12Tasks/BlurComputeTask.h"
 
+// Event
+#include "../Events/EventBus.h"
+
 //ImGui
 #include "../ImGUI/imgui.h"
 #include "../ImGUI/imgui_impl_win32.h"
@@ -76,6 +79,7 @@
 
 Renderer::Renderer()
 {
+	EventBus::GetInstance().Subscribe(this, &Renderer::toggleFullscreen);
 	m_RenderTasks.resize(RENDER_TASK_TYPE::NR_OF_RENDERTASKS);
 	m_CopyTasks.resize(COPY_TASK_TYPE::NR_OF_COPYTASKS);
 	m_ComputeTasks.resize(COMPUTE_TASK_TYPE::NR_OF_COMPUTETASKS);
@@ -144,6 +148,7 @@ void Renderer::DeleteDxResources()
 void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
 {
 	m_pThreadPool = threadPool;
+	m_pWindow = window;
 
 	// Create Device
 	if (!createDevice())
@@ -161,7 +166,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	createFences();
 
 	// Rendertargets
-	createSwapChain(window->GetHwnd());
+	createSwapChain();
 	m_pBloomResources = new Bloom(m_pDevice5, 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
@@ -181,7 +186,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	createFullScreenQuad();
 
 	// Init Assetloader
-	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], window);
+	AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], m_pWindow);
 
 	// Init BoundingBoxPool
 	BoundingBoxPool::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
@@ -225,13 +230,12 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 	unsigned int imGuiTextureIndex = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetNextDescriptorHeapIndex(1);
 
 	// Setup Platform/Renderer bindings
-	ImGui_ImplWin32_Init(*window->GetHwnd());
+	ImGui_ImplWin32_Init(*m_pWindow->GetHwnd());
 	ImGui_ImplDX12_Init(m_pDevice5, NUM_SWAP_BUFFERS,
 		DXGI_FORMAT_R16G16B16A16_FLOAT, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetID3D12DescriptorHeap(),
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetCPUHeapAt(imGuiTextureIndex),
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetGPUHeapAt(imGuiTextureIndex));
 
-	
 	initRenderTasks();
 }
 
@@ -323,76 +327,11 @@ void Renderer::SortObjects()
 	setRenderTasksRenderComponents();
 }
 
-void Renderer::Execute(const HWND* hwnd)
+void Renderer::Execute()
 {
 	IDXGISwapChain4* dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
 	int commandInterfaceIndex = m_FrameCounter++ % 2;
-
-	static int a = 0;
-	// Look if we toggle between fullscreen or windowed
-	if (std::atoi(Option::GetInstance().GetVariable("b_fullscreen").c_str()) && a == 0)
-	{
-		a++;
-
-		m_FenceFrameValue++;
-		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
-
-		// Wait for all frames
-		waitForFrame(0);
-
-		for (auto task : m_RenderTasks)
-		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->Reset(i);
-			}
-		}
-		for (auto task : m_CopyTasks)
-		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->Reset(i);
-			}
-		}
-		for (auto task : m_ComputeTasks)
-		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->Reset(i);
-			}
-		}
-
-		m_pSwapChain->Toggle(m_pDevice5,
-			hwnd,
-			m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
-			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
-			m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
-		dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
-		backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
-
-		for (auto task : m_RenderTasks)
-		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->GetCommandList(i)->Close();
-			}
-		}
-		for (auto task : m_CopyTasks)
-		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->GetCommandList(i)->Close();
-			}
-		}
-		for (auto task : m_ComputeTasks)
-		{
-			for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-			{
-				task->GetCommandInterface()->GetCommandList(i)->Close();
-			}
-		}
-	}
 
 	CopyTask* copyTask = nullptr;
 	ComputeTask* computeTask = nullptr;
@@ -401,55 +340,57 @@ void Renderer::Execute(const HWND* hwnd)
 	// Copy per frame
 	copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
 	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(copyTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(copyTask);
 
 	// Recording shadowmaps
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SHADOW];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(renderTask);
 
 	// Depth pre-pass
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS];
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(renderTask);
 
 	// Drawing
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(renderTask);
 
 	// Skybox
-	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetBackBufferIndex(backBufferIndex);
-	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SKYBOX];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
 
 	// Blending
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::BLEND];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(renderTask);
 
 	// Blurring for bloom
 	computeTask = m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR];
 	computeTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(computeTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(computeTask);
 
 	// Outlining, if an object is picked
-	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetBackBufferIndex(backBufferIndex);
-	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE], FLAG_THREAD::RENDER);
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::OUTLINE];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
 
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TEXT];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(renderTask);
 
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::MERGE];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+	m_pThreadPool->AddTask(renderTask);
 	
 	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
@@ -457,7 +398,7 @@ void Renderer::Execute(const HWND* hwnd)
 		renderTask = m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME];
 		renderTask->SetBackBufferIndex(backBufferIndex);
 		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+		m_pThreadPool->AddTask(renderTask);
 	}
 
 	if (DEVELOPERMODE_DEVINTERFACE == true)
@@ -465,12 +406,12 @@ void Renderer::Execute(const HWND* hwnd)
 		renderTask = m_RenderTasks[RENDER_TASK_TYPE::IMGUI];
 		renderTask->SetBackBufferIndex(backBufferIndex);
 		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		m_pThreadPool->AddTask(renderTask, FLAG_THREAD::RENDER);
+		m_pThreadPool->AddTask(renderTask);
 	}
 	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
 
 	// Wait for the threads which records the commandlists to complete
-	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER | FLAG_THREAD::ALL);
+	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER);
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
 		m_DirectCommandLists[commandInterfaceIndex].size(), 
@@ -482,6 +423,8 @@ void Renderer::Execute(const HWND* hwnd)
 	m_FenceFrameValue++;
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+
+	// 
 	waitForFrame();
 
 	HRESULT hr = dx12SwapChain->Present(0, 0);
@@ -552,21 +495,18 @@ void Renderer::InitDirectionalLightComponent(Entity* entity)
 	// Check if the light is to cast shadows
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
 
-	if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION)
+	int shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	if (shadowRes == 0)
 	{
 		resolution = SHADOW_RESOLUTION::LOW;
 	}
-	else if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION)
+	else if (shadowRes == 1)
 	{
 		resolution = SHADOW_RESOLUTION::MEDIUM;
 	}
-	else if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION)
+	else if (shadowRes == 2)
 	{
 		resolution = SHADOW_RESOLUTION::HIGH;
-	}
-	else if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION)
-	{
-		resolution = SHADOW_RESOLUTION::ULTRA;
 	}
 
 	// Assign views required for shadows from the lightPool
@@ -609,21 +549,18 @@ void Renderer::InitSpotLightComponent(Entity* entity)
 	// Check if the light is to cast shadows
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
 
-	if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_LOW_RESOLUTION)
+	int shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	if (shadowRes == 0)
 	{
 		resolution = SHADOW_RESOLUTION::LOW;
 	}
-	else if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION)
+	else if (shadowRes == 1)
 	{
 		resolution = SHADOW_RESOLUTION::MEDIUM;
 	}
-	else if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION)
+	else if (shadowRes == 2)
 	{
 		resolution = SHADOW_RESOLUTION::HIGH;
-	}
-	else if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW_ULTRA_RESOLUTION)
-	{
-		resolution = SHADOW_RESOLUTION::ULTRA;
 	}
 
 	// Assign views required for shadows from the lightPool
@@ -655,18 +592,21 @@ void Renderer::InitBoundingBoxComponent(Entity* entity)
 	// Add it to m_pTask so it can be drawn
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
-		Mesh* mesh = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel());
-		if (mesh == nullptr)
+		for (unsigned int i = 0; i < bbc->GetNumBoundingBoxes(); i++)
 		{
-			Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", bbc->GetParent()->GetName().c_str());
-			return;
+			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel(i));
+			if (m == nullptr)
+			{
+				Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", bbc->GetParent()->GetName().c_str());
+				return;
+			}
+
+			// TODO: don't load here, load in loadScene
+			// Submit to GPU
+			LoadMesh(m);
+
+			bbc->AddMesh(m);
 		}
-
-		// Submit to GPU
-		LoadMesh(mesh);
-
-		bbc->SetMesh(mesh);
-
 		static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(bbc);
 	}
 
@@ -709,6 +649,27 @@ void Renderer::InitTextComponent(Entity* entity)
 
 	// Finally store the text in m_pRenderer so it will be drawn
 	m_TextComponents.push_back(textComp);
+}
+
+void Renderer::OnResetScene()
+{
+	m_RenderComponents.clear();
+	for (auto& light : m_Lights)
+	{
+		light.second.clear();
+	}
+	m_pViewPool->ClearAll();
+	m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
+	static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
+	m_pScenePrimaryCamera = nullptr;
+	static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
+	m_BoundingBoxesToBePicked.clear();
+	m_TextComponents.clear();
+}
+
+SwapChain* Renderer::GetSwapChain()
+{
+	return m_pSwapChain;
 }
 
 Entity* const Renderer::GetPickedEntity() const
@@ -766,7 +727,7 @@ bool Renderer::createDevice()
 	IDXGIAdapter1* adapter = nullptr;
 
 	CreateDXGIFactory(IID_PPV_ARGS(&factory));
-	
+
 	for (unsigned int adapterIndex = 0;; ++adapterIndex)
 	{
 		adapter = nullptr;
@@ -805,7 +766,7 @@ bool Renderer::createDevice()
 		factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
 		D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pDevice5));
 	}
-	
+
 	SAFE_RELEASE(&factory);
 
 	return deviceCreated;
@@ -845,14 +806,14 @@ void Renderer::createCommandQueues()
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->SetName(L"CopyQueue");
 }
 
-void Renderer::createSwapChain(const HWND *hwnd)
+void Renderer::createSwapChain()
 {
 	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
 	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
 
 	m_pSwapChain = new SwapChain(
 		m_pDevice5,
-		hwnd,
+		m_pWindow->GetHwnd(),
 		resolutionWidth, resolutionHeight,
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
@@ -972,13 +933,16 @@ void Renderer::updateMousePicker()
 		// Reset picked m_Entities from last frame
 		bbc->IsPickedThisFrame() = false;
 
-		if (m_pMousePicker->Pick(bbc, tempDist) == true)
+		for (unsigned int i = 0; i < bbc->GetNumBoundingBoxes(); i++)
 		{
-			if (tempDist < closestDist)
+			if (m_pMousePicker->Pick(bbc, tempDist, i) == true)
 			{
-				pickedBoundingBox = bbc;
+				if (tempDist < closestDist)
+				{
+					pickedBoundingBox = bbc;
 
-				closestDist = tempDist;
+					closestDist = tempDist;
+				}
 			}
 		}
 	}
@@ -1058,7 +1022,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"DepthVertex.hlsl", L"DepthPixel.hlsl",
 		&gpsdDepthPrePassVector,
-		L"DepthPrePassPSO");
+		L"DepthPrePassPSO",
+		FLAG_THREAD::RENDER);
 
 	
 	// TODO: remove swapchain, using swapchains render view currently.
@@ -1088,7 +1053,7 @@ void Renderer::initRenderTasks()
 	// Specify Blend descriptions
 	D3D12_RENDER_TARGET_BLEND_DESC defaultRTdesc = {
 		false, false,
-		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		D3D12_BLEND_ZERO, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
 		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
 		D3D12_LOGIC_OP_NOOP, D3D12_COLOR_WRITE_ENABLE_ALL };
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
@@ -1137,7 +1102,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"ForwardVertex.hlsl", L"ForwardPixel.hlsl",
 		&gpsdForwardRenderVector,
-		L"ForwardRenderingPSO");
+		L"ForwardRenderingPSO",
+		FLAG_THREAD::RENDER);
 
 	forwardRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
 	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
@@ -1182,7 +1148,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"OutlinedVertex.hlsl", L"OutlinedPixel.hlsl",
 		&gpsdOutliningVector,
-		L"outliningScaledPSO");
+		L"outliningScaledPSO",
+		FLAG_THREAD::RENDER);
 	
 	outliningRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	outliningRenderTask->SetSwapChain(m_pSwapChain);
@@ -1230,7 +1197,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"SkyboxVertex.hlsl", L"SkyboxPixel.hlsl",
 		&gpsdSkyboxRenderVector,
-		L"SkyboxRenderingPSO");
+		L"SkyboxRenderingPSO",
+		FLAG_THREAD::RENDER);
 
 	skyboxRenderTask->SetSwapChain(m_pSwapChain);
 	skyboxRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
@@ -1322,7 +1290,8 @@ void Renderer::initRenderTasks()
 		L"BlendVertex.hlsl",
 		L"BlendPixel.hlsl",
 		&gpsdBlendVector,
-		L"BlendPSO");
+		L"BlendPSO",
+		FLAG_THREAD::RENDER);
 
 	blendRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
 	blendRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
@@ -1346,9 +1315,9 @@ void Renderer::initRenderTasks()
 	// Rasterizer behaviour
 	gpsdShadow.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 	gpsdShadow.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
-	gpsdShadow.RasterizerState.DepthBias = 0;
+	gpsdShadow.RasterizerState.DepthBias = 1000;
 	gpsdShadow.RasterizerState.DepthBiasClamp = 0.0f;
-	gpsdShadow.RasterizerState.SlopeScaledDepthBias = 0.0f;
+	gpsdShadow.RasterizerState.SlopeScaledDepthBias = 3.0f;
 	gpsdShadow.RasterizerState.FrontCounterClockwise = false;
 
 	// Depth descriptor
@@ -1378,7 +1347,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"DepthVertex.hlsl", L"DepthPixel.hlsl",
 		&gpsdShadowVector,
-		L"ShadowPSO");
+		L"ShadowPSO",
+		FLAG_THREAD::RENDER);
 
 	shadowRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 #pragma endregion ShadowPass
@@ -1409,7 +1379,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"WhiteVertex.hlsl", L"WhitePixel.hlsl",
 		&gpsdWireFrameVector,
-		L"WireFramePSO");
+		L"WireFramePSO",
+		FLAG_THREAD::RENDER);
 
 	wireFrameRenderTask->SetSwapChain(m_pSwapChain);
 	wireFrameRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
@@ -1448,7 +1419,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"MergeVertex.hlsl", L"MergePixel.hlsl",
 		&gpsdMergePassVector,
-		L"MergePassPSO");
+		L"MergePassPSO",
+		FLAG_THREAD::RENDER);
 
 	static_cast<MergeRenderTask*>(mergeTask)->SetFullScreenQuad(m_pFullScreenQuad);
 	static_cast<MergeRenderTask*>(mergeTask)->AddSRVIndexToMerge(m_pBloomResources->GetPingPongResource(0)->GetSRV()->GetDescriptorHeapIndex());
@@ -1504,7 +1476,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"TextVertex.hlsl", L"TextPixel.hlsl",
 		&gpsdTextVector,
-		L"TextPSO");
+		L"TextPSO",
+		FLAG_THREAD::RENDER);
 
 	textTask->SetSwapChain(m_pSwapChain);
 	textTask->SetDescriptorHeaps(m_DescriptorHeaps);
@@ -1517,7 +1490,8 @@ void Renderer::initRenderTasks()
 		m_pRootSignature,
 		L"", L"",
 		nullptr,
-		L"");
+		L"",
+		FLAG_THREAD::RENDER);
 
 	imGuiRenderTask->SetSwapChain(m_pSwapChain);
 	imGuiRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
@@ -1541,13 +1515,14 @@ void Renderer::initRenderTasks()
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		resolutionWidth, resolutionHeight);
+		resolutionWidth, resolutionHeight,
+		FLAG_THREAD::RENDER);
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 	// CopyTasks
-	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE);
-	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5, COMMAND_INTERFACE_TYPE::COPY_TYPE);
+	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE, FLAG_THREAD::RENDER);
+	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5, COMMAND_INTERFACE_TYPE::COPY_TYPE, FLAG_THREAD::RENDER);
 
 	
 	// Add the tasks to desired vectors so they can be used in m_pRenderer
@@ -2076,9 +2051,9 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 
 	// -------------------- DEBUG STUFF --------------------
 	// Test to change m_pCamera to the shadow casting m_lights cameras
-	// auto& tuple = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].at(0);
-	// BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
-	// m_pScenePrimaryCamera = tempCam;
+	//auto& tuple = m_Lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
+	//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
+	//m_pScenePrimaryCamera = tempCam;
 	if (m_pScenePrimaryCamera == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scenes\n");
@@ -2093,10 +2068,8 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 	{
 
 	}
-
-
 	m_pMousePicker->SetPrimaryCamera(m_pScenePrimaryCamera);
-	//scene->SetPrimaryCamera(m_pScenePrimaryCamera);
+
 	setRenderTasksRenderComponents();
 	setRenderTasksPrimaryCamera();
 }
@@ -2132,7 +2105,7 @@ void Renderer::prepareCBPerScene()
 		index++;
 	}
 	// ----- spot m_lights -----
-
+	
 	// Upload CB_PER_SCENE to defaultheap
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	const void* data = static_cast<const void*>(m_pCbPerSceneData);
@@ -2167,5 +2140,67 @@ void Renderer::prepareCBPerFrame()
 	{
 		data = static_cast<void*>(m_pCbPerFrameData);
 		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetDefaultResource(), data));
+	}
+}
+
+void Renderer::toggleFullscreen(WindowChange* evnt)
+{
+	m_FenceFrameValue++;
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+
+	// Wait for all frames
+	waitForFrame(0);
+
+	// Wait for the threads which records the commandlists to complete
+	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER);
+
+	for (auto task : m_RenderTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			task->GetCommandInterface()->Reset(i);
+		}
+	}
+	for (auto task : m_CopyTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			task->GetCommandInterface()->Reset(i);
+		}
+	}
+	for (auto task : m_ComputeTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			task->GetCommandInterface()->Reset(i);
+		}
+	}
+
+	m_pSwapChain->ToggleWindowMode(m_pDevice5,
+		m_pWindow->GetHwnd(),
+		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
+		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+
+	for (auto task : m_RenderTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			task->GetCommandInterface()->GetCommandList(i)->Close();
+		}
+	}
+	for (auto task : m_CopyTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			task->GetCommandInterface()->GetCommandList(i)->Close();
+		}
+	}
+	for (auto task : m_ComputeTasks)
+	{
+		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+		{
+			task->GetCommandInterface()->GetCommandList(i)->Close();
+		}
 	}
 }

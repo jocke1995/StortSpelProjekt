@@ -1,0 +1,6 @@
+newmtl conan_body_mat
+
+map_Kd Body_Color.dds
+map_Ks Body_Spec.dds
+map_Kn Body_Normal.dds
+map_Ka Body_Gloss.dds

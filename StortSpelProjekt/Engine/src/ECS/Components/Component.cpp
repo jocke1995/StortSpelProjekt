@@ -22,7 +22,7 @@ void Component::RenderUpdate(double dt)
 
 void Component::OnInitScene()
 {
-	Log::PrintSeverity(Log::Severity::WARNING, "COMPONENT InitScene called! Declare and define your own InitScene in your component class.\n");
+	Log::PrintSeverity(Log::Severity::WARNING, "COMPONENT OnInitScene called! Declare and define your own OnLoadScene in your component class.\n");
 }
 
 void Component::OnLoadScene()

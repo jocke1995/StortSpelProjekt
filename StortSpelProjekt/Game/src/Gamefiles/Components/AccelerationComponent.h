@@ -21,8 +21,10 @@ namespace component
 		DirectX::XMFLOAT3 GetDirection() const;
 		float GetAccSpeed() const;
 
-		void SetAccelrationDirection(DirectX::XMFLOAT3 dir);
-		void SetAccelrationSpeed(float speed);
+		void SetAccelerationDirection(DirectX::XMFLOAT3 dir);
+		void SetAccelerationDirection(float3 dir);
+		void SetAccelerationDirection(float x, float y, float z);
+		void SetAccelerationSpeed(float speed);
 	private:
 		DirectX::XMFLOAT3 m_AccDir;
 		float m_AccSpeed;

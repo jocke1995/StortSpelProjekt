@@ -14,7 +14,8 @@ public:
 		COMMAND_INTERFACE_TYPE interfaceType,
 		const PingPongResource* Bloom0_RESOURCE,
 		const PingPongResource* Bloom1_RESOURCE,
-		unsigned int screenWidth, unsigned int screenHeight
+		unsigned int screenWidth, unsigned int screenHeight,
+		unsigned int FLAG_THREAD
 		);
 	virtual ~BlurComputeTask();
 

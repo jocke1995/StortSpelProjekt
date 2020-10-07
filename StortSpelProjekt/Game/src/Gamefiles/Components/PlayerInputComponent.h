@@ -25,6 +25,8 @@ enum CAMERA_FLAGS
 
 namespace component
 {
+	class CollisionComponent;
+
 	class PlayerInputComponent : public InputComponent
 	{
 	public:
@@ -34,6 +36,10 @@ namespace component
 		virtual ~PlayerInputComponent();
 
 		void Init();
+
+		void OnInitScene();
+		void OnLoadScene();
+		void OnUnloadScene();
 
 		void RenderUpdate(double dt);
 
@@ -46,15 +52,15 @@ namespace component
 		PerspectiveCamera* m_pCamera;
 		Transform* m_pTransform;
 
-		void toggleCameraLock(ModifierInput* evnt);
+		CollisionComponent* m_pCC;
+
+		void alternativeInput(ModifierInput* evnt);
 		void zoom(MouseScroll* evnt);
 
 		void move(MovementInput* evnt);
 		void rotate(MouseMovement* evnt);
 
 		void mouseClick(MouseClick* evnt);
-
-		void grunt(Collision* evnt);
 	};
 }
 
