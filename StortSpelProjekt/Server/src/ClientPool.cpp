@@ -33,7 +33,6 @@ void ClientPool::ListenMessages()
 				if(m_Selector.isReady(m_Clients.at(i)->socket))
 				{
 					newPacket(i);
-					break;
 				}
 			}
 		}
