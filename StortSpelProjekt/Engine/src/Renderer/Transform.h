@@ -3,6 +3,8 @@
 
 #include "EngineMath.h"
 
+#define BASE_VEL 30.0
+
 class Transform
 {
 public:
