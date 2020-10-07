@@ -61,6 +61,7 @@ struct CB_PER_FRAME_STRUCT
 {
 	float3 camPos;
 	float pad1;
+
 	// deltaTime ..
 	// etc ..
 };

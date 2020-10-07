@@ -4,7 +4,8 @@
 #include "..\ECS\Components\InputComponent.h"
 #include "Core.h"
 
-#define DASH_MOD 25.0
+#define DASH_MOD 10.0
+#define SPRINT_MOD 3.0
 
 //Camera
 class BaseCamera;
@@ -58,7 +59,7 @@ namespace component
 
 		void(PlayerInputComponent::*specificUpdate)(double dt);
 
-		void toggleCameraLock(ModifierInput* evnt);
+		void alternativeInput(ModifierInput* evnt);
 		void zoom(MouseScroll* evnt);
 
 		void move(MovementInput* evnt);
