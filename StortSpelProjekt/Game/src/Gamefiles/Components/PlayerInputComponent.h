@@ -56,6 +56,8 @@ namespace component
 		bool m_DashReady;
 		bool m_Dashing;
 
+		void(PlayerInputComponent::*specificUpdate)(double dt);
+
 		void toggleCameraLock(ModifierInput* evnt);
 		void zoom(MouseScroll* evnt);
 
@@ -63,6 +65,10 @@ namespace component
 		void rotate(MouseMovement* evnt);
 
 		void mouseClick(MouseClick* evnt);
+
+		void updateDefault(double dt);
+		void updateDash(double dt);
+		void updateJump(double dt);
 	};
 }
 
