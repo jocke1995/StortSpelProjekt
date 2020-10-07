@@ -7,6 +7,7 @@ class RenderTargetView;
 class Resource;
 
 class PingPongResource;
+class SwapChain;
 
 #include <array>
 class Bloom
@@ -14,7 +15,8 @@ class Bloom
 public:
 	Bloom(
 		ID3D12Device5* device,
-		DescriptorHeap* dhRTV, DescriptorHeap* dh_CBV_UAV_SRV);
+		DescriptorHeap* dhRTV, DescriptorHeap* dh_CBV_UAV_SRV,
+		SwapChain* swapChain);
 	virtual ~Bloom();
 
 	const RenderTargetView* const GetRenderTargetView() const;

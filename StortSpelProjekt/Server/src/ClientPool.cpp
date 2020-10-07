@@ -82,7 +82,7 @@ void ClientPool::RemoveUnconnected()
 std::string ClientPool::GetConsoleString()
 {
 	std::string temp = m_ConsoleString;
-	m_ConsoleString.clear();
+	m_ConsoleString = "";
 
 	return temp;
 }
@@ -99,7 +99,7 @@ void ClientPool::newConnection()
 			m_Selector.add(m_pAvailableClient->socket);
 			m_pAvailableClient->clientId = m_AvailableClientId++;
 
-			//m_ConsoleString.append(m_pAvailableClient->socket.getRemoteAddress().toString() + " connected to server\n");
+			m_ConsoleString = "Client connected to server\n";
 
 			m_pAvailableClient = nullptr;
 

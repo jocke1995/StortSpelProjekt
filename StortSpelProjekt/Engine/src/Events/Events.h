@@ -11,9 +11,10 @@ public:
 
 struct MovementInput : public Event
 {
-	MovementInput(SCAN_CODES key, bool pressed) : key{ key }, pressed{ pressed } {};
+	MovementInput(SCAN_CODES key, bool pressed, bool doubleTap) : key{ key }, pressed{ pressed }, doubleTap{ doubleTap } {};
 	SCAN_CODES key;
 	bool pressed;
+	bool doubleTap;
 };
 
 struct MouseMovement : public Event
@@ -62,8 +63,19 @@ struct PlayerConnection : public Event
 	int playerId;
 };
 
+struct ConnectToServer : public Event
+{
+	ConnectToServer(std::string ip) : ip{ ip } {};
+	std::string ip;
+};
+
 struct Death : public Event
 {
 	Death(Entity* ent) : ent{ ent } {};
 	Entity* ent;
+};
+
+struct WindowChange : public Event
+{
+	WindowChange() {};
 };
