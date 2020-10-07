@@ -125,14 +125,14 @@ void Network::processPacket(sf::Packet* packet)
 
     switch (packetId)
     {
-    case E_PACKET_ID::SERVER_DATA: 
-        processServerData(packet); 
-        break;
-    case E_PACKET_ID::PLAYER_DATA: 
-        processPlayerData(packet); 
-        break;
-    default: 
-        Log::PrintSeverity(Log::Severity::CRITICAL, "Unkown packet id recieved with enum " + std::to_string(packetId));
+        case E_PACKET_ID::SERVER_DATA: 
+            processServerData(packet); 
+            break;
+        case E_PACKET_ID::PLAYER_DATA: 
+            processPlayerData(packet); 
+            break;
+        default: 
+            Log::PrintSeverity(Log::Severity::CRITICAL, "Unkown packet id recieved with enum " + std::to_string(packetId));
     }
 }
 
