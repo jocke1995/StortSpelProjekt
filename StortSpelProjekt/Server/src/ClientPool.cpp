@@ -103,47 +103,29 @@ std::string ClientPool::GetConsoleString()
 	return temp;
 }
 
-void ClientPool::disconnect(int id)
+void ClientPool::disconnect(int index)
 {
-	int index = -1;
-	//Find the client with id
+	m_Selector.remove(m_Clients.at(index)->socket);
+	m_Clients.at(index)->connected = false;
+	m_Clients.at(index)->socket.disconnect();
+	m_Clients.at(index)->lastPacket = 0;
+
+	m_pAvailableClient = m_Clients.at(index);
+	m_AvailableClientId = m_Clients.at(index)->clientId;
+
+	sf::Packet packet;
+	packet << Network::E_PACKET_ID::PLAYER_DISCONNECT;
+	packet << m_Clients.at(index)->clientId;
+
 	for (int i = 0; i < m_Clients.size(); i++)
 	{
-		if (m_Clients.at(i)->clientId == id)
+		if (m_Clients.at(i)->connected)
 		{
-			index = i;
-			break;
+			m_Clients.at(i)->socket.send(packet);
 		}
 	}
 
-	if (index == -1)
-	{
-		m_ConsoleString += "No client with ID " + std::to_string(id) + " was found\n";
-	}
-	else
-	{
-		m_Selector.remove(m_Clients.at(index)->socket);
-		m_Clients.at(index)->connected = false;
-		m_Clients.at(index)->socket.disconnect();
-		m_Clients.at(index)->lastPacket = 0;
-
-		m_pAvailableClient = m_Clients.at(index);
-		m_AvailableClientId = m_Clients.at(index)->clientId;
-
-		sf::Packet packet;
-		packet << Network::E_PACKET_ID::PLAYER_DISCONNECT;
-		packet << m_Clients.at(index)->clientId;
-		
-		for (int i = 0; i < m_Clients.size(); i++)
-		{
-			if (m_Clients.at(i)->connected)
-			{
-				m_Clients.at(i)->socket.send(packet);
-			}
-		}
-
-		m_ConsoleString += "Player " + std::to_string(index) + " was disconnected. There are " + std::to_string(GetNrOfConnectedClients()) + " clients connected\n";
-	}
+	m_ConsoleString += "Player " + std::to_string(index) + " was disconnected. There are " + std::to_string(GetNrOfConnectedClients()) + " clients connected\n";
 }
 
 void ClientPool::newConnection()
@@ -229,9 +211,7 @@ void ClientPool::newPacket(int socket)
 		{
 		case Network::E_PACKET_ID::PLAYER_DISCONNECT:
 		{
-			int playerId;
-			packet >> playerId;
-			disconnect(playerId);
+			disconnect(socket);
 			break;
 		}
 		default: 
