@@ -60,12 +60,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     sceneManager->SetScene(LeosTestScene(sceneManager));
     //sceneManager->SetScene(LeosBounceScene(sceneManager));
     //sceneManager->SetScene(TimScene(sceneManager));
-    sceneManager->SetScene(JockesTestScene(sceneManager));
+    //sceneManager->SetScene(JockesTestScene(sceneManager));
     //sceneManager->SetScene(FloppipTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
     //sceneManager->SetScene(BjornsTestScene(sceneManager));
-    //sceneManager->SetScene(AntonTestScene(sceneManager));
     //sceneManager->SetScene(AndresTestScene(sceneManager));
 
     GameNetwork gameNetwork;
@@ -644,119 +643,6 @@ Scene* TimScene(SceneManager* sm)
     /*--------------------- DirectionalLight ---------------------*/
 
     UpdateScene = &TimUpdateScene;
-
-    return scene;
-}
-
-Scene* AntonTestScene(SceneManager* sm)
-{
-    // Create scene
-    Scene* scene = sm->CreateScene("AntonScene");
-
-    component::CameraComponent* cc = nullptr;
-    component::ModelComponent* mc = nullptr;
-    component::TransformComponent* tc = nullptr;
-    component::DirectionalLightComponent* dlc = nullptr;
-    component::PointLightComponent* plc = nullptr;
-    component::SpotLightComponent* slc = nullptr;
-    component::Audio2DVoiceComponent* avc = nullptr;
-    component::InputComponent* ic = nullptr;
-    component::Audio3DListenerComponent* lc = nullptr;
-    component::Audio3DEmitterComponent* ec = nullptr;
-    component::BoundingBoxComponent* bbc = nullptr;
-    component::AccelerationComponent* ac = nullptr;
-    component::HealthComponent* hc = nullptr;
-    component::CollisionComponent* bcc = nullptr;
-    AssetLoader* al = AssetLoader::Get();
-
-    // Get the models needed
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
-    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
-    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
-
-    /* ---------------------- Player ---------------------- */
-    Entity* entity = scene->AddEntity("player");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
-    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    lc = entity->AddComponent<component::Audio3DListenerComponent>();
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    hc = entity->AddComponent<component::HealthComponent>(10);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f);
-
-    mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0, 5, 0);
-    ic->Init();
-    bbc->Init();
-
-    // Skybox
-    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
-    entity = scene->AddEntity("skybox");
-    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    sbc->SetMesh(sphereModel->GetMeshAt(0));
-    sbc->SetTexture(skyboxCubemap);
-    sbc->SetCamera(cc->GetCamera());
-    sbc->GetTransform()->SetScale(50);
-
-    /* ---------------------- Floor ---------------------- */
-    entity = scene->AddEntity("floor");
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-
-    mc->SetModel(floorModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(35, 1, 35);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-
-    /* ---------------------- Stefan ---------------------- */
-    entity = scene->AddEntity("stefan");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-
-    mc->SetModel(posterModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(35, 35, 1);
-    tc->GetTransform()->SetPosition(0.0f, 17.5f, 35.0f);
-    tc->GetTransform()->SetRotationX(3 * 3.1415 / 2);
-    tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
-
-    /* ---------------------- Spotlight ---------------------- */
-    entity = scene->AddEntity("Spotlight");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW_MEDIUM_RESOLUTION);
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    ec = entity->AddComponent<component::Audio3DEmitterComponent>();
-    ec->AddVoice(L"Music");
-
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.3f);
-    tc->GetTransform()->SetPosition(0.0f, 17.5f, 0.0f);
-
-    slc->SetColor({ 50.0f, 0.0f, 50.0f });
-    slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-    slc->SetDirection({ 0.0, 0.0, 1.0f });
-
-    bbc->Init();
-
-    /* ---------------------- dirLight ---------------------- */
-    entity = scene->AddEntity("dirLight");
-    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION);
-    dlc->SetColor({ 0.0f, 0.5f, 0.5f });
-    dlc->SetDirection({ -1.0f, -1.0f, 1.0f });
-
-    /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &LeoUpdateScene;
-
-    srand(time(NULL));
 
     return scene;
 }

@@ -15,9 +15,9 @@ Network::~Network()
 {
     for (int i = 0; i < m_Players.size(); i++)
     {
-        m_Players.at(i)->entityPointer = nullptr;
         delete m_Players.at(i);
     }
+    m_Players.clear();
 }
 
 bool Network::ConnectToIP(std::string ip, int port)
@@ -65,16 +65,16 @@ void Network::Disconnect()
         m_Socket.send(packet);
 
         m_Connected = false;
-        //Default the first position
-        m_Players.at(0)->entityPointer = nullptr; 
-        m_Players.at(0)->clientId = 0;
-        int size = m_Players.size();
-        for (int i = 1; i < size; i++)
+
+        for (int i = 0; i < m_Players.size(); i++)
         {
-            m_Players.at(i)->entityPointer = nullptr;
             delete m_Players.at(i);
-            m_Players.erase(m_Players.begin() + i);
         }
+        m_Players.clear();
+
+        m_Players.push_back(new Player);
+        m_Players.at(0)->clientId = 0;
+
         m_Socket.disconnect();
         m_Socket.setBlocking(true);
     }

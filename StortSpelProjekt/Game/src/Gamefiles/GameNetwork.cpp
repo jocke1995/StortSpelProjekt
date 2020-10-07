@@ -37,8 +37,8 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
 {
     Log::Print("New player connected with ID " + std::to_string(evnt->playerId) + "\n");
     
-    Entity* entity = m_pScene->GetEntity("player" + std::to_string(evnt->playerId));
-    if (entity == nullptr)
+    Entity* entity = nullptr;
+    if (!m_pScene->EntityExists("player" + std::to_string(evnt->playerId)))
     {
         entity = m_pScene->AddEntity("player" + std::to_string(evnt->playerId));
         component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
@@ -54,7 +54,10 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
 
         m_pSceneManager->AddEntity(entity);
     }
+    else
+    {
+        entity = m_pScene->GetEntity("player" + std::to_string(evnt->playerId));
+    }
 
     m_pNetwork->SetPlayerEntityPointer(entity, evnt->playerId);
-
 }

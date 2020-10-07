@@ -125,6 +125,7 @@ void ClientPool::disconnect(int id)
 		m_Selector.remove(m_Clients.at(index)->socket);
 		m_Clients.at(index)->connected = false;
 		m_Clients.at(index)->socket.disconnect();
+		m_Clients.at(index)->lastPacket = 0;
 
 		if (m_pAvailableClient == nullptr)
 		{
