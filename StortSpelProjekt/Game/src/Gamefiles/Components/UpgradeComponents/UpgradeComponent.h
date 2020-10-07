@@ -40,6 +40,17 @@ namespace component
 
 		// upgrades that are triggered on hit (ex: explosive, poison)
 		virtual void OnHit();
+		// specific for ranged hits
+		virtual void RangedHit();
+		// specific for melee hits
+		virtual void MeleeHit();
+		// upgrades that are triggered when taking damage
+		virtual void OnDamage();
+		// upgrades that are applied immediately, for example apply stat when bought in shop
+		virtual void OnPickUp();
+		// upgrades triggered on death
+		virtual void OnDeath();
+
 		//// upgrades that affect the flight pattern (ex: gravity, speed)
 		//virtual void RangedFlight();
 		//// upgrades that modify the ranged attack (ex: multiple projectiles)
