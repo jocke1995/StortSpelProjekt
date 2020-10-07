@@ -14,6 +14,7 @@
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
+#include "assimp/postprocess.h"
 
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
@@ -90,7 +91,7 @@ Model* AssetLoader::LoadModel(const std::wstring path)
 	const std::string filePath(path.begin(), path.end());
 	Assimp::Importer importer;
 
-	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded);
+	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeGraph);// | aiProcess_OptimizeMeshes);
 
 	if (assimpScene == nullptr)
 	{
@@ -401,15 +402,17 @@ SkeletonNode* AssetLoader::processSkeleton(std::map<std::string, BoneInfo> boneC
 	SkeletonNode* currentNode = new SkeletonNode();
 	currentNode->name = assimpNode->mName.C_Str();
 
-	// Store the default transform and initialize the modelSpaceTransform
+	// Store the default transform
 	currentNode->defaultTransform = aiMatrix4x4ToXMFloat4x4(&assimpNode->mTransformation);
 
+	// Process all bones in every mesh
 	for (unsigned int i = 0; i < assimpNode->mNumMeshes; i++)
 	{
 		aiMesh* assimpMesh = assimpScene->mMeshes[assimpNode->mMeshes[i]];	// The aiNode only contains indices to the meshes
 		processBones(boneCounter, assimpMesh, perVertexBoneData);
 	}
 
+	// Process all children and push_back the pointers
 	for (unsigned int i = 0; i < assimpNode->mNumChildren; i++)
 	{
 		currentNode->children.push_back(processSkeleton(boneCounter, assimpNode->mChildren[i], assimpScene, perVertexBoneData));
@@ -427,7 +430,8 @@ void AssetLoader::processBones(std::map<std::string, BoneInfo> boneCounter, cons
 	{
 		aiBone* assimpBone = assimpMesh->mBones[i];
 		std::string boneName = assimpBone->mName.C_Str();
-		// Give each bone an ID. If we already gave it an ID we don't want to change it
+		// Give each bone an ID. If we already gave it an ID we don't want to change it. Also store the offset matrix.
+		// This information is later stored in the SkeletonNode.
 		if (boneCounter.find(boneName) != boneCounter.end())
 		{
 			boneCounter[boneName].boneID = boneCounter.size();
@@ -435,6 +439,7 @@ void AssetLoader::processBones(std::map<std::string, BoneInfo> boneCounter, cons
 		}
 
 		// Add the vertexID and weight to the map of VertexWeights
+		// This stores the data that each vertex needs later on the GPU to choose their transformations.
 		for (unsigned int j = 0; j < assimpBone->mNumWeights; j++)
 		{
 			aiVertexWeight assimpWeight = assimpBone->mWeights[j];
@@ -451,17 +456,20 @@ void AssetLoader::processBones(std::map<std::string, BoneInfo> boneCounter, cons
 
 void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo> boneCounter, Animation* animation)
 {
+	// Attach the bone ID and the offset matrix to its corresponding SkeletonNode
 	if (boneCounter.find(node->name) != boneCounter.end())
 	{
 		node->boneID = boneCounter[node->name].boneID;
 		node->inverseBindPose = boneCounter[node->name].boneOffset;
 	}
 	
-	if (animation->nodeAnimationKeyframes.find(node->name) != animation->nodeAnimationKeyframes.end())
+	// Set the currentStateTransform pointer. This would look nicer if we didn't need the animation to do it
+	if (animation->currentState.find(node->name) != animation->currentState.end())
 	{
 		node->currentStateTransform = &animation->currentState[node->name].transform;
 	}
 	
+	// Loop through all nodes in the tree
 	for (auto& child : node->children)
 	{
 		initializeSkeleton(child, boneCounter, animation);
@@ -648,14 +656,13 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 		animation->durationInTicks = assimpAnimation->mDuration;
 		animation->ticksPerSecond = assimpAnimation->mTicksPerSecond;
 
-		// Store the transform data for each nodeAnimation
+		// Store the keyframes (transform data) for each nodeAnimation (bone)
 		for (unsigned int j = 0; j < assimpAnimation->mNumChannels; j++)
 		{
-			//NodeAnimation nodeAnimation;
 			aiNodeAnim* assimpNodeAnimation = assimpAnimation->mChannels[j];
 			std::string nodeName = assimpNodeAnimation->mNodeName.C_Str();
-			//processNodeAnimation(assimpAnimation->mChannels[j], &nodeAnimation);
-			//animation->nodeAnimations[nodeAnimation.name] = nodeAnimation;
+
+			// Store all the keyframes (transform data) belonging to this nodeAnimation (bone)
 			for (unsigned int k = 0; k < assimpNodeAnimation->mNumPositionKeys; k++)
 			{
 				Keyframe key;

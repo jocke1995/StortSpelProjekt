@@ -19,7 +19,7 @@ Model::Model(const std::wstring path, SkeletonNode* rootNode, std::map<unsigned 
 
 	// Store the globalInverse transform.
 	DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
-	DirectX::XMMatrixInverse(nullptr, globalInverse);
+	globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
 	DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
 
 	// Fill SlotInfo with mesh+material info
