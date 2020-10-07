@@ -127,18 +127,8 @@ void ClientPool::disconnect(int id)
 		m_Clients.at(index)->socket.disconnect();
 		m_Clients.at(index)->lastPacket = 0;
 
-		if (m_pAvailableClient == nullptr)
-		{
-			//Find a new available client slot
-			for (int i = 0; i < m_Clients.size(); i++)
-			{
-				if (m_Clients.at(i)->connected == false)
-				{
-					m_pAvailableClient = m_Clients.at(i);
-					break;
-				}
-			}
-		}
+		m_pAvailableClient = m_Clients.at(index);
+		m_AvailableClientId = m_Clients.at(index)->clientId;
 
 		sf::Packet packet;
 		packet << Network::E_PACKET_ID::PLAYER_DISCONNECT;
@@ -166,7 +156,26 @@ void ClientPool::newConnection()
 		{
 			m_pAvailableClient->connected = true;
 			m_Selector.add(m_pAvailableClient->socket);
-			m_pAvailableClient->clientId = m_AvailableClientId++;
+			m_pAvailableClient->clientId = m_AvailableClientId;
+
+			//Search for an avaible id to give to next client
+			for (int i = 0; i < m_Clients.size(); i++)
+			{
+				bool idFound = false;
+				for (int j = 0; j < m_Clients.size(); j++)
+				{
+					if (i == m_Clients.at(j)->clientId)
+					{
+						idFound = true;
+						break;
+					}
+				}
+				if (!idFound)
+				{
+					m_AvailableClientId = i;
+					break;
+				}
+			}
 
 			m_ConsoleString = "Client connected to server\n";
 
