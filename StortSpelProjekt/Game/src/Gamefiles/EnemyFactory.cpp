@@ -77,7 +77,7 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, flo
 
 	if (m_EnemyComps[entityName]->compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
 	{
-		cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, m_EnemyComps[entityName]->dim.x / 2.0, m_EnemyComps[entityName]->dim.y / 2.0);
+		cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, m_EnemyComps[entityName]->dim.x / 2.0, m_EnemyComps[entityName]->dim.y / 2.0, 0.01, 0.5, false);
 	}
 	else if (m_EnemyComps[entityName]->compFlags & F_COMP_FLAGS::SPHERE_COLLISION)
 	{
@@ -85,7 +85,7 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, flo
 	}
 	else if (m_EnemyComps[entityName]->compFlags & F_COMP_FLAGS::CUBE_COLLISION)
 	{
-		cc = ent->AddComponent<component::CubeCollisionComponent>(1.0, m_EnemyComps[entityName]->dim.x / 2.0, m_EnemyComps[entityName]->dim.y / 2.0, m_EnemyComps[entityName]->dim.z / 2.0);
+		cc = ent->AddComponent<component::CubeCollisionComponent>(1.0, m_EnemyComps[entityName]->dim.x / 2.0, m_EnemyComps[entityName]->dim.y / 2.0, m_EnemyComps[entityName]->dim.z / 2.0, 0.01, 0.5, false);
 	}
 	else
 	{

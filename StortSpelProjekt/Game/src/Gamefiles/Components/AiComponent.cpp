@@ -26,7 +26,8 @@ void component::AiComponent::Update(double dt)
 		float3 targetPos = targetTrans->GetPositionFloat3();
 		float3 pos = parentTrans->GetPositionFloat3();
 
-		float3 direction = { targetPos.x - pos.x, targetPos.y - pos.y, targetPos.z - pos.z };
+		//float3 direction = { targetPos.x - pos.x, targetPos.y - pos.y, targetPos.z - pos.z };
+		float3 direction = { targetPos.x - pos.x, 0.0, targetPos.z - pos.z };
 
 		float distance = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
 
