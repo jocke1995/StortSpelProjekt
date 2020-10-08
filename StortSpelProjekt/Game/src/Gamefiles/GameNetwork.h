@@ -16,6 +16,8 @@ private:
 	Scene* m_pScene;
 	Network* m_pNetwork;
 
+	void disconnect(Disconnect* evnt);
+	void connectToServer(ConnectToServer* evnt);
 	void addNewPlayerEntity(PlayerConnection* evnt);
 
 };

@@ -4,11 +4,12 @@
 #include "../Misc/EngineRand.h"
 #include "Components/HealthComponent.h"
 
-component::AiComponent::AiComponent(Entity* parent, Entity* target, float detectionRadius, float attackingDistance) : Component(parent)
+component::AiComponent::AiComponent(Entity* parent, Entity* target, bool canJump, float detectionRadius, float attackingDistance) : Component(parent)
 {
 	m_pTarget = target;
 	m_DetectionRadius = detectionRadius;
 	m_AttackingDistance = attackingDistance;
+	m_CanJump = canJump;
 }
 
 component::AiComponent::~AiComponent()
@@ -26,7 +27,7 @@ void component::AiComponent::Update(double dt)
 		float3 targetPos = targetTrans->GetPositionFloat3();
 		float3 pos = parentTrans->GetPositionFloat3();
 
-		float3 direction = { targetPos.x - pos.x, targetPos.y - pos.y, targetPos.z - pos.z };
+		float3 direction = { targetPos.x - pos.x, (targetPos.y - pos.y) * static_cast<float>(m_CanJump), targetPos.z - pos.z };
 
 		float distance = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
 
@@ -38,8 +39,6 @@ void component::AiComponent::Update(double dt)
 				vel = 7.5;
 				parentTrans->SetVelocity(vel);
 				cc->SetVelVector(vel * direction.x / distance, vel * 2 * direction.y / distance, vel * direction.z / distance);
-				// for demoscene! 
-				GetParent()->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
 			}
 			else
 			{
@@ -48,17 +47,13 @@ void component::AiComponent::Update(double dt)
 				float randX = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
 				float randZ = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
 				cc->SetVelVector(min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel), 0.0f, min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel));
-				// for demoscene! 
-				GetParent()->GetComponent<component::Audio3DEmitterComponent>()->Stop(L"Bruh");
 			}
 
 			if (distance <= m_AttackingDistance)
 			{
-				Log::Print("%s attacking player!\n", m_pParent->GetName().c_str());
+				//Log::Print("%s attacking player!\n", m_pParent->GetName().c_str());
 				// TODO: fix this when meele attack is implemented
 				m_pTarget->GetComponent<component::HealthComponent>()->ChangeHealth(-1);
-				// for demoscene!
-				GetParent()->GetComponent<component::Audio2DVoiceComponent>()->Play(L"attack");
 			}
 		}
 	}

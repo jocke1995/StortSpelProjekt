@@ -14,10 +14,10 @@ typedef union
 	struct { float r; float g; float b; float a; };
 } float4;
 
-typedef union
+typedef union float3
 {
-	struct { float x; float y; float z;};
-	struct { float r; float g; float b;};
+	struct { float x; float y; float z; };
+	struct { float r; float g; float b; };
 
 	float length()
 	{
@@ -40,19 +40,50 @@ typedef union
 		y /= denom;
 		z /= denom;
 	};
+
 	void operator *= (float factor)
 	{
 		x *= factor;
 		y *= factor;
 		z *= factor;
 	};
-	
+
+	float3 operator +(const float3& other) const
+	{
+		return {x + other.x, y + other.y, z + other.z};
+	};
+
+	float3 operator -(const float3& other) const
+	{
+		return { x - other.x, y - other.y, z - other.z };
+	};
+
+	float3 cross(float3* that) const
+	{
+		return
+		{
+			this->y * that->z - this->z * that->y,
+			this->z * that->x - this->x * that->z,
+			this->x * that->y - this->y * that->x,
+		};
+	};
+
 } float3;
 
-typedef union
+typedef union float2
 {
 	struct { float x; float y; };
 	struct { float u; float v; };
+
+	float2 operator +(const float2& other) const
+	{
+		return { x + other.x, y + other.y };
+	}
+
+	float2 operator -(const float2& other) const
+	{
+		return { x - other.x, y - other.y };
+	}
 } float2;
 
 typedef union
@@ -61,7 +92,7 @@ typedef union
 	struct { double r; double g; double b; double a; };
 } double4;
 
-typedef union
+typedef union double3
 {
 	struct { double x; double y; double z; };
 	struct { double r; double g; double b; };
@@ -92,6 +123,15 @@ typedef union
 		x *= factor;
 		y *= factor;
 		z *= factor;
+	};
+	double3 cross(double3* that)
+	{
+		return
+		{
+			this->y * that->z - this->z * that->y,
+			this->z * that->x - this->x * that->z,
+			this->x * that->y - this->y * that->x,
+		};
 	};
 } double3;
 

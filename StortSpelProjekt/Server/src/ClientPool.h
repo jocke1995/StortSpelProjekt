@@ -2,17 +2,21 @@
 #define CLIENTPOOL_H
 
 #include "SFML/Network.hpp"
+#include "Misc/Timer.h"
+#include <iomanip>
 #include <vector>
 
 class Network;
 
-struct Client 
+struct Client
 {
 	sf::TcpSocket socket;
 	int clientId;
 	bool connected = false;
-	int frameCount = 0;
+	double lastPacket = 0;
 };
+
+#define CLIENT_TIMEOUT 10
 
 class ClientPool
 {
@@ -21,10 +25,13 @@ public:
 
 	//Listen for a packet or new connection. *Is non blocking
 	void ListenMessages();
+	void Update(double dt);
 
 	void AddClient();
 	int GetNrOfClients();
 	int GetNrOfConnectedClients();
+
+	void toggleShowPackage();
 
 	//Removes all open clients that have not connected or disconneted
 	void RemoveUnconnected();
@@ -41,9 +48,22 @@ private:
 	int m_AvailableClientId;
 
 	std::string m_ConsoleString;
+	
+	bool m_ShowPackage = false;
 
+	float m_NrOfBytesSent = 0.0;
+	int m_NrOfPackagesSent = 0;
+
+	float m_NrOfBytesReceived = 0.0;
+	int m_NrOfPackagesReceived = 0;
+
+	Timer m_ClockSent;
+	Timer m_ClockReceived;
+
+	void disconnect(int id);
 	void newConnection();
 	void newPacket(int socket);
+	void sendPacket(int index, sf::Packet packet);
 };
 
 #endif // !CLIENTPOOL_H

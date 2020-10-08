@@ -1,7 +1,7 @@
 #ifndef DX12TASK_H
 #define DX12TASK_H
 
-#include "../../Misc/MultiThreadedTask.h"
+#include "../../Misc/MultiThreading/MultiThreadedTask.h"
 
 class CommandInterface;
 class Resource;
@@ -55,7 +55,7 @@ public:
 
 	void AddResource(std::string id, const Resource* resource);
 
-	ID3D12GraphicsCommandList5* GetCommandList(unsigned int index) const;
+	CommandInterface* const GetCommandInterface() const;
 protected:
 	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> m_DescriptorHeaps;
 	std::map<std::string, const Resource*> m_Resources;

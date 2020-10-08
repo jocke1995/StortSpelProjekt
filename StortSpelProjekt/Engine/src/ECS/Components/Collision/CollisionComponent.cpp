@@ -3,14 +3,15 @@
 #include "../ECS/Entity.h"
 #include "../Renderer/Transform.h"
 #include "../Physics/Physics.h"
-component::CollisionComponent::CollisionComponent(Entity* parent, double mass, double friction, double restitution) : Component(parent),
+component::CollisionComponent::CollisionComponent(Entity* parent, double mass, double friction, double restitution, bool canFall) : Component(parent),
 m_pTrans(nullptr),
 m_pBody(nullptr),
 m_pMotionState(nullptr),
 m_pShape(nullptr),
 m_Mass(mass),
 m_Fric(friction),
-m_Rest(restitution)
+m_Rest(restitution),
+m_CanFall(canFall)
 {
 }
 
@@ -53,11 +54,17 @@ void component::CollisionComponent::InitScene()
 	btTransform btTrans;
 	btTrans.setIdentity();
 	btTrans.setOrigin({ m_pTrans->GetPositionFloat3().x, m_pTrans->GetPositionFloat3().y, m_pTrans->GetPositionFloat3().z });
+	
+	// Set rotation
+	float4 dxQuat = m_pTrans->GetRotation();
+	btQuaternion quat(dxQuat.x, dxQuat.y, dxQuat.z, dxQuat.w);
+	btTrans.setRotation(quat);
+	
 	btVector3 inertia = { 0.0f,0.0f,0.0f };
 	m_pShape->calculateLocalInertia(m_Mass, inertia);
 	m_pMotionState = new btDefaultMotionState(btTrans);
 	btRigidBody::btRigidBodyConstructionInfo info(m_Mass, m_pMotionState, m_pShape, inertia);
-
+	
 	info.m_restitution = m_Rest;
 	info.m_friction = m_Fric;
 
@@ -70,6 +77,10 @@ void component::CollisionComponent::InitScene()
 	
 	// Add the collisioncomponent to the physics sub-engine.
 	Physics::GetInstance().AddCollisionComponent(this);
+	if (!m_CanFall)
+	{
+		m_pBody->setAngularFactor({ 0.0, 1.0, 0.0 });
+	}
 }
 
 void component::CollisionComponent::SetPosition(double x, double y, double z)

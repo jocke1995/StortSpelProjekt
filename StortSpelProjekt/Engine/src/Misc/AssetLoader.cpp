@@ -4,7 +4,7 @@
 #include "../Renderer/DescriptorHeap.h"
 #include "Window.h"
 
-#include "../Renderer/Model.h"
+#include "../Renderer/HeightmapModel.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Material.h"
@@ -19,7 +19,10 @@
 #include "../Renderer/Texture/Texture2DGUI.h"
 #include "../Renderer/Texture/TextureCubeMap.h"
 
-#include <DirectXMath.h>
+#include "MultiThreading/ThreadPool.h"
+#include "MultiThreading/CalculateHeightmapNormalsTask.h"
+
+#include "EngineMath.h"
 
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
@@ -27,12 +30,18 @@ AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_C
 	m_pDescriptorHeap_CBV_UAV_SRV = descriptorHeap_CBV_UAV_SRV;
 	m_pWindow = const_cast<Window*>(window);
 
+	std::map<TEXTURE2D_TYPE, Texture*> matTextures;
 	// Load default textures
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.dds");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.dds");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
+	matTextures[TEXTURE2D_TYPE::ALBEDO]		= LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.dds");
+	matTextures[TEXTURE2D_TYPE::ROUGHNESS]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.dds");
+	matTextures[TEXTURE2D_TYPE::METALLIC]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
+	matTextures[TEXTURE2D_TYPE::NORMAL]		= LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
+	matTextures[TEXTURE2D_TYPE::EMISSIVE]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
+
+	std::wstring matName = L"DefaultMaterial";
+	Material* material = new Material(&matName, &matTextures);
+	m_LoadedMaterials[matName].first = false;
+	m_LoadedMaterials[matName].second = material;
 }
 
 AssetLoader::~AssetLoader()
@@ -79,7 +88,6 @@ AssetLoader::~AssetLoader()
 		delete font.second.first->kerningsList;
 		delete font.second.first->charList;
 		delete font.second.first;
-		delete font.second.second;
 	}
 }
 
@@ -127,6 +135,231 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	m_LoadedModels[path].second = new Model(&path, &meshes, &animations, &materials);
 
 	return m_LoadedModels[path].second;
+}
+
+HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
+{
+	// return value.
+	HeightmapModel* model = nullptr;
+
+	// Check if the heightmap model already exists
+	if (m_LoadedModels.count(path) != 0)
+	{
+		model = dynamic_cast<HeightmapModel*>(m_LoadedModels[path].second);
+		
+		if (!model)
+		{
+			Log::PrintSeverity(Log::Severity::OTHER, "The model %S is already loaded and attempted to be loaded as a HeightmapModel!", path);
+		}
+
+		return model;
+	}
+	std::wstring heightMapPath;
+	std::wstring materialPath;
+	getHeightMapResources(path, heightMapPath, materialPath);
+
+	Texture* tex = LoadTexture2D(heightMapPath);
+
+	// One dimensional!
+	unsigned char* imgData = tex->GetData();
+	unsigned int dataCount = tex->GetHeight() * tex->GetWidth();
+	std::vector<Vertex> vertices;
+	vertices.reserve(dataCount);
+
+	float* heightData = new float[dataCount];
+
+	// Create vertices, only positions and UVs.
+	for (unsigned int i = 0; i < dataCount; i++)
+	{
+		Vertex ver;
+		heightData[i] = imgData[i * 4] / 255.0f;
+		
+		ver.pos = { static_cast<float>(tex->GetWidth() - (i % tex->GetWidth())) - tex->GetWidth() / 2.0f, heightData[i], (tex->GetHeight() - static_cast<float>(i) / tex->GetWidth()) - tex->GetHeight() / 2.0f };
+		ver.uv = { static_cast<float>(i % tex->GetWidth()) / tex->GetWidth(), static_cast<float>(i / tex->GetWidth()) / tex->GetHeight() };
+		vertices.push_back(ver);
+	}
+
+	// Calculate and store indices
+	std::vector<unsigned int> indices;
+	unsigned int nrOfTriangles = (tex->GetWidth() - 1) * (tex->GetHeight() - 1) * 2;
+	unsigned int nrOfIndices = nrOfTriangles * 3;
+	unsigned int toProcess = vertices.size() - tex->GetWidth();
+
+	indices.reserve(nrOfIndices);
+
+	for (unsigned int i = 0; i < toProcess; i++)
+	{
+		// calculate the indices for each triangle.
+		// they are set up in the order upper left, lower left and upper right and  for the first triangle.
+		// for the second triangle the indices are set up as lower left, lower right and upper right.
+
+		// First triangle
+		indices.push_back(i);
+		indices.push_back(i + tex->GetWidth());
+		indices.push_back(i + 1);
+
+		// Second triangle
+		indices.push_back(i + tex->GetWidth());
+		indices.push_back(i + tex->GetWidth() + 1);
+		indices.push_back(i + 1);
+
+		// Make sure that we dont create triangles from the border. If so add one more step.
+		/*
+				Border
+				|
+			*-*-*
+			|/|/|
+			*-*-*
+			|/|/|
+			*-*-*
+		*/
+
+		i+= (((i + 2) % tex->GetWidth()) == 0);
+	}
+
+	/*
+	// Calculate normals
+	float3 neighbours[4];
+	float3 neighbourTangents[4];
+	float3 normals[4];
+	float3 verPos;
+	float3 vertexNormal;
+	// left = 0
+	// down = 1
+	// right = 2
+	// up = 3
+	for (unsigned int i = 0; i < vertices.size(); i++)
+	{
+		verPos = { vertices[i].pos.x, vertices[i].pos.y, vertices[i].pos.z };
+		// Is left in the grid?
+		if (i != 0)
+		{
+			neighbours[0] = { vertices[i - 1].pos.x, vertices[i - 1].pos.y, vertices[i - 1].pos.z };
+		}
+		else
+		{
+			neighbours[0] = { 0,0,0 };
+		}
+
+		// is down on the grid?
+		if (i / tex->GetWidth() + 1 < tex->GetHeight())
+		{
+			neighbours[1] = { vertices[i + tex->GetWidth()].pos.x, vertices[i + tex->GetWidth()].pos.y, vertices[i + tex->GetWidth()].pos.z };
+		}
+		else
+		{
+			neighbours[1] = { 0,0,0 };
+		}
+
+		// Is right on the grid?
+		if (i % tex->GetWidth() + 1 < tex->GetWidth())
+		{
+			neighbours[2] = { vertices[i + 1].pos.x, vertices[i + 1].pos.y, vertices[i + 1].pos.z };
+		}
+		else
+		{
+			neighbours[2] = { 0,0,0 };
+		}
+
+		// Is up on the grid?
+		if (i >= tex->GetWidth())
+		{
+			neighbours[3] = { vertices[i - tex->GetWidth()].pos.x, vertices[i - tex->GetWidth()].pos.y, vertices[i - tex->GetWidth()].pos.z };
+		}
+		else
+		{
+			neighbours[3] = { 0,0,0 };
+		}
+
+		// Neighbours calculated. Calculate normals and store them.
+
+		neighbourTangents[0] = neighbours[0] - verPos;
+		neighbourTangents[1] = neighbours[1] - verPos;
+		neighbourTangents[2] = neighbours[2] - verPos;
+		neighbourTangents[3] = neighbours[3] - verPos;
+
+		normals[0] = neighbourTangents[1].cross(&neighbourTangents[0]);
+		normals[1] = neighbourTangents[2].cross(&neighbourTangents[1]);
+		normals[2] = neighbourTangents[3].cross(&neighbourTangents[2]);
+		normals[3] = neighbourTangents[0].cross(&neighbourTangents[3]);
+
+		vertexNormal = normals[0] + normals[1] + normals[2] + normals[3];
+		vertexNormal.normalize();
+
+		vertices[i].normal.x = -vertexNormal.x;
+		vertices[i].normal.y = -vertexNormal.y;
+		vertices[i].normal.z = -vertexNormal.z;
+	}
+
+	// Move on to tangents.
+	float3 edge1 = { 0,0,0 };
+	float3 edge2 = { 0,0,0 };
+	float2 deltaUV1 = { 0,0};
+	float2 deltaUV2 = { 0,0 };
+	//Reuse neighbours array from normals!
+	neighbours[0] = { 0 };
+	neighbours[1] = { 0 };
+	neighbours[2] = { 0 };
+	float2 uv[3] = { 0 };
+	float f = 0;
+
+	for (unsigned int i = 0; i < nrOfIndices - 3; i++)
+	{
+		neighbours[0] = { vertices[indices[i]].pos.x,	  vertices[indices[i]].pos.y,	  vertices[indices[i]].pos.z };
+		neighbours[1] = { vertices[indices[i + 1]].pos.x, vertices[indices[i + 1]].pos.y, vertices[indices[i + 1]].pos.z };
+		neighbours[2] = { vertices[indices[i + 2]].pos.x, vertices[indices[i + 2]].pos.y, vertices[indices[i + 2]].pos.z };
+		
+		uv[0] = { vertices[indices[i]].uv.x,	 vertices[indices[i]].uv.y	};
+		uv[1] = { vertices[indices[i + 1]].uv.x, vertices[indices[i + 1]].uv.y };
+		uv[2] = { vertices[indices[i + 2]].uv.x, vertices[indices[i + 2]].uv.y };
+
+		edge1 = neighbours[1] - neighbours[0];
+		edge2 = neighbours[2] - neighbours[0];
+		deltaUV1 = uv[1] - uv[0];
+		deltaUV2 = uv[2] - uv[0];
+
+		f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+		for (unsigned int j = 0; j < 3; j++)
+		{
+			vertices[indices[i + j]].tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			vertices[indices[i + j]].tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			vertices[indices[i + j]].tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+		}
+	}
+	*/
+
+	unsigned int nrOfThreads = ThreadPool::GetInstance().GetNrOfThreads();
+	CalculateHeightmapNormalsTask** tasks = new CalculateHeightmapNormalsTask*[nrOfThreads];
+	
+	for (int i = 0; i < nrOfThreads; i++)
+	{
+		tasks[i] = new CalculateHeightmapNormalsTask(i, nrOfThreads, vertices, indices, tex->GetWidth(), tex->GetHeight());
+		ThreadPool::GetInstance().AddTask(tasks[i]);
+	}
+	
+	ThreadPool::GetInstance().WaitForThreads(tasks[0]->GetThreadFlags());
+
+	for (int i = 0; i < nrOfThreads; i++)
+	{
+		delete tasks[i];
+	}
+	delete[] tasks;
+
+	Mesh* mesh = new Mesh(m_pDevice, &vertices, &indices, m_pDescriptorHeap_CBV_UAV_SRV, path);
+
+	m_LoadedMeshes.push_back(mesh);
+
+	std::vector<Mesh*> meshes;
+	meshes.push_back(mesh);
+
+	std::vector<Animation*> animations;
+	std::vector<Material*> materials;
+	materials.push_back(loadMaterialFromMTL(materialPath));
+	model = new HeightmapModel(&path, &meshes, &animations, &materials, heightData);
+	m_LoadedModels[path].first = false;
+	m_LoadedModels[path].second = model;
+
+	return model;
 }
 
 Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
@@ -426,6 +659,86 @@ Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring& folderP
 	}
 }
 
+Material* AssetLoader::loadMaterialFromMTL(const std::wstring& path)
+{
+	std::wifstream ifstream(path);
+	Material* mat = nullptr;
+	if (ifstream.is_open())
+	{
+		std::wstring relPath = path.substr(0, path.find_last_of('/') + 1);
+		std::wstring currMatName;
+		std::wstring line;
+		std::wstring varName;
+		std::wstring varVal;
+		std::map<TEXTURE2D_TYPE, Texture*> matTextures;
+
+		std::vector<std::wstring> defaultNames;
+		defaultNames.reserve(static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES));
+		defaultNames.push_back(L"default_albedo.dds");
+		defaultNames.push_back(L"default_roughness.dds");
+		defaultNames.push_back(L"default_metallic.dds");
+		defaultNames.push_back(L"default_normal.dds");
+		defaultNames.push_back(L"default_emissive.dds");
+
+		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
+		{
+			matTextures[static_cast<TEXTURE2D_TYPE>(i)] = m_LoadedTextures[m_FilePathDefaultTextures + defaultNames[i]].second;
+		}
+
+		while (!ifstream.eof())
+		{
+			std::getline(ifstream, line);
+			varName = line.substr(0, line.find_first_of(L' '));
+
+			if (varName == L"newmtl")
+			{
+				currMatName = line.substr(line.find_first_of(L' '));
+				if (m_LoadedMaterials.count(currMatName) > 0)
+				{
+					ifstream.close();
+					return m_LoadedMaterials[currMatName].second;
+				}
+			}
+			else if (varName == L"map_Ka")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Kd")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::ALBEDO] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Ks")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::ROUGHNESS] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Kn")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Ke")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(relPath + varVal);
+			}
+		}
+
+		mat = new Material(&currMatName, &matTextures);
+		m_LoadedMaterials[currMatName].first = false;
+		m_LoadedMaterials[currMatName].second = mat;
+
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open mtl file with path %S", path.c_str());
+	}
+
+	return mat;
+}
+
 Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture)
 {
 	aiTextureType type;
@@ -657,6 +970,26 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	Font* font = m_LoadedFonts[filename].first;
 	return m_LoadedFonts[filename].first;
 }
+
+void AssetLoader::getHeightMapResources(const std::wstring& path, std::wstring& heightMapPath, std::wstring& materialPath)
+{
+	std::wifstream input(path);
+	
+	if (input.is_open())
+	{
+		std::wstring relFolderPath = path.substr(0, path.find_last_of('/') + 1);
+		std::getline(input, heightMapPath);
+		heightMapPath = relFolderPath + heightMapPath;
+		std::getline(input, materialPath);
+		materialPath = relFolderPath + materialPath;
+		input.close();
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load heightmap info file with path %S", path.c_str());
+	}
+}
+
 void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations)
 {
 	// Store the animations
