@@ -136,7 +136,7 @@ void Transform::UpdateWorldMatrix()
 	DirectX::XMMATRIX sclMat = DirectX::XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
 	DirectX::XMMATRIX rotMat = m_RotationMat;
 
-	m_WorldMat = rotMat * sclMat * posMat;
+	m_WorldMat = sclMat * rotMat * posMat;
 
 	// Update transposed world matrix
 	m_WorldMatTransposed = DirectX::XMMatrixTranspose(m_WorldMat);
