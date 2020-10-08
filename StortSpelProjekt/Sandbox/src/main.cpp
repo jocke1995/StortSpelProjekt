@@ -287,6 +287,7 @@ Scene* LeosTestScene(SceneManager* sm)
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
+    Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
 
     /* ---------------------- Player ---------------------- */
     Entity* entity = (scene->AddEntity("player"));
@@ -301,10 +302,10 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0.0, 1.0, -30.0);
 
     double3 playerDim = { 1.0, 1.0, 1.0 };
+    double3 minVertex = { 100.0, 100.0, 100.0 }, maxVertex = { -100.0, -100.0, -100.0 };
     for (unsigned int i = 0; i < playerModel->GetSize(); i++)
     {
         std::vector<Vertex> modelVertices = *playerModel->GetMeshAt(i)->GetVertices();
-        double3 minVertex = { 100.0, 100.0, 100.0 }, maxVertex = { -100.0, -100.0, -100.0 };
         for (unsigned int i = 0; i < modelVertices.size(); i++)
         {
             minVertex.x = Min(minVertex.x, static_cast<double>(modelVertices[i].pos.x));
@@ -315,12 +316,12 @@ Scene* LeosTestScene(SceneManager* sm)
             maxVertex.y = Max(maxVertex.y, static_cast<double>(modelVertices[i].pos.y));
             maxVertex.z = Max(maxVertex.z, static_cast<double>(modelVertices[i].pos.z));
         }
-        playerDim = { maxVertex.x - minVertex.x, maxVertex.y - minVertex.y, maxVertex.z - minVertex.z };
     }
+    playerDim = { maxVertex.x - minVertex.x, maxVertex.y - minVertex.y, maxVertex.z - minVertex.z };
 
-    double rad = (playerDim.x / 2.0) * tc->GetTransform()->GetScale().x;
-    double halfHeight = (playerDim.y / 2.0) * tc->GetTransform()->GetScale().y;
-    bcc = entity->AddComponent<component::CapsuleCollisionComponent>(1.0, rad, halfHeight, 0.0, 0.0, false);
+    double rad = (playerDim.z / 2.0) * tc->GetTransform()->GetScale().z;
+    double cylHeight = (playerDim.y * tc->GetTransform()->GetScale().y) - (rad * 2.0) ;
+    bcc = entity->AddComponent<component::CapsuleCollisionComponent>(1.0, rad, cylHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(50);
     ic->Init();
 
@@ -460,11 +461,12 @@ Scene* LeosTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    enH.AddEnemy("sphere", sphereModel, 10, float3{ -50, 10, 50 },L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, 10.0, float3{ 1.578, 0, 0 });
+    enH.AddEnemy("sphere", sphereModel, 10, float3{ -50, 10, 50 },L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_ROLL, 10.0, float3{ 1.578, 0, 0 });
     enH.AddExistingEnemy("sphere", float3{ 50, 10, -50 });
     enH.AddExistingEnemy("sphere", float3{ 50, 10, 50 });
     enH.AddExistingEnemy("sphere", float3{ -50, 10, -50 });
-    enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION | F_COMP_FLAGS::CAN_JUMP, 0.5);
+    enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_JUMP | F_AI_FLAGS::CAN_ROLL, 0.5);
+    enH.AddEnemy("conan", barbModel, 20, float3{ 0.0, 10.0, 0.0 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player");
 
     /* ---------------------- Update Function ---------------------- */
     UpdateScene = &LeoUpdateScene;
@@ -1578,7 +1580,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB, 0.3, float3{ 0, 0, 0 });
+    entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
 
     /*entity = enH.AddExistingEnemy("enemy", float3{ 40, 10, 0 });
     entity = enH.AddExistingEnemy("enemy", float3{ 0, 10, -40 });
