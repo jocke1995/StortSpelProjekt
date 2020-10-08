@@ -191,7 +191,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	for (unsigned int i = 0; i < toProcess; i++)
 	{
 		// calculate the indices for each triangle.
-		// they are set up in the order upper left, lower left and upper right and  for the first triangle. 
+		// they are set up in the order upper left, lower left and upper right and  for the first triangle.
 		// for the second triangle the indices are set up as lower left, lower right and upper right.
 
 		// First triangle
