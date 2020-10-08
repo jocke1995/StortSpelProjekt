@@ -50,6 +50,18 @@ void ThreadPool::AddTask(MultiThreadedTask* task)
 	m_ThreadCounter++;
 }
 
+ThreadPool& ThreadPool::GetInstance(unsigned int nrOfThreads)
+{
+	static ThreadPool instance(nrOfThreads);
+	return instance;
+	// TODO: insert return statement here
+}
+
+unsigned int ThreadPool::GetNrOfThreads() const
+{
+	return m_NrOfThreads;
+}
+
 bool ThreadPool::isAllLastActiveTasksFinished(unsigned int flag)
 {
 	for (Thread* thread : m_Threads)

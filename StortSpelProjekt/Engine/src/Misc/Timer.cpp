@@ -53,6 +53,5 @@ double Timer::StopTimer()
     m_Stop = std::chrono::system_clock::now();
 
     std::chrono::duration<double> elapsedTime = m_Stop - m_Start;
-
     return elapsedTime.count();
 }

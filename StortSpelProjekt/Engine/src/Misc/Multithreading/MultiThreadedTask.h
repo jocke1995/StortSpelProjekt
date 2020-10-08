@@ -7,7 +7,7 @@ class MultiThreadedTask
 {
 public:
 	MultiThreadedTask(unsigned int FLAG_THREAD);
-	~MultiThreadedTask();
+	virtual ~MultiThreadedTask();
 
 	virtual void Execute() = 0;
 

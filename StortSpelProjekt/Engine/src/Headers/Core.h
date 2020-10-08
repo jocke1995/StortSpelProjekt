@@ -135,6 +135,7 @@ enum FLAG_THREAD
 {
 	RENDER = BIT(1),
 	NETWORK = BIT(2),
+	HEIGHTMAPLOAD = BIT(3),
 	// CopyTextures,
 	// PrepareNextScene ..
 	// etc

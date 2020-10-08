@@ -19,6 +19,9 @@
 #include "../Renderer/Texture/Texture2DGUI.h"
 #include "../Renderer/Texture/TextureCubeMap.h"
 
+#include "MultiThreading/ThreadPool.h"
+#include "MultiThreading/CalculateHeightmapNormalsTask.h"
+
 #include "EngineMath.h"
 
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
@@ -177,6 +180,47 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 		vertices.push_back(ver);
 	}
 
+	// Calculate and store indices
+	std::vector<unsigned int> indices;
+	unsigned int nrOfTriangles = (tex->GetWidth() - 1) * (tex->GetHeight() - 1) * 2;
+	unsigned int nrOfIndices = nrOfTriangles * 3;
+	unsigned int toProcess = vertices.size() - tex->GetWidth();
+
+	indices.reserve(nrOfIndices);
+
+	for (unsigned int i = 0; i < toProcess; i++)
+	{
+		// calculate the indices for each triangle.
+		// they are set up in the order upper left, lower left and upper right and  for the first triangle. 
+		// for the second triangle the indices are set up as lower left, lower right and upper right.
+
+		// First triangle
+		indices.push_back(i);
+		indices.push_back(i + tex->GetWidth());
+		indices.push_back(i + 1);
+
+		// Second triangle
+		indices.push_back(i + tex->GetWidth());
+		indices.push_back(i + tex->GetWidth() + 1);
+		indices.push_back(i + 1);
+
+		// Make sure that we dont create triangles from the border. If so add one more step.
+		/*
+				Border
+				|
+			*-*-*
+			|/|/|
+			*-*-*
+			|/|/|
+			*-*-*
+		*/
+		if (((i + 2) % tex->GetWidth()) == 0)
+		{
+			i++;
+		}
+	}
+
+	/*
 	// Calculate normals
 	float3 neighbours[4];
 	float3 neighbourTangents[4];
@@ -250,47 +294,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 		vertices[i].normal.z = -vertexNormal.z;
 	}
 
-	// Calculate and store indices
-	std::vector<unsigned int> indices;
-	unsigned int nrOfTriangles = (tex->GetWidth() - 1) * (tex->GetHeight() - 1) * 2;
-	unsigned int nrOfIndices = nrOfTriangles * 3;
-	unsigned int toProcess = vertices.size() - tex->GetWidth();
-
-	indices.reserve(nrOfIndices);
-
-	for (unsigned int i = 0; i < toProcess; i++)
-	{
-		// calculate the indices for each triangle.
-		// they are set up in the order upper left, lower left and upper right and  for the first triangle. 
-		// for the second triangle the indices are set up as lower left, lower right and upper right.
-
-		// First triangle
-		indices.push_back(i);
-		indices.push_back(i + tex->GetWidth());
-		indices.push_back(i + 1);
-
-		// Second triangle
-		indices.push_back(i + tex->GetWidth());
-		indices.push_back(i + tex->GetWidth() + 1);
-		indices.push_back(i + 1);
-
-		// Make sure that we dont create triangles from the border. If so add one more step.
-		/*
-				Border
-				|
-			*-*-*
-			|/|/|
-			*-*-*
-			|/|/|
-			*-*-*
-		*/
-		if (((i + 2) % tex->GetWidth()) == 0)
-		{
-			i++;
-		}
-	}
-
-	// Indices finished! Move on to tangents.
+	// Move on to tangents.
 	float3 edge1 = { 0,0,0 };
 	float3 edge2 = { 0,0,0 };
 	float2 deltaUV1 = { 0,0};
@@ -325,6 +329,26 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 			vertices[indices[i + j]].tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 		}
 	}
+	*/
+
+	CalculateHeightmapNormalsTask firstTask (0, ThreadPool::GetInstance().GetNrOfThreads(), vertices, indices, tex->GetWidth(), tex->GetHeight());
+
+	unsigned int nrOfThreads = ThreadPool::GetInstance().GetNrOfThreads();
+	CalculateHeightmapNormalsTask** tasks = new CalculateHeightmapNormalsTask*[nrOfThreads];
+	
+	for (int i = 0; i < nrOfThreads; i++)
+	{
+		tasks[i] = new CalculateHeightmapNormalsTask(i, nrOfThreads, vertices, indices, tex->GetWidth(), tex->GetHeight());
+		ThreadPool::GetInstance().AddTask(tasks[i]);
+	}
+	
+	ThreadPool::GetInstance().WaitForThreads(firstTask.GetThreadFlags());
+
+	for (int i = 0; i < nrOfThreads; i++)
+	{
+		delete tasks[i];
+	}
+	delete[] tasks;
 
 	Mesh* mesh = new Mesh(m_pDevice, &vertices, &indices, m_pDescriptorHeap_CBV_UAV_SRV, path);
 

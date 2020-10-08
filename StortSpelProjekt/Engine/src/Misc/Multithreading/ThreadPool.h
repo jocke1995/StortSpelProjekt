@@ -9,15 +9,16 @@ class MultiThreadedTask;
 class ThreadPool
 {
 public:
-	ThreadPool(unsigned int nrOfThreads);
 	~ThreadPool();
 
 	void WaitForThreads(unsigned int flag);
 
 	void AddTask(MultiThreadedTask* task);
 
-	
+	static ThreadPool& GetInstance(unsigned int nrOfThreads = 0);
+	unsigned int GetNrOfThreads() const;
 private:
+	ThreadPool(unsigned int nrOfThreads);
 	std::vector<Thread*> m_Threads;
 
 	unsigned int m_NrOfThreads;
