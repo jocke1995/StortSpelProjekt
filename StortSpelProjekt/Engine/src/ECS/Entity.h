@@ -65,7 +65,7 @@ private:
 	// Multiple m_pScenes can use the same entity (player for example).
 	// This is to make sure that the player doesn't get deleted if its still in use AND to not delete it twice
 	unsigned int m_ReferenceCount = 0;
-	unsigned int m_loadedInNrScenes = 0;
+	unsigned int m_LoadedInNrScenes = 0;
 
 	std::vector<Component*> m_Components;
 };

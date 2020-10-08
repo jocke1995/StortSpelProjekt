@@ -77,7 +77,7 @@ void Entity::InitScene()
 
 void Entity::LoadScene()
 {
-	// for each component in entity: call their implementation of InitScene(),
+	// for each component in entity: call their implementation of LoadScene(),
 	// which calls their specific init function (render, audio, game, physics etc)
 	for (int i = 0; i < m_Components.size(); i++)
 	{
@@ -87,7 +87,7 @@ void Entity::LoadScene()
 
 void Entity::UnloadScene()
 {
-	// for each component in entity: call their implementation of InitScene(),
+	// for each component in entity: call their implementation of UnloadScene(),
 	// which calls their specific init function (render, audio, game, physics etc)
 	for (int i = 0; i < m_Components.size(); i++)
 	{

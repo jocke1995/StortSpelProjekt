@@ -61,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
-    //Scene* filipScene = FloppipTestScene(sceneManager);
+    Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager);
@@ -72,10 +72,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->LoadScene(jockeScene);
     //sceneManager->LoadScene(filipScene);
 
-    Scene* activeScenes[] = { leoScene };
+    Scene* activeScenes[] = { filipScene, leoScene };
 
     // Set scene
-    sceneManager->SetScenes(1, activeScenes);
+    sceneManager->SetScenes(2, activeScenes);
 
     GameNetwork gameNetwork;
 
@@ -93,7 +93,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
-
+    Model* mmm = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
@@ -129,7 +129,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         static int nameCounter = 0;
         if (window->WasSpacePressed())
         {
-            static Model* mmm = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
             Entity* a = new Entity(std::to_string(nameCounter++));
 
             component::ModelComponent* mc = a->AddComponent<component::ModelComponent>();
@@ -147,12 +146,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             if (currentScene)
             {
                 sceneManager->UnloadScene(activeScene);
-                sceneManager->SetScenes(1, &activeScene);
+                sceneManager->SetScenes(2, activeScenes);
             }
             else
             {
                 sceneManager->UnloadScene(activeScene);
-                sceneManager->SetScenes(1, &activeScene);
+                sceneManager->SetScenes(2, activeScenes);
             }
             currentScene = !currentScene;
         }
@@ -974,97 +973,6 @@ Scene* FloppipTestScene(SceneManager* sm)
     bbc->Init();
 
     /* ---------------------- PointLight1 ---------------------- */
-
-
-
-    /* ---------------------- PointLigh2 ---------------------- */
-    entity = scene->AddEntity("pointLight2");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
-
-    plc->SetColor({ 0.0f, 2.0f, 0.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-
-    /* ---------------------- PointLight2 ---------------------- */
-
-
-
-    /* ---------------------- PointLight3 ---------------------- */
-    entity = scene->AddEntity("pointLight3");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
-
-    plc->SetColor({ 0.0f, 0.0f, 2.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-
-    /* ---------------------- PointLight3 ---------------------- */
-
-
-
-    /* ---------------------- PointLight4 ---------------------- */
-    entity = scene->AddEntity("pointLight4");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(-30.0f, 4.0f, -15.0f);
-
-    plc->SetColor({ 4.0f, 2.0f, 2.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-
-    /* ---------------------- PointLight4 ---------------------- */
-
-
-
-    /* ---------------------- PointLigh5 ---------------------- */
-    entity = scene->AddEntity("pointLight5");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
-
-    plc->SetColor({ 2.0f, 2.0f, 5.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-
-
-    /* ---------------------- PointLight5 ---------------------- */
-
-
-
-    /* ---------------------- PointLight6 ---------------------- */
-    entity = scene->AddEntity("pointLight6");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
-
-    plc->SetColor({ 2.0f, 2.0f, 2.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-
-    /* ---------------------- PointLight6 ---------------------- */
 
     /* ---------------------- The Sun ---------------------- */
     entity = scene->AddEntity("sun");

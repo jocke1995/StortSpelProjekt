@@ -108,6 +108,7 @@ void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
 	// Unload the entity
 	entity->UnloadScene();
+	entity->m_LoadedInNrScenes--;
 
 	// Remove from the scene
 	scene->RemoveEntity(entity->GetName());
@@ -120,6 +121,7 @@ void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
 	// Load the enity
 	entity->LoadScene();
+	entity->m_LoadedInNrScenes++;
 
 	// Add it to the scene
 	scene->AddEntityFromOther(entity);
@@ -150,7 +152,6 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
 		for (auto const& [entityName, entity] : entities)
 		{
-			
 			// Only init once per scene (in case a entity is in both scenes)
 			if (m_IsEntityInited.count(entity) == 0)
 			{
@@ -163,6 +164,7 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 	}
 	
 
+	/*
 	std::vector<Scene*> scenesToUnload;
 	// Unload old Scenes
 	for (auto scene : lastActiveScenes)
@@ -190,10 +192,10 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 		UnloadScene(scene);
 	}
 
+	*/
+
 
 	m_pRenderer->prepareScenes(&m_ActiveScenes);
-
-
 
 	// TODO: for reviewer:
 	// Dear reviewer.
@@ -207,6 +209,8 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 			scene->SetPrimaryCamera(m_pRenderer->m_pScenePrimaryCamera);
 		}
 	}
+
+	
 
 
 
@@ -227,11 +231,11 @@ void SceneManager::LoadScene(Scene* scene)
 	for (auto const& [name, entity] : *scene->GetEntities())
 	{
 		// Load only first time entity is referenced in a scene
-		if (entity->m_loadedInNrScenes == 0)
+		if (entity->m_LoadedInNrScenes == 0)
 		{
 			entity->LoadScene();
 		}
-		entity->m_loadedInNrScenes++;
+		entity->m_LoadedInNrScenes++;
 	}
 
 	m_LoadedScenes.insert(scene);
@@ -246,11 +250,11 @@ void SceneManager::UnloadScene(Scene* scene)
 	for (auto const& [name, entity] : *scene->GetEntities())
 	{
 		// don't unload entities used by other scenes
-		if (entity->m_loadedInNrScenes == 1)
+		if (entity->m_LoadedInNrScenes == 1)
 		{
 			entity->UnloadScene();
 		}
-		entity->m_loadedInNrScenes--;
+		entity->m_LoadedInNrScenes--;
 	}
 
 	m_LoadedScenes.erase(scene);

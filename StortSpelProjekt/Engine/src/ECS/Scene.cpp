@@ -11,11 +11,6 @@ Scene::~Scene()
 {
     for (auto pair : m_Entities)
     {
-        if (pair.second->GetName() == "RangeAttack1")
-        {
-            int asd = 0;
-        }
-        
         if (pair.second != nullptr)
         {
             pair.second->DecrementRefCount();

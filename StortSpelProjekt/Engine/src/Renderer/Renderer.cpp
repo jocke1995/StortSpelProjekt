@@ -1730,6 +1730,10 @@ void Renderer::LoadModel(Model* model) const
 			// Set model as loadedOnGpu
 			al->m_LoadedModels[modelPath].first = true;
 		}
+		else
+		{
+			Log::PrintSeverity(Log::Severity::WARNING, "Renderer::loadModel: loadModel called on already loaded model %S\n", modelPath);
+		}
 	}
 	
 }
@@ -1835,7 +1839,7 @@ void Renderer::UnloadModel(Model* model) const
 		if (!al->IsModelLoadedOnGpu(path))
 		{
 			// Do nothing
-			//Log::PrintSeverity(Log::Severity::WARNING, "Renderer::unloadModel: unloadModel called on already unloaded model %S\n", path);
+			Log::PrintSeverity(Log::Severity::WARNING, "Renderer::unloadModel: unloadModel called on already unloaded model %S\n", path);
 		}
 		else
 		{

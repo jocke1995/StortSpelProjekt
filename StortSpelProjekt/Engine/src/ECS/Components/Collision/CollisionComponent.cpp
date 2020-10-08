@@ -40,6 +40,18 @@ void component::CollisionComponent::Update(double dt)
 
 void component::CollisionComponent::OnInitScene()
 {
+	if (m_pBody != nullptr)
+	{
+		delete m_pBody;
+		m_pBody = nullptr;
+	}
+
+	if (m_pMotionState != nullptr)
+	{
+		delete m_pMotionState;
+		m_pMotionState = nullptr;
+	}
+
 	// If no transform is given, this component is useless!
 	if (!m_pParent->HasComponent<component::TransformComponent>())
 	{
@@ -62,6 +74,7 @@ void component::CollisionComponent::OnInitScene()
 	btVector3 inertia = { 0.0f,0.0f,0.0f };
 	m_pShape->calculateLocalInertia(m_Mass, inertia);
 	m_pMotionState = new btDefaultMotionState(btTrans);
+
 	btRigidBody::btRigidBodyConstructionInfo info(m_Mass, m_pMotionState, m_pShape, inertia);
 
 	info.m_restitution = m_Rest;
