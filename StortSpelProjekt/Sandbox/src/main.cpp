@@ -48,7 +48,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     SceneManager* const sceneManager = engine.GetSceneHandler();
     Renderer* const renderer = engine.GetRenderer();
     Physics* const physics = engine.GetPhysics();
-    AudioEngine* const audioEngine = engine.GetAudioEngine();
 
 
     /*------ AssetLoader to load models / textures ------*/
@@ -1362,7 +1361,6 @@ Scene* AndresTestScene(SceneManager* sm)
     rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 10);
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    //avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     //avc->AddVoice(L"Bruh");
 
     mc->SetModel(playerModel);
@@ -1552,7 +1550,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
-    // Get the audio needed and add settings to it.
+    // Get the 
 
 
     Entity* entity = scene->AddEntity("player");
