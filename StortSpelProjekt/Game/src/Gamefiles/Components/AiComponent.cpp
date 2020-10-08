@@ -50,7 +50,7 @@ void component::AiComponent::Update(double dt)
 
 			if (distance <= m_AttackingDistance)
 			{
-				Log::Print("%s attacking player!\n", m_pParent->GetName().c_str());
+				//Log::Print("%s attacking player!\n", m_pParent->GetName().c_str());
 				// TODO: fix this when meele attack is implemented
 				m_pTarget->GetComponent<component::HealthComponent>()->ChangeHealth(-1);
 			}
