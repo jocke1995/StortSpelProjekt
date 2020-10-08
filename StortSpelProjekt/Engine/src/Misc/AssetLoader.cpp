@@ -109,7 +109,6 @@ AssetLoader::~AssetLoader()
 		delete font.second.first->kerningsList;
 		delete font.second.first->charList;
 		delete font.second.first;
-		delete font.second.second;
 	}
 }
 

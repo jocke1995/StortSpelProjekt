@@ -20,6 +20,7 @@ public:
 
 	Entity* GetEntity(std::string entityName);
 	const std::map<std::string, Entity*> *GetEntities() const;
+	bool EntityExists(std::string entityName) const;
 
 	unsigned int GetNrOfEntites() const;
 	BaseCamera* GetMainCamera() const;
@@ -38,7 +39,7 @@ private:
 
 	BaseCamera* m_pPrimaryCamera = nullptr;
 
-	bool EntityExists(std::string entityName) const;
+
 };
 
 #endif

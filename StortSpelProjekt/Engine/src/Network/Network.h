@@ -12,7 +12,8 @@ class Network {
 public:
 	enum E_PACKET_ID {
 		SERVER_DATA = 0,
-		PLAYER_DATA = 1
+		PLAYER_DATA = 1,
+		PLAYER_DISCONNECT = 2
 	};
 	struct Player {
 		Entity* entityPointer;
@@ -23,12 +24,13 @@ public:
 	~Network();
 
 	bool ConnectToIP(std::string ip, int port);
-	bool IsConnected();
 
+
+	bool IsConnected();
 	sf::TcpSocket* GetSocket();
 
 	void SendPositionPacket();
-	
+	void Disconnect();
 	//Give network the entity pointer for player.
 	void SetPlayerEntityPointer(Entity* playerEnitity, int id);
 
@@ -39,6 +41,7 @@ private:
 	void processPacket(sf::Packet *packet);
 	void processPlayerData(sf::Packet* packet);
 	void processServerData(sf::Packet* packet);
+	void processPlayerDisconnect(sf::Packet* packet);
 
 	void sendPacket(sf::Packet packet);
 

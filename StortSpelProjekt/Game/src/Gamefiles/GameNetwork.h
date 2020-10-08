@@ -16,6 +16,7 @@ private:
 	std::vector<Scene*>* m_pActiveScenes;
 	Network* m_pNetwork;
 
+	void disconnect(Disconnect* evnt);
 	void connectToServer(ConnectToServer* evnt);
 	void addNewPlayerEntity(PlayerConnection* evnt);
 
