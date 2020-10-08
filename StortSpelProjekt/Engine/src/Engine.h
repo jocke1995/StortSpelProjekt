@@ -26,7 +26,6 @@
 #include "Renderer/Mesh.h"
 #include "Renderer/BaseCamera.h"
 #include "Physics/Physics.h"
-#include "AudioEngine/AudioBuffer.h"
 
 // Textures
 #include "Renderer/Material.h"
@@ -74,7 +73,7 @@ private:
 	Renderer* m_pRenderer = nullptr;
 	SceneManager* m_pSceneManager = nullptr;
 	Physics* m_pPhysics = nullptr;
-	AudioEngine* m_pAudioEngine = nullptr;
+	//AudioEngine* m_pAudioEngine = nullptr;
 
 	int m_ThreadLimit = 4;
 };

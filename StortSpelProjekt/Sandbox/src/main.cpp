@@ -57,11 +57,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //sceneManager->SetScene(JacobsTestScene(sceneManager));
-    sceneManager->SetScene(LeosTestScene(sceneManager));
+    //sceneManager->SetScene(LeosTestScene(sceneManager));
     //sceneManager->SetScene(LeosBounceScene(sceneManager));
     //sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
-    //sceneManager->SetScene(FloppipTestScene(sceneManager));
+    sceneManager->SetScene(FloppipTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
     //sceneManager->SetScene(WilliamsTestScene(sceneManager));
     //sceneManager->SetScene(BjornsTestScene(sceneManager));
@@ -76,7 +76,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScene(sceneManager->GetScene("ThatSceneWithThemThereDashFeaturesAndStuff"));
+        gameNetwork.SetScene(sceneManager->GetScene("floppipScene"));
         gameNetwork.SetSceneManager(sceneManager);
     }
     double networkTimer = 0;
@@ -135,12 +135,10 @@ Scene* JacobsTestScene(SceneManager* sm)
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
-    AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     /*--------------------- Assets ---------------------*/
 
     /*--------------------- Component declarations ---------------------*/
     Entity* entity = nullptr;
-    component::Audio2DVoiceComponent* avc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CameraComponent* cc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
@@ -161,7 +159,6 @@ Scene* JacobsTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     bbc = entity->AddComponent < component::BoundingBoxComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
 
@@ -175,8 +172,6 @@ Scene* JacobsTestScene(SceneManager* sm)
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-
-    avc->AddVoice(L"Bruh");
 
     /*--------------------- Sphere1 ---------------------*/
     // entity
@@ -485,12 +480,10 @@ Scene* LeosBounceScene(SceneManager* sm)
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
-    AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     /*--------------------- Assets ---------------------*/
 
     /*--------------------- Component declarations ---------------------*/
     Entity* entity = nullptr;
-    component::Audio2DVoiceComponent* avc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CameraComponent* cc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
@@ -510,7 +503,7 @@ Scene* LeosBounceScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+
 
     Transform* t = tc->GetTransform();
 
@@ -523,7 +516,6 @@ Scene* LeosBounceScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
 
-    avc->AddVoice(L"Bruh");
 
     /*--------------------- Sphere1 ---------------------*/
     // entity
@@ -621,12 +613,10 @@ Scene* TimScene(SceneManager* sm)
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 
-    AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     /*--------------------- Assets ---------------------*/
 
     /*--------------------- Component declarations ---------------------*/
     Entity* entity = nullptr;
-    component::Audio2DVoiceComponent* avc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CameraComponent* cc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
@@ -648,7 +638,6 @@ Scene* TimScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
 
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 10.0f, 0.0f);
@@ -659,7 +648,6 @@ Scene* TimScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
 
-    avc->AddVoice(L"Bruh");
     /*--------------------- Player ---------------------*/
 
     /*--------------------- Box1 ---------------------*/
@@ -1342,9 +1330,7 @@ Scene* AndresTestScene(SceneManager* sm)
     component::PointLightComponent* plc = nullptr;
     component::SpotLightComponent* slc = nullptr;
     component::InputComponent* ic = nullptr;
-    component::Audio3DListenerComponent* audioListener = nullptr;
-    component::Audio3DEmitterComponent* audioEmitter = nullptr;
-    component::Audio2DVoiceComponent* avc = nullptr;
+
     component::HealthComponent* hc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* bcc = nullptr;
@@ -1362,17 +1348,7 @@ Scene* AndresTestScene(SceneManager* sm)
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
 
-    // Get the audio needed and add settings to it.
-    AudioBuffer* melodySound = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"melody");
-    AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
-    AudioBuffer* horseSound = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"horse");
-    AudioBuffer* attackSound = al->LoadAudio(L"../Vendor/Resources/Audio/attack.wav", L"attack");
 
-    // Audio may loop infinetly (0) once (1) or otherwise specified amount of times!
-    bruhSound->SetAudioLoop(0);
-    melodySound->SetAudioLoop(0);
-    horseSound->SetAudioLoop(0);
-    attackSound->SetAudioLoop(1);
 
     /* ---------------------- Player ---------------------- */
     Entity* entity = scene->AddEntity("player");
@@ -1381,7 +1357,6 @@ Scene* AndresTestScene(SceneManager* sm)
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.01);
-    audioListener = entity->AddComponent<component::Audio3DListenerComponent>();
     ic->Init();
     hc = entity->AddComponent<component::HealthComponent>(15);
     rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 10);
@@ -1564,7 +1539,6 @@ Scene* BjornsTestScene(SceneManager* sm)
     component::DirectionalLightComponent* dlc = nullptr;
     component::SpotLightComponent* slc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
-    component::Audio2DVoiceComponent* avc = nullptr;
     component::HealthComponent* hc = nullptr;
     component::RangeComponent* rc = nullptr;
     component::CollisionComponent* bcc = nullptr;
@@ -1579,10 +1553,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
     // Get the audio needed and add settings to it.
-    AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
 
-    // Audio may loop infinetly (0) once (1) or otherwise specified amount of times!
-    bruhSound->SetAudioLoop(1);
 
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -1594,8 +1565,6 @@ Scene* BjornsTestScene(SceneManager* sm)
     hc = entity->AddComponent<component::HealthComponent>(15);
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
-    avc->AddVoice(L"Bruh");
     rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3);
 
     mc->SetModel(playerModel);
@@ -1785,14 +1754,5 @@ void DefaultUpdateScene(SceneManager* sm)
 
 void DemoUpdateScene(SceneManager* sm)
 {
-    component::Audio3DEmitterComponent* ec = sm->GetScene("AndresTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
-    ec->UpdateEmitter(L"Bruh");
 
-    std::string name = "enemy";
-    for (int i = 1; i < 76; i++)
-    {
-        name = "enemy" + std::to_string(i);
-        ec = sm->GetScene("AndresTestScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
-        ec->UpdateEmitter(L"Bruh");
-    }
 }

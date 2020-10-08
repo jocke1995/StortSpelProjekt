@@ -50,7 +50,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	m_pRenderer->InitD3D12(m_pWindow, hInstance, m_pThreadPool);
 
 	// Audio engine
-	m_pAudioEngine = &AudioEngine::GetInstance();
+	//m_pAudioEngine = &AudioEngine::GetInstance();
 
 	// ECS
 	m_pSceneManager = new SceneManager(m_pRenderer);
@@ -88,7 +88,8 @@ Physics* const Engine::GetPhysics() const
 
 AudioEngine* const Engine::GetAudioEngine() const
 {
-	return m_pAudioEngine;
+	//return m_pAudioEngine;
+	return nullptr;
 }
 
 Renderer* const Engine::GetRenderer() const

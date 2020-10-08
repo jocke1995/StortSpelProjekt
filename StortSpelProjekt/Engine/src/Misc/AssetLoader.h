@@ -2,7 +2,6 @@
 #define ASSETLOADER_H
 
 #include "Core.h"
-#include "../AudioEngine/AudioBuffer.h"
 #include "assimp/matrix4x4.h"
 
 class DescriptorHeap;
@@ -41,8 +40,7 @@ public:
 
 
     // Load Audio
-    AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
-    AudioBuffer* GetAudio(const std::wstring& name);
+
     // ??
 
 	// Fonts -------------
@@ -75,8 +73,6 @@ private:
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
     std::map<std::wstring, Shader*> m_LoadedShaders;
     std::map<std::wstring, std::pair<Font*, Texture*>> m_LoadedFonts;
-    std::map<std::wstring, AudioBuffer> m_LoadedAudios;
-
     // Audio
     // add map for audio (path, AudioObject)
 

@@ -8,9 +8,6 @@
 #include "Components/TextComponent.h"
 #include "Components/InputComponent.h"
 // Audio
-#include "Components/Audio2DVoiceComponent.h"
-#include "Components/Audio3DListenerComponent.h"
-#include "Components/Audio3DEmitterComponent.h"
 
 // physics/collisions
 #include "Components/Collision/SphereCollisionComponent.h"

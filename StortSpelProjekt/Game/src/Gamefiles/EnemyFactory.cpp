@@ -157,8 +157,6 @@ Entity* EnemyFactory::Add(std::string name, Model* model, int hp, float3 pos, st
 	component::BoundingBoxComponent* bbc = nullptr;
 	component::CollisionComponent* cc = nullptr;
 	component::AiComponent* ai = nullptr;
-	component::Audio3DEmitterComponent* ae = nullptr;
-	component::Audio2DVoiceComponent* avc = nullptr;
 
 	mc = ent->AddComponent<component::ModelComponent>();
 	tc = ent->AddComponent<component::TransformComponent>();
@@ -170,10 +168,7 @@ Entity* EnemyFactory::Add(std::string name, Model* model, int hp, float3 pos, st
 		bool canJump = flag & F_COMP_FLAGS::CAN_JUMP;
 		ai = ent->AddComponent<component::AiComponent>(target, canJump);
 	}
-	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
-	ae->AddVoice(sound3D);
-	avc = ent->AddComponent<component::Audio2DVoiceComponent>();
-	avc->AddVoice(sound2D);
+
 
 	mc->SetModel(model);
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);

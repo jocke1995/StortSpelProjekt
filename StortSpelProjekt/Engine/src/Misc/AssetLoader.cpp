@@ -205,22 +205,6 @@ std::pair<Font*, Texture*> AssetLoader::LoadFontFromFile(const std::wstring& fon
 	return m_LoadedFonts[path];
 }
 
-AudioBuffer* AssetLoader::LoadAudio(const std::wstring& path, const std::wstring& name)
-{
-	if (m_LoadedAudios.count(name) != 0)
-	{
-		return &m_LoadedAudios[name];
-	}
-
-	m_LoadedAudios.emplace(name, path);
-	return &m_LoadedAudios[name];
-}
-
-AudioBuffer* AssetLoader::GetAudio(const std::wstring& name)
-{
-	return &m_LoadedAudios[name];
-}
-
 Shader* AssetLoader::loadShader(const std::wstring& fileName, ShaderType type)
 {
 	// Check if the shader already exists
