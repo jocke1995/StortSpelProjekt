@@ -35,6 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Option* option = &Option::GetInstance();
     option->ReadFile();
     float updateRate = 1.0f / std::atof(option->GetVariable("f_updateRate").c_str());
+    float networkUpdateRate = 1.0f / std::atof(option->GetVariable("f_networkUpdateRate").c_str());
 
     /* ------ Engine  ------ */
     Engine engine;
@@ -70,22 +71,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     GameNetwork gameNetwork;
 
     /*------ Network Init -----*/
-    bool networkOn = false;
     Network network;
 
     gameNetwork.SetNetwork(&network);
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScene(sceneManager->GetScene("AndresTestScene"));
+        gameNetwork.SetScene(sceneManager->GetScene("TimScene"));
         gameNetwork.SetSceneManager(sceneManager);
-
-        network.SetPlayerEntityPointer(sceneManager->GetScene("AndresTestScene")->GetEntity("player"), 0);
-        network.ConnectToIP(option->GetVariable("s_ip"), std::atoi(option->GetVariable("i_port").c_str()));
-
-        networkOn = true;
     }
-    int networkCount = 0;
+    double networkTimer = 0;
     double logicTimer = 0;
     int count = 0;
 
@@ -97,21 +92,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         timer->Update();
         logicTimer += timer->GetDeltaTime();
+        if (network.IsConnected())
+        {
+            networkTimer += timer->GetDeltaTime();
+        }
 
         renderer->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
-            networkCount++;
             renderer->Update(updateRate);
             physics->Update(updateRate);
         }
 
         /* ---- Network ---- */
-        if (networkOn)
+        if (network.IsConnected())
         {
-            if (networkCount == 2) {
-                networkCount = 0;
+            if (networkTimer >= networkUpdateRate) {
+                networkTimer = 0;
 
                 network.SendPositionPacket();
                 while (network.ListenPacket());
@@ -268,54 +266,98 @@ Scene* JacobsTestScene(SceneManager* sm)
 }
 
 Scene* LeosTestScene(SceneManager* sm)
-{
-    // Create scene
-    Scene* scene = sm->CreateScene("ThatSceneWithThemThereAiFeaturesAndStuff");
+{// Create Scene
+    Scene* scene = sm->CreateScene("ThatSceneWithThemThereDashFeaturesAndStuff");
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
-    component::DirectionalLightComponent* dlc = nullptr;
-    component::PointLightComponent* plc = nullptr;
-    component::SpotLightComponent* slc = nullptr;
-    component::Audio2DVoiceComponent* avc = nullptr;
     component::InputComponent* ic = nullptr;
-    component::Audio3DListenerComponent* lc = nullptr;
-    component::Audio3DEmitterComponent* ec = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
-    component::AccelerationComponent* ac = nullptr;
-    component::HealthComponent* hc = nullptr;
+    component::PointLightComponent* plc = nullptr;
+    component::DirectionalLightComponent* dlc = nullptr;
+    component::SpotLightComponent* slc = nullptr;
     component::CollisionComponent* bcc = nullptr;
+    component::HealthComponent* hc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
 
-    // Get the audio needed and add settings to it.
-    AudioBuffer* loopedSound = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"Music");
-
-    loopedSound->SetAudioLoop(0);
-
     /* ---------------------- Player ---------------------- */
-    Entity* entity = scene->AddEntity("player");
+    Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    lc = entity->AddComponent<component::Audio3DListenerComponent>();
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    hc = entity->AddComponent<component::HealthComponent>(10);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f);
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
+    hc = entity->AddComponent<component::HealthComponent>(50);
+    ic->Init();
 
-    mc->SetModel(playerModel);
+    mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0, 5, 0);
-    ic->Init();
-    bbc->Init();
+    tc->GetTransform()->SetPosition(0, 1, -30);
+
+    /* ---------------------- Floor ---------------------- */
+    entity = scene->AddEntity("floor");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 350.0, 0.0, 350.0);
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(floorModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(350, 1, 350);
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+
+     /* ---------------------- Cube ---------------------- */
+    entity = scene->AddEntity("Cube");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0, 1.0, 1.0, 1.0);
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(0.0f, 1.0f, -25.0f);
+    tc->GetTransform()->SetRotationX(PI / 4);
+    tc->GetTransform()->SetRotationY(PI / 4);
+    tc->GetTransform()->SetRotationZ(PI / 4);
+
+    /* ---------------------- PointLight ---------------------- */
+    entity = scene->AddEntity("pointLight");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
+
+    plc->SetColor({ 2.0f, 0.0f, 2.0f });
+    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+
+    /* ---------------------- Spotlight ---------------------- */
+    entity = scene->AddEntity("Spotlight1");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(30.0f, 4.0f, 10.0f);
+
+    slc->SetColor({ 0.0f, 0.0f, 8.0f });
+    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetDirection({ -2.0, -1.0, 0.0f });
 
     // Skybox
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
@@ -325,18 +367,6 @@ Scene* LeosTestScene(SceneManager* sm)
     sbc->SetTexture(skyboxCubemap);
     sbc->SetCamera(cc->GetCamera());
     sbc->GetTransform()->SetScale(50);
-
-    /* ---------------------- Floor ---------------------- */
-    entity = scene->AddEntity("floor");
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-
-    mc->SetModel(floorModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(35, 1, 35);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
     /* ---------------------- Stefan ---------------------- */
     entity = scene->AddEntity("stefan");
@@ -352,13 +382,11 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
 
     /* ---------------------- Spotlight ---------------------- */
-    entity = scene->AddEntity("Spotlight");
+    entity = scene->AddEntity("Spotlight2");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    ec = entity->AddComponent<component::Audio3DEmitterComponent>();
-    ec->AddVoice(L"Music");
 
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
@@ -531,7 +559,7 @@ Scene* LeosBounceScene(SceneManager* sm)
 
 Scene* TimScene(SceneManager* sm)
 {
-    Scene* scene = sm->CreateScene("DevScene");
+    Scene* scene = sm->CreateScene("TimScene");
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1728,9 +1756,6 @@ Scene* BjornsTestScene(SceneManager* sm)
 
 void LeoUpdateScene(SceneManager* sm)
 {
-    component::Audio3DEmitterComponent* ec = sm->GetScene("ThatSceneWithThemThereAiFeaturesAndStuff")->GetEntity("Spotlight")->GetComponent<component::Audio3DEmitterComponent>();
-    ec->UpdateEmitter(L"Music");
-    ec->Play(L"Music");
 }
 
 void LeoBounceUpdateScene(SceneManager* sm)
@@ -1777,18 +1802,18 @@ void TimUpdateScene(SceneManager* sm)
     {
         ImGuiHandler::GetInstance().SetBool("reset", false);
 
-        sm->GetScene("DevScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
-        sm->GetScene("DevScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
-        sm->GetScene("DevScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
-        sm->GetScene("DevScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetPosition(0, 10, 0);
+        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetPosition(0, 10, 0);
 
-        sm->GetScene("DevScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
-        sm->GetScene("DevScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
-        sm->GetScene("DevScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
-        sm->GetScene("DevScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetPosition(1, 1, 1);
+        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetPosition(1, 1, 1);
 
-        sm->GetScene("DevScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 3.14, 0);
-        sm->GetScene("DevScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetFriction(0);
+        sm->GetScene("TimScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 3.14, 0);
+        sm->GetScene("TimScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetFriction(0);
 
     }
 }

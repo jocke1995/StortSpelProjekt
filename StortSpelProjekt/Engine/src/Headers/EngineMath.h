@@ -92,7 +92,7 @@ typedef union
 	struct { double r; double g; double b; double a; };
 } double4;
 
-typedef union
+typedef union double3
 {
 	struct { double x; double y; double z; };
 	struct { double r; double g; double b; };
@@ -123,6 +123,15 @@ typedef union
 		x *= factor;
 		y *= factor;
 		z *= factor;
+	};
+	double3 cross(double3* that)
+	{
+		return
+		{
+			this->y * that->z - this->z * that->y,
+			this->z * that->x - this->x * that->z,
+			this->x * that->y - this->y * that->x,
+		};
 	};
 } double3;
 
