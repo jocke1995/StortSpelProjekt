@@ -2,8 +2,8 @@ f_volume 1.0
 f_backgroundVolume 0.2
 f_updateRate 30
 f_networkUpdateRate 15
-i_resolutionWidth 1920
-i_resolutionHeight 1080
+i_resolutionWidth 1366
+i_resolutionHeight 768
 i_windowWidth 1366
 i_windowHeight 768
 i_windowMode 0
