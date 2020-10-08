@@ -9,6 +9,9 @@ Network::Network()
 
     m_Players.push_back(new Player);
     m_Players.at(0)->clientId = 0;
+
+    m_ClockSent.StartTimer();
+
 }
 
 Network::~Network()
@@ -100,7 +103,7 @@ void Network::SendPositionPacket()
 
     packet << E_PACKET_ID::PLAYER_DATA << m_Id << pos.x << pos.y << pos.z << mov.x << mov.y << mov.z;
 
-    m_Socket.send(packet);
+    sendPacket(packet);
 }
 
 void Network::SetPlayerEntityPointer(Entity* playerEnitity, int id)
@@ -137,12 +140,32 @@ void Network::processPacket(sf::Packet* packet)
     int packetId;
     *packet >> packetId;
 
+    if (DEVELOPERMODE_NETWORKLOG)
+    {
+        m_NrOfBytesReceived += packet->getDataSize();
+        m_NrOfPackagesReceived += 1;
+
+        if (m_ClockReceived.StopTimer() > 1.0)
+        {
+            ImGuiHandler::GetInstance().AddLog("Total packages received: %d , Size: %f BYTES", m_NrOfPackagesReceived, m_NrOfBytesReceived);
+
+            m_ClockReceived.StartTimer();
+            m_NrOfBytesReceived = 0;
+            m_NrOfPackagesReceived = 0;
+        }
+    }
+
     switch (packetId)
     {
-    case E_PACKET_ID::SERVER_DATA: processServerData(packet); break;
-    case E_PACKET_ID::PLAYER_DATA: processPlayerData(packet); break;
+        case E_PACKET_ID::SERVER_DATA: 
+            processServerData(packet); 
+            break;
+        case E_PACKET_ID::PLAYER_DATA: 
+            processPlayerData(packet); 
+            break;
+        default: 
+            Log::PrintSeverity(Log::Severity::CRITICAL, "Unkown packet id recieved with enum " + std::to_string(packetId));
     case E_PACKET_ID::PLAYER_DISCONNECT: processPlayerDisconnect(packet); break;
-    default: Log::PrintSeverity(Log::Severity::CRITICAL, "Unkown packet id recieved with enum " + std::to_string(packetId));
     }
 }
 
@@ -213,6 +236,26 @@ void Network::processServerData(sf::Packet* packet)
             m_Players.push_back(new Player);
             m_Players.at(m_Players.size() - 1)->clientId = playerId;
             EventBus::GetInstance().Publish(&PlayerConnection(playerId));
+        }
+    }
+}
+
+// Function to send packages from socket
+void Network::sendPacket(sf::Packet packet)
+{
+    m_Socket.send(packet);
+    if (DEVELOPERMODE_NETWORKLOG)
+    {
+        m_NrOfBytesSent += packet.getDataSize();
+        m_NrOfPackagesSent += 1;
+
+        if (m_ClockSent.StopTimer() > 1.0)
+        {
+            ImGuiHandler::GetInstance().AddLog("Total packages sent: %d , Size: %f BYTES", m_NrOfPackagesSent, m_NrOfBytesSent);
+
+            m_ClockSent.StartTimer();
+            m_NrOfBytesSent = 0;
+            m_NrOfPackagesSent = 0;
         }
     }
 }

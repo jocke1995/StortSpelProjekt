@@ -5,6 +5,8 @@
 #include "../Renderer/Transform.h"
 #include "SFML/Network.hpp"
 #include "../Events/EventBus.h"
+#include "../Misc/Timer.h"
+#include <iomanip>
 
 class Network {
 public:
@@ -41,6 +43,8 @@ private:
 	void processServerData(sf::Packet* packet);
 	void processPlayerDisconnect(sf::Packet* packet);
 
+	void sendPacket(sf::Packet packet);
+
 	sf::TcpSocket m_Socket;
 	sf::TcpListener m_Listener;
 
@@ -48,6 +52,16 @@ private:
 
 	bool m_Connected;
 	int m_Id;
+
+	float m_NrOfBytesSent = 0.0;
+	int m_NrOfPackagesSent = 0;
+
+	float m_NrOfBytesReceived = 0.0;
+	int m_NrOfPackagesReceived = 0;
+
+	Timer m_ClockSent;
+	Timer m_ClockReceived;
+
 };
 
 
