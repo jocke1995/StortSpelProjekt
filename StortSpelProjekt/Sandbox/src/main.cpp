@@ -319,7 +319,7 @@ Scene* LeosTestScene(SceneManager* sm)
     }
 
     double rad = (playerDim.x / 2.0) * tc->GetTransform()->GetScale().x;
-    double halfHeight = (playerDim.y) / 2.0 * tc->GetTransform()->GetScale().y;
+    double halfHeight = (playerDim.y / 2.0) * tc->GetTransform()->GetScale().y;
     bcc = entity->AddComponent<component::CapsuleCollisionComponent>(1.0, rad, halfHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(50);
     ic->Init();
@@ -348,7 +348,7 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(0.0f, 1.0f, -25.0f);
+    tc->GetTransform()->SetPosition(0.0f, 1.0f, 15.0f);
     tc->GetTransform()->SetRotationX(PI / 4);
     tc->GetTransform()->SetRotationY(PI / 4);
     tc->GetTransform()->SetRotationZ(PI / 4);
@@ -362,25 +362,22 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.3f);
-    tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
+    tc->GetTransform()->SetPosition(0.0f, 10.0f, 15.0f);
 
-    plc->SetColor({ 2.0f, 0.0f, 2.0f });
+    plc->SetColor({ 5.0f, 0.0f, 5.0f });
     plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
 
     /* ---------------------- Spotlight ---------------------- */
     entity = scene->AddEntity("Spotlight1");
-    mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
 
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.3f);
-    tc->GetTransform()->SetPosition(30.0f, 4.0f, 10.0f);
+    tc->GetTransform()->SetPosition(0.0, 30.0, -40.0);
 
-    slc->SetColor({ 0.0f, 0.0f, 8.0f });
+    slc->SetColor({ 10.0f, 10.0f, 10.0f });
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
-    slc->SetDirection({ -2.0, -1.0, 0.0f });
+    slc->SetDirection({ 0.0, -29.0, 10.0f });
 
     /* ---------------------- SpotlightHasse ---------------------- */
     entity = scene->AddEntity("SpotlightHasse");
@@ -394,9 +391,9 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(-35.0f, 35.0f, 35.0f);
 
-    slc->SetColor({ 50.0f, 0.0f, 50.0f });
+    slc->SetColor({ 50.0f, 50.0f, 0.0f });
     slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-    slc->SetDirection({ 1.0, 0.0, 0.0f });
+    slc->SetDirection({ -35.0, 15.0, 35.0f });
 
     bbc->Init();
 
@@ -412,9 +409,9 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(35.0f, 35.0f, 35.0f);
 
-    slc->SetColor({ 50.0f, 0.0f, 50.0f });
+    slc->SetColor({ 0.0f, 50.0f, 50.0f });
     slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-    slc->SetDirection({ -1.0, 0.0, 0.0f });
+    slc->SetDirection({ 35.0, 15.0, 35.0f });
 
     bbc->Init();
 
@@ -433,8 +430,8 @@ Scene* LeosTestScene(SceneManager* sm)
     sbc->SetCamera(cc->GetCamera());
     sbc->GetTransform()->SetScale(50);
 
-    /* ---------------------- Stefan&Hasse ---------------------- */
-    entity = scene->AddEntity("stefan&hasse");
+    /* ---------------------- Stefan ---------------------- */
+    entity = scene->AddEntity("stefan");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
 
@@ -442,9 +439,23 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
-    //tc->GetTransform()->SetRotationX(3 * 3.1415 / 2);
+    tc->GetTransform()->SetRotationX(-3 * 3.1415 / 4);
     tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
-    tc->GetTransform()->SetPosition(0.0f, 35.0f, 35.0f);
+    tc->GetTransform()->SetPosition(70.0f, 50.0f, 70.0f);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
+
+    /* ---------------------- Hasse ---------------------- */
+    entity = scene->AddEntity("hasse");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+
+    mc->SetModel(posterModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(35, 1, 35);
+    tc->GetTransform()->SetRotationX(3 * 3.1415 / 4);
+    tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
+    tc->GetTransform()->SetPosition(-70.0f, 50.0f, 70.0f);
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
 
     /* ---------------------- Enemy -------------------------------- */
@@ -453,7 +464,7 @@ Scene* LeosTestScene(SceneManager* sm)
     enH.AddExistingEnemy("sphere", float3{ 50, 10, -50 });
     enH.AddExistingEnemy("sphere", float3{ 50, 10, 50 });
     enH.AddExistingEnemy("sphere", float3{ -50, 10, -50 });
-    enH.AddExistingEnemyWithChanges("sphere", float3{ 0, 15, 0 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION | F_COMP_FLAGS::CAN_JUMP, 0.5);
+    enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION | F_COMP_FLAGS::CAN_JUMP, 0.5);
 
     /* ---------------------- Update Function ---------------------- */
     UpdateScene = &LeoUpdateScene;

@@ -13,11 +13,11 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_DashTimer = 0;
 	m_CameraFlags = camFlags;
 
-	m_Zoom = 10.0f;
+	m_Zoom = 16.0f;
 
-	m_Pitch = 1.0f;
+	m_Pitch = 0.15f;
 
-	m_Yaw = 1.0f;
+	m_Yaw = 10.0f;
 
 	m_CameraDistance = sqrt(m_Zoom * 4 * m_Zoom * 4 + m_Zoom * m_Zoom);
 
