@@ -88,7 +88,7 @@ Scene* SceneManager::CreateScene(std::string sceneName)
     return m_pScenes[sceneName];
 }
 
-const std::vector<Scene*>* SceneManager::GetActiveScenes() const
+std::vector<Scene*>* SceneManager::GetActiveScenes()
 {
 	return &m_ActiveScenes;
 }

@@ -1,14 +1,16 @@
 #include "GameNetwork.h"
 
+#include "ECS/SceneManager.h"
+
 GameNetwork::GameNetwork()
 {
     EventBus::GetInstance().Subscribe(this, &GameNetwork::addNewPlayerEntity);
     EventBus::GetInstance().Subscribe(this, &GameNetwork::connectToServer);
 }
 
-void GameNetwork::SetScene(Scene* scene)
+void GameNetwork::SetScenes(std::vector<Scene*>* activeScenes)
 {
-    m_pScene = scene;
+    m_pActiveScenes = activeScenes;
 }
 
 void GameNetwork::SetNetwork(Network* network)
@@ -23,7 +25,7 @@ void GameNetwork::SetSceneManager(SceneManager* sceneManager)
 
 void GameNetwork::connectToServer(ConnectToServer* evnt)
 {
-    m_pNetwork->SetPlayerEntityPointer(m_pScene->GetEntity("player"), 0);
+    m_pNetwork->SetPlayerEntityPointer((*m_pActiveScenes).at(0)->GetEntity("player"), 0);
     m_pNetwork->ConnectToIP(evnt->ip, std::atoi(Option::GetInstance().GetVariable("i_port").c_str()));
 }
 
@@ -31,7 +33,7 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
 {
     Log::Print("New player connected with ID " + std::to_string(evnt->playerId) + "\n");
 
-    Entity* entity = m_pScene->AddEntity("player" + std::to_string(evnt->playerId));
+    Entity* entity = (*m_pActiveScenes).at(0)->AddEntity("player" + std::to_string(evnt->playerId));
     component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
     component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
     component::CubeCollisionComponent* bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f);
@@ -45,7 +47,8 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
 
     m_pNetwork->SetPlayerEntityPointer(entity, evnt->playerId);
 
+    std::vector<Scene*>* activeScenes = m_pSceneManager->GetActiveScenes();
     // TODO: Network setscene/addentity correct
-    m_pSceneManager->AddEntity(entity, m_pSceneManager->GetActiveScenes()->at(0));
-    m_pSceneManager->SetScenes(1, &m_pScene);
+    m_pSceneManager->AddEntity(entity, activeScenes->at(0));
+    m_pSceneManager->SetScenes(m_pSceneManager->GetActiveScenes()->size(), &activeScenes->at(0));
 }

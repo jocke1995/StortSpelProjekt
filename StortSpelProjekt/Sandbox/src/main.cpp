@@ -86,7 +86,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScene(sceneManager->GetScene("ThatSceneWithThemThereDashFeaturesAndStuff"));
+        gameNetwork.SetScenes(sceneManager->GetActiveScenes());
         gameNetwork.SetSceneManager(sceneManager);
     }
     double networkTimer = 0;
@@ -146,7 +146,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             if (currentScene)
             {
                 sceneManager->UnloadScene(activeScene);
-                sceneManager->SetScenes(2, activeScenes);
+                sceneManager->SetScenes(1, activeScenes);
             }
             else
             {
@@ -312,7 +312,8 @@ Scene* JacobsTestScene(SceneManager* sm)
 }
 
 Scene* LeosTestScene(SceneManager* sm)
-{// Create Scene
+{
+    // Create scene
     Scene* scene = sm->CreateScene("ThatSceneWithThemThereDashFeaturesAndStuff");
 
     component::CameraComponent* cc = nullptr;
@@ -328,6 +329,7 @@ Scene* LeosTestScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Capsule/capsule.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
@@ -339,14 +341,36 @@ Scene* LeosTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
+
+    mc->SetModel(playerModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(3.0f);
+    tc->GetTransform()->SetPosition(0.0, 1.0, -30.0);
+
+    double3 playerDim = { 1.0, 1.0, 1.0 };
+    for (unsigned int i = 0; i < playerModel->GetSize(); i++)
+    {
+        std::vector<Vertex> modelVertices = *playerModel->GetMeshAt(i)->GetVertices();
+        double3 minVertex = { 100.0, 100.0, 100.0 }, maxVertex = { -100.0, -100.0, -100.0 };
+        for (unsigned int i = 0; i < modelVertices.size(); i++)
+        {
+            minVertex.x = Min(minVertex.x, static_cast<double>(modelVertices[i].pos.x));
+            minVertex.y = Min(minVertex.y, static_cast<double>(modelVertices[i].pos.y));
+            minVertex.z = Min(minVertex.z, static_cast<double>(modelVertices[i].pos.z));
+
+            maxVertex.x = Max(maxVertex.x, static_cast<double>(modelVertices[i].pos.x));
+            maxVertex.y = Max(maxVertex.y, static_cast<double>(modelVertices[i].pos.y));
+            maxVertex.z = Max(maxVertex.z, static_cast<double>(modelVertices[i].pos.z));
+        }
+        playerDim = { maxVertex.x - minVertex.x, maxVertex.y - minVertex.y, maxVertex.z - minVertex.z };
+    }
+
+    double rad = (playerDim.x / 2.0) * tc->GetTransform()->GetScale().x;
+    double halfHeight = (playerDim.y / 2.0) * tc->GetTransform()->GetScale().y;
+    bcc = entity->AddComponent<component::CapsuleCollisionComponent>(1.0, rad, halfHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(50);
     ic->Init();
 
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0, 1, -30);
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
@@ -361,7 +385,7 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(350, 1, 350);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
-     /* ---------------------- Cube ---------------------- */
+    /* ---------------------- Cube ---------------------- */
     entity = scene->AddEntity("Cube");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -371,7 +395,7 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(0.0f, 1.0f, -25.0f);
+    tc->GetTransform()->SetPosition(0.0f, 1.0f, 15.0f);
     tc->GetTransform()->SetRotationX(PI / 4);
     tc->GetTransform()->SetRotationY(PI / 4);
     tc->GetTransform()->SetRotationZ(PI / 4);
@@ -385,25 +409,71 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.3f);
-    tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
+    tc->GetTransform()->SetPosition(0.0f, 10.0f, 15.0f);
 
-    plc->SetColor({ 2.0f, 0.0f, 2.0f });
+    plc->SetColor({ 5.0f, 0.0f, 5.0f });
     plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
 
     /* ---------------------- Spotlight ---------------------- */
     entity = scene->AddEntity("Spotlight1");
-    mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
 
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.3f);
-    tc->GetTransform()->SetPosition(30.0f, 4.0f, 10.0f);
+    tc->GetTransform()->SetPosition(0.0, 30.0, -40.0);
 
-    slc->SetColor({ 0.0f, 0.0f, 8.0f });
+    slc->SetColor({ 10.0f, 10.0f, 10.0f });
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
-    slc->SetDirection({ -2.0, -1.0, 0.0f });
+    slc->SetDirection({ 0.0, -29.0, 10.0f });
+
+    /* ---------------------- SpotlightHasse ---------------------- */
+    entity = scene->AddEntity("SpotlightHasse");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(-35.0f, 35.0f, 35.0f);
+
+    slc->SetColor({ 50.0f, 50.0f, 0.0f });
+    slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+    slc->SetDirection({ -35.0, 15.0, 35.0f });
+
+    bbc->Init();
+
+    /* ---------------------- SpotlightStefan ---------------------- */
+    entity = scene->AddEntity("SpotlightStefan");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(35.0f, 35.0f, 35.0f);
+
+    slc->SetColor({ 0.0f, 50.0f, 50.0f });
+    slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+    slc->SetDirection({ 35.0, 15.0, 35.0f });
+
+    bbc->Init();
+
+    /* ---------------------- dirLight ---------------------- */
+    entity = scene->AddEntity("dirLight");
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
+    dlc->SetColor({ 0.0f, 0.05f, 0.05f });
+    dlc->SetDirection({ -1.0f, -1.0f, 1.0f });
+
+    /* ---------------------- Skybox ----------------------- */
+    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    sbc->SetMesh(sphereModel->GetMeshAt(0));
+    sbc->SetTexture(skyboxCubemap);
 
     /* ---------------------- Stefan ---------------------- */
     entity = scene->AddEntity("stefan");
@@ -413,41 +483,33 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetModel(posterModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(35, 35, 1);
-    tc->GetTransform()->SetPosition(0.0f, 17.5f, 35.0f);
-    tc->GetTransform()->SetRotationX(3 * 3.1415 / 2);
+    tc->GetTransform()->SetScale(35, 1, 35);
+    tc->GetTransform()->SetRotationX(-3 * 3.1415 / 4);
     tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
+    tc->GetTransform()->SetPosition(70.0f, 50.0f, 70.0f);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
 
-    /* ---------------------- Spotlight ---------------------- */
-    entity = scene->AddEntity("Spotlight2");
+    /* ---------------------- Hasse ---------------------- */
+    entity = scene->AddEntity("hasse");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.3f);
-    tc->GetTransform()->SetPosition(0.0f, 17.5f, 0.0f);
-
-    slc->SetColor({ 50.0f, 0.0f, 50.0f });
-    slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-    slc->SetDirection({ 0.0, 0.0, 1.0f });
-
-    bbc->Init();
-
-    /* ---------------------- dirLight ---------------------- */
-    entity = scene->AddEntity("dirLight");
-    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    dlc->SetColor({ 0.0f, 0.5f, 0.5f });
-    dlc->SetDirection({ -1.0f, -1.0f, 1.0f });
+    mc->SetModel(posterModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(35, 1, 35);
+    tc->GetTransform()->SetRotationX(3 * 3.1415 / 4);
+    tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
+    tc->GetTransform()->SetPosition(-70.0f, 50.0f, 70.0f);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    enH.AddEnemy("sphere", sphereModel, 10, float3{ 0, 10, 25 },L"Bruh", L"attack", F_COMP_FLAGS::OBB, 1.0, float3{ 1.578, 0, 0 });
-    enH.AddExistingEnemy("sphere", float3{ 0, 10, -25 });
-    enH.AddExistingEnemy("sphere", float3{ 25, 10, 0 });
-    enH.AddExistingEnemy("sphere", float3{ -25, 10, 0 });
+    enH.AddEnemy("sphere", sphereModel, 10, float3{ -50, 10, 50 },L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, 10.0, float3{ 1.578, 0, 0 });
+    enH.AddExistingEnemy("sphere", float3{ 50, 10, -50 });
+    enH.AddExistingEnemy("sphere", float3{ 50, 10, 50 });
+    enH.AddExistingEnemy("sphere", float3{ -50, 10, -50 });
+    enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION | F_COMP_FLAGS::CAN_JUMP, 0.5);
 
     /* ---------------------- Update Function ---------------------- */
     UpdateScene = &LeoUpdateScene;
@@ -463,7 +525,7 @@ Scene* LeosBounceScene(SceneManager* sm)
 
     AssetLoader* al = AssetLoader::Get();
 
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Gandalf/gandalf.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
@@ -501,7 +563,7 @@ Scene* LeosBounceScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(-15.0f, 10.0f, 0.0f);
 
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f);
+    bcc = entity->AddComponent<component::CapsuleCollisionComponent>(1.0f, 1.3f, 3.2f, 0.01f, 0.0f);
     pic->Init();
 
     mc->SetModel(playerModel);

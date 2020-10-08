@@ -35,7 +35,7 @@ void component::Audio3DEmitterComponent::OnUnloadScene()
 {
 }
 
-void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)
+void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring& name)
 {
 	// get parent entity and look for transform components and get update position
 	m_pTransform = m_pParent->GetComponent<TransformComponent>()->GetTransform();
@@ -50,10 +50,10 @@ void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)
 
 	// calculates values relative to the emitter and listener and saves values in emitter.DSPSettings
 	X3DAudioCalculate(
-		*AudioEngine::GetInstance().GetX3DInstance(), 
-		AudioEngine::GetInstance().GetListener(), 
-		&m_VoiceEmitterData[name].emitter, 
-		X3DAUDIO_CALCULATE_MATRIX, 
+		*AudioEngine::GetInstance().GetX3DInstance(),
+		AudioEngine::GetInstance().GetListener(),
+		&m_VoiceEmitterData[name].emitter,
+		X3DAUDIO_CALCULATE_MATRIX,
 		&m_VoiceEmitterData[name].DSPSettings);
 
 	// temporary solution due to strange behaviour of the way matrixcoefficients are saved
@@ -63,9 +63,9 @@ void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)
 
 	// sets output matrix for the sound according to the matrix coefficients calculated earlier (changes the soundchannel levels)
 	m_VoiceEmitterData[name].voice.GetSourceVoice()->SetOutputMatrix(
-		AudioEngine::GetInstance().GetMasterVoice(), 
-		m_VoiceEmitterData[name].voiceDetails.InputChannels, 
-		AudioEngine::GetInstance().GetDeviceDetails()->InputChannels, 
+		AudioEngine::GetInstance().GetMasterVoice(),
+		m_VoiceEmitterData[name].voiceDetails.InputChannels,
+		AudioEngine::GetInstance().GetDeviceDetails()->InputChannels,
 		m_VoiceEmitterData[name].DSPSettings.pMatrixCoefficients);
 }
 

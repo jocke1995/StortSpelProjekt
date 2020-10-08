@@ -65,9 +65,6 @@ SwapChain::SwapChain(
 
 	m_RefreshRate.Numerator = 200;
 	m_RefreshRate.Denominator = 1;
-
-	m_CurrentModeDescription.Width = width;
-	m_CurrentModeDescription.Height = height;
 	m_CurrentModeDescription.RefreshRate = m_RefreshRate;
 
 	IDXGISwapChain1* swapChain1 = nullptr;
@@ -101,7 +98,7 @@ SwapChain::SwapChain(
 		resize(hwnd);
 	}
 
-	createSwapBuffers(device, width, height, descriptorHeap_RTV, descriptorHeap_CBV_UAV_SRV);
+	createSwapBuffers(device, m_CurrentModeDescription.Width, m_CurrentModeDescription.Height, descriptorHeap_RTV, descriptorHeap_CBV_UAV_SRV);
 }
 
 SwapChain::~SwapChain()

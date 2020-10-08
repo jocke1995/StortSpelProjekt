@@ -21,7 +21,7 @@ public:
 
 	Scene* CreateScene(std::string sceneName);
 
-	const std::vector<Scene*>* GetActiveScenes() const;
+	std::vector<Scene*>* GetActiveScenes();
 	Scene* GetScene(std::string sceneName) const;
 
 	void RemoveEntity(Entity* entity, Scene* scene);

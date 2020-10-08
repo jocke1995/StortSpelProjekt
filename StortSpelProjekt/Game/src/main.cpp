@@ -54,7 +54,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScene(sceneManager->GetScene("DemoScene"));
+        gameNetwork.SetScenes(sceneManager->GetScene("DemoScene"));
         gameNetwork.SetSceneManager(sceneManager);
 
         networkOn = true;
