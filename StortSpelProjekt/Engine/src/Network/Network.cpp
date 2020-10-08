@@ -20,6 +20,7 @@ Network::~Network()
     {
         delete m_Players.at(i);
     }
+    m_Players.clear();
 }
 
 bool Network::ConnectToIP(std::string ip, int port)
@@ -48,6 +49,37 @@ bool Network::ConnectToIP(std::string ip, int port)
         m_Socket.setBlocking(false);
 
         return true;
+    }
+}
+
+void Network::Disconnect()
+{
+    /* Expected packet configuration
+    int playerID;
+    */
+    
+    if (m_Connected) //We should only disconnect if we have connected
+    {
+        sf::Packet packet;
+
+        packet << E_PACKET_ID::PLAYER_DISCONNECT;
+        packet << m_Players.at(0)->clientId;
+
+        m_Socket.send(packet);
+
+        m_Connected = false;
+
+        for (int i = 0; i < m_Players.size(); i++)
+        {
+            delete m_Players.at(i);
+        }
+        m_Players.clear();
+
+        m_Players.push_back(new Player);
+        m_Players.at(0)->clientId = 0;
+
+        m_Socket.disconnect();
+        m_Socket.setBlocking(true);
     }
 }
 
@@ -131,8 +163,12 @@ void Network::processPacket(sf::Packet* packet)
         case E_PACKET_ID::PLAYER_DATA: 
             processPlayerData(packet); 
             break;
+        case E_PACKET_ID::PLAYER_DISCONNECT:
+            processPlayerDisconnect(packet);
+            break;
         default: 
             Log::PrintSeverity(Log::Severity::CRITICAL, "Unkown packet id recieved with enum " + std::to_string(packetId));
+
     }
 }
 
@@ -224,5 +260,39 @@ void Network::sendPacket(sf::Packet packet)
             m_NrOfBytesSent = 0;
             m_NrOfPackagesSent = 0;
         }
+    }
+}
+
+void Network::processPlayerDisconnect(sf::Packet* packet)
+{
+    /* Expected packet configuration
+    int playerID;
+    */
+
+    int playerId;
+    *packet >> playerId;
+
+    int index = -1;
+
+    //Find player with id
+    for (int i = 0; i < m_Players.size(); i++)
+    {
+        if (m_Players.at(i)->clientId == playerId)
+        {
+            index = i;
+        }
+    }
+
+    if (index == -1)
+    {
+        Log::Print("Recieved to disconnect from unkown player id " + std::to_string(playerId));
+    }
+    else
+    {
+        m_Players.at(index)->entityPointer = nullptr; //This does not remove entity. Should be remade when dynamic entity removal is implemented
+        delete m_Players.at(index);
+        m_Players.erase(m_Players.begin() + index);
+
+        Log::Print("Player " + std::to_string(playerId) + " was disconnected");
     }
 }
