@@ -16,8 +16,8 @@ typedef union
 
 typedef union float3
 {
-	struct { float x; float y; float z;};
-	struct { float r; float g; float b;};
+	struct { float x; float y; float z; };
+	struct { float r; float g; float b; };
 
 	float length()
 	{

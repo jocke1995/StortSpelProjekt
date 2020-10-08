@@ -69,6 +69,11 @@ struct ConnectToServer : public Event
 	std::string ip;
 };
 
+struct Disconnect : public Event
+{
+	Disconnect() {};
+};
+
 struct Death : public Event
 {
 	Death(Entity* ent) : ent{ ent } {};
