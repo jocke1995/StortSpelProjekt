@@ -13,7 +13,10 @@ namespace component
 		virtual ~DirectionalLightComponent();
 
 		void Update(double dt);
-		void InitScene();
+		void OnInitScene();
+		void OnLoadScene();
+		void OnUnloadScene();
+
 		void SetDirection(float3 direction);
 		void* GetLightData() const;
 	

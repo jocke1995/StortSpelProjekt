@@ -1,5 +1,7 @@
 #include "GameNetwork.h"
 
+#include "ECS/SceneManager.h"
+
 GameNetwork::GameNetwork()
 {
     EventBus::GetInstance().Subscribe(this, &GameNetwork::addNewPlayerEntity);
@@ -7,9 +9,9 @@ GameNetwork::GameNetwork()
     EventBus::GetInstance().Subscribe(this, &GameNetwork::disconnect);
 }
 
-void GameNetwork::SetScene(Scene* scene)
+void GameNetwork::SetScenes(std::vector<Scene*>* activeScenes)
 {
-    m_pScene = scene;
+    m_pActiveScenes = activeScenes;
 }
 
 void GameNetwork::SetNetwork(Network* network)
@@ -29,7 +31,7 @@ void GameNetwork::disconnect(Disconnect* evnt)
 
 void GameNetwork::connectToServer(ConnectToServer* evnt)
 {
-    m_pNetwork->SetPlayerEntityPointer(m_pScene->GetEntity("player"), 0);
+    m_pNetwork->SetPlayerEntityPointer((*m_pActiveScenes).at(0)->GetEntity("player"), 0);
     m_pNetwork->ConnectToIP(evnt->ip, std::atoi(Option::GetInstance().GetVariable("i_port").c_str()));
 }
 

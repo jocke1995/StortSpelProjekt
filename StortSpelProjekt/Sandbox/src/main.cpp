@@ -66,6 +66,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //sceneManager->SetScene(BjornsTestScene(sceneManager));
     //sceneManager->SetScene(AndresTestScene(sceneManager));
 
+    // Load Scenes *** Unload with UnloadScene()
+    //sceneManager->LoadScene(jockeScene);
+    //sceneManager->LoadScene(filipScene);
+
+    Scene* activeScenes[] = { filipScene, leoScene };
+
+    // Set scene
+    sceneManager->SetScenes(1, activeScenes);
+
     GameNetwork gameNetwork;
 
     /*------ Network Init -----*/
@@ -82,6 +91,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
+    Model* mmm = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
@@ -94,11 +104,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             networkTimer += timer->GetDeltaTime();
         }
 
-        renderer->RenderUpdate(timer->GetDeltaTime());
+        sceneManager->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
-            renderer->Update(updateRate);
+            sceneManager->Update(updateRate);
             physics->Update(updateRate);
         }
 
@@ -113,12 +123,49 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             }
         }
 
+        static bool currentScene = true;
+        static int nameCounter = 0;
+        if (window->WasSpacePressed())
+        {
+            Entity* a = new Entity(std::to_string(nameCounter++));
+
+            component::ModelComponent* mc = a->AddComponent<component::ModelComponent>();
+            component::TransformComponent* tc = a->AddComponent<component::TransformComponent>();
+            mc->SetModel(mmm);
+            mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+            tc->GetTransform()->SetScale(4.0f);
+
+            Scene* activeScene = sceneManager->GetActiveScenes()->at(0);
+            tc->GetTransform()->SetPosition( activeScene->GetMainCamera()->GetPosition());
+
+            sceneManager->AddEntity(a, activeScene);
+
+            // TODO: REMOVE TESTING BEFORE PULL
+            if (currentScene)
+            {
+                sceneManager->UnloadScene(activeScene);
+                sceneManager->SetScenes(2, activeScenes);
+            }
+            else
+            {
+                sceneManager->UnloadScene(activeScene);
+                sceneManager->SetScenes(2, activeScenes);
+            }
+            currentScene = !currentScene;
+        }
+        else if (window->WasTabPressed())
+        {
+            Scene* activeScene = sceneManager->GetActiveScenes()->at(0);
+            sceneManager->RemoveEntity(activeScene->GetEntity(std::to_string(--nameCounter)), activeScene);
+        }
+
         /* ------ Sort ------ */
         renderer->SortObjects();
 
         /* ------ Draw ------ */
         renderer->Execute();
     }
+    sceneManager->ResetScene();
     return 0;
 }
 
@@ -420,8 +467,6 @@ Scene* LeosTestScene(SceneManager* sm)
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
     sbc->SetMesh(sphereModel->GetMeshAt(0));
     sbc->SetTexture(skyboxCubemap);
-    sbc->SetCamera(cc->GetCamera());
-    sbc->GetTransform()->SetScale(50);
 
     /* ---------------------- Stefan ---------------------- */
     entity = scene->AddEntity("stefan");
@@ -728,7 +773,7 @@ Scene* TimScene(SceneManager* sm)
 Scene* JockesTestScene(SceneManager* sm)
 {
     // Create Scene
-    Scene* scene = sm->CreateScene("scene1");
+    Scene* scene = sm->CreateScene("jockesScene");
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
@@ -753,6 +798,7 @@ Scene* JockesTestScene(SceneManager* sm)
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
+    scene->SetPrimaryCamera(cc->GetCamera());
     ic->Init();
 
     mc->SetModel(sphereModel);
@@ -847,6 +893,8 @@ Scene* FloppipTestScene(SceneManager* sm)
     component::InputComponent* ic = nullptr;
     component::CollisionComponent* bcc = nullptr;
 
+    Entity* entity = nullptr;
+
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -854,12 +902,12 @@ Scene* FloppipTestScene(SceneManager* sm)
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
     /* ---------------------- Player ---------------------- */
-    Entity* entity = scene->AddEntity("player");
+    entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
     ic->Init();
 
     mc->SetModel(sphereModel);
@@ -887,7 +935,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /* ---------------------- Floor ---------------------- */
@@ -907,98 +955,10 @@ Scene* FloppipTestScene(SceneManager* sm)
     plc->SetColor({ 2.0f, 0.0f, 2.0f });
     plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
 
+    component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>();
+    bbc->Init();
+
     /* ---------------------- PointLight1 ---------------------- */
-
-
-
-    /* ---------------------- PointLigh2 ---------------------- */
-    entity = scene->AddEntity("pointLight2");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
-
-    plc->SetColor({ 0.0f, 2.0f, 0.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-
-    /* ---------------------- PointLight2 ---------------------- */
-
-
-
-    /* ---------------------- PointLight3 ---------------------- */
-    entity = scene->AddEntity("pointLight3");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
-
-    plc->SetColor({ 0.0f, 0.0f, 2.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-
-    /* ---------------------- PointLight3 ---------------------- */
-
-
-
-    /* ---------------------- PointLight4 ---------------------- */
-    entity = scene->AddEntity("pointLight4");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(-30.0f, 4.0f, -15.0f);
-
-    plc->SetColor({ 4.0f, 2.0f, 2.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-
-    /* ---------------------- PointLight4 ---------------------- */
-
-
-
-    /* ---------------------- PointLigh5 ---------------------- */
-    entity = scene->AddEntity("pointLight5");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
-
-    plc->SetColor({ 2.0f, 2.0f, 5.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-
-
-    /* ---------------------- PointLight5 ---------------------- */
-
-
-
-    /* ---------------------- PointLight6 ---------------------- */
-    entity = scene->AddEntity("pointLight6");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
-
-    plc->SetColor({ 2.0f, 2.0f, 2.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-
-    /* ---------------------- PointLight6 ---------------------- */
 
     /* ---------------------- The Sun ---------------------- */
     entity = scene->AddEntity("sun");
@@ -1181,7 +1141,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 Scene* WilliamsTestScene(SceneManager* sm)
 {
     // Create Scene
-    Scene* scene = sm->CreateScene("scene1");
+    Scene* scene = sm->CreateScene("williamScene");
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
@@ -1528,7 +1488,7 @@ Scene* AndresTestScene(SceneManager* sm)
 Scene* BjornsTestScene(SceneManager* sm)
 {
     // Create Scene
-    Scene* scene = sm->CreateScene("scene1");
+    Scene* scene = sm->CreateScene("bjornScene");
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;

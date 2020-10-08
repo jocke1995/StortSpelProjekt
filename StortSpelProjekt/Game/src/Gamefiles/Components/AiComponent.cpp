@@ -67,3 +67,15 @@ void component::AiComponent::Update(double dt)
 void component::AiComponent::RenderUpdate(double dt)
 {
 }
+
+void component::AiComponent::OnInitScene()
+{
+}
+
+void component::AiComponent::OnLoadScene()
+{
+}
+
+void component::AiComponent::OnUnloadScene()
+{
+}

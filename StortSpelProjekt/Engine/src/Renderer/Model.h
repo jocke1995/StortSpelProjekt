@@ -25,7 +25,7 @@ public:
         std::vector<Material*>* materials);
     virtual ~Model();
 
-    const std::wstring* GetPath() const;
+    const std::wstring& GetPath() const;
     unsigned int GetSize() const;
 
     // Mesh
@@ -38,12 +38,18 @@ public:
     const SlotInfo* GetSlotInfoAt(unsigned int index) const;
 
 private:
+    friend class Renderer;
+
     std::wstring m_Path;
     unsigned int m_Size = 0;
     std::vector<Mesh*> m_Meshes;
     std::vector<Material*> m_Materials;
     std::vector<Animation*> m_Animations;
-    std::vector<SlotInfo> m_SlotInfos; 
+    std::vector<SlotInfo> m_SlotInfos;
+
+    // Counts how many loaded references to model
+    // This is to not delete models in use by other scenes
+    unsigned int m_ActiveRefCount = 0;
 };
 
 #endif

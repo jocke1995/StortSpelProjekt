@@ -4,6 +4,7 @@
 #include "../Misc/AssetLoader.h"
 
 #include "../Renderer/Renderer.h"
+#include "../Physics/Physics.h"
 
 // Renderer
 #include "../Renderer/CommandInterface.h"
@@ -33,15 +34,45 @@
 SceneManager::SceneManager(Renderer* r)
 {
 	m_pRenderer = r;
+
+	m_ActiveScenes.reserve(2);
 }
 
 SceneManager::~SceneManager()
 {
-    for (auto pair : m_pScenes)
-    {
-        delete pair.second;
-    }
+	// Unload all active scenes
+	for (auto scene : m_ActiveScenes)
+	{
+		UnloadScene(scene);
+	}
+
+	for (auto pair : m_pScenes)
+	{
+		delete pair.second;
+	}
+
     m_pScenes.clear();
+}
+
+void SceneManager::Update(double dt)
+{
+	// Update scenes
+	for (auto scene : m_ActiveScenes)
+	{
+		scene->Update(dt);
+	}
+}
+
+void SceneManager::RenderUpdate(double dt)
+{
+	// Update scenes (Render)
+	for (auto scene : m_ActiveScenes)
+	{
+		scene->RenderUpdate(dt);
+	}
+
+	// Renderer updates some stuff
+	m_pRenderer->RenderUpdate(dt);
 }
 
 Scene* SceneManager::CreateScene(std::string sceneName)
@@ -57,6 +88,11 @@ Scene* SceneManager::CreateScene(std::string sceneName)
     return m_pScenes[sceneName];
 }
 
+std::vector<Scene*>* SceneManager::GetActiveScenes()
+{
+	return &m_ActiveScenes;
+}
+
 Scene* SceneManager::GetScene(std::string sceneName) const
 {
     if (sceneExists(sceneName))
@@ -68,53 +104,183 @@ Scene* SceneManager::GetScene(std::string sceneName) const
     return nullptr;
 }
 
-void SceneManager::RemoveEntity(Entity* entity)
+void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
-	// Removing renderer component
-	m_pRenderer->removeComponents(entity);
+	// Unload the entity
+	entity->UnloadScene();
+	entity->m_LoadedInNrScenes--;
 
-	// Remove sound component
+	// Remove from the scene
+	scene->RemoveEntity(entity->GetName());
 
-	// Remove game component
-
-	// Remove physic component
-
-	executeCopyOnDemand();
+	// TODO: Temp fix, re init the scene
+	SetScenes(m_ActiveScenes.size(), m_ActiveScenes.data());
 }
 
-void SceneManager::AddEntity(Entity* entity)
+void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
-	// Add all components
-	std::vector<Component*>* components = entity->GetAllComponents();
-	for (int i = 0; i < components->size(); i++)
+	// Load the enity
+	entity->LoadScene();
+	entity->m_LoadedInNrScenes++;
+
+	// Add it to the scene
+	scene->AddEntityFromOther(entity);
+
+	// TODO: Temp fix, re init the scene
+	SetScenes(m_ActiveScenes.size(), m_ActiveScenes.data());
+}
+
+void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
+{
+	ResetScene();
+
+	std::vector<Scene*> lastActiveScenes = m_ActiveScenes;
+
+	// Set the active scenes
+	m_ActiveScenes.clear();
+	
+	for (unsigned int i = 0; i < numScenes; i++)
 	{
-		components->at(i)->InitScene();
-	}
-
-	executeCopyOnDemand();
-}
-
-void SceneManager::SetScene(Scene* scene)
-{
-	resetScene();
-
-	std::map<std::string, Entity*> entities = *scene->GetEntities();
-	for (auto const& [entityName, entity] : entities)
-	{		
-		// for each component in entity: call their implementation of InitScene(),
-		// which calls their specific init function (render, audio, game, physics etc)
-		std::vector<Component*>* components = entity->GetAllComponents();
-		for (int i = 0; i < components->size(); i++)
+		// Load scene if not loaded
+		if (m_LoadedScenes.count(scenes[i]) < 1)
 		{
-			components->at(i)->InitScene();
+			// load the scene if not loaded
+ 			LoadScene(scenes[i]);
 		}
+
+		// init the active scenes
+		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
+		for (auto const& [entityName, entity] : entities)
+		{
+			// Only init once per scene (in case a entity is in both scenes)
+			if (m_IsEntityInited.count(entity) == 0)
+			{
+				entity->InitScene();
+				m_IsEntityInited[entity] = true;
+			}
+		}
+
+		m_ActiveScenes.push_back(scenes[i]);
 	}
 	
-	m_pRenderer->prepareScene(scene);
+
+	/*
+	std::vector<Scene*> scenesToUnload;
+	// Unload old Scenes
+	for (auto scene : lastActiveScenes)
+	{
+		// check if it is no longer active
+		bool toBeUnloaded = true;
+		for (auto s : m_ActiveScenes)
+		{
+			if (s == scene)
+			{
+				toBeUnloaded = false;
+				break;
+			}
+		}
+		
+		if (toBeUnloaded)
+		{
+			scenesToUnload.push_back(scene);
+		}
+	}
+
+	// Unload the scenes to unload
+	for (auto scene : scenesToUnload)
+	{
+		UnloadScene(scene);
+	}
+
+	*/
+
+
+	m_pRenderer->prepareScenes(&m_ActiveScenes);
+
+	// TODO: for reviewer:
+	// Dear reviewer.
+	// Currently many features being developed uses scene->GetPrimaryCamera() which is not often set in the scene.
+	// To prevent setting the camera manually, set it here to renderers camera if it's nullpointer?
+	// Please come up with a discussion about this or a solution
+	for (Scene* scene : m_ActiveScenes)
+	{
+		if (scene->GetMainCamera() == nullptr)
+		{
+			scene->SetPrimaryCamera(m_pRenderer->m_pScenePrimaryCamera);
+		}
+	}
+
+	
+
+
+
 	executeCopyOnDemand();
 	return;
 }
 
+void SceneManager::LoadScene(Scene* scene)
+{
+	// Don't load if already loaded
+	if (m_LoadedScenes.count(scene) >= 1)
+	{
+		return;
+	}
+
+	// Load the scene
+	// Makes sure the model gets created/sent to gpu
+	for (auto const& [name, entity] : *scene->GetEntities())
+	{
+		// Load only first time entity is referenced in a scene
+		if (entity->m_LoadedInNrScenes == 0)
+		{
+			entity->LoadScene();
+		}
+		entity->m_LoadedInNrScenes++;
+	}
+
+	m_LoadedScenes.insert(scene);
+}
+
+void SceneManager::UnloadScene(Scene* scene)
+{
+	// GPU can't be running when removing resources
+	m_pRenderer->waitForGPU();
+
+	// Unload the scene
+	for (auto const& [name, entity] : *scene->GetEntities())
+	{
+		// don't unload entities used by other scenes
+		if (entity->m_LoadedInNrScenes == 1)
+		{
+			entity->UnloadScene();
+		}
+		entity->m_LoadedInNrScenes--;
+	}
+
+	m_LoadedScenes.erase(scene);
+}
+
+void SceneManager::ResetScene()
+{
+	// Reset isEntityInited
+	m_IsEntityInited.clear();
+
+	/* ------------------------- GPU -------------------------*/
+	
+	m_pRenderer->OnResetScene();
+
+	/* ------------------------- GPU -------------------------*/
+
+	/* ------------------------- PHYSICS -------------------------*/
+
+	Physics::GetInstance().OnResetScene();
+
+	/* ------------------------- PHYSICS -------------------------*/
+
+	/* ------------------------- Audio -------------------------*/
+
+	/* ------------------------- Audio -------------------------*/
+}
 
 bool SceneManager::sceneExists(std::string sceneName) const
 {
@@ -139,19 +305,3 @@ void SceneManager::executeCopyOnDemand()
 	m_pRenderer->waitForCopyOnDemand();
 }
 
-void SceneManager::resetScene()
-{
-	// Reset
-	m_pRenderer->m_RenderComponents.clear();
-	for (auto& light : m_pRenderer->m_Lights)
-	{
-		light.second.clear();
-	}
-	m_pRenderer->m_pViewPool->ClearAll();
-	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
-	static_cast<ShadowRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
-	m_pRenderer->m_pScenePrimaryCamera = nullptr;
-	static_cast<WireframeRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
-	m_pRenderer->m_BoundingBoxesToBePicked.clear();
-	m_pRenderer->m_TextComponents.clear();
-}

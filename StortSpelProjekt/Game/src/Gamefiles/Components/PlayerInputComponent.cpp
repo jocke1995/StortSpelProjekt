@@ -37,11 +37,20 @@ component::PlayerInputComponent::~PlayerInputComponent()
 
 void component::PlayerInputComponent::Init()
 {
+	
+}
+
+void component::PlayerInputComponent::OnInitScene()
+{
+}
+
+void component::PlayerInputComponent::OnLoadScene()
+{
 	m_pCamera = static_cast<PerspectiveCamera*>(m_pParent->GetComponent<component::CameraComponent>()->GetCamera());
 	m_pTransform = static_cast<Transform*>(m_pParent->GetComponent<component::TransformComponent>()->GetTransform());
 
 	m_pCC = m_pParent->GetComponent<component::CollisionComponent>();
-	
+
 	if (m_pCC && m_pCamera && m_pTransform)
 	{
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::alternativeInput);
@@ -67,6 +76,18 @@ void component::PlayerInputComponent::Init()
 	if (!m_pTransform)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a Transform component!\n");
+	}
+}
+
+void component::PlayerInputComponent::OnUnloadScene()
+{
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::alternativeInput);
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::zoom);
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::rotate);
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::move);
+	if (m_pParent->GetComponent<component::MeleeComponent>() != nullptr)
+	{
+		EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::mouseClick);
 	}
 }
 

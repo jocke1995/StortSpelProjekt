@@ -89,17 +89,36 @@ void Physics::AddCollisionComponent(component::CollisionComponent* comp)
 
 void Physics::RemoveCollisionComponent(component::CollisionComponent* comp)
 {
-	for (int i = 0; i < m_CollisionComponents.size(); i++)
+	for (unsigned int i = 0; i < m_CollisionComponents.size(); i++)
 	{
 		if (m_CollisionComponents.at(i) == comp)
+		{
 			m_CollisionComponents.erase(m_CollisionComponents.begin() + i);
+		}
 	}
-	//m_pWorld->removeRigidBody(comp->GetBody());
+	m_pWorld->removeRigidBody(comp->GetBody());
+}
+
+void Physics::OnResetScene()
+{
+	removeAllCollisionComponents();
 }
 
 const btDynamicsWorld* Physics::GetWorld()
 {
 	return m_pWorld;
+}
+
+void Physics::removeAllCollisionComponents()
+{
+	unsigned int size = m_CollisionComponents.size();
+	for (unsigned int i = 0; i < size; i++)
+	{
+		component::CollisionComponent* colComp = m_CollisionComponents.at(i);
+		m_pWorld->removeRigidBody(colComp->GetBody());
+	}
+
+	m_CollisionComponents.clear();
 }
 
 void Physics::collisionChecks(double dt)

@@ -12,11 +12,12 @@ class DescriptorHeap;
 class Texture
 {
 public:
-	Texture();
+	Texture(const std::wstring& filePath);
 	virtual ~Texture();
 
-	virtual bool Init(const std::wstring& filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap) = 0;
+	virtual bool Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap) = 0;
 
+	const std::wstring& GetPath() const;
 	TEXTURE_TYPE GetType() const;
 	const unsigned int GetDescriptorHeapIndex() const;
 

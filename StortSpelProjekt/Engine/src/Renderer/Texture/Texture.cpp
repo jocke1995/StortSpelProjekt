@@ -6,9 +6,9 @@
 #include "../GPUMemory/ShaderResourceView.h"
 #include "../DescriptorHeap.h"
 
-Texture::Texture()
+Texture::Texture(const std::wstring& filePath)
 {
-
+	m_FilePath = filePath;
 }
 
 Texture::~Texture()
@@ -32,6 +32,11 @@ Texture::~Texture()
 	{
 		delete m_pSRV;
 	}
+}
+
+const std::wstring& Texture::GetPath() const
+{
+	return m_FilePath;
 }
 
 TEXTURE_TYPE Texture::GetType() const

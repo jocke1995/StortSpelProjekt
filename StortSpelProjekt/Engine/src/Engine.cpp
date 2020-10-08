@@ -15,6 +15,7 @@ Engine::~Engine()
 	delete m_pThreadPool;
 	Physics::GetInstance().DestroyPhysics();
 	delete m_pSceneManager;
+
 	m_pRenderer->DeleteDxResources();
 }
 

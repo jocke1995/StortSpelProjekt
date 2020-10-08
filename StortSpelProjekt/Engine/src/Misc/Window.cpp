@@ -57,6 +57,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			tabPressed = true;
 		}
+		if (wParam == VK_RETURN)
+		{
+			Option::GetInstance().SetVariable("b_fullscreen", "1");
+		}
 		
 		return 0;
 
