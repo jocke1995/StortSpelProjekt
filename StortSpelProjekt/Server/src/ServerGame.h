@@ -1,49 +1,33 @@
-#ifndef CLIENTPOOL_H
-#define CLIENTPOOL_H
+#ifndef SERVERGAME_H
+#define SERVERGAME_H
 
 #include "SFML/Network.hpp"
 #include <vector>
 
-class Network;
-
-struct Client 
+struct ServerEntity
 {
-	sf::TcpSocket socket;
-	int clientId;
-	bool connected = false;
-	int frameCount = 0;
+	std::string name;
+	float3 position;
+	float3 rotation;
+	float3 velocity;
 };
 
-class ClientPool
+class ServerGame
 {
 public:
-	ClientPool(int port);
+	ServerGame();
 
-	//Listen for a packet or new connection. *Is non blocking
-	void ListenMessages();
+	void StartGameState();
 
-	void AddClient();
-	int GetNrOfClients();
-	int GetNrOfConnectedClients();
+	void Update(double dt);
 
-	//Removes all open clients that have not connected or disconneted
-	void RemoveUnconnected();
-
-	//Get messages to write to console
-	std::string GetConsoleString();
+	void UpdateEntity(std::string name, float3 position, float3 rotation, float3 velocity);
+	ServerEntity* GetEntity(std::string name);
 
 private:
-	std::vector<Client*> m_Clients;
-	sf::TcpListener m_Listener;
-	sf::SocketSelector m_Selector;
+	int m_FrameCount;
 
-	Client* m_pAvailableClient;
-	int m_AvailableClientId;
-
-	std::string m_ConsoleString;
-
-	void newConnection();
-	void newPacket(int socket);
+	std::vector<ServerEntity> m_Entities;
 };
 
-#endif // !CLIENTPOOL_H
+#endif
