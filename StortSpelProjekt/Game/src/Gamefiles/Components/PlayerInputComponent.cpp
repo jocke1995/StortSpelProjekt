@@ -271,7 +271,7 @@ void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 {
 	switch (evnt->button) {
 	case MOUSE_BUTTON::LEFT_DOWN:
-		m_pParent->GetComponent<component::MeleeComponent>()->Attack(true);
+		m_pParent->GetComponent<component::MeleeComponent>()->Attack();
 		break;
 	case MOUSE_BUTTON::RIGHT_DOWN:
 		m_pParent->GetComponent<component::RangeComponent>()->Attack();

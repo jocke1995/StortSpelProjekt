@@ -7,6 +7,13 @@ GameNetwork::GameNetwork()
     EventBus::GetInstance().Subscribe(this, &GameNetwork::disconnect);
 }
 
+void GameNetwork::Update()
+{
+    m_pNetwork->SendPositionPacket();
+    m_pNetwork->SendRangedAttackPacket();
+    while (m_pNetwork->ListenPacket());
+}
+
 void GameNetwork::SetScene(Scene* scene)
 {
     m_pScene = scene;

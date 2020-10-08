@@ -21,7 +21,7 @@ namespace component
 		virtual ~MeleeComponent();
 
 		void Update(double dt);
-		void Attack(bool attack);
+		void Attack();
 		
 		void setAttackInterval(float interval);
 

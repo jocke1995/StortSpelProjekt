@@ -15,6 +15,7 @@ component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scen
 	m_Scale = scale;
 	m_Damage = damage;
 	m_Velocity = velocity;
+	m_ClearList = false;
 }
 
 component::RangeComponent::~RangeComponent()
@@ -24,6 +25,12 @@ component::RangeComponent::~RangeComponent()
 
 void component::RangeComponent::Attack()
 {
+	if (m_ClearList)
+	{
+		m_ProjectileList.clear();
+		m_ClearList = false;
+	}
+
 	m_NrOfProjectiles++;
 	Entity* ent = m_pScene->AddEntity("RangeAttack" + std::to_string(m_NrOfProjectiles));
 	component::ModelComponent* mc = nullptr;
@@ -62,5 +69,12 @@ void component::RangeComponent::Attack()
 
 	// add the entity to the sceneManager so it can be spawned in in run time
 	m_pSceneMan->AddEntity(ent);
+	m_ProjectileList.push_back(ent);
 
+}
+
+std::vector<Entity*> component::RangeComponent::GetProjectileList()
+{
+	m_ClearList = true;
+	return m_ProjectileList;
 }

@@ -108,9 +108,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         {
             if (networkTimer >= networkUpdateRate) {
                 networkTimer = 0;
-
-                network.SendPositionPacket();
-                while (network.ListenPacket());
+                gameNetwork.Update();
             }
         }
 

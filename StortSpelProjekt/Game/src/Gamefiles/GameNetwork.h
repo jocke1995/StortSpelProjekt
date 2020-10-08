@@ -2,10 +2,13 @@
 #define GAME_NETWORK_H
 
 #include "Engine.h"
+#include "Components/RangeComponent.h"
 
 class GameNetwork {
 public:
 	GameNetwork();
+
+	void Update();
 
 	void SetScene(Scene* scene);
 	void SetNetwork(Network* network);
@@ -19,7 +22,6 @@ private:
 	void disconnect(Disconnect* evnt);
 	void connectToServer(ConnectToServer* evnt);
 	void addNewPlayerEntity(PlayerConnection* evnt);
-
 };
 
 #endif // !GAME_NETWORK_H

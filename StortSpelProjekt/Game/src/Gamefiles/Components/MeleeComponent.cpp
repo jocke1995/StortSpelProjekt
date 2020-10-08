@@ -70,12 +70,12 @@ void component::MeleeComponent::Update(double dt)
 
 }
 
-void component::MeleeComponent::Attack(bool attack)
+void component::MeleeComponent::Attack()
 {
 	if (!m_Cooldown)
 	{
 		Log::Print("Attacking now \n");
-		m_Attacking = attack;
+		m_Attacking = true;
 		//Checks collision of entities
 		CheckCollision();
 		m_Cooldown = true;
