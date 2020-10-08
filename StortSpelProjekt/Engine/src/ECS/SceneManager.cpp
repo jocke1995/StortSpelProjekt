@@ -243,9 +243,6 @@ void SceneManager::LoadScene(Scene* scene)
 
 void SceneManager::UnloadScene(Scene* scene)
 {
-	// GPU can't be running when removing resources
-	m_pRenderer->waitForGPU();
-
 	// Unload the scene
 	for (auto const& [name, entity] : *scene->GetEntities())
 	{

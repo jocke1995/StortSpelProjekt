@@ -75,7 +75,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* activeScenes[] = { filipScene, leoScene };
 
     // Set scene
-    sceneManager->SetScenes(1, activeScenes);
+    sceneManager->SetScenes(2, activeScenes);
 
     GameNetwork gameNetwork;
 
