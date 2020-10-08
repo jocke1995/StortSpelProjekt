@@ -22,7 +22,7 @@
 // Sub-engines
 #include "Renderer/Renderer.h"
 #include "Renderer/Transform.h"
-#include "Renderer/Model.h"
+#include "Renderer/HeightmapModel.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/BaseCamera.h"
 #include "Physics/Physics.h"

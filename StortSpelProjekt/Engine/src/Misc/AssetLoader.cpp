@@ -4,7 +4,7 @@
 #include "../Renderer/DescriptorHeap.h"
 #include "Window.h"
 
-#include "../Renderer/Model.h"
+#include "../Renderer/HeightmapModel.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Material.h"
@@ -135,12 +135,12 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	return m_LoadedModels[path].second;
 }
 
-Model* AssetLoader::LoadHeightmap(const std::wstring& path)
+HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 {
 	// Check if the heightmap model already exists
 	if (m_LoadedModels.count(path) != 0)
 	{
-		return m_LoadedModels[path].second;
+		return dynamic_cast<HeightmapModel*>(m_LoadedModels[path].second);
 	}
 	std::wstring heightMapPath;
 	std::wstring materialPath;
@@ -154,13 +154,15 @@ Model* AssetLoader::LoadHeightmap(const std::wstring& path)
 	std::vector<Vertex> vertices;
 	vertices.reserve(dataCount);
 
+	float* heightData = new float[dataCount];
+
 	// Create vertices, only positions and UVs.
 	for (unsigned int i = 0; i < dataCount; i++)
 	{
 		Vertex ver;
-		float height = imgData[i * 4] / 255.0f;
-		height *= 10;
-		ver.pos = {static_cast<float>(tex->GetWidth() - (i % tex->GetWidth())) - tex->GetWidth() / 2.0f, height, (tex->GetHeight() - static_cast<float>(i) / tex->GetWidth()) - tex->GetHeight() / 2.0f };
+		heightData[i] = imgData[i * 4] / 255.0f;
+		
+		ver.pos = {static_cast<float>(tex->GetWidth() - (i % tex->GetWidth())) - tex->GetWidth() / 2.0f, heightData[i], (tex->GetHeight() - static_cast<float>(i) / tex->GetWidth()) - tex->GetHeight() / 2.0f };
 		ver.uv = { static_cast<float>(i % tex->GetWidth()) / tex->GetWidth(), static_cast<float>(i / tex->GetWidth()) / tex->GetHeight() };
 		vertices.push_back(ver);
 	}
@@ -289,6 +291,7 @@ Model* AssetLoader::LoadHeightmap(const std::wstring& path)
 	neighbours[2] = { 0 };
 	float2 uv[3] = { 0 };
 	float f = 0;
+
 	for (unsigned int i = 0; i < nrOfIndices - 3; i++)
 	{
 		neighbours[0] = { vertices[indices[i]].pos.x,	  vertices[indices[i]].pos.y,	  vertices[indices[i]].pos.z };
@@ -323,7 +326,6 @@ Model* AssetLoader::LoadHeightmap(const std::wstring& path)
 	//	vertices[i].tangent.y = tangent.y;
 	//	vertices[i].tangent.z = tangent.z;
 	//}
-
 	Mesh* mesh = new Mesh(m_pDevice, &vertices, &indices, m_pDescriptorHeap_CBV_UAV_SRV, path);
 
 	m_LoadedMeshes.push_back(mesh);
@@ -334,11 +336,11 @@ Model* AssetLoader::LoadHeightmap(const std::wstring& path)
 	std::vector<Animation*> animations;
 	std::vector<Material*> materials;
 	materials.push_back(loadMaterialFromMTL(materialPath));
-
+	HeightmapModel* model = new HeightmapModel(&path, &meshes, &animations, &materials, heightData);
 	m_LoadedModels[path].first = false;
-	m_LoadedModels[path].second = new Model(&path, &meshes, &animations, &materials);
+	m_LoadedModels[path].second = model;
 
-	return m_LoadedModels[path].second;
+	return model;
 }
 
 Texture* AssetLoader::LoadTexture2D(const std::wstring& path)

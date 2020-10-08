@@ -7,6 +7,7 @@
 
 class DescriptorHeap;
 class Model;
+class HeightmapModel;
 class Mesh;
 class Shader;
 class Texture;
@@ -33,7 +34,7 @@ public:
     // Model ---------------
     Model* LoadModel(const std::wstring& path);
     // Creates a heightmap from a given image. This will also load the given image as a texture.
-    Model* LoadHeightmap(const std::wstring& path);
+    HeightmapModel* LoadHeightmap(const std::wstring& path);
     // Textures ------------
     Texture* LoadTexture2D(const std::wstring& path);
     TextureCubeMap* LoadTextureCubeMap(const std::wstring& path);
