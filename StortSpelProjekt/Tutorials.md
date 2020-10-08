@@ -194,3 +194,19 @@ window size. This allows other applications and windows to continue running in t
 exclusive fullscreen may save a couple of your frames per second and is therefore recommended while playing. It should also be noted that the
 exclusive fullscreen mode will also override the window size settings until you loose focus by, for example, pressing the *alt+enter* combination on
 your keyboard. While doing so, the exclusive fullscreen will be changed to a window which will have the size which is decided in the config.txt file.
+
+# How to use heightmaps
+Heightmaps are defined through a greyscale image which the program assumes uses **4 channels of color** that is RGB and opacity. The program will however only read the R channel to determine the height of a pixel on the map.
+
+Like any other model, the heightmap also needs a material, define this with an mtl file and appropriate textures (metallic, albedo, roughness and normal) in the DDS format.
+
+## Defining the heightmap
+To define a heightmap, write a file which points out a png file to define the actual heightmap and an mtl file to define material **IN THAT ORDER**. An example of this can be found in hm.hm (found in the folder *Vendor\\Resources\\Textures\\HeightMaps\\hm.hm*)
+
+```
+planet_surface_Height.png
+ground.mtl
+```
+
+## Loading and using the heightmap
+Once you have defined your heightmap it may be loaded into the program. Use the method **LoadHeightmap** from the assetloader and specify the path to the heightmap descriptive file (hm.hm). The heightmap may be transformed, so if you want to scale the plane or the heights, use the transformcomponent that the entity should have.
