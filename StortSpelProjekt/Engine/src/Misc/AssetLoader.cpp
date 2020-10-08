@@ -214,10 +214,8 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 			|/|/|
 			*-*-*
 		*/
-		if (((i + 2) % tex->GetWidth()) == 0)
-		{
-			i++;
-		}
+
+		i+= (((i + 2) % tex->GetWidth()) == 0);
 	}
 
 	/*
@@ -331,8 +329,6 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	}
 	*/
 
-	CalculateHeightmapNormalsTask firstTask (0, ThreadPool::GetInstance().GetNrOfThreads(), vertices, indices, tex->GetWidth(), tex->GetHeight());
-
 	unsigned int nrOfThreads = ThreadPool::GetInstance().GetNrOfThreads();
 	CalculateHeightmapNormalsTask** tasks = new CalculateHeightmapNormalsTask*[nrOfThreads];
 	
@@ -342,7 +338,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 		ThreadPool::GetInstance().AddTask(tasks[i]);
 	}
 	
-	ThreadPool::GetInstance().WaitForThreads(firstTask.GetThreadFlags());
+	ThreadPool::GetInstance().WaitForThreads(tasks[0]->GetThreadFlags());
 
 	for (int i = 0; i < nrOfThreads; i++)
 	{
