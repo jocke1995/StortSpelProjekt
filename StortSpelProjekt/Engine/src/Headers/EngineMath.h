@@ -16,8 +16,8 @@ typedef union
 
 typedef union float3
 {
-	struct { float x; float y; float z;};
-	struct { float r; float g; float b;};
+	struct { float x; float y; float z; };
+	struct { float r; float g; float b; };
 
 	float length()
 	{
@@ -55,7 +55,7 @@ typedef union float3
 			this->x * that->y - this->y * that->x,
 		};
 	};
-	
+
 } float3;
 
 typedef union
