@@ -56,8 +56,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    //sceneManager->SetScene(JacobsTestScene(sceneManager));
-    sceneManager->SetScene(LeosTestScene(sceneManager));
+    sceneManager->SetScene(JacobsTestScene(sceneManager));
+    //sceneManager->SetScene(LeosTestScene(sceneManager));
     //sceneManager->SetScene(LeosBounceScene(sceneManager));
     //sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
@@ -151,6 +151,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     component::TextComponent* txc = nullptr;
     component::CollisionComponent* bcc = nullptr;
     component::MeleeComponent* melc = nullptr;
+    component::RangeComponent* rc = nullptr;
 
     /*--------------------- Player ---------------------*/
     // entity
@@ -164,6 +165,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     bbc = entity->AddComponent < component::BoundingBoxComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 10);
 
     Transform* t = tc->GetTransform();
 

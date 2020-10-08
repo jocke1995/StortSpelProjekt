@@ -106,6 +106,16 @@ void Network::SendPositionPacket()
     sendPacket(packet);
 }
 
+void Network::SendRangedAttackPacket()
+{
+    sf::Packet packet;
+
+    //Packet id = Player ranged attack?
+    packet << E_PACKET_ID::PLAYER_DATA;
+
+    sendPacket(packet);
+}
+
 void Network::SetPlayerEntityPointer(Entity* playerEnitity, int id)
 {
     bool found = false;

@@ -1,5 +1,6 @@
 #include "PlayerInputComponent.h"
 #include "Components/MeleeComponent.h"
+#include "Components/RangeComponent.h"
 #include "../Events/EventBus.h"
 #include "../ECS/Entity.h"
 #include "../Renderer/PerspectiveCamera.h"
@@ -273,7 +274,7 @@ void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 		m_pParent->GetComponent<component::MeleeComponent>()->Attack(true);
 		break;
 	case MOUSE_BUTTON::RIGHT_DOWN:
-		Log::Print("Right Mouse button down \n");
+		m_pParent->GetComponent<component::RangeComponent>()->Attack();
 		break;
 	}
 }

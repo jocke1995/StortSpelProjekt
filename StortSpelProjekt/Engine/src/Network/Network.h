@@ -30,6 +30,7 @@ public:
 	sf::TcpSocket* GetSocket();
 
 	void SendPositionPacket();
+	void SendRangedAttackPacket();
 	void Disconnect();
 	//Give network the entity pointer for player.
 	void SetPlayerEntityPointer(Entity* playerEnitity, int id);
