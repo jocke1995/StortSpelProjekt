@@ -4,7 +4,7 @@
 
 namespace component
 {
-	class UpgradeRangeTest : public UpgradeComponent
+	class UpgradeRangeTest : public UpgradeComponent, public Component
 	{
 	public: 
 		UpgradeRangeTest(Entity* parent);

@@ -1,38 +1,35 @@
 #ifndef UPGRADECOMPONENT_H
 #define UPGRADECOMPONENT_H
 #include "ECS/Components/Component.h"
-#include <vector>
-#include <string>
+#include "Core.h"
 
 // Types of upgrades, for sorting/call purposes
-enum E_Type
+enum F_UpgradeType
 {
-	RANGE = 0,			// range weapon/attack upgrades
-	MELEE = 1,			// melee weapon/attack upgrades
-	MOVEMENT = 2,		// upgrades regarding movement.
-	STATS = 3,			// stat modifications such as hp change.
-	ONDAMAGE = 4,		// upgrades that are "triggered" when damage is taken.
-	ENEMYSPECIFIC = 5	// upgrades only relevant for enemy entities. example: enemy explode on death)
+	RANGE = BIT(1),			// range weapon/attack upgrades
+	MELEE = BIT(2),			// melee weapon/attack upgrades
+	MOVEMENT = BIT(3),		// upgrades regarding movement.
+	STATS = BIT(4),			// stat modifications such as hp change.
+	ONDAMAGE = BIT(5),		// upgrades that are "triggered" when damage is taken.
+	ENEMYSPECIFIC = BIT(6)	// upgrades only relevant for enemy entities. example: enemy explode on death)
 };
 
 namespace component
 {
-	class UpgradeComponent : public Component
+	class UpgradeComponent
 	{
 	public:
-		UpgradeComponent(Entity* parent);
-		virtual ~UpgradeComponent();
-		virtual void Update(double dt);
-		virtual void RenderUpdate(double dt);
+		UpgradeComponent();
+		~UpgradeComponent();
 
 		// setters and getters for private member variables
 		void SetName(std::string name);
-		std::string GetName();
+		std::string GetName() const;
 		void IncreaseLevel();
 		void DecreaseLevel();
-		int GetLevel();
+		int GetLevel() const;
 		void SetType(int type);
-		int GetType();		
+		unsigned int GetType() const;
 
 		// Below are all functions needed by upgrades. Some will be used by several upgrades and others might be unique.
 		// This way you can call functions that range over several "types" but might be called on in similar situations (such as melee/range OnHit).
@@ -61,7 +58,7 @@ namespace component
 		// What level the upgrade is, for keeping track of stacking of upgrades and price
 		int m_Level = 0;
 		// What type of upgrade this is, for ease of sorting or making calls to certain types
-		int m_Type;
+		unsigned int m_Type;
 
 	};
 }

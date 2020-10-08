@@ -3,12 +3,12 @@
 #include "../ECS/Entity.h"
 
 component::UpgradeRangeTest::UpgradeRangeTest(Entity* parent)
-	:UpgradeComponent(parent)
+	:Component(parent)
 {
 	// name the upgrade!
 	SetName("UpgradeRangeTest");
 	// set the upgrade type
-	SetType(E_Type::RANGE);
+	SetType(F_UpgradeType::RANGE);
 	// increase upgrade level
 	IncreaseLevel();
 }

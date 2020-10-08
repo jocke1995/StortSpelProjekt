@@ -1,20 +1,11 @@
 #include "UpgradeComponent.h"
 #include "stdafx.h"
 
-component::UpgradeComponent::UpgradeComponent(Entity* parent)
-	:Component(parent)
+component::UpgradeComponent::UpgradeComponent()
 {
 }
 
 component::UpgradeComponent::~UpgradeComponent()
-{
-}
-
-void component::UpgradeComponent::Update(double dt)
-{
-}
-
-void component::UpgradeComponent::RenderUpdate(double dt)
 {
 }
 
@@ -23,7 +14,7 @@ void component::UpgradeComponent::SetName(std::string name)
 	m_Name = name;
 }
 
-std::string component::UpgradeComponent::GetName()
+std::string component::UpgradeComponent::GetName() const
 {
 	return m_Name;
 }
@@ -38,7 +29,7 @@ void component::UpgradeComponent::DecreaseLevel()
 	m_Level--;
 }
 
-int component::UpgradeComponent::GetLevel()
+int component::UpgradeComponent::GetLevel() const
 {
 	return m_Level;
 }
@@ -48,7 +39,7 @@ void component::UpgradeComponent::SetType(int type)
 	m_Type = type;
 }
 
-int component::UpgradeComponent::GetType()
+unsigned int component::UpgradeComponent::GetType() const
 {
 	return m_Type;
 }
