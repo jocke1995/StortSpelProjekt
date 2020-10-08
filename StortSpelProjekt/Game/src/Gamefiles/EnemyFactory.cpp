@@ -74,11 +74,11 @@ Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
 		// so create a new one of the same type
 		if (pair.first == entityName)
 		{
-			std::string name = entityName + std::to_string(m_EnemyComps[entityName]->enemiesOfThisType);
 			EnemyComps* enemy = m_EnemyComps[entityName];
+			std::string name = entityName + std::to_string(enemy->enemiesOfThisType);
 			enemy->enemiesOfThisType++;
 
-			return Add(name, enemy->model, enemy->hp, pos, enemy->sound2D, enemy->sound3D, enemy->compFlags, enemy->dim, enemy->scale, enemy->rot, enemy->targetName);
+			return Add(name, enemy->model, enemy->hp, pos, enemy->sound3D, enemy->sound2D, enemy->compFlags, enemy->dim, enemy->scale, enemy->rot, enemy->targetName);
 		}
 		else
 		{
@@ -139,7 +139,7 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3
 			EnemyComps* enemy = m_EnemyComps[entityName];
 			enemy->enemiesOfThisType++;
 
-			return Add(name, enemy->model, newHP, pos, enemy->sound2D, enemy->sound3D, newFlag, enemy->dim, newScale, newRot, enemy->targetName);
+			return Add(name, enemy->model, newHP, pos, enemy->sound3D, enemy->sound2D, newFlag, enemy->dim, newScale, newRot, enemy->targetName);
 		}
 		else
 		{
@@ -149,9 +149,9 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3
 	}
 }
 
-Entity* EnemyFactory::Add(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int flag, float3 dim, float scale, float3 rot, std::string aiTarget)
+Entity* EnemyFactory::Add(std::string name, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int flag, float3 dim, float scale, float3 rot, std::string aiTarget)
 {
-	Entity* ent = m_pScene->AddEntity(entityName);
+	Entity* ent = m_pScene->AddEntity(name);
 	component::ModelComponent* mc = nullptr;
 	component::TransformComponent* tc = nullptr;
 	component::BoundingBoxComponent* bbc = nullptr;
@@ -160,11 +160,9 @@ Entity* EnemyFactory::Add(std::string entityName, Model* model, int hp, float3 p
 	component::Audio3DEmitterComponent* ae = nullptr;
 	component::Audio2DVoiceComponent* avc = nullptr;
 
-
 	mc = ent->AddComponent<component::ModelComponent>();
 	tc = ent->AddComponent<component::TransformComponent>();
 	ent->AddComponent<component::HealthComponent>(hp);
-	tc = ent->AddComponent<component::TransformComponent>();
 
 	Entity* target = m_pScene->GetEntity(aiTarget);
 	if (target != nullptr)
