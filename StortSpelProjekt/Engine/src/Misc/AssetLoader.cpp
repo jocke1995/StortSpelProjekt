@@ -137,10 +137,20 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 {
+	// return value.
+	HeightmapModel* model = nullptr;
+
 	// Check if the heightmap model already exists
 	if (m_LoadedModels.count(path) != 0)
 	{
-		return dynamic_cast<HeightmapModel*>(m_LoadedModels[path].second);
+		model = dynamic_cast<HeightmapModel*>(m_LoadedModels[path].second);
+		
+		if (!model)
+		{
+			Log::PrintSeverity(Log::Severity::OTHER, "The model %S is already loaded and attempted to be loaded as a HeightmapModel!", path);
+		}
+
+		return model;
 	}
 	std::wstring heightMapPath;
 	std::wstring materialPath;
@@ -162,7 +172,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 		Vertex ver;
 		heightData[i] = imgData[i * 4] / 255.0f;
 		
-		ver.pos = {static_cast<float>(tex->GetWidth() - (i % tex->GetWidth())) - tex->GetWidth() / 2.0f, heightData[i], (tex->GetHeight() - static_cast<float>(i) / tex->GetWidth()) - tex->GetHeight() / 2.0f };
+		ver.pos = { static_cast<float>(tex->GetWidth() - (i % tex->GetWidth())) - tex->GetWidth() / 2.0f, heightData[i], (tex->GetHeight() - static_cast<float>(i) / tex->GetWidth()) - tex->GetHeight() / 2.0f };
 		ver.uv = { static_cast<float>(i % tex->GetWidth()) / tex->GetWidth(), static_cast<float>(i / tex->GetWidth()) / tex->GetHeight() };
 		vertices.push_back(ver);
 	}
@@ -316,16 +326,6 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 		}
 	}
 
-	// normalize tangents
-	//float3 tangent = { 0 };
-	//for (int i = 0; i < vertices.size(); i++)
-	//{
-	//	tangent = { vertices[i].tangent.x, vertices[i].tangent.y, vertices[i].tangent.z };
-	//	tangent.normalize();
-	//	vertices[i].tangent.x = tangent.x;
-	//	vertices[i].tangent.y = tangent.y;
-	//	vertices[i].tangent.z = tangent.z;
-	//}
 	Mesh* mesh = new Mesh(m_pDevice, &vertices, &indices, m_pDescriptorHeap_CBV_UAV_SRV, path);
 
 	m_LoadedMeshes.push_back(mesh);
@@ -336,7 +336,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	std::vector<Animation*> animations;
 	std::vector<Material*> materials;
 	materials.push_back(loadMaterialFromMTL(materialPath));
-	HeightmapModel* model = new HeightmapModel(&path, &meshes, &animations, &materials, heightData);
+	model = new HeightmapModel(&path, &meshes, &animations, &materials, heightData);
 	m_LoadedModels[path].first = false;
 	m_LoadedModels[path].second = model;
 

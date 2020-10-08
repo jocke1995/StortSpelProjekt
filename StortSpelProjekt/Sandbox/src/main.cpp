@@ -572,7 +572,6 @@ Scene* TimScene(SceneManager* sm)
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
 
-    //Texture* heightmap = al->LoadTexture2D(L"../Vendor/Resources/Textures/HeightMaps/plain.png");
     /*--------------------- Assets ---------------------*/
 
     /*--------------------- Component declarations ---------------------*/
