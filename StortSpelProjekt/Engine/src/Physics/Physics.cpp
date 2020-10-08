@@ -96,7 +96,7 @@ void Physics::RemoveCollisionComponent(component::CollisionComponent* comp)
 			m_CollisionComponents.erase(m_CollisionComponents.begin() + i);
 		}
 	}
-	m_pWorld->removeCollisionObject(comp->GetBody());
+	m_pWorld->removeRigidBody(comp->GetBody());
 }
 
 void Physics::OnResetScene()
@@ -115,7 +115,7 @@ void Physics::removeAllCollisionComponents()
 	for (unsigned int i = 0; i < size; i++)
 	{
 		component::CollisionComponent* colComp = m_CollisionComponents.at(i);
-		m_pWorld->removeCollisionObject(colComp->GetBody());
+		m_pWorld->removeRigidBody(colComp->GetBody());
 	}
 
 	m_CollisionComponents.clear();

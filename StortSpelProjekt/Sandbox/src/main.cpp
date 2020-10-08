@@ -75,7 +75,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* activeScenes[] = { filipScene, leoScene };
 
     // Set scene
-    sceneManager->SetScenes(2, activeScenes);
+    sceneManager->SetScenes(1, activeScenes);
 
     GameNetwork gameNetwork;
 
@@ -146,7 +146,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             if (currentScene)
             {
                 sceneManager->UnloadScene(activeScene);
-                sceneManager->SetScenes(1, activeScenes);
+                sceneManager->SetScenes(2, activeScenes);
             }
             else
             {
@@ -981,9 +981,9 @@ Scene* FloppipTestScene(SceneManager* sm)
     entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
     ic->Init();
 
     mc->SetModel(sphereModel);
