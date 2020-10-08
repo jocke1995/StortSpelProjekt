@@ -305,7 +305,7 @@ Model* AssetLoader::LoadHeightmap(const std::wstring& path)
 		deltaUV2 = uv[2] - uv[0];
 
 		f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-		for (int j = 0; j++; j < 3)
+		for (unsigned int j = 0; j < 3; j++)
 		{
 			vertices[indices[i + j]].tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
 			vertices[indices[i + j]].tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
@@ -666,11 +666,12 @@ Material* AssetLoader::loadMaterialFromMTL(const std::wstring& path)
 
 		while (!ifstream.eof())
 		{
-			std::getline(ifstream, varName, L' ');
+			std::getline(ifstream, line);
+			varName = line.substr(0, line.find_first_of(L' '));
 
 			if (varName == L"newmtl")
 			{
-				std::getline(ifstream, currMatName);
+				currMatName = line.substr(line.find_first_of(L' '));
 				if (m_LoadedMaterials.count(currMatName) > 0)
 				{
 					ifstream.close();
@@ -679,32 +680,28 @@ Material* AssetLoader::loadMaterialFromMTL(const std::wstring& path)
 			}
 			else if (varName == L"map_Ka")
 			{
-				std::getline(ifstream, varVal);
+				varVal = line.substr(line.find_first_of(L' ') + 1);
 				matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(relPath + varVal);
 			}
 			else if (varName == L"map_Kd")
 			{
-				std::getline(ifstream, varVal);
+				varVal = line.substr(line.find_first_of(L' ') + 1);
 				matTextures[TEXTURE2D_TYPE::ALBEDO] = LoadTexture2D(relPath + varVal);
 			}
 			else if (varName == L"map_Ks")
 			{
-				std::getline(ifstream, varVal);
+				varVal = line.substr(line.find_first_of(L' ') + 1);
 				matTextures[TEXTURE2D_TYPE::ROUGHNESS] = LoadTexture2D(relPath + varVal);
 			}
 			else if (varName == L"map_Kn")
 			{
-				std::getline(ifstream, varVal);
+				varVal = line.substr(line.find_first_of(L' ') + 1);
 				matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(relPath + varVal);
 			}
 			else if (varName == L"map_Ke")
 			{
-				std::getline(ifstream, varVal);
+				varVal = line.substr(line.find_first_of(L' ') + 1);
 				matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(relPath + varVal);
-			}
-			else
-			{
-				std::getline(ifstream, varVal);
 			}
 		}
 
