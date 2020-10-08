@@ -205,9 +205,14 @@ void ClientPool::newPacket(int socket)
 	sf::Packet packet;
 	if (m_Clients.at(socket)->socket.receive(packet) == sf::Socket::Done)
 	{
+		int packetId;
+		packet >> packetId;
+
+		m_Clients.at(socket)->lastPacket = 0;
+
 		if (m_ShowPackage)
 		{
-			m_ConsoleString.append("Recieved a packet from client " + std::to_string(socket) + "; " + std::to_string(packet.getDataSize()) + " BYTES\n");
+			m_ConsoleString.append("Recieved a packet from with id " + std::to_string(packetId) + " from client " + std::to_string(socket) + "; " + std::to_string(packet.getDataSize()) + " BYTES\n");
 		}
 
 		if (DEVELOPERMODE_NETWORKLOG)
@@ -229,15 +234,11 @@ void ClientPool::newPacket(int socket)
 			m_NrOfPackagesReceived += 1;
 		}	
 
-		for (int i = 0; i < m_Clients.size(); i++)
-		{
+		switch(packetId) {
 		case Network::E_PACKET_ID::PLAYER_DISCONNECT:
-		{
 			disconnect(socket);
 			break;
-		}
 		default: 
-		{
 			for (int i = 0; i < m_Clients.size(); i++)
 			{
 				if (i != socket)
@@ -247,7 +248,6 @@ void ClientPool::newPacket(int socket)
 				}
 			}
 			break;
-		}
 		}
 	}
 }
