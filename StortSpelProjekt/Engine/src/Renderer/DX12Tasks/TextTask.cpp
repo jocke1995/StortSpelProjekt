@@ -3,7 +3,6 @@
 
 #include "../RenderView.h"
 #include "../RootSignature.h"
-// #include "../ConstantBuffer.h"
 #include "../CommandInterface.h"
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
@@ -88,10 +87,10 @@ void TextTask::Execute()
 
 void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::TextComponent* tc)
 {
-	int nrOfCharacters;
-	for (int i = 0; i < tc->GetNumOfTexts(); i++)
+	int nrOfCharacters = 0;
+	for (auto textMap : *tc->GetTextMap())
 	{
-		Text* text = tc->GetText(i);
+		Text* text = textMap.second;
 
 		// Create a CB_PER_OBJECT struct
 		SlotInfo* info = text->GetSlotInfo();

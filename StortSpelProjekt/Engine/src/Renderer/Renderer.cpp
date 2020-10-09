@@ -725,39 +725,14 @@ void Renderer::InitTextComponent(Entity* entity)
 {
 	component::TextComponent* textComp = entity->GetComponent<component::TextComponent>();
 	std::map<std::string, TextData>* textDataMap = textComp->GetTextDataMap();
+
 	for (auto textData : *textDataMap)
 	{
-		AssetLoader* al = AssetLoader::Get();
-		int numOfCharacters = textComp->GetNumOfCharacters(textData.first);
-
-		Text* text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, textComp->GetTexture());
-		text->SetTextData(&textData.second, textComp->GetFont());
-
-		textComp->SubmitText(text);
-
-		// Look if data is already on the GPU
-
-		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-
-		// Submit to GPU
-		const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
-
-		// Vertices
-		Resource* uploadR = text->m_pUploadResourceVertices;
-		Resource* defaultR = text->m_pDefaultResourceVertices;
-		codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-
-		// Texture
-		codt->SubmitTexture(textComp->GetTexture());
+		textComp->UploadText(textData.first);
 	}
 
 	// Finally store the text in m_pRenderer so it will be drawn
 	m_TextComponents.push_back(textComp);
-}
-
-SwapChain* Renderer::GetSwapChain()
-{
-	return m_pSwapChain;
 }
 
 Entity* const Renderer::GetPickedEntity() const
@@ -1735,6 +1710,15 @@ void Renderer::waitForCopyOnDemand()
 	}		
 }
 
+void Renderer::executeCopyOnDemand()
+{
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &m_CopyOnDemandCmdList[0]);
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
+	waitForCopyOnDemand();
+}
+
 void Renderer::removeComponents(Entity* entity)
 {
 	for (auto& renderComponents : m_RenderComponents)
@@ -2016,5 +2000,34 @@ void Renderer::toggleFullscreen(WindowChange* evnt)
 		{
 			task->GetCommandInterface()->GetCommandList(i)->Close();
 		}
+	}
+}
+
+SwapChain* Renderer::getSwapChain()
+{
+	return m_pSwapChain;
+}
+
+void Renderer::submitTextToGPU(Text* text, component::TextComponent* tc)
+{
+	// Submit to GPU
+	const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
+
+	// Vertices
+	Resource* uploadR = text->m_pUploadResourceVertices;
+	Resource* defaultR = text->m_pDefaultResourceVertices;
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+	codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+	AssetLoader* al = AssetLoader::Get();
+	std::wstring fontPath = al->GetFontPath();
+	std::wstring path = fontPath + text->m_pFont->name + L".fnt";
+	bool isTextureOnGpu = al->m_LoadedFonts[path].first;
+
+	if (isTextureOnGpu == false)
+	{
+		// Texture (only one per component)
+		codt->SubmitTexture(tc->GetTexture());
+		al->m_LoadedFonts[path].first = true;
 	}
 }

@@ -15,15 +15,18 @@ namespace component
 	class TextComponent : public Component
 	{
 	public:
-		TextComponent(Entity* parent, std::pair<Font*, Texture*> font);
+		TextComponent(Entity* parent, Font* font);
 		virtual ~TextComponent();
 
 		std::map<std::string, TextData>* const GetTextDataMap();
+		TextData* GetTextData(std::string name);
 
 		void AddText(std::string name);
-		void SubmitText(Text* text);
+		void SubmitText(Text* text, std::string name);
+		void ReplaceText(Text* text, std::string name);
+		void UploadText(std::string name);
 
-		void SetFont(std::pair<Font*, Texture*> font);
+		void SetFont(Font* font);
 		void SetText(std::string text, std::string name);
 		void SetPos(float2 textPos, std::string name);
 		void SetScale(float2 scale, std::string name);
@@ -32,7 +35,8 @@ namespace component
 
 		Font* GetFont() const;
 		Texture* GetTexture() const;
-		Text* GetText(int pos) const;
+		Text* GetText(std::string name);
+		std::map<std::string, Text*>* GetTextMap();
 		const int GetNumOfTexts() const;
 		const int GetNumOfCharacters(std::string name);
 
@@ -40,10 +44,11 @@ namespace component
 		void InitScene();
 
 	private:
+		friend class Renderer;
+
 		std::map<std::string, TextData> m_TextDataMap = {};
-		std::vector<Text*> m_TextVec = {};
+		std::map<std::string, Text*> m_TextMap = {};
 		Font* m_pFont = nullptr;
-		Texture* m_pFontTexture = nullptr;
 	};
 }
 #endif

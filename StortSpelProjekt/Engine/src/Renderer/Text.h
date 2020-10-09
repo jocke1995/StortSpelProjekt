@@ -69,6 +69,7 @@ struct Font
 	FontChar* charList = nullptr; // list of characters
 	int numKernings; // the number of kernings
 	FontKerning* kerningsList = nullptr; // list to hold kerning values
+	Texture* texture = nullptr;
 
 	// these are how much the character is padded in the texture. We
 	// add padding to give sampling a little space so it does not accidentally

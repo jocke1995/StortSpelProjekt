@@ -79,7 +79,7 @@ void SceneManager::RemoveEntity(Entity* entity)
 
 	// Remove physic component
 
-	executeCopyOnDemand();
+	m_pRenderer->executeCopyOnDemand();
 }
 
 void SceneManager::AddEntity(Entity* entity)
@@ -91,7 +91,7 @@ void SceneManager::AddEntity(Entity* entity)
 		components->at(i)->InitScene();
 	}
 
-	executeCopyOnDemand();
+	m_pRenderer->executeCopyOnDemand();
 }
 
 void SceneManager::SetScene(Scene* scene)
@@ -111,7 +111,7 @@ void SceneManager::SetScene(Scene* scene)
 	}
 	
 	m_pRenderer->prepareScene(scene);
-	executeCopyOnDemand();
+	m_pRenderer->executeCopyOnDemand();
 	return;
 }
 
@@ -128,15 +128,6 @@ bool SceneManager::sceneExists(std::string sceneName) const
     }
 
     return false;
-}
-
-void SceneManager::executeCopyOnDemand()
-{
-	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
-	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
-	m_pRenderer->m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &m_pRenderer->m_CopyOnDemandCmdList[0]);
-	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
-	m_pRenderer->waitForCopyOnDemand();
 }
 
 void SceneManager::resetScene()

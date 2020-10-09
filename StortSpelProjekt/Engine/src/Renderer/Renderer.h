@@ -19,6 +19,7 @@ class ViewPool;
 class BoundingBoxPool;
 class DescriptorHeap;
 class Mesh;
+class Text;
 
 // Views
 
@@ -106,12 +107,10 @@ public:
 	void InitBoundingBoxComponent(Entity* entity);
 	void InitTextComponent(Entity* entity);
 
-	SwapChain* GetSwapChain();
-
 private:
 	friend class component::SkyboxComponent;
+	friend class component::TextComponent;
 	friend class SceneManager;
-	friend class Text;
 	Renderer();
 
 	ThreadPool* m_pThreadPool = nullptr;
@@ -205,6 +204,7 @@ private:
 
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene
 	void waitForCopyOnDemand();
+	void executeCopyOnDemand();
 
 	// Manage components
 	void removeComponents(Entity* entity);
@@ -217,6 +217,10 @@ private:
 	void prepareCBPerFrame();
 
 	void toggleFullscreen(WindowChange* evnt);
+
+	SwapChain* getSwapChain();
+
+	void submitTextToGPU(Text* text, component::TextComponent* tc);
 };
 
 #endif

@@ -46,7 +46,8 @@ public:
     // ??
 
 	// Fonts -------------
-	std::pair<Font*, Texture*> LoadFontFromFile(const std::wstring& fontName);
+	Font* LoadFontFromFile(const std::wstring& fontName);
+	std::wstring GetFontPath() const;
 
 private:
     // PipelineState loads all shaders
@@ -74,7 +75,7 @@ private:
     std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
     std::map<std::wstring, Shader*> m_LoadedShaders;
-    std::map<std::wstring, std::pair<Font*, Texture*>> m_LoadedFonts;
+    std::map<std::wstring, std::pair<bool, Font*>> m_LoadedFonts;
     std::map<std::wstring, AudioBuffer> m_LoadedAudios;
 
     // Audio

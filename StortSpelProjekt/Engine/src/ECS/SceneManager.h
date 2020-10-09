@@ -27,7 +27,6 @@ private:
 	std::map<std::string, Scene*> m_pScenes;
 
 	bool sceneExists(std::string sceneName) const;
-	void executeCopyOnDemand();
 	void resetScene();
 };
 
