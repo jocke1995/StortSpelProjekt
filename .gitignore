@@ -17,3 +17,5 @@ StortSpelProjekt/*.bat
 StortSpelProjekt/Sandbox/imgui.ini
 
 StortSpelProjekt/Game/imgui.ini
+
+*.ini
