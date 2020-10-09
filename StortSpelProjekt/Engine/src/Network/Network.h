@@ -22,8 +22,6 @@ public:
 		int clientId;
 	};
 
-	struct RangedData;
-
 	Network();
 	~Network();
 
@@ -34,7 +32,7 @@ public:
 	sf::TcpSocket* GetSocket();
 
 	void SendPositionPacket();
-	void SendRangedAttackPacket(RangedData stuff);
+	void SendRangedAttackPacket(float3 pos, float3 mov);
 	void Disconnect();
 	//Give network the entity pointer for player.
 	void SetPlayerEntityPointer(Entity* playerEnitity, int id);

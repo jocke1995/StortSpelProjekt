@@ -10,8 +10,8 @@ GameNetwork::GameNetwork()
 void GameNetwork::Update()
 {
     m_pNetwork->SendPositionPacket();
-    std::vector<float3> positionList;
-    std::vector<float3> movementList;
+
+    // Append the data? 
     for (int i = 0; i < m_pScene->GetEntity("player")->GetComponent<component::RangeComponent>()->GetProjectileList().size(); i++)
     {
         Transform* temp = m_pScene->GetEntity("player")->GetComponent<component::RangeComponent>()->GetProjectileList().at(i)->GetComponent<component::TransformComponent>()->GetTransform();
@@ -22,11 +22,9 @@ void GameNetwork::Update()
            temp->GetMovement().y,
            temp->GetMovement().z,
         };
-        positionList.push_back(position);
-        movementList.push_back(movement);
-        
-    }
-    m_pNetwork->SendRangedAttackPacket(positionList, movementList);
+        // TODO, fix what to send in here
+        m_pNetwork->SendRangedAttackPacket(position, movement);
+    }    
     m_pScene->GetEntity("player")->GetComponent<component::RangeComponent>()->ClearProjectileList();
     while (m_pNetwork->ListenPacket());
 }

@@ -106,11 +106,10 @@ void Network::SendPositionPacket()
     sendPacket(packet);
 }
 
-void Network::SendRangedAttackPacket()
+void Network::SendRangedAttackPacket(float3 pos, float3 mov)
 {
     sf::Packet packet;
 
-    //Packet id = Player ranged attack?
     packet << E_PACKET_ID::PLAYER_RANGED_DATA << m_Id << pos.x << pos.y << pos.z << mov.x << mov.y << mov.z;
 
     sendPacket(packet);
