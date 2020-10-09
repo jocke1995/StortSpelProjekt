@@ -19,12 +19,14 @@ enum RENDER_TASK_TYPE
 {
 	DEPTH_PRE_PASS,
 	FORWARD_RENDER,
+	SKYBOX,
 	BLEND,
 	SHADOW,
 	WIREFRAME,
 	OUTLINE,
 	TEXT,
 	MERGE,
+	IMGUI,
 	NR_OF_RENDERTASKS
 };
 
@@ -44,7 +46,7 @@ enum COPY_TASK_TYPE
 class DX12Task : public MultiThreadedTask
 {
 public:
-	DX12Task(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType);
+	DX12Task(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType, unsigned int FLAG_THREAD);
 	virtual ~DX12Task();
 
 	void SetBackBufferIndex(int backBufferIndex);
@@ -53,7 +55,7 @@ public:
 
 	void AddResource(std::string id, const Resource* resource);
 
-	ID3D12GraphicsCommandList5* GetCommandList(unsigned int index) const;
+	CommandInterface* const GetCommandInterface() const;
 protected:
 	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> m_DescriptorHeaps;
 	std::map<std::string, const Resource*> m_Resources;

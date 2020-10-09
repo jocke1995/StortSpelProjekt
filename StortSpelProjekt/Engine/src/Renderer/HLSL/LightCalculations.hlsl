@@ -1,24 +1,15 @@
 #include "../../Headers/structs.h"
+#include "PBRMath.hlsl"
 
 Texture2D textures[]   : register (t0);
-SamplerState samplerTypeWrap	: register (s0);
-SamplerState samplerTypeBorder	: register (s1);
 
-static const MaterialAttributes materialAttributes = {
-	100,
-	0, 0, 0,
-	
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+SamplerState Anisotropic2_Wrap	: register (s0);
+SamplerState Anisotropic4_Wrap	: register (s1);
+SamplerState Anisotropic8_Wrap	: register (s2);
+SamplerState Anisotropic16_Wrap	: register (s3);
+SamplerState samplerTypeBorder	: register (s4);
 
-	1, 1, 1, 1,
-	1, 1, 1, 1,
-	1, 1, 1, 1,
-
-	1, 1,
-	0, 0
-};
+ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b4, space3);
 
 float CalculateShadow(
 	in float4 fragPosLightSpace,
@@ -36,7 +27,6 @@ float CalculateShadow(
 
 	// Check whether current fragPos is in shadow
 	float shadow = 0.0f;
-	float bias = 0.0003f;
 
 	// Anti aliasing
 	float2 texelSize = float2(0.0f, 0.0f);
@@ -48,7 +38,7 @@ float CalculateShadow(
 		for (int y = -1; y <= 1; ++y)
 		{
 			float pcfDepth = textures[shadowMapIndex].Sample(samplerTypeBorder, texCoord + float2(x,y) * texelSize).r;
-			if (depthFromLightToFragPos - bias > pcfDepth)
+			if (depthFromLightToFragPos > pcfDepth)
 			{
 				shadow += 1.0f;
 			}
@@ -62,26 +52,38 @@ float CalculateShadow(
 float3 CalcDirLight(
 	in DirectionalLight dirLight,
 	in float3 camPos,
+	in float3 viewDir,
 	in float4 fragPos,
-	in float3 ambientMap,
-	in float3 diffuseMap,
-	in float3 specularMap,
-	in float3 normalMap)
+	in float metallic,
+	in float3 albedo,
+	in float roughness,
+	in float3 normal,
+	in float3 baseReflectivity)
 {
-	// Ambient
-	float3 ambient = ambientMap * dirLight.baseLight.ambient.rgb * materialAttributes.ambientMul + materialAttributes.ambientAdd;
+	float3 DirLightContribution = float3(0.0f, 0.0f, 0.0f);
 
-	// Diffuse
-	float3 lightDir = normalize(-dirLight.direction.xyz);
-	float alpha = max(dot(normalMap, lightDir), 0.0f);
-	float3 diffuse = diffuseMap * alpha * dirLight.baseLight.diffuse.rgb * materialAttributes.diffuseMul + materialAttributes.diffuseAdd;
+	float3 lightDir = normalize(-dirLight.direction.rgb);
+	float3 normalized_bisector = normalize(viewDir + lightDir);
 
-	// Specular
-	float3 vecToCam = normalize(camPos - fragPos.xyz);
-	float3 reflection = normalize(reflect(-lightDir.xyz, normalMap.xyz));
-	float spec = pow(max(dot(reflection, vecToCam), 0.0), materialAttributes.shininess);
-	float3 specular = (specularMap.rgb * dirLight.baseLight.specular.rgb * materialAttributes.specularMul + materialAttributes.specularAdd) * spec;
+	float3 radiance = dirLight.baseLight.color.rgb;
 
+	// Cook-Torrance BRDF
+	float NdotV = max(dot(normal, viewDir), 0.0000001);
+	float NdotL = max(dot(normal, lightDir), 0.0000001);
+	float HdotV = dot(normalized_bisector, viewDir);
+	float HdotN = dot(normalized_bisector, normal);
+
+	float  D = NormalDistributionGGX(HdotN, roughness);
+	float  G = GeometrySmith(NdotV, NdotL, roughness);
+	float3 F = CalculateFresnelEffect(HdotV, baseReflectivity);
+
+	float3 specular = D * G * F / (4.0f * NdotV * NdotL);
+
+	// Energy conservation
+	float3 kD = float3(1.0f, 1.0f, 1.0f) - F;
+	kD *= 1.0f - metallic;
+
+	// Shadows
 	float shadow = 0.0f;
 	if (dirLight.baseLight.castShadow == true)
 	{
@@ -90,89 +92,103 @@ float3 CalcDirLight(
 		shadow = CalculateShadow(fragPosLightSpace, dirLight.textureShadowMap);
 	}
 
-	float3 DirLightContribution = ambient.rgb + ((1.0f - shadow) * (diffuse.rgb + specular.rgb));
-	return DirLightContribution;
+	DirLightContribution = (kD * albedo / PI + specular) * radiance * NdotL;
+	return DirLightContribution * (1.0f - shadow);
 }
 
 float3 CalcPointLight(
 	in PointLight pointLight,
 	in float3 camPos,
+	in float3 viewDir,
 	in float4 fragPos,
-	in float3 ambientMap,
-	in float3 diffuseMap,
-	in float3 specularMap,
-	in float3 normalMap)
+	in float metallic,
+	in float3 albedo,
+	in float roughness,
+	in float3 normal,
+	in float3 baseReflectivity)
 {
 	float3 pointLightContribution = float3(0.0f, 0.0f, 0.0f);
 
-	// Ambient
-	float3 ambient = ambientMap * pointLight.baseLight.ambient.rgb * materialAttributes.ambientMul + materialAttributes.ambientAdd;
-
-	// Diffuse
-	float3 lightDir = normalize(pointLight.position.xyz - fragPos.xyz);
-	float alpha = max(dot(normalMap, lightDir), 0.0f);
-	float3 diffuse = diffuseMap * alpha * pointLight.baseLight.diffuse.rgb * materialAttributes.diffuseMul + materialAttributes.diffuseAdd;
-
-	// Specular
-	float3 vecToCam = normalize(camPos - fragPos.xyz);
-	float3 reflection = normalize(reflect(-lightDir.xyz, normalMap.xyz));
-	float spec = pow(max(dot(reflection, vecToCam), 0.0), 100);
-	float3 specular = (specularMap.rgb * pointLight.baseLight.specular.rgb * materialAttributes.specularMul + materialAttributes.specularAdd) * spec;
+	float3 lightDir = normalize(pointLight.position - fragPos.xyz);
+	float3 normalized_bisector = normalize(viewDir + lightDir);
 
 	// Attenuation
 	float constantFactor = pointLight.attenuation.x;
 	float linearFactor = pointLight.attenuation.y;
 	float quadraticFactor = pointLight.attenuation.z;
-
-	float distancePixelToLight = length(pointLight.position.xyz - fragPos.xyz);
+	float distancePixelToLight = length(pointLight.position.xyz - fragPos);
 	float attenuation = 1.0f / (constantFactor + (linearFactor * distancePixelToLight) + (quadraticFactor * pow(distancePixelToLight, 2)));
 
-	pointLightContribution = float3(ambient.rgb + attenuation * (diffuse.rgb + specular.rgb));
+	float3 radiance = pointLight.baseLight.color.rgb * attenuation; 
 
+	// Cook-Torrance BRDF
+	float NdotV = max(dot(normal, viewDir), 0.0000001);
+	float NdotL = max(dot(normal, lightDir), 0.0000001);
+	float HdotV = dot(normalized_bisector, viewDir);
+	float HdotN = dot(normalized_bisector, normal);
+
+	float  D = NormalDistributionGGX(HdotN, roughness);
+	float  G = GeometrySmith(NdotV, NdotL, roughness);
+	float3 F = CalculateFresnelEffect(HdotV, baseReflectivity);
+
+	float3 specular = D * G * F / (4.0f * NdotV * NdotL);
+
+	// Energy conservation
+	float3 kD = float3(1.0f, 1.0f, 1.0f) - F;
+	kD *= 1.0f - metallic;
+
+	pointLightContribution = (kD * albedo / PI + specular) * radiance * NdotL;
 	return pointLightContribution;
 }
 
 float3 CalcSpotLight(
 	in SpotLight spotLight,
 	in float3 camPos,
+	in float3 viewDir,
 	in float4 fragPos,
-	in float3 ambientMap,
-	in float3 diffuseMap,
-	in float3 specularMap,
-	in float3 normalMap)
+	in float metallic,
+	in float3 albedo,
+	in float roughness,
+	in float3 normal,
+	in float3 baseReflectivity)
 {
-	float3 lightDir = normalize(spotLight.position_cutOff.xyz - fragPos);
+	float3 spotLightContribution = float3(0.0f, 0.0f, 0.0f);
+	
+	float3 lightDir = normalize(spotLight.position_cutOff.xyz - fragPos.xyz);
+	float3 normalized_bisector = normalize(viewDir + lightDir);
 	
 	// Calculate the angle between lightdir and the direction of the light
 	float theta = dot(lightDir, normalize(-spotLight.direction_outerCutoff.xyz));
 
 	// To smooth edges
 	float epsilon = (spotLight.position_cutOff.w - spotLight.direction_outerCutoff.w);
-	float intensity = clamp((theta - spotLight.direction_outerCutoff.w) / epsilon, 0.0f, 1.0f);
-
-	float3 spotLightContribution = float3(0.0f, 0.0f, 0.0f);
-
-	// Ambient
-	float3 ambient = ambientMap * spotLight.baseLight.ambient.rgb * materialAttributes.ambientMul + materialAttributes.ambientAdd;;
-
-	// Diffuse
-	float alpha = max(dot(normalMap, lightDir), 0.0f);
-	float3 diffuse = diffuseMap * alpha * spotLight.baseLight.diffuse.rgb * materialAttributes.diffuseMul + materialAttributes.diffuseAdd;;
-
-	// Specular
-	float3 vecToCam = normalize(camPos - fragPos);
-	float3 reflection = normalize(reflect(-lightDir.xyz, normalMap.xyz));
-	float spec = pow(max(dot(reflection, vecToCam), 0.0), 100);
-	float3 specular = (specularMap.rgb * spotLight.baseLight.specular.rgb * materialAttributes.specularMul + materialAttributes.specularAdd) * spec;
+	float edgeIntensity = clamp((theta - spotLight.direction_outerCutoff.w) / epsilon, 0.0f, 1.0f);
 
 	// Attenuation
 	float constantFactor = spotLight.attenuation.x;
 	float linearFactor = spotLight.attenuation.y;
 	float quadraticFactor = spotLight.attenuation.z;
-
 	float distancePixelToLight = length(spotLight.position_cutOff.xyz - fragPos);
 	float attenuation = 1.0f / (constantFactor + (linearFactor * distancePixelToLight) + (quadraticFactor * pow(distancePixelToLight, 2)));
-		
+
+	float3 radiance = spotLight.baseLight.color.rgb * attenuation;
+
+	// Cook-Torrance BRDF
+	float NdotV = max(dot(normal, viewDir), 0.0000001);
+	float NdotL = max(dot(normal, lightDir), 0.0000001);
+	float HdotV = dot(normalized_bisector, viewDir);
+	float HdotN = dot(normalized_bisector, normal);
+
+	float  D = NormalDistributionGGX(HdotN, roughness);
+	float  G = GeometrySmith(NdotV, NdotL, roughness);
+	float3 F = CalculateFresnelEffect(HdotV, baseReflectivity);
+
+	float3 specular = D * G * F / (4.0f * NdotV * NdotL);
+
+	// Energy conservation
+	float3 kD = float3(1.0f, 1.0f, 1.0f) - F;
+	kD *= 1.0f - metallic;
+
 	float shadow = 0.0f;
 	if (spotLight.baseLight.castShadow == true)
 	{
@@ -181,7 +197,7 @@ float3 CalcSpotLight(
 		shadow = CalculateShadow(fragPosLightSpace, spotLight.textureShadowMap);
 	}
 
-	spotLightContribution =  float3(ambient.rgb + (1.0f - shadow) * attenuation* (diffuse.rgb + specular.rgb)) * intensity;
-	
+	spotLightContribution = ((kD * albedo / PI + specular) * radiance * NdotL) * edgeIntensity;
+	spotLightContribution = spotLightContribution * (1.0f - shadow);
 	return spotLightContribution;
 }

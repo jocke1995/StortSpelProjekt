@@ -1,18 +1,51 @@
 #include "stdafx.h"
 #include "Window.h"
-#include "..\Input\Input.h"
+#include "Option.h"
+
+#include "../Input/Input.h"
+#include "../ImGUI/imgui.h"
+#include "../ImGUI/imgui_impl_win32.h"
+#include "../ImGUI/imgui_impl_dx12.h"
+#include "../Events/EventBus.h"
+
+// Forward declare message handler from imgui_impl_win32.cpp
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+struct WindowChange;
 
 // callback function for windows messages
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	static bool programRunning = true;
+
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+	{
+		return true;
+	}
+
 	switch (msg)
 	{
+	case WM_SYSKEYDOWN: // alt+enter
+		if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000)
+		{
+			EventBus::GetInstance().Publish(&WindowChange());
+		}
+		return 0;
+	case WM_ACTIVATEAPP: // alt+tab, windows key and more
+		if (!wParam && programRunning
+			&& (std::atoi(Option::GetInstance().GetVariable("i_windowMode").c_str()) == static_cast<int>(WINDOW_MODE::FULLSCREEN)))
+		{
+			EventBus::GetInstance().Publish(&WindowChange());
+		}
+		return 0;
+
 	case WM_KEYDOWN:
 		if (wParam == VK_ESCAPE)
 		{
 			//if (MessageBox(0, L"Are you sure you want to exit?", L"Exit", MB_YESNO | MB_ICONQUESTION) == IDYES)
 			//{
-				DestroyWindow(hWnd);
+			programRunning = false;
+			DestroyWindow(hWnd);
 			//}
 		}
 		// Temp to create objects during runtime
@@ -55,55 +88,75 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			int modifier = (inputData.Flags / 2 + 1) * 0x100;
 			SCAN_CODES key = static_cast<SCAN_CODES>(inputData.MakeCode + modifier);
 
-			Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
+			if (DEVELOPERMODE_DEVINTERFACE == true)
+			{
+				if (key == SCAN_CODES::ALT && !Input::GetInstance().GetKeyState(SCAN_CODES::ALT) && !(inputData.Flags % 2))
+				{
+					ShowCursor(true);
+					Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
+				}
+				else if (key == SCAN_CODES::ALT && (inputData.Flags % 2))
+				{
+					ShowCursor(false);
+					Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
+				}
+			}
+			if (DEVELOPERMODE_DEVINTERFACE == false || !Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
+			{
+				Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
+			}
 		}
 		else if (raw->header.dwType == RIM_TYPEMOUSE)
 		{
-			auto inputData = raw->data.mouse;
-			MOUSE_BUTTON button = static_cast<MOUSE_BUTTON>(inputData.usButtonFlags);
-
-			switch (button)
+			if (DEVELOPERMODE_DEVINTERFACE == false || !Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
 			{
-				case MOUSE_BUTTON::WHEEL:
-					Input::GetInstance().SetMouseScroll(inputData.usButtonData);
-					break;
-				case MOUSE_BUTTON::LEFT_DOWN:
-				case MOUSE_BUTTON::MIDDLE_DOWN:
-				case MOUSE_BUTTON::RIGHT_DOWN:
-					Input::GetInstance().SetMouseButtonState(button, true);
-					break;
-				case MOUSE_BUTTON::LEFT_UP:
-				case MOUSE_BUTTON::MIDDLE_UP:
-				case MOUSE_BUTTON::RIGHT_UP:
-					button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
-					Input::GetInstance().SetMouseButtonState(button, false);
-					break;
-				default:
-					break;
-			}
+				auto inputData = raw->data.mouse;
+				MOUSE_BUTTON button = static_cast<MOUSE_BUTTON>(inputData.usButtonFlags);
 
-			Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
-			
-			SetCursorPos(500, 400);
+				switch (button)
+				{
+					case MOUSE_BUTTON::WHEEL:
+						Input::GetInstance().SetMouseScroll(inputData.usButtonData);
+						break;
+					case MOUSE_BUTTON::LEFT_DOWN:
+					case MOUSE_BUTTON::MIDDLE_DOWN:
+					case MOUSE_BUTTON::RIGHT_DOWN:
+						Input::GetInstance().SetMouseButtonState(button, true);
+						break;
+					case MOUSE_BUTTON::LEFT_UP:
+					case MOUSE_BUTTON::MIDDLE_UP:
+					case MOUSE_BUTTON::RIGHT_UP:
+						button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
+						Input::GetInstance().SetMouseButtonState(button, false);
+						break;
+					default:
+						break;
+				}
+
+				Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
+
+				SetCursorPos(500, 400);
+			}
 		}
 
 		delete[] lpb;
 
 		return 0;
 	}
+
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 Window::Window(
 	HINSTANCE hInstance,
 	int nCmdShow,
-	bool fullScreen,
+	bool windowedFullScreen,
 	int screenWidth, int screenHeight,
 	LPCTSTR windowName, LPCTSTR windowTitle)
 {
 	m_ScreenWidth = screenWidth;
 	m_ScreenHeight = screenHeight;
-	m_FullScreen = fullScreen;
+	m_WindowedFullScreen = windowedFullScreen;
 	m_WindowName = windowName;
 	m_WindowTitle = windowTitle;
 
@@ -125,7 +178,7 @@ void Window::SetWindowTitle(std::wstring newTitle)
 
 bool Window::IsFullScreen() const
 {
-	return m_FullScreen;
+	return m_WindowedFullScreen;
 }
 
 int Window::GetScreenWidth() const
@@ -152,7 +205,7 @@ bool Window::ExitWindow()
 	{
 
 		TranslateMessage(&msg);
-		DispatchMessage(&msg);	// Går in i "CALLBACK" funktionen
+		DispatchMessage(&msg);
 
 		if (msg.message == WM_QUIT)
 		{
@@ -184,14 +237,17 @@ bool Window::WasTabPressed()
 
 bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 {
-	if (m_FullScreen)
-	{
-		HMONITOR hmon = MonitorFromWindow(m_Hwnd, MONITOR_DEFAULTTONEAREST);
-		MONITORINFO mi = { sizeof(mi) };
-		GetMonitorInfo(hmon, &mi);
+	HMONITOR hmon = MonitorFromWindow(m_Hwnd, MONITOR_DEFAULTTONEAREST);
+	MONITORINFO mi = { sizeof(mi) };
+	GetMonitorInfo(hmon, &mi);
 
-		m_ScreenWidth = mi.rcMonitor.right - mi.rcMonitor.left;
-		m_ScreenHeight = mi.rcMonitor.bottom - mi.rcMonitor.top;
+	int width = mi.rcMonitor.right - mi.rcMonitor.left;
+	int height = mi.rcMonitor.bottom - mi.rcMonitor.top;
+
+	if (m_WindowedFullScreen || (width < m_ScreenWidth || height < m_ScreenHeight))
+	{
+		m_ScreenWidth = width;
+		m_ScreenHeight = height;
 	}
 
 	WNDCLASSEX wc;
@@ -234,10 +290,7 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	// Remove the topbar of the window if we are in fullscreen
-	if (m_FullScreen)
-	{
-		SetWindowLong(m_Hwnd, GWL_STYLE, 0);
-	}
+	SetWindowLong(m_Hwnd, GWL_STYLE, 0);
 
 	ShowWindow(m_Hwnd, nCmdShow);
 	ShowCursor(false);

@@ -2,6 +2,15 @@
 #include "Timer.h"
 #include "Window.h"
 
+Timer::Timer()
+{
+    m_pWindow = nullptr;
+
+    auto start = std::chrono::system_clock::now();
+    m_TimeNow = start;
+    m_TimeLast = start;
+}
+
 Timer::Timer(Window* window)
 {
 	m_pWindow = window;
@@ -28,7 +37,8 @@ void Timer::Update()
 
     // Set limit to the updates on the window title
     std::chrono::duration<double> elapsed_timeFps = m_TimeNow - m_TimeLastTitleUpdate;
-    if (elapsed_timeFps.count() >= 1.0)
+    // TODO: Make sure this solution works for all cases
+    if (elapsed_timeFps.count() >= 1.0 && m_pWindow != nullptr)
     {
         std::wstring fpsString = std::to_wstring(fpsCounter);
         m_pWindow->SetWindowTitle(fpsString);

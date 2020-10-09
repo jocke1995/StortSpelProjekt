@@ -43,10 +43,13 @@
 #include <set>
 #include <unordered_set>
 #include <queue>
+#include <deque>
 
 typedef DirectX::XMMATRIX float4x4;
 
 #include "Core.h"
 #include "structs.h"
+
+#include <Bullet/btBulletDynamicsCommon.h>
 
 #endif

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Engine.h"
 #include "Misc/Thread.h"
+
 Engine::Engine()
 {
 	
@@ -11,35 +12,45 @@ Engine::~Engine()
 	delete m_pWindow;
 	delete m_pTimer;
 
-	m_pThreadPool->WaitForThreads(FLAG_THREAD::ALL);
-	m_pThreadPool->ExitThreads();
 	delete m_pThreadPool;
-
+	Physics::GetInstance().DestroyPhysics();
 	delete m_pSceneManager;
-	delete m_pRenderer;
+	m_pRenderer->DeleteDxResources();
 }
 
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 {
 	// Window values
-	bool fullscreen = Option::GetInstance().GetVariable("fullscreen");
-	int windowWidth = Option::GetInstance().GetVariable("windowWidth");
-	int windowHeight = Option::GetInstance().GetVariable("windowHeight");
+	bool windowedFullscreen = false;
+	if (std::atoi(Option::GetInstance().GetVariable("i_windowMode").c_str()) == static_cast<int>(WINDOW_MODE::WINDOWED_FULLSCREEN))
+	{
+		windowedFullscreen = true;
+	}
+	int windowWidth = std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str());
+	int windowHeight = std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str());
 
 	// Misc
-	m_pWindow = new Window(hInstance, nCmdShow, fullscreen, windowWidth, windowHeight);
+	m_pWindow = new Window(hInstance, nCmdShow, windowedFullscreen, windowWidth, windowHeight);
 	m_pTimer = new Timer(m_pWindow);
 
 	// ThreadPool
-	int numCores = std::thread::hardware_concurrency();
-	if (numCores == 0) numCores = 1; // function not supported
-	m_pThreadPool = new ThreadPool(numCores); // Set num m_Threads to number of cores of the cpu
+	int numThreads = std::thread::hardware_concurrency();
+	if (numThreads == 0) // function not supported
+	{
+		numThreads = 1;
+	}
+	else if (numThreads > m_ThreadLimit) // Limiting the number of threads to the threadLimit
+	{
+		numThreads = m_ThreadLimit;
+	}
+	m_pThreadPool = new ThreadPool(numThreads);
 
 	// Sub-engines
-	m_pRenderer = new Renderer();
+	m_pRenderer = &Renderer::GetInstance();
 	m_pRenderer->InitD3D12(m_pWindow, hInstance, m_pThreadPool);
 
-	//m_pAudioEngine = &AudioEngine::GetInstance();
+	// Audio engine
+	m_pAudioEngine = &AudioEngine::GetInstance();
 
 	// ECS
 	m_pSceneManager = new SceneManager(m_pRenderer);

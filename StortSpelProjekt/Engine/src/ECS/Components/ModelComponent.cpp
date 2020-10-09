@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "ModelComponent.h"
+
 #include "../Renderer/Model.h"
+#include "../Renderer/Material.h"
+#include "../Renderer/Renderer.h"
+#include "../Entity.h"
+
 namespace component
 {
 	ModelComponent::ModelComponent(Entity* parent)
@@ -28,17 +33,27 @@ namespace component
 
 	}
 
+	void ModelComponent::InitScene()
+	{
+		// check if model has transform component
+		component::TransformComponent* tc = GetParent()->GetComponent<component::TransformComponent>();
+		if (tc != nullptr)
+		{
+			Renderer::GetInstance().InitModelComponent(GetParent());
+		}
+	}
+
 	Mesh* ModelComponent::GetMeshAt(unsigned int index) const
 	{
 		return m_Model->GetMeshAt(index);
 	}
 
-	std::map<TEXTURE_TYPE, Texture*>* ModelComponent::GetTexturesAt(unsigned int index) const
+	Material* ModelComponent::GetMaterialAt(unsigned int index) const
 	{
-		return m_Model->GetTexturesAt(index);
+		return m_Model->GetMaterialAt(index);
 	}
 
-	SlotInfo* ModelComponent::GetSlotInfoAt(unsigned int index) const
+	const SlotInfo* ModelComponent::GetSlotInfoAt(unsigned int index) const
 	{
 		return m_Model->GetSlotInfoAt(index);
 	}

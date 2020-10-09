@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Text.h"
 
-#include "Texture.h"
+#include "Texture/Texture.h"
 #include "../Misc/Window.h"
 #include "GPUMemory/Resource.h"
 #include "GPUMemory/ShaderResourceView.h"
@@ -35,7 +35,7 @@ Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfC
 
 	m_pSlotInfo = new SlotInfo();
 	m_pSlotInfo->vertexDataIndex = m_pSRV->GetDescriptorHeapIndex();
-	m_pSlotInfo->textureDiffuse = texture->GetDescriptorHeapIndex();
+	m_pSlotInfo->textureAlbedo = texture->GetDescriptorHeapIndex();
 }
 
 Text::~Text()

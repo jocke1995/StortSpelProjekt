@@ -66,3 +66,8 @@ void Entity::RenderUpdate(double dt)
 		component->RenderUpdate(dt);
 	}
 }
+
+std::vector<Component*>* Entity::GetAllComponents()
+{
+	return &m_Components;
+}

@@ -6,6 +6,8 @@ class Window;
 class Timer
 {
 public:
+	//Default constructor
+	Timer();
 	Timer(Window* window);
 	~Timer();
 

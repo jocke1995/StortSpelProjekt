@@ -13,6 +13,7 @@ namespace component
 		virtual ~SpotLightComponent();
 
 		void Update(double dt);
+		void InitScene();
 
 		void SetPosition(float3 position);
 		void SetCutOff(float cutOff);
@@ -23,7 +24,7 @@ namespace component
 		void* GetLightData() const;
 	
 	protected:
-		void UpdateLightData(COLOR_TYPE type);
+		void UpdateLightIntensity();
 
 	private:
 		SpotLight* m_pSpotLight = nullptr;

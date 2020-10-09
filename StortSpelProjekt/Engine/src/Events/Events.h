@@ -1,5 +1,6 @@
 #pragma once
 #include "../Input/Input.h"
+#include "../ECS/Scene.h"
 
 class Entity;
 class Event
@@ -10,9 +11,10 @@ public:
 
 struct MovementInput : public Event
 {
-	MovementInput(SCAN_CODES key, bool pressed) : key{ key }, pressed{ pressed } {};
+	MovementInput(SCAN_CODES key, bool pressed, bool doubleTap) : key{ key }, pressed{ pressed }, doubleTap{ doubleTap } {};
 	SCAN_CODES key;
 	bool pressed;
+	bool doubleTap;
 };
 
 struct MouseMovement : public Event
@@ -53,4 +55,32 @@ struct Collision : public Event
 	Collision(Entity *ent1, Entity *ent2) : ent1{ ent1 }, ent2{ ent2 } {};
 	Entity *ent1;
 	Entity *ent2;
+};
+
+struct PlayerConnection : public Event
+{
+	PlayerConnection(int playerId) : playerId{ playerId } {};
+	int playerId;
+};
+
+struct ConnectToServer : public Event
+{
+	ConnectToServer(std::string ip) : ip{ ip } {};
+	std::string ip;
+};
+
+struct Disconnect : public Event
+{
+	Disconnect() {};
+};
+
+struct Death : public Event
+{
+	Death(Entity* ent) : ent{ ent } {};
+	Entity* ent;
+};
+
+struct WindowChange : public Event
+{
+	WindowChange() {};
 };

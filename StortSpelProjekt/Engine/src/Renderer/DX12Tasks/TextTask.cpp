@@ -15,9 +15,11 @@
 
 TextTask::TextTask(ID3D12Device5* device, 
 	RootSignature* rootSignature, 
-	LPCWSTR VSName, LPCWSTR PSName, 
+	const std::wstring& VSName, const std::wstring& PSName,
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds, 
-	LPCTSTR psoName) :RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName)
+	const std::wstring& psoName,
+	unsigned int FLAG_THREAD)
+	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
 }
 
@@ -62,7 +64,8 @@ void TextTask::Execute()
 		D3D12_RESOURCE_STATE_PRESENT,
 		D3D12_RESOURCE_STATE_RENDER_TARGET));
   
-	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
+	unsigned int renderTargetIndex = m_pSwapChain->GetRTV(m_BackBufferIndex)->GetDescriptorHeapIndex();
+	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(renderTargetIndex);
 	commandList->OMSetRenderTargets(1, &cdhSwapChain, true, nullptr);
 
 	commandList->RSSetViewports(1, swapChainRenderTarget->GetRenderView()->GetViewPort());

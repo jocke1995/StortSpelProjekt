@@ -1,6 +1,4 @@
 #include "../../Headers/structs.h"
-Texture2D textures[] : register(t0);
-SamplerState samplerTypeWrap : register (s0);
 
 struct VS_OUT
 {
@@ -11,7 +9,10 @@ struct VS_OUT
 
 ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
 
+Texture2D textures[] : register(t0);
+SamplerState point_Wrap : register (s5);
+
 float4 PS_main(VS_OUT input) : SV_TARGET0
 {
-	return float4(input.color.rgb, input.color.a * textures[cbPerObject.info.textureDiffuse].Sample(samplerTypeWrap, input.texCoord).a);
+	return float4(input.color.rgb, input.color.a * textures[cbPerObject.info.textureAlbedo].Sample(point_Wrap, input.texCoord).a);
 }

@@ -20,7 +20,7 @@ public:
 
 	void RemoveEntity(Entity* entity);
 	void AddEntity(Entity* entity);
-	void SetSceneToDraw(Scene* scene);
+	void SetScene(Scene* scene);
 private:
 	Renderer* m_pRenderer;
 

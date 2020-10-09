@@ -13,13 +13,16 @@
 #include "../Renderer/BaseCamera.h"
 #include "../GPUMemory/RenderTargetView.h"
 
+#include "../ImGUI/ImGuiHandler.h"
+
 WireframeRenderTask::WireframeRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
-	LPCWSTR VSName, LPCWSTR PSName,
+	const std::wstring& VSName, const std::wstring& PSName,
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
-	LPCTSTR psoName)
-	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName)
+	const std::wstring& psoName,
+	unsigned int FLAG_THREAD)
+	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
 	
 }
@@ -78,7 +81,8 @@ void WireframeRenderTask::Execute()
 
 	DescriptorHeap* renderTargetHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
 
-	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
+	unsigned int renderTargetIndex = m_pSwapChain->GetRTV(m_BackBufferIndex)->GetDescriptorHeapIndex();
+	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(renderTargetIndex);
 
 	commandList->OMSetRenderTargets(1, &cdh, false, nullptr);
 
@@ -92,26 +96,32 @@ void WireframeRenderTask::Execute()
 
 	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
 
-	// Draw for every m_pMesh
-	for (int i = 0; i < m_ObjectsToDraw.size(); i++)
+
+	if (ImGuiHandler::GetInstance().GetBool("boundingBoxToggle") == true)
 	{
-		const Mesh* m = m_ObjectsToDraw[i]->GetMesh();
-		Transform* t = m_ObjectsToDraw[i]->GetTransform();
+		// Draw for every m_pMesh
+		for (int i = 0; i < m_ObjectsToDraw.size(); i++)
+		{
+			for (int j = 0; j < m_ObjectsToDraw[i]->GetNumBoundingBoxes(); j++)
+			{
+				const Mesh* m = m_ObjectsToDraw[i]->GetMeshAt(j);
+				Transform* t = m_ObjectsToDraw[i]->GetTransformAt(j);
 
-		size_t num_Indices = m->GetNumIndices();
-		const SlotInfo* info = m_ObjectsToDraw[i]->GetSlotInfo();
+				size_t num_Indices = m->GetNumIndices();
+				const SlotInfo* info = m_ObjectsToDraw[i]->GetSlotInfo(j);
 
-		DirectX::XMMATRIX* WTransposed = t->GetWorldMatrixTransposed();
-		DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+				DirectX::XMMATRIX* WTransposed = t->GetWorldMatrixTransposed();
+				DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
-		// Create a CB_PER_OBJECT struct
-		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed,  *info };
+				// Create a CB_PER_OBJECT struct
+				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed,  *info };
 
-		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
-		//commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_OBJECT_CBV, )
+				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-		commandList->IASetIndexBuffer(m->GetIndexBufferView());
-		commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+				commandList->IASetIndexBuffer(m->GetIndexBufferView());
+				commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+			}
+		}
 	}
 
 	// Ändra state på front/backbuffer

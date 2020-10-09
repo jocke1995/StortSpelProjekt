@@ -6,7 +6,7 @@
 
 // Defines used for loading of files, they are written in reverse because of "Little-Endian" format
 // XAudio2 uses the Resource Interchange File Format (RIFF). 
-// https://docs.microsoft.com/en-us/windows/win32/xaudio2/resource-interchange-file-format--riff- 
+// "https://docs.microsoft.com/en-us/windows/win32/xaudio2/resource-interchange-file-format--riff-" 
 #define fourccRIFF 'FFIR'
 #define fourccDATA 'atad'
 #define fourccFMT ' tmf'
@@ -15,6 +15,8 @@
 #define fourccDPDS 'sdpd'
 #include "AudioVoice.h"
 
+// AudioBuffer is used for loading of wav files and holding buffer data.
+// This is then cloned for use with separate entities, both 2D and 3D sound.
 class AudioBuffer
 {
 public:
@@ -28,11 +30,8 @@ public:
 	//Set how many times audio should loop. 0 = "infinte"; 1 = "play once"; 1> = "play multiple"
 	void SetAudioLoop(int loopCount);
 
-	/// <summary>
-	/// Creates a voice object which may play the loaded audio.
-	/// </summary>
+	// Creates a voice object which may play the loaded audio.
 	AudioVoice CloneVoice();
-
 
 private:
 	friend class AudioVoice;

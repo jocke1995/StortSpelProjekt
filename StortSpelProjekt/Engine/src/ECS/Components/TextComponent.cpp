@@ -2,7 +2,7 @@
 #include <vector>
 #include "TextComponent.h"
 #include "../Renderer/Text.h"
-#include "../Renderer/Texture.h"
+#include "../Renderer/Texture/Texture.h"
 #include "../Misc/Window.h"
 
 namespace component
@@ -178,5 +178,9 @@ namespace component
 
 	void TextComponent::Update(double dt)
 	{
+	}
+	void TextComponent::InitScene()
+	{
+		Renderer::GetInstance().InitTextComponent(GetParent());
 	}
 }

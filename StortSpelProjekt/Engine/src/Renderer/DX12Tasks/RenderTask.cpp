@@ -11,14 +11,20 @@
 RenderTask::RenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
-	LPCWSTR VSName, LPCWSTR PSName,
+	const std::wstring& VSName, const std::wstring& PSName,
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
-	LPCTSTR psoName)
-	:DX12Task(device, COMMAND_INTERFACE_TYPE::DIRECT_TYPE)
+	const std::wstring& psoName,
+	unsigned int FLAG_THREAD)
+	:DX12Task(device, COMMAND_INTERFACE_TYPE::DIRECT_TYPE, FLAG_THREAD)
 {
-	for (auto gpsd : *gpsds)
-		m_PipelineStates.push_back(new GraphicsState(device, rootSignature, VSName, PSName, gpsd, psoName));
-
+	if (gpsds != nullptr)
+	{
+		for (auto gpsd : *gpsds)
+		{
+			m_PipelineStates.push_back(new GraphicsState(device, rootSignature, VSName, PSName, gpsd, psoName));
+		}
+	}
+	
 	m_pRootSig = rootSignature->GetRootSig();
 }
 
