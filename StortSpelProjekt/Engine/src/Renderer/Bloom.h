@@ -33,7 +33,7 @@ private:
 	std::array<Resource*, 2> m_Resources;
 	std::array<PingPongResource*, 2> m_PingPongResources;
 	
-	Resource* createResources(
+	Resource* createResource(
 		ID3D12Device5* device,
 		unsigned int width, unsigned int height,
 		std::wstring resourceName,
@@ -43,6 +43,7 @@ private:
 	void createBrightTuple(
 		ID3D12Device5* device,
 		DescriptorHeap* dhRTV,
+		DescriptorHeap* dh_CBV_UAV_SRV,
 		unsigned int width, unsigned int height);
 };
 

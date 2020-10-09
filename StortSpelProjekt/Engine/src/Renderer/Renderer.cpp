@@ -1467,7 +1467,7 @@ void Renderer::initRenderTasks()
 		FLAG_THREAD::RENDER);
 
 	static_cast<MergeRenderTask*>(mergeTask)->SetFullScreenQuad(m_pFullScreenQuad);
-	static_cast<MergeRenderTask*>(mergeTask)->AddSRVIndexToMerge(m_pBloomResources->GetPingPongResource(0)->GetSRV()->GetDescriptorHeapIndex());
+	static_cast<MergeRenderTask*>(mergeTask)->AddSRVIndexToMerge(m_pBloomResources->GetPingPongResource(1)->GetSRV()->GetDescriptorHeapIndex());
 	mergeTask->SetSwapChain(m_pSwapChain);
 	mergeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	static_cast<MergeRenderTask*>(mergeTask)->CreateSlotInfo();
@@ -1557,7 +1557,7 @@ void Renderer::initRenderTasks()
 		std::get<2>(*m_pBloomResources->GetBrightTuple()),
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		resolutionWidth, resolutionHeight,
+		1280, 720,
 		FLAG_THREAD::RENDER);
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
