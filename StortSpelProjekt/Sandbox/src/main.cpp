@@ -467,6 +467,45 @@ Scene* LeosTestScene(SceneManager* sm)
     enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_JUMP | F_AI_FLAGS::CAN_ROLL, 0.5);
     enH.AddEnemy("conan", barbModel, 20, float3{ 0.0, 10.0, 0.0 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player");
 
+    /* ---------------------- NavMesh ----------------------------- */
+    NavMesh navmesh;
+    float3 pos;
+    float2 size;
+    pos.x = 0;
+    pos.y = 0;
+    pos.z = 0;
+    size.x = 0.5;
+    size.y = 0.5;
+    NavQuad* nav1 = navmesh.AddNavQuad(pos, size);
+
+    pos.x = 1;
+    pos.y = 0;
+    pos.z = 0;
+    size.x = 0.5;
+    size.y = 0.5;
+    NavQuad* nav2 = navmesh.AddNavQuad(pos, size);
+    pos.x = 0.5;
+    pos.y = 0;
+    navmesh.ConnectNavQuads(nav1, nav2, pos);
+
+    pos.x = 1;
+    pos.y = 1.5;
+    pos.z = 0;
+    size.x = 1;
+    size.y = 1;
+    NavQuad* nav3 = navmesh.AddNavQuad(pos, size);
+    pos.x = 0.0;
+    pos.y = 0.5;
+    navmesh.ConnectNavQuads(nav3, nav1, pos);
+    pos.x = 1.0;
+    pos.y = 0.5;
+    navmesh.ConnectNavQuads(nav3, nav2, pos);
+
+    pos.x = 1.1;
+    pos.y = 0.3;
+    nav1 = navmesh.GetQuad(pos);
+    nav1 = nav1->connections.at(0)->GetConnectedQuad(nav1);
+
     /* ---------------------- Update Function ---------------------- */
     UpdateScene = &LeoUpdateScene;
 
