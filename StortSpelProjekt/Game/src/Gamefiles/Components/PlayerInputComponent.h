@@ -4,6 +4,9 @@
 #include "..\ECS\Components\InputComponent.h"
 #include "Core.h"
 
+#define DASH_MOD 10.0
+#define SPRINT_MOD 3.0
+
 //Camera
 class BaseCamera;
 class Transform;
@@ -25,6 +28,8 @@ enum CAMERA_FLAGS
 
 namespace component
 {
+	class CollisionComponent;
+
 	class PlayerInputComponent : public InputComponent
 	{
 	public:
@@ -46,7 +51,15 @@ namespace component
 		PerspectiveCamera* m_pCamera;
 		Transform* m_pTransform;
 
-		void toggleCameraLock(ModifierInput* evnt);
+		CollisionComponent* m_pCC;
+
+		double m_DashTimer;
+		bool m_DashReady;
+		bool m_Dashing;
+
+		void(PlayerInputComponent::*specificUpdate)(double dt);
+
+		void alternativeInput(ModifierInput* evnt);
 		void zoom(MouseScroll* evnt);
 
 		void move(MovementInput* evnt);
@@ -54,7 +67,9 @@ namespace component
 
 		void mouseClick(MouseClick* evnt);
 
-		void grunt(Collision* evnt);
+		void updateDefault(double dt);
+		void updateDash(double dt);
+		void updateJump(double dt);
 	};
 }
 

@@ -1,10 +1,8 @@
-#include "Engine.h"
 #include "ConsoleCommand.h"
 #include "ThreadPool.h"
-#include "Thread.h"
-#include "MultiThreadedTask.h"
 #include "ClientPool.h"
 
+#include <chrono>
 #include <iostream>
 
 int main()
@@ -16,11 +14,7 @@ int main()
 	int nrOfClients = 0;
 
 	// ThreadPool
-	int numCores = std::thread::hardware_concurrency();
-	if (numCores == 0)
-	{
-		numCores = 1; // function not supported
-	}
+	int numCores = 4;
 	ThreadPool* threadPool = new ThreadPool(numCores); // Set num m_Threads to number of cores of the cpu
 
 	Console console;
@@ -31,27 +25,49 @@ int main()
 	std::cout << "Write 1 for server or 0 for client" << std::endl;
 	std::cin >> str;
 
+	auto start = std::chrono::system_clock::now();
+	std::chrono::time_point<std::chrono::system_clock> timeNow;
+	std::chrono::time_point<std::chrono::system_clock> timeLast;
+
+	double dt = 0;
+
 	if (str == "1")
 	{
 		ClientPool server(55555);
-		threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
+		threadPool->AddTask(&console);
 
-			while (strcmp(str.c_str(), "quit") != 0)
+
+		while (true)
 			{
+				timeLast = timeNow;
+				timeNow = std::chrono::system_clock::now();
+				std::chrono::duration<double> elapsed_time = timeNow - timeLast;
+				dt = elapsed_time.count();
 				str = "";
 				console.GetInput(&str);
 
 				if (strcmp(str.c_str(), "") != 0)
 				{
-					threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
+					threadPool->AddTask(&console);
 				}
 				if (strcmp(str.c_str(), "AddClient") == 0)
 				{
 					server.AddClient();
 					std::cout << server.GetNrOfClients() << " Client slots in total" << std::endl;
 				}
+				if (strcmp(str.c_str(), "Packet") == 0)
+				{
+					server.toggleShowPackage();
+				}
 
 				server.ListenMessages();
+				server.Update(dt);
+
+				if (strcmp(str.c_str(), "quit") == 0)
+				{
+					break;
+				}
+
 				str = server.GetConsoleString();
 
 				if (str != "")
@@ -70,7 +86,7 @@ int main()
 		clients.at(0)->connect(str, 55555);
 		clients.at(0)->setBlocking(false);
 
-		threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
+		threadPool->AddTask(&console);
 
 		sf::Packet packet;
 
@@ -84,7 +100,7 @@ int main()
 				packet.clear();
 				packet << str;
 				clients.at(0)->send(packet);
-				threadPool->AddTask(&console, FLAG_THREAD::NETWORK);
+				threadPool->AddTask(&console);
 			}
 
 			clients.at(0)->receive(packet);
@@ -97,7 +113,6 @@ int main()
 
 	}
 
-	threadPool->ExitThreads();
 	delete threadPool;
 
 	return 0;

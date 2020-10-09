@@ -13,7 +13,7 @@ Engine::~Engine()
 	delete m_pTimer;
 
 	delete m_pThreadPool;
-
+	Physics::GetInstance().DestroyPhysics();
 	delete m_pSceneManager;
 	m_pRenderer->DeleteDxResources();
 }
@@ -21,12 +21,16 @@ Engine::~Engine()
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 {
 	// Window values
-	bool fullscreen = std::atoi(Option::GetInstance().GetVariable("i_fullscreen").c_str());
+	bool windowedFullscreen = false;
+	if (std::atoi(Option::GetInstance().GetVariable("i_windowMode").c_str()) == static_cast<int>(WINDOW_MODE::WINDOWED_FULLSCREEN))
+	{
+		windowedFullscreen = true;
+	}
 	int windowWidth = std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str());
 	int windowHeight = std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str());
 
 	// Misc
-	m_pWindow = new Window(hInstance, nCmdShow, fullscreen, windowWidth, windowHeight);
+	m_pWindow = new Window(hInstance, nCmdShow, windowedFullscreen, windowWidth, windowHeight);
 	m_pTimer = new Timer(m_pWindow);
 
 	// ThreadPool

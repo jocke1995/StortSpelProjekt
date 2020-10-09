@@ -13,6 +13,10 @@ class Entity;
 enum F_COMP_FLAGS
 {
 	OBB = BIT(1),
+	CUBE_COLLISION = BIT(2),
+	SPHERE_COLLISION = BIT(3),
+	CAPSULE_COLLISION = BIT(4),
+	CAN_JUMP = BIT(5),
 };
 
 // saves the info about a type of enemy
@@ -27,6 +31,9 @@ struct EnemyComps
 	int hp;
 	std::string targetName;
 	int enemiesOfThisType = 0;
+	std::wstring sound3D;
+	std::wstring sound2D;
+	float3 dim;
 };
 
 class EnemyFactory
@@ -39,7 +46,7 @@ public:
 	// Flag is used for selecting which specific components are needed for this enemy e.g. OBB. 
 	// Components that enemies have as default won't have a flag.
 	// Will allways draw_opaque and give shadows.
-	Entity* AddEnemy(std::string entityName, Model* model, int hp, float3 pos, unsigned int flag = 0, float scale = 1, float3 rot = { 0, 0, 0 }, std::string aiTarget = "player");
+	Entity* AddEnemy(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int flag = 0, float scale = 1, float3 rot = { 0, 0, 0 }, std::string aiTarget = "player");
 	// used if you want to add an already existing enemy type to the scene with only the pos being different
 	Entity* AddExistingEnemy(std::string entityName, float3 pos);
 	// Used if you want to add an already existing enemy but change some of the values; flag, scale, rot or hp.
@@ -47,9 +54,8 @@ public:
 	// If you want to for example only change the scale then write UINT_MAX as flag, then normal values for scale.
 	// To skipp scale and write to rot the equvalent would be FLT_MAX.
 	Entity* AddExistingEnemyWithChanges(std::string entityName, float3 pos, unsigned int flag = UINT_MAX, float scale = FLT_MAX, float3 rot = { FLT_MAX , FLT_MAX , FLT_MAX }, int hp = INT_MAX);
-
-
-
+	// Helper function for adding an enemy
+	Entity* Add(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int flag, float3 dim, float scale, float3 rot, std::string aiTarget);
 
 private:
 	Scene* m_pScene = nullptr;

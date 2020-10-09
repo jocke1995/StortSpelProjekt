@@ -89,7 +89,7 @@ private:
 	char m_InputBuf[256];
 	// A vector containing the items in the console log
 	ImVector<char*> m_Items;
-	// A vetor containing the valid commands
+	// A vector containing the valid commands
 	ImVector<const char*> m_Commands;
 	// A vector containing the history of the console
 	ImVector<char*> m_History;

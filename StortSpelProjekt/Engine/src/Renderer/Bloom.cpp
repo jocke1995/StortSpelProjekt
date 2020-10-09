@@ -6,20 +6,23 @@
 #include "PingPongResource.h"
 #include "../Misc/Window.h"
 #include "../Misc/Option.h"
+#include "SwapChain.h"
 
 
 Bloom::Bloom(
 	ID3D12Device5* device,
 	DescriptorHeap* dh_RTV,
-	DescriptorHeap* dh_CBV_UAV_SRV)
+	DescriptorHeap* dh_CBV_UAV_SRV,
+	SwapChain* swapChain)
 {
-	int width = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	int height = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
+	UINT resolutionWidth = 0;
+	UINT resolutionHeight = 0;
+	swapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
 
-	createResources(device, width, height);
+	createResources(device, resolutionWidth, resolutionHeight);
 
 	// A renderTarget for "bright" areas on the screen
-	createBrightRenderTarget(device, dh_RTV, width, height);
+	createBrightRenderTarget(device, dh_RTV, resolutionWidth, resolutionHeight);
 
 	// Create the pingpongBuffers where index 0 will be the starting point to read from.
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};

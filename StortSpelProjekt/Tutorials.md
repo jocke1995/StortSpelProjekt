@@ -95,7 +95,7 @@ or add an additional SCAN_CODE to the conditions of one of the existing statemen
 Then subscribe to the correct event type as previously described.
 
 
-### PBR TEXTURES:
+## PBR TEXTURES:
 In a .mtl file the textures should be placed as follows.
 
 map_Kd "Albedo_texture.suffix" (albedo/diffuse)
@@ -103,3 +103,95 @@ map_Ks "Roughness_texture.suffix" (roughness/specular)
 map_Ka "Metalness_texture.suffix" (metalness/ambient)
 map_Kn "Normals_texture.suffix" (normals)
 map_Ke "Emissive_texture.suffix" (emissive)
+
+## DDS Texture Extension
+If you want to reduce aliasing at large distances, you should convert your textures to the .dds image format.
+
+In the following link you can download a .dds-converter which converts a texture from a given format into the .dds format.
+https://vvvv.org/contribution/texconvgui
+
+### Settings in the texConvGui-tool
+You will not need to change every setting in the tool, only the ones mentioned below:
+
+#### Folders
+In the program, you will have to enter the source & destination folders for the textures
+
+#### File Mask
+Set the "File Mask" to the format of the textures you want to convert from. 
+If you want to convert from jpg to dds, set the "File Mask" to .jpg
+
+#### Resizing
+In order for the creation of mipmaps to work, the texture needs to be in "common sizes" such as 512x512, 1024x1024, 2048x2048.
+If your texture is close to either one of them, (for example 500x500), you can use the "resizing" option to resize the texture to 512x512.
+Set to 0 if you do not want to resize the texture.
+
+#### Adressing Mode
+Set this to wrap
+
+#### Output Options
+Set this to B8G8R8A8_UNORM
+
+#### Mip Map Level
+Set this to 0 to generate mipmaps
+
+### Object File modification
+When you have created your new textures, you will have to modify how your object file reads the new texture (depending on object file format)
+
+#### .Obj-file modifications (changing the .mtl file)
+This is the file format which will be most commonly used in our project, and all you need to do is change the file extensions of the textures to .dds from whatever file extension it had earlier
+
+#### Other
+If you wish to use other object formats where the textures are embedded, you will have to change them using external programs such as "Blender" or "Maya".
+
+### How to create a new font format/image
+Hiero is a tool to generate new fonts in *fnt* format.
+**Download:** *http://www.mediafire.com/file/hlwbhemfgog51tu/hiero.jar/file*
+
+The result of this will be *two files*, one containing information about the font and characters, and one containing the font image.
+
+First select the font you want in the top left combo box *(it is also possible to choose a custom .ttf file)*.
+Below the combo box, select the **Java** radio button for **Rendering**. This will enable the **Effects** combo box on the top right. 
+For this tutorial, we will not be using any effects, but you may want to implement *distance field* once you have your text rendering.
+
+Next select the **Glyph Cache** radio button above the font preview box at the bottom. By default **Sample Text** is selected. 
+This will give us more options for the output image. You will see **Page width** and **Page height** to the right of the font preview box,
+under where you have selected **Glyph Cache**. We will be making a *512x512* font image, so set these both to *512*.
+
+Now back up to the top left, right above where you set the rendering to **Java**, you will see a size input.
+What you want to do is increment the size to just before **Pages** is *2* 
+*(you will see **Pages** above where you set the width and height of the output image)*. 
+This will increase the size of the font as large as can possibly fit on one page *(all the characters fit in the 512x512 image)*. 
+With the **Arial font** i was able to increase the size to *73* before some characters had to be moved to the next page, 
+where you would have *two 512x512* font images instead of just *one*.
+
+On the bottom right are *four* input boxes for padding, for left, top, right and bottom.
+We want to give each character a little padding in the final output image so we have less a chance of sampling surrounding
+characters in the shaders when sampling the texture for a character. When the quad on the screen that we are drawing a character
+is too small, sampling from the texture is less accurate and may end up getting values from the next character.
+Let's set all these to *five* pixels for padding.
+
+That should be it for setting up. Let's get our bitmap font files now. Click on **File** in the top menu, 
+then click **Save BMFont files (text)...**. Choose a directory and name for the output file, however,
+make sure that the name does not include any spaces or special letters. 
+When you click save, it will save a *.fnt* file containing information about rendering the font, and *.png* containing the font image.
+If you choose a font with a space in its name, for example **Javanese Text**, make sure that you *delete* the space in the fnt file,
+and that the name of the *fnt* and the *png files* have the same name as mentioned in the *fnt file*.
+
+Having troubles running the program?
+Make sure that you have the latest *Java Runtime* installed.
+
+### How to handle the window
+**Resolution width** and **height** are the sizes of the rendered scene, while **window width** and **height** are the sizes of the window which 
+the scene is rendered in. These can be changed in *config.txt*.
+
+The **window mode** variable, which also can be found the config.txt file, controls whether the user wants a **window** *(0)*, 
+**windowed fullscreen** *(1)* or **exclusive fullscreen** *(2)*:
+
+**Windowed fullscreen** means that the window will cover all of your screen with the chosen resolution and therefore *overrides* the chosen 
+window size. This allows other applications and windows to continue running in the background.
+
+**Exclusive fullscreen** mode gives your game complete ownership of the display and allocation of resources of your graphics card. This means that
+exclusive fullscreen may save a couple of your frames per second and is therefore recommended while playing. It should also be noted that the
+exclusive fullscreen mode will also override the window size settings until you loose focus by, for example, pressing the *alt+enter* combination on
+your keyboard. While doing so, the exclusive fullscreen will be changed to a window which will have the size which is decided in the config.txt file.
+
