@@ -67,43 +67,39 @@ void BlurComputeTask::Execute()
 	// Send the indices to gpu
 	commandList->SetComputeRoot32BitConstants(RS::CB_INDICES_CONSTANTS, sizeof(DescriptorHeapIndices) / sizeof(UINT), &m_DhIndices, 0);
 
-	unsigned int timesToBlur = std::atoi(Option::GetInstance().GetVariable("i_amountOfBlur").c_str());
-	for (unsigned int i = 0; i < timesToBlur; i++)
-	{
-		// The resource to read (Resource Barrier)
-		TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[0]->GetSRV()->GetResource()),
-			D3D12_RESOURCE_STATE_RENDER_TARGET,
-			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+	// The resource to read (Resource Barrier)
+	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[0]->GetSRV()->GetResource()),
+		D3D12_RESOURCE_STATE_RENDER_TARGET,
+		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
-		// The resource to write (Resource Barrier)
-		TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[1]->GetUAV()->GetResource()),
-			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-			D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	// The resource to write (Resource Barrier)
+	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[1]->GetUAV()->GetResource()),
+		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-		// Blur horizontal
-		commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
-		commandList->Dispatch(m_HorizontalThreadGroupsX, m_HorizontalThreadGroupsY, 1);
+	// Blur horizontal
+	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
+	commandList->Dispatch(m_HorizontalThreadGroupsX, m_HorizontalThreadGroupsY, 1);
 
-		// The resource to write to (Resource Barrier)
-		TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[0]->GetUAV()->GetResource()),
-			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-			D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	// The resource to write to (Resource Barrier)
+	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[0]->GetUAV()->GetResource()),
+		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-		// The resource to read (Resource Barrier)
-		TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[1]->GetSRV()->GetResource()),
-			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+	// The resource to read (Resource Barrier)
+	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[1]->GetSRV()->GetResource()),
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
-		// Blur vertical
-		commandList->SetPipelineState(m_PipelineStates[1]->GetPSO());
-		commandList->Dispatch(m_VerticalThreadGroupsX, m_VerticalThreadGroupsY, 1);
+	// Blur vertical
+	commandList->SetPipelineState(m_PipelineStates[1]->GetPSO());
+	commandList->Dispatch(m_VerticalThreadGroupsX, m_VerticalThreadGroupsY, 1);
 
 
-		// Resource barrier back to original states
-		TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[0]->GetUAV()->GetResource()),
-			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-			D3D12_RESOURCE_STATE_RENDER_TARGET);
-	}
+	// Resource barrier back to original states
+	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[0]->GetUAV()->GetResource()),
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	commandList->Close();
 }
