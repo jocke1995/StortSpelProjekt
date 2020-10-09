@@ -46,12 +46,12 @@ void BlurComputeTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
-	
+
 	commandAllocator->Reset();
 	commandList->Reset(commandAllocator, NULL);
-	
+
 	commandList->SetComputeRootSignature(m_pRootSig);
-	
+
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
 	ID3D12DescriptorHeap* d3d12DescriptorHeap = descriptorHeap_CBV_UAV_SRV->GetID3D12DescriptorHeap();
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
@@ -61,22 +61,22 @@ void BlurComputeTask::Execute()
 
 	// Descriptorheap indices for the textures to blur
 	// Horizontal pass
-	m_DhIndices.index0 = m_pSRV->GetDescriptorHeapIndex();	// BrightTarget				// Read
-	m_DhIndices.index1 = m_PingPongResources[0]->GetUAV()->GetDescriptorHeapIndex();	// Write
+	m_DhIndices.index0 = m_PingPongResources[0]->GetSRV()->GetDescriptorHeapIndex();	// Read
+	m_DhIndices.index1 = m_PingPongResources[1]->GetUAV()->GetDescriptorHeapIndex();	// Write
 	// Vertical pass
-	m_DhIndices.index2 = m_PingPongResources[0]->GetSRV()->GetDescriptorHeapIndex();	// Read
-	m_DhIndices.index3 = m_PingPongResources[1]->GetUAV()->GetDescriptorHeapIndex();	// Write
+	m_DhIndices.index2 = m_PingPongResources[1]->GetSRV()->GetDescriptorHeapIndex();	// Read
+	m_DhIndices.index3 = m_PingPongResources[0]->GetUAV()->GetDescriptorHeapIndex();	// Write
 
 	// Send the indices to gpu
 	commandList->SetComputeRoot32BitConstants(RS::CB_INDICES_CONSTANTS, sizeof(DescriptorHeapIndices) / sizeof(UINT), &m_DhIndices, 0);
 
 	// The resource to read (Resource Barrier)
-	TransResourceState(commandList, const_cast<Resource*>(m_pSRV->GetResource()),
+	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[0]->GetSRV()->GetResource()),
 		D3D12_RESOURCE_STATE_RENDER_TARGET,
 		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
 	// The resource to write (Resource Barrier)
-	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[0]->GetUAV()->GetResource()),
+	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[1]->GetUAV()->GetResource()),
 		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
@@ -85,12 +85,12 @@ void BlurComputeTask::Execute()
 	commandList->Dispatch(m_HorizontalThreadGroupsX, m_HorizontalThreadGroupsY, 1);
 
 	// The resource to write to (Resource Barrier)
-	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[0]->GetSRV()->GetResource()),
+	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[1]->GetSRV()->GetResource()),
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
 	// The resource to read (Resource Barrier)
-	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[1]->GetUAV()->GetResource()),
+	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[0]->GetUAV()->GetResource()),
 		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
@@ -99,13 +99,14 @@ void BlurComputeTask::Execute()
 	commandList->Dispatch(m_VerticalThreadGroupsX, m_VerticalThreadGroupsY, 1);
 
 	// Resource barrier back to original states
-	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[1]->GetUAV()->GetResource()),
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+	//TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[1]->GetUAV()->GetResource()),
+	//	D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+	//	D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-	// The resource to read (Resource Barrier)
-	TransResourceState(commandList, const_cast<Resource*>(m_pSRV->GetResource()),
-		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+	
+	// Resource barrier back to original states
+	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[0]->GetSRV()->GetResource()),
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	commandList->Close();

@@ -17,7 +17,7 @@ public:
 		std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
 		const std::wstring& psoName,
 		const ShaderResourceView* sourceSRV,
-		const UnorderedAccessView* destinationUAV,
+		const RenderTargetView* destinationRTV,
 		unsigned int FLAG_THREAD);
 	virtual ~DownSampleRenderTask();
 	
@@ -27,7 +27,7 @@ public:
 	void Execute();
 private:
 	ShaderResourceView* m_pSourceSRV = nullptr;
-	UnorderedAccessView* m_pDestinationUAV = nullptr;
+	const RenderTargetView* m_pDestinationRTV = nullptr;
 
 	Mesh* m_pFullScreenQuadMesh = nullptr;
 

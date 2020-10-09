@@ -6,15 +6,16 @@ struct VS_OUT
 	float2 uv   : UV;
 };
 
-ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
-Texture2D textures[]   : register (t0);
+// Source & Destination descriptorHeapIndices are stored in metallic & albedo
+ConstantBuffer<CB_PER_OBJECT_STRUCT> descriptorHeapIndices : register(b1, space3);
 
-SamplerState point_Wrap	: register (s5);
+Texture2D<float4> textures[]   : register (t0);
+
+SamplerState linear_Wrap	: register (s5);
 
 float4 PS_main(VS_OUT input) : SV_TARGET0
 {
-	// todo: Use bilnear filtering
-	float4 bigTexture = textures[cbPerObject.info.textureMetallic].Sample(point_Wrap, input.uv);
+	float4 outputFiltered = textures[descriptorHeapIndices.info.textureAlbedo].Sample(linear_Wrap, input.uv);
 
-	return bigTexture;
+	return outputFiltered;
 }

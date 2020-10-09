@@ -23,12 +23,12 @@ DownSampleRenderTask::DownSampleRenderTask(
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
 	const std::wstring& psoName,
 	const ShaderResourceView* sourceSRV,
-	const UnorderedAccessView* destinationUAV,
+	const RenderTargetView* destinationRTV,
 	unsigned int FLAG_THREAD)
 	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
 	m_pSourceSRV = const_cast<ShaderResourceView*>(sourceSRV);
-	m_pDestinationUAV = const_cast<UnorderedAccessView*>(destinationUAV);
+	m_pDestinationRTV = const_cast<RenderTargetView*>(destinationRTV);
 	m_NumIndices = 0;
 	m_Info = {};
 }
@@ -47,6 +47,9 @@ void DownSampleRenderTask::SetFullScreenQuadInSlotInfo()
 	// Mesh
 	m_NumIndices = m_pFullScreenQuadMesh->GetNumIndices();
 	m_Info.vertexDataIndex = m_pFullScreenQuadMesh->m_pSRV->GetDescriptorHeapIndex();
+
+	// The descriptorHeapIndices for the source&dest are currently put inside the textureSlots inside SlotInfo
+	m_Info.textureAlbedo = m_pSourceSRV->GetDescriptorHeapIndex();
 }
 
 void DownSampleRenderTask::Execute()
@@ -54,38 +57,34 @@ void DownSampleRenderTask::Execute()
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
 
-	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
+	commandAllocator->Reset();
+	commandList->Reset(commandAllocator, NULL);
 
-	// Get renderTarget
-	const RenderTargetView* swapChainRenderTarget = m_pSwapChain->GetRTV(m_BackBufferIndex);
-	ID3D12Resource1* swapChainResource = swapChainRenderTarget->GetResource()->GetID3D12Resource1();
+	commandList->SetGraphicsRootSignature(m_pRootSig);
 
+	DescriptorHeap* descriptorHeap_RTV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
 	ID3D12DescriptorHeap* d3d12DescriptorHeap = descriptorHeap_CBV_UAV_SRV->GetID3D12DescriptorHeap();
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
 
-	DescriptorHeap* renderTargetHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
-
-	const unsigned int SwapChainIndex = swapChainRenderTarget->GetDescriptorHeapIndex();
-	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(SwapChainIndex);
-
-	commandList->SetGraphicsRootSignature(m_pRootSig);
-
 	commandList->SetGraphicsRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
 
-	commandList->OMSetRenderTargets(0, nullptr, true, nullptr);
+	// Change state on front/backbuffer
+	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+	//	m_pDestinationRTV->GetResource()->GetID3D12Resource1(),
+	//	D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+	//	D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	const D3D12_VIEWPORT* viewPort = swapChainRenderTarget->GetRenderView()->GetViewPort();
-	const D3D12_RECT* rect = swapChainRenderTarget->GetRenderView()->GetScissorRect();
+	const D3D12_VIEWPORT* viewPort = m_pDestinationRTV->GetRenderView()->GetViewPort();
+	const D3D12_RECT* rect = m_pDestinationRTV->GetRenderView()->GetScissorRect();
 	commandList->RSSetViewports(1, viewPort);
 	commandList->RSSetScissorRects(1, rect);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
+	D3D12_CPU_DESCRIPTOR_HANDLE cdh = descriptorHeap_RTV->GetCPUHeapAt(m_pDestinationRTV->GetDescriptorHeapIndex());
+	commandList->OMSetRenderTargets(1, &cdh, false, nullptr);
 
-	// Draw a fullscreen quad 
-	// The descriptorHeapIndices for the SRVs are currently put inside the textureSlots inside SlotInfo
-	m_Info.textureMetallic = m_pSwapChain->GetSRV(m_BackBufferIndex)->GetDescriptorHeapIndex();
+	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
 	DirectX::XMMATRIX identityMatrix = DirectX::XMMatrixIdentity();
 
@@ -96,8 +95,14 @@ void DownSampleRenderTask::Execute()
 
 	commandList->IASetIndexBuffer(m_pFullScreenQuadMesh->GetIndexBufferView());
 
+	// Draw a fullscreen quad 
 	commandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
 
+	// Change state on front/backbuffer
+	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+	//	m_pDestinationRTV->GetResource()->GetID3D12Resource1(),
+	//	D3D12_RESOURCE_STATE_RENDER_TARGET,
+	//	D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
 
 	commandList->Close();
 }

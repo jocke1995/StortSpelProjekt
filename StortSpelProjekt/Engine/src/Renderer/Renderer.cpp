@@ -372,6 +372,12 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
 
+	// DownSample the texture used for bloom
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
 	// Skybox
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SKYBOX];
 	renderTask->SetBackBufferIndex(backBufferIndex);
@@ -1195,8 +1201,8 @@ void Renderer::initRenderTasks()
 		L"DownSampleVertex.hlsl", L"DownSamplePixel.hlsl",
 		&gpsdDownSampleTextureVector,
 		L"DownSampleTexturePSO",
-		std::get<2>(*m_pBloomResources->GetBrightTuple()),
-		m_pBloomResources->GetPingPongResource(0)->GetUAV(),
+		std::get<2>(*m_pBloomResources->GetBrightTuple()),		// Read from this in actual resolution
+		m_pBloomResources->GetPingPongResource(0)->GetRTV(),	// Write to this in 1280x720
 		FLAG_THREAD::RENDER);
 	
 	static_cast<DownSampleRenderTask*>(downSampleTask)->SetFullScreenQuad(m_pFullScreenQuad);
@@ -1513,7 +1519,7 @@ void Renderer::initRenderTasks()
 		FLAG_THREAD::RENDER);
 
 	static_cast<MergeRenderTask*>(mergeTask)->SetFullScreenQuad(m_pFullScreenQuad);
-	static_cast<MergeRenderTask*>(mergeTask)->AddSRVIndexToMerge(m_pBloomResources->GetPingPongResource(1)->GetSRV()->GetDescriptorHeapIndex());
+	static_cast<MergeRenderTask*>(mergeTask)->AddSRVIndexToMerge(m_pBloomResources->GetPingPongResource(0)->GetSRV()->GetDescriptorHeapIndex());
 	mergeTask->SetSwapChain(m_pSwapChain);
 	mergeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	static_cast<MergeRenderTask*>(mergeTask)->CreateSlotInfo();
