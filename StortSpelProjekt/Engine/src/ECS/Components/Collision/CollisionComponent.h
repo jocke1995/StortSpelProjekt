@@ -18,7 +18,7 @@ namespace component
 	{
 	public:
 		// if Mass is zero, the object is static (It will not move because of collisions).
-		CollisionComponent(Entity* parent, double mass = 1.0, double friction = 1.0, double restitution = 0.5);
+		CollisionComponent(Entity* parent, double mass = 1.0, double friction = 1.0, double restitution = 0.5, bool canFall = true);
 		virtual ~CollisionComponent();
 		
 		void Update(double dt);
@@ -66,6 +66,7 @@ namespace component
 
 		virtual double GetDistanceToBottom() const = 0;
 	protected:
+		bool m_CanFall;
 		double m_Mass;
 		double m_Fric;
 		double m_Rest;

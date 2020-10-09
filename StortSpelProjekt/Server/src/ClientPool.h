@@ -13,8 +13,10 @@ struct Client
 	sf::TcpSocket socket;
 	int clientId;
 	bool connected = false;
-	int frameCount = 0;
+	double lastPacket = 0;
 };
+
+#define CLIENT_TIMEOUT 10
 
 class ClientPool
 {
@@ -23,6 +25,7 @@ public:
 
 	//Listen for a packet or new connection. *Is non blocking
 	void ListenMessages();
+	void Update(double dt);
 
 	void AddClient();
 	int GetNrOfClients();
@@ -57,6 +60,7 @@ private:
 	Timer m_ClockSent;
 	Timer m_ClockReceived;
 
+	void disconnect(int id);
 	void newConnection();
 	void newPacket(int socket);
 	void sendPacket(int index, sf::Packet packet);

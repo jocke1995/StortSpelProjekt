@@ -2,9 +2,9 @@
 #include "Renderer.h"
 
 // Misc
-#include "../Misc/ThreadPool.h"
+#include "../Misc/MultiThreading/ThreadPool.h"
 #include "../Misc/AssetLoader.h"
-#include "../Misc/Thread.h"
+#include "../Misc/MultiThreading/Thread.h"
 #include "../Misc/Window.h"
 #include "../Misc/Option.h"
 
@@ -890,12 +890,9 @@ void Renderer::createMainDSV()
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
-	if (m_pSwapChain->IsFullscreen())
-	{
-		m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
-	}
+	UINT resolutionWidth = 0;
+	UINT resolutionHeight = 0;
+	m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
 
 	m_pMainDepthStencil = new DepthStencil(
 		m_pDevice5,
@@ -1521,12 +1518,9 @@ void Renderer::initRenderTasks()
 
 #pragma endregion IMGUIRENDERTASK
 
-	UINT resolutionWidth = std::atoi(Option::GetInstance().GetVariable("i_resolutionWidth").c_str());
-	UINT resolutionHeight = std::atoi(Option::GetInstance().GetVariable("i_resolutionHeight").c_str());
-	if (m_pSwapChain->IsFullscreen())
-	{
-		m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
-	}
+	UINT resolutionWidth = 0;
+	UINT resolutionHeight = 0;
+	m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
 
 	// ComputeTasks
 	std::vector<std::pair<std::wstring, std::wstring>> csNamePSOName;

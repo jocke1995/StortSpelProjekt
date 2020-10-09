@@ -13,11 +13,11 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_DashTimer = 0;
 	m_CameraFlags = camFlags;
 
-	m_Zoom = 3.0f;
+	m_Zoom = 16.0f;
 
-	m_Pitch = 1.0f;
+	m_Pitch = 0.15f;
 
-	m_Yaw = 1.0f;
+	m_Yaw = 10.0f;
 
 	m_CameraDistance = sqrt(m_Zoom * 4 * m_Zoom * 4 + m_Zoom * m_Zoom);
 
@@ -145,12 +145,27 @@ void component::PlayerInputComponent::zoom(MouseScroll* evnt)
 
 void component::PlayerInputComponent::move(MovementInput* evnt)
 {
+	double3 vel = m_pCC->GetLinearVelocity();
+
+	// Check if the key has just been pressed or jsut been released and convert to a float. Multiply by two and subtract one to get 1 for true and -1 for false. If
+	// the key has been pressed, the player should start moving in the direction specified by the key -- hence the value 1. If the key has been released, the player's
+	// movement should be negated in the direction specified by the key -- hence the value -1
+	double pressed = (static_cast<double>(evnt->pressed) * 2 - 1);
+
+	// Find out which key has been pressed. Convert to float to get the value 1 if the key pressed should move the player in the positive
+	// direction and the value -1 if the key pressed should move the player in the negative direction
+	double3 moveCam =
+	{
+		(static_cast<double>(evnt->key == SCAN_CODES::A) - static_cast<double>(evnt->key == SCAN_CODES::D)) * pressed,
+		(static_cast<double>(evnt->key == SCAN_CODES::Q) - static_cast<double>(evnt->key == SCAN_CODES::E)) * pressed,
+		(static_cast<double>(evnt->key == SCAN_CODES::W) - static_cast<double>(evnt->key == SCAN_CODES::S)) * pressed,
+	};
 
 	// Check if the player is in the air. If not, allow movement
-	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1 && !m_Dashing)
+	double dist = m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1);
+	if (dist != -1 && !m_Dashing)
 	{
 		double moveRight = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::D)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::A)));
-		double moveUp = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::Q)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::E)));
 		double moveForward = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::W)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::S)));
 
 		double jump = static_cast<double>(evnt->key == SCAN_CODES::SPACE) * static_cast<double>(evnt->pressed);
@@ -161,23 +176,22 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 
 		double3 move = {
 			forward.x * moveForward + right.x * moveRight,
-			jump,
+			0.0,
 			forward.z * moveForward + right.z * moveRight
 		};
 
 		move.normalize();
 		// Get the current linear velocity of the player
-		double3 vel = m_pCC->GetLinearVelocity();
 		vel =
 		{
 			move.x * m_pTransform->GetVelocity(),
 			//Constant value to compensate for sprint velocity
-			move.y * 20.0,
+			jump * BASE_VEL,
 			move.z * m_pTransform->GetVelocity()
 		};
 
 		bool wasDashing = m_Dashing;
-		m_Dashing = m_DashReady && evnt->doubleTap;
+		m_Dashing = m_DashReady && evnt->doubleTap && static_cast<double>(evnt->key != SCAN_CODES::SPACE);
 		if (m_Dashing && Input::GetInstance().GetKeyState(SCAN_CODES::LEFT_SHIFT))
 		{
 			m_DashTimer = 0;
@@ -189,14 +203,15 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 			m_Dashing = wasDashing;
 		}
 
-		// If the camera uses the players position, update the player's velocity. Otherwise update the camera's movement.
-		(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? m_pCC->SetVelVector(vel.x, vel.y, vel.z) : m_pCamera->UpdateMovement(-moveRight, moveUp, moveForward);
-
 	}
 	else if (evnt->key == SCAN_CODES::SPACE && !evnt->pressed)
 	{
 		specificUpdate = &PlayerInputComponent::updateJump;
 	}
+
+	moveCam *= m_pTransform->GetVelocity() / 5.0;
+	// If the camera uses the players position, update the player's velocity. Otherwise update the camera's movement.
+	(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? m_pCC->SetVelVector(vel.x, vel.y, vel.z) : m_pCamera->UpdateMovement(moveCam.x, moveCam.y, moveCam.z);
 }
 
 void component::PlayerInputComponent::rotate(MouseMovement* evnt)

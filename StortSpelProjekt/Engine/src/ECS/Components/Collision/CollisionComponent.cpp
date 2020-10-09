@@ -3,14 +3,15 @@
 #include "../ECS/Entity.h"
 #include "../Renderer/Transform.h"
 #include "../Physics/Physics.h"
-component::CollisionComponent::CollisionComponent(Entity* parent, double mass, double friction, double restitution) : Component(parent),
+component::CollisionComponent::CollisionComponent(Entity* parent, double mass, double friction, double restitution, bool canFall) : Component(parent),
 m_pTrans(nullptr),
 m_pBody(nullptr),
 m_pMotionState(nullptr),
 m_pShape(nullptr),
 m_Mass(mass),
 m_Fric(friction),
-m_Rest(restitution)
+m_Rest(restitution),
+m_CanFall(canFall)
 {
 }
 
@@ -22,6 +23,7 @@ component::CollisionComponent::~CollisionComponent()
 
 void component::CollisionComponent::Update(double dt)
 {
+	
 	btTransform trans = m_pBody->getWorldTransform();
 	float x = trans.getOrigin().x();
 	float y = trans.getOrigin().y();
@@ -76,6 +78,10 @@ void component::CollisionComponent::InitScene()
 	
 	// Add the collisioncomponent to the physics sub-engine.
 	Physics::GetInstance().AddCollisionComponent(this);
+	if (!m_CanFall)
+	{
+		m_pBody->setAngularFactor({ 0.0, 1.0, 0.0 });
+	}
 }
 
 void component::CollisionComponent::SetPosition(double x, double y, double z)

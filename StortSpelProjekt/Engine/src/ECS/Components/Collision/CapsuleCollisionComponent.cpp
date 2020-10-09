@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "CapsuleCollisionComponent.h"
 
-component::CapsuleCollisionComponent::CapsuleCollisionComponent(Entity* parent, double mass, double radius, double height, double friction, double restitution)
-	:CollisionComponent(parent, mass, friction, restitution)
+component::CapsuleCollisionComponent::CapsuleCollisionComponent(Entity* parent, double mass, double radius, double height, double friction, double restitution, bool canFall)
+	:CollisionComponent(parent, mass, friction, restitution, canFall)
 {
 	m_pShape = new btCapsuleShape(radius, height);
 }
