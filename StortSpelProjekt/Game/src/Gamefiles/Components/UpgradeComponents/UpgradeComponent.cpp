@@ -153,3 +153,11 @@ void component::UpgradeComponent::RangedModifier()
 		upgrade.second->RangedModifier();
 	}
 }
+
+void component::UpgradeComponent::ApplyStat()
+{
+	for (auto upgrade : m_AppliedUpgrades)
+	{
+		upgrade.second->ApplyStat();
+	}
+}

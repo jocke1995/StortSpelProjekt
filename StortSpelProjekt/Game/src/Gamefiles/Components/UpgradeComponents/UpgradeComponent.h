@@ -50,6 +50,8 @@ namespace component
 		void RangedFlight();
 		// upgrades that modify the ranged attack (ex: multiple projectiles)
 		void RangedModifier();
+		// upgrades that applies/adds stats (ex: more hp, more stamina)
+		void ApplyStat();
 
 	private:
 		// list with all added upgrades to the parent entity
