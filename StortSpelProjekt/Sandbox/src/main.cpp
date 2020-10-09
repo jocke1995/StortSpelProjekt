@@ -56,9 +56,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    sceneManager->SetScene(JacobsTestScene(sceneManager));
+    //sceneManager->SetScene(JacobsTestScene(sceneManager));
     //sceneManager->SetScene(LeosTestScene(sceneManager));
-    //sceneManager->SetScene(LeosBounceScene(sceneManager));
+    sceneManager->SetScene(LeosBounceScene(sceneManager));
     //sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
     //sceneManager->SetScene(FloppipTestScene(sceneManager));
@@ -76,7 +76,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScene(sceneManager->GetScene("ThatSceneWithThemThereDashFeaturesAndStuff"));
+        gameNetwork.SetScene(sceneManager->GetScene("BounceScene"));
         gameNetwork.SetSceneManager(sceneManager);
     }
     double networkTimer = 0;
@@ -500,6 +500,8 @@ Scene* LeosBounceScene(SceneManager* sm)
     component::PlayerInputComponent* pic = nullptr;
     component::TextComponent* txc = nullptr;
     component::CollisionComponent* bcc = nullptr;
+    component::MeleeComponent* melc = nullptr;
+    component::RangeComponent* rc = nullptr;
 
     /*--------------------- Player ---------------------*/
     // entity
@@ -511,6 +513,8 @@ Scene* LeosBounceScene(SceneManager* sm)
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    melc = entity->AddComponent<component::MeleeComponent>();
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 10);
 
     Transform* t = tc->GetTransform();
 

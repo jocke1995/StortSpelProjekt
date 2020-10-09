@@ -111,7 +111,7 @@ void Network::SendRangedAttackPacket()
     sf::Packet packet;
 
     //Packet id = Player ranged attack?
-    packet << E_PACKET_ID::PLAYER_DATA;
+    packet << E_PACKET_ID::PLAYER_RANGED_DATA << m_Id << pos.x << pos.y << pos.z << mov.x << mov.y << mov.z;
 
     sendPacket(packet);
 }
@@ -176,8 +176,11 @@ void Network::processPacket(sf::Packet* packet)
         case E_PACKET_ID::PLAYER_DISCONNECT:
             processPlayerDisconnect(packet);
             break;
+        case E_PACKET_ID::PLAYER_RANGED_DATA:
+            processPlayerRangedAttack(packet);
+            break;
         default: 
-            Log::PrintSeverity(Log::Severity::CRITICAL, "Unkown packet id recieved with enum " + std::to_string(packetId));
+            Log::PrintSeverity(Log::Severity::CRITICAL, "Unkown packet id recieved with enum " + std::to_string(packetId) + "\n");
 
     }
 }
@@ -305,4 +308,9 @@ void Network::processPlayerDisconnect(sf::Packet* packet)
 
         Log::Print("Player " + std::to_string(playerId) + " was disconnected");
     }
+}
+
+void Network::processPlayerRangedAttack(sf::Packet* packet)
+{
+    Log::Print("Recieved Ranged Attack package \n");
 }

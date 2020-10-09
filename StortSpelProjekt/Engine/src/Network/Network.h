@@ -6,6 +6,7 @@
 #include "SFML/Network.hpp"
 #include "../Events/EventBus.h"
 #include "../Misc/Timer.h"
+#include <vector>
 #include <iomanip>
 
 class Network {
@@ -13,12 +14,15 @@ public:
 	enum E_PACKET_ID {
 		SERVER_DATA = 0,
 		PLAYER_DATA = 1,
-		PLAYER_DISCONNECT = 2
+		PLAYER_DISCONNECT = 2,
+		PLAYER_RANGED_DATA = 3
 	};
 	struct Player {
 		Entity* entityPointer;
 		int clientId;
 	};
+
+	struct RangedData;
 
 	Network();
 	~Network();
@@ -30,7 +34,7 @@ public:
 	sf::TcpSocket* GetSocket();
 
 	void SendPositionPacket();
-	void SendRangedAttackPacket();
+	void SendRangedAttackPacket(RangedData stuff);
 	void Disconnect();
 	//Give network the entity pointer for player.
 	void SetPlayerEntityPointer(Entity* playerEnitity, int id);
@@ -43,6 +47,8 @@ private:
 	void processPlayerData(sf::Packet* packet);
 	void processServerData(sf::Packet* packet);
 	void processPlayerDisconnect(sf::Packet* packet);
+	void processPlayerRangedAttack(sf::Packet* packet);
+	
 
 	void sendPacket(sf::Packet packet);
 

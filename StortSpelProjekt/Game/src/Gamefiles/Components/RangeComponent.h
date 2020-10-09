@@ -2,6 +2,7 @@
 #define RANGE_COMPONENT_H
 
 #include "../ECS/Components/Component.h"
+#include "Engine.h"
 #include <vector>
 
 class SceneManager;
@@ -16,15 +17,15 @@ namespace component
 		RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale = 1, int damage = 1, float velocity = 2.5);
 		~RangeComponent();
 		void Attack();
+
 		std::vector<Entity*> GetProjectileList();
+		void ClearProjectileList();
 
 	private:
 		int m_Damage;
 		float m_Velocity;
 		float m_Scale;
 		int m_NrOfProjectiles = 0;
-
-		bool m_ClearList;
 
 		std::vector<Entity*> m_ProjectileList;
 
