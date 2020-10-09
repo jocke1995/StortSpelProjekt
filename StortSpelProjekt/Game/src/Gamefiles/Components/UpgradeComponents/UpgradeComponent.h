@@ -1,26 +1,21 @@
 #ifndef UPGRADECOMPONENT_H
 #define UPGRADECOMPONENT_H
 #include "ECS/Components/Component.h"
-#include "Core.h"
+#include <string>
+#include <map>
 
-// Types of upgrades, for sorting/call purposes
-enum F_UpgradeType
-{
-	RANGE = BIT(1),			// range weapon/attack upgrades
-	MELEE = BIT(2),			// melee weapon/attack upgrades
-	MOVEMENT = BIT(3),		// upgrades regarding movement.
-	STATS = BIT(4),			// stat modifications such as hp change.
-	ONDAMAGE = BIT(5),		// upgrades that are "triggered" when damage is taken.
-	ENEMYSPECIFIC = BIT(6)	// upgrades only relevant for enemy entities. example: enemy explode on death)
-};
-
+class Upgrade;
 namespace component
 {
-	class UpgradeComponent
+	class UpgradeComponent : public Component
 	{
 	public:
-		UpgradeComponent();
+		UpgradeComponent(Entity* parent);
 		~UpgradeComponent();
+
+		// Inherited functions from component, if dt is needed for an upgrade
+		void Update(double dt);
+		void RenderUpdate(double dt);
 
 		// setters and getters for private member variables
 		void SetName(std::string name);
@@ -30,29 +25,35 @@ namespace component
 		int GetLevel() const;
 		void SetType(int type);
 		unsigned int GetType() const;
+		//std::map<std::string, Upgrade*>* GetUpgrades() const;
+		void AddUpgrade(Upgrade* upgrade);
+		void RemoveUpgrade(Upgrade* upgrade);
+		bool HasUpgrade(std::string name);
 
 		// Below are all functions needed by upgrades. Some will be used by several upgrades and others might be unique.
 		// This way you can call functions that range over several "types" but might be called on in similar situations (such as melee/range OnHit).
 		// Declarations are to be implemented in the separate upgrade component classes. Add more as needed.
 
 		// upgrades that are triggered on hit (ex: explosive, poison)
-		virtual void OnHit();
+		void OnHit();
 		// specific for ranged hits
-		virtual void RangedHit();
+		void OnRangedHit();
 		// specific for melee hits
-		virtual void MeleeHit();
+		void OnMeleeHit();
 		// upgrades that are triggered when taking damage
-		virtual void OnDamage();
+		void OnDamage();
 		// upgrades that are applied immediately, for example apply stat when bought in shop
-		virtual void OnPickUp();
+		void OnPickUp();
 		// upgrades triggered on death
-		virtual void OnDeath();
+		void OnDeath();
 		// upgrades that affect the flight pattern (ex: gravity, speed)
-		virtual void RangedFlight();
+		void RangedFlight();
 		// upgrades that modify the ranged attack (ex: multiple projectiles)
-		virtual void RangedModifier();
+		void RangedModifier();
 
 	private:
+		// list with all added upgrades to the parent entity
+		std::map<std::string, Upgrade*> m_AppliedUpgrades;
 		// Name of the upgrade-component, for ease of access in shop or upgrade handlers
 		std::string m_Name;
 		// What level the upgrade is, for keeping track of stacking of upgrades and price

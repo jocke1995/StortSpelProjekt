@@ -7,7 +7,7 @@
 #include "GameNetwork.h"
 // upgrades
 #include "Components/UpgradeComponents/UpgradeComponent.h"
-#include "Components/UpgradeComponents/UpgradeRangeTest.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
 
 Scene* JacobsTestScene(SceneManager* sm);
 Scene* LeosTestScene(SceneManager* sm);
@@ -1361,7 +1361,7 @@ Scene* AndresTestScene(SceneManager* sm)
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* bcc = nullptr;
     component::RangeComponent* rc = nullptr;
-    //component::UpgradeComponent* upgradeComp = nullptr;
+    component::UpgradeComponent* upgradeComp = nullptr;
     //component::UpgradeRangeTest* upgradeTest = nullptr;
     //component::AccelerationComponent* ac = nullptr;
 
@@ -1402,6 +1402,7 @@ Scene* AndresTestScene(SceneManager* sm)
     rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    upgradeComp = entity->AddComponent<component::UpgradeComponent>();
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -1410,6 +1411,10 @@ Scene* AndresTestScene(SceneManager* sm)
     // initialize OBB after we have the transform info
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
+
+    //// upgrade test
+    //UpgradeRangeTest test(entity);
+    //upgradeComp->AddUpgrade(&test);
 
     /* ---------------------- Player ---------------------- */
 

@@ -5,7 +5,8 @@
 #include "../ECS/SceneManager.h"
 #include "ProjectileComponent.h"
 #include <Bullet/btBulletCollisionCommon.h>
-#include "Components/UpgradeComponents/UpgradeRangeTest.h"
+#include "UpgradeComponents/UpgradeComponent.h"
+#include "UpgradeComponents/Upgrades/UpgradeRangeTest.h"
 
 
 component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale, int damage, float velocity) : Component(parent)
@@ -36,14 +37,17 @@ void component::RangeComponent::Attack(MouseClick* event)
 		component::AccelerationComponent* ac = nullptr;
 		component::ProjectileComponent* pc = nullptr;
 		// upgrade-test
-		component::UpgradeRangeTest* urc = nullptr;
+		component::UpgradeComponent* uc = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
 		// upgrade-test
 		ac = ent->AddComponent <component::AccelerationComponent>(50);
-		urc = ent->AddComponent<component::UpgradeRangeTest>();
+		uc = ent->AddComponent<component::UpgradeComponent>();
+		UpgradeRangeTest* test;
+		test = new UpgradeRangeTest(ent);
+		uc->AddUpgrade(test);
 
 		// get the pos of parent object and forward of camera 
 		// so we know where to spawn and in which direction

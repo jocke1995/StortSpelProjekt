@@ -36,6 +36,7 @@ void component::ProjectileComponent::hit(Collision* event)
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit();
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit();
 		}
 		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}
@@ -49,6 +50,7 @@ void component::ProjectileComponent::hit(Collision* event)
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit();
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit();
 		}
 		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}
