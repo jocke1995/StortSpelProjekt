@@ -18,12 +18,15 @@ BlurComputeTask::BlurComputeTask(
 	RootSignature* rootSignature,
 	std::vector<std::pair< std::wstring, std::wstring>> csNamePSOName,
 	COMMAND_INTERFACE_TYPE interfaceType,
+	ShaderResourceView* brightSRV,
 	const PingPongResource* Bloom0_RESOURCE,
 	const PingPongResource* Bloom1_RESOURCE,
 	unsigned int screenWidth, unsigned int screenHeight,
 	unsigned int FLAG_THREAD)
 	:ComputeTask(device, rootSignature, csNamePSOName, FLAG_THREAD, interfaceType)
 {
+	m_pSRV = brightSRV;
+
 	m_PingPongResources[0] = Bloom0_RESOURCE;
 	m_PingPongResources[1] = Bloom1_RESOURCE;
 

@@ -1554,6 +1554,7 @@ void Renderer::initRenderTasks()
 		m_pDevice5, m_pRootSignature,
 		csNamePSOName,
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
+		std::get<2>(*m_pBloomResources->GetBrightTuple()),
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
 		resolutionWidth, resolutionHeight,

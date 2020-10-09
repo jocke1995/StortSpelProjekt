@@ -24,8 +24,6 @@ Bloom::Bloom(
 	createResources(device, resolutionWidth, resolutionHeight);
 	createBrightTuple(device, dh_RTV, resolutionWidth, resolutionHeight);
 
-	
-
 	// Create the pingpongBuffers where index 0 will be the starting point to read from.
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
