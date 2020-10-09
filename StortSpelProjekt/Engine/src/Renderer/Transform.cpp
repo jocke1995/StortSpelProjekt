@@ -24,6 +24,7 @@ Transform::~Transform()
 void Transform::SetPosition(float x, float y, float z)
 {
 	m_Position = DirectX::XMFLOAT3(x, y, z);
+	m_RenderPosition = DirectX::XMFLOAT3(x, y, z);
 }
 
 void Transform::SetPosition(DirectX::XMFLOAT3 pos)
