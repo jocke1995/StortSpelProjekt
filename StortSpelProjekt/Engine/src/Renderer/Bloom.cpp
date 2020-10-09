@@ -21,10 +21,24 @@ Bloom::Bloom(
 
 	// A resource, rtv and srv for "bright" areas on the screen
 
-	createResources(device, resolutionWidth, resolutionHeight);
+	// Create the pingpongBuffers where the starting point to read from will be in the "brightTuple"
+	std::wstring resourceName = L"PingPongBuffer";
+	m_Resources[0] = createResources(
+		device,
+		resolutionWidth, resolutionHeight,
+		resourceName + std::to_wstring(0),
+		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
+		D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+	m_Resources[1] = createResources(
+		device,
+		resolutionWidth, resolutionHeight,
+		resourceName + std::to_wstring(0),
+		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
+		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+
 	createBrightTuple(device, dh_RTV, resolutionWidth, resolutionHeight);
 
-	// Create the pingpongBuffers where index 0 will be the starting point to read from.
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -62,7 +76,12 @@ const PingPongResource* Bloom::GetPingPongResource(unsigned int index) const
 	return m_PingPongResources[index];
 }
 
-void Bloom::createResources(ID3D12Device5* device, unsigned int width, unsigned int height)
+Resource* Bloom::createResources(
+	ID3D12Device5* device,
+	unsigned int width, unsigned int height,
+	std::wstring resourceName,
+	D3D12_RESOURCE_FLAGS flags,
+	D3D12_RESOURCE_STATES startState)
 {
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	resourceDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -72,7 +91,7 @@ void Bloom::createResources(ID3D12Device5* device, unsigned int width, unsigned 
 	resourceDesc.MipLevels = 1;
 	resourceDesc.SampleDesc.Count = 1;
 	resourceDesc.SampleDesc.Quality = 0;
-	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+	resourceDesc.Flags = flags;
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 
@@ -83,8 +102,7 @@ void Bloom::createResources(ID3D12Device5* device, unsigned int width, unsigned 
 	clearValue.Color[2] = 0.0f;
 	clearValue.Color[3] = 1.0f;
 
-	m_Resources[0] = new Resource(device, &resourceDesc, &clearValue, L"Bloom0_RESOURCE", D3D12_RESOURCE_STATE_RENDER_TARGET);
-	m_Resources[1] = new Resource(device, &resourceDesc, &clearValue, L"Bloom1_RESOURCE", D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+	return new Resource(device, &resourceDesc, &clearValue, resourceName, startState);
 }
 
 void Bloom::createBrightTuple(
