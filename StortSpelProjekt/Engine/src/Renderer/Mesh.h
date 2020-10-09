@@ -58,6 +58,7 @@ public:
 
 private:
     friend class MergeRenderTask;
+    friend class DownSampleRenderTask;
     friend class SkyboxRenderTask;
     friend class Renderer;
     friend class SceneManager;

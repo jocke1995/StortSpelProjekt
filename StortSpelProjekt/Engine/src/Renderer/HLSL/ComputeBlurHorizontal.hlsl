@@ -12,9 +12,6 @@ groupshared float4 g_SharedMem[g_NumThreads + 2 * g_BlurRadius];
 [numthreads(g_NumThreads, 1, 1)]
 void CS_main(uint3 dispatchThreadID : SV_DispatchThreadID, int3 groupThreadID : SV_GroupThreadID)
 {
-	//float ratioX = 1280 / 1920;
-	float ratioX = 1;
-	dispatchThreadID.x /= ratioX;
 	unsigned int readIndex = dhIndices.index0;
 	unsigned int writeIndex = dhIndices.index1;
 
