@@ -1610,7 +1610,7 @@ void Renderer::initRenderTasks()
 		std::get<2>(*m_pBloomResources->GetBrightTuple()),
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		1280, 720,
+		m_pBloomResources->GetBlurWidth(), m_pBloomResources->GetBlurHeight(),
 		FLAG_THREAD::RENDER);
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);

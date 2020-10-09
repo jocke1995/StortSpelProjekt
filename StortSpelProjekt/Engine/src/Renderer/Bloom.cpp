@@ -23,20 +23,18 @@ Bloom::Bloom(
 	// A resource, rtv and srv for "bright" areas on the screen
 	createBrightTuple(device, dh_RTV, dh_CBV_UAV_SRV, resolutionWidth, resolutionHeight);
 
-	unsigned int blurWidth = 1280;
-	unsigned int blurHeight = 720;
 	// Create the pingpongBuffers where the starting point to read from will be in the "brightTuple"
 	std::wstring resourceName = L"PingPongBuffer";
 	m_Resources[0] = createResource(
 		device,
-		blurWidth, blurHeight,
+		m_BlurWidth, m_BlurHeight,
 		resourceName + std::to_wstring(0),
 		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
 		D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	m_Resources[1] = createResource(
 		device,
-		blurWidth, blurHeight,
+		m_BlurWidth, m_BlurHeight,
 		resourceName + std::to_wstring(0),
 		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
 		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
@@ -60,7 +58,7 @@ Bloom::Bloom(
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 	rtvDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-	m_PingPongResources[0]->createRTV(device, blurWidth, blurHeight, dh_RTV, &rtvDesc);
+	m_PingPongResources[0]->createRTV(device, m_BlurWidth, m_BlurHeight, dh_RTV, &rtvDesc);
 }
 
 Bloom::~Bloom()
@@ -74,6 +72,16 @@ Bloom::~Bloom()
 	delete std::get<0>(m_BrightTuple);
 	delete std::get<1>(m_BrightTuple);
 	delete std::get<2>(m_BrightTuple);
+}
+
+unsigned int Bloom::GetBlurWidth() const
+{
+	return m_BlurWidth;
+}
+
+unsigned int Bloom::GetBlurHeight() const
+{
+	return m_BlurHeight;
 }
 
 const std::tuple<Resource*, RenderTargetView*, ShaderResourceView*>* Bloom::GetBrightTuple() const

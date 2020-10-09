@@ -22,11 +22,15 @@ public:
 		SwapChain* swapChain);
 	virtual ~Bloom();
 
+	unsigned int GetBlurWidth() const;
+	unsigned int GetBlurHeight() const;
+
 	const std::tuple<Resource*, RenderTargetView*, ShaderResourceView*>* GetBrightTuple() const;
-	
 	const PingPongResource* GetPingPongResource(unsigned int index) const;
 
 private:
+	unsigned int m_BlurWidth = 1280;
+	unsigned int m_BlurHeight = 720;
 	std::tuple<Resource*, RenderTargetView*, ShaderResourceView*> m_BrightTuple;
 
 	// The compute shader will read and write in a "Ping-Pong"-order to these objects.
