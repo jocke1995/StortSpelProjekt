@@ -57,9 +57,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //sceneManager->SetScene(JacobsTestScene(sceneManager));
-    sceneManager->SetScene(LeosTestScene(sceneManager));
+    //sceneManager->SetScene(LeosTestScene(sceneManager));
     //sceneManager->SetScene(LeosBounceScene(sceneManager));
-    //sceneManager->SetScene(TimScene(sceneManager));
+    sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
     //sceneManager->SetScene(FloppipTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
@@ -76,7 +76,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScene(sceneManager->GetScene("ThatSceneWithThemThereDashFeaturesAndStuff"));
+        gameNetwork.SetScene(sceneManager->GetScene("TimScene"));
         gameNetwork.SetSceneManager(sceneManager);
     }
     double networkTimer = 0;
@@ -612,7 +612,7 @@ Scene* LeosBounceScene(SceneManager* sm)
 
 Scene* TimScene(SceneManager* sm)
 {
-    Scene* scene = sm->CreateScene("DevScene");
+    Scene* scene = sm->CreateScene("TimScene");
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -620,8 +620,11 @@ Scene* TimScene(SceneManager* sm)
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    HeightmapModel* heightMapModel = al->LoadHeightmap(L"../Vendor/Resources/Textures/HeightMaps/hm.hm");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+
     /*--------------------- Assets ---------------------*/
 
     /*--------------------- Component declarations ---------------------*/
@@ -635,7 +638,7 @@ Scene* TimScene(SceneManager* sm)
     component::TransformComponent* tc = nullptr;
     component::PlayerInputComponent* pic = nullptr;
     component::TextComponent* txc = nullptr;
-    component::CubeCollisionComponent* ccc = nullptr;
+    component::CollisionComponent* ccc = nullptr;
     component::SphereCollisionComponent* scc = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
@@ -653,7 +656,7 @@ Scene* TimScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 10.0f, 0.0f);
 
-    ccc = entity->AddComponent<component::CubeCollisionComponent>();
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(1,10,10,10);
     pic->Init();
 
     mc->SetModel(playerModel);
@@ -672,7 +675,7 @@ Scene* TimScene(SceneManager* sm)
 
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
-    scc = entity->AddComponent<component::SphereCollisionComponent>();
+    //scc = entity->AddComponent<component::SphereCollisionComponent>();
 
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
@@ -689,7 +692,7 @@ Scene* TimScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(1000.0);
+    //ccc = entity->AddComponent<component::CubeCollisionComponent>(1000.0);
 
     mc->SetModel(cubeModel);
 
@@ -704,10 +707,21 @@ Scene* TimScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0,35.0,0.0,35.0);
 
+    /*
+    HeightMapInfo inf;
+    inf.data = heightmap->GetData();
+    inf.length = 65.0;
+    inf.width = 65.0;
+    inf.maxHeight = 1;
+    inf.minHeight = 0;
 
-    mc->SetModel(floorModel);
+    ccc = entity->AddComponent<component::HeightmapCollisionComponent>(inf);
+    */
+
+    mc->SetModel(heightMapModel);
+    //mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(35.0f, 1.0f, 35.0f);
+    tc->GetTransform()->SetScale(0.1f, 1.f, 0.1f);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /*--------------------- Floor ---------------------*/
 
@@ -722,6 +736,21 @@ Scene* TimScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
     /* ---------------------- PointLight1 ---------------------- */
+
+    /* ---------------------- PointLight ---------------------- */
+    entity = scene->AddEntity("pointLight");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
+
+    plc->SetColor({ 2.0f, 0.0f, 2.0f });
+    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+    /* ---------------------- PointLight ---------------------- */
 
     /*--------------------- DirectionalLight ---------------------*/
     // entity
@@ -1763,18 +1792,18 @@ void TimUpdateScene(SceneManager* sm)
     {
         ImGuiHandler::GetInstance().SetBool("reset", false);
 
-        sm->GetScene("DevScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
-        sm->GetScene("DevScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
-        sm->GetScene("DevScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
-        sm->GetScene("DevScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetPosition(0, 10, 0);
+        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetPosition(0, 10, 0);
 
-        sm->GetScene("DevScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
-        sm->GetScene("DevScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
-        sm->GetScene("DevScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
-        sm->GetScene("DevScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetPosition(1, 1, 1);
+        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetPosition(1, 1, 1);
 
-        sm->GetScene("DevScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 3.14, 0);
-        sm->GetScene("DevScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetFriction(0);
+        sm->GetScene("TimScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 3.14, 0);
+        sm->GetScene("TimScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetFriction(0);
 
     }
 }

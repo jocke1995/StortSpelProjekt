@@ -1,7 +1,7 @@
 #ifndef CONSOLE_COMMAND_H
 #define CONSOLE_COMMAND_H
 #include "Engine.h"
-#include "Misc/MultiThreadedTask.h"
+#include "Misc/MultiThreading/MultiThreadedTask.h"
 
 class Console : public MultiThreadedTask
 {

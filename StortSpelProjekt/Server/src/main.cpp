@@ -1,5 +1,5 @@
 #include "ConsoleCommand.h"
-#include "ThreadPool.h"
+#include "Misc/Multithreading/ThreadPool.h"
 #include "ClientPool.h"
 
 #include <chrono>
@@ -15,7 +15,7 @@ int main()
 
 	// ThreadPool
 	int numCores = 4;
-	ThreadPool* threadPool = new ThreadPool(numCores); // Set num m_Threads to number of cores of the cpu
+	ThreadPool* threadPool = &ThreadPool::GetInstance(numCores); // Set num m_Threads to number of cores of the cpu
 
 	Console console;
 	sf::SocketSelector selector;
@@ -112,8 +112,6 @@ int main()
 
 
 	}
-
-	delete threadPool;
 
 	return 0;
 }
