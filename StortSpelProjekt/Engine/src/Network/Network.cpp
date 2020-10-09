@@ -9,6 +9,9 @@ Network::Network()
 
     m_Players.push_back(new Player);
     m_Players.at(0)->clientId = 0;
+
+    m_ClockSent.StartTimer();
+
 }
 
 Network::~Network()
@@ -17,6 +20,7 @@ Network::~Network()
     {
         delete m_Players.at(i);
     }
+    m_Players.clear();
 }
 
 bool Network::ConnectToIP(std::string ip, int port)
@@ -48,6 +52,37 @@ bool Network::ConnectToIP(std::string ip, int port)
     }
 }
 
+void Network::Disconnect()
+{
+    /* Expected packet configuration
+    int playerID;
+    */
+    
+    if (m_Connected) //We should only disconnect if we have connected
+    {
+        sf::Packet packet;
+
+        packet << E_PACKET_ID::PLAYER_DISCONNECT;
+        packet << m_Players.at(0)->clientId;
+
+        m_Socket.send(packet);
+
+        m_Connected = false;
+
+        for (int i = 0; i < m_Players.size(); i++)
+        {
+            delete m_Players.at(i);
+        }
+        m_Players.clear();
+
+        m_Players.push_back(new Player);
+        m_Players.at(0)->clientId = 0;
+
+        m_Socket.disconnect();
+        m_Socket.setBlocking(true);
+    }
+}
+
 bool Network::IsConnected()
 {
     return m_Connected;
@@ -68,7 +103,7 @@ void Network::SendPositionPacket()
 
     packet << E_PACKET_ID::PLAYER_DATA << m_Id << pos.x << pos.y << pos.z << mov.x << mov.y << mov.z;
 
-    m_Socket.send(packet);
+    sendPacket(packet);
 }
 
 void Network::SetPlayerEntityPointer(Entity* playerEnitity, int id)
@@ -105,11 +140,35 @@ void Network::processPacket(sf::Packet* packet)
     int packetId;
     *packet >> packetId;
 
+    if (DEVELOPERMODE_NETWORKLOG)
+    {
+        m_NrOfBytesReceived += packet->getDataSize();
+        m_NrOfPackagesReceived += 1;
+
+        if (m_ClockReceived.StopTimer() > 1.0)
+        {
+            ImGuiHandler::GetInstance().AddLog("Total packages received: %d , Size: %f BYTES", m_NrOfPackagesReceived, m_NrOfBytesReceived);
+
+            m_ClockReceived.StartTimer();
+            m_NrOfBytesReceived = 0;
+            m_NrOfPackagesReceived = 0;
+        }
+    }
+
     switch (packetId)
     {
-    case E_PACKET_ID::SERVER_DATA: processServerData(packet); break;
-    case E_PACKET_ID::PLAYER_DATA: processPlayerData(packet); break;
-    default: Log::PrintSeverity(Log::Severity::CRITICAL, "Unkown packet id recieved with enum " + std::to_string(packetId));
+        case E_PACKET_ID::SERVER_DATA: 
+            processServerData(packet); 
+            break;
+        case E_PACKET_ID::PLAYER_DATA: 
+            processPlayerData(packet); 
+            break;
+        case E_PACKET_ID::PLAYER_DISCONNECT:
+            processPlayerDisconnect(packet);
+            break;
+        default: 
+            Log::PrintSeverity(Log::Severity::CRITICAL, "Unkown packet id recieved with enum " + std::to_string(packetId));
+
     }
 }
 
@@ -181,5 +240,59 @@ void Network::processServerData(sf::Packet* packet)
             m_Players.at(m_Players.size() - 1)->clientId = playerId;
             EventBus::GetInstance().Publish(&PlayerConnection(playerId));
         }
+    }
+}
+
+// Function to send packages from socket
+void Network::sendPacket(sf::Packet packet)
+{
+    m_Socket.send(packet);
+    if (DEVELOPERMODE_NETWORKLOG)
+    {
+        m_NrOfBytesSent += packet.getDataSize();
+        m_NrOfPackagesSent += 1;
+
+        if (m_ClockSent.StopTimer() > 1.0)
+        {
+            ImGuiHandler::GetInstance().AddLog("Total packages sent: %d , Size: %f BYTES", m_NrOfPackagesSent, m_NrOfBytesSent);
+
+            m_ClockSent.StartTimer();
+            m_NrOfBytesSent = 0;
+            m_NrOfPackagesSent = 0;
+        }
+    }
+}
+
+void Network::processPlayerDisconnect(sf::Packet* packet)
+{
+    /* Expected packet configuration
+    int playerID;
+    */
+
+    int playerId;
+    *packet >> playerId;
+
+    int index = -1;
+
+    //Find player with id
+    for (int i = 0; i < m_Players.size(); i++)
+    {
+        if (m_Players.at(i)->clientId == playerId)
+        {
+            index = i;
+        }
+    }
+
+    if (index == -1)
+    {
+        Log::Print("Recieved to disconnect from unkown player id " + std::to_string(playerId));
+    }
+    else
+    {
+        m_Players.at(index)->entityPointer = nullptr; //This does not remove entity. Should be remade when dynamic entity removal is implemented
+        delete m_Players.at(index);
+        m_Players.erase(m_Players.begin() + index);
+
+        Log::Print("Player " + std::to_string(playerId) + " was disconnected");
     }
 }
