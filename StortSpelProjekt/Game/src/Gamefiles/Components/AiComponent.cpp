@@ -30,7 +30,7 @@ void component::AiComponent::Update(double dt)
 		float3 direction = { targetPos.x - pos.x, (targetPos.y - pos.y) * static_cast<float>(m_Flags & F_AI_FLAGS::CAN_JUMP), targetPos.z - pos.z };
 		if (!(m_Flags & F_AI_FLAGS::CAN_ROLL))
 		{
-			double angle = std::atan2(-direction.x, -direction.z);
+			double angle = std::atan2(direction.x, direction.z);
 			cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
 		float distance = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
@@ -55,7 +55,7 @@ void component::AiComponent::Update(double dt)
 
 				if (!(m_Flags & F_AI_FLAGS::CAN_ROLL))
 				{
-					double angle = std::atan2(-moveX, -moveZ);
+					double angle = std::atan2(moveX, moveZ);
 					cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 				}
 				cc->SetVelVector(min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel), 0.0f, min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel));
