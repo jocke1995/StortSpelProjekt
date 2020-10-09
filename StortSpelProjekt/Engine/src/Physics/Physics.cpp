@@ -12,7 +12,7 @@ Physics::Physics() : m_CollisionUpdateInterval(0.01)
 	m_pBroadphase = new btDbvtBroadphase();
 	m_pSolver = new btSequentialImpulseConstraintSolver();
 	m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher,m_pBroadphase,m_pSolver, m_pCollisionConfig);
-	m_pWorld->setGravity({ 0.0, -982, 0.0 });
+	m_pWorld->setGravity({ 0.0, -98.2, 0.0 });
 
 	m_TimeSinceLastColCheck = 0;
 }
