@@ -41,7 +41,7 @@ public:
 	PipelineState* GetPipelineState(unsigned int index);
 
 	
-	void AddRenderTarget(std::string, const RenderTargetView* renderTarget);
+	void AddRenderTargetView(std::string, const RenderTargetView* renderTarget);
 	
 	void SetRenderComponents(
 		std::vector<std::pair<	component::ModelComponent*,

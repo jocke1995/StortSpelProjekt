@@ -1154,9 +1154,8 @@ void Renderer::initRenderTasks()
 	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
 	forwardRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	forwardRenderTask->SetSwapChain(m_pSwapChain);
-	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTargetView());
+	forwardRenderTask->AddRenderTargetView("brightTarget", std::get<1>(*m_pBloomResources->GetBrightTuple()));
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
-
 
 #pragma endregion ForwardRendering
 

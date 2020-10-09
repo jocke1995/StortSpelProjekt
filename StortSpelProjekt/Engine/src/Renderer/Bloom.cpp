@@ -19,10 +19,12 @@ Bloom::Bloom(
 	UINT resolutionHeight = 0;
 	swapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
 
-	createResources(device, resolutionWidth, resolutionHeight);
+	// A resource, rtv and srv for "bright" areas on the screen
 
-	// A renderTarget for "bright" areas on the screen
-	createBrightRenderTarget(device, dh_RTV, resolutionWidth, resolutionHeight);
+	createResources(device, resolutionWidth, resolutionHeight);
+	createBrightTuple(device, dh_RTV, resolutionWidth, resolutionHeight);
+
+	
 
 	// Create the pingpongBuffers where index 0 will be the starting point to read from.
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -49,12 +51,12 @@ Bloom::~Bloom()
 		delete m_Resources[i];
 		delete m_PingPongResources[i];
 	}
-	delete m_pRenderTargetView;
+	delete std::get<1>(m_BrightTuple);
 }
 
-const RenderTargetView* const Bloom::GetRenderTargetView() const
+const std::tuple<Resource*, RenderTargetView*, ShaderResourceView*>* Bloom::GetBrightTuple() const
 {
-	return m_pRenderTargetView;
+	return &m_BrightTuple;
 }
 
 const PingPongResource* Bloom::GetPingPongResource(unsigned int index) const
@@ -87,7 +89,7 @@ void Bloom::createResources(ID3D12Device5* device, unsigned int width, unsigned 
 	m_Resources[1] = new Resource(device, &resourceDesc, &clearValue, L"Bloom1_RESOURCE", D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 }
 
-void Bloom::createBrightRenderTarget(
+void Bloom::createBrightTuple(
 	ID3D12Device5* device5,
 	DescriptorHeap* dhRTV,
 	unsigned int width, unsigned int height)
@@ -97,5 +99,5 @@ void Bloom::createBrightRenderTarget(
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
 	// Resource 0 will be used as the starting resource to read from during the blurring pass.
-	m_pRenderTargetView = new RenderTargetView(device5, width, height, dhRTV,  &rtvDesc, m_Resources[0], true);
+	std::get<1>(m_BrightTuple) = new RenderTargetView(device5, width, height, dhRTV,  &rtvDesc, m_Resources[0], true);
 }

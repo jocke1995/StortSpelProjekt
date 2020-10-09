@@ -95,7 +95,6 @@ void BlurComputeTask::Execute()
 	commandList->SetPipelineState(m_PipelineStates[1]->GetPSO());
 	commandList->Dispatch(m_VerticalThreadGroupsX, m_VerticalThreadGroupsY, 1);
 
-
 	// Resource barrier back to original states
 	TransResourceState(commandList, const_cast<Resource*>(m_PingPongResources[0]->GetUAV()->GetResource()),
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
