@@ -128,6 +128,7 @@ public:
 	void UnloadRenderComponents();
 
 private:
+	friend class Engine;
 	friend class component::SkyboxComponent;
 	friend class SceneManager;
 	friend class Text;

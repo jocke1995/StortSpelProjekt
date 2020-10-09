@@ -9,6 +9,9 @@ Engine::Engine()
 
 Engine::~Engine()
 {
+	// Gpu will crash if we delete stuff while commandQueues are running
+	m_pRenderer->waitForGPU();
+
 	delete m_pWindow;
 	delete m_pTimer;
 
