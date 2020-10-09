@@ -57,7 +57,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	m_pAudioEngine = &AudioEngine::GetInstance();
 
 	// ECS
-	m_pSceneManager = new SceneManager(m_pRenderer);
+	m_pSceneManager = new SceneManager();
 
 	// Physics
 	m_pPhysics = &Physics::GetInstance();

@@ -31,10 +31,8 @@
 #include "../ECS/Components/Lights/SpotLightComponent.h"
 #include "../ECS/Entity.h"
 
-SceneManager::SceneManager(Renderer* r)
+SceneManager::SceneManager()
 {
-	m_pRenderer = r;
-
 	m_ActiveScenes.reserve(2);
 }
 
@@ -72,7 +70,7 @@ void SceneManager::RenderUpdate(double dt)
 	}
 
 	// Renderer updates some stuff
-	m_pRenderer->RenderUpdate(dt);
+	Renderer::GetInstance().RenderUpdate(dt);
 }
 
 Scene* SceneManager::CreateScene(std::string sceneName)
@@ -107,7 +105,7 @@ Scene* SceneManager::GetScene(std::string sceneName) const
 void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
 	// Unload the entity
-	entity->UnloadScene();
+	entity->OnUnloadScene();
 	entity->m_LoadedInNrScenes--;
 
 	// Remove from the scene
@@ -120,7 +118,7 @@ void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
 	// Load the enity
-	entity->LoadScene();
+	entity->OnLoadScene();
 	entity->m_LoadedInNrScenes++;
 
 	// Add it to the scene
@@ -155,58 +153,22 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 			// Only init once per scene (in case a entity is in both scenes)
 			if (m_IsEntityInited.count(entity) == 0)
 			{
-				entity->InitScene();
+				entity->OnInitScene();
 				m_IsEntityInited[entity] = true;
 			}
 		}
 
 		m_ActiveScenes.push_back(scenes[i]);
 	}
-	
 
-	/*
-	std::vector<Scene*> scenesToUnload;
-	// Unload old Scenes
-	for (auto scene : lastActiveScenes)
-	{
-		// check if it is no longer active
-		bool toBeUnloaded = true;
-		for (auto s : m_ActiveScenes)
-		{
-			if (s == scene)
-			{
-				toBeUnloaded = false;
-				break;
-			}
-		}
-		
-		if (toBeUnloaded)
-		{
-			scenesToUnload.push_back(scene);
-		}
-	}
+	Renderer* renderer = &Renderer::GetInstance();
+	renderer->prepareScenes(&m_ActiveScenes);
 
-	// Unload the scenes to unload
-	for (auto scene : scenesToUnload)
-	{
-		UnloadScene(scene);
-	}
-
-	*/
-
-
-	m_pRenderer->prepareScenes(&m_ActiveScenes);
-
-	// TODO: for reviewer:
-	// Dear reviewer.
-	// Currently many features being developed uses scene->GetPrimaryCamera() which is not often set in the scene.
-	// To prevent setting the camera manually, set it here to renderers camera if it's nullpointer?
-	// Please come up with a discussion about this or a solution
 	for (Scene* scene : m_ActiveScenes)
 	{
 		if (scene->GetMainCamera() == nullptr)
 		{
-			scene->SetPrimaryCamera(m_pRenderer->m_pScenePrimaryCamera);
+			scene->SetPrimaryCamera(renderer->m_pScenePrimaryCamera);
 		}
 	}
 
@@ -233,7 +195,7 @@ void SceneManager::LoadScene(Scene* scene)
 		// Load only first time entity is referenced in a scene
 		if (entity->m_LoadedInNrScenes == 0)
 		{
-			entity->LoadScene();
+			entity->OnLoadScene();
 		}
 		entity->m_LoadedInNrScenes++;
 	}
@@ -249,7 +211,7 @@ void SceneManager::UnloadScene(Scene* scene)
 		// don't unload entities used by other scenes
 		if (entity->m_LoadedInNrScenes == 1)
 		{
-			entity->UnloadScene();
+			entity->OnUnloadScene();
 		}
 		entity->m_LoadedInNrScenes--;
 	}
@@ -264,7 +226,7 @@ void SceneManager::ResetScene()
 
 	/* ------------------------- GPU -------------------------*/
 	
-	m_pRenderer->OnResetScene();
+	Renderer::GetInstance().OnResetScene();
 
 	/* ------------------------- GPU -------------------------*/
 
@@ -295,10 +257,11 @@ bool SceneManager::sceneExists(std::string sceneName) const
 
 void SceneManager::executeCopyOnDemand()
 {
-	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
-	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
-	m_pRenderer->m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &m_pRenderer->m_CopyOnDemandCmdList[0]);
-	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
-	m_pRenderer->waitForCopyOnDemand();
+	Renderer* renderer = &Renderer::GetInstance();
+	renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
+	renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
+	renderer->m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &renderer->m_CopyOnDemandCmdList[0]);
+	renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
+	renderer->waitForCopyOnDemand();
 }
 

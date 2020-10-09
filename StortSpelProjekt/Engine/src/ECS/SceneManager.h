@@ -13,7 +13,7 @@ class AudioEngine;
 class SceneManager 
 {
 public:
-	SceneManager(Renderer* r);
+	SceneManager();
 	~SceneManager();
 
 	void Update(double dt);
@@ -31,8 +31,6 @@ public:
 	void UnloadScene(Scene* scene);
 	void ResetScene();
 private:
-	Renderer* m_pRenderer;
-
 	std::map<std::string, Scene*> m_pScenes;
 	std::vector<Scene*> m_ActiveScenes;
 	std::set<Scene*> m_LoadedScenes;

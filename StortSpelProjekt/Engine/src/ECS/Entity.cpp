@@ -65,7 +65,7 @@ void Entity::RenderUpdate(double dt)
 	}
 }
 
-void Entity::InitScene()
+void Entity::OnInitScene()
 {
 	// for each component in entity: call their implementation of InitScene(),
 	// which calls their specific init function (render, audio, game, physics etc)
@@ -75,7 +75,7 @@ void Entity::InitScene()
 	}
 }
 
-void Entity::LoadScene()
+void Entity::OnLoadScene()
 {
 	// for each component in entity: call their implementation of LoadScene(),
 	// which calls their specific init function (render, audio, game, physics etc)
@@ -85,7 +85,7 @@ void Entity::LoadScene()
 	}
 }
 
-void Entity::UnloadScene()
+void Entity::OnUnloadScene()
 {
 	// for each component in entity: call their implementation of UnloadScene(),
 	// which calls their specific init function (render, audio, game, physics etc)

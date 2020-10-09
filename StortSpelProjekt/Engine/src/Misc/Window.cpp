@@ -1,3 +1,4 @@
+
 #include "stdafx.h"
 #include "Window.h"
 #include "Option.h"
@@ -56,10 +57,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (wParam == VK_TAB)
 		{
 			tabPressed = true;
-		}
-		if (wParam == VK_RETURN)
-		{
-			Option::GetInstance().SetVariable("b_fullscreen", "1");
 		}
 		
 		return 0;

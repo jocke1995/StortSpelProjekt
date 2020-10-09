@@ -69,8 +69,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* andresScene = AndresTestScene(sceneManager);
 
     // Load Scenes *** Unload with UnloadScene()
-    //sceneManager->LoadScene(jockeScene);
-    //sceneManager->LoadScene(filipScene);
+    sceneManager->LoadScene(leoScene);
+    sceneManager->LoadScene(filipScene);
 
     Scene* activeScenes[] = { filipScene, leoScene };
 
