@@ -654,9 +654,9 @@ Scene* TimScene(SceneManager* sm)
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
 
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0.0f, 10.0f, 0.0f);
+    tc->GetTransform()->SetPosition(0.0f, 5.0f, 0.0f);
 
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(1,10,10,10);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(1,1,1,1,0,0);
     pic->Init();
 
     mc->SetModel(playerModel);
@@ -665,64 +665,79 @@ Scene* TimScene(SceneManager* sm)
     avc->AddVoice(L"Bruh");
     /*--------------------- Player ---------------------*/
 
-    /*--------------------- Box1 ---------------------*/
-    // entity
-    entity = scene->AddEntity("Box1");
+   // /*--------------------- Box1 ---------------------*/
+   // // entity
+   // entity = scene->AddEntity("Box1");
+   //
+   // // components
+   // mc = entity->AddComponent<component::ModelComponent>();
+   // tc = entity->AddComponent<component::TransformComponent>();
+   //
+   // tc->GetTransform()->SetScale(1.0f);
+   // tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
+   // //scc = entity->AddComponent<component::SphereCollisionComponent>();
+   //
+   // mc->SetModel(cubeModel);
+   // mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+   //
+   // /*--------------------- Box1 ---------------------*/
+   //
+   // /*--------------------- Box2 ---------------------*/
+   // // entity
+   // entity = scene->AddEntity("Box2");
+   //
+   // // components
+   // mc = entity->AddComponent<component::ModelComponent>();
+   // mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+   // tc = entity->AddComponent<component::TransformComponent>();
+   // tc->GetTransform()->SetScale(1.0f);
+   // tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
+   // //ccc = entity->AddComponent<component::CubeCollisionComponent>(1000.0);
+   //
+   // mc->SetModel(cubeModel);
+   //
+   // /*--------------------- Box2 ---------------------*/
 
-    // components
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
 
-    tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
-    //scc = entity->AddComponent<component::SphereCollisionComponent>();
+    for (int i = 0; i < 25; i++)
+    {
+        entity = scene->AddEntity("sphere" + std::to_string(i));
 
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+        mc = entity->AddComponent<component::ModelComponent>();
+        tc = entity->AddComponent<component::TransformComponent>();
+        ccc = entity->AddComponent<component::SphereCollisionComponent>(1,0.5);
 
-    /*--------------------- Box1 ---------------------*/
+        mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+        mc->SetModel(sphereModel);
+        tc->GetTransform()->SetPosition(i * 10 % 50 - 25.0f, 10, i * 10/ 5.0f - 25.0f);
+        tc->GetTransform()->SetScale(1.5f / 6.0f);
+    }
 
-    /*--------------------- Box2 ---------------------*/
-    // entity
-    entity = scene->AddEntity("Box2");
-
-    // components
-    mc = entity->AddComponent<component::ModelComponent>();
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
-    //ccc = entity->AddComponent<component::CubeCollisionComponent>(1000.0);
-
-    mc->SetModel(cubeModel);
-
-    /*--------------------- Box2 ---------------------*/
 
     /*--------------------- Floor ---------------------*/
     // entity
     entity = scene->AddEntity("floor");
 
     // components
-    mc = entity->AddComponent<component::ModelComponent>();
+    //mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0,35.0,0.0,35.0);
+    //ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0,35.0,0.0,35.0);
 
-    /*
+    
     HeightMapInfo inf;
-    inf.data = heightmap->GetData();
-    inf.length = 65.0;
-    inf.width = 65.0;
+    inf.data = heightMapModel->GetHeights();
+    inf.length = 50.0;
+    inf.width = 50.0;
     inf.maxHeight = 1;
     inf.minHeight = 0;
 
     ccc = entity->AddComponent<component::HeightmapCollisionComponent>(inf);
-    */
 
-    mc->SetModel(heightMapModel);
+    //mc->SetModel(heightMapModel);
     //mc->SetModel(floorModel);
-    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.1f, 1.f, 0.1f);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    //mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(1.0f, 10.f, 1.0f);
+    tc->GetTransform()->SetPosition(0.0f, -1.0f, 0.0f);
     /*--------------------- Floor ---------------------*/
 
     /* ---------------------- PointLight1 ---------------------- */

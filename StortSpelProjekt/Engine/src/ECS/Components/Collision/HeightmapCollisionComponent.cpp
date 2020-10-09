@@ -4,7 +4,9 @@
 
 component::HeightmapCollisionComponent::HeightmapCollisionComponent(Entity* parent, HeightMapInfo info, double mass, double friction, double restitution): CollisionComponent(parent, mass,friction, restitution)
 {
-	m_pShape = new btHeightfieldTerrainShape(info.width, info.length, info.data, 0.1, info.minHeight, info.maxHeight, 1, PHY_UCHAR, false);
+	m_pShape = new btHeightfieldTerrainShape(info.width, info.length, info.data, 1, info.minHeight, info.maxHeight, 1, PHY_FLOAT, false);
+	btVector3 scaling = { 1.0,1.0,1.0 };
+	((btHeightfieldTerrainShape*)m_pShape)->setLocalScaling(scaling);
 }
 
 component::HeightmapCollisionComponent::~HeightmapCollisionComponent()
