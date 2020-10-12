@@ -37,18 +37,15 @@ void component::RangeComponent::Attack(MouseClick* event)
 		component::BoundingBoxComponent* bbc = nullptr;
 		component::AccelerationComponent* ac = nullptr;
 		component::ProjectileComponent* pc = nullptr;
-		// upgrade-test
 		component::UpgradeComponent* uc = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
-		// upgrade-test
 		ac = ent->AddComponent <component::AccelerationComponent>(50);
 		uc = ent->AddComponent<component::UpgradeComponent>();
-		//UpgradeRangeTest* test;
-		//test = new UpgradeRangeTest(ent);
-		//uc->AddUpgrade(test);
+
+		// Applying all range uppgrades to the new projectile entity "RangeAttack"
 		Player::GetInstance().ApplyRangeUpgrades(ent);
 		
 

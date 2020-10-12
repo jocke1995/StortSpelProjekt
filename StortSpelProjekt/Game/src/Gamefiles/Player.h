@@ -32,12 +32,10 @@ private:
 	Entity* m_pPlayer;
 	// Contains all uppgrades that the player can buy
 	std::map<std::string, Upgrade*> m_AllAvailablePlayerUpgrades;
-	// Contains all uppgrades that the player can buy that will be applied to projectile entities
-	std::vector<std::string> m_AllAvailablePlayerProjectileUpgrades;
-	// Contains all player uppgrades that will be applied to porjectile Entities
+	// Contains the name of all uppgrades that will be applied to porjectile Entities
 	std::vector<std::string> m_AllAppliedProjectileUpgrades;
 	// Contains enums for all rangeUpgrades. 
-	// Used when getting NEW rgange upgrades for projectile entities.
+	// Used when getting NEW range upgrades for projectile entities.
 	std::map<std::string, int> m_RangeUpgradeEnmus;
 
 	void fillUppgradeList();

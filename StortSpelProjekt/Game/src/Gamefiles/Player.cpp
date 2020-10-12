@@ -4,7 +4,7 @@
 
 Player::Player()
 {
-	fillUppgradeList();
+	// fillUppgradeList();
 }
 
 Player& Player::GetInstance()
@@ -27,14 +27,15 @@ Player::~Player()
 	//{
 	//	delete upgrades.second;
 	//}
-	m_AllAvailablePlayerUpgrades.clear();
-	m_AllAvailablePlayerProjectileUpgrades.clear();
-	m_AllAppliedProjectileUpgrades.clear();
+	//m_AllAvailablePlayerUpgrades.clear();
+	//m_AllAvailablePlayerProjectileUpgrades.clear();
+	//m_AllAppliedProjectileUpgrades.clear();
 }
 
 void Player::SetPlayer(Entity* player)
 {
 	m_pPlayer = player;
+	fillUppgradeList();
 }
 
 Entity* Player::GetPlayer()
@@ -45,10 +46,13 @@ Entity* Player::GetPlayer()
 void Player::fillUppgradeList()
 {
 	Upgrade* upgrade;
-	//UpgradeRangeTest* rangeTest = new UpgradeRangeTest(m_pPlayer);
+
+	// Adding RangeTest Upgrade
 	upgrade = new UpgradeRangeTest(m_pPlayer);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailablePlayerUpgrades[upgrade->GetName()] = upgrade;
+
+
 	// Add the upgrade to the list of all projectile upgrades.
 	// The entity is sent as nullptr because it will be set to the projectile entity later.
 	// Must be new and not the same pointer as the one

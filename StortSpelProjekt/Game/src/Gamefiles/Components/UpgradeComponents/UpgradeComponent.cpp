@@ -34,7 +34,7 @@ void component::UpgradeComponent::AddUpgrade(Upgrade* upgrade)
 		Log::PrintSeverity(Log::Severity::CRITICAL, "You need to set type/types for your upgrade!\n");
 	}
 
-	m_AppliedUpgrades.insert(std::make_pair(upgrade->GetName(), upgrade));
+	m_AppliedUpgrades.emplace(std::make_pair(upgrade->GetName(), upgrade));
 }
 
 void component::UpgradeComponent::RemoveUpgrade(Upgrade* upgrade)

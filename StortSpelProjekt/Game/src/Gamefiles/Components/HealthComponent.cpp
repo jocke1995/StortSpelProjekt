@@ -29,10 +29,7 @@ void component::HealthComponent::SetHealth(int hp)
 
 void component::HealthComponent::ChangeHealth(int hpChange)
 {
-	Log::Print("HP before change: %d\n", m_Health);
 	m_Health += hpChange;
-	Log::Print("HP after change: %d\n", m_Health);
-
 	if (m_Health <= 0 && m_Dead == false)
 	{
 		EventBus::GetInstance().Publish(&Death(m_pParent));
