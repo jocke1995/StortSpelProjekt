@@ -1,5 +1,4 @@
 #include "UpgradeRangeTest.h"
-//#include "EngineMath.h"
 #include "ECS/Entity.h"
 #include "Components/HealthComponent.h"
 
@@ -8,7 +7,7 @@ UpgradeRangeTest::UpgradeRangeTest(Entity* parent)
 {
 	// name the upgrade!
 	SetName("UpgradeRangeTest");
-	// set the upgrade type
+	// set the upgrade type!
 	SetType(F_UpgradeType::RANGE | F_UpgradeType::STATS);
 
 	// level starts with value 1
@@ -30,10 +29,6 @@ void UpgradeRangeTest::IncreaseLevel()
 	ApplyStat();
 }
 
-void UpgradeRangeTest::OnHit()
-{
-}
-
 void UpgradeRangeTest::OnRangedHit()
 {
 	Log::Print("UpgradeRangeTest OnRangedHit called\n");
@@ -52,4 +47,3 @@ void UpgradeRangeTest::ApplyStat()
 		Log::Print("New Health: %d\n", newHealth);
 	}
 }
-

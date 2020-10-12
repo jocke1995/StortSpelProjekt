@@ -62,11 +62,11 @@ protected:
 	// 
 	Entity* m_pParentEntity;
 	// Name of the upgrade, for ease of access in shop or upgrade handlers
-	std::string m_Name;
+	std::string m_Name = "";
 	// What level the upgrade is, for keeping track of stacking of upgrades and price
 	int m_Level = 1;
 	// What type of upgrade this is, for ease of sorting or making calls to certain types
-	unsigned int m_Type;
+	unsigned int m_Type = 0;
 };
 
 #endif
