@@ -54,7 +54,6 @@ ThreadPool& ThreadPool::GetInstance(unsigned int nrOfThreads)
 {
 	static ThreadPool instance(nrOfThreads);
 	return instance;
-	// TODO: insert return statement here
 }
 
 unsigned int ThreadPool::GetNrOfThreads() const
