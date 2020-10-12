@@ -9,8 +9,8 @@
 // For loading textures
 #include "TextureFunctions.h"
 
-Texture2DGUI::Texture2DGUI()
-	: Texture()
+Texture2DGUI::Texture2DGUI(const std::wstring& filePath)
+	: Texture(filePath)
 {
 	m_Type = TEXTURE_TYPE::TEXTURE2DGUI;
 }
@@ -19,15 +19,13 @@ Texture2DGUI::~Texture2DGUI()
 {
 }
 
-bool Texture2DGUI::Init(const std::wstring& filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
+bool Texture2DGUI::Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 {
-	m_FilePath = filePath;
-	
 	// Load image Data (using WIC)
-	unsigned int byteSize = LoadImageDataFromFile(&m_pImageData, &m_ResourceDescription, filePath, &m_ImageBytesPerRow);
+	unsigned int byteSize = LoadImageDataFromFile(&m_pImageData, &m_ResourceDescription, m_FilePath, &m_ImageBytesPerRow);
 	if (byteSize == 0)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(filePath).c_str());
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(m_FilePath).c_str());
 		return false;
 	}
 	

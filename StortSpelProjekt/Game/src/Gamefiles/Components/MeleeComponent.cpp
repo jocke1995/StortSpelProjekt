@@ -33,6 +33,18 @@ component::MeleeComponent::~MeleeComponent()
 {
 }
 
+void component::MeleeComponent::OnInitScene()
+{
+}
+
+void component::MeleeComponent::OnLoadScene()
+{
+}
+
+void component::MeleeComponent::OnUnloadScene()
+{
+}
+
 void component::MeleeComponent::Update(double dt)
 {
 	// Takes the transform of the player cube and moves it forward to act as a hitbox
