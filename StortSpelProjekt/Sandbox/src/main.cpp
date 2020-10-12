@@ -61,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
-    Scene* filipScene = FloppipTestScene(sceneManager);
+    //Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager);
@@ -70,12 +70,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     // Load Scenes *** Unload with UnloadScene()
     sceneManager->LoadScene(leoScene);
-    sceneManager->LoadScene(filipScene);
 
-    Scene* activeScenes[] = { filipScene, leoScene };
+    Scene* activeScenes[] = { leoScene };
 
     // Set scene
-    sceneManager->SetScenes(2, activeScenes);
+    sceneManager->SetScenes(1, activeScenes);
 
     GameNetwork gameNetwork;
 
@@ -93,7 +92,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
-    Model* mmm = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
@@ -123,42 +121,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                 network.SendPositionPacket();
                 while (network.ListenPacket());
             }
-        }
-
-        static bool currentScene = true;
-        static int nameCounter = 0;
-        if (window->WasSpacePressed())
-        {
-            Entity* a = new Entity(std::to_string(nameCounter++));
-
-            component::ModelComponent* mc = a->AddComponent<component::ModelComponent>();
-            component::TransformComponent* tc = a->AddComponent<component::TransformComponent>();
-            mc->SetModel(mmm);
-            mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-            tc->GetTransform()->SetScale(4.0f);
-
-            Scene* activeScene = sceneManager->GetActiveScenes()->at(0);
-            tc->GetTransform()->SetPosition( activeScene->GetMainCamera()->GetPosition());
-
-            sceneManager->AddEntity(a, activeScene);
-
-            // TODO: REMOVE TESTING BEFORE PULL
-            if (currentScene)
-            {
-                sceneManager->UnloadScene(activeScene);
-                sceneManager->SetScenes(2, activeScenes);
-            }
-            else
-            {
-                sceneManager->UnloadScene(activeScene);
-                sceneManager->SetScenes(2, activeScenes);
-            }
-            currentScene = !currentScene;
-        }
-        else if (window->WasTabPressed())
-        {
-            Scene* activeScene = sceneManager->GetActiveScenes()->at(0);
-            sceneManager->RemoveEntity(activeScene->GetEntity(std::to_string(--nameCounter)), activeScene);
         }
 
         /* ------ Sort ------ */
