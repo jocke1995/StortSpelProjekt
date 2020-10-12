@@ -204,21 +204,21 @@ When it comes to types there are three of them. **PLAYER**, **RANGE** and **ENEM
 **RANGE** is for when the upgrade has to go on projectiles, **PLAYER** on player/enemy and **ENEMYSPECIFIC** are only for enemies.
 An example of an upgrade constructor:
 
-´´´cpp
+```cpp
 	UpgradeMeleeTest::UpgradeMeleeTest(Entity* parentEntity) : Upgrade(parentEntity)
 	{
 		SetName("UpgradeMeleeTest");
 		SetType(F_UpgradeType::PLAYER);
 		m_DamageChange = 2;
 	}
-´´´
+```
 
 An uppgrade has many inherited functions such as OnHit(), ApplyStat() or OnDamage().
 It is using these functions that you decide where/what your upgrade will affect. 
 As an Example take UpgradeRangeTest which will have an emmidiate effect on player health in its ApplyStat() function,
 as well as making projectiles shot upwards when hitting something in the function OnRangeHit().
 
-´´´cpp
+```cpp
 	void UpgradeRangeTest::OnRangedHit()
 	{
 		m_pParentEntity->GetComponent<component::AccelerationComponent>()->SetAccelerationDirection(m_Direction);
@@ -232,28 +232,28 @@ as well as making projectiles shot upwards when hitting something in the functio
 			m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeHealth(m_HealthChange);
 		}
 	}
-´´´
+```
 
 If an upgrade is bought more than once its level should increase in the function **IncreaseLevel()**.
 It is in this function you define what will happen with each increase in level. 
 Examples could be multiplying stat increases by level or maybe a switch case that adds functionallity for every level.
 Here is an example from UpgradeRangeTest where the speed at wich they are accelerating is mutiplied by level. The health change you get will not increase but you will still get 100 more health.
 
-´´´cpp
+```cpp
 	void UpgradeRangeTest::IncreaseLevel()
 	{
 		m_Level++;
 		m_AccelerationSpeed = 1000 * m_Level;
 		ApplyStat();
 	}
-´´´
+```
 
 ### UpgradeManager
 When you have made your uppgrade there is only one or three things left to do depening on if it is of type **RANGE** or not.
 Firstly you need to add the upgrade to the list of all upgrade in **UpgradeHandler**. This is done in the function **fillUpgradeMap()**.
 Here is an example with the two test upgrades:
 
-´´´cpp
+```cpp
 	void UpgradeManager::fillUppgradeMap()
 	{
 		Upgrade* upgrade;
@@ -270,22 +270,23 @@ Here is an example with the two test upgrades:
 		// add the upgrade to the list of all upgrades
 		m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 	}
-´´´
+```
 
 As can be seen in the code, this is mostly a copy paste operation where the main change is which class you make a new instance of.
 Notice that UpgradeRangeTest has to add an extra enum to a map. This is because it is of type **RANGE**.
 For these types of upgrades you will have to make add en enum at the top of **UpgradeHandler.h**. 
 The naming convention for this is to use the same name as the class.
-´´´cpp
+
+```cpp
 	enum E_RangeName
 	{
 		UPGRADE_RANGE_TEST = 1,
 	};
-´´´
+```
 Lastly for **Range** upgrades you also have to add the upgrade to the switch case in the function called **RangeUpgrade**.
 Here you only have to copy the previouse cases and change the enum and class.
 
-´´´cpp
+```cpp
 	Upgrade* UpgradeManager::RangeUpgrade(std::string name, Entity* ent)
 	{
 		// Using the enum that is mapped to name,
@@ -299,7 +300,7 @@ Here you only have to copy the previouse cases and change the enum and class.
 			break;
 		}
 	}
-´´´
+```
 
 # How to use heightmaps
 Heightmaps are defined through a greyscale image which the program assumes uses **4 channels of color** that is RGB and opacity. The program will however only read the R channel to determine the height of a pixel on the map.
