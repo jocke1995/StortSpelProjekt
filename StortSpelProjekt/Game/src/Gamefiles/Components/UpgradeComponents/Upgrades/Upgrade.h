@@ -21,6 +21,8 @@ class Upgrade
 public:
 	Upgrade(Entity* parentEntity);
 	virtual ~Upgrade();
+	
+	void SetParentEntity(Entity* parentEntity);
 
 	// setters and getters for private member variables
 	void SetName(std::string name);

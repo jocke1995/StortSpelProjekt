@@ -7,6 +7,7 @@
 #include <Bullet/btBulletCollisionCommon.h>
 #include "UpgradeComponents/UpgradeComponent.h"
 #include "UpgradeComponents/Upgrades/UpgradeRangeTest.h"
+#include "Player.h"
 
 
 component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale, int damage, float velocity) : Component(parent)
@@ -45,9 +46,11 @@ void component::RangeComponent::Attack(MouseClick* event)
 		// upgrade-test
 		ac = ent->AddComponent <component::AccelerationComponent>(50);
 		uc = ent->AddComponent<component::UpgradeComponent>();
-		UpgradeRangeTest* test;
-		test = new UpgradeRangeTest(ent);
-		uc->AddUpgrade(test);
+		//UpgradeRangeTest* test;
+		//test = new UpgradeRangeTest(ent);
+		//uc->AddUpgrade(test);
+		Player::GetInstance().ApplyRangeUpgrades(ent);
+		
 
 		// get the pos of parent object and forward of camera 
 		// so we know where to spawn and in which direction

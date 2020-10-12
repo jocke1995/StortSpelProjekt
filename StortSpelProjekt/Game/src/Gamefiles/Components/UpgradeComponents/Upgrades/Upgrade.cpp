@@ -11,6 +11,11 @@ Upgrade::~Upgrade()
 {
 }
 
+void Upgrade::SetParentEntity(Entity* parentEntity)
+{
+	m_pParentEntity = parentEntity;
+}
+
 void Upgrade::SetName(std::string name)
 {
 	m_Name = name;

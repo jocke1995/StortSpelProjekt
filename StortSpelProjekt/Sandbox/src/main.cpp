@@ -5,6 +5,7 @@
 #include "Components/RangeComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
+#include "Player.h"
 // upgrades
 #include "Components/UpgradeComponents/UpgradeComponent.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
@@ -1413,6 +1414,7 @@ Scene* AndresTestScene(SceneManager* sm)
     Physics::GetInstance().AddCollisionEntity(entity);
 
     //// upgrade test
+    Player::GetInstance().ApplyUpgrade("UpgradeRangeTest");
     //UpgradeRangeTest test(entity);
     //upgradeComp->AddUpgrade(&test);
 
