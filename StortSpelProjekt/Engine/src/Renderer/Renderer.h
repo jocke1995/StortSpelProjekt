@@ -237,10 +237,11 @@ private:
 	void prepareScenes(std::vector<Scene*>* scenes);
 	// Setup what should be drawn in the scene
 	void prepareRenderComponents(std::vector<Scene*>* scenes);
+
 	// Setup Per-scene data and send to GPU
-	void prepareCBPerScene();
+	void SubmitUploadPerSceneData();
 	// Submit per-frame data to the copyQueue that updates each frame
-	void prepareCBPerFrame();
+	void SubmitUploadPerFrameData();
 
 	void toggleFullscreen(WindowChange* evnt);
 };

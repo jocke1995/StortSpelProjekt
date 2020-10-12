@@ -57,10 +57,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
-    //Scene* jockeScene = JockesTestScene(sceneManager);
+    Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
@@ -69,9 +69,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* andresScene = AndresTestScene(sceneManager);
 
     // Load Scenes *** Unload with UnloadScene()
-    sceneManager->LoadScene(leoScene);
+    sceneManager->LoadScene(jockeScene);
 
-    Scene* activeScenes[] = { leoScene };
+    Scene* activeScenes[] = { jockeScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -885,11 +885,26 @@ Scene* JockesTestScene(SceneManager* sm)
     //bcc->Rotate({ 0.0f, 1.0f, 1.0f }, PI / 4);
     /* ---------------------- Cube ---------------------- */
 
-    /* ---------------------- PointLight ---------------------- */
-    entity = scene->AddEntity("pointLight");
+    /* ---------------------- PointLightDynamic ---------------------- */
+    //entity = scene->AddEntity("pointLightDynamic");
+    //mc = entity->AddComponent<component::ModelComponent>();
+    //tc = entity->AddComponent<component::TransformComponent>();
+    //plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    //
+    //mc->SetModel(sphereModel);
+    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    //tc->GetTransform()->SetScale(0.3f);
+    //tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
+    //
+    //plc->SetColor({ 2.0f, 0.0f, 2.0f });
+    //plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+    /* ---------------------- PointLightDynamic ---------------------- */
+
+    /* ---------------------- PointLightStatic ---------------------- */
+    entity = scene->AddEntity("pointLightStatic");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::STATIC);
 
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -898,11 +913,11 @@ Scene* JockesTestScene(SceneManager* sm)
 
     plc->SetColor({ 2.0f, 0.0f, 2.0f });
     plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-    /* ---------------------- PointLight ---------------------- */
+    /* ---------------------- PointLightStatic ---------------------- */
 
     /* ---------------------- dirLight ---------------------- */
     entity = scene->AddEntity("dirLight");
-    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW | FLAG_LIGHT::STATIC);
     dlc->SetColor({ 1.0f, 1.0f, 1.0f });
     dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
     /* ---------------------- dirLight ---------------------- */
@@ -911,7 +926,7 @@ Scene* JockesTestScene(SceneManager* sm)
     entity = scene->AddEntity("Spotlight");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW | FLAG_LIGHT::STATIC);
 
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);

@@ -2067,7 +2067,7 @@ void Renderer::removeComponents(Entity* entity)
 				m_Lights[type].erase(m_Lights[type].begin() + j);
 
 				// Update cbPerScene
-				prepareCBPerScene();
+				SubmitUploadPerSceneData();
 				break;
 			}
 			j++;
@@ -2104,8 +2104,8 @@ void Renderer::removeComponents(Entity* entity)
 
 void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 {
-	prepareCBPerFrame();
-	prepareCBPerScene();
+	SubmitUploadPerFrameData();
+	SubmitUploadPerSceneData();
 
 	// -------------------- DEBUG STUFF --------------------
 	// Test to change m_pCamera to the shadow casting m_lights cameras
@@ -2132,7 +2132,7 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 	setRenderTasksPrimaryCamera();
 }
 
-void Renderer::prepareCBPerScene()
+void Renderer::SubmitUploadPerSceneData()
 {
 	// ----- directional lights -----
 	m_pCbPerSceneData->Num_Dir_Lights = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
@@ -2164,29 +2164,46 @@ void Renderer::prepareCBPerScene()
 	}
 	// ----- spot m_lights -----
 	
-	// Upload CB_PER_SCENE to defaultheap
+	// Submit CB_PER_SCENE to be uploaded to VRAM
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	const void* data = static_cast<const void*>(m_pCbPerSceneData);
 	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetDefaultResource(), data));
-}
 
-void Renderer::prepareCBPerFrame()
-{
-	CopyPerFrameTask* cpft = nullptr;
-	const void* data = nullptr;
-	ConstantBuffer* cbv = nullptr;
-
-	// Lights
+	// Submit static-light-data to be uploaded to VRAM
+	ConstantBuffer* cb = nullptr;
 	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
 	{
 		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
 		for (auto& tuple : m_Lights[type])
 		{
-			data = std::get<0>(tuple)->GetLightData();
-			cbv = std::get<1>(tuple);
+			if (static_cast<Light*>(std::get<0>(tuple))->GetLightFlags() & FLAG_LIGHT::STATIC)
+			{
+				data = std::get<0>(tuple)->GetLightData();
+				cb = std::get<1>(tuple);
+				codt->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+			}
+		}
+	}
+}
 
-			cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-			cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetDefaultResource(), data));
+void Renderer::SubmitUploadPerFrameData()
+{
+	// Submit dynamic-light-data to be uploaded to VRAM
+	CopyPerFrameTask* cpft = nullptr;
+	const void* data = nullptr;
+	ConstantBuffer* cb = nullptr;
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		for (auto& tuple : m_Lights[type])
+		{
+			if (static_cast<Light*>(std::get<0>(tuple))->GetLightFlags() & ~FLAG_LIGHT::STATIC)
+			{
+				data = std::get<0>(tuple)->GetLightData();
+				cb = std::get<1>(tuple);
+				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+				cpft->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+			}
 		}
 	}
 
