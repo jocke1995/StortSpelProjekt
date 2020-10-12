@@ -36,8 +36,7 @@ int main()
 		ClientPool server(55555);
 		threadPool->AddTask(&console);
 
-
-		while (true)
+			while (true)
 			{
 				timeLast = timeNow;
 				timeNow = std::chrono::system_clock::now();

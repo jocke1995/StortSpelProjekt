@@ -32,7 +32,9 @@ namespace component
 		virtual ~BoundingBoxComponent();
 
 		void Init();
-		void InitScene();
+		void OnInitScene();
+		void OnLoadScene();
+		void OnUnloadScene();
 
 		//updates the position and rotation of m_OrientedBoundingBox
 		void Update(double dt);

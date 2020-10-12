@@ -7,13 +7,13 @@ class GameNetwork {
 public:
 	GameNetwork();
 
-	void SetScene(Scene* scene);
+	void SetScenes(std::vector<Scene*>* activeScenes);
 	void SetNetwork(Network* network);
 	void SetSceneManager(SceneManager* sceneManager);
 
 private:
 	SceneManager* m_pSceneManager;
-	Scene* m_pScene;
+	std::vector<Scene*>* m_pActiveScenes;
 	Network* m_pNetwork;
 
 	void disconnect(Disconnect* evnt);

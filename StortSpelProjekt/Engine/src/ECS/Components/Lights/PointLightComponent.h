@@ -13,7 +13,9 @@ namespace component
 		virtual ~PointLightComponent();
 
 		void Update(double dt);
-		void InitScene();
+		void OnInitScene();
+		void OnLoadScene();
+		void OnUnloadScene();
 
 		void SetPosition(float3 position);
 		void SetAttenuation(float3 attenuation);

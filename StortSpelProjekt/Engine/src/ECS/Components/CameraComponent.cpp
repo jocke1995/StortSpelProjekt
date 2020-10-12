@@ -47,9 +47,17 @@ namespace component
 		m_pCamera->Update(dt);
 	}
 
-	void CameraComponent::InitScene()
+	void CameraComponent::OnInitScene()
 	{
 		Renderer::GetInstance().InitCameraComponent(GetParent());
+	}
+
+	void CameraComponent::OnLoadScene()
+	{
+	}
+
+	void CameraComponent::OnUnloadScene()
+	{
 	}
 
 	BaseCamera* CameraComponent::createPerspective(DirectX::XMVECTOR position, DirectX::XMVECTOR direction, double fov, double aspectRatio, double nearZ, double farZ)
