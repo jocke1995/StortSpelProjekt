@@ -1415,8 +1415,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
     //// upgrade test
     Player::GetInstance().SetPlayer(entity);
-    Player::GetInstance().ApplyUpgrade("UpgradeRangeTest");
-    Player::GetInstance();
+    Player::GetInstance().GetUpgradeManager()->ApplyUpgrade("UpgradeRangeTest");
     Player::GetInstance().GetPlayer()->GetComponent<component::UpgradeComponent>()->ApplyStat();
     //UpgradeRangeTest test(entity);
     //upgradeComp->AddUpgrade(&test);

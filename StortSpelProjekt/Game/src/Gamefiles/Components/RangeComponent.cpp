@@ -46,7 +46,7 @@ void component::RangeComponent::Attack(MouseClick* event)
 		uc = ent->AddComponent<component::UpgradeComponent>();
 
 		// Applying all range uppgrades to the new projectile entity "RangeAttack"
-		Player::GetInstance().ApplyRangeUpgrades(ent);
+		Player::GetInstance().GetUpgradeManager()->ApplyRangeUpgrades(ent);
 		
 
 		// get the pos of parent object and forward of camera 
