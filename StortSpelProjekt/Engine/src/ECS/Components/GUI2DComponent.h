@@ -33,7 +33,7 @@ namespace component
 		void SetColor(float4 color, std::string name);
 
 		Font* GetFont() const;
-		Texture* GetTexture() const;
+		Texture* GetFontTexture() const;
 		Text* GetText(std::string name);
 		std::map<std::string, Text*>* GetTextMap();
 		const int GetNumOfTexts() const;

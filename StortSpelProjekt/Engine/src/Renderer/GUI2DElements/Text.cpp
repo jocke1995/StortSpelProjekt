@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "Text.h"
 
-#include "Texture/Texture.h"
+#include "../Renderer/Texture/Texture.h"
 #include "../Misc/Window.h"
-#include "GPUMemory/Resource.h"
-#include "GPUMemory/ShaderResourceView.h"
-#include "DescriptorHeap.h"
-#include "Renderer.h"
+#include "../Renderer/GPUMemory/Resource.h"
+#include "../Renderer/GPUMemory/ShaderResourceView.h"
+#include "../Renderer/DescriptorHeap.h"
+#include "../Renderer/Renderer.h"
 #include "Font.h"
 
 Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfCharacters, Texture* texture)

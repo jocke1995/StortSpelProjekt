@@ -5,8 +5,8 @@
 #include "../Misc/Window.h"
 
 #include "../Renderer/Texture/Texture.h"
-#include "../Renderer/Text.h"
-#include "../Renderer/Font.h"
+#include "../Renderer/GUI2DElements/Text.h"
+#include "../Renderer/GUI2DElements/Font.h"
 #include "../Renderer/DescriptorHeap.h"
 #include "../Misc/AssetLoader.h"
 
@@ -270,7 +270,7 @@ namespace component
 		return m_pFont;
 	}
 
-	Texture* GUI2DComponent::GetTexture() const
+	Texture* GUI2DComponent::GetFontTexture() const
 	{
 		return m_pFont->GetTexture();
 	}

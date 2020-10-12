@@ -1,7 +1,7 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include "Renderer.h"
+#include "../Renderer/Renderer.h"
 
 class Window;
 class Resource;

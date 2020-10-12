@@ -8,8 +8,8 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Material.h"
-#include "../Renderer/Text.h"
-#include "../Renderer/Font.h"
+#include "../Renderer/GUI2DElements/Text.h"
+#include "../Renderer/GUI2DElements/Font.h"
 #include "../Renderer/Animation.h"
 
 #include "assimp/Importer.hpp"

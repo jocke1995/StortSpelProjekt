@@ -29,8 +29,8 @@
 #include "Texture/Texture.h"
 #include "Texture/TextureCubeMap.h"
 #include "Material.h"
-#include "Text.h"
-#include "Font.h"
+#include "../Renderer/GUI2DElements/Text.h"
+#include "../Renderer/GUI2DElements/Font.h"
 
 // GPUMemory
 #include "GPUMemory/ConstantBuffer.h"
@@ -2021,7 +2021,7 @@ void Renderer::submitTextToGPU(Text* text, component::GUI2DComponent* tc)
 	if (isTextureOnGpu == false)
 	{
 		// Texture (only one per component)
-		codt->SubmitTexture(tc->GetTexture());
+		codt->SubmitTexture(tc->GetFontTexture());
 		al->m_LoadedFonts[path].first = true;
 	}
 }
