@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Engine.h"
-#include "Misc/Thread.h"
+#include "Misc/MultiThreading/Thread.h"
 
 Engine::Engine()
 {
@@ -9,12 +9,15 @@ Engine::Engine()
 
 Engine::~Engine()
 {
+	// Gpu will crash if we delete stuff while commandQueues are running
+	m_pRenderer->waitForGPU();
+
 	delete m_pWindow;
 	delete m_pTimer;
 
-	delete m_pThreadPool;
 	Physics::GetInstance().DestroyPhysics();
 	delete m_pSceneManager;
+
 	m_pRenderer->DeleteDxResources();
 }
 
@@ -43,7 +46,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	{
 		numThreads = m_ThreadLimit;
 	}
-	m_pThreadPool = new ThreadPool(numThreads);
+	m_pThreadPool = &ThreadPool::GetInstance(numThreads);
 
 	// Sub-engines
 	m_pRenderer = &Renderer::GetInstance();
@@ -53,7 +56,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	m_pAudioEngine = &AudioEngine::GetInstance();
 
 	// ECS
-	m_pSceneManager = new SceneManager(m_pRenderer);
+	m_pSceneManager = new SceneManager();
 
 	// Physics
 	m_pPhysics = &Physics::GetInstance();

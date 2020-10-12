@@ -12,22 +12,42 @@ Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<uns
 
 	m_Vertices = *vertices;
 	m_Indices = *indices;
-
-	initMesh(device, descriptorHeap_SRV);
 }
 
 Mesh::~Mesh()
 {
-	delete m_pUploadResourceVertices;
+	if (m_pUploadResourceVertices != nullptr)
+	{
+		delete m_pUploadResourceVertices;
+	}
+	
 
-	delete m_pDefaultResourceVertices;
+	if (m_pDefaultResourceVertices != nullptr)
+	{
+		delete m_pDefaultResourceVertices;
+	}
+	
 
 	// Set indices
-	delete m_pUploadResourceIndices;
-	delete m_pDefaultResourceIndices;
+	if (m_pUploadResourceIndices != nullptr)
+	{
+		delete m_pUploadResourceIndices;
+	}
+	
+	if (m_pDefaultResourceIndices != nullptr)
+	{
+		delete m_pDefaultResourceIndices;
+	}
 
-	delete m_pSRV;
-	delete m_pIndexBufferView;
+	if (m_pSRV != nullptr)
+	{
+		delete m_pSRV;
+	}
+
+	if (m_pIndexBufferView != nullptr)
+	{
+		delete m_pIndexBufferView;
+	}
 }
 
 
@@ -80,39 +100,3 @@ const std::wstring& Mesh::GetPath() const
 {
 	return m_Path;
 }
-
-void Mesh::initMesh(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV)
-{
-	// Set vertices
-	m_pUploadResourceVertices = new Resource(device, GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
-	m_pDefaultResourceVertices = new Resource(device, GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
-
-	// Set indices
-	m_pUploadResourceIndices = new Resource(device, GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
-	m_pDefaultResourceIndices = new Resource(device, GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
-	createIndexBufferView();
-
-	// Create SRV
-	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
-	dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	dsrv.Buffer.FirstElement = 0;
-	dsrv.Format = DXGI_FORMAT_UNKNOWN;
-	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	dsrv.Buffer.NumElements = GetNumVertices();
-	dsrv.Buffer.StructureByteStride = sizeof(Vertex);
-
-	m_pSRV = new ShaderResourceView(
-		device,
-		descriptorHeap_SRV,
-		&dsrv,
-		m_pDefaultResourceVertices);
-}
-
-void Mesh::createIndexBufferView()
-{
-	m_pIndexBufferView = new D3D12_INDEX_BUFFER_VIEW();
-	m_pIndexBufferView->BufferLocation = m_pDefaultResourceIndices->GetGPUVirtualAdress();
-	m_pIndexBufferView->Format = DXGI_FORMAT_R32_UINT;
-	m_pIndexBufferView->SizeInBytes = GetSizeOfIndices();
-}
-

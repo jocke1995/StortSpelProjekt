@@ -61,7 +61,7 @@ void FowardRenderTask::Execute()
 
 	// RenderTargets
 	const unsigned int swapChainIndex = swapChainRenderTarget->GetDescriptorHeapIndex();
-	const unsigned int brightTargetIndex = m_RenderTargets["brightTarget"]->GetDescriptorHeapIndex();
+	const unsigned int brightTargetIndex = m_RenderTargetViews["brightTarget"]->GetDescriptorHeapIndex();
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(swapChainIndex);
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhBrightTarget = renderTargetHeap->GetCPUHeapAt(brightTargetIndex);
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhs[] = { cdhSwapChain, cdhBrightTarget };
@@ -76,11 +76,11 @@ void FowardRenderTask::Execute()
 	commandList->ClearRenderTargetView(cdhBrightTarget, clearColor, 0, nullptr);
 
 	const D3D12_VIEWPORT viewPortSwapChain = *swapChainRenderTarget->GetRenderView()->GetViewPort();
-	const D3D12_VIEWPORT viewPortBrightTarget = *m_RenderTargets["brightTarget"]->GetRenderView()->GetViewPort();
+	const D3D12_VIEWPORT viewPortBrightTarget = *m_RenderTargetViews["brightTarget"]->GetRenderView()->GetViewPort();
 	const D3D12_VIEWPORT viewPorts[2] = { viewPortSwapChain, viewPortBrightTarget };
 
 	const D3D12_RECT rectSwapChain = *swapChainRenderTarget->GetRenderView()->GetScissorRect();
-	const D3D12_RECT rectBrightTarget = *m_RenderTargets["brightTarget"]->GetRenderView()->GetScissorRect();
+	const D3D12_RECT rectBrightTarget = *m_RenderTargetViews["brightTarget"]->GetRenderView()->GetScissorRect();
 	const D3D12_RECT rects[2] = { rectSwapChain, rectBrightTarget };
 
 	const D3D12_RECT* rect = swapChainRenderTarget->GetRenderView()->GetScissorRect();

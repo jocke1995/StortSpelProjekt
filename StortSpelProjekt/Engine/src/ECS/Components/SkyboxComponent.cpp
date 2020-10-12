@@ -13,8 +13,6 @@
 component::SkyboxComponent::SkyboxComponent(Entity* parent)
 	:Component(parent)
 {
-	m_pTransform = new Transform();
-	
 	// Set default mesh and texture
 	AssetLoader* al = AssetLoader::Get();
 	m_pMesh = al->LoadModel(L"../Vendor/Resources/Models/Cube/cube.obj")->GetMeshAt(0);
@@ -23,18 +21,24 @@ component::SkyboxComponent::SkyboxComponent(Entity* parent)
 
 component::SkyboxComponent::~SkyboxComponent()
 {
-	delete m_pTransform;
 }
 
 void component::SkyboxComponent::RenderUpdate(double dt)
 {
-	m_pTransform->SetPosition(m_pCamera->GetPosition());
-	m_pTransform->UpdateWorldMatrix();
+	
 }
 
-void component::SkyboxComponent::InitScene()
+void component::SkyboxComponent::OnInitScene()
 {
 	Renderer::GetInstance().InitSkyboxComponent(GetParent());
+}
+
+void component::SkyboxComponent::OnLoadScene()
+{
+}
+
+void component::SkyboxComponent::OnUnloadScene()
+{
 }
 
 void component::SkyboxComponent::SetMesh(Mesh* mesh)
@@ -51,16 +55,6 @@ void component::SkyboxComponent::SetTexture(TextureCubeMap* texture)
 	m_pTexture = texture;
 }
 
-void component::SkyboxComponent::SetCamera(BaseCamera* camera)
-{
-	m_pCamera = camera;
-}
-
-Transform* component::SkyboxComponent::GetTransform() const
-{
-	return m_pTransform;
-}
-
 Mesh* component::SkyboxComponent::GetMesh() const
 {
 	return m_pMesh;
@@ -69,9 +63,4 @@ Mesh* component::SkyboxComponent::GetMesh() const
 TextureCubeMap* component::SkyboxComponent::GetTexture() const
 {
 	return m_pTexture;
-}
-
-BaseCamera* component::SkyboxComponent::GetCamera() const
-{
-	return m_pCamera;
 }

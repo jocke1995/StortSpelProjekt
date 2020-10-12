@@ -30,7 +30,10 @@ public:
 	void RenderUpdate(double dt);
 	
 private:
+	friend class SceneManager;
+
 	std::string m_SceneName;
+
 	std::map<std::string, Entity*> m_Entities;
 	unsigned int m_NrOfEntities = 0;
 

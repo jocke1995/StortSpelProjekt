@@ -12,13 +12,17 @@ class DescriptorHeap;
 class Texture
 {
 public:
-	Texture();
+	Texture(const std::wstring& filePath);
 	virtual ~Texture();
 
-	virtual bool Init(const std::wstring& filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap) = 0;
+	virtual bool Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap) = 0;
 
+	const std::wstring& GetPath() const;
 	TEXTURE_TYPE GetType() const;
 	const unsigned int GetDescriptorHeapIndex() const;
+	BYTE* GetData() const;
+	unsigned int GetWidth() const;
+	unsigned int GetHeight() const;
 
 protected:
 	// CopyOnDemandTask & Renderer uses the private members of the texture class to upload data to the gpu

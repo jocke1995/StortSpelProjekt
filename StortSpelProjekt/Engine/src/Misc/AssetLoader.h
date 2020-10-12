@@ -7,6 +7,7 @@
 
 class DescriptorHeap;
 class Model;
+class HeightmapModel;
 class Mesh;
 class Shader;
 class Texture;
@@ -35,13 +36,11 @@ public:
     /* Load Functions */
     // Model ---------------
     Model* LoadModel(const std::wstring& path);
-
+    // Creates a heightmap from a given image. This will also load the given image as a texture.
+    HeightmapModel* LoadHeightmap(const std::wstring& path);
     // Textures ------------
     Texture* LoadTexture2D(const std::wstring& path);
     TextureCubeMap* LoadTextureCubeMap(const std::wstring& path);
-
-    // Create Geometry
-
 
     // Load Audio
     AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
@@ -65,17 +64,26 @@ private:
     ID3D12Device5* m_pDevice = nullptr;
     DescriptorHeap* m_pDescriptorHeap_CBV_UAV_SRV = nullptr;
     Window* m_pWindow = nullptr;
+    
+    // IsLoadedFunctions
+    bool IsModelLoadedOnGpu(const std::wstring& name) const;
+    bool IsModelLoadedOnGpu(const Model* model) const;
+    bool IsMaterialLoadedOnGpu(const std::wstring& name) const;
+    bool IsMaterialLoadedOnGpu(const Material* material) const;
+    bool IsTextureLoadedOnGpu(const std::wstring& name) const;
+    bool IsTextureLoadedOnGpu(const Texture* texture) const;
 
     const std::wstring m_FilePathShaders = L"../Engine/src/Renderer/HLSL/";
     const std::wstring m_FilePathDefaultTextures = L"../Vendor/Resources/Textures/Default/";
     const std::wstring m_FilePathFonts = L"../Vendor/Resources/Fonts/";
 
     // Every model & texture also has a bool which indicates if its data is on the GPU or not
+    // name, pair<isOnGpu, Model*>
     std::map<std::wstring, std::pair<bool, Model*>> m_LoadedModels;
-    std::vector<Mesh*> m_LoadedMeshes;
     std::map<std::wstring, std::pair<bool, Material*>> m_LoadedMaterials;
-    std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
+    std::vector<Mesh*> m_LoadedMeshes;
+    std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, Shader*> m_LoadedShaders;
     std::map<std::wstring, std::pair<Font*, Texture*>> m_LoadedFonts;
     std::map<std::wstring, AudioBuffer> m_LoadedAudios;
@@ -97,6 +105,7 @@ private:
         const std::wstring& filePath);
 
     Material* loadMaterial(aiMaterial* mat, const std::wstring& folderPath);
+    Material* loadMaterialFromMTL(const std::wstring& path);
 
     Texture* processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture);
     
@@ -110,6 +119,8 @@ private:
     
     Shader* loadShader(const std::wstring& fileName, ShaderType type);
 	Font* loadFont(LPCWSTR filename, int windowWidth, int windowHeight);
+
+    void getHeightMapResources(const std::wstring& path, std::wstring& heightMapPath, std::wstring& materialPath);
 };
 
 #endif

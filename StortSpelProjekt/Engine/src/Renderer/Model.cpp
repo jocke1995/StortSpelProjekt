@@ -18,6 +18,9 @@ Model::Model(const std::wstring* path, SkeletonNode* rootNode, std::map<unsigned
 	m_Animations = (*animations);
 	m_Materials = (*materials);
 
+	// Fill slotinfo with empty slotinfos
+	m_SlotInfos.resize(m_Size);
+
 	// TEMP
 	if (!m_Animations.empty())
 		m_pActiveAnimation = m_Animations[0];
@@ -28,20 +31,6 @@ Model::Model(const std::wstring* path, SkeletonNode* rootNode, std::map<unsigned
 	DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
 	globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
 	DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
-
-	// Fill SlotInfo with mesh+material info
-	for (unsigned int i = 0; i < (*meshes).size(); i++)
-	{
-		m_SlotInfos.push_back(
-			{
-			m_Meshes[i]->m_pSRV->GetDescriptorHeapIndex(),
-			m_Materials[i]->GetTexture(TEXTURE2D_TYPE::ALBEDO)->GetDescriptorHeapIndex(),
-			m_Materials[i]->GetTexture(TEXTURE2D_TYPE::ROUGHNESS)->GetDescriptorHeapIndex(),
-			m_Materials[i]->GetTexture(TEXTURE2D_TYPE::METALLIC)->GetDescriptorHeapIndex(),
-			m_Materials[i]->GetTexture(TEXTURE2D_TYPE::NORMAL)->GetDescriptorHeapIndex(),
-			m_Materials[i]->GetTexture(TEXTURE2D_TYPE::EMISSIVE)->GetDescriptorHeapIndex()
-			});
-	}
 }
 
 Model::~Model()
@@ -61,9 +50,9 @@ void Model::Update(double dt)
 	}
 }
 
-const std::wstring* Model::GetPath() const
+const std::wstring& Model::GetPath() const
 {
-	return &m_Path;
+	return m_Path;
 }
 
 unsigned int Model::GetSize() const

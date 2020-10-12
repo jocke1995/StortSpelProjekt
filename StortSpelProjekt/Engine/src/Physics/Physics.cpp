@@ -12,7 +12,7 @@ Physics::Physics() : m_CollisionUpdateInterval(0.01)
 	m_pBroadphase = new btDbvtBroadphase();
 	m_pSolver = new btSequentialImpulseConstraintSolver();
 	m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher,m_pBroadphase,m_pSolver, m_pCollisionConfig);
-	m_pWorld->setGravity({ 0.0, -50.0, 0.0 });
+	m_pWorld->setGravity({ 0.0, -98.2, 0.0 });
 
 	m_TimeSinceLastColCheck = 0;
 }
@@ -89,17 +89,36 @@ void Physics::AddCollisionComponent(component::CollisionComponent* comp)
 
 void Physics::RemoveCollisionComponent(component::CollisionComponent* comp)
 {
-	for (int i = 0; i < m_CollisionComponents.size(); i++)
+	for (unsigned int i = 0; i < m_CollisionComponents.size(); i++)
 	{
 		if (m_CollisionComponents.at(i) == comp)
+		{
 			m_CollisionComponents.erase(m_CollisionComponents.begin() + i);
+		}
 	}
-	//m_pWorld->removeRigidBody(comp->GetBody());
+	m_pWorld->removeRigidBody(comp->GetBody());
+}
+
+void Physics::OnResetScene()
+{
+	removeAllCollisionComponents();
 }
 
 const btDynamicsWorld* Physics::GetWorld()
 {
 	return m_pWorld;
+}
+
+void Physics::removeAllCollisionComponents()
+{
+	unsigned int size = m_CollisionComponents.size();
+	for (unsigned int i = 0; i < size; i++)
+	{
+		component::CollisionComponent* colComp = m_CollisionComponents.at(i);
+		m_pWorld->removeRigidBody(colComp->GetBody());
+	}
+
+	m_CollisionComponents.clear();
 }
 
 void Physics::collisionChecks(double dt)

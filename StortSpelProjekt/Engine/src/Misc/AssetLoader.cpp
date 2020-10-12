@@ -4,7 +4,7 @@
 #include "../Renderer/DescriptorHeap.h"
 #include "Window.h"
 
-#include "../Renderer/Model.h"
+#include "../Renderer/HeightmapModel.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Material.h"
@@ -20,7 +20,10 @@
 #include "../Renderer/Texture/Texture2DGUI.h"
 #include "../Renderer/Texture/TextureCubeMap.h"
 
-#include <DirectXMath.h>
+#include "MultiThreading/ThreadPool.h"
+#include "MultiThreading/CalculateHeightmapNormalsTask.h"
+
+#include "EngineMath.h"
 
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
@@ -28,12 +31,48 @@ AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_C
 	m_pDescriptorHeap_CBV_UAV_SRV = descriptorHeap_CBV_UAV_SRV;
 	m_pWindow = const_cast<Window*>(window);
 
+	std::map<TEXTURE2D_TYPE, Texture*> matTextures;
 	// Load default textures
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.dds");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.dds");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
+	matTextures[TEXTURE2D_TYPE::ALBEDO]		= LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.dds");
+	matTextures[TEXTURE2D_TYPE::ROUGHNESS]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.dds");
+	matTextures[TEXTURE2D_TYPE::METALLIC]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
+	matTextures[TEXTURE2D_TYPE::NORMAL]		= LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
+	matTextures[TEXTURE2D_TYPE::EMISSIVE]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
+
+	std::wstring matName = L"DefaultMaterial";
+	Material* material = new Material(&matName, &matTextures);
+	m_LoadedMaterials[matName].first = false;
+	m_LoadedMaterials[matName].second = material;
+}
+
+bool AssetLoader::IsModelLoadedOnGpu(const std::wstring& name) const
+{
+	return m_LoadedModels.at(name).first;
+}
+
+bool AssetLoader::IsModelLoadedOnGpu(const Model* model) const
+{
+	return m_LoadedModels.at(model->GetPath()).first;
+}
+
+bool AssetLoader::IsMaterialLoadedOnGpu(const std::wstring& name) const
+{
+	return m_LoadedMaterials.at(name).first;
+}
+
+bool AssetLoader::IsMaterialLoadedOnGpu(const Material* material) const
+{
+	return m_LoadedMaterials.at(material->GetPath()).first;
+}
+
+bool AssetLoader::IsTextureLoadedOnGpu(const std::wstring& name) const
+{
+	return m_LoadedTextures.at(name).first;
+}
+
+bool AssetLoader::IsTextureLoadedOnGpu(const Texture* texture) const
+{
+	return m_LoadedTextures.at(texture->GetPath()).first;
 }
 
 AssetLoader::~AssetLoader()
@@ -44,14 +83,8 @@ AssetLoader::~AssetLoader()
 		delete mesh;
 	}
 
-	// For every Animation
-	for (auto animation : m_LoadedAnimations)
-	{
-		delete animation;
-	}
-
-	// For every model
-	for (auto pair : m_LoadedModels)
+	// For every texture
+	for (auto pair : m_LoadedTextures)
 	{
 		delete pair.second.second;
 	}
@@ -62,8 +95,14 @@ AssetLoader::~AssetLoader()
 		delete material.second.second;
 	}
 
-	// For every texture
-	for (auto pair : m_LoadedTextures)
+	// For every Animation
+	for (auto animation : m_LoadedAnimations)
+	{
+		delete animation;
+	}
+
+	// For every model
+	for (auto pair : m_LoadedModels)
 	{
 		delete pair.second.second;
 	}
@@ -138,7 +177,125 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 	m_LoadedModels[path].second = new Model(&path, rootNode, &perVertexBoneData, &meshes, &animations, &materials);
 
+	// load to vram
+
 	return m_LoadedModels[path].second;
+}
+
+HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
+{
+	// return value.
+	HeightmapModel* model = nullptr;
+
+	// Check if the heightmap model already exists
+	if (m_LoadedModels.count(path) != 0)
+	{
+		model = dynamic_cast<HeightmapModel*>(m_LoadedModels[path].second);
+		
+		if (!model)
+		{
+			Log::PrintSeverity(Log::Severity::OTHER, "The model %S is already loaded and attempted to be loaded as a HeightmapModel!", path);
+		}
+
+		return model;
+	}
+	std::wstring heightMapPath;
+	std::wstring materialPath;
+	getHeightMapResources(path, heightMapPath, materialPath);
+
+	Texture* tex = LoadTexture2D(heightMapPath);
+
+	// One dimensional!
+	unsigned char* imgData = tex->GetData();
+	unsigned int dataCount = tex->GetHeight() * tex->GetWidth();
+	std::vector<Vertex> vertices;
+	vertices.reserve(dataCount);
+
+	float* heightData = new float[dataCount];
+
+	// Create vertices, only positions and UVs.
+	for (unsigned int i = 0; i < dataCount; i++)
+	{
+		Vertex ver;
+		heightData[i] = imgData[i * 4] / 255.0f;
+		
+		ver.pos = { static_cast<float>(tex->GetWidth() - (i % tex->GetWidth())) - tex->GetWidth() / 2.0f, heightData[i], (tex->GetHeight() - static_cast<float>(i) / tex->GetWidth()) - tex->GetHeight() / 2.0f };
+		ver.uv = { static_cast<float>(i % tex->GetWidth()) / tex->GetWidth(), static_cast<float>(i / tex->GetWidth()) / tex->GetHeight() };
+		vertices.push_back(ver);
+	}
+
+	// Calculate and store indices
+	std::vector<unsigned int> indices;
+	unsigned int nrOfTriangles = (tex->GetWidth() - 1) * (tex->GetHeight() - 1) * 2;
+	unsigned int nrOfIndices = nrOfTriangles * 3;
+	unsigned int toProcess = vertices.size() - tex->GetWidth();
+
+	indices.reserve(nrOfIndices);
+
+	for (unsigned int i = 0; i < toProcess; i++)
+	{
+		// calculate the indices for each triangle.
+		// they are set up in the order upper left, lower left and upper right and  for the first triangle.
+		// for the second triangle the indices are set up as lower left, lower right and upper right.
+
+		// First triangle
+		indices.push_back(i);
+		indices.push_back(i + tex->GetWidth());
+		indices.push_back(i + 1);
+
+		// Second triangle
+		indices.push_back(i + tex->GetWidth());
+		indices.push_back(i + tex->GetWidth() + 1);
+		indices.push_back(i + 1);
+
+		// Make sure that we dont create triangles from the border. If so add one more step.
+		/*
+				Border
+				|
+			*-*-*
+			|/|/|
+			*-*-*
+			|/|/|
+			*-*-*
+		*/
+
+		i+= (((i + 2) % tex->GetWidth()) == 0);
+	}
+
+	unsigned int nrOfThreads = ThreadPool::GetInstance().GetNrOfThreads();
+	CalculateHeightmapNormalsTask** tasks = new CalculateHeightmapNormalsTask*[nrOfThreads];
+	
+	for (int i = 0; i < nrOfThreads; i++)
+	{
+		tasks[i] = new CalculateHeightmapNormalsTask(i, nrOfThreads, vertices, indices, tex->GetWidth(), tex->GetHeight());
+		ThreadPool::GetInstance().AddTask(tasks[i]);
+	}
+	
+	ThreadPool::GetInstance().WaitForThreads(tasks[0]->GetThreadFlags());
+
+	for (int i = 0; i < nrOfThreads; i++)
+	{
+		delete tasks[i];
+	}
+	delete[] tasks;
+
+	Mesh* mesh = new Mesh(m_pDevice, &vertices, &indices, m_pDescriptorHeap_CBV_UAV_SRV, path);
+
+	m_LoadedMeshes.push_back(mesh);
+
+	std::vector<Mesh*> meshes;
+	meshes.push_back(mesh);
+
+	SkeletonNode* rootNode = nullptr;
+	std::map<unsigned int, VertexWeight> PVBD;
+	std::vector<Animation*> animations;
+	std::vector<Material*> materials;
+	materials.push_back(loadMaterialFromMTL(materialPath));
+	model = new HeightmapModel(&path, rootNode, &PVBD, &meshes, &animations, &materials, heightData);
+	m_LoadedModels[path].first = false;
+	m_LoadedModels[path].second = model;
+
+	return model;
 }
 
 Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
@@ -154,17 +311,11 @@ Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
 	Texture* texture = nullptr;
 	if (fileEnding == "dds")
 	{
-		texture = new Texture2D();
+		texture = new Texture2D(path);
 	}
 	else
 	{
-		texture = new Texture2DGUI();
-	}
-
-	if (texture->Init(path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
-	{
-		delete texture;
-		return nullptr;
+		texture = new Texture2DGUI(path);
 	}
 
 	m_LoadedTextures[path].first = false;
@@ -180,12 +331,7 @@ TextureCubeMap* AssetLoader::LoadTextureCubeMap(const std::wstring& path)
 		return static_cast<TextureCubeMap*>(m_LoadedTextures[path].second);
 	}
 
-	TextureCubeMap* textureCubeMap = new TextureCubeMap();
-	if (textureCubeMap->Init(path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
-	{
-		delete textureCubeMap;
-		return nullptr;
-	}
+	TextureCubeMap* textureCubeMap = new TextureCubeMap(path);
 
 	m_LoadedTextures[path].first = false;
 	m_LoadedTextures[path].second = textureCubeMap;
@@ -425,6 +571,86 @@ Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring& folderP
 		}
 		return m_LoadedMaterials[matName].second;
 	}
+}
+
+Material* AssetLoader::loadMaterialFromMTL(const std::wstring& path)
+{
+	std::wifstream ifstream(path);
+	Material* mat = nullptr;
+	if (ifstream.is_open())
+	{
+		std::wstring relPath = path.substr(0, path.find_last_of('/') + 1);
+		std::wstring currMatName;
+		std::wstring line;
+		std::wstring varName;
+		std::wstring varVal;
+		std::map<TEXTURE2D_TYPE, Texture*> matTextures;
+
+		std::vector<std::wstring> defaultNames;
+		defaultNames.reserve(static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES));
+		defaultNames.push_back(L"default_albedo.dds");
+		defaultNames.push_back(L"default_roughness.dds");
+		defaultNames.push_back(L"default_metallic.dds");
+		defaultNames.push_back(L"default_normal.dds");
+		defaultNames.push_back(L"default_emissive.dds");
+
+		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
+		{
+			matTextures[static_cast<TEXTURE2D_TYPE>(i)] = m_LoadedTextures[m_FilePathDefaultTextures + defaultNames[i]].second;
+		}
+
+		while (!ifstream.eof())
+		{
+			std::getline(ifstream, line);
+			varName = line.substr(0, line.find_first_of(L' '));
+
+			if (varName == L"newmtl")
+			{
+				currMatName = line.substr(line.find_first_of(L' '));
+				if (m_LoadedMaterials.count(currMatName) > 0)
+				{
+					ifstream.close();
+					return m_LoadedMaterials[currMatName].second;
+				}
+			}
+			else if (varName == L"map_Ka")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Kd")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::ALBEDO] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Ks")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::ROUGHNESS] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Kn")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Ke")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(relPath + varVal);
+			}
+		}
+
+		mat = new Material(&currMatName, &matTextures);
+		m_LoadedMaterials[currMatName].first = false;
+		m_LoadedMaterials[currMatName].second = mat;
+
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open mtl file with path %S", path.c_str());
+	}
+
+	return mat;
 }
 
 Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture)
@@ -736,6 +962,25 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	}
 	Font* font = m_LoadedFonts[filename].first;
 	return m_LoadedFonts[filename].first;
+}
+
+void AssetLoader::getHeightMapResources(const std::wstring& path, std::wstring& heightMapPath, std::wstring& materialPath)
+{
+	std::wifstream input(path);
+	
+	if (input.is_open())
+	{
+		std::wstring relFolderPath = path.substr(0, path.find_last_of('/') + 1);
+		std::getline(input, heightMapPath);
+		heightMapPath = relFolderPath + heightMapPath;
+		std::getline(input, materialPath);
+		materialPath = relFolderPath + materialPath;
+		input.close();
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load heightmap info file with path %S", path.c_str());
+	}
 }
 
 void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations)
