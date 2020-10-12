@@ -3,6 +3,7 @@
 
 #include "Components/UpgradeComponents/UpgradeComponent.h"
 #include <map>
+#include <vector>
 #include <string>
 
 // All uppgrades
@@ -32,9 +33,9 @@ private:
 	// Contains all uppgrades that the player can buy
 	std::map<std::string, Upgrade*> m_AllAvailablePlayerUpgrades;
 	// Contains all uppgrades that the player can buy that will be applied to projectile entities
-	std::map<std::string, Upgrade*> m_AllAvailablePlayerProjectileUpgrades;
+	std::vector<std::string> m_AllAvailablePlayerProjectileUpgrades;
 	// Contains all player uppgrades that will be applied to porjectile Entities
-	std::map<std::string, Upgrade*> m_AllAppliedProjectileUpgrades;
+	std::vector<std::string> m_AllAppliedProjectileUpgrades;
 	// Contains enums for all rangeUpgrades. 
 	// Used when getting NEW rgange upgrades for projectile entities.
 	std::map<std::string, int> m_RangeUpgradeEnmus;

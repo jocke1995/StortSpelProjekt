@@ -15,14 +15,14 @@ Player& Player::GetInstance()
 
 Player::~Player()
 {
-	for (auto upgrades : m_AllAvailablePlayerUpgrades)
-	{
-		delete upgrades.second;
-	}
-	for (auto upgrades : m_AllAvailablePlayerProjectileUpgrades)
-	{
-		delete upgrades.second;
-	}
+	//for (auto upgrades : m_AllAvailablePlayerUpgrades)
+	//{
+	//	delete upgrades.second;
+	//}
+	//for (auto upgrades : m_AllAvailablePlayerProjectileUpgrades)
+	//{
+	//	delete upgrades.second;
+	//}
 	//for (auto upgrades : m_AllAppliedProjectileUpgrades)
 	//{
 	//	delete upgrades.second;
@@ -55,12 +55,11 @@ void Player::fillUppgradeList()
 	// TODO: Fix this shit!! Needs to be a new entity every time a projectile gets shot out. 
 	// Potential fix is to have a switch case with enmus and getting the new range upgrade from there.
 	// Don't forget to merg in andres push
-	m_AllAvailablePlayerProjectileUpgrades[upgrade->GetName()] = new UpgradeRangeTest(nullptr);
+	// prolly not needed anymore, m_AllAvailablePlayerProjectileUpgrades.push_back(upgrade->GetName());
 
 
 	//upgrade = new Upgrade...Test(m_pPlayer);
 	//m_AllAvailablePlayerUpgrades[upgrade->GetName()] = upgrade;
-
 }
 
 void Player::ApplyUpgrade(std::string name)
@@ -69,7 +68,7 @@ void Player::ApplyUpgrade(std::string name)
 	{
 		// If it is an uppgrade that needs to be put on a projectile then
 		// add it to the m_AllAppliedProjectileUpgrades list
-		m_AllAppliedProjectileUpgrades[name] = m_AllAvailablePlayerProjectileUpgrades[name];
+		m_AllAppliedProjectileUpgrades.push_back(name);
 		m_RangeUpgradeEnmus[name] = RANGE_TEST;
 		// Then check if it is also of a type that needs to be on the player entity.
 		// If so also add it to player entitys UpgradeComponent
@@ -90,12 +89,10 @@ void Player::ApplyRangeUpgrades(Entity* ent)
 {
 	Upgrade* rangeUpgrade;
 	// Run through all range upgrades that the player has bought.
-	for (auto upgrade : m_AllAppliedProjectileUpgrades)
+	for (auto upgradeName : m_AllAppliedProjectileUpgrades)
 	{
 		// get NEW RangeUpgrade for the projectile entity
-		rangeUpgrade = RangeUpgrade(upgrade.second->GetName(), ent);
-		// set parent to the projectile entity
-		// rangeUpgrade->SetParentEntity(ent);
+		rangeUpgrade = RangeUpgrade(upgradeName, ent);
 		// Add the upgrade to the projectile entitys upgardeComponent
 		ent->GetComponent<component::UpgradeComponent>()->AddUpgrade(rangeUpgrade);
 	}

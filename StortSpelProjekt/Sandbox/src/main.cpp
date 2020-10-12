@@ -1414,7 +1414,9 @@ Scene* AndresTestScene(SceneManager* sm)
     Physics::GetInstance().AddCollisionEntity(entity);
 
     //// upgrade test
+    Player::GetInstance().SetPlayer(entity);
     Player::GetInstance().ApplyUpgrade("UpgradeRangeTest");
+    //entity->GetComponent<component::UpgradeComponent>()->ApplyStat();
     //UpgradeRangeTest test(entity);
     //upgradeComp->AddUpgrade(&test);
 
