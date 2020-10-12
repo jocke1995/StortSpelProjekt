@@ -341,7 +341,8 @@ void Renderer::Execute()
 	// Copy per frame
 	copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
 	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(copyTask);
+	copyTask->Execute();
+	//m_pThreadPool->AddTask(copyTask);
 
 	// Recording shadowmaps
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SHADOW];
@@ -496,13 +497,18 @@ void Renderer::InitDirectionalLightComponent(Entity* entity)
 {
 	component::DirectionalLightComponent* dlc = entity->GetComponent<component::DirectionalLightComponent>();
 	// Assign CBV from the lightPool
-	std::wstring resourceName = L"DirectionalLight_DefaultResource";
-	ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(DirectionalLight), resourceName);
+	std::wstring resourceName = L"DirectionalLight";
+	ConstantBuffer* cbd = m_pViewPool->GetFreeCB(sizeof(DirectionalLight), resourceName);
 
 	// Check if the light is to cast shadows
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
 
-	int shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	int shadowRes = -1;
+	if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW)
+	{
+		shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	}
+
 	if (shadowRes == 0)
 	{
 		resolution = SHADOW_RESOLUTION::LOW;
@@ -535,8 +541,8 @@ void Renderer::InitPointLightComponent(Entity* entity)
 {
 	component::PointLightComponent* plc = entity->GetComponent<component::PointLightComponent>();
 	// Assign CBV from the lightPool
-	std::wstring resourceName = L"PointLight_DefaultResource";
-	ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(PointLight), resourceName);
+	std::wstring resourceName = L"PointLight";
+	ConstantBuffer* cbd = m_pViewPool->GetFreeCB(sizeof(PointLight), resourceName);
 
 	// Assign views required for shadows from the lightPool
 	ShadowInfo* si = nullptr;
@@ -550,13 +556,18 @@ void Renderer::InitSpotLightComponent(Entity* entity)
 {
 	component::SpotLightComponent* slc = entity->GetComponent<component::SpotLightComponent>();
 	// Assign CBV from the lightPool
-	std::wstring resourceName = L"SpotLight_DefaultResource";
-	ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(SpotLight), resourceName);
+	std::wstring resourceName = L"SpotLight";
+	ConstantBuffer* cbd = m_pViewPool->GetFreeCB(sizeof(SpotLight), resourceName);
 
 	// Check if the light is to cast shadows
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
 
-	int shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	int shadowRes = -1;
+	if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW)
+	{
+		shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	}
+
 	if (shadowRes == 0)
 	{
 		resolution = SHADOW_RESOLUTION::LOW;
@@ -2176,9 +2187,11 @@ void Renderer::SubmitUploadPerSceneData()
 		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
 		for (auto& tuple : m_Lights[type])
 		{
-			if (static_cast<Light*>(std::get<0>(tuple))->GetLightFlags() & FLAG_LIGHT::STATIC)
+			Light* light = std::get<0>(tuple);
+			unsigned int lightFlags = light->GetLightFlags();
+			if (lightFlags & FLAG_LIGHT::STATIC)
 			{
-				data = std::get<0>(tuple)->GetLightData();
+				data = light->GetLightData();
 				cb = std::get<1>(tuple);
 				codt->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
 			}
@@ -2189,7 +2202,7 @@ void Renderer::SubmitUploadPerSceneData()
 void Renderer::SubmitUploadPerFrameData()
 {
 	// Submit dynamic-light-data to be uploaded to VRAM
-	CopyPerFrameTask* cpft = nullptr;
+	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
 	const void* data = nullptr;
 	ConstantBuffer* cb = nullptr;
 	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
@@ -2197,11 +2210,12 @@ void Renderer::SubmitUploadPerFrameData()
 		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
 		for (auto& tuple : m_Lights[type])
 		{
-			if (static_cast<Light*>(std::get<0>(tuple))->GetLightFlags() & ~FLAG_LIGHT::STATIC)
+			unsigned int lightFlags = static_cast<Light*>(std::get<0>(tuple))->GetLightFlags();
+	
+			if ((lightFlags & FLAG_LIGHT::STATIC) == 0)
 			{
 				data = std::get<0>(tuple)->GetLightData();
 				cb = std::get<1>(tuple);
-				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
 				cpft->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
 			}
 		}

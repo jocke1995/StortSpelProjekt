@@ -59,28 +59,33 @@ PS_OUTPUT PS_main(VS_OUT input)
 			baseReflectivity);
 	}
 
+	int a = 0;
 	// PointLight contributions
 	for (unsigned int i = 0; i < cbPerScene.Num_Point_Lights; i++)
 	{
 		int index = cbPerScene.pointLightIndices[i].x;
 
-		finalColor += CalcPointLight(
-			pointLight[index],
-			camPos,
-			viewDir,
-			input.worldPos,
-			metallic,
-			albedo.rgb,
-			roughness,
-			normal.rgb,
-			baseReflectivity);
+		//if (a == 0)
+		//{
+			finalColor += CalcPointLight(
+				pointLight[index],
+				camPos,
+				viewDir,
+				input.worldPos,
+				metallic,
+				albedo.rgb,
+				roughness,
+				normal.rgb,
+				baseReflectivity);
+		//}
+		a += 1;
 	}
 
 	// SpotLight  contributions
 	for (unsigned int i = 0; i < cbPerScene.Num_Spot_Lights; i++)
 	{
 		int index = cbPerScene.spotLightIndices[i].x;
-
+	
 		finalColor += CalcSpotLight(
 			spotLight[index],
 			camPos,
