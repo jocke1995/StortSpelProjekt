@@ -9,6 +9,7 @@
 
 // Include all upgrades
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeTest.h"
 
 // This enum is used when creating NEW Upgrades of type RANGE for projectile Entities.
 // Need to add an enum for each upgrade that is of type RANGE.

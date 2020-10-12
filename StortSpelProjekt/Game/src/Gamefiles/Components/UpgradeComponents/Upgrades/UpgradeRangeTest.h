@@ -11,7 +11,8 @@ class Entity;
 // this is something to keep in mind when making new upgrades, because m_pParentEntity will not always be the player. 
 
 // Upgrade description: This upgrade is a test-upgrade which gives the player 100 extra hp, and makes the projectiles fly up to the sky when hitting a target.
-// Level change: Increasing level makes the "accelerationspeed" up to the sky multiply with the level of the upgrade. Healthchange stays the same at 100. 
+// Level change: Increasing level makes the "accelerationspeed" up to the sky multiply with the level of the upgrade. 
+// Healthchange stays the same at 100. So every level will add 100 health.
 class UpgradeRangeTest : public Upgrade
 {
 public: 

@@ -60,11 +60,11 @@ void UpgradeManager::fillUppgradeMap()
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	// Bellow is an example of adding another upgrade
-	//// Adding MeleeTest Upgrade
-	//upgrade = new UpgradeMeleeTest(m_pParentEntity);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Below is an example of adding another upgrade
+	// Adding MeleeTest Upgrade
+	upgrade = new UpgradeMeleeTest(m_pParentEntity);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
 }
 

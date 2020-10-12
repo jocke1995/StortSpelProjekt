@@ -1363,6 +1363,7 @@ Scene* AndresTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::RangeComponent* rc = nullptr;
     component::UpgradeComponent* upgradeComp = nullptr;
+    component::MeleeComponent* melc = nullptr;
     //component::UpgradeRangeTest* upgradeTest = nullptr;
     //component::AccelerationComponent* ac = nullptr;
 
@@ -1401,6 +1402,7 @@ Scene* AndresTestScene(SceneManager* sm)
     ic->Init();
     hc = entity->AddComponent<component::HealthComponent>(15);
     rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    melc = entity->AddComponent<component::MeleeComponent>();
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     upgradeComp = entity->AddComponent<component::UpgradeComponent>();
@@ -1417,6 +1419,8 @@ Scene* AndresTestScene(SceneManager* sm)
     Player::GetInstance().SetPlayer(entity);
     Player::GetInstance().GetUpgradeManager()->ApplyUpgrade("UpgradeRangeTest");
     Player::GetInstance().GetPlayer()->GetComponent<component::UpgradeComponent>()->GetUpgradeByName("UpgradeRangeTest")->ApplyStat();
+    Player::GetInstance().GetUpgradeManager()->ApplyUpgrade("UpgradeMeleeTest");
+    Player::GetInstance().GetPlayer()->GetComponent<component::UpgradeComponent>()->GetUpgradeByName("UpgradeMeleeTest")->ApplyStat();
 
     /* ---------------------- Player ---------------------- */
 

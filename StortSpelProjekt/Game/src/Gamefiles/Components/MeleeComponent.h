@@ -24,6 +24,8 @@ namespace component
 		void Attack(bool attack);
 		
 		void setAttackInterval(float interval);
+		void SetDamage(int damage);
+		void ChangeDamage(int change);
 
 		void createCornersHitbox();
 		void createDrawnHitbox(component::BoundingBoxComponent* bbc);
@@ -37,6 +39,7 @@ namespace component
 		bool m_Cooldown;
 		float m_AttackInterval;
 		float m_TimeSinceLastAttackCheck;
+		int m_Damage;
 
 		Transform* m_pMeleeTransform;
 		Transform m_MeleeTransformTwo;
