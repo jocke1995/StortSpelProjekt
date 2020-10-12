@@ -57,9 +57,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //sceneManager->SetScene(JacobsTestScene(sceneManager));
-    //sceneManager->SetScene(LeosTestScene(sceneManager));
+    sceneManager->SetScene(LeosTestScene(sceneManager));
     //sceneManager->SetScene(LeosBounceScene(sceneManager));
-    sceneManager->SetScene(TimScene(sceneManager));
+    //sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
     //sceneManager->SetScene(FloppipTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
@@ -1234,10 +1234,6 @@ Scene* FredriksTestScene(SceneManager* sm)
     /* ---------------------- PointLight6 ---------------------- */
 
     /* ------------------------- Text --------------------------- */
-
-    // Load fonts
-    std::pair<Font*, Texture*> arialFont = al->LoadFontFromFile(L"Arial.fnt");
-
     std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
     float2 textPos = { 0.02f, 0.01f };
     float2 textPadding = { 0.5f, 0.0f };
@@ -1247,7 +1243,7 @@ Scene* FredriksTestScene(SceneManager* sm)
     scene->AddEntity("text");
 
     entity = scene->GetEntity("text");
-    component::GUI2DComponent* textComp = entity->AddComponent<component::GUI2DComponent>(arialFont);
+    component::GUI2DComponent* textComp = entity->AddComponent<component::GUI2DComponent>();
     textComp->AddText("text");
     textComp->SetColor(textColor, "text");
     textComp->SetPadding(textPadding, "text");
