@@ -26,27 +26,41 @@ component::RangeComponent::~RangeComponent()
 
 }
 
+void component::RangeComponent::OnInitScene()
+{
+}
+
+void component::RangeComponent::OnLoadScene()
+{
+}
+
+void component::RangeComponent::OnUnloadScene()
+{
+}
+
 void component::RangeComponent::Attack(MouseClick* event)
 {
 	if (event->button == MOUSE_BUTTON::RIGHT_DOWN)
 	{
-		m_NrOfProjectiles++;
-		Entity* ent = m_pScene->AddEntity("RangeAttack" + std::to_string(m_NrOfProjectiles));
+		Entity* ent = new Entity("RangeAttack" + std::to_string(++m_NrOfProjectiles));
 		component::ModelComponent* mc = nullptr;
 		component::TransformComponent* tc = nullptr;
 		component::BoundingBoxComponent* bbc = nullptr;
-		component::AccelerationComponent* ac = nullptr;
 		component::ProjectileComponent* pc = nullptr;
 		component::UpgradeComponent* uc = nullptr;
+		component::AccelerationComponent* ac = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
-		ac = ent->AddComponent <component::AccelerationComponent>(50);
+		ac = ent->AddComponent<component::AccelerationComponent>(50);
 		uc = ent->AddComponent<component::UpgradeComponent>();
 
 		// Applying all range uppgrades to the new projectile entity "RangeAttack"
-		Player::GetInstance().GetUpgradeManager()->ApplyRangeUpgrades(ent);
+		if (m_pParent->HasComponent<component::UpgradeComponent>())
+		{
+			Player::GetInstance().GetUpgradeManager()->ApplyRangeUpgrades(ent);
+		}
 		
 
 		// get the pos of parent object and forward of camera 
@@ -74,7 +88,9 @@ void component::RangeComponent::Attack(MouseClick* event)
 		Physics::GetInstance().AddCollisionEntity(ent);
 
 		// add the entity to the sceneManager so it can be spawned in in run time
-		m_pSceneMan->AddEntity(ent);
+		// TODO: add dynamicly correct
+		m_pSceneMan->AddEntity(ent, m_pScene);
 	}
-
 }
+
+		

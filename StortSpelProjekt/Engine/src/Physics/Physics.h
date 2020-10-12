@@ -31,7 +31,6 @@ public:
 	void Update(double dt);
 	// returns true if there is an intersection between the OBBs
 	bool CheckOBBCollision(const DirectX::BoundingOrientedBox* obb1, const DirectX::BoundingOrientedBox* obb2) const;
-
 	std::vector<Entity*> SpecificCollisionCheck(const DirectX::BoundingOrientedBox* obb1);
 
 	// Add an entity with collision enabled to the collision entities vector
@@ -39,6 +38,10 @@ public:
 
 	void AddCollisionComponent(component::CollisionComponent* comp);
 	void RemoveCollisionComponent(component::CollisionComponent* comp);
+	
+
+	void OnResetScene();
+
 	const btDynamicsWorld* GetWorld();
 private:
 	Physics();
@@ -55,6 +58,8 @@ private:
 	btCollisionConfiguration* m_pCollisionConfig;
 	btDbvtBroadphase* m_pBroadphase;
 	btConstraintSolver* m_pSolver;
+
+	void removeAllCollisionComponents();
 
 	// Checks collision for all entities in the collison entities vector
 	// publishes an event if a collision has happened

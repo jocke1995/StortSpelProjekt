@@ -4,6 +4,7 @@
 #include "GPUMemory/Resource.h"
 #include "GPUMemory/ShaderResourceView.h"
 #include "GPUMemory/UnorderedAccessView.h"
+#include "GPUMemory/RenderTargetView.h"
 
 PingPongResource::PingPongResource(
 	Resource* resource,
@@ -21,6 +22,11 @@ PingPongResource::~PingPongResource()
 {
 	delete m_pSRV;
 	delete m_pUAV;
+
+	if (m_pRTV != nullptr)
+	{
+		delete m_pRTV;
+	}
 }
 
 const Resource* const PingPongResource::GetResource() const
@@ -36,4 +42,21 @@ const ShaderResourceView* const PingPongResource::GetSRV() const
 const UnorderedAccessView* const PingPongResource::GetUAV() const
 {
 	return m_pUAV;
+}
+
+const RenderTargetView* const PingPongResource::GetRTV() const
+{
+	return m_pRTV;
+}
+
+void PingPongResource::CreateRTV(ID3D12Device5* device, unsigned int width, unsigned int height, DescriptorHeap* dhRTV, D3D12_RENDER_TARGET_VIEW_DESC* rtvDesc)
+{
+	if (m_pRTV == nullptr)
+	{
+		m_pRTV = new RenderTargetView(device, width, height, dhRTV, rtvDesc, m_pResource, true);
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::WARNING, "Trying to CreateRTV in 'PingPongResource' when it already exists\n");
+	}
 }

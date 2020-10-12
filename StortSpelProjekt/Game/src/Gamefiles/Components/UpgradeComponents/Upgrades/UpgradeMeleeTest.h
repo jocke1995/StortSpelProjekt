@@ -20,8 +20,6 @@ public:
 	~UpgradeMeleeTest();
 
 	void ApplyStat();
-
-	// Multiplies 
 	void IncreaseLevel();
 
 private:

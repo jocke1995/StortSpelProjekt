@@ -39,9 +39,17 @@ namespace component
 		createOrientedBoundingBox();
 	}
 
-	void BoundingBoxComponent::InitScene()
+	void BoundingBoxComponent::OnInitScene()
 	{
 		Renderer::GetInstance().InitBoundingBoxComponent(GetParent());
+	}
+
+	void BoundingBoxComponent::OnLoadScene()
+	{
+	}
+
+	void BoundingBoxComponent::OnUnloadScene()
+	{
 	}
 
 	void BoundingBoxComponent::Update(double dt)

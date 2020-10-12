@@ -20,6 +20,10 @@ namespace component
 
 		virtual ~MeleeComponent();
 
+		void OnInitScene();
+		void OnLoadScene();
+		void OnUnloadScene();
+
 		void Update(double dt);
 		void Attack(bool attack);
 		

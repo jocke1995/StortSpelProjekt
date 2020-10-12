@@ -42,9 +42,17 @@ namespace component
 		}
 	}
 
-	void PointLightComponent::InitScene()
+	void PointLightComponent::OnInitScene()
 	{
 		Renderer::GetInstance().InitPointLightComponent(GetParent());
+	}
+
+	void PointLightComponent::OnLoadScene()
+	{
+	}
+
+	void PointLightComponent::OnUnloadScene()
+	{
 	}
 
 	void PointLightComponent::SetPosition(float3 position)

@@ -16,6 +16,7 @@
 #include "Components/Collision/SphereCollisionComponent.h"
 #include "Components/Collision/CubeCollisionComponent.h"
 #include "Components/Collision/CapsuleCollisionComponent.h"
+#include "Components/Collision/HeightmapCollisionComponent.h"
 
 #include "../../Game/src/Gamefiles/Components/GameComponents.h"
 
@@ -50,15 +51,22 @@ public:
 	void Update(double dt);
 	void RenderUpdate(double dt);
 
+	void OnInitScene();
+	void OnLoadScene();
+	void OnUnloadScene();
+
 	std::vector<Component*>* GetAllComponents();
 
 private:
+	friend class SceneManager;
+
 	unsigned int m_Id = -1;
 	std::string m_Name = "";
 	
 	// Multiple m_pScenes can use the same entity (player for example).
 	// This is to make sure that the player doesn't get deleted if its still in use AND to not delete it twice
 	unsigned int m_ReferenceCount = 0;
+	unsigned int m_LoadedInNrScenes = 0;
 
 	std::vector<Component*> m_Components;
 };

@@ -1,6 +1,6 @@
 # Tutorials
 
-## TO CREATE AN EVENT:
+# TO CREATE AN EVENT:
 
 In Events.h, create a new event on the form:
 ```cpp
@@ -58,7 +58,7 @@ To publish the event to make the code in methodName run, call the following code
     EventBus::GetInstance().Publish(&EventName(param1, param2));
 ```
 
-## TO USE INPUT:
+# TO USE INPUT:
 
 To use input by the keys W, A, S, D, Q and E, subscribe to the event type MovementInput.
 To use input by the left CTRL key, subscribe to the event type ModifierInput. The parameters
@@ -73,7 +73,7 @@ are the x and y coordinates of the mouse's movement.
 To use input from the mouse scroll, subscribe to the event type MouseScroll. The parameters
 are either 1 if scrolling forward or -1 if scrolling backwards.
 
-### TO CREATE NEW INPUT:
+## TO CREATE NEW INPUT:
 To add new keys to the output, create a new event (if needed) as described above. In Input.cpp,
 in the function SetKeyState, add an else if statement in the following way:
 
@@ -95,7 +95,7 @@ or add an additional SCAN_CODE to the conditions of one of the existing statemen
 Then subscribe to the correct event type as previously described.
 
 
-## PBR TEXTURES:
+# PBR TEXTURES:
 In a .mtl file the textures should be placed as follows.
 
 map_Kd "Albedo_texture.suffix" (albedo/diffuse)
@@ -104,46 +104,46 @@ map_Ka "Metalness_texture.suffix" (metalness/ambient)
 map_Kn "Normals_texture.suffix" (normals)
 map_Ke "Emissive_texture.suffix" (emissive)
 
-## DDS Texture Extension
+# DDS Texture Extension
 If you want to reduce aliasing at large distances, you should convert your textures to the .dds image format.
 
 In the following link you can download a .dds-converter which converts a texture from a given format into the .dds format.
 https://vvvv.org/contribution/texconvgui
 
-### Settings in the texConvGui-tool
+## Settings in the texConvGui-tool
 You will not need to change every setting in the tool, only the ones mentioned below:
 
-#### Folders
+### Folders
 In the program, you will have to enter the source & destination folders for the textures
 
-#### File Mask
+### File Mask
 Set the "File Mask" to the format of the textures you want to convert from. 
 If you want to convert from jpg to dds, set the "File Mask" to .jpg
 
-#### Resizing
+### Resizing
 In order for the creation of mipmaps to work, the texture needs to be in "common sizes" such as 512x512, 1024x1024, 2048x2048.
 If your texture is close to either one of them, (for example 500x500), you can use the "resizing" option to resize the texture to 512x512.
 Set to 0 if you do not want to resize the texture.
 
-#### Adressing Mode
+### Adressing Mode
 Set this to wrap
 
-#### Output Options
+### Output Options
 Set this to B8G8R8A8_UNORM
 
-#### Mip Map Level
+### Mip Map Level
 Set this to 0 to generate mipmaps
 
 ### Object File modification
 When you have created your new textures, you will have to modify how your object file reads the new texture (depending on object file format)
 
-#### .Obj-file modifications (changing the .mtl file)
+### .Obj-file modifications (changing the .mtl file)
 This is the file format which will be most commonly used in our project, and all you need to do is change the file extensions of the textures to .dds from whatever file extension it had earlier
 
-#### Other
+### Other
 If you wish to use other object formats where the textures are embedded, you will have to change them using external programs such as "Blender" or "Maya".
 
-### How to create a new font format/image
+## How to create a new font format/image
 Hiero is a tool to generate new fonts in *fnt* format.
 **Download:** *http://www.mediafire.com/file/hlwbhemfgog51tu/hiero.jar/file*
 
@@ -180,7 +180,7 @@ and that the name of the *fnt* and the *png files* have the same name as mention
 Having troubles running the program?
 Make sure that you have the latest *Java Runtime* installed.
 
-### How to handle the window
+# How to handle the window
 **Resolution width** and **height** are the sizes of the rendered scene, while **window width** and **height** are the sizes of the window which 
 the scene is rendered in. These can be changed in *config.txt*.
 
@@ -294,3 +294,18 @@ Here you only have to copy the previouse cases and change the enum and class.
 		}
 	}
 ´´´
+# How to use heightmaps
+Heightmaps are defined through a greyscale image which the program assumes uses **4 channels of color** that is RGB and opacity. The program will however only read the R channel to determine the height of a pixel on the map.
+
+Like any other model, the heightmap also needs a material. Define this with an mtl file and appropriate textures (metallic, albedo, roughness and normal) in the DDS format.
+
+## Defining the heightmap
+To define a heightmap, write a file which points out a png file to define the actual heightmap and an mtl file to define material **IN THAT ORDER**. An example of this can be found in hm.hm (found in the folder *Vendor\\Resources\\Textures\\HeightMaps\\hm.hm*)
+
+```
+planet_surface_Height.png
+ground.mtl
+```
+
+## Loading and using the heightmap
+Once you have defined your heightmap it may be loaded into the program. Use the method **LoadHeightmap** from the assetloader and specify the path to the heightmap descriptive file (hm.hm). The heightmap may be transformed, so if you want to scale the plane or the heights, use the TransformComponent that the entity should have.

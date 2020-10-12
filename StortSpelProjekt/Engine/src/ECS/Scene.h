@@ -20,6 +20,7 @@ public:
 
 	Entity* GetEntity(std::string entityName);
 	const std::map<std::string, Entity*> *GetEntities() const;
+	bool EntityExists(std::string entityName) const;
 
 	unsigned int GetNrOfEntites() const;
 	BaseCamera* GetMainCamera() const;
@@ -29,13 +30,16 @@ public:
 	void RenderUpdate(double dt);
 	
 private:
+	friend class SceneManager;
+
 	std::string m_SceneName;
+
 	std::map<std::string, Entity*> m_Entities;
 	unsigned int m_NrOfEntities = 0;
 
 	BaseCamera* m_pPrimaryCamera = nullptr;
 
-	bool EntityExists(std::string entityName) const;
+
 };
 
 #endif
