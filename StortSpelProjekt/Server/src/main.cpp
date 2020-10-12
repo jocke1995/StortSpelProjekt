@@ -1,7 +1,8 @@
 #include "ConsoleCommand.h"
-#include "ThreadPool.h"
+#include "Misc/Multithreading/ThreadPool.h"
 #include "ClientPool.h"
 
+#include <chrono>
 #include <iostream>
 
 int main()
@@ -14,7 +15,7 @@ int main()
 
 	// ThreadPool
 	int numCores = 4;
-	ThreadPool* threadPool = new ThreadPool(numCores); // Set num m_Threads to number of cores of the cpu
+	ThreadPool* threadPool = &ThreadPool::GetInstance(numCores); // Set num m_Threads to number of cores of the cpu
 
 	Console console;
 	sf::SocketSelector selector;
@@ -24,14 +25,23 @@ int main()
 	std::cout << "Write 1 for server or 0 for client" << std::endl;
 	std::cin >> str;
 
+	auto start = std::chrono::system_clock::now();
+	std::chrono::time_point<std::chrono::system_clock> timeNow;
+	std::chrono::time_point<std::chrono::system_clock> timeLast;
+
+	double dt = 0;
+
 	if (str == "1")
 	{
 		ClientPool server(55555);
 		threadPool->AddTask(&console);
 
-
-		while (true)
+			while (true)
 			{
+				timeLast = timeNow;
+				timeNow = std::chrono::system_clock::now();
+				std::chrono::duration<double> elapsed_time = timeNow - timeLast;
+				dt = elapsed_time.count();
 				str = "";
 				console.GetInput(&str);
 
@@ -44,8 +54,13 @@ int main()
 					server.AddClient();
 					std::cout << server.GetNrOfClients() << " Client slots in total" << std::endl;
 				}
+				if (strcmp(str.c_str(), "Packet") == 0)
+				{
+					server.toggleShowPackage();
+				}
 
 				server.ListenMessages();
+				server.Update(dt);
 
 				if (strcmp(str.c_str(), "quit") == 0)
 				{
@@ -96,8 +111,6 @@ int main()
 
 
 	}
-
-	delete threadPool;
 
 	return 0;
 }

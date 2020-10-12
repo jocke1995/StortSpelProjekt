@@ -17,6 +17,14 @@ namespace component
 		void Update(double dt);
 		void RenderUpdate(double dt);
 
+		// inherited pure virtual functions
+		//SceneInit
+		void OnInitScene();
+		// Called on LoadScene for each component
+		void OnLoadScene();
+		// Called on UnloadScene for each component
+		void OnUnloadScene();
+
 		// setters and getters for private member variables
 		void AddUpgrade(Upgrade* upgrade);
 		void RemoveUpgrade(Upgrade* upgrade);

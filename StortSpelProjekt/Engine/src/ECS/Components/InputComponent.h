@@ -24,7 +24,9 @@ namespace component
 		virtual void Update(double dt);
 		virtual void RenderUpdate(double dt);
 
-		void InitScene();
+		void OnInitScene();
+		void OnLoadScene();
+		void OnUnloadScene();
 
 	};
 }
