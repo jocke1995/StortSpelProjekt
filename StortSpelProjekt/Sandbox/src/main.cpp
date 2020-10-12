@@ -1799,9 +1799,9 @@ void JockeUpdateScene(SceneManager* sm)
     plc->SetColor({ 0.0f, abs(sinf(intensity)) * 3, 0.0f });
     
     // Purple Static, this update will not affect the scene
-    //plc = sm->GetScene("jockesScene")->GetEntity("pointLightStatic")->GetComponent<component::PointLightComponent>();
-    //plc->SetColor({ abs(sinf(intensity)), 0.0f, abs(sinf(intensity)) });
-    //
+    plc = sm->GetScene("jockesScene")->GetEntity("pointLightStatic")->GetComponent<component::PointLightComponent>();
+    plc->SetColor({ abs(sinf(intensity)), 0.0f, abs(sinf(intensity)) });
+    
     intensity += 0.005f;
 }
 

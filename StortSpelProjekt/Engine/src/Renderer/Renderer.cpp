@@ -341,8 +341,7 @@ void Renderer::Execute()
 	// Copy per frame
 	copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
 	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	copyTask->Execute();
-	//m_pThreadPool->AddTask(copyTask);
+	m_pThreadPool->AddTask(copyTask);
 
 	// Recording shadowmaps
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SHADOW];
@@ -431,8 +430,6 @@ void Renderer::Execute()
 	m_FenceFrameValue++;
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
-
-	// 
 	waitForFrame();
 
 	HRESULT hr = dx12SwapChain->Present(0, 0);
@@ -471,9 +468,9 @@ void Renderer::InitModelComponent(Entity* entity)
 	if (tc != nullptr)
 	{
 		// Finally store the object in the corresponding renderComponent vectors so it will be drawn
-		if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
+		if (FLAG_DRAW::DRAW_TRANSPARENT & mc->GetDrawFlag())
 		{
-			m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(mc, tc));
+			m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT].push_back(std::make_pair(mc, tc));
 		}
 
 		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
@@ -498,7 +495,7 @@ void Renderer::InitDirectionalLightComponent(Entity* entity)
 	component::DirectionalLightComponent* dlc = entity->GetComponent<component::DirectionalLightComponent>();
 	// Assign CBV from the lightPool
 	std::wstring resourceName = L"DirectionalLight";
-	ConstantBuffer* cbd = m_pViewPool->GetFreeCB(sizeof(DirectionalLight), resourceName);
+	ConstantBuffer* cb = m_pViewPool->GetFreeCB(sizeof(DirectionalLight), resourceName);
 
 	// Check if the light is to cast shadows
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
@@ -534,7 +531,7 @@ void Renderer::InitDirectionalLightComponent(Entity* entity)
 	}
 
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(dlc, cbd, si));
+	m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(dlc, cb, si));
 }
 
 void Renderer::InitPointLightComponent(Entity* entity)
@@ -542,13 +539,13 @@ void Renderer::InitPointLightComponent(Entity* entity)
 	component::PointLightComponent* plc = entity->GetComponent<component::PointLightComponent>();
 	// Assign CBV from the lightPool
 	std::wstring resourceName = L"PointLight";
-	ConstantBuffer* cbd = m_pViewPool->GetFreeCB(sizeof(PointLight), resourceName);
+	ConstantBuffer* cb = m_pViewPool->GetFreeCB(sizeof(PointLight), resourceName);
 
 	// Assign views required for shadows from the lightPool
 	ShadowInfo* si = nullptr;
 
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(plc, cbd, si));
+	m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(plc, cb, si));
 
 }
 
@@ -557,7 +554,7 @@ void Renderer::InitSpotLightComponent(Entity* entity)
 	component::SpotLightComponent* slc = entity->GetComponent<component::SpotLightComponent>();
 	// Assign CBV from the lightPool
 	std::wstring resourceName = L"SpotLight";
-	ConstantBuffer* cbd = m_pViewPool->GetFreeCB(sizeof(SpotLight), resourceName);
+	ConstantBuffer* cb = m_pViewPool->GetFreeCB(sizeof(SpotLight), resourceName);
 
 	// Check if the light is to cast shadows
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
@@ -592,7 +589,7 @@ void Renderer::InitSpotLightComponent(Entity* entity)
 		srt->AddShadowCastingLight(std::make_pair(slc, si));
 	}
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(slc, cbd, si));
+	m_Lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(slc, cb, si));
 }
 
 void Renderer::InitCameraComponent(Entity* entity)
@@ -1696,7 +1693,7 @@ void Renderer::setRenderTasksRenderComponents()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::NO_DEPTH]);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPACITY]);
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
 	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 
