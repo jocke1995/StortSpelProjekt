@@ -9,7 +9,7 @@
 #include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/Resource.h"
 #include "../PipelineState.h"
-#include "../GUI2DElements/Text.h"
+#include "../Misc/GUI2DElements/Text.h"
 #include "../../ECS/Components/GUI2DComponent.h"
 
 TextTask::TextTask(ID3D12Device5* device, 
