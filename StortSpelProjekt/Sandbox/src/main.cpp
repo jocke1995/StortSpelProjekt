@@ -57,9 +57,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //sceneManager->SetScene(JacobsTestScene(sceneManager));
-    //sceneManager->SetScene(LeosTestScene(sceneManager));
+    sceneManager->SetScene(LeosTestScene(sceneManager));
     //sceneManager->SetScene(LeosBounceScene(sceneManager));
-    sceneManager->SetScene(TimScene(sceneManager));
+    //sceneManager->SetScene(TimScene(sceneManager));
     //sceneManager->SetScene(JockesTestScene(sceneManager));
     //sceneManager->SetScene(FloppipTestScene(sceneManager));
     //sceneManager->SetScene(FredriksTestScene(sceneManager));
@@ -276,7 +276,7 @@ Scene* LeosTestScene(SceneManager* sm)
     component::PointLightComponent* plc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
     component::SpotLightComponent* slc = nullptr;
-    component::CollisionComponent* bcc = nullptr;
+    component::CollisionComponent* ccc = nullptr;
     component::HealthComponent* hc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
@@ -287,8 +287,9 @@ Scene* LeosTestScene(SceneManager* sm)
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
+    HeightmapModel* heightMapModel = al->LoadHeightmap(L"../Vendor/Resources/Textures/HeightMaps/tst.hm");
 
-    /* ---------------------- Player ---------------------- */
+#pragma region player
     Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -298,62 +299,60 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0.0, 1.0, -30.0);
+    tc->GetTransform()->SetPosition(0.0, 20.0, 0.0);
 
-    double3 playerDim = { 1.0, 1.0, 1.0 };
-    double3 minVertex = { 100.0, 100.0, 100.0 }, maxVertex = { -100.0, -100.0, -100.0 };
-    for (unsigned int i = 0; i < playerModel->GetSize(); i++)
-    {
-        std::vector<Vertex> modelVertices = *playerModel->GetMeshAt(i)->GetVertices();
-        for (unsigned int i = 0; i < modelVertices.size(); i++)
-        {
-            minVertex.x = Min(minVertex.x, static_cast<double>(modelVertices[i].pos.x));
-            minVertex.y = Min(minVertex.y, static_cast<double>(modelVertices[i].pos.y));
-            minVertex.z = Min(minVertex.z, static_cast<double>(modelVertices[i].pos.z));
-
-            maxVertex.x = Max(maxVertex.x, static_cast<double>(modelVertices[i].pos.x));
-            maxVertex.y = Max(maxVertex.y, static_cast<double>(modelVertices[i].pos.y));
-            maxVertex.z = Max(maxVertex.z, static_cast<double>(modelVertices[i].pos.z));
-        }
-    }
-    playerDim = { maxVertex.x - minVertex.x, maxVertex.y - minVertex.y, maxVertex.z - minVertex.z };
+    double3 playerDim = mc->GetModelDim();
 
     double rad = (playerDim.z / 2.0) * tc->GetTransform()->GetScale().z;
-    double cylHeight = (playerDim.y * tc->GetTransform()->GetScale().y) - (rad * 2.0) ;
-    bcc = entity->AddComponent<component::CapsuleCollisionComponent>(1.0, rad, cylHeight, 0.0, 0.0, false);
+    double cylHeight = playerDim.y * tc->GetTransform()->GetScale().y - (rad * 2.0) ;
+    ccc = entity->AddComponent<component::CapsuleCollisionComponent>(1.0, rad, cylHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(50);
     ic->Init();
+#pragma endregion
 
-
-    /* ---------------------- Floor ---------------------- */
+#pragma region floor
+    // entity
     entity = scene->AddEntity("floor");
+
+    // heightmap
+    HeightMapInfo inf;
+    inf.data = heightMapModel->GetHeights();
+    inf.length = heightMapModel->GetLength();
+    inf.width = heightMapModel->GetWidth();
+    inf.maxHeight = 1;
+    inf.minHeight = -1;
+
+    // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 350.0, 0.0, 350.0);
+    ccc = entity->AddComponent<component::HeightmapCollisionComponent>(inf);
+    //ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 500.0, 0.0, 500.0);
 
-    mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(floorModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(350, 1, 350);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
-    /* ---------------------- Cube ---------------------- */
+    mc->SetModel(heightMapModel);
+    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(1.0f, 10.0f, 1.0f);
+    tc->GetTransform()->SetPosition(0.0f, -1.0f, 0.0f);
+    tc->GetTransform()->SetRotationY(PI / 2);
+#pragma endregion
+
+#pragma region cube
     entity = scene->AddEntity("Cube");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0, 1.0, 1.0, 1.0);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(1.0, 1.0, 1.0, 1.0);
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(cubeModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(0.0f, 1.0f, 15.0f);
+    tc->GetTransform()->SetPosition(0.0f, 10.0f, 15.0f);
     tc->GetTransform()->SetRotationX(PI / 4);
     tc->GetTransform()->SetRotationY(PI / 4);
     tc->GetTransform()->SetRotationZ(PI / 4);
+#pragma endregion
 
-    /* ---------------------- PointLight ---------------------- */
+#pragma region pointlight
     entity = scene->AddEntity("pointLight");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -366,8 +365,9 @@ Scene* LeosTestScene(SceneManager* sm)
 
     plc->SetColor({ 5.0f, 0.0f, 5.0f });
     plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+#pragma endregion
 
-    /* ---------------------- Spotlight ---------------------- */
+#pragma region spotlight
     entity = scene->AddEntity("Spotlight1");
     tc = entity->AddComponent<component::TransformComponent>();
     slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
@@ -378,8 +378,9 @@ Scene* LeosTestScene(SceneManager* sm)
     slc->SetColor({ 10.0f, 10.0f, 10.0f });
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ 0.0, -29.0, 10.0f });
+#pragma endregion 1
 
-    /* ---------------------- SpotlightHasse ---------------------- */
+#pragma region spotlight
     entity = scene->AddEntity("SpotlightHasse");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -396,8 +397,9 @@ Scene* LeosTestScene(SceneManager* sm)
     slc->SetDirection({ -35.0, 15.0, 35.0f });
 
     bbc->Init();
+#pragma endregion Hasse
 
-    /* ---------------------- SpotlightStefan ---------------------- */
+#pragma region spotlight
     entity = scene->AddEntity("SpotlightStefan");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -414,14 +416,16 @@ Scene* LeosTestScene(SceneManager* sm)
     slc->SetDirection({ 35.0, 15.0, 35.0f });
 
     bbc->Init();
+#pragma endregion Stefan
 
-    /* ---------------------- dirLight ---------------------- */
+#pragma region dirlight
     entity = scene->AddEntity("dirLight");
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    dlc->SetColor({ 0.0f, 0.05f, 0.05f });
+    dlc->SetColor({ 5.0f, 5.0f, 5.0f });
     dlc->SetDirection({ -1.0f, -1.0f, 1.0f });
+#pragma endregion
 
-    /* ---------------------- Skybox ----------------------- */
+#pragma region skybox
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
     entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
@@ -429,8 +433,9 @@ Scene* LeosTestScene(SceneManager* sm)
     sbc->SetTexture(skyboxCubemap);
     sbc->SetCamera(cc->GetCamera());
     sbc->GetTransform()->SetScale(50);
+#pragma endregion
 
-    /* ---------------------- Stefan ---------------------- */
+#pragma region stefan
     entity = scene->AddEntity("stefan");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -442,9 +447,10 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetRotationX(-3 * 3.1415 / 4);
     tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
     tc->GetTransform()->SetPosition(70.0f, 50.0f, 70.0f);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
+#pragma endregion
 
-    /* ---------------------- Hasse ---------------------- */
+#pragma region hasse
     entity = scene->AddEntity("hasse");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -456,18 +462,20 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetRotationX(3 * 3.1415 / 4);
     tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
     tc->GetTransform()->SetPosition(-70.0f, 50.0f, 70.0f);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
+#pragma endregion
 
-    /* ---------------------- Enemy -------------------------------- */
-    EnemyFactory enH(scene);
+#pragma region enemies
+    /*EnemyFactory enH(scene);
     enH.AddEnemy("sphere", sphereModel, 10, float3{ -50, 10, 50 },L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_ROLL, 10.0, float3{ 1.578, 0, 0 });
     enH.AddExistingEnemy("sphere", float3{ 50, 10, -50 });
     enH.AddExistingEnemy("sphere", float3{ 50, 10, 50 });
     enH.AddExistingEnemy("sphere", float3{ -50, 10, -50 });
     enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_JUMP | F_AI_FLAGS::CAN_ROLL, 0.5);
-    enH.AddEnemy("conan", barbModel, 20, float3{ 0.0, 10.0, 0.0 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player");
+    enH.AddEnemy("conan", barbModel, 20, float3{ 0.0, 10.0, 0.0 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player");*/
+#pragma endregion
 
-    /* ---------------------- NavMesh ----------------------------- */
+#pragma region navmesh
     NavMesh navmesh;
     float3 pos;
     float2 size;
@@ -505,6 +513,7 @@ Scene* LeosTestScene(SceneManager* sm)
     pos.y = 0.3;
     nav1 = navmesh.GetQuad(pos);
     nav1 = nav1->connections.at(0)->GetConnectedQuad(nav1);
+#pragma endregion
 
     /* ---------------------- Update Function ---------------------- */
     UpdateScene = &LeoUpdateScene;

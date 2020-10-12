@@ -71,4 +71,8 @@ namespace component
 	{
 		return m_IsPickedThisFrame;
 	}
+	double3 ModelComponent::GetModelDim() const
+	{
+		return m_Model->GetModelDim();
+	}
 }

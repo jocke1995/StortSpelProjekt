@@ -59,3 +59,23 @@ const SlotInfo* Model::GetSlotInfoAt(unsigned int index) const
 {
 	return &m_SlotInfos[index];
 }
+
+double3 Model::GetModelDim() const
+{
+	double3 minVertex = { 100.0, 100.0, 100.0 }, maxVertex = { -100.0, -100.0, -100.0 };
+	for (unsigned int i = 0; i < m_Size; i++)
+	{
+		std::vector<Vertex> modelVertices = *m_Meshes[i]->GetVertices();
+		for (unsigned int i = 0; i < modelVertices.size(); i++)
+		{
+			minVertex.x = Min(minVertex.x, static_cast<double>(modelVertices[i].pos.x));
+			minVertex.y = Min(minVertex.y, static_cast<double>(modelVertices[i].pos.y));
+			minVertex.z = Min(minVertex.z, static_cast<double>(modelVertices[i].pos.z));
+
+			maxVertex.x = Max(maxVertex.x, static_cast<double>(modelVertices[i].pos.x));
+			maxVertex.y = Max(maxVertex.y, static_cast<double>(modelVertices[i].pos.y));
+			maxVertex.z = Max(maxVertex.z, static_cast<double>(modelVertices[i].pos.z));
+		}
+	}
+	return { maxVertex.x - minVertex.x, maxVertex.y - minVertex.y, maxVertex.z - minVertex.z };
+}

@@ -31,6 +31,7 @@ namespace component
         unsigned int GetDrawFlag() const;
         unsigned int GetNrOfMeshes() const;
         bool IsPickedThisFrame() const;
+        double3 GetModelDim() const;
 
     private:
         // The boundingBox will update the "m_IsPickedThisFrame"

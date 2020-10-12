@@ -37,6 +37,8 @@ public:
     // SlotInfo
     const SlotInfo* GetSlotInfoAt(unsigned int index) const;
 
+    double3 GetModelDim() const;
+
 private:
     std::wstring m_Path;
     unsigned int m_Size = 0;

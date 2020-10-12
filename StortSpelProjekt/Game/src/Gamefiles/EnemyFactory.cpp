@@ -47,22 +47,7 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, flo
 	enemy->sound3D = sound3D;
 	enemy->sound2D = sound2D;
 
-	float3 minVertex = { 100.0, 100.0, 100.0 }, maxVertex = { -100.0, -100.0, -100.0 };
-	for (unsigned int i = 0; i < model->GetSize(); i++)
-	{
-		std::vector<Vertex> modelVertices = *model->GetMeshAt(i)->GetVertices();
-		for (unsigned int i = 0; i < modelVertices.size(); i++)
-		{
-			minVertex.x = Min(minVertex.x, modelVertices[i].pos.x);
-			minVertex.y = Min(minVertex.y, modelVertices[i].pos.y);
-			minVertex.z = Min(minVertex.z, modelVertices[i].pos.z);
-
-			maxVertex.x = Max(maxVertex.x, modelVertices[i].pos.x);
-			maxVertex.y = Max(maxVertex.y, modelVertices[i].pos.y);
-			maxVertex.z = Max(maxVertex.z, modelVertices[i].pos.z);
-		}
-	}
-	enemy->dim = { maxVertex.x - minVertex.x, maxVertex.y - minVertex.y, maxVertex.z - minVertex.z };
+	enemy->dim = model->GetModelDim();
 
 	return Add(entityName, model, hp, pos, sound3D, sound2D, compFlags, aiFlags, enemy->dim, scale, rot, aiTarget);
 }
@@ -159,7 +144,7 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3
 	}
 }
 
-Entity* EnemyFactory::Add(std::string name, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int compFlags, unsigned int aiFlags, float3 dim, float scale, float3 rot, std::string aiTarget)
+Entity* EnemyFactory::Add(std::string name, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int compFlags, unsigned int aiFlags, double3 dim, float scale, float3 rot, std::string aiTarget)
 {
 	Entity* ent = m_pScene->AddEntity(name);
 	component::ModelComponent* mc = nullptr;

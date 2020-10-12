@@ -8,11 +8,15 @@ public:
     HeightmapModel(const std::wstring* path,
         std::vector<Mesh*>* meshes,
         std::vector<Animation*>* animations,
-        std::vector<Material*>* materials, float* heights);
+        std::vector<Material*>* materials, double* heights, double width, double length);
     virtual ~HeightmapModel();
-    const float* GetHeights();
+    const double* GetHeights();
+    const double GetWidth();
+    const double GetLength();
 private:
-    float* m_pHeights;
+    double* m_pHeights;
+    double m_Width;
+    double m_Length;
 };
 
 #endif

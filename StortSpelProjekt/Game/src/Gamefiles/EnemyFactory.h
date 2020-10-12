@@ -33,7 +33,7 @@ struct EnemyComps
 	int enemiesOfThisType = 0;
 	std::wstring sound3D;
 	std::wstring sound2D;
-	float3 dim;
+	double3 dim;
 };
 
 class EnemyFactory
@@ -55,7 +55,7 @@ public:
 	// To skipp scale and write to rot the equvalent would be FLT_MAX.
 	Entity* AddExistingEnemyWithChanges(std::string entityName, float3 pos, unsigned int compFlags = UINT_MAX, unsigned int aiFlags = UINT_MAX, float scale = FLT_MAX, float3 rot = { FLT_MAX , FLT_MAX , FLT_MAX }, int hp = INT_MAX);
 	// Helper function for adding an enemy
-	Entity* Add(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int flag, unsigned int aiFlags, float3 dim, float scale, float3 rot, std::string aiTarget);
+	Entity* Add(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int flag, unsigned int aiFlags, double3 dim, float scale, float3 rot, std::string aiTarget);
 
 private:
 	Scene* m_pScene = nullptr;

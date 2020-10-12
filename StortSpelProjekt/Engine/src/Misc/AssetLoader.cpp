@@ -166,7 +166,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	std::vector<Vertex> vertices;
 	vertices.reserve(dataCount);
 
-	float* heightData = new float[dataCount];
+	double* heightData = new double[dataCount];
 
 	// Create vertices, only positions and UVs.
 	for (unsigned int i = 0; i < dataCount; i++)
@@ -174,7 +174,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 		Vertex ver;
 		heightData[i] = imgData[i * 4] / 255.0f;
 		
-		ver.pos = { static_cast<float>(tex->GetWidth() - (i % tex->GetWidth())) - tex->GetWidth() / 2.0f, heightData[i], (tex->GetHeight() - static_cast<float>(i) / tex->GetWidth()) - tex->GetHeight() / 2.0f };
+		ver.pos = { static_cast<float>(i % tex->GetWidth()) - tex->GetWidth() / 2.0f, static_cast<float>(heightData[i]), (i / tex->GetWidth()) - tex->GetHeight() / 2.0f };
 		ver.uv = { static_cast<float>(i % tex->GetWidth()) / tex->GetWidth(), static_cast<float>(i / tex->GetWidth()) / tex->GetHeight() };
 		vertices.push_back(ver);
 	}
@@ -244,7 +244,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	std::vector<Animation*> animations;
 	std::vector<Material*> materials;
 	materials.push_back(loadMaterialFromMTL(materialPath));
-	model = new HeightmapModel(&path, &meshes, &animations, &materials, heightData);
+	model = new HeightmapModel(&path, &meshes, &animations, &materials, heightData, static_cast<double>(tex->GetWidth()), static_cast<double>(tex->GetHeight()));
 	m_LoadedModels[path].first = false;
 	m_LoadedModels[path].second = model;
 
