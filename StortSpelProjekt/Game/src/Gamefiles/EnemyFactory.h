@@ -4,6 +4,7 @@
 #include "EngineMath.h"
 #include "Core.h"
 #include <map>
+#include <vector>
 
 class Scene;
 class Component;
@@ -39,8 +40,11 @@ struct EnemyComps
 class EnemyFactory
 {
 public:
+	EnemyFactory();
 	EnemyFactory(Scene* scene);
 	~EnemyFactory();
+
+	void SetScene(Scene* scene);
 
 	// Used when you want to add a new type of enemy to the scene .
 	// Flag is used for selecting which specific components are needed for this enemy e.g. OBB. 
@@ -57,9 +61,12 @@ public:
 	// Helper function for adding an enemy
 	Entity* Add(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int flag, float3 dim, float scale, float3 rot, std::string aiTarget);
 
+	std::vector<Entity*>* GetAllEnemies();
+
 private:
 	Scene* m_pScene = nullptr;
 	std::map<std::string, EnemyComps*> m_EnemyComps;
+	std::vector<Entity*> m_Enemies;
 };
 
 #endif

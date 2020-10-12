@@ -7,6 +7,14 @@ ServerGame::ServerGame()
 	m_FrameCount = 0;
 }
 
+ServerGame::~ServerGame()
+{
+	for (int i = 0; i < m_Entities.size(); i++)
+	{
+		delete m_Entities.at(i);
+	}
+}
+
 void ServerGame::StartGameState()
 {
 	m_FrameCount = 0;
@@ -17,15 +25,15 @@ void ServerGame::Update(double dt)
 	m_FrameCount++;
 }
 
-void ServerGame::UpdateEntity(std::string name, float3 position, float3 rotation, float3 velocity)
+void ServerGame::UpdateEntity(std::string name, float3 position, double4 rotation, double3 velocity)
 {
 	for (int i = 0; i < m_Entities.size(); i++)
 	{
-		if (m_Entities.at(i).name == name)
+		if (m_Entities.at(i)->name == name)
 		{
-			m_Entities.at(i).position = position;
-			m_Entities.at(i).rotation = rotation;
-			m_Entities.at(i).velocity = velocity;
+			m_Entities.at(i)->position = position;
+			m_Entities.at(i)->rotation = rotation;
+			m_Entities.at(i)->velocity = velocity;
 			break;
 		}
 	}
@@ -36,11 +44,32 @@ ServerEntity* ServerGame::GetEntity(std::string name)
 	ServerEntity* entity = nullptr;
 	for (int i = 0; i < m_Entities.size(); i++)
 	{
-		if (m_Entities.at(i).name == name)
+		if (m_Entities.at(i)->name == name)
 		{
-			entity = &m_Entities.at(i);
+			entity = m_Entities.at(i);
 			break;
 		}
 	}
 	return entity;
+}
+
+void ServerGame::AddEntity(std::string name)
+{
+	ServerEntity* temp = new ServerEntity;
+	temp->name = name;
+	m_Entities.push_back(temp);
+
+}
+
+void ServerGame::RemoveEntity(std::string name)
+{
+	for (int i = 0; i < m_Entities.size(); i++)
+	{
+		if (m_Entities.at(i)->name == name)
+		{
+			delete m_Entities.at(i);
+			m_Entities.erase(m_Entities.begin() + i);
+			break;
+		}
+	}
 }

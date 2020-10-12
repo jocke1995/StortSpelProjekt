@@ -3,6 +3,10 @@
 #include "Engine.h"
 #include "Components/HealthComponent.h"
 
+EnemyFactory::EnemyFactory()
+{
+}
+
 EnemyFactory::EnemyFactory(Scene* scene)
 {
 	m_pScene = scene;
@@ -18,6 +22,11 @@ EnemyFactory::~EnemyFactory()
 		}
 	}
 	m_EnemyComps.clear();
+}
+
+void EnemyFactory::SetScene(Scene* scene)
+{
+	m_pScene = scene;
 }
 
 Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int flag, float scale, float3 rot, std::string aiTarget)
@@ -152,6 +161,9 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3
 Entity* EnemyFactory::Add(std::string name, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int flag, float3 dim, float scale, float3 rot, std::string aiTarget)
 {
 	Entity* ent = m_pScene->AddEntity(name);
+
+	m_Enemies.push_back(ent);
+
 	component::ModelComponent* mc = nullptr;
 	component::TransformComponent* tc = nullptr;
 	component::BoundingBoxComponent* bbc = nullptr;
@@ -207,5 +219,10 @@ Entity* EnemyFactory::Add(std::string name, Model* model, int hp, float3 pos, st
 		Physics::GetInstance().AddCollisionEntity(ent);
 	}
 	return ent;
+}
+
+std::vector<Entity*>* EnemyFactory::GetAllEnemies()
+{
+	return &m_Enemies;
 }
 

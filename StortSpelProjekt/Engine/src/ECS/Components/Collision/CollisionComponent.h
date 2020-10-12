@@ -43,7 +43,7 @@ namespace component
 		// Sets the Restitution of the object (bounciness).
 		void SetRestitution(double rest);
 		// Sets the angular factor, how much the object may rotate in the world. 0 will stop it from rotating in that axis.
-		void SetAngularFactor(double3& factor);
+		void SetAngularFactor(const double3& factor);
 		// Sets the linear factor, how much the object may move in the world. 0 will stop it from moving in that axis.
 		void SetLinearFactor(double3& factor);
 

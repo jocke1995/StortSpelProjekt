@@ -8,26 +8,30 @@ struct ServerEntity
 {
 	std::string name;
 	float3 position;
-	float3 rotation;
-	float3 velocity;
+	double4 rotation;
+	double3 velocity;
 };
 
 class ServerGame
 {
 public:
 	ServerGame();
+	~ServerGame();
 
 	void StartGameState();
 
 	void Update(double dt);
 
-	void UpdateEntity(std::string name, float3 position, float3 rotation, float3 velocity);
+	void UpdateEntity(std::string name, float3 position, double4 rotation, double3 velocity);
 	ServerEntity* GetEntity(std::string name);
+
+	void AddEntity(std::string name);
+	void RemoveEntity(std::string name);
 
 private:
 	int m_FrameCount;
 
-	std::vector<ServerEntity> m_Entities;
+	std::vector<ServerEntity*> m_Entities;
 };
 
 #endif

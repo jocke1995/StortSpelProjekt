@@ -9,6 +9,7 @@ Network::Network()
 
     m_Players.push_back(new Player);
     m_Players.at(0)->clientId = 0;
+    m_Players.at(0)->isHost = false;
 
     m_ClockSent.StartTimer();
 
@@ -88,6 +89,11 @@ bool Network::IsConnected()
     return m_Connected;
 }
 
+bool Network::IsHost()
+{
+    return m_Players.at(0)->isHost;
+}
+
 sf::TcpSocket* Network::GetSocket()
 {
     return &m_Socket;
@@ -98,12 +104,18 @@ void Network::SendPositionPacket()
     sf::Packet packet;
 
     float3 pos = m_Players.at(0)->entityPointer->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+    double4 rot = m_Players.at(0)->entityPointer->GetComponent<component::CollisionComponent>()->GetRotationQuaternion();
     double3 mov = m_Players.at(0)->entityPointer->GetComponent<component::CollisionComponent>()->GetLinearVelocity();
     
 
-    packet << E_PACKET_ID::PLAYER_DATA << m_Id << pos.x << pos.y << pos.z << mov.x << mov.y << mov.z;
+    packet << E_PACKET_ID::PLAYER_DATA << pos.x << pos.y << pos.z << rot.x << rot.y << rot.z << rot.w << mov.x << mov.y << mov.z;
 
     sendPacket(packet);
+}
+
+void Network::SendEnemiesPacket(std::vector<Entity*>* enemies)
+{
+
 }
 
 void Network::SetPlayerEntityPointer(Entity* playerEnitity, int id)
@@ -175,31 +187,48 @@ void Network::processPacket(sf::Packet* packet)
 void Network::processPlayerData(sf::Packet* packet)
 {
     /* Expected packet configuration
-    int client id
-    float3 player position
-    double3 player movment(velocity and direction)
+    int playerSize
+    for(playerSize)
+        int client id
+        float3 player position
+        float4 player rotation
+        float3 player movment(velocity and direction)
     */
+    int size;
+    *packet >> size;
 
-    int id;
-    float3 pos;
-    double3 mov;
-
-    *packet >> id;
-
-    *packet >> pos.x;
-    *packet >> pos.y;
-    *packet >> pos.z;
-
-    *packet >> mov.x;
-    *packet >> mov.y;
-    *packet >> mov.z;
-
-    for (int i = 0; i < m_Players.size(); i++)
+    for (int i = 0; i < size; i++)
     {
-        if (m_Players.at(i)->clientId == id)
+        int id;
+        float3 pos;
+        double4 rot;
+        double3 mov;
+
+        *packet >> id;
+
+        *packet >> pos.x;
+        *packet >> pos.y;
+        *packet >> pos.z;
+
+        *packet >> rot.x;
+        *packet >> rot.y;
+        *packet >> rot.z;
+        *packet >> rot.w;
+
+        *packet >> mov.x;
+        *packet >> mov.y;
+        *packet >> mov.z;
+
+        for (int i = 1; i < m_Players.size(); i++)
         {
-            m_Players.at(i)->entityPointer->GetComponent<component::CollisionComponent>()->SetPosition(pos.x, pos.y, pos.z);
-            m_Players.at(i)->entityPointer->GetComponent<component::CollisionComponent>()->SetVelVector(mov.x, mov.y, mov.z);
+            if (m_Players.at(i)->clientId == id)
+            {
+                m_Players.at(i)->entityPointer->GetComponent<component::CollisionComponent>()->SetPosition(pos.x, pos.y, pos.z);
+                m_Players.at(i)->entityPointer->GetComponent<component::CollisionComponent>()->SetRotation({rot.x, rot.y, rot.z}, rot.w);
+                m_Players.at(i)->entityPointer->GetComponent<component::CollisionComponent>()->SetVelVector(mov.x, mov.y, mov.z);
+                m_Players.at(i)->entityPointer->GetComponent<component::CollisionComponent>()->SetAngularFactor({ 0.0, 0.0, 0.0 });
+                break;
+            }
         }
     }
 }
@@ -211,6 +240,7 @@ void Network::processServerData(sf::Packet* packet)
     int amount of players
     for amount of players
         int player id
+    int host id
     */
     *packet >> m_Id;
     m_Players.at(0)->clientId = m_Id;
@@ -239,6 +269,16 @@ void Network::processServerData(sf::Packet* packet)
             m_Players.push_back(new Player);
             m_Players.at(m_Players.size() - 1)->clientId = playerId;
             EventBus::GetInstance().Publish(&PlayerConnection(playerId));
+        }
+    }
+    int hostId;
+    *packet >> hostId;
+    for (int i = 0; i < m_Players.size(); i++)
+    {
+        if (m_Players.at(i)->clientId == hostId)
+        {
+            m_Players.at(i)->isHost = true;
+            break;
         }
     }
 }
