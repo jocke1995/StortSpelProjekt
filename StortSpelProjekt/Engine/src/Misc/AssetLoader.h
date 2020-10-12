@@ -14,7 +14,7 @@ class Texture;
 class TextureCubeMap;
 class Material;
 class Window;
-struct Font;
+class Font;
 struct aiNode;
 struct aiScene;
 struct aiMesh;

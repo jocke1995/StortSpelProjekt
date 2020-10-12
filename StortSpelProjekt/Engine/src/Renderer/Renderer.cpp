@@ -30,6 +30,7 @@
 #include "Texture/TextureCubeMap.h"
 #include "Material.h"
 #include "Text.h"
+#include "Font.h"
 
 // GPUMemory
 #include "GPUMemory/ConstantBuffer.h"
@@ -728,7 +729,7 @@ void Renderer::InitTextComponent(Entity* entity)
 
 	for (auto textData : *textDataMap)
 	{
-		textComp->UploadText(textData.first);
+		textComp->uploadData(textData.first);
 	}
 
 	// Finally store the text in m_pRenderer so it will be drawn
@@ -1176,7 +1177,6 @@ void Renderer::initRenderTasks()
 	outliningRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion ModelOutlining
-
 
 #pragma region SkyboxRendering
 	/* Forward rendering without stencil testing */
@@ -2015,7 +2015,7 @@ void Renderer::submitTextToGPU(Text* text, component::TextComponent* tc)
 
 	AssetLoader* al = AssetLoader::Get();
 	std::wstring fontPath = al->GetFontPath();
-	std::wstring path = fontPath + text->m_pFont->name + L".fnt";
+	std::wstring path = fontPath + text->GetFont()->GetName() + L".fnt";
 	bool isTextureOnGpu = al->m_LoadedFonts[path].first;
 
 	if (isTextureOnGpu == false)

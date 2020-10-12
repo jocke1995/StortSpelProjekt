@@ -3,6 +3,7 @@
 #include "TextComponent.h"
 
 #include "../Renderer/Text.h"
+#include "../Renderer/Font.h"
 #include "../Renderer/Texture/Texture.h"
 #include "../Renderer/SwapChain.h"
 #include "../Renderer/DescriptorHeap.h"
@@ -82,7 +83,7 @@ namespace component
 		}
 	}
 
-	void TextComponent::UploadText(std::string name)
+	void TextComponent::uploadData(std::string name)
 	{
 		int numOfCharacters = GetNumOfCharacters(name);
 		auto textData = GetTextData(name);
@@ -93,7 +94,7 @@ namespace component
 			renderer->m_pDevice5,
 			renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
 			numOfCharacters,
-			m_pFont->texture);
+			m_pFont->GetTexture());
 		text->SetTextData(textData, m_pFont);
 
 		// Look if the text exists
@@ -134,12 +135,17 @@ namespace component
 			{
 				m_TextDataMap[name].text = to_wstring(text);
 				exists = true;
+				break;
 			}
 		}
 		
 		if (exists == false)
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set text.\n", name.c_str());
+		}
+		else
+		{
+			uploadData(name);
 		}
 	}
 
@@ -152,12 +158,17 @@ namespace component
 			{
 				m_TextDataMap[name].pos = textPos;
 				exists = true;
+				break;
 			}
 		}
 
 		if (exists == false)
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set position.\n", name.c_str());
+		}
+		else
+		{
+			uploadData(name);
 		}
 	}
 
@@ -189,12 +200,17 @@ namespace component
 				m_TextDataMap[name].scale.y = (scale.y * scale_y * aspect);
 
 				exists = true;
+				break;
 			}
 		}
 
 		if (exists == false)
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set scale.\n", name.c_str());
+		}
+		else
+		{
+			uploadData(name);
 		}
 	}
 
@@ -207,12 +223,17 @@ namespace component
 			{
 				m_TextDataMap[name].padding = padding;
 				exists = true;
+				break;
 			}
 		}
 
 		if (exists == false)
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set padding.\n", name.c_str());
+		}
+		else
+		{
+			uploadData(name);
 		}
 	}
 
@@ -225,12 +246,17 @@ namespace component
 			{
 				m_TextDataMap[name].color = color;
 				exists = true;
+				break;
 			}
 		}
 
 		if (exists == false)
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set color.\n", name.c_str());
+		}
+		else
+		{
+			uploadData(name);
 		}
 	}
 
@@ -241,7 +267,7 @@ namespace component
 
 	Texture* TextComponent::GetTexture() const
 	{
-		return m_pFont->texture;
+		return m_pFont->GetTexture();
 	}
 
 	Text* TextComponent::GetText(std::string name)

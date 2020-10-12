@@ -1,14 +1,15 @@
 #include "stdafx.h"
 #include "AssetLoader.h"
 
-#include "../Renderer/DescriptorHeap.h"
 #include "Window.h"
 
+#include "../Renderer/DescriptorHeap.h"
 #include "../Renderer/HeightmapModel.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/Text.h"
+#include "../Renderer/Font.h"
 #include "../Renderer/Animation.h"
 
 #include "assimp/Importer.hpp"

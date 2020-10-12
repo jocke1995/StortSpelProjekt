@@ -7,8 +7,8 @@
 class Text;
 class Window;
 class Texture;
+class Font;
 struct TextData;
-struct Font;
 
 namespace component
 {
@@ -24,7 +24,6 @@ namespace component
 		void AddText(std::string name);
 		void SubmitText(Text* text, std::string name);
 		void ReplaceText(Text* text, std::string name);
-		void UploadText(std::string name);
 
 		void SetFont(Font* font);
 		void SetText(std::string text, std::string name);
@@ -49,6 +48,8 @@ namespace component
 		std::map<std::string, TextData> m_TextDataMap = {};
 		std::map<std::string, Text*> m_TextMap = {};
 		Font* m_pFont = nullptr;
+
+		void uploadData(std::string name);
 	};
 }
 #endif

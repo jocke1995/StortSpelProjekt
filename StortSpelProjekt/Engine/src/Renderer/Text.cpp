@@ -7,6 +7,7 @@
 #include "GPUMemory/ShaderResourceView.h"
 #include "DescriptorHeap.h"
 #include "Renderer.h"
+#include "Font.h"
 
 Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfCharacters, Texture* texture)
 {
@@ -138,6 +139,11 @@ SlotInfo* const Text::GetSlotInfo() const
 TextData* const Text::GetTextData(int pos)
 {
 	return &m_TextData;
+}
+
+Font* const Text::GetFont() const
+{
+	return m_pFont;
 }
 
 int const Text::GetNrOfCharacters() const
