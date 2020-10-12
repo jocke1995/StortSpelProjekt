@@ -1,5 +1,6 @@
 #include "UpgradeComponent.h"
 #include "Upgrades/Upgrade.h"
+#include "stdafx.h"
 
 component::UpgradeComponent::UpgradeComponent(Entity* parent)
 	:Component(parent)
@@ -22,45 +23,18 @@ void component::UpgradeComponent::RenderUpdate(double dt)
 {
 }
 
-void component::UpgradeComponent::SetName(std::string name)
-{
-	m_Name = name;
-}
-
-std::string component::UpgradeComponent::GetName() const
-{
-	return m_Name;
-}
-
-void component::UpgradeComponent::IncreaseLevel()
-{
-	m_Level++;
-}
-
-void component::UpgradeComponent::DecreaseLevel()
-{
-	m_Level--;
-}
-
-int component::UpgradeComponent::GetLevel() const
-{
-	return m_Level;
-}
-
-void component::UpgradeComponent::SetType(int type)
-{
-	m_Type = type;
-}
-
-unsigned int component::UpgradeComponent::GetType() const
-{
-	return m_Type;
-}
-
 void component::UpgradeComponent::AddUpgrade(Upgrade* upgrade)
 {
-	//m_AppliedUpgrades[upgrade->GetName()] = upgrade;
-	m_AppliedUpgrades.emplace(std::make_pair(upgrade->GetName(), upgrade));
+	if (upgrade->GetName() == "")
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "You need to name your upgrade!\n");
+	}
+	if (upgrade->GetType() == 0)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "You need to set type/types for your upgrade!\n");
+	}
+
+	m_AppliedUpgrades.insert(std::make_pair(upgrade->GetName(), upgrade));
 }
 
 void component::UpgradeComponent::RemoveUpgrade(Upgrade* upgrade)
@@ -84,11 +58,6 @@ bool component::UpgradeComponent::HasUpgrade(std::string name)
 		return false;
 	}
 }
-
-//std::map<std::string, Upgrade*>* component::UpgradeComponent::GetUpgrades() const
-//{
-//	return m_AppliedUpgrades;
-//}
 
 void component::UpgradeComponent::OnHit()
 {
@@ -151,5 +120,13 @@ void component::UpgradeComponent::RangedModifier()
 	for (auto upgrade : m_AppliedUpgrades)
 	{
 		upgrade.second->RangedModifier();
+	}
+}
+
+void component::UpgradeComponent::ApplyStat()
+{
+	for (auto upgrade : m_AppliedUpgrades)
+	{
+		upgrade.second->ApplyStat();
 	}
 }

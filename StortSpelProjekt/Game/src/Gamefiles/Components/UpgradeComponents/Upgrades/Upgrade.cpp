@@ -26,16 +26,6 @@ std::string Upgrade::GetName() const
 	return m_Name;
 }
 
-void Upgrade::IncreaseLevel()
-{
-	m_Level++;
-}
-
-void Upgrade::DecreaseLevel()
-{
-	m_Level--;
-}
-
 int Upgrade::GetLevel() const
 {
 	return m_Level;
@@ -59,6 +49,10 @@ void Upgrade::RenderUpdate(double dt)
 {
 }
 
+
+void Upgrade::IncreaseLevel()
+{
+}
 
 void Upgrade::OnHit()
 {
@@ -89,5 +83,9 @@ void Upgrade::RangedFlight()
 }
 
 void Upgrade::RangedModifier()
+{
+}
+
+void Upgrade::ApplyStat()
 {
 }
