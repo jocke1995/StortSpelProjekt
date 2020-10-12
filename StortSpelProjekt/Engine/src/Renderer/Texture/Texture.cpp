@@ -48,3 +48,18 @@ const unsigned int Texture::GetDescriptorHeapIndex() const
 {
 	return m_pSRV->GetDescriptorHeapIndex();
 }
+
+BYTE* Texture::GetData() const
+{
+	return m_pImageData;
+}
+
+unsigned int Texture::GetWidth() const
+{
+	return m_ResourceDescription.Width;
+}
+
+unsigned int Texture::GetHeight() const
+{
+	return m_ResourceDescription.Height;
+}

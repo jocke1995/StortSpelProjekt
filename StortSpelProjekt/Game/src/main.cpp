@@ -287,7 +287,7 @@ Scene* GetDemoScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB, 0.3, float3{ 0, 0, 0 });
+    entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
 
     // add bunch of enemies
     float xVal = 8;

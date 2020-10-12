@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Engine.h"
-#include "Misc/Thread.h"
+#include "Misc/MultiThreading/Thread.h"
 
 Engine::Engine()
 {
@@ -15,7 +15,6 @@ Engine::~Engine()
 	delete m_pWindow;
 	delete m_pTimer;
 
-	delete m_pThreadPool;
 	Physics::GetInstance().DestroyPhysics();
 	delete m_pSceneManager;
 
@@ -47,7 +46,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	{
 		numThreads = m_ThreadLimit;
 	}
-	m_pThreadPool = new ThreadPool(numThreads);
+	m_pThreadPool = &ThreadPool::GetInstance(numThreads);
 
 	// Sub-engines
 	m_pRenderer = &Renderer::GetInstance();

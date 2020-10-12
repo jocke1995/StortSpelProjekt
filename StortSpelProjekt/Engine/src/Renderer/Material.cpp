@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "Material.h"
 
-Material::Material(const std::wstring* path, std::map<TEXTURE2D_TYPE, Texture*>* textures)
+Material::Material(const std::wstring* name, std::map<TEXTURE2D_TYPE, Texture*>* textures)
 {
-	m_Name = *path;
+	m_Name = *name;
 
 	// copy the texture pointers
 	m_Textures = *textures;

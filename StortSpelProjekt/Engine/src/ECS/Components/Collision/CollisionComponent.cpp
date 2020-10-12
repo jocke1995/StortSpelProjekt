@@ -23,6 +23,7 @@ component::CollisionComponent::~CollisionComponent()
 
 void component::CollisionComponent::Update(double dt)
 {
+	
 	btTransform trans = m_pBody->getWorldTransform();
 	float x = trans.getOrigin().x();
 	float y = trans.getOrigin().y();
