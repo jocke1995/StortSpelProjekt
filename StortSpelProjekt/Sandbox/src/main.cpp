@@ -868,20 +868,27 @@ Scene* JockesTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /* ---------------------- Floor ---------------------- */
 
-     /* ---------------------- Cube ---------------------- */
-    entity = scene->AddEntity("Cube");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0, 1.0, 1.0, 1.0);
+     /* ---------------------- Cubes ---------------------- */
+    for (unsigned int i = 0; i < 3; i++)
+    {
+        Log::Severity::CRITICAL;
+        char cubeName[6] = "";
+        sprintf(cubeName, "Cube%d", i);
+        entity = scene->AddEntity(cubeName);
+        mc = entity->AddComponent<component::ModelComponent>();
+        tc = entity->AddComponent<component::TransformComponent>();
+        bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0, 1.0, 1.0, 1.0);
 
-    mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(0.0f, 1.0f, -25.0f);
-    tc->GetTransform()->SetRotationX(PI / 4);
-    tc->GetTransform()->SetRotationY(PI / 4);
-    tc->GetTransform()->SetRotationZ(PI / 4);
+        mc = entity->GetComponent<component::ModelComponent>();
+        mc->SetModel(cubeModel);
+        mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
+        tc = entity->GetComponent<component::TransformComponent>();
+        tc->GetTransform()->SetPosition(0.0f, 7.0f, -25.0f + 25.0f * i);
+        tc->GetTransform()->SetRotationX(PI / 4);
+        tc->GetTransform()->SetRotationY(PI / 4);
+        tc->GetTransform()->SetRotationZ(PI / 4);
+    }
+    
     /* ---------------------- Cube ---------------------- */
 
     /* ---------------------- PointLightDynamic ---------------------- */
