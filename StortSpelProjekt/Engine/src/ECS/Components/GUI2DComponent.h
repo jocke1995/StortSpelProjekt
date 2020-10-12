@@ -1,22 +1,22 @@
-#ifndef TEXTCOMPONENT_H
-#define TEXTCOMPONENT_H
+#ifndef GUI2DCOMPONENT_H
+#define GUI2DCOMPONENT_H
 
 #include <map>
 #include <vector>
 #include "Component.h"
-class Text;
 class Window;
 class Texture;
+class Text;
 class Font;
 struct TextData;
 
 namespace component
 {
-	class TextComponent : public Component
+	class GUI2DComponent : public Component
 	{
 	public:
-		TextComponent(Entity* parent, Font* font);
-		virtual ~TextComponent();
+		GUI2DComponent(Entity* parent);
+		virtual ~GUI2DComponent();
 
 		std::map<std::string, TextData>* const GetTextDataMap();
 		TextData* GetTextData(std::string name);
@@ -49,7 +49,7 @@ namespace component
 		std::map<std::string, Text*> m_TextMap = {};
 		Font* m_pFont = nullptr;
 
-		void uploadData(std::string name);
+		void uploadTextData(std::string name);
 	};
 }
 #endif

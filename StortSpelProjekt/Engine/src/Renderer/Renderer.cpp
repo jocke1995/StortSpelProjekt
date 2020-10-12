@@ -11,7 +11,7 @@
 // ECS
 #include "../ECS/Scene.h"
 #include "../ECS/Entity.h"
-#include "../ECS/Components/TextComponent.h"
+#include "../ECS/Components/GUI2DComponent.h"
 #include "../ECS/Components/SkyboxComponent.h"
 #include "../ECS/Components/BoundingBoxComponent.h"
 
@@ -722,14 +722,14 @@ void Renderer::InitBoundingBoxComponent(Entity* entity)
 	}
 }
 
-void Renderer::InitTextComponent(Entity* entity)
+void Renderer::InitGUI2DComponent(Entity* entity)
 {
-	component::TextComponent* textComp = entity->GetComponent<component::TextComponent>();
+	component::GUI2DComponent* textComp = entity->GetComponent<component::GUI2DComponent>();
 	std::map<std::string, TextData>* textDataMap = textComp->GetTextDataMap();
 
 	for (auto textData : *textDataMap)
 	{
-		textComp->uploadData(textData.first);
+		textComp->uploadTextData(textData.first);
 	}
 
 	// Finally store the text in m_pRenderer so it will be drawn
@@ -2002,7 +2002,7 @@ SwapChain* Renderer::getSwapChain()
 	return m_pSwapChain;
 }
 
-void Renderer::submitTextToGPU(Text* text, component::TextComponent* tc)
+void Renderer::submitTextToGPU(Text* text, component::GUI2DComponent* tc)
 {
 	// Submit to GPU
 	const void* data = static_cast<const void*>(text->m_TextVertexVec.data());

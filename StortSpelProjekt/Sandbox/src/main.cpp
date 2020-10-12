@@ -148,7 +148,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     component::PointLightComponent* plc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PlayerInputComponent* pic = nullptr;
-    component::TextComponent* txc = nullptr;
+    component::GUI2DComponent* txc = nullptr;
     component::CollisionComponent* bcc = nullptr;
     component::MeleeComponent* melc = nullptr;
 
@@ -539,7 +539,7 @@ Scene* LeosBounceScene(SceneManager* sm)
     component::PointLightComponent* plc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PlayerInputComponent* pic = nullptr;
-    component::TextComponent* txc = nullptr;
+    component::GUI2DComponent* txc = nullptr;
     component::CollisionComponent* bcc = nullptr;
 
     /*--------------------- Player ---------------------*/
@@ -678,7 +678,7 @@ Scene* TimScene(SceneManager* sm)
     component::PointLightComponent* plc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PlayerInputComponent* pic = nullptr;
-    component::TextComponent* txc = nullptr;
+    component::GUI2DComponent* txc = nullptr;
     component::CollisionComponent* ccc = nullptr;
     component::SphereCollisionComponent* scc = nullptr;
     /*--------------------- Component declarations ---------------------*/
@@ -1247,7 +1247,7 @@ Scene* FredriksTestScene(SceneManager* sm)
     scene->AddEntity("text");
 
     entity = scene->GetEntity("text");
-    component::TextComponent* textComp = entity->AddComponent<component::TextComponent>(arialFont);
+    component::GUI2DComponent* textComp = entity->AddComponent<component::GUI2DComponent>(arialFont);
     textComp->AddText("text");
     textComp->SetColor(textColor, "text");
     textComp->SetPadding(textPadding, "text");

@@ -10,7 +10,7 @@
 #include "../GPUMemory/Resource.h"
 #include "../PipelineState.h"
 #include "../Text.h"
-#include "../../ECS/Components/TextComponent.h"
+#include "../../ECS/Components/GUI2DComponent.h"
 
 TextTask::TextTask(ID3D12Device5* device, 
 	RootSignature* rootSignature, 
@@ -26,7 +26,7 @@ TextTask::~TextTask()
 {
 }
 
-void TextTask::SetTextComponents(std::vector<component::TextComponent*>* textComponents)
+void TextTask::SetTextComponents(std::vector<component::GUI2DComponent*>* textComponents)
 {
 	m_TextComponents = *textComponents;
 }
@@ -72,7 +72,7 @@ void TextTask::Execute()
 
 	for (int i = 0; i < m_TextComponents.size(); i++)
 	{
-		component::TextComponent* tc = m_TextComponents.at(i);
+		component::GUI2DComponent* tc = m_TextComponents.at(i);
 		draw(commandList, tc);
 	}
 
@@ -85,7 +85,7 @@ void TextTask::Execute()
 	commandList->Close();
 }
 
-void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::TextComponent* tc)
+void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::GUI2DComponent* tc)
 {
 	int nrOfCharacters = 0;
 	for (auto textMap : *tc->GetTextMap())

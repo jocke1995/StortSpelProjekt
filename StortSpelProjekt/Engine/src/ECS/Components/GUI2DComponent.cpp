@@ -1,24 +1,23 @@
 #include "stdafx.h"
 #include <vector>
-#include "TextComponent.h"
-
-#include "../Renderer/Text.h"
-#include "../Renderer/Font.h"
-#include "../Renderer/Texture/Texture.h"
-#include "../Renderer/SwapChain.h"
-#include "../Renderer/DescriptorHeap.h"
+#include "GUI2DComponent.h"
 
 #include "../Misc/Window.h"
 
+#include "../Renderer/Texture/Texture.h"
+#include "../Renderer/Text.h"
+#include "../Renderer/Font.h"
+#include "../Renderer/DescriptorHeap.h"
+#include "../Misc/AssetLoader.h"
+
 namespace component
 {
-	TextComponent::TextComponent(Entity* parent, Font* font)
+	GUI2DComponent::GUI2DComponent(Entity* parent)
 		:Component(parent)
 	{
-		m_pFont = font;
 	}
 
-	TextComponent::~TextComponent()
+	GUI2DComponent::~GUI2DComponent()
 	{
 		for (auto textMap : m_TextMap)
 		{
@@ -28,18 +27,24 @@ namespace component
 		m_TextMap.clear();
 	}
 
-	std::map<std::string, TextData>* const TextComponent::GetTextDataMap()
+	std::map<std::string, TextData>* const GUI2DComponent::GetTextDataMap()
 	{
 		return &m_TextDataMap;
 	}
 
-	TextData* TextComponent::GetTextData(std::string name)
+	TextData* GUI2DComponent::GetTextData(std::string name)
 	{
 		return &m_TextDataMap[name];
 	}
 
-	void TextComponent::AddText(std::string name)
+	void GUI2DComponent::AddText(std::string name)
 	{
+		// Look if a font is chosen, otherwise, set the default font
+		if (m_pFont == nullptr)
+		{
+			m_pFont = AssetLoader::Get()->LoadFontFromFile(L"Arial.fnt");
+		}
+
 		// Default text
 		TextData textData = {};
 		textData.color = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -59,12 +64,12 @@ namespace component
 		m_TextDataMap[name] = textData;
 	}
 
-	void TextComponent::SubmitText(Text* text, std::string name)
+	void GUI2DComponent::SubmitText(Text* text, std::string name)
 	{
 		m_TextMap.insert({ name, text });
 	}
 
-	void TextComponent::ReplaceText(Text* text, std::string name)
+	void GUI2DComponent::ReplaceText(Text* text, std::string name)
 	{
 		bool found = false;
 		for (auto textMap : m_TextMap)
@@ -83,7 +88,7 @@ namespace component
 		}
 	}
 
-	void TextComponent::uploadData(std::string name)
+	void GUI2DComponent::uploadTextData(std::string name)
 	{
 		int numOfCharacters = GetNumOfCharacters(name);
 		auto textData = GetTextData(name);
@@ -121,12 +126,12 @@ namespace component
 		renderer->executeCopyOnDemand();
 	}
 
-	void TextComponent::SetFont(Font* font)
+	void GUI2DComponent::SetFont(Font* font)
 	{
 		m_pFont = font;
 	}
 
-	void TextComponent::SetText(std::string text, std::string name)
+	void GUI2DComponent::SetText(std::string text, std::string name)
 	{
 		bool exists = false;
 		for (auto data : m_TextDataMap)
@@ -145,11 +150,11 @@ namespace component
 		}
 		else
 		{
-			uploadData(name);
+			uploadTextData(name);
 		}
 	}
 
-	void TextComponent::SetPos(float2 textPos, std::string name)
+	void GUI2DComponent::SetPos(float2 textPos, std::string name)
 	{
 		bool exists = false;
 		for (auto data : m_TextDataMap)
@@ -168,11 +173,11 @@ namespace component
 		}
 		else
 		{
-			uploadData(name);
+			uploadTextData(name);
 		}
 	}
 
-	void TextComponent::SetScale(float2 scale, std::string name)
+	void GUI2DComponent::SetScale(float2 scale, std::string name)
 	{
 		bool exists = false;
 		for (auto data : m_TextDataMap)
@@ -210,11 +215,11 @@ namespace component
 		}
 		else
 		{
-			uploadData(name);
+			uploadTextData(name);
 		}
 	}
 
-	void TextComponent::SetPadding(float2 padding, std::string name)
+	void GUI2DComponent::SetPadding(float2 padding, std::string name)
 	{
 		bool exists = false;
 		for (auto data : m_TextDataMap)
@@ -233,11 +238,11 @@ namespace component
 		}
 		else
 		{
-			uploadData(name);
+			uploadTextData(name);
 		}
 	}
 
-	void TextComponent::SetColor(float4 color, std::string name)
+	void GUI2DComponent::SetColor(float4 color, std::string name)
 	{
 		bool exists = false;
 		for (auto data : m_TextDataMap)
@@ -256,46 +261,46 @@ namespace component
 		}
 		else
 		{
-			uploadData(name);
+			uploadTextData(name);
 		}
 	}
 
-	Font* TextComponent::GetFont() const
+	Font* GUI2DComponent::GetFont() const
 	{
 		return m_pFont;
 	}
 
-	Texture* TextComponent::GetTexture() const
+	Texture* GUI2DComponent::GetTexture() const
 	{
 		return m_pFont->GetTexture();
 	}
 
-	Text* TextComponent::GetText(std::string name)
+	Text* GUI2DComponent::GetText(std::string name)
 	{
  		return m_TextMap[name];
 	}
 
-	std::map<std::string, Text*>* TextComponent::GetTextMap()
+	std::map<std::string, Text*>* GUI2DComponent::GetTextMap()
 	{
 		return &m_TextMap;
 	}
 
-	const int TextComponent::GetNumOfTexts() const
+	const int GUI2DComponent::GetNumOfTexts() const
 	{
 		return m_TextMap.size();
 	}
 
-	const int TextComponent::GetNumOfCharacters(std::string name)
+	const int GUI2DComponent::GetNumOfCharacters(std::string name)
 	{
 		return m_TextDataMap[name].text.size();
 	}
 
-	void TextComponent::Update(double dt)
+	void GUI2DComponent::Update(double dt)
 	{
 	}
 
-	void TextComponent::InitScene()
+	void GUI2DComponent::InitScene()
 	{
-		Renderer::GetInstance().InitTextComponent(GetParent());
+		Renderer::GetInstance().InitGUI2DComponent(GetParent());
 	}
 }

@@ -67,7 +67,7 @@ namespace component
 	class ModelComponent;
 	class TransformComponent;
 	class BoundingBoxComponent;
-	class TextComponent;
+	class GUI2DComponent;
 	class SkyboxComponent;
 }
 
@@ -105,11 +105,11 @@ public:
 	void InitSpotLightComponent(Entity* entity);
 	void InitCameraComponent(Entity* entity);
 	void InitBoundingBoxComponent(Entity* entity);
-	void InitTextComponent(Entity* entity);
+	void InitGUI2DComponent(Entity* entity);
 
 private:
 	friend class component::SkyboxComponent;
-	friend class component::TextComponent;
+	friend class component::GUI2DComponent;
 	friend class SceneManager;
 	Renderer();
 
@@ -160,7 +160,7 @@ private:
 	// Group of components that's needed for rendering:
 	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
-	std::vector<component::TextComponent*> m_TextComponents;
+	std::vector<component::GUI2DComponent*> m_TextComponents;
 	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
@@ -220,7 +220,7 @@ private:
 
 	SwapChain* getSwapChain();
 
-	void submitTextToGPU(Text* text, component::TextComponent* tc);
+	void submitTextToGPU(Text* text, component::GUI2DComponent* tc);
 };
 
 #endif
