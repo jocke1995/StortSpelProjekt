@@ -2,9 +2,9 @@
 #include "Renderer.h"
 
 // Misc
-#include "../Misc/ThreadPool.h"
+#include "../Misc/MultiThreading/ThreadPool.h"
 #include "../Misc/AssetLoader.h"
-#include "../Misc/Thread.h"
+#include "../Misc/MultiThreading/Thread.h"
 #include "../Misc/Window.h"
 #include "../Misc/Option.h"
 

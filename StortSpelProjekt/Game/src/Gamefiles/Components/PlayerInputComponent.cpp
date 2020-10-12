@@ -163,7 +163,8 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	};
 
 	// Check if the player is in the air. If not, allow movement
-	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1 && !m_Dashing)
+	double dist = m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1);
+	if (dist != -1 && !m_Dashing)
 	{
 		double moveRight = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::D)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::A)));
 		double moveForward = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::W)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::S)));
@@ -186,12 +187,12 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		{
 			move.x * m_pTransform->GetVelocity(),
 			//Constant value to compensate for sprint velocity
-			jump * 20.0,
+			jump * BASE_VEL,
 			move.z * m_pTransform->GetVelocity()
 		};
 
 		bool wasDashing = m_Dashing;
-		m_Dashing = m_DashReady && evnt->doubleTap;
+		m_Dashing = m_DashReady && evnt->doubleTap && static_cast<double>(evnt->key != SCAN_CODES::SPACE);
 		if (m_Dashing && Input::GetInstance().GetKeyState(SCAN_CODES::LEFT_SHIFT))
 		{
 			m_DashTimer = 0;
