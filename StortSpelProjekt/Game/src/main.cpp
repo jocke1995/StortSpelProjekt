@@ -323,6 +323,8 @@ Scene* GetDemoScene(SceneManager* sm)
 	textComp->SetScale(textScale, "health");
 	textComp->SetText(textToRender, "health");
 
+	textComp->CreateQuad(textPos, textScale);
+
 	/* ---------------------------------------------------------- */
 
     /* ---------------------- Skybox ---------------------- */

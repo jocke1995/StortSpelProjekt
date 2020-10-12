@@ -8,7 +8,11 @@ class Window;
 class Texture;
 class Text;
 class Font;
+class Mesh;
+class Resource;
+class ShaderResourceView;
 struct TextData;
+struct Vertex;
 
 namespace component
 {
@@ -18,6 +22,7 @@ namespace component
 		GUI2DComponent(Entity* parent);
 		virtual ~GUI2DComponent();
 
+		// Text functions
 		std::map<std::string, TextData>* const GetTextDataMap();
 		TextData* GetTextData(std::string name);
 
@@ -41,6 +46,10 @@ namespace component
 
 		void UploadTextData(std::string name);
 
+		// Quad functions
+		void CreateQuad(float2 pos, float2 scale, std::wstring path = L"NONE");
+
+		// General functions
 		void Update(double dt);
 		void OnInitScene();
 		void OnLoadScene();
@@ -52,6 +61,8 @@ namespace component
 		std::map<std::string, TextData> m_TextDataMap = {};
 		std::map<std::string, Text*> m_TextMap = {};
 		Font* m_pFont = nullptr;
+		Mesh* m_pQuad = nullptr;
+		Texture* m_pQuadTexture = nullptr;
 	};
 }
 #endif

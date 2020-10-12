@@ -2,10 +2,15 @@
 #include <vector>
 #include "GUI2DComponent.h"
 
-#include "../Misc/Window.h"
-
 #include "../Renderer/Texture/Texture.h"
+#include "../Renderer/Texture/Texture2D.h"
+#include "../Renderer/Texture/Texture2DGUI.h"
 #include "../Renderer/DescriptorHeap.h"
+#include "../Renderer/GPUMemory/Resource.h"
+#include "../Renderer/GPUMemory/ShaderResourceView.h"
+#include "../Renderer/Mesh.h"
+
+#include "../Misc/Window.h"
 #include "../Misc/AssetLoader.h"
 #include "../Misc/GUI2DElements/Text.h"
 #include "../Misc/GUI2DElements/Font.h"
@@ -275,6 +280,95 @@ namespace component
 	const int GUI2DComponent::GetNumOfCharacters(std::string name)
 	{
 		return m_TextDataMap[name].text.size();
+	}
+
+	void GUI2DComponent::CreateQuad(float2 pos, float2 scale, std::wstring path)
+	{
+		if (m_pQuad != nullptr)
+		{
+			delete m_pQuad;
+			delete m_pQuadTexture;
+		}
+
+		if (m_pQuadTexture == nullptr && path != L"NONE")
+		{
+			m_pQuadTexture = new Texture2DGUI(path);
+		}
+
+		std::vector<Vertex> vertices = {};
+
+		float x = (pos.x * 2.0f) - 1.0f;
+		float y = ((1.0f - pos.y) * 2.0f) - 1.0f;
+
+		DirectX::XMFLOAT3 normal = DirectX::XMFLOAT3{ 1.0, 1.0, 0.0 };
+		DirectX::XMFLOAT3 tangent = DirectX::XMFLOAT3{ 0.0, 0.0, 0.0 };
+
+		Vertex vertex = {};
+		vertex.pos = DirectX::XMFLOAT3{ x, y, 0.0 };
+		vertex.uv = DirectX::XMFLOAT2{ 0.0, 0.0 };
+		vertex.normal = normal;
+		vertex.tangent = tangent;
+		vertices.push_back(vertex);
+
+		vertex.pos = DirectX::XMFLOAT3{ x, y + scale.y, 0.0 };
+		vertex.uv = DirectX::XMFLOAT2{ 0.0, 1.0 };
+		vertices.push_back(vertex);
+
+		vertex.pos = DirectX::XMFLOAT3{ x + scale.x, y, 0.0 };
+		vertex.uv = DirectX::XMFLOAT2{ 1.0, 0.0 };
+		vertices.push_back(vertex);
+
+		vertex.pos = DirectX::XMFLOAT3{ x, y + scale.y, 0.0 };
+		vertex.uv = DirectX::XMFLOAT2{ 0.0, 1.0 };
+		vertices.push_back(vertex);
+
+		vertex.pos = DirectX::XMFLOAT3{ x + scale.x, y + scale.y, 0.0 };
+		vertex.uv = DirectX::XMFLOAT2{ 1.0, 1.0 };
+		vertices.push_back(vertex);
+
+		std::vector<unsigned int> indices = { 0, 1, 2, 1, 2, 3 };
+
+		Renderer* renderer = &Renderer::GetInstance();
+
+		m_pQuad = new Mesh(renderer->m_pDevice5, &vertices, &indices, renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+
+		m_pQuad->m_pUploadResourceVertices = new Resource(renderer->m_pDevice5, m_pQuad->GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
+		m_pQuad->m_pDefaultResourceVertices = new Resource(renderer->m_pDevice5, m_pQuad->GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
+
+		// Vertices
+		const void* data = static_cast<const void*>(m_pQuad->m_Vertices.data());
+		Resource* uploadR = m_pQuad->m_pUploadResourceVertices;
+		Resource* defaultR = m_pQuad->m_pDefaultResourceVertices;
+
+		// Create SRV
+		D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
+		dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		dsrv.Buffer.FirstElement = 0;
+		dsrv.Format = DXGI_FORMAT_UNKNOWN;
+		dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		dsrv.Buffer.NumElements = m_pQuad->GetNumVertices();
+		dsrv.Buffer.StructureByteStride = sizeof(Vertex);
+
+		m_pQuad->m_pSRV = new ShaderResourceView(
+			renderer->m_pDevice5,
+			renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
+			&dsrv,
+			m_pQuad->m_pDefaultResourceVertices);
+
+		// Set indices resource
+		m_pQuad->m_pUploadResourceIndices = new Resource(renderer->m_pDevice5, m_pQuad->GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
+		m_pQuad->m_pDefaultResourceIndices = new Resource(renderer->m_pDevice5, m_pQuad->GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
+
+		// inidices
+		data = static_cast<const void*>(m_pQuad->m_Indices.data());
+		uploadR = m_pQuad->m_pUploadResourceIndices;
+		defaultR = m_pQuad->m_pDefaultResourceIndices;
+
+		// Set indexBufferView
+		m_pQuad->m_pIndexBufferView = new D3D12_INDEX_BUFFER_VIEW();
+		m_pQuad->m_pIndexBufferView->BufferLocation = m_pQuad->m_pDefaultResourceIndices->GetGPUVirtualAdress();
+		m_pQuad->m_pIndexBufferView->Format = DXGI_FORMAT_R32_UINT;
+		m_pQuad->m_pIndexBufferView->SizeInBytes = m_pQuad->GetSizeOfIndices();
 	}
 
 	void GUI2DComponent::Update(double dt)
