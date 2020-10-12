@@ -2182,6 +2182,7 @@ void Renderer::SubmitUploadPerSceneData()
 
 	// Submit static-light-data to be uploaded to VRAM
 	ConstantBuffer* cb = nullptr;
+
 	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
 	{
 		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
@@ -2205,6 +2206,7 @@ void Renderer::SubmitUploadPerFrameData()
 	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
 	const void* data = nullptr;
 	ConstantBuffer* cb = nullptr;
+
 	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
 	{
 		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
@@ -2220,9 +2222,6 @@ void Renderer::SubmitUploadPerFrameData()
 			}
 		}
 	}
-
-	// Materials are submitted in the copyPerFrameTask inside EditScene.
-	// This was done so that a new entity (added during runetime) also would be added to the list.
 
 	// CB_PER_FRAME_STRUCT
 	if (cpft != nullptr)
