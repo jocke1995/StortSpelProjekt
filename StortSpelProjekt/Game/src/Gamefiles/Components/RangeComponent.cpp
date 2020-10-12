@@ -61,19 +61,19 @@ void component::RangeComponent::Attack(MouseClick* event)
 		{
 			Player::GetInstance().GetUpgradeManager()->ApplyRangeUpgrades(ent);
 		}
-		
 
 		// get the pos of parent object and forward of camera 
 		// so we know where to spawn and in which direction
 		float3 ParentPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 		DirectX::XMFLOAT3 forward = m_pScene->GetMainCamera()->GetDirection(); 
+		float length = sqrt(forward.x * forward.x + forward.y * forward.y + forward.z * forward.z);
 
 		// add the forward vector to parent pos 
 		// so the projectile doesn't spawn inside of us
 		float3 pos;
-		pos.x = ParentPos.x + forward.x;
-		pos.y = ParentPos.y + forward.y;
-		pos.z = ParentPos.z + forward.z;
+		pos.x = ParentPos.x + (forward.x / length);
+		pos.y = ParentPos.y + (forward.y / length);
+		pos.z = ParentPos.z + (forward.z / length);
 
 		// initialize the components
 		mc->SetModel(m_pModel);
