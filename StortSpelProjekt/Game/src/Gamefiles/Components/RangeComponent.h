@@ -2,7 +2,7 @@
 #define RANGE_COMPONENT_H
 
 #include "../ECS/Components/Component.h"
-#include "Engine.h"
+#include "../../Engine/src/Engine.h"
 #include <vector>
 
 class SceneManager;
@@ -18,6 +18,8 @@ namespace component
 		~RangeComponent();
 		void Attack();
 
+		//Network
+		void CreateNetworkProjectiles(float3 pos, float3 mov);
 		std::vector<Entity*> GetProjectileList();
 		void ClearProjectileList();
 

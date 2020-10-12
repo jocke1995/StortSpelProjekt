@@ -68,6 +68,29 @@ void component::RangeComponent::Attack()
 
 }
 
+void component::RangeComponent::CreateNetworkProjectiles(float3 pos, float3 mov)
+{
+	m_NrOfProjectiles++;
+	Entity* ent = m_pScene->AddEntity("RangeAttack" + std::to_string(m_NrOfProjectiles));
+	component::ModelComponent* mc = nullptr;
+	component::TransformComponent* tc = nullptr;
+
+	mc = ent->AddComponent<component::ModelComponent>();
+	tc = ent->AddComponent<component::TransformComponent>();
+
+	// initialize the components
+	mc->SetModel(m_pModel);
+	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+	tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+	tc->GetTransform()->SetMovement(mov.x,mov.y,mov.z);
+	tc->GetTransform()->SetScale(1);
+	tc->GetTransform()->SetVelocity(2.5f);
+	tc->Update(0.02);
+
+	// add the entity to the sceneManager so it can be spawned in in run time
+	m_pSceneMan->AddEntity(ent);
+}
+
 std::vector<Entity*> component::RangeComponent::GetProjectileList()
 {
 	return m_ProjectileList;

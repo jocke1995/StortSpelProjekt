@@ -11,20 +11,22 @@ void GameNetwork::Update()
 {
     m_pNetwork->SendPositionPacket();
 
+    std::vector<float3> position;
+    std::vector<float3> movement;
     // Append the data? 
     for (int i = 0; i < m_pScene->GetEntity("player")->GetComponent<component::RangeComponent>()->GetProjectileList().size(); i++)
     {
         Transform* temp = m_pScene->GetEntity("player")->GetComponent<component::RangeComponent>()->GetProjectileList().at(i)->GetComponent<component::TransformComponent>()->GetTransform();
-        float3 position = temp->GetPositionFloat3();
-        float3 movement = 
+        float3 tempMovement
         {
            temp->GetMovement().x,
            temp->GetMovement().y,
            temp->GetMovement().z,
         };
-        // TODO, fix what to send in here
-        m_pNetwork->SendRangedAttackPacket(position, movement);
+        position.push_back(temp->GetPositionFloat3());
+        movement.push_back(tempMovement);
     }    
+    m_pNetwork->SendRangedAttackPacket(position, movement, m_pScene->GetEntity("player")->GetComponent<component::RangeComponent>()->GetProjectileList().size());
     m_pScene->GetEntity("player")->GetComponent<component::RangeComponent>()->ClearProjectileList();
     while (m_pNetwork->ListenPacket());
 }

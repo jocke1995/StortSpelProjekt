@@ -5,6 +5,7 @@
 #include "../Renderer/Transform.h"
 #include "SFML/Network.hpp"
 #include "../Events/EventBus.h"
+#include "../../Game/src/Gamefiles/Components/RangeComponent.h"
 #include "../Misc/Timer.h"
 #include <vector>
 #include <iomanip>
@@ -32,10 +33,12 @@ public:
 	sf::TcpSocket* GetSocket();
 
 	void SendPositionPacket();
-	void SendRangedAttackPacket(float3 pos, float3 mov);
+	void SendRangedAttackPacket(std::vector<float3> pos, std::vector<float3> mov, unsigned int size);
 	void Disconnect();
 	//Give network the entity pointer for player.
 	void SetPlayerEntityPointer(Entity* playerEnitity, int id);
+
+	
 
 	bool ListenPacket();
 

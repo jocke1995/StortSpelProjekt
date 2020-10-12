@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Network.h"
 
+
 #include "../ImGUI/ImGuiHandler.h"
 
 Network::Network()
@@ -106,11 +107,18 @@ void Network::SendPositionPacket()
     sendPacket(packet);
 }
 
-void Network::SendRangedAttackPacket(float3 pos, float3 mov)
+void Network::SendRangedAttackPacket(std::vector<float3> pos, std::vector<float3> mov, unsigned int size)
 {
     sf::Packet packet;
 
-    packet << E_PACKET_ID::PLAYER_RANGED_DATA << m_Id << pos.x << pos.y << pos.z << mov.x << mov.y << mov.z;
+    packet << E_PACKET_ID::PLAYER_RANGED_DATA << size;;
+
+    for (int i = 0; i < size; i++)
+    {
+        packet << pos.at(i).x << pos.at(i).y << pos.at(i).z << mov.at(i).x << mov.at(i).y << mov.at(i).z;
+    }
+
+    
 
     sendPacket(packet);
 }
@@ -216,6 +224,38 @@ void Network::processPlayerData(sf::Packet* packet)
     }
 }
 
+
+void Network::processPlayerRangedAttack(sf::Packet* packet)
+{
+    /* Expected packet configuration
+    int client id
+    int size
+    std::vector<float3> projectile position
+    std::vector<float3> projectile movment
+    */
+
+    int id;
+    int size;
+    std::vector<float3> pos;
+    std::vector<float3> mov;
+
+    *packet >> id;
+
+    *packet >> size;
+
+    for (int i = 0; i < m_Players.size(); i++)
+    {
+        if (m_Players.at(i)->clientId == id)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                m_Players.at(i)->entityPointer->GetComponent<component::RangeComponent>()->CreateNetworkProjectiles(pos.at(j), mov.at(j));
+            }    
+        }
+    }
+
+}
+
 void Network::processServerData(sf::Packet* packet)
 {
     /* Expected packet configuration
@@ -309,7 +349,3 @@ void Network::processPlayerDisconnect(sf::Packet* packet)
     }
 }
 
-void Network::processPlayerRangedAttack(sf::Packet* packet)
-{
-    Log::Print("Recieved Ranged Attack package \n");
-}
