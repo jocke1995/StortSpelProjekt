@@ -12,6 +12,7 @@
 #include "../ECS/Scene.h"
 #include "../ECS/Entity.h"
 #include "../ECS/Components/GUI2DComponent.h"
+#include "../ECS/Components/ModelComponent.h"
 #include "../ECS/Components/SkyboxComponent.h"
 #include "../ECS/Components/BoundingBoxComponent.h"
 
@@ -25,14 +26,16 @@
 #include "DescriptorHeap.h"
 #include "Transform.h"
 #include "BaseCamera.h"
+#include "Model.h"
 #include "Mesh.h"
 #include "Texture/Texture.h"
 #include "Texture/TextureCubeMap.h"
 #include "Material.h"
-#include "../Renderer/GUI2DElements/Text.h"
-#include "../Renderer/GUI2DElements/Font.h"
+#include "../Misc/GUI2DElements/Text.h"
+#include "../Misc/GUI2DElements/Font.h"
 
 // GPUMemory
+#include "GPUMemory/Resource.h"
 #include "GPUMemory/ConstantBuffer.h"
 #include "GPUMemory/UnorderedAccess.h"
 // Views
@@ -53,6 +56,7 @@
 #include "DX12Tasks/ForwardRenderTask.h"
 #include "DX12Tasks/BlendRenderTask.h"
 #include "DX12Tasks/ShadowRenderTask.h"
+#include "DX12Tasks/DownSampleRenderTask.h"
 #include "DX12Tasks/MergeRenderTask.h"
 #include "DX12Tasks/TextTask.h"
 #include "DX12Tasks/ImGuiRenderTask.h"
@@ -100,7 +104,7 @@ Renderer::~Renderer()
 void Renderer::DeleteDxResources()
 {
 	Log::Print("----------------------------  Deleting Renderer  ----------------------------------\n");
-	waitForFrame(0);
+	waitForGPU();
 
 	SAFE_RELEASE(&m_pFenceFrame);
 	if (!CloseHandle(m_EventHandle))
@@ -235,30 +239,15 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetGPUHeapAt(imGuiTextureIndex));
 
 	initRenderTasks();
-
-	// Submit the fullscreenQuad to be uploaded, but it won't be uploaded until a scene has been set to Draw
-	const void* datavertices = m_pFullScreenQuad->m_Vertices.data();
-	Resource* uplResourceVertices = m_pFullScreenQuad->m_pUploadResourceVertices;
-	Resource* defResourceVertices = m_pFullScreenQuad->m_pDefaultResourceVertices;
-	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Submit(&std::make_tuple(uplResourceVertices, defResourceVertices, datavertices));
-
-	const void* dataindices = m_pFullScreenQuad->m_Indices.data();
-	Resource* uplResourceindices = m_pFullScreenQuad->m_pUploadResourceIndices;
-	Resource* defResourceindices = m_pFullScreenQuad->m_pDefaultResourceIndices;
-	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Submit(&std::make_tuple(uplResourceindices, defResourceindices, dataindices));
 }
 
 void Renderer::Update(double dt)
 {
-	// Update scene
-	m_pCurrActiveScene->Update(dt);
+	
 }
 
 void Renderer::RenderUpdate(double dt)
 {
-	// Update scene
-	m_pCurrActiveScene->RenderUpdate(dt);
-
 	/* ------ ImGui ------*/
 	if (DEVELOPERMODE_DEVINTERFACE == true)
 	{
@@ -372,6 +361,12 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
 
+	// DownSample the texture used for bloom
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
 	// Skybox
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SKYBOX];
 	renderTask->SetBackBufferIndex(backBufferIndex);
@@ -453,51 +448,17 @@ void Renderer::Execute()
 void Renderer::InitSkyboxComponent(Entity* entity)
 {
 	component::SkyboxComponent* sbc = entity->GetComponent<component::SkyboxComponent>();
-	if (sbc != nullptr)
-	{
-		Mesh* mesh = sbc->GetMesh();
 
-		AssetLoader* al = AssetLoader::Get();
-		std::wstring modelPath = mesh->GetPath();
-		bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
+	Mesh* mesh = sbc->GetMesh();
 
-		// If the model isn't on GPU, it will be uploaded below
-		if (isModelOnGpu == false)
-		{
-			al->m_LoadedModels[modelPath].first = true;
-		}
+	LoadMesh(mesh);
 
-		// Submit to the list which gets updated to the gpu each frame
-		CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+	Texture* texture = static_cast<TextureCubeMap*>(sbc->GetTexture());
+	
+	LoadTexture(texture);
 
-		// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
-		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-		if (isModelOnGpu == false)
-		{
-			// Vertices
-			const void* data = static_cast<const void*>(mesh->m_Vertices.data());
-			Resource* uploadR = mesh->m_pUploadResourceVertices;
-			Resource* defaultR = mesh->m_pDefaultResourceVertices;
-			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-
-			// inidices
-			data = static_cast<const void*>(mesh->m_Indices.data());
-			uploadR = mesh->m_pUploadResourceIndices;
-			defaultR = mesh->m_pDefaultResourceIndices;
-			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-		}
-
-		Texture* texture = static_cast<TextureCubeMap*>(sbc->GetTexture());
-		// Check if the texture is on GPU before submitting to be uploaded
-		if (al->m_LoadedTextures[texture->m_FilePath].first == false)
-		{
-			codt->SubmitTexture(texture);
-			al->m_LoadedTextures[texture->m_FilePath].first = true;
-		}
-
-		// Finally store the object in m_pRenderer so it will be drawn
-		m_pSkyboxComponent = sbc;
-	}
+	// Finally store the object in m_pRenderer so it will be drawn
+	m_pSkyboxComponent = sbc;
 }
 
 void Renderer::InitModelComponent(Entity* entity)
@@ -506,77 +467,29 @@ void Renderer::InitModelComponent(Entity* entity)
 	component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
 	component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
 
-	Mesh* mesh = mc->GetMeshAt(0);
-	AssetLoader* al = AssetLoader::Get();
-	std::wstring modelPath = mesh->GetPath();
-	bool isModelOnGpu = al->m_LoadedModels[modelPath].first;
-
-	// If the model isn't on GPU, it will be uploaded below
-	if (isModelOnGpu == false)
+	// check if model has transform component
+	if (tc != nullptr)
 	{
-		al->m_LoadedModels[modelPath].first = true;
-	}
-
-	// Submit Mesh/texture data to GPU if they haven't already been uploaded
-	for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
-	{
-		mesh = mc->GetMeshAt(i);
-
-		// Submit to the list which gets updated to the gpu each frame
-		CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-
-		// Submit m_pMesh & texture Data to GPU if the data isn't already uploaded
-		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-		if (isModelOnGpu == false)
+		// Finally store the object in the corresponding renderComponent vectors so it will be drawn
+		if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
 		{
-			// Vertices
-			const void* data = static_cast<const void*>(mesh->m_Vertices.data());
-			Resource* uploadR = mesh->m_pUploadResourceVertices;
-			Resource* defaultR = mesh->m_pDefaultResourceVertices;
-			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-
-			// inidices
-			data = static_cast<const void*>(mesh->m_Indices.data());
-			uploadR = mesh->m_pUploadResourceIndices;
-			defaultR = mesh->m_pDefaultResourceIndices;
-			codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+			m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(mc, tc));
 		}
 
-		Material* meshMat = mc->GetMaterialAt(i);
-		// Textures
-		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
+		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
 		{
-			TEXTURE2D_TYPE type = static_cast<TEXTURE2D_TYPE>(i);
-			Texture* texture = meshMat->GetTexture(type);
-
-			// Check if the texture is on GPU before submitting to be uploaded
-			if (al->m_LoadedTextures[texture->m_FilePath].first == false)
-			{
-				codt->SubmitTexture(texture);
-				al->m_LoadedTextures[texture->m_FilePath].first = true;
-			}
+			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
 		}
-	}
 
-	// Finally store the object in the corresponding renderComponent vectors so it will be drawn
-	if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
-	{
-		m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(mc, tc));
-	}
+		if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
+		{
+			m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
+		}
 
-	if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
-	{
-		m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
-	}
-
-	if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
-	{
-		m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
-	}
-
-	if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
-	{
-		m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(mc, tc));
+		if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
+		{
+			m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(mc, tc));
+		}
 	}
 }
 
@@ -696,19 +609,9 @@ void Renderer::InitBoundingBoxComponent(Entity* entity)
 				return;
 			}
 
+			// TODO: don't load here, load in loadScene
 			// Submit to GPU
-			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-			// Vertices
-			const void* data = static_cast<const void*>(m->m_Vertices.data());
-			Resource* uploadR = m->m_pUploadResourceVertices;
-			Resource* defaultR = m->m_pDefaultResourceVertices;
-			codt->Submit(&std::tuple(uploadR, defaultR, data));
-
-			// inidices
-			data = static_cast<const void*>(m->m_Indices.data());
-			uploadR = m->m_pUploadResourceIndices;
-			defaultR = m->m_pDefaultResourceIndices;
-			codt->Submit(&std::tuple(uploadR, defaultR, data));
+			LoadMesh(m);
 
 			bbc->AddMesh(m);
 		}
@@ -729,11 +632,27 @@ void Renderer::InitGUI2DComponent(Entity* entity)
 
 	for (auto textData : *textDataMap)
 	{
-		textComp->uploadTextData(textData.first);
+		textComp->UploadTextData(textData.first);
 	}
 
 	// Finally store the text in m_pRenderer so it will be drawn
 	m_TextComponents.push_back(textComp);
+}
+
+void Renderer::OnResetScene()
+{
+	m_RenderComponents.clear();
+	for (auto& light : m_Lights)
+	{
+		light.second.clear();
+	}
+	m_pViewPool->ClearAll();
+	m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
+	static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
+	m_pScenePrimaryCamera = nullptr;
+	static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
+	m_BoundingBoxesToBePicked.clear();
+	m_TextComponents.clear();
 }
 
 Entity* const Renderer::GetPickedEntity() const
@@ -938,6 +857,46 @@ void Renderer::createFullScreenQuad()
 	indexVector.push_back(3);
 
 	m_pFullScreenQuad = new Mesh(m_pDevice5, &vertexVector, &indexVector, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+
+	// Load fullscreen mesh
+	// Set vertices resource
+	m_pFullScreenQuad->m_pUploadResourceVertices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
+	m_pFullScreenQuad->m_pDefaultResourceVertices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
+
+	// Vertices
+	const void* data = static_cast<const void*>(m_pFullScreenQuad->m_Vertices.data());
+	Resource* uploadR = m_pFullScreenQuad->m_pUploadResourceVertices;
+	Resource* defaultR = m_pFullScreenQuad->m_pDefaultResourceVertices;
+
+	// Create SRV
+	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
+	dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	dsrv.Buffer.FirstElement = 0;
+	dsrv.Format = DXGI_FORMAT_UNKNOWN;
+	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	dsrv.Buffer.NumElements = m_pFullScreenQuad->GetNumVertices();
+	dsrv.Buffer.StructureByteStride = sizeof(Vertex);
+
+	m_pFullScreenQuad->m_pSRV = new ShaderResourceView(
+		m_pDevice5,
+		m_DescriptorHeaps.at(DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV),
+		&dsrv,
+		m_pFullScreenQuad->m_pDefaultResourceVertices);
+
+	// Set indices resource
+	m_pFullScreenQuad->m_pUploadResourceIndices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
+	m_pFullScreenQuad->m_pDefaultResourceIndices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
+
+	// inidices
+	data = static_cast<const void*>(m_pFullScreenQuad->m_Indices.data());
+	uploadR = m_pFullScreenQuad->m_pUploadResourceIndices;
+	defaultR = m_pFullScreenQuad->m_pDefaultResourceIndices;
+
+	// Set indexBufferView
+	m_pFullScreenQuad->m_pIndexBufferView = new D3D12_INDEX_BUFFER_VIEW();
+	m_pFullScreenQuad->m_pIndexBufferView->BufferLocation = m_pFullScreenQuad->m_pDefaultResourceIndices->GetGPUVirtualAdress();
+	m_pFullScreenQuad->m_pIndexBufferView->Format = DXGI_FORMAT_R32_UINT;
+	m_pFullScreenQuad->m_pIndexBufferView->SizeInBytes = m_pFullScreenQuad->GetSizeOfIndices();
 }
 
 void Renderer::updateMousePicker()
@@ -1130,11 +1089,56 @@ void Renderer::initRenderTasks()
 	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
 	forwardRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	forwardRenderTask->SetSwapChain(m_pSwapChain);
-	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTargetView());
+	forwardRenderTask->AddRenderTargetView("brightTarget", std::get<1>(*m_pBloomResources->GetBrightTuple()));
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
-
 #pragma endregion ForwardRendering
+
+#pragma region DownSampleTextureTask
+	/* Forward rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdDownSampleTexture = {};
+	gpsdDownSampleTexture.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdDownSampleTexture.NumRenderTargets = 1;
+	gpsdDownSampleTexture.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+
+	// Depthstencil usage
+	gpsdDownSampleTexture.SampleDesc.Count = 1;
+	gpsdDownSampleTexture.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdDownSampleTexture.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdDownSampleTexture.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdDownSampleTexture.RasterizerState.FrontCounterClockwise = false;
+
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdDownSampleTexture.BlendState.RenderTarget[i] = defaultRTdesc;
+
+	// Depth descriptor
+	dsd = {};
+	dsd.DepthEnable = false;
+	dsd.StencilEnable = false;
+	gpsdDownSampleTexture.DepthStencilState = dsd;
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdDownSampleTextureVector;
+	gpsdDownSampleTextureVector.push_back(&gpsdDownSampleTexture);
+
+	RenderTask* downSampleTask = new DownSampleRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"DownSampleVertex.hlsl", L"DownSamplePixel.hlsl",
+		&gpsdDownSampleTextureVector,
+		L"DownSampleTexturePSO",
+		std::get<2>(*m_pBloomResources->GetBrightTuple()),		// Read from this in actual resolution
+		m_pBloomResources->GetPingPongResource(0)->GetRTV(),	// Write to this in 1280x720
+		FLAG_THREAD::RENDER);
+	
+	static_cast<DownSampleRenderTask*>(downSampleTask)->SetFullScreenQuad(m_pFullScreenQuad);
+	downSampleTask->SetSwapChain(m_pSwapChain);
+	downSampleTask->SetDescriptorHeaps(m_DescriptorHeaps);
+	static_cast<DownSampleRenderTask*>(downSampleTask)->SetFullScreenQuadInSlotInfo();
+
+#pragma endregion DownSampleTextureTask
 
 #pragma region ModelOutlining
 	/* Forward rendering without stencil testing */
@@ -1518,6 +1522,7 @@ void Renderer::initRenderTasks()
 
 #pragma endregion IMGUIRENDERTASK
 
+#pragma region ComputeAndCopyTasks
 	UINT resolutionWidth = 0;
 	UINT resolutionHeight = 0;
 	m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
@@ -1530,9 +1535,10 @@ void Renderer::initRenderTasks()
 		m_pDevice5, m_pRootSignature,
 		csNamePSOName,
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
+		std::get<2>(*m_pBloomResources->GetBrightTuple()),
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		resolutionWidth, resolutionHeight,
+		m_pBloomResources->GetBlurWidth(), m_pBloomResources->GetBlurHeight(),
 		FLAG_THREAD::RENDER);
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
@@ -1541,6 +1547,7 @@ void Renderer::initRenderTasks()
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE, FLAG_THREAD::RENDER);
 	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5, COMMAND_INTERFACE_TYPE::COPY_TYPE, FLAG_THREAD::RENDER);
 
+#pragma endregion ComputeAndCopyTasks
 	
 	// Add the tasks to desired vectors so they can be used in m_pRenderer
 	/* -------------------------------------------------------------- */
@@ -1571,6 +1578,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::TEXT] = textTask;
 	m_RenderTasks[RENDER_TASK_TYPE::IMGUI] = imGuiRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX] = skyboxRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE] = downSampleTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1591,6 +1599,11 @@ void Renderer::initRenderTasks()
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandInterface()->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(downSampleTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1676,6 +1689,21 @@ void Renderer::createFences()
 	m_EventHandle = CreateEvent(0, false, false, 0);
 }
 
+void Renderer::waitForGPU()
+{
+	//Signal and increment the fence value.
+	const UINT64 oldFenceValue = m_FenceFrameValue;
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, oldFenceValue);
+	m_FenceFrameValue++;
+
+	//Wait until command queue is done.
+	if (m_pFenceFrame->GetCompletedValue() < oldFenceValue)
+	{
+		m_pFenceFrame->SetEventOnCompletion(oldFenceValue, m_EventHandle);
+		WaitForSingleObject(m_EventHandle, INFINITE);
+	}
+}
+
 void Renderer::waitForFrame(unsigned int framesToBeAhead)
 {
 	static constexpr unsigned int nrOfFenceChangesPerFrame = 1;
@@ -1686,6 +1714,238 @@ void Renderer::waitForFrame(unsigned int framesToBeAhead)
 	{
 		m_pFenceFrame->SetEventOnCompletion(m_FenceFrameValue - fenceValuesToBeAhead, m_EventHandle);
 		WaitForSingleObject(m_EventHandle, INFINITE);
+	}
+}
+
+// TODO: Put all these functions in assetloader
+// Then gets called by LoadModel()
+void Renderer::LoadModel(Model* model) const
+{
+	model->m_ActiveRefCount++;
+
+	// only load when it is first referenced
+	if (model->m_ActiveRefCount == 1)
+	{
+		AssetLoader* al = AssetLoader::Get();
+
+		std::wstring modelPath = model->GetPath();
+		// If the model isn't on GPU, it will be uploaded below
+		if (!al->IsModelLoadedOnGpu(modelPath))
+		{
+			Mesh* mesh;
+			// Submit Mesh & Texture Data to GPU
+			for (unsigned int i = 0; i < model->GetSize(); i++)
+			{
+				Mesh* mesh = model->GetMeshAt(i);
+				Material* meshMat = model->GetMaterialAt(i);
+
+				// Upload Mesh
+				LoadMesh(mesh);
+
+				// Upload Material
+				LoadMaterial(model->GetMaterialAt(i));
+
+				// Set Slotinfo
+				model->m_SlotInfos[i] =
+				{
+				mesh->m_pSRV->GetDescriptorHeapIndex(),
+				meshMat->GetTexture(TEXTURE2D_TYPE::ALBEDO)->GetDescriptorHeapIndex(),
+				meshMat->GetTexture(TEXTURE2D_TYPE::ROUGHNESS)->GetDescriptorHeapIndex(),
+				meshMat->GetTexture(TEXTURE2D_TYPE::METALLIC)->GetDescriptorHeapIndex(),
+				meshMat->GetTexture(TEXTURE2D_TYPE::NORMAL)->GetDescriptorHeapIndex(),
+				meshMat->GetTexture(TEXTURE2D_TYPE::EMISSIVE)->GetDescriptorHeapIndex()
+				};
+			}
+
+			// Set model as loadedOnGpu
+			al->m_LoadedModels[modelPath].first = true;
+		}
+		else
+		{
+			Log::PrintSeverity(Log::Severity::WARNING, "Renderer::loadModel: loadModel called on already loaded model %S\n", modelPath);
+		}
+	}
+	
+}
+
+void Renderer::LoadMesh(Mesh* mesh) const
+{
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+
+	// TODO: Maybe want to check if mesh is on gpu before upload
+
+	// Check if mesh has a resource
+	if (mesh->m_pDefaultResourceVertices == nullptr)
+	{
+		// create vertices resource
+		mesh->m_pUploadResourceVertices = new Resource(m_pDevice5, mesh->GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
+		mesh->m_pDefaultResourceVertices = new Resource(m_pDevice5, mesh->GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
+
+		// Vertices
+		const void* data = static_cast<const void*>(mesh->m_Vertices.data());
+		Resource* uploadR = mesh->m_pUploadResourceVertices;
+		Resource* defaultR = mesh->m_pDefaultResourceVertices;
+
+		// Create SRV
+		D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
+		dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		dsrv.Buffer.FirstElement = 0;
+		dsrv.Format = DXGI_FORMAT_UNKNOWN;
+		dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		dsrv.Buffer.NumElements = mesh->GetNumVertices();
+		dsrv.Buffer.StructureByteStride = sizeof(Vertex);
+
+		// Set view to mesh
+		mesh->m_pSRV = new ShaderResourceView(
+			m_pDevice5,
+			m_DescriptorHeaps.at(DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV),
+			&dsrv,
+			mesh->m_pDefaultResourceVertices);
+
+		// Set indices resource
+		mesh->m_pUploadResourceIndices = new Resource(m_pDevice5, mesh->GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
+		mesh->m_pDefaultResourceIndices = new Resource(m_pDevice5, mesh->GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
+
+		// inidices
+		data = static_cast<const void*>(mesh->m_Indices.data());
+		uploadR = mesh->m_pUploadResourceIndices;
+		defaultR = mesh->m_pDefaultResourceIndices;
+		codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+		// Set indexBufferView
+		mesh->m_pIndexBufferView = new D3D12_INDEX_BUFFER_VIEW();
+		mesh->m_pIndexBufferView->BufferLocation = mesh->m_pDefaultResourceIndices->GetGPUVirtualAdress();
+		mesh->m_pIndexBufferView->Format = DXGI_FORMAT_R32_UINT;
+		mesh->m_pIndexBufferView->SizeInBytes = mesh->GetSizeOfIndices();
+
+		// Copy the upload to default resource
+		codt->Submit(&std::make_tuple(mesh->m_pUploadResourceVertices, mesh->m_pDefaultResourceVertices, static_cast<const void*>(mesh->m_Vertices.data())));
+		codt->Submit(&std::make_tuple(mesh->m_pUploadResourceIndices, mesh->m_pDefaultResourceIndices, static_cast<const void*>(mesh->m_Indices.data())));
+	}
+}
+
+void Renderer::LoadMaterial(Material* material) const
+{
+	AssetLoader* al = AssetLoader::Get();
+	if (!al->IsMaterialLoadedOnGpu(material))
+	{
+		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
+		{
+			TEXTURE2D_TYPE type = static_cast<TEXTURE2D_TYPE>(i);
+			Texture* texture = material->GetTexture(type);
+
+			LoadTexture(texture);
+		}
+		al->m_LoadedMaterials[material->GetPath()].first = true;
+	}
+}
+
+void Renderer::LoadTexture(Texture* texture) const
+{
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+	AssetLoader* al = AssetLoader::Get();
+
+	// Check if the texture is on GPU before submitting to be uploaded
+	if (!al->IsTextureLoadedOnGpu(texture->GetPath()))
+	{
+		// Create texture resource
+		texture->Init(m_pDevice5, m_DescriptorHeaps.at(DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV));
+
+		codt->SubmitTexture(texture);
+		al->m_LoadedTextures[texture->m_FilePath].first = true;
+	}
+}
+
+void Renderer::UnloadModel(Model* model) const
+{
+	model->m_ActiveRefCount--;
+	// Unload if model is not referenced anymore
+	if (model->m_ActiveRefCount == 0)
+	{
+		AssetLoader* al = AssetLoader::Get();
+
+		std::wstring path = model->GetPath();
+		// Debug check if model is already unloaded
+		if (!al->IsModelLoadedOnGpu(path))
+		{
+			// Do nothing
+			Log::PrintSeverity(Log::Severity::WARNING, "Renderer::unloadModel: unloadModel called on already unloaded model %S\n", path);
+		}
+		else
+		{
+			for (unsigned int i = 0; i < model->GetSize(); i++)
+			{
+				// unloadMeshes
+				Mesh* mesh = model->GetMeshAt(i);
+				UnloadMesh(mesh);
+
+				// unloadMaterial
+				Material* meshmat = model->GetMaterialAt(i);
+				UnloadMaterial(meshmat);
+
+				// Set slotinfo = 0;
+				model->m_SlotInfos[i] = {};
+			}
+			// Set as unloaded
+			al->m_LoadedModels[path].first = false;
+		}
+	}
+}
+
+void Renderer::UnloadMesh(Mesh* mesh) const
+{
+	// TODO: Bool for isMeshOnGPU
+	if (mesh->m_pDefaultResourceVertices != nullptr)
+	{
+		// Delete the VRAM
+		delete mesh->m_pDefaultResourceVertices;
+		delete mesh->m_pUploadResourceVertices;
+		delete mesh->m_pDefaultResourceIndices;
+		delete mesh->m_pUploadResourceIndices;
+
+		delete mesh->m_pSRV;
+		delete mesh->m_pIndexBufferView;
+
+		// Set to nullptr
+		mesh->m_pDefaultResourceVertices = nullptr;
+		mesh->m_pUploadResourceVertices = nullptr;
+		mesh->m_pDefaultResourceIndices = nullptr;
+		mesh->m_pUploadResourceIndices = nullptr;
+
+		mesh->m_pSRV = nullptr;
+		mesh->m_pIndexBufferView = nullptr;
+	}
+}
+
+void Renderer::UnloadMaterial(Material* material) const
+{
+	AssetLoader* al = AssetLoader::Get();
+
+	for (unsigned int i = 0; i < material->m_Textures.size(); i++)
+	{
+		Texture* texture = material->m_Textures.at(static_cast<TEXTURE2D_TYPE>(i));
+		UnloadTexture(texture);
+	}
+	al->m_LoadedMaterials[material->m_Name].first = false;
+}
+
+void Renderer::UnloadTexture(Texture* texture) const
+{
+	AssetLoader* al = AssetLoader::Get();
+
+	if (!al->IsTextureLoadedOnGpu(texture->GetPath()))
+	{
+		// Delete VRAM
+		delete texture->m_pUploadResource;
+		delete texture->m_pDefaultResource;
+		delete texture->m_pSRV;
+
+		// Set nullptr
+		texture->m_pUploadResource = nullptr;
+		texture->m_pDefaultResource = nullptr;
+		texture->m_pSRV = nullptr;
+
+		al->m_LoadedTextures[texture->m_FilePath].first = false;
 	}
 }
 
@@ -1827,7 +2087,7 @@ void Renderer::removeComponents(Entity* entity)
 	return;
 }
 
-void Renderer::prepareScene(Scene* scene)
+void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 {
 	prepareCBPerFrame();
 	prepareCBPerScene();
@@ -1839,7 +2099,7 @@ void Renderer::prepareScene(Scene* scene)
 	//m_pScenePrimaryCamera = tempCam;
 	if (m_pScenePrimaryCamera == nullptr)
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scene: %s\n", scene->GetName());
+		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scenes\n");
 
 		// Todo: Set default m_pCamera
 	}
@@ -1849,21 +2109,12 @@ void Renderer::prepareScene(Scene* scene)
 	}
 	else
 	{
-		if (m_pSkyboxComponent->GetCamera() == nullptr)
-		{
-			// Set primary camera, skyboxcomponent does not have access to m_pScenePrimaryCamera
-			// which is the reason it is set camera here.
-			m_pSkyboxComponent->SetCamera(m_pScenePrimaryCamera);
-		}
+
 	}
-
-
 	m_pMousePicker->SetPrimaryCamera(m_pScenePrimaryCamera);
-	scene->SetPrimaryCamera(m_pScenePrimaryCamera);
+
 	setRenderTasksRenderComponents();
 	setRenderTasksPrimaryCamera();
-
-	m_pCurrActiveScene = scene;
 }
 
 void Renderer::prepareCBPerScene()

@@ -168,7 +168,6 @@ void RootSignature::createRootSignatureStructure()
 
 	rsDesc.pStaticSamplers = ssd;
 
-
 	ID3DBlob* errorMessages = nullptr;
 	HRESULT hr = D3D12SerializeRootSignature(
 		&rsDesc,

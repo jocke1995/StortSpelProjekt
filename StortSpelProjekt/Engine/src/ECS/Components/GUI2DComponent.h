@@ -39,8 +39,12 @@ namespace component
 		const int GetNumOfTexts() const;
 		const int GetNumOfCharacters(std::string name);
 
+		void UploadTextData(std::string name);
+
 		void Update(double dt);
-		void InitScene();
+		void OnInitScene();
+		void OnLoadScene();
+		void OnUnloadScene();
 
 	private:
 		friend class Renderer;
@@ -48,8 +52,6 @@ namespace component
 		std::map<std::string, TextData> m_TextDataMap = {};
 		std::map<std::string, Text*> m_TextMap = {};
 		Font* m_pFont = nullptr;
-
-		void uploadTextData(std::string name);
 	};
 }
 #endif

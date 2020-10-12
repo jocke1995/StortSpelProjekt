@@ -58,6 +58,7 @@ public:
 
 private:
     friend class MergeRenderTask;
+    friend class DownSampleRenderTask;
     friend class SkyboxRenderTask;
     friend class Renderer;
     friend class SceneManager;
@@ -76,9 +77,6 @@ private:
 
     ShaderResourceView* m_pSRV = nullptr;
     D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;
-    
-    void initMesh(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV);
-    void createIndexBufferView();
 };
 
 #endif

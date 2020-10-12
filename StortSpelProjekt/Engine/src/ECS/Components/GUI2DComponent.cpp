@@ -5,10 +5,10 @@
 #include "../Misc/Window.h"
 
 #include "../Renderer/Texture/Texture.h"
-#include "../Renderer/GUI2DElements/Text.h"
-#include "../Renderer/GUI2DElements/Font.h"
 #include "../Renderer/DescriptorHeap.h"
 #include "../Misc/AssetLoader.h"
+#include "../Misc/GUI2DElements/Text.h"
+#include "../Misc/GUI2DElements/Font.h"
 
 namespace component
 {
@@ -88,8 +88,10 @@ namespace component
 		}
 	}
 
-	void GUI2DComponent::uploadTextData(std::string name)
+	void GUI2DComponent::UploadTextData(std::string name)
 	{
+		Renderer::GetInstance().LoadTexture(m_pFont->GetTexture());
+
 		int numOfCharacters = GetNumOfCharacters(name);
 		auto textData = GetTextData(name);
 
@@ -148,10 +150,6 @@ namespace component
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set text.\n", name.c_str());
 		}
-		else
-		{
-			uploadTextData(name);
-		}
 	}
 
 	void GUI2DComponent::SetPos(float2 textPos, std::string name)
@@ -170,10 +168,6 @@ namespace component
 		if (exists == false)
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set position.\n", name.c_str());
-		}
-		else
-		{
-			uploadTextData(name);
 		}
 	}
 
@@ -213,10 +207,6 @@ namespace component
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set scale.\n", name.c_str());
 		}
-		else
-		{
-			uploadTextData(name);
-		}
 	}
 
 	void GUI2DComponent::SetPadding(float2 padding, std::string name)
@@ -236,10 +226,6 @@ namespace component
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set padding.\n", name.c_str());
 		}
-		else
-		{
-			uploadTextData(name);
-		}
 	}
 
 	void GUI2DComponent::SetColor(float4 color, std::string name)
@@ -258,10 +244,6 @@ namespace component
 		if (exists == false)
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set color.\n", name.c_str());
-		}
-		else
-		{
-			uploadTextData(name);
 		}
 	}
 
@@ -299,8 +281,18 @@ namespace component
 	{
 	}
 
-	void GUI2DComponent::InitScene()
+	void GUI2DComponent::OnInitScene()
 	{
 		Renderer::GetInstance().InitGUI2DComponent(GetParent());
+	}
+
+	void GUI2DComponent::OnLoadScene()
+	{
+		Renderer::GetInstance().LoadTexture(m_pFont->GetTexture());
+	}
+
+	void GUI2DComponent::OnUnloadScene()
+	{
+		Renderer::GetInstance().UnloadTexture(m_pFont->GetTexture());
 	}
 }

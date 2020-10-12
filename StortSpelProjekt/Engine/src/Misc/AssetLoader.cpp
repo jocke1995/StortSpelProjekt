@@ -45,6 +45,36 @@ AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_C
 	m_LoadedMaterials[matName].second = material;
 }
 
+bool AssetLoader::IsModelLoadedOnGpu(const std::wstring& name) const
+{
+	return m_LoadedModels.at(name).first;
+}
+
+bool AssetLoader::IsModelLoadedOnGpu(const Model* model) const
+{
+	return m_LoadedModels.at(model->GetPath()).first;
+}
+
+bool AssetLoader::IsMaterialLoadedOnGpu(const std::wstring& name) const
+{
+	return m_LoadedMaterials.at(name).first;
+}
+
+bool AssetLoader::IsMaterialLoadedOnGpu(const Material* material) const
+{
+	return m_LoadedMaterials.at(material->GetPath()).first;
+}
+
+bool AssetLoader::IsTextureLoadedOnGpu(const std::wstring& name) const
+{
+	return m_LoadedTextures.at(name).first;
+}
+
+bool AssetLoader::IsTextureLoadedOnGpu(const Texture* texture) const
+{
+	return m_LoadedTextures.at(texture->GetPath()).first;
+}
+
 AssetLoader::~AssetLoader()
 {
 	// For every Mesh
@@ -53,14 +83,8 @@ AssetLoader::~AssetLoader()
 		delete mesh;
 	}
 
-	// For every Animation
-	for (auto animation : m_LoadedAnimations)
-	{
-		delete animation;
-	}
-
-	// For every model
-	for (auto pair : m_LoadedModels)
+	// For every texture
+	for (auto pair : m_LoadedTextures)
 	{
 		delete pair.second.second;
 	}
@@ -71,8 +95,14 @@ AssetLoader::~AssetLoader()
 		delete material.second.second;
 	}
 
-	// For every texture
-	for (auto pair : m_LoadedTextures)
+	// For every Animation
+	for (auto animation : m_LoadedAnimations)
+	{
+		delete animation;
+	}
+
+	// For every model
+	for (auto pair : m_LoadedModels)
 	{
 		delete pair.second.second;
 	}
@@ -134,6 +164,8 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	processAnimations(assimpScene, &animations);
 
 	m_LoadedModels[path].second = new Model(&path, &meshes, &animations, &materials);
+
+	// load to vram
 
 	return m_LoadedModels[path].second;
 }
@@ -265,17 +297,11 @@ Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
 	Texture* texture = nullptr;
 	if (fileEnding == "dds")
 	{
-		texture = new Texture2D();
+		texture = new Texture2D(path);
 	}
 	else
 	{
-		texture = new Texture2DGUI();
-	}
-
-	if (texture->Init(path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
-	{
-		delete texture;
-		return nullptr;
+		texture = new Texture2DGUI(path);
 	}
 
 	m_LoadedTextures[path].first = false;
@@ -291,12 +317,7 @@ TextureCubeMap* AssetLoader::LoadTextureCubeMap(const std::wstring& path)
 		return static_cast<TextureCubeMap*>(m_LoadedTextures[path].second);
 	}
 
-	TextureCubeMap* textureCubeMap = new TextureCubeMap();
-	if (textureCubeMap->Init(path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
-	{
-		delete textureCubeMap;
-		return nullptr;
-	}
+	TextureCubeMap* textureCubeMap = new TextureCubeMap(path);
 
 	m_LoadedTextures[path].first = false;
 	m_LoadedTextures[path].second = textureCubeMap;

@@ -40,6 +40,10 @@ namespace component
 
 		void Init();
 
+		void OnInitScene();
+		void OnLoadScene();
+		void OnUnloadScene();
+
 		void RenderUpdate(double dt);
 
 	private:

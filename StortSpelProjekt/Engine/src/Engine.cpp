@@ -9,11 +9,15 @@ Engine::Engine()
 
 Engine::~Engine()
 {
+	// Gpu will crash if we delete stuff while commandQueues are running
+	m_pRenderer->waitForGPU();
+
 	delete m_pWindow;
 	delete m_pTimer;
 
 	Physics::GetInstance().DestroyPhysics();
 	delete m_pSceneManager;
+
 	m_pRenderer->DeleteDxResources();
 }
 
@@ -52,7 +56,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	m_pAudioEngine = &AudioEngine::GetInstance();
 
 	// ECS
-	m_pSceneManager = new SceneManager(m_pRenderer);
+	m_pSceneManager = new SceneManager();
 
 	// Physics
 	m_pPhysics = &Physics::GetInstance();

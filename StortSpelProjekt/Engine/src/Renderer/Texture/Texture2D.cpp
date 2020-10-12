@@ -9,10 +9,11 @@
 // For loading textures
 #include "TextureFunctions.h"
 
-Texture2D::Texture2D()
-	: Texture()
+Texture2D::Texture2D(const std::wstring& filePath)
+	: Texture(filePath)
 {
 	m_Type = TEXTURE_TYPE::TEXTURE2D;
+	m_SubresourceData.resize(1); // 1 subresource
 }
 
 Texture2D::~Texture2D()
@@ -20,9 +21,8 @@ Texture2D::~Texture2D()
 	
 }
 
-bool Texture2D::Init(const std::wstring& filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
+bool Texture2D::Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 {
-	m_FilePath = filePath;
 	HRESULT hr;
 
 	m_pDefaultResource = new Resource();
@@ -31,11 +31,11 @@ bool Texture2D::Init(const std::wstring& filePath, ID3D12Device5* device, Descri
 	std::unique_ptr<uint8_t[]> m_DdsData;
 
 	// Loads the texture and creates a default resource;
-	hr = DirectX::LoadDDSTextureFromFile(device, filePath.c_str(), reinterpret_cast<ID3D12Resource**>(m_pDefaultResource->GetID3D12Resource1PP()), m_DdsData, m_SubresourceData);
+	hr = DirectX::LoadDDSTextureFromFile(device, m_FilePath.c_str(), reinterpret_cast<ID3D12Resource**>(m_pDefaultResource->GetID3D12Resource1PP()), m_DdsData, m_SubresourceData);
 	
 	if (FAILED(hr))
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(filePath).c_str());
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(m_FilePath).c_str());
 		delete m_pDefaultResource;
 		m_pDefaultResource = nullptr;
 		return false;
