@@ -546,7 +546,6 @@ void Renderer::InitPointLightComponent(Entity* entity)
 
 	// Save in m_pRenderer
 	m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(plc, cb, si));
-
 }
 
 void Renderer::InitSpotLightComponent(Entity* entity)

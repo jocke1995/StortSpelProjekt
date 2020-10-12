@@ -876,7 +876,7 @@ Scene* JockesTestScene(SceneManager* sm)
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetPosition(0.0f, 1.0f, -25.0f);
     tc->GetTransform()->SetRotationX(PI / 4);
