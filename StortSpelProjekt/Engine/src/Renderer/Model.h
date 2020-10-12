@@ -30,7 +30,7 @@ public:
         std::vector<Material*>* materials);
     virtual ~Model();
 
-    void Update();
+    void Update(double dt);
 
     const std::wstring* GetPath() const;
     unsigned int GetSize() const;

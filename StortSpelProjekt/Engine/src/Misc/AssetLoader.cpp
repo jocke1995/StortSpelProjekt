@@ -102,7 +102,7 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	const std::string filePath(path.begin(), path.end());
 	Assimp::Importer importer;
 
-	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph);
+	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes);
 
 	if (assimpScene == nullptr)
 	{
@@ -118,7 +118,9 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	materials.reserve(assimpScene->mNumMeshes);
 	m_LoadedModels[path].first = false;
 
+	Log::Print("\n\n\n");
 	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
+	Log::Print("\n\n\n");
 
 	// Animation stuff
 	std::vector<Animation*> animations;
@@ -250,6 +252,13 @@ Shader* AssetLoader::loadShader(const std::wstring& fileName, ShaderType type)
 
 void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
 {
+	static int level = 0;
+	if (node->mTransformation.IsIdentity())
+		Log::Print("aiNode: %s I\n", node->mName.C_Str());
+	else
+		Log::Print("aiNode: %s NOT I\n", node->mName.C_Str());
+
+
 	// Go through all the m_Meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
@@ -258,10 +267,18 @@ void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vec
 	}
 	
 	// If the node has more node children
+	if (node->mNumChildren != 0)
+		level++;
+
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
+		for (int j = 0; j < level; j++)
+			Log::Print("\t");
 		processNode(node->mChildren[i], assimpScene, meshes, materials, filePath);
 	}
+
+	if (node->mNumChildren != 0)
+		level--;
 }
 
 Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
@@ -404,7 +421,7 @@ Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring& folderP
 		// Don't print for default material
 		if (matName != L"DefaultMaterial")
 		{
-			Log::PrintSeverity(Log::Severity::WARNING, "AssetLoader: Loaded same material name more than once, first loaded material will be used <%S>\n", matName.c_str());
+			//Log::PrintSeverity(Log::Severity::WARNING, "AssetLoader: Loaded same material name more than once, first loaded material will be used <%S>\n", matName.c_str());
 		}
 		return m_LoadedMaterials[matName].second;
 	}
@@ -465,8 +482,8 @@ Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_typ
 	{
 		std::string tempString = std::string(filePathWithoutTexture.begin(), filePathWithoutTexture.end());
 		// No texture, warn and apply default Texture
-		Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType +
-			" on mesh with path: \'%s\'\n", tempString.c_str());
+		//Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType +
+		//	" on mesh with path: \'%s\'\n", tempString.c_str());
 		return m_LoadedTextures[defaultPath].second;
 	}
 
@@ -730,7 +747,8 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 		aiAnimation* assimpAnimation = assimpScene->mAnimations[i];
 
 		animation->durationInTicks = assimpAnimation->mDuration;
-		animation->ticksPerSecond = assimpAnimation->mTicksPerSecond;
+		animation->ticksPerSecond = assimpAnimation->mTicksPerSecond != 0 ?
+			assimpAnimation->mTicksPerSecond : 25.0f;
 
 		// Store the keyframes (transform data) for each nodeAnimation (bone)
 		for (unsigned int j = 0; j < assimpAnimation->mNumChannels; j++)
@@ -742,6 +760,9 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 			for (unsigned int k = 0; k < assimpNodeAnimation->mNumPositionKeys; k++)
 			{
 				Keyframe key;
+
+				key.time = assimpNodeAnimation->mPositionKeys[k].mTime;
+
 				key.transform.position = DirectX::XMFLOAT3(
 					assimpNodeAnimation->mPositionKeys[k].mValue.x,
 					assimpNodeAnimation->mPositionKeys[k].mValue.y,

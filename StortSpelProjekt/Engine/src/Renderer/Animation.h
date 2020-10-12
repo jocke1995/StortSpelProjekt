@@ -69,16 +69,18 @@ struct Animation
 			else
 			{
 				// Find the current key index
-				unsigned int keyIndex;
-				for (unsigned int i = 0; i < bone.second.size(); i++)
+				unsigned int keyIndex = 0;
+				for (unsigned int i = 0; i < bone.second.size() - 1; i++)
 				{
-					if (animationTime < bone.second[i].time)
+					if (animationTime < bone.second[i + 1].time)
 					{
 						keyIndex = i;
+						break;
 					}
 				}
 				unsigned int nextKeyIndex = keyIndex + 1;
-				assert(nextKeyIndex < bone.second.size() && keyIndex >= 0);
+				assert(nextKeyIndex < bone.second.size());
+				assert(keyIndex >= 0);
 
 				// Calculate interpolation factor
 				float dt = bone.second[nextKeyIndex].time - bone.second[keyIndex].time;

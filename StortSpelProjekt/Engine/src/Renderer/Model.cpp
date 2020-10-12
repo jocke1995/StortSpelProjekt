@@ -18,6 +18,12 @@ Model::Model(const std::wstring* path, SkeletonNode* rootNode, std::map<unsigned
 	m_Animations = (*animations);
 	m_Materials = (*materials);
 
+	// TEMP
+	if (!m_Animations.empty())
+		m_pActiveAnimation = m_Animations[0];
+	else
+		m_pActiveAnimation = nullptr;
+
 	// Store the globalInverse transform.
 	DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
 	globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
@@ -43,11 +49,13 @@ Model::~Model()
 	delete m_pSkeleton;
 }
 
-void Model::Update()
+void Model::Update(double dt)
 {
 	if (m_pActiveAnimation != nullptr)
 	{
-		float animationTime = fmod(m_pActiveAnimation->durationInTicks, m_pActiveAnimation->ticksPerSecond);
+		float timeInTicks = dt * m_pActiveAnimation->ticksPerSecond;
+
+		float animationTime = fmod(timeInTicks, m_pActiveAnimation->durationInTicks);
 		m_pActiveAnimation->Update(animationTime);
 		updateSkeleton(animationTime, m_pSkeleton, DirectX::XMMatrixIdentity());
 	}
