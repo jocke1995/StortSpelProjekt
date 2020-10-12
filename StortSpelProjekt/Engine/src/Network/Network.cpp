@@ -118,8 +118,6 @@ void Network::SendRangedAttackPacket(std::vector<float3> pos, std::vector<float3
         packet << pos.at(i).x << pos.at(i).y << pos.at(i).z << mov.at(i).x << mov.at(i).y << mov.at(i).z;
     }
 
-    
-
     sendPacket(packet);
 }
 
@@ -236,12 +234,27 @@ void Network::processPlayerRangedAttack(sf::Packet* packet)
 
     int id;
     int size;
-    std::vector<float3> pos;
-    std::vector<float3> mov;
+    float3 pos;
+    float3 mov;
+    
+    std::vector<float3> posVector;
+    std::vector<float3> movVector;
 
     *packet >> id;
 
     *packet >> size;
+
+    for (int i = 0; i < size; i++)
+    {
+        *packet >> pos.x;
+        *packet >> pos.y;
+        *packet >> pos.z;
+        posVector.at(i) = pos;
+        *packet >> mov.x;
+        *packet >> mov.y;
+        *packet >> mov.z;
+        movVector.at(i) = mov;
+    }
 
     for (int i = 0; i < m_Players.size(); i++)
     {
@@ -249,7 +262,7 @@ void Network::processPlayerRangedAttack(sf::Packet* packet)
         {
             for (int j = 0; j < size; j++)
             {
-                m_Players.at(i)->entityPointer->GetComponent<component::RangeComponent>()->CreateNetworkProjectiles(pos.at(j), mov.at(j));
+                m_Players.at(i)->entityPointer->GetComponent<component::RangeComponent>()->CreateNetworkProjectiles(posVector.at(j), movVector.at(j));
             }    
         }
     }
