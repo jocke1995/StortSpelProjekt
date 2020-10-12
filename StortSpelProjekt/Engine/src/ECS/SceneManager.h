@@ -31,7 +31,7 @@ public:
 	void UnloadScene(Scene* scene);
 	void ResetScene();
 private:
-	std::map<std::string, Scene*> m_pScenes;
+	std::map<std::string, Scene*> m_Scenes;
 	std::vector<Scene*> m_ActiveScenes;
 	std::set<Scene*> m_LoadedScenes;
 

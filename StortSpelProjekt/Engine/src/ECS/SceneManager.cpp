@@ -44,12 +44,12 @@ SceneManager::~SceneManager()
 		UnloadScene(scene);
 	}
 
-	for (auto pair : m_pScenes)
+	for (auto pair : m_Scenes)
 	{
 		delete pair.second;
 	}
 
-    m_pScenes.clear();
+    m_Scenes.clear();
 }
 
 void SceneManager::Update(double dt)
@@ -82,8 +82,8 @@ Scene* SceneManager::CreateScene(std::string sceneName)
     }
 
     // Create Scene and return it
-    m_pScenes[sceneName] = new Scene(sceneName);
-    return m_pScenes[sceneName];
+    m_Scenes[sceneName] = new Scene(sceneName);
+    return m_Scenes[sceneName];
 }
 
 std::vector<Scene*>* SceneManager::GetActiveScenes()
@@ -95,7 +95,7 @@ Scene* SceneManager::GetScene(std::string sceneName) const
 {
     if (sceneExists(sceneName))
     {
-        return m_pScenes.at(sceneName);
+        return m_Scenes.at(sceneName);
     }
 	
     Log::PrintSeverity(Log::Severity::CRITICAL, "No Scene with name: \'%s\' was found.\n", sceneName.c_str());
@@ -243,7 +243,7 @@ void SceneManager::ResetScene()
 
 bool SceneManager::sceneExists(std::string sceneName) const
 {
-    for (auto pair : m_pScenes)
+    for (auto pair : m_Scenes)
     {
         // A Scene with this m_Name already exists
         if (pair.first == sceneName)

@@ -15,11 +15,11 @@ public:
 	//Use render update for all things rendering. It will be using variable timestep
 	virtual void RenderUpdate(double dt);
 	//SceneInit
-	virtual void OnInitScene();
+	virtual void OnInitScene() = 0;
 	// Called on LoadScene for each component
-	virtual void OnLoadScene();
+	virtual void OnLoadScene() = 0;
 	// Called on UnloadScene for each component
-	virtual void OnUnloadScene();
+	virtual void OnUnloadScene() = 0;
 
 	Entity* const GetParent() const;
 
