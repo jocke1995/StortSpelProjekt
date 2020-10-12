@@ -6,7 +6,7 @@ UpgradeManager::UpgradeManager(Entity* parentEntity)
 {
 	m_pParentEntity = parentEntity;
 	// After parent entity is set we fill in our map of upgrades.
-	fillUppgradeList();
+	fillUppgradeMap();
 }
 
 UpgradeManager::~UpgradeManager()
@@ -19,21 +19,22 @@ void UpgradeManager::ApplyUpgrade(std::string name)
 	if (checkIfRangeUpgrade(name))
 	{
 		// If it is an uppgrade that needs to be put on a projectile then
-		// add it to the m_AllAppliedProjectileUpgrades vector
+		// add it to the m_AllAppliedProjectileUpgrades vector.
 		m_AllAppliedProjectileUpgrades.push_back(name);
-		m_RangeUpgradeEnmus[name] = RANGE_TEST;
+		// Also add its' Enum to the enum map.
+		m_RangeUpgradeEnmus[name] = UPGRADE_RANGE_TEST;
 		// Then check if it is also of a type that needs to be on the player entity.
-		// If so also add it to player entitys UpgradeComponent
+		// If so also add it to player entitys UpgradeComponent.
 		if (checkIfPlayerEntityUpgrade(name))
 		{
-			m_pParentEntity->GetComponent<component::UpgradeComponent>()->AddUpgrade(m_AllAvailablePlayerUpgrades[name]);
+			m_pParentEntity->GetComponent<component::UpgradeComponent>()->AddUpgrade(m_AllAvailableUpgrades[name]);
 		}
 	}
 	else
 	{
 		// If it is not a Range Upgrade then it goes on the player entity.
-		// So add it to player entitys UpgradeComponent
-		m_pParentEntity->GetComponent<component::UpgradeComponent>()->AddUpgrade(m_AllAvailablePlayerUpgrades[name]);
+		// So add it to player entitys UpgradeComponent.
+		m_pParentEntity->GetComponent<component::UpgradeComponent>()->AddUpgrade(m_AllAvailableUpgrades[name]);
 	}
 }
 
@@ -45,26 +46,32 @@ void UpgradeManager::ApplyRangeUpgrades(Entity* ent)
 	{
 		// get NEW RangeUpgrade for the projectile entity
 		rangeUpgrade = RangeUpgrade(upgradeName, ent);
-		// Add the upgrade to the projectile entitys upgardeComponent
+		// Add the upgrade to the projectile entitys upgradeComponent
 		ent->GetComponent<component::UpgradeComponent>()->AddUpgrade(rangeUpgrade);
 	}
 }
 
-void UpgradeManager::fillUppgradeList()
+void UpgradeManager::fillUppgradeMap()
 {
 	Upgrade* upgrade;
 
 	// Adding RangeTest Upgrade
 	upgrade = new UpgradeRangeTest(m_pParentEntity);
 	// add the upgrade to the list of all upgrades
-	m_AllAvailablePlayerUpgrades[upgrade->GetName()] = upgrade;
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Bellow is an example of adding another upgrade
+	//// Adding MeleeTest Upgrade
+	//upgrade = new UpgradeMeleeTest(m_pParentEntity);
+	//// add the upgrade to the list of all upgrades
+	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
 }
 
 bool UpgradeManager::checkIfRangeUpgrade(std::string name)
 {
-	// checking if the upgrade with name, is a range upgrade
-	if (F_UpgradeType::RANGE & m_AllAvailablePlayerUpgrades[name]->GetType())
+	// Checking if the upgrade with name, is a range upgrade
+	if (F_UpgradeType::RANGE & m_AllAvailableUpgrades[name]->GetType())
 	{
 		return true;
 	}
@@ -76,9 +83,8 @@ bool UpgradeManager::checkIfRangeUpgrade(std::string name)
 
 bool UpgradeManager::checkIfPlayerEntityUpgrade(std::string name)
 {
-	// checking if upgred with name, is of another type other than RANGE
-	unsigned int type = m_AllAvailablePlayerUpgrades[name]->GetType();
-	if (F_UpgradeType::MELEE & type || F_UpgradeType::MOVEMENT & type || F_UpgradeType::ONDAMAGE & type || F_UpgradeType::STATS & type)
+	// checking if upgrade with name, is of other type than RANGE
+	if (F_UpgradeType::PLAYER & m_AllAvailableUpgrades[name]->GetType())
 	{
 		return true;
 	}
@@ -94,11 +100,9 @@ Upgrade* UpgradeManager::RangeUpgrade(std::string name, Entity* ent)
 	// return the correct NEW range upgrade with parentEntity ent
 	switch (m_RangeUpgradeEnmus[name])
 	{
-	case RANGE_TEST:
+	case UPGRADE_RANGE_TEST:
 		return new UpgradeRangeTest(ent);
 		break;
-		//case:
-		//	break;
 	default:
 		break;
 	}

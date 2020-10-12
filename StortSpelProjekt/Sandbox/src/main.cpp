@@ -1413,12 +1413,10 @@ Scene* AndresTestScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
 
-    //// upgrade test
+    // upgrade test. This functionality will be handled by shop.
     Player::GetInstance().SetPlayer(entity);
     Player::GetInstance().GetUpgradeManager()->ApplyUpgrade("UpgradeRangeTest");
-    Player::GetInstance().GetPlayer()->GetComponent<component::UpgradeComponent>()->ApplyStat();
-    //UpgradeRangeTest test(entity);
-    //upgradeComp->AddUpgrade(&test);
+    Player::GetInstance().GetPlayer()->GetComponent<component::UpgradeComponent>()->GetUpgradeByName("UpgradeRangeTest")->ApplyStat();
 
     /* ---------------------- Player ---------------------- */
 

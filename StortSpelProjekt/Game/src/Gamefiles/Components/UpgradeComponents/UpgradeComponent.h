@@ -21,6 +21,8 @@ namespace component
 		void AddUpgrade(Upgrade* upgrade);
 		void RemoveUpgrade(Upgrade* upgrade);
 		bool HasUpgrade(std::string name);
+		std::map<std::string, Upgrade*> GetUpgradeMap();
+		Upgrade* GetUpgradeByName(std::string name);
 
 		// Below are all functions needed by upgrades. Some will be used by several upgrades and others might be unique.
 		// This way you can call functions that range over several "types" but might be called on in similar situations (such as melee/range OnHit).
@@ -43,8 +45,6 @@ namespace component
 		void RangedFlight();
 		// upgrades that modify the ranged attack (ex: multiple projectiles)
 		void RangedModifier();
-		// upgrades that applies/adds stats (ex: more hp, more stamina)
-		void ApplyStat();
 
 	private:
 		// list with all added upgrades to the parent entity

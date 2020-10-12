@@ -8,12 +8,9 @@ class Entity;
 // Types of upgrades, for sorting/call purposes
 enum F_UpgradeType
 {
-	RANGE = (1 << 1),			// range weapon/attack upgrades
-	MELEE = (1 << 2),			// melee weapon/attack upgrades
-	MOVEMENT = (1 << 3),		// upgrades regarding movement.
-	STATS = (1 << 4),			// stat modifications such as hp change.
-	ONDAMAGE = (1 << 5),		// upgrades that are "triggered" when damage is taken.
-	ENEMYSPECIFIC = (1 << 6)	// upgrades only relevant for enemy entities. example: enemy explode on death)
+	RANGE = (1 << 1),			// Range weapon/attack upgrades which go on projectile entitys UpgradeComponent
+	PLAYER = (1 << 2),			// Upgrades that go on the player entitys UpgradeComponent
+	ENEMYSPECIFIC = (1 << 3)	// Upgrades only relevant for enemy entities. example: enemy explode on death
 };
 
 class Upgrade
@@ -61,7 +58,6 @@ public:
 	virtual void ApplyStat();
 
 protected:
-	// 
 	Entity* m_pParentEntity;
 	// Name of the upgrade, for ease of access in shop or upgrade handlers
 	std::string m_Name = "";

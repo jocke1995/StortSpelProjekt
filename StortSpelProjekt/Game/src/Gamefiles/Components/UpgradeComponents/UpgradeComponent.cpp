@@ -59,6 +59,16 @@ bool component::UpgradeComponent::HasUpgrade(std::string name)
 	}
 }
 
+std::map<std::string, Upgrade*> component::UpgradeComponent::GetUpgradeMap()
+{
+	return m_AppliedUpgrades;
+}
+
+Upgrade* component::UpgradeComponent::GetUpgradeByName(std::string name)
+{
+	return m_AppliedUpgrades[name];
+}
+
 void component::UpgradeComponent::OnHit()
 {
 	for (auto& upgrade : m_AppliedUpgrades)
@@ -120,13 +130,5 @@ void component::UpgradeComponent::RangedModifier()
 	for (auto upgrade : m_AppliedUpgrades)
 	{
 		upgrade.second->RangedModifier();
-	}
-}
-
-void component::UpgradeComponent::ApplyStat()
-{
-	for (auto upgrade : m_AppliedUpgrades)
-	{
-		upgrade.second->ApplyStat();
 	}
 }

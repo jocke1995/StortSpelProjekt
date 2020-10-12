@@ -32,7 +32,7 @@ void component::ProjectileComponent::hit(Collision* event)
 		{
 			event->ent2->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 		}
-		// upgrade-test
+		// Call on upgrade on hit functions
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit();
@@ -46,7 +46,7 @@ void component::ProjectileComponent::hit(Collision* event)
 		{
 			event->ent1->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 		}
-		// upgrade-test
+		// Call on upgrade on hit functions
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit();
