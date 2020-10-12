@@ -41,7 +41,7 @@ public:
 	PipelineState* GetPipelineState(unsigned int index);
 
 	
-	void AddRenderTarget(std::string, const RenderTargetView* renderTarget);
+	void AddRenderTargetView(std::string, const RenderTargetView* renderTargetView);
 	
 	void SetRenderComponents(
 		std::vector<std::pair<	component::ModelComponent*,
@@ -53,7 +53,7 @@ public:
 	
 protected:
 	std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>> m_RenderComponents;
-	std::map<std::string, const RenderTargetView*> m_RenderTargets;
+	std::map<std::string, const RenderTargetView*> m_RenderTargetViews;
 	
 	DepthStencil* m_pDepthStencil = nullptr;
 	BaseCamera* m_pCamera = nullptr;

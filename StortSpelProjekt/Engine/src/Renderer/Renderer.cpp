@@ -55,6 +55,7 @@
 #include "DX12Tasks/ForwardRenderTask.h"
 #include "DX12Tasks/BlendRenderTask.h"
 #include "DX12Tasks/ShadowRenderTask.h"
+#include "DX12Tasks/DownSampleRenderTask.h"
 #include "DX12Tasks/MergeRenderTask.h"
 #include "DX12Tasks/TextTask.h"
 #include "DX12Tasks/ImGuiRenderTask.h"
@@ -355,6 +356,12 @@ void Renderer::Execute()
 
 	// Drawing
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
+	// DownSample the texture used for bloom
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
@@ -1106,11 +1113,56 @@ void Renderer::initRenderTasks()
 	forwardRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
 	forwardRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	forwardRenderTask->SetSwapChain(m_pSwapChain);
-	forwardRenderTask->AddRenderTarget("brightTarget", m_pBloomResources->GetRenderTargetView());
+	forwardRenderTask->AddRenderTargetView("brightTarget", std::get<1>(*m_pBloomResources->GetBrightTuple()));
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
-
 #pragma endregion ForwardRendering
+
+#pragma region DownSampleTextureTask
+	/* Forward rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdDownSampleTexture = {};
+	gpsdDownSampleTexture.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdDownSampleTexture.NumRenderTargets = 1;
+	gpsdDownSampleTexture.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+
+	// Depthstencil usage
+	gpsdDownSampleTexture.SampleDesc.Count = 1;
+	gpsdDownSampleTexture.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdDownSampleTexture.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdDownSampleTexture.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdDownSampleTexture.RasterizerState.FrontCounterClockwise = false;
+
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdDownSampleTexture.BlendState.RenderTarget[i] = defaultRTdesc;
+
+	// Depth descriptor
+	dsd = {};
+	dsd.DepthEnable = false;
+	dsd.StencilEnable = false;
+	gpsdDownSampleTexture.DepthStencilState = dsd;
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdDownSampleTextureVector;
+	gpsdDownSampleTextureVector.push_back(&gpsdDownSampleTexture);
+
+	RenderTask* downSampleTask = new DownSampleRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"DownSampleVertex.hlsl", L"DownSamplePixel.hlsl",
+		&gpsdDownSampleTextureVector,
+		L"DownSampleTexturePSO",
+		std::get<2>(*m_pBloomResources->GetBrightTuple()),		// Read from this in actual resolution
+		m_pBloomResources->GetPingPongResource(0)->GetRTV(),	// Write to this in 1280x720
+		FLAG_THREAD::RENDER);
+	
+	static_cast<DownSampleRenderTask*>(downSampleTask)->SetFullScreenQuad(m_pFullScreenQuad);
+	downSampleTask->SetSwapChain(m_pSwapChain);
+	downSampleTask->SetDescriptorHeaps(m_DescriptorHeaps);
+	static_cast<DownSampleRenderTask*>(downSampleTask)->SetFullScreenQuadInSlotInfo();
+
+#pragma endregion DownSampleTextureTask
 
 #pragma region ModelOutlining
 	/* Forward rendering without stencil testing */
@@ -1153,7 +1205,6 @@ void Renderer::initRenderTasks()
 	outliningRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion ModelOutlining
-
 
 #pragma region SkyboxRendering
 	/* Forward rendering without stencil testing */
@@ -1495,6 +1546,7 @@ void Renderer::initRenderTasks()
 
 #pragma endregion IMGUIRENDERTASK
 
+#pragma region ComputeAndCopyTasks
 	UINT resolutionWidth = 0;
 	UINT resolutionHeight = 0;
 	m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&resolutionWidth, &resolutionHeight);
@@ -1507,9 +1559,10 @@ void Renderer::initRenderTasks()
 		m_pDevice5, m_pRootSignature,
 		csNamePSOName,
 		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
+		std::get<2>(*m_pBloomResources->GetBrightTuple()),
 		m_pBloomResources->GetPingPongResource(0),
 		m_pBloomResources->GetPingPongResource(1),
-		resolutionWidth, resolutionHeight,
+		m_pBloomResources->GetBlurWidth(), m_pBloomResources->GetBlurHeight(),
 		FLAG_THREAD::RENDER);
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
@@ -1518,6 +1571,7 @@ void Renderer::initRenderTasks()
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE, FLAG_THREAD::RENDER);
 	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5, COMMAND_INTERFACE_TYPE::COPY_TYPE, FLAG_THREAD::RENDER);
 
+#pragma endregion ComputeAndCopyTasks
 	
 	// Add the tasks to desired vectors so they can be used in m_pRenderer
 	/* -------------------------------------------------------------- */
@@ -1548,6 +1602,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::TEXT] = textTask;
 	m_RenderTasks[RENDER_TASK_TYPE::IMGUI] = imGuiRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX] = skyboxRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE] = downSampleTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1568,6 +1623,11 @@ void Renderer::initRenderTasks()
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandInterface()->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(downSampleTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
