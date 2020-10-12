@@ -21,8 +21,7 @@ void UpgradeManager::ApplyUpgrade(std::string name)
 		// If it is an uppgrade that needs to be put on a projectile then
 		// add it to the m_AllAppliedProjectileUpgrades vector.
 		m_AllAppliedProjectileUpgrades.push_back(name);
-		// Also add its' Enum to the enum map.
-		m_RangeUpgradeEnmus[name] = UPGRADE_RANGE_TEST;
+
 		// Then check if it is also of a type that needs to be on the player entity.
 		// If so also add it to player entitys UpgradeComponent.
 		if (checkIfPlayerEntityUpgrade(name))
@@ -59,13 +58,13 @@ void UpgradeManager::fillUppgradeMap()
 	upgrade = new UpgradeRangeTest(m_pParentEntity);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Also, since it is of type RANGE, add its' Enum to the enum map.
+	m_RangeUpgradeEnmus[upgrade->GetName()] = UPGRADE_RANGE_TEST;
 
-	// Below is an example of adding another upgrade
 	// Adding MeleeTest Upgrade
 	upgrade = new UpgradeMeleeTest(m_pParentEntity);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
-
 }
 
 bool UpgradeManager::checkIfRangeUpgrade(std::string name)
