@@ -6,7 +6,7 @@ struct VS_OUT
 	float2 uv   : UV;
 };
 
-// Source & Destination descriptorHeapIndices are stored in metallic & albedo
+// Source descriptorHeapIndex is stored in albedo
 ConstantBuffer<CB_PER_OBJECT_STRUCT> descriptorHeapIndices : register(b1, space3);
 
 Texture2D<float4> textures[]   : register (t0);

@@ -58,7 +58,7 @@ Bloom::Bloom(
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 	rtvDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-	m_PingPongResources[0]->createRTV(device, m_BlurWidth, m_BlurHeight, dh_RTV, &rtvDesc);
+	m_PingPongResources[0]->CreateRTV(device, m_BlurWidth, m_BlurHeight, dh_RTV, &rtvDesc);
 }
 
 Bloom::~Bloom()

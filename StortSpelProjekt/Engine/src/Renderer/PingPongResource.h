@@ -31,19 +31,20 @@ public:
 	const UnorderedAccessView* const GetUAV() const;
 	const RenderTargetView* const GetRTV() const;
 
+	void CreateRTV(
+		ID3D12Device5* device,
+		unsigned int width, unsigned int height,
+		DescriptorHeap* dhRTV,
+		D3D12_RENDER_TARGET_VIEW_DESC* rtvDesc);
+
 private:
-	friend class Bloom;
 	Resource* m_pResource = nullptr;
 	ShaderResourceView* m_pSRV = nullptr;
 	UnorderedAccessView* m_pUAV = nullptr;
 
 	// Only the first buffer will use this
 	RenderTargetView* m_pRTV = nullptr;
-	void createRTV(
-		ID3D12Device5* device,
-		unsigned int width, unsigned int height,
-		DescriptorHeap* dhRTV,
-		D3D12_RENDER_TARGET_VIEW_DESC* rtvDesc);
+	
 };
 
 #endif

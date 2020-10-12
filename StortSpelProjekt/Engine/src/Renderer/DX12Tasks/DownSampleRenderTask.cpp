@@ -69,12 +69,6 @@ void DownSampleRenderTask::Execute()
 
 	commandList->SetGraphicsRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
 
-	// Change state on front/backbuffer
-	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-	//	m_pDestinationRTV->GetResource()->GetID3D12Resource1(),
-	//	D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-	//	D3D12_RESOURCE_STATE_RENDER_TARGET));
-
 	const D3D12_VIEWPORT* viewPort = m_pDestinationRTV->GetRenderView()->GetViewPort();
 	const D3D12_RECT* rect = m_pDestinationRTV->GetRenderView()->GetScissorRect();
 	commandList->RSSetViewports(1, viewPort);
@@ -97,12 +91,6 @@ void DownSampleRenderTask::Execute()
 
 	// Draw a fullscreen quad 
 	commandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
-
-	// Change state on front/backbuffer
-	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-	//	m_pDestinationRTV->GetResource()->GetID3D12Resource1(),
-	//	D3D12_RESOURCE_STATE_RENDER_TARGET,
-	//	D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
 
 	commandList->Close();
 }
