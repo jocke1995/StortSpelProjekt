@@ -23,9 +23,13 @@ Model::Model(const std::wstring* path, SkeletonNode* rootNode, std::map<unsigned
 
 	// TEMP
 	if (!m_Animations.empty())
+	{
 		m_pActiveAnimation = m_Animations[0];
+	}
 	else
+	{
 		m_pActiveAnimation = nullptr;
+	}
 
 	if (rootNode)
 	{
