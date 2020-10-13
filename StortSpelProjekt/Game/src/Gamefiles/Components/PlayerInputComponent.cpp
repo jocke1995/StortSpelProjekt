@@ -135,7 +135,7 @@ void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 	{
 		m_pTransform->SetVelocity(SPRINT_MOD * BASE_VEL);
 		// Check if the player is in the air. If not, allow sprint
-		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1)
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.5) != -1)
 		{
 			// Get the current linear velocity of the player
 			double3 vel = m_pCC->GetLinearVelocity();
@@ -148,7 +148,7 @@ void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 	{
 		m_pTransform->SetVelocity(BASE_VEL);
 		// Check if the player is in the air. If not, allow sprint
-		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1)
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.5) != -1)
 		{
 			// Get the current linear velocity of the player
 			double3 vel = m_pCC->GetLinearVelocity();
@@ -183,7 +183,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	};
 
 	// Check if the player is in the air. If not, allow movement
-	double dist = m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1);
+	double dist = m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.5);
 	if (dist != -1 && !m_Dashing)
 	{
 		double moveRight = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::D)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::A)));
@@ -263,7 +263,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		m_pCC->SetAngularVelocity(0.0, 0.0, 0.0);
 
 		// Check if in air. If not, change movement direction to match up with camera direction
-		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1 && !m_Dashing)
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.5) != -1 && !m_Dashing)
 		{
 			// Get new direction
 			forward = m_pTransform->GetForwardFloat3();
@@ -334,7 +334,7 @@ void component::PlayerInputComponent::updateDash(double dt)
 
 void component::PlayerInputComponent::updateJump(double dt)
 {
-	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.1) != -1)
+	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.5) != -1)
 	{
 		double3 move =
 		{
