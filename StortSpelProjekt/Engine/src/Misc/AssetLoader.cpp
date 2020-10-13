@@ -191,6 +191,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	getHeightMapResources(path, heightMapPath, materialPath);
 
 	Texture* tex = LoadTexture2D(heightMapPath);
+	Renderer::GetInstance().LoadTexture(tex);
 
 	// One dimensional!
 	unsigned char* imgData = tex->GetData();
@@ -279,6 +280,8 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	model = new HeightmapModel(&path, &meshes, &animations, &materials, heightData, static_cast<double>(tex->GetWidth()), static_cast<double>(tex->GetHeight()));
 	m_LoadedModels[path].first = false;
 	m_LoadedModels[path].second = model;
+
+	Renderer::GetInstance().UnloadTexture(tex);
 
 	return model;
 }

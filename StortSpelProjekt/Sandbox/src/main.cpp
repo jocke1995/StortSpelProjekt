@@ -455,7 +455,7 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetRotationX(-3 * 3.1415 / 4);
     tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
     tc->GetTransform()->SetPosition(70.0f, 50.0f, 70.0f);
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
 #pragma endregion
 
 #pragma region hasse
@@ -470,17 +470,17 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetRotationX(3 * 3.1415 / 4);
     tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
     tc->GetTransform()->SetPosition(-70.0f, 50.0f, 70.0f);
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
 #pragma endregion
 
 #pragma region enemies
-    /*EnemyFactory enH(scene);
+    EnemyFactory enH(scene);
     enH.AddEnemy("sphere", sphereModel, 10, float3{ -50, 10, 50 },L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_ROLL, 10.0, float3{ 1.578, 0, 0 });
     enH.AddExistingEnemy("sphere", float3{ 50, 10, -50 });
     enH.AddExistingEnemy("sphere", float3{ 50, 10, 50 });
     enH.AddExistingEnemy("sphere", float3{ -50, 10, -50 });
     enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_JUMP | F_AI_FLAGS::CAN_ROLL, 0.5);
-    enH.AddEnemy("conan", barbModel, 20, float3{ 0.0, 10.0, 0.0 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player");*/
+    enH.AddEnemy("conan", barbModel, 20, float3{ 0.0, 10.0, 0.0 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player");
 #pragma endregion
 
 #pragma region navmesh

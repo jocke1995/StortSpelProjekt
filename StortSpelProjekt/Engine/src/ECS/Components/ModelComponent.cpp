@@ -82,6 +82,6 @@ namespace component
 	}
 	double3 ModelComponent::GetModelDim() const
 	{
-		return m_Model->GetModelDim();
+		return m_pModel->GetModelDim();
 	}
 }

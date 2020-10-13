@@ -35,7 +35,7 @@ void component::AiComponent::Update(double dt)
 		}
 		float distance = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
 
-		if (cc->CastRay({ 0.0, -1.0, 0.0 }, cc->GetDistanceToBottom() + 0.1) != -1)
+		if (cc->CastRay({ 0.0, -1.0, 0.0 }, cc->GetDistanceToBottom() + 0.5) != -1)
 		{
 			double vel;
 			if (distance <= m_DetectionRadius && distance >= (m_AttackingDistance - 0.5f))
