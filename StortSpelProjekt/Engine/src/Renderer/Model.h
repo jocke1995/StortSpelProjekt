@@ -44,6 +44,8 @@ public:
     // SlotInfo
     const SlotInfo* GetSlotInfoAt(unsigned int index) const;
 
+    double3 GetModelDim() const;
+
 private:
     friend class Renderer;
 

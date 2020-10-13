@@ -1,0 +1,5 @@
+# Material Count: 1
+# Textures downloaded from https://freepbr.com/materials/planet-surface-2/
+newmtl tstMat
+
+map_Kd tst.dds
