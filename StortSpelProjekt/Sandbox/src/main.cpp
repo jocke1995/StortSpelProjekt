@@ -348,7 +348,7 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetRotationY(PI / 2);
 #pragma endregion
 
-#pragma region wall
+#pragma region walls
     entity = scene->AddEntity("wall0");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -442,7 +442,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetPosition(24.0f, 10.0f, -75.0f);
+    tc->GetTransform()->SetPosition(0.0f, 10.0f, 0.0f);
 
     entityDim = mc->GetModelDim();
 
@@ -484,9 +484,12 @@ Scene* LeosTestScene(SceneManager* sm)
     /*enH.AddEnemy("sphere", sphereModel, 10, float3{ -50, 10, 50 },L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_ROLL, 10.0, float3{ 1.578, 0, 0 });
     enH.AddExistingEnemy("sphere", float3{ 50, 10, -50 });
     enH.AddExistingEnemy("sphere", float3{ 50, 10, 50 });
-    enH.AddExistingEnemy("sphere", float3{ -50, 10, -50 });*/
-    enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_JUMP | F_AI_FLAGS::CAN_ROLL, 0.5);
-    enH.AddEnemy("conan", barbModel, 20, float3{ 0.0, 10.0, 0.0 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "Ball2", 250.0f, 0.0f);
+    enH.AddExistingEnemy("sphere", float3{ -50, 10, -50 });
+    enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_JUMP | F_AI_FLAGS::CAN_ROLL, 0.5);*/
+    enH.AddEnemy("conan", barbModel, 20, float3{ 245.0, 10.0, 245.0 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "Ball2", 500.0f, 0.0f);
+    enH.AddExistingEnemy("conan", float3{ 245, 10, -245 });
+    enH.AddExistingEnemy("conan", float3{ -245, 10, 245 });
+    enH.AddExistingEnemy("conan", float3{ -245, 10, -245 });
 #pragma endregion
 
 #pragma endregion
