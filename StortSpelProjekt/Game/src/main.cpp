@@ -323,7 +323,9 @@ Scene* GetDemoScene(SceneManager* sm)
 	textComp->SetScale(textScale, "health");
 	textComp->SetText(textToRender, "health");
 
-	textComp->CreateQuad(textPos, textScale);
+	float2 quadPos = { 0.25f, 0.25f };
+	float2 quadScale = { 0.5f, 0.5f };
+	textComp->CreateQuad(quadPos, quadScale, true, L"../Vendor/Resources/Textures/2DGUI/replay.png");
 
 	/* ---------------------------------------------------------- */
 
@@ -364,6 +366,15 @@ void DemoUpdateScene(SceneManager* sm)
 	green += 0.01;
 	blue += 0.01;
 	tc->UploadTextData("health");
+
+	float2 quadPos = { 0.25f, 0.25f };
+	float2 quadScale = { 0.5f, 0.5f };
+	tc->CreateQuad(quadPos, quadScale, true);
+
+	if (tc->HasBeenPressed())
+	{
+		Log::Print("PRESSED!\n");
+	}
 
     std::string name = "enemy";
     for (int i = 1; i < 76; i++)

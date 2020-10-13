@@ -11,8 +11,12 @@ class Font;
 class Mesh;
 class Resource;
 class ShaderResourceView;
+class Events;
+class Eventbus;
+
 struct TextData;
 struct Vertex;
+struct ButtonPressed;
 
 namespace component
 {
@@ -47,7 +51,8 @@ namespace component
 		void UploadTextData(std::string name);
 
 		// Quad functions
-		void CreateQuad(float2 pos, float2 scale, std::wstring path = L"NONE");
+		void CreateQuad(float2 pos, float2 size, bool clickable, std::wstring texturePath = L"NONE");
+		bool HasBeenPressed();
 
 		// General functions
 		void Update(double dt);
@@ -60,9 +65,14 @@ namespace component
 
 		std::map<std::string, TextData> m_TextDataMap = {};
 		std::map<std::string, Text*> m_TextMap = {};
+		std::map<std::string, float2> m_Positions = {};
 		Font* m_pFont = nullptr;
 		Mesh* m_pQuad = nullptr;
 		Texture* m_pQuadTexture = nullptr;
+		bool m_Clickable = false;
+		bool m_Pressed = false;
+
+		void pressed(ButtonPressed* evnt);
 	};
 }
 #endif
