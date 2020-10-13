@@ -291,8 +291,8 @@ Scene* LeosTestScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
@@ -1202,6 +1202,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/aniTest/Standard_Walk.fbx");
     Model* amongUsModel = al->LoadModel(L"../Vendor/Resources/Models/amongus/AmongUs.fbx");
 
     Entity* entity = scene->AddEntity("player");
@@ -1217,6 +1218,15 @@ Scene* WilliamsTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
 
+    /* ---------------------- Skybox ---------------------- */
+
+    // Skybox
+    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    sbc->SetTexture(skyboxCubemap);
+
+    /* ---------------------- Skybox ---------------------- */
 
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -1248,7 +1258,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
 
     mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(amongUsModel);
+    mc->SetModel(aniTest);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 40.0f);
