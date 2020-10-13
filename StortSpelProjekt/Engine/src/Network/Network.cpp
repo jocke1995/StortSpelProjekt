@@ -115,7 +115,30 @@ void Network::SendPositionPacket()
 
 void Network::SendEnemiesPacket(std::vector<Entity*>* enemies)
 {
+    if (IsHost)
+    {
+        sf::Packet packet;
 
+        packet << E_PACKET_ID::ENEMY_DATA;
+        packet << enemies->size();
+        for (int i = 0; i < enemies->size(); i++)
+        {
+            float3 pos = enemies->at(i)->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+            double4 rot = enemies->at(i)->GetComponent<component::CollisionComponent>()->GetRotationQuaternion();
+            double3 mov = enemies->at(i)->GetComponent<component::CollisionComponent>()->GetLinearVelocity();
+
+            packet << pos.x << pos.y << pos.z << rot.x << rot.y << rot.z << rot.w << mov.x << mov.y << mov.z;
+            std::string name = enemies->at(i)->GetComponent<component::AiComponent>()->GetTarget()->GetName();
+            for (int j = 0; j < m_Players.size(); i++)
+            {
+                if (m_Players.at(j)->entityPointer->GetName() == name)
+                {
+                    packet << m_Players.at(j)->clientId;
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void Network::SetPlayerEntityPointer(Entity* playerEnitity, int id)

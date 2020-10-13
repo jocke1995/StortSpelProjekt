@@ -21,6 +21,7 @@ namespace component
 
 		void AddTarget(Entity* target);
 		void RemoveTarget(std::string name);
+		Entity* GetTarget();
 
 	private:
 		Entity* m_pTarget;

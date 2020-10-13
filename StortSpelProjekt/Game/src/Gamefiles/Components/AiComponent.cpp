@@ -91,6 +91,11 @@ void component::AiComponent::RemoveTarget(std::string name)
 	}
 }
 
+Entity* component::AiComponent::GetTarget()
+{
+	return m_pTarget;
+}
+
 void component::AiComponent::selectTarget()
 {
 	float distance = (m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3() - m_Targets.at(0)->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3()).length();
