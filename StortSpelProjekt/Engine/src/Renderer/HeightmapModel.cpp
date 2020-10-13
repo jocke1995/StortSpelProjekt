@@ -6,6 +6,9 @@ HeightmapModel::HeightmapModel(const std::wstring* path, std::vector<Mesh*>* mes
 	m_pHeights(heights),
 	m_Width(width),
 	m_Length(length)
+HeightmapModel::HeightmapModel(const std::wstring* path, SkeletonNode* rootNode, std::map<unsigned int, VertexWeight>* perVertexBoneData, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<Material*>* materials, float* heights) : 
+	Model(path, rootNode, perVertexBoneData, meshes, animations, materials),
+	m_pHeights(heights)
 {
 }
 

@@ -20,8 +20,11 @@ struct aiScene;
 struct aiMesh;
 struct aiMaterial;
 struct aiNodeAnim;
+struct aiBone;
 struct Animation;
-struct NodeAnimation;
+struct VertexWeight;
+struct BoneInfo;
+struct SkeletonNode;
 
 class AssetLoader
 {
@@ -106,8 +109,11 @@ private:
 
     Texture* processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture);
     
+    SkeletonNode* processSkeleton(std::map<std::string, BoneInfo> boneCounter, aiNode* assimpNode, const aiScene* assimpScene, std::map<unsigned int, VertexWeight>* perVertexBoneData);
+    void processBones(std::map<std::string, BoneInfo> boneCounter, const aiMesh* assimpMesh, std::map<unsigned int, VertexWeight>* perVertexBoneData);
+    void initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo> boneCounter, Animation* animation);
+
     void processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations);
-    void processNodeAnimation(const aiNodeAnim* assimpNodeAnimation, NodeAnimation* nodeAnimation);
 
     DirectX::XMFLOAT4X4 aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix);
     
