@@ -18,7 +18,9 @@ namespace component
         virtual ~ModelComponent();
 
         void Update(double dt);
-        void InitScene();
+        void OnInitScene();
+        void OnLoadScene();
+        void OnUnloadScene();
 
         // Sets
         void SetModel(Model* model);
@@ -30,6 +32,7 @@ namespace component
         const SlotInfo* GetSlotInfoAt(unsigned int index) const;
         unsigned int GetDrawFlag() const;
         unsigned int GetNrOfMeshes() const;
+        const std::wstring& GetModelPath() const;
         bool IsPickedThisFrame() const;
         double3 GetModelDim() const;
 
@@ -37,9 +40,10 @@ namespace component
         // The boundingBox will update the "m_IsPickedThisFrame"
         friend class BoundingBoxComponent;
         friend class Engine;
+        friend class Renderer;
         bool m_IsPickedThisFrame = false;
 
-        Model* m_Model = nullptr;
+        Model* m_pModel = nullptr;
         unsigned int m_DrawFlag = 0;
     };
 }

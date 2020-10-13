@@ -23,7 +23,15 @@ void component::Audio3DEmitterComponent::Update(double dt)
 {
 }
 
-void component::Audio3DEmitterComponent::InitScene()
+void component::Audio3DEmitterComponent::OnInitScene()
+{
+}
+
+void component::Audio3DEmitterComponent::OnLoadScene()
+{
+}
+
+void component::Audio3DEmitterComponent::OnUnloadScene()
 {
 }
 

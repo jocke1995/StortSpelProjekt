@@ -20,7 +20,7 @@ namespace component
 
 	void ModelComponent::SetModel(Model* model)
 	{
-		m_Model = model;
+		m_pModel = model;
 	}
 
 	void ModelComponent::SetDrawFlag(unsigned int drawFlag)
@@ -33,29 +33,34 @@ namespace component
 
 	}
 
-	void ModelComponent::InitScene()
+	void ModelComponent::OnInitScene()
 	{
-		// check if model has transform component
-		component::TransformComponent* tc = GetParent()->GetComponent<component::TransformComponent>();
-		if (tc != nullptr)
-		{
-			Renderer::GetInstance().InitModelComponent(GetParent());
-		}
+		Renderer::GetInstance().InitModelComponent(GetParent());
+	}
+
+	void ModelComponent::OnLoadScene()
+	{
+		Renderer::GetInstance().LoadModel(m_pModel);
+	}
+
+	void ModelComponent::OnUnloadScene()
+	{
+		Renderer::GetInstance().UnloadModel(m_pModel);
 	}
 
 	Mesh* ModelComponent::GetMeshAt(unsigned int index) const
 	{
-		return m_Model->GetMeshAt(index);
+		return m_pModel->GetMeshAt(index);
 	}
 
 	Material* ModelComponent::GetMaterialAt(unsigned int index) const
 	{
-		return m_Model->GetMaterialAt(index);
+		return m_pModel->GetMaterialAt(index);
 	}
 
 	const SlotInfo* ModelComponent::GetSlotInfoAt(unsigned int index) const
 	{
-		return m_Model->GetSlotInfoAt(index);
+		return m_pModel->GetSlotInfoAt(index);
 	}
 
 	unsigned int ModelComponent::GetDrawFlag() const
@@ -65,7 +70,11 @@ namespace component
 
 	unsigned int ModelComponent::GetNrOfMeshes() const
 	{
-		return m_Model->GetSize();
+		return m_pModel->GetSize();
+	}
+	const std::wstring& ModelComponent::GetModelPath() const
+	{
+		return m_pModel->GetPath();
 	}
 	bool ModelComponent::IsPickedThisFrame() const
 	{

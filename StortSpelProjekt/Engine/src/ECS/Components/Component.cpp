@@ -20,10 +20,6 @@ void Component::RenderUpdate(double dt)
 {
 }
 
-void Component::InitScene()
-{
-}
-
 Entity* const Component::GetParent() const
 {
 	return m_pParent;

@@ -5,8 +5,6 @@ Entity::Entity(std::string entityName)
 {
 	m_Id = staticID++;
 	m_Name = entityName;
-
-	m_ReferenceCount = 1;
 }
 
 bool Entity::operator==(const Entity* rhs) const
@@ -64,6 +62,36 @@ void Entity::RenderUpdate(double dt)
 	for (Component* component : m_Components)
 	{
 		component->RenderUpdate(dt);
+	}
+}
+
+void Entity::OnInitScene()
+{
+	// for each component in entity: call their implementation of InitScene(),
+	// which calls their specific init function (render, audio, game, physics etc)
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		m_Components.at(i)->OnInitScene();
+	}
+}
+
+void Entity::OnLoadScene()
+{
+	// for each component in entity: call their implementation of LoadScene(),
+	// which calls their specific init function (render, audio, game, physics etc)
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		m_Components.at(i)->OnLoadScene();
+	}
+}
+
+void Entity::OnUnloadScene()
+{
+	// for each component in entity: call their implementation of UnloadScene(),
+	// which calls their specific init function (render, audio, game, physics etc)
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		m_Components.at(i)->OnUnloadScene();
 	}
 }
 

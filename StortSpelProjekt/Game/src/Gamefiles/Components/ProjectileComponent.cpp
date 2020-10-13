@@ -21,6 +21,18 @@ void component::ProjectileComponent::Update(float dt)
 	
 }
 
+void component::ProjectileComponent::OnInitScene()
+{
+}
+
+void component::ProjectileComponent::OnLoadScene()
+{
+}
+
+void component::ProjectileComponent::OnUnloadScene()
+{
+}
+
 void component::ProjectileComponent::hit(Collision* event)
 {
 	// if we are the one that collided then make 
