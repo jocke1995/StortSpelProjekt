@@ -61,17 +61,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
-    //Scene* filipScene = FloppipTestScene(sceneManager);
+    Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
 
-    // Load Scenes *** Unload with UnloadScene()
-    sceneManager->LoadScene(leoScene);
-
-    Scene* activeScenes[] = { leoScene };
+    Scene* activeScenes[] = { leoScene, filipScene};
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -121,6 +118,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                 network.SendPositionPacket();
                 while (network.ListenPacket());
             }
+        }
+
+        static int aaa = 0;
+        if (window->WasSpacePressed())
+        {
+            if (aaa++ % 2 == 0)
+            {
+                *activeScenes = filipScene;
+            }
+            else
+            {
+                *activeScenes = leoScene;
+            }
+            
+            sceneManager->SetScenes(1, activeScenes);
         }
 
         /* ------ Sort ------ */
@@ -435,7 +447,6 @@ Scene* LeosTestScene(SceneManager* sm)
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
     entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    sbc->SetMesh(sphereModel->GetMeshAt(0));
     sbc->SetTexture(skyboxCubemap);
 
     /* ---------------------- Stefan ---------------------- */

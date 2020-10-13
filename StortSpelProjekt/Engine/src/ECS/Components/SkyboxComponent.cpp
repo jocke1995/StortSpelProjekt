@@ -33,14 +33,6 @@ void component::SkyboxComponent::OnInitScene()
 	Renderer::GetInstance().InitSkyboxComponent(GetParent());
 }
 
-void component::SkyboxComponent::OnLoadScene()
-{
-}
-
-void component::SkyboxComponent::OnUnloadScene()
-{
-}
-
 void component::SkyboxComponent::SetMesh(Mesh* mesh)
 {
 	m_pMesh = mesh;

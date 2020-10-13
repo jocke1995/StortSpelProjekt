@@ -41,6 +41,8 @@ public:
             const std::wstring& path = L"NOPATH");
     virtual ~Mesh();
 
+    void Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_heap);
+
     // Vertices
     Resource* GetDefaultResourceVertices() const;
     const std::vector<Vertex>* GetVertices() const;
@@ -61,6 +63,7 @@ private:
     friend class DownSampleRenderTask;
     friend class SkyboxRenderTask;
     friend class Renderer;
+    friend class AssetLoader;
     friend class SceneManager;
     friend class Model;
     friend class component::BoundingBoxComponent;

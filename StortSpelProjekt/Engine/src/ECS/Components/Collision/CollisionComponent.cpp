@@ -97,14 +97,6 @@ void component::CollisionComponent::OnInitScene()
 	}
 }
 
-void component::CollisionComponent::OnLoadScene()
-{
-	
-}
-
-void component::CollisionComponent::OnUnloadScene()
-{
-}
 
 void component::CollisionComponent::SetPosition(double x, double y, double z)
 {

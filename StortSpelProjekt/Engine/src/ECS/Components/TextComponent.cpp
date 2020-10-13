@@ -183,10 +183,4 @@ namespace component
 	{
 		Renderer::GetInstance().InitTextComponent(GetParent());
 	}
-	void TextComponent::OnLoadScene()
-	{
-	}
-	void TextComponent::OnUnloadScene()
-	{
-	}
 }

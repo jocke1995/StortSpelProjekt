@@ -48,3 +48,19 @@ const SlotInfo* Model::GetSlotInfoAt(unsigned int index) const
 {
 	return &m_SlotInfos[index];
 }
+
+void Model::UpdateSlotInfo()
+{
+	for (unsigned int i = 0; i < m_Size; i++)
+	{
+		m_SlotInfos[i] =
+		{
+		m_Meshes[i]->m_pSRV->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::ALBEDO)->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::ROUGHNESS)->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::METALLIC)->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::NORMAL)->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::EMISSIVE)->GetDescriptorHeapIndex()
+		};
+	}
+}

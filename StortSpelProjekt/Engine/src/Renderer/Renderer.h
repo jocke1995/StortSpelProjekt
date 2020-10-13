@@ -21,6 +21,7 @@ class DescriptorHeap;
 class Mesh;
 class Texture;
 class Model;
+class Resource;
 
 // Views
 
@@ -29,6 +30,7 @@ class ConstantBuffer;
 class ShaderResource;
 class UnorderedAccess;
 class DepthStencil;
+class Resource;
 
 // Enums
 enum COMMAND_INTERFACE_TYPE;
@@ -113,19 +115,10 @@ public:
 
 	SwapChain* GetSwapChain();
 
-	// Load Gpu Memory Functions
-	void LoadModel(Model* model) const;
-	void LoadMesh(Mesh* mesh) const;
-	void LoadMaterial(Material* material) const;
-	void LoadTexture(Texture* texture) const;
-
-	// Unload Gpu Memory Functions
-	void UnloadModel(Model* model) const;
-	void UnloadMesh(Mesh* mesh) const;
-	void UnloadMaterial(Material* material) const;
-	void UnloadTexture(Texture* texture) const;
-
-	void UnloadRenderComponents();
+	void SubmitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
+	void SubmitModelToCodt(Model* model);
+	void SubmitMeshToCodt(Mesh* mesh);
+	void SubmitTextureToCodt(Texture* texture);
 
 private:
 	friend class Engine;
