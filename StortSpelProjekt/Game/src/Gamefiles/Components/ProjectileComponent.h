@@ -12,6 +12,11 @@ namespace component
 		ProjectileComponent(Entity* parent, int damage);
 		~ProjectileComponent();
 		void Update(float dt);
+
+		void OnInitScene();
+		void OnLoadScene();
+		void OnUnloadScene();
+
 	private:
 		int m_Damage;
 

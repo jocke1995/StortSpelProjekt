@@ -43,7 +43,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     /*----- Set the scene -----*/
-    sceneManager->SetScene(GetDemoScene(sceneManager));
+    Scene* demoScene = GetDemoScene(sceneManager);
+    sceneManager->SetScenes(1, &demoScene);
 
     GameNetwork gameNetwork;
 
@@ -55,7 +56,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScene(sceneManager->GetScene("DemoScene"));
+        gameNetwork.SetScenes(sceneManager->GetActiveScenes());
         gameNetwork.SetSceneManager(sceneManager);
         gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
 
@@ -78,11 +79,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             networkTimer += timer->GetDeltaTime();
         }
 
-        renderer->RenderUpdate(timer->GetDeltaTime());
+        sceneManager->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
-            renderer->Update(updateRate);
+            sceneManager->Update(updateRate);
             physics->Update(updateRate);
         }
 
@@ -294,7 +295,7 @@ Scene* GetDemoScene(SceneManager* sm)
     float xVal = 8;
     float zVal = 20;
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 75; i++)
     {
         zVal += 8;
         entity = enemyFactory.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
@@ -332,7 +333,7 @@ void DemoUpdateScene(SceneManager* sm)
     ec->UpdateEmitter(L"Bruh");
 
     std::string name = "enemy";
-    for (int i = 1; i <= 5; i++)
+    for (int i = 1; i < 76; i++)
     {
         name = "enemy" + std::to_string(i);
         ec = sm->GetScene("DemoScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();

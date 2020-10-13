@@ -9,14 +9,14 @@ public:
 
 	void Update(double dt);
 
-	void SetScene(Scene* scene);
 	void SetEnemies(std::vector<Entity*>* enemyVector);
+	void SetScenes(std::vector<Scene*>* activeScenes);
 	void SetNetwork(Network* network);
 	void SetSceneManager(SceneManager* sceneManager);
 
 private:
 	SceneManager* m_pSceneManager;
-	Scene* m_pScene;
+	std::vector<Scene*>* m_pActiveScenes;
 	Network* m_pNetwork;
 	std::vector<Entity*>* m_pEnemies;
 

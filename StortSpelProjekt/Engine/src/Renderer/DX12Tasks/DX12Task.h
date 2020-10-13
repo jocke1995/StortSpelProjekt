@@ -1,7 +1,7 @@
 #ifndef DX12TASK_H
 #define DX12TASK_H
 
-#include "../../Misc/MultiThreadedTask.h"
+#include "../../Misc/MultiThreading/MultiThreadedTask.h"
 
 class CommandInterface;
 class Resource;
@@ -27,6 +27,7 @@ enum RENDER_TASK_TYPE
 	TEXT,
 	MERGE,
 	IMGUI,
+	DOWNSAMPLE,
 	NR_OF_RENDERTASKS
 };
 

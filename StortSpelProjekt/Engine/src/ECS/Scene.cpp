@@ -13,21 +13,20 @@ Scene::~Scene()
     {
         if (pair.second != nullptr)
         {
-            if (pair.second->GetRefCount() == 1)
+            pair.second->DecrementRefCount();
+            if (pair.second->GetRefCount() == 0)
             {
                 delete pair.second;
             }
-            pair.second->DecrementRefCount();
         }
     }
-    m_Entities.clear();
 }
 
 Entity* Scene::AddEntityFromOther(Entity* other)
 {
     if (EntityExists(other->GetName()) == true)
     {
-        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to add two components with the same name \'%s\' into scene: %s\n", other->GetName(), m_SceneName);
+        Log::PrintSeverity(Log::Severity::CRITICAL, "AddEntityFromOther: Trying to add two components with the same name \'%s\' into scene: %s\n", other->GetName(), m_SceneName);
         return nullptr;
     }
 
@@ -48,13 +47,14 @@ Entity* Scene::AddEntity(std::string entityName)
     }
 
     m_Entities[entityName] = new Entity(entityName);
+    m_Entities[entityName]->IncrementRefCount();
     m_NrOfEntities++;
     return m_Entities[entityName];
 }
 
 bool Scene::RemoveEntity(std::string entityName)
 {
-    if (EntityExists(entityName) == false)
+    if (!EntityExists(entityName))
     {
         return false;
     }

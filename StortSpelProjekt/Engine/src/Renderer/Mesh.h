@@ -11,7 +11,6 @@ class Resource;
 class ShaderResourceView;
 class DescriptorHeap;
 struct SlotInfo;
-struct Bone;
 
 // DX12 Forward Declarations
 struct ID3D12Device5;
@@ -33,12 +32,6 @@ public:
             std::vector<unsigned int>* indices,
             DescriptorHeap* descriptorHeap_SRV,
             const std::wstring& path = L"NOPATH");
-    Mesh(   ID3D12Device5* device,
-            std::vector<Vertex>* vertices,
-            std::vector<unsigned int>* indices,
-            std::vector<Bone>* bones,
-            DescriptorHeap* descriptorHeap_SRV,
-            const std::wstring& path = L"NOPATH");
     virtual ~Mesh();
 
     // Vertices
@@ -58,6 +51,7 @@ public:
 
 private:
     friend class MergeRenderTask;
+    friend class DownSampleRenderTask;
     friend class SkyboxRenderTask;
     friend class Renderer;
     friend class SceneManager;
@@ -66,7 +60,6 @@ private:
 
     std::vector<Vertex> m_Vertices;
     std::vector<unsigned int> m_Indices;
-    std::vector<Bone> m_Bones;
     std::wstring m_Path = L"NOPATH";
 
     Resource* m_pUploadResourceVertices = nullptr;
@@ -76,9 +69,6 @@ private:
 
     ShaderResourceView* m_pSRV = nullptr;
     D3D12_INDEX_BUFFER_VIEW* m_pIndexBufferView = nullptr;
-    
-    void initMesh(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV);
-    void createIndexBufferView();
 };
 
 #endif
