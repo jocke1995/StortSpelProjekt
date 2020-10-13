@@ -195,7 +195,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 
 	// One dimensional!
 	unsigned char* imgData = tex->GetData();
-	unsigned int dataCount = tex->GetHeight() * tex->GetWidth();
+	unsigned int dataCount = tex->GetWidth() * tex->GetHeight();
 	std::vector<Vertex> vertices;
 	vertices.reserve(dataCount);
 
@@ -207,16 +207,16 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 		Vertex ver;
 		heightData[i] = imgData[i * 4] / 255.0f;
 		
-		ver.pos = { static_cast<float>(i % tex->GetWidth()) - tex->GetWidth() / 2.0f, static_cast<float>(heightData[i]), (i / tex->GetWidth()) - tex->GetHeight() / 2.0f };
-		ver.uv = { static_cast<float>(i % tex->GetWidth()) / tex->GetWidth(), static_cast<float>(i / tex->GetWidth()) / tex->GetHeight() };
+		ver.pos = { static_cast<float>(i % tex->GetHeight()) - tex->GetHeight() / 2.0f, static_cast<float>(heightData[i]), (i / tex->GetHeight()) - tex->GetWidth() / 2.0f };
+		ver.uv = { static_cast<float>(i % tex->GetHeight()) / tex->GetHeight(), static_cast<float>(i / tex->GetHeight()) / tex->GetWidth() };
 		vertices.push_back(ver);
 	}
 
 	// Calculate and store indices
 	std::vector<unsigned int> indices;
-	unsigned int nrOfTriangles = (tex->GetWidth() - 1) * (tex->GetHeight() - 1) * 2;
+	unsigned int nrOfTriangles = (tex->GetHeight() - 1) * (tex->GetWidth() - 1) * 2;
 	unsigned int nrOfIndices = nrOfTriangles * 3;
-	unsigned int toProcess = vertices.size() - tex->GetWidth();
+	unsigned int toProcess = vertices.size() - tex->GetHeight();
 
 	indices.reserve(nrOfIndices);
 
@@ -228,12 +228,12 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 
 		// First triangle
 		indices.push_back(i);
-		indices.push_back(i + tex->GetWidth());
+		indices.push_back(i + tex->GetHeight());
 		indices.push_back(i + 1);
 
 		// Second triangle
-		indices.push_back(i + tex->GetWidth());
-		indices.push_back(i + tex->GetWidth() + 1);
+		indices.push_back(i + tex->GetHeight());
+		indices.push_back(i + tex->GetHeight() + 1);
 		indices.push_back(i + 1);
 
 		// Make sure that we dont create triangles from the border. If so add one more step.
@@ -247,7 +247,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 			*-*-*
 		*/
 
-		i+= (((i + 2) % tex->GetWidth()) == 0);
+		i+= (((i + 2) % tex->GetHeight()) == 0);
 	}
 
 	unsigned int nrOfThreads = ThreadPool::GetInstance().GetNrOfThreads();
@@ -255,7 +255,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	
 	for (int i = 0; i < nrOfThreads; i++)
 	{
-		tasks[i] = new CalculateHeightmapNormalsTask(i, nrOfThreads, vertices, indices, tex->GetWidth(), tex->GetHeight());
+		tasks[i] = new CalculateHeightmapNormalsTask(i, nrOfThreads, vertices, indices, tex->GetHeight(), tex->GetWidth());
 		ThreadPool::GetInstance().AddTask(tasks[i]);
 	}
 	
@@ -277,7 +277,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	std::vector<Animation*> animations;
 	std::vector<Material*> materials;
 	materials.push_back(loadMaterialFromMTL(materialPath));
-	model = new HeightmapModel(&path, &meshes, &animations, &materials, heightData, static_cast<double>(tex->GetWidth()), static_cast<double>(tex->GetHeight()));
+	model = new HeightmapModel(&path, &meshes, &animations, &materials, heightData, static_cast<double>(tex->GetHeight()), static_cast<double>(tex->GetWidth()));
 	m_LoadedModels[path].first = false;
 	m_LoadedModels[path].second = model;
 

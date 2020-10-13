@@ -20,7 +20,7 @@ EnemyFactory::~EnemyFactory()
 	m_EnemyComps.clear();
 }
 
-Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int compFlags, unsigned int aiFlags, float scale, float3 rot, std::string aiTarget)
+Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int compFlags, unsigned int aiFlags, float scale, float3 rot, std::string aiTarget, float aiDetectionRadius, float aiAttackingDistance)
 {
 	for (auto pair : m_EnemyComps)
 	{
@@ -46,10 +46,12 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, flo
 	enemy->hp = hp;
 	enemy->sound3D = sound3D;
 	enemy->sound2D = sound2D;
+	enemy->detectionRad = aiDetectionRadius;
+	enemy->attackingDist = aiAttackingDistance;
 
 	enemy->dim = model->GetModelDim();
 
-	return Add(entityName, model, hp, pos, sound3D, sound2D, compFlags, aiFlags, enemy->dim, scale, rot, aiTarget);
+	return Add(entityName, model, hp, pos, sound3D, sound2D, compFlags, aiFlags, enemy->dim, scale, rot, aiTarget, aiDetectionRadius, aiAttackingDistance);
 }
 
 Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
@@ -64,7 +66,7 @@ Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
 			std::string name = entityName + std::to_string(enemy->enemiesOfThisType);
 			enemy->enemiesOfThisType++;
 
-			return Add(name, enemy->model, enemy->hp, pos, enemy->sound3D, enemy->sound2D, enemy->compFlags, enemy->aiFlags, enemy->dim, enemy->scale, enemy->rot, enemy->targetName);
+			return Add(name, enemy->model, enemy->hp, pos, enemy->sound3D, enemy->sound2D, enemy->compFlags, enemy->aiFlags, enemy->dim, enemy->scale, enemy->rot, enemy->targetName, enemy->detectionRad, enemy->attackingDist);
 		}
 		else
 		{
@@ -134,7 +136,7 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3
 				newHP = enemy->hp;
 			}
 
-			return Add(name, enemy->model, newHP, pos, enemy->sound3D, enemy->sound2D, newCompFlags, newAiFlags, enemy->dim, newScale, newRot, enemy->targetName);
+			return Add(name, enemy->model, newHP, pos, enemy->sound3D, enemy->sound2D, newCompFlags, newAiFlags, enemy->dim, newScale, newRot, enemy->targetName, enemy->detectionRad, enemy->attackingDist);
 		}
 		else
 		{
@@ -144,7 +146,7 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3
 	}
 }
 
-Entity* EnemyFactory::Add(std::string name, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int compFlags, unsigned int aiFlags, double3 dim, float scale, float3 rot, std::string aiTarget)
+Entity* EnemyFactory::Add(std::string name, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int compFlags, unsigned int aiFlags, double3 dim, float scale, float3 rot, std::string aiTarget, float aiDetectionRadius, float aiAttackingDistance)
 {
 	Entity* ent = m_pScene->AddEntity(name);
 	component::ModelComponent* mc = nullptr;
@@ -162,7 +164,7 @@ Entity* EnemyFactory::Add(std::string name, Model* model, int hp, float3 pos, st
 	Entity* target = m_pScene->GetEntity(aiTarget);
 	if (target != nullptr)
 	{
-		ai = ent->AddComponent<component::AiComponent>(target, aiFlags);
+		ai = ent->AddComponent<component::AiComponent>(target, aiFlags, aiDetectionRadius, aiAttackingDistance);
 	}
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
 	ae->AddVoice(sound3D);
@@ -171,11 +173,13 @@ Entity* EnemyFactory::Add(std::string name, Model* model, int hp, float3 pos, st
 
 	mc->SetModel(model);
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-	tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
-	tc->GetTransform()->SetScale(scale);
-	tc->GetTransform()->SetRotationX(rot.x);
-	tc->GetTransform()->SetRotationY(rot.y);
-	tc->GetTransform()->SetRotationZ(rot.z);
+	Transform* t = tc->GetTransform();
+	t->SetPosition(pos.x, pos.y, pos.z);
+	t->SetScale(scale);
+	t->SetRotationX(rot.x);
+	t->SetRotationY(rot.y);
+	t->SetRotationZ(rot.z);
+	t->SetVelocity(BASE_VEL * 0.5);
 
 	if (compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
 	{
