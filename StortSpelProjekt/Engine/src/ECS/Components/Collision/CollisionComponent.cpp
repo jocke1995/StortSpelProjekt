@@ -64,6 +64,9 @@ void component::CollisionComponent::OnInitScene()
 	// Initiate the body with a given shape. This shape should be defined in an inherited class.
 	m_pTrans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
 
+	// Set scaling for the shape
+	m_pShape->setLocalScaling({ m_pTrans->GetScale().x, m_pTrans->GetScale().y, m_pTrans->GetScale().z });
+
 	btTransform btTrans;
 	btTrans.setIdentity();
 	btTrans.setOrigin({ m_pTrans->GetPositionFloat3().x, m_pTrans->GetPositionFloat3().y, m_pTrans->GetPositionFloat3().z });

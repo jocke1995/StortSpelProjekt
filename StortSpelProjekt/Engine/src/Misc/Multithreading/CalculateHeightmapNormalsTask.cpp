@@ -92,43 +92,17 @@ void CalculateHeightmapNormalsTask::Execute()
 		m_pVertices[i].normal.z = -vertexNormal.z;
 	}
 
-
-	verticesPerThread = (m_pIndices.size() - 3) / m_NrOfThreads;
-	lowestVertexId = m_Id * verticesPerThread;
-	highestVertexId = (1 + m_Id) * verticesPerThread;
-	// Move on to tangents.
-	float3 edge1 = { 0,0,0 };
-	float3 edge2 = { 0,0,0 };
-	float2 deltaUV1 = { 0,0 };
-	float2 deltaUV2 = { 0,0 };
-	//Reuse neighbours array from normals!
-	neighbours[0] = { 0 };
-	neighbours[1] = { 0 };
-	neighbours[2] = { 0 };
-	float2 uv[3] = { 0 };
-	float f = 0;
-
+	float3 tangent;
+	float3 biTangent;
 	for (unsigned int i = lowestVertexId; i < highestVertexId; i++)
 	{
-		neighbours[0] = { m_pVertices[m_pIndices[i]].pos.x,	  m_pVertices[m_pIndices[i]].pos.y,	  m_pVertices[m_pIndices[i]].pos.z };
-		neighbours[1] = { m_pVertices[m_pIndices[i + 1]].pos.x, m_pVertices[m_pIndices[i + 1]].pos.y, m_pVertices[m_pIndices[i + 1]].pos.z };
-		neighbours[2] = { m_pVertices[m_pIndices[i + 2]].pos.x, m_pVertices[m_pIndices[i + 2]].pos.y, m_pVertices[m_pIndices[i + 2]].pos.z };
+		tangent = { 0,0,1 };
+		vertexNormal = { m_pVertices[i].normal.x , m_pVertices[i].normal.y, m_pVertices[i].normal.z };
+		biTangent = tangent.cross(&vertexNormal);
+		tangent = vertexNormal.cross(&biTangent);
 
-		uv[0] = { m_pVertices[m_pIndices[i]].uv.x,	 m_pVertices[m_pIndices[i]].uv.y };
-		uv[1] = { m_pVertices[m_pIndices[i + 1]].uv.x, m_pVertices[m_pIndices[i + 1]].uv.y };
-		uv[2] = { m_pVertices[m_pIndices[i + 2]].uv.x, m_pVertices[m_pIndices[i + 2]].uv.y };
-
-		edge1 = neighbours[1] - neighbours[0];
-		edge2 = neighbours[2] - neighbours[0];
-		deltaUV1 = uv[1] - uv[0];
-		deltaUV2 = uv[2] - uv[0];
-
-		f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-		for (unsigned int j = 0; j < 3; j++)
-		{
-			m_pVertices[m_pIndices[i + j]].tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-			m_pVertices[m_pIndices[i + j]].tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-			m_pVertices[m_pIndices[i + j]].tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
-		}
+		m_pVertices[i].tangent.x = tangent.x;
+		m_pVertices[i].tangent.y = tangent.y;
+		m_pVertices[i].tangent.z = tangent.z;
 	}
 }

@@ -17,6 +17,8 @@ subject to the following restrictions:
 
 #include "LinearMath/btTransformUtil.h"
 
+#include <fstream>
+
 btHeightfieldTerrainShape::btHeightfieldTerrainShape(
 	int heightStickWidth, int heightStickLength, const void* heightfieldData,
 	btScalar heightScale, btScalar minHeight, btScalar maxHeight, int upAxis,
