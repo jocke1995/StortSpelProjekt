@@ -6,7 +6,7 @@ UpgradeManager::UpgradeManager(Entity* parentEntity)
 {
 	m_pParentEntity = parentEntity;
 	// After parent entity is set we fill in our map of upgrades.
-	fillUppgradeMap();
+	fillUpgradeMap();
 }
 
 UpgradeManager::~UpgradeManager()
@@ -16,6 +16,9 @@ UpgradeManager::~UpgradeManager()
 
 void UpgradeManager::ApplyUpgrade(std::string name)
 {
+	// Adds this to the enum map of that should contain all applied upgrades.
+	m_AppliedUpgradeEnums[name] = m_AllAvailableUpgrades[name]->GetID();
+
 	if (checkIfRangeUpgrade(name))
 	{
 		// If it is an uppgrade that needs to be put on a projectile then
@@ -50,7 +53,31 @@ void UpgradeManager::ApplyRangeUpgrades(Entity* ent)
 	}
 }
 
-void UpgradeManager::fillUppgradeMap()
+bool UpgradeManager::IsUpgradeApplied(std::string name)
+{
+	for (auto map : m_AppliedUpgradeEnums)
+	{
+		if (map.first == name)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UpgradeManager::IsUpgradeApplied(int id)
+{
+	for (auto map : m_AppliedUpgradeEnums)
+	{
+		if (map.second == id)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void UpgradeManager::fillUpgradeMap()
 {
 	Upgrade* upgrade;
 
@@ -59,12 +86,14 @@ void UpgradeManager::fillUppgradeMap()
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 	// Also, since it is of type RANGE, add its' Enum to the enum map.
-	m_RangeUpgradeEnmus[upgrade->GetName()] = UPGRADE_RANGE_TEST;
+	m_RangeUpgradeEnums[upgrade->GetName()] = UPGRADE_RANGE_TEST;
+	upgrade->SetID(UPGRADE_RANGE_TEST);
 
 	// Adding MeleeTest Upgrade
 	upgrade = new UpgradeMeleeTest(m_pParentEntity);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	upgrade->SetID(UPGRADE_MELEE_TEST);
 }
 
 bool UpgradeManager::checkIfRangeUpgrade(std::string name)
@@ -97,7 +126,7 @@ Upgrade* UpgradeManager::RangeUpgrade(std::string name, Entity* ent)
 {
 	// Using the enum that is mapped to name,
 	// return the correct NEW range upgrade with parentEntity ent
-	switch (m_RangeUpgradeEnmus[name])
+	switch (m_RangeUpgradeEnums[name])
 	{
 	case UPGRADE_RANGE_TEST:
 		return new UpgradeRangeTest(ent);

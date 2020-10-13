@@ -41,6 +41,16 @@ unsigned int Upgrade::GetType() const
 	return m_Type;
 }
 
+void Upgrade::SetID(int id)
+{
+	m_ID = id;
+}
+
+int Upgrade::GetID()
+{
+	return m_ID;
+}
+
 void Upgrade::Update(double dt)
 {
 }

@@ -27,6 +27,8 @@ public:
 	int GetLevel() const;
 	void SetType(unsigned int type);
 	unsigned int GetType() const;
+	void SetID(int id);
+	int GetID();
 
 	// If dt is needed for an upgrade
 	virtual void Update(double dt);
@@ -61,6 +63,9 @@ protected:
 	Entity* m_pParentEntity;
 	// Name of the upgrade, for ease of access in shop or upgrade handlers
 	std::string m_Name = "";
+	// ID used in networking for sending which upgrades are applied.
+	// Is set in UpgradeManagers fillUpgradeMap() function.
+	int m_ID;
 	// What level the upgrade is, for keeping track of stacking of upgrades and price
 	int m_Level = 1;
 	// What type of upgrade this is, for ease of sorting or making calls to certain types
