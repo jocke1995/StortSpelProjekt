@@ -1,20 +1,20 @@
 #ifndef UPGRADE_MANAGER_H
 #define UPGRADE_MANAGER_H
-
-#include "Components/UpgradeComponents/UpgradeComponent.h"
 #include "Components/UpgradeComponents/Upgrades/Upgrade.h"
 #include <map>
 #include <string>
 #include <vector>
 
-// Include all upgrades
-#include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
-#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeTest.h"
+// forward declarations
+class UpgradeComponent;
+class UpgradeRangeTest;
+class UpgradeMeleeTest;
 
-// This enum is used when creating NEW Upgrades of type RANGE for projectile Entities.
-// Need to add an enum for each upgrade that is of type RANGE.
+// IMPORTANT: Need to add an enum for each upgrade. Will contain IDs for all upgrades.
+// This enum is used in IsUpgradeApplied() to see if an upgrade is applied.
+// It is also used when creating NEW Upgrades of type RANGE for projectile Entities.
 // Please name the enums the same as the upgrades m_Name variable.
-enum E_RangeName
+enum E_UpgradeIDs
 {
 	UPGRADE_RANGE_TEST = 1,
 	UPGRADE_MELEE_TEST = 2,
@@ -50,7 +50,7 @@ private:
 	// Used when creating NEW upgrades, of type RANGE, for projectile entities.
 	std::map<std::string, int> m_RangeUpgradeEnums;
 
-	// Populates m_AllAvailableUpgrades with all upgrades
+	// Populates m_AllAvailableUpgrades with all upgrades and sets upgrade IDs in E_UpgradeIDs
 	void fillUpgradeMap();
 	// Returns true if it is of type RANGE and should then be put on the Projectile entity
 	bool checkIfRangeUpgrade(std::string name);

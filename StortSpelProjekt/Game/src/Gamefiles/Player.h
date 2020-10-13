@@ -14,7 +14,7 @@ public:
 	static Player& GetInstance();
 	~Player();
 
-	// Later player, and all its' components, will be made in this class.
+	// Later player, and all its components, will be made in this class.
 	// But for now as not to break testScenes and because the task was Upgrades
 	// player is set in main.
 	void SetPlayer(Entity* player);

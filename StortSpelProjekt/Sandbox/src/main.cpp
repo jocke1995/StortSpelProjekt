@@ -1423,9 +1423,6 @@ Scene* AndresTestScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 60.0, 0.0, 60.0);
-    //backgroundAudio = entity->AddComponent<component::Audio2DVoiceComponent>();
-    //backgroundAudio->AddVoice(L"bruh");
-    //backgroundAudio->Play(L"bruh");
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
@@ -1534,25 +1531,6 @@ Scene* AndresTestScene(SceneManager* sm)
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
     entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0, 0, 0 }, "player");
-
-
-    /*entity = enH.AddExistingEnemy("enemy", float3{ 40, 10, 0 });
-    entity = enH.AddExistingEnemy("enemy", float3{ 0, 10, -40 });
-    entity = enH.AddExistingEnemy("enemy", float3{ -40, 10, 0 });*/
-    //// add bunch of enemies
-    //float xVal = 8;
-    //float zVal = 20;
-    //// extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    //for (int i = 0; i < 2; i++)
-    //{
-    //    zVal += 8;
-    //    entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
-    //    if ((i + 1) % 5 == 0)
-    //    {
-    //        xVal += 8;
-    //        zVal = 10;
-    //    }
-    //}
     /* ---------------------- Enemy -------------------------------- */
 
 
@@ -1806,12 +1784,4 @@ void AndresUpdateScene(SceneManager* sm)
 {
     component::Audio3DEmitterComponent* ec = sm->GetScene("AndresTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
     ec->UpdateEmitter(L"Bruh");
-
-    //std::string name = "enemy";
-    //for (int i = 1; i < 3; i++)
-    //{
-    //    name = "enemy" + std::to_string(i);
-    //    ec = sm->GetScene("AndresTestScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
-    //    ec->UpdateEmitter(L"Bruh");
-    //}
 }

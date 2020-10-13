@@ -65,8 +65,8 @@ void component::RangeComponent::Attack(MouseClick* event)
 		// get the pos of parent object and forward of camera 
 		// so we know where to spawn and in which direction
 		float3 ParentPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
-		DirectX::XMFLOAT3 forward = m_pScene->GetMainCamera()->GetDirection(); 
-		float length = sqrt(forward.x * forward.x + forward.y * forward.y + forward.z * forward.z);
+		float3 forward = m_pScene->GetMainCamera()->GetDirectionFloat3();
+		float length = forward.length();
 
 		// add the forward vector to parent pos 
 		// so the projectile doesn't spawn inside of us
