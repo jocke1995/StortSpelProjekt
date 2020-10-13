@@ -179,15 +179,15 @@ Entity* EnemyFactory::Add(std::string name, Model* model, int hp, float3 pos, st
 
 	if (compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
 	{
-		cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, (dim.z / 2.0) * scale, (dim.y - dim.z) * scale, 0.01, 0.5, false);
+		cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, dim.z / 2.0, dim.y - dim.z, 0.01, 0.5, false);
 	}
 	else if (compFlags & F_COMP_FLAGS::SPHERE_COLLISION)
 	{
-		cc = ent->AddComponent<component::SphereCollisionComponent>(1.0, dim.y * scale / 2.0, 1.0, 0.0);
+		cc = ent->AddComponent<component::SphereCollisionComponent>(1.0, dim.y / 2.0, 1.0, 0.0);
 	}
 	else if (compFlags & F_COMP_FLAGS::CUBE_COLLISION)
 	{
-		cc = ent->AddComponent<component::CubeCollisionComponent>(1.0, dim.x * scale / 2.0, dim.y * scale / 2.0, dim.z * scale / 2.0, 0.01, 0.5, false);
+		cc = ent->AddComponent<component::CubeCollisionComponent>(1.0, dim.x / 2.0, dim.y / 2.0, dim.z / 2.0, 0.01, 0.5, false);
 	}
 	else
 	{
