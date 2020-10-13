@@ -27,10 +27,13 @@ Model::Model(const std::wstring* path, SkeletonNode* rootNode, std::map<unsigned
 	else
 		m_pActiveAnimation = nullptr;
 
-	// Store the globalInverse transform.
-	DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
-	globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
-	DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
+	if (rootNode)
+	{
+		// Store the globalInverse transform.
+		DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
+		globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
+		DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
+	}
 }
 
 Model::~Model()
