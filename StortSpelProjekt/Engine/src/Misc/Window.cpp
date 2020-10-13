@@ -140,9 +140,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
 
 				SetCursorPos(500, 400);
-				SetCursorPos(0, 0);
 			}
 
+			// To click on things (temp)
 			if (DEVELOPERMODE_DEVINTERFACE == false || Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
 			{
 				auto inputData = raw->data.mouse;
@@ -150,23 +150,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 				switch (button)
 				{
-				case MOUSE_BUTTON::WHEEL:
-					Input::GetInstance().SetMouseScroll(inputData.usButtonData);
-					break;
 				case MOUSE_BUTTON::LEFT_DOWN:
-					Input::GetInstance().SetMouseButtonState(button, true);
 					EventBus::GetInstance().Publish(&ButtonPressed());
-				case MOUSE_BUTTON::MIDDLE_DOWN:
-				case MOUSE_BUTTON::RIGHT_DOWN:
-					Input::GetInstance().SetMouseButtonState(button, true);
-					break;
-				case MOUSE_BUTTON::LEFT_UP:
-					button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
-					Input::GetInstance().SetMouseButtonState(button, false);
-				case MOUSE_BUTTON::MIDDLE_UP:
-				case MOUSE_BUTTON::RIGHT_UP:
-					button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
-					Input::GetInstance().SetMouseButtonState(button, false);
 					break;
 				default:
 					break;

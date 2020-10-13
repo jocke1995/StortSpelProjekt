@@ -11,6 +11,9 @@ class ShaderResourceView;
 class DescriptorHeap;
 struct SlotInfo;
 struct Animation;
+struct SkeletonNode;
+struct NodeAnimation;
+struct VertexWeight;
 
 // DX12 Forward Declarations
 struct ID3D12Device5;
@@ -20,10 +23,14 @@ class Model
 {
 public:
     Model(const std::wstring* path,
+        SkeletonNode* rootNode,
+        std::map<unsigned int, VertexWeight>* perVertexBoneData,
         std::vector<Mesh*>* meshes,
         std::vector<Animation*>* animations,
         std::vector<Material*>* materials);
     virtual ~Model();
+
+    void Update(double dt);
 
     const std::wstring& GetPath() const;
     unsigned int GetSize() const;
@@ -40,12 +47,20 @@ public:
 private:
     friend class Renderer;
 
+    void updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform);
+
     std::wstring m_Path;
     unsigned int m_Size = 0;
+
     std::vector<Mesh*> m_Meshes;
     std::vector<Material*> m_Materials;
+    std::vector<SlotInfo> m_SlotInfos; 
+
+    Animation* m_pActiveAnimation;
     std::vector<Animation*> m_Animations;
-    std::vector<SlotInfo> m_SlotInfos;
+    SkeletonNode* m_pSkeleton;
+    DirectX::XMFLOAT4X4 m_GlobalInverseTransform;
+    std::map<unsigned int, VertexWeight> m_PerVertexBoneData; // AKA weights
 
     // Counts how many loaded references to model
     // This is to not delete models in use by other scenes

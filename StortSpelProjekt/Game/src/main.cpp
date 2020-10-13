@@ -305,30 +305,6 @@ Scene* GetDemoScene(SceneManager* sm)
     }
     /* ---------------------- Enemy -------------------------------- */
 
-	/* ------------------------- Text --------------------------- */
-	std::string textToRender = "Daedalus Maze 2:\nThe Return of the Minotaur";
-	float2 textPos = { 0.02f, 0.85f };
-	float2 textPadding = { 0.5f, 0.0f };
-	float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float2 textScale = { 3.0f, 3.0f };
-
-	scene->AddEntity("text");
-
-	entity = scene->GetEntity("text");
-	component::GUI2DComponent* textComp = entity->AddComponent<component::GUI2DComponent>();
-	textComp->AddText("health");
-	textComp->SetColor(textColor, "health");
-	textComp->SetPadding(textPadding, "health");
-	textComp->SetPos(textPos, "health");
-	textComp->SetScale(textScale, "health");
-	textComp->SetText(textToRender, "health");
-
-	float2 quadPos = { 0.25f, 0.25f };
-	float2 quadScale = { 0.5f, 0.5f };
-	textComp->CreateQuad(quadPos, quadScale, true, L"../Vendor/Resources/Textures/2DGUI/replay.png");
-
-	/* ---------------------------------------------------------- */
-
     /* ---------------------- Skybox ---------------------- */
     TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
     entity = scene->AddEntity("skybox");
@@ -352,29 +328,6 @@ void DemoUpdateScene(SceneManager* sm)
 {
     component::Audio3DEmitterComponent* ec = sm->GetScene("DemoScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
     ec->UpdateEmitter(L"Bruh");
-
-	component::HealthComponent* hc = sm->GetScene("DemoScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
-	component::GUI2DComponent* tc = sm->GetScene("DemoScene")->GetEntity("text")->GetComponent<component::GUI2DComponent>();
-	AssetLoader* al = AssetLoader::Get();
-	Font* javaneseFont = al->LoadFontFromFile(L"Javanese.fnt");
-	tc->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
-	tc->SetFont(javaneseFont);
-	static float red = 0, green = 1, blue = 0.5;
-	float4 color = float4{ abs(sin(red)), abs(sin(green)), abs(sin(blue)), 1.0};
-	tc->SetColor(color, "health");
-	red += 0.01;
-	green += 0.01;
-	blue += 0.01;
-	tc->UploadTextData("health");
-
-	float2 quadPos = { 0.25f, 0.25f };
-	float2 quadScale = { 0.5f, 0.5f };
-	tc->CreateQuad(quadPos, quadScale, true);
-
-	if (tc->HasBeenPressed())
-	{
-		Log::Print("PRESSED!\n");
-	}
 
     std::string name = "enemy";
     for (int i = 1; i < 76; i++)

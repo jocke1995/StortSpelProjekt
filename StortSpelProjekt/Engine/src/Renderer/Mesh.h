@@ -14,7 +14,6 @@ class DescriptorHeap;
 class Component;
 class GUI2DComponent;
 struct SlotInfo;
-struct Bone;
 
 // DX12 Forward Declarations
 struct ID3D12Device5;
@@ -34,12 +33,6 @@ public:
     Mesh(   ID3D12Device5* device,
             std::vector<Vertex>* vertices,
             std::vector<unsigned int>* indices,
-            DescriptorHeap* descriptorHeap_SRV,
-            const std::wstring& path = L"NOPATH");
-    Mesh(   ID3D12Device5* device,
-            std::vector<Vertex>* vertices,
-            std::vector<unsigned int>* indices,
-            std::vector<Bone>* bones,
             DescriptorHeap* descriptorHeap_SRV,
             const std::wstring& path = L"NOPATH");
     virtual ~Mesh();
@@ -71,7 +64,6 @@ private:
 
     std::vector<Vertex> m_Vertices;
     std::vector<unsigned int> m_Indices;
-    std::vector<Bone> m_Bones;
     std::wstring m_Path = L"NOPATH";
 
     Resource* m_pUploadResourceVertices = nullptr;

@@ -30,7 +30,7 @@ namespace component
 
 	void ModelComponent::Update(double dt)
 	{
-
+		m_pModel->Update(dt);
 	}
 
 	void ModelComponent::OnInitScene()
