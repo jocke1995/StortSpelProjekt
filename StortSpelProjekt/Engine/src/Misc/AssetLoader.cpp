@@ -14,6 +14,7 @@
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
+#include "assimp/postprocess.h"
 
 #include "../Renderer/Texture/Texture2D.h"
 #include "../Renderer/Texture/Texture2DGUI.h"
@@ -78,17 +79,6 @@ void AssetLoader::loadDefaultMaterial()
 	Material* material = new Material(&matName, &matTextures);
 	m_LoadedMaterials[matName].first = false;
 	m_LoadedMaterials[matName].second = material;
-}
-
-void AssetLoader::loadMeshToGpu(Mesh* mesh)
-{
-	Renderer renderer = Renderer::GetInstance();
-
-	
-
-	// Copy the upload to default resource
-	renderer.SubmitToCodt(&std::make_tuple(mesh->m_pUploadResourceVertices, mesh->m_pDefaultResourceVertices, static_cast<const void*>(mesh->m_Vertices.data())));
-	renderer.SubmitToCodt(&std::make_tuple(mesh->m_pUploadResourceIndices, mesh->m_pDefaultResourceIndices, static_cast<const void*>(mesh->m_Indices.data())));
 }
 
 AssetLoader::~AssetLoader()
@@ -157,7 +147,7 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	const std::string filePath(path.begin(), path.end());
 	Assimp::Importer importer;
 
-	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded);
+	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes);
 
 	if (assimpScene == nullptr)
 	{
@@ -167,21 +157,30 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 	std::vector<Mesh*> meshes;
 	std::vector<std::map<TEXTURE2D_TYPE, Texture*>> textures;
-	std::vector<Animation*> animations;
 	std::vector<Material*> materials;
 
 	meshes.reserve(assimpScene->mNumMeshes);
 	materials.reserve(assimpScene->mNumMeshes);
-	animations.reserve(assimpScene->mNumAnimations);
-	
 	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
+	//Log::Print("\n\n\n");
+
+	// Animation stuff
+	std::vector<Animation*> animations;
+	animations.reserve(assimpScene->mNumAnimations);
+	std::map<unsigned int, VertexWeight> perVertexBoneData;
+	std::map<std::string, BoneInfo> boneCounter;
+
+	SkeletonNode* rootNode = processSkeleton(boneCounter, assimpScene->mRootNode, assimpScene, &perVertexBoneData);
 	processAnimations(assimpScene, &animations);
+	if (!animations.empty())
+	{
+		initializeSkeleton(rootNode, boneCounter, animations[0]);	// Ugly solution, should not pass animation[0].
+	}
+	// End of animation stuff
 
-	Model* model = new Model(&path, &meshes, &animations, &materials);
-	model->UpdateSlotInfo();
-
+	m_LoadedModels[path].second = new Model(&path, rootNode, &perVertexBoneData, &meshes, &animations, &materials);
+	m_LoadedModels[path].second->UpdateSlotInfo();
 	m_LoadedModels[path].first = false;
-	m_LoadedModels[path].second = model;
 
 	return m_LoadedModels[path].second;
 }
@@ -290,10 +289,12 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	std::vector<Mesh*> meshes;
 	meshes.push_back(mesh);
 
+	SkeletonNode* rootNode = nullptr;
+	std::map<unsigned int, VertexWeight> PVBD;
 	std::vector<Animation*> animations;
 	std::vector<Material*> materials;
 	materials.push_back(loadMaterialFromMTL(materialPath));
-	model = new HeightmapModel(&path, &meshes, &animations, &materials, heightData);
+	model = new HeightmapModel(&path, rootNode, &PVBD, &meshes, &animations, &materials, heightData);
 	m_LoadedModels[path].first = false;
 	m_LoadedModels[path].second = model;
 
@@ -408,6 +409,13 @@ Shader* AssetLoader::loadShader(const std::wstring& fileName, ShaderType type)
 
 void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
 {
+	/*static int level = 0;
+	if (node->mTransformation.IsIdentity())
+		Log::Print("aiNode: %s I\n", node->mName.C_Str());
+	else
+		Log::Print("aiNode: %s NOT I\n", node->mName.C_Str());
+	*/
+
 	// Go through all the m_Meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
@@ -416,10 +424,18 @@ void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vec
 	}
 	
 	// If the node has more node children
+	//if (node->mNumChildren != 0)
+	//	level++;
+
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
+		//for (int j = 0; j < level; j++)
+		//	Log::Print("\t");
 		processNode(node->mChildren[i], assimpScene, meshes, materials, filePath);
 	}
+
+	//if (node->mNumChildren != 0)
+	//	level--;
 }
 
 Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
@@ -427,7 +443,6 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	// Fill this data
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<Bone> bones;
 	std::map<TEXTURE2D_TYPE, Texture*> meshTextures;
 
 	// Get data from assimpMesh and store it
@@ -496,35 +511,10 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 		}
 	}
 
-	// Get bones
-	for (unsigned int i = 0; i < assimpMesh->mNumBones; i++)
-	{
-		Bone bone;
-		aiBone* assimpBone = assimpMesh->mBones[i];
-
-		// Store the name of the bone
-		bone.name = assimpBone->mName.C_Str();	// Possible loss of data, returns pointer.
-
-		// Store the offset matrix of the bone
-		bone.offsetMatrix = aiMatrix4x4ToXMFloat4x4(&assimpBone->mOffsetMatrix);
-
-		// Store the weights of the bone
-		for (unsigned int j = 0; j < assimpBone->mNumWeights; j++)
-		{
-			VertexWeight weight;
-			weight.vertexID = assimpBone->mWeights[j].mVertexId;
-			weight.weight = assimpBone->mWeights[j].mWeight;
-			bone.weights.push_back(weight);
-		}
-
-		// Store the bone in the mesh
-		bones.push_back(bone);
-	}
-
 	// Create Mesh
 	Mesh* mesh = new Mesh(
 		m_pDevice,
-		&vertices, &indices, &bones,
+		&vertices, &indices,
 		m_pDescriptorHeap_CBV_UAV_SRV,
 		filePath);
 
@@ -591,7 +581,7 @@ Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring& folderP
 		// Don't print for default material
 		if (matName != L"DefaultMaterial")
 		{
-			Log::PrintSeverity(Log::Severity::WARNING, "AssetLoader: Loaded same material name more than once, first loaded material will be used <%S>\n", matName.c_str());
+			//Log::PrintSeverity(Log::Severity::WARNING, "AssetLoader: Loaded same material name more than once, first loaded material will be used <%S>\n", matName.c_str());
 		}
 		return m_LoadedMaterials[matName].second;
 	}
@@ -732,12 +722,91 @@ Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_typ
 	{
 		std::string tempString = std::string(filePathWithoutTexture.begin(), filePathWithoutTexture.end());
 		// No texture, warn and apply default Texture
-		Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType +
-			" on mesh with path: \'%s\'\n", tempString.c_str());
+		//Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType +
+		//	" on mesh with path: \'%s\'\n", tempString.c_str());
 		return m_LoadedTextures[defaultPath].second;
 	}
 
 	return nullptr;
+}
+
+SkeletonNode* AssetLoader::processSkeleton(std::map<std::string, BoneInfo> boneCounter, aiNode* assimpNode, const aiScene* assimpScene, std::map<unsigned int, VertexWeight>* perVertexBoneData)
+{
+	SkeletonNode* currentNode = new SkeletonNode();
+	currentNode->name = assimpNode->mName.C_Str();
+
+	// Store the default transform
+	currentNode->defaultTransform = aiMatrix4x4ToXMFloat4x4(&assimpNode->mTransformation);
+
+	// Process all bones in every mesh
+	for (unsigned int i = 0; i < assimpNode->mNumMeshes; i++)
+	{
+		aiMesh* assimpMesh = assimpScene->mMeshes[assimpNode->mMeshes[i]];	// The aiNode only contains indices to the meshes
+		processBones(boneCounter, assimpMesh, perVertexBoneData);
+	}
+
+	// Process all children and push_back the pointers
+	for (unsigned int i = 0; i < assimpNode->mNumChildren; i++)
+	{
+		currentNode->children.push_back(processSkeleton(boneCounter, assimpNode->mChildren[i], assimpScene, perVertexBoneData));
+	}
+
+	return currentNode;
+}
+
+void AssetLoader::processBones(std::map<std::string, BoneInfo> boneCounter, const aiMesh* assimpMesh, std::map<unsigned int, VertexWeight>* perVertexBoneData)
+{
+	// This map keeps track of how many weights and boneIDs have been added to every vertex
+	// First value is the vertexID and the second value is the amount of weights and boneIDs added to that vertex
+	std::map<unsigned int, unsigned int> vertexCounter;
+	for (unsigned int i = 0; i < assimpMesh->mNumBones; i++)
+	{
+		aiBone* assimpBone = assimpMesh->mBones[i];
+		std::string boneName = assimpBone->mName.C_Str();
+		// Give each bone an ID. If we already gave it an ID we don't want to change it. Also store the offset matrix.
+		// This information is later stored in the SkeletonNode.
+		if (boneCounter.find(boneName) != boneCounter.end())
+		{
+			boneCounter[boneName].boneID = boneCounter.size();
+			boneCounter[boneName].boneOffset = aiMatrix4x4ToXMFloat4x4(&assimpBone->mOffsetMatrix);
+		}
+
+		// Add the vertexID and weight to the map of VertexWeights
+		// This stores the data that each vertex needs later on the GPU to choose their transformations.
+		for (unsigned int j = 0; j < assimpBone->mNumWeights; j++)
+		{
+			aiVertexWeight assimpWeight = assimpBone->mWeights[j];
+			assert(vertexCounter[assimpWeight.mVertexId] < MAX_BONES_PER_VERTEX);
+			// Set the bone ID in the correct vertex
+			perVertexBoneData->operator[](
+				assimpWeight.mVertexId).boneIDs[vertexCounter[assimpWeight.mVertexId]] = boneCounter[boneName].boneID;
+			// Set the weight of the vertex
+			perVertexBoneData->operator[](
+				assimpWeight.mVertexId).weights[vertexCounter[assimpWeight.mVertexId]++] = assimpWeight.mWeight;
+		}
+	}
+}
+
+void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo> boneCounter, Animation* animation)
+{
+	// Attach the bone ID and the offset matrix to its corresponding SkeletonNode
+	if (boneCounter.find(node->name) != boneCounter.end())
+	{
+		node->boneID = boneCounter[node->name].boneID;
+		node->inverseBindPose = boneCounter[node->name].boneOffset;
+	}
+	
+	// Set the currentStateTransform pointer. This would look nicer if we didn't need the animation to do it
+	if (animation->currentState.find(node->name) != animation->currentState.end())
+	{
+		node->currentStateTransform = &animation->currentState[node->name].transform;
+	}
+	
+	// Loop through all nodes in the tree
+	for (auto& child : node->children)
+	{
+		initializeSkeleton(child, boneCounter, animation);
+	}
 }
 
 Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
@@ -936,59 +1005,46 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 		Animation* animation = new Animation();
 		aiAnimation* assimpAnimation = assimpScene->mAnimations[i];
 
-		animation->duration = assimpAnimation->mDuration;
-		animation->ticksPerSecond = assimpAnimation->mTicksPerSecond;
+		animation->durationInTicks = assimpAnimation->mDuration;
+		animation->ticksPerSecond = assimpAnimation->mTicksPerSecond != 0 ?
+			assimpAnimation->mTicksPerSecond : 25.0f;
 
-		// Store the transform data for each nodeAnimation
+		// Store the keyframes (transform data) for each nodeAnimation (bone)
 		for (unsigned int j = 0; j < assimpAnimation->mNumChannels; j++)
 		{
-			NodeAnimation nodeAnimation;
 			aiNodeAnim* assimpNodeAnimation = assimpAnimation->mChannels[j];
-			processNodeAnimation(assimpAnimation->mChannels[j], &nodeAnimation);
-			animation->nodeAnimations.push_back(nodeAnimation);
+			std::string nodeName = assimpNodeAnimation->mNodeName.C_Str();
+
+			// Store all the keyframes (transform data) belonging to this nodeAnimation (bone)
+			for (unsigned int k = 0; k < assimpNodeAnimation->mNumPositionKeys; k++)
+			{
+				Keyframe key;
+
+				key.time = assimpNodeAnimation->mPositionKeys[k].mTime;
+
+				key.transform.position = DirectX::XMFLOAT3(
+					assimpNodeAnimation->mPositionKeys[k].mValue.x,
+					assimpNodeAnimation->mPositionKeys[k].mValue.y,
+					assimpNodeAnimation->mPositionKeys[k].mValue.z);
+
+				key.transform.rotationQuaternion = DirectX::XMFLOAT4(
+					assimpNodeAnimation->mRotationKeys[k].mValue.x,
+					assimpNodeAnimation->mRotationKeys[k].mValue.y,
+					assimpNodeAnimation->mRotationKeys[k].mValue.z,
+					assimpNodeAnimation->mRotationKeys[k].mValue.w);
+
+				key.transform.scaling = DirectX::XMFLOAT3(
+					assimpNodeAnimation->mScalingKeys[k].mValue.x,
+					assimpNodeAnimation->mScalingKeys[k].mValue.y,
+					assimpNodeAnimation->mScalingKeys[k].mValue.z);
+
+				animation->nodeAnimationKeyframes[nodeName].push_back(key);
+			}
 		}
 
 		// Save the pointer both in the model and the asset loader
 		animations->push_back(animation);
 		m_LoadedAnimations.push_back(animation);
-	}
-}
-
-void AssetLoader::processNodeAnimation(const aiNodeAnim* assimpNodeAnimation, NodeAnimation* nodeAnimation)
-{
-	// possibly do a new here for the nodeanimation
-	// Store the name. This name will be used to know which node (bone) this nodeAnimation belongs to.
-	nodeAnimation->name = assimpNodeAnimation->mNodeName.C_Str();
-
-	// Store the positions
-	for (unsigned int i = 0; i < assimpNodeAnimation->mNumPositionKeys; i++)
-	{
-		nodeAnimation->positions.push_back(
-			DirectX::XMFLOAT3(
-				assimpNodeAnimation->mPositionKeys[i].mValue.x,
-				assimpNodeAnimation->mPositionKeys[i].mValue.y,
-				assimpNodeAnimation->mPositionKeys[i].mValue.z));
-	}
-
-	// Store the rotation quaternions
-	for (unsigned int i = 0; i < assimpNodeAnimation->mNumRotationKeys; i++)
-	{
-		nodeAnimation->rotationQuaternions.push_back(
-			DirectX::XMFLOAT4(
-				assimpNodeAnimation->mRotationKeys[i].mValue.x,
-				assimpNodeAnimation->mRotationKeys[i].mValue.y,
-				assimpNodeAnimation->mRotationKeys[i].mValue.z,
-				assimpNodeAnimation->mRotationKeys[i].mValue.w));
-	}
-
-	// Store the scale values
-	for (unsigned int i = 0; i < assimpNodeAnimation->mNumScalingKeys; i++)
-	{
-		nodeAnimation->scalings.push_back(
-			DirectX::XMFLOAT3(
-				assimpNodeAnimation->mScalingKeys[i].mValue.x,
-				assimpNodeAnimation->mScalingKeys[i].mValue.y,
-				assimpNodeAnimation->mScalingKeys[i].mValue.z));
 	}
 }
 

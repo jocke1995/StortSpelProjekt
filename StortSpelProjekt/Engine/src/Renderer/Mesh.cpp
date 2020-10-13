@@ -4,7 +4,6 @@
 #include "GPUMemory/Resource.h"
 #include "GPUMemory/ShaderResourceView.h"
 #include "DescriptorHeap.h"
-#include "Animation.h"
 #include "Texture/Texture.h"
 
 Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, DescriptorHeap* descriptorHeap_SRV, const std::wstring& path)
@@ -13,15 +12,6 @@ Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<uns
 
 	m_Vertices = *vertices;
 	m_Indices = *indices;
-}
-
-Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, std::vector<Bone>* bones, DescriptorHeap* descriptorHeap_SRV, const std::wstring& path)
-{
-	m_Path = path;
-
-	m_Vertices = *vertices;
-	m_Indices = *indices;
-	m_Bones = *bones;
 }
 
 Mesh::~Mesh()

@@ -7,9 +7,11 @@
 #include "structs.h"
 #include "Animation.h"
 
-Model::Model(const std::wstring* path, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<Material*>* materials)
+Model::Model(const std::wstring* path, SkeletonNode* rootNode, std::map<unsigned int, VertexWeight>* perVertexBoneData, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<Material*>* materials)
 {
 	m_Path = *path;
+	m_pSkeleton = rootNode;
+	m_PerVertexBoneData = *perVertexBoneData;
 	m_Size = (*meshes).size();
 
 	m_Meshes = (*meshes);
@@ -18,10 +20,34 @@ Model::Model(const std::wstring* path, std::vector<Mesh*>* meshes, std::vector<A
 
 	// Fill slotinfo with empty slotinfos
 	m_SlotInfos.resize(m_Size);
+
+	// TEMP
+	if (!m_Animations.empty())
+		m_pActiveAnimation = m_Animations[0];
+	else
+		m_pActiveAnimation = nullptr;
+
+	// Store the globalInverse transform.
+	DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
+	globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
+	DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
 }
 
 Model::~Model()
 {
+	delete m_pSkeleton;
+}
+
+void Model::Update(double dt)
+{
+	if (m_pActiveAnimation != nullptr)
+	{
+		float timeInTicks = dt * m_pActiveAnimation->ticksPerSecond;
+
+		float animationTime = fmod(timeInTicks, m_pActiveAnimation->durationInTicks);
+		m_pActiveAnimation->Update(animationTime);
+		updateSkeleton(animationTime, m_pSkeleton, DirectX::XMMatrixIdentity());
+	}
 }
 
 const std::wstring& Model::GetPath() const
@@ -63,4 +89,35 @@ void Model::UpdateSlotInfo()
 		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::EMISSIVE)->GetDescriptorHeapIndex()
 		};
 	}
+}
+
+void Model::updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform)
+{
+	m_pActiveAnimation->currentState[node->name].transform;
+	DirectX::XMMATRIX transform;
+	
+	transform = DirectX::XMLoadFloat4x4(&node->defaultTransform);
+
+	if (node->currentStateTransform)
+	{
+		DirectX::XMVECTOR position, rotationQ, scale, rotationOrigin;
+		DirectX::XMLoadFloat3(&node->currentStateTransform->position);
+		DirectX::XMLoadFloat4(&node->currentStateTransform->rotationQuaternion);
+		DirectX::XMLoadFloat3(&node->currentStateTransform->scaling);
+		rotationOrigin = { 0.0f,0.0f,0.0f };
+		transform = DirectX::XMMatrixAffineTransformation(scale, rotationOrigin, rotationQ, position);
+	}
+
+	transform = parentTransform * transform;
+
+	for (unsigned int i = 0; i < node->children.size(); i++)
+	{
+		updateSkeleton(animationTime, node->children[i], transform);
+	}
+
+	DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&m_GlobalInverseTransform);
+	DirectX::XMMATRIX inverseBindPose = DirectX::XMLoadFloat4x4(&node->inverseBindPose);
+	transform = globalInverse * transform * inverseBindPose;
+
+	DirectX::XMStoreFloat4x4(&node->modelSpaceTransform, transform);
 }
