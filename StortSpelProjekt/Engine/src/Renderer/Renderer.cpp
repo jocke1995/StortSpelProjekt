@@ -982,14 +982,11 @@ void Renderer::updateMousePicker()
 
 void Renderer::initRenderTasks()
 {
-	// RenderTasks
-
 #pragma region DepthPrePass
 
 	/* Depth Pre-Pass rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdDepthPrePass = {};
 	gpsdDepthPrePass.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
 	// RenderTarget
 	gpsdDepthPrePass.NumRenderTargets = 0;
 	gpsdDepthPrePass.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
@@ -1796,7 +1793,6 @@ void Renderer::LoadModel(Model* model) const
 			Log::PrintSeverity(Log::Severity::WARNING, "Renderer::loadModel: loadModel called on already loaded model %S\n", modelPath);
 		}
 	}
-	
 }
 
 void Renderer::LoadMesh(Mesh* mesh) const
