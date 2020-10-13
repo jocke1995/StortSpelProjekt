@@ -6,6 +6,7 @@
 
 component::AiComponent::AiComponent(Entity* parent, Entity* target, bool canJump, float detectionRadius, float attackingDistance) : Component(parent)
 {
+	m_pTarget = target;
 	m_Targets.push_back(target);
 	m_DetectionRadius = detectionRadius;
 	m_AttackingDistance = attackingDistance;
@@ -68,11 +69,6 @@ void component::AiComponent::Update(double dt)
 
 void component::AiComponent::RenderUpdate(double dt)
 {
-}
-
-Entity* component::AiComponent::GetCurrentTarget()
-{
-	return m_pTarget;
 }
 
 void component::AiComponent::AddTarget(Entity* target)

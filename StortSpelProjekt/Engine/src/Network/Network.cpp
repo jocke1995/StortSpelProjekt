@@ -115,7 +115,17 @@ void Network::SendPositionPacket()
 
 void Network::SendEnemiesPacket(std::vector<Entity*>* enemies)
 {
-    if (IsHost)
+    /*
+    int nrOfEnemies
+    for(nrOfEnemies)
+        float3 position
+        double4 rotation
+        double3 movement
+        std::string name
+        int target
+    */
+
+    if (IsHost())
     {
         sf::Packet packet;
 
@@ -129,6 +139,7 @@ void Network::SendEnemiesPacket(std::vector<Entity*>* enemies)
 
             packet << pos.x << pos.y << pos.z << rot.x << rot.y << rot.z << rot.w << mov.x << mov.y << mov.z;
             std::string name = enemies->at(i)->GetComponent<component::AiComponent>()->GetTarget()->GetName();
+            packet << name;
             for (int j = 0; j < m_Players.size(); i++)
             {
                 if (m_Players.at(j)->entityPointer->GetName() == name)

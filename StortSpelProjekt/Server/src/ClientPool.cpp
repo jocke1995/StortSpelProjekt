@@ -128,6 +128,41 @@ void ClientPool::playerPosition(int index, sf::Packet packet)
 	m_State->UpdateEntity(std::string("player" + std::to_string(m_Clients.at(index)->clientId)), position, rotation, velocity);
 }
 
+void ClientPool::enemyData(int index, sf::Packet packet)
+{
+	/*
+	int nrOfEnemies
+	for(nrOfEnemies)
+		float3 position
+		double4 rotation
+		double3 movement
+		std::string name
+		int target
+	*/
+	int nrOfEnemies;
+	packet >> nrOfEnemies;
+	for (int i = 0; i < nrOfEnemies; i++)
+	{
+		EnemyEntity* entity;
+		float3 pos;
+		double4 rot;
+		double3 mov;
+		std::string name;
+		int target;
+
+		packet >> pos.x >> pos.y >> pos.z;
+		packet >> rot.x >> rot.y >> rot.z >> rot.w;
+		packet >> mov.x >> mov.y >> mov.z;
+		packet >> name;
+		packet >> target;
+		entity = m_State->GetEnemy(name);
+		if (entity == nullptr)
+		{
+			m_State->AddEnemy(name, pos, rot, mov, target);
+		}
+	}
+}
+
 void ClientPool::sendPlayerPositions()
 {
 	sf::Packet packet;
@@ -308,6 +343,9 @@ void ClientPool::newPacket(int socket)
 			break;
 		case Network::E_PACKET_ID::PLAYER_DISCONNECT:
 			disconnect(socket);
+			break;
+		case Network::ENEMY_DATA:
+			enemyData(socket, packet);
 			break;
 		default: 
 			for (int i = 0; i < m_Clients.size(); i++)

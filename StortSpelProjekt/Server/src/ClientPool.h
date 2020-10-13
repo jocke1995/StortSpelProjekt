@@ -68,6 +68,8 @@ private:
 	Timer m_ClockReceived;
 
 	void playerPosition(int index, sf::Packet packet);
+	void enemyData(int index, sf::Packet packet);
+
 	void sendPlayerPositions();
 	void disconnect(int id);
 	void newConnection();
