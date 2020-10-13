@@ -55,7 +55,6 @@ typedef union float3
 			z - other.z
 		};
 	};
-	float3 cross(float3* that)
 
 	float3 operator +(const float3& other) const
 	{
