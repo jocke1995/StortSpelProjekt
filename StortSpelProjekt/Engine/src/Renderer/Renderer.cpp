@@ -238,6 +238,8 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]->GetGPUHeapAt(imGuiTextureIndex));
 
 	initRenderTasks();
+
+	SubmitMeshToCodt(m_pFullScreenQuad);
 }
 
 void Renderer::Update(double dt)
@@ -968,6 +970,7 @@ void Renderer::createFullScreenQuad()
 	m_pFullScreenQuad->m_pIndexBufferView->BufferLocation = m_pFullScreenQuad->m_pDefaultResourceIndices->GetGPUVirtualAdress();
 	m_pFullScreenQuad->m_pIndexBufferView->Format = DXGI_FORMAT_R32_UINT;
 	m_pFullScreenQuad->m_pIndexBufferView->SizeInBytes = m_pFullScreenQuad->GetSizeOfIndices();
+
 }
 
 void Renderer::updateMousePicker()

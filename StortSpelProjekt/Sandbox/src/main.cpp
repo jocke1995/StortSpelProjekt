@@ -57,18 +57,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
-    //Scene* jockeScene = JockesTestScene(sceneManager);
-    Scene* filipScene = FloppipTestScene(sceneManager);
+    Scene* jockeScene = JockesTestScene(sceneManager);
+    //Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { leoScene, filipScene};
+    Scene* activeScenes[] = { jockeScene};
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -126,11 +126,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         {
             if (aaa++ % 2 == 0)
             {
-                *activeScenes = filipScene;
+               
             }
             else
             {
-                *activeScenes = leoScene;
+                
             }
             
             sceneManager->SetScenes(1, activeScenes);
