@@ -12,6 +12,7 @@ ClientPool::ClientPool(int port)
 	m_Selector.add(m_Listener);
 
 	m_pAvailableClient = nullptr;
+	m_pHostClient = nullptr;
 	m_AvailableClientId = 0;
 }
 
