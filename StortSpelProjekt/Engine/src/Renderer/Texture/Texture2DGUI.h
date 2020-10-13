@@ -6,10 +6,10 @@
 class Texture2DGUI : public Texture
 {
 public:
-	Texture2DGUI();
+	Texture2DGUI(const std::wstring& filePath);
 	virtual ~Texture2DGUI();
 
-	bool Init(const std::wstring& filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap);
+	bool Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap);
 
 private:
 };

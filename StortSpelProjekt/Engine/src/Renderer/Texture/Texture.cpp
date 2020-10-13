@@ -6,9 +6,9 @@
 #include "../GPUMemory/ShaderResourceView.h"
 #include "../DescriptorHeap.h"
 
-Texture::Texture()
+Texture::Texture(const std::wstring& filePath)
 {
-
+	m_FilePath = filePath;
 }
 
 Texture::~Texture()
@@ -34,6 +34,11 @@ Texture::~Texture()
 	}
 }
 
+const std::wstring& Texture::GetPath() const
+{
+	return m_FilePath;
+}
+
 TEXTURE_TYPE Texture::GetType() const
 {
 	return m_Type;
@@ -42,4 +47,19 @@ TEXTURE_TYPE Texture::GetType() const
 const unsigned int Texture::GetDescriptorHeapIndex() const
 {
 	return m_pSRV->GetDescriptorHeapIndex();
+}
+
+BYTE* Texture::GetData() const
+{
+	return m_pImageData;
+}
+
+unsigned int Texture::GetWidth() const
+{
+	return m_ResourceDescription.Width;
+}
+
+unsigned int Texture::GetHeight() const
+{
+	return m_ResourceDescription.Height;
 }

@@ -45,6 +45,13 @@ inline std::string GetFileExtension(const std::string& FileName)
 	return "";
 }
 
+enum class WINDOW_MODE
+{
+	WINDOWED,
+	WINDOWED_FULLSCREEN,
+	FULLSCREEN
+};
+
 enum class TEXTURE_TYPE
 {
 	UNKNOWN,
@@ -77,7 +84,6 @@ enum SHADOW_RESOLUTION
 	LOW,
 	MEDIUM,
 	HIGH,
-	ULTRA,
 	NUM_SHADOW_RESOLUTIONS,
 	UNDEFINED
 };
@@ -113,6 +119,7 @@ enum class CAMERA_TYPE
 #define MAXNUMBER 10000000.0f
 #define DEVELOPERMODE_DRAWBOUNDINGBOX false
 #define DEVELOPERMODE_DEVINTERFACE true
+#define DEVELOPERMODE_NETWORKLOG true
 
 enum FLAG_DRAW
 {
@@ -129,6 +136,7 @@ enum FLAG_THREAD
 {
 	RENDER = BIT(1),
 	NETWORK = BIT(2),
+	HEIGHTMAPLOAD = BIT(3),
 	// CopyTextures,
 	// PrepareNextScene ..
 	// etc

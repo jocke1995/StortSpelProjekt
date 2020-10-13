@@ -4,8 +4,9 @@
 // Miscellaneous
 #include "Misc/Window.h"
 #include "Misc/Timer.h"
-#include "Misc/ThreadPool.h"
+#include "Misc/MultiThreading/ThreadPool.h"
 #include "Misc/Option.h"
+#include "Misc/NavMesh.h"
 
 // Entity Component System
 #include "ECS/SceneManager.h"
@@ -22,7 +23,7 @@
 // Sub-engines
 #include "Renderer/Renderer.h"
 #include "Renderer/Transform.h"
-#include "Renderer/Model.h"
+#include "Renderer/HeightmapModel.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/BaseCamera.h"
 #include "Physics/Physics.h"

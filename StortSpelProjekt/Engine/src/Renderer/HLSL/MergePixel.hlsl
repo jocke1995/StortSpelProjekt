@@ -27,8 +27,7 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 	float4 finalColor = sceneColor + blurColor;
 
 	// HDR tone mapping
-	float exposure = 0.5f;
-	finalColor = float4(1.0f, 1.0f, 1.0f, 1.0f) - exp(-finalColor * exposure);
+	float4 reinhard = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
 
-	return finalColor;
+	return float4(reinhard.rgb, 1.0f);
 }

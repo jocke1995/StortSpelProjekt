@@ -8,19 +8,19 @@
 
 #include "TextureFunctions.h"
 
-TextureCubeMap::TextureCubeMap()
-	: Texture()
+TextureCubeMap::TextureCubeMap(const std::wstring& filePath)
+	: Texture(filePath)
 {
 	m_Type = TEXTURE_TYPE::TEXTURECUBEMAP;
+	m_SubresourceData.resize(6); // 6 Subresources for a cubemap
 }
 
 TextureCubeMap::~TextureCubeMap()
 {
 }
 
-bool TextureCubeMap::Init(const std::wstring& filePath, ID3D12Device5* device, DescriptorHeap* descriptorHeap)
+bool TextureCubeMap::Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 {
-	m_FilePath = filePath;
 	HRESULT hr;
 
 	m_pDefaultResource = new Resource();
@@ -29,11 +29,11 @@ bool TextureCubeMap::Init(const std::wstring& filePath, ID3D12Device5* device, D
 	std::unique_ptr<uint8_t[]> m_DdsData;
 	
 	// Loads the texture and creates a default resource;
-	hr = DirectX::LoadDDSTextureFromFile(device, filePath.c_str(), (ID3D12Resource**)m_pDefaultResource->GetID3D12Resource1PP(), m_DdsData, m_SubresourceData);
+	hr = DirectX::LoadDDSTextureFromFile(device, m_FilePath.c_str(), (ID3D12Resource**)m_pDefaultResource->GetID3D12Resource1PP(), m_DdsData, m_SubresourceData);
 
 	if (FAILED(hr))
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(filePath).c_str());
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(m_FilePath).c_str());
 		delete m_pDefaultResource;
 		m_pDefaultResource = nullptr;
 		return false;

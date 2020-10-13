@@ -11,6 +11,11 @@ namespace component
 		CurrencyComponent(Entity* parent, int balance = 0);
 		~CurrencyComponent();
 
+		void OnInitScene();
+		void OnLoadScene();
+		void OnUnloadScene();
+
+
 		// set the total amount of currency available
 		void SetBalance(int newBalance);
 		// Used when adding or subtracting currency.

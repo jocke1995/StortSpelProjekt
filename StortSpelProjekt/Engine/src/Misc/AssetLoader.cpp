@@ -4,7 +4,7 @@
 #include "../Renderer/DescriptorHeap.h"
 #include "Window.h"
 
-#include "../Renderer/Model.h"
+#include "../Renderer/HeightmapModel.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Material.h"
@@ -14,12 +14,16 @@
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
+#include "assimp/postprocess.h"
 
 #include "../Renderer/Texture/Texture2D.h"
 #include "../Renderer/Texture/Texture2DGUI.h"
 #include "../Renderer/Texture/TextureCubeMap.h"
 
-#include <DirectXMath.h>
+#include "MultiThreading/ThreadPool.h"
+#include "MultiThreading/CalculateHeightmapNormalsTask.h"
+
+#include "EngineMath.h"
 
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
@@ -27,12 +31,48 @@ AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_C
 	m_pDescriptorHeap_CBV_UAV_SRV = descriptorHeap_CBV_UAV_SRV;
 	m_pWindow = const_cast<Window*>(window);
 
+	std::map<TEXTURE2D_TYPE, Texture*> matTextures;
 	// Load default textures
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.dds");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.dds");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
-	LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
+	matTextures[TEXTURE2D_TYPE::ALBEDO]		= LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.dds");
+	matTextures[TEXTURE2D_TYPE::ROUGHNESS]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.dds");
+	matTextures[TEXTURE2D_TYPE::METALLIC]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
+	matTextures[TEXTURE2D_TYPE::NORMAL]		= LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
+	matTextures[TEXTURE2D_TYPE::EMISSIVE]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
+
+	std::wstring matName = L"DefaultMaterial";
+	Material* material = new Material(&matName, &matTextures);
+	m_LoadedMaterials[matName].first = false;
+	m_LoadedMaterials[matName].second = material;
+}
+
+bool AssetLoader::IsModelLoadedOnGpu(const std::wstring& name) const
+{
+	return m_LoadedModels.at(name).first;
+}
+
+bool AssetLoader::IsModelLoadedOnGpu(const Model* model) const
+{
+	return m_LoadedModels.at(model->GetPath()).first;
+}
+
+bool AssetLoader::IsMaterialLoadedOnGpu(const std::wstring& name) const
+{
+	return m_LoadedMaterials.at(name).first;
+}
+
+bool AssetLoader::IsMaterialLoadedOnGpu(const Material* material) const
+{
+	return m_LoadedMaterials.at(material->GetPath()).first;
+}
+
+bool AssetLoader::IsTextureLoadedOnGpu(const std::wstring& name) const
+{
+	return m_LoadedTextures.at(name).first;
+}
+
+bool AssetLoader::IsTextureLoadedOnGpu(const Texture* texture) const
+{
+	return m_LoadedTextures.at(texture->GetPath()).first;
 }
 
 AssetLoader::~AssetLoader()
@@ -43,14 +83,8 @@ AssetLoader::~AssetLoader()
 		delete mesh;
 	}
 
-	// For every Animation
-	for (auto animation : m_LoadedAnimations)
-	{
-		delete animation;
-	}
-
-	// For every model
-	for (auto pair : m_LoadedModels)
+	// For every texture
+	for (auto pair : m_LoadedTextures)
 	{
 		delete pair.second.second;
 	}
@@ -61,8 +95,14 @@ AssetLoader::~AssetLoader()
 		delete material.second.second;
 	}
 
-	// For every texture
-	for (auto pair : m_LoadedTextures)
+	// For every Animation
+	for (auto animation : m_LoadedAnimations)
+	{
+		delete animation;
+	}
+
+	// For every model
+	for (auto pair : m_LoadedModels)
 	{
 		delete pair.second.second;
 	}
@@ -79,7 +119,6 @@ AssetLoader::~AssetLoader()
 		delete font.second.first->kerningsList;
 		delete font.second.first->charList;
 		delete font.second.first;
-		delete font.second.second;
 	}
 }
 
@@ -102,7 +141,7 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	const std::string filePath(path.begin(), path.end());
 	Assimp::Importer importer;
 
-	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded);
+	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes);
 
 	if (assimpScene == nullptr)
 	{
@@ -112,21 +151,151 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 	std::vector<Mesh*> meshes;
 	std::vector<std::map<TEXTURE2D_TYPE, Texture*>> textures;
-	std::vector<Animation*> animations;
 	std::vector<Material*> materials;
 
 	meshes.reserve(assimpScene->mNumMeshes);
 	materials.reserve(assimpScene->mNumMeshes);
-	animations.reserve(assimpScene->mNumAnimations);
 	m_LoadedModels[path].first = false;
-	
 
+	//Log::Print("\n\n\n");
 	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
-	processAnimations(assimpScene, &animations);
+	//Log::Print("\n\n\n");
 
-	m_LoadedModels[path].second = new Model(&path, &meshes, &animations, &materials);
+	// Animation stuff
+	std::vector<Animation*> animations;
+	animations.reserve(assimpScene->mNumAnimations);
+	std::map<unsigned int, VertexWeight> perVertexBoneData;
+	std::map<std::string, BoneInfo> boneCounter;
+
+	SkeletonNode* rootNode = processSkeleton(boneCounter, assimpScene->mRootNode, assimpScene, &perVertexBoneData);
+	processAnimations(assimpScene, &animations);
+	if (!animations.empty())
+	{
+		initializeSkeleton(rootNode, boneCounter, animations[0]);	// Ugly solution, should not pass animation[0].
+	}
+	// End of animation stuff
+
+	m_LoadedModels[path].second = new Model(&path, rootNode, &perVertexBoneData, &meshes, &animations, &materials);
+
+	// load to vram
 
 	return m_LoadedModels[path].second;
+}
+
+HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
+{
+	// return value.
+	HeightmapModel* model = nullptr;
+
+	// Check if the heightmap model already exists
+	if (m_LoadedModels.count(path) != 0)
+	{
+		model = dynamic_cast<HeightmapModel*>(m_LoadedModels[path].second);
+		
+		if (!model)
+		{
+			Log::PrintSeverity(Log::Severity::OTHER, "The model %S is already loaded and attempted to be loaded as a HeightmapModel!", path);
+		}
+
+		return model;
+	}
+	std::wstring heightMapPath;
+	std::wstring materialPath;
+	getHeightMapResources(path, heightMapPath, materialPath);
+
+	Texture* tex = LoadTexture2D(heightMapPath);
+
+	// One dimensional!
+	unsigned char* imgData = tex->GetData();
+	unsigned int dataCount = tex->GetHeight() * tex->GetWidth();
+	std::vector<Vertex> vertices;
+	vertices.reserve(dataCount);
+
+	float* heightData = new float[dataCount];
+
+	// Create vertices, only positions and UVs.
+	for (unsigned int i = 0; i < dataCount; i++)
+	{
+		Vertex ver;
+		heightData[i] = imgData[i * 4] / 255.0f;
+		
+		ver.pos = { static_cast<float>(tex->GetWidth() - (i % tex->GetWidth())) - tex->GetWidth() / 2.0f, heightData[i], (tex->GetHeight() - static_cast<float>(i) / tex->GetWidth()) - tex->GetHeight() / 2.0f };
+		ver.uv = { static_cast<float>(i % tex->GetWidth()) / tex->GetWidth(), static_cast<float>(i / tex->GetWidth()) / tex->GetHeight() };
+		vertices.push_back(ver);
+	}
+
+	// Calculate and store indices
+	std::vector<unsigned int> indices;
+	unsigned int nrOfTriangles = (tex->GetWidth() - 1) * (tex->GetHeight() - 1) * 2;
+	unsigned int nrOfIndices = nrOfTriangles * 3;
+	unsigned int toProcess = vertices.size() - tex->GetWidth();
+
+	indices.reserve(nrOfIndices);
+
+	for (unsigned int i = 0; i < toProcess; i++)
+	{
+		// calculate the indices for each triangle.
+		// they are set up in the order upper left, lower left and upper right and  for the first triangle.
+		// for the second triangle the indices are set up as lower left, lower right and upper right.
+
+		// First triangle
+		indices.push_back(i);
+		indices.push_back(i + tex->GetWidth());
+		indices.push_back(i + 1);
+
+		// Second triangle
+		indices.push_back(i + tex->GetWidth());
+		indices.push_back(i + tex->GetWidth() + 1);
+		indices.push_back(i + 1);
+
+		// Make sure that we dont create triangles from the border. If so add one more step.
+		/*
+				Border
+				|
+			*-*-*
+			|/|/|
+			*-*-*
+			|/|/|
+			*-*-*
+		*/
+
+		i+= (((i + 2) % tex->GetWidth()) == 0);
+	}
+
+	unsigned int nrOfThreads = ThreadPool::GetInstance().GetNrOfThreads();
+	CalculateHeightmapNormalsTask** tasks = new CalculateHeightmapNormalsTask*[nrOfThreads];
+	
+	for (int i = 0; i < nrOfThreads; i++)
+	{
+		tasks[i] = new CalculateHeightmapNormalsTask(i, nrOfThreads, vertices, indices, tex->GetWidth(), tex->GetHeight());
+		ThreadPool::GetInstance().AddTask(tasks[i]);
+	}
+	
+	ThreadPool::GetInstance().WaitForThreads(tasks[0]->GetThreadFlags());
+
+	for (int i = 0; i < nrOfThreads; i++)
+	{
+		delete tasks[i];
+	}
+	delete[] tasks;
+
+	Mesh* mesh = new Mesh(m_pDevice, &vertices, &indices, m_pDescriptorHeap_CBV_UAV_SRV, path);
+
+	m_LoadedMeshes.push_back(mesh);
+
+	std::vector<Mesh*> meshes;
+	meshes.push_back(mesh);
+
+	SkeletonNode* rootNode = nullptr;
+	std::map<unsigned int, VertexWeight> PVBD;
+	std::vector<Animation*> animations;
+	std::vector<Material*> materials;
+	materials.push_back(loadMaterialFromMTL(materialPath));
+	model = new HeightmapModel(&path, rootNode, &PVBD, &meshes, &animations, &materials, heightData);
+	m_LoadedModels[path].first = false;
+	m_LoadedModels[path].second = model;
+
+	return model;
 }
 
 Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
@@ -142,17 +311,11 @@ Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
 	Texture* texture = nullptr;
 	if (fileEnding == "dds")
 	{
-		texture = new Texture2D();
+		texture = new Texture2D(path);
 	}
 	else
 	{
-		texture = new Texture2DGUI();
-	}
-
-	if (texture->Init(path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
-	{
-		delete texture;
-		return nullptr;
+		texture = new Texture2DGUI(path);
 	}
 
 	m_LoadedTextures[path].first = false;
@@ -168,12 +331,7 @@ TextureCubeMap* AssetLoader::LoadTextureCubeMap(const std::wstring& path)
 		return static_cast<TextureCubeMap*>(m_LoadedTextures[path].second);
 	}
 
-	TextureCubeMap* textureCubeMap = new TextureCubeMap();
-	if (textureCubeMap->Init(path, m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV) == false)
-	{
-		delete textureCubeMap;
-		return nullptr;
-	}
+	TextureCubeMap* textureCubeMap = new TextureCubeMap(path);
 
 	m_LoadedTextures[path].first = false;
 	m_LoadedTextures[path].second = textureCubeMap;
@@ -240,6 +398,13 @@ Shader* AssetLoader::loadShader(const std::wstring& fileName, ShaderType type)
 
 void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
 {
+	/*static int level = 0;
+	if (node->mTransformation.IsIdentity())
+		Log::Print("aiNode: %s I\n", node->mName.C_Str());
+	else
+		Log::Print("aiNode: %s NOT I\n", node->mName.C_Str());
+	*/
+
 	// Go through all the m_Meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
@@ -248,10 +413,18 @@ void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vec
 	}
 	
 	// If the node has more node children
+	//if (node->mNumChildren != 0)
+	//	level++;
+
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
+		//for (int j = 0; j < level; j++)
+		//	Log::Print("\t");
 		processNode(node->mChildren[i], assimpScene, meshes, materials, filePath);
 	}
+
+	//if (node->mNumChildren != 0)
+	//	level--;
 }
 
 Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
@@ -259,7 +432,6 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	// Fill this data
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<Bone> bones;
 	std::map<TEXTURE2D_TYPE, Texture*> meshTextures;
 
 	// Get data from assimpMesh and store it
@@ -328,35 +500,10 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 		}
 	}
 
-	// Get bones
-	for (unsigned int i = 0; i < assimpMesh->mNumBones; i++)
-	{
-		Bone bone;
-		aiBone* assimpBone = assimpMesh->mBones[i];
-
-		// Store the name of the bone
-		bone.name = assimpBone->mName.C_Str();	// Possible loss of data, returns pointer.
-
-		// Store the offset matrix of the bone
-		bone.offsetMatrix = aiMatrix4x4ToXMFloat4x4(&assimpBone->mOffsetMatrix);
-
-		// Store the weights of the bone
-		for (unsigned int j = 0; j < assimpBone->mNumWeights; j++)
-		{
-			VertexWeight weight;
-			weight.vertexID = assimpBone->mWeights[j].mVertexId;
-			weight.weight = assimpBone->mWeights[j].mWeight;
-			bone.weights.push_back(weight);
-		}
-
-		// Store the bone in the mesh
-		bones.push_back(bone);
-	}
-
 	// Create Mesh
 	Mesh* mesh = new Mesh(
 		m_pDevice,
-		&vertices, &indices, &bones,
+		&vertices, &indices,
 		m_pDescriptorHeap_CBV_UAV_SRV,
 		filePath);
 
@@ -420,10 +567,90 @@ Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring& folderP
 		// Don't print for default material
 		if (matName != L"DefaultMaterial")
 		{
-			Log::PrintSeverity(Log::Severity::WARNING, "AssetLoader: Loaded same material name more than once, first loaded material will be used <%S>\n", matName.c_str());
+			//Log::PrintSeverity(Log::Severity::WARNING, "AssetLoader: Loaded same material name more than once, first loaded material will be used <%S>\n", matName.c_str());
 		}
 		return m_LoadedMaterials[matName].second;
 	}
+}
+
+Material* AssetLoader::loadMaterialFromMTL(const std::wstring& path)
+{
+	std::wifstream ifstream(path);
+	Material* mat = nullptr;
+	if (ifstream.is_open())
+	{
+		std::wstring relPath = path.substr(0, path.find_last_of('/') + 1);
+		std::wstring currMatName;
+		std::wstring line;
+		std::wstring varName;
+		std::wstring varVal;
+		std::map<TEXTURE2D_TYPE, Texture*> matTextures;
+
+		std::vector<std::wstring> defaultNames;
+		defaultNames.reserve(static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES));
+		defaultNames.push_back(L"default_albedo.dds");
+		defaultNames.push_back(L"default_roughness.dds");
+		defaultNames.push_back(L"default_metallic.dds");
+		defaultNames.push_back(L"default_normal.dds");
+		defaultNames.push_back(L"default_emissive.dds");
+
+		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
+		{
+			matTextures[static_cast<TEXTURE2D_TYPE>(i)] = m_LoadedTextures[m_FilePathDefaultTextures + defaultNames[i]].second;
+		}
+
+		while (!ifstream.eof())
+		{
+			std::getline(ifstream, line);
+			varName = line.substr(0, line.find_first_of(L' '));
+
+			if (varName == L"newmtl")
+			{
+				currMatName = line.substr(line.find_first_of(L' '));
+				if (m_LoadedMaterials.count(currMatName) > 0)
+				{
+					ifstream.close();
+					return m_LoadedMaterials[currMatName].second;
+				}
+			}
+			else if (varName == L"map_Ka")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Kd")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::ALBEDO] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Ks")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::ROUGHNESS] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Kn")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Ke")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(relPath + varVal);
+			}
+		}
+
+		mat = new Material(&currMatName, &matTextures);
+		m_LoadedMaterials[currMatName].first = false;
+		m_LoadedMaterials[currMatName].second = mat;
+
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open mtl file with path %S", path.c_str());
+	}
+
+	return mat;
 }
 
 Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture)
@@ -481,12 +708,91 @@ Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_typ
 	{
 		std::string tempString = std::string(filePathWithoutTexture.begin(), filePathWithoutTexture.end());
 		// No texture, warn and apply default Texture
-		Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType +
-			" on mesh with path: \'%s\'\n", tempString.c_str());
+		//Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType +
+		//	" on mesh with path: \'%s\'\n", tempString.c_str());
 		return m_LoadedTextures[defaultPath].second;
 	}
 
 	return nullptr;
+}
+
+SkeletonNode* AssetLoader::processSkeleton(std::map<std::string, BoneInfo> boneCounter, aiNode* assimpNode, const aiScene* assimpScene, std::map<unsigned int, VertexWeight>* perVertexBoneData)
+{
+	SkeletonNode* currentNode = new SkeletonNode();
+	currentNode->name = assimpNode->mName.C_Str();
+
+	// Store the default transform
+	currentNode->defaultTransform = aiMatrix4x4ToXMFloat4x4(&assimpNode->mTransformation);
+
+	// Process all bones in every mesh
+	for (unsigned int i = 0; i < assimpNode->mNumMeshes; i++)
+	{
+		aiMesh* assimpMesh = assimpScene->mMeshes[assimpNode->mMeshes[i]];	// The aiNode only contains indices to the meshes
+		processBones(boneCounter, assimpMesh, perVertexBoneData);
+	}
+
+	// Process all children and push_back the pointers
+	for (unsigned int i = 0; i < assimpNode->mNumChildren; i++)
+	{
+		currentNode->children.push_back(processSkeleton(boneCounter, assimpNode->mChildren[i], assimpScene, perVertexBoneData));
+	}
+
+	return currentNode;
+}
+
+void AssetLoader::processBones(std::map<std::string, BoneInfo> boneCounter, const aiMesh* assimpMesh, std::map<unsigned int, VertexWeight>* perVertexBoneData)
+{
+	// This map keeps track of how many weights and boneIDs have been added to every vertex
+	// First value is the vertexID and the second value is the amount of weights and boneIDs added to that vertex
+	std::map<unsigned int, unsigned int> vertexCounter;
+	for (unsigned int i = 0; i < assimpMesh->mNumBones; i++)
+	{
+		aiBone* assimpBone = assimpMesh->mBones[i];
+		std::string boneName = assimpBone->mName.C_Str();
+		// Give each bone an ID. If we already gave it an ID we don't want to change it. Also store the offset matrix.
+		// This information is later stored in the SkeletonNode.
+		if (boneCounter.find(boneName) != boneCounter.end())
+		{
+			boneCounter[boneName].boneID = boneCounter.size();
+			boneCounter[boneName].boneOffset = aiMatrix4x4ToXMFloat4x4(&assimpBone->mOffsetMatrix);
+		}
+
+		// Add the vertexID and weight to the map of VertexWeights
+		// This stores the data that each vertex needs later on the GPU to choose their transformations.
+		for (unsigned int j = 0; j < assimpBone->mNumWeights; j++)
+		{
+			aiVertexWeight assimpWeight = assimpBone->mWeights[j];
+			assert(vertexCounter[assimpWeight.mVertexId] < MAX_BONES_PER_VERTEX);
+			// Set the bone ID in the correct vertex
+			perVertexBoneData->operator[](
+				assimpWeight.mVertexId).boneIDs[vertexCounter[assimpWeight.mVertexId]] = boneCounter[boneName].boneID;
+			// Set the weight of the vertex
+			perVertexBoneData->operator[](
+				assimpWeight.mVertexId).weights[vertexCounter[assimpWeight.mVertexId]++] = assimpWeight.mWeight;
+		}
+	}
+}
+
+void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo> boneCounter, Animation* animation)
+{
+	// Attach the bone ID and the offset matrix to its corresponding SkeletonNode
+	if (boneCounter.find(node->name) != boneCounter.end())
+	{
+		node->boneID = boneCounter[node->name].boneID;
+		node->inverseBindPose = boneCounter[node->name].boneOffset;
+	}
+	
+	// Set the currentStateTransform pointer. This would look nicer if we didn't need the animation to do it
+	if (animation->currentState.find(node->name) != animation->currentState.end())
+	{
+		node->currentStateTransform = &animation->currentState[node->name].transform;
+	}
+	
+	// Loop through all nodes in the tree
+	for (auto& child : node->children)
+	{
+		initializeSkeleton(child, boneCounter, animation);
+	}
 }
 
 Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
@@ -657,6 +963,26 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	Font* font = m_LoadedFonts[filename].first;
 	return m_LoadedFonts[filename].first;
 }
+
+void AssetLoader::getHeightMapResources(const std::wstring& path, std::wstring& heightMapPath, std::wstring& materialPath)
+{
+	std::wifstream input(path);
+	
+	if (input.is_open())
+	{
+		std::wstring relFolderPath = path.substr(0, path.find_last_of('/') + 1);
+		std::getline(input, heightMapPath);
+		heightMapPath = relFolderPath + heightMapPath;
+		std::getline(input, materialPath);
+		materialPath = relFolderPath + materialPath;
+		input.close();
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load heightmap info file with path %S", path.c_str());
+	}
+}
+
 void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations)
 {
 	// Store the animations
@@ -665,59 +991,46 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 		Animation* animation = new Animation();
 		aiAnimation* assimpAnimation = assimpScene->mAnimations[i];
 
-		animation->duration = assimpAnimation->mDuration;
-		animation->ticksPerSecond = assimpAnimation->mTicksPerSecond;
+		animation->durationInTicks = assimpAnimation->mDuration;
+		animation->ticksPerSecond = assimpAnimation->mTicksPerSecond != 0 ?
+			assimpAnimation->mTicksPerSecond : 25.0f;
 
-		// Store the transform data for each nodeAnimation
+		// Store the keyframes (transform data) for each nodeAnimation (bone)
 		for (unsigned int j = 0; j < assimpAnimation->mNumChannels; j++)
 		{
-			NodeAnimation nodeAnimation;
 			aiNodeAnim* assimpNodeAnimation = assimpAnimation->mChannels[j];
-			processNodeAnimation(assimpAnimation->mChannels[j], &nodeAnimation);
-			animation->nodeAnimations.push_back(nodeAnimation);
+			std::string nodeName = assimpNodeAnimation->mNodeName.C_Str();
+
+			// Store all the keyframes (transform data) belonging to this nodeAnimation (bone)
+			for (unsigned int k = 0; k < assimpNodeAnimation->mNumPositionKeys; k++)
+			{
+				Keyframe key;
+
+				key.time = assimpNodeAnimation->mPositionKeys[k].mTime;
+
+				key.transform.position = DirectX::XMFLOAT3(
+					assimpNodeAnimation->mPositionKeys[k].mValue.x,
+					assimpNodeAnimation->mPositionKeys[k].mValue.y,
+					assimpNodeAnimation->mPositionKeys[k].mValue.z);
+
+				key.transform.rotationQuaternion = DirectX::XMFLOAT4(
+					assimpNodeAnimation->mRotationKeys[k].mValue.x,
+					assimpNodeAnimation->mRotationKeys[k].mValue.y,
+					assimpNodeAnimation->mRotationKeys[k].mValue.z,
+					assimpNodeAnimation->mRotationKeys[k].mValue.w);
+
+				key.transform.scaling = DirectX::XMFLOAT3(
+					assimpNodeAnimation->mScalingKeys[k].mValue.x,
+					assimpNodeAnimation->mScalingKeys[k].mValue.y,
+					assimpNodeAnimation->mScalingKeys[k].mValue.z);
+
+				animation->nodeAnimationKeyframes[nodeName].push_back(key);
+			}
 		}
 
 		// Save the pointer both in the model and the asset loader
 		animations->push_back(animation);
 		m_LoadedAnimations.push_back(animation);
-	}
-}
-
-void AssetLoader::processNodeAnimation(const aiNodeAnim* assimpNodeAnimation, NodeAnimation* nodeAnimation)
-{
-	// possibly do a new here for the nodeanimation
-	// Store the name. This name will be used to know which node (bone) this nodeAnimation belongs to.
-	nodeAnimation->name = assimpNodeAnimation->mNodeName.C_Str();
-
-	// Store the positions
-	for (unsigned int i = 0; i < assimpNodeAnimation->mNumPositionKeys; i++)
-	{
-		nodeAnimation->positions.push_back(
-			DirectX::XMFLOAT3(
-				assimpNodeAnimation->mPositionKeys[i].mValue.x,
-				assimpNodeAnimation->mPositionKeys[i].mValue.y,
-				assimpNodeAnimation->mPositionKeys[i].mValue.z));
-	}
-
-	// Store the rotation quaternions
-	for (unsigned int i = 0; i < assimpNodeAnimation->mNumRotationKeys; i++)
-	{
-		nodeAnimation->rotationQuaternions.push_back(
-			DirectX::XMFLOAT4(
-				assimpNodeAnimation->mRotationKeys[i].mValue.x,
-				assimpNodeAnimation->mRotationKeys[i].mValue.y,
-				assimpNodeAnimation->mRotationKeys[i].mValue.z,
-				assimpNodeAnimation->mRotationKeys[i].mValue.w));
-	}
-
-	// Store the scale values
-	for (unsigned int i = 0; i < assimpNodeAnimation->mNumScalingKeys; i++)
-	{
-		nodeAnimation->scalings.push_back(
-			DirectX::XMFLOAT3(
-				assimpNodeAnimation->mScalingKeys[i].mValue.x,
-				assimpNodeAnimation->mScalingKeys[i].mValue.y,
-				assimpNodeAnimation->mScalingKeys[i].mValue.z));
 	}
 }
 

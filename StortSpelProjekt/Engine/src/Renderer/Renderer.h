@@ -19,6 +19,8 @@ class ViewPool;
 class BoundingBoxPool;
 class DescriptorHeap;
 class Mesh;
+class Texture;
+class Model;
 
 // Views
 
@@ -46,6 +48,7 @@ class RenderTask;
 class WireframeRenderTask;
 class OutliningRenderTask;
 class BaseCamera;
+class Material;
 
 // Copy
 class CopyTask;
@@ -69,6 +72,9 @@ namespace component
 	class TextComponent;
 	class SkyboxComponent;
 }
+
+// Events
+struct WindowChange;
 
 class Renderer
 {
@@ -103,7 +109,26 @@ public:
 	void InitBoundingBoxComponent(Entity* entity);
 	void InitTextComponent(Entity* entity);
 
+	void OnResetScene();
+
+	SwapChain* GetSwapChain();
+
+	// Load Gpu Memory Functions
+	void LoadModel(Model* model) const;
+	void LoadMesh(Mesh* mesh) const;
+	void LoadMaterial(Material* material) const;
+	void LoadTexture(Texture* texture) const;
+
+	// Unload Gpu Memory Functions
+	void UnloadModel(Model* model) const;
+	void UnloadMesh(Mesh* mesh) const;
+	void UnloadMaterial(Material* material) const;
+	void UnloadTexture(Texture* texture) const;
+
+	void UnloadRenderComponents();
+
 private:
+	friend class Engine;
 	friend class component::SkyboxComponent;
 	friend class SceneManager;
 	friend class Text;
@@ -115,6 +140,9 @@ private:
 	BaseCamera* m_pScenePrimaryCamera = nullptr;
 
 	unsigned int m_FrameCounter = 0;
+
+	// Window
+	const Window* m_pWindow;
 
 	// Device
 	ID3D12Device5* m_pDevice5 = nullptr;
@@ -184,7 +212,7 @@ private:
 	void setRenderTasksPrimaryCamera();
 	bool createDevice();
 	void createCommandQueues();
-	void createSwapChain(const HWND *hwnd);
+	void createSwapChain();
 	void createMainDSV();
 	void createRootSignature();
 	void createFullScreenQuad();
@@ -194,6 +222,10 @@ private:
 	void createDescriptorHeaps();
 	void createFences();
 	void waitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
+	void waitForGPU();
+
+	
+
 
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene
 	void waitForCopyOnDemand();
@@ -202,11 +234,15 @@ private:
 	void removeComponents(Entity* entity);
 
 	// Setup the whole scene
-	void prepareScene(Scene* scene);
+	void prepareScenes(std::vector<Scene*>* scenes);
+	// Setup what should be drawn in the scene
+	void prepareRenderComponents(std::vector<Scene*>* scenes);
 	// Setup Per-scene data and send to GPU
 	void prepareCBPerScene();
 	// Submit per-frame data to the copyQueue that updates each frame
 	void prepareCBPerFrame();
+
+	void toggleFullscreen(WindowChange* evnt);
 };
 
 #endif

@@ -17,6 +17,18 @@ component::HealthComponent::~HealthComponent()
 
 }
 
+void component::HealthComponent::OnInitScene()
+{
+}
+
+void component::HealthComponent::OnLoadScene()
+{
+}
+
+void component::HealthComponent::OnUnloadScene()
+{
+}
+
 void component::HealthComponent::SetHealth(int hp)
 {
 	m_Health = hp;
