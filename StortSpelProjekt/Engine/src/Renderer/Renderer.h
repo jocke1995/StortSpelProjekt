@@ -115,10 +115,7 @@ public:
 
 	SwapChain* GetSwapChain();
 
-	void SubmitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
-	void SubmitModelToCodt(Model* model);
-	void SubmitMeshToCodt(Mesh* mesh);
-	void SubmitTextureToCodt(Texture* texture);
+	
 
 private:
 	friend class Engine;
@@ -126,6 +123,12 @@ private:
 	friend class SceneManager;
 	friend class Text;
 	Renderer();
+
+	// SubmitToCodt functions
+	void submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
+	void submitModelToCodt(Model* model);
+	void submitMeshToCodt(Mesh* mesh);
+	void submitTextureToCodt(Texture* texture);
 
 	ThreadPool* m_pThreadPool = nullptr;
 

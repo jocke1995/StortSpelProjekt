@@ -76,10 +76,6 @@ private:
     
     void loadDefaultMaterial();
 
-    // LoadVramFunctions
-    void loadMeshToGpu(Mesh* mesh);
-    void loadTextureToGpu(Texture* texture);
-
     const std::wstring m_FilePathShaders = L"../Engine/src/Renderer/HLSL/";
     const std::wstring m_FilePathDefaultTextures = L"../Vendor/Resources/Textures/Default/";
     const std::wstring m_FilePathFonts = L"../Vendor/Resources/Fonts/";

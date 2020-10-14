@@ -13,5 +13,5 @@ SamplerState point_Wrap : register (s5);
 
 float4 PS_main(VS_OUT input) : SV_Target
 {
-    return textures[cbPerObject.info.textureAlbedo].Sample(point_Wrap, input.texCoord);
+    return 5*textures[cbPerObject.info.textureAlbedo].Sample(point_Wrap, input.texCoord);
 }

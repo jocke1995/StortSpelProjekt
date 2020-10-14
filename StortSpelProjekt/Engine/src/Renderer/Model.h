@@ -37,19 +37,21 @@ public:
 
     // Mesh
     Mesh* GetMeshAt(unsigned int index) const;
+    void SetMeshAt(unsigned int index, Mesh* mesh);
 
     // Material
     Material* GetMaterialAt(unsigned int index) const;
+    void SetMaterialAt(unsigned int index, Material* material);
 
     // SlotInfo
     const SlotInfo* GetSlotInfoAt(unsigned int index) const;
-    void UpdateSlotInfo();
 
 private:
     friend class Renderer;
     friend class AssetLoader;
 
     void updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform);
+    void updateSlotInfo();
 
     std::wstring m_Path;
     unsigned int m_Size = 0;

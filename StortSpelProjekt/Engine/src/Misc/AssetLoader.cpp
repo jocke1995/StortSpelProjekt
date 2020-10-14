@@ -179,7 +179,7 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	// End of animation stuff
 
 	m_LoadedModels[path].second = new Model(&path, rootNode, &perVertexBoneData, &meshes, &animations, &materials);
-	m_LoadedModels[path].second->UpdateSlotInfo();
+	m_LoadedModels[path].second->updateSlotInfo();
 	m_LoadedModels[path].first = false;
 
 	return m_LoadedModels[path].second;

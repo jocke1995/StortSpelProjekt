@@ -65,9 +65,21 @@ Mesh* Model::GetMeshAt(unsigned int index) const
 	return m_Meshes[index];
 }
 
+void Model::SetMeshAt(unsigned int index, Mesh* mesh)
+{
+	m_Meshes[index] = mesh;
+	updateSlotInfo();
+}
+
 Material* Model::GetMaterialAt(unsigned int index) const
 {
-	return m_Materials[index];;
+	return m_Materials[index];
+}
+
+void Model::SetMaterialAt(unsigned int index, Material* material)
+{
+	m_Materials[index] = material;
+	updateSlotInfo();
 }
 
 const SlotInfo* Model::GetSlotInfoAt(unsigned int index) const
@@ -75,8 +87,15 @@ const SlotInfo* Model::GetSlotInfoAt(unsigned int index) const
 	return &m_SlotInfos[index];
 }
 
-void Model::UpdateSlotInfo()
+void Model::updateSlotInfo()
 {
+#ifdef _DEBUG
+	if (m_Meshes[0]->m_pSRV == nullptr || m_Materials[0]->GetTexture(TEXTURE2D_TYPE::ALBEDO)->m_pSRV == nullptr)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Model.cpp::updateSlotInfo got unInit:ed variables\n");
+	}
+#endif // DEBUG
+
 	for (unsigned int i = 0; i < m_Size; i++)
 	{
 		m_SlotInfos[i] =

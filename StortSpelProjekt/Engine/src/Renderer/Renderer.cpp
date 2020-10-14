@@ -239,7 +239,7 @@ void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* 
 
 	initRenderTasks();
 
-	SubmitMeshToCodt(m_pFullScreenQuad);
+	submitMeshToCodt(m_pFullScreenQuad);
 }
 
 void Renderer::Update(double dt)
@@ -451,10 +451,10 @@ void Renderer::InitSkyboxComponent(Entity* entity)
 	component::SkyboxComponent* sbc = entity->GetComponent<component::SkyboxComponent>();
 
 	Mesh* mesh = sbc->GetMesh();
-	SubmitMeshToCodt(mesh);
+	submitMeshToCodt(mesh);
 
 	Texture* texture = static_cast<TextureCubeMap*>(sbc->GetTexture());
-	SubmitTextureToCodt(texture);
+	submitTextureToCodt(texture);
 
 	// Finally store the object in m_pRenderer so it will be drawn
 	m_pSkyboxComponent = sbc;
@@ -466,7 +466,7 @@ void Renderer::InitModelComponent(Entity* entity)
 	component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
 
 	// Submit to codt
-	SubmitModelToCodt(mc->m_pModel);
+	submitModelToCodt(mc->m_pModel);
 	
 	// Only add the m_Entities that actually should be drawn
 	if (tc != nullptr)
@@ -683,13 +683,13 @@ SwapChain* Renderer::GetSwapChain()
 
 
 
-void Renderer::SubmitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
+void Renderer::submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
 {
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	codt->Submit(Upload_Default_Data);
 }
 
-void Renderer::SubmitMeshToCodt(Mesh* mesh)
+void Renderer::submitMeshToCodt(Mesh* mesh)
 {
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 
@@ -700,29 +700,29 @@ void Renderer::SubmitMeshToCodt(Mesh* mesh)
 	codt->Submit(&Indi_Upload_Default_Data);
 }
 
-void Renderer::SubmitModelToCodt(Model* model)
+void Renderer::submitModelToCodt(Model* model)
 {
 	for (unsigned int i = 0; i < model->GetSize(); i++)
 	{
 		Mesh* mesh = model->GetMeshAt(i);
-		SubmitMeshToCodt(mesh);
+		submitMeshToCodt(mesh);
 
 		Texture* texture;
 
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::ALBEDO);
-		SubmitTextureToCodt(texture);
+		submitTextureToCodt(texture);
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::ROUGHNESS);
-		SubmitTextureToCodt(texture);
+		submitTextureToCodt(texture);
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::METALLIC);
-		SubmitTextureToCodt(texture);
+		submitTextureToCodt(texture);
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::NORMAL);
-		SubmitTextureToCodt(texture);
+		submitTextureToCodt(texture);
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::EMISSIVE);
-		SubmitTextureToCodt(texture);
+		submitTextureToCodt(texture);
 	}
 }
 
-void Renderer::SubmitTextureToCodt(Texture* texture)
+void Renderer::submitTextureToCodt(Texture* texture)
 {
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	codt->SubmitTexture(texture);
