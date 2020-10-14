@@ -24,8 +24,6 @@ namespace component
 
         void RenderUpdate(double dt);
         void OnInitScene();
-        void OnLoadScene();
-        void OnUnloadScene();
 
         // Sets
         void SetMesh(Mesh* mesh);

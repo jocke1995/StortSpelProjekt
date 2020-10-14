@@ -6,6 +6,7 @@
 #include "../Renderer/Transform.h"
 #include "../Renderer/BaseCamera.h"
 #include "../Renderer/Renderer.h"
+#include "../Misc/Option.h"
 
 // ECS
 #include "../ECS/Entity.h"
@@ -57,6 +58,8 @@ namespace component
 
     void SpotLightComponent::OnInitScene()
     {
+        this->Update(0);
+
         Renderer::GetInstance().InitSpotLightComponent(GetParent());
     }
 
@@ -138,7 +141,10 @@ namespace component
                 m_pSpotLight->direction_outerCutoff.y,
                 m_pSpotLight->direction_outerCutoff.z });
 
-            m_pSpotLight->baseLight.castShadow = true;
+            if (std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str()) >= 0)
+            {
+                m_pSpotLight->baseLight.castShadow = true;
+            }
 
             m_pSpotLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
         }
