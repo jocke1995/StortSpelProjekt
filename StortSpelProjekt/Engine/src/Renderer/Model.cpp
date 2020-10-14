@@ -23,14 +23,21 @@ Model::Model(const std::wstring* path, SkeletonNode* rootNode, std::map<unsigned
 
 	// TEMP
 	if (!m_Animations.empty())
+	{
 		m_pActiveAnimation = m_Animations[0];
+	}
 	else
+	{
 		m_pActiveAnimation = nullptr;
+	}
 
-	// Store the globalInverse transform.
-	DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
-	globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
-	DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
+	if (rootNode)
+	{
+		// Store the globalInverse transform.
+		DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
+		globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
+		DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
+	}
 }
 
 Model::~Model()
@@ -65,14 +72,49 @@ Mesh* Model::GetMeshAt(unsigned int index) const
 	return m_Meshes[index];
 }
 
+void Model::SetMeshAt(unsigned int index, Mesh* mesh)
+{
+	m_Meshes[index] = mesh;
+	updateSlotInfo();
+}
+
 Material* Model::GetMaterialAt(unsigned int index) const
 {
-	return m_Materials[index];;
+	return m_Materials[index];
+}
+
+void Model::SetMaterialAt(unsigned int index, Material* material)
+{
+	m_Materials[index] = material;
+	updateSlotInfo();
 }
 
 const SlotInfo* Model::GetSlotInfoAt(unsigned int index) const
 {
 	return &m_SlotInfos[index];
+}
+
+void Model::updateSlotInfo()
+{
+#ifdef _DEBUG
+	if (m_Meshes[0]->m_pSRV == nullptr || m_Materials[0]->GetTexture(TEXTURE2D_TYPE::ALBEDO)->m_pSRV == nullptr)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Model.cpp::updateSlotInfo got unInit:ed variables\n");
+	}
+#endif // DEBUG
+
+	for (unsigned int i = 0; i < m_Size; i++)
+	{
+		m_SlotInfos[i] =
+		{
+		m_Meshes[i]->m_pSRV->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::ALBEDO)->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::ROUGHNESS)->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::METALLIC)->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::NORMAL)->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::EMISSIVE)->GetDescriptorHeapIndex()
+		};
+	}
 }
 
 void Model::updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform)
@@ -104,4 +146,24 @@ void Model::updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMM
 	transform = globalInverse * transform * inverseBindPose;
 
 	DirectX::XMStoreFloat4x4(&node->modelSpaceTransform, transform);
+}
+
+double3 Model::GetModelDim() const
+{
+	double3 minVertex = { 100.0, 100.0, 100.0 }, maxVertex = { -100.0, -100.0, -100.0 };
+	for (unsigned int i = 0; i < m_Size; i++)
+	{
+		std::vector<Vertex> modelVertices = *m_Meshes[i]->GetVertices();
+		for (unsigned int i = 0; i < modelVertices.size(); i++)
+		{
+			minVertex.x = Min(minVertex.x, static_cast<double>(modelVertices[i].pos.x));
+			minVertex.y = Min(minVertex.y, static_cast<double>(modelVertices[i].pos.y));
+			minVertex.z = Min(minVertex.z, static_cast<double>(modelVertices[i].pos.z));
+
+			maxVertex.x = Max(maxVertex.x, static_cast<double>(modelVertices[i].pos.x));
+			maxVertex.y = Max(maxVertex.y, static_cast<double>(modelVertices[i].pos.y));
+			maxVertex.z = Max(maxVertex.z, static_cast<double>(modelVertices[i].pos.z));
+		}
+	}
+	return { maxVertex.x - minVertex.x, maxVertex.y - minVertex.y, maxVertex.z - minVertex.z };
 }
