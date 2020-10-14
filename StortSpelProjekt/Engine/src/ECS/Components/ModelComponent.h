@@ -32,6 +32,7 @@ namespace component
         unsigned int GetNrOfMeshes() const;
         const std::wstring& GetModelPath() const;
         bool IsPickedThisFrame() const;
+        double3 GetModelDim() const;
 
     private:
         // The boundingBox will update the "m_IsPickedThisFrame"

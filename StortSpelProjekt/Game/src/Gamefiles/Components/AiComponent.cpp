@@ -35,19 +35,17 @@ void component::AiComponent::Update(double dt)
 		}
 		float distance = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
 
-		if (cc->CastRay({ 0.0, -1.0, 0.0 }, cc->GetDistanceToBottom() + 0.1) != -1)
+		if (cc->CastRay({ 0.0, -1.0, 0.0 }, cc->GetDistanceToBottom() + 0.5) != -1)
 		{
 			double vel;
 			if (distance <= m_DetectionRadius && distance >= (m_AttackingDistance - 0.5f))
 			{
-				vel = 7.5;
-				parentTrans->SetVelocity(vel);
+				vel = parentTrans->GetVelocity() * 3.0;
 				cc->SetVelVector(vel * direction.x / distance, vel * 2 * direction.y / distance, vel * direction.z / distance);
 			}
 			else
 			{
-				vel = 2.5;
-				parentTrans->SetVelocity(vel);
+				vel = parentTrans->GetVelocity();
 				float randX = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
 				float randZ = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
 				double moveX = min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel);
@@ -65,7 +63,11 @@ void component::AiComponent::Update(double dt)
 			{
 				//Log::Print("%s attacking player!\n", m_pParent->GetName().c_str());
 				// TODO: fix this when meele attack is implemented
-				m_pTarget->GetComponent<component::HealthComponent>()->ChangeHealth(-1);
+				HealthComponent* hc = m_pTarget->GetComponent<component::HealthComponent>();
+				if (hc != nullptr)
+				{
+					m_pTarget->GetComponent<component::HealthComponent>()->ChangeHealth(-1);
+				}
 			}
 		}
 	}

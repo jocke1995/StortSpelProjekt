@@ -5,7 +5,7 @@
 
 struct HeightMapInfo
 {
-	void* data;
+	const void* data;
 	int width;
 	int length;
 	double maxHeight;

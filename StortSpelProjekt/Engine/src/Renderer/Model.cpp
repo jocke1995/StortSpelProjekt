@@ -23,14 +23,21 @@ Model::Model(const std::wstring* path, SkeletonNode* rootNode, std::map<unsigned
 
 	// TEMP
 	if (!m_Animations.empty())
+	{
 		m_pActiveAnimation = m_Animations[0];
+	}
 	else
+	{
 		m_pActiveAnimation = nullptr;
+	}
 
-	// Store the globalInverse transform.
-	DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
-	globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
-	DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
+	if (rootNode)
+	{
+		// Store the globalInverse transform.
+		DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
+		globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
+		DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
+	}
 }
 
 Model::~Model()
@@ -139,4 +146,24 @@ void Model::updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMM
 	transform = globalInverse * transform * inverseBindPose;
 
 	DirectX::XMStoreFloat4x4(&node->modelSpaceTransform, transform);
+}
+
+double3 Model::GetModelDim() const
+{
+	double3 minVertex = { 100.0, 100.0, 100.0 }, maxVertex = { -100.0, -100.0, -100.0 };
+	for (unsigned int i = 0; i < m_Size; i++)
+	{
+		std::vector<Vertex> modelVertices = *m_Meshes[i]->GetVertices();
+		for (unsigned int i = 0; i < modelVertices.size(); i++)
+		{
+			minVertex.x = Min(minVertex.x, static_cast<double>(modelVertices[i].pos.x));
+			minVertex.y = Min(minVertex.y, static_cast<double>(modelVertices[i].pos.y));
+			minVertex.z = Min(minVertex.z, static_cast<double>(modelVertices[i].pos.z));
+
+			maxVertex.x = Max(maxVertex.x, static_cast<double>(modelVertices[i].pos.x));
+			maxVertex.y = Max(maxVertex.y, static_cast<double>(modelVertices[i].pos.y));
+			maxVertex.z = Max(maxVertex.z, static_cast<double>(modelVertices[i].pos.z));
+		}
+	}
+	return { maxVertex.x - minVertex.x, maxVertex.y - minVertex.y, maxVertex.z - minVertex.z };
 }
