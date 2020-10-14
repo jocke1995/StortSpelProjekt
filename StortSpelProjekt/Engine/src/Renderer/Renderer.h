@@ -114,8 +114,6 @@ public:
 
 	void OnResetScene();
 
-
-
 private:
 	friend class Engine;
 	friend class component::SkyboxComponent;

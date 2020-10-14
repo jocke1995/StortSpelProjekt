@@ -37,16 +37,4 @@ namespace component
 	{
 		Renderer::GetInstance().InitGUI2DComponent(GetParent());
 	}
-
-	void GUI2DComponent::OnLoadScene()
-	{
-		Renderer::GetInstance().LoadTexture(m_pTextMan.GetFont()->GetTexture());
-		Renderer::GetInstance().LoadTexture(m_pQuadMan.GetTexture());
-	}
-
-	void GUI2DComponent::OnUnloadScene()
-	{
-		Renderer::GetInstance().UnloadTexture(m_pTextMan.GetFont()->GetTexture());
-		Renderer::GetInstance().LoadTexture(m_pQuadMan.GetTexture());
-	}
 }

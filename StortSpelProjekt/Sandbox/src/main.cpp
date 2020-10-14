@@ -69,7 +69,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { leoScene };
+    Scene* activeScenes[] = { fredrikScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -1998,7 +1998,6 @@ void FredriksUpdateScene(SceneManager* sm)
 	red += 0.01;
 	green += 0.01;
 	blue += 0.01;
-	tc->GetTextManager()->UploadTextData("health");
 
 	if (tc->GetQuadManager()->HasBeenPressed())
 	{

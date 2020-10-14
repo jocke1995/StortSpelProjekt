@@ -65,7 +65,6 @@ void TextManager::AddText(std::string name)
 void TextManager::UploadTextData(std::string name)
 {
 	Renderer* renderer = &Renderer::GetInstance();
-	renderer->LoadTexture(m_pFont->GetTexture());
 
 	int numOfCharacters = GetNumOfCharacters(name);
 	auto textData = GetTextData(name);
@@ -115,6 +114,7 @@ void TextManager::SetText(std::string text, std::string name)
 	{
 		m_TextDataMap[name].text = to_wstring(text);
 		exists = true;
+		UploadTextData(name);
 	}
 
 	if (exists == false)
@@ -131,6 +131,7 @@ void TextManager::SetPos(float2 textPos, std::string name)
 	{
 		m_TextDataMap[name].pos = textPos;
 		exists = true;
+		UploadTextData(name);
 	}
 
 	if (exists == false)
@@ -166,6 +167,7 @@ void TextManager::SetScale(float2 scale, std::string name)
 		m_TextDataMap[name].scale.y = (scale.y * scale_y * aspect);
 
 		exists = true;
+		UploadTextData(name);
 	}
 
 	if (exists == false)
@@ -182,6 +184,7 @@ void TextManager::SetPadding(float2 padding, std::string name)
 	{
 		m_TextDataMap[name].padding = padding;
 		exists = true;
+		UploadTextData(name);
 	}
 
 	if (exists == false)
@@ -198,6 +201,7 @@ void TextManager::SetColor(float4 color, std::string name)
 	{
 		m_TextDataMap[name].color = color;
 		exists = true;
+		UploadTextData(name);
 	}
 
 	if (exists == false)
