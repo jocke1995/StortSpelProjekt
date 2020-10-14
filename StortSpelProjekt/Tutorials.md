@@ -195,12 +195,12 @@ exclusive fullscreen may save a couple of your frames per second and is therefor
 exclusive fullscreen mode will also override the window size settings until you loose focus by, for example, pressing the *alt+enter* combination on
 your keyboard. While doing so, the exclusive fullscreen will be changed to a window which will have the size which is decided in the config.txt file.
 
-## Upgrades
-### Making new Upgrades
+# Upgrades
+## Making new Upgrades
 To make a new upgrade you need to make a new class that inherits from **Upgrade.h**. 
 In the constructor of this class you need to set the **name** of the class as well as its **type**. 
-The namingconvention we have chosen is to name it the same as the class itself. 
-When it comes to types there are three of them. **PLAYER**, **RANGE** and **ENEMYSPECIFIC**.
+The naming convention we have chosen is to name it the same as the class itself. 
+When it comes to types there are three of them: **PLAYER**, **RANGE** and **ENEMYSPECIFIC**.
 **RANGE** is for when the upgrade has to go on projectiles, **PLAYER** on player/enemy and **ENEMYSPECIFIC** are only for enemies.
 An example of an upgrade constructor:
 
@@ -214,8 +214,8 @@ An example of an upgrade constructor:
 ```
 
 An uppgrade has many inherited functions such as OnHit(), ApplyStat() or OnDamage().
-It is using these functions that you decide where/what your upgrade will affect. 
-As an Example take UpgradeRangeTest which will have an emmidiate effect on player health in its ApplyStat() function,
+It is by using these functions that you decide where/what your upgrade will affect. 
+As an Example, take UpgradeRangeTest, which will have an immediate effect on player health in its ApplyStat() function,
 as well as making projectiles shoot upwards when hitting something in the function OnRangeHit().
 
 ```cpp
@@ -237,7 +237,7 @@ as well as making projectiles shoot upwards when hitting something in the functi
 If an upgrade is bought more than once its level should increase in the function **IncreaseLevel()**.
 It is in this function you define what will happen with each increase in level. 
 Examples could be multiplying stat increases by level or maybe a switch case that adds functionallity for every level.
-Here is an example from UpgradeRangeTest where the speed at wich they are accelerating is mutiplied by level. The health change you get will not increase but you will still get 100 more health for each level.
+Here is an example from UpgradeRangeTest where the speed at which they are accelerating is multiplied by level. The health change you get will not increase but you will still get 100 more health for each level.
 
 ```cpp
 	void UpgradeRangeTest::IncreaseLevel()
@@ -249,7 +249,7 @@ Here is an example from UpgradeRangeTest where the speed at wich they are accele
 ```
 
 ### UpgradeManager
-When you have made your uppgrade there is only one or three things left to do depending on if it is of type **RANGE** or not.
+When you have made your upgrade there is only one or three things left to do depending on if it is of type **RANGE** or not.
 Firstly you need to add the upgrade to the list of all upgrades in **UpgradeManager**. This is done in the function **fillUpgradeMap()**.
 Here is an example with the two test upgrades:
 
@@ -262,7 +262,7 @@ Here is an example with the two test upgrades:
 		upgrade = new UpgradeRangeTest(m_pParentEntity);
 		// add the upgrade to the list of all upgrades
 		m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
-		// Also, since it is of type RANGE, add its' Enum to the enum map.
+		// Also, since it is of type RANGE, add its Enum to the enum map.
 		m_RangeUpgradeEnmus[upgrade->GetName()] = UPGRADE_RANGE_TEST;		
 
 		// Adding MeleeTest Upgrade
@@ -274,7 +274,7 @@ Here is an example with the two test upgrades:
 
 As can be seen in the code, this is mostly a copy paste operation where the main change is which class you make a new instance of.
 Notice that UpgradeRangeTest has to add an extra enum to a map. This is because it is of type **RANGE**.
-For these types of upgrades you will have to make add en enum at the top of **UpgradeManager.h**. 
+For these types of upgrades you will have to add an enum at the top of **UpgradeManager.h**. 
 The naming convention for this is to use the same name as the class.
 
 ```cpp

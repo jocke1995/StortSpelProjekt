@@ -1,16 +1,16 @@
 #ifndef UPGRADE_H
 #define UPGRADE_H
 #include <string>
-
+#include "Core.h"
 // forward declaration
 class Entity;
 
 // Types of upgrades, for sorting/call purposes
 enum F_UpgradeType
 {
-	RANGE = (1 << 1),			// Range weapon/attack upgrades which go on projectile entitys UpgradeComponent
-	PLAYER = (1 << 2),			// Upgrades that go on the player entitys UpgradeComponent
-	ENEMYSPECIFIC = (1 << 3)	// Upgrades only relevant for enemy entities. example: enemy explode on death
+	RANGE = BIT(1),			// Range weapon/attack upgrades which go on a projectile entity's UpgradeComponent
+	PLAYER = BIT(2),		// Upgrades that go on the player entity's UpgradeComponent
+	ENEMYSPECIFIC = BIT(3)	// Upgrades only relevant for enemy entities. example: enemy explode on death
 };
 
 class Upgrade

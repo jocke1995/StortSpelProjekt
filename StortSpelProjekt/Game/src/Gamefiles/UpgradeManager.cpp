@@ -1,6 +1,9 @@
 #include "UpgradeManager.h"
 #include "EngineMath.h"
 #include "ECS/Entity.h"
+#include "Components/UpgradeComponents/UpgradeComponent.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeTest.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
 {
@@ -87,12 +90,14 @@ void UpgradeManager::fillUpgradeMap()
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 	// Also, since it is of type RANGE, add its' Enum to the enum map.
 	m_RangeUpgradeEnums[upgrade->GetName()] = UPGRADE_RANGE_TEST;
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
 	upgrade->SetID(UPGRADE_RANGE_TEST);
 
 	// Adding MeleeTest Upgrade
 	upgrade = new UpgradeMeleeTest(m_pParentEntity);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
 	upgrade->SetID(UPGRADE_MELEE_TEST);
 }
 
