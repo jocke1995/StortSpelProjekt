@@ -301,7 +301,10 @@ Submit CollisionCapsule
 ```
 Submit CollisionCube
 ```
-**Submit CollisionHeightmap** (NOT IMPLEMENTED) this command, in difference to the other submit commands, needs a heightmap to have been loaded for the entity before it is called.
+**Submit CollisionHeightmap** this command, in difference to the other submit commands, needs a heightmap to have been loaded for the entity before it is called.
 ```
 Submit CollisionHeightmap
 ```
+
+## Navmesh
+NOT READY

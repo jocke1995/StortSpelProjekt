@@ -575,7 +575,14 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 				}
 				else if (strcmp(toSubmit.c_str(), "CollisionHeightMap") == 0)
 				{
+					HeightMapInfo info;
+					info.data = heightmapModel->GetHeights();
+					info.length = heightmapModel->GetLength();
+					info.width = heightmapModel->GetWidth();
+					info.maxHeight = 1;
+					info.minHeight = -1;
 					// Implement when feature is merged to develop
+					cc = entity->AddComponent<component::HeightmapCollisionComponent>(&info,mass,friction,restitution);
 				}
 				else if (strcmp(toSubmit.c_str(), "NavQuad") == 0)
 				{
