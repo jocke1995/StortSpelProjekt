@@ -210,3 +210,101 @@ ground.mtl
 
 ## Loading and using the heightmap
 Once you have defined your heightmap it may be loaded into the program. Use the method **LoadHeightmap** from the assetloader and specify the path to the heightmap descriptive file (hm.hm). The heightmap may be transformed, so if you want to scale the plane or the heights, use the TransformComponent that the entity should have.
+
+# How to load a level/map
+The assetloader may load a scene with non moving entities. Each entity may have a modelcomponent (A transform is given on loading), a light component and a collisioncomponent.
+The entities are loaded via a txt file, the following will be a description of the different commands that may be given.
+## Entity related commands
+To create an entity you need to give it a name. This name will be used to identify the entity.
+```
+Name tstEntityName
+```
+To add a component to the entity use the Submit command. Note however that all aspects of the component needs to be finished before it is finished. For example, the modelcomponent needs its position and a rotation (If you don't wish to use the default ones that is.)
+```
+Submit Model
+Submit Heightmap
+Submit PointLight
+Submit SpotLight
+Submit DirectionalLight
+Submit CollisionSphere 
+Submit CollisionCapsule
+Submit CollisionCube
+Submit CollisionHeightMap
+```
+## Model related commands
+The model related commands are used to define a model.
+
+**ModelPath** Sets the path to the model file. (OBJ for regular model and heightmap file for heightmaps). This path is relative to the textfiles position.
+```
+ModelPath Models/Cube/crate.obj
+// the txt file is in this example located in Vendor/Resources.
+```
+**ModelScaling** Sets the scaling in x,y,z (localspace) axises for the model.
+```
+ModelScaling 1.0,1.0,1.0
+```
+
+**ModelRotation** Sets the rotation around the x,y,z axises for the model.
+```
+ModelRotation 1.0,0.0,0.0
+```
+
+**ModelPosition** Sets the position in x,y,z axises for the model.
+```
+ModelPosition 1.0,10.0,1.0
+```
+**ModelDrawFlag** Sets a draw flag for the model. The first argument says which flag should be used while the second describes if it should be used for the model (0 = don't use, 1 = use)
+```
+ModelDrawFlag 1,1
+```
+
+## Light related commands
+The Light related commands are used to define lights that are attached to an entity with a model.
+
+**ModelLightFlag** is used to define a flag for the light. The first argument says which flag should be used while the second describes if it should be used for the light (0 = don't use, 1 = use)
+```
+ModelLightFlag 0,1
+```
+**ModelLightColor** is used to define the color of the light in RGB values.
+```
+ModelLightColor 2.0,0.0,0.0
+```
+**ModelLightDirection** is used to define the direction of the light. It is not used for pointlights!
+```
+ModelLightDirection 0.0,-1.0,0.0
+```
+**ModelLightAttenuation** is used to define the attenuation of the light in RGB values.
+```
+ModelLightAttenuation 0.0,0.8,0.0
+```
+
+## Collision related commands
+The collision related commands used to define the collision shape of an entity.
+
+**ModelFriction** sets the friction of the collisioncomponent.
+```
+ModelFriction 1.0
+```
+**ModelRestitution** sets the restitution of the collisioncomponent.
+```
+ModelRestitution 1.0
+```
+**Submit CollisionSphere** this command, in difference to the other submit commands, takes in data for the sphere. In this case, a float for the radius.
+```
+Submit CollisionSphere 1.5
+```
+**Submit CollisionSphere** this command, in difference to the other submit commands, takes in data for the capsule. In this case, a float for the radius and a float for the cylinder height.
+```
+Submit CollisionCapsule
+```
+**Submit CollisionCube** this command, in difference to the other submit commands, takes in data for the capsule. In this case, three floats for width, height and depth/length.
+```
+Submit CollisionCube
+```
+**Submit CollisionHeightmap** this command, in difference to the other submit commands, needs a heightmap to have been loaded for the entity before it is called.
+```
+Submit CollisionHeightmap
+```
+
+## Navmesh
+NOT READY

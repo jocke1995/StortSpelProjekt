@@ -33,8 +33,6 @@ namespace component
 
 		void Init();
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
 
 		//updates the position and rotation of m_OrientedBoundingBox
 		void Update(double dt);

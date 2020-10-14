@@ -21,6 +21,7 @@ class DescriptorHeap;
 class Mesh;
 class Texture;
 class Model;
+class Resource;
 class Text;
 
 // Views
@@ -30,6 +31,7 @@ class ConstantBuffer;
 class ShaderResource;
 class UnorderedAccess;
 class DepthStencil;
+class Resource;
 
 // Enums
 enum COMMAND_INTERFACE_TYPE;
@@ -112,19 +114,7 @@ public:
 
 	void OnResetScene();
 
-	// Load Gpu Memory Functions
-	void LoadModel(Model* model) const;
-	void LoadMesh(Mesh* mesh) const;
-	void LoadMaterial(Material* material) const;
-	void LoadTexture(Texture* texture) const;
 
-	// Unload Gpu Memory Functions
-	void UnloadModel(Model* model) const;
-	void UnloadMesh(Mesh* mesh) const;
-	void UnloadMaterial(Material* material) const;
-	void UnloadTexture(Texture* texture) const;
-
-	void UnloadRenderComponents();
 
 private:
 	friend class Engine;
@@ -134,6 +124,12 @@ private:
 	friend class TextManager;
 	friend class QuadManager;
 	Renderer();
+
+	// SubmitToCodt functions
+	void submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
+	void submitModelToCodt(Model* model);
+	void submitMeshToCodt(Mesh* mesh);
+	void submitTextureToCodt(Texture* texture);
 
 	ThreadPool* m_pThreadPool = nullptr;
 

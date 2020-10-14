@@ -1,0 +1,51 @@
+Name testEntity
+ModelPath Models/Cube/crate.obj
+ModelScaling 1.0,1.0,1.0
+ModelRotation 1.0,0.0,0.0,1.0
+ModelPosition 1.0,10.0,1.0
+ModelDrawFlag 1,1
+ModelLightColor 0.2,0.0,0.0
+ModelLightFlag 0,1
+ModelLightFlag 1,1
+ModelLightAttenuation 1.0,0.09f,0.032f
+Submit Model
+Submit PointLight
+
+Name testFloor
+ModelPath Models/Floor/floor.obj
+ModelScaling 35.0,1.0,35.0
+ModelRotation 0.0,0.0,0.0
+ModelPosition 0.0,0.0,0.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelFriction 1.0
+ModelRestitution 1.0
+Submit Model
+Submit CollisionCube 1.0,0.1,1.0
+
+#0
+NavQuadPosition 0.0, 0.0, 0.0
+NavQuadSize 5.0, 5.0
+Submit NavQuad
+
+#1
+NavQuadPosition 5.0, 0.0, 2.0
+NavQuadSize 5.0, 5.0
+Submit NavQuad
+
+#2
+NavQuadPosition4.0, 0.0, -2.0
+NavQuadSize 3.0, 3.0
+Submit NavQuad
+
+NavConnectionQuads 0, 1
+NavConnectionPosition2.5, 0.5, 0.0
+Submit NavConnection
+
+NavConnectionQuads 2, 0
+NavConnectionPosition0.0, 0.0, 0.5
+Submit NavConnection
+
+navConnectionQuads 2, 1
+navConnectionPosition1.0, 0.0, 0.5
+Submit NavConnection
