@@ -96,7 +96,7 @@ PS_OUTPUT PS_main(VS_OUT input)
 	float3 ambient = float3(0.004f, 0.004f, 0.004f) * albedo;
 	finalColor += ambient;
 
-	finalColor += emissive.rgb;
+	finalColor += (emissive.rgb * 1000);
 
 	PS_OUTPUT output;
 	output.sceneColor = float4(finalColor.rgb, 1.0f);
