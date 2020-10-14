@@ -108,9 +108,7 @@ void component::MeleeComponent::SetDamage(int damage)
 
 void component::MeleeComponent::ChangeDamage(int change)
 {
-	Log::Print("Damage before change: %d\n", m_Damage);
 	m_Damage += change;
-	Log::Print("Damage after change: %d\n", m_Damage);
 }
 
 void component::MeleeComponent::CheckCollision()
