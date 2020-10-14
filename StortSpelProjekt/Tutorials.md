@@ -234,7 +234,7 @@ as well as making projectiles shoot upwards when hitting something in the functi
 	}
 ```
 
-If an upgrade is bought more than once its level should increase in the function **IncreaseLevel()**.
+If an upgrade is bought more than once its level should be increased in the function **IncreaseLevel()**.
 It is in this function you define what will happen with each increase in level. 
 Examples could be multiplying stat increases by level or maybe a switch case that adds functionallity for every level.
 Here is an example from UpgradeRangeTest where the speed at which they are accelerating is multiplied by level. The health change you get will not increase but you will still get 100 more health for each level.
@@ -248,9 +248,20 @@ Here is an example from UpgradeRangeTest where the speed at which they are accel
 	}
 ```
 
-### UpgradeManager
-When you have made your upgrade there is only one or three things left to do depending on if it is of type **RANGE** or not.
-Firstly you need to add the upgrade to the list of all upgrades in **UpgradeManager**. This is done in the function **fillUpgradeMap()**.
+## UpgradeManager
+When you have made your upgrade there is only two or three things left to do depending on if it is of type **RANGE** or not.
+Firstly for all upgrades you will have to add an enum at the top of **UpgradeManager.h**. 
+The naming convention for this is to use the same name as the class.
+
+```cpp
+	enum E_UpgradeIDs
+	{
+		UPGRADE_RANGE_TEST = 1,
+		UPGRADE_MELEE_TEST = 2,
+	};
+```
+
+After that add the upgrade to the list of all upgrades in **UpgradeManager**. This is done in the function **fillUpgradeMap()**.
 Here is an example with the two test upgrades:
 
 ```cpp
@@ -263,27 +274,24 @@ Here is an example with the two test upgrades:
 		// add the upgrade to the list of all upgrades
 		m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 		// Also, since it is of type RANGE, add its Enum to the enum map.
-		m_RangeUpgradeEnmus[upgrade->GetName()] = UPGRADE_RANGE_TEST;		
+		m_RangeUpgradeEnums[upgrade->GetName()] = UPGRADE_RANGE_TEST;
+		// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+		upgrade->SetID(UPGRADE_RANGE_TEST);		
 
 		// Adding MeleeTest Upgrade
 		upgrade = new UpgradeMeleeTest(m_pParentEntity);
 		// add the upgrade to the list of all upgrades
 		m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+		// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+		upgrade->SetID(UPGRADE_MELEE_TEST);
 	}
 ```
 
-As can be seen in the code, this is mostly a copy paste operation where the main change is which class you make a new instance of.
-Notice that UpgradeRangeTest has to add an extra enum to a map. This is because it is of type **RANGE**.
-For these types of upgrades you will have to add an enum at the top of **UpgradeManager.h**. 
-The naming convention for this is to use the same name as the class.
+As can be seen in the code, this is mostly a copy paste operation where the main change is which class you make a new instance of, 
+as well as setting the enum as the upgrade ID.
+Notice that UpgradeRangeTest has to add its enum to a map. This is because it is of type **RANGE**.
 
-```cpp
-	enum E_RangeName
-	{
-		UPGRADE_RANGE_TEST = 1,
-	};
-```
-Lastly for **Range** upgrades you also have to add the upgrade to the switch case in the function called **RangeUpgrade**.
+Lastly for **Range** type upgrades you also have to add the upgrade to the switch case in the function called **RangeUpgrade**.
 Here you only have to copy the previous cases and change the enum and class.
 
 ```cpp
