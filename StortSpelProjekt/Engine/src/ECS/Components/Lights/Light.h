@@ -17,6 +17,7 @@ enum FLAG_LIGHT
 	STATIC = BIT(3)
 
 	// etc..
+	NUM_FLAGS_LIGHT = 2
 };
 
 static unsigned int s_LightIdCounter = 0;
