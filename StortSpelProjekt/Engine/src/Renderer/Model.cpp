@@ -38,6 +38,7 @@ Model::Model(const std::wstring* path, SkeletonNode* rootNode, std::map<unsigned
 		globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
 		DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
 	}
+	updateSlotInfo();
 }
 
 Model::~Model()
