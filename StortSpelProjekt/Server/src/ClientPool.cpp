@@ -93,7 +93,7 @@ void ClientPool::ToggleShowPackage()
 
 void ClientPool::SetState(ServerGame* state)
 {
-	m_State = state;
+	m_pState = state;
 }
 
 void ClientPool::RemoveUnconnected()
@@ -126,7 +126,7 @@ void ClientPool::playerPosition(int index, sf::Packet packet)
 	packet >> rotation.x >> rotation.y >> rotation.z >> rotation.w;
 	packet >> velocity.x >> velocity.y >> velocity.z;
 
-	m_State->UpdateEntity(std::string("player" + std::to_string(m_Clients.at(index)->clientId)), position, rotation, velocity);
+	m_pState->UpdateEntity(std::string("player" + std::to_string(m_Clients.at(index)->clientId)), position, rotation, velocity);
 }
 
 void ClientPool::enemyData(int index, sf::Packet packet)
@@ -156,10 +156,10 @@ void ClientPool::enemyData(int index, sf::Packet packet)
 		packet >> mov.x >> mov.y >> mov.z;
 		packet >> name;
 		packet >> target;
-		entity = m_State->GetEnemy(name);
+		entity = m_pState->GetEnemy(name);
 		if (entity == nullptr)
 		{
-			m_State->AddEnemy(name, pos, rot, mov, target);
+			m_pState->AddEnemy(name, pos, rot, mov, target);
 		}
 	}
 }
@@ -175,7 +175,7 @@ void ClientPool::sendPlayerPositions()
 		if (m_Clients.at(i)->connected)
 		{
 			ServerEntity* playerEntity;
-			playerEntity = m_State->GetEntity("player" + std::to_string(m_Clients.at(i)->clientId));
+			playerEntity = m_pState->GetEntity("player" + std::to_string(m_Clients.at(i)->clientId));
 
 			packet << m_Clients.at(i)->clientId;
 			packet << playerEntity->position.x << playerEntity->position.y << playerEntity->position.z;
@@ -202,7 +202,7 @@ void ClientPool::disconnect(int index)
 	m_pAvailableClient = m_Clients.at(index);
 	m_AvailableClientId = m_Clients.at(index)->clientId;
 
-	m_State->RemoveEntity("player" + std::to_string(index));
+	m_pState->RemoveEntity("player" + std::to_string(index));
 
 	sf::Packet packet;
 	packet << Network::E_PACKET_ID::PLAYER_DISCONNECT;
@@ -237,7 +237,7 @@ void ClientPool::newConnection()
 				m_ConsoleString = "Assigned client " + std::to_string(m_pHostClient->clientId) + " to be host\n";
 			}
 
-			m_State->AddEntity("player" + std::to_string(m_AvailableClientId));
+			m_pState->AddEntity("player" + std::to_string(m_AvailableClientId));
 
 			//Search for an avaible id to give to next client
 			for (int i = 0; i < m_Clients.size(); i++)
