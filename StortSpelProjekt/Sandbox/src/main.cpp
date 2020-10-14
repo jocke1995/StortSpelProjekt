@@ -314,13 +314,13 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0.0, 20.0, -200.0);
+    tc->GetTransform()->SetPosition(0.0, 20.0, 0.0);
 
     double3 playerDim = mc->GetModelDim();
 
     double rad = playerDim.z / 2.0;
     double cylHeight = playerDim.y - (rad * 2.0);
-    ccc = entity->AddComponent<component::CapsuleCollisionComponent>(1.0, rad, cylHeight, 0.0, 0.0, false);
+    ccc = entity->AddComponent<component::CapsuleCollisionComponent>(20000.0, rad, cylHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(50);
     ic->Init();
     bbc->Init();
@@ -348,6 +348,7 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f, 10.0f, 1.0f);
     tc->GetTransform()->SetPosition(0.0f, -1.0f, 0.0f);
     tc->GetTransform()->SetRotationY(PI / 2);
+
 #pragma endregion
 
 #pragma region walls
@@ -448,7 +449,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     entityDim = mc->GetModelDim();
 
-    ccc = entity->AddComponent<component::SphereCollisionComponent>(1.0, entityDim.y / 2.0, 1.0, 0.0);
+    ccc = entity->AddComponent<component::SphereCollisionComponent>(100.0, entityDim.y / 2.0, 1.0, 0.0);
 #pragma endregion 2
 
 #pragma region stefan
@@ -488,7 +489,7 @@ Scene* LeosTestScene(SceneManager* sm)
     enH.AddExistingEnemy("sphere", float3{ 50, 10, 50 });
     enH.AddExistingEnemy("sphere", float3{ -50, 10, -50 });
     enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_JUMP | F_AI_FLAGS::CAN_ROLL, 0.5);*/
-    enH.AddEnemy("conan", barbModel, 20, float3{ 245.0, 10.0, 245.0 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "Ball2", 500.0f, 0.0f);
+    enH.AddEnemy("conan", barbModel, 20, float3{ 245.0, 10.0, 245.0 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, F_AI_FLAGS::CAN_JUMP, 0.3, float3{ 0.0, 0.0, 0.0 }, "Ball2", 500.0f, 0.0f);
     enH.AddExistingEnemy("conan", float3{ 245, 10, -245 });
     enH.AddExistingEnemy("conan", float3{ -245, 10, 245 });
     enH.AddExistingEnemy("conan", float3{ -245, 10, -245 });
@@ -617,7 +618,8 @@ Scene* LeosTestScene(SceneManager* sm)
 #pragma endregion
 
 #pragma region navmesh
-    NavMesh navmesh;
+    scene->CreateNavMesh();
+    NavMesh* navmesh = scene->GetNavMesh();
     float3 pos;
     float2 size;
     pos.x = 0.0;
@@ -625,38 +627,41 @@ Scene* LeosTestScene(SceneManager* sm)
     pos.z = 0.0;
     size.x = 5.0;
     size.y = 5.0;
-    NavQuad* nav1 = navmesh.AddNavQuad(pos, size);
+    NavQuad* nav1 = navmesh->AddNavQuad(pos, size);
 
     pos.x = 5.0;
     pos.y = 0.0;
     pos.z = 2.0;
     size.x = 5.0;
     size.y = 5.0;
-    NavQuad* nav2 = navmesh.AddNavQuad(pos, size);
+    NavQuad* nav2 = navmesh->AddNavQuad(pos, size);
     pos.x = 2.5;
-    pos.z = 0.5;
+    pos.z = 1.0;
     pos.y = 0.0;
-    navmesh.ConnectNavQuadsById(0, 1, pos);
+    navmesh->ConnectNavQuads(0, 1, pos);
 
     pos.x = 4.0;
     pos.y = 0.0;
     pos.z = -2.0;
     size.x = 3.0;
     size.y = 3.0;
-    NavQuad* nav3 = navmesh.AddNavQuad(pos, size);
-    pos.x = 0.0;
-    pos.y = 0.5;
-    navmesh.ConnectNavQuadsById(2, 0, pos);
-    pos.x = 1.0;
-    pos.y = 0.5;
-    navmesh.ConnectNavQuadsById(2, 1, pos);
+    NavQuad* nav3 = navmesh->AddNavQuad(pos, size);
+    pos.x = 2.5;
+    pos.y = 0.0;
+    pos.z = -1.5;
+    navmesh->ConnectNavQuads(2, 0, pos);
+    pos.x = 4.0;
+    pos.y = 0.0;
+    pos.z = -0.5;
+    navmesh->ConnectNavQuads(2, 1, pos);
 
     pos.x = 1.1;
     pos.y = 0.3;
-    nav1 = navmesh.GetQuad(pos);
+    pos.z = 0.0;
+    nav1 = navmesh->GetQuad(pos);
     nav1 = nav1->connections.at(0)->GetConnectedQuad(nav1);
 
-    navmesh.ShowInScene(scene);
+    navmesh->CreateGrid();
 #pragma endregion
 
     /* ---------------------- Update Function ---------------------- */

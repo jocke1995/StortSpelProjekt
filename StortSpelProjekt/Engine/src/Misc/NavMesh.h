@@ -16,8 +16,6 @@ struct NavQuad
 	float2 size;
 
 	std::vector<Connection*> connections;
-
-	Entity* entity;
 };
 
 struct Connection
@@ -44,22 +42,26 @@ struct Connection
 class NavMesh
 {
 public:
-	NavMesh();
+	NavMesh(Scene* scene);
 	~NavMesh();
 
 	NavQuad* AddNavQuad(float3 position, float2 size);
 
-	void ConnectNavQuadsByQuad(NavQuad* nav1, NavQuad* nav2, float3 position);
-	void ConnectNavQuadsById(int nav1, int nav2, float3 position);
+	void ConnectNavQuads(NavQuad* nav1, NavQuad* nav2, float3 position);
+	void ConnectNavQuads(int nav1, int nav2, float3 position);
+	void ConnectNavQuads(NavQuad* nav1, NavQuad* nav2);
+	void ConnectNavQuads(int nav1, int nav2);
 
 	//Returns a quad for the given position
 	NavQuad* GetQuad(float3 position);
 
-	void ShowInScene(Scene* scene);
+	void CreateGrid();
 
 private:
 	std::vector<NavQuad*> m_NavQuads;
 	std::vector<Connection*> m_Connections;
+
+	Entity* m_pEntity;
 
 	int m_NumScenes;
 };
