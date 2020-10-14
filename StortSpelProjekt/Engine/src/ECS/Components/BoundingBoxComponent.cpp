@@ -44,6 +44,10 @@ namespace component
 		Renderer::GetInstance().InitBoundingBoxComponent(GetParent());
 	}
 
+	void BoundingBoxComponent::OnUnInitScene()
+	{
+	}
+
 
 	void BoundingBoxComponent::Update(double dt)
 	{

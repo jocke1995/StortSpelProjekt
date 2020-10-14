@@ -25,11 +25,7 @@ void component::ProjectileComponent::OnInitScene()
 {
 }
 
-void component::ProjectileComponent::OnLoadScene()
-{
-}
-
-void component::ProjectileComponent::OnUnloadScene()
+void component::ProjectileComponent::OnUnInitScene()
 {
 }
 

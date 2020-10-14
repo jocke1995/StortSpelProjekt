@@ -183,4 +183,7 @@ namespace component
 	{
 		Renderer::GetInstance().InitTextComponent(GetParent());
 	}
+	void TextComponent::OnUnInitScene()
+	{
+	}
 }

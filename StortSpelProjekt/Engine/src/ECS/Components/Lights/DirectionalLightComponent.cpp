@@ -22,7 +22,6 @@ namespace component
 		delete m_pDirectionalLight;
 	}
 
-
 	void DirectionalLightComponent::Update(double dt)
 	{
 		if (m_pCamera != nullptr)
@@ -37,11 +36,7 @@ namespace component
 		Renderer::GetInstance().InitDirectionalLightComponent(GetParent());
 	}
 
-	void DirectionalLightComponent::OnLoadScene()
-	{
-	}
-
-	void DirectionalLightComponent::OnUnloadScene()
+	void DirectionalLightComponent::OnUnInitScene()
 	{
 	}
 

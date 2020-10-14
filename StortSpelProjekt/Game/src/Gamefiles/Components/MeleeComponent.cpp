@@ -37,11 +37,7 @@ void component::MeleeComponent::OnInitScene()
 {
 }
 
-void component::MeleeComponent::OnLoadScene()
-{
-}
-
-void component::MeleeComponent::OnUnloadScene()
+void component::MeleeComponent::OnUnInitScene()
 {
 }
 

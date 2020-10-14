@@ -99,8 +99,10 @@ Scene* SceneManager::GetScene(std::string sceneName) const
 void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
 	// Remove all bindings to used components
-	// RenderComponent
 	Renderer::GetInstance().removeComponents(entity);
+
+	entity->OnUnInitScene();
+	m_IsEntityInited[entity] = false;
 
 	// Remove from the scene
 	scene->RemoveEntity(entity->GetName());

@@ -38,6 +38,10 @@ namespace component
 		Renderer::GetInstance().InitModelComponent(GetParent());
 	}
 
+	void ModelComponent::OnUnInitScene()
+	{
+	}
+
 	Mesh* ModelComponent::GetMeshAt(unsigned int index) const
 	{
 		return m_pModel->GetMeshAt(index);

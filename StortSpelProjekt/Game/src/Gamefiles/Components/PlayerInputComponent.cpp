@@ -76,6 +76,10 @@ void component::PlayerInputComponent::OnInitScene()
 	}
 }
 
+void component::PlayerInputComponent::OnUnInitScene()
+{
+}
+
 void component::PlayerInputComponent::RenderUpdate(double dt)
 {
 	// Lock camera to player

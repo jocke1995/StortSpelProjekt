@@ -27,11 +27,7 @@ void component::RangeComponent::OnInitScene()
 {
 }
 
-void component::RangeComponent::OnLoadScene()
-{
-}
-
-void component::RangeComponent::OnUnloadScene()
+void component::RangeComponent::OnUnInitScene()
 {
 }
 

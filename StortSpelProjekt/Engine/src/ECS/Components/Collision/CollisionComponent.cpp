@@ -100,6 +100,10 @@ void component::CollisionComponent::OnInitScene()
 	}
 }
 
+void component::CollisionComponent::OnUnInitScene()
+{
+}
+
 
 void component::CollisionComponent::SetPosition(double x, double y, double z)
 {

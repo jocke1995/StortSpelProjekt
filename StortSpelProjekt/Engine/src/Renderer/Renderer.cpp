@@ -929,48 +929,10 @@ void Renderer::createFullScreenQuad()
 	indexVector.push_back(2);
 	indexVector.push_back(3);
 
-	m_pFullScreenQuad = new Mesh(m_pDevice5, &vertexVector, &indexVector, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	m_pFullScreenQuad = new Mesh(&vertexVector, &indexVector);
 
-	// Load fullscreen mesh
-	// Set vertices resource
-	m_pFullScreenQuad->m_pUploadResourceVertices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
-	m_pFullScreenQuad->m_pDefaultResourceVertices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
-
-	// Vertices
-	const void* data = static_cast<const void*>(m_pFullScreenQuad->m_Vertices.data());
-	Resource* uploadR = m_pFullScreenQuad->m_pUploadResourceVertices;
-	Resource* defaultR = m_pFullScreenQuad->m_pDefaultResourceVertices;
-
-	// Create SRV
-	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
-	dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	dsrv.Buffer.FirstElement = 0;
-	dsrv.Format = DXGI_FORMAT_UNKNOWN;
-	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	dsrv.Buffer.NumElements = m_pFullScreenQuad->GetNumVertices();
-	dsrv.Buffer.StructureByteStride = sizeof(Vertex);
-
-	m_pFullScreenQuad->m_pSRV = new ShaderResourceView(
-		m_pDevice5,
-		m_DescriptorHeaps.at(DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV),
-		&dsrv,
-		m_pFullScreenQuad->m_pDefaultResourceVertices);
-
-	// Set indices resource
-	m_pFullScreenQuad->m_pUploadResourceIndices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
-	m_pFullScreenQuad->m_pDefaultResourceIndices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
-
-	// inidices
-	data = static_cast<const void*>(m_pFullScreenQuad->m_Indices.data());
-	uploadR = m_pFullScreenQuad->m_pUploadResourceIndices;
-	defaultR = m_pFullScreenQuad->m_pDefaultResourceIndices;
-
-	// Set indexBufferView
-	m_pFullScreenQuad->m_pIndexBufferView = new D3D12_INDEX_BUFFER_VIEW();
-	m_pFullScreenQuad->m_pIndexBufferView->BufferLocation = m_pFullScreenQuad->m_pDefaultResourceIndices->GetGPUVirtualAdress();
-	m_pFullScreenQuad->m_pIndexBufferView->Format = DXGI_FORMAT_R32_UINT;
-	m_pFullScreenQuad->m_pIndexBufferView->SizeInBytes = m_pFullScreenQuad->GetSizeOfIndices();
-
+	// init dx12 resources
+	m_pFullScreenQuad->Init(m_pDevice5, m_DescriptorHeaps.at(DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV));
 }
 
 void Renderer::updateMousePicker()

@@ -38,6 +38,7 @@ namespace component
 
 		void Update(double dt);
 		void OnInitScene();
+		void OnUnInitScene();
 
 	private:
 		std::map<std::string, TextData> m_TextDataMap = {};

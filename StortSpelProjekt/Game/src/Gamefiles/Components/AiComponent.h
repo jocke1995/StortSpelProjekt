@@ -25,8 +25,7 @@ namespace component
 		void RenderUpdate(double dt);
 
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 	private:
 		Entity* m_pTarget;

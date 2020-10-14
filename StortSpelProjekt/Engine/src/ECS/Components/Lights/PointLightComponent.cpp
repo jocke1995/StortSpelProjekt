@@ -47,11 +47,7 @@ namespace component
 		Renderer::GetInstance().InitPointLightComponent(GetParent());
 	}
 
-	void PointLightComponent::OnLoadScene()
-	{
-	}
-
-	void PointLightComponent::OnUnloadScene()
+	void PointLightComponent::OnUnInitScene()
 	{
 	}
 
