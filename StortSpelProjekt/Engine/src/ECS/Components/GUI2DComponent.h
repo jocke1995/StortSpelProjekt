@@ -4,19 +4,9 @@
 #include <map>
 #include <vector>
 #include "Component.h"
-class Window;
-class Texture;
-class Text;
-class Font;
-class Mesh;
-class Resource;
-class ShaderResourceView;
-class Events;
-class Eventbus;
 
-struct TextData;
-struct Vertex;
-struct ButtonPressed;
+class TextManager;
+class QuadManager;
 
 namespace component
 {
@@ -26,35 +16,9 @@ namespace component
 		GUI2DComponent(Entity* parent);
 		virtual ~GUI2DComponent();
 
-		// Text functions
-		std::map<std::string, TextData>* const GetTextDataMap();
-		TextData* GetTextData(std::string name);
+		TextManager* const GetTextManager() const;
+		QuadManager* const GetQuadManager() const;
 
-		void AddText(std::string name);
-		void SubmitText(Text* text, std::string name);
-		void ReplaceText(Text* text, std::string name);
-
-		void SetFont(Font* font);
-		void SetText(std::string text, std::string name);
-		void SetPos(float2 textPos, std::string name);
-		void SetScale(float2 scale, std::string name);
-		void SetPadding(float2 padding, std::string name);
-		void SetColor(float4 color, std::string name);
-
-		Font* GetFont() const;
-		Texture* GetFontTexture() const;
-		Text* GetText(std::string name);
-		std::map<std::string, Text*>* GetTextMap();
-		const int GetNumOfTexts() const;
-		const int GetNumOfCharacters(std::string name);
-
-		void UploadTextData(std::string name);
-
-		// Quad functions
-		void CreateQuad(float2 pos, float2 size, bool clickable, std::wstring texturePath = L"NONE");
-		bool HasBeenPressed();
-
-		// General functions
 		void Update(double dt);
 		void OnInitScene();
 		void OnLoadScene();
@@ -63,16 +27,8 @@ namespace component
 	private:
 		friend class Renderer;
 
-		std::map<std::string, TextData> m_TextDataMap = {};
-		std::map<std::string, Text*> m_TextMap = {};
-		std::map<std::string, float2> m_Positions = {};
-		Font* m_pFont = nullptr;
-		Mesh* m_pQuad = nullptr;
-		Texture* m_pQuadTexture = nullptr;
-		bool m_Clickable = false;
-		bool m_Pressed = false;
-
-		void pressed(ButtonPressed* evnt);
+		TextManager* m_pTextMan = nullptr;
+		QuadManager* m_pQuadMan = nullptr;
 	};
 }
 #endif

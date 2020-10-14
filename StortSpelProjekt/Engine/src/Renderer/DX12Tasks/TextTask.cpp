@@ -6,10 +6,14 @@
 #include "../CommandInterface.h"
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
+#include "../PipelineState.h"
+#include "../TextManager.h"
+
 #include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/Resource.h"
-#include "../PipelineState.h"
+
 #include "../Misc/GUI2DElements/Text.h"
+
 #include "../../ECS/Components/GUI2DComponent.h"
 
 TextTask::TextTask(ID3D12Device5* device, 
@@ -88,7 +92,7 @@ void TextTask::Execute()
 void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::GUI2DComponent* tc)
 {
 	int nrOfCharacters = 0;
-	for (auto textMap : *tc->GetTextMap())
+	for (auto textMap : *tc->GetTextManager()->GetTextMap())
 	{
 		Text* text = textMap.second;
 

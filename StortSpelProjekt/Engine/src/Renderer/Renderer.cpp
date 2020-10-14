@@ -7,6 +7,8 @@
 #include "../Misc/MultiThreading/Thread.h"
 #include "../Misc/Window.h"
 #include "../Misc/Option.h"
+#include "../Misc/GUI2DElements/Text.h"
+#include "../Misc/GUI2DElements/Font.h"
 
 // ECS
 #include "../ECS/Scene.h"
@@ -31,8 +33,8 @@
 #include "Texture/Texture.h"
 #include "Texture/TextureCubeMap.h"
 #include "Material.h"
-#include "../Misc/GUI2DElements/Text.h"
-#include "../Misc/GUI2DElements/Font.h"
+#include "TextManager.h"
+#include "QuadManager.h"
 
 // GPUMemory
 #include "GPUMemory/Resource.h"
@@ -627,11 +629,11 @@ void Renderer::InitBoundingBoxComponent(Entity* entity)
 void Renderer::InitGUI2DComponent(Entity* entity)
 {
 	component::GUI2DComponent* textComp = entity->GetComponent<component::GUI2DComponent>();
-	std::map<std::string, TextData>* textDataMap = textComp->GetTextDataMap();
+	std::map<std::string, TextData>* textDataMap = textComp->GetTextManager()->GetTextDataMap();
 
 	for (auto textData : *textDataMap)
 	{
-		textComp->UploadTextData(textData.first);
+		textComp->GetTextManager()->UploadTextData(textData.first);
 	}
 
 	// Finally store the text in m_pRenderer so it will be drawn
@@ -2252,7 +2254,7 @@ SwapChain* Renderer::getSwapChain()
 	return m_pSwapChain;
 }
 
-void Renderer::submitTextToGPU(Text* text, component::GUI2DComponent* tc)
+void Renderer::submitTextToGPU(Text* text, TextManager* tm)
 {
 	// Submit to GPU
 	const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
@@ -2271,7 +2273,7 @@ void Renderer::submitTextToGPU(Text* text, component::GUI2DComponent* tc)
 	if (isTextureOnGpu == false)
 	{
 		// Texture (only one per component)
-		codt->SubmitTexture(tc->GetFontTexture());
+		codt->SubmitTexture(tm->GetFontTexture());
 		al->m_LoadedFonts[path].first = true;
 	}
 }

@@ -131,6 +131,8 @@ private:
 	friend class component::SkyboxComponent;
 	friend class component::GUI2DComponent;
 	friend class SceneManager;
+	friend class TextManager;
+	friend class QuadManager;
 	Renderer();
 
 	ThreadPool* m_pThreadPool = nullptr;
@@ -246,7 +248,7 @@ private:
 
 	SwapChain* getSwapChain();
 
-	void submitTextToGPU(Text* text, component::GUI2DComponent* tc);
+	void submitTextToGPU(Text* text, TextManager* tm);
 };
 
 #endif

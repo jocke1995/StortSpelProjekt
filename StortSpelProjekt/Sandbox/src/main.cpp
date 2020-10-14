@@ -58,21 +58,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    //Scene* leoScene = LeosTestScene(sceneManager);
+    Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
 	//Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
-    //Scene* bjornScene = BjornsTestScene(sceneManager);
+    //Scene* bjornScene = BjornsTestScene(sceneManager); 
     //Scene* antonScene = AntonTestScene(sceneManager);
-    Scene* andresScene = AndresTestScene(sceneManager);
-
+    //Scene* andresScene = AndresTestScene(sceneManager);
+	
     // Load Scenes *** Unload with UnloadScene()
-    sceneManager->LoadScene(andresScene);
+    sceneManager->LoadScene(leoScene);
 
-    Scene* activeScenes[] = { andresScene };
+    Scene* activeScenes[] = { leoScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -1178,7 +1178,7 @@ Scene* FloppipTestScene(SceneManager* sm)
 Scene* FredriksTestScene(SceneManager* sm)
 {
 	// Create Scene
-	Scene* scene = sm->CreateScene("DemoScene");
+	Scene* scene = sm->CreateScene("FredriksTestScene");
 
 	component::CameraComponent* cc = nullptr;
 	component::ModelComponent* mc = nullptr;
@@ -1385,17 +1385,17 @@ Scene* FredriksTestScene(SceneManager* sm)
 	scene->AddEntity("text");
 
 	entity = scene->GetEntity("text");
-	component::GUI2DComponent* textComp = entity->AddComponent<component::GUI2DComponent>();
-	textComp->AddText("health");
-	textComp->SetColor(textColor, "health");
-	textComp->SetPadding(textPadding, "health");
-	textComp->SetPos(textPos, "health");
-	textComp->SetScale(textScale, "health");
-	textComp->SetText(textToRender, "health");
+	component::GUI2DComponent* gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->AddText("health");
+	gui->GetTextManager()->SetColor(textColor, "health");
+	gui->GetTextManager()->SetPadding(textPadding, "health");
+	gui->GetTextManager()->SetPos(textPos, "health");
+	gui->GetTextManager()->SetScale(textScale, "health");
+	gui->GetTextManager()->SetText(textToRender, "health");
 
 	float2 quadPos = { 0.25f, 0.25f };
 	float2 quadScale = { 0.5f, 0.5f };
-	textComp->CreateQuad(quadPos, quadScale, true, L"../Vendor/Resources/Textures/2DGUI/replay.png");
+	gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, L"../Vendor/Resources/Textures/2DGUI/replay.png");
 
 	/* ---------------------------------------------------------- */
 
@@ -1407,7 +1407,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 
 	/* ---------------------- Update Function ---------------------- */
-	UpdateScene = &DemoUpdateScene;
+	UpdateScene = &FredriksUpdateScene;
 	srand(time(NULL));
 	/* ---------------------- Update Function ---------------------- */
 
@@ -2014,24 +2014,24 @@ void TimUpdateScene(SceneManager* sm)
 
 void FredriksUpdateScene(SceneManager* sm)
 {
-	component::Audio3DEmitterComponent* ec = sm->GetScene("AndresTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
+	component::Audio3DEmitterComponent* ec = sm->GetScene("FredriksTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
 	ec->UpdateEmitter(L"Bruh");
 
-	component::HealthComponent* hc = sm->GetScene("DemoScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
-	component::GUI2DComponent* tc = sm->GetScene("DemoScene")->GetEntity("text")->GetComponent<component::GUI2DComponent>();
+	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
+	component::GUI2DComponent* tc = sm->GetScene("FredriksTestScene")->GetEntity("text")->GetComponent<component::GUI2DComponent>();
 	AssetLoader* al = AssetLoader::Get();
 	Font* javaneseFont = al->LoadFontFromFile(L"Javanese.fnt");
-	tc->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
-	tc->SetFont(javaneseFont);
+	tc->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
+	tc->GetTextManager()->SetFont(javaneseFont);
 	static float red = 0, green = 1, blue = 0.5;
 	float4 color = float4{ abs(sin(red)), abs(sin(green)), abs(sin(blue)), 1.0 };
-	tc->SetColor(color, "health");
+	tc->GetTextManager()->SetColor(color, "health");
 	red += 0.01;
 	green += 0.01;
 	blue += 0.01;
-	tc->UploadTextData("health");
+	tc->GetTextManager()->UploadTextData("health");
 
-	if (tc->HasBeenPressed())
+	if (tc->GetQuadManager()->HasBeenPressed())
 	{
 		Log::Print("PRESSED!\n");
 	}
@@ -2040,7 +2040,7 @@ void FredriksUpdateScene(SceneManager* sm)
 	for (int i = 1; i < 76; i++)
 	{
 		name = "enemy" + std::to_string(i);
-		ec = sm->GetScene("AndresTestScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
+		ec = sm->GetScene("FredriksTestScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
 		ec->UpdateEmitter(L"Bruh");
 	}
 }

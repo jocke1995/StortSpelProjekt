@@ -58,9 +58,9 @@ private:
     friend class SkyboxRenderTask;
     friend class Renderer;
     friend class SceneManager;
+	friend class QuadManager;
     friend class Model;
     friend class component::BoundingBoxComponent;
-	friend class component::GUI2DComponent;
 
     std::vector<Vertex> m_Vertices;
     std::vector<unsigned int> m_Indices;
