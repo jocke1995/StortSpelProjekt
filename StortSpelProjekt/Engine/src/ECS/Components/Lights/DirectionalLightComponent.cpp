@@ -35,6 +35,8 @@ namespace component
 
 	void DirectionalLightComponent::OnInitScene()
 	{
+		this->Update(0);
+
 		Renderer::GetInstance().InitDirectionalLightComponent(GetParent());
 	}
 
@@ -54,9 +56,6 @@ namespace component
 		{
 			m_pCamera->SetPosition(-direction.x * 30, -direction.y * 30, -direction.z * 30);
 			m_pCamera->SetDirection(direction.x, direction.y, direction.z);
-
-			m_pCamera->Update(0);
-			m_pDirectionalLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
 		}
 	}
 

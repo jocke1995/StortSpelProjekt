@@ -58,6 +58,8 @@ namespace component
 
     void SpotLightComponent::OnInitScene()
     {
+        this->Update(0);
+
         Renderer::GetInstance().InitSpotLightComponent(GetParent());
     }
 
@@ -78,9 +80,6 @@ namespace component
         if (m_pCamera != nullptr)
         {
             m_pCamera->SetPosition(position.x, position.y, position.z);
-
-            m_pCamera->Update(0);
-            m_pSpotLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
         }
     }
 
@@ -98,9 +97,6 @@ namespace component
         if (m_pCamera != nullptr)
         {
             m_pCamera->SetDirection(direction.x, direction.y, direction.z);
-
-            m_pCamera->Update(0);
-            m_pSpotLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
         }
     }
 
