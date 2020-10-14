@@ -212,7 +212,6 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	getHeightMapResources(path, heightMapPath, materialPath);
 
 	Texture* tex = LoadTexture2D(heightMapPath);
-	Renderer::GetInstance().LoadTexture(tex);
 
 	// One dimensional!
 	unsigned char* imgData = tex->GetData();
@@ -303,8 +302,6 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	model = new HeightmapModel(&path, rootNode, &PVBD, &meshes, &animations, &materials, heightData, static_cast<double>(tex->GetHeight()), static_cast<double>(tex->GetWidth()));
 	m_LoadedModels[path].first = false;
 	m_LoadedModels[path].second = model;
-
-	Renderer::GetInstance().UnloadTexture(tex);
 
 	return model;
 }
@@ -593,7 +590,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					info.maxHeight = 1;
 					info.minHeight = -1;
 					// Implement when feature is merged to develop
-					cc = entity->AddComponent<component::HeightmapCollisionComponent>(&info,mass,friction,restitution);
+					cc = entity->AddComponent<component::HeightmapCollisionComponent>(info,mass,friction,restitution);
 				}
 				else if (strcmp(toSubmit.c_str(), "NavQuad") == 0)
 				{
