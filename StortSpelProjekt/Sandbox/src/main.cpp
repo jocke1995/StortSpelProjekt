@@ -844,7 +844,7 @@ Scene* TimScene(SceneManager* sm)
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
     
     ccc = entity->AddComponent<component::CubeCollisionComponent>(1,1,1,1,0,0);
     pic->Init();
@@ -888,18 +888,18 @@ Scene* TimScene(SceneManager* sm)
     ///*--------------------- Box2 ---------------------*/
     //
     /*--------------------- Floor ---------------------*/
-    // entity
-    entity = scene->AddEntity("floor");
-    
-    // components
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
-    
-    mc->SetModel(floorModel);
-    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(35.f, 1.f, 35.f);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    //// entity
+    //entity = scene->AddEntity("floor");
+    //
+    //// components
+    //mc = entity->AddComponent<component::ModelComponent>();
+    //tc = entity->AddComponent<component::TransformComponent>();
+    //ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
+    //
+    //mc->SetModel(floorModel);
+    //mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
+    //tc->GetTransform()->SetScale(35.f, 1.f, 35.f);
+    //tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /*--------------------- Floor ---------------------*/
     //
     ///* ---------------------- PointLight1 ---------------------- */

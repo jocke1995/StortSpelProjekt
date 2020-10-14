@@ -10,3 +10,15 @@ modelLightFlag 1,1
 modelLightAttenuation 1.0,0.09f,0.032f
 Submit Model
 Submit PointLight
+
+name testFloor
+modelPath Models/Floor/floor.obj
+modelScaling 35.0,1.0,35.0
+modelRotation 0.0,0.0,0.0
+modelPosition 0.0,0.0,0.0
+modelDrawFlag 3,1
+modelDrawFlag 1,1
+modelFriction 1.0
+modelRestitution 1.0
+Submit Model
+Submit CollisionCube 1.0,0.1,1.0
