@@ -29,7 +29,7 @@ private:
     std::vector<Animation*> m_Animations;
     SkeletonNode* m_pSkeleton;
     DirectX::XMFLOAT4X4 m_GlobalInverseTransform;
-    std::map<unsigned int, VertexWeight> m_PerVertexBoneData; // AKA weights
+    std::map<unsigned int, VertexWeight> m_PerVertexBoneData; // <vertexID, weights+boneIDs>
 };
 
 
