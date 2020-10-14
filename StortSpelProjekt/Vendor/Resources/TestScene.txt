@@ -1,49 +1,49 @@
-name testEntity
-modelPath Models/Cube/crate.obj
-modelScaling 1.0,1.0,1.0
-modelRotation 1.0,0.0,0.0,1.0
-modelPosition 1.0,10.0,1.0
-modelDrawFlag 1,1
-modelLightColor 0.2,0.0,0.0
-modelLightFlag 0,1
-modelLightFlag 1,1
-modelLightAttenuation 1.0,0.09f,0.032f
+Name testEntity
+ModelPath Models/Cube/crate.obj
+ModelScaling 1.0,1.0,1.0
+ModelRotation 1.0,0.0,0.0,1.0
+ModelPosition 1.0,10.0,1.0
+ModelDrawFlag 1,1
+ModelLightColor 0.2,0.0,0.0
+ModelLightFlag 0,1
+ModelLightFlag 1,1
+ModelLightAttenuation 1.0,0.09f,0.032f
 Submit Model
 Submit PointLight
 
-name testFloor
-modelPath Models/Floor/floor.obj
-modelScaling 35.0,1.0,35.0
-modelRotation 0.0,0.0,0.0
-modelPosition 0.0,0.0,0.0
-modelDrawFlag 3,1
-modelDrawFlag 1,1
-modelFriction 1.0
-modelRestitution 1.0
+Name testFloor
+ModelPath Models/Floor/floor.obj
+ModelScaling 35.0,1.0,35.0
+ModelRotation 0.0,0.0,0.0
+ModelPosition 0.0,0.0,0.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelFriction 1.0
+ModelRestitution 1.0
 Submit Model
 Submit CollisionCube 1.0,0.1,1.0
 
 #0
-navQuadPosition 0.0, 0.0, 0.0
-navQuadSize 5.0, 5.0
+NavQuadPosition 0.0, 0.0, 0.0
+NavQuadSize 5.0, 5.0
 Submit NavQuad
 
 #1
-navQuadPosition 5.0, 0.0, 2.0
-navQuadSize 5.0, 5.0
+NavQuadPosition 5.0, 0.0, 2.0
+NavQuadSize 5.0, 5.0
 Submit NavQuad
 
 #2
-navQuadPosition4.0, 0.0, -2.0
-navQuadSize 3.0, 3.0
+NavQuadPosition4.0, 0.0, -2.0
+NavQuadSize 3.0, 3.0
 Submit NavQuad
 
-navConnectionQuads 0, 1
-navConnectionPosition2.5, 0.5, 0.0
+NavConnectionQuads 0, 1
+NavConnectionPosition2.5, 0.5, 0.0
 Submit NavConnection
 
-navConnectionQuads 2, 0
-navConnectionPosition0.0, 0.0, 0.5
+NavConnectionQuads 2, 0
+NavConnectionPosition0.0, 0.0, 0.5
 Submit NavConnection
 
 navConnectionQuads 2, 1

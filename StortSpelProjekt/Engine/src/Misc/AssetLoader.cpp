@@ -421,65 +421,65 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	{
 		while (fscanf(file, "%s", lineHeader.c_str()) != EOF)
 		{
-			if (strcmp(lineHeader.c_str(), "name") == 0)
+			if (strcmp(lineHeader.c_str(), "Name") == 0)
 			{
 				fscanf(file, "%s", entityName.c_str());
 				entity = scene->AddEntity(entityName.c_str());
 			}
-			else if (strcmp(lineHeader.c_str(), "modelPath") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelPath") == 0)
 			{
 				fscanf(file, "%s", modelPath.c_str());
 				fullPath = path;
 				fullPath = fullPath.substr(0, fullPath.find_last_of("/") + 1).c_str();
 				fullPath += modelPath.c_str();
 			}
-			else if (strcmp(lineHeader.c_str(), "modelScaling") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelScaling") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &scaling.x, &scaling.y, &scaling.z);
 			}
-			else if (strcmp(lineHeader.c_str(), "modelRotation") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelRotation") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &rot.x, &rot.y, &rot.z);
 			}
-			else if (strcmp(lineHeader.c_str(), "modelPosition") == 0 || strcmp(lineHeader.c_str(), "navConnectionPosition") == 0 || strcmp(lineHeader.c_str(), "navQuadPosition") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelPosition") == 0 || strcmp(lineHeader.c_str(), "NavConnectionPosition") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &pos.x, &pos.y, &pos.z);
 			}
-			else if (strcmp(lineHeader.c_str(), "modelDrawFlag") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelDrawFlag") == 0)
 			{
 				fscanf(file, "%d,%d", &flag, &flagVal);
 				drawFlags[flag] = flagVal;
 			}
-			else if (strcmp(lineHeader.c_str(), "modelLightFlag") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelLightFlag") == 0)
 			{
 				fscanf(file, "%d,%d", &flag, &flagVal);
 				lightFlags[flag] = flagVal;
 			}
-			else if (strcmp(lineHeader.c_str(), "modelLightColor") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelLightColor") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &lightColor.x, &lightColor.y, &lightColor.z);
 			}
-			else if (strcmp(lineHeader.c_str(), "modelLightDirection") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelLightDirection") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &lightDir.x, &lightDir.y, &lightDir.z);
 			}
-			else if (strcmp(lineHeader.c_str(), "modelLightAttenuation") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelLightAttenuation") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &lightAttenuation.x, &lightAttenuation.y, &lightAttenuation.z);
 			}
-			else if (strcmp(lineHeader.c_str(), "modelFriction") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelFriction") == 0)
 			{
 				fscanf(file, "%f", &friction);
 			}
-			else if (strcmp(lineHeader.c_str(), "modelRestitution") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelRestitution") == 0)
 			{
 				fscanf(file, "%f", &restitution);
 			}
-			else if (strcmp(lineHeader.c_str(), "navQuadSize") == 0)
+			else if (strcmp(lineHeader.c_str(), "NavQuadSize") == 0)
 			{
 				fscanf(file, "%f,%f", &size.x, &size.y);
 			}
-			else if (strcmp(lineHeader.c_str(), "navConnectionQuads") == 0)
+			else if (strcmp(lineHeader.c_str(), "NavConnectionQuads") == 0)
 			{
 				fscanf(file, "%d,%d", &quad1, &quad2);
 			}
