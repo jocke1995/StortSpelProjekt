@@ -10,12 +10,13 @@ enum FLAG_LIGHT
 	USE_TRANSFORM_POSITION = BIT(1),
 
 	// Option to make the light cast shadows or not with different resolutions
-	CAST_SHADOW = BIT(2)
+	CAST_SHADOW = BIT(2),
 
 	// If this is set, m_pRenderer only need to copy data once to GPU
 	// STATIC_DATA .. = BIT(3),
 
 	// etc..
+	NUM_FLAGS_LIGHT = 2
 };
 
 static unsigned int s_LightIdCounter = 0;
