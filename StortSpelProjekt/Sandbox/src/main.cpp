@@ -1,14 +1,7 @@
 #include "Engine.h"
-#include "Components/MeleeComponent.h"
-#include "Components/PlayerInputComponent.h"
-#include "Components/HealthComponent.h"
-#include "Components/RangeComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 #include "Player.h"
-// upgrades
-#include "Components/UpgradeComponents/UpgradeComponent.h"
-#include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
 
 Scene* JacobsTestScene(SceneManager* sm);
 Scene* LeosTestScene(SceneManager* sm);

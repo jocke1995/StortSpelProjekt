@@ -1,8 +1,4 @@
 #include "Engine.h"
-#include "Components/PlayerInputComponent.h"
-#include "Components/HealthComponent.h"
-#include "Components/RangeComponent.h"
-#include "Components/MeleeComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 

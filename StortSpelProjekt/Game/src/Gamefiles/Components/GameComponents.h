@@ -3,5 +3,9 @@
 
 #include "AiComponent.h"
 #include "AccelerationComponent.h"
+#include "MeleeComponent.h"
+#include "PlayerInputComponent.h"
+#include "HealthComponent.h"
+#include "RangeComponent.h"
 
 #endif // !GAMECOMPONENTS_H
