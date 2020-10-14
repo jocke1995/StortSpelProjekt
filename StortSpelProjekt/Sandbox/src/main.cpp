@@ -60,7 +60,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
-    Scene* jockeScene = JockesTestScene(sceneManager);
+    //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
@@ -68,7 +68,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { jockeScene };
+    Scene* activeScenes[] = { leoScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -118,22 +118,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                 network.SendPositionPacket();
                 while (network.ListenPacket());
             }
-        }
-
-        // TESTING, TOBEREMOVED after review
-        static int aaa = 0;
-        if (window->WasSpacePressed())
-        {
-            if (aaa++ % 2 == 0)
-            {
-                *activeScenes = { leoScene };
-            }
-            else
-            {
-                *activeScenes = { jockeScene };
-            }
-            
-            sceneManager->SetScenes(1, activeScenes);
         }
 
         /* ------ Sort ------ */
