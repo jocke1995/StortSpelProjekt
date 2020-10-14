@@ -44,13 +44,6 @@ namespace component
 		Renderer::GetInstance().InitBoundingBoxComponent(GetParent());
 	}
 
-	void BoundingBoxComponent::OnLoadScene()
-	{
-	}
-
-	void BoundingBoxComponent::OnUnloadScene()
-	{
-	}
 
 	void BoundingBoxComponent::Update(double dt)
 	{

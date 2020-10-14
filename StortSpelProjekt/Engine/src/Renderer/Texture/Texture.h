@@ -29,6 +29,7 @@ protected:
 	friend class CopyOnDemandTask;
 	friend class Renderer;
 	friend class Text;
+	friend class Model;
 
 	TEXTURE_TYPE m_Type = TEXTURE_TYPE::UNKNOWN;
 
