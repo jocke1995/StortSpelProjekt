@@ -432,8 +432,6 @@ void Renderer::Execute()
 	m_FenceFrameValue++;
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
-
-	// 
 	waitForFrame();
 
 	HRESULT hr = dx12SwapChain->Present(0, 0);
@@ -472,9 +470,9 @@ void Renderer::InitModelComponent(Entity* entity)
 	if (tc != nullptr)
 	{
 		// Finally store the object in the corresponding renderComponent vectors so it will be drawn
-		if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
+		if (FLAG_DRAW::DRAW_TRANSPARENT & mc->GetDrawFlag())
 		{
-			m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(mc, tc));
+			m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT].push_back(std::make_pair(mc, tc));
 		}
 
 		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
@@ -498,13 +496,18 @@ void Renderer::InitDirectionalLightComponent(Entity* entity)
 {
 	component::DirectionalLightComponent* dlc = entity->GetComponent<component::DirectionalLightComponent>();
 	// Assign CBV from the lightPool
-	std::wstring resourceName = L"DirectionalLight_DefaultResource";
-	ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(DirectionalLight), resourceName);
+	std::wstring resourceName = L"DirectionalLight";
+	ConstantBuffer* cb = m_pViewPool->GetFreeCB(sizeof(DirectionalLight), resourceName);
 
 	// Check if the light is to cast shadows
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
 
-	int shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	int shadowRes = -1;
+	if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW)
+	{
+		shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	}
+
 	if (shadowRes == 0)
 	{
 		resolution = SHADOW_RESOLUTION::LOW;
@@ -530,35 +533,39 @@ void Renderer::InitDirectionalLightComponent(Entity* entity)
 	}
 
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(dlc, cbd, si));
+	m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(dlc, cb, si));
 }
 
 void Renderer::InitPointLightComponent(Entity* entity)
 {
 	component::PointLightComponent* plc = entity->GetComponent<component::PointLightComponent>();
 	// Assign CBV from the lightPool
-	std::wstring resourceName = L"PointLight_DefaultResource";
-	ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(PointLight), resourceName);
+	std::wstring resourceName = L"PointLight";
+	ConstantBuffer* cb = m_pViewPool->GetFreeCB(sizeof(PointLight), resourceName);
 
 	// Assign views required for shadows from the lightPool
 	ShadowInfo* si = nullptr;
 
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(plc, cbd, si));
-
+	m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(plc, cb, si));
 }
 
 void Renderer::InitSpotLightComponent(Entity* entity)
 {
 	component::SpotLightComponent* slc = entity->GetComponent<component::SpotLightComponent>();
 	// Assign CBV from the lightPool
-	std::wstring resourceName = L"SpotLight_DefaultResource";
-	ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(SpotLight), resourceName);
+	std::wstring resourceName = L"SpotLight";
+	ConstantBuffer* cb = m_pViewPool->GetFreeCB(sizeof(SpotLight), resourceName);
 
 	// Check if the light is to cast shadows
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
 
-	int shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	int shadowRes = -1;
+	if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW)
+	{
+		shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	}
+
 	if (shadowRes == 0)
 	{
 		resolution = SHADOW_RESOLUTION::LOW;
@@ -583,7 +590,7 @@ void Renderer::InitSpotLightComponent(Entity* entity)
 		srt->AddShadowCastingLight(std::make_pair(slc, si));
 	}
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(slc, cbd, si));
+	m_Lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(slc, cb, si));
 }
 
 void Renderer::InitCameraComponent(Entity* entity)
@@ -1025,14 +1032,11 @@ void Renderer::updateMousePicker()
 
 void Renderer::initRenderTasks()
 {
-	// RenderTasks
-
 #pragma region DepthPrePass
 
 	/* Depth Pre-Pass rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdDepthPrePass = {};
 	gpsdDepthPrePass.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
 	// RenderTarget
 	gpsdDepthPrePass.NumRenderTargets = 0;
 	gpsdDepthPrePass.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
@@ -1735,7 +1739,7 @@ void Renderer::setRenderTasksRenderComponents()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::NO_DEPTH]);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPACITY]);
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
 	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 
@@ -1885,7 +1889,7 @@ void Renderer::removeComponents(Entity* entity)
 				m_Lights[type].erase(m_Lights[type].begin() + j);
 
 				// Update cbPerScene
-				prepareCBPerScene();
+				SubmitUploadPerSceneData();
 				break;
 			}
 			j++;
@@ -1922,8 +1926,8 @@ void Renderer::removeComponents(Entity* entity)
 
 void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 {
-	prepareCBPerFrame();
-	prepareCBPerScene();
+	SubmitUploadPerFrameData();
+	SubmitUploadPerSceneData();
 
 	// -------------------- DEBUG STUFF --------------------
 	// Test to change m_pCamera to the shadow casting m_lights cameras
@@ -1950,7 +1954,7 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 	setRenderTasksPrimaryCamera();
 }
 
-void Renderer::prepareCBPerScene()
+void Renderer::SubmitUploadPerSceneData()
 {
 	// ----- directional lights -----
 	m_pCbPerSceneData->Num_Dir_Lights = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
@@ -1982,34 +1986,53 @@ void Renderer::prepareCBPerScene()
 	}
 	// ----- spot m_lights -----
 	
-	// Upload CB_PER_SCENE to defaultheap
+	// Submit CB_PER_SCENE to be uploaded to VRAM
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	const void* data = static_cast<const void*>(m_pCbPerSceneData);
 	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetDefaultResource(), data));
-}
 
-void Renderer::prepareCBPerFrame()
-{
-	CopyPerFrameTask* cpft = nullptr;
-	const void* data = nullptr;
-	ConstantBuffer* cbv = nullptr;
+	// Submit static-light-data to be uploaded to VRAM
+	ConstantBuffer* cb = nullptr;
 
-	// Lights
 	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
 	{
 		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
 		for (auto& tuple : m_Lights[type])
 		{
-			data = std::get<0>(tuple)->GetLightData();
-			cbv = std::get<1>(tuple);
-
-			cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-			cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetDefaultResource(), data));
+			Light* light = std::get<0>(tuple);
+			unsigned int lightFlags = light->GetLightFlags();
+			if (lightFlags & FLAG_LIGHT::STATIC)
+			{
+				data = light->GetLightData();
+				cb = std::get<1>(tuple);
+				codt->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+			}
 		}
 	}
+}
 
-	// Materials are submitted in the copyPerFrameTask inside EditScene.
-	// This was done so that a new entity (added during runetime) also would be added to the list.
+void Renderer::SubmitUploadPerFrameData()
+{
+	// Submit dynamic-light-data to be uploaded to VRAM
+	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+	const void* data = nullptr;
+	ConstantBuffer* cb = nullptr;
+
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		for (auto& tuple : m_Lights[type])
+		{
+			unsigned int lightFlags = static_cast<Light*>(std::get<0>(tuple))->GetLightFlags();
+	
+			if ((lightFlags & FLAG_LIGHT::STATIC) == 0)
+			{
+				data = std::get<0>(tuple)->GetLightData();
+				cb = std::get<1>(tuple);
+				cpft->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+			}
+		}
+	}
 
 	// CB_PER_FRAME_STRUCT
 	if (cpft != nullptr)

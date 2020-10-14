@@ -329,7 +329,7 @@ Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
 	m_LoadedTextures[path].first = false;
 	m_LoadedTextures[path].second = texture;
 
-	// load to vram
+	// Create dx resources etc..
 	texture->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 
 	return texture;
