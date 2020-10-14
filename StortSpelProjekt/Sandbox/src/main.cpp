@@ -706,7 +706,7 @@ Scene* TimScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(1,10,10,10);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(1,1,1,1);
     pic->Init();
     
     mc->SetModel(playerModel);
@@ -754,7 +754,7 @@ Scene* TimScene(SceneManager* sm)
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 1.0, 35.0);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
     
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
