@@ -22,3 +22,30 @@ modelFriction 1.0
 modelRestitution 1.0
 Submit Model
 Submit CollisionCube 1.0,0.1,1.0
+
+#0
+navQuadPosition 0.0, 0.0, 0.0
+navQuadSize 5.0, 5.0
+Submit NavQuad
+
+#1
+navQuadPosition 5.0, 0.0, 2.0
+navQuadSize 5.0, 5.0
+Submit NavQuad
+
+#2
+navQuadPosition4.0, 0.0, -2.0
+navQuadSize 3.0, 3.0
+Submit NavQuad
+
+navConnectionQuads 0, 1
+navConnectionPosition2.5, 0.5, 0.0
+Submit NavConnection
+
+navConnectionQuads 2, 0
+navConnectionPosition0.0, 0.0, 0.5
+Submit NavConnection
+
+navConnectionQuads 2, 1
+navConnectionPosition1.0, 0.0, 0.5
+Submit NavConnection

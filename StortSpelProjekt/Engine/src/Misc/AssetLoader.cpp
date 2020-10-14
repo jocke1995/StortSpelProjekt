@@ -28,6 +28,8 @@
 
 #include "EngineMath.h"
 
+#include "../Misc/NavMesh.h"
+
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
 	m_pDevice = device;
@@ -402,6 +404,11 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	HeightMapInfo hmInfo;
 	std::string fullPath;
 	fullPath.reserve(256);
+	float2 size = { 0.0, 0.0 };
+	int quad1 = 0;
+	int quad2 = 0;
+
+	NavMesh navMesh;
 
 	component::ModelComponent* mc = nullptr;
 	component::TransformComponent* tc = nullptr;
@@ -434,7 +441,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			{
 				fscanf(file, "%f,%f,%f", &rot.x, &rot.y, &rot.z);
 			}
-			else if (strcmp(lineHeader.c_str(), "modelPosition") == 0)
+			else if (strcmp(lineHeader.c_str(), "modelPosition") == 0 || strcmp(lineHeader.c_str(), "navConnectionPosition") == 0 || strcmp(lineHeader.c_str(), "navQuadPosition") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &pos.x, &pos.y, &pos.z);
 			}
@@ -467,6 +474,14 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			else if (strcmp(lineHeader.c_str(), "modelRestitution") == 0)
 			{
 				fscanf(file, "%f", &restitution);
+			}
+			else if (strcmp(lineHeader.c_str(), "navQuadSize") == 0)
+			{
+				fscanf(file, "%f,%f", &size.x, &size.y);
+			}
+			else if (strcmp(lineHeader.c_str(), "navConnectionQuads") == 0)
+			{
+				fscanf(file, "%d,%d", &quad1, &quad2);
 			}
 			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
 			{
@@ -561,6 +576,14 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 				else if (strcmp(toSubmit.c_str(), "CollisionHeightMap") == 0)
 				{
 					// Implement when feature is merged to develop
+				}
+				else if (strcmp(toSubmit.c_str(), "NavQuad") == 0)
+				{
+					navMesh.AddNavQuad(pos, size);
+				}
+				else if (strcmp(toSubmit.c_str(), "NavConnection") == 0)
+				{
+					//navMesh.ConnectNavQuadsById(quad1, quad2, pos);
 				}
 			}
 		}
