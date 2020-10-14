@@ -16,7 +16,7 @@ UpgradeManager::~UpgradeManager()
 
 void UpgradeManager::ApplyUpgrade(std::string name)
 {
-	// Adds this to the enum map of that should contain all applied upgrades.
+	// Adds this to the enum map that should contain all applied upgrades.
 	m_AppliedUpgradeEnums[name] = m_AllAvailableUpgrades[name]->GetID();
 
 	if (checkIfRangeUpgrade(name))
