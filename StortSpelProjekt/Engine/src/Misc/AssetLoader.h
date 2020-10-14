@@ -14,6 +14,7 @@ class Texture;
 class TextureCubeMap;
 class Material;
 class Window;
+class Scene;
 struct Font;
 struct aiNode;
 struct aiScene;
@@ -49,6 +50,9 @@ public:
 
 	// Fonts -------------
 	std::pair<Font*, Texture*> LoadFontFromFile(const std::wstring& fontName);
+
+    // Scene
+    void LoadMap(Scene* scene, const char* path);
 
 private:
     // PipelineState loads all shaders

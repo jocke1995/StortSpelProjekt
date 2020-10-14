@@ -57,9 +57,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
-    //Scene* timScene = TimScene(sceneManager);
+    Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
@@ -69,9 +69,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* andresScene = AndresTestScene(sceneManager);
 
     // Load Scenes *** Unload with UnloadScene()
-    sceneManager->LoadScene(leoScene);
+    sceneManager->LoadScene(timScene);
 
-    Scene* activeScenes[] = { leoScene };
+    Scene* activeScenes[] = { timScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -665,17 +665,18 @@ Scene* TimScene(SceneManager* sm)
 
     AssetLoader* al = AssetLoader::Get();
 
+    al->LoadMap(scene,"../Vendor/Resources/TestScene.txt" );
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
-    HeightmapModel* heightMapModel = al->LoadHeightmap(L"../Vendor/Resources/Textures/HeightMaps/hm.hm");
+    //HeightmapModel* heightMapModel = al->LoadHeightmap(L"../Vendor/Resources/Textures/HeightMaps/hm.hm");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-
+    
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
-
+    
     /*--------------------- Assets ---------------------*/
-
+    
     /*--------------------- Component declarations ---------------------*/
     Entity* entity = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
@@ -690,121 +691,108 @@ Scene* TimScene(SceneManager* sm)
     component::CollisionComponent* ccc = nullptr;
     component::SphereCollisionComponent* scc = nullptr;
     /*--------------------- Component declarations ---------------------*/
-
+    
     /*--------------------- Player ---------------------*/
     // entity
     entity = scene->AddEntity("player");
-
+    
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
-
+    
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0.0f, 10.0f, 0.0f);
-
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    
     ccc = entity->AddComponent<component::CubeCollisionComponent>(1,10,10,10);
     pic->Init();
-
+    
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-
+    
     avc->AddVoice(L"Bruh");
     /*--------------------- Player ---------------------*/
-
+    //
     /*--------------------- Box1 ---------------------*/
-    // entity
-    entity = scene->AddEntity("Box1");
-
-    // components
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-
-    tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(1.0f, 1.0f, 1.0f);
-    //scc = entity->AddComponent<component::SphereCollisionComponent>();
-
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-
+    //// entity
+    //entity = scene->AddEntity("Box1");
+    //
+    //// components
+    //mc = entity->AddComponent<component::ModelComponent>();
+    //tc = entity->AddComponent<component::TransformComponent>();
+    //
+    //tc->GetTransform()->SetScale(1.0f);
+    //tc->GetTransform()->SetPosition(0.0f, 1.0f, 1.0f);
+    //
+    //mc->SetModel(cubeModel);
+    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    
     /*--------------------- Box1 ---------------------*/
-
-    /*--------------------- Box2 ---------------------*/
-    // entity
-    entity = scene->AddEntity("Box2");
-
-    // components
-    mc = entity->AddComponent<component::ModelComponent>();
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
-    //ccc = entity->AddComponent<component::CubeCollisionComponent>(1000.0);
-
-    mc->SetModel(cubeModel);
-
-    /*--------------------- Box2 ---------------------*/
-
+    //
+    ///*--------------------- Box2 ---------------------*/
+    //// entity
+    //entity = scene->AddEntity("Box2");
+    //
+    //// components
+    //mc = entity->AddComponent<component::ModelComponent>();
+    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    //tc = entity->AddComponent<component::TransformComponent>();
+    //tc->GetTransform()->SetScale(1.0f);
+    //tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
+    ////ccc = entity->AddComponent<component::CubeCollisionComponent>(1000.0);
+    //
+    //mc->SetModel(cubeModel);
+    //
+    ///*--------------------- Box2 ---------------------*/
+    //
     /*--------------------- Floor ---------------------*/
     // entity
     entity = scene->AddEntity("floor");
-
+    
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0,35.0,0.0,35.0);
-
-    /*
-    HeightMapInfo inf;
-    inf.data = heightmap->GetData();
-    inf.length = 65.0;
-    inf.width = 65.0;
-    inf.maxHeight = 1;
-    inf.minHeight = 0;
-
-    ccc = entity->AddComponent<component::HeightmapCollisionComponent>(inf);
-    */
-
-    mc->SetModel(heightMapModel);
-    //mc->SetModel(floorModel);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 1.0, 35.0);
+    
+    mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.1f, 1.f, 0.1f);
+    tc->GetTransform()->SetScale(35.f, 1.f, 35.f);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /*--------------------- Floor ---------------------*/
-
-    /* ---------------------- PointLight1 ---------------------- */
-    entity = scene->AddEntity("pointLight1");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
-    /* ---------------------- PointLight1 ---------------------- */
-
-    /* ---------------------- PointLight ---------------------- */
-    entity = scene->AddEntity("pointLight");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(0.3f);
-    tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
-
-    plc->SetColor({ 2.0f, 0.0f, 2.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-    /* ---------------------- PointLight ---------------------- */
-
+    //
+    ///* ---------------------- PointLight1 ---------------------- */
+    //entity = scene->AddEntity("pointLight1");
+    //mc = entity->AddComponent<component::ModelComponent>();
+    //tc = entity->AddComponent<component::TransformComponent>();
+    //plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    //
+    //mc->SetModel(cubeModel);
+    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    //tc->GetTransform()->SetScale(0.5f);
+    //tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
+    ///* ---------------------- PointLight1 ---------------------- */
+    //
+    ///* ---------------------- PointLight ---------------------- */
+    //entity = scene->AddEntity("pointLight");
+    //mc = entity->AddComponent<component::ModelComponent>();
+    //tc = entity->AddComponent<component::TransformComponent>();
+    //plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    //
+    //mc->SetModel(sphereModel);
+    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    //tc->GetTransform()->SetScale(0.3f);
+    //tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
+    //
+    //plc->SetColor({ 2.0f, 0.0f, 2.0f });
+    //plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+    ///* ---------------------- PointLight ---------------------- */
+    //
     /*--------------------- DirectionalLight ---------------------*/
     // entity
     entity = scene->AddEntity("sun");
-
+    
     // components
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
     dlc->SetDirection({ 1.0f, -1.0f, -1.0f });

@@ -1,15 +1,18 @@
 #include "stdafx.h"
 #include "AssetLoader.h"
 
+#include "../ECS/Scene.h"
+#include "../ECS/Entity.h"
+
 #include "../Renderer/DescriptorHeap.h"
 #include "Window.h"
-
 #include "../Renderer/HeightmapModel.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/Text.h"
 #include "../Renderer/Animation.h"
+#include "../Renderer/Transform.h"
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
@@ -362,6 +365,208 @@ std::pair<Font*, Texture*> AssetLoader::LoadFontFromFile(const std::wstring& fon
 	m_LoadedFonts[path].second = texture;
 
 	return m_LoadedFonts[path];
+}
+
+void AssetLoader::LoadMap(Scene* scene, const char* path)
+{
+	FILE* file = fopen(path, "r");
+
+	std::string lineHeader;
+	lineHeader.reserve(128);
+	std::string entityName;
+	entityName.reserve(128);
+	std::string modelPath;
+	modelPath.reserve(128);
+	std::string toSubmit;
+	toSubmit.reserve(128);
+	unsigned int flag;
+	unsigned int flagVal;
+	bool drawFlags[FLAG_DRAW::NUM_FLAG_DRAWS] = { 0 };
+	unsigned int combinedFlag = 0;
+	float3 scaling = { 1.0f,1.0f,1.0f };
+	float3 pos = { 0.0, 0.0, 0.0 };
+	float3 rot = { 0.0, 0.0, 0.0};
+	float3 lightColor = { 0.0, 0.0, 0.0 };
+	float3 lightDir = { 0.0, 0.0, 0.0 };;
+	float3 lightAttenuation = { 0.0, 0.0, 0.0 };;
+	bool lightFlags[FLAG_LIGHT::NUM_FLAGS_LIGHT] = { 0 };
+	unsigned int collisionComponent = 0;
+	HeightmapModel* heightmapModel;
+	float3 shapeInfo = { 0.0f,0.0f,0.0f };
+	const float mass = 0.0f;
+	float friction = 0.0f;
+	float restitution = 0.0f;
+	HeightMapInfo hmInfo;
+	std::string fullPath;
+	fullPath.reserve(256);
+
+	component::ModelComponent* mc = nullptr;
+	component::TransformComponent* tc = nullptr;
+	component::PointLightComponent* plc = nullptr;
+	component::SpotLightComponent* slc = nullptr;
+	component::DirectionalLightComponent* dlc = nullptr;
+	component::CollisionComponent* cc = nullptr;
+	Entity* entity;
+	if (file != NULL)
+	{
+		while (fscanf(file, "%s", lineHeader.c_str()) != EOF)
+		{
+			if (strcmp(lineHeader.c_str(), "name") == 0)
+			{
+				fscanf(file, "%s", entityName.c_str());
+				entity = scene->AddEntity(entityName.c_str());
+			}
+			else if (strcmp(lineHeader.c_str(), "modelPath") == 0)
+			{
+				fscanf(file, "%s", modelPath.c_str());
+				fullPath = path;
+				fullPath = fullPath.substr(0, fullPath.find_last_of("/") + 1).c_str();
+				fullPath += modelPath.c_str();
+			}
+			else if (strcmp(lineHeader.c_str(), "modelScaling") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &scaling.x, &scaling.y, &scaling.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "modelRotation") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &rot.x, &rot.y, &rot.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "modelPosition") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &pos.x, &pos.y, &pos.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "modelDrawFlag") == 0)
+			{
+				fscanf(file, "%d,%d", &flag, &flagVal);
+				drawFlags[flag] = flagVal;
+			}
+			else if (strcmp(lineHeader.c_str(), "modelLightFlag") == 0)
+			{
+				fscanf(file, "%d,%d", &flag, &flagVal);
+				lightFlags[flag] = flagVal;
+			}
+			else if (strcmp(lineHeader.c_str(), "modelLightColor") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &lightColor.x, &lightColor.y, &lightColor.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "modelLightDirection") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &lightDir.x, &lightDir.y, &lightDir.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "modelLightAttenuation") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &lightAttenuation.x, &lightAttenuation.y, &lightAttenuation.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "modelFriction") == 0)
+			{
+				fscanf(file, "%f", &friction);
+			}
+			else if (strcmp(lineHeader.c_str(), "modelRestitution") == 0)
+			{
+				fscanf(file, "%f", &restitution);
+			}
+			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
+			{
+				fscanf(file, "%s", toSubmit.c_str());
+
+				if (strcmp(toSubmit.c_str(), "Model") == 0)
+				{	
+					mc = entity->AddComponent<component::ModelComponent>();
+					tc = entity->AddComponent<component::TransformComponent>();
+					tc->GetTransform()->SetScale(1.0f);
+					tc->GetTransform()->SetScale(scaling.x,scaling.y,scaling.z);
+					tc->GetTransform()->SetRotationX(rot.x);
+					tc->GetTransform()->SetRotationY(rot.y);
+					tc->GetTransform()->SetRotationZ(rot.z);
+					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+
+					mc->SetModel(AssetLoader::LoadModel(to_wstring(fullPath)));
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_DRAW::NUM_FLAG_DRAWS; ++i)
+					{
+						combinedFlag |= BIT(i + 1) * drawFlags[i];
+					}
+
+					mc->SetDrawFlag(combinedFlag);
+				}
+				else if (strcmp(toSubmit.c_str(), "Heightmap") == 0)
+				{
+					entity->AddComponent<component::ModelComponent>();
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_DRAW::NUM_FLAG_DRAWS; ++i)
+					{
+						combinedFlag += BIT(i + 1) * drawFlags[i];
+					}
+					mc->SetDrawFlag(combinedFlag);
+					heightmapModel = AssetLoader::LoadHeightmap(to_wstring(fullPath));
+					mc->SetModel(heightmapModel);
+					tc = entity->AddComponent<component::TransformComponent>();
+					tc->GetTransform()->SetRotationX(rot.x);
+					tc->GetTransform()->SetRotationY(rot.y);
+					tc->GetTransform()->SetRotationZ(rot.z);
+					tc->GetTransform()->SetScale(scaling.x, scaling.y, scaling.z);
+					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+				}
+				else if (strcmp(toSubmit.c_str(), "PointLight") == 0)
+				{
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_LIGHT::NUM_FLAGS_LIGHT; ++i)
+					{
+						combinedFlag |= BIT(i + 1) * lightFlags[i];
+					}
+					plc = entity->AddComponent<component::PointLightComponent>(combinedFlag);
+					plc->SetColor(lightColor);
+					plc->SetAttenuation(lightAttenuation);
+				}
+				else if (strcmp(toSubmit.c_str(), "SpotLight") == 0)
+				{
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_LIGHT::NUM_FLAGS_LIGHT; ++i)
+					{
+						combinedFlag |= BIT(i + 1) * lightFlags[i];
+					}
+					slc = entity->AddComponent<component::SpotLightComponent>(combinedFlag);
+					slc->SetColor(lightColor);
+					slc->SetDirection(lightDir);
+				}
+				else if (strcmp(toSubmit.c_str(), "DirectionalLight") == 0)
+				{
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_LIGHT::NUM_FLAGS_LIGHT; ++i)
+					{
+						combinedFlag |= BIT(i + 1) * lightFlags[i];
+					}
+					dlc = entity->AddComponent<component::DirectionalLightComponent>(combinedFlag);
+					dlc->SetColor(lightColor);
+					dlc->SetDirection(lightDir);
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionSphere") == 0)
+				{
+					fscanf(file, "%f", &shapeInfo.x);
+					cc = entity->AddComponent<component::SphereCollisionComponent>(mass, shapeInfo.x, friction, restitution);
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionCapsule") == 0)
+				{
+					fscanf(file, "%f,%f", &shapeInfo.x, &shapeInfo.y);
+					cc = entity->AddComponent<component::CapsuleCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, friction, restitution);
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionCube") == 0)
+				{
+					fscanf(file, "%f,%f,%f", &shapeInfo.x, &shapeInfo.y, &shapeInfo.z);
+					cc = entity->AddComponent<component::CubeCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, shapeInfo.z, friction, restitution);
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionHeightMap") == 0)
+				{
+					// Implement when feature is merged to develop
+				}
+			}
+		}
+		fclose(file);
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load mapfile %s", path);
+	}
 }
 
 AudioBuffer* AssetLoader::LoadAudio(const std::wstring& path, const std::wstring& name)
