@@ -6,6 +6,7 @@
 
 #include "../Renderer/HeightmapModel.h"
 #include "../Renderer/Mesh.h"
+#include "../Renderer/AnimatedModel.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/Text.h"
@@ -161,21 +162,26 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
 	//Log::Print("\n\n\n");
 
-	// Animation stuff
-	std::vector<Animation*> animations;
-	animations.reserve(assimpScene->mNumAnimations);
-	std::map<unsigned int, VertexWeight> perVertexBoneData;
-	std::map<std::string, BoneInfo> boneCounter;
-
-	SkeletonNode* rootNode = processSkeleton(boneCounter, assimpScene->mRootNode, assimpScene, &perVertexBoneData);
-	processAnimations(assimpScene, &animations);
-	if (!animations.empty())
+	if (assimpScene->HasAnimations())
 	{
-		initializeSkeleton(rootNode, boneCounter, animations[0]);	// Ugly solution, should not pass animation[0].
-	}
-	// End of animation stuff
+		std::vector<Animation*> animations;
+		animations.reserve(assimpScene->mNumAnimations);
+		std::map<unsigned int, VertexWeight> perVertexBoneData;
+		std::map<std::string, BoneInfo> boneCounter;
 
-	m_LoadedModels[path].second = new Model(&path, rootNode, &perVertexBoneData, &meshes, &animations, &materials);
+		SkeletonNode* rootNode = processSkeleton(boneCounter, assimpScene->mRootNode, assimpScene, &perVertexBoneData);
+		processAnimations(assimpScene, &animations);
+		if (!animations.empty())	// Possibly useless now
+		{
+			initializeSkeleton(rootNode, boneCounter, animations[0]);	// Ugly solution, should not pass animation[0].
+		}
+		Model* model = static_cast<Model*>(new AnimatedModel(&path, rootNode, &perVertexBoneData, &meshes, &animations, &materials));
+		m_LoadedModels[path].second = model;
+	}
+	else
+	{
+		m_LoadedModels[path].second = new Model(&path, &meshes, &materials);
+	}
 
 	// load to vram
 
@@ -287,12 +293,9 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	std::vector<Mesh*> meshes;
 	meshes.push_back(mesh);
 
-	SkeletonNode* rootNode = nullptr;
-	std::map<unsigned int, VertexWeight> PVBD;
-	std::vector<Animation*> animations;
 	std::vector<Material*> materials;
 	materials.push_back(loadMaterialFromMTL(materialPath));
-	model = new HeightmapModel(&path, rootNode, &PVBD, &meshes, &animations, &materials, heightData, static_cast<double>(tex->GetHeight()), static_cast<double>(tex->GetWidth()));
+	model = new HeightmapModel(&path, &meshes, &materials, heightData, static_cast<double>(tex->GetHeight()), static_cast<double>(tex->GetWidth()));
 	m_LoadedModels[path].first = false;
 	m_LoadedModels[path].second = model;
 
@@ -441,7 +444,6 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	for (unsigned int i = 0; i < assimpMesh->mNumVertices; i++)
 	{
 		Vertex vTemp = {};
-
 		// Get positions
 		if (assimpMesh->HasPositions())
 		{

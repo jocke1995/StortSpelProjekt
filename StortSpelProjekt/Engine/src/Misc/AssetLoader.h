@@ -14,6 +14,7 @@ class Texture;
 class TextureCubeMap;
 class Material;
 class Window;
+
 struct Font;
 struct aiNode;
 struct aiScene;
@@ -21,6 +22,8 @@ struct aiMesh;
 struct aiMaterial;
 struct aiNodeAnim;
 struct aiBone;
+
+class AnimatedModel;
 struct Animation;
 struct VertexWeight;
 struct BoneInfo;
