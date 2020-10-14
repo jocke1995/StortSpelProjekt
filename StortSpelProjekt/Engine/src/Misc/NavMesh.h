@@ -7,12 +7,17 @@
 struct NavQuad;
 struct Connection;
 
+class Entity;
+class Scene;
+
 struct NavQuad
 {
 	float3 position;
 	float2 size;
 
 	std::vector<Connection*> connections;
+
+	Entity* entity;
 };
 
 struct Connection
@@ -44,14 +49,19 @@ public:
 
 	NavQuad* AddNavQuad(float3 position, float2 size);
 
-	void ConnectNavQuads(NavQuad* nav1, NavQuad* nav2, float3 position);
+	void ConnectNavQuadsByQuad(NavQuad* nav1, NavQuad* nav2, float3 position);
+	void ConnectNavQuadsById(int nav1, int nav2, float3 position);
 
 	//Returns a quad for the given position
 	NavQuad* GetQuad(float3 position);
 
+	void AddToScene(Scene* scene);
+
 private:
 	std::vector<NavQuad*> m_NavQuads;
 	std::vector<Connection*> m_Connections;
+
+	int m_NumScenes;
 };
 
 #endif

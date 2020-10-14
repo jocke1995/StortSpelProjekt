@@ -299,9 +299,9 @@ Scene* LeosTestScene(SceneManager* sm)
     Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
     HeightmapModel* heightMapModel = al->LoadHeightmap(L"../Vendor/Resources/Textures/HeightMaps/tst.hm");
 
-    double3 entityDim;
-
 #pragma region entities
+
+    double3 entityDim;
 
 #pragma region player
     Entity* entity = (scene->AddEntity("player"));
@@ -309,6 +309,7 @@ Scene* LeosTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -318,10 +319,11 @@ Scene* LeosTestScene(SceneManager* sm)
     double3 playerDim = mc->GetModelDim();
 
     double rad = playerDim.z / 2.0;
-    double cylHeight = playerDim.y - (rad * 2.0) ;
+    double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(1.0, rad, cylHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(50);
     ic->Init();
+    bbc->Init();
 #pragma endregion
 
 #pragma region floor
@@ -618,40 +620,43 @@ Scene* LeosTestScene(SceneManager* sm)
     NavMesh navmesh;
     float3 pos;
     float2 size;
-    pos.x = 0;
-    pos.y = 0;
-    pos.z = 0;
-    size.x = 0.5;
-    size.y = 0.5;
+    pos.x = 0.0;
+    pos.y = 0.0;
+    pos.z = 0.0;
+    size.x = 5.0;
+    size.y = 5.0;
     NavQuad* nav1 = navmesh.AddNavQuad(pos, size);
 
-    pos.x = 1;
-    pos.y = 0;
-    pos.z = 0;
-    size.x = 0.5;
-    size.y = 0.5;
+    pos.x = 5.0;
+    pos.y = 0.0;
+    pos.z = 2.0;
+    size.x = 5.0;
+    size.y = 5.0;
     NavQuad* nav2 = navmesh.AddNavQuad(pos, size);
-    pos.x = 0.5;
-    pos.y = 0;
-    navmesh.ConnectNavQuads(nav1, nav2, pos);
+    pos.x = 2.5;
+    pos.z = 0.5;
+    pos.y = 0.0;
+    navmesh.ConnectNavQuadsById(0, 1, pos);
 
-    pos.x = 1;
-    pos.y = 1.5;
-    pos.z = 0;
-    size.x = 1;
-    size.y = 1;
+    pos.x = 4.0;
+    pos.y = 0.0;
+    pos.z = -2.0;
+    size.x = 3.0;
+    size.y = 3.0;
     NavQuad* nav3 = navmesh.AddNavQuad(pos, size);
     pos.x = 0.0;
     pos.y = 0.5;
-    navmesh.ConnectNavQuads(nav3, nav1, pos);
+    navmesh.ConnectNavQuadsById(2, 0, pos);
     pos.x = 1.0;
     pos.y = 0.5;
-    navmesh.ConnectNavQuads(nav3, nav2, pos);
+    navmesh.ConnectNavQuadsById(2, 1, pos);
 
     pos.x = 1.1;
     pos.y = 0.3;
     nav1 = navmesh.GetQuad(pos);
     nav1 = nav1->connections.at(0)->GetConnectedQuad(nav1);
+
+    navmesh.AddToScene(scene);
 #pragma endregion
 
     /* ---------------------- Update Function ---------------------- */
