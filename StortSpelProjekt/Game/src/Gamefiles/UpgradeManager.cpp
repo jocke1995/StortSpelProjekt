@@ -51,6 +51,13 @@ void UpgradeManager::ApplyRangeUpgrades(Entity* ent)
 	{
 		// get NEW RangeUpgrade for the projectile entity
 		rangeUpgrade = RangeUpgrade(upgradeName, ent);
+		// Check if the upgrade has increased in level. 
+		// If so increase level of the new upgrade so it matches the one in m_AllAvailableUpgrades
+		// i = 1, because upgrades start at level 1.
+		for (int i = 1; i < m_AllAvailableUpgrades[upgradeName]->GetLevel(); i++)
+		{
+			rangeUpgrade->IncreaseLevel();
+		}
 		// Add the upgrade to the projectile entitys upgradeComponent
 		ent->GetComponent<component::UpgradeComponent>()->AddUpgrade(rangeUpgrade);
 	}
@@ -78,6 +85,11 @@ bool UpgradeManager::IsUpgradeApplied(int id)
 		}
 	}
 	return false;
+}
+
+std::map<std::string, Upgrade*> UpgradeManager::GetAllAvailableUpgrades()
+{
+	return m_AllAvailableUpgrades;
 }
 
 void UpgradeManager::fillUpgradeMap()

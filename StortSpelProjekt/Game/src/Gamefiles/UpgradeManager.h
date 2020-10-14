@@ -37,6 +37,8 @@ public:
 	// returns true if the upgrade with id is in the map and therefore applied
 	bool IsUpgradeApplied(int id);
 
+	std::map<std::string, Upgrade*> GetAllAvailableUpgrades();
+
 private:
 	Entity* m_pParentEntity = nullptr;
 	// Contains all upgrades that the player can buy

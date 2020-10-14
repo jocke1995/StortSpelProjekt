@@ -2,6 +2,7 @@
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 #include "Player.h"
+#include "Shop.h"
 
 Scene* JacobsTestScene(SceneManager* sm);
 Scene* LeosTestScene(SceneManager* sm);
@@ -1401,13 +1402,15 @@ Scene* AndresTestScene(SceneManager* sm)
     // initialize OBB after we have the transform info
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
-
+    
     // upgrade test. This functionality will be handled by shop.
     Player::GetInstance().SetPlayer(entity);
     Player::GetInstance().GetUpgradeManager()->ApplyUpgrade("UpgradeRangeTest");
     Player::GetInstance().GetPlayer()->GetComponent<component::UpgradeComponent>()->GetUpgradeByName("UpgradeRangeTest")->ApplyStat();
     Player::GetInstance().GetUpgradeManager()->ApplyUpgrade("UpgradeMeleeTest");
     Player::GetInstance().GetPlayer()->GetComponent<component::UpgradeComponent>()->GetUpgradeByName("UpgradeMeleeTest")->ApplyStat();
+    Shop shop;
+    shop.RandomizeInventory();
 
     /* ---------------------- Player ---------------------- */
 

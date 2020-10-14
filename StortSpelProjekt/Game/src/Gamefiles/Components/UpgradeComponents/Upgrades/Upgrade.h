@@ -29,6 +29,8 @@ public:
 	unsigned int GetType() const;
 	void SetID(int id);
 	int GetID();
+	std::string GetDescription();
+	int GetPrice();
 
 	// If dt is needed for an upgrade
 	virtual void Update(double dt);
@@ -63,6 +65,10 @@ protected:
 	Entity* m_pParentEntity;
 	// Name of the upgrade, for ease of access in shop or upgrade handlers
 	std::string m_Name = "";
+	// Discription is used in shop when describing the upgrade.
+	std::string m_Discription;
+	// Price is used in shop when buying upgrades
+	int m_Price;
 	// ID used in networking for sending which upgrades are applied.
 	// Is set in UpgradeManagers fillUpgradeMap() function.
 	int m_ID;
