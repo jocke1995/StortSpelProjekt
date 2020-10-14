@@ -48,7 +48,7 @@ public:
 
     double3 GetModelDim() const;
 
-private:
+protected:
     friend class Renderer;
     friend class AssetLoader;
 

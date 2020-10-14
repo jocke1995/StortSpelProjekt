@@ -184,7 +184,7 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	// End of animation stuff
 
 	m_LoadedModels[path].second = new Model(&path, rootNode, &perVertexBoneData, &meshes, &animations, &materials);
-	m_LoadedModels[path].second->updateSlotInfo();
+	//m_LoadedModels[path].second->updateSlotInfo();
 	m_LoadedModels[path].first = false;
 
 	return m_LoadedModels[path].second;
@@ -288,7 +288,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	delete[] tasks;
 
 	Mesh* mesh = new Mesh(m_pDevice, &vertices, &indices, m_pDescriptorHeap_CBV_UAV_SRV, path);
-
+	mesh->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 	m_LoadedMeshes.push_back(mesh);
 
 	std::vector<Mesh*> meshes;
