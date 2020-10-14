@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <vector>
 #include "GUI2DComponent.h"
 
 #include "../Renderer/TextManager.h"
@@ -14,24 +13,20 @@ namespace component
 	GUI2DComponent::GUI2DComponent(Entity* parent)
 		:Component(parent)
 	{
-		m_pTextMan = new TextManager();
-		m_pQuadMan = new QuadManager();
 	}
 
 	GUI2DComponent::~GUI2DComponent()
 	{
-		delete m_pTextMan;
-		delete m_pQuadMan;
 	}
 
-	TextManager* const GUI2DComponent::GetTextManager() const
+	TextManager* GUI2DComponent::GetTextManager()
 	{
-		return m_pTextMan;
+		return &m_pTextMan;
 	}
 
-	QuadManager* const GUI2DComponent::GetQuadManager() const
+	QuadManager* GUI2DComponent::GetQuadManager()
 	{
-		return m_pQuadMan;
+		return &m_pQuadMan;
 	}
 
 	void GUI2DComponent::Update(double dt)
@@ -45,13 +40,13 @@ namespace component
 
 	void GUI2DComponent::OnLoadScene()
 	{
-		Renderer::GetInstance().LoadTexture(m_pTextMan->GetFont()->GetTexture());
-		Renderer::GetInstance().LoadTexture(m_pQuadMan->GetTexture());
+		Renderer::GetInstance().LoadTexture(m_pTextMan.GetFont()->GetTexture());
+		Renderer::GetInstance().LoadTexture(m_pQuadMan.GetTexture());
 	}
 
 	void GUI2DComponent::OnUnloadScene()
 	{
-		Renderer::GetInstance().UnloadTexture(m_pTextMan->GetFont()->GetTexture());
-		Renderer::GetInstance().LoadTexture(m_pQuadMan->GetTexture());
+		Renderer::GetInstance().UnloadTexture(m_pTextMan.GetFont()->GetTexture());
+		Renderer::GetInstance().LoadTexture(m_pQuadMan.GetTexture());
 	}
 }

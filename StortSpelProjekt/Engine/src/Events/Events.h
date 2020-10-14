@@ -84,8 +84,3 @@ struct WindowChange : public Event
 {
 	WindowChange() {};
 };
-
-struct ButtonPressed : public Event
-{
-	ButtonPressed() {};
-};

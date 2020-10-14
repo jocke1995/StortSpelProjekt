@@ -66,8 +66,8 @@ void Text::initVertexData()
 	float x = topLeftScreenX;
 	float y = topLeftScreenY;
 
-	float horrizontalPadding = (font.leftpadding + font.rightpadding) * padding.x;
-	float verticalPadding = (font.toppadding + font.bottompadding) * padding.y;
+	float horrizontalPadding = (font.m_Leftpadding + font.m_Rightpadding) * padding.x;
+	float verticalPadding = (font.m_Toppadding + font.m_Bottompadding) * padding.y;
 
 	wchar_t lastChar = -1; // no last character to start with
 
@@ -93,7 +93,7 @@ void Text::initVertexData()
 		if (c == L'\n')
 		{
 			x = topLeftScreenX;
-			y -= (font.lineHeight + verticalPadding) * scale.y;
+			y -= (font.m_LineHeight + verticalPadding) * scale.y;
 			continue;
 		}
 

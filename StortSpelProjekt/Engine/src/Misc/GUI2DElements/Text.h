@@ -1,7 +1,7 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include "../Renderer/Renderer.h"
+//#include "../Renderer/Renderer.h"
 
 class Window;
 class Resource;
@@ -13,9 +13,6 @@ class Font;
 struct SlotInfo;
 
 // DX12 Forward Declarations
-struct ID3D12CommandQueue;
-struct ID3D12CommandList;
-struct ID3D12Fence1;
 struct ID3D12Device5;
 
 // the maximum number of characters you can render during a frame. This is just used to make sure

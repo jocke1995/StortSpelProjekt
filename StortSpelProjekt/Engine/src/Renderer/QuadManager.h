@@ -11,7 +11,7 @@ class ShaderResourceView;
 class Eventbus;
 
 struct Vertex;
-struct ButtonPressed;
+struct MouseClick;
 
 class QuadManager
 {
@@ -32,6 +32,6 @@ class QuadManager
 		bool m_Clickable = false;
 		bool m_Pressed = false;
 	
-		void pressed(ButtonPressed* evnt);
+		void pressed(MouseClick* evnt);
 };
 #endif

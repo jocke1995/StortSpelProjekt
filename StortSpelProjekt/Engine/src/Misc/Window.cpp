@@ -142,7 +142,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				SetCursorPos(500, 400);
 			}
 
-			// To click on things (temp)
+			// This is temporarly to make sure that a mouse click works even though the 'alt' key is pressed
 			if (DEVELOPERMODE_DEVINTERFACE == false || Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
 			{
 				auto inputData = raw->data.mouse;
@@ -151,8 +151,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				switch (button)
 				{
 				case MOUSE_BUTTON::LEFT_DOWN:
-					EventBus::GetInstance().Publish(&ButtonPressed());
+					Input::GetInstance().SetMouseButtonState(button, true);
 					break;
+				case MOUSE_BUTTON::LEFT_UP:
+					button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
+					Input::GetInstance().SetMouseButtonState(button, false);
 				default:
 					break;
 				}

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <vector>
 #include "QuadManager.h"
 
 #include "../Renderer/Texture/Texture.h"
@@ -22,15 +21,26 @@ QuadManager::~QuadManager()
 {
 	EventBus::GetInstance().Unsubscribe(this, &QuadManager::pressed);
 
-	delete m_pQuad;
+	if (m_pQuad != nullptr)
+	{
+		delete m_pQuad;
+	}
 }
 
 void QuadManager::CreateQuad(float2 pos, float2 size, bool clickable, std::wstring texturePath)
 {
+	// Loof if we are going to overwrite the current quad
 	if (m_pQuad != nullptr)
 	{
 		delete m_pQuad;
+		m_pQuad = nullptr;
 		m_Clickable = false;
+
+		if (m_pQuadTexture != nullptr)
+		{
+			delete m_pQuadTexture;
+			m_pQuadTexture = nullptr;
+		}
 	}
 
 	if (m_pQuadTexture == nullptr && texturePath != L"NONE")
@@ -145,22 +155,28 @@ Texture* const QuadManager::GetTexture() const
 	return m_pQuadTexture;
 }
 
-void QuadManager::pressed(ButtonPressed* evnt)
+void QuadManager::pressed(MouseClick* evnt)
 {
-	POINT p;
-	GetCursorPos(&p);
-
-	Renderer* renderer = &Renderer::GetInstance();
-	ScreenToClient(*renderer->m_pWindow->GetHwnd(), &p);
-
-	float x = (static_cast<float>(p.x) / (renderer->m_pWindow->GetScreenWidth() / 2)) - 1;
-	float y = -((static_cast<float>(p.y) / (renderer->m_pWindow->GetScreenHeight() / 2)) - 1);
-
-	if ((x >= m_Positions["upper_left"].x && y <= m_Positions["upper_left"].y)
-		&& (x >= m_Positions["lower_left"].x && y >= m_Positions["lower_left"].y)
-		&& (x <= m_Positions["upper_right"].x && y <= m_Positions["upper_right"].y)
-		&& (x <= m_Positions["lower_right"].x && y >= m_Positions["lower_right"].y))
+	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN && evnt->pressed == true)
 	{
-		m_Pressed = true;
+		// Get the mouse position from your screenspace
+		POINT p;
+		GetCursorPos(&p);
+
+		// Transform the position from your screenspace to the clientspace (space of the window)
+		Renderer* renderer = &Renderer::GetInstance();
+		ScreenToClient(*renderer->m_pWindow->GetHwnd(), &p);
+
+		// Transform the clientspace to the DirectX coordinates (0, 0) = (-1, 1)
+		float x = (static_cast<float>(p.x) / (renderer->m_pWindow->GetScreenWidth() / 2)) - 1;
+		float y = -((static_cast<float>(p.y) / (renderer->m_pWindow->GetScreenHeight() / 2)) - 1);
+
+		if ((x >= m_Positions["upper_left"].x && y <= m_Positions["upper_left"].y)
+			&& (x >= m_Positions["lower_left"].x && y >= m_Positions["lower_left"].y)
+			&& (x <= m_Positions["upper_right"].x && y <= m_Positions["upper_right"].y)
+			&& (x <= m_Positions["lower_right"].x && y >= m_Positions["lower_right"].y))
+		{
+			m_Pressed = true;
+		}
 	}
 }

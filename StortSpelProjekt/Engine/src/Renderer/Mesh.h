@@ -5,14 +5,11 @@
 #include "Core.h"
 
 #include "../ECS/Components/BoundingBoxComponent.h"
-#include "../ECS/Components/GUI2DComponent.h"
 
 class Texture;
 class Resource;
 class ShaderResourceView;
 class DescriptorHeap;
-class Component;
-class GUI2DComponent;
 struct SlotInfo;
 
 // DX12 Forward Declarations
@@ -59,8 +56,8 @@ private:
     friend class Renderer;
     friend class SceneManager;
 	friend class QuadManager;
-    friend class Model;
-    friend class component::BoundingBoxComponent;
+	friend class Model;
+	friend class component::BoundingBoxComponent;
 
     std::vector<Vertex> m_Vertices;
     std::vector<unsigned int> m_Indices;

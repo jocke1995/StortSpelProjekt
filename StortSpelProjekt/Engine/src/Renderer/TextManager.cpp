@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include <vector>
 #include "TextManager.h"
 
+#include "../Renderer/Renderer.h"
 #include "../Renderer/Texture/Texture.h"
 #include "../Renderer/DescriptorHeap.h"
 
@@ -12,13 +12,22 @@
 
 TextManager::TextManager()
 {
+	// Default text
+	m_DefaultTextData.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	m_DefaultTextData.padding = { 0.5f, 0.0f };
+	m_DefaultTextData.pos = { 0.5f, 0.5f };
+	m_DefaultTextData.scale = { 1.0f, 1.0f };
+	m_DefaultTextData.text = L"DEFAULT_TEXT";
 }
 
 TextManager::~TextManager()
 {
 	for (auto textMap : m_TextMap)
 	{
-		delete textMap.second;
+		if (textMap.second != nullptr)
+		{
+			delete textMap.second;
+		}
 	}
 	m_TextMap.clear();
 }
@@ -42,19 +51,12 @@ void TextManager::AddText(std::string name)
 	}
 
 	// Default text
-	TextData textData = {};
-	textData.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	textData.padding = { 0.5f, 0.0f };
-	textData.pos = { 0.5f, 0.5f };
-	textData.scale = { 1.0f, 1.0f };
-	textData.text = L"DEFAULT_TEXT";
+	TextData textData = m_DefaultTextData;
 
-	for (auto data : m_TextDataMap)
+	auto it = m_TextDataMap.find(name);
+	if (it != m_TextDataMap.end())
 	{
-		if (data.first == name)
-		{
-			Log::PrintSeverity(Log::Severity::WARNING, "It already exists a text with the name '%s'! Overwriting text data...\n", name.c_str());
-		}
+		Log::PrintSeverity(Log::Severity::WARNING, "It already exists a text with the name '%s'! Overwriting text data...\n", name.c_str());
 	}
 
 	m_TextDataMap[name] = textData;
@@ -62,12 +64,11 @@ void TextManager::AddText(std::string name)
 
 void TextManager::UploadTextData(std::string name)
 {
-	Renderer::GetInstance().LoadTexture(m_pFont->GetTexture());
+	Renderer* renderer = &Renderer::GetInstance();
+	renderer->LoadTexture(m_pFont->GetTexture());
 
 	int numOfCharacters = GetNumOfCharacters(name);
 	auto textData = GetTextData(name);
-
-	Renderer* renderer = &Renderer::GetInstance();
 
 	Text* text = new Text(
 		renderer->m_pDevice5,
@@ -78,23 +79,24 @@ void TextManager::UploadTextData(std::string name)
 
 	// Look if the text exists
 	bool exists = false;
-	for (auto textMap : m_TextMap)
+	auto it = m_TextDataMap.find(name);
+	if (it != m_TextDataMap.end())
 	{
-		if (textMap.first == name)
-		{
-			exists = true;
-		}
+		exists = true;
 	}
 
 	if (exists == true)
 	{
+		// Replacing an existing text in the map
 		replaceText(text, name);
 	}
 	else
 	{
+		// Adding a new text to the map
 		submitText(text, name);
 	}
 
+	// Uploading the text data to the gpu
 	renderer->submitTextToGPU(text, this);
 
 	renderer->executeCopyOnDemand();
@@ -108,14 +110,11 @@ void TextManager::SetFont(Font* font)
 void TextManager::SetText(std::string text, std::string name)
 {
 	bool exists = false;
-	for (auto data : m_TextDataMap)
+	auto it = m_TextDataMap.find(name);
+	if (it != m_TextDataMap.end())
 	{
-		if (data.first == name)
-		{
-			m_TextDataMap[name].text = to_wstring(text);
-			exists = true;
-			break;
-		}
+		m_TextDataMap[name].text = to_wstring(text);
+		exists = true;
 	}
 
 	if (exists == false)
@@ -127,14 +126,11 @@ void TextManager::SetText(std::string text, std::string name)
 void TextManager::SetPos(float2 textPos, std::string name)
 {
 	bool exists = false;
-	for (auto data : m_TextDataMap)
+	auto it = m_TextDataMap.find(name);
+	if (it != m_TextDataMap.end())
 	{
-		if (data.first == name)
-		{
-			m_TextDataMap[name].pos = textPos;
-			exists = true;
-			break;
-		}
+		m_TextDataMap[name].pos = textPos;
+		exists = true;
 	}
 
 	if (exists == false)
@@ -146,33 +142,30 @@ void TextManager::SetPos(float2 textPos, std::string name)
 void TextManager::SetScale(float2 scale, std::string name)
 {
 	bool exists = false;
-	for (auto data : m_TextDataMap)
+	auto it = m_TextDataMap.find(name);
+	if (it != m_TextDataMap.end())
 	{
-		if (data.first == name)
+		// Scale with the size of the window
+		Renderer* renderer = &Renderer::GetInstance();
+		HWND* hwnd = const_cast<HWND*>(renderer->m_pWindow->GetHwnd());
+		RECT rect;
+
+		float win_x = 0, win_y = 0;
+		if (GetWindowRect(*hwnd, &rect))
 		{
-			// Scale with the size of the window
-			Renderer* renderer = &Renderer::GetInstance();
-			HWND* hwnd = const_cast<HWND*>(renderer->m_pWindow->GetHwnd());
-			RECT rect;
-
-			float win_x = 0, win_y = 0;
-			if (GetWindowRect(*hwnd, &rect))
-			{
-				win_x = rect.right - rect.left;
-				win_y = rect.bottom - rect.top;
-			}
-
-			float scale_x = 0, scale_y = 0;
-			scale_x = win_x / 1000;
-			scale_y = win_y / 1000;
-			float aspect = scale_x / scale_y;
-
-			m_TextDataMap[name].scale.x = (scale.x * scale_x);
-			m_TextDataMap[name].scale.y = (scale.y * scale_y * aspect);
-
-			exists = true;
-			break;
+			win_x = rect.right - rect.left;
+			win_y = rect.bottom - rect.top;
 		}
+
+		float scale_x = 0, scale_y = 0;
+		scale_x = win_x / 1000;
+		scale_y = win_y / 1000;
+		float aspect = scale_x / scale_y;
+
+		m_TextDataMap[name].scale.x = (scale.x * scale_x);
+		m_TextDataMap[name].scale.y = (scale.y * scale_y * aspect);
+
+		exists = true;
 	}
 
 	if (exists == false)
@@ -184,14 +177,11 @@ void TextManager::SetScale(float2 scale, std::string name)
 void TextManager::SetPadding(float2 padding, std::string name)
 {
 	bool exists = false;
-	for (auto data : m_TextDataMap)
+	auto it = m_TextDataMap.find(name);
+	if (it != m_TextDataMap.end())
 	{
-		if (data.first == name)
-		{
-			m_TextDataMap[name].padding = padding;
-			exists = true;
-			break;
-		}
+		m_TextDataMap[name].padding = padding;
+		exists = true;
 	}
 
 	if (exists == false)
@@ -203,14 +193,11 @@ void TextManager::SetPadding(float2 padding, std::string name)
 void TextManager::SetColor(float4 color, std::string name)
 {
 	bool exists = false;
-	for (auto data : m_TextDataMap)
+	auto it = m_TextDataMap.find(name);
+	if (it != m_TextDataMap.end())
 	{
-		if (data.first == name)
-		{
-			m_TextDataMap[name].color = color;
-			exists = true;
-			break;
-		}
+		m_TextDataMap[name].color = color;
+		exists = true;
 	}
 
 	if (exists == false)
@@ -257,14 +244,12 @@ void TextManager::submitText(Text* text, std::string name)
 void TextManager::replaceText(Text* text, std::string name)
 {
 	bool found = false;
-	for (auto textMap : m_TextMap)
+	auto it = m_TextDataMap.find(name);
+	if (it != m_TextDataMap.end())
 	{
-		if (textMap.first == name)
-		{
-			delete m_TextMap[name];
-			m_TextMap[name] = text;
-			found = true;
-		}
+		delete m_TextMap[name];
+		m_TextMap[name] = text;
+		found = true;
 	}
 
 	if (found == false)

@@ -246,7 +246,7 @@ private:
 
 	void toggleFullscreen(WindowChange* evnt);
 
-	SwapChain* getSwapChain();
+	SwapChain* getSwapChain() const;
 
 	void submitTextToGPU(Text* text, TextManager* tm);
 };

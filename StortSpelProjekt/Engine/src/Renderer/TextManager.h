@@ -3,13 +3,12 @@
 
 #include <map>
 #include <vector>
+#include "../Misc/GUI2DElements/Text.h"
 
 class Window;
 class Texture;
 class Text;
 class Font;
-
-struct TextData;
 
 class TextManager
 {
@@ -42,6 +41,7 @@ private:
 	std::map<std::string, TextData> m_TextDataMap = {};
 	std::map<std::string, Text*> m_TextMap = {};
 	Font* m_pFont = nullptr;
+	TextData m_DefaultTextData;
 
 	void submitText(Text* text, std::string name);
 	void replaceText(Text* text, std::string name);

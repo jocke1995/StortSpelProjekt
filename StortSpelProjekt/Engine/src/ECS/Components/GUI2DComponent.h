@@ -1,12 +1,10 @@
 #ifndef GUI2DCOMPONENT_H
 #define GUI2DCOMPONENT_H
 
-#include <map>
-#include <vector>
 #include "Component.h"
 
-class TextManager;
-class QuadManager;
+#include "../Renderer/TextManager.h"
+#include "../Renderer/QuadManager.h"
 
 namespace component
 {
@@ -16,8 +14,8 @@ namespace component
 		GUI2DComponent(Entity* parent);
 		virtual ~GUI2DComponent();
 
-		TextManager* const GetTextManager() const;
-		QuadManager* const GetQuadManager() const;
+		TextManager* GetTextManager();
+		QuadManager* GetQuadManager();
 
 		void Update(double dt);
 		void OnInitScene();
@@ -27,8 +25,8 @@ namespace component
 	private:
 		friend class Renderer;
 
-		TextManager* m_pTextMan = nullptr;
-		QuadManager* m_pQuadMan = nullptr;
+		TextManager m_pTextMan;
+		QuadManager m_pQuadMan;
 	};
 }
 #endif

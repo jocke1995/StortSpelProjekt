@@ -13,11 +13,11 @@ Font::~Font()
 
 float Font::GetKerning(wchar_t first, wchar_t second) const
 {
-	for (int i = 0; i < numKernings; ++i)
+	for (int i = 0; i < m_NumKernings; ++i)
 	{
-		if ((wchar_t)kerningsList[i].firstid == first && (wchar_t)kerningsList[i].secondid == second)
+		if ((wchar_t)m_pKerningsList[i].firstid == first && (wchar_t)m_pKerningsList[i].secondid == second)
 		{
-			return kerningsList[i].amount;
+			return m_pKerningsList[i].amount;
 		}
 	}
 	return 0.0f;
@@ -25,11 +25,11 @@ float Font::GetKerning(wchar_t first, wchar_t second) const
 
 FontChar* Font::GetChar(wchar_t c) const
 {
-	for (int i = 0; i < numCharacters; ++i)
+	for (int i = 0; i < m_NumCharacters; ++i)
 	{
-		if (c == (wchar_t)charList[i].id)
+		if (c == (wchar_t)m_pCharList[i].id)
 		{
-			return &charList[i];
+			return &m_pCharList[i];
 		}
 	}
 	return nullptr;
@@ -37,10 +37,10 @@ FontChar* Font::GetChar(wchar_t c) const
 
 Texture* const Font::GetTexture() const
 {
-	return texture;
+	return m_pTexture;
 }
 
 std::wstring Font::GetName() const
 {
-	return name;
+	return m_Name;
 }

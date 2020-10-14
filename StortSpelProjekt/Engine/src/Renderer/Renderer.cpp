@@ -33,8 +33,6 @@
 #include "Texture/Texture.h"
 #include "Texture/TextureCubeMap.h"
 #include "Material.h"
-#include "TextManager.h"
-#include "QuadManager.h"
 
 // GPUMemory
 #include "GPUMemory/Resource.h"
@@ -2249,7 +2247,7 @@ void Renderer::toggleFullscreen(WindowChange* evnt)
 	}
 }
 
-SwapChain* Renderer::getSwapChain()
+SwapChain* Renderer::getSwapChain() const
 {
 	return m_pSwapChain;
 }
@@ -2266,12 +2264,13 @@ void Renderer::submitTextToGPU(Text* text, TextManager* tm)
 	codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 
 	AssetLoader* al = AssetLoader::Get();
-	std::wstring fontPath = al->GetFontPath();
-	std::wstring path = fontPath + text->GetFont()->GetName() + L".fnt";
-	bool isTextureOnGpu = al->m_LoadedFonts[path].first;
+	bool isTextureOnGpu = al->IsFontTextureLoadedOnGPU(text->GetFont());
 
 	if (isTextureOnGpu == false)
 	{
+		std::wstring fontPath = al->GetFontPath();
+		std::wstring path = fontPath + text->GetFont()->GetName() + L".fnt";
+
 		// Texture (only one per component)
 		codt->SubmitTexture(tm->GetFontTexture());
 		al->m_LoadedFonts[path].first = true;
