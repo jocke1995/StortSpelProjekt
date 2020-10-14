@@ -56,7 +56,7 @@ private:
 	
 	bool m_ShowPackage = false;
 
-	ServerGame* m_State;
+	ServerGame* m_pState;
 
 	float m_NrOfBytesSent = 0.0;
 	int m_NrOfPackagesSent = 0;
