@@ -155,6 +155,8 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 
 void SceneManager::ResetScene()
 {
+	Renderer::GetInstance().waitForGPU();
+
 	// Reset isEntityInited
 	m_IsEntityInited.clear();
 
