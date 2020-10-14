@@ -37,9 +37,11 @@ public:
 
     // Mesh
     Mesh* GetMeshAt(unsigned int index) const;
+    void SetMeshAt(unsigned int index, Mesh* mesh);
 
     // Material
     Material* GetMaterialAt(unsigned int index) const;
+    void SetMaterialAt(unsigned int index, Material* material);
 
     // SlotInfo
     const SlotInfo* GetSlotInfoAt(unsigned int index) const;
@@ -48,8 +50,10 @@ public:
 
 private:
     friend class Renderer;
+    friend class AssetLoader;
 
     void updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform);
+    void updateSlotInfo();
 
     std::wstring m_Path;
     unsigned int m_Size = 0;
@@ -63,10 +67,6 @@ private:
     SkeletonNode* m_pSkeleton;
     DirectX::XMFLOAT4X4 m_GlobalInverseTransform;
     std::map<unsigned int, VertexWeight> m_PerVertexBoneData; // AKA weights
-
-    // Counts how many loaded references to model
-    // This is to not delete models in use by other scenes
-    unsigned int m_ActiveRefCount = 0;
 };
 
 #endif

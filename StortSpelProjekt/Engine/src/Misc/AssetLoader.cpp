@@ -36,18 +36,8 @@ AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_C
 	m_pDescriptorHeap_CBV_UAV_SRV = descriptorHeap_CBV_UAV_SRV;
 	m_pWindow = const_cast<Window*>(window);
 
-	std::map<TEXTURE2D_TYPE, Texture*> matTextures;
 	// Load default textures
-	matTextures[TEXTURE2D_TYPE::ALBEDO]		= LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.dds");
-	matTextures[TEXTURE2D_TYPE::ROUGHNESS]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.dds");
-	matTextures[TEXTURE2D_TYPE::METALLIC]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
-	matTextures[TEXTURE2D_TYPE::NORMAL]		= LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
-	matTextures[TEXTURE2D_TYPE::EMISSIVE]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
-
-	std::wstring matName = L"DefaultMaterial";
-	Material* material = new Material(&matName, &matTextures);
-	m_LoadedMaterials[matName].first = false;
-	m_LoadedMaterials[matName].second = material;
+	loadDefaultMaterial();
 }
 
 bool AssetLoader::IsModelLoadedOnGpu(const std::wstring& name) const
@@ -78,6 +68,22 @@ bool AssetLoader::IsTextureLoadedOnGpu(const std::wstring& name) const
 bool AssetLoader::IsTextureLoadedOnGpu(const Texture* texture) const
 {
 	return m_LoadedTextures.at(texture->GetPath()).first;
+}
+
+void AssetLoader::loadDefaultMaterial()
+{
+	// Load default textures
+	std::map<TEXTURE2D_TYPE, Texture*> matTextures;
+	matTextures[TEXTURE2D_TYPE::ALBEDO] = LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.dds");
+	matTextures[TEXTURE2D_TYPE::ROUGHNESS] = LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.dds");
+	matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
+	matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
+	matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
+
+	std::wstring matName = L"DefaultMaterial";
+	Material* material = new Material(&matName, &matTextures);
+	m_LoadedMaterials[matName].first = false;
+	m_LoadedMaterials[matName].second = material;
 }
 
 AssetLoader::~AssetLoader()
@@ -160,9 +166,6 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 	meshes.reserve(assimpScene->mNumMeshes);
 	materials.reserve(assimpScene->mNumMeshes);
-	m_LoadedModels[path].first = false;
-
-	//Log::Print("\n\n\n");
 	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
 	//Log::Print("\n\n\n");
 
@@ -181,8 +184,8 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	// End of animation stuff
 
 	m_LoadedModels[path].second = new Model(&path, rootNode, &perVertexBoneData, &meshes, &animations, &materials);
-
-	// load to vram
+	m_LoadedModels[path].second->updateSlotInfo();
+	m_LoadedModels[path].first = false;
 
 	return m_LoadedModels[path].second;
 }
@@ -328,6 +331,10 @@ Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
 
 	m_LoadedTextures[path].first = false;
 	m_LoadedTextures[path].second = texture;
+
+	// load to vram
+	texture->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
+
 	return texture;
 }
 
@@ -343,6 +350,10 @@ TextureCubeMap* AssetLoader::LoadTextureCubeMap(const std::wstring& path)
 
 	m_LoadedTextures[path].first = false;
 	m_LoadedTextures[path].second = textureCubeMap;
+
+	// load to vram
+	textureCubeMap->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
+
 	return textureCubeMap;
 }
 
@@ -769,6 +780,9 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	// 	// if unsuccessful set a default
 	// 	shininess = 20.0f;
 	// }
+
+
+	mesh->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 
 	return mesh;
 }
