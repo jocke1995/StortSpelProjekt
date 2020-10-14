@@ -14,10 +14,12 @@ public:
 	void SetNetwork(Network* network);
 	void SetSceneManager(SceneManager* sceneManager);
 
+	bool IsConnected();
+
 private:
 	SceneManager* m_pSceneManager;
 	std::vector<Scene*>* m_pActiveScenes;
-	Network* m_pNetwork;
+	Network m_Network;
 	std::vector<Entity*>* m_pEnemies;
 
 	void disconnect(Disconnect* evnt);

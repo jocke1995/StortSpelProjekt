@@ -119,37 +119,22 @@ void Network::SendEnemiesPacket(std::vector<Entity*>* enemies)
     int nrOfEnemies
     for(nrOfEnemies)
         float3 position
-        double4 rotation
-        double3 movement
         std::string name
-        int target
     */
 
-    if (IsHost())
+    sf::Packet packet;
+
+    packet << E_PACKET_ID::ENEMY_DATA;
+    packet << enemies->size();
+    for (int i = 0; i < enemies->size(); i++)
     {
-        sf::Packet packet;
+        float3 pos = enemies->at(i)->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 
-        packet << E_PACKET_ID::ENEMY_DATA;
-        packet << enemies->size();
-        for (int i = 0; i < enemies->size(); i++)
-        {
-            float3 pos = enemies->at(i)->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
-            double4 rot = enemies->at(i)->GetComponent<component::CollisionComponent>()->GetRotationQuaternion();
-            double3 mov = enemies->at(i)->GetComponent<component::CollisionComponent>()->GetLinearVelocity();
-
-            packet << pos.x << pos.y << pos.z << rot.x << rot.y << rot.z << rot.w << mov.x << mov.y << mov.z;
-            std::string name = enemies->at(i)->GetComponent<component::AiComponent>()->GetTarget()->GetName();
-            packet << name;
-            for (int j = 0; j < m_Players.size(); i++)
-            {
-                if (m_Players.at(j)->entityPointer->GetName() == name)
-                {
-                    packet << m_Players.at(j)->clientId;
-                    break;
-                }
-            }
-        }
+        packet << pos.x << pos.y << pos.z;
+        std::string name = enemies->at(i)->GetName();
+        packet << name;
     }
+    sendPacket(packet);
 }
 
 void Network::SetPlayerEntityPointer(Entity* playerEnitity, int id)
@@ -167,6 +152,11 @@ void Network::SetPlayerEntityPointer(Entity* playerEnitity, int id)
     {
         Log::PrintSeverity(Log::Severity::CRITICAL, "Attempted to add entity pointer to non-existing player id " + std::to_string(id));
     }
+}
+
+void Network::SetEnemiesEntityPointers(std::vector<Entity*>* enemies)
+{
+    m_pEnemies = enemies;
 }
 
 bool Network::ListenPacket()
@@ -211,6 +201,9 @@ void Network::processPacket(sf::Packet* packet)
             break;
         case E_PACKET_ID::PLAYER_DISCONNECT:
             processPlayerDisconnect(packet);
+            break;
+        case E_PACKET_ID::ENEMY_DATA:
+            processEnemyData(packet);
             break;
         default: 
             Log::PrintSeverity(Log::Severity::CRITICAL, "Unkown packet id recieved with enum " + std::to_string(packetId));
@@ -313,6 +306,36 @@ void Network::processServerData(sf::Packet* packet)
         {
             m_Players.at(i)->isHost = true;
             break;
+        }
+    }
+}
+
+void Network::processEnemyData(sf::Packet* packet)
+{
+    /*
+    int nrOfEnemies
+    for(nrOfEnemies)
+        float3 position
+        std::string name
+        int target
+    */
+
+    int nrOfEnemies;
+    *packet >> nrOfEnemies;
+    for (int i = 0; i < nrOfEnemies; i++)
+    {
+        float3 pos;
+        std::string name;
+
+        *packet >> pos.x >> pos.y >> pos.z;
+        *packet >> name;
+
+        for (int j = 0; j < m_pEnemies->size(); j++)
+        {
+            if (m_pEnemies->at(j)->GetName() == name)
+            {
+                m_pEnemies->at(j)->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+            }
         }
     }
 }

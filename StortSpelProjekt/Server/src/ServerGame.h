@@ -12,9 +12,10 @@ struct ServerEntity
 	double3 velocity;
 };
 
-struct EnemyEntity : ServerEntity
+struct EnemyEntity
 {
-	int targetId;
+	std::string name;
+	float3 position;
 };
 
 class ServerGame
@@ -28,12 +29,12 @@ public:
 	void Update(double dt);
 
 	void UpdateEntity(std::string name, float3 position, double4 rotation, double3 velocity);
-	void UpdateEnemy(std::string name, float3 position, double4 rotation, double3 velocity, int target);
+	void UpdateEnemy(std::string name, float3 position);
 	ServerEntity* GetEntity(std::string name);
 	EnemyEntity* GetEnemy(std::string name);
 
 	void AddEntity(std::string name);
-	void AddEnemy(std::string name, float3 position, double4 rotation, double3 velocity, int target);
+	void AddEnemy(std::string name, float3 position);
 	void RemoveEntity(std::string name);
 
 private:
