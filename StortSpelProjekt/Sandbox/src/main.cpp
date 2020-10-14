@@ -89,6 +89,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
+    static int nr = 0;
+    static Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
@@ -118,6 +121,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                 network.SendPositionPacket();
                 while (network.ListenPacket());
             }
+        }
+
+        if (window->WasSpacePressed())
+        {
+            Entity* a = new Entity(std::to_string(nr++));
+            auto b = a->AddComponent<component::ModelComponent>();
+            b->SetModel(sphereModel);
+
+            auto tc = a->AddComponent<component::TransformComponent>();
+            tc->GetTransform()->SetPosition(leoScene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionXMFLOAT3());
+
+            sceneManager->AddEntity(a, leoScene);
+        }
+        else if (window->WasTabPressed())
+        {
+            sceneManager->RemoveEntity(leoScene->GetEntity(std::to_string(--nr)), leoScene);
         }
 
         /* ------ Sort ------ */
