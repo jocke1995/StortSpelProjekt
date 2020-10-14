@@ -656,7 +656,7 @@ Scene* LeosTestScene(SceneManager* sm)
     nav1 = navmesh.GetQuad(pos);
     nav1 = nav1->connections.at(0)->GetConnectedQuad(nav1);
 
-    navmesh.AddToScene(scene);
+    navmesh.ShowInScene(scene);
 #pragma endregion
 
     /* ---------------------- Update Function ---------------------- */

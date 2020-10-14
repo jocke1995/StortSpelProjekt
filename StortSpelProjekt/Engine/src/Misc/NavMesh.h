@@ -55,7 +55,7 @@ public:
 	//Returns a quad for the given position
 	NavQuad* GetQuad(float3 position);
 
-	void AddToScene(Scene* scene);
+	void ShowInScene(Scene* scene);
 
 private:
 	std::vector<NavQuad*> m_NavQuads;

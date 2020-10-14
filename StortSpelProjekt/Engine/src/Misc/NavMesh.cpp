@@ -98,7 +98,7 @@ NavQuad* NavMesh::GetQuad(float3 position)
 	return nullptr;
 }
 
-void NavMesh::AddToScene(Scene* scene)
+void NavMesh::ShowInScene(Scene* scene)
 {
 	for (NavQuad* quad : m_NavQuads)
 	{
