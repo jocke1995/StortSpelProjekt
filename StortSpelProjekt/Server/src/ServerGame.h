@@ -32,6 +32,9 @@ public:
 	void UpdateEnemy(std::string name, float3 position);
 	ServerEntity* GetEntity(std::string name);
 	EnemyEntity* GetEnemy(std::string name);
+	std::vector<EnemyEntity*>* GetEnemies();
+
+	int GetNrOfEnemies();
 
 	void AddEntity(std::string name);
 	void AddEnemy(std::string name, float3 position);

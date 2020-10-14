@@ -79,6 +79,16 @@ EnemyEntity* ServerGame::GetEnemy(std::string name)
 	return entity;
 }
 
+std::vector<EnemyEntity*>* ServerGame::GetEnemies()
+{
+	return &m_Enemies;
+}
+
+int ServerGame::GetNrOfEnemies()
+{
+	return m_Enemies.size();
+}
+
 void ServerGame::AddEntity(std::string name)
 {
 	ServerEntity* temp = new ServerEntity;

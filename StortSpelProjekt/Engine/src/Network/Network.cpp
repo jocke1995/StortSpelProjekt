@@ -125,8 +125,9 @@ void Network::SendEnemiesPacket(std::vector<Entity*>* enemies)
     sf::Packet packet;
 
     packet << E_PACKET_ID::ENEMY_DATA;
-    packet << enemies->size();
-    for (int i = 0; i < enemies->size(); i++)
+    int size = enemies->size();
+    packet << size;
+    for (int i = 0; i < size; i++)
     {
         float3 pos = enemies->at(i)->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 
@@ -334,7 +335,7 @@ void Network::processEnemyData(sf::Packet* packet)
         {
             if (m_pEnemies->at(j)->GetName() == name)
             {
-                m_pEnemies->at(j)->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+                m_pEnemies->at(j)->GetComponent<component::CollisionComponent>()->SetPosition(pos.x, pos.y, pos.z);
             }
         }
     }
