@@ -14,10 +14,10 @@ enum FLAG_LIGHT
 
 	// 1. If this is set, lightData is only copied once to VRAM (onInitScene)
 	// 2. Lights are interpreted as "DYNAMIC" as default
-	STATIC = BIT(3)
+	STATIC = BIT(3),
 
 	// etc..
-	NUM_FLAGS_LIGHT = 2
+	NUM_FLAGS_LIGHT = 3
 };
 
 static unsigned int s_LightIdCounter = 0;
