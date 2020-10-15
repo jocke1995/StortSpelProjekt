@@ -17,7 +17,7 @@
 #include "ECS/Components/Lights/PointLightComponent.h"
 #include "ECS/Components/Lights/SpotLightComponent.h"
 #include "ECS/Components/CameraComponent.h"
-#include "ECS/Components/TextComponent.h"
+#include "ECS/Components/GUI2DComponent.h"
 #include "ECS/Components/SkyboxComponent.h"
 
 // Sub-engines
@@ -25,6 +25,8 @@
 #include "Renderer/Transform.h"
 #include "Renderer/HeightmapModel.h"
 #include "Renderer/Mesh.h"
+#include "Renderer/TextManager.h"
+#include "Renderer/QuadManager.h"
 #include "Renderer/Camera/BaseCamera.h"
 #include "Physics/Physics.h"
 #include "AudioEngine/AudioBuffer.h"
