@@ -307,4 +307,43 @@ Submit CollisionHeightmap
 ```
 
 ## Navmesh
-NOT READY
+To create a NavMesh, use the command NavMesh. To add a NavQuad to the NavMesh, define its position and size, and then submit it, with the following commands.
+```
+NavQuadPosition 0.0, 0.0, 0.0
+NavQuadSize 5.0, 5.0
+Submit NavQuad
+```
+In a similar manner, to add a connection between two NavQuads use the following commands. The parameters for **NavConnectionQuads** are the id's of the NavQuads to be connected. These are defined by the order in which they have been added to the file. 
+```
+NavConnectionQuads 0, 1
+Submit NavConnection
+```
+Finally, submit the NavMesh with the command **Submit NavMesh**. A complete command sequence could look like the following.
+```
+NavMesh
+#0
+NavQuadPosition 0.0, 0.0, 0.0
+NavQuadSize 5.0, 5.0
+Submit NavQuad
+
+#1
+NavQuadPosition 5.0, 0.0, 2.0
+NavQuadSize 5.0, 5.0
+Submit NavQuad
+
+#2
+NavQuadPosition 4.0, 0.0, -2.0
+NavQuadSize 3.0, 3.0
+Submit NavQuad
+
+NavConnectionQuads 0, 1
+Submit NavConnection
+
+NavConnectionQuads 2, 0
+Submit NavConnection
+
+NavConnectionQuads 2, 1
+Submit NavConnection
+
+Submit NavMesh
+```
