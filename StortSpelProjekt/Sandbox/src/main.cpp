@@ -317,7 +317,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     double rad = playerDim.z / 2.0;
     double cylHeight = playerDim.y - (rad * 2.0);
-    ccc = entity->AddComponent<component::CapsuleCollisionComponent>(20000.0, rad, cylHeight, 0.0, 0.0, false);
+    ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(50);
     ic->Init();
     bbc->Init();
