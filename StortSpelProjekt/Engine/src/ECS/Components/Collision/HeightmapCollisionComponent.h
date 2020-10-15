@@ -17,7 +17,7 @@ namespace component
 	class HeightmapCollisionComponent : public CollisionComponent
 	{
 	public:
-		HeightmapCollisionComponent(Entity* parent, HeightMapInfo info, double mass = 0.0, double friction = 1.0, double restitution = 0.5);
+		HeightmapCollisionComponent(Entity* parent, HeightMapInfo info, double mass = 0.0, double friction = 1.0, double restitution = 0.0);
 		~HeightmapCollisionComponent();
 		double GetDistanceToBottom() const;
 	private:

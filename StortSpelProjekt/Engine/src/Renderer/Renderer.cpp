@@ -620,6 +620,7 @@ void Renderer::InitBoundingBoxComponent(Entity* entity)
 			// TODO: don't load here, load in loadScene
 			// Submit to GPU
 			//LoadMesh(m);
+			submitMeshToCodt(m);
 
 			bbc->AddMesh(m);
 		}
