@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Scene.h"
 #include "Entity.h"
-#include "../Renderer/BaseCamera.h"
+#include "../Renderer/Camera/BaseCamera.h"
 Scene::Scene(std::string sceneName)
 {
     m_SceneName = sceneName;

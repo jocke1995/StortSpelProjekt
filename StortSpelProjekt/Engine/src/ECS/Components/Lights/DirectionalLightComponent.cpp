@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "DirectionalLightComponent.h"
-#include "../Renderer/BaseCamera.h"
+#include "../Renderer/Camera/BaseCamera.h"
 #include "../Renderer/Renderer.h"
 #include "../Misc/Option.h"
 

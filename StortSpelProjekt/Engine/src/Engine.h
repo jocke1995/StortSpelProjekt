@@ -25,7 +25,7 @@
 #include "Renderer/Transform.h"
 #include "Renderer/HeightmapModel.h"
 #include "Renderer/Mesh.h"
-#include "Renderer/BaseCamera.h"
+#include "Renderer/Camera/BaseCamera.h"
 #include "Physics/Physics.h"
 #include "AudioEngine/AudioBuffer.h"
 

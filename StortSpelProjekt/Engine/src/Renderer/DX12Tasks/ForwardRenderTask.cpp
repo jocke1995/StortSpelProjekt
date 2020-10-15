@@ -10,7 +10,7 @@
 #include "../PipelineState.h"
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
-#include "../BaseCamera.h"
+#include "../Camera/BaseCamera.h"
 #include "../SwapChain.h"
 #include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/DepthStencil.h"

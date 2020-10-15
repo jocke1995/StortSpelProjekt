@@ -3,8 +3,8 @@
 
 #include "../../Entity.h"
 
-#include "../../../Renderer/OrthographicCamera.h"
-#include "../../../Renderer/PerspectiveCamera.h"
+#include "../../../Renderer/Camera/OrthographicCamera.h"
+#include "../../../Renderer/Camera/PerspectiveCamera.h"
 
 Light::Light(CAMERA_TYPE camType, unsigned int lightFlags)
 {

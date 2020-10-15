@@ -3,7 +3,7 @@
 
 // Renderer
 #include "../Renderer/Transform.h"
-#include "../Renderer/BaseCamera.h"
+#include "../Renderer/Camera/BaseCamera.h"
 #include "../Renderer/Renderer.h"
 
 // ECS

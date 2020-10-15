@@ -25,7 +25,7 @@
 #include "CommandInterface.h"
 #include "DescriptorHeap.h"
 #include "Transform.h"
-#include "BaseCamera.h"
+#include "Camera/BaseCamera.h"
 #include "Model.h"
 #include "Mesh.h"
 #include "Texture/Texture.h"
