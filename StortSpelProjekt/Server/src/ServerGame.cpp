@@ -39,16 +39,13 @@ void ServerGame::UpdateEntity(std::string name, float3 position, double4 rotatio
 	}
 }
 
-void ServerGame::UpdateEnemy(std::string name, float3 position, double4 rotation, double3 velocity, int target)
+void ServerGame::UpdateEnemy(std::string name, float3 position)
 {
 	for (int i = 0; i < m_Enemies.size(); i++)
 	{
 		if (m_Enemies.at(i)->name == name)
 		{
 			m_Enemies.at(i)->position = position;
-			m_Enemies.at(i)->rotation = rotation;
-			m_Enemies.at(i)->velocity = velocity;
-			m_Enemies.at(i)->targetId = target;
 			break;
 		}
 	}
@@ -82,6 +79,16 @@ EnemyEntity* ServerGame::GetEnemy(std::string name)
 	return entity;
 }
 
+std::vector<EnemyEntity*>* ServerGame::GetEnemies()
+{
+	return &m_Enemies;
+}
+
+int ServerGame::GetNrOfEnemies()
+{
+	return m_Enemies.size();
+}
+
 void ServerGame::AddEntity(std::string name)
 {
 	ServerEntity* temp = new ServerEntity;
@@ -90,15 +97,11 @@ void ServerGame::AddEntity(std::string name)
 
 }
 
-void ServerGame::AddEnemy(std::string name, float3 position, double4 rotation, double3 velocity, int target)
+void ServerGame::AddEnemy(std::string name, float3 position)
 {
 	EnemyEntity* temp = new EnemyEntity;
 	temp->name = name;
 	temp->position = position;
-	temp->rotation = rotation;
-	temp->velocity = velocity;
-	temp->targetId = target;
-	m_Entities.push_back(temp);
 	m_Enemies.push_back(temp);
 }
 

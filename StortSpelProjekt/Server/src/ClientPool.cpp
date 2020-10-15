@@ -55,6 +55,8 @@ void ClientPool::Update(double dt)
 			}
 			//PLAYER POSITION
 			sendPlayerPositions();
+			//ENEMIES
+			sendEnemyPositions();
 		}
 	}
 }
@@ -131,14 +133,11 @@ void ClientPool::playerPosition(int index, sf::Packet packet)
 
 void ClientPool::enemyData(int index, sf::Packet packet)
 {
-	/*
+	/* Expected packet configuration
 	int nrOfEnemies
 	for(nrOfEnemies)
 		float3 position
-		double4 rotation
-		double3 movement
 		std::string name
-		int target
 	*/
 	int nrOfEnemies;
 	packet >> nrOfEnemies;
@@ -146,20 +145,39 @@ void ClientPool::enemyData(int index, sf::Packet packet)
 	{
 		EnemyEntity* entity;
 		float3 pos;
-		double4 rot;
-		double3 mov;
 		std::string name;
-		int target;
 
 		packet >> pos.x >> pos.y >> pos.z;
-		packet >> rot.x >> rot.y >> rot.z >> rot.w;
-		packet >> mov.x >> mov.y >> mov.z;
 		packet >> name;
-		packet >> target;
 		entity = m_pState->GetEnemy(name);
 		if (entity == nullptr)
 		{
-			m_pState->AddEnemy(name, pos, rot, mov, target);
+			m_pState->AddEnemy(name, pos);
+		}
+		else
+		{
+			entity->position = pos;
+		}
+	}
+}
+
+void ClientPool::sendEnemyPositions()
+{
+	sf::Packet packet;
+	packet << Network::E_PACKET_ID::ENEMY_DATA;
+	packet << m_pState->GetNrOfEnemies();
+
+	for (int i = 0; i < m_pState->GetNrOfEnemies(); i++)
+	{
+		float3 pos = m_pState->GetEnemies()->at(i)->position;
+		packet << pos.x << pos.y << pos.z;
+		packet << m_pState->GetEnemies()->at(i)->name;
+	}
+	for (int i = 0; i < m_Clients.size(); i++)
+	{
+		if (m_Clients.at(i)->connected && m_Clients.at(i) != m_pHostClient)
+		{
+			sendPacket(i, packet);
 		}
 	}
 }
