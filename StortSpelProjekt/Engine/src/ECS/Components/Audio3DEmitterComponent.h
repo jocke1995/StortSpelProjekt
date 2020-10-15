@@ -29,8 +29,6 @@ namespace component
 		virtual ~Audio3DEmitterComponent();
 		void Update(double dt);
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
 
 		// update position and orientation of the emitter
 		void UpdateEmitter(const std::wstring& name);

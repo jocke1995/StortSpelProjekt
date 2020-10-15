@@ -3,6 +3,7 @@
 
 #include "SFML/Network.hpp"
 #include "Misc/Timer.h"
+#include "ServerGame.h"
 #include <iomanip>
 #include <vector>
 
@@ -31,7 +32,9 @@ public:
 	int GetNrOfClients();
 	int GetNrOfConnectedClients();
 
-	void toggleShowPackage();
+	void ToggleShowPackage();
+
+	void SetState(ServerGame* state);
 
 	//Removes all open clients that have not connected or disconneted
 	void RemoveUnconnected();
@@ -47,9 +50,13 @@ private:
 	Client* m_pAvailableClient;
 	int m_AvailableClientId;
 
+	Client* m_pHostClient;
+
 	std::string m_ConsoleString;
 	
 	bool m_ShowPackage = false;
+
+	ServerGame* m_pState;
 
 	float m_NrOfBytesSent = 0.0;
 	int m_NrOfPackagesSent = 0;
@@ -60,6 +67,10 @@ private:
 	Timer m_ClockSent;
 	Timer m_ClockReceived;
 
+	void playerPosition(int index, sf::Packet packet);
+	void enemyData(int index, sf::Packet packet);
+
+	void sendPlayerPositions();
 	void disconnect(int id);
 	void newConnection();
 	void newPacket(int socket);

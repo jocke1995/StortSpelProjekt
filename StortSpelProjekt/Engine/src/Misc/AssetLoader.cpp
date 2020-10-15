@@ -1,15 +1,18 @@
 #include "stdafx.h"
 #include "AssetLoader.h"
 
+#include "../ECS/Scene.h"
+#include "../ECS/Entity.h"
+
 #include "../Renderer/DescriptorHeap.h"
 #include "Window.h"
-
 #include "../Renderer/HeightmapModel.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/Text.h"
 #include "../Renderer/Animation.h"
+#include "../Renderer/Transform.h"
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
@@ -25,24 +28,16 @@
 
 #include "EngineMath.h"
 
+#include "../Misc/NavMesh.h"
+
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
 	m_pDevice = device;
 	m_pDescriptorHeap_CBV_UAV_SRV = descriptorHeap_CBV_UAV_SRV;
 	m_pWindow = const_cast<Window*>(window);
 
-	std::map<TEXTURE2D_TYPE, Texture*> matTextures;
 	// Load default textures
-	matTextures[TEXTURE2D_TYPE::ALBEDO]		= LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.dds");
-	matTextures[TEXTURE2D_TYPE::ROUGHNESS]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.dds");
-	matTextures[TEXTURE2D_TYPE::METALLIC]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
-	matTextures[TEXTURE2D_TYPE::NORMAL]		= LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
-	matTextures[TEXTURE2D_TYPE::EMISSIVE]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
-
-	std::wstring matName = L"DefaultMaterial";
-	Material* material = new Material(&matName, &matTextures);
-	m_LoadedMaterials[matName].first = false;
-	m_LoadedMaterials[matName].second = material;
+	loadDefaultMaterial();
 }
 
 bool AssetLoader::IsModelLoadedOnGpu(const std::wstring& name) const
@@ -73,6 +68,22 @@ bool AssetLoader::IsTextureLoadedOnGpu(const std::wstring& name) const
 bool AssetLoader::IsTextureLoadedOnGpu(const Texture* texture) const
 {
 	return m_LoadedTextures.at(texture->GetPath()).first;
+}
+
+void AssetLoader::loadDefaultMaterial()
+{
+	// Load default textures
+	std::map<TEXTURE2D_TYPE, Texture*> matTextures;
+	matTextures[TEXTURE2D_TYPE::ALBEDO] = LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.dds");
+	matTextures[TEXTURE2D_TYPE::ROUGHNESS] = LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.dds");
+	matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
+	matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
+	matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
+
+	std::wstring matName = L"DefaultMaterial";
+	Material* material = new Material(&matName, &matTextures);
+	m_LoadedMaterials[matName].first = false;
+	m_LoadedMaterials[matName].second = material;
 }
 
 AssetLoader::~AssetLoader()
@@ -155,9 +166,6 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 	meshes.reserve(assimpScene->mNumMeshes);
 	materials.reserve(assimpScene->mNumMeshes);
-	m_LoadedModels[path].first = false;
-
-	//Log::Print("\n\n\n");
 	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
 	//Log::Print("\n\n\n");
 
@@ -176,8 +184,8 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	// End of animation stuff
 
 	m_LoadedModels[path].second = new Model(&path, rootNode, &perVertexBoneData, &meshes, &animations, &materials);
-
-	// load to vram
+	//m_LoadedModels[path].second->updateSlotInfo();
+	m_LoadedModels[path].first = false;
 
 	return m_LoadedModels[path].second;
 }
@@ -204,7 +212,6 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	getHeightMapResources(path, heightMapPath, materialPath);
 
 	Texture* tex = LoadTexture2D(heightMapPath);
-	Renderer::GetInstance().LoadTexture(tex);
 
 	// One dimensional!
 	unsigned char* imgData = tex->GetData();
@@ -281,7 +288,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	delete[] tasks;
 
 	Mesh* mesh = new Mesh(m_pDevice, &vertices, &indices, m_pDescriptorHeap_CBV_UAV_SRV, path);
-
+	mesh->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 	m_LoadedMeshes.push_back(mesh);
 
 	std::vector<Mesh*> meshes;
@@ -295,8 +302,6 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	model = new HeightmapModel(&path, rootNode, &PVBD, &meshes, &animations, &materials, heightData, static_cast<double>(tex->GetHeight()), static_cast<double>(tex->GetWidth()));
 	m_LoadedModels[path].first = false;
 	m_LoadedModels[path].second = model;
-
-	Renderer::GetInstance().UnloadTexture(tex);
 
 	return model;
 }
@@ -323,6 +328,10 @@ Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
 
 	m_LoadedTextures[path].first = false;
 	m_LoadedTextures[path].second = texture;
+
+	// Create dx resources etc..
+	texture->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
+
 	return texture;
 }
 
@@ -338,6 +347,10 @@ TextureCubeMap* AssetLoader::LoadTextureCubeMap(const std::wstring& path)
 
 	m_LoadedTextures[path].first = false;
 	m_LoadedTextures[path].second = textureCubeMap;
+
+	// load to vram
+	textureCubeMap->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
+
 	return textureCubeMap;
 }
 
@@ -365,6 +378,236 @@ std::pair<Font*, Texture*> AssetLoader::LoadFontFromFile(const std::wstring& fon
 	m_LoadedFonts[path].second = texture;
 
 	return m_LoadedFonts[path];
+}
+
+void AssetLoader::LoadMap(Scene* scene, const char* path)
+{
+	FILE* file = fopen(path, "r");
+
+	std::string lineHeader;
+	lineHeader.reserve(128);
+	std::string entityName;
+	entityName.reserve(128);
+	std::string modelPath;
+	modelPath.reserve(128);
+	std::string toSubmit;
+	toSubmit.reserve(128);
+	unsigned int flag;
+	unsigned int flagVal;
+	bool drawFlags[FLAG_DRAW::NUM_FLAG_DRAWS] = { 0 };
+	unsigned int combinedFlag = 0;
+	float3 scaling = { 1.0f,1.0f,1.0f };
+	float3 pos = { 0.0, 0.0, 0.0 };
+	float3 rot = { 0.0, 0.0, 0.0};
+	float3 lightColor = { 0.0, 0.0, 0.0 };
+	float3 lightDir = { 0.0, 0.0, 0.0 };;
+	float3 lightAttenuation = { 0.0, 0.0, 0.0 };;
+	bool lightFlags[FLAG_LIGHT::NUM_FLAGS_LIGHT] = { 0 };
+	unsigned int collisionComponent = 0;
+	HeightmapModel* heightmapModel;
+	float3 shapeInfo = { 0.0f,0.0f,0.0f };
+	const float mass = 0.0f;
+	float friction = 0.0f;
+	float restitution = 0.0f;
+	HeightMapInfo hmInfo;
+	std::string fullPath;
+	fullPath.reserve(256);
+	float2 size = { 0.0, 0.0 };
+	int quad1 = 0;
+	int quad2 = 0;
+
+	NavMesh navMesh;
+
+	component::ModelComponent* mc = nullptr;
+	component::TransformComponent* tc = nullptr;
+	component::PointLightComponent* plc = nullptr;
+	component::SpotLightComponent* slc = nullptr;
+	component::DirectionalLightComponent* dlc = nullptr;
+	component::CollisionComponent* cc = nullptr;
+	Entity* entity;
+	if (file != NULL)
+	{
+		while (fscanf(file, "%s", lineHeader.c_str()) != EOF)
+		{
+			if (strcmp(lineHeader.c_str(), "Name") == 0)
+			{
+				fscanf(file, "%s", entityName.c_str());
+				entity = scene->AddEntity(entityName.c_str());
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelPath") == 0)
+			{
+				fscanf(file, "%s", modelPath.c_str());
+				fullPath = path;
+				fullPath = fullPath.substr(0, fullPath.find_last_of("/") + 1).c_str();
+				fullPath += modelPath.c_str();
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelScaling") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &scaling.x, &scaling.y, &scaling.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelRotation") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &rot.x, &rot.y, &rot.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelPosition") == 0 || strcmp(lineHeader.c_str(), "NavConnectionPosition") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &pos.x, &pos.y, &pos.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelDrawFlag") == 0)
+			{
+				fscanf(file, "%d,%d", &flag, &flagVal);
+				drawFlags[flag] = flagVal;
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightFlag") == 0)
+			{
+				fscanf(file, "%d,%d", &flag, &flagVal);
+				lightFlags[flag] = flagVal;
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightColor") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &lightColor.x, &lightColor.y, &lightColor.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightDirection") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &lightDir.x, &lightDir.y, &lightDir.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightAttenuation") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &lightAttenuation.x, &lightAttenuation.y, &lightAttenuation.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelFriction") == 0)
+			{
+				fscanf(file, "%f", &friction);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelRestitution") == 0)
+			{
+				fscanf(file, "%f", &restitution);
+			}
+			else if (strcmp(lineHeader.c_str(), "NavQuadSize") == 0)
+			{
+				fscanf(file, "%f,%f", &size.x, &size.y);
+			}
+			else if (strcmp(lineHeader.c_str(), "NavConnectionQuads") == 0)
+			{
+				fscanf(file, "%d,%d", &quad1, &quad2);
+			}
+			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
+			{
+				fscanf(file, "%s", toSubmit.c_str());
+
+				if (strcmp(toSubmit.c_str(), "Model") == 0)
+				{	
+					mc = entity->AddComponent<component::ModelComponent>();
+					tc = entity->AddComponent<component::TransformComponent>();
+					tc->GetTransform()->SetScale(1.0f);
+					tc->GetTransform()->SetScale(scaling.x,scaling.y,scaling.z);
+					tc->GetTransform()->SetRotationX(rot.x);
+					tc->GetTransform()->SetRotationY(rot.y);
+					tc->GetTransform()->SetRotationZ(rot.z);
+					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+
+					mc->SetModel(AssetLoader::LoadModel(to_wstring(fullPath)));
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_DRAW::NUM_FLAG_DRAWS; ++i)
+					{
+						combinedFlag |= BIT(i + 1) * drawFlags[i];
+					}
+
+					mc->SetDrawFlag(combinedFlag);
+				}
+				else if (strcmp(toSubmit.c_str(), "Heightmap") == 0)
+				{
+					entity->AddComponent<component::ModelComponent>();
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_DRAW::NUM_FLAG_DRAWS; ++i)
+					{
+						combinedFlag += BIT(i + 1) * drawFlags[i];
+					}
+					mc->SetDrawFlag(combinedFlag);
+					heightmapModel = AssetLoader::LoadHeightmap(to_wstring(fullPath));
+					mc->SetModel(heightmapModel);
+					tc = entity->AddComponent<component::TransformComponent>();
+					tc->GetTransform()->SetRotationX(rot.x);
+					tc->GetTransform()->SetRotationY(rot.y);
+					tc->GetTransform()->SetRotationZ(rot.z);
+					tc->GetTransform()->SetScale(scaling.x, scaling.y, scaling.z);
+					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+				}
+				else if (strcmp(toSubmit.c_str(), "PointLight") == 0)
+				{
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_LIGHT::NUM_FLAGS_LIGHT; ++i)
+					{
+						combinedFlag |= BIT(i + 1) * lightFlags[i];
+					}
+					plc = entity->AddComponent<component::PointLightComponent>(combinedFlag);
+					plc->SetColor(lightColor);
+					plc->SetAttenuation(lightAttenuation);
+				}
+				else if (strcmp(toSubmit.c_str(), "SpotLight") == 0)
+				{
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_LIGHT::NUM_FLAGS_LIGHT; ++i)
+					{
+						combinedFlag |= BIT(i + 1) * lightFlags[i];
+					}
+					slc = entity->AddComponent<component::SpotLightComponent>(combinedFlag);
+					slc->SetColor(lightColor);
+					slc->SetDirection(lightDir);
+				}
+				else if (strcmp(toSubmit.c_str(), "DirectionalLight") == 0)
+				{
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_LIGHT::NUM_FLAGS_LIGHT; ++i)
+					{
+						combinedFlag |= BIT(i + 1) * lightFlags[i];
+					}
+					dlc = entity->AddComponent<component::DirectionalLightComponent>(combinedFlag);
+					dlc->SetColor(lightColor);
+					dlc->SetDirection(lightDir);
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionSphere") == 0)
+				{
+					fscanf(file, "%f", &shapeInfo.x);
+					cc = entity->AddComponent<component::SphereCollisionComponent>(mass, shapeInfo.x, friction, restitution);
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionCapsule") == 0)
+				{
+					fscanf(file, "%f,%f", &shapeInfo.x, &shapeInfo.y);
+					cc = entity->AddComponent<component::CapsuleCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, friction, restitution);
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionCube") == 0)
+				{
+					fscanf(file, "%f,%f,%f", &shapeInfo.x, &shapeInfo.y, &shapeInfo.z);
+					cc = entity->AddComponent<component::CubeCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, shapeInfo.z, friction, restitution);
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionHeightMap") == 0)
+				{
+					HeightMapInfo info;
+					info.data = heightmapModel->GetHeights();
+					info.length = heightmapModel->GetLength();
+					info.width = heightmapModel->GetWidth();
+					info.maxHeight = 1;
+					info.minHeight = -1;
+					// Implement when feature is merged to develop
+					cc = entity->AddComponent<component::HeightmapCollisionComponent>(info,mass,friction,restitution);
+				}
+				else if (strcmp(toSubmit.c_str(), "NavQuad") == 0)
+				{
+					navMesh.AddNavQuad(pos, size);
+				}
+				else if (strcmp(toSubmit.c_str(), "NavConnection") == 0)
+				{
+					//navMesh.ConnectNavQuadsById(quad1, quad2, pos);
+				}
+			}
+		}
+		fclose(file);
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load mapfile %s", path);
+	}
 }
 
 AudioBuffer* AssetLoader::LoadAudio(const std::wstring& path, const std::wstring& name)
@@ -534,6 +777,9 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	// 	// if unsuccessful set a default
 	// 	shininess = 20.0f;
 	// }
+
+
+	mesh->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 
 	return mesh;
 }

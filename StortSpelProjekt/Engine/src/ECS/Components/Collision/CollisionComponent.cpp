@@ -100,14 +100,6 @@ void component::CollisionComponent::OnInitScene()
 	}
 }
 
-void component::CollisionComponent::OnLoadScene()
-{
-	
-}
-
-void component::CollisionComponent::OnUnloadScene()
-{
-}
 
 void component::CollisionComponent::SetPosition(double x, double y, double z)
 {
@@ -180,7 +172,7 @@ void component::CollisionComponent::SetRestitution(double rest)
 	m_pBody->setRestitution(rest);
 }
 
-void component::CollisionComponent::SetAngularFactor(double3& factor)
+void component::CollisionComponent::SetAngularFactor(const double3& factor)
 {
 	m_pBody->setAngularFactor({ factor.x, factor.y, factor.z });
 }

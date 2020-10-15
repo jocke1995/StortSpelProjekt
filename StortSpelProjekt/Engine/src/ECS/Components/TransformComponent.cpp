@@ -31,14 +31,6 @@ namespace component
 	{
 	}
 
-	void TransformComponent::OnLoadScene()
-	{
-	}
-
-	void TransformComponent::OnUnloadScene()
-	{
-	}
-
 	Transform* TransformComponent::GetTransform() const
 	{
 		return m_pTransform;

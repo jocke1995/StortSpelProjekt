@@ -16,10 +16,6 @@ public:
 	virtual void RenderUpdate(double dt);
 	//SceneInit
 	virtual void OnInitScene() = 0;
-	// Called on LoadScene for each component
-	virtual void OnLoadScene() = 0;
-	// Called on UnloadScene for each component
-	virtual void OnUnloadScene() = 0;
 
 	Entity* const GetParent() const;
 

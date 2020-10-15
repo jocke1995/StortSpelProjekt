@@ -12,6 +12,7 @@ ClientPool::ClientPool(int port)
 	m_Selector.add(m_Listener);
 
 	m_pAvailableClient = nullptr;
+	m_pHostClient = nullptr;
 	m_AvailableClientId = 0;
 }
 
@@ -45,12 +46,15 @@ void ClientPool::Update(double dt)
 	{
 		if (m_Clients.at(i)->connected)
 		{
+			//TIMEOUT
 			m_Clients.at(i)->lastPacket += dt;
 			if (m_Clients.at(i)->lastPacket >= CLIENT_TIMEOUT)
 			{
 				m_ConsoleString += "Client " + std::to_string(m_Clients.at(i)->clientId) + " has timed out\n";
 				disconnect(i);
 			}
+			//PLAYER POSITION
+			sendPlayerPositions();
 		}
 	}
 }
@@ -82,9 +86,14 @@ int ClientPool::GetNrOfConnectedClients()
 	return count;
 }
 
-void ClientPool::toggleShowPackage()
+void ClientPool::ToggleShowPackage()
 {
 	m_ShowPackage = !m_ShowPackage;
+}
+
+void ClientPool::SetState(ServerGame* state)
+{
+	m_pState = state;
 }
 
 void ClientPool::RemoveUnconnected()
@@ -107,6 +116,82 @@ std::string ClientPool::GetConsoleString()
 	return temp;
 }
 
+void ClientPool::playerPosition(int index, sf::Packet packet)
+{
+	float3 position;
+	double4 rotation;
+	double3 velocity;
+
+	packet >> position.x >> position.y >> position.z;
+	packet >> rotation.x >> rotation.y >> rotation.z >> rotation.w;
+	packet >> velocity.x >> velocity.y >> velocity.z;
+
+	m_pState->UpdateEntity(std::string("player" + std::to_string(m_Clients.at(index)->clientId)), position, rotation, velocity);
+}
+
+void ClientPool::enemyData(int index, sf::Packet packet)
+{
+	/*
+	int nrOfEnemies
+	for(nrOfEnemies)
+		float3 position
+		double4 rotation
+		double3 movement
+		std::string name
+		int target
+	*/
+	int nrOfEnemies;
+	packet >> nrOfEnemies;
+	for (int i = 0; i < nrOfEnemies; i++)
+	{
+		EnemyEntity* entity;
+		float3 pos;
+		double4 rot;
+		double3 mov;
+		std::string name;
+		int target;
+
+		packet >> pos.x >> pos.y >> pos.z;
+		packet >> rot.x >> rot.y >> rot.z >> rot.w;
+		packet >> mov.x >> mov.y >> mov.z;
+		packet >> name;
+		packet >> target;
+		entity = m_pState->GetEnemy(name);
+		if (entity == nullptr)
+		{
+			m_pState->AddEnemy(name, pos, rot, mov, target);
+		}
+	}
+}
+
+void ClientPool::sendPlayerPositions()
+{
+	sf::Packet packet;
+	packet << Network::E_PACKET_ID::PLAYER_DATA;
+	packet << GetNrOfConnectedClients();
+
+	for (int i = 0; i < m_Clients.size(); i++)
+	{
+		if (m_Clients.at(i)->connected)
+		{
+			ServerEntity* playerEntity;
+			playerEntity = m_pState->GetEntity("player" + std::to_string(m_Clients.at(i)->clientId));
+
+			packet << m_Clients.at(i)->clientId;
+			packet << playerEntity->position.x << playerEntity->position.y << playerEntity->position.z;
+			packet << playerEntity->rotation.x << playerEntity->rotation.y << playerEntity->rotation.z << playerEntity->rotation.w;
+			packet << playerEntity->velocity.x << playerEntity->velocity.y << playerEntity->velocity.z;
+		}
+	}
+	for (int i = 0; i < m_Clients.size(); i++)
+	{
+		if (m_Clients.at(i)->connected)
+		{
+			sendPacket(i, packet);
+		}
+	}
+}
+
 void ClientPool::disconnect(int index)
 {
 	m_Selector.remove(m_Clients.at(index)->socket);
@@ -116,6 +201,8 @@ void ClientPool::disconnect(int index)
 
 	m_pAvailableClient = m_Clients.at(index);
 	m_AvailableClientId = m_Clients.at(index)->clientId;
+
+	m_pState->RemoveEntity("player" + std::to_string(index));
 
 	sf::Packet packet;
 	packet << Network::E_PACKET_ID::PLAYER_DISCONNECT;
@@ -143,6 +230,14 @@ void ClientPool::newConnection()
 			m_pAvailableClient->connected = true;
 			m_Selector.add(m_pAvailableClient->socket);
 			m_pAvailableClient->clientId = m_AvailableClientId;
+
+			if (m_pHostClient == nullptr)
+			{
+				m_pHostClient = m_pAvailableClient;
+				m_ConsoleString = "Assigned client " + std::to_string(m_pHostClient->clientId) + " to be host\n";
+			}
+
+			m_pState->AddEntity("player" + std::to_string(m_AvailableClientId));
 
 			//Search for an avaible id to give to next client
 			for (int i = 0; i < m_Clients.size(); i++)
@@ -178,6 +273,14 @@ void ClientPool::newConnection()
 			}
 
 			//Send a packet of server info to all clients
+			/*Packet Layout
+			int packetId;
+			int connected Player Id;
+			int amount of connected players;
+			for(amount of connected players)
+				int player id;
+			int host id;
+			*/
 			for (int i = 0; i < m_Clients.size(); i++)
 			{
 				if (m_Clients.at(i)->connected == true)
@@ -193,6 +296,7 @@ void ClientPool::newConnection()
 							packet << m_Clients.at(j)->clientId;
 						}
 					}
+					packet << m_pHostClient->clientId;
 					sendPacket(i, packet);
 				}
 			}
@@ -235,8 +339,14 @@ void ClientPool::newPacket(int socket)
 		}	
 
 		switch(packetId) {
+		case Network::E_PACKET_ID::PLAYER_DATA:
+			playerPosition(socket, packet);
+			break;
 		case Network::E_PACKET_ID::PLAYER_DISCONNECT:
 			disconnect(socket);
+			break;
+		case Network::ENEMY_DATA:
+			enemyData(socket, packet);
 			break;
 		default: 
 			for (int i = 0; i < m_Clients.size(); i++)

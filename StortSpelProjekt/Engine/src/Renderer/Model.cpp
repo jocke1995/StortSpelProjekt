@@ -38,6 +38,7 @@ Model::Model(const std::wstring* path, SkeletonNode* rootNode, std::map<unsigned
 		globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
 		DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
 	}
+	updateSlotInfo();
 }
 
 Model::~Model()
@@ -72,14 +73,49 @@ Mesh* Model::GetMeshAt(unsigned int index) const
 	return m_Meshes[index];
 }
 
+void Model::SetMeshAt(unsigned int index, Mesh* mesh)
+{
+	m_Meshes[index] = mesh;
+	updateSlotInfo();
+}
+
 Material* Model::GetMaterialAt(unsigned int index) const
 {
-	return m_Materials[index];;
+	return m_Materials[index];
+}
+
+void Model::SetMaterialAt(unsigned int index, Material* material)
+{
+	m_Materials[index] = material;
+	updateSlotInfo();
 }
 
 const SlotInfo* Model::GetSlotInfoAt(unsigned int index) const
 {
 	return &m_SlotInfos[index];
+}
+
+void Model::updateSlotInfo()
+{
+#ifdef _DEBUG
+	if (m_Meshes[0]->m_pSRV == nullptr || m_Materials[0]->GetTexture(TEXTURE2D_TYPE::ALBEDO)->m_pSRV == nullptr)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Model.cpp::updateSlotInfo got unInit:ed variables\n");
+	}
+#endif // DEBUG
+
+	for (unsigned int i = 0; i < m_Size; i++)
+	{
+		m_SlotInfos[i] =
+		{
+		m_Meshes[i]->m_pSRV->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::ALBEDO)->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::ROUGHNESS)->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::METALLIC)->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::NORMAL)->GetDescriptorHeapIndex(),
+		m_Materials[i]->GetTexture(TEXTURE2D_TYPE::EMISSIVE)->GetDescriptorHeapIndex()
+		};
+	}
 }
 
 void Model::updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform)
