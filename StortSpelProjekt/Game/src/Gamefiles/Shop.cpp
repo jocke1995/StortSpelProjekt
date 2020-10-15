@@ -103,12 +103,12 @@ std::vector<std::string> Shop::GetInventoryNames()
 	return m_InventoryNames;
 }
 
-std::map<std::string, std::string> Shop::GetUpgradeDiscriptions()
+std::map<std::string, std::string> Shop::GetUpgradeDescriptions()
 {
 	return m_UpgradeDescriptions;
 }
 
-std::string Shop::GetUpgradeDiscription(std::string name)
+std::string Shop::GetUpgradeDescription(std::string name)
 {
 	return m_UpgradeDescriptions[name];
 }

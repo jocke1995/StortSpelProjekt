@@ -31,9 +31,9 @@ public:
 	// Get vector of buyable upgrades names.
 	std::vector<std::string> GetInventoryNames();
 	// Get descriptions, for upgrades in inventory, mapped to their names.
-	std::map<std::string, std::string> GetUpgradeDiscriptions();
-	// Get discription for an upgrade in inventory using its name as input.
-	std::string GetUpgradeDiscription(std::string name);
+	std::map<std::string, std::string> GetUpgradeDescriptions();
+	// Get description for an upgrade in inventory using its name as input.
+	std::string GetUpgradeDescription(std::string name);
 	// Get prices of upgrades in inventory
 	std::map<std::string, int> GetPrices();
 	// Get price of an upgrade using its name as input
