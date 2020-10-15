@@ -1,8 +1,4 @@
 #include "Engine.h"
-#include "Components/PlayerInputComponent.h"
-#include "Components/HealthComponent.h"
-#include "Components/RangeComponent.h"
-#include "Components/MeleeComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 
@@ -283,7 +279,7 @@ Scene* GetDemoScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     enemyFactory.SetScene(scene);
-    entity = enemyFactory.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
+    entity = enemyFactory.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
 
     // add bunch of enemies
     float xVal = 8;
@@ -300,7 +296,6 @@ Scene* GetDemoScene(SceneManager* sm)
         }
     }
     /* ---------------------- Enemy -------------------------------- */
-
 
     /* ---------------------- Skybox ---------------------- */
     TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
