@@ -154,7 +154,7 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 		}
 	}
 
-	executeCopyOnDemand();
+	renderer->executeCopyOnDemand();
 	return;
 }
 
@@ -195,14 +195,3 @@ bool SceneManager::sceneExists(std::string sceneName) const
 
     return false;
 }
-
-void SceneManager::executeCopyOnDemand()
-{
-	Renderer* renderer = &Renderer::GetInstance();
-	renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
-	renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
-	renderer->m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &renderer->m_CopyOnDemandCmdList[0]);
-	renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
-	renderer->waitForCopyOnDemand();
-}
-

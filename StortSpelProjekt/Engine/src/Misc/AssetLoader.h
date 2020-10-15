@@ -49,7 +49,8 @@ public:
     // ??
 
 	// Fonts -------------
-	std::pair<Font*, Texture*> LoadFontFromFile(const std::wstring& fontName);
+	Font* LoadFontFromFile(const std::wstring& fontName);
+	std::wstring GetFontPath() const;
 
     // Scene
     void LoadMap(Scene* scene, const char* path);
@@ -78,6 +79,7 @@ private:
     DescriptorHeap* m_pDescriptorHeap_CBV_UAV_SRV = nullptr;
     Window* m_pWindow = nullptr;
     
+	bool IsFontTextureLoadedOnGPU(const Font* font) const;
     void loadDefaultMaterial();
 
     const std::wstring m_FilePathShaders = L"../Engine/src/Renderer/HLSL/";
@@ -92,7 +94,7 @@ private:
     std::vector<Mesh*> m_LoadedMeshes;
     std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, Shader*> m_LoadedShaders;
-    std::map<std::wstring, std::pair<Font*, Texture*>> m_LoadedFonts;
+    std::map<std::wstring, std::pair<bool, Font*>> m_LoadedFonts;
     std::map<std::wstring, AudioBuffer> m_LoadedAudios;
 
     // Audio
