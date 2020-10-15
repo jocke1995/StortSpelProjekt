@@ -27,6 +27,8 @@ void AndresUpdateScene(SceneManager* sm);
 
 void DefaultUpdateScene(SceneManager* sm);
 
+EnemyFactory enemyFactory;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -64,26 +66,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* filipScene = FloppipTestScene(sceneManager);
 	//Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
-    //Scene* bjornScene = BjornsTestScene(sceneManager); 
-    //Scene* antonScene = AntonTestScene(sceneManager);
-    //Scene* andresScene = AndresTestScene(sceneManager); // upgrade-test
+    //Scene* bjornScene = BjornsTestScene(sceneManager);
+    Scene* antonScene = AntonTestScene(sceneManager);
+    //Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { leoScene };
+    Scene* activeScenes[] = { antonScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
 
     GameNetwork gameNetwork;
 
-    /*------ Network Init -----*/
-    Network network;
-
-    gameNetwork.SetNetwork(&network);
-
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
         gameNetwork.SetScenes(sceneManager->GetActiveScenes());
         gameNetwork.SetSceneManager(sceneManager);
+        gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
     }
     double networkTimer = 0;
     double logicTimer = 0;
@@ -96,7 +94,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         timer->Update();
         logicTimer += timer->GetDeltaTime();
-        if (network.IsConnected())
+        if (gameNetwork.IsConnected())
         {
             networkTimer += timer->GetDeltaTime();
         }
@@ -110,13 +108,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         }
 
         /* ---- Network ---- */
-        if (network.IsConnected())
+        if (gameNetwork.IsConnected())
         {
             if (networkTimer >= networkUpdateRate) {
                 networkTimer = 0;
 
-                network.SendPositionPacket();
-                while (network.ListenPacket());
+                gameNetwork.Update(networkUpdateRate);
             }
         }
 
@@ -656,6 +653,118 @@ Scene* LeosTestScene(SceneManager* sm)
     UpdateScene = &LeoUpdateScene;
 
     srand(time(NULL));
+
+    return scene;
+}
+
+Scene* AntonTestScene(SceneManager* sm)
+{
+    Scene* scene = sm->CreateScene("antonScene");
+
+    AssetLoader* al = AssetLoader::Get();
+
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+    Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
+
+    AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    /*--------------------- Assets ---------------------*/
+
+    /*--------------------- Component declarations ---------------------*/
+    Entity* entity = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
+    component::BoundingBoxComponent* bbc = nullptr;
+    component::CameraComponent* cc = nullptr;
+    component::DirectionalLightComponent* dlc = nullptr;
+    component::ModelComponent* mc = nullptr;
+    component::PointLightComponent* plc = nullptr;
+    component::TransformComponent* tc = nullptr;
+    component::PlayerInputComponent* pic = nullptr;
+    component::CollisionComponent* bcc = nullptr;
+
+    /*--------------------- Player ---------------------*/
+    // entity
+    entity = scene->AddEntity("player");
+
+    // components
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    bbc = entity->AddComponent < component::BoundingBoxComponent>();
+
+    Transform* t = tc->GetTransform();
+
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(-15.0f, 10.0f, 0.0f);
+
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f, false);
+    pic->Init();
+
+    mc->SetModel(playerModel);
+    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
+
+    avc->AddVoice(L"Bruh");
+
+    enemyFactory.SetScene(scene);
+
+    enemyFactory.AddEnemy("conan", barbModel, 20, float3{ 50.0, 1.0, -10.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 0.0f);
+    enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 0.0 });
+    enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 10.0 });
+    enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 20.0 });
+
+    /*--------------------- Box ---------------------*/
+    // entity
+    entity = scene->AddEntity("Box");
+
+    // components
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(5.0f, 1.0f, 4.0f);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1000.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+
+    mc->SetModel(cubeModel);
+
+    /*--------------------- Floor ---------------------*/
+    // entity
+    entity = scene->AddEntity("floor");
+
+    // components
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 350.0, 0.0, 350.0);
+
+
+    mc->SetModel(floorModel);
+    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(350.0f, 1.0f, 350.0f);
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+
+    /* ---------------------- PointLight1 ---------------------- */
+    entity = scene->AddEntity("pointLight1");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
+
+    /*--------------------- DirectionalLight ---------------------*/
+    // entity
+    entity = scene->AddEntity("sun");
+
+    // components
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
+    dlc->SetDirection({ 1.0f, -1.0f, -1.0f });
+    dlc->SetColor({ 0.5f, 0.5f, 0.5f });
 
     return scene;
 }

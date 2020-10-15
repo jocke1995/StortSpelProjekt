@@ -70,6 +70,7 @@ private:
 	void playerPosition(int index, sf::Packet packet);
 	void enemyData(int index, sf::Packet packet);
 
+	void sendEnemyPositions();
 	void sendPlayerPositions();
 	void disconnect(int id);
 	void newConnection();
