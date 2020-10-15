@@ -130,23 +130,24 @@ namespace component
 
         if (m_LightFlags & FLAG_LIGHT::CAST_SHADOW)
         {
-            CreateCamera(
-                {
-                m_pSpotLight->position_cutOff.x,
-                m_pSpotLight->position_cutOff.y,
-                m_pSpotLight->position_cutOff.z,
-                },
-                {
-                m_pSpotLight->direction_outerCutoff.x,
-                m_pSpotLight->direction_outerCutoff.y,
-                m_pSpotLight->direction_outerCutoff.z });
-
-            if (std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str()) >= 0)
+            int textFileSetting = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+            if (textFileSetting >= 0)
             {
-                m_pSpotLight->baseLight.castShadow = true;
-            }
+                CreateCamera(
+                    {
+                    m_pSpotLight->position_cutOff.x,
+                    m_pSpotLight->position_cutOff.y,
+                    m_pSpotLight->position_cutOff.z,
+                    },
+                    {
+                    m_pSpotLight->direction_outerCutoff.x,
+                    m_pSpotLight->direction_outerCutoff.y,
+                    m_pSpotLight->direction_outerCutoff.z });
 
-            m_pSpotLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
+                m_pSpotLight->baseLight.castShadow = true;
+
+                m_pSpotLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
+            } 
         }
     }
 

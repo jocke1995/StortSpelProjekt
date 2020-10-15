@@ -68,22 +68,24 @@ namespace component
 	{
 		if (m_LightFlags & FLAG_LIGHT::CAST_SHADOW)
 		{
-			CreateCamera(
-				{
-				-m_pDirectionalLight->direction.x * 10,
-				-m_pDirectionalLight->direction.y * 10,
-				-m_pDirectionalLight->direction.z * 10 },
-				{
-				m_pDirectionalLight->direction.x,
-				m_pDirectionalLight->direction.y,
-				m_pDirectionalLight->direction.z });
-
-			if (std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str()) >= 0)
+			int textFileSetting = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+			if (textFileSetting >= 0)
 			{
-				m_pDirectionalLight->baseLight.castShadow = true;
-			}
+				CreateCamera(
+					{
+					-m_pDirectionalLight->direction.x * 10,
+					-m_pDirectionalLight->direction.y * 10,
+					-m_pDirectionalLight->direction.z * 10 },
+					{
+					m_pDirectionalLight->direction.x,
+					m_pDirectionalLight->direction.y,
+					m_pDirectionalLight->direction.z });
 
-			m_pDirectionalLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
+			
+				m_pDirectionalLight->baseLight.castShadow = true;
+
+				m_pDirectionalLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
+			}
 		}
 	}
 

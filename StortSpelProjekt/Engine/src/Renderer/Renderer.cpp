@@ -516,7 +516,7 @@ void Renderer::InitDirectionalLightComponent(Entity* entity)
 	{
 		resolution = SHADOW_RESOLUTION::MEDIUM;
 	}
-	else if (shadowRes == 2)
+	else if (shadowRes >= 2)
 	{
 		resolution = SHADOW_RESOLUTION::HIGH;
 	}
@@ -574,7 +574,7 @@ void Renderer::InitSpotLightComponent(Entity* entity)
 	{
 		resolution = SHADOW_RESOLUTION::MEDIUM;
 	}
-	else if (shadowRes == 2)
+	else if (shadowRes >= 2)
 	{
 		resolution = SHADOW_RESOLUTION::HIGH;
 	}
