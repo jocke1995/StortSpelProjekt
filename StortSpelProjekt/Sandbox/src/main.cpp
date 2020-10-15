@@ -57,7 +57,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    //Scene* leoScene = LeosTestScene(sceneManager);
+    Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -66,7 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager); 
     //Scene* antonScene = AntonTestScene(sceneManager);
-   // Scene* andresScene = AndresTestScene(sceneManager); // upgrade-test
+    //Scene* andresScene = AndresTestScene(sceneManager); // upgrade-test
 
     Scene* activeScenes[] = { fredrikScene };
 
@@ -290,6 +290,7 @@ Scene* LeosTestScene(SceneManager* sm)
     // Get the models needed
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
+    Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
@@ -402,20 +403,21 @@ Scene* LeosTestScene(SceneManager* sm)
     ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 250.0, 0.0, 1.0);
 #pragma endregion
 
-#pragma region cube
-    entity = scene->AddEntity("Cube");
+#pragma region shop
+    entity = scene->AddEntity("Shop");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(1.0, 1.0, 1.0, 1.0);
 
     mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(cubeModel);
+    mc->SetModel(shopModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
+    entityDim = mc->GetModelDim();
+
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(100000.0, entityDim.x / 2.0, entityDim.y / 2.0, entityDim.z / 2.0, 1000.0, 0.0, false);
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetPosition(0.0f, 10.0f, 15.0f);
-    tc->GetTransform()->SetRotationX(PI / 4);
-    tc->GetTransform()->SetRotationY(PI / 4);
-    tc->GetTransform()->SetRotationZ(PI / 4);
+    tc->GetTransform()->SetRotationY(PI);
 #pragma endregion
 
 #pragma region ball
