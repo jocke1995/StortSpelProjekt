@@ -7,12 +7,14 @@
 #include "../Misc/MultiThreading/Thread.h"
 #include "../Misc/Window.h"
 #include "../Misc/Option.h"
+#include "../Misc/GUI2DElements/Text.h"
+#include "../Misc/GUI2DElements/Font.h"
 
 // ECS
 #include "../ECS/Scene.h"
 #include "../ECS/Entity.h"
+#include "../ECS/Components/GUI2DComponent.h"
 #include "../ECS/Components/ModelComponent.h"
-#include "../ECS/Components/TextComponent.h"
 #include "../ECS/Components/SkyboxComponent.h"
 #include "../ECS/Components/BoundingBoxComponent.h"
 #include "../ECS/Components/CameraComponent.h"
@@ -35,7 +37,6 @@
 #include "Texture/Texture.h"
 #include "Texture/TextureCubeMap.h"
 #include "Material.h"
-#include "Text.h"
 
 // GPUMemory
 #include "GPUMemory/Resource.h"
@@ -79,7 +80,6 @@
 #include "../ImGUI/imgui.h"
 #include "../ImGUI/imgui_impl_win32.h"
 #include "../ImGUI/imgui_impl_dx12.h"
-
 #include "../ImGUI/ImGuiHandler.h"
 
 Renderer::Renderer()
@@ -436,8 +436,6 @@ void Renderer::Execute()
 	m_FenceFrameValue++;
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
-
-	// 
 	waitForFrame();
 
 	HRESULT hr = dx12SwapChain->Present(0, 0);
@@ -473,9 +471,9 @@ void Renderer::InitModelComponent(component::ModelComponent* component)
 	if (tc != nullptr)
 	{
 		// Finally store the object in the corresponding renderComponent vectors so it will be drawn
-		if (FLAG_DRAW::DRAW_OPACITY & component->GetDrawFlag())
+		if (FLAG_DRAW::DRAW_TRANSPARENT & component->GetDrawFlag())
 		{
-			m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(component, tc));
+			m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT].push_back(std::make_pair(component, tc));
 		}
 
 		if (FLAG_DRAW::DRAW_OPAQUE & component->GetDrawFlag())
@@ -498,13 +496,18 @@ void Renderer::InitModelComponent(component::ModelComponent* component)
 void Renderer::InitDirectionalLightComponent(component::DirectionalLightComponent* component)
 {
 	// Assign CBV from the lightPool
-	std::wstring resourceName = L"DirectionalLight_DefaultResource";
-	ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(DirectionalLight), resourceName);
+	std::wstring resourceName = L"DirectionalLight";
+	ConstantBuffer* cb = m_pViewPool->GetFreeCB(sizeof(DirectionalLight), resourceName);
 
 	// Check if the light is to cast shadows
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
 
-	int shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	int shadowRes = -1;
+	if (component->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW)
+	{
+		shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	}
+
 	if (shadowRes == 0)
 	{
 		resolution = SHADOW_RESOLUTION::LOW;
@@ -530,32 +533,40 @@ void Renderer::InitDirectionalLightComponent(component::DirectionalLightComponen
 	}
 
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(component, cbd, si));
+	m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(component, cb, si));
+
+	// Submit to cbperframe
+	
 }
 
 void Renderer::InitPointLightComponent(component::PointLightComponent* component)
 {
 	// Assign CBV from the lightPool
-	std::wstring resourceName = L"PointLight_DefaultResource";
-	ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(PointLight), resourceName);
+	std::wstring resourceName = L"PointLight";
+	ConstantBuffer* cb = m_pViewPool->GetFreeCB(sizeof(PointLight), resourceName);
 
 	// Assign views required for shadows from the lightPool
 	ShadowInfo* si = nullptr;
 
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(component, cbd, si));F
+	m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(component, cb, si));
 }
 
 void Renderer::InitSpotLightComponent(component::SpotLightComponent* component)
 {
 	// Assign CBV from the lightPool
-	std::wstring resourceName = L"SpotLight_DefaultResource";
-	ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(SpotLight), resourceName);
+	std::wstring resourceName = L"SpotLight";
+	ConstantBuffer* cb = m_pViewPool->GetFreeCB(sizeof(SpotLight), resourceName);
 
 	// Check if the light is to cast shadows
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
 
-	int shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	int shadowRes = -1;
+	if (component->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW)
+	{
+		shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+	}
+
 	if (shadowRes == 0)
 	{
 		resolution = SHADOW_RESOLUTION::LOW;
@@ -580,7 +591,7 @@ void Renderer::InitSpotLightComponent(component::SpotLightComponent* component)
 		srt->AddShadowCastingLight(std::make_pair(component, si));
 	}
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(component, cbd, si));
+	m_Lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(component, cb, si));
 }
 
 void Renderer::InitCameraComponent(component::CameraComponent* component)
@@ -608,6 +619,7 @@ void Renderer::InitBoundingBoxComponent(component::BoundingBoxComponent* compone
 			// TODO: don't load here, load in loadScene
 			// Submit to GPU
 			//LoadMesh(m);
+			submitMeshToCodt(m);
 
 			component->AddMesh(m);
 		}
@@ -621,33 +633,13 @@ void Renderer::InitBoundingBoxComponent(component::BoundingBoxComponent* compone
 	}
 }
 
-void Renderer::InitTextComponent(component::TextComponent* component)
+void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 {
-	std::map<std::string, TextData>* textDataMap = component->GetTextDataMap();
+	std::map<std::string, TextData>* textDataMap = component->GetTextManager()->GetTextDataMap();
+
 	for (auto textData : *textDataMap)
 	{
-		AssetLoader* al = AssetLoader::Get();
-		int numOfCharacters = component->GetNumOfCharacters(textData.first);
-
-		Text* text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, component->GetTexture());
-		text->SetTextData(&textData.second, component->GetFont());
-
-		component->SubmitText(text);
-
-		// Look if data is already on the GPU
-
-		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-
-		// Submit to GPU
-		const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
-
-		// Vertices
-		Resource* uploadR = text->m_pUploadResourceVertices;
-		Resource* defaultR = text->m_pDefaultResourceVertices;
-		codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-
-		// Texture
-		codt->SubmitTexture(component->GetTexture());
+		component->GetTextManager()->UploadTextData(textData.first);
 	}
 
 	// Finally store the text in m_pRenderer so it will be drawn
@@ -712,7 +704,7 @@ void Renderer::UnInitDirectionalLightComponent(component::DirectionalLightCompon
 				m_Lights[type].erase(m_Lights[type].begin() + j);
 
 				// Update cbPerScene
-				prepareCBPerScene();
+				SubmitUploadPerSceneData();
 				break;
 			}
 			j++;
@@ -752,7 +744,7 @@ void Renderer::UnInitPointLightComponent(component::PointLightComponent* compone
 				m_Lights[type].erase(m_Lights[type].begin() + j);
 
 				// Update cbPerScene
-				prepareCBPerScene();
+				SubmitUploadPerSceneData();
 				break;
 			}
 			j++;
@@ -792,7 +784,7 @@ void Renderer::UnInitSpotLightComponent(component::SpotLightComponent* component
 				m_Lights[type].erase(m_Lights[type].begin() + j);
 
 				// Update cbPerScene
-				prepareCBPerScene();
+				SubmitUploadPerSceneData();
 				break;
 			}
 			j++;
@@ -832,20 +824,30 @@ void Renderer::UnInitBoundingBoxComponent(component::BoundingBoxComponent* compo
 	}
 }
 
-void Renderer::UnInitTextComponent(component::TextComponent* component)
+void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 {
 	// Remove component from textComponents
 	// TODO: change data structure to allow O(1) add and remove
-	for (auto it = m_TextComponents.begin(); it != m_TextComponents.end(); it++)
+	static int count = 0;
+	bool atEnd = false;
+	auto it = m_TextComponents.begin();
+	while(!atEnd)
 	{
 		if (component == (*it))
 		{
-			m_TextComponents.erase(it);
+			Log::Print(std::to_string(count++) + "\n");
+			it = m_TextComponents.erase(it);
+		}
+		else
+		{
+			it++;
+		}
+
+		if (it == m_TextComponents.end())
+		{
+			atEnd = true;
 		}
 	}
-
-	// Update rendertasks component
-	setRenderTasksRenderComponents();
 }
 
 void Renderer::OnResetScene()
@@ -863,13 +865,6 @@ void Renderer::OnResetScene()
 	m_BoundingBoxesToBePicked.clear();
 	m_TextComponents.clear();
 }
-
-SwapChain* Renderer::GetSwapChain()
-{
-	return m_pSwapChain;
-}
-
-
 
 void Renderer::submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
 {
@@ -1176,14 +1171,11 @@ void Renderer::updateMousePicker()
 
 void Renderer::initRenderTasks()
 {
-	// RenderTasks
-
 #pragma region DepthPrePass
 
 	/* Depth Pre-Pass rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdDepthPrePass = {};
 	gpsdDepthPrePass.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
 	// RenderTarget
 	gpsdDepthPrePass.NumRenderTargets = 0;
 	gpsdDepthPrePass.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
@@ -1886,7 +1878,7 @@ void Renderer::setRenderTasksRenderComponents()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::NO_DEPTH]);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPACITY]);
+	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
 	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 
@@ -1954,13 +1946,22 @@ void Renderer::waitForCopyOnDemand()
 	{
 		m_pFenceFrame->SetEventOnCompletion(oldFenceValue, m_EventHandle);
 		WaitForSingleObject(m_EventHandle, INFINITE);
-	}		
+	}
+}
+
+void Renderer::executeCopyOnDemand()
+{
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &m_CopyOnDemandCmdList[0]);
+	waitForCopyOnDemand();
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
 }
 
 void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 {
-	prepareCBPerFrame();
-	prepareCBPerScene();
+	SubmitUploadPerFrameData();
+	SubmitUploadPerSceneData();
 
 	// -------------------- DEBUG STUFF --------------------
 	// Test to change m_pCamera to the shadow casting m_lights cameras
@@ -1987,7 +1988,7 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 	setRenderTasksPrimaryCamera();
 }
 
-void Renderer::prepareCBPerScene()
+void Renderer::SubmitUploadPerSceneData()
 {
 	// ----- directional lights -----
 	m_pCbPerSceneData->Num_Dir_Lights = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
@@ -2019,34 +2020,53 @@ void Renderer::prepareCBPerScene()
 	}
 	// ----- spot m_lights -----
 	
-	// Upload CB_PER_SCENE to defaultheap
+	// Submit CB_PER_SCENE to be uploaded to VRAM
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	const void* data = static_cast<const void*>(m_pCbPerSceneData);
 	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetDefaultResource(), data));
-}
 
-void Renderer::prepareCBPerFrame()
-{
-	CopyPerFrameTask* cpft = nullptr;
-	const void* data = nullptr;
-	ConstantBuffer* cbv = nullptr;
+	// Submit static-light-data to be uploaded to VRAM
+	ConstantBuffer* cb = nullptr;
 
-	// Lights
 	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
 	{
 		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
 		for (auto& tuple : m_Lights[type])
 		{
-			data = std::get<0>(tuple)->GetLightData();
-			cbv = std::get<1>(tuple);
-
-			cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-			cpft->Submit(&std::make_tuple(cbv->GetUploadResource(), cbv->GetDefaultResource(), data));
+			Light* light = std::get<0>(tuple);
+			unsigned int lightFlags = light->GetLightFlags();
+			if (lightFlags & FLAG_LIGHT::STATIC)
+			{
+				data = light->GetLightData();
+				cb = std::get<1>(tuple);
+				codt->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+			}
 		}
 	}
+}
 
-	// Materials are submitted in the copyPerFrameTask inside EditScene.
-	// This was done so that a new entity (added during runetime) also would be added to the list.
+void Renderer::SubmitUploadPerFrameData()
+{
+	// Submit dynamic-light-data to be uploaded to VRAM
+	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+	const void* data = nullptr;
+	ConstantBuffer* cb = nullptr;
+
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		for (auto& tuple : m_Lights[type])
+		{
+			unsigned int lightFlags = static_cast<Light*>(std::get<0>(tuple))->GetLightFlags();
+	
+			if ((lightFlags & FLAG_LIGHT::STATIC) == 0)
+			{
+				data = std::get<0>(tuple)->GetLightData();
+				cb = std::get<1>(tuple);
+				cpft->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+			}
+		}
+	}
 
 	// CB_PER_FRAME_STRUCT
 	if (cpft != nullptr)
@@ -2115,5 +2135,35 @@ void Renderer::toggleFullscreen(WindowChange* evnt)
 		{
 			task->GetCommandInterface()->GetCommandList(i)->Close();
 		}
+	}
+}
+
+SwapChain* Renderer::getSwapChain() const
+{
+	return m_pSwapChain;
+}
+
+void Renderer::submitTextToGPU(Text* text, TextManager* tm)
+{
+	// Submit to GPU
+	const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
+
+	// Vertices
+	Resource* uploadR = text->m_pUploadResourceVertices;
+	Resource* defaultR = text->m_pDefaultResourceVertices;
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+	codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+	AssetLoader* al = AssetLoader::Get();
+	bool isTextureOnGpu = al->IsFontTextureLoadedOnGPU(text->GetFont());
+
+	if (isTextureOnGpu == false)
+	{
+		std::wstring fontPath = al->GetFontPath();
+		std::wstring path = fontPath + text->GetFont()->GetName() + L".fnt";
+
+		// Texture (only one per component)
+		codt->SubmitTexture(tm->GetFontTexture());
+		al->m_LoadedFonts[path].first = true;
 	}
 }

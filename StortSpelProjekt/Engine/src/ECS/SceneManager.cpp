@@ -101,8 +101,15 @@ void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 	entity->OnUnInitScene();
 	m_IsEntityInited[entity] = false;
 
+	// Some components need to be sent to the gpu each frame
+	Renderer::GetInstance().SubmitUploadPerFrameData();
+	Renderer::GetInstance().SubmitUploadPerSceneData();
+
 	// Remove from the scene
 	scene->RemoveEntity(entity->GetName());
+
+	
+	Renderer::GetInstance().executeCopyOnDemand();
 }
 
 void SceneManager::AddEntity(Entity* entity, Scene* scene)
@@ -117,11 +124,10 @@ void SceneManager::AddEntity(Entity* entity, Scene* scene)
 		m_IsEntityInited[entity] = true;
 	}
 
-	//Renderer::GetInstance().prepareScenes(&m_ActiveScenes);
-	//Renderer::GetInstance().prepareCBPerFrame();
-	//Renderer::GetInstance().prepareCBPerScene();
-	//executeCopyOnDemand();
-	//SetScenes(1, &m_ActiveScenes[0]);
+	// Some components need to be sent to the gpu each frame
+	Renderer::GetInstance().SubmitUploadPerFrameData();
+	Renderer::GetInstance().SubmitUploadPerSceneData();
+	Renderer::GetInstance().executeCopyOnDemand();
 }
 
 void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
@@ -159,7 +165,7 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 		}
 	}
 
-	executeCopyOnDemand();
+	renderer->executeCopyOnDemand();
 	return;
 }
 
@@ -200,14 +206,3 @@ bool SceneManager::sceneExists(std::string sceneName) const
 
     return false;
 }
-
-void SceneManager::executeCopyOnDemand()
-{
-	Renderer* renderer = &Renderer::GetInstance();
-	renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
-	renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
-	renderer->m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &renderer->m_CopyOnDemandCmdList[0]);
-	renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
-	renderer->waitForCopyOnDemand();
-}
-

@@ -12,11 +12,12 @@ enum FLAG_LIGHT
 	// Option to make the light cast shadows or not with different resolutions
 	CAST_SHADOW = BIT(2),
 
-	// If this is set, m_pRenderer only need to copy data once to GPU
-	// STATIC_DATA .. = BIT(3),
+	// 1. If this is set, lightData is only copied once to VRAM (onInitScene)
+	// 2. Lights are interpreted as "DYNAMIC" as default
+	STATIC = BIT(3),
 
 	// etc..
-	NUM_FLAGS_LIGHT = 2
+	NUM_FLAGS_LIGHT = 3
 };
 
 static unsigned int s_LightIdCounter = 0;

@@ -18,7 +18,7 @@ public:
 		DescriptorHeap* descriptorHeap_DSV);
 	virtual ~ViewPool();
 
-	ConstantBuffer* GetFreeCBV(unsigned int size, std::wstring resourceName = L"CBV_DEFAULTNAME");
+	ConstantBuffer* GetFreeCB(unsigned int size, std::wstring resourceName = L"CBV_DEFAULTNAME");
 	ShadowInfo* GetFreeShadowInfo(LIGHT_TYPE type, SHADOW_RESOLUTION shadowResolution);
 
 	void ClearAll();

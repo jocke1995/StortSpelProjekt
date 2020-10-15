@@ -3,6 +3,8 @@
 #include "../ECS/Components/Component.h"
 #include "EngineMath.h"
 #include "Core.h"
+#include <vector>
+#include <string>
 
 class EngineRand;
 
@@ -27,11 +29,19 @@ namespace component
 		void OnInitScene();
 		void OnUnInitScene();
 
+		void AddTarget(Entity* target);
+		void RemoveTarget(std::string name);
+		Entity* GetTarget();
+
 	private:
 		Entity* m_pTarget;
+		std::vector<Entity*> m_Targets;
 		float m_DetectionRadius;
 		float m_AttackingDistance;
 		unsigned int m_Flags;
+		bool m_CanJump;
+
+		void selectTarget();
 	};
 }
 

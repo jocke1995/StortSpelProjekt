@@ -85,6 +85,7 @@ Mesh* BoundingBoxPool::CreateBoundingBoxMesh(std::wstring uniquePath)
 	{
 		BoundingBoxData* bbd = m_BoundingBoxesData[uniquePath];
 		m_BoundingBoxesMesh[uniquePath] = new Mesh(&bbd->boundingBoxVertices, &bbd->boundingBoxIndices, uniquePath);
+		m_BoundingBoxesMesh[uniquePath]->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 		return m_BoundingBoxesMesh[uniquePath];
 	}
 

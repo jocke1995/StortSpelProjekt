@@ -5,6 +5,7 @@
 #include "Core.h"
 class Entity;
 class BaseCamera;
+class NavMesh;
 
 class Scene
 {
@@ -16,6 +17,8 @@ public:
 	Entity* AddEntity(std::string entityName);
 	bool RemoveEntity(std::string entityName);
 
+	void CreateNavMesh();
+
 	void SetPrimaryCamera(BaseCamera* primaryCamera);
 
 	Entity* GetEntity(std::string entityName);
@@ -25,6 +28,8 @@ public:
 	unsigned int GetNrOfEntites() const;
 	BaseCamera* GetMainCamera() const;
 	std::string GetName() const;
+
+	NavMesh* GetNavMesh();
 
 	void Update(double dt);
 	void RenderUpdate(double dt);
@@ -39,7 +44,7 @@ private:
 
 	BaseCamera* m_pPrimaryCamera = nullptr;
 
-
+	NavMesh* m_pNavMesh;
 };
 
 #endif

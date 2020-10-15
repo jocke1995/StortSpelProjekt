@@ -2,6 +2,7 @@
 #include "DirectionalLightComponent.h"
 #include "../Renderer/BaseCamera.h"
 #include "../Renderer/Renderer.h"
+#include "../Misc/Option.h"
 
 namespace component
 {
@@ -33,6 +34,7 @@ namespace component
 
 	void DirectionalLightComponent::OnInitScene()
 	{
+		this->Update(0);
 		Renderer::GetInstance().InitDirectionalLightComponent(this);
 	}
 
@@ -71,7 +73,10 @@ namespace component
 				m_pDirectionalLight->direction.y,
 				m_pDirectionalLight->direction.z });
 
-			m_pDirectionalLight->baseLight.castShadow = true;
+			if (std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str()) >= 0)
+			{
+				m_pDirectionalLight->baseLight.castShadow = true;
+			}
 
 			m_pDirectionalLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
 		}
