@@ -90,7 +90,6 @@ void NavMesh::CreateGrid()
 	std::vector<unsigned int> indicesVector;
 	std::vector<Vertex> verticesVector;
 	Vertex vertices[4] = {};
-	int i = 0;
 	for (NavQuad* quad : m_NavQuads)
 	{
 		vertices[0].pos = DirectX::XMFLOAT3(quad->position.x + (quad->size.x / 2.0f), 0.0f, quad->position.z - (quad->size.y / 2.0f));
@@ -120,7 +119,7 @@ void NavMesh::CreateGrid()
 
 		Transform* t = m_pEntity->GetComponent<component::TransformComponent>()->GetTransform();
 
-		std::wstring name = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes("NavQuad" + std::to_string(i++));
+		std::wstring name = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes("NavQuad");
 
 		m_pEntity->GetComponent<component::BoundingBoxComponent>()->AddBoundingBox(&bbd, t, name);
 	}

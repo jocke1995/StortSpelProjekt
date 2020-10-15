@@ -416,7 +416,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	int quad1 = 0;
 	int quad2 = 0;
 
-	NavMesh navMesh;
+	NavMesh* navMesh;
 
 	component::ModelComponent* mc = nullptr;
 	component::TransformComponent* tc = nullptr;
@@ -434,6 +434,11 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 				fscanf(file, "%s", entityName.c_str());
 				entity = scene->AddEntity(entityName.c_str());
 			}
+			else if (strcmp(lineHeader.c_str(), "NavMesh") == 0)
+			{
+				scene->CreateNavMesh();
+				navMesh = scene->GetNavMesh();
+			}
 			else if (strcmp(lineHeader.c_str(), "ModelPath") == 0)
 			{
 				fscanf(file, "%s", modelPath.c_str());
@@ -449,7 +454,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			{
 				fscanf(file, "%f,%f,%f", &rot.x, &rot.y, &rot.z);
 			}
-			else if (strcmp(lineHeader.c_str(), "ModelPosition") == 0 || strcmp(lineHeader.c_str(), "NavConnectionPosition") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelPosition") == 0 || strcmp(lineHeader.c_str(), "NavQuadPosition") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &pos.x, &pos.y, &pos.z);
 			}
@@ -594,11 +599,15 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 				}
 				else if (strcmp(toSubmit.c_str(), "NavQuad") == 0)
 				{
-					navMesh.AddNavQuad(pos, size);
+					navMesh->AddNavQuad(pos, size);
 				}
 				else if (strcmp(toSubmit.c_str(), "NavConnection") == 0)
 				{
-					//navMesh.ConnectNavQuadsById(quad1, quad2, pos);
+					navMesh->ConnectNavQuads(quad1, quad2);
+				}
+				else if (strcmp(toSubmit.c_str(), "NavMesh") == 0)
+				{
+					navMesh->CreateGrid();
 				}
 			}
 		}

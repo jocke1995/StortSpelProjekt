@@ -16,7 +16,6 @@ Scene* FredriksTestScene(SceneManager* sm);
 Scene* WilliamsTestScene(SceneManager* sm);
 Scene* AndresTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
-Scene* AntonTestScene(SceneManager* sm);
 
 
 void(*UpdateScene)(SceneManager*);
@@ -61,15 +60,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
-    Scene* jockeScene = JockesTestScene(sceneManager);
+    //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
-    //Scene* bjornScene = BjornsTestScene(sceneManager);
-    //Scene* antonScene = AntonTestScene(sceneManager);
+    Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { jockeScene };
+    Scene* activeScenes[] = { bjornScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -133,7 +131,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 Scene* JacobsTestScene(SceneManager* sm)
 {
-    Scene* scene = sm->CreateScene("BounceScene");
+    Scene* scene = sm->CreateScene("JacobScene");
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -274,7 +272,7 @@ Scene* JacobsTestScene(SceneManager* sm)
 Scene* LeosTestScene(SceneManager* sm)
 {
     // Create scene
-    Scene* scene = sm->CreateScene("ThatSceneWithThemThereDashFeaturesAndStuff");
+    Scene* scene = sm->CreateScene("LeoScene");
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
@@ -487,7 +485,7 @@ Scene* LeosTestScene(SceneManager* sm)
     enH.AddExistingEnemy("sphere", float3{ 50, 10, 50 });
     enH.AddExistingEnemy("sphere", float3{ -50, 10, -50 });
     enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_JUMP | F_AI_FLAGS::CAN_ROLL, 0.5);*/
-    enH.AddEnemy("conan", barbModel, 20, float3{ 245.0, 10.0, 245.0 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, F_AI_FLAGS::CAN_JUMP, 0.3, float3{ 0.0, 0.0, 0.0 }, "Ball2", 500.0f, 0.0f);
+    enH.AddEnemy("conan", barbModel, 20, float3{ 245.0, 10.0, 245.0 }, L"null", L"null", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, F_AI_FLAGS::CAN_JUMP, 0.3, float3{ 0.0, 0.0, 0.0 }, "Ball2", 500.0f, 0.0f);
     enH.AddExistingEnemy("conan", float3{ 245, 10, -245 });
     enH.AddExistingEnemy("conan", float3{ -245, 10, 245 });
     enH.AddExistingEnemy("conan", float3{ -245, 10, -245 });
@@ -662,7 +660,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
 Scene* LeosBounceScene(SceneManager* sm)
 {
-    Scene* scene = sm->CreateScene("BounceScene");
+    Scene* scene = sm->CreateScene("LeoBounceScene");
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1173,7 +1171,7 @@ Scene* FloppipTestScene(SceneManager* sm)
 Scene* FredriksTestScene(SceneManager* sm)
 {
     // Create Scene
-    Scene* scene = sm->CreateScene("scene1");
+    Scene* scene = sm->CreateScene("FredrikScene");
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
@@ -1880,25 +1878,25 @@ void LeoBounceUpdateScene(SceneManager* sm)
     {
         ImGuiHandler::GetInstance().SetBool("reset", false);
 
-        component::CollisionComponent* cc = sm->GetScene("BounceScene")->GetEntity("player")->GetComponent<component::CollisionComponent>();
+        component::CollisionComponent* cc = sm->GetScene("LeoBounceScene")->GetEntity("player")->GetComponent<component::CollisionComponent>();
         cc->SetPosition(-15.0f, 10.0f, 0.0f);
         cc->SetVelVector(0.0f, 0.0f, 0.0f);
         cc->SetRotation(0.0f, 0.0f, 0.0f);
         cc->SetAngularVelocity(0.0f, 0.0f, 0.0f);
 
-        cc = sm->GetScene("BounceScene")->GetEntity("Sphere1")->GetComponent<component::CollisionComponent>();
+        cc = sm->GetScene("LeoBounceScene")->GetEntity("Sphere1")->GetComponent<component::CollisionComponent>();
         cc->SetPosition(1.0f, 1.0f, 1.0f);
         cc->SetVelVector(0.0f, 0.0f, 0.0f);
         cc->SetRotation(0.0f, 0.0f, 0.0f);
         cc->SetAngularVelocity(0.0f, 0.0f, 0.0f);
 
-        cc = sm->GetScene("BounceScene")->GetEntity("Sphere2")->GetComponent<component::CollisionComponent>();
+        cc = sm->GetScene("LeoBounceScene")->GetEntity("Sphere2")->GetComponent<component::CollisionComponent>();
         cc->SetPosition(-5.0f, 1.0f, 3.5f);
         cc->SetVelVector(0.0f, 0.0f, 0.0f);
         cc->SetRotation(0.0f, 0.0f, 0.0f);
         cc->SetAngularVelocity(0.0f, 0.0f, 0.0f);
 
-        cc = sm->GetScene("BounceScene")->GetEntity("Box")->GetComponent<component::CollisionComponent>();
+        cc = sm->GetScene("LeoBounceScene")->GetEntity("Box")->GetComponent<component::CollisionComponent>();
         cc->SetPosition(5.0f, 1.0f, 4.0f);
         cc->SetVelVector(0.0f, 0.0f, 0.0f);
         cc->SetRotation(0.0f, 0.0f, 0.0f);
@@ -1906,7 +1904,7 @@ void LeoBounceUpdateScene(SceneManager* sm)
     }
     else
     {
-        component::CollisionComponent* cc = sm->GetScene("BounceScene")->GetEntity("Box")->GetComponent<component::CollisionComponent>();
+        component::CollisionComponent* cc = sm->GetScene("LeoBounceScene")->GetEntity("Box")->GetComponent<component::CollisionComponent>();
         cc->SetAngularVelocity(0.0f, 10.0f, 0.0f);
     }
 }
