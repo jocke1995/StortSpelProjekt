@@ -3,23 +3,30 @@
 
 #include "BaseCamera.h"
 
-class TempInputClass;
-
 class PerspectiveCamera : public BaseCamera
 {
 public:
-    // main constructor
-    PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR direction,
-        double fov = 45.0f,
-        double aspectRatio = 16.0f / 9.0f,
-        double zNear = 0.1f,
-        double zFar = 1000.0f);
+    PerspectiveCamera(
+        DirectX::XMVECTOR position,
+        DirectX::XMVECTOR direction,
+        float fov = 45.0f,
+        float aspectRatio = 16.0f / 9.0f,
+        float nearZ = 0.1f,
+        float farZ = 1000.0f);
 
 	virtual ~PerspectiveCamera();
 
+    // Gets
     const DirectX::XMMATRIX* GetViewProjection() const;
     const DirectX::XMMATRIX* GetViewProjectionTranposed() const;
 
+    // Sets
+    void SetFov(float fov);
+    void SetAspectRatio(float aspectRatio);
+    void SetNearZ(float nearPlaneDistance);
+    void SetFarZ(float farPlaneDistance);
+
+    // Used by freelook Camera (when pressing ctrl in the scene, the camera detaches from the player)
     void UpdateMovement(float x, float y, float z);
     void SetMovement(float x, float y, float z);
 
@@ -36,15 +43,10 @@ private:
 
     double m_Fov = 0.0f;
     double m_AspectRatio = 0.0f;
-    double m_ZNear = 0.0f;
-    double m_ZFar = 0.0f;
+    double m_NearZ = 0.0f;
+    double m_FarZ = 0.0f;
 
-    void init(
-        double fov = 45.0f,
-        double aspectRatio = 16.0f / 9.0f,
-        double zNear = 0.1f,
-        double zFar = 1000.0f);
-
+    void updateProjectionMatrix();
     void updateSpecific(double dt);
     void updateCameraMovement(double dt);
 };

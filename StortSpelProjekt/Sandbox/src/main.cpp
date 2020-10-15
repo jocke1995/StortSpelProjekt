@@ -60,10 +60,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
-    //Scene* jockeScene = JockesTestScene(sceneManager);
+    Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
 	//Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
@@ -71,7 +71,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { leoScene };
+    Scene* activeScenes[] = { jockeScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -1124,7 +1124,6 @@ Scene* JockesTestScene(SceneManager* sm)
         tc->GetTransform()->SetRotationY(PI / 4);
         tc->GetTransform()->SetRotationZ(PI / 4);
     }
-    
     /* ---------------------- Cube ---------------------- */
 
     /* ---------------------- PointLightDynamic ---------------------- */
@@ -1164,6 +1163,8 @@ Scene* JockesTestScene(SceneManager* sm)
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
     dlc->SetColor({ 0.8f, 0.8f, 0.8f });
     dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
+    dlc->SetCameraLeft(-60.0f);
+    dlc->SetCameraRight(60.0f);
     /* ---------------------- dirLight ---------------------- */
     
     /* ---------------------- Spotlight ---------------------- */
@@ -1186,7 +1187,6 @@ Scene* JockesTestScene(SceneManager* sm)
      /* ---------------------- Update Function ---------------------- */
     UpdateScene = &JockeUpdateScene;
     return scene;
-
 }
 
 Scene* FloppipTestScene(SceneManager* sm)

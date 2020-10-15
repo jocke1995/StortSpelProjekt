@@ -3,7 +3,7 @@
 
 // Renderer
 #include "../Renderer/Transform.h"
-#include "../Renderer/BaseCamera.h"
+#include "../Renderer/Camera/BaseCamera.h"
 #include "../Renderer/Renderer.h"
 
 // ECS
@@ -72,7 +72,7 @@ namespace component
 		return m_pPointLight;
 	}
 
-	void PointLightComponent::UpdateLightIntensity()
+	void PointLightComponent::UpdateLightColor()
 	{
 		m_pPointLight->baseLight.color = m_pBaseLight->color;
 	}

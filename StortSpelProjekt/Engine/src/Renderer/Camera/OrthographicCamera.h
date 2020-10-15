@@ -17,8 +17,24 @@ public:
         float farZ = 1000.0f);
     virtual ~OrthographicCamera();
 
+    // Gets
     const DirectX::XMMATRIX* GetViewProjection() const;
     const DirectX::XMMATRIX* GetViewProjectionTranposed() const;
+    
+    const float GetLeft() const;
+    const float GetRight() const;
+    const float GetBot() const;
+    const float GetTop() const;
+    const float GetNearZ() const;
+    const float GetFarZ() const;
+
+    // Sets to modify camera projection
+    void SetLeft(float left);
+    void SetRight(float right);
+    void SetBot(float bot);
+    void SetTop(float top);
+    void SetNearZ(float nearPlaneDistance);
+    void SetFarZ(float farPlaneDistance);
 
 private:
     float m_Left  = 0;
@@ -32,6 +48,7 @@ private:
     DirectX::XMMATRIX m_ViewProjMatrix;
     DirectX::XMMATRIX m_ViewProjTranposedMatrix;
 
+    void updateProjectionMatrix();
     void updateSpecific(double dt);
 };
 

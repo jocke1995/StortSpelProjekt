@@ -3,7 +3,7 @@
 
 #include "../Renderer/Transform.h"
 #include "../Renderer/Model.h"
-#include "../Renderer/BaseCamera.h"
+#include "../Renderer/Camera/BaseCamera.h"
 
 #include "../Renderer/Texture/TextureCubeMap.h"
 #include "../Renderer/Renderer.h"
