@@ -110,6 +110,17 @@ void ClientPool::RemoveUnconnected()
 	}
 }
 
+void ClientPool::Kick(int id)
+{
+	for (int i = 0; i < m_Clients.size(); i++)
+	{
+		if (m_Clients.at(i)->clientId == id)
+		{
+			disconnect(i);
+		}
+	}
+}
+
 std::string ClientPool::GetConsoleString()
 {
 	std::string temp = m_ConsoleString;
@@ -158,6 +169,30 @@ void ClientPool::enemyData(int index, sf::Packet packet)
 		{
 			entity->position = pos;
 		}
+	}
+}
+
+void ClientPool::disconnectPacket(int index, sf::Packet packet)
+{
+	int playerId;
+	packet >> playerId;
+
+	//If the host sent a disconnect packet with another player id, then we interpet it as a kick
+	if (m_Clients.at(index) == m_pHostClient && playerId != -1)
+	{
+		for (int i = 0; i < m_Clients.size(); i++)
+		{
+			if (m_Clients.at(i)->clientId = playerId)
+			{
+				disconnect(i);
+				m_ConsoleString += "Host kicked " + std::to_string(playerId) + "\n";
+				break;
+			}
+		}
+	}
+	else
+	{
+		disconnect(index);
 	}
 }
 
@@ -230,7 +265,7 @@ void ClientPool::disconnect(int index)
 	{
 		if (m_Clients.at(i)->connected)
 		{
-			m_Clients.at(i)->socket.send(packet);
+			sendPacket(i, packet);
 		}
 	}
 
@@ -361,7 +396,7 @@ void ClientPool::newPacket(int socket)
 			playerPosition(socket, packet);
 			break;
 		case Network::E_PACKET_ID::PLAYER_DISCONNECT:
-			disconnect(socket);
+			disconnectPacket(socket, packet);
 			break;
 		case Network::ENEMY_DATA:
 			enemyData(socket, packet);

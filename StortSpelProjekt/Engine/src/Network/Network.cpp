@@ -53,7 +53,7 @@ bool Network::ConnectToIP(std::string ip, int port)
     }
 }
 
-void Network::Disconnect()
+void Network::Disconnect(int id)
 {
     /* Expected packet configuration
     int playerID;
@@ -64,7 +64,15 @@ void Network::Disconnect()
         sf::Packet packet;
 
         packet << E_PACKET_ID::PLAYER_DISCONNECT;
-        packet << m_Players.at(0)->clientId;
+        //If id is '-1' then it is a disconnect
+        if (id == -1)
+        {
+            packet << m_Players.at(0)->clientId;
+        }
+        else //If not then we are trying to kick
+        {
+            packet << id;
+        }
 
         m_Socket.send(packet);
 
@@ -393,4 +401,21 @@ void Network::processPlayerDisconnect(sf::Packet* packet)
 
         Log::Print("Player " + std::to_string(playerId) + " was disconnected");
     }
+}
+
+void Network::processDisconnected(sf::Packet* packet)
+{
+    m_Connected = false;
+
+    for (int i = 0; i < m_Players.size(); i++)
+    {
+        delete m_Players.at(i);
+    }
+    m_Players.clear();
+
+    m_Players.push_back(new Player);
+    m_Players.at(0)->clientId = 0;
+
+    m_Socket.disconnect();
+    m_Socket.setBlocking(true);
 }

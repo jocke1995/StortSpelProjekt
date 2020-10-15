@@ -35,7 +35,7 @@ public:
 
 	void SendPositionPacket();
 	void SendEnemiesPacket(std::vector<Entity*>* enemies);
-	void Disconnect();
+	void Disconnect(int id);
 	//Give network the entity pointer for player.
 	void SetPlayerEntityPointer(Entity* playerEnitity, int id);
 	void SetEnemiesEntityPointers(std::vector<Entity*>* enemies);
@@ -49,6 +49,7 @@ private:
 	void processServerData(sf::Packet* packet);
 	void processEnemyData(sf::Packet* packet);
 	void processPlayerDisconnect(sf::Packet* packet);
+	void processDisconnected(sf::Packet* packet);
 
 	void sendPacket(sf::Packet packet);
 

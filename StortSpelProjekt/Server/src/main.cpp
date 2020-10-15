@@ -23,8 +23,7 @@ int main()
 
 	std::string str = "";
 
-	std::cout << "Write 1 for server or 0 for client" << std::endl;
-	std::cin >> str;
+	std::cout << "Write 'Help' for commands" << std::endl;
 
 	auto start = std::chrono::system_clock::now();
 	std::chrono::time_point<std::chrono::system_clock> timeNow;
@@ -53,6 +52,14 @@ int main()
 		{
 			threadPool->AddTask(&console);
 		}
+
+		//------COMMANDS--------
+		if (strcmp(str.c_str(), "Help") == 0)
+		{
+			std::cout << "\"AddClient\" to add a player slot" << std::endl;
+			std::cout << "\"Packet\" to toggle showing individual packets" << std::endl;
+			std::cout << "\"Kick:X\" to kick 'X' player" << std::endl;
+		}
 		if (strcmp(str.c_str(), "AddClient") == 0)
 		{
 			server.AddClient();
@@ -62,6 +69,12 @@ int main()
 		{
 			server.ToggleShowPackage();
 		}
+		if (strcmp(str.substr(0, 4).c_str(), "Kick") == 0)
+		{
+			int playerId = std::atoi(str.substr(5, 1).c_str());
+			server.Kick(playerId);
+		}
+		//----------------------
 
 		server.ListenMessages();
 		if (updateTime >= updateRate)

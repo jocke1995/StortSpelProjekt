@@ -42,7 +42,7 @@ bool GameNetwork::IsConnected()
 
 void GameNetwork::disconnect(Disconnect* evnt)
 {
-    m_Network.Disconnect();
+    m_Network.Disconnect(evnt->playerId);
 }
 
 void GameNetwork::connectToServer(ConnectToServer* evnt)
@@ -65,7 +65,7 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
         entity = new Entity("player" + std::to_string(evnt->playerId));
         component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
         component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
-        component::CubeCollisionComponent* bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f);
+        component::CubeCollisionComponent* bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, false);
 
         mc = entity->GetComponent<component::ModelComponent>();
         mc->SetModel(AssetLoader::Get()->LoadModel(L"../Vendor/Resources/Models/Player/player.obj"));

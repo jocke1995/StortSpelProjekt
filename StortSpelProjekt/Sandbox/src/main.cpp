@@ -702,7 +702,7 @@ Scene* AntonTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(-15.0f, 10.0f, 0.0f);
 
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f, false);
+    bcc = entity->AddComponent<component::CapsuleCollisionComponent>(1.0f, 0.5f, 1.0f, 0.0f, 0.0f, false);
     pic->Init();
 
     mc->SetModel(playerModel);

@@ -71,7 +71,8 @@ struct ConnectToServer : public Event
 
 struct Disconnect : public Event
 {
-	Disconnect() {};
+	Disconnect(int playerId) : playerId{ playerId } {};
+	int playerId = -1;
 };
 
 struct Death : public Event

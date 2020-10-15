@@ -355,14 +355,21 @@ void ImGuiHandler::ExecCommand(const char* command_line)
     }
     else if (Stricmp(command.c_str(), "CONNECT") == 0)
     {
-        if (arguments.size() == 1 && std::atoi(Option::GetInstance().GetVariable("i_network").c_str()) == 1)
+        if (arguments.size() == 1)
         {
             EventBus::GetInstance().Publish(&ConnectToServer(arguments.at(0).c_str()));
         }
     }
     else if (Stricmp(command.c_str(), "DISCONNECT") == 0)
     {
-        EventBus::GetInstance().Publish(&Disconnect());
+        EventBus::GetInstance().Publish(&Disconnect(-1));
+    }
+    else if (Stricmp(command.c_str(), "KICK") == 0)
+    {
+        if (arguments.size() == 1)
+        {
+            EventBus::GetInstance().Publish(&Disconnect(std::atoi(arguments.at(0).c_str())));
+        }
     }
     else
     {
@@ -524,6 +531,7 @@ ImGuiHandler::ImGuiHandler()
     {
         m_Commands.push_back("CONNECT");
         m_Commands.push_back("DISCONNECT");
+        m_Commands.push_back("KICK");
     }
     m_ScrollToBottom = false;
 

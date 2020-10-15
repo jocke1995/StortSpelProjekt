@@ -38,6 +38,7 @@ public:
 
 	//Removes all open clients that have not connected or disconneted
 	void RemoveUnconnected();
+	void Kick(int id);
 
 	//Get messages to write to console
 	std::string GetConsoleString();
@@ -69,10 +70,12 @@ private:
 
 	void playerPosition(int index, sf::Packet packet);
 	void enemyData(int index, sf::Packet packet);
+	void disconnectPacket(int index, sf::Packet packet);
+
+	void disconnect(int id);
 
 	void sendEnemyPositions();
 	void sendPlayerPositions();
-	void disconnect(int id);
 	void newConnection();
 	void newPacket(int socket);
 	void sendPacket(int index, sf::Packet packet);
