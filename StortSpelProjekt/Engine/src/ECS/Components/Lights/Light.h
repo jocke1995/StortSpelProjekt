@@ -60,7 +60,7 @@ protected:
 	// Perspective
 	void CreatePerspectiveCamera(
 		float3 position, float3 direction,
-		float fov = 45.0f,
+		float fov = 90.0f,
 		float aspectRatio = 1.0f,
 		float nearZ = 0.1f,
 		float farZ = 1000.0f);
