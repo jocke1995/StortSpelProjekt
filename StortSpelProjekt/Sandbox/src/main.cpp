@@ -1051,6 +1051,8 @@ Scene* JockesTestScene(SceneManager* sm)
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
     dlc->SetColor({ 0.8f, 0.8f, 0.8f });
     dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
+    dlc->SetCameraLeft(-60.0f);
+    dlc->SetCameraRight(60.0f);
     /* ---------------------- dirLight ---------------------- */
     
     /* ---------------------- Spotlight ---------------------- */

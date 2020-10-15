@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "DirectionalLightComponent.h"
-#include "../Renderer/Camera/BaseCamera.h"
+#include "../Renderer/Camera/OrthographicCamera.h"
 #include "../Renderer/Renderer.h"
 #include "../Misc/Option.h"
 
@@ -48,20 +48,66 @@ namespace component
 	{
 	}
 
+	void DirectionalLightComponent::SetCameraDistance(float distance)
+	{
+		m_Distance = distance;
+	}
+
 	void DirectionalLightComponent::SetDirection(float3 direction)
 	{
 		m_pDirectionalLight->direction = { direction.x, direction.y, direction.z, 0.0f };
 		
 		if (m_pCamera != nullptr)
 		{
-			m_pCamera->SetPosition(-direction.x * 30, -direction.y * 30, -direction.z * 30);
+			m_pCamera->SetPosition(-direction.x * m_Distance, -direction.y * m_Distance, -direction.z * m_Distance);
 			m_pCamera->SetDirection(direction.x, direction.y, direction.z);
 		}
+	}
+
+	void DirectionalLightComponent::SetCameraLeft(float left)
+	{
+		OrthographicCamera* ogCamera = static_cast<OrthographicCamera*>(m_pCamera);
+		ogCamera->SetLeft(left);
+	}
+
+	void DirectionalLightComponent::SetCameraRight(float right)
+	{
+		OrthographicCamera* ogCamera = static_cast<OrthographicCamera*>(m_pCamera);
+		ogCamera->SetRight(right);
+	}
+
+	void DirectionalLightComponent::SetCameraBot(float bot)
+	{
+		OrthographicCamera* ogCamera = static_cast<OrthographicCamera*>(m_pCamera);
+		ogCamera->SetBot(bot);
+	}
+
+	void DirectionalLightComponent::SetCameraTop(float top)
+	{
+		OrthographicCamera* ogCamera = static_cast<OrthographicCamera*>(m_pCamera);
+		ogCamera->SetTop(top);
+	}
+
+	void DirectionalLightComponent::SetCameraNearZ(float nearPlaneDistance)
+	{
+		OrthographicCamera* ogCamera = static_cast<OrthographicCamera*>(m_pCamera);
+		ogCamera->SetNearZ(nearPlaneDistance);
+	}
+
+	void DirectionalLightComponent::SetCameraFarZ(float farPlaneDistance)
+	{
+		OrthographicCamera* ogCamera = static_cast<OrthographicCamera*>(m_pCamera);
+		ogCamera->SetFarZ(farPlaneDistance);
 	}
 
 	void* DirectionalLightComponent::GetLightData() const
 	{
 		return m_pDirectionalLight;
+	}
+
+	void DirectionalLightComponent::UpdateLightColor()
+	{
+		m_pDirectionalLight->baseLight.color = m_pBaseLight->color;
 	}
 
 	void DirectionalLightComponent::initFlagUsages()
@@ -87,10 +133,5 @@ namespace component
 				m_pDirectionalLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
 			}
 		}
-	}
-
-	void DirectionalLightComponent::UpdateLightColor()
-	{
-		m_pDirectionalLight->baseLight.color = m_pBaseLight->color;
 	}
 }
