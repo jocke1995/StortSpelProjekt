@@ -59,6 +59,7 @@ int main()
 			std::cout << "\"AddClient\" to add a player slot" << std::endl;
 			std::cout << "\"Packet\" to toggle showing individual packets" << std::endl;
 			std::cout << "\"Kick:X\" to kick 'X' player" << std::endl;
+			std::cout << "\"Quit\" to kick 'X' player" << std::endl;
 		}
 		if (strcmp(str.c_str(), "AddClient") == 0)
 		{
@@ -84,7 +85,7 @@ int main()
 			gameState.Update(dt);
 		}
 
-		if (strcmp(str.c_str(), "quit") == 0)
+		if (strcmp(str.c_str(), "Quit") == 0)
 		{
 			break;
 		}

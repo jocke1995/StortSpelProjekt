@@ -681,7 +681,6 @@ Scene* AntonTestScene(SceneManager* sm)
     component::PointLightComponent* plc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PlayerInputComponent* pic = nullptr;
-    component::TextComponent* txc = nullptr;
     component::CollisionComponent* bcc = nullptr;
 
     /*--------------------- Player ---------------------*/
@@ -711,7 +710,7 @@ Scene* AntonTestScene(SceneManager* sm)
 
     enemyFactory.SetScene(scene);
 
-    enemyFactory.AddEnemy("conan", barbModel, 20, float3{ 50.0, 1.0, -10.0 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 0.0f);
+    enemyFactory.AddEnemy("conan", barbModel, 20, float3{ 50.0, 1.0, -10.0 }, L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 0.0f);
     enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 0.0 });
     enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 10.0 });
     enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 20.0 });
