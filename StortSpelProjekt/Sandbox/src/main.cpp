@@ -1011,7 +1011,6 @@ Scene* JockesTestScene(SceneManager* sm)
         tc->GetTransform()->SetRotationY(PI / 4);
         tc->GetTransform()->SetRotationZ(PI / 4);
     }
-    
     /* ---------------------- Cube ---------------------- */
 
     /* ---------------------- PointLightDynamic ---------------------- */
@@ -1075,7 +1074,6 @@ Scene* JockesTestScene(SceneManager* sm)
      /* ---------------------- Update Function ---------------------- */
     UpdateScene = &JockeUpdateScene;
     return scene;
-
 }
 
 Scene* FloppipTestScene(SceneManager* sm)

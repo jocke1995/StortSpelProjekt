@@ -47,7 +47,7 @@ const DirectX::XMMATRIX* PerspectiveCamera::GetViewProjectionTranposed() const
 
 void PerspectiveCamera::SetFov(float fov)
 {
-	m_Fov = fov;
+	m_Fov = fov * DirectX::XM_PI / 180.0f;
 	updateProjectionMatrix();
 }
 
