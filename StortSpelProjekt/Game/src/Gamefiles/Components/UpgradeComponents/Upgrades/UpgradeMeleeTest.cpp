@@ -4,8 +4,13 @@
 
 UpgradeMeleeTest::UpgradeMeleeTest(Entity* parentEntity) : Upgrade(parentEntity)
 {
+	// set the name of the upgrade
 	SetName("UpgradeMeleeTest");
+	// set the type of the upgrade
 	SetType(F_UpgradeType::PLAYER);
+	// set the price of the upgrade
+	m_Price = 3;
+
 	m_DamageChange = 2;
 }
 

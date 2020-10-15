@@ -2,6 +2,7 @@
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 #include "Player.h"
+#include "Shop.h"
 
 Scene* JacobsTestScene(SceneManager* sm);
 Scene* LeosTestScene(SceneManager* sm);
@@ -1736,13 +1737,18 @@ Scene* AndresTestScene(SceneManager* sm)
     // initialize OBB after we have the transform info
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
-
-    // upgrade test. This functionality will be handled by shop.
+    
+    // Shop/Upgrade test
+    // Set the player entity in Player
     Player::GetInstance().SetPlayer(entity);
-    Player::GetInstance().GetUpgradeManager()->ApplyUpgrade("UpgradeRangeTest");
-    Player::GetInstance().GetPlayer()->GetComponent<component::UpgradeComponent>()->GetUpgradeByName("UpgradeRangeTest")->ApplyStat();
-    Player::GetInstance().GetUpgradeManager()->ApplyUpgrade("UpgradeMeleeTest");
-    Player::GetInstance().GetPlayer()->GetComponent<component::UpgradeComponent>()->GetUpgradeByName("UpgradeMeleeTest")->ApplyStat();
+    // Create the shop
+    Shop shop;
+    // Fill the inventory in shop
+    shop.RandomizeInventory();
+    // We only have 2 upgrades so add them both.
+    // If a projectile starts flying up into the sky on collision then it works.
+    shop.ApplyUppgrade(shop.GetInventoryNames().at(0));
+    shop.ApplyUppgrade(shop.GetInventoryNames().at(1));
 
     /* ---------------------- Player ---------------------- */
 
