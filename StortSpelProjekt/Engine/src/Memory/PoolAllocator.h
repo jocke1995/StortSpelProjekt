@@ -9,6 +9,7 @@ public:
 	template<typename... Args>
 	T* Allocate(Args... args);
 	void Free(T* ptr);
+	void Delete(T* ptr);
 	void Reserve(unsigned int nrOf);
 	~PoolAllocator();
 	unsigned int Allocated() const;
@@ -52,6 +53,13 @@ inline void PoolAllocator<T>::Free(T* ptr)
 	head->next = m_pFreeHead;
 	m_pFreeHead = head;
 	m_Allocated--;
+}
+
+template<typename T>
+inline void PoolAllocator<T>::Delete(T* ptr)
+{
+	ptr->~T();
+	Free(ptr);
 }
 
 template<typename T>
