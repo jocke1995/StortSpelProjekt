@@ -50,7 +50,7 @@ void UpgradeManager::ApplyRangeUpgrades(Entity* ent)
 	for (auto upgradeName : m_AllAppliedProjectileUpgrades)
 	{
 		// get NEW RangeUpgrade for the projectile entity
-		rangeUpgrade = RangeUpgrade(upgradeName, ent);
+		rangeUpgrade = newRangeUpgrade(upgradeName, ent);
 		// Check if the upgrade has increased in level. 
 		// If so increase level of the new upgrade so it matches the one in m_AllAvailableUpgrades
 		// i = 1, because upgrades start at level 1.
@@ -139,7 +139,7 @@ bool UpgradeManager::checkIfPlayerEntityUpgrade(std::string name)
 	}
 }
 
-Upgrade* UpgradeManager::RangeUpgrade(std::string name, Entity* ent)
+Upgrade* UpgradeManager::newRangeUpgrade(std::string name, Entity* ent)
 {
 	// Using the enum that is mapped to name,
 	// return the correct NEW range upgrade with parentEntity ent

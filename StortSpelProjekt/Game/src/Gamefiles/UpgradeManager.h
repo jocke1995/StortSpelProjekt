@@ -60,7 +60,7 @@ private:
 	bool checkIfPlayerEntityUpgrade(std::string name);
 	// Returns a new Upgrade, of type RANGE, so that 
 	// every projectile entity has it's own version of that Upgrade.
-	Upgrade* RangeUpgrade(std::string name, Entity* ent);
+	Upgrade* newRangeUpgrade(std::string name, Entity* ent);
 };
 
 
