@@ -15,6 +15,8 @@
 
 QuadManager::QuadManager()
 {
+	m_Id = s_Id;
+	s_Id++;
 }
 
 QuadManager::~QuadManager()
@@ -27,9 +29,14 @@ QuadManager::~QuadManager()
 	}
 }
 
+bool QuadManager::operator==(const QuadManager& other) const
+{
+	return (m_Id == other.m_Id);
+}
+
 void QuadManager::CreateQuad(float2 pos, float2 size, bool clickable, std::wstring texturePath)
 {
-	// Loof if we are going to overwrite the current quad
+	// Look if we are going to overwrite the current quad
 	if (m_pQuad != nullptr)
 	{
 		delete m_pQuad;
@@ -88,45 +95,13 @@ void QuadManager::CreateQuad(float2 pos, float2 size, bool clickable, std::wstri
 
 	Renderer* renderer = &Renderer::GetInstance();
 
-	m_pQuad = new Mesh(renderer->m_pDevice5, &m_Vertices, &indices, renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	m_pQuad = new Mesh(
+		renderer->m_pDevice5, 
+		&m_Vertices, &indices, 
+		renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], 
+		to_wstring(std::to_string(m_Id)));
 
-	m_pQuad->m_pUploadResourceVertices = new Resource(renderer->m_pDevice5, m_pQuad->GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
-	m_pQuad->m_pDefaultResourceVertices = new Resource(renderer->m_pDevice5, m_pQuad->GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
-
-	// Vertices
-	const void* data = static_cast<const void*>(m_pQuad->m_Vertices.data());
-	Resource* uploadR = m_pQuad->m_pUploadResourceVertices;
-	Resource* defaultR = m_pQuad->m_pDefaultResourceVertices;
-
-	// Create SRV
-	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
-	dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	dsrv.Buffer.FirstElement = 0;
-	dsrv.Format = DXGI_FORMAT_UNKNOWN;
-	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	dsrv.Buffer.NumElements = m_pQuad->GetNumVertices();
-	dsrv.Buffer.StructureByteStride = sizeof(Vertex);
-
-	m_pQuad->m_pSRV = new ShaderResourceView(
-		renderer->m_pDevice5,
-		renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
-		&dsrv,
-		m_pQuad->m_pDefaultResourceVertices);
-
-	// Set indices resource
-	m_pQuad->m_pUploadResourceIndices = new Resource(renderer->m_pDevice5, m_pQuad->GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
-	m_pQuad->m_pDefaultResourceIndices = new Resource(renderer->m_pDevice5, m_pQuad->GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
-
-	// inidices
-	data = static_cast<const void*>(m_pQuad->m_Indices.data());
-	uploadR = m_pQuad->m_pUploadResourceIndices;
-	defaultR = m_pQuad->m_pDefaultResourceIndices;
-
-	// Set indexBufferView
-	m_pQuad->m_pIndexBufferView = new D3D12_INDEX_BUFFER_VIEW();
-	m_pQuad->m_pIndexBufferView->BufferLocation = m_pQuad->m_pDefaultResourceIndices->GetGPUVirtualAdress();
-	m_pQuad->m_pIndexBufferView->Format = DXGI_FORMAT_R32_UINT;
-	m_pQuad->m_pIndexBufferView->SizeInBytes = m_pQuad->GetSizeOfIndices();
+	m_pQuad->Init(renderer->m_pDevice5, renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 
 	if (m_Clickable)
 	{
@@ -159,17 +134,9 @@ void QuadManager::pressed(MouseClick* evnt)
 {
 	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN && evnt->pressed == true)
 	{
-		// Get the mouse position from your screenspace
-		POINT p;
-		GetCursorPos(&p);
-
-		// Transform the position from your screenspace to the clientspace (space of the window)
+		int x = 0, y = 0;
 		Renderer* renderer = &Renderer::GetInstance();
-		ScreenToClient(*renderer->m_pWindow->GetHwnd(), &p);
-
-		// Transform the clientspace to the DirectX coordinates (0, 0) = (-1, 1)
-		float x = (static_cast<float>(p.x) / (renderer->m_pWindow->GetScreenWidth() / 2)) - 1;
-		float y = -((static_cast<float>(p.y) / (renderer->m_pWindow->GetScreenHeight() / 2)) - 1);
+		renderer->m_pWindow->MouseToScreenspace(&x, &y);
 
 		if ((x >= m_Positions["upper_left"].x && y <= m_Positions["upper_left"].y)
 			&& (x >= m_Positions["lower_left"].x && y >= m_Positions["lower_left"].y)

@@ -238,6 +238,20 @@ bool Window::ExitWindow()
 	return closeWindow;
 }
 
+void Window::MouseToScreenspace(int* x, int* y) const
+{
+	// Get the mouse position from your screenspace
+	POINT p;
+	GetCursorPos(&p);
+
+	// Transform the position from your screenspace to the clientspace (space of the window)
+	ScreenToClient(m_Hwnd, &p);
+
+	// Transform the clientspace to the DirectX coordinates (0, 0) = (-1, 1)
+	*x = (static_cast<float>(p.x) / (m_ScreenWidth / 2)) - 1;
+	*y = -((static_cast<float>(p.y) / (m_ScreenHeight / 2)) - 1);
+}
+
 bool Window::WasSpacePressed()
 {
 	if (spacePressed == true)

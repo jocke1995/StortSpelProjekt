@@ -30,10 +30,10 @@ public:
 
 	Font* GetFont() const;
 	Texture* GetFontTexture() const;
-	Text* GetText(std::string name);
+	Text* GetText(std::string name) const;
 	std::map<std::string, Text*>* GetTextMap();
 	const int GetNumOfTexts() const;
-	const int GetNumOfCharacters(std::string name);
+	const int GetNumOfCharacters(std::string name) const;
 
 	void UploadTextData(std::string name);
 

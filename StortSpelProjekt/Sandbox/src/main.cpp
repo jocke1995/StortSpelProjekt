@@ -2034,6 +2034,7 @@ void FredriksUpdateScene(SceneManager* sm)
 	static float red = 0, green = 1, blue = 0.5;
 	float4 color = float4{ abs(sin(red)), abs(sin(green)), abs(sin(blue)), 1.0 };
 	tc->GetTextManager()->SetColor(color, "health");
+	tc->GetTextManager()->UploadTextData("health");
 	red += 0.01;
 	green += 0.01;
 	blue += 0.01;

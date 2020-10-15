@@ -19,8 +19,6 @@ namespace component
 
 		void Update(double dt);
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
 
 	private:
 		friend class Renderer;

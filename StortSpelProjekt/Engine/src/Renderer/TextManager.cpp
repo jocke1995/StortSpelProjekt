@@ -114,7 +114,6 @@ void TextManager::SetText(std::string text, std::string name)
 	{
 		m_TextDataMap[name].text = to_wstring(text);
 		exists = true;
-		UploadTextData(name);
 	}
 
 	if (exists == false)
@@ -131,7 +130,6 @@ void TextManager::SetPos(float2 textPos, std::string name)
 	{
 		m_TextDataMap[name].pos = textPos;
 		exists = true;
-		UploadTextData(name);
 	}
 
 	if (exists == false)
@@ -167,7 +165,6 @@ void TextManager::SetScale(float2 scale, std::string name)
 		m_TextDataMap[name].scale.y = (scale.y * scale_y * aspect);
 
 		exists = true;
-		UploadTextData(name);
 	}
 
 	if (exists == false)
@@ -184,7 +181,6 @@ void TextManager::SetPadding(float2 padding, std::string name)
 	{
 		m_TextDataMap[name].padding = padding;
 		exists = true;
-		UploadTextData(name);
 	}
 
 	if (exists == false)
@@ -201,7 +197,6 @@ void TextManager::SetColor(float4 color, std::string name)
 	{
 		m_TextDataMap[name].color = color;
 		exists = true;
-		UploadTextData(name);
 	}
 
 	if (exists == false)
@@ -220,9 +215,9 @@ Texture* TextManager::GetFontTexture() const
 	return m_pFont->GetTexture();
 }
 
-Text* TextManager::GetText(std::string name)
+Text* TextManager::GetText(std::string name) const
 {
-	return m_TextMap[name];
+	return m_TextMap.at(name);
 }
 
 std::map<std::string, Text*>* TextManager::GetTextMap()
@@ -235,9 +230,9 @@ const int TextManager::GetNumOfTexts() const
 	return m_TextMap.size();
 }
 
-const int TextManager::GetNumOfCharacters(std::string name)
+const int TextManager::GetNumOfCharacters(std::string name) const
 {
-	return m_TextDataMap[name].text.size();
+	return m_TextDataMap.at(name).text.size();
 }
 
 void TextManager::submitText(Text* text, std::string name)

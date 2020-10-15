@@ -1,8 +1,6 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-//#include "../Renderer/Renderer.h"
-
 class Window;
 class Resource;
 class ShaderResourceView;

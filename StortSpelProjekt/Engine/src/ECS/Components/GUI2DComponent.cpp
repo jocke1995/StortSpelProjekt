@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "GUI2DComponent.h"
 
-#include "../Renderer/TextManager.h"
-#include "../Renderer/QuadManager.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/Texture/Texture.h"
 
