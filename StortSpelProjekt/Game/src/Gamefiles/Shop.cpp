@@ -7,8 +7,8 @@
 Shop::Shop()
 {
 	m_pUpgradeManager = Player::GetInstance().GetUpgradeManager();
-	m_AllAvailableUppgrades = m_pUpgradeManager->GetAllAvailableUpgrades();
-	for (auto upgrade : m_AllAvailableUppgrades)
+	m_AllAvailableUpgrades = m_pUpgradeManager->GetAllAvailableUpgrades();
+	for (auto upgrade : m_AllAvailableUpgrades)
 	{
 		m_UpgradeNames.push_back(upgrade.first);
 	}
@@ -39,7 +39,7 @@ void Shop::RandomizeInventory()
 			// need to reset this bool every loop
 			inStock = false;
 			// Get a random number that will be used to get an upgrade to the inventory
-			upgradeNum = m_Rand.Rand(0, m_AllAvailableUppgrades.size());
+			upgradeNum = m_Rand.Rand(0, m_AllAvailableUpgrades.size());
 			// Take this number to get a name from m_UpgradeNames, which contains all avalible upgrades
 			name = m_UpgradeNames.at(upgradeNum);
 			for (auto names : m_InventoryNames)
@@ -57,8 +57,8 @@ void Shop::RandomizeInventory()
 		// When we get an upgrade that was not in already in our inventory,
 		// we add it to the inventory.
 		m_InventoryNames.push_back(name);
-		m_Prices[name] = m_AllAvailableUppgrades[name]->GetPrice();
-		m_UpgradeDescriptions[name] = m_AllAvailableUppgrades[name]->GetDescription();
+		m_Prices[name] = m_AllAvailableUpgrades[name]->GetPrice();
+		m_UpgradeDescriptions[name] = m_AllAvailableUpgrades[name]->GetDescription();
 	}
 
 
@@ -70,7 +70,7 @@ void Shop::ApplyUppgrade(std::string name)
 	{
 		// Using m_AllAvailableUppgrades instead of upgradeComponents m_AppliedUpgrades 
 		// because we want to increase level of RANGE type upgrades as well.
-		m_AllAvailableUppgrades[name]->IncreaseLevel();
+		m_AllAvailableUpgrades[name]->IncreaseLevel();
 	}
 	else
 	{

@@ -46,7 +46,7 @@ private:
 	// upgradeManager
 	UpgradeManager* m_pUpgradeManager = nullptr;
 	// all upgrades mapped to their names
-	std::map<std::string, Upgrade*> m_AllAvailableUppgrades;
+	std::map<std::string, Upgrade*> m_AllAvailableUpgrades;
 	// vector of all upgrades names
 	std::vector<std::string> m_UpgradeNames;
 	// vector of names of the upgrades in inventory
