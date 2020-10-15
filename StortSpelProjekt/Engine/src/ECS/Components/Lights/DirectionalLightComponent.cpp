@@ -71,7 +71,7 @@ namespace component
 			int textFileSetting = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
 			if (textFileSetting >= 0)
 			{
-				CreateCamera(
+				CreateOrthographicCamera(
 					{
 					-m_pDirectionalLight->direction.x * 10,
 					-m_pDirectionalLight->direction.y * 10,
@@ -89,7 +89,7 @@ namespace component
 		}
 	}
 
-	void DirectionalLightComponent::UpdateLightIntensity()
+	void DirectionalLightComponent::UpdateLightColor()
 	{
 		m_pDirectionalLight->baseLight.color = m_pBaseLight->color;
 	}

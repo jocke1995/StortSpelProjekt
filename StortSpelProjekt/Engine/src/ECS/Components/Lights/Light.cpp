@@ -34,7 +34,7 @@ void Light::SetColor(float3 color)
 {
 	m_pBaseLight->color = color;
 
-	UpdateLightIntensity();
+	UpdateLightColor();
 }
 
 unsigned int Light::GetLightFlags() const
@@ -47,20 +47,38 @@ BaseCamera* Light::GetCamera() const
 	return m_pCamera;
 }
 
-void Light::CreateCamera(float3 position, float3 direction)
+void Light::CreateOrthographicCamera(
+	float3 position, float3 direction,
+	float left,
+	float right,
+	float bot,
+	float top,
+	float nearZ,
+	float farZ)
 {
-	switch (m_CameraType)
-	{
-		case CAMERA_TYPE::ORTHOGRAPHIC:
-			m_pCamera = new OrthographicCamera(
-			{ position.x, position.y, position.z , 1.0f},
-			{ direction.x, direction.y, direction.z , 0.0f});
-			break; 
-		case CAMERA_TYPE::PERSPECTIVE:
-			m_pCamera = new PerspectiveCamera(
-				{ position.x, position.y, position.z, 1.0f},
-				{ direction.x, direction.y, direction.z , 0.0f},
-				160.0f);	// Field of view
-			break;
-	}
+	DirectX::XMVECTOR pos = { position.x, position.y, position.z , 1.0f };
+	DirectX::XMVECTOR dir = { direction.x, direction.y, direction.z , 0.0f };
+
+		m_pCamera = new OrthographicCamera(
+			pos, dir,
+			left, right,
+			bot, top,
+			nearZ, farZ);
+}
+
+void Light::CreatePerspectiveCamera(
+	float3 position, float3 direction,
+	float fov,
+	float aspectRatio,
+	float nearZ, float farZ)
+{
+	DirectX::XMVECTOR pos = { position.x, position.y, position.z , 1.0f };
+	DirectX::XMVECTOR dir = { direction.x, direction.y, direction.z , 0.0f };
+
+	m_pCamera = new PerspectiveCamera(
+		pos, dir,
+		fov,
+		aspectRatio,
+		nearZ,
+		farZ);
 }

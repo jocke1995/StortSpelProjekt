@@ -46,9 +46,26 @@ protected:
 
 	BaseCamera* m_pCamera = nullptr;
 	CAMERA_TYPE m_CameraType;
-	void CreateCamera(float3 position, float3 direction);
 
-	virtual void UpdateLightIntensity() = 0;
+	// Orthographic
+	void CreateOrthographicCamera(
+		float3 position, float3 direction,
+		float left = -30.0f,
+		float right = 30.0f,
+		float bot = -30.0f,
+		float top = 30.0f,
+		float nearZ = 0.01f,
+		float farZ = 1000.0f);
+
+	// Perspective
+	void CreatePerspectiveCamera(
+		float3 position, float3 direction,
+		float fov = 45.0f,
+		float aspectRatio = 1.0f,
+		float nearZ = 0.1f,
+		float farZ = 1000.0f);
+
+	virtual void UpdateLightColor() = 0;
 
 };
 

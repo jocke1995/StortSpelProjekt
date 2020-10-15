@@ -133,7 +133,7 @@ namespace component
             int textFileSetting = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
             if (textFileSetting >= 0)
             {
-                CreateCamera(
+                CreatePerspectiveCamera(
                     {
                     m_pSpotLight->position_cutOff.x,
                     m_pSpotLight->position_cutOff.y,
@@ -151,7 +151,7 @@ namespace component
         }
     }
 
-    void SpotLightComponent::UpdateLightIntensity()
+    void SpotLightComponent::UpdateLightColor()
     {
         m_pSpotLight->baseLight.color = m_pBaseLight->color;
     }
