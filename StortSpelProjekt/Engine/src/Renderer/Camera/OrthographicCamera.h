@@ -48,6 +48,7 @@ private:
     DirectX::XMMATRIX m_ViewProjMatrix;
     DirectX::XMMATRIX m_ViewProjTranposedMatrix;
 
+    void updateProjectionMatrix();
     void updateSpecific(double dt);
 };
 

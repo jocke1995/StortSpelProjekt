@@ -4,7 +4,14 @@
 PerspectiveCamera::PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR direction, double fov, double aspectRatio, double zNear, double zFar)
 	:BaseCamera(position, direction)
 {
-	init(fov, aspectRatio, zNear, zFar);
+	m_Fov = fov * DirectX::XM_PI / 180.0f;
+	m_AspectRatio = aspectRatio;
+	m_ZNear = zNear;
+	m_ZFar = zFar;
+
+	updateProjectionMatrix();
+
+	// Init
 	updateSpecific(0);
 }
 
@@ -13,20 +20,13 @@ PerspectiveCamera::~PerspectiveCamera()
 
 }
 
-void PerspectiveCamera::init(double fov, double aspectRatio, double zNear, double zFar)
+void PerspectiveCamera::updateProjectionMatrix()
 {
-	// Create Projection Matrix
-	m_Fov = fov * DirectX::XM_PI / 180.0f;
-	m_AspectRatio = aspectRatio;
-	m_ZNear = zNear;
-	m_ZFar = zFar;
 	m_ProjMatrix = DirectX::XMMatrixPerspectiveFovLH(m_Fov, m_AspectRatio, m_ZNear, m_ZFar);
 }
 
 void PerspectiveCamera::updateSpecific(double dt)
 {
-	updateCameraMovement(dt);
-
 	m_ViewProjMatrix = m_ViewMatrix * m_ProjMatrix;
 	m_ViewProjTranposedMatrix = DirectX::XMMatrixTranspose(m_ViewProjMatrix);
 }

@@ -10,14 +10,16 @@ OrthographicCamera::OrthographicCamera(DirectX::XMVECTOR position, DirectX::XMVE
 	m_Top = top;
 	m_NearZ = nearZ;
 	m_FarZ = farZ;
-	m_ProjMatrix = DirectX::XMMatrixOrthographicOffCenterLH(left, right, bot, top, nearZ, farZ);
+
+	updateProjectionMatrix();
+
 	updateSpecific(0);
 }
 OrthographicCamera::~OrthographicCamera()
 {
 }
 
-void OrthographicCamera::updateSpecific(double dt)
+void OrthographicCamera::updateProjectionMatrix()
 {
 	m_ProjMatrix = DirectX::XMMatrixOrthographicOffCenterLH(
 		m_Left,
@@ -26,7 +28,10 @@ void OrthographicCamera::updateSpecific(double dt)
 		m_Top,
 		m_NearZ,
 		m_FarZ);
+}
 
+void OrthographicCamera::updateSpecific(double dt)
+{
 	m_ViewProjMatrix = m_ViewMatrix * m_ProjMatrix;
 	m_ViewProjTranposedMatrix = DirectX::XMMatrixTranspose(m_ViewProjMatrix);
 }
@@ -74,35 +79,35 @@ const float OrthographicCamera::GetFarZ() const
 void OrthographicCamera::SetLeft(float left)
 {
 	m_Left = left;
-	updateSpecific(0);
+	updateProjectionMatrix();
 }
 
 void OrthographicCamera::SetRight(float right)
 {
 	m_Right = right;
-	updateSpecific(0);
+	updateProjectionMatrix();
 }
 
 void OrthographicCamera::SetBot(float bot)
 {
 	m_Bot = bot;
-	updateSpecific(0);
+	updateProjectionMatrix();
 }
 
 void OrthographicCamera::SetTop(float top)
 {
 	m_Top = top;
-	updateSpecific(0);
+	updateProjectionMatrix();
 }
 
 void OrthographicCamera::SetNearZ(float nearPlaneDistance)
 {
 	m_NearZ = nearPlaneDistance;
-	updateSpecific(0);
+	updateProjectionMatrix();
 }
 
 void OrthographicCamera::SetFarZ(float farPlaneDistance)
 {
 	m_FarZ = farPlaneDistance;
-	updateSpecific(0);
+	updateProjectionMatrix();
 }
