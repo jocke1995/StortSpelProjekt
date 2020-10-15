@@ -31,7 +31,7 @@ public:
 
 	bool ExitWindow();
 
-	void MouseToScreenspace(int* x, int* y) const;
+	void MouseToScreenspace(float* x, float* y) const;
 
 	// Temp
 	bool WasSpacePressed();

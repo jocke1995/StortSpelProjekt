@@ -62,13 +62,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
-	//Scene* fredrikScene = FredriksTestScene(sceneManager);
+	Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager); 
     //Scene* antonScene = AntonTestScene(sceneManager);
-    Scene* andresScene = AndresTestScene(sceneManager); // upgrade-test
+   // Scene* andresScene = AndresTestScene(sceneManager); // upgrade-test
 
-    Scene* activeScenes[] = { andresScene };
+    Scene* activeScenes[] = { fredrikScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);

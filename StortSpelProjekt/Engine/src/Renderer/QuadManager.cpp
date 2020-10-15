@@ -134,7 +134,7 @@ void QuadManager::pressed(MouseClick* evnt)
 {
 	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN && evnt->pressed == true)
 	{
-		int x = 0, y = 0;
+		float x = 0, y = 0;
 		Renderer* renderer = &Renderer::GetInstance();
 		renderer->m_pWindow->MouseToScreenspace(&x, &y);
 

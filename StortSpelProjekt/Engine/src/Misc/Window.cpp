@@ -238,12 +238,12 @@ bool Window::ExitWindow()
 	return closeWindow;
 }
 
-void Window::MouseToScreenspace(int* x, int* y) const
+void Window::MouseToScreenspace(float* x, float* y) const
 {
 	// Get the mouse position from your screenspace
 	POINT p;
 	GetCursorPos(&p);
-
+	
 	// Transform the position from your screenspace to the clientspace (space of the window)
 	ScreenToClient(m_Hwnd, &p);
 
