@@ -3,13 +3,13 @@
 
 PerspectiveCamera::PerspectiveCamera(
 	DirectX::XMVECTOR position, DirectX::XMVECTOR direction,
-	float fov, float aspectRatio, float zNear, float zFar)
+	float fov, float aspectRatio, float nearZ, float farZ)
 	:BaseCamera(position, direction)
 {
 	m_Fov = fov * DirectX::XM_PI / 180.0f;
 	m_AspectRatio = aspectRatio;
-	m_ZNear = zNear;
-	m_ZFar = zFar;
+	m_NearZ = nearZ;
+	m_FarZ = farZ;
 
 	updateProjectionMatrix();
 
@@ -24,7 +24,7 @@ PerspectiveCamera::~PerspectiveCamera()
 
 void PerspectiveCamera::updateProjectionMatrix()
 {
-	m_ProjMatrix = DirectX::XMMatrixPerspectiveFovLH(m_Fov, m_AspectRatio, m_ZNear, m_ZFar);
+	m_ProjMatrix = DirectX::XMMatrixPerspectiveFovLH(m_Fov, m_AspectRatio, m_NearZ, m_FarZ);
 }
 
 void PerspectiveCamera::updateSpecific(double dt)
@@ -41,6 +41,30 @@ const DirectX::XMMATRIX* PerspectiveCamera::GetViewProjection() const
 const DirectX::XMMATRIX* PerspectiveCamera::GetViewProjectionTranposed() const
 {
 	return &m_ViewProjTranposedMatrix;
+}
+
+void PerspectiveCamera::SetFov(float fov)
+{
+	m_Fov = fov;
+	updateProjectionMatrix();
+}
+
+void PerspectiveCamera::SetAspectRatio(float aspectRatio)
+{
+	m_AspectRatio = aspectRatio;
+	updateProjectionMatrix();
+}
+
+void PerspectiveCamera::SetNearZ(float nearPlaneDistance)
+{
+	m_NearZ = nearPlaneDistance;
+	updateProjectionMatrix();
+}
+
+void PerspectiveCamera::SetFarZ(float farPlaneDistance)
+{
+	m_FarZ = farPlaneDistance;
+	updateProjectionMatrix();
 }
 
 void PerspectiveCamera::UpdateMovement(float x, float y, float z)
