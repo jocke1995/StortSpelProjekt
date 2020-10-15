@@ -1,5 +1,8 @@
 #include "Shop.h"
 #include <time.h>
+#include "EngineMath.h"
+#include "ECS/Entity.h"
+#include "Components/CurrencyComponent.h"
 
 Shop::Shop()
 {
@@ -53,7 +56,7 @@ void Shop::RandomizeInventory()
 		// When we get an upgrade that was not in already in our inventory,
 		// we add it to the inventory.
 		m_InventoryNames.push_back(name);
-		m_Inventory[name] = m_AllAvailableUppgrades[name];
+		m_Prices[name] = m_AllAvailableUppgrades[name]->GetPrice();
 		m_UpgradeDescriptions[name] = m_AllAvailableUppgrades[name]->GetDescription();
 	}
 
@@ -79,6 +82,16 @@ void Shop::SetInventorySize(int size)
 	m_InvSize = size;
 }
 
+void Shop::SetPlayerBalance(int newBalance)
+{
+	Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->SetBalance(newBalance);
+}
+
+void Shop::ChangePlayerBalance(int change)
+{
+	Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->ChangeBalance(change);
+}
+
 int Shop::GetInventorySize()
 {
 	return m_InvSize;
@@ -99,9 +112,23 @@ std::string Shop::GetUpgradeDiscription(std::string name)
 	return m_UpgradeDescriptions[name];
 }
 
+std::map<std::string, int> Shop::GetPrices()
+{
+	return m_Prices;
+}
+
+int Shop::GetPrice(std::string name)
+{
+	return m_Prices[name];
+}
+
+int Shop::GetPlayerBalance()
+{
+	return Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->GetBalace();
+}
+
 void Shop::clearInventory()
 {
-	m_Inventory.clear();
 	m_InventoryNames.clear();
 	m_UpgradeDescriptions.clear();
 }

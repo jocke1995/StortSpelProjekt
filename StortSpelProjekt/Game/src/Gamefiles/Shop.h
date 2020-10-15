@@ -21,6 +21,10 @@ public:
 	void ApplyUppgrade(std::string name);
 	// Set the size of inventory
 	void SetInventorySize(int size);
+	// Set player currencyComponents currency
+	void SetPlayerBalance(int newBalance);
+	// Change player currency balance
+	void ChangePlayerBalance(int change);
 
 	// Get size of inventory
 	int GetInventorySize();
@@ -31,7 +35,11 @@ public:
 	// Get discription for an upgrade in inventory using its name as input.
 	std::string GetUpgradeDiscription(std::string name);
 	// Get prices of upgrades in inventory
-	int GetPrices();
+	std::map<std::string, int> GetPrices();
+	// Get price of an upgrade using its name as input
+	int GetPrice(std::string name);
+	// Get player currency balance
+	int GetPlayerBalance();
 
 
 private:
@@ -49,11 +57,8 @@ private:
 	EngineRand m_Rand;
 	// Contains the description of all upgrades currently in the inventory
 	std::map<std::string, std::string> m_UpgradeDescriptions;
-	// list of all UI-components
-	// list of buyable uppgrades maped to names
-	std::map<std::string, Upgrade*> m_Inventory;
-	//// cost of uppgrades mapped to names
-	//std::
+	// cost of uppgrades mapped to names
+	std::map<std::string, int> m_Prices;
 
 	// clears the inventory vector as well as the m_UpgradeDescriptions map
 	void clearInventory();
