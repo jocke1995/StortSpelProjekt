@@ -13,8 +13,8 @@ Scene* FloppipTestScene(SceneManager* sm);
 Scene* FredriksTestScene(SceneManager* sm);
 Scene* WilliamsTestScene(SceneManager* sm);
 Scene* AndresTestScene(SceneManager* sm);
-Scene* BjornsTestScene(SceneManager* sm);
 Scene* AntonTestScene(SceneManager* sm);
+Scene* BjornsTestScene(SceneManager* sm);
 
 
 void(*UpdateScene)(SceneManager*);
@@ -130,7 +130,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 Scene* JacobsTestScene(SceneManager* sm)
 {
-    Scene* scene = sm->CreateScene("BounceScene");
+    Scene* scene = sm->CreateScene("JacobScene");
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -271,7 +271,7 @@ Scene* JacobsTestScene(SceneManager* sm)
 Scene* LeosTestScene(SceneManager* sm)
 {
     // Create scene
-    Scene* scene = sm->CreateScene("ThatSceneWithThemThereDashFeaturesAndStuff");
+    Scene* scene = sm->CreateScene("LeoScene");
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
@@ -295,9 +295,9 @@ Scene* LeosTestScene(SceneManager* sm)
     Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
     HeightmapModel* heightMapModel = al->LoadHeightmap(L"../Vendor/Resources/Textures/HeightMaps/tst.hm");
 
-    double3 entityDim;
-
 #pragma region entities
+
+    double3 entityDim;
 
 #pragma region player
     Entity* entity = (scene->AddEntity("player"));
@@ -305,19 +305,21 @@ Scene* LeosTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0.0, 20.0, -200.0);
+    tc->GetTransform()->SetPosition(0.0, 20.0, 0.0);
 
     double3 playerDim = mc->GetModelDim();
 
     double rad = playerDim.z / 2.0;
-    double cylHeight = playerDim.y - (rad * 2.0) ;
-    ccc = entity->AddComponent<component::CapsuleCollisionComponent>(1.0, rad, cylHeight, 0.0, 0.0, false);
+    double cylHeight = playerDim.y - (rad * 2.0);
+    ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(50);
     ic->Init();
+    bbc->Init();
 #pragma endregion
 
 #pragma region floor
@@ -342,6 +344,7 @@ Scene* LeosTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f, 10.0f, 1.0f);
     tc->GetTransform()->SetPosition(0.0f, -1.0f, 0.0f);
     tc->GetTransform()->SetRotationY(PI / 2);
+
 #pragma endregion
 
 #pragma region walls
@@ -443,7 +446,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     entityDim = mc->GetModelDim();
 
-    ccc = entity->AddComponent<component::SphereCollisionComponent>(1.0, entityDim.y / 2.0, 1.0, 0.0);
+    ccc = entity->AddComponent<component::SphereCollisionComponent>(100.0, entityDim.y / 2.0, 1.0, 0.0);
 #pragma endregion 2
 
 #pragma region stefan
@@ -611,43 +614,41 @@ Scene* LeosTestScene(SceneManager* sm)
 #pragma endregion
 
 #pragma region navmesh
-    NavMesh navmesh;
+    scene->CreateNavMesh();
+    NavMesh* navmesh = scene->GetNavMesh();
     float3 pos;
     float2 size;
-    pos.x = 0;
-    pos.y = 0;
-    pos.z = 0;
-    size.x = 0.5;
-    size.y = 0.5;
-    NavQuad* nav1 = navmesh.AddNavQuad(pos, size);
-
-    pos.x = 1;
-    pos.y = 0;
-    pos.z = 0;
-    size.x = 0.5;
-    size.y = 0.5;
-    NavQuad* nav2 = navmesh.AddNavQuad(pos, size);
-    pos.x = 0.5;
-    pos.y = 0;
-    navmesh.ConnectNavQuads(nav1, nav2, pos);
-
-    pos.x = 1;
-    pos.y = 1.5;
-    pos.z = 0;
-    size.x = 1;
-    size.y = 1;
-    NavQuad* nav3 = navmesh.AddNavQuad(pos, size);
     pos.x = 0.0;
-    pos.y = 0.5;
-    navmesh.ConnectNavQuads(nav3, nav1, pos);
-    pos.x = 1.0;
-    pos.y = 0.5;
-    navmesh.ConnectNavQuads(nav3, nav2, pos);
+    pos.y = 0.0;
+    pos.z = 0.0;
+    size.x = 5.0;
+    size.y = 5.0;
+    NavQuad* nav1 = navmesh->AddNavQuad(pos, size);
+
+    pos.x = 5.0;
+    pos.y = 0.0;
+    pos.z = 2.0;
+    size.x = 5.0;
+    size.y = 5.0;
+    NavQuad* nav2 = navmesh->AddNavQuad(pos, size);
+    navmesh->ConnectNavQuads(0, 1);
+
+    pos.x = 4.0;
+    pos.y = 0.0;
+    pos.z = -2.0;
+    size.x = 3.0;
+    size.y = 3.0;
+    NavQuad* nav3 = navmesh->AddNavQuad(pos, size);
+    navmesh->ConnectNavQuads(2, 0);
+    navmesh->ConnectNavQuads(2, 1);
 
     pos.x = 1.1;
     pos.y = 0.3;
-    nav1 = navmesh.GetQuad(pos);
+    pos.z = 0.0;
+    nav1 = navmesh->GetQuad(pos);
     nav1 = nav1->connections.at(0)->GetConnectedQuad(nav1);
+
+    navmesh->CreateGrid();
 #pragma endregion
 
     /* ---------------------- Update Function ---------------------- */
@@ -772,7 +773,7 @@ Scene* AntonTestScene(SceneManager* sm)
 
 Scene* LeosBounceScene(SceneManager* sm)
 {
-    Scene* scene = sm->CreateScene("BounceScene");
+    Scene* scene = sm->CreateScene("LeoBounceScene");
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -2056,25 +2057,25 @@ void LeoBounceUpdateScene(SceneManager* sm)
     {
         ImGuiHandler::GetInstance().SetBool("reset", false);
 
-        component::CollisionComponent* cc = sm->GetScene("BounceScene")->GetEntity("player")->GetComponent<component::CollisionComponent>();
+        component::CollisionComponent* cc = sm->GetScene("LeoBounceScene")->GetEntity("player")->GetComponent<component::CollisionComponent>();
         cc->SetPosition(-15.0f, 10.0f, 0.0f);
         cc->SetVelVector(0.0f, 0.0f, 0.0f);
         cc->SetRotation(0.0f, 0.0f, 0.0f);
         cc->SetAngularVelocity(0.0f, 0.0f, 0.0f);
 
-        cc = sm->GetScene("BounceScene")->GetEntity("Sphere1")->GetComponent<component::CollisionComponent>();
+        cc = sm->GetScene("LeoBounceScene")->GetEntity("Sphere1")->GetComponent<component::CollisionComponent>();
         cc->SetPosition(1.0f, 1.0f, 1.0f);
         cc->SetVelVector(0.0f, 0.0f, 0.0f);
         cc->SetRotation(0.0f, 0.0f, 0.0f);
         cc->SetAngularVelocity(0.0f, 0.0f, 0.0f);
 
-        cc = sm->GetScene("BounceScene")->GetEntity("Sphere2")->GetComponent<component::CollisionComponent>();
+        cc = sm->GetScene("LeoBounceScene")->GetEntity("Sphere2")->GetComponent<component::CollisionComponent>();
         cc->SetPosition(-5.0f, 1.0f, 3.5f);
         cc->SetVelVector(0.0f, 0.0f, 0.0f);
         cc->SetRotation(0.0f, 0.0f, 0.0f);
         cc->SetAngularVelocity(0.0f, 0.0f, 0.0f);
 
-        cc = sm->GetScene("BounceScene")->GetEntity("Box")->GetComponent<component::CollisionComponent>();
+        cc = sm->GetScene("LeoBounceScene")->GetEntity("Box")->GetComponent<component::CollisionComponent>();
         cc->SetPosition(5.0f, 1.0f, 4.0f);
         cc->SetVelVector(0.0f, 0.0f, 0.0f);
         cc->SetRotation(0.0f, 0.0f, 0.0f);
@@ -2082,7 +2083,7 @@ void LeoBounceUpdateScene(SceneManager* sm)
     }
     else
     {
-        component::CollisionComponent* cc = sm->GetScene("BounceScene")->GetEntity("Box")->GetComponent<component::CollisionComponent>();
+        component::CollisionComponent* cc = sm->GetScene("LeoBounceScene")->GetEntity("Box")->GetComponent<component::CollisionComponent>();
         cc->SetAngularVelocity(0.0f, 10.0f, 0.0f);
     }
 }

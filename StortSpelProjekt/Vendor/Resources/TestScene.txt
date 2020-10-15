@@ -23,6 +23,7 @@ ModelRestitution 1.0
 Submit Model
 Submit CollisionCube 1.0,0.1,1.0
 
+NavMesh
 #0
 NavQuadPosition 0.0, 0.0, 0.0
 NavQuadSize 5.0, 5.0
@@ -34,18 +35,17 @@ NavQuadSize 5.0, 5.0
 Submit NavQuad
 
 #2
-NavQuadPosition4.0, 0.0, -2.0
+NavQuadPosition 4.0, 0.0, -2.0
 NavQuadSize 3.0, 3.0
 Submit NavQuad
 
 NavConnectionQuads 0, 1
-NavConnectionPosition2.5, 0.5, 0.0
 Submit NavConnection
 
 NavConnectionQuads 2, 0
-NavConnectionPosition0.0, 0.0, 0.5
 Submit NavConnection
 
-navConnectionQuads 2, 1
-navConnectionPosition1.0, 0.0, 0.5
+NavConnectionQuads 2, 1
 Submit NavConnection
+
+Submit NavMesh

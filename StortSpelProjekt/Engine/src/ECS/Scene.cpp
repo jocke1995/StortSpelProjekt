@@ -2,10 +2,13 @@
 #include "Scene.h"
 #include "Entity.h"
 #include "../Memory/PoolAllocator.h"
+#include "../Misc/NavMesh.h"
+
 #include "../Renderer/Camera/BaseCamera.h"
 Scene::Scene(std::string sceneName)
 {
     m_SceneName = sceneName;
+    m_pNavMesh = nullptr;
 }
 
 Scene::~Scene()
@@ -21,6 +24,8 @@ Scene::~Scene()
             }
         }
     }
+
+    delete m_pNavMesh;
 }
 
 Entity* Scene::AddEntityFromOther(Entity* other)
@@ -67,6 +72,11 @@ bool Scene::RemoveEntity(std::string entityName)
     return true;
 }
 
+void Scene::CreateNavMesh()
+{
+    m_pNavMesh = new NavMesh(this);
+}
+
 void Scene::SetPrimaryCamera(BaseCamera* primaryCamera)
 {
     m_pPrimaryCamera = primaryCamera;
@@ -101,6 +111,11 @@ BaseCamera* Scene::GetMainCamera() const
 std::string Scene::GetName() const
 {
     return m_SceneName;
+}
+
+NavMesh* Scene::GetNavMesh()
+{
+    return m_pNavMesh;
 }
 
 void Scene::RenderUpdate(double dt)
