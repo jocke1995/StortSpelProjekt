@@ -29,6 +29,8 @@ void PerspectiveCamera::updateProjectionMatrix()
 
 void PerspectiveCamera::updateSpecific(double dt)
 {
+	updateCameraMovement(dt);
+
 	m_ViewProjMatrix = m_ViewMatrix * m_ProjMatrix;
 	m_ViewProjTranposedMatrix = DirectX::XMMatrixTranspose(m_ViewProjMatrix);
 }
