@@ -33,6 +33,7 @@ void Shop::RandomizeInventory()
 	{
 		// Set the seed for randomization of inventory
 		m_Rand.SetSeed(time(NULL));
+		// While loop is neccessary to avoid duplicate upgrades in inventory.
 		do
 		{
 			// need to reset this bool every loop

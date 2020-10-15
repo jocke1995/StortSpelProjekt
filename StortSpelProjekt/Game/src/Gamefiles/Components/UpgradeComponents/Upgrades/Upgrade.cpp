@@ -53,7 +53,7 @@ int Upgrade::GetID()
 
 std::string Upgrade::GetDescription()
 {
-	return m_Discription;
+	return m_Description;
 }
 
 int Upgrade::GetPrice()
