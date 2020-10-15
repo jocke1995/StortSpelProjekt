@@ -23,8 +23,6 @@ struct Connection
 	NavQuad* quadOne;
 	NavQuad* quadTwo;
 
-	float3 position;
-
 	//Takes the current navQuad to identify which pointer it is, in order to give the other quad
 	NavQuad* GetConnectedQuad(NavQuad* currQuad)
 	{
@@ -47,8 +45,6 @@ public:
 
 	NavQuad* AddNavQuad(float3 position, float2 size);
 
-	void ConnectNavQuads(NavQuad* nav1, NavQuad* nav2, float3 position);
-	void ConnectNavQuads(int nav1, int nav2, float3 position);
 	void ConnectNavQuads(NavQuad* nav1, NavQuad* nav2);
 	void ConnectNavQuads(int nav1, int nav2);
 

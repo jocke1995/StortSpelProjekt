@@ -635,10 +635,7 @@ Scene* LeosTestScene(SceneManager* sm)
     size.x = 5.0;
     size.y = 5.0;
     NavQuad* nav2 = navmesh->AddNavQuad(pos, size);
-    pos.x = 2.5;
-    pos.z = 1.0;
-    pos.y = 0.0;
-    navmesh->ConnectNavQuads(0, 1, pos);
+    navmesh->ConnectNavQuads(0, 1);
 
     pos.x = 4.0;
     pos.y = 0.0;
@@ -646,14 +643,8 @@ Scene* LeosTestScene(SceneManager* sm)
     size.x = 3.0;
     size.y = 3.0;
     NavQuad* nav3 = navmesh->AddNavQuad(pos, size);
-    pos.x = 2.5;
-    pos.y = 0.0;
-    pos.z = -1.5;
-    navmesh->ConnectNavQuads(2, 0, pos);
-    pos.x = 4.0;
-    pos.y = 0.0;
-    pos.z = -0.5;
-    navmesh->ConnectNavQuads(2, 1, pos);
+    navmesh->ConnectNavQuads(2, 0);
+    navmesh->ConnectNavQuads(2, 1);
 
     pos.x = 1.1;
     pos.y = 0.3;
