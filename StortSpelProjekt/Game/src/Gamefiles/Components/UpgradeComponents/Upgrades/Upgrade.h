@@ -65,7 +65,7 @@ protected:
 	Entity* m_pParentEntity;
 	// Name of the upgrade, for ease of access in shop or upgrade handlers
 	std::string m_Name = "";
-	// Discription is used in shop when describing the upgrade.
+	// Description is used in shop when describing the upgrade.
 	std::string m_Description;
 	// Price is used in shop when buying upgrades
 	int m_Price;
