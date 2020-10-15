@@ -48,7 +48,7 @@ inline PoolAllocator<T>& PoolAllocator<T>::GetInstance(unsigned int nrToReserve)
 template<typename T>
 inline void PoolAllocator<T>::Free(T* ptr)
 {
-	PoolEntry head = reinterpret_cast<char*>(ptr) - 8;
+	PoolEntry* head = reinterpret_cast<PoolEntry*>(reinterpret_cast<char*>(ptr) - 8);
 	head->next = m_pFreeHead;
 	m_pFreeHead = head;
 	m_Allocated--;
