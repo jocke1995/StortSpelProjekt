@@ -181,9 +181,10 @@ namespace component
 	}
 	void TextComponent::OnInitScene()
 	{
-		Renderer::GetInstance().InitTextComponent(GetParent());
+		Renderer::GetInstance().InitTextComponent(this);
 	}
 	void TextComponent::OnUnInitScene()
 	{
+		Renderer::GetInstance().UnInitTextComponent(this);
 	}
 }

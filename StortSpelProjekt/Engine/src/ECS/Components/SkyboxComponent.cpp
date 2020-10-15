@@ -30,11 +30,12 @@ void component::SkyboxComponent::RenderUpdate(double dt)
 
 void component::SkyboxComponent::OnInitScene()
 {
-	Renderer::GetInstance().InitSkyboxComponent(GetParent());
+	Renderer::GetInstance().InitSkyboxComponent(this);
 }
 
 void component::SkyboxComponent::OnUnInitScene()
 {
+	Renderer::GetInstance().UnInitSkyboxComponent(this);
 }
 
 void component::SkyboxComponent::SetMesh(Mesh* mesh)

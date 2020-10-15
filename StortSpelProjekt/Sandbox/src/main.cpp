@@ -90,7 +90,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     int count = 0;
 
     static int nr = 0;
-    static Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+    static Model* aaa = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
     while (!window->ExitWindow())
     {
@@ -126,11 +126,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         if (window->WasSpacePressed())
         {
             Entity* a = new Entity(std::to_string(nr++));
-            auto b = a->AddComponent<component::ModelComponent>();
-            b->SetModel(sphereModel);
+            auto mc = a->AddComponent<component::ModelComponent>();
+            mc->SetModel(aaa);
+            mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
 
             auto tc = a->AddComponent<component::TransformComponent>();
             tc->GetTransform()->SetPosition(leoScene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionXMFLOAT3());
+
+            auto c = a->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+            c->SetColor({ 200, 200, 200 });
 
             sceneManager->AddEntity(a, leoScene);
         }

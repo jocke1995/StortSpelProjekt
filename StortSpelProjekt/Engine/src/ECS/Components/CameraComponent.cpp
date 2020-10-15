@@ -49,11 +49,12 @@ namespace component
 
 	void CameraComponent::OnInitScene()
 	{
-		Renderer::GetInstance().InitCameraComponent(GetParent());
+		Renderer::GetInstance().InitCameraComponent(this);
 	}
 
 	void CameraComponent::OnUnInitScene()
 	{
+		Renderer::GetInstance().UnInitCameraComponent(this);
 	}
 
 	BaseCamera* CameraComponent::createPerspective(DirectX::XMVECTOR position, DirectX::XMVECTOR direction, double fov, double aspectRatio, double nearZ, double farZ)

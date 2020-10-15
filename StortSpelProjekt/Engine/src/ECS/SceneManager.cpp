@@ -98,9 +98,6 @@ Scene* SceneManager::GetScene(std::string sceneName) const
 
 void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
-	// Remove all bindings to used components
-	Renderer::GetInstance().removeComponents(entity);
-
 	entity->OnUnInitScene();
 	m_IsEntityInited[entity] = false;
 
@@ -119,6 +116,12 @@ void SceneManager::AddEntity(Entity* entity, Scene* scene)
 		entity->OnInitScene();
 		m_IsEntityInited[entity] = true;
 	}
+
+	//Renderer::GetInstance().prepareScenes(&m_ActiveScenes);
+	//Renderer::GetInstance().prepareCBPerFrame();
+	//Renderer::GetInstance().prepareCBPerScene();
+	//executeCopyOnDemand();
+	//SetScenes(1, &m_ActiveScenes[0]);
 }
 
 void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)

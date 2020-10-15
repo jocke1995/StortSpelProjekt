@@ -70,9 +70,14 @@ namespace component
 {
 	class ModelComponent;
 	class TransformComponent;
+	class CameraComponent;
 	class BoundingBoxComponent;
 	class TextComponent;
 	class SkyboxComponent;
+	class DirectionalLightComponent;
+	class PointLightComponent;
+	class SpotLightComponent;
+
 }
 
 // Events
@@ -102,14 +107,23 @@ public:
 	void Execute();
 
 	// Render inits, these functions are called by respective components through SetScene to prepare for drawing
-	void InitSkyboxComponent(Entity* entity);
-	void InitModelComponent(Entity* entity);
-	void InitDirectionalLightComponent(Entity* entity);
-	void InitPointLightComponent(Entity* entity);
-	void InitSpotLightComponent(Entity* entity);
-	void InitCameraComponent(Entity* entity);
-	void InitBoundingBoxComponent(Entity* entity);
-	void InitTextComponent(Entity* entity);
+	void InitSkyboxComponent(component::SkyboxComponent* component);
+	void InitModelComponent(component::ModelComponent* component);
+	void InitDirectionalLightComponent(component::DirectionalLightComponent* component);
+	void InitPointLightComponent(component::PointLightComponent* component);
+	void InitSpotLightComponent(component::SpotLightComponent* component);
+	void InitCameraComponent(component::CameraComponent* component);
+	void InitBoundingBoxComponent(component::BoundingBoxComponent* component);
+	void InitTextComponent(component::TextComponent* component);
+
+	void UnInitSkyboxComponent(component::SkyboxComponent* component);
+	void UnInitModelComponent(component::ModelComponent* component);
+	void UnInitDirectionalLightComponent(component::DirectionalLightComponent* component);
+	void UnInitPointLightComponent(component::PointLightComponent* component);
+	void UnInitSpotLightComponent(component::SpotLightComponent* component);
+	void UnInitCameraComponent(component::CameraComponent* component);
+	void UnInitBoundingBoxComponent(component::BoundingBoxComponent* component);
+	void UnInitTextComponent(component::TextComponent* component);
 
 	void OnResetScene();
 
@@ -225,9 +239,6 @@ private:
 
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene
 	void waitForCopyOnDemand();
-
-	// Manage components
-	void removeComponents(Entity* entity);
 
 	// Setup the whole scene
 	void prepareScenes(std::vector<Scene*>* scenes);

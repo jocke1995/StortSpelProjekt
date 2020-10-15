@@ -33,11 +33,12 @@ namespace component
 
 	void DirectionalLightComponent::OnInitScene()
 	{
-		Renderer::GetInstance().InitDirectionalLightComponent(GetParent());
+		Renderer::GetInstance().InitDirectionalLightComponent(this);
 	}
 
 	void DirectionalLightComponent::OnUnInitScene()
 	{
+		Renderer::GetInstance().UnInitDirectionalLightComponent(this);
 	}
 
 	void DirectionalLightComponent::SetDirection(float3 direction)

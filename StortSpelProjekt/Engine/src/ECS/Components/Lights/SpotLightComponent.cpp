@@ -57,11 +57,12 @@ namespace component
 
     void SpotLightComponent::OnInitScene()
     {
-        Renderer::GetInstance().InitSpotLightComponent(GetParent());
+        Renderer::GetInstance().InitSpotLightComponent(this);
     }
 
     void SpotLightComponent::OnUnInitScene()
     {
+        Renderer::GetInstance().UnInitSpotLightComponent(this);
     }
 
     void SpotLightComponent::SetPosition(float3 position)

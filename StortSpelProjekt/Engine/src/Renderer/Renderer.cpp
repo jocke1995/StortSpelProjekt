@@ -15,6 +15,10 @@
 #include "../ECS/Components/TextComponent.h"
 #include "../ECS/Components/SkyboxComponent.h"
 #include "../ECS/Components/BoundingBoxComponent.h"
+#include "../ECS/Components/CameraComponent.h"
+#include "../ECS/Components/Lights/DirectionalLightComponent.h"
+#include "../ECS/Components/Lights/PointLightComponent.h"
+#include "../ECS/Components/Lights/SpotLightComponent.h"
 
 // Renderer-Engine 
 #include "RootSignature.h"
@@ -446,57 +450,53 @@ void Renderer::Execute()
 #endif
 }
 
-void Renderer::InitSkyboxComponent(Entity* entity)
+void Renderer::InitSkyboxComponent(component::SkyboxComponent* component)
 {
-	component::SkyboxComponent* sbc = entity->GetComponent<component::SkyboxComponent>();
-
-	Mesh* mesh = sbc->GetMesh();
+	Mesh* mesh = component->GetMesh();
 	submitMeshToCodt(mesh);
 
-	Texture* texture = static_cast<TextureCubeMap*>(sbc->GetTexture());
+	Texture* texture = static_cast<TextureCubeMap*>(component->GetTexture());
 	submitTextureToCodt(texture);
 
 	// Finally store the object in m_pRenderer so it will be drawn
-	m_pSkyboxComponent = sbc;
+	m_pSkyboxComponent = component;
 }
 
-void Renderer::InitModelComponent(Entity* entity)
+void Renderer::InitModelComponent(component::ModelComponent* component)
 {
-	component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
-	component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
+	component::TransformComponent* tc = component->GetParent()->GetComponent<component::TransformComponent>();
 
 	// Submit to codt
-	submitModelToCodt(mc->m_pModel);
+	submitModelToCodt(component->m_pModel);
 	
 	// Only add the m_Entities that actually should be drawn
 	if (tc != nullptr)
 	{
 		// Finally store the object in the corresponding renderComponent vectors so it will be drawn
-		if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
+		if (FLAG_DRAW::DRAW_OPACITY & component->GetDrawFlag())
 		{
-			m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(mc, tc));
+			m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(component, tc));
 		}
 
-		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
+		if (FLAG_DRAW::DRAW_OPAQUE & component->GetDrawFlag())
 		{
-			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
+			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(component, tc));
 		}
 
-		if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
+		if (FLAG_DRAW::NO_DEPTH & ~component->GetDrawFlag())
 		{
-			m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
+			m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(component, tc));
 		}
 
-		if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
+		if (FLAG_DRAW::GIVE_SHADOW & component->GetDrawFlag())
 		{
-			m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(mc, tc));
+			m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(component, tc));
 		}
 	}
 }
 
-void Renderer::InitDirectionalLightComponent(Entity* entity)
+void Renderer::InitDirectionalLightComponent(component::DirectionalLightComponent* component)
 {
-	component::DirectionalLightComponent* dlc = entity->GetComponent<component::DirectionalLightComponent>();
 	// Assign CBV from the lightPool
 	std::wstring resourceName = L"DirectionalLight_DefaultResource";
 	ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(DirectionalLight), resourceName);
@@ -523,19 +523,18 @@ void Renderer::InitDirectionalLightComponent(Entity* entity)
 	if (resolution != SHADOW_RESOLUTION::UNDEFINED)
 	{
 		si = m_pViewPool->GetFreeShadowInfo(LIGHT_TYPE::DIRECTIONAL_LIGHT, resolution);
-		static_cast<DirectionalLight*>(dlc->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
+		static_cast<DirectionalLight*>(component->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
 
 		ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
-		srt->AddShadowCastingLight(std::make_pair(dlc, si));
+		srt->AddShadowCastingLight(std::make_pair(component, si));
 	}
 
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(dlc, cbd, si));
+	m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(component, cbd, si));
 }
 
-void Renderer::InitPointLightComponent(Entity* entity)
+void Renderer::InitPointLightComponent(component::PointLightComponent* component)
 {
-	component::PointLightComponent* plc = entity->GetComponent<component::PointLightComponent>();
 	// Assign CBV from the lightPool
 	std::wstring resourceName = L"PointLight_DefaultResource";
 	ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(PointLight), resourceName);
@@ -544,13 +543,11 @@ void Renderer::InitPointLightComponent(Entity* entity)
 	ShadowInfo* si = nullptr;
 
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(plc, cbd, si));
-
+	m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(component, cbd, si));F
 }
 
-void Renderer::InitSpotLightComponent(Entity* entity)
+void Renderer::InitSpotLightComponent(component::SpotLightComponent* component)
 {
-	component::SpotLightComponent* slc = entity->GetComponent<component::SpotLightComponent>();
 	// Assign CBV from the lightPool
 	std::wstring resourceName = L"SpotLight_DefaultResource";
 	ConstantBuffer* cbd = m_pViewPool->GetFreeCBV(sizeof(SpotLight), resourceName);
@@ -577,36 +574,34 @@ void Renderer::InitSpotLightComponent(Entity* entity)
 	if (resolution != SHADOW_RESOLUTION::UNDEFINED)
 	{
 		si = m_pViewPool->GetFreeShadowInfo(LIGHT_TYPE::SPOT_LIGHT, resolution);
-		static_cast<SpotLight*>(slc->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
+		static_cast<SpotLight*>(component->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
 
 		ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
-		srt->AddShadowCastingLight(std::make_pair(slc, si));
+		srt->AddShadowCastingLight(std::make_pair(component, si));
 	}
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(slc, cbd, si));
+	m_Lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(component, cbd, si));
 }
 
-void Renderer::InitCameraComponent(Entity* entity)
+void Renderer::InitCameraComponent(component::CameraComponent* component)
 {
-	component::CameraComponent* cc = entity->GetComponent<component::CameraComponent>();
-	if (cc->IsPrimary() == true)
+	if (component->IsPrimary() == true)
 	{
-		m_pScenePrimaryCamera = cc->GetCamera();
+		m_pScenePrimaryCamera = component->GetCamera();
 	}
 }
 
-void Renderer::InitBoundingBoxComponent(Entity* entity)
+void Renderer::InitBoundingBoxComponent(component::BoundingBoxComponent* component)
 {
-	component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
 	// Add it to m_pTask so it can be drawn
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
-		for (unsigned int i = 0; i < bbc->GetNumBoundingBoxes(); i++)
+		for (unsigned int i = 0; i < component->GetNumBoundingBoxes(); i++)
 		{
-			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel(i));
+			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(component->GetPathOfModel(i));
 			if (m == nullptr)
 			{
-				Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", bbc->GetParent()->GetName().c_str());
+				Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", component->GetParent()->GetName().c_str());
 				return;
 			}
 
@@ -614,31 +609,30 @@ void Renderer::InitBoundingBoxComponent(Entity* entity)
 			// Submit to GPU
 			//LoadMesh(m);
 
-			bbc->AddMesh(m);
+			component->AddMesh(m);
 		}
-		static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(bbc);
+		static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(component);
 	}
 
 	// Add to vector so the mouse picker can check for intersections
-	if (bbc->GetFlagOBB() & F_OBBFlags::PICKING)
+	if (component->GetFlagOBB() & F_OBBFlags::PICKING)
 	{
-		m_BoundingBoxesToBePicked.push_back(bbc);
+		m_BoundingBoxesToBePicked.push_back(component);
 	}
 }
 
-void Renderer::InitTextComponent(Entity* entity)
+void Renderer::InitTextComponent(component::TextComponent* component)
 {
-	component::TextComponent* textComp = entity->GetComponent<component::TextComponent>();
-	std::map<std::string, TextData>* textDataMap = textComp->GetTextDataMap();
+	std::map<std::string, TextData>* textDataMap = component->GetTextDataMap();
 	for (auto textData : *textDataMap)
 	{
 		AssetLoader* al = AssetLoader::Get();
-		int numOfCharacters = textComp->GetNumOfCharacters(textData.first);
+		int numOfCharacters = component->GetNumOfCharacters(textData.first);
 
-		Text* text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, textComp->GetTexture());
-		text->SetTextData(&textData.second, textComp->GetFont());
+		Text* text = new Text(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], numOfCharacters, component->GetTexture());
+		text->SetTextData(&textData.second, component->GetFont());
 
-		textComp->SubmitText(text);
+		component->SubmitText(text);
 
 		// Look if data is already on the GPU
 
@@ -653,11 +647,205 @@ void Renderer::InitTextComponent(Entity* entity)
 		codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 
 		// Texture
-		codt->SubmitTexture(textComp->GetTexture());
+		codt->SubmitTexture(component->GetTexture());
 	}
 
 	// Finally store the text in m_pRenderer so it will be drawn
-	m_TextComponents.push_back(textComp);
+	m_TextComponents.push_back(component);
+}
+
+void Renderer::UnInitSkyboxComponent(component::SkyboxComponent* component)
+{
+}
+
+void Renderer::UnInitModelComponent(component::ModelComponent* component)
+{
+	// Remove component from renderComponents
+	// TODO: change data structure to allow O(1) add and remove
+	for (auto& renderComponent : m_RenderComponents)
+	{
+		for (int i = 0; i < renderComponent.second.size(); i++)
+		{
+			// Remove from all renderComponent-vectors if they are there
+			component::ModelComponent* comp = nullptr;
+			comp = renderComponent.second[i].first;
+			if (comp == component)
+			{
+				renderComponent.second.erase(renderComponent.second.begin() + i);
+			}
+		}
+	}
+
+	// Update Render Tasks components (forward the change in renderComponents)
+	setRenderTasksRenderComponents();
+}
+
+void Renderer::UnInitDirectionalLightComponent(component::DirectionalLightComponent* component)
+{
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		unsigned int j = 0;
+
+		for (auto& tuple : m_Lights[type])
+		{
+			Light* light = std::get<0>(tuple);
+
+			component::DirectionalLightComponent* dlc = static_cast<component::DirectionalLightComponent*>(light);
+
+			// Remove light if it matches the entity
+			if (component == dlc)
+			{
+				// Free memory so other m_Entities can use it
+				ConstantBuffer* cbv = std::get<1>(tuple);
+				ShadowInfo* si = std::get<2>(tuple);
+				m_pViewPool->ClearSpecificLight(type, cbv, si);
+
+				// Remove from CopyPerFrame
+				CopyPerFrameTask* cpft = nullptr;
+				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+				cpft->ClearSpecific(cbv->GetUploadResource());
+
+				// Finally remove from m_pRenderer
+				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
+				srt->ClearSpecificLight(std::get<0>(tuple));
+				m_Lights[type].erase(m_Lights[type].begin() + j);
+
+				// Update cbPerScene
+				prepareCBPerScene();
+				break;
+			}
+			j++;
+		}
+	}
+}
+
+void Renderer::UnInitPointLightComponent(component::PointLightComponent* component)
+{
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		unsigned int j = 0;
+
+		for (auto& tuple : m_Lights[type])
+		{
+			Light* light = std::get<0>(tuple);
+
+			component::PointLightComponent* plc = static_cast<component::PointLightComponent*>(light);
+
+			// Remove light if it matches the entity
+			if (component == plc)
+			{
+				// Free memory so other m_Entities can use it
+				ConstantBuffer* cbv = std::get<1>(tuple);
+				ShadowInfo* si = std::get<2>(tuple);
+				m_pViewPool->ClearSpecificLight(type, cbv, si);
+
+				// Remove from CopyPerFrame
+				CopyPerFrameTask* cpft = nullptr;
+				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+				cpft->ClearSpecific(cbv->GetUploadResource());
+
+				// Finally remove from m_pRenderer
+				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
+				srt->ClearSpecificLight(std::get<0>(tuple));
+				m_Lights[type].erase(m_Lights[type].begin() + j);
+
+				// Update cbPerScene
+				prepareCBPerScene();
+				break;
+			}
+			j++;
+		}
+	}
+}
+
+void Renderer::UnInitSpotLightComponent(component::SpotLightComponent* component)
+{
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		unsigned int j = 0;
+
+		for (auto& tuple : m_Lights[type])
+		{
+			Light* light = std::get<0>(tuple);
+
+			component::SpotLightComponent* slc = static_cast<component::SpotLightComponent*>(light);
+
+			// Remove light if it matches the entity
+			if (component == slc)
+			{
+				// Free memory so other m_Entities can use it
+				ConstantBuffer* cbv = std::get<1>(tuple);
+				ShadowInfo* si = std::get<2>(tuple);
+				m_pViewPool->ClearSpecificLight(type, cbv, si);
+
+				// Remove from CopyPerFrame
+				CopyPerFrameTask* cpft = nullptr;
+				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+				cpft->ClearSpecific(cbv->GetUploadResource());
+
+				// Finally remove from m_pRenderer
+				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
+				srt->ClearSpecificLight(std::get<0>(tuple));
+				m_Lights[type].erase(m_Lights[type].begin() + j);
+
+				// Update cbPerScene
+				prepareCBPerScene();
+				break;
+			}
+			j++;
+		}
+	}
+}
+
+void Renderer::UnInitCameraComponent(component::CameraComponent* component)
+{
+}
+
+void Renderer::UnInitBoundingBoxComponent(component::BoundingBoxComponent* component)
+{
+	// Check if the entity got a boundingbox component.
+	if (component != nullptr)
+	{
+		if (component->GetParent() != nullptr)
+		{
+			// Stop drawing the wireFrame
+			if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
+			{
+				static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->ClearSpecific(component);
+			}
+
+			// Stop picking this boundingBox
+			unsigned int i = 0;
+			for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
+			{
+				if (bbcToBePicked == component)
+				{
+					m_BoundingBoxesToBePicked.erase(m_BoundingBoxesToBePicked.begin() + i);
+					break;
+				}
+				i++;
+			}
+		}
+	}
+}
+
+void Renderer::UnInitTextComponent(component::TextComponent* component)
+{
+	// Remove component from textComponents
+	// TODO: change data structure to allow O(1) add and remove
+	for (auto it = m_TextComponents.begin(); it != m_TextComponents.end(); it++)
+	{
+		if (component == (*it))
+		{
+			m_TextComponents.erase(it);
+		}
+	}
+
+	// Update rendertasks component
+	setRenderTasksRenderComponents();
 }
 
 void Renderer::OnResetScene()
@@ -705,10 +893,11 @@ void Renderer::submitModelToCodt(Model* model)
 	for (unsigned int i = 0; i < model->GetSize(); i++)
 	{
 		Mesh* mesh = model->GetMeshAt(i);
+		// Submit Mesh
 		submitMeshToCodt(mesh);
 
 		Texture* texture;
-
+		// Submit Material
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::ALBEDO);
 		submitTextureToCodt(texture);
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::ROUGHNESS);
@@ -1766,120 +1955,6 @@ void Renderer::waitForCopyOnDemand()
 		m_pFenceFrame->SetEventOnCompletion(oldFenceValue, m_EventHandle);
 		WaitForSingleObject(m_EventHandle, INFINITE);
 	}		
-}
-
-void Renderer::removeComponents(Entity* entity)
-{
-	for (auto& renderComponents : m_RenderComponents)
-	{
-		for (int i = 0; i < renderComponents.second.size(); i++)
-		{
-			// Remove from all renderComponent-vectors if they are there
-			Entity* parent = nullptr;
-			parent = renderComponents.second[i].first->GetParent();
-			if (parent == entity)
-			{
-				renderComponents.second.erase(renderComponents.second.begin() + i);
-				setRenderTasksRenderComponents();
-			}
-		}
-	}
-
-	// Check if the entity is a textComponent
-	for (int i = 0; i < m_TextComponents.size(); i++)
-	{
-		Entity* parent = m_TextComponents[i]->GetParent();
-		if (parent == entity)
-		{
-			m_TextComponents.erase(m_TextComponents.begin() + i);
-			setRenderTasksRenderComponents();
-		}
-	}
-	// Check if the entity got any light m_Components.
-	// Remove them and update both cpu/gpu m_Resources
-	component::DirectionalLightComponent* dlc;
-	component::PointLightComponent* plc;
-	component::SpotLightComponent* slc;
-
-	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
-	{
-		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
-		unsigned int j = 0;
-
-		for (auto& tuple : m_Lights[type])
-		{
-			Light* light = std::get<0>(tuple);
-			Entity* parent = nullptr;
-
-			// Find m_pParent
-			switch (type)
-			{
-			case LIGHT_TYPE::DIRECTIONAL_LIGHT:
-				dlc = static_cast<component::DirectionalLightComponent*>(light);
-				parent = dlc->GetParent();
-				break;
-			case LIGHT_TYPE::POINT_LIGHT:
-				plc = static_cast<component::PointLightComponent*>(light);
-				parent = plc->GetParent();
-				break;
-			case LIGHT_TYPE::SPOT_LIGHT:
-				slc = static_cast<component::SpotLightComponent*>(light);
-				parent = slc->GetParent();
-				break;
-			}
-
-			// Remove light if it matches the entity
-			if (parent == entity)
-			{
-				// Free memory so other m_Entities can use it
-				ConstantBuffer* cbv = std::get<1>(tuple);
-				ShadowInfo* si = std::get<2>(tuple);
-				m_pViewPool->ClearSpecificLight(type, cbv, si);
-
-				// Remove from CopyPerFrame
-				CopyPerFrameTask* cpft = nullptr;
-				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-				cpft->ClearSpecific(cbv->GetUploadResource());
-
-				// Finally remove from m_pRenderer
-				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
-				srt->ClearSpecificLight(std::get<0>(tuple));
-				m_Lights[type].erase(m_Lights[type].begin() + j);
-
-				// Update cbPerScene
-				prepareCBPerScene();
-				break;
-			}
-			j++;
-		}
-	}
-
-	// Check if the entity got a boundingbox component.
-	component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
-	if (bbc != NULL)
-	{
-		if (bbc->GetParent() == entity)
-		{
-			// Stop drawing the wireFrame
-			if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
-			{
-				static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->ClearSpecific(bbc);
-			}
-
-			// Stop picking this boundingBox
-			unsigned int i = 0;
-			for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
-			{
-				if (bbcToBePicked == bbc)
-				{
-					m_BoundingBoxesToBePicked.erase(m_BoundingBoxesToBePicked.begin() + i);
-					break;
-				}
-				i++;
-			}
-		}
-	}
-	return;
 }
 
 void Renderer::prepareScenes(std::vector<Scene*>* scenes)
