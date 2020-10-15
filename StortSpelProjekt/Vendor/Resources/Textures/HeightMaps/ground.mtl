@@ -1,6 +1,7 @@
 # Material Count: 1
 # Textures downloaded from https://freepbr.com/materials/planet-surface-2/
 newmtl surfaceMat
+
 map_Ka planet_surface_Metallic.dds
 map_Kd planet_surface_albedo.dds
 map_Ks planet_surface_ao.dds

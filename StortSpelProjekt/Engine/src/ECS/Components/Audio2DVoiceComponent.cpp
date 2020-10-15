@@ -28,16 +28,6 @@ void component::Audio2DVoiceComponent::OnInitScene()
 
 }
 
-void component::Audio2DVoiceComponent::OnLoadScene()
-{
-
-}
-
-void component::Audio2DVoiceComponent::OnUnloadScene()
-{
-
-}
-
 void component::Audio2DVoiceComponent::AddVoice(const std::wstring& name)
 {
 	if (m_Voices.count(name) == 0)

@@ -38,16 +38,6 @@ namespace component
 		Renderer::GetInstance().InitModelComponent(GetParent());
 	}
 
-	void ModelComponent::OnLoadScene()
-	{
-		Renderer::GetInstance().LoadModel(m_pModel);
-	}
-
-	void ModelComponent::OnUnloadScene()
-	{
-		Renderer::GetInstance().UnloadModel(m_pModel);
-	}
-
 	Mesh* ModelComponent::GetMeshAt(unsigned int index) const
 	{
 		return m_pModel->GetMeshAt(index);
@@ -79,5 +69,9 @@ namespace component
 	bool ModelComponent::IsPickedThisFrame() const
 	{
 		return m_IsPickedThisFrame;
+	}
+	double3 ModelComponent::GetModelDim() const
+	{
+		return m_pModel->GetModelDim();
 	}
 }

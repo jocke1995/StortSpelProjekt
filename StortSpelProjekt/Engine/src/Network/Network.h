@@ -13,11 +13,13 @@ public:
 	enum E_PACKET_ID {
 		SERVER_DATA = 0,
 		PLAYER_DATA = 1,
-		PLAYER_DISCONNECT = 2
+		PLAYER_DISCONNECT = 2,
+		ENEMY_DATA = 3
 	};
 	struct Player {
 		Entity* entityPointer;
 		int clientId;
+		bool isHost;
 	};
 
 	Network();
@@ -27,9 +29,12 @@ public:
 
 
 	bool IsConnected();
+	bool IsHost();
+
 	sf::TcpSocket* GetSocket();
 
 	void SendPositionPacket();
+	void SendEnemiesPacket(std::vector<Entity*>* enemies);
 	void Disconnect();
 	//Give network the entity pointer for player.
 	void SetPlayerEntityPointer(Entity* playerEnitity, int id);

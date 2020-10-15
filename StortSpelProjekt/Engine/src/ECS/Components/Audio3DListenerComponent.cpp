@@ -25,14 +25,6 @@ void component::Audio3DListenerComponent::OnInitScene()
 {
 }
 
-void component::Audio3DListenerComponent::OnLoadScene()
-{
-}
-
-void component::Audio3DListenerComponent::OnUnloadScene()
-{
-}
-
 void component::Audio3DListenerComponent::UpdateListener()
 {
 	// get parent entity and look for transform component and get the forward, up and position vectors to update m_Listener

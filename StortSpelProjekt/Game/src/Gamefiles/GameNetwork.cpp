@@ -9,9 +9,21 @@ GameNetwork::GameNetwork()
     EventBus::GetInstance().Subscribe(this, &GameNetwork::disconnect);
 }
 
+void GameNetwork::Update(double dt)
+{
+    m_pNetwork->SendPositionPacket();
+    m_pNetwork->SendEnemiesPacket(m_pEnemies);
+    while (m_pNetwork->ListenPacket());
+}
+
 void GameNetwork::SetScenes(std::vector<Scene*>* activeScenes)
 {
     m_pActiveScenes = activeScenes;
+}
+
+void GameNetwork::SetEnemies(std::vector<Entity*>* enemyVector)
+{
+    m_pEnemies = enemyVector;
 }
 
 void GameNetwork::SetNetwork(Network* network)

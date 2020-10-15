@@ -38,12 +38,6 @@ SceneManager::SceneManager()
 
 SceneManager::~SceneManager()
 {
-	// Unload all active scenes
-	for (auto scene : m_ActiveScenes)
-	{
-		UnloadScene(scene);
-	}
-
 	for (auto pair : m_Scenes)
 	{
 		delete pair.second;
@@ -104,48 +98,36 @@ Scene* SceneManager::GetScene(std::string sceneName) const
 
 void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
-	// Unload the entity
-	entity->OnUnloadScene();
-	entity->m_LoadedInNrScenes--;
+	// Remove all bindings to used components
+	// RenderComponent
+	Renderer::GetInstance().removeComponents(entity);
 
 	// Remove from the scene
 	scene->RemoveEntity(entity->GetName());
-
-	// TODO: Temp fix, re init the scene
-	SetScenes(m_ActiveScenes.size(), m_ActiveScenes.data());
 }
 
 void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
-	// Load the enity
-	entity->OnLoadScene();
-	entity->m_LoadedInNrScenes++;
-
 	// Add it to the scene
 	scene->AddEntityFromOther(entity);
 
-	// TODO: Temp fix, re init the scene
-	SetScenes(m_ActiveScenes.size(), m_ActiveScenes.data());
+	// Only init once per scene (in case a entity is in both scenes)
+	if (m_IsEntityInited.count(entity) == 0)
+	{
+		entity->OnInitScene();
+		m_IsEntityInited[entity] = true;
+	}
 }
 
 void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 {
 	ResetScene();
 
-	std::vector<Scene*> lastActiveScenes = m_ActiveScenes;
-
 	// Set the active scenes
 	m_ActiveScenes.clear();
 	
 	for (unsigned int i = 0; i < numScenes; i++)
 	{
-		// Load scene if not loaded
-		if (m_LoadedScenes.count(scenes[i]) < 1)
-		{
-			// load the scene if not loaded
- 			LoadScene(scenes[i]);
-		}
-
 		// init the active scenes
 		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
 		for (auto const& [entityName, entity] : entities)
@@ -172,55 +154,14 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 		}
 	}
 
-	
-
-
-
 	executeCopyOnDemand();
 	return;
 }
 
-void SceneManager::LoadScene(Scene* scene)
-{
-	// Don't load if already loaded
-	if (m_LoadedScenes.count(scene) >= 1)
-	{
-		return;
-	}
-
-	// Load the scene
-	// Makes sure the model gets created/sent to gpu
-	for (auto const& [name, entity] : *scene->GetEntities())
-	{
-		// Load only first time entity is referenced in a scene
-		if (entity->m_LoadedInNrScenes == 0)
-		{
-			entity->OnLoadScene();
-		}
-		entity->m_LoadedInNrScenes++;
-	}
-
-	m_LoadedScenes.insert(scene);
-}
-
-void SceneManager::UnloadScene(Scene* scene)
-{
-	// Unload the scene
-	for (auto const& [name, entity] : *scene->GetEntities())
-	{
-		// don't unload entities used by other scenes
-		if (entity->m_LoadedInNrScenes == 1)
-		{
-			entity->OnUnloadScene();
-		}
-		entity->m_LoadedInNrScenes--;
-	}
-
-	m_LoadedScenes.erase(scene);
-}
-
 void SceneManager::ResetScene()
 {
+	Renderer::GetInstance().waitForGPU();
+
 	// Reset isEntityInited
 	m_IsEntityInited.clear();
 

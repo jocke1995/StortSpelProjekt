@@ -7,6 +7,8 @@ void(*UpdateScene)(SceneManager*);
 void DemoUpdateScene(SceneManager* sm);
 void DefaultUpdateScene(SceneManager* sm);
 
+EnemyFactory enemyFactory;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -52,6 +54,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     {
         gameNetwork.SetScenes(sceneManager->GetActiveScenes());
         gameNetwork.SetSceneManager(sceneManager);
+        gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
 
         networkOn = true;
     }
@@ -87,8 +90,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             {
                 networkTimer = 0;
 
-                network.SendPositionPacket();
-                while (network.ListenPacket());
+                gameNetwork.Update(networkUpdateRate);
             }
         }
 
@@ -282,8 +284,8 @@ Scene* GetDemoScene(SceneManager* sm)
 
 
     /* ---------------------- Enemy -------------------------------- */
-    EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
+    enemyFactory.SetScene(scene);
+    entity = enemyFactory.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
 
     // add bunch of enemies
     float xVal = 8;
@@ -292,7 +294,7 @@ Scene* GetDemoScene(SceneManager* sm)
     for (int i = 0; i < 75; i++)
     {
         zVal += 8;
-        entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
+        entity = enemyFactory.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
         if ((i + 1) % 5 == 0)
         {
             xVal += 8;

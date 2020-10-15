@@ -35,8 +35,6 @@ void UpgradeRangeTest::IncreaseLevel()
 
 void UpgradeRangeTest::OnRangedHit()
 {
-	// TODO: REMOVE THE PRINTS FROM THIS FUNCTION EFTER TESTING
-	Log::Print("UpgradeRangeTest OnRangedHit called\n");
 	m_pParentEntity->GetComponent<component::AccelerationComponent>()->SetAccelerationDirection(m_Direction);
 	m_pParentEntity->GetComponent<component::AccelerationComponent>()->SetAccelerationSpeed(m_AccelerationSpeed);
 }
@@ -45,11 +43,6 @@ void UpgradeRangeTest::ApplyStat()
 {
 	if (m_pParentEntity->HasComponent<component::HealthComponent>())
 	{
-		// TODO: REMOVE THE PRINTS AND GetHealth() FROM THIS FUNCTION AFTER TESTING
-		int oldHealth = m_pParentEntity->GetComponent<component::HealthComponent>()->GetHealth();
-		Log::Print("Old Health: %d\n", oldHealth);
 		m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeHealth(m_HealthChange);
-		int newHealth = m_pParentEntity->GetComponent<component::HealthComponent>()->GetHealth();
-		Log::Print("New Health: %d\n", newHealth);
 	}
 }

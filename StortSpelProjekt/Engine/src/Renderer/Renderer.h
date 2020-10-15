@@ -21,6 +21,7 @@ class DescriptorHeap;
 class Mesh;
 class Texture;
 class Model;
+class Resource;
 
 // Views
 
@@ -29,6 +30,7 @@ class ConstantBuffer;
 class ShaderResource;
 class UnorderedAccess;
 class DepthStencil;
+class Resource;
 
 // Enums
 enum COMMAND_INTERFACE_TYPE;
@@ -113,19 +115,7 @@ public:
 
 	SwapChain* GetSwapChain();
 
-	// Load Gpu Memory Functions
-	void LoadModel(Model* model) const;
-	void LoadMesh(Mesh* mesh) const;
-	void LoadMaterial(Material* material) const;
-	void LoadTexture(Texture* texture) const;
-
-	// Unload Gpu Memory Functions
-	void UnloadModel(Model* model) const;
-	void UnloadMesh(Mesh* mesh) const;
-	void UnloadMaterial(Material* material) const;
-	void UnloadTexture(Texture* texture) const;
-
-	void UnloadRenderComponents();
+	
 
 private:
 	friend class Engine;
@@ -133,6 +123,12 @@ private:
 	friend class SceneManager;
 	friend class Text;
 	Renderer();
+
+	// SubmitToCodt functions
+	void submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
+	void submitModelToCodt(Model* model);
+	void submitMeshToCodt(Mesh* mesh);
+	void submitTextureToCodt(Texture* texture);
 
 	ThreadPool* m_pThreadPool = nullptr;
 
@@ -237,10 +233,11 @@ private:
 	void prepareScenes(std::vector<Scene*>* scenes);
 	// Setup what should be drawn in the scene
 	void prepareRenderComponents(std::vector<Scene*>* scenes);
+
 	// Setup Per-scene data and send to GPU
-	void prepareCBPerScene();
+	void SubmitUploadPerSceneData();
 	// Submit per-frame data to the copyQueue that updates each frame
-	void prepareCBPerFrame();
+	void SubmitUploadPerFrameData();
 
 	void toggleFullscreen(WindowChange* evnt);
 };
