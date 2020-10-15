@@ -303,7 +303,6 @@ Scene* GetDemoScene(SceneManager* sm)
     }
     /* ---------------------- Enemy -------------------------------- */
 
-
     /* ---------------------- Skybox ---------------------- */
     TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
     entity = scene->AddEntity("skybox");
