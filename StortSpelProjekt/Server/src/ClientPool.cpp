@@ -144,7 +144,7 @@ void ClientPool::playerPosition(int index, sf::Packet packet)
 
 void ClientPool::enemyData(int index, sf::Packet packet)
 {
-	/*
+	/* Expected packet configuration
 	int nrOfEnemies
 	for(nrOfEnemies)
 		float3 position

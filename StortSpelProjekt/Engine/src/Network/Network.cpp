@@ -123,7 +123,7 @@ void Network::SendPositionPacket()
 
 void Network::SendEnemiesPacket(std::vector<Entity*>* enemies)
 {
-    /*
+    /* Expected packet configuration
     int nrOfEnemies
     for(nrOfEnemies)
         float3 position
@@ -321,7 +321,7 @@ void Network::processServerData(sf::Packet* packet)
 
 void Network::processEnemyData(sf::Packet* packet)
 {
-    /*
+    /* Expected packet configuration
     int nrOfEnemies
     for(nrOfEnemies)
         float3 position
