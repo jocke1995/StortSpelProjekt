@@ -3,8 +3,6 @@
 
 #include "BaseCamera.h"
 
-class TempInputClass;
-
 class PerspectiveCamera : public BaseCamera
 {
 public:

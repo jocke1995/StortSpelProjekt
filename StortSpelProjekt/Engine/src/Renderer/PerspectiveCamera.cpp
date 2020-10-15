@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "PerspectiveCamera.h"
 
-#include "TempInputClass.h"
-
 PerspectiveCamera::PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR direction, double fov, double aspectRatio, double zNear, double zFar)
 	:BaseCamera(position, direction)
 {
