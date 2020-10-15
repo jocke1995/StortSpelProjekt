@@ -11,9 +11,12 @@ GameNetwork::GameNetwork()
 
 void GameNetwork::Update(double dt)
 {
-    m_pNetwork->SendPositionPacket();
-    m_pNetwork->SendEnemiesPacket(m_pEnemies);
-    while (m_pNetwork->ListenPacket());
+    m_Network.SendPositionPacket();
+    if (m_Network.IsHost())
+    {
+        m_Network.SendEnemiesPacket(m_pEnemies);
+    }
+    while (m_Network.ListenPacket());
 }
 
 void GameNetwork::SetScenes(std::vector<Scene*>* activeScenes)
@@ -24,11 +27,7 @@ void GameNetwork::SetScenes(std::vector<Scene*>* activeScenes)
 void GameNetwork::SetEnemies(std::vector<Entity*>* enemyVector)
 {
     m_pEnemies = enemyVector;
-}
-
-void GameNetwork::SetNetwork(Network* network)
-{
-    m_pNetwork = network;
+    m_Network.SetEnemiesEntityPointers(enemyVector);
 }
 
 void GameNetwork::SetSceneManager(SceneManager* sceneManager)
@@ -36,15 +35,20 @@ void GameNetwork::SetSceneManager(SceneManager* sceneManager)
     m_pSceneManager = sceneManager;
 }
 
+bool GameNetwork::IsConnected()
+{
+    return m_Network.IsConnected();
+}
+
 void GameNetwork::disconnect(Disconnect* evnt)
 {
-    m_pNetwork->Disconnect();
+    m_Network.Disconnect();
 }
 
 void GameNetwork::connectToServer(ConnectToServer* evnt)
 {
-    m_pNetwork->SetPlayerEntityPointer((*m_pActiveScenes).at(0)->GetEntity("player"), 0);
-    m_pNetwork->ConnectToIP(evnt->ip, std::atoi(Option::GetInstance().GetVariable("i_port").c_str()));
+    m_Network.SetPlayerEntityPointer((*m_pActiveScenes).at(0)->GetEntity("player"), 0);
+    m_Network.ConnectToIP(evnt->ip, std::atoi(Option::GetInstance().GetVariable("i_port").c_str()));
 }
 
 void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
@@ -77,7 +81,11 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
         entity = scene0->GetEntity("player" + std::to_string(evnt->playerId));
     }
 
-    m_pNetwork->SetPlayerEntityPointer(entity, evnt->playerId);
+    m_Network.SetPlayerEntityPointer(entity, evnt->playerId);
+    for (int i = 0; i < m_pEnemies->size(); i++)
+    {
+        m_pEnemies->at(i)->GetComponent<component::AiComponent>()->AddTarget(entity);
+    }
 
     m_pSceneManager->SetScenes(m_pSceneManager->GetActiveScenes()->size(), &activeScenes->at(0));
 }

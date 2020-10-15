@@ -8,6 +8,7 @@
 #include "UpgradeComponents/UpgradeComponent.h"
 #include "UpgradeComponents/Upgrades/UpgradeRangeTest.h"
 #include "Player.h"
+#include "../Memory/PoolAllocator.h"
 
 
 component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale, int damage, float velocity) : Component(parent)
@@ -42,7 +43,7 @@ void component::RangeComponent::Attack(MouseClick* event)
 {
 	if (event->button == MOUSE_BUTTON::RIGHT_DOWN)
 	{
-		Entity* ent = new Entity("RangeAttack" + std::to_string(++m_NrOfProjectiles));
+		Entity* ent = PoolAllocator<Entity>::GetInstance().Allocate("RangeAttack" + std::to_string(++m_NrOfProjectiles));
 		component::ModelComponent* mc = nullptr;
 		component::TransformComponent* tc = nullptr;
 		component::BoundingBoxComponent* bbc = nullptr;

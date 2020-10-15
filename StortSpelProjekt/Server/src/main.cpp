@@ -66,6 +66,7 @@ int main()
 		server.ListenMessages();
 		if (updateTime >= updateRate)
 		{
+			updateTime = 0;
 			server.Update(dt);
 			gameState.Update(dt);
 		}

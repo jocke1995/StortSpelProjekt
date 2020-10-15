@@ -38,6 +38,7 @@ public:
 	void Disconnect();
 	//Give network the entity pointer for player.
 	void SetPlayerEntityPointer(Entity* playerEnitity, int id);
+	void SetEnemiesEntityPointers(std::vector<Entity*>* enemies);
 
 	bool ListenPacket();
 
@@ -46,6 +47,7 @@ private:
 	void processPacket(sf::Packet *packet);
 	void processPlayerData(sf::Packet* packet);
 	void processServerData(sf::Packet* packet);
+	void processEnemyData(sf::Packet* packet);
 	void processPlayerDisconnect(sf::Packet* packet);
 
 	void sendPacket(sf::Packet packet);
@@ -54,6 +56,7 @@ private:
 	sf::TcpListener m_Listener;
 
 	std::vector<Player*> m_Players;
+	std::vector<Entity*>* m_pEnemies;
 
 	bool m_Connected;
 	int m_Id;

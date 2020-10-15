@@ -45,18 +45,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     GameNetwork gameNetwork;
 
     /*------ Network Init -----*/
-    bool networkOn = false;
-    Network network;
-
-    gameNetwork.SetNetwork(&network);
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
         gameNetwork.SetScenes(sceneManager->GetActiveScenes());
         gameNetwork.SetSceneManager(sceneManager);
         gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
-
-        networkOn = true;
     }
     double networkTimer = 0;
     double logicTimer = 0;
@@ -70,7 +64,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         timer->Update();
         logicTimer += timer->GetDeltaTime();
-        if (networkOn)
+        if (gameNetwork.IsConnected())
         {
             networkTimer += timer->GetDeltaTime();
         }
@@ -84,15 +78,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         }
 
         /* ---- Network ---- */
-        if (network.IsConnected())
+        if (gameNetwork.IsConnected())
         {
-            if (networkTimer >= networkUpdateRate)
-            {
+            if (networkTimer >= networkUpdateRate) {
                 networkTimer = 0;
 
                 gameNetwork.Update(networkUpdateRate);
             }
         }
+
 
         /* ------ Sort ------ */
         renderer->SortObjects();

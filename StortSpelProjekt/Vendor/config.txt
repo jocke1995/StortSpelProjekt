@@ -6,8 +6,8 @@ i_resolutionWidth 1365
 i_resolutionHeight 768
 i_windowWidth 1366
 i_windowHeight 768
-i_windowMode 1
+i_windowMode 0
 i_shadowResolution 2
-i_network 0
+i_network 1
 s_ip wiko97.ddns.net
 i_port 55555
