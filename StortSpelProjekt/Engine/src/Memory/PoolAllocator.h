@@ -37,8 +37,6 @@ private:
 	MemBlock* m_pFirstBlock;
 };
 
-#endif
-
 template<typename T>
 inline PoolAllocator<T>& PoolAllocator<T>::GetInstance(unsigned int nrToReserve)
 {
@@ -159,3 +157,5 @@ inline T* PoolAllocator<T>::Allocate(Args... args)
 	m_Allocated++;
 	return toReturn;
 }
+
+#endif
