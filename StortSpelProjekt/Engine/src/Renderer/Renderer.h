@@ -177,6 +177,7 @@ private:
 	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::GUI2DComponent*> m_TextComponents;
+	std::vector<component::GUI2DComponent*> m_QuadComponents;
 	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;

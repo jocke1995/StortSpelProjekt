@@ -57,7 +57,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -1351,7 +1351,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 
 	/* ---------------------- Enemy -------------------------------- */
-	EnemyFactory enH(scene);
+	/*EnemyFactory enH(scene);
 	entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
 
 	// add bunch of enemies
@@ -1367,12 +1367,12 @@ Scene* FredriksTestScene(SceneManager* sm)
 			xVal += 8;
 			zVal = 10;
 		}
-	}
+	}*/
 	/* ---------------------- Enemy -------------------------------- */
 
 	/* ------------------------- 2DGUI --------------------------- */
 	std::string textToRender = "TEST";
-	float2 textPos = { 0.02f, 0.85f };
+	float2 textPos = { 0.02f, 0.02f };
 	float2 textPadding = { 0.5f, 0.0f };
 	float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	float2 textScale = { 3.0f, 3.0f };
@@ -1388,8 +1388,8 @@ Scene* FredriksTestScene(SceneManager* sm)
 	gui->GetTextManager()->SetScale(textScale, "health");
 	gui->GetTextManager()->SetText(textToRender, "health");
 
-	float2 quadPos = { 0.25f, 0.25f };
-	float2 quadScale = { 0.5f, 0.5f };
+	float2 quadPos = { 0.0f, 0.0f };
+	float2 quadScale = { 0.2f, 0.2f };
 	gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, L"../Vendor/Resources/Textures/2DGUI/replay.png");
 
 	/* ---------------------------------------------------------- */
@@ -2010,8 +2010,8 @@ void JockeUpdateScene(SceneManager* sm)
 
 void FredriksUpdateScene(SceneManager* sm)
 {
-	component::Audio3DEmitterComponent* ec = sm->GetScene("FredriksTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
-	ec->UpdateEmitter(L"Bruh");
+	/*component::Audio3DEmitterComponent* ec = sm->GetScene("FredriksTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
+	ec->UpdateEmitter(L"Bruh");*/
 
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	component::GUI2DComponent* tc = sm->GetScene("FredriksTestScene")->GetEntity("text")->GetComponent<component::GUI2DComponent>();
@@ -2032,13 +2032,13 @@ void FredriksUpdateScene(SceneManager* sm)
 		Log::Print("PRESSED!\n");
 	}
 
-	std::string name = "enemy";
+	/*std::string name = "enemy";
 	for (int i = 1; i < 76; i++)
 	{
 		name = "enemy" + std::to_string(i);
 		ec = sm->GetScene("FredriksTestScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
 		ec->UpdateEmitter(L"Bruh");
-	}
+	}*/
 }
 
 void DefaultUpdateScene(SceneManager* sm)

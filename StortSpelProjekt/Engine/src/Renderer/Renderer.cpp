@@ -61,6 +61,7 @@
 #include "DX12Tasks/TextTask.h"
 #include "DX12Tasks/ImGuiRenderTask.h"
 #include "DX12Tasks/SkyboxRenderTask.h"
+#include "DX12Tasks/QuadTask.h"
 
 // Copy 
 #include "DX12Tasks/CopyPerFrameTask.h"
@@ -391,6 +392,11 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
 
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::QUAD];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TEXT];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
@@ -635,16 +641,28 @@ void Renderer::InitBoundingBoxComponent(Entity* entity)
 
 void Renderer::InitGUI2DComponent(Entity* entity)
 {
-	component::GUI2DComponent* textComp = entity->GetComponent<component::GUI2DComponent>();
-	std::map<std::string, TextData>* textDataMap = textComp->GetTextManager()->GetTextDataMap();
+	component::GUI2DComponent* GUIComp = entity->GetComponent<component::GUI2DComponent>();
+	auto* textDataMap = GUIComp->GetTextManager()->GetTextDataMap();
+	auto* quad = GUIComp->GetQuadManager()->GetQuad();
 
-	for (auto textData : *textDataMap)
+	if (textDataMap != nullptr)
 	{
-		textComp->GetTextManager()->UploadTextData(textData.first);
+		for (auto textData : *textDataMap)
+		{
+			GUIComp->GetTextManager()->UploadTextData(textData.first);
+		}
+
+		// Finally store the text in m_pRenderer so it will be drawn
+		m_TextComponents.push_back(GUIComp);
 	}
 
-	// Finally store the text in m_pRenderer so it will be drawn
-	m_TextComponents.push_back(textComp);
+	if (quad != nullptr)
+	{
+		GUIComp->GetQuadManager()->UploadQuadData();
+
+		// Finally store the quad in m_pRenderer so it will be drawn
+		m_QuadComponents.push_back(GUIComp);
+	}
 }
 
 void Renderer::OnResetScene()
@@ -660,6 +678,7 @@ void Renderer::OnResetScene()
 	m_pScenePrimaryCamera = nullptr;
 	static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
 	m_BoundingBoxesToBePicked.clear();
+	m_QuadComponents.clear();
 	m_TextComponents.clear();
 }
 
@@ -1478,7 +1497,7 @@ void Renderer::initRenderTasks()
 	gpsdMergePass.RasterizerState.FrontCounterClockwise = false;
 
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
-		gpsdMergePass.BlendState.RenderTarget[i] = defaultRTdesc;
+		gpsdMergePass.BlendState.RenderTarget[i] = blendRTdesc;
 
 	// Depth descriptor
 	D3D12_DEPTH_STENCIL_DESC dsdMergePass = {};
@@ -1600,6 +1619,48 @@ void Renderer::initRenderTasks()
 
 #pragma endregion ComputeAndCopyTasks
 	
+#pragma region Quad
+
+	/* Forward rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdQuad = {};
+	gpsdQuad.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdQuad.NumRenderTargets = 1;
+	gpsdQuad.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	// Depthstencil usage
+	gpsdQuad.SampleDesc.Count = 1;
+	gpsdQuad.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdQuad.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdQuad.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	gpsdQuad.RasterizerState.FrontCounterClockwise = false;
+
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdQuad.BlendState.RenderTarget[i] = defaultRTdesc;
+
+	// Depth descriptor
+	D3D12_DEPTH_STENCIL_DESC quadDepthStencilDesc = {};
+	quadDepthStencilDesc.DepthEnable = false;
+	quadDepthStencilDesc.StencilEnable = false;
+	gpsdQuad.DepthStencilState = quadDepthStencilDesc;
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdQuadVector;
+	gpsdQuadVector.push_back(&gpsdQuad);
+
+	RenderTask* quadTask = new QuadTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"QuadVertex.hlsl", L"QuadPixel.hlsl",
+		&gpsdQuadVector,
+		L"QuadPSO",
+		FLAG_THREAD::RENDER);
+
+	quadTask->SetSwapChain(m_pSwapChain);
+	quadTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion Quad
+
 	// Add the tasks to desired vectors so they can be used in m_pRenderer
 	/* -------------------------------------------------------------- */
 
@@ -1630,6 +1691,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::IMGUI] = imGuiRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX] = skyboxRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE] = downSampleTask;
+	m_RenderTasks[RENDER_TASK_TYPE::QUAD] = quadTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1669,11 +1731,6 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(textTask->GetCommandInterface()->GetCommandList(i));
-	}
-
-	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-	{
 		m_DirectCommandLists[i].push_back(outliningRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
@@ -1699,6 +1756,16 @@ void Renderer::initRenderTasks()
 	}
 
 	// GUI
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(quadTask->GetCommandInterface()->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(textTask->GetCommandInterface()->GetCommandList(i));
+	}
+
 	if (DEVELOPERMODE_DEVINTERFACE == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1714,6 +1781,7 @@ void Renderer::setRenderTasksRenderComponents()
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
+	static_cast<QuadTask*>(m_RenderTasks[RENDER_TASK_TYPE::QUAD])->SetQuadComponents(&m_QuadComponents);
 	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 
 	static_cast<SkyboxRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX])->SetSkybox(m_pSkyboxComponent);
@@ -1809,6 +1877,17 @@ void Renderer::removeComponents(Entity* entity)
 		}
 	}
 
+	// Check if the entity is a quadComponent
+	for (int i = 0; i < m_QuadComponents.size(); i++)
+	{
+		Entity* parent = m_QuadComponents[i]->GetParent();
+		if (parent == entity)
+		{
+			m_QuadComponents.erase(m_QuadComponents.begin() + i);
+			setRenderTasksRenderComponents();
+		}
+	}
+
 	// Check if the entity is a textComponent
 	for (int i = 0; i < m_TextComponents.size(); i++)
 	{
@@ -1819,6 +1898,7 @@ void Renderer::removeComponents(Entity* entity)
 			setRenderTasksRenderComponents();
 		}
 	}
+
 	// Check if the entity got any light m_Components.
 	// Remove them and update both cpu/gpu m_Resources
 	component::DirectionalLightComponent* dlc;

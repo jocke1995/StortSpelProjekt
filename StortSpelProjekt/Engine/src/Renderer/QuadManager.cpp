@@ -8,6 +8,8 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Renderer.h"
 
+#include "DX12Tasks/CopyOnDemandTask.h"
+
 #include "../Misc/Window.h"
 #include "../Misc/AssetLoader.h"
 
@@ -26,6 +28,11 @@ QuadManager::~QuadManager()
 	if (m_pQuad != nullptr)
 	{
 		delete m_pQuad;
+	}
+
+	if (m_pSlotInfo != nullptr)
+	{
+		delete m_pSlotInfo;
 	}
 }
 
@@ -103,10 +110,30 @@ void QuadManager::CreateQuad(float2 pos, float2 size, bool clickable, std::wstri
 
 	m_pQuad->Init(renderer->m_pDevice5, renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 
+	m_pSlotInfo = new SlotInfo();
+	m_pSlotInfo->vertexDataIndex = m_pQuad->GetSRV()->GetDescriptorHeapIndex();
+
+	if (m_pQuadTexture != nullptr)
+	{
+		m_pSlotInfo->textureAlbedo = m_pQuadTexture->GetDescriptorHeapIndex();
+	}
+
 	if (m_Clickable)
 	{
 		EventBus::GetInstance().Subscribe(this, &QuadManager::pressed);
 	}
+}
+
+void QuadManager::UploadQuadData()
+{
+	Renderer* renderer = &Renderer::GetInstance();
+
+	// Submit to GPU
+	renderer->submitMeshToCodt(m_pQuad);
+
+	renderer->submitTextureToCodt(m_pQuadTexture);
+
+	renderer->executeCopyOnDemand();
 }
 
 bool QuadManager::HasBeenPressed()
@@ -125,9 +152,19 @@ bool QuadManager::HasBeenPressed()
 	return false;
 }
 
+Mesh* const QuadManager::GetQuad() const
+{
+	return m_pQuad;
+}
+
 Texture* const QuadManager::GetTexture() const
 {
 	return m_pQuadTexture;
+}
+
+SlotInfo* const QuadManager::GetSlotInfo() const
+{
+	return m_pSlotInfo;
 }
 
 void QuadManager::pressed(MouseClick* evnt)
