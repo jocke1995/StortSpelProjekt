@@ -4,6 +4,7 @@
 #include "EngineMath.h"
 #include "Core.h"
 #include <map>
+#include <vector>
 
 class Scene;
 class Component;
@@ -32,20 +33,25 @@ struct EnemyComps
 	std::string targetName;
 	int enemiesOfThisType = 0;
 	std::wstring sound3D;
-	float3 dim;
+	double3 dim;
+	float detectionRad;
+	float attackingDist;
 };
 
 class EnemyFactory
 {
 public:
+	EnemyFactory();
 	EnemyFactory(Scene* scene);
 	~EnemyFactory();
+
+	void SetScene(Scene* scene);
 
 	// Used when you want to add a new type of enemy to the scene .
 	// Flag is used for selecting which specific components are needed for this enemy e.g. OBB. 
 	// Components that enemies have as default won't have a flag.
 	// Will allways draw_opaque and give shadows.
-	Entity* AddEnemy(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, unsigned int compFlags = 0, unsigned int aiFlags = 0, float scale = 1, float3 rot = { 0, 0, 0 }, std::string aiTarget = "player");
+	Entity* AddEnemy(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, unsigned int compFlags = 0, unsigned int aiFlags = 0, float scale = 1, float3 rot = { 0, 0, 0 }, std::string aiTarget = "player", float aiDetectionRadius = 25.0f, float aiAttackingDistance = 3.5f);
 	// used if you want to add an already existing enemy type to the scene with only the pos being different
 	Entity* AddExistingEnemy(std::string entityName, float3 pos);
 	// Used if you want to add an already existing enemy but change some of the values; flag, scale, rot or hp.
@@ -54,11 +60,14 @@ public:
 	// To skipp scale and write to rot the equvalent would be FLT_MAX.
 	Entity* AddExistingEnemyWithChanges(std::string entityName, float3 pos, unsigned int compFlags = UINT_MAX, unsigned int aiFlags = UINT_MAX, float scale = FLT_MAX, float3 rot = { FLT_MAX , FLT_MAX , FLT_MAX }, int hp = INT_MAX);
 	// Helper function for adding an enemy
-	Entity* Add(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, unsigned int flag, unsigned int aiFlags, float3 dim, float scale, float3 rot, std::string aiTarget);
+	Entity* Add(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, unsigned int flag, unsigned int aiFlags, double3 dim, float scale, float3 rot, std::string aiTarget, float aiDetectionRadius, float aiAttackingDistance);
+
+	std::vector<Entity*>* GetAllEnemies();
 
 private:
 	Scene* m_pScene = nullptr;
 	std::map<std::string, EnemyComps*> m_EnemyComps;
+	std::vector<Entity*> m_Enemies;
 };
 
 #endif

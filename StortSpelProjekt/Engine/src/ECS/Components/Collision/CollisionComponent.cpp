@@ -64,6 +64,9 @@ void component::CollisionComponent::OnInitScene()
 	// Initiate the body with a given shape. This shape should be defined in an inherited class.
 	m_pTrans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
 
+	// Set scaling for the shape
+	m_pShape->setLocalScaling({ m_pTrans->GetScale().x, m_pTrans->GetScale().y, m_pTrans->GetScale().z });
+
 	btTransform btTrans;
 	btTrans.setIdentity();
 	btTrans.setOrigin({ m_pTrans->GetPositionFloat3().x, m_pTrans->GetPositionFloat3().y, m_pTrans->GetPositionFloat3().z });
@@ -97,14 +100,6 @@ void component::CollisionComponent::OnInitScene()
 	}
 }
 
-void component::CollisionComponent::OnLoadScene()
-{
-	
-}
-
-void component::CollisionComponent::OnUnloadScene()
-{
-}
 
 void component::CollisionComponent::SetPosition(double x, double y, double z)
 {
@@ -177,7 +172,7 @@ void component::CollisionComponent::SetRestitution(double rest)
 	m_pBody->setRestitution(rest);
 }
 
-void component::CollisionComponent::SetAngularFactor(double3& factor)
+void component::CollisionComponent::SetAngularFactor(const double3& factor)
 {
 	m_pBody->setAngularFactor({ factor.x, factor.y, factor.z });
 }

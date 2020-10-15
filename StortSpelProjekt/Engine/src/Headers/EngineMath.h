@@ -47,6 +47,14 @@ typedef union float3
 		y *= factor;
 		z *= factor;
 	};
+	float3 operator - (float3 other)
+	{
+		return {
+			x - other.x,
+			y - other.y,
+			z - other.z
+		};
+	};
 
 	float3 operator +(const float3& other) const
 	{

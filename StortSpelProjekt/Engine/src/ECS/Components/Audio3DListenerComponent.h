@@ -17,8 +17,6 @@ namespace component
 		virtual ~Audio3DListenerComponent();
 		void Update(double dt);
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
 
 		// updates position and orientation of the listener
 		void UpdateListener();
