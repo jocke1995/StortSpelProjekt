@@ -1,10 +1,7 @@
 #include "Engine.h"
-#include "Components/MeleeComponent.h"
-#include "Components/PlayerInputComponent.h"
-#include "Components/HealthComponent.h"
-#include "Components/RangeComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
+#include "Player.h"
 
 Scene* JacobsTestScene(SceneManager* sm);
 Scene* LeosTestScene(SceneManager* sm);
@@ -25,6 +22,7 @@ void TimUpdateScene(SceneManager* sm);
 void JockeUpdateScene(SceneManager* sm);
 void FredriksUpdateScene(SceneManager* sm);
 void DemoUpdateScene(SceneManager* sm);
+void AndresUpdateScene(SceneManager* sm);
 
 void DefaultUpdateScene(SceneManager* sm);
 
@@ -67,7 +65,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager); 
     //Scene* antonScene = AntonTestScene(sceneManager);
-    //Scene* andresScene = AndresTestScene(sceneManager);
+    //Scene* andresScene = AndresTestScene(sceneManager); // upgrade-test
 
     Scene* activeScenes[] = { leoScene };
 
@@ -291,6 +289,7 @@ Scene* LeosTestScene(SceneManager* sm)
     // Get the models needed
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
+    Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
@@ -406,20 +405,21 @@ Scene* LeosTestScene(SceneManager* sm)
     ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 250.0, 0.0, 1.0);
 #pragma endregion
 
-#pragma region cube
-    entity = scene->AddEntity("Cube");
+#pragma region shop
+    entity = scene->AddEntity("Shop");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(1.0, 1.0, 1.0, 1.0);
 
     mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(cubeModel);
+    mc->SetModel(shopModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
+    entityDim = mc->GetModelDim();
+
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(100000.0, entityDim.x / 2.0, entityDim.y / 2.0, entityDim.z / 2.0, 1000.0, 0.0, false);
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetPosition(0.0f, 10.0f, 15.0f);
-    tc->GetTransform()->SetRotationX(PI / 4);
-    tc->GetTransform()->SetRotationY(PI / 4);
-    tc->GetTransform()->SetRotationZ(PI / 4);
+    tc->GetTransform()->SetRotationY(PI);
 #pragma endregion
 
 #pragma region ball
@@ -487,7 +487,7 @@ Scene* LeosTestScene(SceneManager* sm)
     enH.AddExistingEnemy("sphere", float3{ 50, 10, 50 });
     enH.AddExistingEnemy("sphere", float3{ -50, 10, -50 });
     enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_JUMP | F_AI_FLAGS::CAN_ROLL, 0.5);*/
-    enH.AddEnemy("conan", barbModel, 20, float3{ 245.0, 10.0, 245.0 }, L"null", L"null", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, F_AI_FLAGS::CAN_JUMP, 0.3, float3{ 0.0, 0.0, 0.0 }, "Ball2", 500.0f, 0.0f);
+    enH.AddEnemy("conan", barbModel, 20, float3{ 245.0, 10.0, 245.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "Ball2", 500.0f, 0.0f);
     enH.AddExistingEnemy("conan", float3{ 245, 10, -245 });
     enH.AddExistingEnemy("conan", float3{ -245, 10, 245 });
     enH.AddExistingEnemy("conan", float3{ -245, 10, -245 });
@@ -1352,7 +1352,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 	/* ---------------------- Enemy -------------------------------- */
 	EnemyFactory enH(scene);
-	entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
+	entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
 
 	// add bunch of enemies
 	float xVal = 8;
@@ -1577,6 +1577,8 @@ Scene* AndresTestScene(SceneManager* sm)
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* bcc = nullptr;
     component::RangeComponent* rc = nullptr;
+    component::UpgradeComponent* upgradeComp = nullptr;
+    component::MeleeComponent* melc = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1612,11 +1614,11 @@ Scene* AndresTestScene(SceneManager* sm)
     audioListener = entity->AddComponent<component::Audio3DListenerComponent>();
     ic->Init();
     hc = entity->AddComponent<component::HealthComponent>(15);
-    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 10);
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    melc = entity->AddComponent<component::MeleeComponent>();
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    //avc = entity->AddComponent<component::Audio2DVoiceComponent>();
-    //avc->AddVoice(L"Bruh");
+    upgradeComp = entity->AddComponent<component::UpgradeComponent>();
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -1626,6 +1628,13 @@ Scene* AndresTestScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
 
+    // upgrade test. This functionality will be handled by shop.
+    Player::GetInstance().SetPlayer(entity);
+    Player::GetInstance().GetUpgradeManager()->ApplyUpgrade("UpgradeRangeTest");
+    Player::GetInstance().GetPlayer()->GetComponent<component::UpgradeComponent>()->GetUpgradeByName("UpgradeRangeTest")->ApplyStat();
+    Player::GetInstance().GetUpgradeManager()->ApplyUpgrade("UpgradeMeleeTest");
+    Player::GetInstance().GetPlayer()->GetComponent<component::UpgradeComponent>()->GetUpgradeByName("UpgradeMeleeTest")->ApplyStat();
+
     /* ---------------------- Player ---------------------- */
 
     /* ---------------------- Floor ---------------------- */
@@ -1633,9 +1642,6 @@ Scene* AndresTestScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 60.0, 0.0, 60.0);
-    //backgroundAudio = entity->AddComponent<component::Audio2DVoiceComponent>();
-    //backgroundAudio->AddVoice(L"bruh");
-    //backgroundAudio->Play(L"bruh");
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
@@ -1734,7 +1740,7 @@ Scene* AndresTestScene(SceneManager* sm)
     mc->SetModel(posterModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(50, 50, 1);
+    tc->GetTransform()->SetScale(50, 1, 50);
     tc->GetTransform()->SetPosition(0.0f, 30.0f, 500.0f);
     tc->GetTransform()->SetRotationX(3 * 3.1415 / 2);
     tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
@@ -1743,25 +1749,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
-
-    /*entity = enH.AddExistingEnemy("enemy", float3{ 40, 10, 0 });
-    entity = enH.AddExistingEnemy("enemy", float3{ 0, 10, -40 });
-    entity = enH.AddExistingEnemy("enemy", float3{ -40, 10, 0 });*/
-    // add bunch of enemies
-    float xVal = 8;
-    float zVal = 20;
-    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 75; i++)
-    {
-        zVal += 8;
-        entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
-        if ((i + 1) % 5 == 0)
-        {
-            xVal += 8;
-            zVal = 10;
-        }
-    }
+    entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0, 0, 0 }, "player");
     /* ---------------------- Enemy -------------------------------- */
 
 
@@ -1773,7 +1761,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
 
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &DemoUpdateScene;
+    UpdateScene = &AndresUpdateScene;
     srand(time(NULL));
     /* ---------------------- Update Function ---------------------- */
 
@@ -2057,16 +2045,8 @@ void DefaultUpdateScene(SceneManager* sm)
 {
 }
 
-void DemoUpdateScene(SceneManager* sm)
+void AndresUpdateScene(SceneManager* sm)
 {
     component::Audio3DEmitterComponent* ec = sm->GetScene("AndresTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
     ec->UpdateEmitter(L"Bruh");
-
-    std::string name = "enemy";
-    for (int i = 1; i < 76; i++)
-    {
-        name = "enemy" + std::to_string(i);
-        ec = sm->GetScene("AndresTestScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
-        ec->UpdateEmitter(L"Bruh");
-    }
 }

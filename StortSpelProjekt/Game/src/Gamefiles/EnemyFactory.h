@@ -33,7 +33,6 @@ struct EnemyComps
 	std::string targetName;
 	int enemiesOfThisType = 0;
 	std::wstring sound3D;
-	std::wstring sound2D;
 	double3 dim;
 	float detectionRad;
 	float attackingDist;
@@ -52,7 +51,7 @@ public:
 	// Flag is used for selecting which specific components are needed for this enemy e.g. OBB. 
 	// Components that enemies have as default won't have a flag.
 	// Will allways draw_opaque and give shadows.
-	Entity* AddEnemy(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int compFlags = 0, unsigned int aiFlags = 0, float scale = 1, float3 rot = { 0, 0, 0 }, std::string aiTarget = "player", float aiDetectionRadius = 25.0f, float aiAttackingDistance = 3.5f);
+	Entity* AddEnemy(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, unsigned int compFlags = 0, unsigned int aiFlags = 0, float scale = 1, float3 rot = { 0, 0, 0 }, std::string aiTarget = "player", float aiDetectionRadius = 25.0f, float aiAttackingDistance = 3.5f);
 	// used if you want to add an already existing enemy type to the scene with only the pos being different
 	Entity* AddExistingEnemy(std::string entityName, float3 pos);
 	// Used if you want to add an already existing enemy but change some of the values; flag, scale, rot or hp.
@@ -61,7 +60,7 @@ public:
 	// To skipp scale and write to rot the equvalent would be FLT_MAX.
 	Entity* AddExistingEnemyWithChanges(std::string entityName, float3 pos, unsigned int compFlags = UINT_MAX, unsigned int aiFlags = UINT_MAX, float scale = FLT_MAX, float3 rot = { FLT_MAX , FLT_MAX , FLT_MAX }, int hp = INT_MAX);
 	// Helper function for adding an enemy
-	Entity* Add(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int flag, unsigned int aiFlags, double3 dim, float scale, float3 rot, std::string aiTarget, float aiDetectionRadius, float aiAttackingDistance);
+	Entity* Add(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, unsigned int flag, unsigned int aiFlags, double3 dim, float scale, float3 rot, std::string aiTarget, float aiDetectionRadius, float aiAttackingDistance);
 
 	std::vector<Entity*>* GetAllEnemies();
 
