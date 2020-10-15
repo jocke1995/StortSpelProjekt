@@ -58,8 +58,9 @@ private:
     friend class Renderer;
     friend class AssetLoader;
     friend class SceneManager;
-    friend class Model;
-    friend class component::BoundingBoxComponent;
+	friend class QuadManager;
+	friend class Model;
+	friend class component::BoundingBoxComponent;
 
     std::vector<Vertex> m_Vertices;
     std::vector<unsigned int> m_Indices;
