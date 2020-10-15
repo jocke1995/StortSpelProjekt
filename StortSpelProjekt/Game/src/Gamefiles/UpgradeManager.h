@@ -37,6 +37,8 @@ public:
 	// returns true if the upgrade with id is in the map and therefore applied
 	bool IsUpgradeApplied(int id);
 
+	std::map<std::string, Upgrade*> GetAllAvailableUpgrades();
+
 private:
 	Entity* m_pParentEntity = nullptr;
 	// Contains all upgrades that the player can buy
@@ -58,7 +60,7 @@ private:
 	bool checkIfPlayerEntityUpgrade(std::string name);
 	// Returns a new Upgrade, of type RANGE, so that 
 	// every projectile entity has it's own version of that Upgrade.
-	Upgrade* RangeUpgrade(std::string name, Entity* ent);
+	Upgrade* newRangeUpgrade(std::string name, Entity* ent);
 };
 
 

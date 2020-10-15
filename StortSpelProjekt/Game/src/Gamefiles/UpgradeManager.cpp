@@ -19,7 +19,7 @@ UpgradeManager::~UpgradeManager()
 
 void UpgradeManager::ApplyUpgrade(std::string name)
 {
-	// Adds this to the enum map of that should contain all applied upgrades.
+	// Adds this to the enum map that should contain all applied upgrades.
 	m_AppliedUpgradeEnums[name] = m_AllAvailableUpgrades[name]->GetID();
 
 	if (checkIfRangeUpgrade(name))
@@ -50,7 +50,14 @@ void UpgradeManager::ApplyRangeUpgrades(Entity* ent)
 	for (auto upgradeName : m_AllAppliedProjectileUpgrades)
 	{
 		// get NEW RangeUpgrade for the projectile entity
-		rangeUpgrade = RangeUpgrade(upgradeName, ent);
+		rangeUpgrade = newRangeUpgrade(upgradeName, ent);
+		// Check if the upgrade has increased in level. 
+		// If so increase level of the new upgrade so it matches the one in m_AllAvailableUpgrades
+		// i = 1, because upgrades start at level 1.
+		for (int i = 1; i < m_AllAvailableUpgrades[upgradeName]->GetLevel(); i++)
+		{
+			rangeUpgrade->IncreaseLevel();
+		}
 		// Add the upgrade to the projectile entitys upgradeComponent
 		ent->GetComponent<component::UpgradeComponent>()->AddUpgrade(rangeUpgrade);
 	}
@@ -78,6 +85,11 @@ bool UpgradeManager::IsUpgradeApplied(int id)
 		}
 	}
 	return false;
+}
+
+std::map<std::string, Upgrade*> UpgradeManager::GetAllAvailableUpgrades()
+{
+	return m_AllAvailableUpgrades;
 }
 
 void UpgradeManager::fillUpgradeMap()
@@ -127,7 +139,7 @@ bool UpgradeManager::checkIfPlayerEntityUpgrade(std::string name)
 	}
 }
 
-Upgrade* UpgradeManager::RangeUpgrade(std::string name, Entity* ent)
+Upgrade* UpgradeManager::newRangeUpgrade(std::string name, Entity* ent)
 {
 	// Using the enum that is mapped to name,
 	// return the correct NEW range upgrade with parentEntity ent

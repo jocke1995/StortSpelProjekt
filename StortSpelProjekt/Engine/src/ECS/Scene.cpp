@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Scene.h"
 #include "Entity.h"
+#include "../Memory/PoolAllocator.h"
 #include "../Renderer/Camera/BaseCamera.h"
 Scene::Scene(std::string sceneName)
 {
@@ -16,7 +17,7 @@ Scene::~Scene()
             pair.second->DecrementRefCount();
             if (pair.second->GetRefCount() == 0)
             {
-                delete pair.second;
+                PoolAllocator<Entity>::GetInstance().Delete(pair.second);
             }
         }
     }
@@ -46,7 +47,7 @@ Entity* Scene::AddEntity(std::string entityName)
         return nullptr;
     }
 
-    m_Entities[entityName] = new Entity(entityName);
+    m_Entities[entityName] = PoolAllocator<Entity>::GetInstance().Allocate(entityName);
     m_Entities[entityName]->IncrementRefCount();
     m_NrOfEntities++;
     return m_Entities[entityName];
@@ -59,7 +60,7 @@ bool Scene::RemoveEntity(std::string entityName)
         return false;
     }
 
-    delete m_Entities[entityName];
+    PoolAllocator<Entity>::GetInstance().Delete(m_Entities[entityName]);
     m_Entities.erase(entityName);
 
     m_NrOfEntities--;
