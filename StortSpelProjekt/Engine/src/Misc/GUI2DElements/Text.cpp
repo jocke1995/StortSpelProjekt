@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "Text.h"
 
-#include "Texture/Texture.h"
+#include "../Renderer/Texture/Texture.h"
 #include "../Misc/Window.h"
-#include "GPUMemory/Resource.h"
-#include "GPUMemory/ShaderResourceView.h"
-#include "DescriptorHeap.h"
-#include "Renderer.h"
+#include "../Renderer/GPUMemory/Resource.h"
+#include "../Renderer/GPUMemory/ShaderResourceView.h"
+#include "../Renderer/DescriptorHeap.h"
+#include "../Renderer/Renderer.h"
+#include "Font.h"
 
 Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfCharacters, Texture* texture)
 {
@@ -65,8 +66,8 @@ void Text::initVertexData()
 	float x = topLeftScreenX;
 	float y = topLeftScreenY;
 
-	float horrizontalPadding = (font.leftpadding + font.rightpadding) * padding.x;
-	float verticalPadding = (font.toppadding + font.bottompadding) * padding.y;
+	float horrizontalPadding = (font.m_Leftpadding + font.m_Rightpadding) * padding.x;
+	float verticalPadding = (font.m_Toppadding + font.m_Bottompadding) * padding.y;
 
 	wchar_t lastChar = -1; // no last character to start with
 
@@ -92,7 +93,7 @@ void Text::initVertexData()
 		if (c == L'\n')
 		{
 			x = topLeftScreenX;
-			y -= (font.lineHeight + verticalPadding) * scale.y;
+			y -= (font.m_LineHeight + verticalPadding) * scale.y;
 			continue;
 		}
 
@@ -138,6 +139,11 @@ SlotInfo* const Text::GetSlotInfo() const
 TextData* const Text::GetTextData(int pos)
 {
 	return &m_TextData;
+}
+
+Font* const Text::GetFont() const
+{
+	return m_pFont;
 }
 
 int const Text::GetNrOfCharacters() const

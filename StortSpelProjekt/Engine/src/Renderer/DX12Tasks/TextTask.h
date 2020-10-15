@@ -7,7 +7,7 @@ class RootSignature;
 
 namespace component
 {
-	class TextComponent;
+	class GUI2DComponent;
 }
 
 class TextTask : public RenderTask
@@ -21,14 +21,14 @@ public:
 		unsigned int FLAG_THREAD);
 	~TextTask();
 
-	void SetTextComponents(std::vector<component::TextComponent*>* textComponents);
+	void SetTextComponents(std::vector<component::GUI2DComponent*>* textComponents);
 
 	void Execute();
 
 private:
-	std::vector<component::TextComponent*> m_TextComponents;
+	std::vector<component::GUI2DComponent*> m_TextComponents;
 
-	void draw(ID3D12GraphicsCommandList5* commandList, component::TextComponent* tc);
+	void draw(ID3D12GraphicsCommandList5* commandList, component::GUI2DComponent* tc);
 };
 
 #endif

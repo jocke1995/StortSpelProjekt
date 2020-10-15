@@ -39,8 +39,6 @@ private:
 	std::unordered_map<Entity*, bool> m_IsEntityInited;
 
 	bool sceneExists(std::string sceneName) const;
-	void executeCopyOnDemand();
-	
 };
 
 #endif
