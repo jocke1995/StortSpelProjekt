@@ -36,7 +36,7 @@ bool QuadManager::operator==(const QuadManager& other) const
 
 void QuadManager::CreateQuad(float2 pos, float2 size, bool clickable, std::wstring texturePath)
 {
-	// Look if we are going to overwrite the current quad
+	// Examine if we are going to overwrite the current quad
 	if (m_pQuad != nullptr)
 	{
 		delete m_pQuad;
