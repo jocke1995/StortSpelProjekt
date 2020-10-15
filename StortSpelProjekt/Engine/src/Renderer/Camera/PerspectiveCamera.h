@@ -8,16 +8,18 @@ class PerspectiveCamera : public BaseCamera
 public:
     // main constructor
     PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR direction,
-        double fov = 45.0f,
-        double aspectRatio = 16.0f / 9.0f,
-        double zNear = 0.1f,
-        double zFar = 1000.0f);
+        float fov = 45.0f,
+        float aspectRatio = 16.0f / 9.0f,
+        float zNear = 0.1f,
+        float zFar = 1000.0f);
 
 	virtual ~PerspectiveCamera();
 
+    // Gets
     const DirectX::XMMATRIX* GetViewProjection() const;
     const DirectX::XMMATRIX* GetViewProjectionTranposed() const;
 
+    // Sets
 
     // Used by freelook Camera (when pressing ctrl in the scene, the camera detaches from the player)
     void UpdateMovement(float x, float y, float z);

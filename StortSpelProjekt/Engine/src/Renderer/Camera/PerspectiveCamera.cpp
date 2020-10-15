@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "PerspectiveCamera.h"
 
-PerspectiveCamera::PerspectiveCamera(DirectX::XMVECTOR position, DirectX::XMVECTOR direction, double fov, double aspectRatio, double zNear, double zFar)
+PerspectiveCamera::PerspectiveCamera(
+	DirectX::XMVECTOR position, DirectX::XMVECTOR direction,
+	float fov, float aspectRatio, float zNear, float zFar)
 	:BaseCamera(position, direction)
 {
 	m_Fov = fov * DirectX::XM_PI / 180.0f;
