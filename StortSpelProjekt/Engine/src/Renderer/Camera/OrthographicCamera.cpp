@@ -40,3 +40,69 @@ const DirectX::XMMATRIX* OrthographicCamera::GetViewProjectionTranposed() const
 {
 	return &m_ViewProjTranposedMatrix;
 }
+
+const float OrthographicCamera::GetLeft() const
+{
+	return m_Left;
+}
+
+const float OrthographicCamera::GetRight() const
+{
+	return m_Right;
+}
+
+const float OrthographicCamera::GetBot() const
+{
+	return m_Bot;
+}
+
+const float OrthographicCamera::GetTop() const
+{
+	return m_Top;
+}
+
+const float OrthographicCamera::GetNearZ() const
+{
+	return m_NearZ;
+}
+
+const float OrthographicCamera::GetFarZ() const
+{
+	return m_FarZ;
+}
+
+void OrthographicCamera::SetLeft(float left)
+{
+	m_Left = left;
+	updateSpecific(0);
+}
+
+void OrthographicCamera::SetRight(float right)
+{
+	m_Right = right;
+	updateSpecific(0);
+}
+
+void OrthographicCamera::SetBot(float bot)
+{
+	m_Bot = bot;
+	updateSpecific(0);
+}
+
+void OrthographicCamera::SetTop(float top)
+{
+	m_Top = top;
+	updateSpecific(0);
+}
+
+void OrthographicCamera::SetNearZ(float nearPlaneDistance)
+{
+	m_NearZ = nearPlaneDistance;
+	updateSpecific(0);
+}
+
+void OrthographicCamera::SetFarZ(float farPlaneDistance)
+{
+	m_FarZ = farPlaneDistance;
+	updateSpecific(0);
+}
