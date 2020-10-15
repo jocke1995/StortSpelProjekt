@@ -12,6 +12,7 @@ Scene* FloppipTestScene(SceneManager* sm);
 Scene* FredriksTestScene(SceneManager* sm);
 Scene* WilliamsTestScene(SceneManager* sm);
 Scene* AndresTestScene(SceneManager* sm);
+Scene* AntonTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
 
 
@@ -66,10 +67,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	//Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager);
-    Scene* antonScene = AntonTestScene(sceneManager);
+    //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { antonScene };
+    Scene* activeScenes[] = { leoScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
