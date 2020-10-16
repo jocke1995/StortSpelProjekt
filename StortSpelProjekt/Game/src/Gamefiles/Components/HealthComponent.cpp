@@ -41,7 +41,7 @@ void component::HealthComponent::SetHealth(int hp)
 
 void component::HealthComponent::ChangeHealth(int hpChange)
 {
-	m_Health += hpChange;
+	m_Health += hpChange * static_cast<float>(m_Health > 0);
 	if (m_Health <= 0 && m_Dead == false)
 	{
 		EventBus::GetInstance().Publish(&Death(m_pParent));

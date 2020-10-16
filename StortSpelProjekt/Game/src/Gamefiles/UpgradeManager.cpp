@@ -14,7 +14,10 @@ UpgradeManager::UpgradeManager(Entity* parentEntity)
 
 UpgradeManager::~UpgradeManager()
 {
-
+	for (std::pair<std::string, Upgrade*> u : m_AllAvailableUpgrades)
+	{
+		delete u.second;
+	}
 }
 
 void UpgradeManager::ApplyUpgrade(std::string name)
