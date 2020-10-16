@@ -62,10 +62,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    //Scene* leoScene = LeosTestScene(sceneManager);
+    Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
-    Scene* jockeScene = JockesTestScene(sceneManager);
+    //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
 	//Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
@@ -73,7 +73,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { jockeScene };
+    Scene* activeScenes[] = { leoScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -135,6 +135,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        Scene* activeScene = sceneManager->GetActiveScenes()->at(0);
         if (window->WasSpacePressed())
         {
             Entity* a = PoolAllocator<Entity>::GetInstance().Allocate(std::to_string(nr++));
@@ -144,7 +145,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
 
             auto tc = a->AddComponent<component::TransformComponent>();
-            tc->GetTransform()->SetPosition(leoScene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionXMFLOAT3());
+            tc->GetTransform()->SetPosition(activeScene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionXMFLOAT3());
 
             /* ------------------------- 2DGUI --------------------------- */
             std::string textToRender = "TEST";
@@ -154,14 +155,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             float2 textScale = { 3.0f, 3.0f };
             
             // Cannot be added in runtime
-            //component::GUI2DComponent* gui = a->AddComponent<component::GUI2DComponent>();
-            //
-            //gui->GetTextManager()->AddText("health");
-            //gui->GetTextManager()->SetColor(textColor, "health");
-            //gui->GetTextManager()->SetPadding(textPadding, "health");
-            //gui->GetTextManager()->SetPos(textPos, "health");
-            //gui->GetTextManager()->SetScale(textScale, "health");
-            //gui->GetTextManager()->SetText(textToRender, "health");
+            component::GUI2DComponent* gui = a->AddComponent<component::GUI2DComponent>();
+            
+            gui->GetTextManager()->AddText("health");
+            gui->GetTextManager()->SetColor(textColor, "health");
+            gui->GetTextManager()->SetPadding(textPadding, "health");
+            gui->GetTextManager()->SetPos(textPos, "health");
+            gui->GetTextManager()->SetScale(textScale, "health");
+            gui->GetTextManager()->SetText(textToRender, "health");
             //
             //float2 quadPos = { 0.25f, 0.25f };
             //float2 quadScale = { 0.5f, 0.5f };
@@ -204,11 +205,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             auto light = a->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
             light->SetColor({ 200, 200, 200 });
 
-            sceneManager->AddEntity(a, leoScene);
+            sceneManager->AddEntity(a, activeScene);
         }
         else if (window->WasTabPressed())
         {
-            sceneManager->RemoveEntity(leoScene->GetEntity(std::to_string(--nr)), leoScene);
+            sceneManager->RemoveEntity(activeScene->GetEntity(std::to_string(--nr)), activeScene);
         }
 
         /* ------ Sort ------ */
@@ -356,7 +357,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     dlc->SetColor({ 0.5f, 0.5f, 0.5f });
 
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &LeoBounceUpdateScene;
+    //UpdateScene = &LeoBounceUpdateScene;
 
     return scene;
 }
