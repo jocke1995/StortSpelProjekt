@@ -2,7 +2,7 @@
 #include "Components/MeleeComponent.h"
 #include "../Events/EventBus.h"
 #include "../ECS/Entity.h"
-#include "../Renderer/PerspectiveCamera.h"
+#include "../Renderer/Camera/PerspectiveCamera.h"
 #include "../Renderer/Transform.h"
 #include "../ECS/Components/Collision/CollisionComponent.h"
 #include "Physics/Physics.h"

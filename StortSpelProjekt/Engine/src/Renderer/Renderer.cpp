@@ -31,7 +31,7 @@
 #include "CommandInterface.h"
 #include "DescriptorHeap.h"
 #include "Transform.h"
-#include "BaseCamera.h"
+#include "Camera/BaseCamera.h"
 #include "Model.h"
 #include "Mesh.h"
 #include "Texture/Texture.h"
@@ -516,7 +516,7 @@ void Renderer::InitDirectionalLightComponent(component::DirectionalLightComponen
 	{
 		resolution = SHADOW_RESOLUTION::MEDIUM;
 	}
-	else if (shadowRes == 2)
+	else if (shadowRes >= 2)
 	{
 		resolution = SHADOW_RESOLUTION::HIGH;
 	}
@@ -575,7 +575,7 @@ void Renderer::InitSpotLightComponent(component::SpotLightComponent* component)
 	{
 		resolution = SHADOW_RESOLUTION::MEDIUM;
 	}
-	else if (shadowRes == 2)
+	else if (shadowRes >= 2)
 	{
 		resolution = SHADOW_RESOLUTION::HIGH;
 	}
@@ -1990,9 +1990,9 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 
 	// -------------------- DEBUG STUFF --------------------
 	// Test to change m_pCamera to the shadow casting m_lights cameras
-	//auto& tuple = m_Lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
-	//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
-	//m_pScenePrimaryCamera = tempCam;
+	// auto& tuple = m_Lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
+	// BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
+	// m_pScenePrimaryCamera = tempCam;
 	if (m_pScenePrimaryCamera == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scenes\n");

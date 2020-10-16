@@ -16,13 +16,23 @@ namespace component
 		void OnInitScene();
 		void OnUnInitScene();
 
+		// Set functions which modifies the shadowCamera
+		void SetCameraDistance(float distance);
 		void SetDirection(float3 direction);
+		void SetCameraLeft(float left);
+		void SetCameraRight(float right);
+		void SetCameraBot(float bot);
+		void SetCameraTop(float top);
+		void SetCameraNearZ(float nearPlaneDistance);
+		void SetCameraFarZ(float farPlaneDistance);
+
 		void* GetLightData() const;
 	
 	protected:
-		void UpdateLightIntensity();
+		void UpdateLightColor();
 
 	private:
+		float m_Distance = 30.0f;
 		DirectionalLight* m_pDirectionalLight = nullptr;
 
 		void initFlagUsages();

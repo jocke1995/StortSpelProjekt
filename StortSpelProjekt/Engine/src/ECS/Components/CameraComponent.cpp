@@ -3,8 +3,8 @@
 
 // Renderer
 #include "../Renderer/Renderer.h"
-#include "../../Renderer/PerspectiveCamera.h"
-#include "../../Renderer/OrthographicCamera.h"
+#include "../../Renderer/Camera/PerspectiveCamera.h"
+#include "../../Renderer/Camera/OrthographicCamera.h"
 
 namespace component
 {

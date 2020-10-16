@@ -16,16 +16,21 @@ namespace component
 		void OnInitScene();
 		void OnUnInitScene();
 
-		void SetPosition(float3 position);
-		void SetCutOff(float cutOff);
-		void SetDirection(float3 direction);
-		void SetOuterCutOff(float outerCutOff);
+		void SetCutOff(float degrees);
 		void SetAttenuation(float3 attenuation);
+
+		// Set functions which modifies the shadowCamera
+		void SetPosition(float3 position);
+		void SetDirection(float3 direction);
+		void SetOuterCutOff(float degrees);
+		void SetAspectRatio(float aspectRatio);
+		void SetNearPlaneDistance(float nearZ);
+		void SetFarPlaneDistance(float farZ);
 
 		void* GetLightData() const;
 	
 	protected:
-		void UpdateLightIntensity();
+		void UpdateLightColor();
 
 	private:
 		SpotLight* m_pSpotLight = nullptr;
@@ -33,6 +38,5 @@ namespace component
 		void initFlagUsages();
 	};
 }
-
 
 #endif
