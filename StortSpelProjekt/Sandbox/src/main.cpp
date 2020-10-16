@@ -701,7 +701,7 @@ Scene* LeosTestScene(SceneManager* sm)
 #pragma endregion
 
 #pragma region skybox
-    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/cubemap.dds");
     entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
     sbc->SetTexture(skyboxCubemap);
@@ -1321,7 +1321,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     /* ---------------------- Skybox ---------------------- */
 
     // Skybox
-    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/cubemap.dds");
     entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
     sbc->SetTexture(skyboxCubemap);
