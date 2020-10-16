@@ -4,6 +4,7 @@
 #include "../Misc/AssetLoader.h"
 
 #include "../Renderer/Renderer.h"
+#include "../Physics/Physics.h"
 
 // Renderer
 #include "../Renderer/CommandInterface.h"
@@ -30,18 +31,40 @@
 #include "../ECS/Components/Lights/SpotLightComponent.h"
 #include "../ECS/Entity.h"
 
-SceneManager::SceneManager(Renderer* r)
+SceneManager::SceneManager()
 {
-	m_pRenderer = r;
+	m_ActiveScenes.reserve(2);
 }
 
 SceneManager::~SceneManager()
 {
-    for (auto pair : m_pScenes)
-    {
-        delete pair.second;
-    }
-    m_pScenes.clear();
+	for (auto pair : m_Scenes)
+	{
+		delete pair.second;
+	}
+
+    m_Scenes.clear();
+}
+
+void SceneManager::Update(double dt)
+{
+	// Update scenes
+	for (auto scene : m_ActiveScenes)
+	{
+		scene->Update(dt);
+	}
+}
+
+void SceneManager::RenderUpdate(double dt)
+{
+	// Update scenes (Render)
+	for (auto scene : m_ActiveScenes)
+	{
+		scene->RenderUpdate(dt);
+	}
+
+	// Renderer updates some stuff
+	Renderer::GetInstance().RenderUpdate(dt);
 }
 
 Scene* SceneManager::CreateScene(std::string sceneName)
@@ -53,72 +76,115 @@ Scene* SceneManager::CreateScene(std::string sceneName)
     }
 
     // Create Scene and return it
-    m_pScenes[sceneName] = new Scene(sceneName);
-    return m_pScenes[sceneName];
+    m_Scenes[sceneName] = new Scene(sceneName);
+    return m_Scenes[sceneName];
+}
+
+std::vector<Scene*>* SceneManager::GetActiveScenes()
+{
+	return &m_ActiveScenes;
 }
 
 Scene* SceneManager::GetScene(std::string sceneName) const
 {
     if (sceneExists(sceneName))
     {
-        return m_pScenes.at(sceneName);
+        return m_Scenes.at(sceneName);
     }
 	
     Log::PrintSeverity(Log::Severity::CRITICAL, "No Scene with name: \'%s\' was found.\n", sceneName.c_str());
     return nullptr;
 }
 
-void SceneManager::RemoveEntity(Entity* entity)
+void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
-	// Removing renderer component
-	m_pRenderer->removeComponents(entity);
+	// Remove all bindings to used components
+	// RenderComponent
+	Renderer::GetInstance().removeComponents(entity);
 
-	// Remove sound component
-
-	// Remove game component
-
-	// Remove physic component
-
-	executeCopyOnDemand();
+	// Remove from the scene
+	scene->RemoveEntity(entity->GetName());
 }
 
-void SceneManager::AddEntity(Entity* entity)
+void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
-	// Add all components
-	std::vector<Component*>* components = entity->GetAllComponents();
-	for (int i = 0; i < components->size(); i++)
+	// Add it to the scene
+	scene->AddEntityFromOther(entity);
+
+	// Only init once per scene (in case a entity is in both scenes)
+	if (m_IsEntityInited.count(entity) == 0)
 	{
-		components->at(i)->InitScene();
+		entity->OnInitScene();
+		m_IsEntityInited[entity] = true;
+	}
+}
+
+void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
+{
+	ResetScene();
+
+	// Set the active scenes
+	m_ActiveScenes.clear();
+	
+	for (unsigned int i = 0; i < numScenes; i++)
+	{
+		// init the active scenes
+		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
+		for (auto const& [entityName, entity] : entities)
+		{
+			// Only init once per scene (in case a entity is in both scenes)
+			if (m_IsEntityInited.count(entity) == 0)
+			{
+				entity->OnInitScene();
+				m_IsEntityInited[entity] = true;
+			}
+		}
+
+		m_ActiveScenes.push_back(scenes[i]);
 	}
 
-	executeCopyOnDemand();
-}
+	Renderer* renderer = &Renderer::GetInstance();
+	renderer->prepareScenes(&m_ActiveScenes);
 
-void SceneManager::SetScene(Scene* scene)
-{
-	resetScene();
-
-	std::map<std::string, Entity*> entities = *scene->GetEntities();
-	for (auto const& [entityName, entity] : entities)
-	{		
-		// for each component in entity: call their implementation of InitScene(),
-		// which calls their specific init function (render, audio, game, physics etc)
-		std::vector<Component*>* components = entity->GetAllComponents();
-		for (int i = 0; i < components->size(); i++)
+	for (Scene* scene : m_ActiveScenes)
+	{
+		if (scene->GetMainCamera() == nullptr)
 		{
-			components->at(i)->InitScene();
+			scene->SetPrimaryCamera(renderer->m_pScenePrimaryCamera);
 		}
 	}
-	
-	m_pRenderer->prepareScene(scene);
-	executeCopyOnDemand();
+
+	renderer->executeCopyOnDemand();
 	return;
 }
 
+void SceneManager::ResetScene()
+{
+	Renderer::GetInstance().waitForGPU();
+
+	// Reset isEntityInited
+	m_IsEntityInited.clear();
+
+	/* ------------------------- GPU -------------------------*/
+	
+	Renderer::GetInstance().OnResetScene();
+
+	/* ------------------------- GPU -------------------------*/
+
+	/* ------------------------- PHYSICS -------------------------*/
+
+	Physics::GetInstance().OnResetScene();
+
+	/* ------------------------- PHYSICS -------------------------*/
+
+	/* ------------------------- Audio -------------------------*/
+
+	/* ------------------------- Audio -------------------------*/
+}
 
 bool SceneManager::sceneExists(std::string sceneName) const
 {
-    for (auto pair : m_pScenes)
+    for (auto pair : m_Scenes)
     {
         // A Scene with this m_Name already exists
         if (pair.first == sceneName)
@@ -128,30 +194,4 @@ bool SceneManager::sceneExists(std::string sceneName) const
     }
 
     return false;
-}
-
-void SceneManager::executeCopyOnDemand()
-{
-	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
-	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
-	m_pRenderer->m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &m_pRenderer->m_CopyOnDemandCmdList[0]);
-	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
-	m_pRenderer->waitForCopyOnDemand();
-}
-
-void SceneManager::resetScene()
-{
-	// Reset
-	m_pRenderer->m_RenderComponents.clear();
-	for (auto& light : m_pRenderer->m_Lights)
-	{
-		light.second.clear();
-	}
-	m_pRenderer->m_pViewPool->ClearAll();
-	m_pRenderer->m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
-	static_cast<ShadowRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
-	m_pRenderer->m_pScenePrimaryCamera = nullptr;
-	static_cast<WireframeRenderTask*>(m_pRenderer->m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
-	m_pRenderer->m_BoundingBoxesToBePicked.clear();
-	m_pRenderer->m_TextComponents.clear();
 }

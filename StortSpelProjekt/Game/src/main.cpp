@@ -1,8 +1,4 @@
 #include "Engine.h"
-#include "Components/PlayerInputComponent.h"
-#include "Components/HealthComponent.h"
-#include "Components/RangeComponent.h"
-#include "Components/MeleeComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 
@@ -10,6 +6,8 @@ Scene* GetDemoScene(SceneManager* sm);
 void(*UpdateScene)(SceneManager*);
 void DemoUpdateScene(SceneManager* sm);
 void DefaultUpdateScene(SceneManager* sm);
+
+EnemyFactory enemyFactory;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -41,22 +39,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     /*----- Set the scene -----*/
-    sceneManager->SetScene(GetDemoScene(sceneManager));
+    Scene* demoScene = GetDemoScene(sceneManager);
+    sceneManager->SetScenes(1, &demoScene);
 
     GameNetwork gameNetwork;
 
     /*------ Network Init -----*/
-    bool networkOn = false;
-    Network network;
-
-    gameNetwork.SetNetwork(&network);
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScene(sceneManager->GetScene("DemoScene"));
+        gameNetwork.SetScenes(sceneManager->GetActiveScenes());
         gameNetwork.SetSceneManager(sceneManager);
-
-        networkOn = true;
+        gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
     }
     double networkTimer = 0;
     double logicTimer = 0;
@@ -70,30 +64,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         timer->Update();
         logicTimer += timer->GetDeltaTime();
-        if (networkOn)
+        if (gameNetwork.IsConnected())
         {
             networkTimer += timer->GetDeltaTime();
         }
 
-        renderer->RenderUpdate(timer->GetDeltaTime());
+        sceneManager->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
-            renderer->Update(updateRate);
+            sceneManager->Update(updateRate);
             physics->Update(updateRate);
         }
 
         /* ---- Network ---- */
-        if (network.IsConnected())
+        if (gameNetwork.IsConnected())
         {
-            if (networkTimer >= networkUpdateRate)
-            {
+            if (networkTimer >= networkUpdateRate) {
                 networkTimer = 0;
 
-                network.SendPositionPacket();
-                while (network.ListenPacket());
+                gameNetwork.Update(networkUpdateRate);
             }
         }
+
 
         /* ------ Sort ------ */
         renderer->SortObjects();
@@ -285,17 +278,17 @@ Scene* GetDemoScene(SceneManager* sm)
 
 
     /* ---------------------- Enemy -------------------------------- */
-    EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
+    enemyFactory.SetScene(scene);
+    entity = enemyFactory.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
 
     // add bunch of enemies
     float xVal = 8;
     float zVal = 20;
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 75; i++)
     {
         zVal += 8;
-        entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
+        entity = enemyFactory.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
         if ((i + 1) % 5 == 0)
         {
             xVal += 8;
@@ -303,7 +296,6 @@ Scene* GetDemoScene(SceneManager* sm)
         }
     }
     /* ---------------------- Enemy -------------------------------- */
-
 
     /* ---------------------- Skybox ---------------------- */
     TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
@@ -330,7 +322,7 @@ void DemoUpdateScene(SceneManager* sm)
     ec->UpdateEmitter(L"Bruh");
 
     std::string name = "enemy";
-    for (int i = 1; i <= 5; i++)
+    for (int i = 1; i < 76; i++)
     {
         name = "enemy" + std::to_string(i);
         ec = sm->GetScene("DemoScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();

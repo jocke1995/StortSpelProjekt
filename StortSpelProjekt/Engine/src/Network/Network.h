@@ -16,11 +16,13 @@ public:
 		SERVER_DATA = 0,
 		PLAYER_DATA = 1,
 		PLAYER_DISCONNECT = 2,
-		PLAYER_RANGED_DATA = 3
+		ENEMY_DATA = 3,
+		PLAYER_RANGED_DATA = 4
 	};
 	struct Player {
 		Entity* entityPointer;
 		int clientId;
+		bool isHost;
 	};
 
 	Network();
@@ -30,13 +32,17 @@ public:
 
 
 	bool IsConnected();
+	bool IsHost();
+
 	sf::TcpSocket* GetSocket();
 
 	void SendPositionPacket();
 	void SendRangedAttackPacket(std::vector<float3> pos, std::vector<float3> mov, unsigned int size);
+	void SendEnemiesPacket(std::vector<Entity*>* enemies);
 	void Disconnect();
 	//Give network the entity pointer for player.
 	void SetPlayerEntityPointer(Entity* playerEnitity, int id);
+	void SetEnemiesEntityPointers(std::vector<Entity*>* enemies);
 
 	
 
@@ -47,6 +53,7 @@ private:
 	void processPacket(sf::Packet *packet);
 	void processPlayerData(sf::Packet* packet);
 	void processServerData(sf::Packet* packet);
+	void processEnemyData(sf::Packet* packet);
 	void processPlayerDisconnect(sf::Packet* packet);
 	void processPlayerRangedAttack(sf::Packet* packet);
 	
@@ -57,6 +64,7 @@ private:
 	sf::TcpListener m_Listener;
 
 	std::vector<Player*> m_Players;
+	std::vector<Entity*>* m_pEnemies;
 
 	bool m_Connected;
 	int m_Id;

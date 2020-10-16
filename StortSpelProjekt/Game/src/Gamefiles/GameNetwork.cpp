@@ -1,5 +1,7 @@
 #include "GameNetwork.h"
 
+#include "ECS/SceneManager.h"
+
 GameNetwork::GameNetwork()
 {
     EventBus::GetInstance().Subscribe(this, &GameNetwork::addNewPlayerEntity);
@@ -7,38 +9,45 @@ GameNetwork::GameNetwork()
     EventBus::GetInstance().Subscribe(this, &GameNetwork::disconnect);
 }
 
-void GameNetwork::Update()
+void GameNetwork::Update(double dt)
 {
-    m_pNetwork->SendPositionPacket();
-
-    std::vector<float3> position;
-    std::vector<float3> movement;
-    // Append the data? 
-    for (int i = 0; i < m_pScene->GetEntity("player")->GetComponent<component::RangeComponent>()->GetProjectileList().size(); i++)
+    m_Network.SendPositionPacket();
+    if (m_Network.IsHost())
     {
-        Transform* temp = m_pScene->GetEntity("player")->GetComponent<component::RangeComponent>()->GetProjectileList().at(i)->GetComponent<component::TransformComponent>()->GetTransform();
-        float3 tempMovement
+        m_Network.SendEnemiesPacket(m_pEnemies);
+    }
+    if (m_pActiveScenes->at(0)->GetEntity("player")->GetComponent<component::RangeComponent>()->GetProjectileList().size() > 0)
+    {
+        std::vector<float3> position;
+        std::vector<float3> movement;
+        // Append the data? 
+        for (int i = 0; i < m_pActiveScenes->at(0)->GetEntity("player")->GetComponent<component::RangeComponent>()->GetProjectileList().size(); i++)
         {
-           temp->GetMovement().x,
-           temp->GetMovement().y,
-           temp->GetMovement().z,
-        };
-        position.push_back(temp->GetPositionFloat3());
-        movement.push_back(tempMovement);
-    }    
-    m_pNetwork->SendRangedAttackPacket(position, movement, m_pScene->GetEntity("player")->GetComponent<component::RangeComponent>()->GetProjectileList().size());
-    m_pScene->GetEntity("player")->GetComponent<component::RangeComponent>()->ClearProjectileList();
-    while (m_pNetwork->ListenPacket());
+            Transform* temp = m_pActiveScenes->at(0)->GetEntity("player")->GetComponent<component::RangeComponent>()->GetProjectileList().at(i)->GetComponent<component::TransformComponent>()->GetTransform();
+            float3 tempMovement
+            {
+               temp->GetMovement().x,
+               temp->GetMovement().y,
+               temp->GetMovement().z,
+            };
+            position.push_back(temp->GetPositionFloat3());
+            movement.push_back(tempMovement);
+        }
+        m_Network.SendRangedAttackPacket(position, movement, m_pActiveScenes->at(0)->GetEntity("player")->GetComponent<component::RangeComponent>()->GetProjectileList().size());
+        m_pActiveScenes->at(0)->GetEntity("player")->GetComponent<component::RangeComponent>()->ClearProjectileList();
+    }
+    while (m_Network.ListenPacket());
 }
 
-void GameNetwork::SetScene(Scene* scene)
+void GameNetwork::SetScenes(std::vector<Scene*>* activeScenes)
 {
-    m_pScene = scene;
+    m_pActiveScenes = activeScenes;
 }
 
-void GameNetwork::SetNetwork(Network* network)
+void GameNetwork::SetEnemies(std::vector<Entity*>* enemyVector)
 {
-    m_pNetwork = network;
+    m_pEnemies = enemyVector;
+    m_Network.SetEnemiesEntityPointers(enemyVector);
 }
 
 void GameNetwork::SetSceneManager(SceneManager* sceneManager)
@@ -46,28 +55,38 @@ void GameNetwork::SetSceneManager(SceneManager* sceneManager)
     m_pSceneManager = sceneManager;
 }
 
+bool GameNetwork::IsConnected()
+{
+    return m_Network.IsConnected();
+}
+
 void GameNetwork::disconnect(Disconnect* evnt)
 {
-    m_pNetwork->Disconnect();
+    m_Network.Disconnect();
 }
 
 void GameNetwork::connectToServer(ConnectToServer* evnt)
 {
-    m_pNetwork->SetPlayerEntityPointer(m_pScene->GetEntity("player"), 0);
-    m_pNetwork->ConnectToIP(evnt->ip, std::atoi(Option::GetInstance().GetVariable("i_port").c_str()));
+    m_Network.SetPlayerEntityPointer((*m_pActiveScenes).at(0)->GetEntity("player"), 0);
+    m_Network.ConnectToIP(evnt->ip, std::atoi(Option::GetInstance().GetVariable("i_port").c_str()));
 }
 
 void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
 {
     Log::Print("New player connected with ID " + std::to_string(evnt->playerId) + "\n");
     
+    std::vector<Scene*>* activeScenes = m_pSceneManager->GetActiveScenes();
+
+
+    Scene* scene0 = (*activeScenes).at(0);
     Entity* entity = nullptr;
-    if (!m_pScene->EntityExists("player" + std::to_string(evnt->playerId)))
+    if (!scene0->EntityExists("player" + std::to_string(evnt->playerId)))
     {
-        entity = m_pScene->AddEntity("player" + std::to_string(evnt->playerId));
+        entity = new Entity("player" + std::to_string(evnt->playerId));
         component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
         component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
         component::CubeCollisionComponent* bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f);
+        component::RangeComponent* rcc = entity->AddComponent<component::RangeComponent>(m_pSceneManager, scene0);
 
         mc = entity->GetComponent<component::ModelComponent>();
         mc->SetModel(AssetLoader::Get()->LoadModel(L"../Vendor/Resources/Models/Player/player.obj"));
@@ -76,12 +95,18 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
         tc->GetTransform()->SetScale(1.0f);
         tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
-        m_pSceneManager->AddEntity(entity);
+        m_pSceneManager->AddEntity(entity, scene0);
     }
     else
     {
-        entity = m_pScene->GetEntity("player" + std::to_string(evnt->playerId));
+        entity = scene0->GetEntity("player" + std::to_string(evnt->playerId));
     }
 
-    m_pNetwork->SetPlayerEntityPointer(entity, evnt->playerId);
+    m_Network.SetPlayerEntityPointer(entity, evnt->playerId);
+    for (int i = 0; i < m_pEnemies->size(); i++)
+    {
+        m_pEnemies->at(i)->GetComponent<component::AiComponent>()->AddTarget(entity);
+    }
+
+    m_pSceneManager->SetScenes(m_pSceneManager->GetActiveScenes()->size(), &activeScenes->at(0));
 }

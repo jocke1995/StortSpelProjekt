@@ -1,10 +1,14 @@
 #include "stdafx.h"
 #include "Scene.h"
 #include "Entity.h"
-#include "../Renderer/BaseCamera.h"
+#include "../Memory/PoolAllocator.h"
+#include "../Misc/NavMesh.h"
+
+#include "../Renderer/Camera/BaseCamera.h"
 Scene::Scene(std::string sceneName)
 {
     m_SceneName = sceneName;
+    m_pNavMesh = nullptr;
 }
 
 Scene::~Scene()
@@ -13,21 +17,22 @@ Scene::~Scene()
     {
         if (pair.second != nullptr)
         {
-            if (pair.second->GetRefCount() == 1)
-            {
-                delete pair.second;
-            }
             pair.second->DecrementRefCount();
+            if (pair.second->GetRefCount() == 0)
+            {
+                PoolAllocator<Entity>::GetInstance().Delete(pair.second);
+            }
         }
     }
-    m_Entities.clear();
+
+    delete m_pNavMesh;
 }
 
 Entity* Scene::AddEntityFromOther(Entity* other)
 {
     if (EntityExists(other->GetName()) == true)
     {
-        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to add two components with the same name \'%s\' into scene: %s\n", other->GetName(), m_SceneName);
+        Log::PrintSeverity(Log::Severity::CRITICAL, "AddEntityFromOther: Trying to add two components with the same name \'%s\' into scene: %s\n", other->GetName(), m_SceneName);
         return nullptr;
     }
 
@@ -47,23 +52,29 @@ Entity* Scene::AddEntity(std::string entityName)
         return nullptr;
     }
 
-    m_Entities[entityName] = new Entity(entityName);
+    m_Entities[entityName] = PoolAllocator<Entity>::GetInstance().Allocate(entityName);
+    m_Entities[entityName]->IncrementRefCount();
     m_NrOfEntities++;
     return m_Entities[entityName];
 }
 
 bool Scene::RemoveEntity(std::string entityName)
 {
-    if (EntityExists(entityName) == false)
+    if (!EntityExists(entityName))
     {
         return false;
     }
 
-    delete m_Entities[entityName];
+    PoolAllocator<Entity>::GetInstance().Delete(m_Entities[entityName]);
     m_Entities.erase(entityName);
 
     m_NrOfEntities--;
     return true;
+}
+
+void Scene::CreateNavMesh()
+{
+    m_pNavMesh = new NavMesh(this);
 }
 
 void Scene::SetPrimaryCamera(BaseCamera* primaryCamera)
@@ -100,6 +111,11 @@ BaseCamera* Scene::GetMainCamera() const
 std::string Scene::GetName() const
 {
     return m_SceneName;
+}
+
+NavMesh* Scene::GetNavMesh()
+{
+    return m_pNavMesh;
 }
 
 void Scene::RenderUpdate(double dt)

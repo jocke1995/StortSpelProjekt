@@ -40,8 +40,20 @@ void component::CollisionComponent::Update(double dt)
 	m_pTrans->SetRotationZ(roll);
 }
 
-void component::CollisionComponent::InitScene()
+void component::CollisionComponent::OnInitScene()
 {
+	if (m_pBody != nullptr)
+	{
+		delete m_pBody;
+		m_pBody = nullptr;
+	}
+
+	if (m_pMotionState != nullptr)
+	{
+		delete m_pMotionState;
+		m_pMotionState = nullptr;
+	}
+
 	// If no transform is given, this component is useless!
 	if (!m_pParent->HasComponent<component::TransformComponent>())
 	{
@@ -52,30 +64,34 @@ void component::CollisionComponent::InitScene()
 	// Initiate the body with a given shape. This shape should be defined in an inherited class.
 	m_pTrans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
 
+	// Set scaling for the shape
+	m_pShape->setLocalScaling({ m_pTrans->GetScale().x, m_pTrans->GetScale().y, m_pTrans->GetScale().z });
+
 	btTransform btTrans;
 	btTrans.setIdentity();
 	btTrans.setOrigin({ m_pTrans->GetPositionFloat3().x, m_pTrans->GetPositionFloat3().y, m_pTrans->GetPositionFloat3().z });
-	
+
 	// Set rotation
 	float4 dxQuat = m_pTrans->GetRotation();
 	btQuaternion quat(dxQuat.x, dxQuat.y, dxQuat.z, dxQuat.w);
 	btTrans.setRotation(quat);
-	
+
 	btVector3 inertia = { 0.0f,0.0f,0.0f };
 	m_pShape->calculateLocalInertia(m_Mass, inertia);
 	m_pMotionState = new btDefaultMotionState(btTrans);
+
 	btRigidBody::btRigidBodyConstructionInfo info(m_Mass, m_pMotionState, m_pShape, inertia);
-	
+
 	info.m_restitution = m_Rest;
 	info.m_friction = m_Fric;
 
 	m_pBody = new btRigidBody(info);
 	m_pBody->setLinearVelocity({ m_pTrans->GetMovement().x, m_pTrans->GetMovement().y, m_pTrans->GetMovement().z });
-	
+
 	// Will be removed in the future!
 	// If it isn't called, objects may be deactivated as Bullet deduces they wont be colliding with anything, but if user then changes position bullet does not react.
 	m_pBody->setActivationState(DISABLE_DEACTIVATION);
-	
+
 	// Add the collisioncomponent to the physics sub-engine.
 	Physics::GetInstance().AddCollisionComponent(this);
 	if (!m_CanFall)
@@ -83,6 +99,7 @@ void component::CollisionComponent::InitScene()
 		m_pBody->setAngularFactor({ 0.0, 1.0, 0.0 });
 	}
 }
+
 
 void component::CollisionComponent::SetPosition(double x, double y, double z)
 {
@@ -155,7 +172,7 @@ void component::CollisionComponent::SetRestitution(double rest)
 	m_pBody->setRestitution(rest);
 }
 
-void component::CollisionComponent::SetAngularFactor(double3& factor)
+void component::CollisionComponent::SetAngularFactor(const double3& factor)
 {
 	m_pBody->setAngularFactor({ factor.x, factor.y, factor.z });
 }

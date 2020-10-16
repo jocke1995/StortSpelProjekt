@@ -10,12 +10,14 @@ enum FLAG_LIGHT
 	USE_TRANSFORM_POSITION = BIT(1),
 
 	// Option to make the light cast shadows or not with different resolutions
-	CAST_SHADOW = BIT(2)
+	CAST_SHADOW = BIT(2),
 
-	// If this is set, m_pRenderer only need to copy data once to GPU
-	// STATIC_DATA .. = BIT(3),
+	// 1. If this is set, lightData is only copied once to VRAM (onInitScene)
+	// 2. Lights are interpreted as "DYNAMIC" as default
+	STATIC = BIT(3),
 
 	// etc..
+	NUM_FLAGS_LIGHT = 3
 };
 
 static unsigned int s_LightIdCounter = 0;
@@ -44,9 +46,26 @@ protected:
 
 	BaseCamera* m_pCamera = nullptr;
 	CAMERA_TYPE m_CameraType;
-	void CreateCamera(float3 position, float3 direction);
 
-	virtual void UpdateLightIntensity() = 0;
+	// Orthographic
+	void CreateOrthographicCamera(
+		float3 position, float3 direction,
+		float left = -30.0f,
+		float right = 30.0f,
+		float bot = -30.0f,
+		float top = 30.0f,
+		float nearZ = 0.01f,
+		float farZ = 1000.0f);
+
+	// Perspective
+	void CreatePerspectiveCamera(
+		float3 position, float3 direction,
+		float fov = 90.0f,
+		float aspectRatio = 1.0f,
+		float nearZ = 0.1f,
+		float farZ = 1000.0f);
+
+	virtual void UpdateLightColor() = 0;
 
 };
 

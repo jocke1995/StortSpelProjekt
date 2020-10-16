@@ -19,6 +19,10 @@ class ViewPool;
 class BoundingBoxPool;
 class DescriptorHeap;
 class Mesh;
+class Texture;
+class Model;
+class Resource;
+class Text;
 
 // Views
 
@@ -27,6 +31,7 @@ class ConstantBuffer;
 class ShaderResource;
 class UnorderedAccess;
 class DepthStencil;
+class Resource;
 
 // Enums
 enum COMMAND_INTERFACE_TYPE;
@@ -46,6 +51,7 @@ class RenderTask;
 class WireframeRenderTask;
 class OutliningRenderTask;
 class BaseCamera;
+class Material;
 
 // Copy
 class CopyTask;
@@ -66,7 +72,7 @@ namespace component
 	class ModelComponent;
 	class TransformComponent;
 	class BoundingBoxComponent;
-	class TextComponent;
+	class GUI2DComponent;
 	class SkyboxComponent;
 }
 
@@ -104,15 +110,24 @@ public:
 	void InitSpotLightComponent(Entity* entity);
 	void InitCameraComponent(Entity* entity);
 	void InitBoundingBoxComponent(Entity* entity);
-	void InitTextComponent(Entity* entity);
+	void InitGUI2DComponent(Entity* entity);
 
-	SwapChain* GetSwapChain();
+	void OnResetScene();
 
 private:
+	friend class Engine;
 	friend class component::SkyboxComponent;
+	friend class component::GUI2DComponent;
 	friend class SceneManager;
-	friend class Text;
+	friend class TextManager;
+	friend class QuadManager;
 	Renderer();
+
+	// SubmitToCodt functions
+	void submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
+	void submitModelToCodt(Model* model);
+	void submitMeshToCodt(Mesh* mesh);
+	void submitTextureToCodt(Texture* texture);
 
 	ThreadPool* m_pThreadPool = nullptr;
 
@@ -161,7 +176,7 @@ private:
 	// Group of components that's needed for rendering:
 	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
-	std::vector<component::TextComponent*> m_TextComponents;
+	std::vector<component::GUI2DComponent*> m_TextComponents;
 	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
@@ -202,21 +217,33 @@ private:
 	void createDescriptorHeaps();
 	void createFences();
 	void waitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
+	void waitForGPU();
+
+	
+
 
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene
 	void waitForCopyOnDemand();
+	void executeCopyOnDemand();
 
 	// Manage components
 	void removeComponents(Entity* entity);
 
 	// Setup the whole scene
-	void prepareScene(Scene* scene);
+	void prepareScenes(std::vector<Scene*>* scenes);
+	// Setup what should be drawn in the scene
+	void prepareRenderComponents(std::vector<Scene*>* scenes);
+
 	// Setup Per-scene data and send to GPU
-	void prepareCBPerScene();
+	void SubmitUploadPerSceneData();
 	// Submit per-frame data to the copyQueue that updates each frame
-	void prepareCBPerFrame();
+	void SubmitUploadPerFrameData();
 
 	void toggleFullscreen(WindowChange* evnt);
+
+	SwapChain* getSwapChain() const;
+
+	void submitTextToGPU(Text* text, TextManager* tm);
 };
 
 #endif

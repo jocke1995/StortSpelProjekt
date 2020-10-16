@@ -1,23 +1,26 @@
 #ifndef GAME_NETWORK_H
 #define GAME_NETWORK_H
 
-#include "Engine.h"
+#include "../../Engine/src/Engine.h"
 #include "Components/RangeComponent.h"
 
 class GameNetwork {
 public:
 	GameNetwork();
 
-	void Update();
+	void Update(double dt);
 
-	void SetScene(Scene* scene);
-	void SetNetwork(Network* network);
+	void SetEnemies(std::vector<Entity*>* enemyVector);
+	void SetScenes(std::vector<Scene*>* activeScenes);
 	void SetSceneManager(SceneManager* sceneManager);
+
+	bool IsConnected();
 
 private:
 	SceneManager* m_pSceneManager;
-	Scene* m_pScene;
-	Network* m_pNetwork;
+	std::vector<Scene*>* m_pActiveScenes;
+	Network m_Network;
+	std::vector<Entity*>* m_pEnemies;
 
 	void disconnect(Disconnect* evnt);
 	void connectToServer(ConnectToServer* evnt);

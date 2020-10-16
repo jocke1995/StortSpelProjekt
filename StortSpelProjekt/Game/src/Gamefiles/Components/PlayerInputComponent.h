@@ -4,7 +4,7 @@
 #include "..\ECS\Components\InputComponent.h"
 #include "Core.h"
 
-#define DASH_MOD 10.0
+#define DASH_MOD 4.0
 #define SPRINT_MOD 3.0
 
 //Camera
@@ -39,6 +39,8 @@ namespace component
 		virtual ~PlayerInputComponent();
 
 		void Init();
+
+		void OnInitScene();
 
 		void RenderUpdate(double dt);
 

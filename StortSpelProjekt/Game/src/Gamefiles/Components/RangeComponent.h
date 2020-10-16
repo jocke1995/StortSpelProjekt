@@ -15,6 +15,7 @@ namespace component
 	{
 	public:
 		RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale = 1, int damage = 1, float velocity = 2.5);
+		RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, float scale = 1, int damage = 1, float velocity = 2.5);
 		~RangeComponent();
 		void Attack();
 
@@ -23,6 +24,10 @@ namespace component
 		std::vector<Entity*> GetProjectileList();
 		void ClearProjectileList();
 
+		void OnInitScene();
+		void OnLoadScene();
+		void OnUnloadScene();
+		
 	private:
 		int m_Damage;
 		float m_Velocity;

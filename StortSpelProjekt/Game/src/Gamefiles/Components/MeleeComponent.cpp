@@ -12,6 +12,7 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	m_AttackInterval = 1.0;
 	m_TimeSinceLastAttackCheck = 0;
 	m_pMesh = nullptr;
+	m_Damage = 1;
 
 	//Create bounding box for collision for melee
 	m_pBbc = parent->GetComponent<component::BoundingBoxComponent>();
@@ -30,6 +31,18 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 }
 
 component::MeleeComponent::~MeleeComponent()
+{
+}
+
+void component::MeleeComponent::OnInitScene()
+{
+}
+
+void component::MeleeComponent::OnLoadScene()
+{
+}
+
+void component::MeleeComponent::OnUnloadScene()
 {
 }
 
@@ -88,6 +101,16 @@ void component::MeleeComponent::setAttackInterval(float interval)
 	m_AttackInterval = interval;
 }
 
+void component::MeleeComponent::SetDamage(int damage)
+{
+	m_Damage = damage;
+}
+
+void component::MeleeComponent::ChangeDamage(int change)
+{
+	m_Damage += change;
+}
+
 void component::MeleeComponent::CheckCollision()
 {
 	std::vector<Entity*> list = Physics::GetInstance().SpecificCollisionCheck(&m_Hitbox);
@@ -96,7 +119,7 @@ void component::MeleeComponent::CheckCollision()
 		// Checks if the collision occurs on something with a healthcomponent and is not the player themselves
 		if (list.at(i)->GetName() != "player" && list.at(i)->GetComponent<component::HealthComponent>() != nullptr)
 		{
-			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-100);
+			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 		}
 	}
 	list.empty();

@@ -39,9 +39,9 @@ PipelineState* RenderTask::GetPipelineState(unsigned int index)
 	return m_PipelineStates[index];
 }
 
-void RenderTask::AddRenderTarget(std::string name, const RenderTargetView* renderTarget)
+void RenderTask::AddRenderTargetView(std::string name, const RenderTargetView* renderTargetView)
 {
-	m_RenderTargets[name] = renderTarget;
+	m_RenderTargetViews[name] = renderTargetView;
 }
 
 void RenderTask::SetRenderComponents(std::vector<std::pair<	component::ModelComponent*,

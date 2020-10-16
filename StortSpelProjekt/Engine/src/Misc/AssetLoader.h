@@ -14,14 +14,18 @@ class Texture;
 class TextureCubeMap;
 class Material;
 class Window;
+class Scene;
 struct Font;
 struct aiNode;
 struct aiScene;
 struct aiMesh;
 struct aiMaterial;
 struct aiNodeAnim;
+struct aiBone;
 struct Animation;
-struct NodeAnimation;
+struct VertexWeight;
+struct BoneInfo;
+struct SkeletonNode;
 
 class AssetLoader
 {
@@ -39,16 +43,26 @@ public:
     Texture* LoadTexture2D(const std::wstring& path);
     TextureCubeMap* LoadTextureCubeMap(const std::wstring& path);
 
-    // Create Geometry
-
-
     // Load Audio
     AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
     AudioBuffer* GetAudio(const std::wstring& name);
     // ??
 
 	// Fonts -------------
-	std::pair<Font*, Texture*> LoadFontFromFile(const std::wstring& fontName);
+	Font* LoadFontFromFile(const std::wstring& fontName);
+	std::wstring GetFontPath() const;
+
+    // Scene
+    void LoadMap(Scene* scene, const char* path);
+
+
+    // IsLoadedFunctions
+    bool IsModelLoadedOnGpu(const std::wstring& name) const;
+    bool IsModelLoadedOnGpu(const Model* model) const;
+    bool IsMaterialLoadedOnGpu(const std::wstring& name) const;
+    bool IsMaterialLoadedOnGpu(const Material* material) const;
+    bool IsTextureLoadedOnGpu(const std::wstring& name) const;
+    bool IsTextureLoadedOnGpu(const Texture* texture) const;
 
 private:
     // PipelineState loads all shaders
@@ -64,19 +78,23 @@ private:
     ID3D12Device5* m_pDevice = nullptr;
     DescriptorHeap* m_pDescriptorHeap_CBV_UAV_SRV = nullptr;
     Window* m_pWindow = nullptr;
+    
+	bool IsFontTextureLoadedOnGPU(const Font* font) const;
+    void loadDefaultMaterial();
 
     const std::wstring m_FilePathShaders = L"../Engine/src/Renderer/HLSL/";
     const std::wstring m_FilePathDefaultTextures = L"../Vendor/Resources/Textures/Default/";
     const std::wstring m_FilePathFonts = L"../Vendor/Resources/Fonts/";
 
     // Every model & texture also has a bool which indicates if its data is on the GPU or not
+    // name, pair<isOnGpu, Model*>
     std::map<std::wstring, std::pair<bool, Model*>> m_LoadedModels;
-    std::vector<Mesh*> m_LoadedMeshes;
     std::map<std::wstring, std::pair<bool, Material*>> m_LoadedMaterials;
-    std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
+    std::vector<Mesh*> m_LoadedMeshes;
+    std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, Shader*> m_LoadedShaders;
-    std::map<std::wstring, std::pair<Font*, Texture*>> m_LoadedFonts;
+    std::map<std::wstring, std::pair<bool, Font*>> m_LoadedFonts;
     std::map<std::wstring, AudioBuffer> m_LoadedAudios;
 
     // Audio
@@ -100,8 +118,11 @@ private:
 
     Texture* processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture);
     
+    SkeletonNode* processSkeleton(std::map<std::string, BoneInfo> boneCounter, aiNode* assimpNode, const aiScene* assimpScene, std::map<unsigned int, VertexWeight>* perVertexBoneData);
+    void processBones(std::map<std::string, BoneInfo> boneCounter, const aiMesh* assimpMesh, std::map<unsigned int, VertexWeight>* perVertexBoneData);
+    void initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo> boneCounter, Animation* animation);
+
     void processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations);
-    void processNodeAnimation(const aiNodeAnim* assimpNodeAnimation, NodeAnimation* nodeAnimation);
 
     DirectX::XMFLOAT4X4 aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix);
     

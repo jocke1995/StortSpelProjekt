@@ -43,7 +43,7 @@ ViewPool::~ViewPool()
 	}
 }
 
-ConstantBuffer* ViewPool::GetFreeCBV(unsigned int size, std::wstring resourceName)
+ConstantBuffer* ViewPool::GetFreeCB(unsigned int size, std::wstring resourceName)
 {
 	unsigned int sizeAligned = (size + 255) & ~255;
 
