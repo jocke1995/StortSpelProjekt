@@ -75,6 +75,13 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			EventBus::GetInstance().Publish(&ModifierInput(key, pressed));
 		}
 	}
+	else if (key == SCAN_CODES::U)
+	{
+		if (justPressed)
+		{
+			EventBus::GetInstance().Publish(&UForUpgrade());
+		}
+	}
 }
 
 void Input::SetMouseButtonState(MOUSE_BUTTON button, bool pressed)

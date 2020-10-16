@@ -18,6 +18,8 @@ Model::Model(const std::wstring* path, SkeletonNode* rootNode, std::map<unsigned
 	m_Animations = (*animations);
 	m_Materials = (*materials);
 
+	m_ModelDim = { 0.0, 0.0, 0.0 };
+
 	// Fill slotinfo with empty slotinfos
 	m_SlotInfos.resize(m_Size);
 
@@ -149,22 +151,26 @@ void Model::updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMM
 	DirectX::XMStoreFloat4x4(&node->modelSpaceTransform, transform);
 }
 
-double3 Model::GetModelDim() const
+double3 Model::GetModelDim()
 {
-	double3 minVertex = { 100.0, 100.0, 100.0 }, maxVertex = { -100.0, -100.0, -100.0 };
-	for (unsigned int i = 0; i < m_Size; i++)
+	if (m_ModelDim == double3({ 0.0, 0.0, 0.0 }))
 	{
-		std::vector<Vertex> modelVertices = *m_Meshes[i]->GetVertices();
-		for (unsigned int i = 0; i < modelVertices.size(); i++)
+		double3 minVertex = { 100.0, 100.0, 100.0 }, maxVertex = { -100.0, -100.0, -100.0 };
+		for (unsigned int i = 0; i < m_Size; i++)
 		{
-			minVertex.x = Min(minVertex.x, static_cast<double>(modelVertices[i].pos.x));
-			minVertex.y = Min(minVertex.y, static_cast<double>(modelVertices[i].pos.y));
-			minVertex.z = Min(minVertex.z, static_cast<double>(modelVertices[i].pos.z));
+			std::vector<Vertex> modelVertices = *m_Meshes[i]->GetVertices();
+			for (unsigned int i = 0; i < modelVertices.size(); i++)
+			{
+				minVertex.x = Min(minVertex.x, static_cast<double>(modelVertices[i].pos.x));
+				minVertex.y = Min(minVertex.y, static_cast<double>(modelVertices[i].pos.y));
+				minVertex.z = Min(minVertex.z, static_cast<double>(modelVertices[i].pos.z));
 
-			maxVertex.x = Max(maxVertex.x, static_cast<double>(modelVertices[i].pos.x));
-			maxVertex.y = Max(maxVertex.y, static_cast<double>(modelVertices[i].pos.y));
-			maxVertex.z = Max(maxVertex.z, static_cast<double>(modelVertices[i].pos.z));
+				maxVertex.x = Max(maxVertex.x, static_cast<double>(modelVertices[i].pos.x));
+				maxVertex.y = Max(maxVertex.y, static_cast<double>(modelVertices[i].pos.y));
+				maxVertex.z = Max(maxVertex.z, static_cast<double>(modelVertices[i].pos.z));
+			}
 		}
+		m_ModelDim = { maxVertex.x - minVertex.x, maxVertex.y - minVertex.y, maxVertex.z - minVertex.z };
 	}
-	return { maxVertex.x - minVertex.x, maxVertex.y - minVertex.y, maxVertex.z - minVertex.z };
+	return m_ModelDim;
 }

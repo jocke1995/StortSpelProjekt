@@ -84,3 +84,8 @@ struct WindowChange : public Event
 {
 	WindowChange() {};
 };
+
+struct UForUpgrade : public Event
+{
+	UForUpgrade() {};
+};

@@ -344,7 +344,7 @@ Submit DirectionalLight
 Submit CollisionSphere 
 Submit CollisionCapsule
 Submit CollisionCube
-Submit CollisionHeightMap
+Submit CollisionHeightmap
 ```
 ## Model related commands
 The model related commands are used to define a model.
