@@ -4,6 +4,11 @@
 #include "RenderTask.h"
 
 class RootSignature;
+class QuadManager;
+
+enum E_DEPTH_LEVEL;
+#include <map>
+#include <vector>
 
 namespace component
 {
@@ -28,7 +33,8 @@ public:
 private:
 	std::vector<component::GUI2DComponent*> m_QuadComponents;
 
-	void draw(ID3D12GraphicsCommandList5* commandList, component::GUI2DComponent* tc);
+	std::map<E_DEPTH_LEVEL, std::vector<QuadManager*>> m_QuadManagers;
+	void draw(ID3D12GraphicsCommandList5* commandList, E_DEPTH_LEVEL type);
 };
 
 #endif

@@ -1189,6 +1189,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	component::BoundingBoxComponent* bbc = nullptr;
 	component::CollisionComponent* bcc = nullptr;
 	component::RangeComponent* rc = nullptr;
+    component::GUI2DComponent* gui = nullptr;
 
 	AssetLoader* al = AssetLoader::Get();
 
@@ -1349,38 +1350,15 @@ Scene* FredriksTestScene(SceneManager* sm)
 	tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
 	/* ---------------------- Stefan ---------------------- */
 
-
-	/* ---------------------- Enemy -------------------------------- */
-	/*EnemyFactory enH(scene);
-	entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
-
-	// add bunch of enemies
-	float xVal = 8;
-	float zVal = 20;
-	// extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-	for (int i = 0; i < 75; i++)
-	{
-		zVal += 8;
-		entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
-		if ((i + 1) % 5 == 0)
-		{
-			xVal += 8;
-			zVal = 10;
-		}
-	}*/
-	/* ---------------------- Enemy -------------------------------- */
-
-	/* ------------------------- 2DGUI --------------------------- */
+	/* ------------------------- BUTTON 1 --------------------------- */
 	std::string textToRender = "TEST";
 	float2 textPos = { 0.02f, 0.02f };
 	float2 textPadding = { 0.5f, 0.0f };
 	float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	float2 textScale = { 3.0f, 3.0f };
 
-	scene->AddEntity("text");
-
-	entity = scene->GetEntity("text");
-	component::GUI2DComponent* gui = entity->AddComponent<component::GUI2DComponent>();
+    entity = scene->AddEntity("text");
+	gui = entity->AddComponent<component::GUI2DComponent>();
 	gui->GetTextManager()->AddText("health");
 	gui->GetTextManager()->SetColor(textColor, "health");
 	gui->GetTextManager()->SetPadding(textPadding, "health");
@@ -1393,6 +1371,14 @@ Scene* FredriksTestScene(SceneManager* sm)
 	gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, E_DEPTH_LEVEL::FRONT, L"../Vendor/Resources/Textures/2DGUI/replay.png");
 
 	/* ---------------------------------------------------------- */
+
+    /* ------------------------- overlay --------------------------- */
+    entity = scene->AddEntity("overlay");
+    gui = entity->AddComponent<component::GUI2DComponent>();
+    quadPos = { 0.0f, 0.0f };
+    quadScale = { 1.0f, 0.2f };
+    gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, E_DEPTH_LEVEL::BACK, L"../Vendor/Resources/Textures/2DGUI/replay.png");
+    /* ---------------------------------------------------------- */
 
 	/* ---------------------- Skybox ---------------------- */
 	TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
