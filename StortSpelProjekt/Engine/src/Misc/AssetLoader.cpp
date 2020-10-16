@@ -158,7 +158,7 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	materials.reserve(assimpScene->mNumMeshes);
 	m_LoadedModels[path].first = false;
 
-	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
+	LoadMeshes(assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
 
 	if (assimpScene->HasAnimations())
 	{
@@ -400,20 +400,14 @@ Shader* AssetLoader::loadShader(const std::wstring& fileName, ShaderType type)
 	return m_LoadedShaders[fileName];
 }
 
-void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
+void AssetLoader::LoadMeshes(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
 {
-	// Go through all the m_Meshes
-	for (unsigned int i = 0; i < node->mNumMeshes; i++)
+	for (unsigned int i = 0; i < assimpScene->mNumMeshes; i++)
 	{
-		aiMesh* mesh = assimpScene->mMeshes[node->mMeshes[i]];
-		meshes->push_back(processMesh(mesh, assimpScene, meshes, materials, filePath));
+		aiMesh* assimpMesh = assimpScene->mMeshes[i];
+		Mesh* mesh = processMesh(assimpMesh, assimpScene, meshes, materials, filePath);
+		meshes->push_back(mesh);
 	}
-
-	for (unsigned int i = 0; i < node->mNumChildren; i++)
-	{
-		processNode(node->mChildren[i], assimpScene, meshes, materials, filePath);
-	}
-
 }
 
 Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
@@ -510,15 +504,6 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 	material = loadMaterial(mat, filePathWithoutTexture);
 	// add the texture to the correct mesh (later for models slotinfo)
 	materials->push_back(material);
-
-	// Set shininess
-	// float shininess = 100;
-	// Todo: looks to bright with these values, bad models or bad scene?
-	// if (AI_SUCCESS != aiGetMaterialFloat(mat, AI_MATKEY_SHININESS, &shininess))
-	// {
-	// 	// if unsuccessful set a default
-	// 	shininess = 20.0f;
-	// }
 
 	return mesh;
 }

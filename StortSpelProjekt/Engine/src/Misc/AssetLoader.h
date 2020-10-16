@@ -95,7 +95,7 @@ private:
     // add map for audio (path, AudioObject)
 
     /* --------------- Functions --------------- */
-    void processNode(aiNode* node,
+    void LoadMeshes(aiNode* node,
         const aiScene* assimpScene,
         std::vector<Mesh*>* meshes,
         std::vector<Material*>* materials,
