@@ -1633,11 +1633,13 @@ void Renderer::initRenderTasks()
 	gpsdQuad.SampleMask = UINT_MAX;
 	// Rasterizer behaviour
 	gpsdQuad.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-	gpsdQuad.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	gpsdQuad.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
 	gpsdQuad.RasterizerState.FrontCounterClockwise = false;
 
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+	{
 		gpsdQuad.BlendState.RenderTarget[i] = defaultRTdesc;
+	}
 
 	// Depth descriptor
 	D3D12_DEPTH_STENCIL_DESC quadDepthStencilDesc = {};

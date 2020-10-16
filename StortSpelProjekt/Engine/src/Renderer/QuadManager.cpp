@@ -100,7 +100,7 @@ void QuadManager::CreateQuad(float2 pos, float2 size, bool clickable, E_DEPTH_LE
 	vertex.uv = DirectX::XMFLOAT2{ 1.0, 1.0 };
 	m_Vertices.push_back(vertex);
 
-	std::vector<unsigned int> indices = { 0, 1, 2, 1, 2, 3 };
+	std::vector<unsigned int> indices = { 0, 2, 1, 2, 1, 3 };
 
 	Renderer* renderer = &Renderer::GetInstance();
 
