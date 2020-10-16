@@ -63,6 +63,7 @@ bool Scene::RemoveEntity(std::string entityName)
 {
     if (!EntityExists(entityName))
     {
+        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to remove entity \'%s\' that does not exist in scene: %s\n", entityName, m_SceneName);
         return false;
     }
 

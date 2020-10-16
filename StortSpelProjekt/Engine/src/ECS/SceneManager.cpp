@@ -99,7 +99,6 @@ Scene* SceneManager::GetScene(std::string sceneName) const
 void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
 	entity->OnUnInitScene();
-	m_IsEntityInited[entity] = false;
 
 	// Some components need to be sent to the gpu each frame
 	Renderer::GetInstance().SubmitUploadPerFrameData();
@@ -108,21 +107,21 @@ void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 	// Remove from the scene
 	scene->RemoveEntity(entity->GetName());
 
-	
 	Renderer::GetInstance().executeCopyOnDemand();
 }
 
 void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
+	// Use the first active scene if not specified
+	if (scene == nullptr)
+	{
+		scene = m_ActiveScenes.at(0);
+	}
+
 	// Add it to the scene
 	scene->AddEntityFromOther(entity);
 
-	// Only init once per scene (in case a entity is in both scenes)
-	if (m_IsEntityInited.count(entity) == 0)
-	{
-		entity->OnInitScene();
-		m_IsEntityInited[entity] = true;
-	}
+	entity->OnInitScene();
 
 	// Some components need to be sent to the gpu each frame
 	Renderer::GetInstance().SubmitUploadPerFrameData();
@@ -143,12 +142,7 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
 		for (auto const& [entityName, entity] : entities)
 		{
-			// Only init once per scene (in case a entity is in both scenes)
-			if (m_IsEntityInited.count(entity) == 0)
-			{
-				entity->OnInitScene();
-				m_IsEntityInited[entity] = true;
-			}
+			entity->OnInitScene();
 		}
 
 		m_ActiveScenes.push_back(scenes[i]);
@@ -172,9 +166,6 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 void SceneManager::ResetScene()
 {
 	Renderer::GetInstance().waitForGPU();
-
-	// Reset isEntityInited
-	m_IsEntityInited.clear();
 
 	/* ------------------------- GPU -------------------------*/
 	

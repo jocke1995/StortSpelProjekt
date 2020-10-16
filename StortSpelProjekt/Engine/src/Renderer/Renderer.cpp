@@ -826,6 +826,10 @@ void Renderer::UnInitBoundingBoxComponent(component::BoundingBoxComponent* compo
 
 void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 {
+	/*
+	Filips try at removing GUI2DComponents.
+	(Completly wrong)
+
 	// Remove component from textComponents
 	// TODO: change data structure to allow O(1) add and remove
 	static int count = 0;
@@ -835,7 +839,26 @@ void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 	{
 		if (component == (*it))
 		{
-			Log::Print(std::to_string(count++) + "\n");
+			CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+
+			auto textMap = component->GetTextManager()->GetTextMap();
+			auto itt = textMap->begin();
+			// Clear all resources from copyperframe
+			while (true)
+			{
+				if (itt == textMap->end())
+				{
+					break;
+				}
+
+				// Remove resource from copyperframe
+				Resource* uploadResourse = (*itt).second->m_pUploadResourceVertices;
+				cpft->ClearSpecific(uploadResourse);
+
+				itt++;
+			}
+
+			// remove from renderer.
 			it = m_TextComponents.erase(it);
 		}
 		else
@@ -848,6 +871,8 @@ void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 			atEnd = true;
 		}
 	}
+
+	*/
 }
 
 void Renderer::OnResetScene()

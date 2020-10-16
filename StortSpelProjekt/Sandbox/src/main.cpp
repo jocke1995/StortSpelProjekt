@@ -86,12 +86,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         gameNetwork.SetSceneManager(sceneManager);
         gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
     }
+
     double networkTimer = 0;
     double logicTimer = 0;
     int count = 0;
 
+
+    // 
     static int nr = 0;
     static Model* aaa = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+    static AudioBuffer* aaaSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruhh");
+    aaaSound->SetAudioLoop(0);
 
     while (!window->ExitWindow())
     {
@@ -123,6 +128,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             }
         }
 
+        // This is test. To be removed before pull into develop
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if (window->WasSpacePressed())
         {
             Entity* a = PoolAllocator<Entity>::GetInstance().Allocate(std::to_string(nr++));
@@ -135,12 +147,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             tc->GetTransform()->SetPosition(leoScene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionXMFLOAT3());
 
             /* ------------------------- 2DGUI --------------------------- */
-            //std::string textToRender = "TEST";
-            //float2 textPos = { 0.02f, 0.85f };
-            //float2 textPadding = { 0.5f, 0.0f };
-            //float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-            //float2 textScale = { 3.0f, 3.0f };
-            //
+            std::string textToRender = "TEST";
+            float2 textPos = { 0.02f, 0.85f };
+            float2 textPadding = { 0.5f, 0.0f };
+            float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+            float2 textScale = { 3.0f, 3.0f };
+            
+            // Cannot be added in runtime
             //component::GUI2DComponent* gui = a->AddComponent<component::GUI2DComponent>();
             //
             //gui->GetTextManager()->AddText("health");
@@ -156,8 +169,40 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
             /* ---------------------------------------------------------- */
 
-            //auto light = a->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-            //light->SetColor({ 200, 200, 200 });
+            
+            //SOUND
+            // Testing 2d sound
+            //component::Audio2DVoiceComponent* audio2d = a->AddComponent<component::Audio2DVoiceComponent>();
+            //audio2d->AddVoice(L"Bruhh");
+            //audio2d->Play(L"Bruhh");
+            //
+            //
+            // Testing 3d Sound (sound pos is not updated each frame)
+            //component::Audio3DEmitterComponent* audio3d = a->AddComponent<component::Audio3DEmitterComponent>();
+            //audio3d->AddVoice(L"Bruhh");
+            //audio3d->Play(L"Bruhh");
+            //
+            //auto l = leoScene->GetEntity("player")->GetComponent<component::Audio3DListenerComponent>();
+            //l->UpdateListener();
+            //
+            //audio3d->UpdateEmitter(L"Bruhh");
+
+            // Testing camera
+            //auto u = a->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, false);
+
+            
+
+
+            /* BOunding box */
+
+            component::CapsuleCollisionComponent* ccc = a->AddComponent<component::CapsuleCollisionComponent>(200.0, 1, 2, 0.0, 0.0, false);
+            component::BoundingBoxComponent* bbc = a->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+            bbc->Init();
+
+            /* ---------------------------------------------------------- */
+
+            auto light = a->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+            light->SetColor({ 200, 200, 200 });
 
             sceneManager->AddEntity(a, leoScene);
         }
@@ -354,6 +399,7 @@ Scene* LeosTestScene(SceneManager* sm)
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    auto list = entity->AddComponent<component::Audio3DListenerComponent>();
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);

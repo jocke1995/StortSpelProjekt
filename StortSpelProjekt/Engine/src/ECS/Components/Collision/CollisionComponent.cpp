@@ -102,6 +102,7 @@ void component::CollisionComponent::OnInitScene()
 
 void component::CollisionComponent::OnUnInitScene()
 {
+	Physics::GetInstance().RemoveCollisionComponent(this);
 }
 
 
