@@ -1390,7 +1390,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 	float2 quadPos = { 0.0f, 0.0f };
 	float2 quadScale = { 0.2f, 0.2f };
-	gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, L"../Vendor/Resources/Textures/2DGUI/replay.png");
+	gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, E_DEPTH_LEVEL::FRONT, L"../Vendor/Resources/Textures/2DGUI/replay.png");
 
 	/* ---------------------------------------------------------- */
 
