@@ -1621,13 +1621,13 @@ void Renderer::initRenderTasks()
 	
 #pragma region Quad
 
-	/* Forward rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdQuad = {};
+
 	gpsdQuad.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 	// RenderTarget
-	gpsdQuad.NumRenderTargets = 1;
 	gpsdQuad.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	gpsdQuad.NumRenderTargets = 1;
 	// Depthstencil usage
 	gpsdQuad.SampleDesc.Count = 1;
 	gpsdQuad.SampleMask = UINT_MAX;
@@ -1636,16 +1636,27 @@ void Renderer::initRenderTasks()
 	gpsdQuad.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
 	gpsdQuad.RasterizerState.FrontCounterClockwise = false;
 
-	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
-	{
-		gpsdQuad.BlendState.RenderTarget[i] = defaultRTdesc;
-	}
+	D3D12_BLEND_DESC quadBlendStateDesc = {};
+	quadBlendStateDesc.AlphaToCoverageEnable = FALSE;
+	quadBlendStateDesc.IndependentBlendEnable = FALSE;
+	quadBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
 
-	// Depth descriptor
+	quadBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	quadBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+	quadBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+
+	quadBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+	quadBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
+	quadBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+
+	quadBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	gpsdQuad.BlendState = quadBlendStateDesc;
+	gpsdQuad.NumRenderTargets = 1;
+
 	D3D12_DEPTH_STENCIL_DESC quadDepthStencilDesc = {};
 	quadDepthStencilDesc.DepthEnable = false;
-	quadDepthStencilDesc.StencilEnable = false;
-	gpsdQuad.DepthStencilState = quadDepthStencilDesc;
+	gpsdText.DepthStencilState = quadDepthStencilDesc;
 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdQuadVector;
 	gpsdQuadVector.push_back(&gpsdQuad);
