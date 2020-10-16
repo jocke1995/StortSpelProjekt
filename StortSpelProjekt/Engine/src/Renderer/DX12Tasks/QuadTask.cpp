@@ -116,6 +116,8 @@ void QuadTask::draw(ID3D12GraphicsCommandList5* commandList, E_DEPTH_LEVEL type)
 		DirectX::XMMATRIX idMatrix = DirectX::XMMatrixIdentity();
 		CB_PER_OBJECT_STRUCT perObject = { idMatrix, idMatrix, *info };
 
+		//const FLOAT blendFactor[4] = { 0.5f, 0.5f, 0.5f, 0.0f };
+		//commandList->OMSetBlendFactor(blendFactor);
 		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 		commandList->IASetIndexBuffer(qm->GetQuad()->GetIndexBufferView());
 		commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);

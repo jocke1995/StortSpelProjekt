@@ -1332,8 +1332,9 @@ void Renderer::initRenderTasks()
 
 
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+	{
 		gpsdBlendFrontCull.BlendState.RenderTarget[i] = blendRTdesc;
-
+	}
 
 	// Depth descriptor
 	D3D12_DEPTH_STENCIL_DESC dsdBlend = {};
@@ -1636,23 +1637,10 @@ void Renderer::initRenderTasks()
 	gpsdQuad.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
 	gpsdQuad.RasterizerState.FrontCounterClockwise = false;
 
-	D3D12_BLEND_DESC quadBlendStateDesc = {};
-	quadBlendStateDesc.AlphaToCoverageEnable = FALSE;
-	quadBlendStateDesc.IndependentBlendEnable = FALSE;
-	quadBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
-
-	quadBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	quadBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
-	quadBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-
-	quadBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
-	quadBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
-	quadBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-
-	quadBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-	gpsdQuad.BlendState = quadBlendStateDesc;
-	gpsdQuad.NumRenderTargets = 1;
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+	{
+		gpsdQuad.BlendState.RenderTarget[i] = blendRTdesc;
+	}
 
 	D3D12_DEPTH_STENCIL_DESC quadDepthStencilDesc = {};
 	quadDepthStencilDesc.DepthEnable = false;
@@ -1794,8 +1782,6 @@ void Renderer::setRenderTasksRenderComponents()
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
-	static_cast<QuadTask*>(m_RenderTasks[RENDER_TASK_TYPE::QUAD])->SetQuadComponents(&m_QuadComponents);
-	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 
 	static_cast<SkyboxRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX])->SetSkybox(m_pSkyboxComponent);
 }
@@ -2025,6 +2011,8 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 	}
 	m_pMousePicker->SetPrimaryCamera(m_pScenePrimaryCamera);
 
+	static_cast<QuadTask*>(m_RenderTasks[RENDER_TASK_TYPE::QUAD])->SetQuadComponents(&m_QuadComponents);
+	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 	setRenderTasksRenderComponents();
 	setRenderTasksPrimaryCamera();
 }

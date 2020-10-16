@@ -1373,11 +1373,11 @@ Scene* FredriksTestScene(SceneManager* sm)
 	/* ---------------------------------------------------------- */
 
     /* ------------------------- overlay --------------------------- */
-    entity = scene->AddEntity("overlay");
-    gui = entity->AddComponent<component::GUI2DComponent>();
-    quadPos = { 0.0f, 0.0f };
-    quadScale = { 1.0f, 0.2f };
-    gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, E_DEPTH_LEVEL::BACK, L"../Vendor/Resources/Textures/2DGUI/replay.png");
+    //entity = scene->AddEntity("overlay");
+    //gui = entity->AddComponent<component::GUI2DComponent>();
+    //quadPos = { 0.0f, 0.0f };
+    //quadScale = { 1.0f, 0.2f };
+    //gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, E_DEPTH_LEVEL::BACK, L"../Vendor/Resources/Textures/Default/default_overlay.png");
     /* ---------------------------------------------------------- */
 
 	/* ---------------------- Skybox ---------------------- */
