@@ -158,9 +158,7 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	materials.reserve(assimpScene->mNumMeshes);
 	m_LoadedModels[path].first = false;
 
-	//Log::Print("\n\n\n");
 	processNode(assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
-	//Log::Print("\n\n\n");
 
 	if (assimpScene->HasAnimations())
 	{
@@ -404,33 +402,18 @@ Shader* AssetLoader::loadShader(const std::wstring& fileName, ShaderType type)
 
 void AssetLoader::processNode(aiNode* node, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
 {
-	/*static int level = 0;
-	if (node->mTransformation.IsIdentity())
-		Log::Print("aiNode: %s I\n", node->mName.C_Str());
-	else
-		Log::Print("aiNode: %s NOT I\n", node->mName.C_Str());
-	*/
-
 	// Go through all the m_Meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = assimpScene->mMeshes[node->mMeshes[i]];
 		meshes->push_back(processMesh(mesh, assimpScene, meshes, materials, filePath));
 	}
-	
-	// If the node has more node children
-	//if (node->mNumChildren != 0)
-	//	level++;
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		//for (int j = 0; j < level; j++)
-		//	Log::Print("\t");
 		processNode(node->mChildren[i], assimpScene, meshes, materials, filePath);
 	}
 
-	//if (node->mNumChildren != 0)
-	//	level--;
 }
 
 Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
@@ -769,11 +752,9 @@ void AssetLoader::processBones(std::map<std::string, BoneInfo> boneCounter, cons
 			aiVertexWeight assimpWeight = assimpBone->mWeights[j];
 			assert(vertexCounter[assimpWeight.mVertexId] < MAX_BONES_PER_VERTEX);
 			// Set the bone ID in the correct vertex
-			perVertexBoneData->operator[](
-				assimpWeight.mVertexId).boneIDs[vertexCounter[assimpWeight.mVertexId]] = boneCounter[boneName].boneID;
+			(*perVertexBoneData)[assimpWeight.mVertexId].boneIDs[vertexCounter[assimpWeight.mVertexId]] = boneCounter[boneName].boneID;
 			// Set the weight of the vertex
-			perVertexBoneData->operator[](
-				assimpWeight.mVertexId).weights[vertexCounter[assimpWeight.mVertexId]++] = assimpWeight.mWeight;
+			(*perVertexBoneData)[assimpWeight.mVertexId].weights[vertexCounter[assimpWeight.mVertexId]++] = assimpWeight.mWeight;
 		}
 	}
 }
