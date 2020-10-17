@@ -62,41 +62,11 @@ void TextManager::AddText(std::string name)
 	m_TextDataMap[name] = textData;
 }
 
-void TextManager::UploadTextData(std::string name)
+void TextManager::UploadAndExecuteTextData(std::string name)
 {
 	Renderer* renderer = &Renderer::GetInstance();
 
-	int numOfCharacters = GetNumOfCharacters(name);
-	auto textData = GetTextData(name);
-
-	Text* text = new Text(
-		renderer->m_pDevice5,
-		renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
-		numOfCharacters,
-		m_pFont->GetTexture());
-	text->SetTextData(textData, m_pFont);
-
-	// Look if the text exists
-	bool exists = false;
-	auto it = m_TextDataMap.find(name);
-	if (it != m_TextDataMap.end())
-	{
-		exists = true;
-	}
-
-	if (exists == true)
-	{
-		// Replacing an existing text in the map
-		replaceText(text, name);
-	}
-	else
-	{
-		// Adding a new text to the map
-		submitText(text, name);
-	}
-
-	// Uploading the text data to the gpu
-	renderer->submitTextToGPU(text, this);
+	uploadTextData(name, renderer);
 
 	renderer->executeCopyOnDemand();
 }
@@ -255,4 +225,39 @@ void TextManager::replaceText(Text* text, std::string name)
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "Could not find any text called '%s' to replace!\n", name);
 	}
+}
+
+void TextManager::uploadTextData(std::string name, Renderer* renderer)
+{
+	int numOfCharacters = GetNumOfCharacters(name);
+	auto textData = GetTextData(name);
+
+	Text* text = new Text(
+		renderer->m_pDevice5,
+		renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
+		numOfCharacters,
+		m_pFont->GetTexture());
+	text->SetTextData(textData, m_pFont);
+
+	// Look if the text exists
+	bool exists = false;
+	auto it = m_TextDataMap.find(name);
+	if (it != m_TextDataMap.end())
+	{
+		exists = true;
+	}
+
+	if (exists == true)
+	{
+		// Replacing an existing text in the map
+		replaceText(text, name);
+	}
+	else
+	{
+		// Adding a new text to the map
+		submitText(text, name);
+	}
+
+	// Uploading the text data to the gpu
+	renderer->submitTextToGPU(text, this);
 }

@@ -35,9 +35,11 @@ public:
 	const int GetNumOfTexts() const;
 	const int GetNumOfCharacters(std::string name) const;
 
-	void UploadTextData(std::string name);
+	void UploadAndExecuteTextData(std::string name);
 
 private:
+	friend class Renderer;
+
 	std::map<std::string, TextData> m_TextDataMap = {};
 	std::map<std::string, Text*> m_TextMap = {};
 	Font* m_pFont = nullptr;
@@ -45,5 +47,6 @@ private:
 
 	void submitText(Text* text, std::string name);
 	void replaceText(Text* text, std::string name);
+	void uploadTextData(std::string name, Renderer* renderer);
 };
 #endif

@@ -649,7 +649,7 @@ void Renderer::InitGUI2DComponent(Entity* entity)
 	{
 		for (auto textData : *textDataMap)
 		{
-			GUIComp->GetTextManager()->UploadTextData(textData.first);
+			GUIComp->GetTextManager()->uploadTextData(textData.first, this);
 		}
 
 		// Finally store the text in m_pRenderer so it will be drawn
