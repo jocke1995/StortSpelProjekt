@@ -41,7 +41,14 @@ bool QuadManager::operator==(const QuadManager& other) const
 	return (m_Id == other.m_Id);
 }
 
-void QuadManager::CreateQuad(float2 pos, float2 size, bool clickable, E_DEPTH_LEVEL depthLevel, std::wstring texturePath)
+// If you dont want any texture, send a nullptr. You can also choose to send a color or not
+void QuadManager::CreateQuad(
+	float2 pos, float2 size,
+	bool clickable,
+	E_DEPTH_LEVEL depthLevel,
+	float blend,
+	Texture* texture,
+	float4 color)
 {
 	// Examine if we are going to overwrite the current quad
 	if (m_pQuad != nullptr)
@@ -57,15 +64,14 @@ void QuadManager::CreateQuad(float2 pos, float2 size, bool clickable, E_DEPTH_LE
 		}
 	}
 
-	if (m_pQuadTexture == nullptr && texturePath != L"NONE")
+	if (m_pQuadTexture == nullptr && texture != nullptr)
 	{
-		AssetLoader* al = AssetLoader::Get();
-		m_pQuadTexture = al->LoadTexture2D(texturePath);
+		m_pQuadTexture = texture;
 	}
 
 	m_Clickable = clickable;
-
 	m_DepthLevel = depthLevel;
+	m_AmountOfBlend = blend;
 
 	float x = (pos.x * 2.0f) - 1.0f;
 	float y = ((1.0f - pos.y) * 2.0f) - 1.0f;
@@ -194,5 +200,8 @@ void QuadManager::uploadQuadData(Renderer* renderer)
 	// Submit to GPU
 	renderer->submitMeshToCodt(m_pQuad);
 
-	renderer->submitTextureToCodt(m_pQuadTexture);
+	if (m_pQuadTexture != nullptr)
+	{
+		renderer->submitTextureToCodt(m_pQuadTexture);
+	}
 }

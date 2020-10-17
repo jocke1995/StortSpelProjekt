@@ -32,7 +32,13 @@ public:
 
 	bool operator== (const QuadManager& other) const;
 
-	void CreateQuad(float2 pos, float2 size, bool clickable, E_DEPTH_LEVEL depthLevel, std::wstring texturePath = L"NONE");
+	void CreateQuad(
+		float2 pos, float2 size, 
+		bool clickable, 
+		E_DEPTH_LEVEL depthLevel, 
+		float blend,
+		Texture* texture, 
+		float4 color = float4{ 0.0 });
 	void UploadAndExecuteQuadData();
 
 	bool HasBeenPressed();
@@ -47,6 +53,7 @@ private:
 	friend class Renderer;
 
 	int m_Id = 0;
+	float m_AmountOfBlend = 0.0;
 	std::map<std::string, float2> m_Positions = {};
 	E_DEPTH_LEVEL m_DepthLevel = {};
 

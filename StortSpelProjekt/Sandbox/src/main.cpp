@@ -1201,6 +1201,9 @@ Scene* FredriksTestScene(SceneManager* sm)
 	Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 	Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 	Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
+	
+	// Get textures
+	Texture* replayTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/replay.png");
 
 	// Get the audio needed and add settings to it.
 	AudioBuffer* melodySound = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"melody");
@@ -1369,7 +1372,12 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 	float2 quadPos = { 0.0f, 0.0f };
 	float2 quadScale = { 0.2f, 0.2f };
-	gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, E_DEPTH_LEVEL::FRONT, L"../Vendor/Resources/Textures/2DGUI/replay.png");
+	gui->GetQuadManager()->CreateQuad(
+		quadPos, quadScale, 
+		true, 
+		E_DEPTH_LEVEL::FRONT, 
+		1.0, 
+		replayTexture);
 
 	/* ---------------------------------------------------------- */
 
@@ -1378,7 +1386,13 @@ Scene* FredriksTestScene(SceneManager* sm)
     gui = entity->AddComponent<component::GUI2DComponent>();
     quadPos = { 0.0f, 0.0f };
     quadScale = { 1.0f, 0.2f };
-    gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, E_DEPTH_LEVEL::BACK, L"../Vendor/Resources/Textures/Default/default_overlay.png");
+    gui->GetQuadManager()->CreateQuad(
+		quadPos, quadScale, 
+		true, 
+		E_DEPTH_LEVEL::BACK, 
+		0.5,
+		nullptr,
+		textColor);
     /* ---------------------------------------------------------- */
 
 	/* ---------------------- Skybox ---------------------- */
