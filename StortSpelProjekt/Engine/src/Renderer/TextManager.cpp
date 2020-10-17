@@ -175,6 +175,22 @@ void TextManager::SetColor(float4 color, std::string name)
 	}
 }
 
+void TextManager::SetBlend(float4 blend, std::string name)
+{
+	bool exists = false;
+	auto it = m_TextDataMap.find(name);
+	if (it != m_TextDataMap.end())
+	{
+		m_TextDataMap[name].blendFactor = blend;
+		exists = true;
+	}
+
+	if (exists == false)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set blend.\n", name.c_str());
+	}
+}
+
 Font* TextManager::GetFont() const
 {
 	return m_pFont;

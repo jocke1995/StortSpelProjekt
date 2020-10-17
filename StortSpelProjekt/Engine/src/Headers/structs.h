@@ -57,6 +57,12 @@ struct CB_PER_OBJECT_STRUCT
 	SlotInfo info;
 };
 
+struct CB_PER_GUI2D_OBJECT_STRUCT
+{
+	float4 blendFactor;
+	SlotInfo info;
+};
+
 struct CB_PER_FRAME_STRUCT
 {
 	float3 camPos;

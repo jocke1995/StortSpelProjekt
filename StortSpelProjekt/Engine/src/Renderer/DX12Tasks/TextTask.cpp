@@ -98,9 +98,8 @@ void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::GUI2DCom
 
 		// Create a CB_PER_OBJECT struct
 		SlotInfo* info = text->GetSlotInfo();
-		DirectX::XMMATRIX idMatrix = DirectX::XMMatrixIdentity();
-		CB_PER_OBJECT_STRUCT perObject = { idMatrix, idMatrix, *info };
-		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+		CB_PER_GUI2D_OBJECT_STRUCT perObject = { text->GetAmountOfBlend(), *info };
+		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_GUI2D_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
 		// we are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
 		nrOfCharacters = text->GetNrOfCharacters();

@@ -1616,17 +1616,30 @@ void Renderer::initRenderTasks()
 	// RenderTarget
 	gpsdQuad.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	gpsdQuad.NumRenderTargets = 1;
+
 	// Depthstencil usage
 	gpsdQuad.SampleDesc.Count = 1;
 	gpsdQuad.SampleMask = UINT_MAX;
+
 	// Rasterizer behaviour
 	gpsdQuad.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 	gpsdQuad.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
 	gpsdQuad.RasterizerState.FrontCounterClockwise = false;
 
+	// Specify Blend descriptions
+	D3D12_RENDER_TARGET_BLEND_DESC quadRTdesc{};
+	quadRTdesc.BlendEnable = true;
+	quadRTdesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	quadRTdesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	quadRTdesc.BlendOp = D3D12_BLEND_OP_ADD;
+	quadRTdesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+	quadRTdesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	quadRTdesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	quadRTdesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
 	{
-		gpsdQuad.BlendState.RenderTarget[i] = blendRTdesc;
+		gpsdQuad.BlendState.RenderTarget[i] = quadRTdesc;
 	}
 
 	D3D12_DEPTH_STENCIL_DESC quadDepthStencilDesc = {};

@@ -1360,6 +1360,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	float2 textPadding = { 0.5f, 0.0f };
 	float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	float2 textScale = { 3.0f, 3.0f };
+	float4 textBlend = { 1.0f, 1.0f, 1.0f, 0.5f };
 
     entity = scene->AddEntity("text");
 	gui = entity->AddComponent<component::GUI2DComponent>();
@@ -1369,14 +1370,15 @@ Scene* FredriksTestScene(SceneManager* sm)
 	gui->GetTextManager()->SetPos(textPos, "health");
 	gui->GetTextManager()->SetScale(textScale, "health");
 	gui->GetTextManager()->SetText(textToRender, "health");
+	gui->GetTextManager()->SetBlend(textBlend, "health");
 
 	float2 quadPos = { 0.0f, 0.0f };
 	float2 quadScale = { 0.2f, 0.2f };
 	gui->GetQuadManager()->CreateQuad(
-		quadPos, quadScale, 
-		true, 
-		E_DEPTH_LEVEL::FRONT, 
-		1.0, 
+		quadPos, quadScale,
+		true,
+		E_DEPTH_LEVEL::FRONT,
+		float4{ 1.0, 1.0, 1.0, 1.0 },
 		replayTexture);
 
 	/* ---------------------------------------------------------- */
@@ -1390,9 +1392,8 @@ Scene* FredriksTestScene(SceneManager* sm)
 		quadPos, quadScale, 
 		true, 
 		E_DEPTH_LEVEL::BACK, 
-		0.5,
-		nullptr,
-		textColor);
+		float4{ 1.0, 1.0, 1.0, 0.8},
+		replayTexture);
     /* ---------------------------------------------------------- */
 
 	/* ---------------------- Skybox ---------------------- */

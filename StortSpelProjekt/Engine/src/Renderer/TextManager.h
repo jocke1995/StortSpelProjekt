@@ -27,6 +27,7 @@ public:
 	void SetScale(float2 scale, std::string name);
 	void SetPadding(float2 padding, std::string name);
 	void SetColor(float4 color, std::string name);
+	void SetBlend(float4 blend, std::string name);
 
 	Font* GetFont() const;
 	Texture* GetFontTexture() const;

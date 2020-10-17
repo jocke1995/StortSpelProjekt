@@ -3,12 +3,13 @@
 
 #include "RenderTask.h"
 
+#include <map>
+#include <vector>
+
 class RootSignature;
 class QuadManager;
 
 enum E_DEPTH_LEVEL;
-#include <map>
-#include <vector>
 
 namespace component
 {

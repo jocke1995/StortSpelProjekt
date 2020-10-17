@@ -46,7 +46,7 @@ void QuadManager::CreateQuad(
 	float2 pos, float2 size,
 	bool clickable,
 	E_DEPTH_LEVEL depthLevel,
-	float blend,
+	float4 blend,
 	Texture* texture,
 	float4 color)
 {
@@ -175,6 +175,11 @@ SlotInfo* const QuadManager::GetSlotInfo() const
 const E_DEPTH_LEVEL* QuadManager::GetDepthLevel() const
 {
 	return &m_DepthLevel;
+}
+
+const float4 QuadManager::GetAmountOfBlend() const
+{
+	return m_AmountOfBlend;
 }
 
 void QuadManager::pressed(MouseClick* evnt)
