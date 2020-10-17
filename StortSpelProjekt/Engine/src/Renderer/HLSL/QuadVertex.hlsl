@@ -27,7 +27,7 @@ VS_OUT VS_main(uint vID : SV_VertexID)
 	float4 vertexPosition = float4(v.pos.xyz, 1.0f);
 
 	output.pos = vertexPosition;
-	output.color = float4(v.norm, 1.0);
+	output.color = float4(v.tang, 1.0);
 	output.texCoord = float2(v.uv.x, v.uv.y);
 
 	return output;

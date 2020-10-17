@@ -113,7 +113,12 @@ void QuadTask::draw(ID3D12GraphicsCommandList5* commandList, E_DEPTH_LEVEL type)
 		// Create a CB_PER_OBJECT struct
 		size_t num_Indices = qm->GetQuad()->GetNumIndices();
 		const SlotInfo* info = qm->GetSlotInfo();
-		CB_PER_GUI2D_OBJECT_STRUCT perObject = { qm->GetAmountOfBlend(), *info };
+		float4 hasTexture = float4{ 0.0 };
+		if (qm->HasTexture())
+		{
+			hasTexture = float4{ 1.0 };
+		}
+		CB_PER_GUI2D_OBJECT_STRUCT perObject = { qm->GetAmountOfBlend(), hasTexture, *info };
 
 		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_GUI2D_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 		commandList->IASetIndexBuffer(qm->GetQuad()->GetIndexBufferView());

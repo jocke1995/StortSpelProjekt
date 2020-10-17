@@ -1203,7 +1203,8 @@ Scene* FredriksTestScene(SceneManager* sm)
 	Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
 	
 	// Get textures
-	Texture* replayTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/replay.png");
+	Texture* buttonTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/greenButton.png");
+	Texture* headTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png");
 
 	// Get the audio needed and add settings to it.
 	AudioBuffer* melodySound = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"melody");
@@ -1356,11 +1357,11 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 	/* ------------------------- BUTTON 1 --------------------------- */
 	std::string textToRender = "TEST";
-	float2 textPos = { 0.02f, 0.02f };
+	float2 textPos = { 0.18f, 0.035f };
 	float2 textPadding = { 0.5f, 0.0f };
 	float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float2 textScale = { 3.0f, 3.0f };
-	float4 textBlend = { 1.0f, 1.0f, 1.0f, 0.5f };
+	float2 textScale = { 1.8f, 1.8f };
+	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     entity = scene->AddEntity("text");
 	gui = entity->AddComponent<component::GUI2DComponent>();
@@ -1373,27 +1374,41 @@ Scene* FredriksTestScene(SceneManager* sm)
 	gui->GetTextManager()->SetBlend(textBlend, "health");
 
 	float2 quadPos = { 0.0f, 0.0f };
-	float2 quadScale = { 0.2f, 0.2f };
+	float2 quadScale = { 0.45f, 0.2f };
+	gui->GetQuadManager()->CreateQuad(
+		quadPos, quadScale,
+		true,
+		E_DEPTH_LEVEL::MID,
+		float4{ 1.0, 1.0, 1.0, 1.0 },
+		buttonTexture);
+
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- head --------------------------- */
+	entity = scene->AddEntity("head");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.005f, 0.025f };
+	quadScale = { 0.15f, 0.15f };
 	gui->GetQuadManager()->CreateQuad(
 		quadPos, quadScale,
 		true,
 		E_DEPTH_LEVEL::FRONT,
 		float4{ 1.0, 1.0, 1.0, 1.0 },
-		replayTexture);
-
+		headTexture);
 	/* ---------------------------------------------------------- */
 
     /* ------------------------- overlay --------------------------- */
     entity = scene->AddEntity("overlay");
     gui = entity->AddComponent<component::GUI2DComponent>();
     quadPos = { 0.0f, 0.0f };
-    quadScale = { 1.0f, 0.2f };
+    quadScale = { 0.46f, 0.2f };
     gui->GetQuadManager()->CreateQuad(
-		quadPos, quadScale, 
-		true, 
+		quadPos, quadScale,
+		true,
 		E_DEPTH_LEVEL::BACK, 
-		float4{ 1.0, 1.0, 1.0, 0.8},
-		replayTexture);
+		float4{ 1.0, 1.0, 1.0, 0.98},
+		nullptr,
+		float3{ 0.0, 0.0, 0.0 });
     /* ---------------------------------------------------------- */
 
 	/* ---------------------- Skybox ---------------------- */
@@ -2016,16 +2031,8 @@ void FredriksUpdateScene(SceneManager* sm)
 	component::GUI2DComponent* tx = sm->GetScene("FredriksTestScene")->GetEntity("text")->GetComponent<component::GUI2DComponent>();
 	component::GUI2DComponent* ov = sm->GetScene("FredriksTestScene")->GetEntity("overlay")->GetComponent<component::GUI2DComponent>();
 	AssetLoader* al = AssetLoader::Get();
-	Font* javaneseFont = al->LoadFontFromFile(L"Javanese.fnt");
 	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
-	tx->GetTextManager()->SetFont(javaneseFont);
-	static float red = 0, green = 1, blue = 0.5;
-	float4 color = float4{ abs(sin(red)), abs(sin(green)), abs(sin(blue)), 1.0 };
-	tx->GetTextManager()->SetColor(color, "health");
 	tx->GetTextManager()->UploadAndExecuteTextData("health");
-	red += 0.01;
-	green += 0.01;
-	blue += 0.01;
 
 	if (tx->GetQuadManager()->HasBeenPressed() || ov->GetQuadManager()->HasBeenPressed())
 	{

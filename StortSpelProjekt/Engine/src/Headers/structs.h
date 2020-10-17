@@ -60,6 +60,7 @@ struct CB_PER_OBJECT_STRUCT
 struct CB_PER_GUI2D_OBJECT_STRUCT
 {
 	float4 blendFactor;
+	float4 hasTexture;
 	SlotInfo info;
 };
 

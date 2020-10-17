@@ -48,7 +48,7 @@ void QuadManager::CreateQuad(
 	E_DEPTH_LEVEL depthLevel,
 	float4 blend,
 	Texture* texture,
-	float4 color)
+	float3 color)
 {
 	// Examine if we are going to overwrite the current quad
 	if (m_pQuad != nullptr)
@@ -81,14 +81,13 @@ void QuadManager::CreateQuad(
 	std::vector<Vertex> m_Vertices = {};
 
 	DirectX::XMFLOAT3 normal = DirectX::XMFLOAT3{ 1.0, 1.0, 0.0 };
-	DirectX::XMFLOAT3 tangent = DirectX::XMFLOAT3{ 0.0, 0.0, 0.0 };
 
 	Vertex vertex = {};
 	vertex.pos = DirectX::XMFLOAT3{ x, y, 0.0f };
 	m_Positions["upper_left"] = float2{ vertex.pos.x, vertex.pos.y };
 	vertex.uv = DirectX::XMFLOAT2{ 0.0, 0.0 };
 	vertex.normal = normal;
-	vertex.tangent = tangent;
+	vertex.tangent = DirectX::XMFLOAT3(color.x, color.y, color.z); // Using the tangent as the color
 	m_Vertices.push_back(vertex);
 
 	vertex.pos = DirectX::XMFLOAT3{ x, size.y, 0.0f };
@@ -155,6 +154,17 @@ bool QuadManager::HasBeenPressed()
 	}
 
 	return false;
+}
+
+const bool QuadManager::HasTexture() const
+{
+	bool exists = false;
+	if (m_pQuadTexture != nullptr)
+	{
+		exists = true;
+	}
+
+	return exists;
 }
 
 Mesh* const QuadManager::GetQuad() const

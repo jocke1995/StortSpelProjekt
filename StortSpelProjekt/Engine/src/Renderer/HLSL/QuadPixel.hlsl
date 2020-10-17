@@ -15,5 +15,11 @@ SamplerState point_Wrap : register (s5);
 float4 PS_main(VS_OUT input) : SV_TARGET0
 {
 	float4 blend = cbPerObject.blendFactor;
+
+	if (cbPerObject.hasTexture.x == 0.0)
+	{
+		return float4(input.color) * blend;
+	}
+
 	return float4(textures[cbPerObject.info.textureAlbedo].Sample(point_Wrap, input.texCoord)) * blend;
 }

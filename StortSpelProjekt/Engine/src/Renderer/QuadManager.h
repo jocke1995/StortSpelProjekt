@@ -38,10 +38,11 @@ public:
 		E_DEPTH_LEVEL depthLevel, 
 		float4 blend = float4{ 1.0, 1.0, 1.0, 1.0 },
 		Texture* texture = nullptr,
-		float4 color = float4{ 0.0, 0.0, 0.0, 1.0 });
+		float3 color = float3{ 0.0, 0.0, 0.0 });
 	void UploadAndExecuteQuadData();
 
 	bool HasBeenPressed();
+	const bool HasTexture() const;
 
 	Mesh* const GetQuad() const;
 	Texture* const GetTexture() const;
