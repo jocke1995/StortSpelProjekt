@@ -9,6 +9,7 @@ class Mesh;
 class Resource;
 class ShaderResourceView;
 class Eventbus;
+class Renderer;
 
 struct Vertex;
 struct MouseClick;
@@ -32,7 +33,7 @@ public:
 	bool operator== (const QuadManager& other) const;
 
 	void CreateQuad(float2 pos, float2 size, bool clickable, E_DEPTH_LEVEL depthLevel, std::wstring texturePath = L"NONE");
-	void UploadQuadData();
+	void UploadAndExecuteQuadData();
 
 	bool HasBeenPressed();
 
@@ -43,6 +44,7 @@ public:
 
 private:
 	friend class AssetLoader;
+	friend class Renderer;
 
 	int m_Id = 0;
 	std::map<std::string, float2> m_Positions = {};
@@ -55,5 +57,6 @@ private:
 	bool m_Pressed = false;
 	
 	void pressed(MouseClick* evnt);
+	void uploadQuadData(Renderer* renderer);
 };
 #endif

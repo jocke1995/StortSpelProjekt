@@ -126,14 +126,11 @@ void QuadManager::CreateQuad(float2 pos, float2 size, bool clickable, E_DEPTH_LE
 	}
 }
 
-void QuadManager::UploadQuadData()
+void QuadManager::UploadAndExecuteQuadData()
 {
 	Renderer* renderer = &Renderer::GetInstance();
 
-	// Submit to GPU
-	renderer->submitMeshToCodt(m_pQuad);
-
-	renderer->submitTextureToCodt(m_pQuadTexture);
+	uploadQuadData(renderer);
 
 	renderer->executeCopyOnDemand();
 }
@@ -190,4 +187,12 @@ void QuadManager::pressed(MouseClick* evnt)
 			m_Pressed = true;
 		}
 	}
+}
+
+void QuadManager::uploadQuadData(Renderer* renderer)
+{
+	// Submit to GPU
+	renderer->submitMeshToCodt(m_pQuad);
+
+	renderer->submitTextureToCodt(m_pQuadTexture);
 }

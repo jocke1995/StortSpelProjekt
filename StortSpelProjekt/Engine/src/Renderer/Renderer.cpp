@@ -658,7 +658,7 @@ void Renderer::InitGUI2DComponent(Entity* entity)
 
 	if (quad != nullptr)
 	{
-		GUIComp->GetQuadManager()->UploadQuadData();
+		GUIComp->GetQuadManager()->uploadQuadData(this);
 
 		// Finally store the quad in m_pRenderer so it will be drawn
 		m_QuadComponents.push_back(GUIComp);
