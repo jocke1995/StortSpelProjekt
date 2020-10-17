@@ -1232,6 +1232,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 	tc->GetTransform()->SetScale(1.0f);
 	tc->GetTransform()->SetPosition(0, 1, -40);
+
 	// initialize OBB after we have the transform info
 	bbc->Init();
 	Physics::GetInstance().AddCollisionEntity(entity);
@@ -1373,11 +1374,11 @@ Scene* FredriksTestScene(SceneManager* sm)
 	/* ---------------------------------------------------------- */
 
     /* ------------------------- overlay --------------------------- */
-    //entity = scene->AddEntity("overlay");
-    //gui = entity->AddComponent<component::GUI2DComponent>();
-    //quadPos = { 0.0f, 0.0f };
-    //quadScale = { 1.0f, 0.2f };
-    //gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, E_DEPTH_LEVEL::BACK, L"../Vendor/Resources/Textures/Default/default_overlay.png");
+    entity = scene->AddEntity("overlay");
+    gui = entity->AddComponent<component::GUI2DComponent>();
+    quadPos = { 0.0f, 0.0f };
+    quadScale = { 1.0f, 0.2f };
+    gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, E_DEPTH_LEVEL::BACK, L"../Vendor/Resources/Textures/Default/default_overlay.png");
     /* ---------------------------------------------------------- */
 
 	/* ---------------------- Skybox ---------------------- */
@@ -1996,35 +1997,25 @@ void JockeUpdateScene(SceneManager* sm)
 
 void FredriksUpdateScene(SceneManager* sm)
 {
-	/*component::Audio3DEmitterComponent* ec = sm->GetScene("FredriksTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
-	ec->UpdateEmitter(L"Bruh");*/
-
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
-	component::GUI2DComponent* tc = sm->GetScene("FredriksTestScene")->GetEntity("text")->GetComponent<component::GUI2DComponent>();
+	component::GUI2DComponent* tx = sm->GetScene("FredriksTestScene")->GetEntity("text")->GetComponent<component::GUI2DComponent>();
+	component::GUI2DComponent* ov = sm->GetScene("FredriksTestScene")->GetEntity("overlay")->GetComponent<component::GUI2DComponent>();
 	AssetLoader* al = AssetLoader::Get();
 	Font* javaneseFont = al->LoadFontFromFile(L"Javanese.fnt");
-	tc->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
-	tc->GetTextManager()->SetFont(javaneseFont);
+	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
+	tx->GetTextManager()->SetFont(javaneseFont);
 	static float red = 0, green = 1, blue = 0.5;
 	float4 color = float4{ abs(sin(red)), abs(sin(green)), abs(sin(blue)), 1.0 };
-	tc->GetTextManager()->SetColor(color, "health");
-	tc->GetTextManager()->UploadTextData("health");
+	tx->GetTextManager()->SetColor(color, "health");
+	tx->GetTextManager()->UploadTextData("health");
 	red += 0.01;
 	green += 0.01;
 	blue += 0.01;
 
-	if (tc->GetQuadManager()->HasBeenPressed())
+	if (tx->GetQuadManager()->HasBeenPressed() || ov->GetQuadManager()->HasBeenPressed())
 	{
 		Log::Print("PRESSED!\n");
 	}
-
-	/*std::string name = "enemy";
-	for (int i = 1; i < 76; i++)
-	{
-		name = "enemy" + std::to_string(i);
-		ec = sm->GetScene("FredriksTestScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
-		ec->UpdateEmitter(L"Bruh");
-	}*/
 }
 
 void DefaultUpdateScene(SceneManager* sm)

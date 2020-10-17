@@ -1541,23 +1541,10 @@ void Renderer::initRenderTasks()
 	gpsdText.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
 	gpsdText.RasterizerState.FrontCounterClockwise = false;
 
-	D3D12_BLEND_DESC textBlendStateDesc = {};
-	textBlendStateDesc.AlphaToCoverageEnable = FALSE;
-	textBlendStateDesc.IndependentBlendEnable = FALSE;
-	textBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
-
-	textBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	textBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
-	textBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-
-	textBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
-	textBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
-	textBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-
-	textBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-	gpsdText.BlendState = textBlendStateDesc;
-	gpsdText.NumRenderTargets = 1;
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+	{
+		gpsdText.BlendState.RenderTarget[i] = blendRTdesc;
+	}
 
 	D3D12_DEPTH_STENCIL_DESC textDepthStencilDesc = {};
 	textDepthStencilDesc.DepthEnable = false;
