@@ -46,7 +46,7 @@ namespace component
 		void SetAngularFactor(const double3& factor);
 		// Sets the linear factor, how much the object may move in the world. 0 will stop it from moving in that axis.
 		void SetLinearFactor(double3& factor);
-
+		// Sets if the collisioncomponent is affected by gravity or not.
 		void SetGravity(bool affectedByGravity);
 
 

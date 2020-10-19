@@ -188,7 +188,10 @@ void component::CollisionComponent::SetGravity(bool affectedByGravity)
 {
 	m_Gravity = affectedByGravity;
 
-	m_pBody->setGravity({ 0.0, -98.2 * m_Gravity, 0.0 });
+	if (m_pBody)
+	{
+		m_pBody->setGravity({ 0.0, -98.2 * m_Gravity, 0.0 });
+	}
 }
 
 btRigidBody* component::CollisionComponent::GetBody() const
