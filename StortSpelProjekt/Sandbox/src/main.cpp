@@ -315,7 +315,7 @@ Scene* LeosTestScene(SceneManager* sm)
     double rad = playerDim.z / 2.0;
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
-    hc = entity->AddComponent<component::HealthComponent>(50);
+    hc = entity->AddComponent<component::HealthComponent>(10000000);
     ic->Init();
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
@@ -325,17 +325,17 @@ Scene* LeosTestScene(SceneManager* sm)
 #pragma endregion
 
 #pragma region enemies
-    EnemyFactory enH(scene);
+    enemyFactory.SetScene(scene);
     /*enH.AddEnemy("sphere", sphereModel, 10, float3{ -50, 10, 50 },L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_ROLL, 10.0, float3{ 1.578, 0, 0 });
     enH.AddExistingEnemy("sphere", float3{ 50, 10, -50 });
     enH.AddExistingEnemy("sphere", float3{ 50, 10, 50 });
     enH.AddExistingEnemy("sphere", float3{ -50, 10, -50 });
     enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_JUMP | F_AI_FLAGS::CAN_ROLL, 0.5);*/
-    enH.AddEnemy("conan", barbModel, 20, float3{ 245.0, 10.0, 245.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "Ball2", 500.0f, 0.0f);
-    enH.AddExistingEnemy("conan", float3{ 245, 10, -245 });
-    enH.AddExistingEnemy("conan", float3{ -245, 10, 245 });
-    enH.AddExistingEnemy("conan", float3{ -245, 10, -245 });
-    enH.AddEnemy("conanLarge", barbModel, 20, float3{ 0.0, 10.0, 100.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 1.0, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
+    enemyFactory.AddEnemy("conan", barbModel, 20, float3{ 245.0, 10.0, 245.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "Ball2", 500.0f, 0.0f);
+    enemyFactory.AddExistingEnemy("conan", float3{ 245, 10, -245 });
+    enemyFactory.AddExistingEnemy("conan", float3{ -245, 10, 245 });
+    enemyFactory.AddExistingEnemy("conan", float3{ -245, 10, -245 });
+    enemyFactory.AddEnemy("conanLarge", barbModel, 20, float3{ 0.0, 10.0, 100.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 1.0, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
 #pragma endregion
 
 #pragma endregion
