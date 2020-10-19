@@ -97,6 +97,8 @@ void TextManager::UploadTextData(std::string name)
 
 	// Uploading the text data to the gpu
 	renderer->submitTextToGPU(text, this);
+
+	renderer->executeCopyOnDemand();
 }
 
 void TextManager::SetFont(Font* font)

@@ -62,18 +62,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
-	//Scene* fredrikScene = FredriksTestScene(sceneManager);
+	Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { leoScene };
+    Scene* activeScenes[] = { fredrikScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -155,14 +155,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             float2 textScale = { 3.0f, 3.0f };
             
             // Cannot be added in runtime
-            component::GUI2DComponent* gui = a->AddComponent<component::GUI2DComponent>();
-            
-            gui->GetTextManager()->AddText("health");
-            gui->GetTextManager()->SetColor(textColor, "health");
-            gui->GetTextManager()->SetPadding(textPadding, "health");
-            gui->GetTextManager()->SetPos(textPos, "health");
-            gui->GetTextManager()->SetScale(textScale, "health");
-            gui->GetTextManager()->SetText(textToRender, "health");
+            //component::GUI2DComponent* gui = a->AddComponent<component::GUI2DComponent>();
+            //
+            //gui->GetTextManager()->AddText("health");
+            //gui->GetTextManager()->SetColor(textColor, "health");
+            //gui->GetTextManager()->SetPadding(textPadding, "health");
+            //gui->GetTextManager()->SetPos(textPos, "health");
+            //gui->GetTextManager()->SetScale(textScale, "health");
+            //gui->GetTextManager()->SetText(textToRender, "health");
             //
             //float2 quadPos = { 0.25f, 0.25f };
             //float2 quadScale = { 0.5f, 0.5f };
@@ -1821,10 +1821,11 @@ Scene* AndresTestScene(SceneManager* sm)
     ic->Init();
     hc = entity->AddComponent<component::HealthComponent>(15);
     rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
-    melc = entity->AddComponent<component::MeleeComponent>();
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    melc = entity->AddComponent<component::MeleeComponent>();
     upgradeComp = entity->AddComponent<component::UpgradeComponent>();
+
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -2223,7 +2224,7 @@ void FredriksUpdateScene(SceneManager* sm)
 {
 	component::Audio3DEmitterComponent* ec = sm->GetScene("FredriksTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
 	ec->UpdateEmitter(L"Bruh");
-
+    
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	component::GUI2DComponent* tc = sm->GetScene("FredriksTestScene")->GetEntity("text")->GetComponent<component::GUI2DComponent>();
 	AssetLoader* al = AssetLoader::Get();
@@ -2237,12 +2238,12 @@ void FredriksUpdateScene(SceneManager* sm)
 	red += 0.01;
 	green += 0.01;
 	blue += 0.01;
-
+    
 	if (tc->GetQuadManager()->HasBeenPressed())
 	{
 		Log::Print("PRESSED!\n");
 	}
-
+    
 	std::string name = "enemy";
 	for (int i = 1; i < 76; i++)
 	{
