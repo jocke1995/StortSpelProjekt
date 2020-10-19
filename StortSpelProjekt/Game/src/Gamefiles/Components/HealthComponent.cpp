@@ -41,7 +41,7 @@ void component::HealthComponent::SetHealth(int hp)
 
 void component::HealthComponent::ChangeHealth(int hpChange)
 {
-	m_Health += hpChange;
+	m_Health += hpChange * static_cast<float>(m_Health > 0);
 	if (m_Health <= 0 && m_Dead == false)
 	{
 		EventBus::GetInstance().Publish(&Death(m_pParent));
@@ -61,5 +61,10 @@ void component::HealthComponent::printDeath(Death* event)
 	if (event->ent == m_pParent)
 	{
 		Log::Print("%s died!\n", event->ent->GetName().c_str());
+		component::CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
+		cc->SetVelVector(0.0, 0.0, 0.0);
+		cc->SetAngularVelocity(0.0, 0.0, 0.0);
+		cc->SetAngularFactor({ 1.0, 1.0, 1.0 });
+		cc->SetFriction(1000.0);
 	}
 }

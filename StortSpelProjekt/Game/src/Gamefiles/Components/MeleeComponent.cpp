@@ -50,9 +50,11 @@ void component::MeleeComponent::Update(double dt)
 {
 	// Takes the transform of the player cube and moves it forward to act as a hitbox
 	m_MeleeTransformTwo = *m_pMeleeTransform;
-	float positonX = m_MeleeTransformTwo.GetPositionFloat3().x + 2*m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[0];
-	float positonY = m_MeleeTransformTwo.GetPositionFloat3().y + 2*m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[1];
-	float positonZ = m_MeleeTransformTwo.GetPositionFloat3().z + 2*m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[2];
+	double3 modelDim = m_pParent->GetComponent<component::ModelComponent>()->GetModelDim();
+	modelDim *= 0.5;
+	float positonX = m_MeleeTransformTwo.GetPositionFloat3().x + (modelDim.x + 1.0) * m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[0];
+	float positonY = m_MeleeTransformTwo.GetPositionFloat3().y + (modelDim.y + 1.0) * m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[1];
+	float positonZ = m_MeleeTransformTwo.GetPositionFloat3().z + (modelDim.z + 1.0) * m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[2];
 	
 	// Sets the position and updates the matrix to reflect movement of the player
 	m_MeleeTransformTwo.SetPosition(positonX, positonY, positonZ);
