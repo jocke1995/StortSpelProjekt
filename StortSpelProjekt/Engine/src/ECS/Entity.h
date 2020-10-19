@@ -1,12 +1,15 @@
 #ifndef ENTITY_H
 #define ENTITY_H
+
 // Renderer
 #include "Components/ModelComponent.h"
 #include "Components/TransformComponent.h"
 #include "Components/CameraComponent.h"
 #include "Components/BoundingBoxComponent.h"
-#include "Components/TextComponent.h"
+#include "Components/GUI2DComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/SkyboxComponent.h"
+
 // Audio
 #include "Components/Audio2DVoiceComponent.h"
 #include "Components/Audio3DListenerComponent.h"
@@ -16,13 +19,15 @@
 #include "Components/Collision/SphereCollisionComponent.h"
 #include "Components/Collision/CubeCollisionComponent.h"
 #include "Components/Collision/CapsuleCollisionComponent.h"
+#include "Components/Collision/HeightmapCollisionComponent.h"
 
 #include "../../Game/src/Gamefiles/Components/GameComponents.h"
 
 // Lights
-class DirectionalLightComponent;
-class PointLightComponent;
-class SpotLightComponent;
+#include "Components/Lights/PointLightComponent.h"
+#include "Components/Lights/DirectionalLightComponent.h"
+#include "Components/Lights/SpotLightComponent.h"
+
 
 static unsigned int staticID = 0;
 class Entity
@@ -50,9 +55,13 @@ public:
 	void Update(double dt);
 	void RenderUpdate(double dt);
 
+	void OnInitScene();
+
 	std::vector<Component*>* GetAllComponents();
 
 private:
+	friend class SceneManager;
+
 	unsigned int m_Id = -1;
 	std::string m_Name = "";
 	

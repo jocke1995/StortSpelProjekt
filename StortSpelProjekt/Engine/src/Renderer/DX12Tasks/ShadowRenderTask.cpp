@@ -11,7 +11,7 @@
 #include "../ShadowInfo.h"
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
-#include "../Renderer/BaseCamera.h"
+#include "../Renderer/Camera/BaseCamera.h"
 
 ShadowRenderTask::ShadowRenderTask(
 	ID3D12Device5* device,

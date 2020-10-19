@@ -14,7 +14,6 @@ ConstantBuffer<SpotLight> spotLight[]		: register(b0, space2);
 
 ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
 ConstantBuffer<CB_PER_FRAME_STRUCT>  cbPerFrame  : register(b3, space3);
-ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b4, space3);
 
 float4 PS_main(VS_OUT input) : SV_TARGET0
 {

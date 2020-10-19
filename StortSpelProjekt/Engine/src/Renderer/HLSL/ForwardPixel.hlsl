@@ -20,7 +20,7 @@ ConstantBuffer<SpotLight> spotLight[]		: register(b0, space2);
 
 ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
 ConstantBuffer<CB_PER_FRAME_STRUCT>  cbPerFrame  : register(b3, space3);
-ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b4, space3);
+
 
 PS_OUTPUT PS_main(VS_OUT input)
 {
@@ -80,7 +80,7 @@ PS_OUTPUT PS_main(VS_OUT input)
 	for (unsigned int i = 0; i < cbPerScene.Num_Spot_Lights; i++)
 	{
 		int index = cbPerScene.spotLightIndices[i].x;
-
+	
 		finalColor += CalcSpotLight(
 			spotLight[index],
 			camPos,
@@ -93,10 +93,13 @@ PS_OUTPUT PS_main(VS_OUT input)
 			baseReflectivity);
 	}
 	
-	float3 ambient = float3(0.03f, 0.03f, 0.03f) * albedo;
+	float3 ambient = float3(0.004f, 0.004f, 0.004f) * albedo;
 	finalColor += ambient;
 
-	finalColor += emissive.rgb;
+	// Since hdr will lower the intensity of our emissive textures, our quick solution in this game is to
+	// just use plain colors as emissive textures (255, 0, 255) or (0, 255, 0) etc. So basicly we cannot
+	// use emissive textures like this(200, 50, 0). The intesity is increased so that a red emissive texture actually stays red after HDR.
+	finalColor += (emissive.rgb * 1000);
 
 	PS_OUTPUT output;
 	output.sceneColor = float4(finalColor.rgb, 1.0f);

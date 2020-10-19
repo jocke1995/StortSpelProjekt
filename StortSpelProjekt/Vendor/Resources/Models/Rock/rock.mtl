@@ -1,7 +1,7 @@
 # Blender MTL File: 'None'
 # Material Count: 1
 
-newmtl None
+newmtl rockmat
 map_Ka rock_ambient.jpg
 map_Kd rock_diffuse.jpg
 map_Ks rock_specular.jpg

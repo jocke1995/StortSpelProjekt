@@ -3,15 +3,18 @@
 
 #include "../RenderView.h"
 #include "../RootSignature.h"
-// #include "../ConstantBuffer.h"
 #include "../CommandInterface.h"
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
+#include "../PipelineState.h"
+#include "../TextManager.h"
+
 #include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/Resource.h"
-#include "../PipelineState.h"
-#include "../Text.h"
-#include "../../ECS/Components/TextComponent.h"
+
+#include "../Misc/GUI2DElements/Text.h"
+
+#include "../../ECS/Components/GUI2DComponent.h"
 
 TextTask::TextTask(ID3D12Device5* device, 
 	RootSignature* rootSignature, 
@@ -27,7 +30,7 @@ TextTask::~TextTask()
 {
 }
 
-void TextTask::SetTextComponents(std::vector<component::TextComponent*>* textComponents)
+void TextTask::SetTextComponents(std::vector<component::GUI2DComponent*>* textComponents)
 {
 	m_TextComponents = *textComponents;
 }
@@ -64,7 +67,8 @@ void TextTask::Execute()
 		D3D12_RESOURCE_STATE_PRESENT,
 		D3D12_RESOURCE_STATE_RENDER_TARGET));
   
-	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(m_BackBufferIndex);
+	unsigned int renderTargetIndex = m_pSwapChain->GetRTV(m_BackBufferIndex)->GetDescriptorHeapIndex();
+	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(renderTargetIndex);
 	commandList->OMSetRenderTargets(1, &cdhSwapChain, true, nullptr);
 
 	commandList->RSSetViewports(1, swapChainRenderTarget->GetRenderView()->GetViewPort());
@@ -72,7 +76,7 @@ void TextTask::Execute()
 
 	for (int i = 0; i < m_TextComponents.size(); i++)
 	{
-		component::TextComponent* tc = m_TextComponents.at(i);
+		component::GUI2DComponent* tc = m_TextComponents.at(i);
 		draw(commandList, tc);
 	}
 
@@ -85,12 +89,12 @@ void TextTask::Execute()
 	commandList->Close();
 }
 
-void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::TextComponent* tc)
+void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::GUI2DComponent* tc)
 {
-	int nrOfCharacters;
-	for (int i = 0; i < tc->GetNumOfTexts(); i++)
+	int nrOfCharacters = 0;
+	for (auto textMap : *tc->GetTextManager()->GetTextMap())
 	{
-		Text* text = tc->GetText(i);
+		Text* text = textMap.second;
 
 		// Create a CB_PER_OBJECT struct
 		SlotInfo* info = text->GetSlotInfo();

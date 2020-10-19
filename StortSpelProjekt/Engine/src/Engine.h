@@ -4,8 +4,9 @@
 // Miscellaneous
 #include "Misc/Window.h"
 #include "Misc/Timer.h"
-#include "Misc/ThreadPool.h"
+#include "Misc/MultiThreading/ThreadPool.h"
 #include "Misc/Option.h"
+#include "Misc/NavMesh.h"
 
 // Entity Component System
 #include "ECS/SceneManager.h"
@@ -16,15 +17,17 @@
 #include "ECS/Components/Lights/PointLightComponent.h"
 #include "ECS/Components/Lights/SpotLightComponent.h"
 #include "ECS/Components/CameraComponent.h"
-#include "ECS/Components/TextComponent.h"
+#include "ECS/Components/GUI2DComponent.h"
 #include "ECS/Components/SkyboxComponent.h"
 
 // Sub-engines
 #include "Renderer/Renderer.h"
 #include "Renderer/Transform.h"
-#include "Renderer/Model.h"
+#include "Renderer/HeightmapModel.h"
 #include "Renderer/Mesh.h"
-#include "Renderer/BaseCamera.h"
+#include "Renderer/TextManager.h"
+#include "Renderer/QuadManager.h"
+#include "Renderer/Camera/BaseCamera.h"
 #include "Physics/Physics.h"
 #include "AudioEngine/AudioBuffer.h"
 

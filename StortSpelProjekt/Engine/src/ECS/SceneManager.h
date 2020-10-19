@@ -3,6 +3,8 @@
 
 #include "Scene.h"
 #include "../Renderer/MousePicker.h"
+#include <set>
+#include <unordered_map>
 
 class Entity;
 class Renderer;
@@ -11,24 +13,32 @@ class AudioEngine;
 class SceneManager 
 {
 public:
-	SceneManager(Renderer* r);
+	SceneManager();
 	~SceneManager();
 
+	// Update
+	void Update(double dt);
+	void RenderUpdate(double dt);
+
+	// Scene
 	Scene* CreateScene(std::string sceneName);
-
+	void SetScenes(unsigned int numScenes, Scene** scene);
+	std::vector<Scene*>* GetActiveScenes();
 	Scene* GetScene(std::string sceneName) const;
+	void ResetScene();
 
-	void RemoveEntity(Entity* entity);
-	void AddEntity(Entity* entity);
-	void SetScene(Scene* scene);
+	// Entity
+	void RemoveEntity(Entity* entity, Scene* scene);
+	void AddEntity(Entity* entity, Scene* scene);
+
 private:
-	Renderer* m_pRenderer;
+	std::map<std::string, Scene*> m_Scenes;
+	std::vector<Scene*> m_ActiveScenes;
+	std::set<Scene*> m_LoadedScenes;
 
-	std::map<std::string, Scene*> m_pScenes;
+	std::unordered_map<Entity*, bool> m_IsEntityInited;
 
 	bool sceneExists(std::string sceneName) const;
-	void executeCopyOnDemand();
-	void resetScene();
 };
 
 #endif

@@ -12,6 +12,7 @@ ClientPool::ClientPool(int port)
 	m_Selector.add(m_Listener);
 
 	m_pAvailableClient = nullptr;
+	m_pHostClient = nullptr;
 	m_AvailableClientId = 0;
 }
 
@@ -33,9 +34,29 @@ void ClientPool::ListenMessages()
 				if(m_Selector.isReady(m_Clients.at(i)->socket))
 				{
 					newPacket(i);
-					break;
 				}
 			}
+		}
+	}
+}
+
+void ClientPool::Update(double dt)
+{
+	for (int i = 0; i < m_Clients.size(); i++)
+	{
+		if (m_Clients.at(i)->connected)
+		{
+			//TIMEOUT
+			m_Clients.at(i)->lastPacket += dt;
+			if (m_Clients.at(i)->lastPacket >= CLIENT_TIMEOUT)
+			{
+				m_ConsoleString += "Client " + std::to_string(m_Clients.at(i)->clientId) + " has timed out\n";
+				disconnect(i);
+			}
+			//PLAYER POSITION
+			sendPlayerPositions();
+			//ENEMIES
+			sendEnemyPositions();
 		}
 	}
 }
@@ -67,6 +88,16 @@ int ClientPool::GetNrOfConnectedClients()
 	return count;
 }
 
+void ClientPool::ToggleShowPackage()
+{
+	m_ShowPackage = !m_ShowPackage;
+}
+
+void ClientPool::SetState(ServerGame* state)
+{
+	m_pState = state;
+}
+
 void ClientPool::RemoveUnconnected()
 {
 	for (int i = 0; i < m_Clients.size(); i++)
@@ -82,9 +113,128 @@ void ClientPool::RemoveUnconnected()
 std::string ClientPool::GetConsoleString()
 {
 	std::string temp = m_ConsoleString;
-	m_ConsoleString.clear();
+	m_ConsoleString = "";
 
 	return temp;
+}
+
+void ClientPool::playerPosition(int index, sf::Packet packet)
+{
+	float3 position;
+	double4 rotation;
+	double3 velocity;
+
+	packet >> position.x >> position.y >> position.z;
+	packet >> rotation.x >> rotation.y >> rotation.z >> rotation.w;
+	packet >> velocity.x >> velocity.y >> velocity.z;
+
+	m_pState->UpdateEntity(std::string("player" + std::to_string(m_Clients.at(index)->clientId)), position, rotation, velocity);
+}
+
+void ClientPool::enemyData(int index, sf::Packet packet)
+{
+	/* Expected packet configuration
+	int nrOfEnemies
+	for(nrOfEnemies)
+		float3 position
+		std::string name
+	*/
+	int nrOfEnemies;
+	packet >> nrOfEnemies;
+	for (int i = 0; i < nrOfEnemies; i++)
+	{
+		EnemyEntity* entity;
+		float3 pos;
+		std::string name;
+
+		packet >> pos.x >> pos.y >> pos.z;
+		packet >> name;
+		entity = m_pState->GetEnemy(name);
+		if (entity == nullptr)
+		{
+			m_pState->AddEnemy(name, pos);
+		}
+		else
+		{
+			entity->position = pos;
+		}
+	}
+}
+
+void ClientPool::sendEnemyPositions()
+{
+	sf::Packet packet;
+	packet << Network::E_PACKET_ID::ENEMY_DATA;
+	packet << m_pState->GetNrOfEnemies();
+
+	for (int i = 0; i < m_pState->GetNrOfEnemies(); i++)
+	{
+		float3 pos = m_pState->GetEnemies()->at(i)->position;
+		packet << pos.x << pos.y << pos.z;
+		packet << m_pState->GetEnemies()->at(i)->name;
+	}
+	for (int i = 0; i < m_Clients.size(); i++)
+	{
+		if (m_Clients.at(i)->connected && m_Clients.at(i) != m_pHostClient)
+		{
+			sendPacket(i, packet);
+		}
+	}
+}
+
+void ClientPool::sendPlayerPositions()
+{
+	sf::Packet packet;
+	packet << Network::E_PACKET_ID::PLAYER_DATA;
+	packet << GetNrOfConnectedClients();
+
+	for (int i = 0; i < m_Clients.size(); i++)
+	{
+		if (m_Clients.at(i)->connected)
+		{
+			ServerEntity* playerEntity;
+			playerEntity = m_pState->GetEntity("player" + std::to_string(m_Clients.at(i)->clientId));
+
+			packet << m_Clients.at(i)->clientId;
+			packet << playerEntity->position.x << playerEntity->position.y << playerEntity->position.z;
+			packet << playerEntity->rotation.x << playerEntity->rotation.y << playerEntity->rotation.z << playerEntity->rotation.w;
+			packet << playerEntity->velocity.x << playerEntity->velocity.y << playerEntity->velocity.z;
+		}
+	}
+	for (int i = 0; i < m_Clients.size(); i++)
+	{
+		if (m_Clients.at(i)->connected)
+		{
+			sendPacket(i, packet);
+		}
+	}
+}
+
+void ClientPool::disconnect(int index)
+{
+	m_Selector.remove(m_Clients.at(index)->socket);
+	m_Clients.at(index)->connected = false;
+	m_Clients.at(index)->socket.disconnect();
+	m_Clients.at(index)->lastPacket = 0;
+
+	m_pAvailableClient = m_Clients.at(index);
+	m_AvailableClientId = m_Clients.at(index)->clientId;
+
+	m_pState->RemoveEntity("player" + std::to_string(index));
+
+	sf::Packet packet;
+	packet << Network::E_PACKET_ID::PLAYER_DISCONNECT;
+	packet << m_Clients.at(index)->clientId;
+
+	for (int i = 0; i < m_Clients.size(); i++)
+	{
+		if (m_Clients.at(i)->connected)
+		{
+			m_Clients.at(i)->socket.send(packet);
+		}
+	}
+
+	m_ConsoleString += "Player " + std::to_string(index) + " was disconnected. There are " + std::to_string(GetNrOfConnectedClients()) + " clients connected\n";
 }
 
 void ClientPool::newConnection()
@@ -97,9 +247,36 @@ void ClientPool::newConnection()
 		{
 			m_pAvailableClient->connected = true;
 			m_Selector.add(m_pAvailableClient->socket);
-			m_pAvailableClient->clientId = m_AvailableClientId++;
+			m_pAvailableClient->clientId = m_AvailableClientId;
 
-			//m_ConsoleString.append(m_pAvailableClient->socket.getRemoteAddress().toString() + " connected to server\n");
+			if (m_pHostClient == nullptr)
+			{
+				m_pHostClient = m_pAvailableClient;
+				m_ConsoleString = "Assigned client " + std::to_string(m_pHostClient->clientId) + " to be host\n";
+			}
+
+			m_pState->AddEntity("player" + std::to_string(m_AvailableClientId));
+
+			//Search for an avaible id to give to next client
+			for (int i = 0; i < m_Clients.size(); i++)
+			{
+				bool idFound = false;
+				for (int j = 0; j < m_Clients.size(); j++)
+				{
+					if (i == m_Clients.at(j)->clientId)
+					{
+						idFound = true;
+						break;
+					}
+				}
+				if (!idFound)
+				{
+					m_AvailableClientId = i;
+					break;
+				}
+			}
+
+			m_ConsoleString = "Client connected to server\n";
 
 			m_pAvailableClient = nullptr;
 
@@ -114,6 +291,14 @@ void ClientPool::newConnection()
 			}
 
 			//Send a packet of server info to all clients
+			/*Packet Layout
+			int packetId;
+			int connected Player Id;
+			int amount of connected players;
+			for(amount of connected players)
+				int player id;
+			int host id;
+			*/
 			for (int i = 0; i < m_Clients.size(); i++)
 			{
 				if (m_Clients.at(i)->connected == true)
@@ -129,7 +314,8 @@ void ClientPool::newConnection()
 							packet << m_Clients.at(j)->clientId;
 						}
 					}
-					m_Clients.at(i)->socket.send(packet);
+					packet << m_pHostClient->clientId;
+					sendPacket(i, packet);
 				}
 			}
 		}
@@ -141,16 +327,78 @@ void ClientPool::newPacket(int socket)
 	sf::Packet packet;
 	if (m_Clients.at(socket)->socket.receive(packet) == sf::Socket::Done)
 	{
-		m_ConsoleString.append("Recieved a packet from client " + std::to_string(socket) + "; " + std::to_string(packet.getDataSize()) + " BYTES\n");
-		for (int i = 0; i < m_Clients.size(); i++)
+		int packetId;
+		packet >> packetId;
+
+		m_Clients.at(socket)->lastPacket = 0;
+
+		if (m_ShowPackage)
 		{
-			if (i != socket)
+			m_ConsoleString.append("Recieved a packet from with id " + std::to_string(packetId) + " from client " + std::to_string(socket) + "; " + std::to_string(packet.getDataSize()) + " BYTES\n");
+		}
+
+		if (DEVELOPERMODE_NETWORKLOG)
+		{
+			if (m_ClockReceived.StopTimer() > 1.0)
 			{
-				if (m_Clients.at(i)->connected)
+				std::ostringstream oss;
+				oss << std::setprecision(8) << m_NrOfBytesReceived;
+				std::string str = oss.str();
+
+				m_ConsoleString.append("Total packages received: " + std::to_string(m_NrOfPackagesReceived) + " Size: " + str + " BYTES\n");
+
+				m_ClockReceived.StartTimer();
+				m_NrOfBytesReceived = 0;
+				m_NrOfPackagesReceived = 0;
+			}
+
+			m_NrOfBytesReceived += packet.getDataSize();
+			m_NrOfPackagesReceived += 1;
+		}	
+
+		switch(packetId) {
+		case Network::E_PACKET_ID::PLAYER_DATA:
+			playerPosition(socket, packet);
+			break;
+		case Network::E_PACKET_ID::PLAYER_DISCONNECT:
+			disconnect(socket);
+			break;
+		case Network::ENEMY_DATA:
+			enemyData(socket, packet);
+			break;
+		default: 
+			for (int i = 0; i < m_Clients.size(); i++)
+			{
+				if (i != socket)
 				{
-					m_Clients.at(i)->socket.send(packet);
+					sendPacket(i, packet);
+					
 				}
 			}
+			break;
+		}
+	}
+}
+
+void ClientPool::sendPacket(int index, sf::Packet packet)
+{
+	m_Clients.at(index)->socket.send(packet);
+	if (DEVELOPERMODE_NETWORKLOG)
+	{
+		m_NrOfBytesSent += packet.getDataSize();
+		m_NrOfPackagesSent += 1;
+
+		if (m_ClockSent.StopTimer() > 1.0)
+		{
+			std::ostringstream oss;
+			oss << std::setprecision(8) << m_NrOfBytesSent;
+			std::string str = oss.str();
+
+			m_ConsoleString.append("Total packages sent: " + std::to_string(m_NrOfPackagesSent) + " Size: " + str + " BYTES\n");
+
+			m_ClockSent.StartTimer();
+			m_NrOfBytesSent = 0;
+			m_NrOfPackagesSent = 0;
 		}
 	}
 }

@@ -23,11 +23,11 @@ void component::Audio3DEmitterComponent::Update(double dt)
 {
 }
 
-void component::Audio3DEmitterComponent::InitScene()
+void component::Audio3DEmitterComponent::OnInitScene()
 {
 }
 
-void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)
+void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring& name)
 {
 	// get parent entity and look for transform components and get update position
 	m_pTransform = m_pParent->GetComponent<TransformComponent>()->GetTransform();
@@ -42,10 +42,10 @@ void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)
 
 	// calculates values relative to the emitter and listener and saves values in emitter.DSPSettings
 	X3DAudioCalculate(
-		*AudioEngine::GetInstance().GetX3DInstance(), 
-		AudioEngine::GetInstance().GetListener(), 
-		&m_VoiceEmitterData[name].emitter, 
-		X3DAUDIO_CALCULATE_MATRIX, 
+		*AudioEngine::GetInstance().GetX3DInstance(),
+		AudioEngine::GetInstance().GetListener(),
+		&m_VoiceEmitterData[name].emitter,
+		X3DAUDIO_CALCULATE_MATRIX,
 		&m_VoiceEmitterData[name].DSPSettings);
 
 	// temporary solution due to strange behaviour of the way matrixcoefficients are saved
@@ -55,9 +55,9 @@ void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring &name)
 
 	// sets output matrix for the sound according to the matrix coefficients calculated earlier (changes the soundchannel levels)
 	m_VoiceEmitterData[name].voice.GetSourceVoice()->SetOutputMatrix(
-		AudioEngine::GetInstance().GetMasterVoice(), 
-		m_VoiceEmitterData[name].voiceDetails.InputChannels, 
-		AudioEngine::GetInstance().GetDeviceDetails()->InputChannels, 
+		AudioEngine::GetInstance().GetMasterVoice(),
+		m_VoiceEmitterData[name].voiceDetails.InputChannels,
+		AudioEngine::GetInstance().GetDeviceDetails()->InputChannels,
 		m_VoiceEmitterData[name].DSPSettings.pMatrixCoefficients);
 }
 
@@ -68,25 +68,28 @@ void component::Audio3DEmitterComponent::AddVoice(const std::wstring& name)
 		EmitterData emitterData;
 		// add new sound and get details
 		emitterData.voice = AssetLoader::Get()->GetAudio(name)->CloneVoice();
-		emitterData.voice.GetSourceVoice()->GetVoiceDetails(&emitterData.voiceDetails);
-		// set emitter settings for 3d audio calculations
-		emitterData.emitter = { 0 };
-		emitterData.emitter.ChannelCount = emitterData.voiceDetails.InputChannels;
-		emitterData.emitter.CurveDistanceScaler = 1.0f;
-		emitterData.emitter.OrientFront = DirectX::XMFLOAT3(0.0, 0.0, 0.0); // direction the sound will be facing, this is later updated to parent entity direction
-		emitterData.emitter.OrientTop = DirectX::XMFLOAT3(0.0, 1.0, 0.0); // up vector, this is later updated to change with the parent entitys up vector
-		emitterData.emitter.ChannelRadius = 0.0f;
-		emitterData.emitter.pChannelAzimuths = new FLOAT32[emitterData.voiceDetails.InputChannels];
-		emitterData.emitter.pChannelAzimuths[0] = X3DAUDIO_PI / 4;
-		emitterData.emitter.pChannelAzimuths[1] = 7 * X3DAUDIO_PI / 4;
-		 // prepare DSPSettings according to the voice details
-		emitterData.DSPSettings.SrcChannelCount = emitterData.voiceDetails.InputChannels;
-		emitterData.DSPSettings.DstChannelCount = AudioEngine::GetInstance().GetDeviceDetails()->InputChannels;
-		int coefficients = emitterData.DSPSettings.SrcChannelCount * emitterData.DSPSettings.DstChannelCount;
-		emitterData.DSPSettings.pMatrixCoefficients = new FLOAT32[coefficients];
+		if (emitterData.voice.GetSourceVoice() != nullptr)
+		{
+			emitterData.voice.GetSourceVoice()->GetVoiceDetails(&emitterData.voiceDetails);
+			// set emitter settings for 3d audio calculations
+			emitterData.emitter = { 0 };
+			emitterData.emitter.ChannelCount = emitterData.voiceDetails.InputChannels;
+			emitterData.emitter.CurveDistanceScaler = 1.0f;
+			emitterData.emitter.OrientFront = DirectX::XMFLOAT3(0.0, 0.0, 0.0); // direction the sound will be facing, this is later updated to parent entity direction
+			emitterData.emitter.OrientTop = DirectX::XMFLOAT3(0.0, 1.0, 0.0); // up vector, this is later updated to change with the parent entitys up vector
+			emitterData.emitter.ChannelRadius = 0.0f;
+			emitterData.emitter.pChannelAzimuths = new FLOAT32[emitterData.voiceDetails.InputChannels];
+			emitterData.emitter.pChannelAzimuths[0] = X3DAUDIO_PI / 4;
+			emitterData.emitter.pChannelAzimuths[1] = 7 * X3DAUDIO_PI / 4;
+			// prepare DSPSettings according to the voice details
+			emitterData.DSPSettings.SrcChannelCount = emitterData.voiceDetails.InputChannels;
+			emitterData.DSPSettings.DstChannelCount = AudioEngine::GetInstance().GetDeviceDetails()->InputChannels;
+			int coefficients = emitterData.DSPSettings.SrcChannelCount * emitterData.DSPSettings.DstChannelCount;
+			emitterData.DSPSettings.pMatrixCoefficients = new FLOAT32[coefficients];
 
-		// put emitterData struct in the map with key
-		m_VoiceEmitterData.emplace(std::make_pair(name, emitterData));
+			// put emitterData struct in the map with key
+			m_VoiceEmitterData.emplace(std::make_pair(name, emitterData));
+		}
 	}
 }
 

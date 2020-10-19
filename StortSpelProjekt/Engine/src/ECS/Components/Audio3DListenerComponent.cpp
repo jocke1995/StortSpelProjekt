@@ -21,7 +21,7 @@ void component::Audio3DListenerComponent::Update(double dt)
 	UpdateListener();
 }
 
-void component::Audio3DListenerComponent::InitScene()
+void component::Audio3DListenerComponent::OnInitScene()
 {
 }
 

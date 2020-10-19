@@ -43,7 +43,7 @@ ViewPool::~ViewPool()
 	}
 }
 
-ConstantBuffer* ViewPool::GetFreeCBV(unsigned int size, std::wstring resourceName)
+ConstantBuffer* ViewPool::GetFreeCB(unsigned int size, std::wstring resourceName)
 {
 	unsigned int sizeAligned = (size + 255) & ~255;
 
@@ -164,7 +164,6 @@ ConstantBuffer* ViewPool::createConstantBuffer(unsigned int size, std::wstring r
 
 ShadowInfo* ViewPool::createShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION shadowResolution)
 {
-	
 	unsigned int depthTextureWidth = 0;
 	unsigned int depthTextureHeight = 0;
 	switch (lightType)
@@ -173,18 +172,14 @@ ShadowInfo* ViewPool::createShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION s
 		switch (shadowResolution)
 		{
 		case SHADOW_RESOLUTION::LOW:
-			depthTextureWidth = 512;
-			depthTextureHeight = 512;
-			break;
-		case SHADOW_RESOLUTION::MEDIUM:
 			depthTextureWidth = 1024;
 			depthTextureHeight = 1024;
 			break;
-		case SHADOW_RESOLUTION::HIGH:
+		case SHADOW_RESOLUTION::MEDIUM:
 			depthTextureWidth = 2048;
 			depthTextureHeight = 2048;
 			break;
-		case SHADOW_RESOLUTION::ULTRA:
+		case SHADOW_RESOLUTION::HIGH:
 			depthTextureWidth = 4096;
 			depthTextureHeight = 4096;
 			break;
@@ -194,18 +189,14 @@ ShadowInfo* ViewPool::createShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION s
 		switch (shadowResolution)
 		{
 		case SHADOW_RESOLUTION::LOW:
-			depthTextureWidth = 256;
-			depthTextureHeight = 256;
-			break;
-		case SHADOW_RESOLUTION::MEDIUM:
 			depthTextureWidth = 512;
 			depthTextureHeight = 512;
 			break;
-		case SHADOW_RESOLUTION::HIGH:
+		case SHADOW_RESOLUTION::MEDIUM:
 			depthTextureWidth = 1024;
 			depthTextureHeight = 1024;
 			break;
-		case SHADOW_RESOLUTION::ULTRA:
+		case SHADOW_RESOLUTION::HIGH:
 			depthTextureWidth = 2048;
 			depthTextureHeight = 2048;
 			break;
@@ -215,18 +206,14 @@ ShadowInfo* ViewPool::createShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION s
 		switch (shadowResolution)
 		{
 		case SHADOW_RESOLUTION::LOW:
-			depthTextureWidth = 512;
-			depthTextureHeight = 512;
-			break;
-		case SHADOW_RESOLUTION::MEDIUM:
 			depthTextureWidth = 1024;
 			depthTextureHeight = 1024;
 			break;
-		case SHADOW_RESOLUTION::HIGH:
+		case SHADOW_RESOLUTION::MEDIUM:
 			depthTextureWidth = 2048;
 			depthTextureHeight = 2048;
 			break;
-		case SHADOW_RESOLUTION::ULTRA:
+		case SHADOW_RESOLUTION::HIGH:
 			depthTextureWidth = 4096;
 			depthTextureHeight = 4096;
 			break;

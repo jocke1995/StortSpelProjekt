@@ -1,8 +1,4 @@
 #include "Engine.h"
-#include "Components/PlayerInputComponent.h"
-#include "Components/HealthComponent.h"
-#include "Components/RangeComponent.h"
-#include "Components/MeleeComponent.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 
@@ -10,6 +6,8 @@ Scene* GetDemoScene(SceneManager* sm);
 void(*UpdateScene)(SceneManager*);
 void DemoUpdateScene(SceneManager* sm);
 void DefaultUpdateScene(SceneManager* sm);
+
+EnemyFactory enemyFactory;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -19,6 +17,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Option* option = &Option::GetInstance();
     option->ReadFile();
     float updateRate = 1.0f / std::atof(option->GetVariable("f_updateRate").c_str());
+    float networkUpdateRate = 1.0f / std::atof(option->GetVariable("f_networkUpdateRate").c_str());
 
     /* ------ Engine  ------ */
     Engine engine;
@@ -40,27 +39,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     /*----- Set the scene -----*/
-    sceneManager->SetScene(GetDemoScene(sceneManager));
+    Scene* demoScene = GetDemoScene(sceneManager);
+    sceneManager->SetScenes(1, &demoScene);
 
     GameNetwork gameNetwork;
 
     /*------ Network Init -----*/
-    bool networkOn = false;
-    Network network;
-
-    gameNetwork.SetNetwork(&network);
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScene(sceneManager->GetScene("DemoScene"));
+        gameNetwork.SetScenes(sceneManager->GetActiveScenes());
         gameNetwork.SetSceneManager(sceneManager);
-
-        network.SetPlayerEntityPointer(sceneManager->GetScene("DemoScene")->GetEntity("player"), 0);
-        network.ConnectToIP(option->GetVariable("s_ip"), std::atoi(option->GetVariable("i_port").c_str()));
-
-        networkOn = true;
+        gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
     }
-    int networkCount = 0;
+    double networkTimer = 0;
     double logicTimer = 0;
     int count = 0;
 
@@ -72,26 +64,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         timer->Update();
         logicTimer += timer->GetDeltaTime();
+        if (gameNetwork.IsConnected())
+        {
+            networkTimer += timer->GetDeltaTime();
+        }
 
-        renderer->RenderUpdate(timer->GetDeltaTime());
+        sceneManager->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
-            networkCount++;
-            renderer->Update(updateRate);
+            sceneManager->Update(updateRate);
             physics->Update(updateRate);
         }
 
         /* ---- Network ---- */
-        if (networkOn)
+        if (gameNetwork.IsConnected())
         {
-            if (networkCount == 2) {
-                networkCount = 0;
+            if (networkTimer >= networkUpdateRate) {
+                networkTimer = 0;
 
-                network.SendPositionPacket();
-                while (network.ListenPacket());
+                gameNetwork.Update(networkUpdateRate);
             }
         }
+
 
         /* ------ Sort ------ */
         renderer->SortObjects();
@@ -188,58 +183,58 @@ Scene* GetDemoScene(SceneManager* sm)
 
     /* ---------------------- dirLight ---------------------- */
     entity = scene->AddEntity("dirLight");
-    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION);
-    dlc->SetColor({ 0.3f, 0.3f, 0.3f });
-    dlc->SetDirection({ -0.01f, -1.0f, 0.01f });
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
+    dlc->SetColor({ 1.0f, 1.0f, 1.0f });
+    dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Spotlights ---------------------- */
     entity = scene->AddEntity("SpotlightRed");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION);
-
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
+    
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(-50.0f, 3.0f, 50.0f);
-
+    
     slc->SetColor({ 10.0f, 0.0f, 0.0f });
-    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetAttenuation({ 1.0f, 0.14, 0.07f});
     slc->SetDirection({ 1.0, -0.5, -1.0f });
-
+    
     entity = scene->AddEntity("SpotlightGreen");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION);
-
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
+    
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(50.0f, 3.0f, 50.0f);
-
+    
     slc->SetColor({ 0.0f, 10.0f, 0.0f });
-    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetAttenuation({ 1.0f, 0.14, 0.07f });
     slc->SetDirection({ -1.0, -0.5, -1.0f });
-
+    
     entity = scene->AddEntity("SpotlightBlue");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION);
-
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
+    
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(50.0f, 3.0f, -50.0f);
-
+    
     slc->SetColor({ 0.0f, 0.0f, 10.0f });
-    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetAttenuation({ 1.0f, 0.14, 0.07f });
     slc->SetDirection({ -1.0, -0.5, 1.0f });
 
     entity = scene->AddEntity("SpotlightYellow");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW_HIGH_RESOLUTION);
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::CAST_SHADOW);
 
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -247,7 +242,7 @@ Scene* GetDemoScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(-50.0f, 3.0f, -50.0f);
 
     slc->SetColor({ 10.0f, 10.0f, 0.0f });
-    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetAttenuation({ 1.0f, 0.14, 0.07f });
     slc->SetDirection({ 1.0, -0.5, 1.0f });
     /* ---------------------- Spotlights ---------------------- */
 
@@ -283,8 +278,8 @@ Scene* GetDemoScene(SceneManager* sm)
 
 
     /* ---------------------- Enemy -------------------------------- */
-    EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", L"attack", F_COMP_FLAGS::OBB, 0.3, float3{ 0, 0, 0 });
+    enemyFactory.SetScene(scene);
+    entity = enemyFactory.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
 
     // add bunch of enemies
     float xVal = 8;
@@ -293,7 +288,7 @@ Scene* GetDemoScene(SceneManager* sm)
     for (int i = 0; i < 75; i++)
     {
         zVal += 8;
-        entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
+        entity = enemyFactory.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
         if ((i + 1) % 5 == 0)
         {
             xVal += 8;
@@ -301,7 +296,6 @@ Scene* GetDemoScene(SceneManager* sm)
         }
     }
     /* ---------------------- Enemy -------------------------------- */
-
 
     /* ---------------------- Skybox ---------------------- */
     TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");

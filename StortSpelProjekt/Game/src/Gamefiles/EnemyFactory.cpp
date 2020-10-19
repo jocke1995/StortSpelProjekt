@@ -3,6 +3,10 @@
 #include "Engine.h"
 #include "Components/HealthComponent.h"
 
+EnemyFactory::EnemyFactory()
+{
+}
+
 EnemyFactory::EnemyFactory(Scene* scene)
 {
 	m_pScene = scene;
@@ -20,7 +24,12 @@ EnemyFactory::~EnemyFactory()
 	m_EnemyComps.clear();
 }
 
-Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, std::wstring sound2D, unsigned int flag, float scale, float3 rot, std::string aiTarget)
+void EnemyFactory::SetScene(Scene* scene)
+{
+	m_pScene = scene;
+}
+
+Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, float3 pos, std::wstring sound3D, unsigned int compFlags, unsigned int aiFlags, float scale, float3 rot, std::string aiTarget, float aiDetectionRadius, float aiAttackingDistance)
 {
 	for (auto pair : m_EnemyComps)
 	{
@@ -29,61 +38,28 @@ Entity* EnemyFactory::AddEnemy(std::string entityName, Model* model, int hp, flo
 		if (pair.first == entityName)
 		{
 			Log::PrintSeverity(Log::Severity::WARNING, "Enemy of this type \"%s\" already exists! Overloaded funtion will be used instead!\n", entityName.c_str());
-			return AddExistingEnemyWithChanges(entityName, pos, flag, scale, rot);
+			return AddExistingEnemyWithChanges(entityName, pos, compFlags, aiFlags, scale, rot);
 		}
-	}
-	Entity *ent = m_pScene->AddEntity(entityName);
-	component::ModelComponent* mc = nullptr;
-	component::TransformComponent* tc = nullptr;
-	component::BoundingBoxComponent* bbc = nullptr;
-	component::CollisionComponent* cc = nullptr;
-	component::AiComponent* ai = nullptr;
-	component::Audio3DEmitterComponent* ae = nullptr;
-	component::Audio2DVoiceComponent* avc = nullptr;
-	m_EnemyComps[entityName] = new EnemyComps;
+	}	
+	EnemyComps* enemy = new EnemyComps;
+	m_EnemyComps[entityName] = enemy;
 
-	m_EnemyComps[entityName]->enemiesOfThisType++;
-	m_EnemyComps[entityName]->compFlags = flag;
-	m_EnemyComps[entityName]->pos = pos;
-	m_EnemyComps[entityName]->scale = scale;
-	m_EnemyComps[entityName]->rot = rot;
-	m_EnemyComps[entityName]->model = model;
-	m_EnemyComps[entityName]->targetName = aiTarget;
-	m_EnemyComps[entityName]->hp = hp;
-	m_EnemyComps[entityName]->sound3D = sound3D;
-	m_EnemyComps[entityName]->sound2D = sound2D;
+	enemy->enemiesOfThisType++;
+	enemy->compFlags = compFlags;
+	enemy->aiFlags = aiFlags;
+	enemy->pos = pos;
+	enemy->scale = scale;
+	enemy->rot = rot;
+	enemy->model = model;
+	enemy->targetName = aiTarget;
+	enemy->hp = hp;
+	enemy->sound3D = sound3D;
+	enemy->detectionRad = aiDetectionRadius;
+	enemy->attackingDist = aiAttackingDistance;
 
-	mc = ent->AddComponent<component::ModelComponent>();
-	tc = ent->AddComponent<component::TransformComponent>();	
-	ent->AddComponent<component::HealthComponent>(hp);
-	tc = ent->AddComponent<component::TransformComponent>();
-	cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, 1.0, 2.0);
-	Entity* target = m_pScene->GetEntity(aiTarget);
-	if (target != nullptr)
-	{
-		ai = ent->AddComponent<component::AiComponent>(target);
-	}
-	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
-	ae->AddVoice(sound3D);
-	avc = ent->AddComponent<component::Audio2DVoiceComponent>();
-	avc->AddVoice(sound2D);
+	enemy->dim = model->GetModelDim();
 
-	mc->SetModel(m_EnemyComps[entityName]->model/*model*/);
-	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-	tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
-	tc->GetTransform()->SetScale(scale);
-	tc->GetTransform()->SetRotationX(rot.x);
-	tc->GetTransform()->SetRotationY(rot.y);
-	tc->GetTransform()->SetRotationZ(rot.z);
-	tc->GetTransform()->SetVelocity(2.5);
-	if (F_COMP_FLAGS::OBB & flag)
-	{
-		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-		bbc->Init();
-		//m_enemyComps[entityName]->s_Components.push_back("");
-		Physics::GetInstance().AddCollisionEntity(ent);
-	}
-	return ent;
+	return Add(entityName, model, hp, pos, sound3D, compFlags, aiFlags, enemy->dim, scale, rot, aiTarget, aiDetectionRadius, aiAttackingDistance);
 }
 
 Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
@@ -94,47 +70,81 @@ Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
 		// so create a new one of the same type
 		if (pair.first == entityName)
 		{
-			std::string name = entityName + std::to_string(m_EnemyComps[entityName]->enemiesOfThisType);
-			Entity* ent = m_pScene->AddEntity(name);
-			m_EnemyComps[entityName]->enemiesOfThisType++;
-			component::ModelComponent* mc = nullptr;
-			component::TransformComponent* tc = nullptr;
-			component::BoundingBoxComponent* bbc = nullptr;
-			component::CollisionComponent* cc = nullptr;
-			component::AiComponent* ai = nullptr;
-			component::Audio3DEmitterComponent* ae = nullptr;
-			component::Audio2DVoiceComponent* avc = nullptr;
-			
-			mc = ent->AddComponent<component::ModelComponent>();
-			tc = ent->AddComponent<component::TransformComponent>();
-			ent->AddComponent<component::HealthComponent>(m_EnemyComps[entityName]->hp);
-			cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, 1.0, 2.0);
-			Entity* target = m_pScene->GetEntity(m_EnemyComps[entityName]->targetName);
-			if (target != nullptr)
+			EnemyComps* enemy = m_EnemyComps[entityName];
+			std::string name = entityName + std::to_string(enemy->enemiesOfThisType);
+			enemy->enemiesOfThisType++;
+
+			return Add(name, enemy->model, enemy->hp, pos, enemy->sound3D, enemy->compFlags, enemy->aiFlags, enemy->dim, enemy->scale, enemy->rot, enemy->targetName, enemy->detectionRad, enemy->attackingDist);
+		}
+		else
+		{
+			Log::PrintSeverity(Log::Severity::WARNING, "Insuficient input in parameters to add new type of enemy!\n");
+			return nullptr;
+		}
+	}
+}
+
+Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3 pos, unsigned int compFlags, unsigned int aiFlags, float scale, float3 rot, int hp)
+{
+	for (auto pair : m_EnemyComps)
+	{
+		std::string name = entityName + std::to_string(m_EnemyComps[entityName]->enemiesOfThisType);
+		EnemyComps* enemy = m_EnemyComps[entityName];
+		enemy->enemiesOfThisType++;
+
+		// An entity with this m_Name already exists
+		// so create a new onen of the same type
+		if (pair.first == entityName)
+		{
+			// if any of the inputs are not default values use them
+			// otherwise use the values from the struct
+			unsigned int newCompFlags;
+			if (compFlags != UINT_MAX)
 			{
-				ai = ent->AddComponent<component::AiComponent>(target);
+				newCompFlags = compFlags;
 			}
-			ae = ent->AddComponent<component::Audio3DEmitterComponent>();
-			ae->AddVoice(m_EnemyComps[entityName]->sound3D);
-			avc = ent->AddComponent<component::Audio2DVoiceComponent>();
-			avc->AddVoice(m_EnemyComps[entityName]->sound2D);
-
-
-			mc->SetModel(m_EnemyComps[entityName]->model);
-			mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-			tc->GetTransform()->SetPosition(pos.x, pos.y , pos.z);
-			tc->GetTransform()->SetScale(m_EnemyComps[entityName]->scale);
-			tc->GetTransform()->SetRotationX(m_EnemyComps[entityName]->rot.x);
-			tc->GetTransform()->SetRotationY(m_EnemyComps[entityName]->rot.y);
-			tc->GetTransform()->SetRotationZ(m_EnemyComps[entityName]->rot.z);
-
-			if (F_COMP_FLAGS::OBB & m_EnemyComps[entityName]->compFlags)
+			else
 			{
-				bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-				bbc->Init();
-				Physics::GetInstance().AddCollisionEntity(ent);
+				newCompFlags = enemy->compFlags;
 			}
-			return ent;
+			unsigned int newAiFlags;
+			if (aiFlags != UINT_MAX)
+			{
+				newAiFlags = aiFlags;
+			}
+			else
+			{
+				newAiFlags = enemy->aiFlags;
+			}
+			float newScale;
+			if (scale != FLT_MAX)
+			{
+				newScale = scale;
+			}
+			else
+			{
+				newScale = enemy->scale;
+			}
+			float3 newRot;
+			if (rot.x != FLT_MAX)
+			{
+				newRot = rot;
+			}
+			else
+			{
+				newRot = enemy->rot;
+			}
+			int newHP;
+			if (hp != INT_MAX)
+			{
+				newHP = hp;
+			}
+			else
+			{
+				newHP = enemy->hp;
+			}
+
+			return Add(name, enemy->model, newHP, pos, enemy->sound3D, newCompFlags, newAiFlags, enemy->dim, newScale, newRot, enemy->targetName, enemy->detectionRad, enemy->attackingDist);
 		}
 		else
 		{
@@ -144,94 +154,69 @@ Entity* EnemyFactory::AddExistingEnemy(std::string entityName, float3 pos)
 	}
 }
 
-Entity* EnemyFactory::AddExistingEnemyWithChanges(std::string entityName, float3 pos, unsigned int flag, float scale, float3 rot, int hp)
+Entity* EnemyFactory::Add(std::string name, Model* model, int hp, float3 pos, std::wstring sound3D, unsigned int compFlags, unsigned int aiFlags, double3 dim, float scale, float3 rot, std::string aiTarget, float aiDetectionRadius, float aiAttackingDistance)
 {
-	for (auto pair : m_EnemyComps)
+	Entity* ent = m_pScene->AddEntity(name);
+
+	m_Enemies.push_back(ent);
+
+	component::ModelComponent* mc = nullptr;
+	component::TransformComponent* tc = nullptr;
+	component::BoundingBoxComponent* bbc = nullptr;
+	component::CollisionComponent* cc = nullptr;
+	component::AiComponent* ai = nullptr;
+	component::Audio3DEmitterComponent* ae = nullptr;
+
+	mc = ent->AddComponent<component::ModelComponent>();
+	tc = ent->AddComponent<component::TransformComponent>();
+	ent->AddComponent<component::HealthComponent>(hp);
+
+	Entity* target = m_pScene->GetEntity(aiTarget);
+	if (target != nullptr)
 	{
-		// An entity with this m_Name already exists
-		// so create a new onen of the same type
-		if (pair.first == entityName)
-		{
-			// if any of the inputs are not default values use them
-			// otherwise use the values from the struct
-			unsigned int newFlag;
-			if (flag != UINT_MAX)
-			{
-				newFlag = flag;
-			}
-			else
-			{
-				newFlag = m_EnemyComps[entityName]->compFlags;
-			}
-			float newScale;
-			if (scale != FLT_MAX)
-			{
-				newScale = scale;
-			}
-			else
-			{
-				newScale = m_EnemyComps[entityName]->scale;
-			}
-			float3 newRot;
-			if (rot.x != FLT_MAX)
-			{
-				newRot = rot;
-			}
-			else
-			{
-				newRot = m_EnemyComps[entityName]->rot;
-			}
-			int newHP;
-			if (hp != INT_MAX)
-			{
-				newHP = hp;
-			}
-			else
-			{
-				newHP = m_EnemyComps[entityName]->hp;
-			}
-
-			std::string name = entityName + std::to_string(m_EnemyComps[entityName]->enemiesOfThisType);
-			Entity* ent = m_pScene->AddEntity(name);
-			m_EnemyComps[entityName]->enemiesOfThisType++;
-			component::ModelComponent* mc = nullptr;
-			component::TransformComponent* tc = nullptr;
-			component::BoundingBoxComponent* bbc = nullptr;
-			component::CollisionComponent* cc = nullptr;
-			component::AiComponent* ai = nullptr;
-
-			mc = ent->AddComponent<component::ModelComponent>();
-			tc = ent->AddComponent<component::TransformComponent>();
-			ent->AddComponent<component::HealthComponent>(newHP);
-			cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, 1.0, 2.0);
-			Entity* target = m_pScene->GetEntity(m_EnemyComps[entityName]->targetName);
-			if (target != nullptr)
-			{
-				ai = ent->AddComponent<component::AiComponent>(target);
-			}
-
-
-			mc->SetModel(m_EnemyComps[entityName]->model);
-			mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-			tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
-			tc->GetTransform()->SetScale(newScale);
-			tc->GetTransform()->SetRotationX(newRot.x);
-			tc->GetTransform()->SetRotationY(newRot.y);
-			tc->GetTransform()->SetRotationZ(newRot.z);
-
-			if (F_COMP_FLAGS::OBB & newFlag)
-			{
-				bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-				bbc->Init();
-				Physics::GetInstance().AddCollisionEntity(ent);
-			}
-			return ent;
-		}
-		else
-		{
-			Log::PrintSeverity(Log::Severity::WARNING, "Inssuficient input in parameters to add new type of enemy!\n");
-			return nullptr;
-		}
+		ai = ent->AddComponent<component::AiComponent>(target, aiFlags, aiDetectionRadius, aiAttackingDistance);
 	}
+	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
+	ae->AddVoice(sound3D);
+
+	mc->SetModel(model);
+	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+	Transform* t = tc->GetTransform();
+	t->SetPosition(pos.x, pos.y, pos.z);
+	t->SetScale(scale);
+	t->SetRotationX(rot.x);
+	t->SetRotationY(rot.y);
+	t->SetRotationZ(rot.z);
+	t->SetVelocity(BASE_VEL * 0.5);
+
+	if (compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
+	{
+		cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, dim.z / 2.0, dim.y - dim.z, 0.01, 0.5, false);
+	}
+	else if (compFlags & F_COMP_FLAGS::SPHERE_COLLISION)
+	{
+		cc = ent->AddComponent<component::SphereCollisionComponent>(1.0, dim.y / 2.0, 1.0, 0.0);
+	}
+	else if (compFlags & F_COMP_FLAGS::CUBE_COLLISION)
+	{
+		cc = ent->AddComponent<component::CubeCollisionComponent>(1.0, dim.x / 2.0, dim.y / 2.0, dim.z / 2.0, 0.01, 0.5, false);
+	}
+	else
+	{
+		cc = ent->AddComponent<component::CubeCollisionComponent>(0.0, 0.0, 0.0, 0.0);
+	}
+
+	if (F_COMP_FLAGS::OBB & compFlags)
+	{
+		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+		bbc->Init();
+		Physics::GetInstance().AddCollisionEntity(ent);
+	}
+	return ent;
+}
+
+std::vector<Entity*>* EnemyFactory::GetAllEnemies()
+{
+	return &m_Enemies;
 }
 

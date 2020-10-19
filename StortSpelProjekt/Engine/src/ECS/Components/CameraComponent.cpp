@@ -3,8 +3,8 @@
 
 // Renderer
 #include "../Renderer/Renderer.h"
-#include "../../Renderer/PerspectiveCamera.h"
-#include "../../Renderer/OrthographicCamera.h"
+#include "../../Renderer/Camera/PerspectiveCamera.h"
+#include "../../Renderer/Camera/OrthographicCamera.h"
 
 namespace component
 {
@@ -47,7 +47,7 @@ namespace component
 		m_pCamera->Update(dt);
 	}
 
-	void CameraComponent::InitScene()
+	void CameraComponent::OnInitScene()
 	{
 		Renderer::GetInstance().InitCameraComponent(GetParent());
 	}

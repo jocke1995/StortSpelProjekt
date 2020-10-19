@@ -11,7 +11,7 @@
 #include "../PipelineState.h"
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
-#include "../BaseCamera.h"
+#include "../Camera/BaseCamera.h"
 #include "../SwapChain.h"
 #include "../GPUMemory/RenderTarget.h"
 #include "../GPUMemory/RenderTargetView.h"
@@ -104,12 +104,14 @@ void SkyboxRenderTask::Execute()
 	info.vertexDataIndex = m_pSkybox->GetMesh()->m_pSRV->GetDescriptorHeapIndex();
 	info.textureAlbedo = m_pSkybox->GetTexture()->GetDescriptorHeapIndex();
 
-	Transform* transform = m_pSkybox->GetTransform();
-	DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-	DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+	const DirectX::XMFLOAT3 pos2(0, 0, 0);
+	DirectX::XMVECTOR pos = DirectX::XMLoadFloat3(&m_pCamera->GetPosition());
+	DirectX::XMMATRIX WTransposed = DirectX::XMMatrixTranslationFromVector(pos);
+	WTransposed = DirectX::XMMatrixTranspose(WTransposed);
+	DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * WTransposed;
 
 	// Create a CB_PER_OBJECT struct
-	CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, info };
+	CB_PER_OBJECT_STRUCT perObject = { WTransposed, WVPTransposed, info };
 
 	commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 

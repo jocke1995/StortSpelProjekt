@@ -12,6 +12,7 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	m_AttackInterval = 1.0;
 	m_TimeSinceLastAttackCheck = 0;
 	m_pMesh = nullptr;
+	m_Damage = 1;
 
 	//Create bounding box for collision for melee
 	m_pBbc = parent->GetComponent<component::BoundingBoxComponent>();
@@ -33,13 +34,27 @@ component::MeleeComponent::~MeleeComponent()
 {
 }
 
+void component::MeleeComponent::OnInitScene()
+{
+}
+
+void component::MeleeComponent::OnLoadScene()
+{
+}
+
+void component::MeleeComponent::OnUnloadScene()
+{
+}
+
 void component::MeleeComponent::Update(double dt)
 {
 	// Takes the transform of the player cube and moves it forward to act as a hitbox
 	m_MeleeTransformTwo = *m_pMeleeTransform;
-	float positonX = m_MeleeTransformTwo.GetPositionFloat3().x + 2*m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[0];
-	float positonY = m_MeleeTransformTwo.GetPositionFloat3().y + 2*m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[1];
-	float positonZ = m_MeleeTransformTwo.GetPositionFloat3().z + 2*m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[2];
+	double3 modelDim = m_pParent->GetComponent<component::ModelComponent>()->GetModelDim();
+	modelDim *= 0.5;
+	float positonX = m_MeleeTransformTwo.GetPositionFloat3().x + (modelDim.x + 1.0) * m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[0];
+	float positonY = m_MeleeTransformTwo.GetPositionFloat3().y + (modelDim.y + 1.0) * m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[1];
+	float positonZ = m_MeleeTransformTwo.GetPositionFloat3().z + (modelDim.z + 1.0) * m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[2];
 	
 	// Sets the position and updates the matrix to reflect movement of the player
 	m_MeleeTransformTwo.SetPosition(positonX, positonY, positonZ);
@@ -88,6 +103,16 @@ void component::MeleeComponent::setAttackInterval(float interval)
 	m_AttackInterval = interval;
 }
 
+void component::MeleeComponent::SetDamage(int damage)
+{
+	m_Damage = damage;
+}
+
+void component::MeleeComponent::ChangeDamage(int change)
+{
+	m_Damage += change;
+}
+
 void component::MeleeComponent::CheckCollision()
 {
 	std::vector<Entity*> list = Physics::GetInstance().SpecificCollisionCheck(&m_Hitbox);
@@ -96,7 +121,7 @@ void component::MeleeComponent::CheckCollision()
 		// Checks if the collision occurs on something with a healthcomponent and is not the player themselves
 		if (list.at(i)->GetName() != "player" && list.at(i)->GetComponent<component::HealthComponent>() != nullptr)
 		{
-			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-100);
+			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 		}
 	}
 	list.empty();

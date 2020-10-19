@@ -7,15 +7,23 @@ class GameNetwork {
 public:
 	GameNetwork();
 
-	void SetScene(Scene* scene);
+	void Update(double dt);
+
+	void SetEnemies(std::vector<Entity*>* enemyVector);
+	void SetScenes(std::vector<Scene*>* activeScenes);
 	void SetNetwork(Network* network);
 	void SetSceneManager(SceneManager* sceneManager);
 
+	bool IsConnected();
+
 private:
 	SceneManager* m_pSceneManager;
-	Scene* m_pScene;
-	Network* m_pNetwork;
+	std::vector<Scene*>* m_pActiveScenes;
+	Network m_Network;
+	std::vector<Entity*>* m_pEnemies;
 
+	void disconnect(Disconnect* evnt);
+	void connectToServer(ConnectToServer* evnt);
 	void addNewPlayerEntity(PlayerConnection* evnt);
 
 };

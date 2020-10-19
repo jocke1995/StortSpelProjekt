@@ -4,6 +4,9 @@
 #include "..\ECS\Components\InputComponent.h"
 #include "Core.h"
 
+#define DASH_MOD 4.0
+#define SPRINT_MOD 3.0
+
 //Camera
 class BaseCamera;
 class Transform;
@@ -37,6 +40,8 @@ namespace component
 
 		void Init();
 
+		void OnInitScene();
+
 		void RenderUpdate(double dt);
 
 	private:
@@ -50,13 +55,23 @@ namespace component
 
 		CollisionComponent* m_pCC;
 
-		void toggleCameraLock(ModifierInput* evnt);
+		double m_DashTimer;
+		bool m_DashReady;
+		bool m_Dashing;
+
+		void(PlayerInputComponent::*specificUpdate)(double dt);
+
+		void alternativeInput(ModifierInput* evnt);
 		void zoom(MouseScroll* evnt);
 
 		void move(MovementInput* evnt);
 		void rotate(MouseMovement* evnt);
 
 		void mouseClick(MouseClick* evnt);
+
+		void updateDefault(double dt);
+		void updateDash(double dt);
+		void updateJump(double dt);
 	};
 }
 

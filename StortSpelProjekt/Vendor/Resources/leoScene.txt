@@ -1,0 +1,228 @@
+/* Entities */
+
+Name floor
+ModelPath Textures/Heightmaps/tst.hm
+ModelScaling 1.0, 10.0, 1.0
+ModelRotation 0.0, 1.57079632679, 0.0
+ModelPosition 0.0, -1.0, 0.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Heightmap
+Submit CollisionHeightmap
+
+Name wall0
+ModelPath Models/FloorPBR/floor.obj
+ModelScaling 10.0, 1.0, 250.0
+ModelRotation 4.71238898038, 0.0, 4.71238898038
+ModelPosition 0.0, 5.0, 249.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.5
+Submit Model
+Submit CollisionCube 250.0, 0.0, 1.0
+
+Name wall1
+ModelPath Models/FloorPBR/floor.obj
+ModelScaling 10.0, 1.0, 250.0
+ModelRotation 7.85398163397, 0.0, 4.71238898038
+ModelPosition 0.0, 5.0, -249.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.5
+Submit Model
+Submit CollisionCube 250.0, 0.0, 1.0
+
+Name wall2
+ModelPath Models/FloorPBR/floor.obj
+ModelScaling 10.0, 1.0, 250.0
+ModelRotation 6.28318530718, 0.0, 4.71238898038
+ModelPosition -249.0, 5.0, 0.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.5
+Submit Model
+Submit CollisionCube 250.0, 0.0, 1.0
+
+Name wall3
+ModelPath Models/FloorPBR/floor.obj
+ModelScaling 10.0, 1.0, 250.0
+ModelRotation 3.1415, 0.0, 4.71238898038
+ModelPosition 249.0, 5.0, 0.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.5
+Submit Model
+Submit CollisionCube 250.0, 0.0, 1.0
+
+Name stefan
+ModelPath Models/Poster/Poster.obj
+ModelScaling 35.0, 1.0, 35.0
+ModelRotation -2.35619449019, 0.0, 4.71238898038
+ModelPosition 70.0, 50.0, 70.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.5
+Submit Model
+Submit CollisionCube 1.0, 0.0, 1.0
+
+Name hasse
+ModelPath Models/Poster/Poster.obj
+ModelRotation 2.35619449019, 0.0, 4.71238898038
+ModelPosition -70.0, 50.0, 70.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.5
+Submit Model
+Submit CollisionCube 1.0, 0.0, 1.0
+
+Name Shop
+ModelPath Models/Shop/shop.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 3.14159265359, 0.0
+ModelPosition 0.0, 10.0, 15.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 100000.0
+ModelFriction 1000.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 0.0, 0.0, 0.0
+
+Name Ball1
+ModelPath Models/SpherePBR/ball.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 3.14159265359, 0.0
+ModelPosition -16.0, 10.0, -133.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 1.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionSphere 0.0, 0.0, 0.0
+
+Name Ball2
+ModelPath Models/SpherePBR/ball.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelPosition 10.0, 10.0, 0.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 1.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionSphere 0.0, 0.0, 0.0
+
+/* Lights */
+
+Name pointLight
+ModelPosition 0.0, 20.0, 15.0
+ModelLightColor 0.2, 0.0, 0.0
+ModelLightFlag 0,0
+ModelLightAttenuation 1.0, 0.09, 0.032
+Submit PointLight
+
+Name Spotlight1
+ModelPosition -250.0, 50.0, -250.0
+ModelLightColor 0.1, 0.1, 0.1
+ModelLightFlag 0,0
+ModelLightFlag 1,1
+ModelLightAttenuation 0.000005, 0.000005, 0.000005
+ModelLightDirection 250.0, -50.0, 250.0
+ModelLightNear 10.0
+ModelLightFar 1000.0
+Submit SpotLight
+
+Name SpotlightHasse
+ModelPosition -35.0, 35.0, 35.0
+ModelLightColor 50.0, 50.0, 0.0
+ModelLightFlag 0,0
+ModelLightAttenuation 0.05, 0.05, 0.05
+ModelLightDirection -35.0, 15.0, 35.0
+ModelLightCutOff 30.0
+ModelLightOuterCutOff 35.0
+Submit SpotLight
+
+Name SpotlightStefan
+ModelPosition 35.0, 35.0, 35.0
+ModelLightColor 0.0, 50.0, 50.0
+ModelLightFlag 0,0
+ModelLightAttenuation 0.05, 0.05, 0.05
+ModelLightDirection 35.0, 15.0, 35.0
+ModelLightCutOff 30.0
+ModelLightOuterCutOff 35.0
+Submit SpotLight
+
+Name sun
+ModelLightColor 0.05, 0.05, 0.05
+ModelLightFlag 1,1
+ModelLightDirection 0.0, -1.0, 1.0
+ModelLightLeft -355.0
+ModelLightRight 355.0
+ModelLightTop 250.0
+ModelLightBottom -250.0
+ModelLightFar 1000.0
+ModelLightNear -1000.0
+Submit DirectionalLight
+
+Name skybox
+ModelPath Textures/CubeMaps/skymap_dark.dds
+Submit Skybox
+
+NavMesh
+#0
+NavQuadPosition 0.0, 0.0, 30.0
+NavQuadSize 50.0, 50.0
+Submit NavQuad
+
+#1
+NavQuadPosition 50.0, 0.0, 20.0
+NavQuadSize 50.0, 50.0
+Submit NavQuad
+
+#2
+NavQuadPosition 40.0, 0.0, -20.0
+NavQuadSize 30.0, 30.0
+Submit NavQuad
+
+#3
+NavQuadPosition -40.0, 0.0, -20.0
+NavQuadSize 30.0, 150.0
+Submit NavQuad
+
+#4
+NavQuadPosition 0.0, 0.0, -60.0
+NavQuadSize 50.0, 70.0
+Submit NavQuad
+
+NavConnectionQuads 0, 1
+Submit NavConnection
+
+NavConnectionQuads 2, 1
+Submit NavConnection
+
+NavConnectionQuads 0, 3
+Submit NavConnection
+
+NavConnectionQuads 3, 4
+Submit NavConnection
+
+NavConnectionQuads 3, 2
+Submit NavConnection
+
+Submit NavMesh

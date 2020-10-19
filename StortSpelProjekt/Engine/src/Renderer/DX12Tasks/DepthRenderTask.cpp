@@ -11,7 +11,7 @@
 #include "../GPUMemory/Resource.h"
 #include "../RenderView.h"
 #include "../PipelineState.h"
-#include "../BaseCamera.h"
+#include "../Camera/BaseCamera.h"
 #include "../GPUMemory/DepthStencil.h"
 #include "../GPUMemory/DepthStencilView.h"
 
@@ -56,16 +56,10 @@ void DepthRenderTask::Execute()
 
 	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
 
-	
-	/* Depthbuffer should have a resource barrier here
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		m_pSwapChain->GetRenderTarget(m_BackBufferIndex)->GetResource()->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_PRESENT,
-		D3D12_RESOURCE_STATE_DEPTH_WRITE));
-		*/
+	unsigned int index = m_pDepthStencil->GetDSV()->GetDescriptorHeapIndex();
 
 	// Clear and set depth + stencil
-	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(m_pDepthStencil->GetDSV()->GetDescriptorHeapIndex());
+	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(index);
 	commandList->ClearDepthStencilView(dsh, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	commandList->OMSetRenderTargets(0, nullptr, false, &dsh);
 
@@ -79,12 +73,6 @@ void DepthRenderTask::Execute()
 		drawRenderComponent(mc, tc, viewProjMatTrans, commandList);
 	}
 
-	/*
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-		m_pSwapChain->GetRenderTarget(m_BackBufferIndex)->GetResource()->GetID3D12Resource1(),
-		D3D12_RESOURCE_STATE_DEPTH_WRITE,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
-		*/
 	
 	commandList->Close();
 }

@@ -14,7 +14,7 @@ Transform::Transform()
 	m_RotXMat = DirectX::XMMatrixIdentity();
 	m_RotYMat = DirectX::XMMatrixIdentity();
 	m_RotZMat = DirectX::XMMatrixIdentity();
-	m_Velocity = 10;
+	m_Velocity = BASE_VEL;
 }
 
 Transform::~Transform()
@@ -24,6 +24,7 @@ Transform::~Transform()
 void Transform::SetPosition(float x, float y, float z)
 {
 	m_Position = DirectX::XMFLOAT3(x, y, z);
+	m_RenderPosition = DirectX::XMFLOAT3(x, y, z);
 }
 
 void Transform::SetPosition(DirectX::XMFLOAT3 pos)
@@ -136,7 +137,7 @@ void Transform::UpdateWorldMatrix()
 	DirectX::XMMATRIX sclMat = DirectX::XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
 	DirectX::XMMATRIX rotMat = m_RotationMat;
 
-	m_WorldMat = rotMat * sclMat * posMat;
+	m_WorldMat = sclMat * rotMat * posMat;
 
 	// Update transposed world matrix
 	m_WorldMatTransposed = DirectX::XMMatrixTranspose(m_WorldMat);
@@ -183,6 +184,12 @@ float3 Transform::GetRenderPositionFloat3() const
 DirectX::XMFLOAT3 Transform::GetScale() const
 {
 	return m_Scale;
+}
+
+float4 Transform::GetRotation()
+{
+	DirectX::XMVECTOR quat = DirectX::XMQuaternionRotationMatrix(m_RotationMat);
+	return { quat.m128_f32[0], quat.m128_f32[1], quat.m128_f32[2], quat.m128_f32[3] };
 }
 
 DirectX::XMMATRIX Transform::GetRotMatrix() const
