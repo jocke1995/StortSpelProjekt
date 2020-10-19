@@ -1205,6 +1205,8 @@ Scene* FredriksTestScene(SceneManager* sm)
 	// Get textures
 	Texture* buttonTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/greenButton.png");
 	Texture* headTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png");
+	Texture* mapTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/minimap.png");
+	Texture* transTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/transparent.png");
 
 	// Get the audio needed and add settings to it.
 	AudioBuffer* melodySound = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"melody");
@@ -1357,10 +1359,10 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 	/* ------------------------- BUTTON 1 --------------------------- */
 	std::string textToRender = "TEST";
-	float2 textPos = { 0.18f, 0.035f };
+	float2 textPos = { 0.095f, 0.031f };
 	float2 textPadding = { 0.5f, 0.0f };
 	float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float2 textScale = { 1.8f, 1.8f };
+	float2 textScale = { 0.5f, 0.5f };
 	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     entity = scene->AddEntity("text");
@@ -1374,10 +1376,10 @@ Scene* FredriksTestScene(SceneManager* sm)
 	gui->GetTextManager()->SetBlend(textBlend, "health");
 
 	float2 quadPos = { 0.0f, 0.0f };
-	float2 quadScale = { 0.45f, 0.2f };
+	float2 quadScale = { 0.25f, 0.1f };
 	gui->GetQuadManager()->CreateQuad(
 		quadPos, quadScale,
-		true,
+		false,
 		E_DEPTH_LEVEL::MID,
 		float4{ 1.0, 1.0, 1.0, 1.0 },
 		buttonTexture);
@@ -1387,8 +1389,8 @@ Scene* FredriksTestScene(SceneManager* sm)
 	/* ------------------------- head --------------------------- */
 	entity = scene->AddEntity("head");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	quadPos = { 0.005f, 0.025f };
-	quadScale = { 0.15f, 0.15f };
+	quadPos = { 0.009f, 0.014f };
+	quadScale = { 0.07f, 0.07f };
 	gui->GetQuadManager()->CreateQuad(
 		quadPos, quadScale,
 		true,
@@ -1401,15 +1403,27 @@ Scene* FredriksTestScene(SceneManager* sm)
     entity = scene->AddEntity("overlay");
     gui = entity->AddComponent<component::GUI2DComponent>();
     quadPos = { 0.0f, 0.0f };
-    quadScale = { 0.46f, 0.2f };
+    quadScale = { 0.3f, 0.1f };
     gui->GetQuadManager()->CreateQuad(
 		quadPos, quadScale,
-		true,
+		false,
 		E_DEPTH_LEVEL::BACK, 
-		float4{ 1.0, 1.0, 1.0, 0.98},
-		nullptr,
-		float3{ 0.0, 0.0, 0.0 });
+		float4{ 1.0, 1.0, 1.0, 0.99},
+		transTexture);
     /* ---------------------------------------------------------- */
+
+	/* ------------------------- minimap --------------------------- */
+	entity = scene->AddEntity("minimap");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.85f, 0.0f };
+	quadScale = { 0.15f, 0.15f };
+	gui->GetQuadManager()->CreateQuad(
+		quadPos, quadScale,
+		false,
+		E_DEPTH_LEVEL::FRONT,
+		float4{ 1.0, 1.0, 1.0, 1.0 },
+		mapTexture);
+	/* ---------------------------------------------------------- */
 
 	/* ---------------------- Skybox ---------------------- */
 	TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
@@ -2034,10 +2048,10 @@ void FredriksUpdateScene(SceneManager* sm)
 	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
 	tx->GetTextManager()->UploadAndExecuteTextData("health");
 
-	if (tx->GetQuadManager()->HasBeenPressed() || ov->GetQuadManager()->HasBeenPressed())
+	/*if (tx->GetQuadManager()->HasBeenPressed() || ov->GetQuadManager()->HasBeenPressed())
 	{
 		Log::Print("PRESSED!\n");
-	}
+	}*/
 }
 
 void DefaultUpdateScene(SceneManager* sm)
