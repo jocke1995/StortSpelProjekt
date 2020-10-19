@@ -16,7 +16,10 @@ UpgradeManager::~UpgradeManager()
 {
 	for (std::pair<std::string, Upgrade*> u : m_AllAvailableUpgrades)
 	{
-		delete u.second;
+		if (std::strcmp(u.second->GetName().c_str(), "") != 0)
+		{
+			delete u.second;
+		}
 	}
 }
 
