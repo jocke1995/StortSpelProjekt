@@ -9,6 +9,7 @@
 #include "UpgradeComponents/Upgrades/UpgradeRangeTest.h"
 #include "Player.h"
 #include "../Memory/PoolAllocator.h"
+#include "UpgradeManager.h"
 
 
 component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale, int damage, float velocity) : Component(parent)
@@ -69,12 +70,14 @@ void component::RangeComponent::Attack(MouseClick* event)
 		float3 forward = m_pScene->GetMainCamera()->GetDirectionFloat3();
 		float length = forward.length();
 
+		double3 dim = m_pParent->GetComponent<component::ModelComponent>()->GetModelDim();
+
 		// add the forward vector to parent pos 
 		// so the projectile doesn't spawn inside of us
 		float3 pos;
-		pos.x = ParentPos.x + (forward.x / length);
+		pos.x = ParentPos.x + (forward.x / length) * (dim.x / 2.0);
 		pos.y = ParentPos.y + (forward.y / length);
-		pos.z = ParentPos.z + (forward.z / length);
+		pos.z = ParentPos.z + (forward.z / length) * (dim.z / 2.0);
 
 		// initialize the components
 		mc->SetModel(m_pModel);

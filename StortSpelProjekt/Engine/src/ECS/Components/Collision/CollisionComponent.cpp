@@ -29,6 +29,7 @@ void component::CollisionComponent::Update(double dt)
 	float y = trans.getOrigin().y();
 	float z = trans.getOrigin().z();
 	m_pTrans->SetPosition(x, y, z);
+	m_pShape->setLocalScaling({ m_pTrans->GetScale().x, m_pTrans->GetScale().y, m_pTrans->GetScale().z });
 
 	double roll;
 	double pitch;
