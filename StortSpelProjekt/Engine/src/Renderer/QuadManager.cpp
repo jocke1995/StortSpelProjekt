@@ -269,16 +269,9 @@ void QuadManager::SetActiveTexture(const bool texture)
 
 void QuadManager::pressed(MouseClick* evnt)
 {
-	static int switchTexture = 0;
 	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN && evnt->pressed == true)
 	{
 		m_Pressed = IsMarked();
-		if (m_Pressed)
-		{
-			bool active = switchTexture % 2 == 0;
-			SetActiveTexture(active);
-			switchTexture++;
-		}
 	}
 }
 
