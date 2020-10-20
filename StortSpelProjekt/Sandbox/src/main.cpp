@@ -285,7 +285,6 @@ Scene* LeosTestScene(SceneManager* sm)
     component::UpgradeComponent* uc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
-    al->LoadMap(scene, "../Vendor/Resources/leoScene.txt");
     // Get the models needed
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
@@ -294,31 +293,26 @@ Scene* LeosTestScene(SceneManager* sm)
 
 #pragma region entities
 
+    al->LoadMap(scene, "../Vendor/Resources/aiScene.txt");
+
 #pragma region player
     Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    mac = entity->AddComponent<component::MeleeComponent>();
-    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
-    uc = entity->AddComponent<component::UpgradeComponent>();
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0.0, 20.0, 0.0);
+    tc->GetTransform()->SetPosition(-175.0, 20.0, 175.0);
 
     double3 playerDim = mc->GetModelDim();
 
     double rad = playerDim.z / 2.0;
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
-    hc = entity->AddComponent<component::HealthComponent>(10000000);
     ic->Init();
-    bbc->Init();
-    Physics::GetInstance().AddCollisionEntity(entity);
 
     Player::GetInstance().SetPlayer(entity);
     Player::GetInstance().GetShop()->RandomizeInventory();
@@ -326,46 +320,8 @@ Scene* LeosTestScene(SceneManager* sm)
 
 #pragma region enemies
     enemyFactory.SetScene(scene);
-    /*enH.AddEnemy("sphere", sphereModel, 10, float3{ -50, 10, 50 },L"Bruh", L"attack", F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_ROLL, 10.0, float3{ 1.578, 0, 0 });
-    enH.AddExistingEnemy("sphere", float3{ 50, 10, -50 });
-    enH.AddExistingEnemy("sphere", float3{ 50, 10, 50 });
-    enH.AddExistingEnemy("sphere", float3{ -50, 10, -50 });
-    enH.AddExistingEnemyWithChanges("sphere", float3{ -1, 15, -31 }, F_COMP_FLAGS::OBB | F_COMP_FLAGS::SPHERE_COLLISION, F_AI_FLAGS::CAN_JUMP | F_AI_FLAGS::CAN_ROLL, 0.5);*/
-    enemyFactory.AddEnemy("conan", barbModel, 20, float3{ 245.0, 10.0, 245.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "Ball2", 500.0f, 0.0f);
-    enemyFactory.AddExistingEnemy("conan", float3{ 245, 10, -245 });
-    enemyFactory.AddExistingEnemy("conan", float3{ -245, 10, 245 });
-    enemyFactory.AddExistingEnemy("conan", float3{ -245, 10, -245 });
-    enemyFactory.AddEnemy("conanLarge", barbModel, 20, float3{ 0.0, 10.0, 100.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 1.0, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
+    enemyFactory.AddEnemy("conanLarge", barbModel, 20, float3{ -340.0, 10.0, 340.0 }, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 1.0, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
 #pragma endregion
-
-#pragma endregion
-
-#pragma region 2DGUI
-
-    std::string textToRender = "HP";
-    float2 textPos = { 0.02f, 0.88f };
-    float2 textPosEnemy = { 0.85f, 0.88f };
-    float2 textPadding = { 0.5f, 0.0f };
-    float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-    float2 textScale = { 1.0f, 1.0f };
-
-    entity = scene->AddEntity("text");
-    component::GUI2DComponent* gui = entity->AddComponent<component::GUI2DComponent>();
-    Font* javaneseFont = al->LoadFontFromFile(L"Javanese.fnt");
-    gui->GetTextManager()->SetFont(javaneseFont);
-    gui->GetTextManager()->AddText("health");
-    gui->GetTextManager()->SetColor(textColor, "health");
-    gui->GetTextManager()->SetPadding(textPadding, "health");
-    gui->GetTextManager()->SetPos(textPos, "health");
-    gui->GetTextManager()->SetScale(textScale, "health");
-    gui->GetTextManager()->SetText(textToRender, "health");
-
-    gui->GetTextManager()->AddText("enemyHealth");
-    gui->GetTextManager()->SetColor(textColor, "enemyHealth");
-    gui->GetTextManager()->SetPadding(textPadding, "enemyHealth");
-    gui->GetTextManager()->SetPos(textPosEnemy, "enemyHealth");
-    gui->GetTextManager()->SetScale(textScale, "enemyHealth");
-    gui->GetTextManager()->SetText(textToRender, "enemyHealth");
 
 #pragma endregion
 
@@ -1766,31 +1722,6 @@ Scene* BjornsTestScene(SceneManager* sm)
 
 void LeoUpdateScene(SceneManager* sm, double dt)
 {
-    static float intensity = 0.0f;
-    static float red = 0.0, green = 1.0, blue = 0.5;
-
-    // Dynamic light
-    component::PointLightComponent* plc = sm->GetActiveScenes()->at(0)->GetEntity("pointLight")->GetComponent<component::PointLightComponent>();
-    plc->SetColor({ abs(sinf(intensity)) * 3, 0.0f, abs(sinf(intensity)) * 3 });
-
-    sm->GetActiveScenes()->at(0)->GetEntity("Ball1")->GetComponent<component::TransformComponent>()->GetTransform()->SetScale(1.0 + intensity * 0.1);
-
-    component::HealthComponent* hc = sm->GetActiveScenes()->at(0)->GetEntity("player")->GetComponent<component::HealthComponent>();
-    component::HealthComponent* ehc = sm->GetActiveScenes()->at(0)->GetEntity("conanLarge")->GetComponent<component::HealthComponent>();
-    component::GUI2DComponent* gui = sm->GetActiveScenes()->at(0)->GetEntity("text")->GetComponent<component::GUI2DComponent>();
-    float4 color = float4{ abs(sin(red)), abs(sin(green)), abs(sin(blue)), 1.0 };
-    gui->GetTextManager()->SetColor(color, "health");
-    gui->GetTextManager()->SetText("Player HP: " + std::to_string(hc->GetHealth()), "health");
-    gui->GetTextManager()->UploadTextData("health");
-
-    gui->GetTextManager()->SetColor(color, "enemyHealth");
-    gui->GetTextManager()->SetText("Enemy HP: " + std::to_string(ehc->GetHealth()), "enemyHealth");
-    gui->GetTextManager()->UploadTextData("enemyHealth");
-
-    intensity += 1.0f * dt;
-    red += 1.0 * dt;
-    green += 1.0 * dt;
-    blue += 1.0 * dt;
 }
 
 void LeoBounceUpdateScene(SceneManager* sm, double dt)

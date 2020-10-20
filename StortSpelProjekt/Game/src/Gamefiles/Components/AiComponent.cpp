@@ -132,3 +132,9 @@ void component::AiComponent::selectTarget()
 	}
 	m_pTarget = m_Targets.at(index);
 }
+
+void component::AiComponent::findPathToTarget()
+{
+	m_Path.clear();
+	m_Path.push_back(m_pTarget->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3());
+}

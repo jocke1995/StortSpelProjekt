@@ -37,12 +37,13 @@ namespace component
 	private:
 		Entity* m_pTarget;
 		std::vector<Entity*> m_Targets;
+		std::vector<float3> m_Path;
 		float m_DetectionRadius;
 		float m_AttackingDistance;
 		unsigned int m_Flags;
-		bool m_CanJump;
 
 		void selectTarget();
+		void findPathToTarget();
 	};
 }
 
