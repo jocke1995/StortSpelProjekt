@@ -17,7 +17,7 @@ class UpgradeMeleeTest;
 enum E_UpgradeIDs
 {
 	UPGRADE_RANGE_TEST = 1,
-	UPGRADE_MELEE_TEST = 2,
+	UPGRADE_MELEE_DAMAGE = 2,
 
 };
 

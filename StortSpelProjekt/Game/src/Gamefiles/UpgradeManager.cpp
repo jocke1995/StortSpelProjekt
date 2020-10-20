@@ -2,8 +2,9 @@
 #include "EngineMath.h"
 #include "ECS/Entity.h"
 #include "Components/UpgradeComponents/UpgradeComponent.h"
+// Include all uppgrades under here:
+#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeDamage.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
-#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeTest.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
 {
@@ -111,12 +112,12 @@ void UpgradeManager::fillUpgradeMap()
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
 	upgrade->SetID(UPGRADE_RANGE_TEST);
 
-	// Adding MeleeTest Upgrade
-	upgrade = new UpgradeMeleeTest(m_pParentEntity);
+	// Adding MeleeDamage Upgrade
+	upgrade = new UpgradeMeleeDamage(m_pParentEntity);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	upgrade->SetID(UPGRADE_MELEE_TEST);
+	upgrade->SetID(UPGRADE_MELEE_DAMAGE);
 }
 
 bool UpgradeManager::checkIfRangeUpgrade(std::string name)
