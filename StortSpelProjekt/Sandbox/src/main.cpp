@@ -1377,11 +1377,13 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 	float2 quadPos = { 0.0f, 0.0f };
 	float2 quadScale = { 0.25f, 0.1f };
+	float4 blended = { 1.0, 1.0, 1.0, 0.99 };
+	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
 	gui->GetQuadManager()->CreateQuad(
 		quadPos, quadScale,
-		false,
+		false, false,
 		E_DEPTH_LEVEL::MID,
-		float4{ 1.0, 1.0, 1.0, 1.0 },
+		notBlended,
 		buttonTexture);
 
 	/* ---------------------------------------------------------- */
@@ -1393,9 +1395,9 @@ Scene* FredriksTestScene(SceneManager* sm)
 	quadScale = { 0.07f, 0.07f };
 	gui->GetQuadManager()->CreateQuad(
 		quadPos, quadScale,
-		true,
+		true, true,
 		E_DEPTH_LEVEL::FRONT,
-		float4{ 1.0, 1.0, 1.0, 1.0 },
+		notBlended,
 		headTexture);
 	/* ---------------------------------------------------------- */
 
@@ -1406,9 +1408,9 @@ Scene* FredriksTestScene(SceneManager* sm)
     quadScale = { 0.3f, 0.1f };
     gui->GetQuadManager()->CreateQuad(
 		quadPos, quadScale,
-		false,
+		false, false,
 		E_DEPTH_LEVEL::BACK, 
-		float4{ 1.0, 1.0, 1.0, 0.99},
+		blended,
 		transTexture);
     /* ---------------------------------------------------------- */
 
@@ -1419,9 +1421,9 @@ Scene* FredriksTestScene(SceneManager* sm)
 	quadScale = { 0.15f, 0.15f };
 	gui->GetQuadManager()->CreateQuad(
 		quadPos, quadScale,
-		false,
+		false, false,
 		E_DEPTH_LEVEL::FRONT,
-		float4{ 1.0, 1.0, 1.0, 1.0 },
+		notBlended,
 		mapTexture);
 	/* ---------------------------------------------------------- */
 
@@ -2041,12 +2043,12 @@ void JockeUpdateScene(SceneManager* sm)
 
 void FredriksUpdateScene(SceneManager* sm)
 {
-	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
+	/*component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	component::GUI2DComponent* tx = sm->GetScene("FredriksTestScene")->GetEntity("text")->GetComponent<component::GUI2DComponent>();
 	component::GUI2DComponent* ov = sm->GetScene("FredriksTestScene")->GetEntity("overlay")->GetComponent<component::GUI2DComponent>();
 	AssetLoader* al = AssetLoader::Get();
 	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
-	tx->GetTextManager()->UploadAndExecuteTextData("health");
+	tx->GetTextManager()->UploadAndExecuteTextData("health");*/
 
 	/*if (tx->GetQuadManager()->HasBeenPressed() || ov->GetQuadManager()->HasBeenPressed())
 	{

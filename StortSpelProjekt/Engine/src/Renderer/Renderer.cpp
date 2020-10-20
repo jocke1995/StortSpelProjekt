@@ -737,6 +737,11 @@ Scene* const Renderer::GetActiveScene() const
 	return m_pCurrActiveScene;
 }
 
+const Window* const Renderer::GetWindow() const
+{
+	return m_pWindow;
+}
+
 void Renderer::setRenderTasksPrimaryCamera()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetCamera(m_pScenePrimaryCamera);
@@ -2143,6 +2148,22 @@ void Renderer::toggleFullscreen(WindowChange* evnt)
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+
+	// Change the member variables of the window class to match the swapchain
+	UINT width = 0, height = 0;
+	if (m_pSwapChain->IsFullscreen())
+	{
+		m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&width, &height);
+	}
+	else
+	{
+		width = std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str());
+		height = std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str());
+	}
+
+	Window* window = const_cast<Window*>(m_pWindow);
+	window->SetScreenWidth(width);
+	window->SetScreenHeight(height);
 
 	for (auto task : m_RenderTasks)
 	{

@@ -41,10 +41,9 @@ bool QuadManager::operator==(const QuadManager& other) const
 	return (m_Id == other.m_Id);
 }
 
-// If you dont want any texture, send a nullptr. You can also choose to send a color or not
 void QuadManager::CreateQuad(
 	float2 pos, float2 size,
-	bool clickable,
+	bool clickable, bool markable,
 	E_DEPTH_LEVEL depthLevel,
 	float4 blend,
 	Texture* texture,
@@ -62,6 +61,11 @@ void QuadManager::CreateQuad(
 			delete m_pQuadTexture;
 			m_pQuadTexture = nullptr;
 		}
+		if (m_pQuadTextureMarked != nullptr)
+		{
+			delete m_pQuadTextureMarked;
+			m_pQuadTextureMarked = nullptr;
+		}
 	}
 
 	if (m_pQuadTexture == nullptr && texture != nullptr)
@@ -70,6 +74,7 @@ void QuadManager::CreateQuad(
 	}
 
 	m_Clickable = clickable;
+	m_Markable = markable;
 	m_DepthLevel = depthLevel;
 	m_AmountOfBlend = blend;
 
@@ -87,7 +92,9 @@ void QuadManager::CreateQuad(
 	m_Positions["upper_left"] = float2{ vertex.pos.x, vertex.pos.y };
 	vertex.uv = DirectX::XMFLOAT2{ 0.0, 0.0 };
 	vertex.normal = normal;
-	vertex.tangent = DirectX::XMFLOAT3(color.x, color.y, color.z); // Using the tangent as the color
+
+	// Using the tangent as the color
+	vertex.tangent = DirectX::XMFLOAT3(color.x, color.y, color.z);
 	m_Vertices.push_back(vertex);
 
 	vertex.pos = DirectX::XMFLOAT3{ x, size.y, 0.0f };
@@ -129,6 +136,28 @@ void QuadManager::CreateQuad(
 	{
 		EventBus::GetInstance().Subscribe(this, &QuadManager::pressed);
 	}
+
+	if (m_Markable)
+	{
+		// The quad should have a "marked" texture if it is clickable and has a texture
+		if (m_pQuadTexture != nullptr)
+		{
+			AssetLoader* al = AssetLoader::Get();
+			std::wstring markedTexture = m_pQuadTexture->GetPath();
+
+			std::wstring ending = L".png";
+			for (int i = 0; i < ending.size(); i++)
+			{
+				markedTexture.pop_back();
+			}
+
+			markedTexture += L"_m" + ending;
+
+			m_pQuadTextureMarked = al->LoadTexture2D(markedTexture);
+
+			m_pSlotInfo->textureEmissive = m_pQuadTextureMarked->GetDescriptorHeapIndex();
+		}
+	}
 }
 
 void QuadManager::UploadAndExecuteQuadData()
@@ -167,14 +196,50 @@ const bool QuadManager::HasTexture() const
 	return exists;
 }
 
+const bool QuadManager::IsMarked()
+{
+	bool marked = false;
+
+	float x = 0, y = 0;
+	Renderer* renderer = &Renderer::GetInstance();
+	renderer->GetWindow()->MouseInClipspace(&x, &y);
+
+	if ((x >= m_Positions["upper_left"].x && y <= m_Positions["upper_left"].y)
+		&& (x >= m_Positions["lower_left"].x && y >= m_Positions["lower_left"].y)
+		&& (x <= m_Positions["upper_right"].x && y <= m_Positions["upper_right"].y)
+		&& (x <= m_Positions["lower_right"].x && y >= m_Positions["lower_right"].y))
+	{
+		marked = true;
+	}
+
+	return marked;
+}
+
+const bool QuadManager::IsClickable() const
+{
+	return m_Clickable;
+}
+
+const bool QuadManager::IsMarkable() const
+{
+	return m_Markable;
+}
+
 Mesh* const QuadManager::GetQuad() const
 {
 	return m_pQuad;
 }
 
-Texture* const QuadManager::GetTexture() const
+Texture* const QuadManager::GetTexture(bool texture) const
 {
-	return m_pQuadTexture;
+	if (texture == 0)
+	{
+		return m_pQuadTexture;
+	}
+	else
+	{
+		return m_pQuadTextureMarked;
+	}
 }
 
 SlotInfo* const QuadManager::GetSlotInfo() const
@@ -192,20 +257,27 @@ const float4 QuadManager::GetAmountOfBlend() const
 	return m_AmountOfBlend;
 }
 
+const bool QuadManager::GetActiveTexture() const
+{
+	return m_ActiveTexture;
+}
+
+void QuadManager::SetActiveTexture(const bool texture)
+{
+	m_ActiveTexture = texture;
+}
+
 void QuadManager::pressed(MouseClick* evnt)
 {
+	static int switchTexture = 0;
 	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN && evnt->pressed == true)
 	{
-		float x = 0, y = 0;
-		Renderer* renderer = &Renderer::GetInstance();
-		renderer->m_pWindow->MouseToScreenspace(&x, &y);
-
-		if ((x >= m_Positions["upper_left"].x && y <= m_Positions["upper_left"].y)
-			&& (x >= m_Positions["lower_left"].x && y >= m_Positions["lower_left"].y)
-			&& (x <= m_Positions["upper_right"].x && y <= m_Positions["upper_right"].y)
-			&& (x <= m_Positions["lower_right"].x && y >= m_Positions["lower_right"].y))
+		m_Pressed = IsMarked();
+		if (m_Pressed)
 		{
-			m_Pressed = true;
+			bool active = switchTexture % 2 == 0;
+			SetActiveTexture(active);
+			switchTexture++;
 		}
 	}
 }
@@ -218,5 +290,10 @@ void QuadManager::uploadQuadData(Renderer* renderer)
 	if (m_pQuadTexture != nullptr)
 	{
 		renderer->submitTextureToCodt(m_pQuadTexture);
+	}
+
+	if (m_pQuadTextureMarked != nullptr)
+	{
+		renderer->submitTextureToCodt(m_pQuadTextureMarked);
 	}
 }

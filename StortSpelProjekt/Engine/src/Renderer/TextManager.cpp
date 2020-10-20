@@ -116,7 +116,7 @@ void TextManager::SetScale(float2 scale, std::string name)
 	{
 		// Scale with the size of the window
 		Renderer* renderer = &Renderer::GetInstance();
-		HWND* hwnd = const_cast<HWND*>(renderer->m_pWindow->GetHwnd());
+		HWND* hwnd = const_cast<HWND*>(renderer->GetWindow()->GetHwnd());
 		RECT rect;
 
 		float win_x = 0, win_y = 0;

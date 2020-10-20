@@ -92,6 +92,8 @@ public:
 	// Scene
 	Scene* const GetActiveScene() const;
 
+	const Window* const GetWindow() const;
+
 	// Call once
 	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 

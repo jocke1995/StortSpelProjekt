@@ -219,6 +219,16 @@ const HWND* Window::GetHwnd() const
 	return &m_Hwnd;
 }
 
+void Window::SetScreenWidth(int width)
+{
+	m_ScreenWidth = width;
+}
+
+void Window::SetScreenHeight(int height)
+{
+	m_ScreenHeight = height;
+}
+
 bool Window::ExitWindow()
 {
 	bool closeWindow = m_ShutDown;
@@ -238,7 +248,7 @@ bool Window::ExitWindow()
 	return closeWindow;
 }
 
-void Window::MouseToScreenspace(float* x, float* y) const
+void Window::MouseInClipspace(float* x, float* y) const
 {
 	// Get the mouse position from your screenspace
 	POINT p;
