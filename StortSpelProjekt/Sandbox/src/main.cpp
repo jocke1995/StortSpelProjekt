@@ -1770,33 +1770,52 @@ Scene* ShopScene(SceneManager* sm)
     component::DirectionalLightComponent* dlc = nullptr;
     component::SpotLightComponent* slc = nullptr;
     component::CollisionComponent* bcc = nullptr;
+    component::MeleeComponent* mac = nullptr;
+    component::RangeComponent* rc = nullptr;
+    component::UpgradeComponent* uc = nullptr;
+    component::CapsuleCollisionComponent* ccc = nullptr;
+    component::HealthComponent* hc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
-    /* ---------------------- Player ---------------------- */
+    Material* fenceMTL = al->LoadMaterialFromMTL(L"../Vendor/Resources/Materials/Fence/fence.mtl");
+#pragma region player
     Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
-    scene->SetPrimaryCamera(cc->GetCamera());
-    ic->Init();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    mac = entity->AddComponent<component::MeleeComponent>();
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    uc = entity->AddComponent<component::UpgradeComponent>();
 
-    mc->SetModel(sphereModel);
+    mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0, 1, -30);
-    /* ---------------------- Player ---------------------- */
+    tc->GetTransform()->SetPosition(0.0, 20.0, 0.0);
 
+    double3 playerDim = mc->GetModelDim();
+
+    double rad = playerDim.z / 2.0;
+    double cylHeight = playerDim.y - (rad * 2.0);
+    ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
+    hc = entity->AddComponent<component::HealthComponent>(10000000);
+    ic->Init();
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
+
+    Player::GetInstance().SetPlayer(entity);
+    Player::GetInstance().GetShop()->RandomizeInventory();
+#pragma endregion player
     /* ---------------------- Skybox ---------------------- */
     entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
@@ -1844,7 +1863,20 @@ Scene* ShopScene(SceneManager* sm)
     double3 shopDim = mc->GetModelDim();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(10000000.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
     /* ---------------------- Shop ---------------------- */
+#pragma region walls
+    entity = scene->AddEntity("wallLeft");
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetModel(floorModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(-50.0f, 10.0f, 0.0f);
+    tc->GetTransform()->SetScale(10, 1, 50);
+    tc->GetTransform()->SetRotationZ(-PI/2);
+
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
+    
+#pragma endregion walls
     /* ---------------------- SpotLightDynamic ---------------------- */
     entity = scene->AddEntity("spotLightDynamic");
     mc = entity->AddComponent<component::ModelComponent>();

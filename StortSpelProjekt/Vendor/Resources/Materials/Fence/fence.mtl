@@ -1,0 +1,10 @@
+# Blender MTL File: 'None'
+# Material Count: 2
+
+newmtl fenceMat
+map_Ka fence_metallic.jpg
+map_Kd fence_albedo.jpg
+map_Ks fence_roughness.jpg
+map_Kn fence_normal.jpg
+map_d fence_opacity.jpg
+#map_Ke wood_emissive.jpg

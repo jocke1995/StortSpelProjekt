@@ -42,6 +42,7 @@ public:
     // Textures ------------
     Texture* LoadTexture2D(const std::wstring& path);
     TextureCubeMap* LoadTextureCubeMap(const std::wstring& path);
+    Material* LoadMaterialFromMTL(const std::wstring& path);
 
     // Load Audio
     AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
@@ -114,7 +115,7 @@ private:
         const std::wstring& filePath);
 
     Material* loadMaterial(aiMaterial* mat, const std::wstring& folderPath);
-    Material* loadMaterialFromMTL(const std::wstring& path);
+    
 
     Texture* processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture);
     
