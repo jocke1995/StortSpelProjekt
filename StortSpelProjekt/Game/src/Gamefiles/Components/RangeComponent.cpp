@@ -61,7 +61,7 @@ void component::RangeComponent::Attack(MouseClick* event)
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
-		ac = ent->AddComponent<component::AccelerationComponent>(50);
+		ac = ent->AddComponent<component::AccelerationComponent>(98.2);
 		uc = ent->AddComponent<component::UpgradeComponent>();
 
 		// Applying all range uppgrades to the new projectile entity "RangeAttack"
