@@ -1,0 +1,10 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl zombieMat
+
+map_Kd Mat_Albedo.dds
+map_Ks Mat_Roughness.dds
+map_Kn Mat_Normal.dds
+map_Ka Mat_Metallic.dds
+map_Ke Mat_Emissive.dds
