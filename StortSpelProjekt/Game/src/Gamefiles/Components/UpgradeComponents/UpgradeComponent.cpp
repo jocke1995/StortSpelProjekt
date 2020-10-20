@@ -9,9 +9,9 @@ component::UpgradeComponent::UpgradeComponent(Entity* parent)
 
 component::UpgradeComponent::~UpgradeComponent()
 {
-	for (auto upgrades : m_AppliedUpgrades)
+	for (auto u : m_AppliedUpgrades)
 	{
-		delete upgrades.second;
+		delete u.second;
 	}
 }
 
