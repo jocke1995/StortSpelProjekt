@@ -96,5 +96,4 @@ void component::RangeComponent::Attack(MouseClick* event)
 		m_pSceneMan->AddEntity(ent, m_pScene);
 	}
 }
-
 		
