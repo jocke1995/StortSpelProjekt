@@ -3,3 +3,4 @@
 newmtl tstMat
 
 map_Kd tst.dds
+map_Kn tst_nmp.dds

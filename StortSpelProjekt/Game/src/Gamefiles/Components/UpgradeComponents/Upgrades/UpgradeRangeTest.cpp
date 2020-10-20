@@ -9,6 +9,8 @@ UpgradeRangeTest::UpgradeRangeTest(Entity* parent)
 	SetName("UpgradeRangeTest");
 	// set the upgrade type/types!
 	SetType(F_UpgradeType::RANGE | F_UpgradeType::PLAYER);
+	// set the price of this upgrade
+	m_Price = 8;
 
 	// level starts with value 1
 	m_AccelerationSpeed = 1000 * m_Level;

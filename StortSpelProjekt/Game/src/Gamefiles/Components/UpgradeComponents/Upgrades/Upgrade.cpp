@@ -51,6 +51,16 @@ int Upgrade::GetID()
 	return m_ID;
 }
 
+std::string Upgrade::GetDescription()
+{
+	return m_Description;
+}
+
+int Upgrade::GetPrice()
+{
+	return m_Price;
+}
+
 void Upgrade::Update(double dt)
 {
 }

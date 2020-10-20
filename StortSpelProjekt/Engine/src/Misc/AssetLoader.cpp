@@ -295,7 +295,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	}
 	delete[] tasks;
 
-	Mesh* mesh = new Mesh(m_pDevice, &vertices, &indices, m_pDescriptorHeap_CBV_UAV_SRV, path);
+	Mesh* mesh = new Mesh(&vertices, &indices, path);
 	mesh->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 	m_LoadedMeshes.push_back(mesh);
 
@@ -409,13 +409,22 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	float3 pos = { 0.0, 0.0, 0.0 };
 	float3 rot = { 0.0, 0.0, 0.0};
 	float3 lightColor = { 0.0, 0.0, 0.0 };
-	float3 lightDir = { 0.0, 0.0, 0.0 };;
-	float3 lightAttenuation = { 0.0, 0.0, 0.0 };;
+	float3 lightDir = { 0.0, 0.0, 0.0 };
+	float3 lightAttenuation = { 0.0, 0.0, 0.0 };
+	float lightAspect = 16.0f / 9.0f;
+	float lightCutOff = 30.0f;
+	float lightOuterCutOff = 45.0f;
+	float lightNear = 0.01;
+	float lightFar = 1000.0;
+	float lightLeft = -30.0;
+	float lightRight = 30.0;
+	float lightTop = 30.0;
+	float lightBottom = -30.0;
 	bool lightFlags[FLAG_LIGHT::NUM_FLAGS_LIGHT] = { 0 };
 	unsigned int collisionComponent = 0;
-	HeightmapModel* heightmapModel;
+	HeightmapModel* heightmapModel = nullptr;
 	float3 shapeInfo = { 0.0f,0.0f,0.0f };
-	const float mass = 0.0f;
+	float mass = 0.0f;
 	float friction = 0.0f;
 	float restitution = 0.0f;
 	HeightMapInfo hmInfo;
@@ -425,7 +434,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	int quad1 = 0;
 	int quad2 = 0;
 
-	NavMesh navMesh;
+	NavMesh* navMesh;
 
 	component::ModelComponent* mc = nullptr;
 	component::TransformComponent* tc = nullptr;
@@ -433,7 +442,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	component::SpotLightComponent* slc = nullptr;
 	component::DirectionalLightComponent* dlc = nullptr;
 	component::CollisionComponent* cc = nullptr;
-	Entity* entity;
+	component::SkyboxComponent* sbc = nullptr;
+	Entity* entity = nullptr;
 	if (file != NULL)
 	{
 		while (fscanf(file, "%s", lineHeader.c_str()) != EOF)
@@ -442,6 +452,11 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			{
 				fscanf(file, "%s", entityName.c_str());
 				entity = scene->AddEntity(entityName.c_str());
+			}
+			else if (strcmp(lineHeader.c_str(), "NavMesh") == 0)
+			{
+				scene->CreateNavMesh();
+				navMesh = scene->GetNavMesh();
 			}
 			else if (strcmp(lineHeader.c_str(), "ModelPath") == 0)
 			{
@@ -458,7 +473,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			{
 				fscanf(file, "%f,%f,%f", &rot.x, &rot.y, &rot.z);
 			}
-			else if (strcmp(lineHeader.c_str(), "ModelPosition") == 0 || strcmp(lineHeader.c_str(), "NavConnectionPosition") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelPosition") == 0 || strcmp(lineHeader.c_str(), "NavQuadPosition") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &pos.x, &pos.y, &pos.z);
 			}
@@ -483,6 +498,46 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			else if (strcmp(lineHeader.c_str(), "ModelLightAttenuation") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &lightAttenuation.x, &lightAttenuation.y, &lightAttenuation.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightAspectRatio") == 0)
+			{
+				fscanf(file, "%f", &lightAspect);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightCutOff") == 0)
+			{
+				fscanf(file, "%f", &lightCutOff);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightOuterCutOff") == 0)
+			{
+				fscanf(file, "%f", &lightOuterCutOff);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightNear") == 0)
+			{
+				fscanf(file, "%f", &lightNear);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightFar") == 0)
+			{
+				fscanf(file, "%f", &lightFar);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightLeft") == 0)
+			{
+				fscanf(file, "%f", &lightLeft);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightRight") == 0)
+			{
+				fscanf(file, "%f", &lightRight);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightTop") == 0)
+			{
+				fscanf(file, "%f", &lightTop);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightBottom") == 0)
+			{
+				fscanf(file, "%f", &lightBottom);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelMass") == 0)
+			{
+				fscanf(file, "%f", &mass);
 			}
 			else if (strcmp(lineHeader.c_str(), "ModelFriction") == 0)
 			{
@@ -526,15 +581,15 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 				}
 				else if (strcmp(toSubmit.c_str(), "Heightmap") == 0)
 				{
-					entity->AddComponent<component::ModelComponent>();
+					mc = entity->AddComponent<component::ModelComponent>();
+					heightmapModel = AssetLoader::LoadHeightmap(to_wstring(fullPath));
+					mc->SetModel(heightmapModel);
 					combinedFlag = 0;
 					for (int i = 0; i < FLAG_DRAW::NUM_FLAG_DRAWS; ++i)
 					{
 						combinedFlag += BIT(i + 1) * drawFlags[i];
 					}
 					mc->SetDrawFlag(combinedFlag);
-					heightmapModel = AssetLoader::LoadHeightmap(to_wstring(fullPath));
-					mc->SetModel(heightmapModel);
 					tc = entity->AddComponent<component::TransformComponent>();
 					tc->GetTransform()->SetRotationX(rot.x);
 					tc->GetTransform()->SetRotationY(rot.y);
@@ -552,6 +607,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					plc = entity->AddComponent<component::PointLightComponent>(combinedFlag);
 					plc->SetColor(lightColor);
 					plc->SetAttenuation(lightAttenuation);
+					plc->SetPosition({ pos.x, pos.y, pos.z });
 				}
 				else if (strcmp(toSubmit.c_str(), "SpotLight") == 0)
 				{
@@ -562,7 +618,19 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					}
 					slc = entity->AddComponent<component::SpotLightComponent>(combinedFlag);
 					slc->SetColor(lightColor);
+					slc->SetAttenuation(lightAttenuation);
 					slc->SetDirection(lightDir);
+					slc->SetPosition({ pos.x, pos.y, pos.z });
+					slc->SetAspectRatio(lightAspect);
+					slc->SetCutOff(lightCutOff);
+					slc->SetOuterCutOff(lightOuterCutOff);
+					slc->SetNearPlaneDistance(lightNear);
+					slc->SetFarPlaneDistance(lightFar);
+					lightAspect = 16.0f / 9.0f;
+					lightCutOff = 30.0f;
+					lightOuterCutOff = 45.0f;
+					lightNear = 0.01;
+					lightFar = 1000.0;
 				}
 				else if (strcmp(toSubmit.c_str(), "DirectionalLight") == 0)
 				{
@@ -574,23 +642,59 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					dlc = entity->AddComponent<component::DirectionalLightComponent>(combinedFlag);
 					dlc->SetColor(lightColor);
 					dlc->SetDirection(lightDir);
+					dlc->SetCameraLeft(lightLeft);
+					dlc->SetCameraRight(lightRight);
+					dlc->SetCameraTop(lightTop);
+					dlc->SetCameraBot(lightBottom);
+					dlc->SetCameraFarZ(lightFar);
+					dlc->SetCameraNearZ(lightNear);
+					lightNear = 0.01;
+					lightFar = 1000.0;
+					lightLeft = -30.0;
+					lightRight = 30.0;
+					lightTop = 30.0;
+					lightBottom = -30.0;
 				}
 				else if (strcmp(toSubmit.c_str(), "CollisionSphere") == 0)
 				{
 					fscanf(file, "%f", &shapeInfo.x);
+					if (shapeInfo == float3({ 0.0, 0.0, 0.0 }))
+					{
+						shapeInfo.x = entity->GetComponent<component::ModelComponent>()->GetModelDim().y / 2.0;
+					}
 					cc = entity->AddComponent<component::SphereCollisionComponent>(mass, shapeInfo.x, friction, restitution);
+					shapeInfo = { 0.0f, 0.0f, 0.0f };
+					mass = 0.0;
 				}
 				else if (strcmp(toSubmit.c_str(), "CollisionCapsule") == 0)
 				{
 					fscanf(file, "%f,%f", &shapeInfo.x, &shapeInfo.y);
+					if (shapeInfo == float3({ 0.0, 0.0, 0.0 }))
+					{
+						shapeInfo.x = entity->GetComponent<component::ModelComponent>()->GetModelDim().z / 2.0;
+						shapeInfo.y = entity->GetComponent<component::ModelComponent>()->GetModelDim().y - (shapeInfo.x * 2.0);
+					}
 					cc = entity->AddComponent<component::CapsuleCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, friction, restitution);
+					shapeInfo = { 0.0f, 0.0f, 0.0f };
+					mass = 0.0;
 				}
 				else if (strcmp(toSubmit.c_str(), "CollisionCube") == 0)
 				{
 					fscanf(file, "%f,%f,%f", &shapeInfo.x, &shapeInfo.y, &shapeInfo.z);
+					if (shapeInfo == float3({ 0.0, 0.0, 0.0 }))
+					{
+						shapeInfo =
+						{
+							static_cast<float>(entity->GetComponent<component::ModelComponent>()->GetModelDim().x / 2.0),
+							static_cast<float>(entity->GetComponent<component::ModelComponent>()->GetModelDim().y / 2.0),
+							static_cast<float>(entity->GetComponent<component::ModelComponent>()->GetModelDim().z / 2.0),
+						};
+					}
 					cc = entity->AddComponent<component::CubeCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, shapeInfo.z, friction, restitution);
+					shapeInfo = { 0.0f, 0.0f, 0.0f };
+					mass = 0.0;
 				}
-				else if (strcmp(toSubmit.c_str(), "CollisionHeightMap") == 0)
+				else if (strcmp(toSubmit.c_str(), "CollisionHeightmap") == 0)
 				{
 					HeightMapInfo info;
 					info.data = heightmapModel->GetHeights();
@@ -600,14 +704,25 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					info.minHeight = -1;
 					// Implement when feature is merged to develop
 					cc = entity->AddComponent<component::HeightmapCollisionComponent>(info,mass,friction,restitution);
+					mass = 0.0;
 				}
 				else if (strcmp(toSubmit.c_str(), "NavQuad") == 0)
 				{
-					navMesh.AddNavQuad(pos, size);
+					navMesh->AddNavQuad(pos, size);
 				}
 				else if (strcmp(toSubmit.c_str(), "NavConnection") == 0)
 				{
-					//navMesh.ConnectNavQuadsById(quad1, quad2, pos);
+					navMesh->ConnectNavQuads(quad1, quad2);
+				}
+				else if (strcmp(toSubmit.c_str(), "NavMesh") == 0)
+				{
+					navMesh->CreateGrid();
+				}
+				else if (strcmp(toSubmit.c_str(), "Skybox") == 0)
+				{
+					TextureCubeMap* skyboxCubemap = AssetLoader::LoadTextureCubeMap(to_wstring(fullPath));
+					sbc = entity->AddComponent<component::SkyboxComponent>();
+					sbc->SetTexture(skyboxCubemap);
 				}
 			}
 		}
@@ -762,9 +877,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 
 	// Create Mesh
 	Mesh* mesh = new Mesh(
-		m_pDevice,
 		&vertices, &indices,
-		m_pDescriptorHeap_CBV_UAV_SRV,
 		filePath);
 
 	// save mesh

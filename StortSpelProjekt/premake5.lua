@@ -28,6 +28,7 @@ project "Engine"
         "d3d12",
         "dxgi",
         "d3dcompiler",
+        "dxguid",
         "assimp-vc140-mt",
     }
 

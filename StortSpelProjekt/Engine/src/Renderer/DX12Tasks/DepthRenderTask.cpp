@@ -11,7 +11,7 @@
 #include "../GPUMemory/Resource.h"
 #include "../RenderView.h"
 #include "../PipelineState.h"
-#include "../BaseCamera.h"
+#include "../Camera/BaseCamera.h"
 #include "../GPUMemory/DepthStencil.h"
 #include "../GPUMemory/DepthStencilView.h"
 

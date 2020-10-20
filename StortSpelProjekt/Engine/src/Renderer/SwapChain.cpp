@@ -38,7 +38,7 @@ SwapChain::SwapChain(
 	// If the chosen resolution is higher than the screen resolution, set the resolution to the screen resolution
 	if (m_ScreenWidth < width || m_ScreenHeight < height)
 	{
-		m_CurrentModeDescription.Width = m_ScreenWidth;
+		m_CurrentModeDescription.Width = m_ScreenWidth - 1;
 		m_CurrentModeDescription.Height = m_ScreenHeight;
 		Log::Print("Choosing (%d, %d) as the new resolution...\n", m_CurrentModeDescription.Width, m_CurrentModeDescription.Height);
 	}

@@ -31,6 +31,10 @@ namespace component
 	{
 	}
 
+	void TransformComponent::OnUnInitScene()
+	{
+	}
+
 	Transform* TransformComponent::GetTransform() const
 	{
 		return m_pTransform;

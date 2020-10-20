@@ -7,6 +7,9 @@
 struct NavQuad;
 struct Connection;
 
+class Entity;
+class Scene;
+
 struct NavQuad
 {
 	float3 position;
@@ -19,8 +22,6 @@ struct Connection
 {
 	NavQuad* quadOne;
 	NavQuad* quadTwo;
-
-	float3 position;
 
 	//Takes the current navQuad to identify which pointer it is, in order to give the other quad
 	NavQuad* GetConnectedQuad(NavQuad* currQuad)
@@ -39,19 +40,26 @@ struct Connection
 class NavMesh
 {
 public:
-	NavMesh();
+	NavMesh(Scene* scene);
 	~NavMesh();
 
 	NavQuad* AddNavQuad(float3 position, float2 size);
 
-	void ConnectNavQuads(NavQuad* nav1, NavQuad* nav2, float3 position);
+	void ConnectNavQuads(NavQuad* nav1, NavQuad* nav2);
+	void ConnectNavQuads(int nav1, int nav2);
 
 	//Returns a quad for the given position
 	NavQuad* GetQuad(float3 position);
 
+	void CreateGrid();
+
 private:
 	std::vector<NavQuad*> m_NavQuads;
 	std::vector<Connection*> m_Connections;
+
+	Entity* m_pEntity;
+
+	int m_NumScenes;
 };
 
 #endif

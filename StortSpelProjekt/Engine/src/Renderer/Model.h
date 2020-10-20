@@ -46,7 +46,7 @@ public:
     // SlotInfo
     const SlotInfo* GetSlotInfoAt(unsigned int index) const;
 
-    double3 GetModelDim() const;
+    double3 GetModelDim();
 
 protected:
     friend class Renderer;
@@ -67,6 +67,8 @@ protected:
     SkeletonNode* m_pSkeleton;
     DirectX::XMFLOAT4X4 m_GlobalInverseTransform;
     std::map<unsigned int, VertexWeight> m_PerVertexBoneData; // AKA weights
+
+    double3 m_ModelDim;
 };
 
 #endif

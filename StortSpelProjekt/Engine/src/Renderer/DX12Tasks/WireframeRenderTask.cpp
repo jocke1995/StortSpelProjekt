@@ -10,7 +10,7 @@
 #include "../PipelineState.h"
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
-#include "../Renderer/BaseCamera.h"
+#include "../Renderer/Camera/BaseCamera.h"
 #include "../GPUMemory/RenderTargetView.h"
 
 #include "../ImGUI/ImGuiHandler.h"

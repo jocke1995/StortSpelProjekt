@@ -98,25 +98,32 @@ Scene* SceneManager::GetScene(std::string sceneName) const
 
 void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
-	// Remove all bindings to used components
-	// RenderComponent
-	Renderer::GetInstance().removeComponents(entity);
+	entity->OnUnInitScene();
+
+	// Some components need to be sent to the gpu each frame
+	Renderer::GetInstance().SubmitUploadPerFrameData();
+	Renderer::GetInstance().SubmitUploadPerSceneData();
 
 	// Remove from the scene
 	scene->RemoveEntity(entity->GetName());
+
+	Renderer::GetInstance().executeCopyOnDemand();
 }
 
 void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
-	// Add it to the scene
-	scene->AddEntityFromOther(entity);
-
-	// Only init once per scene (in case a entity is in both scenes)
-	if (m_IsEntityInited.count(entity) == 0)
+	// Use the first active scene if not specified
+	if (scene == nullptr)
 	{
-		entity->OnInitScene();
-		m_IsEntityInited[entity] = true;
+		Log::PrintSeverity(Log::Severity::CRITICAL, "You need to specify the scene!!\n");
 	}
+
+	entity->OnInitScene();
+
+	// Some components need to be sent to the gpu each frame
+	Renderer::GetInstance().SubmitUploadPerFrameData();
+	Renderer::GetInstance().SubmitUploadPerSceneData();
+	Renderer::GetInstance().executeCopyOnDemand();
 }
 
 void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
@@ -132,12 +139,7 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
 		for (auto const& [entityName, entity] : entities)
 		{
-			// Only init once per scene (in case a entity is in both scenes)
-			if (m_IsEntityInited.count(entity) == 0)
-			{
-				entity->OnInitScene();
-				m_IsEntityInited[entity] = true;
-			}
+			entity->OnInitScene();
 		}
 
 		m_ActiveScenes.push_back(scenes[i]);
@@ -161,9 +163,6 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 void SceneManager::ResetScene()
 {
 	Renderer::GetInstance().waitForGPU();
-
-	// Reset isEntityInited
-	m_IsEntityInited.clear();
 
 	/* ------------------------- GPU -------------------------*/
 	
