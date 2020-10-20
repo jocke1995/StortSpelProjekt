@@ -1783,10 +1783,10 @@ Scene* ShopScene(SceneManager* sm)
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
+    Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
-    Material* fenceMTL = al->LoadMaterialFromMTL(L"../Vendor/Resources/Materials/Fence/fence.mtl");
 #pragma region player
     Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
@@ -1864,16 +1864,59 @@ Scene* ShopScene(SceneManager* sm)
     bcc = entity->AddComponent<component::CubeCollisionComponent>(10000000.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
     /* ---------------------- Shop ---------------------- */
 #pragma region walls
+    // Left wall
     entity = scene->AddEntity("wallLeft");
     mc = entity->AddComponent<component::ModelComponent>();
-    mc->SetModel(floorModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    mc->SetModel(fenceModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
+    
 
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetPosition(-50.0f, 10.0f, 0.0f);
     tc->GetTransform()->SetScale(10, 1, 50);
     tc->GetTransform()->SetRotationZ(-PI/2);
+    tc->GetTransform()->SetRotationY(PI);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
 
+    // Right wall
+    entity = scene->AddEntity("wallRight");
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetModel(fenceModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
+
+
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(50.0f, 10.0f, 0.0f);
+    tc->GetTransform()->SetScale(10, 1, 50);
+    tc->GetTransform()->SetRotationZ(PI / 2);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
+
+    // Top Wall
+    entity = scene->AddEntity("wallTop");
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetModel(fenceModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
+
+
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(0.0f, 10.0f, 50.0f);
+    tc->GetTransform()->SetScale(10, 1, 50);
+    tc->GetTransform()->SetRotationZ(PI / 2);
+    tc->GetTransform()->SetRotationX(-PI / 2);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
+
+    // Bot Wall
+    entity = scene->AddEntity("wallBot");
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetModel(fenceModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
+
+
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(0.0f, 10.0f, -50.0f);
+    tc->GetTransform()->SetScale(10, 1, 50);
+    tc->GetTransform()->SetRotationZ(PI / 2);
+    tc->GetTransform()->SetRotationX(-PI / 2);
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
     
 #pragma endregion walls
@@ -1901,7 +1944,7 @@ Scene* ShopScene(SceneManager* sm)
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
     dlc->SetColor({ 0.8f, 0.8f, 0.8f });
     dlc->SetDirection({ -2.0f, -1.0f, -1.0f });
-    dlc->SetCameraTop(30.0f);
+    dlc->SetCameraTop(50.0f);
     dlc->SetCameraBot(-30.0f);
     dlc->SetCameraLeft(-70.0f);
     dlc->SetCameraRight(70.0f);

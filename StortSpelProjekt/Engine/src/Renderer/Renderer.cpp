@@ -700,6 +700,8 @@ void Renderer::submitModelToCodt(Model* model)
 		submitTextureToCodt(texture);
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::EMISSIVE);
 		submitTextureToCodt(texture);
+		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::OPACITY);
+		submitTextureToCodt(texture);
 	}
 }
 
@@ -1312,10 +1314,8 @@ void Renderer::initRenderTasks()
 	blendRTdesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	blendRTdesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
-
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
 		gpsdBlendFrontCull.BlendState.RenderTarget[i] = blendRTdesc;
-
 
 	// Depth descriptor
 	D3D12_DEPTH_STENCIL_DESC dsdBlend = {};
@@ -1914,7 +1914,7 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 
 	// -------------------- DEBUG STUFF --------------------
 	// Test to change m_pCamera to the shadow casting m_lights cameras
-	//auto& tuple = m_Lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
+	//auto& tuple = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].at(0);
 	//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
 	//m_pScenePrimaryCamera = tempCam;
 	if (m_pScenePrimaryCamera == nullptr)

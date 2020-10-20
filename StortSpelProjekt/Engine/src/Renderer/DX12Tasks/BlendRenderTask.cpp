@@ -29,6 +29,7 @@ BlendRenderTask::BlendRenderTask(
 
 BlendRenderTask::~BlendRenderTask()
 {
+
 }
 
 void BlendRenderTask::Execute()

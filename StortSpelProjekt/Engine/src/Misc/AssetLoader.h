@@ -56,7 +56,6 @@ public:
     // Scene
     void LoadMap(Scene* scene, const char* path);
 
-
     // IsLoadedFunctions
     bool IsModelLoadedOnGpu(const std::wstring& name) const;
     bool IsModelLoadedOnGpu(const Model* model) const;
