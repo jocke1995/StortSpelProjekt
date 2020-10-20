@@ -85,13 +85,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
-
-    // 
-    static int nr = 0;
-    static Model* aaa = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    static AudioBuffer* aaaSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruhh");
-    aaaSound->SetAudioLoop(0);
-
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
@@ -120,90 +113,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
                 gameNetwork.Update(networkUpdateRate);
             }
-        }
-
-        // This is test. To be removed before pull into develop
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        Scene* activeScene = sceneManager->GetActiveScenes()->at(0);
-        if (window->WasSpacePressed())
-        {
-            Entity* a = activeScene->AddEntity(std::to_string(nr++));
-
-            auto mc = a->AddComponent<component::ModelComponent>();
-            mc->SetModel(aaa);
-            mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-
-            auto tc = a->AddComponent<component::TransformComponent>();
-            tc->GetTransform()->SetPosition(activeScene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionXMFLOAT3());
-
-            /* ------------------------- 2DGUI --------------------------- */
-            std::string textToRender = "TEST";
-            float2 textPos = { 0.02f, 0.85f };
-            float2 textPadding = { 0.5f, 0.0f };
-            float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-            float2 textScale = { 3.0f, 3.0f };
-            
-            // Cannot be added in runtime
-            //component::GUI2DComponent* gui = a->AddComponent<component::GUI2DComponent>();
-            //
-            //gui->GetTextManager()->AddText("health");
-            //gui->GetTextManager()->SetColor(textColor, "health");
-            //gui->GetTextManager()->SetPadding(textPadding, "health");
-            //gui->GetTextManager()->SetPos(textPos, "health");
-            //gui->GetTextManager()->SetScale(textScale, "health");
-            //gui->GetTextManager()->SetText(textToRender, "health");
-            //
-            //float2 quadPos = { 0.25f, 0.25f };
-            //float2 quadScale = { 0.5f, 0.5f };
-            //gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, L"../Vendor/Resources/Textures/2DGUI/replay.png");
-
-            /* ---------------------------------------------------------- */
-
-            
-            //SOUND
-            // Testing 2d sound
-            //component::Audio2DVoiceComponent* audio2d = a->AddComponent<component::Audio2DVoiceComponent>();
-            //audio2d->AddVoice(L"Bruhh");
-            //audio2d->Play(L"Bruhh");
-            //
-            //
-            // Testing 3d Sound (sound pos is not updated each frame)
-            //component::Audio3DEmitterComponent* audio3d = a->AddComponent<component::Audio3DEmitterComponent>();
-            //audio3d->AddVoice(L"Bruhh");
-            //audio3d->Play(L"Bruhh");
-            //
-            //auto l = leoScene->GetEntity("player")->GetComponent<component::Audio3DListenerComponent>();
-            //l->UpdateListener();
-            //
-            //audio3d->UpdateEmitter(L"Bruhh");
-
-            // Testing camera
-            //auto u = a->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, false);
-
-            
-
-
-            /* BOunding box */
-
-            component::CapsuleCollisionComponent* ccc = a->AddComponent<component::CapsuleCollisionComponent>(200.0, 1, 2, 0.0, 0.0, false);
-            component::BoundingBoxComponent* bbc = a->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-            bbc->Init();
-
-            /* ---------------------------------------------------------- */
-
-            auto light = a->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-            light->SetColor({ 200, 200, 200 });
-
-            sceneManager->AddEntity(a, activeScene);
-        }
-        else if (window->WasTabPressed())
-        {
-            sceneManager->RemoveEntity(activeScene->GetEntity(std::to_string(--nr)), activeScene);
         }
 
         /* ------ Sort ------ */
