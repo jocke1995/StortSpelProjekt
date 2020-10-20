@@ -1868,7 +1868,7 @@ Scene* ShopScene(SceneManager* sm)
     entity = scene->AddEntity("wallLeft");
     mc = entity->AddComponent<component::ModelComponent>();
     mc->SetModel(fenceModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
     
 
     tc = entity->AddComponent<component::TransformComponent>();
@@ -1882,7 +1882,7 @@ Scene* ShopScene(SceneManager* sm)
     entity = scene->AddEntity("wallRight");
     mc = entity->AddComponent<component::ModelComponent>();
     mc->SetModel(fenceModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT | FLAG_DRAW::NO_DEPTH);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE | FLAG_DRAW::NO_DEPTH);
 
 
     tc = entity->AddComponent<component::TransformComponent>();
@@ -1896,7 +1896,7 @@ Scene* ShopScene(SceneManager* sm)
     entity = scene->AddEntity("wallTop");
     mc = entity->AddComponent<component::ModelComponent>();
     mc->SetModel(fenceModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT | FLAG_DRAW::NO_DEPTH);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE | FLAG_DRAW::NO_DEPTH);
 
 
     tc = entity->AddComponent<component::TransformComponent>();
@@ -1910,7 +1910,7 @@ Scene* ShopScene(SceneManager* sm)
     entity = scene->AddEntity("wallBot");
     mc = entity->AddComponent<component::ModelComponent>();
     mc->SetModel(fenceModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
 
 
     tc = entity->AddComponent<component::TransformComponent>();
