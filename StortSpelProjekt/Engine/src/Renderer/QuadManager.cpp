@@ -42,6 +42,7 @@ bool QuadManager::operator==(const QuadManager& other) const
 }
 
 void QuadManager::CreateQuad(
+	std::string name,
 	float2 pos, float2 size,
 	bool clickable, bool markable,
 	E_DEPTH_LEVEL depthLevel,
@@ -73,6 +74,7 @@ void QuadManager::CreateQuad(
 		m_pQuadTexture = texture;
 	}
 
+	m_Name = name;
 	m_Clickable = clickable;
 	m_Markable = markable;
 	m_DepthLevel = depthLevel;
@@ -255,6 +257,11 @@ const float4 QuadManager::GetAmountOfBlend() const
 	return m_AmountOfBlend;
 }
 
+const int QuadManager::GetId() const
+{
+	return m_Id;
+}
+
 const bool QuadManager::GetActiveTexture() const
 {
 	return m_ActiveTexture;
@@ -267,9 +274,9 @@ void QuadManager::SetActiveTexture(const bool texture)
 
 void QuadManager::pressed(MouseClick* evnt)
 {
-	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN && evnt->pressed == true)
+	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN && evnt->pressed && IsMarked())
 	{
-		m_Pressed = IsMarked();
+		EventBus::GetInstance().Publish(&ButtonPressed(m_Name));
 	}
 }
 

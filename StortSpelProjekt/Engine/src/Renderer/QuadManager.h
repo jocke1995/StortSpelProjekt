@@ -34,6 +34,7 @@ public:
 
 	// If you don't want any texture, send a nullptr
 	void CreateQuad(
+		std::string name,
 		float2 pos, float2 size, 
 		bool clickable, bool markable,
 		E_DEPTH_LEVEL depthLevel, 
@@ -53,6 +54,7 @@ public:
 	SlotInfo* const GetSlotInfo() const;
 	const E_DEPTH_LEVEL* GetDepthLevel() const;
 	const float4 GetAmountOfBlend() const;
+	const int GetId() const;
 
 	// 0 (false) for the normal texture and 1 (true) for the marked texture
 	const bool GetActiveTexture() const;
@@ -65,6 +67,7 @@ private:
 	friend class Renderer;
 
 	int m_Id = 0;
+	std::string m_Name;
 	float4 m_AmountOfBlend = float4{ 1.0, 1.0, 1.0, 1.0 };
 	std::map<std::string, float2> m_Positions = {};
 	E_DEPTH_LEVEL m_DepthLevel = {};
