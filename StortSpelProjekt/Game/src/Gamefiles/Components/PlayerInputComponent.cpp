@@ -94,7 +94,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 
 		m_pCamera->SetPosition(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 		float directionX = playerPosition.x - cameraPosition.x;
-		float directionY = playerPosition.y + 3.0f - cameraPosition.y;
+		float directionY = playerPosition.y + (m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y * 0.5) + 1.0 - cameraPosition.y;
 		float directionZ = playerPosition.z - cameraPosition.z;
 		m_pCamera->SetDirection(directionX, directionY, directionZ);
 	}

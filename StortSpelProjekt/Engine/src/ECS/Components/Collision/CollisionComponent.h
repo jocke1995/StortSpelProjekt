@@ -18,7 +18,7 @@ namespace component
 	{
 	public:
 		// if Mass is zero, the object is static (It will not move because of collisions).
-		CollisionComponent(Entity* parent, double mass = 1.0, double friction = 1.0, double restitution = 0.5, bool canFall = true);
+		CollisionComponent(Entity* parent, double mass = 1.0, double friction = 1.0, double restitution = 0.5, bool canFall = true, bool gravity = true);
 		virtual ~CollisionComponent();
 		
 		void Update(double dt);
@@ -47,6 +47,8 @@ namespace component
 		void SetAngularFactor(const double3& factor);
 		// Sets the linear factor, how much the object may move in the world. 0 will stop it from moving in that axis.
 		void SetLinearFactor(double3& factor);
+		// Sets if the collisioncomponent is affected by gravity or not.
+		void SetGravity(bool affectedByGravity);
 
 
 		btRigidBody* GetBody() const;
@@ -68,6 +70,7 @@ namespace component
 		virtual double GetDistanceToBottom() const = 0;
 	protected:
 		bool m_CanFall;
+		bool m_Gravity;
 		double m_Mass;
 		double m_Fric;
 		double m_Rest;

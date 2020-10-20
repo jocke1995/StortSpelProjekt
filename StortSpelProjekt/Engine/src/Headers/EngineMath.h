@@ -66,6 +66,11 @@ typedef union float3
 		return { x - other.x, y - other.y, z - other.z };
 	};
 
+	bool operator == (float3 other)
+	{
+		return (x == other.x && y == other.y && z == other.z);
+	}
+
 	float3 cross(float3* that) const
 	{
 		return
@@ -132,6 +137,10 @@ typedef union double3
 		y *= factor;
 		z *= factor;
 	};
+	bool operator == (double3 other)
+	{
+		return (x == other.x && y == other.y && z == other.z);
+	}
 	double3 cross(double3* that)
 	{
 		return

@@ -68,7 +68,7 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
         component::CubeCollisionComponent* bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f);
 
         mc = entity->GetComponent<component::ModelComponent>();
-        mc->SetModel(AssetLoader::Get()->LoadModel(L"../Vendor/Resources/Models/Player/player.obj"));
+        mc->SetModel(AssetLoader::Get()->LoadModel(L"../Vendor/Resources/Models/Man/man.obj"));
         mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
         tc = entity->GetComponent<component::TransformComponent>();
         tc->GetTransform()->SetScale(1.0f);

@@ -3,7 +3,7 @@
 #include "../ECS/Entity.h"
 #include "../Renderer/Transform.h"
 #include "../Physics/Physics.h"
-component::CollisionComponent::CollisionComponent(Entity* parent, double mass, double friction, double restitution, bool canFall) : Component(parent),
+component::CollisionComponent::CollisionComponent(Entity* parent, double mass, double friction, double restitution, bool canFall, bool gravity) : Component(parent),
 m_pTrans(nullptr),
 m_pBody(nullptr),
 m_pMotionState(nullptr),
@@ -11,7 +11,8 @@ m_pShape(nullptr),
 m_Mass(mass),
 m_Fric(friction),
 m_Rest(restitution),
-m_CanFall(canFall)
+m_CanFall(canFall),
+m_Gravity(gravity)
 {
 }
 
@@ -29,6 +30,7 @@ void component::CollisionComponent::Update(double dt)
 	float y = trans.getOrigin().y();
 	float z = trans.getOrigin().z();
 	m_pTrans->SetPosition(x, y, z);
+	m_pShape->setLocalScaling({ m_pTrans->GetScale().x, m_pTrans->GetScale().y, m_pTrans->GetScale().z });
 
 	double roll;
 	double pitch;
@@ -88,16 +90,17 @@ void component::CollisionComponent::OnInitScene()
 	m_pBody = new btRigidBody(info);
 	m_pBody->setLinearVelocity({ m_pTrans->GetMovement().x, m_pTrans->GetMovement().y, m_pTrans->GetMovement().z });
 
+
 	// Will be removed in the future!
 	// If it isn't called, objects may be deactivated as Bullet deduces they wont be colliding with anything, but if user then changes position bullet does not react.
 	m_pBody->setActivationState(DISABLE_DEACTIVATION);
 
 	// Add the collisioncomponent to the physics sub-engine.
 	Physics::GetInstance().AddCollisionComponent(this);
-	if (!m_CanFall)
-	{
-		m_pBody->setAngularFactor({ 0.0, 1.0, 0.0 });
-	}
+
+	m_pBody->setGravity({ 0.0, -98.2 * m_Gravity, 0.0 });
+
+	m_pBody->setAngularFactor({ 0.0, 1.0 * m_CanFall, 0.0 });
 }
 
 void component::CollisionComponent::OnUnInitScene()
@@ -185,6 +188,16 @@ void component::CollisionComponent::SetAngularFactor(const double3& factor)
 void component::CollisionComponent::SetLinearFactor(double3& factor)
 {
 	m_pBody->setLinearFactor({ factor.x, factor.y, factor.z });
+}
+
+void component::CollisionComponent::SetGravity(bool affectedByGravity)
+{
+	m_Gravity = affectedByGravity;
+
+	if (m_pBody)
+	{
+		m_pBody->setGravity({ 0.0, -98.2 * m_Gravity, 0.0 });
+	}
 }
 
 btRigidBody* component::CollisionComponent::GetBody() const

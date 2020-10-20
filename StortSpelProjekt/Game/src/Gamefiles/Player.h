@@ -1,13 +1,16 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "Components/UpgradeComponents/UpgradeComponent.h"
-#include "UpgradeManager.h"
 #include <map>
 #include <vector>
 #include <string>
 
 class Entity;
+class Shop;
+class UpgradeManager;
+
+struct UForUpgrade;
+
 class Player
 {
 public:
@@ -22,6 +25,7 @@ public:
 	Entity* GetPlayer();
 	// Get the manager so we can use it in places such as Shop or RangeComponent.
 	UpgradeManager* GetUpgradeManager();
+	Shop* GetShop();
 
 private:
 	Player();
@@ -29,7 +33,9 @@ private:
 
 	// Player entitys upgrade manager
 	UpgradeManager* m_pUpgradeManager = nullptr;
+	Shop* m_pShop;
 
+	void buyUpgrade(UForUpgrade* evnt);
 };
 
 
