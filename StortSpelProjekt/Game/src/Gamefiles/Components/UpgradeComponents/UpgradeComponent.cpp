@@ -27,11 +27,7 @@ void component::UpgradeComponent::OnInitScene()
 {
 }
 
-void component::UpgradeComponent::OnLoadScene()
-{
-}
-
-void component::UpgradeComponent::OnUnloadScene()
+void component::UpgradeComponent::OnUnInitScene()
 {
 }
 

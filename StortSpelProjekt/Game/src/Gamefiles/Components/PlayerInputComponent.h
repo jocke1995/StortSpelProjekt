@@ -41,6 +41,7 @@ namespace component
 		void Init();
 
 		void OnInitScene();
+		void OnUnInitScene();
 
 		void RenderUpdate(double dt);
 

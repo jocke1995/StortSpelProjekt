@@ -6,7 +6,7 @@
 #include "DescriptorHeap.h"
 #include "Texture/Texture.h"
 
-Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, DescriptorHeap* descriptorHeap_SRV, const std::wstring& path)
+Mesh::Mesh(std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, const std::wstring& path)
 {
 	m_Path = path;
 

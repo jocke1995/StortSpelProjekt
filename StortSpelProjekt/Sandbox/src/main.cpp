@@ -6,7 +6,6 @@
 
 Scene* JacobsTestScene(SceneManager* sm);
 Scene* LeosTestScene(SceneManager* sm);
-Scene* LeosBounceScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
 Scene* JockesTestScene(SceneManager* sm);
 Scene* FloppipTestScene(SceneManager* sm);
@@ -81,6 +80,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         gameNetwork.SetSceneManager(sceneManager);
         gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
     }
+
     double networkTimer = 0;
     double logicTimer = 0;
     int count = 0;
@@ -260,7 +260,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     dlc->SetColor({ 0.5f, 0.5f, 0.5f });
 
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &DefaultUpdateScene;
+    //UpdateScene = &LeoBounceUpdateScene;
 
     return scene;
 }
@@ -806,7 +806,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     /* ---------------------- Skybox ---------------------- */
 
     // Skybox
-    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/cubemap.dds");
     entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
     sbc->SetTexture(skyboxCubemap);
@@ -1310,6 +1310,7 @@ Scene* AndresTestScene(SceneManager* sm)
     melc = entity->AddComponent<component::MeleeComponent>();
     upgradeComp = entity->AddComponent<component::UpgradeComponent>();
 
+
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
@@ -1642,11 +1643,7 @@ void LeoUpdateScene(SceneManager* sm, double dt)
     float4 color = float4{ abs(sin(red)), abs(sin(green)), abs(sin(blue)), 1.0 };
     gui->GetTextManager()->SetColor(color, "health");
     gui->GetTextManager()->SetText("Player HP: " + std::to_string(hc->GetHealth()), "health");
-    gui->GetTextManager()->UploadTextData("health");
-
-    gui->GetTextManager()->SetColor(color, "enemyHealth");
-    gui->GetTextManager()->SetText("Enemy HP: " + std::to_string(ehc->GetHealth()), "enemyHealth");
-    gui->GetTextManager()->UploadTextData("enemyHealth");
+    //gui->GetTextManager()->UploadTextData("health"); textManager is not supposed to be uploaded each frame. It uses "onDemand" => use it only when it has to change.
 
     intensity += 1.0f * dt;
     red += 1.0 * dt;
@@ -1694,7 +1691,7 @@ void FredriksUpdateScene(SceneManager* sm, double dt)
 {
 	component::Audio3DEmitterComponent* ec = sm->GetScene("FredriksTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
 	ec->UpdateEmitter(L"Bruh");
-
+    
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	component::GUI2DComponent* tc = sm->GetScene("FredriksTestScene")->GetEntity("text")->GetComponent<component::GUI2DComponent>();
 	AssetLoader* al = AssetLoader::Get();
@@ -1704,16 +1701,16 @@ void FredriksUpdateScene(SceneManager* sm, double dt)
 	static float red = 0, green = 1, blue = 0.5;
 	float4 color = float4{ abs(sin(red)), abs(sin(green)), abs(sin(blue)), 1.0 };
 	tc->GetTextManager()->SetColor(color, "health");
-	tc->GetTextManager()->UploadTextData("health");
+	//tc->GetTextManager()->UploadTextData("health"); Don't do per frame
 	red += 0.01;
 	green += 0.01;
 	blue += 0.01;
-
+    
 	if (tc->GetQuadManager()->HasBeenPressed())
 	{
 		Log::Print("PRESSED!\n");
 	}
-
+    
 	std::string name = "enemy";
 	for (int i = 1; i < 76; i++)
 	{
