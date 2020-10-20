@@ -96,9 +96,7 @@ void QuadManager::CreateQuad(float2 pos, float2 size, bool clickable, std::wstri
 	Renderer* renderer = &Renderer::GetInstance();
 
 	m_pQuad = new Mesh(
-		renderer->m_pDevice5, 
-		&m_Vertices, &indices, 
-		renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], 
+		&m_Vertices, &indices,
 		to_wstring(std::to_string(m_Id)));
 
 	m_pQuad->Init(renderer->m_pDevice5, renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);

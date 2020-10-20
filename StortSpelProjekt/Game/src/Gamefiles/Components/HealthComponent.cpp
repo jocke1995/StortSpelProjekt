@@ -21,11 +21,7 @@ void component::HealthComponent::OnInitScene()
 {
 }
 
-void component::HealthComponent::OnLoadScene()
-{
-}
-
-void component::HealthComponent::OnUnloadScene()
+void component::HealthComponent::OnUnInitScene()
 {
 }
 

@@ -25,6 +25,7 @@ namespace component
 
 		// Initializes the component and gives it to the physics sub-engine. Needs to be called before any methods are used.
 		void OnInitScene();
+		void OnUnInitScene();
 		
 		// Sets the position of the object. This affects the transform from a transformcomponent as well.
 		void SetPosition(double x, double y, double z);
