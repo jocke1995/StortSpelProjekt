@@ -245,8 +245,6 @@ private:
 
 	// Setup the whole scene
 	void prepareScenes(std::vector<Scene*>* scenes);
-	// Setup what should be drawn in the scene
-	void prepareRenderComponents(std::vector<Scene*>* scenes);
 
 	// Setup Per-scene data and send to GPU
 	void SubmitUploadPerSceneData();
