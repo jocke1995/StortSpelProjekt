@@ -1813,17 +1813,17 @@ void JockeUpdateScene(SceneManager* sm, double dt)
 
 void FredriksUpdateScene(SceneManager* sm, double dt)
 {
-	/*component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
-	component::GUI2DComponent* tx = sm->GetScene("FredriksTestScene")->GetEntity("text")->GetComponent<component::GUI2DComponent>();
-	component::GUI2DComponent* ov = sm->GetScene("FredriksTestScene")->GetEntity("overlay")->GetComponent<component::GUI2DComponent>();
-	AssetLoader* al = AssetLoader::Get();
+	component::GUI2DComponent* head = sm->GetScene("FredriksTestScene")->GetEntity("head")->GetComponent<component::GUI2DComponent>();
+
+	/*AssetLoader* al = AssetLoader::Get();
+	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
 	tx->GetTextManager()->UploadAndExecuteTextData("health");*/
 
-	/*if (tx->GetQuadManager()->HasBeenPressed() || ov->GetQuadManager()->HasBeenPressed())
+	if (head->GetQuadManager()->HasBeenPressed())
 	{
 		Log::Print("PRESSED!\n");
-	}*/
+	}
 }
 
 void DefaultUpdateScene(SceneManager* sm, double dt)

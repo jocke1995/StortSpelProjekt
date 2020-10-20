@@ -641,27 +641,26 @@ void Renderer::InitBoundingBoxComponent(component::BoundingBoxComponent* compone
 
 void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 {
-	component::GUI2DComponent* GUIComp = entity->GetComponent<component::GUI2DComponent>();
-	auto* textDataMap = GUIComp->GetTextManager()->GetTextDataMap();
-	auto* quad = GUIComp->GetQuadManager()->GetQuad();
+	auto* textDataMap = component->GetTextManager()->GetTextDataMap();
+	auto* quad = component->GetQuadManager()->GetQuad();
 
 	if (textDataMap != nullptr)
 	{
 		for (auto textData : *textDataMap)
 		{
-			GUIComp->GetTextManager()->uploadTextData(textData.first, this);
+			component->GetTextManager()->uploadTextData(textData.first, this);
 		}
 
 		// Finally store the text in m_pRenderer so it will be drawn
-		m_TextComponents.push_back(GUIComp);
+		m_TextComponents.push_back(component);
 	}
 
 	if (quad != nullptr)
 	{
-		GUIComp->GetQuadManager()->uploadQuadData(this);
+		component->GetQuadManager()->uploadQuadData(this);
 
 		// Finally store the quad in m_pRenderer so it will be drawn
-		m_QuadComponents.push_back(GUIComp);
+		m_QuadComponents.push_back(component);
 	}
 }
 
