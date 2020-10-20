@@ -1868,7 +1868,7 @@ Scene* ShopScene(SceneManager* sm)
     entity = scene->AddEntity("wallLeft");
     mc = entity->AddComponent<component::ModelComponent>();
     mc->SetModel(fenceModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
     
 
     tc = entity->AddComponent<component::TransformComponent>();
@@ -1882,41 +1882,42 @@ Scene* ShopScene(SceneManager* sm)
     entity = scene->AddEntity("wallRight");
     mc = entity->AddComponent<component::ModelComponent>();
     mc->SetModel(fenceModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT | FLAG_DRAW::NO_DEPTH);
 
 
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetPosition(50.0f, 10.0f, 0.0f);
     tc->GetTransform()->SetScale(10, 1, 50);
-    tc->GetTransform()->SetRotationZ(PI / 2);
+    tc->GetTransform()->SetRotationZ(-PI / 2);
+    tc->GetTransform()->SetRotationY(PI);
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
 
     // Top Wall
     entity = scene->AddEntity("wallTop");
     mc = entity->AddComponent<component::ModelComponent>();
     mc->SetModel(fenceModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT | FLAG_DRAW::NO_DEPTH);
 
 
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetPosition(0.0f, 10.0f, 50.0f);
     tc->GetTransform()->SetScale(10, 1, 50);
     tc->GetTransform()->SetRotationZ(PI / 2);
-    tc->GetTransform()->SetRotationX(-PI / 2);
+    tc->GetTransform()->SetRotationX(PI / 2);
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
 
     // Bot Wall
     entity = scene->AddEntity("wallBot");
     mc = entity->AddComponent<component::ModelComponent>();
     mc->SetModel(fenceModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
 
 
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetPosition(0.0f, 10.0f, -50.0f);
     tc->GetTransform()->SetScale(10, 1, 50);
     tc->GetTransform()->SetRotationZ(PI / 2);
-    tc->GetTransform()->SetRotationX(-PI / 2);
+    tc->GetTransform()->SetRotationX(PI / 2);
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
     
 #pragma endregion walls
