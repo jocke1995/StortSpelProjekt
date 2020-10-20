@@ -1322,14 +1322,14 @@ Scene* AndresTestScene(SceneManager* sm)
     // Shop/Upgrade test
     // Set the player entity in Player
     Player::GetInstance().SetPlayer(entity);
-    // Create the shop
-    Shop shop;
-    // Fill the inventory in shop
-    shop.RandomizeInventory();
-    // We only have 2 upgrades so add them both.
-    // If a projectile starts flying up into the sky on collision then it works.
-    shop.ApplyUppgrade(shop.GetInventoryNames().at(0));
-    shop.ApplyUppgrade(shop.GetInventoryNames().at(1));
+    //// Create the shop
+    //Shop shop;
+    //// Fill the inventory in shop
+    //shop.RandomizeInventory();
+    //// We only have 2 upgrades so add them both.
+    //// If a projectile starts flying up into the sky on collision then it works.
+    //shop.ApplyUppgrade(shop.GetInventoryNames().at(0));
+    //shop.ApplyUppgrade(shop.GetInventoryNames().at(1));
 
     /* ---------------------- Player ---------------------- */
 
