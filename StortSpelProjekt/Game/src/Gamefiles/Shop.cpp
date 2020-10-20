@@ -7,13 +7,14 @@
 Shop::Shop()
 {
 	m_pUpgradeManager = Player::GetInstance().GetUpgradeManager();
+	m_pPlayer = Player::GetInstance().GetPlayer();
 	m_AllAvailableUpgrades = m_pUpgradeManager->GetAllAvailableUpgrades();
 	for (auto upgrade : m_AllAvailableUpgrades)
 	{
 		m_UpgradeNames.push_back(upgrade.first);
 	}
 	m_Rand = EngineRand(time(NULL));
-	m_InvSize = 2;
+	m_InvSize = m_AllAvailableUpgrades.size();
 }
 
 Shop::~Shop()
@@ -68,8 +69,9 @@ void Shop::ApplyUppgrade(std::string name)
 {
 	if (checkExisting(name))
 	{
-		// Using m_AllAvailableUppgrades instead of upgradeComponents m_AppliedUpgrades 
+		// Increasing m_AllAvailableUppgrades level as well as upgradeComponents m_AppliedUpgrades 
 		// because we want to increase level of RANGE type upgrades as well.
+		m_pPlayer->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(name)->IncreaseLevel();
 		m_AllAvailableUpgrades[name]->IncreaseLevel();
 	}
 	else
@@ -85,12 +87,12 @@ void Shop::SetInventorySize(int size)
 
 void Shop::SetPlayerBalance(int newBalance)
 {
-	Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->SetBalance(newBalance);
+	m_pPlayer->GetComponent<component::CurrencyComponent>()->SetBalance(newBalance);
 }
 
 void Shop::ChangePlayerBalance(int change)
 {
-	Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->ChangeBalance(change);
+	m_pPlayer->GetComponent<component::CurrencyComponent>()->ChangeBalance(change);
 }
 
 int Shop::GetInventorySize()
@@ -125,7 +127,7 @@ int Shop::GetPrice(std::string name)
 
 int Shop::GetPlayerBalance()
 {
-	return Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->GetBalace();
+	return m_pPlayer->GetComponent<component::CurrencyComponent>()->GetBalace();
 }
 
 void Shop::clearInventory()

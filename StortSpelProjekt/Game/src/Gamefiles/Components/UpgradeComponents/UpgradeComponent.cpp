@@ -9,10 +9,10 @@ component::UpgradeComponent::UpgradeComponent(Entity* parent)
 
 component::UpgradeComponent::~UpgradeComponent()
 {
-	//for (auto upgrades : m_AppliedUpgrades)
-	//{
-	//	delete upgrades.second;
-	//}
+	for (auto u : m_AppliedUpgrades)
+	{
+		delete u.second;
+	}
 }
 
 void component::UpgradeComponent::Update(double dt)
@@ -27,11 +27,7 @@ void component::UpgradeComponent::OnInitScene()
 {
 }
 
-void component::UpgradeComponent::OnLoadScene()
-{
-}
-
-void component::UpgradeComponent::OnUnloadScene()
+void component::UpgradeComponent::OnUnInitScene()
 {
 }
 

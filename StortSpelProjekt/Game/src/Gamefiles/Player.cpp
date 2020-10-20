@@ -48,10 +48,20 @@ Shop* Player::GetShop()
 	return m_pShop;
 }
 
-
+// TODO: When Shop has UI remove this way of getting upgrades
 void Player::buyUpgrade(UForUpgrade* evnt)
 {
 	Shop* shop = Player::GetInstance().GetShop();
+	/*if (m_UpgradeApplied % 2 == 0)
+	{
+		shop->ApplyUppgrade("UpgradeRangeTest");
+		Log::Print("UpgradeRangeTest applied!\n");
+	}
+	else
+	{
+		shop->ApplyUppgrade("UpgradeMeleeTest");
+		Log::Print("UpgradeMeleeTest applied!\n");
+	}
+	m_UpgradeApplied++;*/
 	shop->ApplyUppgrade("UpgradeRangeVelocity");
-	Log::Print("UpgradeRangeVelocity applied!\n");
 }

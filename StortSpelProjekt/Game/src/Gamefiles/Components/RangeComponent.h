@@ -16,8 +16,7 @@ namespace component
 		~RangeComponent();
 
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 		void SetVelocity(float velocity);
 		float GetVelocity();

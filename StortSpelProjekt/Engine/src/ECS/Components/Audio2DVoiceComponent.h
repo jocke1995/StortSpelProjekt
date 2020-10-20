@@ -16,6 +16,7 @@ namespace component
 		virtual ~Audio2DVoiceComponent();
 		void Update(double dt);
 		void OnInitScene();
+		void OnUnInitScene();
 
 		// Clones an audiobuffer to create a voice to the component
 		void AddVoice(const std::wstring& name);

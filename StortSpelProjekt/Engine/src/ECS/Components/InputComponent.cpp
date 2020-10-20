@@ -24,3 +24,7 @@ void component::InputComponent::RenderUpdate(double dt)
 void component::InputComponent::OnInitScene()
 {
 }
+
+void component::InputComponent::OnUnInitScene()
+{
+}

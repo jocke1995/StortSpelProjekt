@@ -36,6 +36,7 @@ private:
 	Shop* m_pShop;
 
 	void buyUpgrade(UForUpgrade* evnt);
+	int m_UpgradeApplied = 0;
 };
 
 

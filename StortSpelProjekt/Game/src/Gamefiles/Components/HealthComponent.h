@@ -15,8 +15,7 @@ namespace component
 		~HealthComponent();
 
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 
 		// will publish a death event if hp reaches 0 or bellow

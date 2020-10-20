@@ -88,11 +88,7 @@ void component::AiComponent::OnInitScene()
 {
 }
 
-void component::AiComponent::OnLoadScene()
-{
-}
-
-void component::AiComponent::OnUnloadScene()
+void component::AiComponent::OnUnInitScene()
 {
 }
 
