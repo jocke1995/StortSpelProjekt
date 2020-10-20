@@ -81,6 +81,7 @@ void AssetLoader::loadDefaultMaterial()
 	matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
 	matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
 	matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
+	matTextures[TEXTURE2D_TYPE::OPACITY] = LoadTexture2D(m_FilePathDefaultTextures + L"default_opacity.dds");
 
 	std::wstring matName = L"DefaultMaterial";
 	Material* material = new Material(&matName, &matTextures);
@@ -382,6 +383,7 @@ Material* AssetLoader::LoadMaterialFromMTL(const std::wstring& path)
 		defaultNames.push_back(L"default_metallic.dds");
 		defaultNames.push_back(L"default_normal.dds");
 		defaultNames.push_back(L"default_emissive.dds");
+		defaultNames.push_back(L"default_opacity.dds");
 
 		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
 		{
@@ -426,6 +428,11 @@ Material* AssetLoader::LoadMaterialFromMTL(const std::wstring& path)
 			{
 				varVal = line.substr(line.find_first_of(L' ') + 1);
 				matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_d")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::OPACITY] = LoadTexture2D(relPath + varVal);
 			}
 		}
 
@@ -1068,6 +1075,11 @@ Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_typ
 		type = aiTextureType_EMISSIVE;
 		defaultPath = m_FilePathDefaultTextures + L"default_emissive.dds";
 		warningMessageTextureType = "Emissive";
+		break;
+	case::TEXTURE2D_TYPE::OPACITY:
+		type = aiTextureType_OPACITY;
+		defaultPath = m_FilePathDefaultTextures + L"default_opacity.dds";
+		warningMessageTextureType = "Opacity";
 		break;
 	}
 
