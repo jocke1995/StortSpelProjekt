@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "TextTask.h"
+#include "QuadTask.h"
 
 #include "../RenderView.h"
 #include "../RootSignature.h"
@@ -7,35 +7,52 @@
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
 #include "../PipelineState.h"
-#include "../TextManager.h"
+#include "../QuadManager.h"
+#include "../Mesh.h"
 
 #include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/Resource.h"
 
-#include "../Misc/GUI2DElements/Text.h"
-
 #include "../../ECS/Components/GUI2DComponent.h"
+#include "../../Renderer/QuadManager.h"
 
-TextTask::TextTask(ID3D12Device5* device, 
-	RootSignature* rootSignature, 
+QuadTask::QuadTask(ID3D12Device5* device,
+	RootSignature* rootSignature,
 	const std::wstring& VSName, const std::wstring& PSName,
-	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds, 
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
 	const std::wstring& psoName,
 	unsigned int FLAG_THREAD)
 	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
 }
 
-TextTask::~TextTask()
+QuadTask::~QuadTask()
 {
 }
 
-void TextTask::SetTextComponents(std::vector<component::GUI2DComponent*>* textComponents)
+void QuadTask::SetQuadComponents(std::vector<component::GUI2DComponent*>* quadComponents)
 {
-	m_TextComponents = *textComponents;
+	m_QuadComponents = *quadComponents;
+
+	// Put each quad in one out of three vectors depending on depth level
+	for (component::GUI2DComponent* qui2DComponent : m_QuadComponents)
+	{
+		switch (*qui2DComponent->GetQuadManager()->GetDepthLevel())
+		{
+		case E_DEPTH_LEVEL::BACK:
+			m_QuadManagers[E_DEPTH_LEVEL::BACK].push_back(qui2DComponent->GetQuadManager());
+			break;
+		case E_DEPTH_LEVEL::MID:
+			m_QuadManagers[E_DEPTH_LEVEL::MID].push_back(qui2DComponent->GetQuadManager());
+			break;
+		case E_DEPTH_LEVEL::FRONT:
+			m_QuadManagers[E_DEPTH_LEVEL::FRONT].push_back(qui2DComponent->GetQuadManager());
+			break;
+		}
+	}
 }
 
-void TextTask::Execute()
+void QuadTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
@@ -66,7 +83,7 @@ void TextTask::Execute()
 		swapChainResource,
 		D3D12_RESOURCE_STATE_PRESENT,
 		D3D12_RESOURCE_STATE_RENDER_TARGET));
-  
+
 	unsigned int renderTargetIndex = m_pSwapChain->GetRTV(m_BackBufferIndex)->GetDescriptorHeapIndex();
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(renderTargetIndex);
 	commandList->OMSetRenderTargets(1, &cdhSwapChain, true, nullptr);
@@ -74,10 +91,10 @@ void TextTask::Execute()
 	commandList->RSSetViewports(1, swapChainRenderTarget->GetRenderView()->GetViewPort());
 	commandList->RSSetScissorRects(1, swapChainRenderTarget->GetRenderView()->GetScissorRect());
 
-	for (int i = 0; i < m_TextComponents.size(); i++)
+	for (int i = 0; i < E_DEPTH_LEVEL::NUM_DEPTH_LEVELS; i++)
 	{
-		component::GUI2DComponent* tc = m_TextComponents.at(i);
-		draw(commandList, tc);
+		E_DEPTH_LEVEL type = static_cast<E_DEPTH_LEVEL>(i);
+		draw(commandList, type);
 	}
 
 	// Change state on front/backbuffer
@@ -89,20 +106,21 @@ void TextTask::Execute()
 	commandList->Close();
 }
 
-void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::GUI2DComponent* tc)
+void QuadTask::draw(ID3D12GraphicsCommandList5* commandList, E_DEPTH_LEVEL type)
 {
-	int nrOfCharacters = 0;
-	for (auto textMap : *tc->GetTextManager()->GetTextMap())
+	for (QuadManager* qm : m_QuadManagers[type])
 	{
-		Text* text = textMap.second;
-
 		// Create a CB_PER_GUI2D_OBJECT_STRUCT struct
-		SlotInfo* info = text->GetSlotInfo();
-		CB_PER_GUI2D_OBJECT_STRUCT perObject = { text->GetAmountOfBlend(), float4{ 1.0 }, *info };
-		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_GUI2D_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+		size_t num_Indices = qm->GetQuad()->GetNumIndices();
+		const SlotInfo* info = qm->GetSlotInfo();
 
-		// We are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
-		nrOfCharacters = text->GetNrOfCharacters();
-		commandList->DrawInstanced(4, nrOfCharacters, 0, 0);
+		float4 textureInfo = float4{ 0.0 };
+		textureInfo.x = qm->HasTexture();
+		textureInfo.y = qm->GetActiveTexture();
+		CB_PER_GUI2D_OBJECT_STRUCT perObject = { qm->GetAmountOfBlend(), textureInfo, *info };
+
+		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_GUI2D_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+		commandList->IASetIndexBuffer(qm->GetQuad()->GetIndexBufferView());
+		commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 	}
 }

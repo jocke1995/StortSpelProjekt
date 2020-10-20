@@ -29,9 +29,12 @@ public:
 	int GetScreenHeight() const;
 	const HWND* GetHwnd() const;
 
+	void SetScreenWidth(int width);
+	void SetScreenHeight(int height);
+
 	bool ExitWindow();
 
-	void MouseToScreenspace(int* x, int* y) const;
+	void MouseInClipspace(float* x, float* y) const;
 
 	// Temp
 	bool WasSpacePressed();

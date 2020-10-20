@@ -65,6 +65,7 @@
 #include "DX12Tasks/TextTask.h"
 #include "DX12Tasks/ImGuiRenderTask.h"
 #include "DX12Tasks/SkyboxRenderTask.h"
+#include "DX12Tasks/QuadTask.h"
 
 // Copy 
 #include "DX12Tasks/CopyPerFrameTask.h"
@@ -395,6 +396,11 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
 
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::QUAD];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TEXT];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
@@ -635,15 +641,27 @@ void Renderer::InitBoundingBoxComponent(component::BoundingBoxComponent* compone
 
 void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 {
-	std::map<std::string, TextData>* textDataMap = component->GetTextManager()->GetTextDataMap();
+	auto* textDataMap = component->GetTextManager()->GetTextDataMap();
+	auto* quad = component->GetQuadManager()->GetQuad();
 
-	for (auto textData : *textDataMap)
+	if (textDataMap != nullptr)
 	{
-		component->GetTextManager()->UploadTextData(textData.first);
+		for (auto textData : *textDataMap)
+		{
+			component->GetTextManager()->uploadTextData(textData.first, this);
+		}
+
+		// Finally store the text in m_pRenderer so it will be drawn
+		m_TextComponents.push_back(component);
 	}
 
-	// Finally store the text in m_pRenderer so it will be drawn
-	m_TextComponents.push_back(component);
+	if (quad != nullptr)
+	{
+		component->GetQuadManager()->uploadQuadData(this);
+
+		// Finally store the quad in m_pRenderer so it will be drawn
+		m_QuadComponents.push_back(component);
+	}
 }
 
 void Renderer::UnInitSkyboxComponent(component::SkyboxComponent* component)
@@ -888,6 +906,7 @@ void Renderer::OnResetScene()
 	m_pScenePrimaryCamera = nullptr;
 	static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
 	m_BoundingBoxesToBePicked.clear();
+	m_QuadComponents.clear();
 	m_TextComponents.clear();
 }
 
@@ -945,6 +964,11 @@ Entity* const Renderer::GetPickedEntity() const
 Scene* const Renderer::GetActiveScene() const
 {
 	return m_pCurrActiveScene;
+}
+
+const Window* const Renderer::GetWindow() const
+{
+	return m_pWindow;
 }
 
 void Renderer::setRenderTasksPrimaryCamera()
@@ -1504,8 +1528,9 @@ void Renderer::initRenderTasks()
 
 
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+	{
 		gpsdBlendFrontCull.BlendState.RenderTarget[i] = blendRTdesc;
-
+	}
 
 	// Depth descriptor
 	D3D12_DEPTH_STENCIL_DESC dsdBlend = {};
@@ -1669,7 +1694,7 @@ void Renderer::initRenderTasks()
 	gpsdMergePass.RasterizerState.FrontCounterClockwise = false;
 
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
-		gpsdMergePass.BlendState.RenderTarget[i] = defaultRTdesc;
+		gpsdMergePass.BlendState.RenderTarget[i] = blendRTdesc;
 
 	// Depth descriptor
 	D3D12_DEPTH_STENCIL_DESC dsdMergePass = {};
@@ -1712,23 +1737,10 @@ void Renderer::initRenderTasks()
 	gpsdText.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
 	gpsdText.RasterizerState.FrontCounterClockwise = false;
 
-	D3D12_BLEND_DESC textBlendStateDesc = {};
-	textBlendStateDesc.AlphaToCoverageEnable = FALSE;
-	textBlendStateDesc.IndependentBlendEnable = FALSE;
-	textBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
-
-	textBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	textBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
-	textBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-
-	textBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
-	textBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
-	textBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-
-	textBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-	gpsdText.BlendState = textBlendStateDesc;
-	gpsdText.NumRenderTargets = 1;
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+	{
+		gpsdText.BlendState.RenderTarget[i] = blendRTdesc;
+	}
 
 	D3D12_DEPTH_STENCIL_DESC textDepthStencilDesc = {};
 	textDepthStencilDesc.DepthEnable = false;
@@ -1791,6 +1803,61 @@ void Renderer::initRenderTasks()
 
 #pragma endregion ComputeAndCopyTasks
 	
+#pragma region Quad
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdQuad = {};
+
+	gpsdQuad.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdQuad.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	gpsdQuad.NumRenderTargets = 1;
+
+	// Depthstencil usage
+	gpsdQuad.SampleDesc.Count = 1;
+	gpsdQuad.SampleMask = UINT_MAX;
+
+	// Rasterizer behaviour
+	gpsdQuad.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdQuad.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdQuad.RasterizerState.FrontCounterClockwise = false;
+
+	// Specify Blend descriptions
+	D3D12_RENDER_TARGET_BLEND_DESC quadRTdesc{};
+	quadRTdesc.BlendEnable = true;
+	quadRTdesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	quadRTdesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	quadRTdesc.BlendOp = D3D12_BLEND_OP_ADD;
+	quadRTdesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+	quadRTdesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	quadRTdesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	quadRTdesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+	{
+		gpsdQuad.BlendState.RenderTarget[i] = quadRTdesc;
+	}
+
+	D3D12_DEPTH_STENCIL_DESC quadDepthStencilDesc = {};
+	quadDepthStencilDesc.DepthEnable = false;
+	gpsdText.DepthStencilState = quadDepthStencilDesc;
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdQuadVector;
+	gpsdQuadVector.push_back(&gpsdQuad);
+
+	RenderTask* quadTask = new QuadTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"QuadVertex.hlsl", L"QuadPixel.hlsl",
+		&gpsdQuadVector,
+		L"QuadPSO",
+		FLAG_THREAD::RENDER);
+
+	quadTask->SetSwapChain(m_pSwapChain);
+	quadTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion Quad
+
 	// Add the tasks to desired vectors so they can be used in m_pRenderer
 	/* -------------------------------------------------------------- */
 
@@ -1821,6 +1888,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::IMGUI] = imGuiRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX] = skyboxRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE] = downSampleTask;
+	m_RenderTasks[RENDER_TASK_TYPE::QUAD] = quadTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1860,11 +1928,6 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(textTask->GetCommandInterface()->GetCommandList(i));
-	}
-
-	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-	{
 		m_DirectCommandLists[i].push_back(outliningRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
@@ -1890,6 +1953,16 @@ void Renderer::initRenderTasks()
 	}
 
 	// GUI
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(quadTask->GetCommandInterface()->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(textTask->GetCommandInterface()->GetCommandList(i));
+	}
+
 	if (DEVELOPERMODE_DEVINTERFACE == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1905,7 +1978,6 @@ void Renderer::setRenderTasksRenderComponents()
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
 	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
-	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 
 	static_cast<SkyboxRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX])->SetSkybox(m_pSkyboxComponent);
 }
@@ -2009,6 +2081,8 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 	}
 	m_pMousePicker->SetPrimaryCamera(m_pScenePrimaryCamera);
 
+	static_cast<QuadTask*>(m_RenderTasks[RENDER_TASK_TYPE::QUAD])->SetQuadComponents(&m_QuadComponents);
+	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 	setRenderTasksRenderComponents();
 	setRenderTasksPrimaryCamera();
 }
@@ -2139,6 +2213,22 @@ void Renderer::toggleFullscreen(WindowChange* evnt)
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+
+	// Change the member variables of the window class to match the swapchain
+	UINT width = 0, height = 0;
+	if (m_pSwapChain->IsFullscreen())
+	{
+		m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&width, &height);
+	}
+	else
+	{
+		width = std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str());
+		height = std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str());
+	}
+
+	Window* window = const_cast<Window*>(m_pWindow);
+	window->SetScreenWidth(width);
+	window->SetScreenHeight(height);
 
 	for (auto task : m_RenderTasks)
 	{

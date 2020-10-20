@@ -151,6 +151,11 @@ int const Text::GetNrOfCharacters() const
 	return m_TextData.text.size();
 }
 
+const float4 Text::GetAmountOfBlend() const
+{
+	return m_TextData.blendFactor;
+}
+
 void Text::SetTextData(TextData* textData, Font* font)
 {
 	m_TextData = *textData;
