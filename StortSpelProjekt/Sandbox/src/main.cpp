@@ -59,8 +59,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* leoScene = LeosTestScene(sceneManager);
-    //Scene* leoBounceScene = LeosBounceScene(sceneManager);
+    //Scene* leoScene = LeosTestScene(sceneManager);
+    Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
@@ -70,7 +70,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { leoScene };
+    Scene* activeScenes[] = { leoBounceScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -502,6 +502,7 @@ Scene* LeosBounceScene(SceneManager* sm)
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
     /*--------------------- Assets ---------------------*/
 
     /*--------------------- Component declarations ---------------------*/
@@ -516,6 +517,7 @@ Scene* LeosBounceScene(SceneManager* sm)
     component::PlayerInputComponent* pic = nullptr;
     component::GUI2DComponent* txc = nullptr;
     component::CollisionComponent* bcc = nullptr;
+    component::MeleeComponent* meleeC = nullptr;
 
     /*--------------------- Player ---------------------*/
     // entity
@@ -527,6 +529,8 @@ Scene* LeosBounceScene(SceneManager* sm)
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>();
+    meleeC = entity->AddComponent<component::MeleeComponent>();
 
     Transform* t = tc->GetTransform();
 
@@ -537,6 +541,7 @@ Scene* LeosBounceScene(SceneManager* sm)
     pic->Init();
 
     mc->SetModel(playerModel);
+    bbc->Init();
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
 
     avc->AddVoice(L"Bruh");

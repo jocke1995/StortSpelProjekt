@@ -1,15 +1,25 @@
 #ifndef MELEECOMPONENT_H
 #define MELEECOMPONENT_H
 
+// STL
+#include <vector>
+
+// Base level engine
 #include "Core.h"
 #include "EngineMath.h"
-#include <vector>
+
+// Components
+#include "../ECS/Components/Component.h"
+
+
+// Sub-engines
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
-#include "../ECS/Components/Component.h"
 #include "../Physics/Physics.h"
 
+
 class Entity;
+class Audio2DVoiceComponent;
 
 namespace component
 {
@@ -46,7 +56,10 @@ namespace component
 		int m_Damage;
 
 		Transform* m_pMeleeTransform;
-		Transform m_MeleeTransformTwo;
+		Transform m_MeleeTransformModified;
+
+		Audio2DVoiceComponent* m_pVoiceComponent;
+
 
 		Mesh* m_pMesh;
 
