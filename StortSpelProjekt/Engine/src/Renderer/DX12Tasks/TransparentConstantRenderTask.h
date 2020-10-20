@@ -5,16 +5,16 @@
 
 class RootSignature;
 
-class BlendRenderTask : public RenderTask
+class TransparentConstantRenderTask : public RenderTask
 {
 public:
-	BlendRenderTask(ID3D12Device5* device, 
+	TransparentConstantRenderTask(ID3D12Device5* device, 
 		RootSignature* rootSignature, 
 		const std::wstring& VSName, const std::wstring& PSName,
 		std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
 		const std::wstring& psoName,
 		unsigned int FLAG_THREAD);
-	~BlendRenderTask();
+	~TransparentConstantRenderTask();
 
 	void Execute();
 

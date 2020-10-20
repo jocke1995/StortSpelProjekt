@@ -54,7 +54,7 @@
 #include "DX12Tasks/WireframeRenderTask.h"
 #include "DX12Tasks/OutliningRenderTask.h"
 #include "DX12Tasks/ForwardRenderTask.h"
-#include "DX12Tasks/BlendRenderTask.h"
+#include "DX12Tasks/TransparentConstantRenderTask.h"
 #include "DX12Tasks/ShadowRenderTask.h"
 #include "DX12Tasks/DownSampleRenderTask.h"
 #include "DX12Tasks/MergeRenderTask.h"
@@ -375,7 +375,7 @@ void Renderer::Execute()
 	m_pThreadPool->AddTask(renderTask);
 
 	// Blending
-	renderTask = m_RenderTasks[RENDER_TASK_TYPE::BLEND];
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
@@ -473,6 +473,11 @@ void Renderer::InitModelComponent(Entity* entity)
 		if (FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT & mc->GetDrawFlag())
 		{
 			m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT].push_back(std::make_pair(mc, tc));
+		}
+
+		if (FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE & mc->GetDrawFlag())
+		{
+			m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE].push_back(std::make_pair(mc, tc));
 		}
 
 		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
@@ -725,7 +730,7 @@ void Renderer::setRenderTasksPrimaryCamera()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCamera(m_pScenePrimaryCamera);
@@ -1361,10 +1366,10 @@ void Renderer::initRenderTasks()
 	gpsdBlendVector.push_back(&gpsdBlendFrontCull);
 	gpsdBlendVector.push_back(&gpsdBlendBackCull);
 
-	RenderTask* blendRenderTask = new BlendRenderTask(m_pDevice5,
+	RenderTask* blendRenderTask = new TransparentConstantRenderTask(m_pDevice5,
 		m_pRootSignature,
-		L"BlendVertex.hlsl",
-		L"BlendPixel.hlsl",
+		L"TransparentConstantVertex.hlsl",
+		L"TransparentConstantPixel.hlsl",
 		&gpsdBlendVector,
 		L"BlendPSO",
 		FLAG_THREAD::RENDER);
@@ -1623,7 +1628,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS] = DepthPrePassRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT] = blendRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME] = wireFrameRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE] = outliningRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::MERGE] = mergeTask;
@@ -1713,7 +1718,8 @@ void Renderer::setRenderTasksRenderComponents()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::NO_DEPTH]);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT]);
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT]);
+	//m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
 	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 
