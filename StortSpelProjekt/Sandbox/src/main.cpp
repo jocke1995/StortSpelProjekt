@@ -15,6 +15,7 @@ Scene* WilliamsTestScene(SceneManager* sm);
 Scene* AndresTestScene(SceneManager* sm);
 Scene* AntonTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
+Scene* ShopScene(SceneManager* sm);
 
 
 void(*UpdateScene)(SceneManager*, double dt);
@@ -24,6 +25,7 @@ void TimUpdateScene(SceneManager* sm, double dt);
 void JockeUpdateScene(SceneManager* sm, double dt);
 void FredriksUpdateScene(SceneManager* sm, double dt);
 void AndresUpdateScene(SceneManager* sm, double dt);
+void ShopUpdateScene(SceneManager* sm, double dt);
 
 void DefaultUpdateScene(SceneManager* sm, double dt);
 
@@ -62,15 +64,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
-    Scene* jockeScene = JockesTestScene(sceneManager);
+    //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
 	//Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
+    Scene* shopScene = ShopScene(sceneManager);
 
-    Scene* activeScenes[] = { jockeScene };
+    Scene* activeScenes[] = { shopScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -792,6 +795,9 @@ Scene* JockesTestScene(SceneManager* sm)
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
+    Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
+
+    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
     /* ---------------------- Player ---------------------- */
     Entity* entity = (scene->AddEntity("player"));
@@ -809,6 +815,12 @@ Scene* JockesTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0, 1, -30);
     /* ---------------------- Player ---------------------- */
 
+    /* ---------------------- Skybox ---------------------- */
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    sbc->SetTexture(skyboxCubemap);
+    /* ---------------------- Skybox ---------------------- */
+
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -822,6 +834,21 @@ Scene* JockesTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(50, 1, 50);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /* ---------------------- Floor ---------------------- */
+
+    /* ---------------------- Poster ---------------------- */
+    entity = scene->AddEntity("poster");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(posterModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(2, 1, 2);
+    tc->GetTransform()->SetRotationZ(-PI / 2);
+    tc->GetTransform()->SetPosition(28.5f, 2.0f, 34.0f);
+    /* ---------------------- Poster ---------------------- */
 
     /* ---------------------- Shop ---------------------- */
     entity = scene->AddEntity("shop");
@@ -837,21 +864,24 @@ Scene* JockesTestScene(SceneManager* sm)
     bcc = entity->AddComponent<component::CubeCollisionComponent>(10000000.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
     /* ---------------------- Shop ---------------------- */
 
-    /* ---------------------- PointLightDynamic ---------------------- */
+    /* ---------------------- SpotLightDynamic ---------------------- */
     entity = scene->AddEntity("pointLightDynamic");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW | FLAG_LIGHT::STATIC);
     
+    float3 pos = { 5.0f, 20.0f, 5.0f };
     mc->SetModel(sphereModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.3f);
-    tc->GetTransform()->SetPosition(0.0f, 5.0f, -25.0f);
+    tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
     
-    plc->SetColor({ 0.0f, 2.0f, 0.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-    plc->SetPosition({ 0.0f, 5.0f, -25.0f });
-    /* ---------------------- PointLightDynamic ---------------------- */
+    slc->SetColor({ 5.0f, 0.0f, 0.0f });
+    slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+    slc->SetPosition(pos);
+    slc->SetDirection({ 1.0f, -1.0f, 1.0f });
+    slc->SetOuterCutOff(50.0f);
+    /* ---------------------- SpotLightDynamic ---------------------- */
 
     /* ---------------------- dirLight ---------------------- */
     entity = scene->AddEntity("dirLight");
@@ -1726,6 +1756,130 @@ Scene* BjornsTestScene(SceneManager* sm)
     return scene;
 }
 
+Scene* ShopScene(SceneManager* sm)
+{
+    // Create Scene
+    Scene* scene = sm->CreateScene("shopScene");
+
+    component::CameraComponent* cc = nullptr;
+    component::ModelComponent* mc = nullptr;
+    component::TransformComponent* tc = nullptr;
+    component::InputComponent* ic = nullptr;
+    component::BoundingBoxComponent* bbc = nullptr;
+    component::PointLightComponent* plc = nullptr;
+    component::DirectionalLightComponent* dlc = nullptr;
+    component::SpotLightComponent* slc = nullptr;
+    component::CollisionComponent* bcc = nullptr;
+    AssetLoader* al = AssetLoader::Get();
+
+    // Get the models needed
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
+    Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
+
+    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+
+    /* ---------------------- Player ---------------------- */
+    Entity* entity = (scene->AddEntity("player"));
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
+    scene->SetPrimaryCamera(cc->GetCamera());
+    ic->Init();
+
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetPosition(0, 1, -30);
+    /* ---------------------- Player ---------------------- */
+
+    /* ---------------------- Skybox ---------------------- */
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    sbc->SetTexture(skyboxCubemap);
+    /* ---------------------- Skybox ---------------------- */
+
+    /* ---------------------- Floor ---------------------- */
+    entity = scene->AddEntity("floor");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(floorModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(50, 1, 50);
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    /* ---------------------- Floor ---------------------- */
+
+    /* ---------------------- Poster ---------------------- */
+    entity = scene->AddEntity("poster");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(posterModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(1, 1, 1);
+    tc->GetTransform()->SetRotationZ(-PI / 2);
+    tc->GetTransform()->SetPosition(27.8f, 1.0f, 34.0f);
+    /* ---------------------- Poster ---------------------- */
+
+    /* ---------------------- Shop ---------------------- */
+    entity = scene->AddEntity("shop");
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetModel(shopModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(30.0f, 0.0f, 30.0f);
+    tc->GetTransform()->SetRotationY(PI + PI / 4);
+
+    double3 shopDim = mc->GetModelDim();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(10000000.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
+    /* ---------------------- Shop ---------------------- */
+
+    /* ---------------------- SpotLightDynamic ---------------------- */
+    entity = scene->AddEntity("spotLightDynamic");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW | FLAG_LIGHT::STATIC);
+
+    float3 pos = { 5.0f, 20.0f, 5.0f };
+    mc->SetModel(sphereModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+
+    slc->SetColor({ 5.0f, 0.0f, 0.0f });
+    slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+    slc->SetPosition(pos);
+    slc->SetDirection({ 1.0f, -1.0f, 1.0f });
+    slc->SetOuterCutOff(50.0f);
+    /* ---------------------- SpotLightDynamic ---------------------- */
+
+    /* ---------------------- dirLight ---------------------- */
+    entity = scene->AddEntity("dirLight");
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
+    dlc->SetColor({ 0.8f, 0.8f, 0.8f });
+    dlc->SetDirection({ -2.0f, -1.0f, -1.0f });
+    dlc->SetCameraTop(30.0f);
+    dlc->SetCameraBot(-30.0f);
+    dlc->SetCameraLeft(-70.0f);
+    dlc->SetCameraRight(70.0f);
+    /* ---------------------- dirLight ---------------------- */
+
+    /* ---------------------- Update Function ---------------------- */
+    UpdateScene = &ShopUpdateScene;
+    return scene;
+}
+
 void LeoUpdateScene(SceneManager* sm, double dt)
 {
     static float intensity = 0.0f;
@@ -1817,12 +1971,12 @@ void TimUpdateScene(SceneManager* sm, double dt)
 
 void JockeUpdateScene(SceneManager* sm, double dt)
 {
-    static float intensity = 0.0f;
-    // Green Dynamic
-    component::PointLightComponent* plc = sm->GetScene("jockesScene")->GetEntity("pointLightDynamic")->GetComponent<component::PointLightComponent>();
-    plc->SetColor({ 0.0f, abs(sinf(intensity)) * 10, 0.0f });
-    
-    intensity += 0.005f;
+    //static float intensity = 0.0f;
+    //component::PointLightComponent* plc = sm->GetScene("jockesScene")->GetEntity("pointLightDynamic")->GetComponent<component::PointLightComponent>();
+    //float col = abs(sinf(intensity)) * 10;
+    //plc->SetColor({ col, col, 0.0f });
+    //
+    //intensity += 0.005f;
 }
 
 void FredriksUpdateScene(SceneManager* sm, double dt)
@@ -1866,4 +2020,13 @@ void AndresUpdateScene(SceneManager* sm, double dt)
 {
     component::Audio3DEmitterComponent* ec = sm->GetScene("AndresTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
     ec->UpdateEmitter(L"Bruh");
+}
+
+void ShopUpdateScene(SceneManager* sm, double dt)
+{
+    static float rotValue = 0.0f;
+    Transform* trans = sm->GetScene("shopScene")->GetEntity("poster")->GetComponent<component::TransformComponent>()->GetTransform();
+    trans->SetRotationX(rotValue);
+    
+    rotValue += 0.005f;
 }
