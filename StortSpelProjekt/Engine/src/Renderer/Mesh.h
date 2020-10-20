@@ -27,10 +27,8 @@ struct Vertex
 class Mesh
 {
 public:
-    Mesh(   ID3D12Device5* device,
-            std::vector<Vertex>* vertices,
+    Mesh(   std::vector<Vertex>* vertices,
             std::vector<unsigned int>* indices,
-            DescriptorHeap* descriptorHeap_SRV,
             const std::wstring& path = L"NOPATH");
     virtual ~Mesh();
 
@@ -50,6 +48,7 @@ public:
     const D3D12_INDEX_BUFFER_VIEW* GetIndexBufferView() const;
 
     const std::wstring& GetPath() const;
+	ShaderResourceView* const GetSRV() const;
 
 private:
     friend class MergeRenderTask;

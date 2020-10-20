@@ -29,14 +29,12 @@ public:
 
 	// Entity
 	void RemoveEntity(Entity* entity, Scene* scene);
-	void AddEntity(Entity* entity, Scene* scene);
+	void AddEntity(Entity* entity, Scene* scene = nullptr);
 
 private:
 	std::map<std::string, Scene*> m_Scenes;
 	std::vector<Scene*> m_ActiveScenes;
 	std::set<Scene*> m_LoadedScenes;
-
-	std::unordered_map<Entity*, bool> m_IsEntityInited;
 
 	bool sceneExists(std::string sceneName) const;
 };

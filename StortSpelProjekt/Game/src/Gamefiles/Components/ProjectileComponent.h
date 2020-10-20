@@ -14,8 +14,7 @@ namespace component
 		void Update(float dt);
 
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 	private:
 		int m_Damage;
