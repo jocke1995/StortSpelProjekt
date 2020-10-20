@@ -305,7 +305,7 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(-175.0, 20.0, 175.0);
+    tc->GetTransform()->SetPosition(-10.0, 20.0, 10.0);
 
     double3 playerDim = mc->GetModelDim();
 
