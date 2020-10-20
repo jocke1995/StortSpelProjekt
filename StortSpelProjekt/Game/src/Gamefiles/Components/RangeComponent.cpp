@@ -40,6 +40,16 @@ void component::RangeComponent::OnUnloadScene()
 {
 }
 
+void component::RangeComponent::SetVelocity(float velocity)
+{
+	m_Velocity = velocity;
+}
+
+float component::RangeComponent::GetVelocity()
+{
+	return m_Velocity;
+}
+
 void component::RangeComponent::Attack(MouseClick* event)
 {
 	if (event->button == MOUSE_BUTTON::RIGHT_DOWN)

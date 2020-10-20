@@ -52,6 +52,6 @@ Shop* Player::GetShop()
 void Player::buyUpgrade(UForUpgrade* evnt)
 {
 	Shop* shop = Player::GetInstance().GetShop();
-	shop->ApplyUppgrade("UpgradeRangeTest");
-	Log::Print("UpgradeRangeTest applied!\n");
+	shop->ApplyUppgrade("UpgradeRangeVelocity");
+	Log::Print("UpgradeRangeVelocity applied!\n");
 }

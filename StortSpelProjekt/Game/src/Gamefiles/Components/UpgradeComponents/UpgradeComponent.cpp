@@ -9,10 +9,10 @@ component::UpgradeComponent::UpgradeComponent(Entity* parent)
 
 component::UpgradeComponent::~UpgradeComponent()
 {
-	for (auto upgrades : m_AppliedUpgrades)
-	{
-		delete upgrades.second;
-	}
+	//for (auto upgrades : m_AppliedUpgrades)
+	//{
+	//	delete upgrades.second;
+	//}
 }
 
 void component::UpgradeComponent::Update(double dt)
@@ -47,6 +47,7 @@ void component::UpgradeComponent::AddUpgrade(Upgrade* upgrade)
 	}
 
 	m_AppliedUpgrades.emplace(std::make_pair(upgrade->GetName(), upgrade));
+	upgrade->ApplyBoughtUpgrade();
 }
 
 void component::UpgradeComponent::RemoveUpgrade(Upgrade* upgrade)

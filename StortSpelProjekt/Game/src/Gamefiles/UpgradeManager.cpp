@@ -4,6 +4,7 @@
 #include "Components/UpgradeComponents/UpgradeComponent.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeMeleeTest.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeRangeVelocity.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
 {
@@ -117,6 +118,13 @@ void UpgradeManager::fillUpgradeMap()
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
 	upgrade->SetID(UPGRADE_MELEE_TEST);
+
+	// Adding RangeVelocity Upgrade - The range velocity is set on rangecomponent which goes on the player
+	upgrade = new UpgradeRangeVelocity(m_pParentEntity);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_VELOCITY);
 }
 
 bool UpgradeManager::checkIfRangeUpgrade(std::string name)

@@ -18,6 +18,9 @@ namespace component
 		void OnInitScene();
 		void OnLoadScene();
 		void OnUnloadScene();
+
+		void SetVelocity(float velocity);
+		float GetVelocity();
 		
 	private:
 		int m_Damage;
