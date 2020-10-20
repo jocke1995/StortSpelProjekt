@@ -138,7 +138,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         Scene* activeScene = sceneManager->GetActiveScenes()->at(0);
         if (window->WasSpacePressed())
         {
-            Entity* a = PoolAllocator<Entity>::GetInstance().Allocate(std::to_string(nr++));
+            Entity* a = activeScene->AddEntity(std::to_string(nr++));
 
             auto mc = a->AddComponent<component::ModelComponent>();
             mc->SetModel(aaa);

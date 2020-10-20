@@ -115,11 +115,8 @@ void SceneManager::AddEntity(Entity* entity, Scene* scene)
 	// Use the first active scene if not specified
 	if (scene == nullptr)
 	{
-		scene = m_ActiveScenes.at(0);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "You need to specify the scene!!\n");
 	}
-
-	// Add it to the scene
-	scene->AddEntityFromOther(entity);
 
 	entity->OnInitScene();
 
