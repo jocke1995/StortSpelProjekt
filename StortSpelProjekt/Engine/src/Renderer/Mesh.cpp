@@ -10,7 +10,10 @@ Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<uns
 {
 	m_Path = path;
 
-	m_Vertices = *vertices;
+	if (vertices != nullptr)
+	{
+		m_Vertices = *vertices;
+	}
 	m_Indices = *indices;
 }
 

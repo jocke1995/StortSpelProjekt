@@ -10,18 +10,41 @@ struct AnimatedVertex : public Vertex
 {
     unsigned int boneIDs[MAX_BONES_PER_VERTEX];
     float weights[MAX_BONES_PER_VERTEX];
+
+    AnimatedVertex operator=(Vertex vertex)
+    {
+        pos = vertex.pos;
+        normal = vertex.normal;
+        tangent = vertex.tangent;
+        uv = vertex.uv;
+
+        return *this;
+    }
+    AnimatedVertex operator=(VertexWeight vertexWeight)
+    {
+        for (unsigned int i = 0; i < MAX_BONES_PER_VERTEX; i++)
+        {
+            boneIDs[i] = vertexWeight.boneIDs[i];
+            weights[i] = vertexWeight.weights[i];
+        }
+
+        return *this;
+    }
 };
 
 class AnimatedMesh : public Mesh
 {
 public:
     AnimatedMesh(ID3D12Device5* device,
-        std::vector<Vertex>* vertices,
+        std::vector<AnimatedVertex>* vertices,
         std::vector<unsigned int>* indices,
+        std::map<unsigned int, VertexWeight>* perVertexBoneData,
         DescriptorHeap* descriptorHeap_SRV,
         const std::wstring& path = L"NOPATH");
+
     virtual ~AnimatedMesh();
 private:
+    std::vector<AnimatedVertex> m_AnimatedVertices;
 
 };
 

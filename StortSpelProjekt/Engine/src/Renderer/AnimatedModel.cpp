@@ -1,11 +1,10 @@
 #include "AnimatedModel.h"
 #include "Animation.h"
 
-AnimatedModel::AnimatedModel(const std::wstring* path, SkeletonNode* rootNode, std::map<unsigned int, VertexWeight>* perVertexBoneData, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<Material*>* materials)
+AnimatedModel::AnimatedModel(const std::wstring* path, SkeletonNode* rootNode, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<Material*>* materials)
 	: Model(path, meshes, materials)
 {
 	m_pSkeleton = rootNode;
-	m_PerVertexBoneData = *perVertexBoneData;
 	m_Animations = (*animations);
 
 	// TEMP

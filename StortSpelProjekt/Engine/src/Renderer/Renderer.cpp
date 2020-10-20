@@ -27,6 +27,7 @@
 #include "Transform.h"
 #include "BaseCamera.h"
 #include "Model.h"
+#include "AnimatedModel.h"
 #include "Mesh.h"
 #include "Texture/Texture.h"
 #include "Texture/TextureCubeMap.h"
@@ -469,25 +470,46 @@ void Renderer::InitModelComponent(Entity* entity)
 	// check if model has transform component
 	if (tc != nullptr)
 	{
-		// Finally store the object in the corresponding renderComponent vectors so it will be drawn
-		if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
+		AnimatedModel* animatedModel = dynamic_cast<AnimatedModel*>(mc->m_pModel);
+		if (!animatedModel)
 		{
-			m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(mc, tc));
+			// Finally store the object in the corresponding renderComponent vectors so it will be drawn
+			if (FLAG_DRAW::DRAW_OPACITY & mc->GetDrawFlag())
+			{
+				m_RenderComponents[FLAG_DRAW::DRAW_OPACITY].push_back(std::make_pair(mc, tc));
+			}
+
+			if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
+			{
+				m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
+			}
+
+			if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
+			{
+				m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
+			}
+
+			if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
+			{
+				m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(mc, tc));
+			}
+		}
+		else
+		{
+			Log::PrintSeverity(Log::Severity::WARNING, "Wrong draw flags set for animated model. Should be FLAG_DRAW::ANIMATED. Model affected: %s\n", mc->GetModelPath());
 		}
 
-		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
+		if (FLAG_DRAW::ANIMATED & mc->GetDrawFlag() && animatedModel)
 		{
-			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
+			m_RenderComponents[FLAG_DRAW::ANIMATED].push_back(std::make_pair(mc, tc));
 		}
-
-		if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
+		else if (FLAG_DRAW::ANIMATED & mc->GetDrawFlag())
 		{
-			m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
+			Log::PrintSeverity(Log::Severity::WARNING, "Draw flag ANIMATED in a model with no animations\n");
 		}
-
-		if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
+		else if (animatedModel)
 		{
-			m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(mc, tc));
+			Log::PrintSeverity(Log::Severity::WARNING, "Model with animations lacks the ANIMATED draw flag\n");
 		}
 	}
 }

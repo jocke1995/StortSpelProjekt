@@ -1,5 +1,5 @@
-#ifndef ANIMATEDMESH_H
-#define ANIMATEDMESH_H
+#ifndef ANIMATEDMODEL_H
+#define ANIMATEDMODEL_H
 
 #include "Model.h"
 
@@ -14,7 +14,6 @@ class AnimatedModel : public Model
 public:
     AnimatedModel(const std::wstring* path,
         SkeletonNode* rootNode,
-        std::map<unsigned int, VertexWeight>* perVertexBoneData,
         std::vector<Mesh*>* meshes,
         std::vector<Animation*>* animations,
         std::vector<Material*>* materials);
@@ -26,10 +25,9 @@ private:
     void updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform);
 
     Animation* m_pActiveAnimation;
-    std::vector<Animation*> m_Animations;
     SkeletonNode* m_pSkeleton;
+    std::vector<Animation*> m_Animations;
     DirectX::XMFLOAT4X4 m_GlobalInverseTransform;
-    std::map<unsigned int, VertexWeight> m_PerVertexBoneData; // <vertexID, weights+boneIDs>
 };
 
 

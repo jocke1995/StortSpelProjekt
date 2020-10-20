@@ -127,6 +127,7 @@ enum FLAG_DRAW
 	DRAW_OPAQUE = BIT(2),
 	DRAW_OPACITY = BIT(3),
 	GIVE_SHADOW = BIT(4),
+	ANIMATED = BIT(5),
 	NUM_FLAG_DRAWS = 4,
 	// animation = BIT(4),
 	// etc..
