@@ -12,8 +12,7 @@ namespace component
 		~CurrencyComponent();
 
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 
 		// set the total amount of currency available

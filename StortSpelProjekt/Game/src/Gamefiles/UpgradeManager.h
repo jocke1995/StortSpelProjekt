@@ -46,11 +46,9 @@ private:
 	// Contains the name of all upgrades that will be applied to projectile Entities
 	std::vector<std::string> m_AllAppliedProjectileUpgrades;
 	// Contains enums for all applied upgrades. 
-	// Useful when you want to check if an upgrade is applied or not
+	// Useful when you want to check if an upgrade is applied or not.
+	// Also used in the switch-case in newUpgrade.
 	std::map<std::string, int> m_AppliedUpgradeEnums;
-	// Contains enums for all rangeUpgrades. 
-	// Used when creating NEW upgrades, of type RANGE, for projectile entities.
-	std::map<std::string, int> m_RangeUpgradeEnums;
 
 	// Populates m_AllAvailableUpgrades with all upgrades and sets upgrade IDs in E_UpgradeIDs
 	void fillUpgradeMap();
@@ -58,9 +56,9 @@ private:
 	bool checkIfRangeUpgrade(std::string name);
 	// returns true if it is of a type that should be applied on the player entity
 	bool checkIfPlayerEntityUpgrade(std::string name);
-	// Returns a new Upgrade, of type RANGE, so that 
-	// every projectile entity has it's own version of that Upgrade.
-	Upgrade* newRangeUpgrade(std::string name, Entity* ent);
+	// Returns a new Upgrade, so that every projectile entity and 
+	// the player entity has it's own version of that Upgrade.
+	Upgrade* newUpgrade(std::string name, Entity* ent);
 };
 
 
