@@ -219,6 +219,16 @@ const HWND* Window::GetHwnd() const
 	return &m_Hwnd;
 }
 
+void Window::SetScreenWidth(int width)
+{
+	m_ScreenWidth = width;
+}
+
+void Window::SetScreenHeight(int height)
+{
+	m_ScreenHeight = height;
+}
+
 bool Window::ExitWindow()
 {
 	bool closeWindow = m_ShutDown;
@@ -238,12 +248,12 @@ bool Window::ExitWindow()
 	return closeWindow;
 }
 
-void Window::MouseToScreenspace(int* x, int* y) const
+void Window::MouseInClipspace(float* x, float* y) const
 {
 	// Get the mouse position from your screenspace
 	POINT p;
 	GetCursorPos(&p);
-
+	
 	// Transform the position from your screenspace to the clientspace (space of the window)
 	ScreenToClient(m_Hwnd, &p);
 

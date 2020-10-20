@@ -61,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
-	//Scene* fredrikScene = FredriksTestScene(sceneManager);
+	Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* antonScene = AntonTestScene(sceneManager);
@@ -854,6 +854,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	component::BoundingBoxComponent* bbc = nullptr;
 	component::CollisionComponent* bcc = nullptr;
 	component::RangeComponent* rc = nullptr;
+    component::GUI2DComponent* gui = nullptr;
 
 	AssetLoader* al = AssetLoader::Get();
 
@@ -865,6 +866,12 @@ Scene* FredriksTestScene(SceneManager* sm)
 	Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
 	Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 	Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
+	
+	// Get textures
+	Texture* buttonTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/greenButton.png");
+	Texture* headTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png");
+	Texture* mapTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/minimap.png");
+	Texture* transTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/transparent.png");
 
 	// Get the audio needed and add settings to it.
 	AudioBuffer* melodySound = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"melody");
@@ -896,6 +903,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 	tc->GetTransform()->SetScale(1.0f);
 	tc->GetTransform()->SetPosition(0, 1, -40);
+
 	// initialize OBB after we have the transform info
 	bbc->Init();
 	Physics::GetInstance().AddCollisionEntity(entity);
@@ -1014,49 +1022,74 @@ Scene* FredriksTestScene(SceneManager* sm)
 	tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
 	/* ---------------------- Stefan ---------------------- */
 
-
-	/* ---------------------- Enemy -------------------------------- */
-	EnemyFactory enH(scene);
-	entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", F_COMP_FLAGS::OBB, 0, 0.3, float3{ 0, 0, 0 });
-
-	// add bunch of enemies
-	float xVal = 8;
-	float zVal = 20;
-	// extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-	for (int i = 0; i < 75; i++)
-	{
-		zVal += 8;
-		entity = enH.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
-		if ((i + 1) % 5 == 0)
-		{
-			xVal += 8;
-			zVal = 10;
-		}
-	}
-	/* ---------------------- Enemy -------------------------------- */
-
-	/* ------------------------- 2DGUI --------------------------- */
+	/* ------------------------- BUTTON 1 --------------------------- */
 	std::string textToRender = "TEST";
-	float2 textPos = { 0.02f, 0.85f };
+	float2 textPos = { 0.095f, 0.031f };
 	float2 textPadding = { 0.5f, 0.0f };
 	float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float2 textScale = { 3.0f, 3.0f };
+	float2 textScale = { 0.5f, 0.5f };
+	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	scene->AddEntity("text");
-
-	entity = scene->GetEntity("text");
-	component::GUI2DComponent* gui = entity->AddComponent<component::GUI2DComponent>();
+    entity = scene->AddEntity("text");
+	gui = entity->AddComponent<component::GUI2DComponent>();
 	gui->GetTextManager()->AddText("health");
 	gui->GetTextManager()->SetColor(textColor, "health");
 	gui->GetTextManager()->SetPadding(textPadding, "health");
 	gui->GetTextManager()->SetPos(textPos, "health");
 	gui->GetTextManager()->SetScale(textScale, "health");
 	gui->GetTextManager()->SetText(textToRender, "health");
+	gui->GetTextManager()->SetBlend(textBlend, "health");
 
-	float2 quadPos = { 0.25f, 0.25f };
-	float2 quadScale = { 0.5f, 0.5f };
-	gui->GetQuadManager()->CreateQuad(quadPos, quadScale, true, L"../Vendor/Resources/Textures/2DGUI/replay.png");
+	float2 quadPos = { 0.0f, 0.0f };
+	float2 quadScale = { 0.25f, 0.1f };
+	float4 blended = { 1.0, 1.0, 1.0, 0.99 };
+	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	gui->GetQuadManager()->CreateQuad(
+		quadPos, quadScale,
+		false, false,
+		E_DEPTH_LEVEL::MID,
+		notBlended,
+		buttonTexture);
 
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- head --------------------------- */
+	entity = scene->AddEntity("head");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.009f, 0.014f };
+	quadScale = { 0.07f, 0.07f };
+	gui->GetQuadManager()->CreateQuad(
+		quadPos, quadScale,
+		true, true,
+		E_DEPTH_LEVEL::FRONT,
+		notBlended,
+		headTexture);
+	/* ---------------------------------------------------------- */
+
+    /* ------------------------- overlay --------------------------- */
+    entity = scene->AddEntity("overlay");
+    gui = entity->AddComponent<component::GUI2DComponent>();
+    quadPos = { 0.0f, 0.0f };
+    quadScale = { 0.3f, 0.1f };
+    gui->GetQuadManager()->CreateQuad(
+		quadPos, quadScale,
+		false, false,
+		E_DEPTH_LEVEL::BACK, 
+		blended,
+		transTexture);
+    /* ---------------------------------------------------------- */
+
+	/* ------------------------- minimap --------------------------- */
+	entity = scene->AddEntity("minimap");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.85f, 0.0f };
+	quadScale = { 0.15f, 0.15f };
+	gui->GetQuadManager()->CreateQuad(
+		quadPos, quadScale,
+		false, false,
+		E_DEPTH_LEVEL::FRONT,
+		notBlended,
+		mapTexture);
 	/* ---------------------------------------------------------- */
 
 	/* ---------------------- Skybox ---------------------- */
@@ -1664,34 +1697,16 @@ void JockeUpdateScene(SceneManager* sm, double dt)
 
 void FredriksUpdateScene(SceneManager* sm, double dt)
 {
-	component::Audio3DEmitterComponent* ec = sm->GetScene("FredriksTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
-	ec->UpdateEmitter(L"Bruh");
-    
+	component::GUI2DComponent* head = sm->GetScene("FredriksTestScene")->GetEntity("head")->GetComponent<component::GUI2DComponent>();
+
+	/*AssetLoader* al = AssetLoader::Get();
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
-	component::GUI2DComponent* tc = sm->GetScene("FredriksTestScene")->GetEntity("text")->GetComponent<component::GUI2DComponent>();
-	AssetLoader* al = AssetLoader::Get();
-	Font* javaneseFont = al->LoadFontFromFile(L"Javanese.fnt");
-	tc->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
-	tc->GetTextManager()->SetFont(javaneseFont);
-	static float red = 0, green = 1, blue = 0.5;
-	float4 color = float4{ abs(sin(red)), abs(sin(green)), abs(sin(blue)), 1.0 };
-	tc->GetTextManager()->SetColor(color, "health");
-	//tc->GetTextManager()->UploadTextData("health"); Don't do per frame
-	red += 0.01;
-	green += 0.01;
-	blue += 0.01;
-    
-	if (tc->GetQuadManager()->HasBeenPressed())
+	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
+	tx->GetTextManager()->UploadAndExecuteTextData("health");*/
+
+	if (head->GetQuadManager()->HasBeenPressed())
 	{
 		Log::Print("PRESSED!\n");
-	}
-    
-	std::string name = "enemy";
-	for (int i = 1; i < 76; i++)
-	{
-		name = "enemy" + std::to_string(i);
-		ec = sm->GetScene("FredriksTestScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
-		ec->UpdateEmitter(L"Bruh");
 	}
 }
 
