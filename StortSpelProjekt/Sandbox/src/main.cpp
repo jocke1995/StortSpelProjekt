@@ -1093,20 +1093,6 @@ Scene* FredriksTestScene(SceneManager* sm)
 		headTexture);
 	/* ---------------------------------------------------------- */
 
-	/* ------------------------- head --------------------------- */
-	entity = scene->AddEntity("head2");
-	gui = entity->AddComponent<component::GUI2DComponent>();
-	quadPos = { 0.059f, 0.064f };
-	quadScale = { 0.07f, 0.07f };
-	gui->GetQuadManager()->CreateQuad(
-		"head2",
-		quadPos, quadScale,
-		true, true,
-		E_DEPTH_LEVEL::FRONT,
-		notBlended,
-		headTexture);
-	/* ---------------------------------------------------------- */
-
     /* ------------------------- overlay --------------------------- */
     entity = scene->AddEntity("overlay");
     gui = entity->AddComponent<component::GUI2DComponent>();
