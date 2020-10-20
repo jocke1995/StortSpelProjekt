@@ -13,11 +13,7 @@ void component::CurrencyComponent::OnInitScene()
 {
 }
 
-void component::CurrencyComponent::OnLoadScene()
-{
-}
-
-void component::CurrencyComponent::OnUnloadScene()
+void component::CurrencyComponent::OnUnInitScene()
 {
 }
 

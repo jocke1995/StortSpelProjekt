@@ -19,6 +19,7 @@ namespace component
 
         void Update(double dt);
         void OnInitScene();
+        void OnUnInitScene();
 
         // Sets
         void SetModel(Model* model);

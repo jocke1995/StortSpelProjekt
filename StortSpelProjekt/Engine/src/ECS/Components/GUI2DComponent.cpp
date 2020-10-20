@@ -33,6 +33,11 @@ namespace component
 
 	void GUI2DComponent::OnInitScene()
 	{
-		Renderer::GetInstance().InitGUI2DComponent(GetParent());
+		Renderer::GetInstance().InitGUI2DComponent(this);
+	}
+
+	void GUI2DComponent::OnUnInitScene()
+	{
+		Renderer::GetInstance().UnInitGUI2DComponent(this);
 	}
 }

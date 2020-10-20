@@ -55,6 +55,7 @@ Entity* Scene::AddEntity(std::string entityName)
     m_Entities[entityName] = PoolAllocator<Entity>::GetInstance().Allocate(entityName);
     m_Entities[entityName]->IncrementRefCount();
     m_NrOfEntities++;
+
     return m_Entities[entityName];
 }
 
@@ -62,6 +63,7 @@ bool Scene::RemoveEntity(std::string entityName)
 {
     if (!EntityExists(entityName))
     {
+        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to remove entity \'%s\' that does not exist in scene: %s\n", entityName, m_SceneName);
         return false;
     }
 

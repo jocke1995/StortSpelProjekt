@@ -27,10 +27,8 @@ struct Vertex
 class Mesh
 {
 public:
-    Mesh(   ID3D12Device5* device,
-            std::vector<Vertex>* vertices,
+    Mesh(   std::vector<Vertex>* vertices,
             std::vector<unsigned int>* indices,
-            DescriptorHeap* descriptorHeap_SRV,
             const std::wstring& path = L"NOPATH");
     virtual ~Mesh();
 
