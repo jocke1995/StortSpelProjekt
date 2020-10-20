@@ -9,6 +9,10 @@ component::UpgradeComponent::UpgradeComponent(Entity* parent)
 
 component::UpgradeComponent::~UpgradeComponent()
 {
+	for (auto u : m_AppliedUpgrades)
+	{
+		delete u.second;
+	}
 }
 
 void component::UpgradeComponent::Update(double dt)
