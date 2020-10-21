@@ -299,8 +299,13 @@ void component::PlayerInputComponent::updateDefault(double dt)
 	if (distanceToGround != -1)
 	{
 		double3 pos = m_pCC->GetPosition();
-		pos.y = pos.y - distanceToGround + distanceToBottom - m_Elevation / 2;
+		pos.y = pos.y - distanceToGround + distanceToBottom - m_Elevation * 0.5;
 		m_pCC->SetPosition(pos.x,pos.y,pos.z);
+		m_pCC->SetGravity(false);
+	}
+	else
+	{
+		m_pCC->SetGravity(true);
 	}
 }
 
@@ -330,6 +335,11 @@ void component::PlayerInputComponent::updateDash(double dt)
 		m_Dashing = false;
 
 		specificUpdate = &PlayerInputComponent::updateDefault;
+		if (!(m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1))
+		{
+			specificUpdate = &PlayerInputComponent::updateJump;
+		}
+
 	}
 }
 
