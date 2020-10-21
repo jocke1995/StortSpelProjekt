@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include "../Misc/Multithreading/MultiThreadedTask.h"
 
 class EngineRand;
 class Scene;
@@ -20,10 +21,11 @@ enum F_AI_FLAGS
 
 struct PathQuad
 {
-	std::vector<float3> entranceTilesRight;
-	std::vector<float3> entranceTilesLeft;
-	std::vector<float3> entranceTilesForward;
-	std::vector<float3> entranceTilesBack;
+	int id;
+	float g = 0;
+	float f = 0;
+	bool closed = false;
+	PathQuad* parent;
 };
 
 struct Tile
@@ -36,7 +38,7 @@ struct Tile
 
 namespace component
 {
-	class AiComponent : public Component
+	class AiComponent : public Component, public MultiThreadedTask
 	{
 	public:
 		// Default Settings
@@ -56,24 +58,29 @@ namespace component
 		void RemoveTarget(std::string name);
 		Entity* GetTarget();
 
+		void Execute();
+
 	private:
 		Entity* m_pTarget;
 		Scene* m_pScene;
+		NavMesh* m_pNavMesh;
+		NavQuad* m_pCurrentQuad;
+		NavQuad* m_pStartQuad;
+		NavQuad* m_pGoalQuad;
+		PathQuad** m_pQuads;
+		std::unordered_map<std::string, Tile> m_Tiles;
 		std::vector<Entity*> m_Targets;
 		std::vector<float3> m_Path;
-		float m_DetectionRadius;
-		float m_AttackingDistance;
-		unsigned int m_Flags;
-		NavMesh* m_pNavMesh;
-
-		PathQuad* m_pQuads;
-		NavQuad* m_pCurrentQuad;
-		
+		std::vector<float3> m_NextPath;
+		std::vector<int> m_OpenList;
 		float3 m_StartPos;
 		float3 m_GoalPos;
 		float3 m_CurrentTile;
-		std::vector<float3> m_OpenList;
-		std::unordered_map<float2, Tile> m_Tiles;
+		float3 m_NextTargetPos;
+		float m_DetectionRadius;
+		float m_AttackingDistance;
+		unsigned int m_Flags;
+		bool m_PathFound;
 
 		void selectTarget();
 		void findPathToTarget();

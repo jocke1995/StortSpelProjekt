@@ -293,7 +293,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
 #pragma region entities
 
-    al->LoadMap(scene, "../Vendor/Resources/aiScene.txt");
+    al->LoadMap(scene, "../Vendor/Resources/aiSceneRidges.txt");
 
 #pragma region player
     Entity* entity = (scene->AddEntity("player"));

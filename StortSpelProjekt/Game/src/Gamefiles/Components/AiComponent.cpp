@@ -5,8 +5,9 @@
 #include "../Misc/EngineRand.h"
 #include "Components/HealthComponent.h"
 #include "Misc/NavMesh.h"
+#include "Misc/Multithreading/ThreadPool.h"
 
-component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int flags, float detectionRadius, float attackingDistance) : Component(parent)
+component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int flags, float detectionRadius, float attackingDistance) : Component(parent), MultiThreadedTask(FLAG_THREAD::A_STAR)
 {
 	m_pTarget = target;
 	m_Targets.push_back(target);
@@ -17,10 +18,21 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_pNavMesh = nullptr;
 	m_pQuads = nullptr;
 	m_pCurrentQuad = nullptr;
+	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+	m_GoalPos = m_pTarget->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+	m_pStartQuad = nullptr;
+	m_pGoalQuad = nullptr;
+	m_CurrentTile = m_StartPos;
+	m_NextTargetPos = m_StartPos;
+	m_PathFound = false;
 }
 
 component::AiComponent::~AiComponent()
 {
+	for (unsigned int i = 0; i < m_pNavMesh->GetNumQuads(); ++i)
+	{
+		delete m_pQuads[i];
+	}
 	delete[] m_pQuads;
 }
 
@@ -28,25 +40,11 @@ void component::AiComponent::SetScene(Scene* scene)
 {
 	m_pScene = scene;
 	m_pNavMesh = scene->GetNavMesh();
-
-	for (NavQuad* quad : m_pNavMesh->GetAllQuads())
+	m_pQuads = new PathQuad*[m_pNavMesh->GetNumQuads()];
+	for (unsigned int i = 0; i < m_pNavMesh->GetNumQuads(); ++i)
 	{
-		float	right = quad->position.x + (quad->size.x / 2.0),
-				left = quad->position.x - (quad->size.x / 2.0),
-				forward = quad->position.z + (quad->size.y / 2.0),
-				back = quad->position.z - (quad->size.y / 2.0);
-
-		for (float i = back; i < forward; ++i)
-		{
-			m_pQuads[quad->id].entranceTilesRight.push_back({right, 0.0, i});
-			m_pQuads[quad->id].entranceTilesLeft.push_back({left, 0.0, i});
-		}
-		for (float i = left; i < right; ++i)
-		{
-			m_pQuads[quad->id].entranceTilesForward.push_back({ i, 0.0, forward });
-			m_pQuads[quad->id].entranceTilesBack.push_back({ i, 0.0, back });
-		}
-		
+		m_pQuads[i] = new PathQuad;
+		m_pQuads[i]->id = i;
 	}
 }
 
@@ -55,16 +53,43 @@ void component::AiComponent::Update(double dt)
 	if (m_pParent->GetComponent<component::HealthComponent>()->GetHealth() > 0)
 	{
 		selectTarget();
-		//findPathToTarget();
-
 		Transform* targetTrans = m_pTarget->GetComponent<component::TransformComponent>()->GetTransform();
 		Transform* parentTrans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
 		CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
 
-		float3 targetPos = m_Path.front();
+		float3 finalTargetPos = targetTrans->GetPositionFloat3();
 		float3 pos = parentTrans->GetPositionFloat3();
+		NavQuad* targetQuad = m_pNavMesh->GetQuad(finalTargetPos);
 
-		float3 direction = { targetPos.x - pos.x, (targetPos.y - pos.y) * static_cast<float>(m_Flags & F_AI_FLAGS::CAN_JUMP), targetPos.z - pos.z };
+		if (targetQuad != m_pGoalQuad)
+		{
+			/*ThreadPool::GetInstance().WaitForThreads(FLAG_THREAD::A_STAR);
+			ThreadPool::GetInstance().AddTask(this);*/
+			findPathToTarget();
+		}
+
+		if (m_PathFound)
+		{
+			m_Path = m_NextPath;
+			m_PathFound = false;
+		}
+
+		if (m_pNavMesh->GetQuad(pos) == m_pNavMesh->GetQuad(m_NextTargetPos) && !m_Path.empty())
+		{
+			m_Path.pop_back();
+		}
+
+		if (!m_Path.empty())
+		{
+			m_NextTargetPos = m_Path.back();
+		}
+		else
+		{
+			m_NextTargetPos = finalTargetPos;
+		}
+
+
+		float3 direction = { m_NextTargetPos.x - pos.x, (m_NextTargetPos.y - pos.y) * static_cast<float>(m_Flags & F_AI_FLAGS::CAN_JUMP), m_NextTargetPos.z - pos.z };
 		if (!(m_Flags & F_AI_FLAGS::CAN_ROLL))
 		{
 			double angle = std::atan2(direction.x, direction.z);
@@ -151,6 +176,11 @@ Entity* component::AiComponent::GetTarget()
 	return m_pTarget;
 }
 
+void component::AiComponent::Execute()
+{
+	findPathToTarget();
+}
+
 void component::AiComponent::selectTarget()
 {
 	float distance = (m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3() - m_Targets.at(0)->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3()).length();
@@ -169,18 +199,32 @@ void component::AiComponent::selectTarget()
 
 void component::AiComponent::findPathToTarget()
 {
-	m_Path.clear();
-	m_OpenList.clear();
-	m_Tiles.clear();
 
+	m_NextPath.clear();
 	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 	m_GoalPos = m_pTarget->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 
+	m_pStartQuad = m_pNavMesh->GetQuad(m_StartPos);
 	m_pCurrentQuad = m_pNavMesh->GetQuad(m_StartPos);
+	m_pGoalQuad = m_pNavMesh->GetQuad(m_GoalPos);
 
-	m_Tiles[{m_StartPos.x, m_StartPos.z}].parent = m_StartPos;
-	m_Tiles[{m_StartPos.x, m_StartPos.z}].closed = true;
-	m_CurrentTile = m_StartPos;
+	if (m_pStartQuad == m_pGoalQuad)
+	{
+		m_PathFound = true;
+		return;
+	}
+
+	for (unsigned int i = 0; i < m_pNavMesh->GetNumQuads(); ++i)
+	{
+		m_pQuads[i]->g = 0;
+		m_pQuads[i]->f = 0;
+		m_pQuads[i]->closed = false;
+		m_pQuads[i]->parent = nullptr;
+	}
+	m_OpenList.clear();
+
+	m_pQuads[m_pStartQuad->id]->parent = m_pQuads[m_pStartQuad->id];
+	m_pQuads[m_pStartQuad->id]->closed = true;
 
 	checkAdjacent();
 
@@ -192,9 +236,11 @@ void component::AiComponent::findPathToTarget()
 
 	do
 	{
-		m_Path.push_back(m_CurrentTile);
-		m_CurrentTile = m_Tiles[{m_CurrentTile.x, m_CurrentTile.z}].parent;
-	} while (m_CurrentTile != m_StartPos);
+		m_NextPath.push_back(m_pCurrentQuad->position);
+		m_pCurrentQuad = m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id];
+	} while (m_pCurrentQuad != m_pStartQuad);
+
+	m_PathFound = true;
 }
 
 void component::AiComponent::checkAdjacent()
@@ -202,81 +248,17 @@ void component::AiComponent::checkAdjacent()
 	for (Connection* connection : m_pCurrentQuad->connections)
 	{
 		NavQuad* quad = connection->GetConnectedQuad(m_pCurrentQuad);
-
-		if (quad->position.z > m_pCurrentQuad->position.z)
+		if (!m_pQuads[quad->id]->closed)
 		{
-			for (float3& tile : m_pQuads[quad->id].entranceTilesBack)
+			if (m_pQuads[quad->id]->g == 0 || m_pQuads[quad->id]->g > m_pQuads[m_pCurrentQuad->id]->g)
 			{
-				if (!m_Tiles[{tile.x, tile.z}].closed)
-				{
-					if (m_Tiles[{tile.x, tile.z}].g == 0 || m_Tiles[{tile.x, tile.z}].g > m_Tiles[{m_CurrentTile.x, m_CurrentTile.z}].g)
-					{
-						m_OpenList.push_back(tile);
-						m_Tiles[{tile.x, tile.z}].parent = m_CurrentTile;
+				m_OpenList.push_back(quad->id);
+				m_pQuads[quad->id]->parent = m_pQuads[m_pCurrentQuad->id];
 
-						m_Tiles[{tile.x, tile.z}].g = m_Tiles[{m_CurrentTile.x, m_CurrentTile.z}].g + (tile - m_CurrentTile).length();
+				m_pQuads[quad->id]->g = m_pQuads[m_pCurrentQuad->id]->g + (quad->position - m_pCurrentQuad->position).length();
 
-						float h = (tile - m_GoalPos).length();
-						m_Tiles[{tile.x, tile.z}].f = m_Tiles[{tile.x, tile.z}].g + h;
-					}
-				}
-			}
-		}
-		else if (quad->position.z < m_pCurrentQuad->position.z)
-		{
-			for (float3& tile : m_pQuads[quad->id].entranceTilesForward)
-			{
-				if (!m_Tiles[{tile.x, tile.z}].closed)
-				{
-					if (m_Tiles[{tile.x, tile.z}].g == 0 || m_Tiles[{tile.x, tile.z}].g > m_Tiles[{m_CurrentTile.x, m_CurrentTile.z}].g)
-					{
-						m_OpenList.push_back(tile);
-						m_Tiles[{tile.x, tile.z}].parent = m_CurrentTile;
-
-						m_Tiles[{tile.x, tile.z}].g = m_Tiles[{m_CurrentTile.x, m_CurrentTile.z}].g + (tile - m_CurrentTile).length();
-
-						float h = (tile - m_GoalPos).length();
-						m_Tiles[{tile.x, tile.z}].f = m_Tiles[{tile.x, tile.z}].g + h;
-					}
-				}
-			}
-		}
-		else if (quad->position.x > m_pCurrentQuad->position.x)
-		{
-			for (float3& tile : m_pQuads[quad->id].entranceTilesLeft)
-			{
-				if (!m_Tiles[{tile.x, tile.z}].closed)
-				{
-					if (m_Tiles[{tile.x, tile.z}].g == 0 || m_Tiles[{tile.x, tile.z}].g > m_Tiles[{m_CurrentTile.x, m_CurrentTile.z}].g)
-					{
-						m_OpenList.push_back(tile);
-						m_Tiles[{tile.x, tile.z}].parent = m_CurrentTile;
-
-						m_Tiles[{tile.x, tile.z}].g = m_Tiles[{m_CurrentTile.x, m_CurrentTile.z}].g + (tile - m_CurrentTile).length();
-
-						float h = (tile - m_GoalPos).length();
-						m_Tiles[{tile.x, tile.z}].f = m_Tiles[{tile.x, tile.z}].g + h;
-					}
-				}
-			}
-		}
-		else if (quad->position.x < m_pCurrentQuad->position.x)
-		{
-			for (float3& tile : m_pQuads[quad->id].entranceTilesRight)
-			{
-				if (!m_Tiles[{tile.x, tile.z}].closed)
-				{
-					if (m_Tiles[{tile.x, tile.z}].g == 0 || m_Tiles[{tile.x, tile.z}].g > m_Tiles[{m_CurrentTile.x, m_CurrentTile.z}].g)
-					{
-						m_OpenList.push_back(tile);
-						m_Tiles[{tile.x, tile.z}].parent = m_CurrentTile;
-
-						m_Tiles[{tile.x, tile.z}].g = m_Tiles[{m_CurrentTile.x, m_CurrentTile.z}].g + (tile - m_CurrentTile).length();
-
-						float h = (tile - m_GoalPos).length();
-						m_Tiles[{tile.x, tile.z}].f = m_Tiles[{tile.x, tile.z}].g + h;
-					}
-				}
+				float h = abs(quad->position.x - m_GoalPos.x) + abs(quad->position.z - m_GoalPos.z);
+				m_pQuads[quad->id]->f = m_pQuads[quad->id]->g + h;
 			}
 		}
 	}
@@ -287,25 +269,23 @@ bool component::AiComponent::moveToNextTile()
 	if (!m_OpenList.empty())
 	{
 		int index = 0;
-		float f = m_Tiles[{m_OpenList.back().x, m_OpenList.back().z}].f;
+		float f = m_pQuads[m_OpenList.back()]->f;
 		for (unsigned int i = 0; i < m_OpenList.size(); ++i)
 		{
-			if ((m_Tiles[{m_OpenList.at(i).x, m_OpenList.at(i).z}].f < f) && !(m_Tiles[{m_OpenList.at(i).x, m_OpenList.at(i).z}].closed))
+			if ((m_pQuads[m_OpenList.at(i)]->f < f) && !(m_pQuads[m_OpenList.at(i)]->closed))
 			{
-				f = m_Tiles[{m_OpenList.at(i).x, m_OpenList.at(i).z}].f;
+				f = m_pQuads[m_OpenList.at(i)]->f;
 				index = i;
 			}
 		}
 
-		m_CurrentTile = m_OpenList.at(index);
-		m_Tiles[{m_CurrentTile.x, m_CurrentTile.z}].closed = true;
+		m_pCurrentQuad = m_pNavMesh->GetAllQuads()[m_OpenList.at(index)];
+		m_pQuads[m_OpenList.at(index)]->closed = true;
 		m_OpenList.erase(m_OpenList.begin() + index);
-
-		m_pCurrentQuad = m_pNavMesh->GetQuad(m_CurrentTile);
 
 		checkAdjacent();
 
-		return m_pCurrentQuad == m_pNavMesh->GetQuad(m_GoalPos);
+		return m_pCurrentQuad == m_pGoalQuad;
 	}
 
 	return false;
