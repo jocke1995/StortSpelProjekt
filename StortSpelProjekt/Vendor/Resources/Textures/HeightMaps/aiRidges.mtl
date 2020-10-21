@@ -2,5 +2,5 @@
 # Textures downloaded from https://freepbr.com/materials/planet-surface-2/
 newmtl aiRidgesMat
 
-map_Kd tst.dds
+map_Kd aiRidges.dds
 map_Kn aiRidges_nmp.dds

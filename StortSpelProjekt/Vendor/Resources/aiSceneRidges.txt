@@ -17,7 +17,7 @@ Name wall0
 ModelPath Models/FloorPBR/floor.obj
 ModelScaling 10.0, 1.0, 175.0
 ModelRotation 4.71238898038, 0.0, 4.71238898038
-ModelPosition -175.0, 5.0, 350.0
+ModelPosition -175.0, 5.0, 349.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
 ModelMass 0.0
@@ -56,7 +56,7 @@ Name wall3
 ModelPath Models/FloorPBR/floor.obj
 ModelScaling 10.0, 1.0, 175.0
 ModelRotation 3.1415, 0.0, 4.71238898038
-ModelPosition 0.0, 5.0, 175.0
+ModelPosition -1.0, 5.0, 175.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
 ModelMass 0.0

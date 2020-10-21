@@ -297,6 +297,7 @@ Scene* LeosTestScene(SceneManager* sm)
 #pragma region enemies
     enemyFactory.SetScene(scene);
     enemyFactory.AddEnemy("conanLarge", barbModel, 20, float3{ -340.0, 10.0, 340.0 }, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 1.0, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
+    enemyFactory.AddExistingEnemy("conanLarge", float3{ -10.0, 10.0, 340.0 });
 #pragma endregion
 
 #pragma endregion
