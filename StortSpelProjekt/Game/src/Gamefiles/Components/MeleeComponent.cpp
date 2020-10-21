@@ -24,9 +24,18 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	// Fetch the player transform
 	m_pMeleeTransform = parent->GetComponent<component::TransformComponent>()->GetTransform();
 
-	// Fetch the player audio component
-	m_pVoiceComponent = parent->GetComponent<component::Audio2DVoiceComponent>();
-	m_pVoiceComponent->AddVoice(L"SwordSwing");
+	if (parent->GetComponent<component::Audio2DVoiceComponent>())
+	{
+		audioPlay = true;
+		// Fetch the player audio component (if one exists)
+		m_pVoiceComponent = parent->GetComponent<component::Audio2DVoiceComponent>();
+		m_pVoiceComponent->AddVoice(L"SwordSwing");
+	}
+	else
+	{
+		audioPlay = false;
+	}
+	
 
 	//Debugging purpose
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX)
@@ -91,7 +100,10 @@ void component::MeleeComponent::Attack(bool attack)
 	
 	if (!m_Cooldown)
 	{
-		m_pVoiceComponent->Play(L"SwordSwing");
+		if (audioPlay)
+		{
+			m_pVoiceComponent->Play(L"SwordSwing");
+		}
 		Log::Print("Attacking now \n");
 		m_Attacking = attack;
 		//Checks collision of entities

@@ -50,6 +50,7 @@ namespace component
 
 		bool m_Attacking;
 		bool m_Cooldown;
+		bool audioPlay;
 		float m_AttackInterval;
 		float m_TimeSinceLastAttackCheck;
 		int m_Damage;
@@ -58,7 +59,6 @@ namespace component
 		Transform m_MeleeTransformModified;
 
 		Audio2DVoiceComponent* m_pVoiceComponent;
-
 
 		Mesh* m_pMesh;
 
