@@ -10,7 +10,6 @@ public:
 	~UpgradeMeleeDamage();
 
 	void ApplyStat();
-
 	void IncreaseLevel();
 
 private:

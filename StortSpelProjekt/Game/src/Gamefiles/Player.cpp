@@ -54,8 +54,8 @@ void Player::buyUpgrade(UForUpgrade* evnt)
 	Shop* shop = Player::GetInstance().GetShop();
 	if (m_UpgradeApplied % 2 == 0)
 	{
-		shop->ApplyUppgrade("UpgradeRangeTest");
-		Log::Print("UpgradeRangeTest applied!\n");
+		shop->ApplyUppgrade("UpgradeHealthBoost");
+		Log::Print("UpgradeHealthBoost applied!\n");
 	}
 	else
 	{

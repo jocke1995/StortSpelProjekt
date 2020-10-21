@@ -5,7 +5,7 @@
 UpgradeHealthBoost::UpgradeHealthBoost(Entity* parentEntity) : Upgrade(parentEntity)
 {
 	// set the name of the upgrade
-	SetName("UpgradeMeleeDamage");
+	SetName("UpgradeHealthBoost");
 	// set the type of the upgrade
 	SetType(F_UpgradeType::PLAYER);
 	// set the price of the upgrade
@@ -17,7 +17,7 @@ UpgradeHealthBoost::UpgradeHealthBoost(Entity* parentEntity) : Upgrade(parentEnt
 	// Write a description for the upgrade
 	int level5Boost = m_HealthBoost / 2 * 5;
 	// TODO: Fix description
-	m_Description = "";//"Gives player a health increase. At level 1 the increase is %d hp. The following levels it will be (%d / 2 * level). So level 5 will be %d", m_HealthBoost, m_HealthBoost, level5Boost;
+	m_Description = "hhh";//"Gives player a health increase. At level 1 the increase is %d hp. The following levels it will be (%d / 2 * level). So level 5 will be %d", m_HealthBoost, m_HealthBoost, level5Boost;
 
 }
 

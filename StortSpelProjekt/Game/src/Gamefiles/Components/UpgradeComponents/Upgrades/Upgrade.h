@@ -25,6 +25,7 @@ public:
 	void SetName(std::string name);
 	std::string GetName() const;
 	int GetLevel() const;
+	int GetMaxLevel() const;
 	void SetType(unsigned int type);
 	unsigned int GetType() const;
 	void SetID(int id);
@@ -76,6 +77,7 @@ protected:
 	int m_ID;
 	// What level the upgrade is, for keeping track of stacking of upgrades and price
 	int m_Level = 1;
+	int m_MaxLevel = INT_MAX;
 	// What type of upgrade this is, for ease of sorting or making calls to certain types
 	unsigned int m_Type = 0;
 };

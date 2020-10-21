@@ -4,6 +4,7 @@
 #include "Components/UpgradeComponents/UpgradeComponent.h"
 // Include all uppgrades under here:
 #include "Components/UpgradeComponents/Upgrades/UpgradeMeleeDamage.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeHealthBoost.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
@@ -121,19 +122,25 @@ void UpgradeManager::fillUpgradeMap()
 	Upgrade* upgrade;
 
 	// Adding RangeTest Upgrade
-	upgrade = new UpgradeHealthBoost(m_pParentEntity);
+	upgrade = new UpgradeRangeTest(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_TEST);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
-
-	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	upgrade->SetID(UPGRADE_HEALTH_BOOST);
 
 	// Adding MeleeDamage Upgrade
 	upgrade = new UpgradeMeleeDamage(m_pParentEntity);
-	// add the upgrade to the list of all upgrades
-	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
 	upgrade->SetID(UPGRADE_MELEE_DAMAGE);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding RangeTest Upgrade
+	upgrade = new UpgradeHealthBoost(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_HEALTH_BOOST);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 }
 
 bool UpgradeManager::checkIfRangeUpgrade(std::string name)
@@ -168,11 +175,14 @@ Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 	// return the correct NEW upgrade with parentEntity ent
 	switch (m_AppliedUpgradeEnums[name])
 	{
-	case UPGRADE_HEALTH_BOOST:
-		return new UpgradeHealthBoost(ent);
+	case UPGRADE_RANGE_TEST:
+		return new UpgradeRangeTest(ent);
 		break;
 	case UPGRADE_MELEE_DAMAGE:
 		return new UpgradeMeleeDamage(ent);
+		break;
+	case UPGRADE_HEALTH_BOOST:
+		return new UpgradeHealthBoost(ent);
 		break;
 	default:
 		break;

@@ -3,7 +3,6 @@
 
 #include "Components/UpgradeComponents/Upgrades/Upgrade.h"
 
-
 class UpgradeHealthBoost : public Upgrade
 {
 public:
