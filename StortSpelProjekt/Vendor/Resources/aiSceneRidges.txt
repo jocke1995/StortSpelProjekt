@@ -4,7 +4,7 @@ Name floor
 ModelPath Textures/Heightmaps/aiRidges.hm
 ModelScaling 1.0, 100.0, 1.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition -175.0, -100.0, 175.0
+ModelPosition -175.0, -50.0, 175.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
 ModelMass 0.0
@@ -68,7 +68,7 @@ Submit CollisionCube 1.0, 0.0, 1.0
 /* Lights */
 
 Name sun
-ModelLightColor 0.05, 0.05, 0.05
+ModelLightColor 0.5, 0.5, 0.5
 ModelLightFlag 1,1
 ModelLightDirection 0.0, -1.0, 1.0
 ModelLightLeft -355.0
@@ -84,9 +84,10 @@ ModelPath Textures/CubeMaps/skymap_dark.dds
 Submit Skybox
 
 NavMesh
+
 #0
-NavQuadPosition -50.0, 0.0, 10.0
-NavQuadSize 100.0, 20.0
+NavQuadPosition -60.0, 0.0, 10.0
+NavQuadSize 80.0, 20.0
 Submit NavQuad
 
 #1
@@ -314,6 +315,11 @@ NavQuadPosition -305.0, 0.0, 295.0
 NavQuadSize 90.0, 110.0
 Submit NavQuad
 
+#46
+NavQuadPosition -10.0, 0.0, 10.0
+NavQuadSize 20.0, 20.0
+Submit NavQuad
+
 NavConnectionQuads 0, 1
 Submit NavConnection
 
@@ -354,9 +360,6 @@ NavConnectionQuads 12, 13
 Submit NavConnection
 
 NavConnectionQuads 13, 14
-Submit NavConnection
-
-NavConnectionQuads 14, 0
 Submit NavConnection
 
 NavConnectionQuads 13, 15
@@ -465,6 +468,12 @@ NavConnectionQuads 42, 43
 Submit NavConnection
 
 NavConnectionQuads 43, 32
+Submit NavConnection
+
+NavConnectionQuads 46, 0
+Submit NavConnection
+
+NavConnectionQuads 46, 14
 Submit NavConnection
 
 Submit NavMesh
