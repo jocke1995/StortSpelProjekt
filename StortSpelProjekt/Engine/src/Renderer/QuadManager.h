@@ -46,9 +46,9 @@ public:
 		float3 color = float3{ 0.0, 0.0, 0.0 });
 	void UploadAndExecuteQuadData();
 
-	bool HasBeenPressed();
+	const bool HasBeenPressed();
 	const bool HasTexture() const;
-	const bool IsMarked();
+	const bool IsMarked() const;
 	const bool IsClickable() const; 
 	const bool IsMarkable() const;
 

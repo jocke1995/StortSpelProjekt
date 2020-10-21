@@ -172,7 +172,7 @@ void QuadManager::UploadAndExecuteQuadData()
 	renderer->executeCopyOnDemand();
 }
 
-bool QuadManager::HasBeenPressed()
+const bool QuadManager::HasBeenPressed()
 {
 	if (m_Pressed)
 	{
@@ -199,7 +199,7 @@ const bool QuadManager::HasTexture() const
 	return exists;
 }
 
-const bool QuadManager::IsMarked()
+const bool QuadManager::IsMarked() const
 {
 	bool marked = false;
 
@@ -207,10 +207,10 @@ const bool QuadManager::IsMarked()
 	Renderer* renderer = &Renderer::GetInstance();
 	renderer->GetWindow()->MouseInClipspace(&x, &y);
 
-	if ((x >= m_Positions["upper_left"].x && y <= m_Positions["upper_left"].y)
-		&& (x >= m_Positions["lower_left"].x && y >= m_Positions["lower_left"].y)
-		&& (x <= m_Positions["upper_right"].x && y <= m_Positions["upper_right"].y)
-		&& (x <= m_Positions["lower_right"].x && y >= m_Positions["lower_right"].y))
+	if ((x >= m_Positions.at("upper_left").x && y <= m_Positions.at("upper_left").y)
+		&& (x >= m_Positions.at("lower_left").x && y >= m_Positions.at("lower_left").y)
+		&& (x <= m_Positions.at("upper_right").x && y <= m_Positions.at("upper_right").y)
+		&& (x <= m_Positions.at("lower_right").x && y >= m_Positions.at("lower_right").y))
 	{
 		marked = true;
 	}
