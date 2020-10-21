@@ -288,21 +288,15 @@ Scene* GetDemoScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     enemyFactory.SetScene(scene);
-    entity = enemyFactory.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", F_COMP_FLAGS::OBB, 0, 0.04, float3{ 0, 0, 0 });
+    enemyFactory.AddSpawnPoint({  0, 10, 40 });
+    enemyFactory.AddSpawnPoint({ 10, 10, 40 });
+    enemyFactory.AddSpawnPoint({ 20, 10, 10 });
+    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB, 0, 0.04);
 
-    // add bunch of enemies
-    float xVal = 8;
-    float zVal = 20;
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
     for (int i = 0; i < 75; i++)
     {
-        zVal += 8;
-        entity = enemyFactory.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
-        if ((i + 1) % 5 == 0)
-        {
-            xVal += 8;
-            zVal = 10;
-        }
+        entity = enemyFactory.SpawnEnemy("Enemy");
     }
     /* ---------------------- Enemy -------------------------------- */
 
@@ -527,13 +521,12 @@ void DefaultUpdateScene(SceneManager* sm, double dt)
 
 void DemoUpdateScene(SceneManager* sm, double dt)
 {
-    component::Audio3DEmitterComponent* ec = sm->GetScene("DemoScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
-    ec->UpdateEmitter(L"Bruh");
+    component::Audio3DEmitterComponent* ec;
 
-    std::string name = "enemy";
-    for (int i = 1; i < 76; i++)
+    std::string name = "Enemy";
+    for (int i = 0; i < 75; i++)
     {
-        name = "enemy" + std::to_string(i);
+        name = "Enemy" + std::to_string(i);
         ec = sm->GetScene("DemoScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
         ec->UpdateEmitter(L"Bruh");
     }
