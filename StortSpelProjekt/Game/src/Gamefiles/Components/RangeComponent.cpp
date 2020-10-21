@@ -113,5 +113,4 @@ void component::RangeComponent::Attack()
 	// TODO: add dynamicly correct
 	m_pSceneMan->AddEntity(ent, m_pScene);
 }
-
 		

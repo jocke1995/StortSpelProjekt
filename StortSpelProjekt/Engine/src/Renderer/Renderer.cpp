@@ -58,7 +58,7 @@
 #include "DX12Tasks/WireframeRenderTask.h"
 #include "DX12Tasks/OutliningRenderTask.h"
 #include "DX12Tasks/ForwardRenderTask.h"
-#include "DX12Tasks/BlendRenderTask.h"
+#include "DX12Tasks/TransparentRenderTask.h"
 #include "DX12Tasks/ShadowRenderTask.h"
 #include "DX12Tasks/DownSampleRenderTask.h"
 #include "DX12Tasks/MergeRenderTask.h"
@@ -379,8 +379,14 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
 
-	// Blending
-	renderTask = m_RenderTasks[RENDER_TASK_TYPE::BLEND];
+	// Blending with constant value
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
+	// Blending with opacity texture
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
@@ -466,35 +472,40 @@ void Renderer::InitSkyboxComponent(component::SkyboxComponent* component)
 	m_pSkyboxComponent = component;
 }
 
-void Renderer::InitModelComponent(component::ModelComponent* component)
+void Renderer::InitModelComponent(component::ModelComponent* mc)
 {
-	component::TransformComponent* tc = component->GetParent()->GetComponent<component::TransformComponent>();
+	component::TransformComponent* tc = mc->GetParent()->GetComponent<component::TransformComponent>();
 
 	// Submit to codt
-	submitModelToCodt(component->m_pModel);
+	submitModelToCodt(mc->m_pModel);
 	
 	// Only add the m_Entities that actually should be drawn
 	if (tc != nullptr)
 	{
 		// Finally store the object in the corresponding renderComponent vectors so it will be drawn
-		if (FLAG_DRAW::DRAW_TRANSPARENT & component->GetDrawFlag())
+		if (FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT & mc->GetDrawFlag())
 		{
-			m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT].push_back(std::make_pair(component, tc));
+			m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT].push_back(std::make_pair(mc, tc));
 		}
 
-		if (FLAG_DRAW::DRAW_OPAQUE & component->GetDrawFlag())
+		if (FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE & mc->GetDrawFlag())
 		{
-			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(component, tc));
+			m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE].push_back(std::make_pair(mc, tc));
 		}
 
-		if (FLAG_DRAW::NO_DEPTH & ~component->GetDrawFlag())
+		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
 		{
-			m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(component, tc));
+			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
 		}
 
-		if (FLAG_DRAW::GIVE_SHADOW & component->GetDrawFlag())
+		if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
 		{
-			m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(component, tc));
+			m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
+		}
+
+		if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
+		{
+			m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(mc, tc));
 		}
 	}
 }
@@ -947,6 +958,8 @@ void Renderer::submitModelToCodt(Model* model)
 		submitTextureToCodt(texture);
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::EMISSIVE);
 		submitTextureToCodt(texture);
+		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::OPACITY);
+		submitTextureToCodt(texture);
 	}
 }
 
@@ -975,7 +988,8 @@ void Renderer::setRenderTasksPrimaryCamera()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCamera(m_pScenePrimaryCamera);
@@ -1526,7 +1540,6 @@ void Renderer::initRenderTasks()
 	blendRTdesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	blendRTdesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
-
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
 	{
 		gpsdBlendFrontCull.BlendState.RenderTarget[i] = blendRTdesc;
@@ -1576,20 +1589,34 @@ void Renderer::initRenderTasks()
 	gpsdBlendVector.push_back(&gpsdBlendFrontCull);
 	gpsdBlendVector.push_back(&gpsdBlendBackCull);
 
-	RenderTask* blendRenderTask = new BlendRenderTask(m_pDevice5,
+	RenderTask* transparentConstantRenderTask = new TransparentRenderTask(m_pDevice5,
 		m_pRootSignature,
-		L"BlendVertex.hlsl",
-		L"BlendPixel.hlsl",
+		L"TransparentConstantVertex.hlsl",
+		L"TransparentConstantPixel.hlsl",
 		&gpsdBlendVector,
 		L"BlendPSO",
 		FLAG_THREAD::RENDER);
 
-	blendRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
-	blendRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
-	blendRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
-	blendRenderTask->SetSwapChain(m_pSwapChain);
-	blendRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+	transparentConstantRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
+	transparentConstantRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
+	transparentConstantRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
+	transparentConstantRenderTask->SetSwapChain(m_pSwapChain);
+	transparentConstantRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	
+	/*---------------------------------- TRANSPARENT_TEXTURE_RENDERTASK -------------------------------------*/
+	RenderTask* transparentTextureRenderTask = new TransparentRenderTask(m_pDevice5,
+		m_pRootSignature,
+		L"TransparentTextureVertex.hlsl",
+		L"TransparentTexturePixel.hlsl",
+		&gpsdBlendVector,
+		L"BlendPSO",
+		FLAG_THREAD::RENDER);
+
+	transparentTextureRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
+	transparentTextureRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
+	transparentTextureRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
+	transparentTextureRenderTask->SetSwapChain(m_pSwapChain);
+	transparentTextureRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion Blend
 
@@ -1880,7 +1907,8 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS] = DepthPrePassRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT] = transparentConstantRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE] = transparentTextureRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME] = wireFrameRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE] = outliningRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::MERGE] = mergeTask;
@@ -1923,7 +1951,12 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandInterface()->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(transparentConstantRenderTask->GetCommandInterface()->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(transparentTextureRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1976,7 +2009,8 @@ void Renderer::setRenderTasksRenderComponents()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::NO_DEPTH]);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT]);
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT]);
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
 
 	static_cast<SkyboxRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX])->SetSkybox(m_pSkyboxComponent);
@@ -2062,9 +2096,9 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 
 	// -------------------- DEBUG STUFF --------------------
 	// Test to change m_pCamera to the shadow casting m_lights cameras
-	 /*auto& tuple = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].at(0);
-	 BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
-	 m_pScenePrimaryCamera = tempCam;*/
+	//auto& tuple = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].at(0);
+	//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
+	//m_pScenePrimaryCamera = tempCam;
 	if (m_pScenePrimaryCamera == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scenes\n");
