@@ -3,7 +3,7 @@
 
 // Renderer
 #include "../Renderer/Transform.h"
-#include "../Renderer/BaseCamera.h"
+#include "../Renderer/Camera/BaseCamera.h"
 #include "../Renderer/Renderer.h"
 
 // ECS
@@ -44,15 +44,12 @@ namespace component
 
 	void PointLightComponent::OnInitScene()
 	{
-		Renderer::GetInstance().InitPointLightComponent(GetParent());
+		Renderer::GetInstance().InitPointLightComponent(this);
 	}
 
-	void PointLightComponent::OnLoadScene()
+	void PointLightComponent::OnUnInitScene()
 	{
-	}
-
-	void PointLightComponent::OnUnloadScene()
-	{
+		Renderer::GetInstance().UnInitPointLightComponent(this);
 	}
 
 	void PointLightComponent::SetPosition(float3 position)
@@ -72,7 +69,7 @@ namespace component
 		return m_pPointLight;
 	}
 
-	void PointLightComponent::UpdateLightIntensity()
+	void PointLightComponent::UpdateLightColor()
 	{
 		m_pPointLight->baseLight.color = m_pBaseLight->color;
 	}

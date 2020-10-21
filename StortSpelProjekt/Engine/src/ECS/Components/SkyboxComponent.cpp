@@ -3,7 +3,7 @@
 
 #include "../Renderer/Transform.h"
 #include "../Renderer/Model.h"
-#include "../Renderer/BaseCamera.h"
+#include "../Renderer/Camera/BaseCamera.h"
 
 #include "../Renderer/Texture/TextureCubeMap.h"
 #include "../Renderer/Renderer.h"
@@ -30,15 +30,12 @@ void component::SkyboxComponent::RenderUpdate(double dt)
 
 void component::SkyboxComponent::OnInitScene()
 {
-	Renderer::GetInstance().InitSkyboxComponent(GetParent());
+	Renderer::GetInstance().InitSkyboxComponent(this);
 }
 
-void component::SkyboxComponent::OnLoadScene()
+void component::SkyboxComponent::OnUnInitScene()
 {
-}
-
-void component::SkyboxComponent::OnUnloadScene()
-{
+	Renderer::GetInstance().UnInitSkyboxComponent(this);
 }
 
 void component::SkyboxComponent::SetMesh(Mesh* mesh)

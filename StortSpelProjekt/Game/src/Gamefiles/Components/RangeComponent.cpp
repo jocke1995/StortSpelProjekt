@@ -5,6 +5,11 @@
 #include "../ECS/SceneManager.h"
 #include "ProjectileComponent.h"
 #include <Bullet/btBulletCollisionCommon.h>
+#include "UpgradeComponents/UpgradeComponent.h"
+#include "UpgradeComponents/Upgrades/UpgradeRangeTest.h"
+#include "Player.h"
+#include "../Memory/PoolAllocator.h"
+#include "UpgradeManager.h"
 
 
 component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale, int damage, float velocity) : Component(parent)
@@ -27,11 +32,7 @@ void component::RangeComponent::OnInitScene()
 {
 }
 
-void component::RangeComponent::OnLoadScene()
-{
-}
-
-void component::RangeComponent::OnUnloadScene()
+void component::RangeComponent::OnUnInitScene()
 {
 }
 
@@ -39,26 +40,40 @@ void component::RangeComponent::Attack(MouseClick* event)
 {
 	if (event->button == MOUSE_BUTTON::RIGHT_DOWN)
 	{
-		Entity* ent = new Entity("RangeAttack" + std::to_string(++m_NrOfProjectiles));
+		Entity* ent = m_pScene->AddEntity("RangeAttack" + std::to_string(++m_NrOfProjectiles));
 		component::ModelComponent* mc = nullptr;
 		component::TransformComponent* tc = nullptr;
 		component::BoundingBoxComponent* bbc = nullptr;
 		component::ProjectileComponent* pc = nullptr;
+		component::UpgradeComponent* uc = nullptr;
+		component::AccelerationComponent* ac = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
+		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
+		ac = ent->AddComponent<component::AccelerationComponent>(50);
+		uc = ent->AddComponent<component::UpgradeComponent>();
+
+		// Applying all range uppgrades to the new projectile entity "RangeAttack"
+		if (m_pParent->HasComponent<component::UpgradeComponent>())
+		{
+			Player::GetInstance().GetUpgradeManager()->ApplyRangeUpgrades(ent);
+		}
 
 		// get the pos of parent object and forward of camera 
 		// so we know where to spawn and in which direction
 		float3 ParentPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
-		DirectX::XMFLOAT3 forward = m_pScene->GetMainCamera()->GetDirection(); 
+		float3 forward = m_pScene->GetMainCamera()->GetDirectionFloat3();
+		float length = forward.length();
+
+		double3 dim = m_pParent->GetComponent<component::ModelComponent>()->GetModelDim();
 
 		// add the forward vector to parent pos 
 		// so the projectile doesn't spawn inside of us
 		float3 pos;
-		pos.x = ParentPos.x + forward.x;
-		pos.y = ParentPos.y + forward.y;
-		pos.z = ParentPos.z + forward.z;
+		pos.x = ParentPos.x + (forward.x / length) * (dim.x / 2.0);
+		pos.y = ParentPos.y + (forward.y / length);
+		pos.z = ParentPos.z + (forward.z / length) * (dim.z / 2.0);
 
 		// initialize the components
 		mc->SetModel(m_pModel);
@@ -77,5 +92,4 @@ void component::RangeComponent::Attack(MouseClick* event)
 		m_pSceneMan->AddEntity(ent, m_pScene);
 	}
 }
-
 		

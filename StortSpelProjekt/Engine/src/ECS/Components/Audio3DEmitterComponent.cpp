@@ -27,11 +27,7 @@ void component::Audio3DEmitterComponent::OnInitScene()
 {
 }
 
-void component::Audio3DEmitterComponent::OnLoadScene()
-{
-}
-
-void component::Audio3DEmitterComponent::OnUnloadScene()
+void component::Audio3DEmitterComponent::OnUnInitScene()
 {
 }
 

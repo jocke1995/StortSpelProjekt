@@ -25,11 +25,7 @@ void component::Audio3DListenerComponent::OnInitScene()
 {
 }
 
-void component::Audio3DListenerComponent::OnLoadScene()
-{
-}
-
-void component::Audio3DListenerComponent::OnUnloadScene()
+void component::Audio3DListenerComponent::OnUnInitScene()
 {
 }
 

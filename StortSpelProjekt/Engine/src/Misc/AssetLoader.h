@@ -14,6 +14,7 @@ class Texture;
 class TextureCubeMap;
 class Material;
 class Window;
+class Scene;
 
 struct Vertex;
 struct Font;
@@ -46,6 +47,7 @@ public:
     // Textures ------------
     Texture* LoadTexture2D(const std::wstring& path);
     TextureCubeMap* LoadTextureCubeMap(const std::wstring& path);
+    Material* LoadMaterialFromMTL(const std::wstring& path);
 
     // Load Audio
     AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
@@ -53,13 +55,26 @@ public:
     // ??
 
 	// Fonts -------------
-	std::pair<Font*, Texture*> LoadFontFromFile(const std::wstring& fontName);
+	Font* LoadFontFromFile(const std::wstring& fontName);
+	std::wstring GetFontPath() const;
+
+    // Scene
+    void LoadMap(Scene* scene, const char* path);
+
+    // IsLoadedFunctions
+    bool IsModelLoadedOnGpu(const std::wstring& name) const;
+    bool IsModelLoadedOnGpu(const Model* model) const;
+    bool IsMaterialLoadedOnGpu(const std::wstring& name) const;
+    bool IsMaterialLoadedOnGpu(const Material* material) const;
+    bool IsTextureLoadedOnGpu(const std::wstring& name) const;
+    bool IsTextureLoadedOnGpu(const Texture* texture) const;
 
 private:
     // PipelineState loads all shaders
     friend class PipelineState;
     // Renderer needs access to m_LoadedModels & m_LoadedTextures so it can check if they are uploaded to GPU.
     friend class Renderer;
+	friend class QuadManager;
 
     // Constructor currently called from m_pRenderer to set dx12 specific objects
     AssetLoader(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr, const Window* window = nullptr);
@@ -70,13 +85,8 @@ private:
     DescriptorHeap* m_pDescriptorHeap_CBV_UAV_SRV = nullptr;
     Window* m_pWindow = nullptr;
     
-    // IsLoadedFunctions
-    bool IsModelLoadedOnGpu(const std::wstring& name) const;
-    bool IsModelLoadedOnGpu(const Model* model) const;
-    bool IsMaterialLoadedOnGpu(const std::wstring& name) const;
-    bool IsMaterialLoadedOnGpu(const Material* material) const;
-    bool IsTextureLoadedOnGpu(const std::wstring& name) const;
-    bool IsTextureLoadedOnGpu(const Texture* texture) const;
+	bool IsFontTextureLoadedOnGPU(const Font* font) const;
+    void loadDefaultMaterial();
 
     const std::wstring m_FilePathShaders = L"../Engine/src/Renderer/HLSL/";
     const std::wstring m_FilePathDefaultTextures = L"../Vendor/Resources/Textures/Default/";
@@ -90,7 +100,7 @@ private:
     std::vector<Mesh*> m_LoadedMeshes;
     std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, Shader*> m_LoadedShaders;
-    std::map<std::wstring, std::pair<Font*, Texture*>> m_LoadedFonts;
+    std::map<std::wstring, std::pair<bool, Font*>> m_LoadedFonts;
     std::map<std::wstring, AudioBuffer> m_LoadedAudios;
 
     // Audio
@@ -125,7 +135,7 @@ private:
     void processMeshData(const aiScene* assimpScene, const aiMesh* assimpMesh, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices);
     Material* processMaterial(std::wstring path, const aiScene* assimpScene, const aiMesh* assimpMesh);
     Material* loadMaterial(aiMaterial* mat, const std::wstring& folderPath);
-    Material* loadMaterialFromMTL(const std::wstring& path);
+    
 
     Texture* processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture);
     

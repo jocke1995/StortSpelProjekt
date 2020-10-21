@@ -4,8 +4,9 @@
 
 // Renderer
 #include "../Renderer/Transform.h"
-#include "../Renderer/BaseCamera.h"
+#include "../Renderer/Camera/PerspectiveCamera.h"
 #include "../Renderer/Renderer.h"
+#include "../Misc/Option.h"
 
 // ECS
 #include "../ECS/Entity.h"
@@ -57,17 +58,29 @@ namespace component
 
     void SpotLightComponent::OnInitScene()
     {
-        Renderer::GetInstance().InitSpotLightComponent(GetParent());
+        this->Update(0);
+
+        Renderer::GetInstance().InitSpotLightComponent(this);
     }
 
-    void SpotLightComponent::OnLoadScene()
+    void SpotLightComponent::OnUnInitScene()
     {
+        Renderer::GetInstance().UnInitSpotLightComponent(this);
     }
 
-	void SpotLightComponent::OnUnloadScene()
-	{
-	}
+    void SpotLightComponent::SetCutOff(float degrees)
+    {
+        m_pSpotLight->position_cutOff.w = cos(DirectX::XMConvertToRadians(degrees));
+    }
 
+    void SpotLightComponent::SetAttenuation(float3 attenuation)
+    {
+        m_pSpotLight->attenuation.x = attenuation.x;
+        m_pSpotLight->attenuation.y = attenuation.y;
+        m_pSpotLight->attenuation.z = attenuation.z;
+    }
+
+    // This function modifies the camera aswell as the position
     void SpotLightComponent::SetPosition(float3 position)
     {
         m_pSpotLight->position_cutOff.x = position.x;
@@ -80,11 +93,7 @@ namespace component
         }
     }
 
-    void SpotLightComponent::SetCutOff(float cutOff)
-    {
-        m_pSpotLight->position_cutOff.w = cutOff;
-    }
-
+    // This function modifies the camera aswell as the direction
     void SpotLightComponent::SetDirection(float3 direction)
     {
         m_pSpotLight->direction_outerCutoff.x = direction.x;
@@ -97,16 +106,50 @@ namespace component
         }
     }
 
-    void SpotLightComponent::SetOuterCutOff(float outerCutOff)
+    // This function modifies the camera aswell as the outerCutOff
+    void SpotLightComponent::SetOuterCutOff(float degrees)
     {
-        m_pSpotLight->direction_outerCutoff.w = outerCutOff;
+        float cameraFov = degrees * 2.0f;
+        if (degrees >= 89)
+        {
+            degrees = 89.0f;
+            cameraFov = 179.0f;
+        }
+
+        m_pSpotLight->direction_outerCutoff.w = cos(DirectX::XMConvertToRadians(degrees));
+
+        if (m_pCamera != nullptr)
+        {
+            PerspectiveCamera* persCam = static_cast<PerspectiveCamera*>(m_pCamera);
+            persCam->SetFov(cameraFov);
+        }
     }
 
-    void SpotLightComponent::SetAttenuation(float3 attenuation)
+    void SpotLightComponent::SetAspectRatio(float aspectRatio)
     {
-        m_pSpotLight->attenuation.x = attenuation.x;
-        m_pSpotLight->attenuation.y = attenuation.y;
-        m_pSpotLight->attenuation.z = attenuation.z;
+        if (m_pCamera != nullptr)
+        {
+            PerspectiveCamera* persCam = static_cast<PerspectiveCamera*>(m_pCamera);
+            persCam->SetAspectRatio(aspectRatio);
+        }
+    }
+
+    void SpotLightComponent::SetNearPlaneDistance(float nearZ)
+    {
+        if (m_pCamera != nullptr)
+        {
+            PerspectiveCamera* persCam = static_cast<PerspectiveCamera*>(m_pCamera);
+            persCam->SetNearZ(nearZ);
+        }
+    }
+
+    void SpotLightComponent::SetFarPlaneDistance(float farZ)
+    {
+        if (m_pCamera != nullptr)
+        {
+            PerspectiveCamera* persCam = static_cast<PerspectiveCamera*>(m_pCamera);
+            persCam->SetFarZ(farZ);
+        }
     }
 
     void* SpotLightComponent::GetLightData() const
@@ -127,24 +170,28 @@ namespace component
 
         if (m_LightFlags & FLAG_LIGHT::CAST_SHADOW)
         {
-            CreateCamera(
-                {
-                m_pSpotLight->position_cutOff.x,
-                m_pSpotLight->position_cutOff.y,
-                m_pSpotLight->position_cutOff.z,
-                },
-                {
-                m_pSpotLight->direction_outerCutoff.x,
-                m_pSpotLight->direction_outerCutoff.y,
-                m_pSpotLight->direction_outerCutoff.z });
+            int textFileSetting = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
+            if (textFileSetting >= 0)
+            {
+                CreatePerspectiveCamera(
+                    {
+                    m_pSpotLight->position_cutOff.x,
+                    m_pSpotLight->position_cutOff.y,
+                    m_pSpotLight->position_cutOff.z,
+                    },
+                    {
+                    m_pSpotLight->direction_outerCutoff.x,
+                    m_pSpotLight->direction_outerCutoff.y,
+                    m_pSpotLight->direction_outerCutoff.z });
 
-            m_pSpotLight->baseLight.castShadow = true;
+                m_pSpotLight->baseLight.castShadow = true;
 
-            m_pSpotLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
+                m_pSpotLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
+            } 
         }
     }
 
-    void SpotLightComponent::UpdateLightIntensity()
+    void SpotLightComponent::UpdateLightColor()
     {
         m_pSpotLight->baseLight.color = m_pBaseLight->color;
     }

@@ -41,16 +41,14 @@ namespace component
 
 	void BoundingBoxComponent::OnInitScene()
 	{
-		Renderer::GetInstance().InitBoundingBoxComponent(GetParent());
+		Renderer::GetInstance().InitBoundingBoxComponent(this);
 	}
 
-	void BoundingBoxComponent::OnLoadScene()
+	void BoundingBoxComponent::OnUnInitScene()
 	{
+		Renderer::GetInstance().UnInitBoundingBoxComponent(this);
 	}
 
-	void BoundingBoxComponent::OnUnloadScene()
-	{
-	}
 
 	void BoundingBoxComponent::Update(double dt)
 	{

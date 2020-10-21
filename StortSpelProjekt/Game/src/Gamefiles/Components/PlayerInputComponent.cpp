@@ -2,7 +2,7 @@
 #include "Components/MeleeComponent.h"
 #include "../Events/EventBus.h"
 #include "../ECS/Entity.h"
-#include "../Renderer/PerspectiveCamera.h"
+#include "../Renderer/Camera/PerspectiveCamera.h"
 #include "../Renderer/Transform.h"
 #include "../ECS/Components/Collision/CollisionComponent.h"
 #include "Physics/Physics.h"
@@ -42,15 +42,12 @@ void component::PlayerInputComponent::Init()
 
 void component::PlayerInputComponent::OnInitScene()
 {
-}
-
-void component::PlayerInputComponent::OnLoadScene()
-{
 	m_pCamera = static_cast<PerspectiveCamera*>(m_pParent->GetComponent<component::CameraComponent>()->GetCamera());
 	m_pTransform = static_cast<Transform*>(m_pParent->GetComponent<component::TransformComponent>()->GetTransform());
 
 	m_pCC = m_pParent->GetComponent<component::CollisionComponent>();
 
+	// TODO: Unsubrscibe somewhere
 	if (m_pCC && m_pCamera && m_pTransform)
 	{
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::alternativeInput);
@@ -79,16 +76,8 @@ void component::PlayerInputComponent::OnLoadScene()
 	}
 }
 
-void component::PlayerInputComponent::OnUnloadScene()
+void component::PlayerInputComponent::OnUnInitScene()
 {
-	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::alternativeInput);
-	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::zoom);
-	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::rotate);
-	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::move);
-	if (m_pParent->GetComponent<component::MeleeComponent>() != nullptr)
-	{
-		EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::mouseClick);
-	}
 }
 
 void component::PlayerInputComponent::RenderUpdate(double dt)
@@ -105,7 +94,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 
 		m_pCamera->SetPosition(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 		float directionX = playerPosition.x - cameraPosition.x;
-		float directionY = playerPosition.y + 3.0f - cameraPosition.y;
+		float directionY = playerPosition.y + (m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y * 0.5) + 1.0 - cameraPosition.y;
 		float directionZ = playerPosition.z - cameraPosition.z;
 		m_pCamera->SetDirection(directionX, directionY, directionZ);
 	}

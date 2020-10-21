@@ -75,23 +75,13 @@ void Entity::OnInitScene()
 	}
 }
 
-void Entity::OnLoadScene()
+void Entity::OnUnInitScene()
 {
-	// for each component in entity: call their implementation of LoadScene(),
+	// for each component in entity: call their implementation of InitScene(),
 	// which calls their specific init function (render, audio, game, physics etc)
 	for (int i = 0; i < m_Components.size(); i++)
 	{
-		m_Components.at(i)->OnLoadScene();
-	}
-}
-
-void Entity::OnUnloadScene()
-{
-	// for each component in entity: call their implementation of UnloadScene(),
-	// which calls their specific init function (render, audio, game, physics etc)
-	for (int i = 0; i < m_Components.size(); i++)
-	{
-		m_Components.at(i)->OnUnloadScene();
+		m_Components.at(i)->OnUnInitScene();
 	}
 }
 

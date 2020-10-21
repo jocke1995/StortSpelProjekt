@@ -21,6 +21,8 @@ class DescriptorHeap;
 class Mesh;
 class Texture;
 class Model;
+class Resource;
+class Text;
 
 // Views
 
@@ -29,6 +31,7 @@ class ConstantBuffer;
 class ShaderResource;
 class UnorderedAccess;
 class DepthStencil;
+class Resource;
 
 // Enums
 enum COMMAND_INTERFACE_TYPE;
@@ -68,9 +71,14 @@ namespace component
 {
 	class ModelComponent;
 	class TransformComponent;
+	class CameraComponent;
 	class BoundingBoxComponent;
-	class TextComponent;
+	class GUI2DComponent;
 	class SkyboxComponent;
+	class DirectionalLightComponent;
+	class PointLightComponent;
+	class SpotLightComponent;
+
 }
 
 // Events
@@ -89,6 +97,8 @@ public:
 	// Scene
 	Scene* const GetActiveScene() const;
 
+	const Window* const GetWindow() const;
+
 	// Call once
 	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
@@ -100,39 +110,40 @@ public:
 	void Execute();
 
 	// Render inits, these functions are called by respective components through SetScene to prepare for drawing
-	void InitSkyboxComponent(Entity* entity);
-	void InitModelComponent(Entity* entity);
-	void InitDirectionalLightComponent(Entity* entity);
-	void InitPointLightComponent(Entity* entity);
-	void InitSpotLightComponent(Entity* entity);
-	void InitCameraComponent(Entity* entity);
-	void InitBoundingBoxComponent(Entity* entity);
-	void InitTextComponent(Entity* entity);
+	void InitSkyboxComponent(component::SkyboxComponent* component);
+	void InitModelComponent(component::ModelComponent* component);
+	void InitDirectionalLightComponent(component::DirectionalLightComponent* component);
+	void InitPointLightComponent(component::PointLightComponent* component);
+	void InitSpotLightComponent(component::SpotLightComponent* component);
+	void InitCameraComponent(component::CameraComponent* component);
+	void InitBoundingBoxComponent(component::BoundingBoxComponent* component);
+	void InitGUI2DComponent(component::GUI2DComponent* component);
+
+	void UnInitSkyboxComponent(component::SkyboxComponent* component);
+	void UnInitModelComponent(component::ModelComponent* component);
+	void UnInitDirectionalLightComponent(component::DirectionalLightComponent* component);
+	void UnInitPointLightComponent(component::PointLightComponent* component);
+	void UnInitSpotLightComponent(component::SpotLightComponent* component);
+	void UnInitCameraComponent(component::CameraComponent* component);
+	void UnInitBoundingBoxComponent(component::BoundingBoxComponent* component);
+	void UnInitGUI2DComponent(component::GUI2DComponent* component);
 
 	void OnResetScene();
-
-	SwapChain* GetSwapChain();
-
-	// Load Gpu Memory Functions
-	void LoadModel(Model* model) const;
-	void LoadMesh(Mesh* mesh) const;
-	void LoadMaterial(Material* material) const;
-	void LoadTexture(Texture* texture) const;
-
-	// Unload Gpu Memory Functions
-	void UnloadModel(Model* model) const;
-	void UnloadMesh(Mesh* mesh) const;
-	void UnloadMaterial(Material* material) const;
-	void UnloadTexture(Texture* texture) const;
-
-	void UnloadRenderComponents();
 
 private:
 	friend class Engine;
 	friend class component::SkyboxComponent;
+	friend class component::GUI2DComponent;
 	friend class SceneManager;
-	friend class Text;
+	friend class TextManager;
+	friend class QuadManager;
 	Renderer();
+
+	// SubmitToCodt functions
+	void submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
+	void submitModelToCodt(Model* model);
+	void submitMeshToCodt(Mesh* mesh);
+	void submitTextureToCodt(Texture* texture);
 
 	ThreadPool* m_pThreadPool = nullptr;
 
@@ -181,7 +192,8 @@ private:
 	// Group of components that's needed for rendering:
 	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
-	std::vector<component::TextComponent*> m_TextComponents;
+	std::vector<component::GUI2DComponent*> m_TextComponents;
+	std::vector<component::GUI2DComponent*> m_QuadComponents;
 	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
@@ -229,20 +241,21 @@ private:
 
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene
 	void waitForCopyOnDemand();
-
-	// Manage components
-	void removeComponents(Entity* entity);
+	void executeCopyOnDemand();
 
 	// Setup the whole scene
 	void prepareScenes(std::vector<Scene*>* scenes);
-	// Setup what should be drawn in the scene
-	void prepareRenderComponents(std::vector<Scene*>* scenes);
+
 	// Setup Per-scene data and send to GPU
-	void prepareCBPerScene();
+	void SubmitUploadPerSceneData();
 	// Submit per-frame data to the copyQueue that updates each frame
-	void prepareCBPerFrame();
+	void SubmitUploadPerFrameData();
 
 	void toggleFullscreen(WindowChange* evnt);
+
+	SwapChain* getSwapChain() const;
+
+	void submitTextToGPU(Text* text, TextManager* tm);
 };
 
 #endif

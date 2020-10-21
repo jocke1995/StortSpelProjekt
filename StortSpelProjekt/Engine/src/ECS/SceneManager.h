@@ -16,30 +16,27 @@ public:
 	SceneManager();
 	~SceneManager();
 
+	// Update
 	void Update(double dt);
 	void RenderUpdate(double dt);
 
+	// Scene
 	Scene* CreateScene(std::string sceneName);
-
+	void SetScenes(unsigned int numScenes, Scene** scene);
 	std::vector<Scene*>* GetActiveScenes();
 	Scene* GetScene(std::string sceneName) const;
-
-	void RemoveEntity(Entity* entity, Scene* scene);
-	void AddEntity(Entity* entity, Scene* scene);
-	void SetScenes(unsigned int numScenes, Scene** scene);
-	void LoadScene(Scene* scene);
-	void UnloadScene(Scene* scene);
 	void ResetScene();
+
+	// Entity
+	void RemoveEntity(Entity* entity, Scene* scene);
+	void AddEntity(Entity* entity, Scene* scene = nullptr);
+
 private:
 	std::map<std::string, Scene*> m_Scenes;
 	std::vector<Scene*> m_ActiveScenes;
 	std::set<Scene*> m_LoadedScenes;
 
-	std::unordered_map<Entity*, bool> m_IsEntityInited;
-
 	bool sceneExists(std::string sceneName) const;
-	void executeCopyOnDemand();
-	
 };
 
 #endif

@@ -120,11 +120,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						Input::GetInstance().SetMouseScroll(inputData.usButtonData);
 						break;
 					case MOUSE_BUTTON::LEFT_DOWN:
+						Input::GetInstance().SetMouseButtonState(button, true);
 					case MOUSE_BUTTON::MIDDLE_DOWN:
 					case MOUSE_BUTTON::RIGHT_DOWN:
 						Input::GetInstance().SetMouseButtonState(button, true);
 						break;
 					case MOUSE_BUTTON::LEFT_UP:
+						button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
+						Input::GetInstance().SetMouseButtonState(button, false);
 					case MOUSE_BUTTON::MIDDLE_UP:
 					case MOUSE_BUTTON::RIGHT_UP:
 						button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
@@ -137,6 +140,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
 
 				SetCursorPos(500, 400);
+			}
+
+			// This is temporarly to make sure that a mouse click works even though the 'alt' key is pressed
+			if (DEVELOPERMODE_DEVINTERFACE == false || Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
+			{
+				auto inputData = raw->data.mouse;
+				MOUSE_BUTTON button = static_cast<MOUSE_BUTTON>(inputData.usButtonFlags);
+
+				switch (button)
+				{
+				case MOUSE_BUTTON::LEFT_DOWN:
+					Input::GetInstance().SetMouseButtonState(button, true);
+					break;
+				case MOUSE_BUTTON::LEFT_UP:
+					button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
+					Input::GetInstance().SetMouseButtonState(button, false);
+				default:
+					break;
+				}
 			}
 		}
 
@@ -197,6 +219,16 @@ const HWND* Window::GetHwnd() const
 	return &m_Hwnd;
 }
 
+void Window::SetScreenWidth(int width)
+{
+	m_ScreenWidth = width;
+}
+
+void Window::SetScreenHeight(int height)
+{
+	m_ScreenHeight = height;
+}
+
 bool Window::ExitWindow()
 {
 	bool closeWindow = m_ShutDown;
@@ -214,6 +246,20 @@ bool Window::ExitWindow()
 		}
 	}
 	return closeWindow;
+}
+
+void Window::MouseInClipspace(float* x, float* y) const
+{
+	// Get the mouse position from your screenspace
+	POINT p;
+	GetCursorPos(&p);
+	
+	// Transform the position from your screenspace to the clientspace (space of the window)
+	ScreenToClient(m_Hwnd, &p);
+
+	// Transform the clientspace to the DirectX coordinates (0, 0) = (-1, 1)
+	*x = (static_cast<float>(p.x) / (m_ScreenWidth / 2)) - 1;
+	*y = -((static_cast<float>(p.y) / (m_ScreenHeight / 2)) - 1);
 }
 
 bool Window::WasSpacePressed()

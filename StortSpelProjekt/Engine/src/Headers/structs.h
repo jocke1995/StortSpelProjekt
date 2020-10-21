@@ -25,8 +25,9 @@ struct SlotInfo
 	unsigned int textureMetallic;
 	unsigned int textureNormal;
 	unsigned int textureEmissive;
+	unsigned int textureOpacity;
 
-	unsigned int pad[2];
+	unsigned int pad[1];
 };
 
 struct MaterialAttributes
@@ -54,6 +55,13 @@ struct CB_PER_OBJECT_STRUCT
 {
 	float4x4 worldMatrix;
 	float4x4 WVP;
+	SlotInfo info;
+};
+
+struct CB_PER_GUI2D_OBJECT_STRUCT
+{
+	float4 blendFactor;
+	float4 textureInfo;
 	SlotInfo info;
 };
 

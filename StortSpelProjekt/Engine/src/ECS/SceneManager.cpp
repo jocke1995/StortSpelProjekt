@@ -38,12 +38,6 @@ SceneManager::SceneManager()
 
 SceneManager::~SceneManager()
 {
-	// Unload all active scenes
-	for (auto scene : m_ActiveScenes)
-	{
-		UnloadScene(scene);
-	}
-
 	for (auto pair : m_Scenes)
 	{
 		delete pair.second;
@@ -104,58 +98,48 @@ Scene* SceneManager::GetScene(std::string sceneName) const
 
 void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
-	// Unload the entity
-	entity->OnUnloadScene();
-	entity->m_LoadedInNrScenes--;
+	entity->OnUnInitScene();
+
+	// Some components need to be sent to the gpu each frame
+	Renderer::GetInstance().SubmitUploadPerFrameData();
+	Renderer::GetInstance().SubmitUploadPerSceneData();
 
 	// Remove from the scene
 	scene->RemoveEntity(entity->GetName());
 
-	// TODO: Temp fix, re init the scene
-	SetScenes(m_ActiveScenes.size(), m_ActiveScenes.data());
+	Renderer::GetInstance().executeCopyOnDemand();
 }
 
 void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
-	// Load the enity
-	entity->OnLoadScene();
-	entity->m_LoadedInNrScenes++;
+	// Use the first active scene if not specified
+	if (scene == nullptr)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "You need to specify the scene!!\n");
+	}
 
-	// Add it to the scene
-	scene->AddEntityFromOther(entity);
+	entity->OnInitScene();
 
-	// TODO: Temp fix, re init the scene
-	SetScenes(m_ActiveScenes.size(), m_ActiveScenes.data());
+	// Some components need to be sent to the gpu each frame
+	Renderer::GetInstance().SubmitUploadPerFrameData();
+	Renderer::GetInstance().SubmitUploadPerSceneData();
+	Renderer::GetInstance().executeCopyOnDemand();
 }
 
 void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 {
 	ResetScene();
 
-	std::vector<Scene*> lastActiveScenes = m_ActiveScenes;
-
 	// Set the active scenes
 	m_ActiveScenes.clear();
 	
 	for (unsigned int i = 0; i < numScenes; i++)
 	{
-		// Load scene if not loaded
-		if (m_LoadedScenes.count(scenes[i]) < 1)
-		{
-			// load the scene if not loaded
- 			LoadScene(scenes[i]);
-		}
-
 		// init the active scenes
 		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
 		for (auto const& [entityName, entity] : entities)
 		{
-			// Only init once per scene (in case a entity is in both scenes)
-			if (m_IsEntityInited.count(entity) == 0)
-			{
-				entity->OnInitScene();
-				m_IsEntityInited[entity] = true;
-			}
+			entity->OnInitScene();
 		}
 
 		m_ActiveScenes.push_back(scenes[i]);
@@ -172,57 +156,13 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 		}
 	}
 
-	
-
-
-
-	executeCopyOnDemand();
+	renderer->executeCopyOnDemand();
 	return;
-}
-
-void SceneManager::LoadScene(Scene* scene)
-{
-	// Don't load if already loaded
-	if (m_LoadedScenes.count(scene) >= 1)
-	{
-		return;
-	}
-
-	// Load the scene
-	// Makes sure the model gets created/sent to gpu
-	for (auto const& [name, entity] : *scene->GetEntities())
-	{
-		// Load only first time entity is referenced in a scene
-		if (entity->m_LoadedInNrScenes == 0)
-		{
-			entity->OnLoadScene();
-		}
-		entity->m_LoadedInNrScenes++;
-	}
-
-	m_LoadedScenes.insert(scene);
-}
-
-void SceneManager::UnloadScene(Scene* scene)
-{
-	// Unload the scene
-	for (auto const& [name, entity] : *scene->GetEntities())
-	{
-		// don't unload entities used by other scenes
-		if (entity->m_LoadedInNrScenes == 1)
-		{
-			entity->OnUnloadScene();
-		}
-		entity->m_LoadedInNrScenes--;
-	}
-
-	m_LoadedScenes.erase(scene);
 }
 
 void SceneManager::ResetScene()
 {
-	// Reset isEntityInited
-	m_IsEntityInited.clear();
+	Renderer::GetInstance().waitForGPU();
 
 	/* ------------------------- GPU -------------------------*/
 	
@@ -254,14 +194,3 @@ bool SceneManager::sceneExists(std::string sceneName) const
 
     return false;
 }
-
-void SceneManager::executeCopyOnDemand()
-{
-	Renderer* renderer = &Renderer::GetInstance();
-	renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
-	renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
-	renderer->m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &renderer->m_CopyOnDemandCmdList[0]);
-	renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
-	renderer->waitForCopyOnDemand();
-}
-

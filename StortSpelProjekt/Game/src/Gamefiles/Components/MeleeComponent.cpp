@@ -3,15 +3,17 @@
 #include "MeleeComponent.h"
 #include "HealthComponent.h"
 #include "../Renderer/BoundingBoxPool.h"
+#include "../ECS/Components/Audio2DVoiceComponent.h"
 
 
 component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 {
 	m_Attacking = false;
 	m_Cooldown = false;
-	m_AttackInterval = 1.0;
+	m_AttackInterval = 0.2;
 	m_TimeSinceLastAttackCheck = 0;
 	m_pMesh = nullptr;
+	m_Damage = 1;
 
 	//Create bounding box for collision for melee
 	m_pBbc = parent->GetComponent<component::BoundingBoxComponent>();
@@ -21,6 +23,19 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 
 	// Fetch the player transform
 	m_pMeleeTransform = parent->GetComponent<component::TransformComponent>()->GetTransform();
+
+	if (parent->GetComponent<component::Audio2DVoiceComponent>())
+	{
+		audioPlay = true;
+		// Fetch the player audio component (if one exists)
+		m_pVoiceComponent = parent->GetComponent<component::Audio2DVoiceComponent>();
+		m_pVoiceComponent->AddVoice(L"SwordSwing");
+	}
+	else
+	{
+		audioPlay = false;
+	}
+	
 
 	//Debugging purpose
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX)
@@ -37,26 +52,24 @@ void component::MeleeComponent::OnInitScene()
 {
 }
 
-void component::MeleeComponent::OnLoadScene()
-{
-}
-
-void component::MeleeComponent::OnUnloadScene()
+void component::MeleeComponent::OnUnInitScene()
 {
 }
 
 void component::MeleeComponent::Update(double dt)
 {
 	// Takes the transform of the player cube and moves it forward to act as a hitbox
-	m_MeleeTransformTwo = *m_pMeleeTransform;
-	float positonX = m_MeleeTransformTwo.GetPositionFloat3().x + 2*m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[0];
-	float positonY = m_MeleeTransformTwo.GetPositionFloat3().y + 2*m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[1];
-	float positonZ = m_MeleeTransformTwo.GetPositionFloat3().z + 2*m_MeleeTransformTwo.GetRotMatrix().r[2].m128_f32[2];
+	m_MeleeTransformModified = *m_pMeleeTransform;
+	double3 modelDim = m_pParent->GetComponent<component::ModelComponent>()->GetModelDim();
+	modelDim *= 0.5;
+	float positonX = m_MeleeTransformModified.GetPositionFloat3().x + (modelDim.x + 1.0) * m_MeleeTransformModified.GetRotMatrix().r[2].m128_f32[0];
+	float positonY = m_MeleeTransformModified.GetPositionFloat3().y + (modelDim.y + 1.0) * m_MeleeTransformModified.GetRotMatrix().r[2].m128_f32[1];
+	float positonZ = m_MeleeTransformModified.GetPositionFloat3().z + (modelDim.z + 1.0) * m_MeleeTransformModified.GetRotMatrix().r[2].m128_f32[2];
 	
 	// Sets the position and updates the matrix to reflect movement of the player
-	m_MeleeTransformTwo.SetPosition(positonX, positonY, positonZ);
-	m_MeleeTransformTwo.Move(dt);
-	m_MeleeTransformTwo.UpdateWorldMatrix();
+	m_MeleeTransformModified.SetPosition(positonX, positonY, positonZ);
+	m_MeleeTransformModified.Move(dt);
+	m_MeleeTransformModified.UpdateWorldMatrix();
 
 	DirectX::BoundingOrientedBox temp;
 	temp = m_TempHitbox;
@@ -77,15 +90,20 @@ void component::MeleeComponent::Update(double dt)
 	}
 
 	// Updates the hitzone to follow the player
-	temp.Transform(temp, *m_MeleeTransformTwo.GetWorldMatrix());
+	temp.Transform(temp, *m_MeleeTransformModified.GetWorldMatrix());
 	m_Hitbox = temp;
 
 }
 
 void component::MeleeComponent::Attack(bool attack)
 {
+	
 	if (!m_Cooldown)
 	{
+		if (audioPlay)
+		{
+			m_pVoiceComponent->Play(L"SwordSwing");
+		}
 		Log::Print("Attacking now \n");
 		m_Attacking = attack;
 		//Checks collision of entities
@@ -100,6 +118,16 @@ void component::MeleeComponent::setAttackInterval(float interval)
 	m_AttackInterval = interval;
 }
 
+void component::MeleeComponent::SetDamage(int damage)
+{
+	m_Damage = damage;
+}
+
+void component::MeleeComponent::ChangeDamage(int change)
+{
+	m_Damage += change;
+}
+
 void component::MeleeComponent::CheckCollision()
 {
 	std::vector<Entity*> list = Physics::GetInstance().SpecificCollisionCheck(&m_Hitbox);
@@ -108,7 +136,7 @@ void component::MeleeComponent::CheckCollision()
 		// Checks if the collision occurs on something with a healthcomponent and is not the player themselves
 		if (list.at(i)->GetName() != "player" && list.at(i)->GetComponent<component::HealthComponent>() != nullptr)
 		{
-			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-100);
+			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 		}
 	}
 	list.empty();
@@ -190,6 +218,6 @@ void component::MeleeComponent::createDrawnHitbox(component::BoundingBoxComponen
 	bbd.boundingBoxVertices = m_BoundingBoxVerticesLocal;
 	bbd.boundingBoxIndices = m_BoundingBoxIndicesLocal;
 
-	bbc->AddBoundingBox(&bbd, &m_MeleeTransformTwo, L"sword");
+	bbc->AddBoundingBox(&bbd, &m_MeleeTransformModified, L"sword");
 }
 

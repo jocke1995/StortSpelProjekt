@@ -1,12 +1,15 @@
 #ifndef ENTITY_H
 #define ENTITY_H
+
 // Renderer
 #include "Components/ModelComponent.h"
 #include "Components/TransformComponent.h"
 #include "Components/CameraComponent.h"
 #include "Components/BoundingBoxComponent.h"
-#include "Components/TextComponent.h"
+#include "Components/GUI2DComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/SkyboxComponent.h"
+
 // Audio
 #include "Components/Audio2DVoiceComponent.h"
 #include "Components/Audio3DListenerComponent.h"
@@ -21,9 +24,10 @@
 #include "../../Game/src/Gamefiles/Components/GameComponents.h"
 
 // Lights
-class DirectionalLightComponent;
-class PointLightComponent;
-class SpotLightComponent;
+#include "Components/Lights/PointLightComponent.h"
+#include "Components/Lights/DirectionalLightComponent.h"
+#include "Components/Lights/SpotLightComponent.h"
+
 
 static unsigned int staticID = 0;
 class Entity
@@ -52,8 +56,7 @@ public:
 	void RenderUpdate(double dt);
 
 	void OnInitScene();
-	void OnLoadScene();
-	void OnUnloadScene();
+	void OnUnInitScene();
 
 	std::vector<Component*>* GetAllComponents();
 
@@ -66,7 +69,6 @@ private:
 	// Multiple m_pScenes can use the same entity (player for example).
 	// This is to make sure that the player doesn't get deleted if its still in use AND to not delete it twice
 	unsigned int m_ReferenceCount = 0;
-	unsigned int m_LoadedInNrScenes = 0;
 
 	std::vector<Component*> m_Components;
 };

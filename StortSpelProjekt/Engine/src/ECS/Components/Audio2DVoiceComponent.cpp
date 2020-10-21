@@ -28,14 +28,8 @@ void component::Audio2DVoiceComponent::OnInitScene()
 
 }
 
-void component::Audio2DVoiceComponent::OnLoadScene()
+void component::Audio2DVoiceComponent::OnUnInitScene()
 {
-
-}
-
-void component::Audio2DVoiceComponent::OnUnloadScene()
-{
-
 }
 
 void component::Audio2DVoiceComponent::AddVoice(const std::wstring& name)

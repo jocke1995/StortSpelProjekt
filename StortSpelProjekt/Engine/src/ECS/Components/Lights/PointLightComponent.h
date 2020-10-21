@@ -14,8 +14,7 @@ namespace component
 
 		void Update(double dt);
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 		void SetPosition(float3 position);
 		void SetAttenuation(float3 attenuation);
@@ -23,7 +22,7 @@ namespace component
 		void* GetLightData() const;
 
 	protected:
-		void UpdateLightIntensity();
+		void UpdateLightColor();
 
 	private:
 		PointLight* m_pPointLight = nullptr;

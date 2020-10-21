@@ -3,6 +3,7 @@
 #include "Events/Events.h"
 #include "../ECS/Entity.h"
 #include "HealthComponent.h"
+#include "UpgradeComponents/UpgradeComponent.h"
 
 component::ProjectileComponent::ProjectileComponent(Entity* parent, int damage) : Component(parent)
 {
@@ -25,11 +26,7 @@ void component::ProjectileComponent::OnInitScene()
 {
 }
 
-void component::ProjectileComponent::OnLoadScene()
-{
-}
-
-void component::ProjectileComponent::OnUnloadScene()
+void component::ProjectileComponent::OnUnInitScene()
 {
 }
 
@@ -43,6 +40,13 @@ void component::ProjectileComponent::hit(Collision* event)
 		{
 			event->ent2->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 		}
+		// Call on upgrade on hit functions
+		if (m_pParent->HasComponent<component::UpgradeComponent>())
+		{
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit();
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit();
+		}
+		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}
 	else if (event->ent2 == m_pParent)
 	{
@@ -50,5 +54,12 @@ void component::ProjectileComponent::hit(Collision* event)
 		{
 			event->ent1->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 		}
+		// Call on upgrade on hit functions
+		if (m_pParent->HasComponent<component::UpgradeComponent>())
+		{
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit();
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit();
+		}
+		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}
 }

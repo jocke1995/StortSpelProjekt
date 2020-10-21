@@ -1,17 +1,22 @@
 #include "stdafx.h"
 #include "AssetLoader.h"
 
+#include "../ECS/Scene.h"
+#include "../ECS/Entity.h"
+
 #include "../Renderer/DescriptorHeap.h"
 #include "Window.h"
-
 #include "../Renderer/HeightmapModel.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/AnimatedModel.h"
 #include "../Renderer/AnimatedMesh.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Material.h"
-#include "../Renderer/Text.h"
 #include "../Renderer/Animation.h"
+#include "../Renderer/Transform.h"
+
+#include "../Misc/GUI2DElements/Text.h"
+#include "../Misc/GUI2DElements/Font.h"
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
@@ -27,24 +32,16 @@
 
 #include "EngineMath.h"
 
+#include "../Misc/NavMesh.h"
+
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
 	m_pDevice = device;
 	m_pDescriptorHeap_CBV_UAV_SRV = descriptorHeap_CBV_UAV_SRV;
 	m_pWindow = const_cast<Window*>(window);
 
-	std::map<TEXTURE2D_TYPE, Texture*> matTextures;
 	// Load default textures
-	matTextures[TEXTURE2D_TYPE::ALBEDO]		= LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.dds");
-	matTextures[TEXTURE2D_TYPE::ROUGHNESS]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.dds");
-	matTextures[TEXTURE2D_TYPE::METALLIC]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
-	matTextures[TEXTURE2D_TYPE::NORMAL]		= LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
-	matTextures[TEXTURE2D_TYPE::EMISSIVE]	= LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
-
-	std::wstring matName = L"DefaultMaterial";
-	Material* material = new Material(&matName, &matTextures);
-	m_LoadedMaterials[matName].first = false;
-	m_LoadedMaterials[matName].second = material;
+	loadDefaultMaterial();
 }
 
 bool AssetLoader::IsModelLoadedOnGpu(const std::wstring& name) const
@@ -75,6 +72,29 @@ bool AssetLoader::IsTextureLoadedOnGpu(const std::wstring& name) const
 bool AssetLoader::IsTextureLoadedOnGpu(const Texture* texture) const
 {
 	return m_LoadedTextures.at(texture->GetPath()).first;
+}
+
+void AssetLoader::loadDefaultMaterial()
+{
+	// Load default textures
+	std::map<TEXTURE2D_TYPE, Texture*> matTextures;
+	matTextures[TEXTURE2D_TYPE::ALBEDO] = LoadTexture2D(m_FilePathDefaultTextures + L"default_albedo.dds");
+	matTextures[TEXTURE2D_TYPE::ROUGHNESS] = LoadTexture2D(m_FilePathDefaultTextures + L"default_roughness.dds");
+	matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
+	matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
+	matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
+	matTextures[TEXTURE2D_TYPE::OPACITY] = LoadTexture2D(m_FilePathDefaultTextures + L"default_opacity.dds");
+
+	std::wstring matName = L"DefaultMaterial";
+	Material* material = new Material(&matName, &matTextures);
+	m_LoadedMaterials[matName].first = false;
+	m_LoadedMaterials[matName].second = material;
+}
+
+bool AssetLoader::IsFontTextureLoadedOnGPU(const Font* font) const
+{
+	const std::wstring path = m_FilePathFonts + font->GetName() + L".fnt";
+	return m_LoadedFonts.at(path).first;
 }
 
 AssetLoader::~AssetLoader()
@@ -118,9 +138,9 @@ AssetLoader::~AssetLoader()
 	// For every font
 	for (auto font : m_LoadedFonts)
 	{
-		delete font.second.first->kerningsList;
-		delete font.second.first->charList;
-		delete font.second.first;
+		delete font.second.second->m_pKerningsList;
+		delete font.second.second->m_pCharList;
+		delete font.second.second;
 	}
 }
 
@@ -180,8 +200,6 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 		m_LoadedModels[path].second = new Model(&path, &meshes, &materials);
 	}
 
-	// load to vram
-
 	return m_LoadedModels[path].second;
 }
 
@@ -207,7 +225,6 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	getHeightMapResources(path, heightMapPath, materialPath);
 
 	Texture* tex = LoadTexture2D(heightMapPath);
-	Renderer::GetInstance().LoadTexture(tex);
 
 	// One dimensional!
 	unsigned char* imgData = tex->GetData();
@@ -283,20 +300,18 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	}
 	delete[] tasks;
 
-	Mesh* mesh = new Mesh(m_pDevice, &vertices, &indices, m_pDescriptorHeap_CBV_UAV_SRV, path);
-
+	Mesh* mesh = new Mesh(&vertices, &indices, path);
+	mesh->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 	m_LoadedMeshes.push_back(mesh);
 
 	std::vector<Mesh*> meshes;
 	meshes.push_back(mesh);
 
 	std::vector<Material*> materials;
-	materials.push_back(loadMaterialFromMTL(materialPath));
+	materials.push_back(LoadMaterialFromMTL(materialPath));
 	model = new HeightmapModel(&path, &meshes, &materials, heightData, static_cast<double>(tex->GetHeight()), static_cast<double>(tex->GetWidth()));
 	m_LoadedModels[path].first = false;
 	m_LoadedModels[path].second = model;
-
-	Renderer::GetInstance().UnloadTexture(tex);
 
 	return model;
 }
@@ -323,6 +338,10 @@ Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
 
 	m_LoadedTextures[path].first = false;
 	m_LoadedTextures[path].second = texture;
+
+	// Create dx resources etc..
+	texture->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
+
 	return texture;
 }
 
@@ -338,33 +357,474 @@ TextureCubeMap* AssetLoader::LoadTextureCubeMap(const std::wstring& path)
 
 	m_LoadedTextures[path].first = false;
 	m_LoadedTextures[path].second = textureCubeMap;
+
+	// load to vram
+	textureCubeMap->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
+
 	return textureCubeMap;
 }
 
-std::pair<Font*, Texture*> AssetLoader::LoadFontFromFile(const std::wstring& fontName)
+Material* AssetLoader::LoadMaterialFromMTL(const std::wstring& path)
+{
+	std::wifstream ifstream(path);
+	Material* mat = nullptr;
+	if (ifstream.is_open())
+	{
+		std::wstring relPath = path.substr(0, path.find_last_of('/') + 1);
+		std::wstring currMatName;
+		std::wstring line;
+		std::wstring varName;
+		std::wstring varVal;
+		std::map<TEXTURE2D_TYPE, Texture*> matTextures;
+
+		std::vector<std::wstring> defaultNames;
+		defaultNames.reserve(static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES));
+		defaultNames.push_back(L"default_albedo.dds");
+		defaultNames.push_back(L"default_roughness.dds");
+		defaultNames.push_back(L"default_metallic.dds");
+		defaultNames.push_back(L"default_normal.dds");
+		defaultNames.push_back(L"default_emissive.dds");
+		defaultNames.push_back(L"default_opacity.dds");
+
+		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
+		{
+			matTextures[static_cast<TEXTURE2D_TYPE>(i)] = m_LoadedTextures[m_FilePathDefaultTextures + defaultNames[i]].second;
+		}
+
+		while (!ifstream.eof())
+		{
+			std::getline(ifstream, line);
+			varName = line.substr(0, line.find_first_of(L' '));
+
+			if (varName == L"newmtl")
+			{
+				currMatName = line.substr(line.find_first_of(L' '));
+				if (m_LoadedMaterials.count(currMatName) > 0)
+				{
+					ifstream.close();
+					return m_LoadedMaterials[currMatName].second;
+				}
+			}
+			else if (varName == L"map_Ka")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Kd")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::ALBEDO] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Ks")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::ROUGHNESS] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Kn")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Ke")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_d")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::OPACITY] = LoadTexture2D(relPath + varVal);
+			}
+		}
+
+		mat = new Material(&currMatName, &matTextures);
+		m_LoadedMaterials[currMatName].first = false;
+		m_LoadedMaterials[currMatName].second = mat;
+
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open mtl file with path %S", path.c_str());
+	}
+
+	return mat;
+}
+
+Font* AssetLoader::LoadFontFromFile(const std::wstring& fontName)
 {
 	const std::wstring path = m_FilePathFonts + fontName;
 
 	// Check if the font already exists
 	if (m_LoadedFonts.count(path) != 0)
 	{
-		return m_LoadedFonts[path];
+		return m_LoadedFonts[path].second;
 	}
 
 	// else load the font and store it in m_LoadedFonts
-	m_LoadedFonts[path].first = loadFont(path.c_str(), m_pWindow->GetScreenWidth(), m_pWindow->GetScreenHeight());
+	m_LoadedFonts[path].second = loadFont(path.c_str(), m_pWindow->GetScreenWidth(), m_pWindow->GetScreenHeight());
 
 	// and create the texture
-	Texture* texture = LoadTexture2D(m_LoadedFonts[path].first->fontImage);
+	Texture* texture = LoadTexture2D(m_LoadedFonts[path].second->m_FontImage);
 	if (texture == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "Could not init the font texture for %s.\n", fontName.c_str());
 		delete texture;
-		return m_LoadedFonts[path];
+		return m_LoadedFonts[path].second;
 	}
-	m_LoadedFonts[path].second = texture;
+	m_LoadedFonts[path].first = false;
+	m_LoadedFonts[path].second->m_pTexture = texture;
 
-	return m_LoadedFonts[path];
+	return m_LoadedFonts[path].second;
+}
+
+void AssetLoader::LoadMap(Scene* scene, const char* path)
+{
+	FILE* file = fopen(path, "r");
+
+	std::string lineHeader;
+	lineHeader.reserve(128);
+	std::string entityName;
+	entityName.reserve(128);
+	std::string modelPath;
+	modelPath.reserve(128);
+	std::string toSubmit;
+	toSubmit.reserve(128);
+	unsigned int flag;
+	unsigned int flagVal;
+	bool drawFlags[FLAG_DRAW::NUM_FLAG_DRAWS] = { 0 };
+	unsigned int combinedFlag = 0;
+	float3 scaling = { 1.0f,1.0f,1.0f };
+	float3 pos = { 0.0, 0.0, 0.0 };
+	float3 rot = { 0.0, 0.0, 0.0};
+	float3 lightColor = { 0.0, 0.0, 0.0 };
+	float3 lightDir = { 0.0, 0.0, 0.0 };
+	float3 lightAttenuation = { 0.0, 0.0, 0.0 };
+	float lightAspect = 16.0f / 9.0f;
+	float lightCutOff = 30.0f;
+	float lightOuterCutOff = 45.0f;
+	float lightNear = 0.01;
+	float lightFar = 1000.0;
+	float lightLeft = -30.0;
+	float lightRight = 30.0;
+	float lightTop = 30.0;
+	float lightBottom = -30.0;
+	bool lightFlags[FLAG_LIGHT::NUM_FLAGS_LIGHT] = { 0 };
+	unsigned int collisionComponent = 0;
+	HeightmapModel* heightmapModel = nullptr;
+	float3 shapeInfo = { 0.0f,0.0f,0.0f };
+	float mass = 0.0f;
+	float friction = 0.0f;
+	float restitution = 0.0f;
+	HeightMapInfo hmInfo;
+	std::string fullPath;
+	fullPath.reserve(256);
+	float2 size = { 0.0, 0.0 };
+	int quad1 = 0;
+	int quad2 = 0;
+
+	NavMesh* navMesh;
+
+	component::ModelComponent* mc = nullptr;
+	component::TransformComponent* tc = nullptr;
+	component::PointLightComponent* plc = nullptr;
+	component::SpotLightComponent* slc = nullptr;
+	component::DirectionalLightComponent* dlc = nullptr;
+	component::CollisionComponent* cc = nullptr;
+	component::SkyboxComponent* sbc = nullptr;
+	Entity* entity = nullptr;
+	if (file != NULL)
+	{
+		while (fscanf(file, "%s", lineHeader.c_str()) != EOF)
+		{
+			if (strcmp(lineHeader.c_str(), "Name") == 0)
+			{
+				fscanf(file, "%s", entityName.c_str());
+				entity = scene->AddEntity(entityName.c_str());
+			}
+			else if (strcmp(lineHeader.c_str(), "NavMesh") == 0)
+			{
+				scene->CreateNavMesh();
+				navMesh = scene->GetNavMesh();
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelPath") == 0)
+			{
+				fscanf(file, "%s", modelPath.c_str());
+				fullPath = path;
+				fullPath = fullPath.substr(0, fullPath.find_last_of("/") + 1).c_str();
+				fullPath += modelPath.c_str();
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelScaling") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &scaling.x, &scaling.y, &scaling.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelRotation") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &rot.x, &rot.y, &rot.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelPosition") == 0 || strcmp(lineHeader.c_str(), "NavQuadPosition") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &pos.x, &pos.y, &pos.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelDrawFlag") == 0)
+			{
+				fscanf(file, "%d,%d", &flag, &flagVal);
+				drawFlags[flag] = flagVal;
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightFlag") == 0)
+			{
+				fscanf(file, "%d,%d", &flag, &flagVal);
+				lightFlags[flag] = flagVal;
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightColor") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &lightColor.x, &lightColor.y, &lightColor.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightDirection") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &lightDir.x, &lightDir.y, &lightDir.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightAttenuation") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &lightAttenuation.x, &lightAttenuation.y, &lightAttenuation.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightAspectRatio") == 0)
+			{
+				fscanf(file, "%f", &lightAspect);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightCutOff") == 0)
+			{
+				fscanf(file, "%f", &lightCutOff);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightOuterCutOff") == 0)
+			{
+				fscanf(file, "%f", &lightOuterCutOff);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightNear") == 0)
+			{
+				fscanf(file, "%f", &lightNear);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightFar") == 0)
+			{
+				fscanf(file, "%f", &lightFar);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightLeft") == 0)
+			{
+				fscanf(file, "%f", &lightLeft);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightRight") == 0)
+			{
+				fscanf(file, "%f", &lightRight);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightTop") == 0)
+			{
+				fscanf(file, "%f", &lightTop);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightBottom") == 0)
+			{
+				fscanf(file, "%f", &lightBottom);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelMass") == 0)
+			{
+				fscanf(file, "%f", &mass);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelFriction") == 0)
+			{
+				fscanf(file, "%f", &friction);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelRestitution") == 0)
+			{
+				fscanf(file, "%f", &restitution);
+			}
+			else if (strcmp(lineHeader.c_str(), "NavQuadSize") == 0)
+			{
+				fscanf(file, "%f,%f", &size.x, &size.y);
+			}
+			else if (strcmp(lineHeader.c_str(), "NavConnectionQuads") == 0)
+			{
+				fscanf(file, "%d,%d", &quad1, &quad2);
+			}
+			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
+			{
+				fscanf(file, "%s", toSubmit.c_str());
+
+				if (strcmp(toSubmit.c_str(), "Model") == 0)
+				{	
+					mc = entity->AddComponent<component::ModelComponent>();
+					tc = entity->AddComponent<component::TransformComponent>();
+					tc->GetTransform()->SetScale(1.0f);
+					tc->GetTransform()->SetScale(scaling.x,scaling.y,scaling.z);
+					tc->GetTransform()->SetRotationX(rot.x);
+					tc->GetTransform()->SetRotationY(rot.y);
+					tc->GetTransform()->SetRotationZ(rot.z);
+					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+
+					mc->SetModel(AssetLoader::LoadModel(to_wstring(fullPath)));
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_DRAW::NUM_FLAG_DRAWS; ++i)
+					{
+						combinedFlag |= BIT(i + 1) * drawFlags[i];
+					}
+
+					mc->SetDrawFlag(combinedFlag);
+				}
+				else if (strcmp(toSubmit.c_str(), "Heightmap") == 0)
+				{
+					mc = entity->AddComponent<component::ModelComponent>();
+					heightmapModel = AssetLoader::LoadHeightmap(to_wstring(fullPath));
+					mc->SetModel(heightmapModel);
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_DRAW::NUM_FLAG_DRAWS; ++i)
+					{
+						combinedFlag += BIT(i + 1) * drawFlags[i];
+					}
+					mc->SetDrawFlag(combinedFlag);
+					tc = entity->AddComponent<component::TransformComponent>();
+					tc->GetTransform()->SetRotationX(rot.x);
+					tc->GetTransform()->SetRotationY(rot.y);
+					tc->GetTransform()->SetRotationZ(rot.z);
+					tc->GetTransform()->SetScale(scaling.x, scaling.y, scaling.z);
+					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+				}
+				else if (strcmp(toSubmit.c_str(), "PointLight") == 0)
+				{
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_LIGHT::NUM_FLAGS_LIGHT; ++i)
+					{
+						combinedFlag |= BIT(i + 1) * lightFlags[i];
+					}
+					plc = entity->AddComponent<component::PointLightComponent>(combinedFlag);
+					plc->SetColor(lightColor);
+					plc->SetAttenuation(lightAttenuation);
+					plc->SetPosition({ pos.x, pos.y, pos.z });
+				}
+				else if (strcmp(toSubmit.c_str(), "SpotLight") == 0)
+				{
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_LIGHT::NUM_FLAGS_LIGHT; ++i)
+					{
+						combinedFlag |= BIT(i + 1) * lightFlags[i];
+					}
+					slc = entity->AddComponent<component::SpotLightComponent>(combinedFlag);
+					slc->SetColor(lightColor);
+					slc->SetAttenuation(lightAttenuation);
+					slc->SetDirection(lightDir);
+					slc->SetPosition({ pos.x, pos.y, pos.z });
+					slc->SetAspectRatio(lightAspect);
+					slc->SetCutOff(lightCutOff);
+					slc->SetOuterCutOff(lightOuterCutOff);
+					slc->SetNearPlaneDistance(lightNear);
+					slc->SetFarPlaneDistance(lightFar);
+					lightAspect = 16.0f / 9.0f;
+					lightCutOff = 30.0f;
+					lightOuterCutOff = 45.0f;
+					lightNear = 0.01;
+					lightFar = 1000.0;
+				}
+				else if (strcmp(toSubmit.c_str(), "DirectionalLight") == 0)
+				{
+					combinedFlag = 0;
+					for (int i = 0; i < FLAG_LIGHT::NUM_FLAGS_LIGHT; ++i)
+					{
+						combinedFlag |= BIT(i + 1) * lightFlags[i];
+					}
+					dlc = entity->AddComponent<component::DirectionalLightComponent>(combinedFlag);
+					dlc->SetColor(lightColor);
+					dlc->SetDirection(lightDir);
+					dlc->SetCameraLeft(lightLeft);
+					dlc->SetCameraRight(lightRight);
+					dlc->SetCameraTop(lightTop);
+					dlc->SetCameraBot(lightBottom);
+					dlc->SetCameraFarZ(lightFar);
+					dlc->SetCameraNearZ(lightNear);
+					lightNear = 0.01;
+					lightFar = 1000.0;
+					lightLeft = -30.0;
+					lightRight = 30.0;
+					lightTop = 30.0;
+					lightBottom = -30.0;
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionSphere") == 0)
+				{
+					fscanf(file, "%f", &shapeInfo.x);
+					if (shapeInfo == float3({ 0.0, 0.0, 0.0 }))
+					{
+						shapeInfo.x = entity->GetComponent<component::ModelComponent>()->GetModelDim().y / 2.0;
+					}
+					cc = entity->AddComponent<component::SphereCollisionComponent>(mass, shapeInfo.x, friction, restitution);
+					shapeInfo = { 0.0f, 0.0f, 0.0f };
+					mass = 0.0;
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionCapsule") == 0)
+				{
+					fscanf(file, "%f,%f", &shapeInfo.x, &shapeInfo.y);
+					if (shapeInfo == float3({ 0.0, 0.0, 0.0 }))
+					{
+						shapeInfo.x = entity->GetComponent<component::ModelComponent>()->GetModelDim().z / 2.0;
+						shapeInfo.y = entity->GetComponent<component::ModelComponent>()->GetModelDim().y - (shapeInfo.x * 2.0);
+					}
+					cc = entity->AddComponent<component::CapsuleCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, friction, restitution);
+					shapeInfo = { 0.0f, 0.0f, 0.0f };
+					mass = 0.0;
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionCube") == 0)
+				{
+					fscanf(file, "%f,%f,%f", &shapeInfo.x, &shapeInfo.y, &shapeInfo.z);
+					if (shapeInfo == float3({ 0.0, 0.0, 0.0 }))
+					{
+						shapeInfo =
+						{
+							static_cast<float>(entity->GetComponent<component::ModelComponent>()->GetModelDim().x / 2.0),
+							static_cast<float>(entity->GetComponent<component::ModelComponent>()->GetModelDim().y / 2.0),
+							static_cast<float>(entity->GetComponent<component::ModelComponent>()->GetModelDim().z / 2.0),
+						};
+					}
+					cc = entity->AddComponent<component::CubeCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, shapeInfo.z, friction, restitution);
+					shapeInfo = { 0.0f, 0.0f, 0.0f };
+					mass = 0.0;
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionHeightmap") == 0)
+				{
+					HeightMapInfo info;
+					info.data = heightmapModel->GetHeights();
+					info.length = heightmapModel->GetLength();
+					info.width = heightmapModel->GetWidth();
+					info.maxHeight = 1;
+					info.minHeight = -1;
+					// Implement when feature is merged to develop
+					cc = entity->AddComponent<component::HeightmapCollisionComponent>(info,mass,friction,restitution);
+					mass = 0.0;
+				}
+				else if (strcmp(toSubmit.c_str(), "NavQuad") == 0)
+				{
+					navMesh->AddNavQuad(pos, size);
+				}
+				else if (strcmp(toSubmit.c_str(), "NavConnection") == 0)
+				{
+					navMesh->ConnectNavQuads(quad1, quad2);
+				}
+				else if (strcmp(toSubmit.c_str(), "NavMesh") == 0)
+				{
+					navMesh->CreateGrid();
+				}
+				else if (strcmp(toSubmit.c_str(), "Skybox") == 0)
+				{
+					TextureCubeMap* skyboxCubemap = AssetLoader::LoadTextureCubeMap(to_wstring(fullPath));
+					sbc = entity->AddComponent<component::SkyboxComponent>();
+					sbc->SetTexture(skyboxCubemap);
+				}
+			}
+		}
+		fclose(file);
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load mapfile %s", path);
+	}
+}
+
+std::wstring AssetLoader::GetFontPath() const
+{
+	return m_FilePathFonts;
 }
 
 AudioBuffer* AssetLoader::LoadAudio(const std::wstring& path, const std::wstring& name)
@@ -419,9 +879,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 
 	// Create Mesh
 	Mesh* mesh = new Mesh(
-		m_pDevice,
 		&vertices, &indices,
-		m_pDescriptorHeap_CBV_UAV_SRV,
 		filePath);
 
 	// save mesh
@@ -555,86 +1013,6 @@ Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring& folderP
 	}
 }
 
-Material* AssetLoader::loadMaterialFromMTL(const std::wstring& path)
-{
-	std::wifstream ifstream(path);
-	Material* mat = nullptr;
-	if (ifstream.is_open())
-	{
-		std::wstring relPath = path.substr(0, path.find_last_of('/') + 1);
-		std::wstring currMatName;
-		std::wstring line;
-		std::wstring varName;
-		std::wstring varVal;
-		std::map<TEXTURE2D_TYPE, Texture*> matTextures;
-
-		std::vector<std::wstring> defaultNames;
-		defaultNames.reserve(static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES));
-		defaultNames.push_back(L"default_albedo.dds");
-		defaultNames.push_back(L"default_roughness.dds");
-		defaultNames.push_back(L"default_metallic.dds");
-		defaultNames.push_back(L"default_normal.dds");
-		defaultNames.push_back(L"default_emissive.dds");
-
-		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
-		{
-			matTextures[static_cast<TEXTURE2D_TYPE>(i)] = m_LoadedTextures[m_FilePathDefaultTextures + defaultNames[i]].second;
-		}
-
-		while (!ifstream.eof())
-		{
-			std::getline(ifstream, line);
-			varName = line.substr(0, line.find_first_of(L' '));
-
-			if (varName == L"newmtl")
-			{
-				currMatName = line.substr(line.find_first_of(L' '));
-				if (m_LoadedMaterials.count(currMatName) > 0)
-				{
-					ifstream.close();
-					return m_LoadedMaterials[currMatName].second;
-				}
-			}
-			else if (varName == L"map_Ka")
-			{
-				varVal = line.substr(line.find_first_of(L' ') + 1);
-				matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(relPath + varVal);
-			}
-			else if (varName == L"map_Kd")
-			{
-				varVal = line.substr(line.find_first_of(L' ') + 1);
-				matTextures[TEXTURE2D_TYPE::ALBEDO] = LoadTexture2D(relPath + varVal);
-			}
-			else if (varName == L"map_Ks")
-			{
-				varVal = line.substr(line.find_first_of(L' ') + 1);
-				matTextures[TEXTURE2D_TYPE::ROUGHNESS] = LoadTexture2D(relPath + varVal);
-			}
-			else if (varName == L"map_Kn")
-			{
-				varVal = line.substr(line.find_first_of(L' ') + 1);
-				matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(relPath + varVal);
-			}
-			else if (varName == L"map_Ke")
-			{
-				varVal = line.substr(line.find_first_of(L' ') + 1);
-				matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(relPath + varVal);
-			}
-		}
-
-		mat = new Material(&currMatName, &matTextures);
-		m_LoadedMaterials[currMatName].first = false;
-		m_LoadedMaterials[currMatName].second = mat;
-
-	}
-	else
-	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open mtl file with path %S", path.c_str());
-	}
-
-	return mat;
-}
-
 Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture)
 {
 	aiTextureType type;
@@ -673,6 +1051,11 @@ Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_typ
 		defaultPath = m_FilePathDefaultTextures + L"default_emissive.dds";
 		warningMessageTextureType = "Emissive";
 		break;
+	case::TEXTURE2D_TYPE::OPACITY:
+		type = aiTextureType_OPACITY;
+		defaultPath = m_FilePathDefaultTextures + L"default_opacity.dds";
+		warningMessageTextureType = "Opacity";
+		break;
 	}
 
 	mat->GetTexture(type, 0, &str);
@@ -690,8 +1073,8 @@ Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_typ
 	{
 		std::string tempString = std::string(filePathWithoutTexture.begin(), filePathWithoutTexture.end());
 		// No texture, warn and apply default Texture
-		//Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType +
-		//	" on mesh with path: \'%s\'\n", tempString.c_str());
+		Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType +
+			" on mesh with path: \'%s\'\n", tempString.c_str());
 		return m_LoadedTextures[defaultPath].second;
 	}
 
@@ -819,19 +1202,19 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	std::wifstream fs;
 	fs.open(filename);
 
-	m_LoadedFonts[filename].first = new Font();
-	std::wstring tmp;
+	m_LoadedFonts[filename].second = new Font();
+	std::wstring tmp = L"";
 	int startpos;
 
 	// extract font name
 	fs >> tmp >> tmp; // info face = fontname
 	startpos = tmp.find(L"\"") + 1;
-	m_LoadedFonts[filename].first->name = tmp.substr(startpos, tmp.size() - startpos - 1);
+	m_LoadedFonts[filename].second->m_Name = tmp.substr(startpos, tmp.size() - startpos - 1);
 
 	// get font size
 	fs >> tmp;
 	startpos = tmp.find(L"=") + 1;
-	m_LoadedFonts[filename].first->size = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
+	m_LoadedFonts[filename].second->m_Size = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// bold, italic, charset, unicode, stretchH, smooth, aa, padding, spacing
 	fs >> tmp >> tmp >> tmp >> tmp >> tmp >> tmp >> tmp;
@@ -843,43 +1226,43 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 
 	// get up padding
 	startpos = tmp.find(L",") + 1;
-	m_LoadedFonts[filename].first->toppadding = std::stoi(tmp.substr(0, startpos)) / (float)windowWidth;
+	m_LoadedFonts[filename].second->m_Toppadding = std::stoi(tmp.substr(0, startpos)) / (float)windowWidth;
 
 	// get right padding
 	tmp = tmp.substr(startpos, tmp.size() - startpos);
 	startpos = tmp.find(L",") + 1;
-	m_LoadedFonts[filename].first->rightpadding = std::stoi(tmp.substr(0, startpos)) / (float)windowWidth;
+	m_LoadedFonts[filename].second->m_Rightpadding = std::stoi(tmp.substr(0, startpos)) / (float)windowWidth;
 
 	// get down padding
 	tmp = tmp.substr(startpos, tmp.size() - startpos);
 	startpos = tmp.find(L",") + 1;
-	m_LoadedFonts[filename].first->bottompadding = std::stoi(tmp.substr(0, startpos)) / (float)windowWidth;
+	m_LoadedFonts[filename].second->m_Bottompadding = std::stoi(tmp.substr(0, startpos)) / (float)windowWidth;
 
 	// get left padding
 	tmp = tmp.substr(startpos, tmp.size() - startpos);
-	m_LoadedFonts[filename].first->leftpadding = std::stoi(tmp) / (float)windowWidth;
+	m_LoadedFonts[filename].second->m_Leftpadding = std::stoi(tmp) / (float)windowWidth;
 
 	fs >> tmp;
 
 	// get lineheight (how much to move down for each line), and normalize (between 0.0 and 1.0 based on size of font)
 	fs >> tmp >> tmp;
 	startpos = tmp.find(L"=") + 1;
-	m_LoadedFonts[filename].first->lineHeight = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowHeight;
+	m_LoadedFonts[filename].second->m_LineHeight = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowHeight;
 
 	// get base height (height of all characters), and normalize (between 0.0 and 1.0 based on size of font)
 	fs >> tmp;
 	startpos = tmp.find(L"=") + 1;
-	m_LoadedFonts[filename].first->baseHeight = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowHeight;
+	m_LoadedFonts[filename].second->m_BaseHeight = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowHeight;
 
 	// get texture width
 	fs >> tmp;
 	startpos = tmp.find(L"=") + 1;
-	m_LoadedFonts[filename].first->textureWidth = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
+	m_LoadedFonts[filename].second->m_TextureWidth = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// get texture height
 	fs >> tmp;
 	startpos = tmp.find(L"=") + 1;
-	m_LoadedFonts[filename].first->textureHeight = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
+	m_LoadedFonts[filename].second->m_TextureHeight = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// get pages, packed, page id
 	fs >> tmp >> tmp; 
@@ -889,64 +1272,64 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	std::wstring wtmp;
 	fs >> wtmp;
 	startpos = wtmp.find(L"\"") + 1;
-	m_LoadedFonts[filename].first->fontImage = wtmp.substr(startpos, wtmp.size() - startpos - 1);
-	m_LoadedFonts[filename].first->fontImage = L"../Vendor/Resources/Fonts/" + m_LoadedFonts[filename].first->fontImage;
+	m_LoadedFonts[filename].second->m_FontImage = wtmp.substr(startpos, wtmp.size() - startpos - 1);
+	m_LoadedFonts[filename].second->m_FontImage = L"../Vendor/Resources/Fonts/" + m_LoadedFonts[filename].second->m_FontImage;
 
 	// get number of characters
 	fs >> tmp >> tmp;
 	startpos = tmp.find(L"=") + 1;
-	m_LoadedFonts[filename].first->numCharacters = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
+	m_LoadedFonts[filename].second->m_NumCharacters = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// initialize the character list
-	m_LoadedFonts[filename].first->charList = new FontChar[m_LoadedFonts[filename].first->numCharacters];
+	m_LoadedFonts[filename].second->m_pCharList = new FontChar[m_LoadedFonts[filename].second->m_NumCharacters];
 
-	for (int c = 0; c < m_LoadedFonts[filename].first->numCharacters; ++c)
+	for (int c = 0; c < m_LoadedFonts[filename].second->m_NumCharacters; ++c)
 	{
 		// get unicode id
 		fs >> tmp >> tmp;
 		startpos = tmp.find(L"=") + 1;
-		m_LoadedFonts[filename].first->charList[c].id = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
+		m_LoadedFonts[filename].second->m_pCharList[c].id = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 		// get x
 		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
-		m_LoadedFonts[filename].first->charList[c].u 
-			= (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)m_LoadedFonts[filename].first->textureWidth;
+		m_LoadedFonts[filename].second->m_pCharList[c].u
+			= (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)m_LoadedFonts[filename].second->m_TextureWidth;
 
 		// get y
 		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
-		m_LoadedFonts[filename].first->charList[c].v 
-			= (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)m_LoadedFonts[filename].first->textureHeight;
+		m_LoadedFonts[filename].second->m_pCharList[c].v
+			= (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)m_LoadedFonts[filename].second->m_TextureHeight;
 
 		// get width
 		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		tmp = tmp.substr(startpos, tmp.size() - startpos);
-		m_LoadedFonts[filename].first->charList[c].width = (float)std::stoi(tmp) / (float)windowWidth;
-		m_LoadedFonts[filename].first->charList[c].twidth = (float)std::stoi(tmp) / (float)m_LoadedFonts[filename].first->textureWidth;
+		m_LoadedFonts[filename].second->m_pCharList[c].width = (float)std::stoi(tmp) / (float)windowWidth;
+		m_LoadedFonts[filename].second->m_pCharList[c].twidth = (float)std::stoi(tmp) / (float)m_LoadedFonts[filename].second->m_TextureWidth;
 
 		// get height
 		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		tmp = tmp.substr(startpos, tmp.size() - startpos);
-		m_LoadedFonts[filename].first->charList[c].height = (float)std::stoi(tmp) / (float)windowHeight;
-		m_LoadedFonts[filename].first->charList[c].theight = (float)std::stoi(tmp) / (float)m_LoadedFonts[filename].first->textureHeight;
+		m_LoadedFonts[filename].second->m_pCharList[c].height = (float)std::stoi(tmp) / (float)windowHeight;
+		m_LoadedFonts[filename].second->m_pCharList[c].theight = (float)std::stoi(tmp) / (float)m_LoadedFonts[filename].second->m_TextureHeight;
 
 		// get xoffset
 		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
-		m_LoadedFonts[filename].first->charList[c].xoffset = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowWidth;
+		m_LoadedFonts[filename].second->m_pCharList[c].xoffset = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowWidth;
 
 		// get yoffset
 		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
-		m_LoadedFonts[filename].first->charList[c].yoffset = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowHeight;
+		m_LoadedFonts[filename].second->m_pCharList[c].yoffset = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowHeight;
 
 		// get xadvance
 		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
-		m_LoadedFonts[filename].first->charList[c].xadvance = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowWidth;
+		m_LoadedFonts[filename].second->m_pCharList[c].xadvance = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowWidth;
 
 		// get page
 		// get channel
@@ -956,31 +1339,31 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	// get number of kernings
 	fs >> tmp >> tmp;
 	startpos = tmp.find(L"=") + 1;
-	m_LoadedFonts[filename].first->numKernings = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
+	m_LoadedFonts[filename].second->m_NumKernings = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// initialize the kernings list
-	m_LoadedFonts[filename].first->kerningsList = new FontKerning[m_LoadedFonts[filename].first->numKernings];
+	m_LoadedFonts[filename].second->m_pKerningsList = new FontKerning[m_LoadedFonts[filename].second->m_NumKernings];
 
-	for (int k = 0; k < m_LoadedFonts[filename].first->numKernings; ++k)
+	for (int k = 0; k < m_LoadedFonts[filename].second->m_NumKernings; ++k)
 	{
 		// get first character
 		fs >> tmp >> tmp;
 		startpos = tmp.find(L"=") + 1;
-		m_LoadedFonts[filename].first->kerningsList[k].firstid = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
+		m_LoadedFonts[filename].second->m_pKerningsList[k].firstid = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 		// get second character
 		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
-		m_LoadedFonts[filename].first->kerningsList[k].secondid = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
+		m_LoadedFonts[filename].second->m_pKerningsList[k].secondid = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 		// get amount
 		fs >> tmp;
 		startpos = tmp.find(L"=") + 1;
 		int t = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos));
-		m_LoadedFonts[filename].first->kerningsList[k].amount = (float)t / (float)windowWidth;
+		m_LoadedFonts[filename].second->m_pKerningsList[k].amount = (float)t / (float)windowWidth;
 	}
-	Font* font = m_LoadedFonts[filename].first;
-	return m_LoadedFonts[filename].first;
+
+	return m_LoadedFonts[filename].second;
 }
 
 void AssetLoader::getHeightMapResources(const std::wstring& path, std::wstring& heightMapPath, std::wstring& materialPath)

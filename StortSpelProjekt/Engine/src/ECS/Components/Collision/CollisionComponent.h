@@ -18,15 +18,14 @@ namespace component
 	{
 	public:
 		// if Mass is zero, the object is static (It will not move because of collisions).
-		CollisionComponent(Entity* parent, double mass = 1.0, double friction = 1.0, double restitution = 0.5, bool canFall = true);
+		CollisionComponent(Entity* parent, double mass = 1.0, double friction = 1.0, double restitution = 0.5, bool canFall = true, bool gravity = true);
 		virtual ~CollisionComponent();
 		
 		void Update(double dt);
 
 		// Initializes the component and gives it to the physics sub-engine. Needs to be called before any methods are used.
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 		
 		// Sets the position of the object. This affects the transform from a transformcomponent as well.
 		void SetPosition(double x, double y, double z);
@@ -45,9 +44,11 @@ namespace component
 		// Sets the Restitution of the object (bounciness).
 		void SetRestitution(double rest);
 		// Sets the angular factor, how much the object may rotate in the world. 0 will stop it from rotating in that axis.
-		void SetAngularFactor(double3& factor);
+		void SetAngularFactor(const double3& factor);
 		// Sets the linear factor, how much the object may move in the world. 0 will stop it from moving in that axis.
 		void SetLinearFactor(double3& factor);
+		// Sets if the collisioncomponent is affected by gravity or not.
+		void SetGravity(bool affectedByGravity);
 
 
 		btRigidBody* GetBody() const;
@@ -69,6 +70,7 @@ namespace component
 		virtual double GetDistanceToBottom() const = 0;
 	protected:
 		bool m_CanFall;
+		bool m_Gravity;
 		double m_Mass;
 		double m_Fric;
 		double m_Rest;

@@ -4,7 +4,7 @@
 #include "..\ECS\Components\InputComponent.h"
 #include "Core.h"
 
-#define DASH_MOD 10.0
+#define DASH_MOD 4.0
 #define SPRINT_MOD 3.0
 
 //Camera
@@ -41,8 +41,7 @@ namespace component
 		void Init();
 
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 		void RenderUpdate(double dt);
 

@@ -3,15 +3,18 @@
 
 #include "../RenderView.h"
 #include "../RootSignature.h"
-// #include "../ConstantBuffer.h"
 #include "../CommandInterface.h"
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
+#include "../PipelineState.h"
+#include "../TextManager.h"
+
 #include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/Resource.h"
-#include "../PipelineState.h"
-#include "../Text.h"
-#include "../../ECS/Components/TextComponent.h"
+
+#include "../Misc/GUI2DElements/Text.h"
+
+#include "../../ECS/Components/GUI2DComponent.h"
 
 TextTask::TextTask(ID3D12Device5* device, 
 	RootSignature* rootSignature, 
@@ -27,7 +30,7 @@ TextTask::~TextTask()
 {
 }
 
-void TextTask::SetTextComponents(std::vector<component::TextComponent*>* textComponents)
+void TextTask::SetTextComponents(std::vector<component::GUI2DComponent*>* textComponents)
 {
 	m_TextComponents = *textComponents;
 }
@@ -73,7 +76,7 @@ void TextTask::Execute()
 
 	for (int i = 0; i < m_TextComponents.size(); i++)
 	{
-		component::TextComponent* tc = m_TextComponents.at(i);
+		component::GUI2DComponent* tc = m_TextComponents.at(i);
 		draw(commandList, tc);
 	}
 
@@ -86,20 +89,19 @@ void TextTask::Execute()
 	commandList->Close();
 }
 
-void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::TextComponent* tc)
+void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::GUI2DComponent* tc)
 {
-	int nrOfCharacters;
-	for (int i = 0; i < tc->GetNumOfTexts(); i++)
+	int nrOfCharacters = 0;
+	for (auto textMap : *tc->GetTextManager()->GetTextMap())
 	{
-		Text* text = tc->GetText(i);
+		Text* text = textMap.second;
 
-		// Create a CB_PER_OBJECT struct
+		// Create a CB_PER_GUI2D_OBJECT_STRUCT struct
 		SlotInfo* info = text->GetSlotInfo();
-		DirectX::XMMATRIX idMatrix = DirectX::XMMatrixIdentity();
-		CB_PER_OBJECT_STRUCT perObject = { idMatrix, idMatrix, *info };
-		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+		CB_PER_GUI2D_OBJECT_STRUCT perObject = { text->GetAmountOfBlend(), float4{ 1.0 }, *info };
+		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_GUI2D_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-		// we are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
+		// We are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
 		nrOfCharacters = text->GetNrOfCharacters();
 		commandList->DrawInstanced(4, nrOfCharacters, 0, 0);
 	}

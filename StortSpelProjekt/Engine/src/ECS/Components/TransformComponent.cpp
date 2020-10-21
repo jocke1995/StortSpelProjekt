@@ -31,11 +31,7 @@ namespace component
 	{
 	}
 
-	void TransformComponent::OnLoadScene()
-	{
-	}
-
-	void TransformComponent::OnUnloadScene()
+	void TransformComponent::OnUnInitScene()
 	{
 	}
 
