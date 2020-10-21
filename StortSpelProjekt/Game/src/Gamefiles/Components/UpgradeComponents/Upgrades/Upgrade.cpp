@@ -31,6 +31,11 @@ int Upgrade::GetLevel() const
 	return m_Level;
 }
 
+int Upgrade::GetMaxLevel() const
+{
+	return m_MaxLevel;
+}
+
 void Upgrade::SetType(unsigned int type)
 {
 	m_Type = type;

@@ -16,9 +16,10 @@ class UpgradeMeleeTest;
 // Please name the enums the same as the upgrades m_Name variable.
 enum E_UpgradeIDs
 {
-	UPGRADE_RANGE_VELOCITY = 1,
-	UPGRADE_MELEE_TEST = 2,
-	UPGRADE_RANGE_LIFESTEAL = 3
+	UPGRADE_MELEE_DAMAGE = 1,
+	UPGRADE_HEALTH_BOOST = 2,
+	UPGRADE_RANGE_VELOCITY = 3,
+	UPGRADE_RANGE_LIFESTEAL = 4,
 
 };
 
@@ -39,6 +40,9 @@ public:
 	bool IsUpgradeApplied(int id);
 
 	std::map<std::string, Upgrade*> GetAllAvailableUpgrades();
+	// Used to increase the level of an upgrade in m_AppliedUpgradeLevel.
+	// This is then used to get the correct level for range upgrades that go on projectile entities.
+	void IncreaseLevel(std::string name);
 
 private:
 	Entity* m_pParentEntity = nullptr;
@@ -50,6 +54,9 @@ private:
 	// Useful when you want to check if an upgrade is applied or not.
 	// Also used in the switch-case in newUpgrade.
 	std::map<std::string, int> m_AppliedUpgradeEnums;
+	// Contains the level mapped to the upgrade name for all bought upgrades.
+	// Used to get the level for range upgrades that go on projectile entities.
+	std::map<std::string, int> m_AppliedUpgradeLevel;
 
 	// Populates m_AllAvailableUpgrades with all upgrades and sets upgrade IDs in E_UpgradeIDs
 	void fillUpgradeMap();

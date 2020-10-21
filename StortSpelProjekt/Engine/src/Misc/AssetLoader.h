@@ -42,6 +42,7 @@ public:
     // Textures ------------
     Texture* LoadTexture2D(const std::wstring& path);
     TextureCubeMap* LoadTextureCubeMap(const std::wstring& path);
+    Material* LoadMaterialFromMTL(const std::wstring& path);
 
     // Load Audio
     AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
@@ -54,7 +55,6 @@ public:
 
     // Scene
     void LoadMap(Scene* scene, const char* path);
-
 
     // IsLoadedFunctions
     bool IsModelLoadedOnGpu(const std::wstring& name) const;
@@ -69,6 +69,7 @@ private:
     friend class PipelineState;
     // Renderer needs access to m_LoadedModels & m_LoadedTextures so it can check if they are uploaded to GPU.
     friend class Renderer;
+	friend class QuadManager;
 
     // Constructor currently called from m_pRenderer to set dx12 specific objects
     AssetLoader(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr, const Window* window = nullptr);
@@ -114,7 +115,7 @@ private:
         const std::wstring& filePath);
 
     Material* loadMaterial(aiMaterial* mat, const std::wstring& folderPath);
-    Material* loadMaterialFromMTL(const std::wstring& path);
+    
 
     Texture* processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture);
     

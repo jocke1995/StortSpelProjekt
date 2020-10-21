@@ -25,6 +25,7 @@ public:
 	void SetName(std::string name);
 	std::string GetName() const;
 	int GetLevel() const;
+	int GetMaxLevel() const;
 	void SetType(unsigned int type);
 	unsigned int GetType() const;
 	void SetID(int id);
@@ -71,6 +72,8 @@ protected:
 	std::string m_Description;
 	// Price is used in shop when buying upgrades
 	int m_Price;
+	// Price that will not be increased by level
+	int m_StartingPrice;
 	// ID used in networking for sending which upgrades are applied.
 	// Is set in UpgradeManagers fillUpgradeMap() function.
 	int m_ID;

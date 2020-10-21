@@ -62,41 +62,11 @@ void TextManager::AddText(std::string name)
 	m_TextDataMap[name] = textData;
 }
 
-void TextManager::UploadTextData(std::string name)
+void TextManager::UploadAndExecuteTextData(std::string name)
 {
 	Renderer* renderer = &Renderer::GetInstance();
 
-	int numOfCharacters = GetNumOfCharacters(name);
-	auto textData = GetTextData(name);
-
-	Text* text = new Text(
-		renderer->m_pDevice5,
-		renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
-		numOfCharacters,
-		m_pFont->GetTexture());
-	text->SetTextData(textData, m_pFont);
-
-	// Look if the text exists
-	bool exists = false;
-	auto it = m_TextDataMap.find(name);
-	if (it != m_TextDataMap.end())
-	{
-		exists = true;
-	}
-
-	if (exists == true)
-	{
-		// Replacing an existing text in the map
-		replaceText(text, name);
-	}
-	else
-	{
-		// Adding a new text to the map
-		submitText(text, name);
-	}
-
-	// Uploading the text data to the gpu
-	renderer->submitTextToGPU(text, this);
+	uploadTextData(name, renderer);
 
 	renderer->executeCopyOnDemand();
 }
@@ -146,7 +116,7 @@ void TextManager::SetScale(float2 scale, std::string name)
 	{
 		// Scale with the size of the window
 		Renderer* renderer = &Renderer::GetInstance();
-		HWND* hwnd = const_cast<HWND*>(renderer->m_pWindow->GetHwnd());
+		HWND* hwnd = const_cast<HWND*>(renderer->GetWindow()->GetHwnd());
 		RECT rect;
 
 		float win_x = 0, win_y = 0;
@@ -205,6 +175,22 @@ void TextManager::SetColor(float4 color, std::string name)
 	}
 }
 
+void TextManager::SetBlend(float4 blend, std::string name)
+{
+	bool exists = false;
+	auto it = m_TextDataMap.find(name);
+	if (it != m_TextDataMap.end())
+	{
+		m_TextDataMap[name].blendFactor = blend;
+		exists = true;
+	}
+
+	if (exists == false)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set blend.\n", name.c_str());
+	}
+}
+
 Font* TextManager::GetFont() const
 {
 	return m_pFont;
@@ -255,4 +241,39 @@ void TextManager::replaceText(Text* text, std::string name)
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "Could not find any text called '%s' to replace!\n", name);
 	}
+}
+
+void TextManager::uploadTextData(std::string name, Renderer* renderer)
+{
+	int numOfCharacters = GetNumOfCharacters(name);
+	auto textData = GetTextData(name);
+
+	Text* text = new Text(
+		renderer->m_pDevice5,
+		renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
+		numOfCharacters,
+		m_pFont->GetTexture());
+	text->SetTextData(textData, m_pFont);
+
+	// Look if the text exists
+	bool exists = false;
+	auto it = m_TextDataMap.find(name);
+	if (it != m_TextDataMap.end())
+	{
+		exists = true;
+	}
+
+	if (exists == true)
+	{
+		// Replacing an existing text in the map
+		replaceText(text, name);
+	}
+	else
+	{
+		// Adding a new text to the map
+		submitText(text, name);
+	}
+
+	// Uploading the text data to the gpu
+	renderer->submitTextToGPU(text, this);
 }

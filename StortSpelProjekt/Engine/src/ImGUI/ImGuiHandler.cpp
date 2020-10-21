@@ -1,5 +1,7 @@
 #include "ImGuiHandler.h"
 #include "../Misc/Option.h"
+#include "../Misc/Window.h"
+#include "../Renderer/Renderer.h"
 #include "../Events/EventBus.h"
 
 ImGuiHandler& ImGuiHandler::GetInstance()
@@ -19,9 +21,11 @@ void ImGuiHandler::NewFrame()
 
 void ImGuiHandler::UpdateFrame()
 {
+	const Window* window = Renderer::GetInstance().GetWindow();
+
     // Set the size and position of the debug info window and set it to start not collapsed. m_NumberOfDebuggingLines is set in constructor
-    ImGui::SetNextWindowSize(ImVec2(std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str()) / 2, ImGui::GetTextLineHeightWithSpacing() * (2 + m_NumberOfDebuggingLines)));
-    ImGui::SetNextWindowPos(ImVec2(std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str()) / 2, 0));
+    ImGui::SetNextWindowSize(ImVec2(window->GetScreenWidth() / 2, ImGui::GetTextLineHeightWithSpacing() * (2 + m_NumberOfDebuggingLines)));
+    ImGui::SetNextWindowPos(ImVec2(window->GetScreenWidth() / 2, 0));
     ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
     // Initiate the debug info window
@@ -113,8 +117,10 @@ void ImGuiHandler::AddLog(const char* fmt, ...) IM_FMTARGS(2)
 
 void ImGuiHandler::DrawConsole(const char* title)
 {
+	const Window* window = Renderer::GetInstance().GetWindow();
+
     // Set the size and position of the console window and set it to start collapsed
-    ImGui::SetNextWindowSize(ImVec2(std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str()) / 2, std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str())));
+    ImGui::SetNextWindowSize(ImVec2(window->GetScreenWidth() / 2, window->GetScreenHeight()));
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowCollapsed(true, ImGuiCond_Appearing);
     if (!ImGui::Begin(title))
