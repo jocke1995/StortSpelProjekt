@@ -40,8 +40,9 @@ void Shop::RandomizeInventory()
 			maxLevelUpgrades++;
 		}
 	}
-	// If we dont have enough upgrades that are not max level to fill inventory to InvSize
-	// then we lower InvSize
+
+	// If an upgrade is at max level, it will be unavailable for purchase.
+	// So if we have less upgrades available for purchase than inventory size, we must lower inventory size.
 	if (m_AllAvailableUpgrades.size() - maxLevelUpgrades < m_InvSize)
 	{
 		m_InvSize = m_AllAvailableUpgrades.size() - maxLevelUpgrades;
@@ -73,13 +74,13 @@ void Shop::RandomizeInventory()
 			}
 			if (m_AllAvailableUpgrades[name]->GetLevel() == m_AllAvailableUpgrades[name]->GetMaxLevel())
 			{
-				// If the upgrade has reached its max level then we should not be able to buy it again.
+				// If an upgrade is at max level, make it unavailable for purchase
 				// So set inStock to true so that it won't be added to the inventory.
 				inStock = true;
 			}
 
 		} while (inStock);
-		// When we get an upgrade that was not in already in our inventory or max level,
+		// When we get an upgrade that was not already in our inventory or max level,
 		// we add it to the inventory.
 		m_InventoryNames.push_back(name);
 		m_Prices[name] = m_AllAvailableUpgrades[name]->GetPrice();

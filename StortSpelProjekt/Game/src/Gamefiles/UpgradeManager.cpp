@@ -135,7 +135,7 @@ void UpgradeManager::fillUpgradeMap()
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	// Adding RangeTest Upgrade
+	// Adding HealthBoost Upgrade
 	upgrade = new UpgradeHealthBoost(m_pParentEntity);
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
 	upgrade->SetID(UPGRADE_HEALTH_BOOST);
