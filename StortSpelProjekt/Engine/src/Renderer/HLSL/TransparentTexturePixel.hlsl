@@ -23,7 +23,7 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 	float roughness = textures[cbPerObject.info.textureRoughness].Sample(Anisotropic16_Wrap, uvScaled).r;
 	float metallic	= textures[cbPerObject.info.textureMetallic	].Sample(Anisotropic16_Wrap, uvScaled).r;
 	float4 emissive = textures[cbPerObject.info.textureEmissive	].Sample(Anisotropic16_Wrap, uvScaled);
-	float opacity	= textures[cbPerObject.info.textureOpacity].Sample(Anisotropic16_Wrap, uvScaled).r;
+	float opacity	= textures[cbPerObject.info.textureOpacity	].Sample(Anisotropic16_Wrap, uvScaled).r;
 	float4 normal	= textures[cbPerObject.info.textureNormal	].Sample(Anisotropic16_Wrap, uvScaled);
 
 	normal = (2.0f * normal) - 1.0f;
@@ -90,6 +90,5 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 
 	finalColor += emissive.rgb;
 
-	float blendFactor = 0.4f;
 	return float4(finalColor.rgb, opacity);
 }
