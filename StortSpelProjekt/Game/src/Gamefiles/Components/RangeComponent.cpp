@@ -28,6 +28,7 @@ component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scen
 	m_Scale = scale;
 	m_Damage = damage;
 	m_Velocity = velocity;
+	m_pVoiceComponent = nullptr;
 
 	if (parent->GetComponent<component::Audio2DVoiceComponent>())
 	{
