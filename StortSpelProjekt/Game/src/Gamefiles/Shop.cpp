@@ -14,7 +14,8 @@ Shop::Shop()
 		m_UpgradeNames.push_back(upgrade.first);
 	}
 	m_Rand = EngineRand(time(NULL));
-	m_InvSize = 2;
+	// Set the size of shop inventory - how many upgrades the shop will contain.
+	m_InvSize = 3;
 }
 
 Shop::~Shop()
@@ -29,6 +30,24 @@ void Shop::RandomizeInventory()
 	int upgradeNum;
 	std::string name;
 	bool inStock = false;
+
+	// How many upgrades have reached max level
+	int maxLevelUpgrades = 0;
+	for (auto u : m_AllAvailableUpgrades)
+	{
+		if (u.second->GetLevel() == u.second->GetMaxLevel())
+		{
+			maxLevelUpgrades++;
+		}
+	}
+
+	// If an upgrade is at max level, it will be unavailable for purchase.
+	// So if we have less upgrades available for purchase than inventory size, we must lower inventory size.
+	if (m_AllAvailableUpgrades.size() - maxLevelUpgrades < m_InvSize)
+	{
+		m_InvSize = m_AllAvailableUpgrades.size() - maxLevelUpgrades;
+	}
+
 	// Fill our inventory
 	for (int i = 0; i < m_InvSize; i++)
 	{
@@ -40,7 +59,7 @@ void Shop::RandomizeInventory()
 			// need to reset this bool every loop
 			inStock = false;
 			// Get a random number that will be used to get an upgrade to the inventory
-			upgradeNum = m_Rand.Rand(0, m_AllAvailableUpgrades.size());
+			upgradeNum = m_Rand.Rand(0, m_InvSize);
 			// Take this number to get a name from m_UpgradeNames, which contains all avalible upgrades
 			name = m_UpgradeNames.at(upgradeNum);
 			for (auto names : m_InventoryNames)
@@ -53,9 +72,15 @@ void Shop::RandomizeInventory()
 					break;
 				}
 			}
+			if (m_AllAvailableUpgrades[name]->GetLevel() == m_AllAvailableUpgrades[name]->GetMaxLevel())
+			{
+				// If an upgrade is at max level, make it unavailable for purchase
+				// So set inStock to true so that it won't be added to the inventory.
+				inStock = true;
+			}
 
 		} while (inStock);
-		// When we get an upgrade that was not in already in our inventory,
+		// When we get an upgrade that was not already in our inventory or max level,
 		// we add it to the inventory.
 		m_InventoryNames.push_back(name);
 		m_Prices[name] = m_AllAvailableUpgrades[name]->GetPrice();
@@ -69,10 +94,10 @@ void Shop::ApplyUppgrade(std::string name)
 {
 	if (checkExisting(name))
 	{
-		// Increasing m_AllAvailableUppgrades level as well as upgradeComponents m_AppliedUpgrades 
-		// because we want to increase level of RANGE type upgrades as well.
+		// Increasing UpgradeManagers m_AppliedUpgradeLevel level as well as upgradeComponents m_AppliedUpgrades 
+		// because we want to increase level of RANGE type upgrades as well and this needs to be done in UpgradeManager.
 		m_pPlayer->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(name)->IncreaseLevel();
-		m_AllAvailableUpgrades[name]->IncreaseLevel();
+		m_pUpgradeManager->IncreaseLevel(name);
 	}
 	else
 	{
