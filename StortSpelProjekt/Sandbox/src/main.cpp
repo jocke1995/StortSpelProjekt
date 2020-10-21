@@ -59,19 +59,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
-	//Scene* fredrikScene = FredriksTestScene(sceneManager);
+	Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* shopScene = ShopScene(sceneManager);
 
-    Scene* activeScenes[] = { leoScene };
+    Scene* activeScenes[] = { fredrikScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -1896,11 +1896,6 @@ void FredriksUpdateScene(SceneManager* sm, double dt)
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
 	tx->GetTextManager()->UploadAndExecuteTextData("health");*/
-
-	if (head->GetQuadManager()->HasBeenPressed())
-	{
-		//Log::Print("PRESSED!\n");
-	}
 }
 
 void DefaultUpdateScene(SceneManager* sm, double dt)

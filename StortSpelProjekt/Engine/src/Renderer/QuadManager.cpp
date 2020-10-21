@@ -172,22 +172,6 @@ void QuadManager::UploadAndExecuteQuadData()
 	renderer->executeCopyOnDemand();
 }
 
-const bool QuadManager::HasBeenPressed()
-{
-	if (m_Pressed)
-	{
-		m_Pressed = false;
-		return true;
-	}
-
-	if (!m_Clickable)
-	{
-		Log::PrintSeverity(Log::Severity::WARNING, "This quad is not clickable!\n");
-	}
-
-	return false;
-}
-
 const bool QuadManager::HasTexture() const
 {
 	bool exists = false;

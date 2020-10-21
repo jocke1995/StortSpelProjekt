@@ -46,7 +46,6 @@ public:
 		float3 color = float3{ 0.0, 0.0, 0.0 });
 	void UploadAndExecuteQuadData();
 
-	const bool HasBeenPressed();
 	const bool HasTexture() const;
 	const bool IsMarked() const;
 	const bool IsClickable() const; 
@@ -81,7 +80,6 @@ private:
 	Texture* m_pQuadTextureMarked = nullptr;
 	bool m_Clickable = false;
 	bool m_Markable = false;
-	bool m_Pressed = false;
 	bool m_ActiveTexture = false;
 	
 	void pressed(MouseClick* evnt);
