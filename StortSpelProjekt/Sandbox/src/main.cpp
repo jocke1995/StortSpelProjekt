@@ -1022,7 +1022,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	float2 textScale = { 0.5f, 0.5f };
 	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    entity = scene->AddEntity("text");
+    entity = scene->AddEntity("health");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	gui->GetTextManager()->AddText("health");
 	gui->GetTextManager()->SetColor(textColor, "health");
@@ -1037,6 +1037,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	float4 blended = { 1.0, 1.0, 1.0, 0.99 };
 	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
 	gui->GetQuadManager()->CreateQuad(
+		"health",
 		quadPos, quadScale,
 		false, false,
 		E_DEPTH_LEVEL::MID,
@@ -1051,6 +1052,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	quadPos = { 0.009f, 0.014f };
 	quadScale = { 0.07f, 0.07f };
 	gui->GetQuadManager()->CreateQuad(
+		"head",
 		quadPos, quadScale,
 		true, true,
 		E_DEPTH_LEVEL::FRONT,
@@ -1064,6 +1066,7 @@ Scene* FredriksTestScene(SceneManager* sm)
     quadPos = { 0.0f, 0.0f };
     quadScale = { 0.3f, 0.1f };
     gui->GetQuadManager()->CreateQuad(
+		"overlay",
 		quadPos, quadScale,
 		false, false,
 		E_DEPTH_LEVEL::BACK, 
@@ -1077,6 +1080,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	quadPos = { 0.85f, 0.0f };
 	quadScale = { 0.15f, 0.15f };
 	gui->GetQuadManager()->CreateQuad(
+		"minimap",
 		quadPos, quadScale,
 		false, false,
 		E_DEPTH_LEVEL::FRONT,
@@ -1878,11 +1882,6 @@ void FredriksUpdateScene(SceneManager* sm, double dt)
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
 	tx->GetTextManager()->UploadAndExecuteTextData("health");*/
-
-	if (head->GetQuadManager()->HasBeenPressed())
-	{
-		Log::Print("PRESSED!\n");
-	}
 }
 
 void DefaultUpdateScene(SceneManager* sm, double dt)
