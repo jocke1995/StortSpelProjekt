@@ -242,7 +242,7 @@ Here we also increse the price since the upgrade has been bought.
 	void UpgradeRangeTest::ApplyBoughtUpgrade()
 	{
 		ApplyStat();
-		m_Price = m_StartingPrice * m_Level; 
+		m_Price = m_StartingPrice * (m_Level * + 1); 
 	}
 ```
 
