@@ -133,7 +133,7 @@ Scene* GetDemoScene(SceneManager* sm)
     Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
-    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/CubePBR/cube.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
 
@@ -189,6 +189,21 @@ Scene* GetDemoScene(SceneManager* sm)
     tc->GetTransform()->SetScale(60, 1, 60);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /* ---------------------- Floor ---------------------- */
+
+    /* ---------------------- Teleporter ---------------------- */
+    entity = scene->AddEntity("teleporter");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 1.0, 1.0);
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(-50.0f, 5.0f, -25.0f);
+    tc->GetTransform()->SetScale(5.0f, 5.0f, 1.0f);
+    tc->GetTransform()->SetRotationY(PI / 2);
+    /* ---------------------- Teleporter ---------------------- */
 
     /* ---------------------- dirLight ---------------------- */
     entity = scene->AddEntity("dirLight");
