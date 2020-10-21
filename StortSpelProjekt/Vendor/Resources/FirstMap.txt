@@ -1,0 +1,119 @@
+Name NorthEastWall
+ModelPath Models/Cube/crate.obj
+ModelScaling 1.0, 20.0, 95.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition -150.0, 20.0, 95.0
+ModelDrawFlag 1, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name NorthWall
+ModelPath Models/Cube/crate.obj
+ModelScaling 60.0, 20.0, 1.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition -90.0, 20.0, 190.0
+ModelDrawFlag 1, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name NorthDiagonalWall
+ModelPath Models/Cube/crate.obj
+ModelScaling 110.0, 20.0, 1.0
+ModelRotation 0.0, 0.85, 0.0, 0.0
+ModelPosition 42.0, 20.0, 108.0
+ModelDrawFlag 1, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name WestWall
+ModelPath Models/Cube/crate.obj
+ModelScaling 1.0, 20.0, 20.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition 115.0, 20.0, 5.0
+ModelDrawFlag 1, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+
+Name SouthWestDiagonalWall
+ModelPath Models/Cube/crate.obj
+ModelScaling 50.0, 20.0, 1.0
+ModelRotation 0.0, 2.3, 0.0, 0.0
+ModelPosition 82.0, 20.0, -52.0
+ModelDrawFlag 1, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name SouthWestWall
+ModelPath Models/Cube/crate.obj
+ModelScaling 1.0, 20.0, 40.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition 49.0, 20.0, -129.0
+ModelDrawFlag 1, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name SouthDiagonalWall
+ModelPath Models/Cube/crate.obj
+ModelScaling 50.0, 20.0, 1.0
+ModelRotation 0.0, 2.3, 0.0, 0.0
+ModelPosition 16.0, 20.0, -205.0
+ModelDrawFlag 1, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name Light
+ModelPath Models/Cube/crate.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0 ,0.0
+ModelPosition 0.0, 10.0, 0.0
+ModelDrawFlag 1,1
+ModelLightColor 0.2,0.0,0.0
+ModelLightFlag 0,1
+ModelLightFlag 1,1
+ModelLightAttenuation 1.0,0.09f,0.032f
+Submit Model
+Submit PointLight
+
+Name HeightmapGround
+ModelPath Textures/GravelHeightMap/hm.hm
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 0.0, 0.0, -50.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelFriction 1.0
+ModelRestitution 1.0
+Submit Heightmap
+Submit CollisionHeightmap
+
+Name Skybox
+ModelPath Textures/CubeMaps/skymap.dds
+Submit SkyBox
+
+NavMesh
+#0
+NavQuadPosition 0.0, 0.0, 0.0
+NavQuadSize 5.0, 5.0
+Submit NavQuad
+
+#1
+NavQuadPosition 5.0, 0.0, 2.0
+NavQuadSize 5.0, 5.0
+Submit NavQuad
+
+#2
+NavQuadPosition 4.0, 0.0, -2.0
+NavQuadSize 3.0, 3.0
+Submit NavQuad
+
+NavConnectionQuads 0, 1
+Submit NavConnection
+
+NavConnectionQuads 2, 0
+Submit NavConnection
+
+NavConnectionQuads 2, 1
+Submit NavConnection
+
+Submit NavMesh

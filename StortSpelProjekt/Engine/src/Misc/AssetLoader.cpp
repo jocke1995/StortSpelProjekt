@@ -12,6 +12,7 @@
 #include "../Renderer/Material.h"
 #include "../Renderer/Animation.h"
 #include "../Renderer/Transform.h"
+#include "../ECS/Components/SkyboxComponent.h"
 
 #include "../Misc/GUI2DElements/Text.h"
 #include "../Misc/GUI2DElements/Font.h"
@@ -399,6 +400,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	entityName.reserve(128);
 	std::string modelPath;
 	modelPath.reserve(128);
+	std::string texturePath;
+	modelPath.reserve(128);
 	std::string toSubmit;
 	toSubmit.reserve(128);
 	unsigned int flag;
@@ -504,6 +507,14 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			else if (strcmp(lineHeader.c_str(), "NavConnectionQuads") == 0)
 			{
 				fscanf(file, "%d,%d", &quad1, &quad2);
+			}
+			else if (strcmp(lineHeader.c_str(), "EntityMass") == 0)
+			{
+				fscanf(file, "%f", &mass);
+			}
+			else if (strcmp(lineHeader.c_str(), "TexturePath") == 0)
+			{
+				fscanf(file, "%f", &mass);
 			}
 			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
 			{
@@ -617,6 +628,12 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 				else if (strcmp(toSubmit.c_str(), "NavMesh") == 0)
 				{
 					navMesh->CreateGrid();
+				}
+				else if (strcmp(toSubmit.c_str(), "SkyBox") == 0)
+				{
+					TextureCubeMap* skyboxCubemap = LoadTextureCubeMap(to_wstring(fullPath));
+					component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+					sbc->SetTexture(skyboxCubemap);
 				}
 			}
 		}
