@@ -16,6 +16,7 @@ UpgradeMeleeDamage::UpgradeMeleeDamage(Entity* parentEntity) : Upgrade(parentEnt
 
 	m_DamageChange = 2;
 	m_StartingDamageChange = m_DamageChange;
+
 }
 
 UpgradeMeleeDamage::~UpgradeMeleeDamage()
@@ -41,4 +42,6 @@ void UpgradeMeleeDamage::IncreaseLevel()
 	m_Price = m_StartingPrice * m_Level;
 	// now apply the new stat
 	ApplyStat();
+	std::string print = std::to_string(m_DamageChange).c_str();
+	Log::Print(print);
 }

@@ -69,10 +69,10 @@ void Shop::ApplyUppgrade(std::string name)
 {
 	if (checkExisting(name))
 	{
-		// Increasing m_AllAvailableUppgrades level as well as upgradeComponents m_AppliedUpgrades 
-		// because we want to increase level of RANGE type upgrades as well.
+		// Increasing UpgradeManagers m_AppliedUpgradeLevel level as well as upgradeComponents m_AppliedUpgrades 
+		// because we want to increase level of RANGE type upgrades as well and this needs to be done in UpgradeManager.
 		m_pPlayer->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(name)->IncreaseLevel();
-		m_AllAvailableUpgrades[name]->IncreaseLevel();
+		m_pUpgradeManager->IncreaseLevel(name);
 	}
 	else
 	{

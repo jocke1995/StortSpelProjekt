@@ -1,5 +1,8 @@
-#pragma once
+#ifndef UPGRADE_MELEE_DAMAGE_H
+#define UPGRADE_MELEE_DAMAGE_H
+
 #include "Components/UpgradeComponents/Upgrades/Upgrade.h"
+
 class UpgradeMeleeDamage : public Upgrade
 {
 public:
@@ -13,6 +16,6 @@ public:
 private:
 	int m_DamageChange;
 	int m_StartingDamageChange;
-	int m_StartingPrice;
 };
 
+#endif // !UPGRADE_MELEE_DAMAGE_H

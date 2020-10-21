@@ -59,7 +59,7 @@ void Player::buyUpgrade(UForUpgrade* evnt)
 	}
 	else
 	{
-		shop->ApplyUppgrade("UpgradeMeleeTest");
+		shop->ApplyUppgrade("UpgradeMeleeDamage");
 		Log::Print("UpgradeMeleeTest applied!\n");
 	}
 	m_UpgradeApplied++;
