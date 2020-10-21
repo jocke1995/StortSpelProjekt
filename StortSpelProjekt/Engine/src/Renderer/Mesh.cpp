@@ -133,3 +133,8 @@ const std::wstring& Mesh::GetPath() const
 {
 	return m_Path;
 }
+
+ShaderResourceView* const Mesh::GetSRV() const
+{
+	return m_pSRV;
+}

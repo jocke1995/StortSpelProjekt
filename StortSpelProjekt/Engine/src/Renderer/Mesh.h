@@ -48,6 +48,7 @@ public:
     const D3D12_INDEX_BUFFER_VIEW* GetIndexBufferView() const;
 
     const std::wstring& GetPath() const;
+	ShaderResourceView* const GetSRV() const;
 
 private:
     friend class MergeRenderTask;

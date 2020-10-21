@@ -97,6 +97,8 @@ public:
 	// Scene
 	Scene* const GetActiveScene() const;
 
+	const Window* const GetWindow() const;
+
 	// Call once
 	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
@@ -191,6 +193,7 @@ private:
 	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::GUI2DComponent*> m_TextComponents;
+	std::vector<component::GUI2DComponent*> m_QuadComponents;
 	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
@@ -242,8 +245,6 @@ private:
 
 	// Setup the whole scene
 	void prepareScenes(std::vector<Scene*>* scenes);
-	// Setup what should be drawn in the scene
-	void prepareRenderComponents(std::vector<Scene*>* scenes);
 
 	// Setup Per-scene data and send to GPU
 	void SubmitUploadPerSceneData();
