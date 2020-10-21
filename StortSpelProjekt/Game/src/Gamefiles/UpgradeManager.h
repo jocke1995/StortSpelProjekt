@@ -16,9 +16,9 @@ class UpgradeMeleeTest;
 // Please name the enums the same as the upgrades m_Name variable.
 enum E_UpgradeIDs
 {
-	UPGRADE_RANGE_TEST = 1,
+	UPGRADE_RANGE_VELOCITY = 1,
 	UPGRADE_MELEE_TEST = 2,
-	UPGRADE_RANGE_VELOCITY = 3,
+	UPGRADE_RANGE_LIFESTEAL = 3
 
 };
 

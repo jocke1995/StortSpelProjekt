@@ -1,4 +1,5 @@
 #include "UpgradeRangeVelocity.h"
+#include "EngineMath.h"
 #include "ECS/Entity.h"
 #include "Components/RangeComponent.h"
 
@@ -12,7 +13,8 @@ UpgradeRangeVelocity::UpgradeRangeVelocity(Entity* parent)
 	// set the price of this upgrade 
 	m_Price = 1;
 	// set short description 
-	m_Description = "Increases velocity of the range attacks with 25%";
+	m_Description = "Increases velocity of the range attacks with 10 per level. Max velocity is 100.";
+	m_MaxLevel = 5;
 }
 
 UpgradeRangeVelocity::~UpgradeRangeVelocity()
@@ -21,24 +23,24 @@ UpgradeRangeVelocity::~UpgradeRangeVelocity()
 
 void UpgradeRangeVelocity::IncreaseLevel()
 {
-	m_Level++;
-	float oldVelocity = m_pParentEntity->GetComponent<component::RangeComponent>()->GetVelocity();
-	// double the velocity of the shots
-	float newVelocity = oldVelocity * 1.25;
-	m_pParentEntity->GetComponent<component::RangeComponent>()->SetVelocity(newVelocity);
-	Log::Print("Velocity: %f \n", newVelocity);
-}
-
-void UpgradeRangeVelocity::ApplyStat()
-{
+	if (m_Level < m_MaxLevel)
+	{
+		m_Level++;
+		float oldVelocity = m_pParentEntity->GetComponent<component::RangeComponent>()->GetVelocity();
+		// double the velocity of the shots
+		float newVelocity = oldVelocity + 10;
+		m_pParentEntity->GetComponent<component::RangeComponent>()->SetVelocity(newVelocity);
+		Log::Print("Velocity: %f \n", newVelocity);
+		m_Price = m_Price * 2;
+	}
 }
 
 void UpgradeRangeVelocity::ApplyBoughtUpgrade()
 {
 	float oldVelocity = m_pParentEntity->GetComponent<component::RangeComponent>()->GetVelocity();
 	// double the velocity of the shots
-	float newVelocity = oldVelocity * 1.25;
+	float newVelocity = oldVelocity + 10;
 	m_pParentEntity->GetComponent<component::RangeComponent>()->SetVelocity(newVelocity);
 	Log::Print("Velocity: %f \n", newVelocity);
+	m_Price = m_Price * 2;
 }
-

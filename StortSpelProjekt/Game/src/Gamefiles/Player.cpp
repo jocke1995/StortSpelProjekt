@@ -63,5 +63,5 @@ void Player::buyUpgrade(UForUpgrade* evnt)
 		Log::Print("UpgradeMeleeTest applied!\n");
 	}
 	m_UpgradeApplied++;*/
-	shop->ApplyUppgrade("UpgradeRangeVelocity");
+	shop->ApplyUppgrade("UpgradeRangeLifeSteal");
 }

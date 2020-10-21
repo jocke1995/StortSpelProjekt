@@ -60,6 +60,7 @@ public:
 	virtual void RangedModifier();
 	// upgrades that applies/adds stats (ex: more hp, more stamina)
 	virtual void ApplyStat();
+	// upgrades that need to be applied once when bought to take effect
 	virtual void ApplyBoughtUpgrade();
 
 protected:
@@ -75,6 +76,8 @@ protected:
 	int m_ID;
 	// What level the upgrade is, for keeping track of stacking of upgrades and price
 	int m_Level = 1;
+	// Some upgrade might have a maximum upgrade level. Set in upgrade class, else "unlimited" levels.
+	int m_MaxLevel = INT_MAX;
 	// What type of upgrade this is, for ease of sorting or making calls to certain types
 	unsigned int m_Type = 0;
 };
