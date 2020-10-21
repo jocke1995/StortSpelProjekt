@@ -214,14 +214,15 @@ An example of an upgrade constructor:
 		m_DamageChange = 2;
 		m_Price = 5;
 		m_StartingPrice = m_Price;
-		m_Descrition = "Gives the player 2 extra damage at level 1. At subsequent levels the health increase will increase by 2 for each level. So level 1-5 vill be 2, 4, 6, 8, 10.";
+		m_Description = "Gives the player 2 extra damage at level 1. At subsequent levels the health increase will increase by 2 for each level. So level 1-5 vill be 2, 4, 6, 8, 10.";
 	}
 ```
 
 An uppgrade has many inherited functions such as **OnHit()**, **ApplyStat()** or **OnDamage()**.
 It is by using these functions that you decide where/what your upgrade will affect. 
-As an Example, take **UpgradeRangeTest**, which will have an immediate effect on player health in its **ApplyBoughtUpgrade()** function which calls on the **ApplyStat()** function,
-as well as making projectiles shoot upwards when hitting something in the function **OnRangeHit()**.
+As an Example, take **UpgradeRangeTest**, which will have an immediate effect on player health in its **ApplyBoughtUpgrade()** function which calls on the **ApplyStat()** function.
+Here we also increse the price since the upgrade has been bought. 
+**UpgradeRangeTest** as well as making projectiles shoot upwards when hitting something in the function **OnRangeHit()**.
 
 ```cpp
 	void UpgradeRangeTest::OnRangedHit()
@@ -241,13 +242,14 @@ as well as making projectiles shoot upwards when hitting something in the functi
 	void UpgradeRangeTest::ApplyBoughtUpgrade()
 	{
 		ApplyStat();
+		m_Price = m_StartingPrice * m_Level; 
 	}
 ```
 
 If an upgrade is bought more than once its level should be increased in the function **IncreaseLevel()**.
 It is in this function you define what will happen with each increase in level. 
 Examples could be multiplying stat increases by level or maybe a switch case that adds functionallity for every level.
-Here is an example from UpgradeRangeTest where the speed at which they are accelerating is multiplied by level. The health change you get will not increase but you will still get 100 more health for each level.
+Here is an example from **UpgradeRangeTest** where the speed at which they are accelerating is multiplied by level. The health change you get will not increase but you will still get 100 more health for each level.
 Price is also increased.
 
 ```cpp
@@ -300,10 +302,10 @@ Here is an example with the two test upgrades:
 ```
 
 As can be seen in the code, this is mostly a copy paste operation where the main change is which class you make a new instance of, 
-as well as setting the enum as the upgrade ID.
+as well as setting the enum as the **upgrade ID**.
 
 Lastly you also have to add the upgrade to the switch case in the function called **newUpgrade**.
-Here you only have to copy the previous cases and change the enum and class.
+Here you only have to copy the previous cases and change the **enum** and **class**.
 
 ```cpp
 	Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
