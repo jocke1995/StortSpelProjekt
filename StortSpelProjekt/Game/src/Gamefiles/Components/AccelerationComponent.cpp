@@ -29,11 +29,7 @@ void component::AccelerationComponent::OnInitScene()
 {
 }
 
-void component::AccelerationComponent::OnLoadScene()
-{
-}
-
-void component::AccelerationComponent::OnUnloadScene()
+void component::AccelerationComponent::OnUnInitScene()
 {
 }
 

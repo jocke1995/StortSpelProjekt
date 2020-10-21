@@ -60,16 +60,13 @@ namespace component
     {
         this->Update(0);
 
-        Renderer::GetInstance().InitSpotLightComponent(GetParent());
+        Renderer::GetInstance().InitSpotLightComponent(this);
     }
 
-    void SpotLightComponent::OnLoadScene()
+    void SpotLightComponent::OnUnInitScene()
     {
+        Renderer::GetInstance().UnInitSpotLightComponent(this);
     }
-
-	void SpotLightComponent::OnUnloadScene()
-	{
-	}
 
     void SpotLightComponent::SetCutOff(float degrees)
     {

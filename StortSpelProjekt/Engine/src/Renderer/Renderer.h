@@ -71,9 +71,14 @@ namespace component
 {
 	class ModelComponent;
 	class TransformComponent;
+	class CameraComponent;
 	class BoundingBoxComponent;
 	class GUI2DComponent;
 	class SkyboxComponent;
+	class DirectionalLightComponent;
+	class PointLightComponent;
+	class SpotLightComponent;
+
 }
 
 // Events
@@ -92,6 +97,8 @@ public:
 	// Scene
 	Scene* const GetActiveScene() const;
 
+	const Window* const GetWindow() const;
+
 	// Call once
 	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
@@ -103,14 +110,23 @@ public:
 	void Execute();
 
 	// Render inits, these functions are called by respective components through SetScene to prepare for drawing
-	void InitSkyboxComponent(Entity* entity);
-	void InitModelComponent(Entity* entity);
-	void InitDirectionalLightComponent(Entity* entity);
-	void InitPointLightComponent(Entity* entity);
-	void InitSpotLightComponent(Entity* entity);
-	void InitCameraComponent(Entity* entity);
-	void InitBoundingBoxComponent(Entity* entity);
-	void InitGUI2DComponent(Entity* entity);
+	void InitSkyboxComponent(component::SkyboxComponent* component);
+	void InitModelComponent(component::ModelComponent* component);
+	void InitDirectionalLightComponent(component::DirectionalLightComponent* component);
+	void InitPointLightComponent(component::PointLightComponent* component);
+	void InitSpotLightComponent(component::SpotLightComponent* component);
+	void InitCameraComponent(component::CameraComponent* component);
+	void InitBoundingBoxComponent(component::BoundingBoxComponent* component);
+	void InitGUI2DComponent(component::GUI2DComponent* component);
+
+	void UnInitSkyboxComponent(component::SkyboxComponent* component);
+	void UnInitModelComponent(component::ModelComponent* component);
+	void UnInitDirectionalLightComponent(component::DirectionalLightComponent* component);
+	void UnInitPointLightComponent(component::PointLightComponent* component);
+	void UnInitSpotLightComponent(component::SpotLightComponent* component);
+	void UnInitCameraComponent(component::CameraComponent* component);
+	void UnInitBoundingBoxComponent(component::BoundingBoxComponent* component);
+	void UnInitGUI2DComponent(component::GUI2DComponent* component);
 
 	void OnResetScene();
 
@@ -177,6 +193,7 @@ private:
 	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::GUI2DComponent*> m_TextComponents;
+	std::vector<component::GUI2DComponent*> m_QuadComponents;
 	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
@@ -226,13 +243,8 @@ private:
 	void waitForCopyOnDemand();
 	void executeCopyOnDemand();
 
-	// Manage components
-	void removeComponents(Entity* entity);
-
 	// Setup the whole scene
 	void prepareScenes(std::vector<Scene*>* scenes);
-	// Setup what should be drawn in the scene
-	void prepareRenderComponents(std::vector<Scene*>* scenes);
 
 	// Setup Per-scene data and send to GPU
 	void SubmitUploadPerSceneData();

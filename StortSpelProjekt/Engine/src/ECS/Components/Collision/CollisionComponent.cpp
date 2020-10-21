@@ -103,6 +103,11 @@ void component::CollisionComponent::OnInitScene()
 	m_pBody->setAngularFactor({ 0.0, 1.0 * m_CanFall, 0.0 });
 }
 
+void component::CollisionComponent::OnUnInitScene()
+{
+	Physics::GetInstance().RemoveCollisionComponent(this);
+}
+
 
 void component::CollisionComponent::SetPosition(double x, double y, double z)
 {

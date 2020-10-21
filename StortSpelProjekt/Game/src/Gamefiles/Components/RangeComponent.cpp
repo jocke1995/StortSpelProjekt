@@ -32,11 +32,7 @@ void component::RangeComponent::OnInitScene()
 {
 }
 
-void component::RangeComponent::OnLoadScene()
-{
-}
-
-void component::RangeComponent::OnUnloadScene()
+void component::RangeComponent::OnUnInitScene()
 {
 }
 
@@ -44,7 +40,7 @@ void component::RangeComponent::Attack(MouseClick* event)
 {
 	if (event->button == MOUSE_BUTTON::RIGHT_DOWN)
 	{
-		Entity* ent = PoolAllocator<Entity>::GetInstance().Allocate("RangeAttack" + std::to_string(++m_NrOfProjectiles));
+		Entity* ent = m_pScene->AddEntity("RangeAttack" + std::to_string(++m_NrOfProjectiles));
 		component::ModelComponent* mc = nullptr;
 		component::TransformComponent* tc = nullptr;
 		component::BoundingBoxComponent* bbc = nullptr;

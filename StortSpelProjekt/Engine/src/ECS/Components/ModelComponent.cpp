@@ -35,7 +35,12 @@ namespace component
 
 	void ModelComponent::OnInitScene()
 	{
-		Renderer::GetInstance().InitModelComponent(GetParent());
+		Renderer::GetInstance().InitModelComponent(this);
+	}
+
+	void ModelComponent::OnUnInitScene()
+	{
+		Renderer::GetInstance().UnInitModelComponent(this);
 	}
 
 	Mesh* ModelComponent::GetMeshAt(unsigned int index) const

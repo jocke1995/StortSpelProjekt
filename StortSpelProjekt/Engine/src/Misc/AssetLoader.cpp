@@ -296,7 +296,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	}
 	delete[] tasks;
 
-	Mesh* mesh = new Mesh(m_pDevice, &vertices, &indices, m_pDescriptorHeap_CBV_UAV_SRV, path);
+	Mesh* mesh = new Mesh(&vertices, &indices, path);
 	mesh->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 	m_LoadedMeshes.push_back(mesh);
 
@@ -964,9 +964,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 
 	// Create Mesh
 	Mesh* mesh = new Mesh(
-		m_pDevice,
 		&vertices, &indices,
-		m_pDescriptorHeap_CBV_UAV_SRV,
 		filePath);
 
 	// save mesh
@@ -1096,11 +1094,13 @@ Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_typ
 	}
 	else
 	{
+#ifdef _DEBUG
 		std::string tempString = std::string(filePathWithoutTexture.begin(), filePathWithoutTexture.end());
 		// No texture, warn and apply default Texture
-		//Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType +
-		//	" on mesh with path: \'%s\'\n", tempString.c_str());
+		Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType +
+			" on mesh with path: \'%s\'\n", tempString.c_str());
 		return m_LoadedTextures[defaultPath].second;
+#endif
 	}
 
 	return nullptr;
