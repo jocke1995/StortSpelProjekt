@@ -1,15 +1,25 @@
 #ifndef MELEECOMPONENT_H
 #define MELEECOMPONENT_H
 
+// STL
+#include <vector>
+
+// Base level engine
 #include "Core.h"
 #include "EngineMath.h"
-#include <vector>
+
+// Components
+#include "../ECS/Components/Component.h"
+
+
+// Sub-engines
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
-#include "../ECS/Components/Component.h"
 #include "../Physics/Physics.h"
 
+
 class Entity;
+class Audio2DVoiceComponent;
 
 namespace component
 {
@@ -21,8 +31,7 @@ namespace component
 		virtual ~MeleeComponent();
 
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 		void Update(double dt);
 		void Attack(bool attack);
@@ -41,12 +50,15 @@ namespace component
 
 		bool m_Attacking;
 		bool m_Cooldown;
+		bool audioPlay;
 		float m_AttackInterval;
 		float m_TimeSinceLastAttackCheck;
 		int m_Damage;
 
 		Transform* m_pMeleeTransform;
-		Transform m_MeleeTransformTwo;
+		Transform m_MeleeTransformModified;
+
+		Audio2DVoiceComponent* m_pVoiceComponent;
 
 		Mesh* m_pMesh;
 

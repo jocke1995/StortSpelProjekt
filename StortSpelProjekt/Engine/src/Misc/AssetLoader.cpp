@@ -81,6 +81,7 @@ void AssetLoader::loadDefaultMaterial()
 	matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(m_FilePathDefaultTextures + L"default_metallic.dds");
 	matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(m_FilePathDefaultTextures + L"default_normal.dds");
 	matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(m_FilePathDefaultTextures + L"default_emissive.dds");
+	matTextures[TEXTURE2D_TYPE::OPACITY] = LoadTexture2D(m_FilePathDefaultTextures + L"default_opacity.dds");
 
 	std::wstring matName = L"DefaultMaterial";
 	Material* material = new Material(&matName, &matTextures);
@@ -295,7 +296,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	}
 	delete[] tasks;
 
-	Mesh* mesh = new Mesh(m_pDevice, &vertices, &indices, m_pDescriptorHeap_CBV_UAV_SRV, path);
+	Mesh* mesh = new Mesh(&vertices, &indices, path);
 	mesh->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 	m_LoadedMeshes.push_back(mesh);
 
@@ -306,7 +307,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	std::map<unsigned int, VertexWeight> PVBD;
 	std::vector<Animation*> animations;
 	std::vector<Material*> materials;
-	materials.push_back(loadMaterialFromMTL(materialPath));
+	materials.push_back(LoadMaterialFromMTL(materialPath));
 	model = new HeightmapModel(&path, rootNode, &PVBD, &meshes, &animations, &materials, heightData, static_cast<double>(tex->GetHeight()), static_cast<double>(tex->GetWidth()));
 	m_LoadedModels[path].first = false;
 	m_LoadedModels[path].second = model;
@@ -360,6 +361,92 @@ TextureCubeMap* AssetLoader::LoadTextureCubeMap(const std::wstring& path)
 	textureCubeMap->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 
 	return textureCubeMap;
+}
+
+Material* AssetLoader::LoadMaterialFromMTL(const std::wstring& path)
+{
+	std::wifstream ifstream(path);
+	Material* mat = nullptr;
+	if (ifstream.is_open())
+	{
+		std::wstring relPath = path.substr(0, path.find_last_of('/') + 1);
+		std::wstring currMatName;
+		std::wstring line;
+		std::wstring varName;
+		std::wstring varVal;
+		std::map<TEXTURE2D_TYPE, Texture*> matTextures;
+
+		std::vector<std::wstring> defaultNames;
+		defaultNames.reserve(static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES));
+		defaultNames.push_back(L"default_albedo.dds");
+		defaultNames.push_back(L"default_roughness.dds");
+		defaultNames.push_back(L"default_metallic.dds");
+		defaultNames.push_back(L"default_normal.dds");
+		defaultNames.push_back(L"default_emissive.dds");
+		defaultNames.push_back(L"default_opacity.dds");
+
+		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
+		{
+			matTextures[static_cast<TEXTURE2D_TYPE>(i)] = m_LoadedTextures[m_FilePathDefaultTextures + defaultNames[i]].second;
+		}
+
+		while (!ifstream.eof())
+		{
+			std::getline(ifstream, line);
+			varName = line.substr(0, line.find_first_of(L' '));
+
+			if (varName == L"newmtl")
+			{
+				currMatName = line.substr(line.find_first_of(L' '));
+				if (m_LoadedMaterials.count(currMatName) > 0)
+				{
+					ifstream.close();
+					return m_LoadedMaterials[currMatName].second;
+				}
+			}
+			else if (varName == L"map_Ka")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Kd")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::ALBEDO] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Ks")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::ROUGHNESS] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Kn")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_Ke")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(relPath + varVal);
+			}
+			else if (varName == L"map_d")
+			{
+				varVal = line.substr(line.find_first_of(L' ') + 1);
+				matTextures[TEXTURE2D_TYPE::OPACITY] = LoadTexture2D(relPath + varVal);
+			}
+		}
+
+		mat = new Material(&currMatName, &matTextures);
+		m_LoadedMaterials[currMatName].first = false;
+		m_LoadedMaterials[currMatName].second = mat;
+
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open mtl file with path %S", path.c_str());
+	}
+
+	return mat;
 }
 
 Font* AssetLoader::LoadFontFromFile(const std::wstring& fontName)
@@ -877,9 +964,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 
 	// Create Mesh
 	Mesh* mesh = new Mesh(
-		m_pDevice,
 		&vertices, &indices,
-		m_pDescriptorHeap_CBV_UAV_SRV,
 		filePath);
 
 	// save mesh
@@ -951,86 +1036,6 @@ Material* AssetLoader::loadMaterial(aiMaterial* mat, const std::wstring& folderP
 	}
 }
 
-Material* AssetLoader::loadMaterialFromMTL(const std::wstring& path)
-{
-	std::wifstream ifstream(path);
-	Material* mat = nullptr;
-	if (ifstream.is_open())
-	{
-		std::wstring relPath = path.substr(0, path.find_last_of('/') + 1);
-		std::wstring currMatName;
-		std::wstring line;
-		std::wstring varName;
-		std::wstring varVal;
-		std::map<TEXTURE2D_TYPE, Texture*> matTextures;
-
-		std::vector<std::wstring> defaultNames;
-		defaultNames.reserve(static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES));
-		defaultNames.push_back(L"default_albedo.dds");
-		defaultNames.push_back(L"default_roughness.dds");
-		defaultNames.push_back(L"default_metallic.dds");
-		defaultNames.push_back(L"default_normal.dds");
-		defaultNames.push_back(L"default_emissive.dds");
-
-		for (unsigned int i = 0; i < static_cast<unsigned int>(TEXTURE2D_TYPE::NUM_TYPES); i++)
-		{
-			matTextures[static_cast<TEXTURE2D_TYPE>(i)] = m_LoadedTextures[m_FilePathDefaultTextures + defaultNames[i]].second;
-		}
-
-		while (!ifstream.eof())
-		{
-			std::getline(ifstream, line);
-			varName = line.substr(0, line.find_first_of(L' '));
-
-			if (varName == L"newmtl")
-			{
-				currMatName = line.substr(line.find_first_of(L' '));
-				if (m_LoadedMaterials.count(currMatName) > 0)
-				{
-					ifstream.close();
-					return m_LoadedMaterials[currMatName].second;
-				}
-			}
-			else if (varName == L"map_Ka")
-			{
-				varVal = line.substr(line.find_first_of(L' ') + 1);
-				matTextures[TEXTURE2D_TYPE::METALLIC] = LoadTexture2D(relPath + varVal);
-			}
-			else if (varName == L"map_Kd")
-			{
-				varVal = line.substr(line.find_first_of(L' ') + 1);
-				matTextures[TEXTURE2D_TYPE::ALBEDO] = LoadTexture2D(relPath + varVal);
-			}
-			else if (varName == L"map_Ks")
-			{
-				varVal = line.substr(line.find_first_of(L' ') + 1);
-				matTextures[TEXTURE2D_TYPE::ROUGHNESS] = LoadTexture2D(relPath + varVal);
-			}
-			else if (varName == L"map_Kn")
-			{
-				varVal = line.substr(line.find_first_of(L' ') + 1);
-				matTextures[TEXTURE2D_TYPE::NORMAL] = LoadTexture2D(relPath + varVal);
-			}
-			else if (varName == L"map_Ke")
-			{
-				varVal = line.substr(line.find_first_of(L' ') + 1);
-				matTextures[TEXTURE2D_TYPE::EMISSIVE] = LoadTexture2D(relPath + varVal);
-			}
-		}
-
-		mat = new Material(&currMatName, &matTextures);
-		m_LoadedMaterials[currMatName].first = false;
-		m_LoadedMaterials[currMatName].second = mat;
-
-	}
-	else
-	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open mtl file with path %S", path.c_str());
-	}
-
-	return mat;
-}
-
 Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture)
 {
 	aiTextureType type;
@@ -1069,6 +1074,11 @@ Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_typ
 		defaultPath = m_FilePathDefaultTextures + L"default_emissive.dds";
 		warningMessageTextureType = "Emissive";
 		break;
+	case::TEXTURE2D_TYPE::OPACITY:
+		type = aiTextureType_OPACITY;
+		defaultPath = m_FilePathDefaultTextures + L"default_opacity.dds";
+		warningMessageTextureType = "Opacity";
+		break;
 	}
 
 	mat->GetTexture(type, 0, &str);
@@ -1086,8 +1096,8 @@ Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_typ
 	{
 		std::string tempString = std::string(filePathWithoutTexture.begin(), filePathWithoutTexture.end());
 		// No texture, warn and apply default Texture
-		//Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType +
-		//	" on mesh with path: \'%s\'\n", tempString.c_str());
+		Log::PrintSeverity(Log::Severity::WARNING, "Applying default texture: " + warningMessageTextureType +
+			" on mesh with path: \'%s\'\n", tempString.c_str());
 		return m_LoadedTextures[defaultPath].second;
 	}
 

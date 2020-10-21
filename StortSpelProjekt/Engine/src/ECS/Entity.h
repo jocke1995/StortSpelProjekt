@@ -56,6 +56,7 @@ public:
 	void RenderUpdate(double dt);
 
 	void OnInitScene();
+	void OnUnInitScene();
 
 	std::vector<Component*>* GetAllComponents();
 

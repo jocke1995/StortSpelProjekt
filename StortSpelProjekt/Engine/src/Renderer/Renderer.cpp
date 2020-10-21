@@ -17,6 +17,10 @@
 #include "../ECS/Components/ModelComponent.h"
 #include "../ECS/Components/SkyboxComponent.h"
 #include "../ECS/Components/BoundingBoxComponent.h"
+#include "../ECS/Components/CameraComponent.h"
+#include "../ECS/Components/Lights/DirectionalLightComponent.h"
+#include "../ECS/Components/Lights/PointLightComponent.h"
+#include "../ECS/Components/Lights/SpotLightComponent.h"
 
 // Renderer-Engine 
 #include "RootSignature.h"
@@ -54,13 +58,14 @@
 #include "DX12Tasks/WireframeRenderTask.h"
 #include "DX12Tasks/OutliningRenderTask.h"
 #include "DX12Tasks/ForwardRenderTask.h"
-#include "DX12Tasks/BlendRenderTask.h"
+#include "DX12Tasks/TransparentRenderTask.h"
 #include "DX12Tasks/ShadowRenderTask.h"
 #include "DX12Tasks/DownSampleRenderTask.h"
 #include "DX12Tasks/MergeRenderTask.h"
 #include "DX12Tasks/TextTask.h"
 #include "DX12Tasks/ImGuiRenderTask.h"
 #include "DX12Tasks/SkyboxRenderTask.h"
+#include "DX12Tasks/QuadTask.h"
 
 // Copy 
 #include "DX12Tasks/CopyPerFrameTask.h"
@@ -374,8 +379,14 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
 
-	// Blending
-	renderTask = m_RenderTasks[RENDER_TASK_TYPE::BLEND];
+	// Blending with constant value
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
+	// Blending with opacity texture
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
@@ -387,6 +398,11 @@ void Renderer::Execute()
 
 	// Outlining, if an object is picked
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::OUTLINE];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::QUAD];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
@@ -444,24 +460,21 @@ void Renderer::Execute()
 #endif
 }
 
-void Renderer::InitSkyboxComponent(Entity* entity)
+void Renderer::InitSkyboxComponent(component::SkyboxComponent* component)
 {
-	component::SkyboxComponent* sbc = entity->GetComponent<component::SkyboxComponent>();
-
-	Mesh* mesh = sbc->GetMesh();
+	Mesh* mesh = component->GetMesh();
 	submitMeshToCodt(mesh);
 
-	Texture* texture = static_cast<TextureCubeMap*>(sbc->GetTexture());
+	Texture* texture = static_cast<TextureCubeMap*>(component->GetTexture());
 	submitTextureToCodt(texture);
 
 	// Finally store the object in m_pRenderer so it will be drawn
-	m_pSkyboxComponent = sbc;
+	m_pSkyboxComponent = component;
 }
 
-void Renderer::InitModelComponent(Entity* entity)
+void Renderer::InitModelComponent(component::ModelComponent* mc)
 {
-	component::ModelComponent* mc = entity->GetComponent<component::ModelComponent>();
-	component::TransformComponent* tc = entity->GetComponent<component::TransformComponent>();
+	component::TransformComponent* tc = mc->GetParent()->GetComponent<component::TransformComponent>();
 
 	// Submit to codt
 	submitModelToCodt(mc->m_pModel);
@@ -470,9 +483,14 @@ void Renderer::InitModelComponent(Entity* entity)
 	if (tc != nullptr)
 	{
 		// Finally store the object in the corresponding renderComponent vectors so it will be drawn
-		if (FLAG_DRAW::DRAW_TRANSPARENT & mc->GetDrawFlag())
+		if (FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT & mc->GetDrawFlag())
 		{
-			m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT].push_back(std::make_pair(mc, tc));
+			m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT].push_back(std::make_pair(mc, tc));
+		}
+
+		if (FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE & mc->GetDrawFlag())
+		{
+			m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE].push_back(std::make_pair(mc, tc));
 		}
 
 		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
@@ -492,9 +510,8 @@ void Renderer::InitModelComponent(Entity* entity)
 	}
 }
 
-void Renderer::InitDirectionalLightComponent(Entity* entity)
+void Renderer::InitDirectionalLightComponent(component::DirectionalLightComponent* component)
 {
-	component::DirectionalLightComponent* dlc = entity->GetComponent<component::DirectionalLightComponent>();
 	// Assign CBV from the lightPool
 	std::wstring resourceName = L"DirectionalLight";
 	ConstantBuffer* cb = m_pViewPool->GetFreeCB(sizeof(DirectionalLight), resourceName);
@@ -503,7 +520,7 @@ void Renderer::InitDirectionalLightComponent(Entity* entity)
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
 
 	int shadowRes = -1;
-	if (dlc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW)
+	if (component->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW)
 	{
 		shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
 	}
@@ -526,19 +543,21 @@ void Renderer::InitDirectionalLightComponent(Entity* entity)
 	if (resolution != SHADOW_RESOLUTION::UNDEFINED)
 	{
 		si = m_pViewPool->GetFreeShadowInfo(LIGHT_TYPE::DIRECTIONAL_LIGHT, resolution);
-		static_cast<DirectionalLight*>(dlc->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
+		static_cast<DirectionalLight*>(component->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
 
 		ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
-		srt->AddShadowCastingLight(std::make_pair(dlc, si));
+		srt->AddShadowCastingLight(std::make_pair(component, si));
 	}
 
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(dlc, cb, si));
+	m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(component, cb, si));
+
+	// Submit to cbperframe
+	
 }
 
-void Renderer::InitPointLightComponent(Entity* entity)
+void Renderer::InitPointLightComponent(component::PointLightComponent* component)
 {
-	component::PointLightComponent* plc = entity->GetComponent<component::PointLightComponent>();
 	// Assign CBV from the lightPool
 	std::wstring resourceName = L"PointLight";
 	ConstantBuffer* cb = m_pViewPool->GetFreeCB(sizeof(PointLight), resourceName);
@@ -547,12 +566,11 @@ void Renderer::InitPointLightComponent(Entity* entity)
 	ShadowInfo* si = nullptr;
 
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(plc, cb, si));
+	m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(component, cb, si));
 }
 
-void Renderer::InitSpotLightComponent(Entity* entity)
+void Renderer::InitSpotLightComponent(component::SpotLightComponent* component)
 {
-	component::SpotLightComponent* slc = entity->GetComponent<component::SpotLightComponent>();
 	// Assign CBV from the lightPool
 	std::wstring resourceName = L"SpotLight";
 	ConstantBuffer* cb = m_pViewPool->GetFreeCB(sizeof(SpotLight), resourceName);
@@ -561,7 +579,7 @@ void Renderer::InitSpotLightComponent(Entity* entity)
 	SHADOW_RESOLUTION resolution = SHADOW_RESOLUTION::UNDEFINED;
 
 	int shadowRes = -1;
-	if (slc->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW)
+	if (component->GetLightFlags() & FLAG_LIGHT::CAST_SHADOW)
 	{
 		shadowRes = std::stoi(Option::GetInstance().GetVariable("i_shadowResolution").c_str());
 	}
@@ -584,36 +602,34 @@ void Renderer::InitSpotLightComponent(Entity* entity)
 	if (resolution != SHADOW_RESOLUTION::UNDEFINED)
 	{
 		si = m_pViewPool->GetFreeShadowInfo(LIGHT_TYPE::SPOT_LIGHT, resolution);
-		static_cast<SpotLight*>(slc->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
+		static_cast<SpotLight*>(component->GetLightData())->textureShadowMap = si->GetSRV()->GetDescriptorHeapIndex();
 
 		ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
-		srt->AddShadowCastingLight(std::make_pair(slc, si));
+		srt->AddShadowCastingLight(std::make_pair(component, si));
 	}
 	// Save in m_pRenderer
-	m_Lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(slc, cb, si));
+	m_Lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(component, cb, si));
 }
 
-void Renderer::InitCameraComponent(Entity* entity)
+void Renderer::InitCameraComponent(component::CameraComponent* component)
 {
-	component::CameraComponent* cc = entity->GetComponent<component::CameraComponent>();
-	if (cc->IsPrimary() == true)
+	if (component->IsPrimary() == true)
 	{
-		m_pScenePrimaryCamera = cc->GetCamera();
+		m_pScenePrimaryCamera = component->GetCamera();
 	}
 }
 
-void Renderer::InitBoundingBoxComponent(Entity* entity)
+void Renderer::InitBoundingBoxComponent(component::BoundingBoxComponent* component)
 {
-	component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
 	// Add it to m_pTask so it can be drawn
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
-		for (unsigned int i = 0; i < bbc->GetNumBoundingBoxes(); i++)
+		for (unsigned int i = 0; i < component->GetNumBoundingBoxes(); i++)
 		{
-			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(bbc->GetPathOfModel(i));
+			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(component->GetPathOfModel(i));
 			if (m == nullptr)
 			{
-				Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", bbc->GetParent()->GetName().c_str());
+				Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", component->GetParent()->GetName().c_str());
 				return;
 			}
 
@@ -622,30 +638,270 @@ void Renderer::InitBoundingBoxComponent(Entity* entity)
 			//LoadMesh(m);
 			submitMeshToCodt(m);
 
-			bbc->AddMesh(m);
+			component->AddMesh(m);
 		}
-		static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(bbc);
+		static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(component);
 	}
 
 	// Add to vector so the mouse picker can check for intersections
-	if (bbc->GetFlagOBB() & F_OBBFlags::PICKING)
+	if (component->GetFlagOBB() & F_OBBFlags::PICKING)
 	{
-		m_BoundingBoxesToBePicked.push_back(bbc);
+		m_BoundingBoxesToBePicked.push_back(component);
 	}
 }
 
-void Renderer::InitGUI2DComponent(Entity* entity)
+void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 {
-	component::GUI2DComponent* textComp = entity->GetComponent<component::GUI2DComponent>();
-	std::map<std::string, TextData>* textDataMap = textComp->GetTextManager()->GetTextDataMap();
+	auto* textDataMap = component->GetTextManager()->GetTextDataMap();
+	auto* quad = component->GetQuadManager()->GetQuad();
 
-	for (auto textData : *textDataMap)
+	if (textDataMap != nullptr)
 	{
-		textComp->GetTextManager()->UploadTextData(textData.first);
+		for (auto textData : *textDataMap)
+		{
+			component->GetTextManager()->uploadTextData(textData.first, this);
+		}
+
+		// Finally store the text in m_pRenderer so it will be drawn
+		m_TextComponents.push_back(component);
 	}
 
-	// Finally store the text in m_pRenderer so it will be drawn
-	m_TextComponents.push_back(textComp);
+	if (quad != nullptr)
+	{
+		component->GetQuadManager()->uploadQuadData(this);
+
+		// Finally store the quad in m_pRenderer so it will be drawn
+		m_QuadComponents.push_back(component);
+	}
+}
+
+void Renderer::UnInitSkyboxComponent(component::SkyboxComponent* component)
+{
+}
+
+void Renderer::UnInitModelComponent(component::ModelComponent* component)
+{
+	// Remove component from renderComponents
+	// TODO: change data structure to allow O(1) add and remove
+	for (auto& renderComponent : m_RenderComponents)
+	{
+		for (int i = 0; i < renderComponent.second.size(); i++)
+		{
+			// Remove from all renderComponent-vectors if they are there
+			component::ModelComponent* comp = nullptr;
+			comp = renderComponent.second[i].first;
+			if (comp == component)
+			{
+				renderComponent.second.erase(renderComponent.second.begin() + i);
+			}
+		}
+	}
+
+	// Update Render Tasks components (forward the change in renderComponents)
+	setRenderTasksRenderComponents();
+}
+
+void Renderer::UnInitDirectionalLightComponent(component::DirectionalLightComponent* component)
+{
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		unsigned int j = 0;
+
+		for (auto& tuple : m_Lights[type])
+		{
+			Light* light = std::get<0>(tuple);
+
+			component::DirectionalLightComponent* dlc = static_cast<component::DirectionalLightComponent*>(light);
+
+			// Remove light if it matches the entity
+			if (component == dlc)
+			{
+				// Free memory so other m_Entities can use it
+				ConstantBuffer* cbv = std::get<1>(tuple);
+				ShadowInfo* si = std::get<2>(tuple);
+				m_pViewPool->ClearSpecificLight(type, cbv, si);
+
+				// Remove from CopyPerFrame
+				CopyPerFrameTask* cpft = nullptr;
+				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+				cpft->ClearSpecific(cbv->GetUploadResource());
+
+				// Finally remove from m_pRenderer
+				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
+				srt->ClearSpecificLight(std::get<0>(tuple));
+				m_Lights[type].erase(m_Lights[type].begin() + j);
+
+				// Update cbPerScene
+				SubmitUploadPerSceneData();
+				break;
+			}
+			j++;
+		}
+	}
+}
+
+void Renderer::UnInitPointLightComponent(component::PointLightComponent* component)
+{
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		unsigned int j = 0;
+
+		for (auto& tuple : m_Lights[type])
+		{
+			Light* light = std::get<0>(tuple);
+
+			component::PointLightComponent* plc = static_cast<component::PointLightComponent*>(light);
+
+			// Remove light if it matches the entity
+			if (component == plc)
+			{
+				// Free memory so other m_Entities can use it
+				ConstantBuffer* cbv = std::get<1>(tuple);
+				ShadowInfo* si = std::get<2>(tuple);
+				m_pViewPool->ClearSpecificLight(type, cbv, si);
+
+				// Remove from CopyPerFrame
+				CopyPerFrameTask* cpft = nullptr;
+				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+				cpft->ClearSpecific(cbv->GetUploadResource());
+
+				// Finally remove from m_pRenderer
+				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
+				srt->ClearSpecificLight(std::get<0>(tuple));
+				m_Lights[type].erase(m_Lights[type].begin() + j);
+
+				// Update cbPerScene
+				SubmitUploadPerSceneData();
+				break;
+			}
+			j++;
+		}
+	}
+}
+
+void Renderer::UnInitSpotLightComponent(component::SpotLightComponent* component)
+{
+	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	{
+		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+		unsigned int j = 0;
+
+		for (auto& tuple : m_Lights[type])
+		{
+			Light* light = std::get<0>(tuple);
+
+			component::SpotLightComponent* slc = static_cast<component::SpotLightComponent*>(light);
+
+			// Remove light if it matches the entity
+			if (component == slc)
+			{
+				// Free memory so other m_Entities can use it
+				ConstantBuffer* cbv = std::get<1>(tuple);
+				ShadowInfo* si = std::get<2>(tuple);
+				m_pViewPool->ClearSpecificLight(type, cbv, si);
+
+				// Remove from CopyPerFrame
+				CopyPerFrameTask* cpft = nullptr;
+				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+				cpft->ClearSpecific(cbv->GetUploadResource());
+
+				// Finally remove from m_pRenderer
+				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
+				srt->ClearSpecificLight(std::get<0>(tuple));
+				m_Lights[type].erase(m_Lights[type].begin() + j);
+
+				// Update cbPerScene
+				SubmitUploadPerSceneData();
+				break;
+			}
+			j++;
+		}
+	}
+}
+
+void Renderer::UnInitCameraComponent(component::CameraComponent* component)
+{
+}
+
+void Renderer::UnInitBoundingBoxComponent(component::BoundingBoxComponent* component)
+{
+	// Check if the entity got a boundingbox component.
+	if (component != nullptr)
+	{
+		if (component->GetParent() != nullptr)
+		{
+			// Stop drawing the wireFrame
+			if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
+			{
+				static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->ClearSpecific(component);
+			}
+
+			// Stop picking this boundingBox
+			unsigned int i = 0;
+			for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
+			{
+				if (bbcToBePicked == component)
+				{
+					m_BoundingBoxesToBePicked.erase(m_BoundingBoxesToBePicked.begin() + i);
+					break;
+				}
+				i++;
+			}
+		}
+	}
+}
+
+void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
+{
+	/*
+	Filips try at removing GUI2DComponents.
+	(Completly wrong)
+
+	// Remove component from textComponents
+	// TODO: change data structure to allow O(1) add and remove
+	static int count = 0;
+	bool atEnd = false;
+	auto it = m_TextComponents.begin();
+	while(!atEnd)
+	{
+		if (component == (*it))
+		{
+			CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+
+			auto textMap = component->GetTextManager()->GetTextMap();
+			auto itt = textMap->begin();
+			// Clear all resources from copyperframe
+			while (true)
+			{
+				if (itt == textMap->end())
+				{
+					break;
+				}
+
+				// Remove resource from copyperframe
+				Resource* uploadResourse = (*itt).second->m_pUploadResourceVertices;
+				cpft->ClearSpecific(uploadResourse);
+
+				itt++;
+			}
+
+			// remove from renderer.
+			it = m_TextComponents.erase(it);
+		}
+		else
+		{
+			it++;
+		}
+
+		if (it == m_TextComponents.end())
+		{
+			atEnd = true;
+		}
+	}
+
+	*/
 }
 
 void Renderer::OnResetScene()
@@ -661,6 +917,7 @@ void Renderer::OnResetScene()
 	m_pScenePrimaryCamera = nullptr;
 	static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
 	m_BoundingBoxesToBePicked.clear();
+	m_QuadComponents.clear();
 	m_TextComponents.clear();
 }
 
@@ -686,10 +943,11 @@ void Renderer::submitModelToCodt(Model* model)
 	for (unsigned int i = 0; i < model->GetSize(); i++)
 	{
 		Mesh* mesh = model->GetMeshAt(i);
+		// Submit Mesh
 		submitMeshToCodt(mesh);
 
 		Texture* texture;
-
+		// Submit Material
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::ALBEDO);
 		submitTextureToCodt(texture);
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::ROUGHNESS);
@@ -699,6 +957,8 @@ void Renderer::submitModelToCodt(Model* model)
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::NORMAL);
 		submitTextureToCodt(texture);
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::EMISSIVE);
+		submitTextureToCodt(texture);
+		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::OPACITY);
 		submitTextureToCodt(texture);
 	}
 }
@@ -719,11 +979,17 @@ Scene* const Renderer::GetActiveScene() const
 	return m_pCurrActiveScene;
 }
 
+const Window* const Renderer::GetWindow() const
+{
+	return m_pWindow;
+}
+
 void Renderer::setRenderTasksPrimaryCamera()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCamera(m_pScenePrimaryCamera);
@@ -910,48 +1176,10 @@ void Renderer::createFullScreenQuad()
 	indexVector.push_back(2);
 	indexVector.push_back(3);
 
-	m_pFullScreenQuad = new Mesh(m_pDevice5, &vertexVector, &indexVector, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	m_pFullScreenQuad = new Mesh(&vertexVector, &indexVector);
 
-	// Load fullscreen mesh
-	// Set vertices resource
-	m_pFullScreenQuad->m_pUploadResourceVertices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
-	m_pFullScreenQuad->m_pDefaultResourceVertices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
-
-	// Vertices
-	const void* data = static_cast<const void*>(m_pFullScreenQuad->m_Vertices.data());
-	Resource* uploadR = m_pFullScreenQuad->m_pUploadResourceVertices;
-	Resource* defaultR = m_pFullScreenQuad->m_pDefaultResourceVertices;
-
-	// Create SRV
-	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
-	dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	dsrv.Buffer.FirstElement = 0;
-	dsrv.Format = DXGI_FORMAT_UNKNOWN;
-	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	dsrv.Buffer.NumElements = m_pFullScreenQuad->GetNumVertices();
-	dsrv.Buffer.StructureByteStride = sizeof(Vertex);
-
-	m_pFullScreenQuad->m_pSRV = new ShaderResourceView(
-		m_pDevice5,
-		m_DescriptorHeaps.at(DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV),
-		&dsrv,
-		m_pFullScreenQuad->m_pDefaultResourceVertices);
-
-	// Set indices resource
-	m_pFullScreenQuad->m_pUploadResourceIndices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
-	m_pFullScreenQuad->m_pDefaultResourceIndices = new Resource(m_pDevice5, m_pFullScreenQuad->GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
-
-	// inidices
-	data = static_cast<const void*>(m_pFullScreenQuad->m_Indices.data());
-	uploadR = m_pFullScreenQuad->m_pUploadResourceIndices;
-	defaultR = m_pFullScreenQuad->m_pDefaultResourceIndices;
-
-	// Set indexBufferView
-	m_pFullScreenQuad->m_pIndexBufferView = new D3D12_INDEX_BUFFER_VIEW();
-	m_pFullScreenQuad->m_pIndexBufferView->BufferLocation = m_pFullScreenQuad->m_pDefaultResourceIndices->GetGPUVirtualAdress();
-	m_pFullScreenQuad->m_pIndexBufferView->Format = DXGI_FORMAT_R32_UINT;
-	m_pFullScreenQuad->m_pIndexBufferView->SizeInBytes = m_pFullScreenQuad->GetSizeOfIndices();
-
+	// init dx12 resources
+	m_pFullScreenQuad->Init(m_pDevice5, m_DescriptorHeaps.at(DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV));
 }
 
 void Renderer::updateMousePicker()
@@ -1312,10 +1540,10 @@ void Renderer::initRenderTasks()
 	blendRTdesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	blendRTdesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
-
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+	{
 		gpsdBlendFrontCull.BlendState.RenderTarget[i] = blendRTdesc;
-
+	}
 
 	// Depth descriptor
 	D3D12_DEPTH_STENCIL_DESC dsdBlend = {};
@@ -1361,20 +1589,34 @@ void Renderer::initRenderTasks()
 	gpsdBlendVector.push_back(&gpsdBlendFrontCull);
 	gpsdBlendVector.push_back(&gpsdBlendBackCull);
 
-	RenderTask* blendRenderTask = new BlendRenderTask(m_pDevice5,
+	RenderTask* transparentConstantRenderTask = new TransparentRenderTask(m_pDevice5,
 		m_pRootSignature,
-		L"BlendVertex.hlsl",
-		L"BlendPixel.hlsl",
+		L"TransparentConstantVertex.hlsl",
+		L"TransparentConstantPixel.hlsl",
 		&gpsdBlendVector,
 		L"BlendPSO",
 		FLAG_THREAD::RENDER);
 
-	blendRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
-	blendRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
-	blendRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
-	blendRenderTask->SetSwapChain(m_pSwapChain);
-	blendRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+	transparentConstantRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
+	transparentConstantRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
+	transparentConstantRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
+	transparentConstantRenderTask->SetSwapChain(m_pSwapChain);
+	transparentConstantRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 	
+	/*---------------------------------- TRANSPARENT_TEXTURE_RENDERTASK -------------------------------------*/
+	RenderTask* transparentTextureRenderTask = new TransparentRenderTask(m_pDevice5,
+		m_pRootSignature,
+		L"TransparentTextureVertex.hlsl",
+		L"TransparentTexturePixel.hlsl",
+		&gpsdBlendVector,
+		L"BlendPSO",
+		FLAG_THREAD::RENDER);
+
+	transparentTextureRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
+	transparentTextureRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
+	transparentTextureRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
+	transparentTextureRenderTask->SetSwapChain(m_pSwapChain);
+	transparentTextureRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion Blend
 
@@ -1479,7 +1721,7 @@ void Renderer::initRenderTasks()
 	gpsdMergePass.RasterizerState.FrontCounterClockwise = false;
 
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
-		gpsdMergePass.BlendState.RenderTarget[i] = defaultRTdesc;
+		gpsdMergePass.BlendState.RenderTarget[i] = blendRTdesc;
 
 	// Depth descriptor
 	D3D12_DEPTH_STENCIL_DESC dsdMergePass = {};
@@ -1522,23 +1764,10 @@ void Renderer::initRenderTasks()
 	gpsdText.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
 	gpsdText.RasterizerState.FrontCounterClockwise = false;
 
-	D3D12_BLEND_DESC textBlendStateDesc = {};
-	textBlendStateDesc.AlphaToCoverageEnable = FALSE;
-	textBlendStateDesc.IndependentBlendEnable = FALSE;
-	textBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
-
-	textBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	textBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
-	textBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-
-	textBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
-	textBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
-	textBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-
-	textBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-	gpsdText.BlendState = textBlendStateDesc;
-	gpsdText.NumRenderTargets = 1;
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+	{
+		gpsdText.BlendState.RenderTarget[i] = blendRTdesc;
+	}
 
 	D3D12_DEPTH_STENCIL_DESC textDepthStencilDesc = {};
 	textDepthStencilDesc.DepthEnable = false;
@@ -1601,6 +1830,61 @@ void Renderer::initRenderTasks()
 
 #pragma endregion ComputeAndCopyTasks
 	
+#pragma region Quad
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdQuad = {};
+
+	gpsdQuad.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdQuad.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	gpsdQuad.NumRenderTargets = 1;
+
+	// Depthstencil usage
+	gpsdQuad.SampleDesc.Count = 1;
+	gpsdQuad.SampleMask = UINT_MAX;
+
+	// Rasterizer behaviour
+	gpsdQuad.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdQuad.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdQuad.RasterizerState.FrontCounterClockwise = false;
+
+	// Specify Blend descriptions
+	D3D12_RENDER_TARGET_BLEND_DESC quadRTdesc{};
+	quadRTdesc.BlendEnable = true;
+	quadRTdesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	quadRTdesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	quadRTdesc.BlendOp = D3D12_BLEND_OP_ADD;
+	quadRTdesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+	quadRTdesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	quadRTdesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	quadRTdesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+	{
+		gpsdQuad.BlendState.RenderTarget[i] = quadRTdesc;
+	}
+
+	D3D12_DEPTH_STENCIL_DESC quadDepthStencilDesc = {};
+	quadDepthStencilDesc.DepthEnable = false;
+	gpsdText.DepthStencilState = quadDepthStencilDesc;
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdQuadVector;
+	gpsdQuadVector.push_back(&gpsdQuad);
+
+	RenderTask* quadTask = new QuadTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"QuadVertex.hlsl", L"QuadPixel.hlsl",
+		&gpsdQuadVector,
+		L"QuadPSO",
+		FLAG_THREAD::RENDER);
+
+	quadTask->SetSwapChain(m_pSwapChain);
+	quadTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion Quad
+
 	// Add the tasks to desired vectors so they can be used in m_pRenderer
 	/* -------------------------------------------------------------- */
 
@@ -1623,7 +1907,8 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS] = DepthPrePassRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND] = blendRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT] = transparentConstantRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE] = transparentTextureRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME] = wireFrameRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE] = outliningRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::MERGE] = mergeTask;
@@ -1631,6 +1916,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::IMGUI] = imGuiRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX] = skyboxRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE] = downSampleTask;
+	m_RenderTasks[RENDER_TASK_TYPE::QUAD] = quadTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1665,12 +1951,12 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(blendRenderTask->GetCommandInterface()->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(transparentConstantRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(textTask->GetCommandInterface()->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(transparentTextureRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1700,6 +1986,16 @@ void Renderer::initRenderTasks()
 	}
 
 	// GUI
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(quadTask->GetCommandInterface()->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(textTask->GetCommandInterface()->GetCommandList(i));
+	}
+
 	if (DEVELOPERMODE_DEVINTERFACE == true)
 	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -1713,9 +2009,9 @@ void Renderer::setRenderTasksRenderComponents()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::NO_DEPTH]);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
-	m_RenderTasks[RENDER_TASK_TYPE::BLEND]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT]);
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT]);
+	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
-	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 
 	static_cast<SkyboxRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX])->SetSkybox(m_pSkyboxComponent);
 }
@@ -1781,7 +2077,7 @@ void Renderer::waitForCopyOnDemand()
 	{
 		m_pFenceFrame->SetEventOnCompletion(oldFenceValue, m_EventHandle);
 		WaitForSingleObject(m_EventHandle, INFINITE);
-	}		
+	}
 }
 
 void Renderer::executeCopyOnDemand()
@@ -1789,122 +2085,8 @@ void Renderer::executeCopyOnDemand()
 	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
 	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &m_CopyOnDemandCmdList[0]);
-	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
 	waitForCopyOnDemand();
-}
-
-void Renderer::removeComponents(Entity* entity)
-{
-	for (auto& renderComponents : m_RenderComponents)
-	{
-		for (int i = 0; i < renderComponents.second.size(); i++)
-		{
-			// Remove from all renderComponent-vectors if they are there
-			Entity* parent = nullptr;
-			parent = renderComponents.second[i].first->GetParent();
-			if (parent == entity)
-			{
-				renderComponents.second.erase(renderComponents.second.begin() + i);
-				setRenderTasksRenderComponents();
-			}
-		}
-	}
-
-	// Check if the entity is a textComponent
-	for (int i = 0; i < m_TextComponents.size(); i++)
-	{
-		Entity* parent = m_TextComponents[i]->GetParent();
-		if (parent == entity)
-		{
-			m_TextComponents.erase(m_TextComponents.begin() + i);
-			setRenderTasksRenderComponents();
-		}
-	}
-	// Check if the entity got any light m_Components.
-	// Remove them and update both cpu/gpu m_Resources
-	component::DirectionalLightComponent* dlc;
-	component::PointLightComponent* plc;
-	component::SpotLightComponent* slc;
-
-	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
-	{
-		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
-		unsigned int j = 0;
-
-		for (auto& tuple : m_Lights[type])
-		{
-			Light* light = std::get<0>(tuple);
-			Entity* parent = nullptr;
-
-			// Find m_pParent
-			switch (type)
-			{
-			case LIGHT_TYPE::DIRECTIONAL_LIGHT:
-				dlc = static_cast<component::DirectionalLightComponent*>(light);
-				parent = dlc->GetParent();
-				break;
-			case LIGHT_TYPE::POINT_LIGHT:
-				plc = static_cast<component::PointLightComponent*>(light);
-				parent = plc->GetParent();
-				break;
-			case LIGHT_TYPE::SPOT_LIGHT:
-				slc = static_cast<component::SpotLightComponent*>(light);
-				parent = slc->GetParent();
-				break;
-			}
-
-			// Remove light if it matches the entity
-			if (parent == entity)
-			{
-				// Free memory so other m_Entities can use it
-				ConstantBuffer* cbv = std::get<1>(tuple);
-				ShadowInfo* si = std::get<2>(tuple);
-				m_pViewPool->ClearSpecificLight(type, cbv, si);
-
-				// Remove from CopyPerFrame
-				CopyPerFrameTask* cpft = nullptr;
-				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-				cpft->ClearSpecific(cbv->GetUploadResource());
-
-				// Finally remove from m_pRenderer
-				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
-				srt->ClearSpecificLight(std::get<0>(tuple));
-				m_Lights[type].erase(m_Lights[type].begin() + j);
-
-				// Update cbPerScene
-				SubmitUploadPerSceneData();
-				break;
-			}
-			j++;
-		}
-	}
-
-	// Check if the entity got a boundingbox component.
-	component::BoundingBoxComponent* bbc = entity->GetComponent<component::BoundingBoxComponent>();
-	if (bbc != NULL)
-	{
-		if (bbc->GetParent() == entity)
-		{
-			// Stop drawing the wireFrame
-			if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
-			{
-				static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->ClearSpecific(bbc);
-			}
-
-			// Stop picking this boundingBox
-			unsigned int i = 0;
-			for (auto& bbcToBePicked : m_BoundingBoxesToBePicked)
-			{
-				if (bbcToBePicked == bbc)
-				{
-					m_BoundingBoxesToBePicked.erase(m_BoundingBoxesToBePicked.begin() + i);
-					break;
-				}
-				i++;
-			}
-		}
-	}
-	return;
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
 }
 
 void Renderer::prepareScenes(std::vector<Scene*>* scenes)
@@ -1914,9 +2096,9 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 
 	// -------------------- DEBUG STUFF --------------------
 	// Test to change m_pCamera to the shadow casting m_lights cameras
-	 /*auto& tuple = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].at(0);
-	 BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
-	 m_pScenePrimaryCamera = tempCam;*/
+	//auto& tuple = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].at(0);
+	//BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
+	//m_pScenePrimaryCamera = tempCam;
 	if (m_pScenePrimaryCamera == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scenes\n");
@@ -1933,6 +2115,8 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 	}
 	m_pMousePicker->SetPrimaryCamera(m_pScenePrimaryCamera);
 
+	static_cast<QuadTask*>(m_RenderTasks[RENDER_TASK_TYPE::QUAD])->SetQuadComponents(&m_QuadComponents);
+	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
 	setRenderTasksRenderComponents();
 	setRenderTasksPrimaryCamera();
 }
@@ -2063,6 +2247,22 @@ void Renderer::toggleFullscreen(WindowChange* evnt)
 		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV],
 		m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+
+	// Change the member variables of the window class to match the swapchain
+	UINT width = 0, height = 0;
+	if (m_pSwapChain->IsFullscreen())
+	{
+		m_pSwapChain->GetDX12SwapChain()->GetSourceSize(&width, &height);
+	}
+	else
+	{
+		width = std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str());
+		height = std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str());
+	}
+
+	Window* window = const_cast<Window*>(m_pWindow);
+	window->SetScreenWidth(width);
+	window->SetScreenHeight(height);
 
 	for (auto task : m_RenderTasks)
 	{

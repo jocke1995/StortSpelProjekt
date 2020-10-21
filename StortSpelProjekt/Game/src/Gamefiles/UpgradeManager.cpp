@@ -16,10 +16,7 @@ UpgradeManager::~UpgradeManager()
 {
 	for (std::pair<std::string, Upgrade*> u : m_AllAvailableUpgrades)
 	{
-		if (std::strcmp(u.second->GetName().c_str(), "") != 0)
-		{
-			delete u.second;
-		}
+		delete u.second;
 	}
 }
 
@@ -38,14 +35,15 @@ void UpgradeManager::ApplyUpgrade(std::string name)
 		// If so also add it to player entitys UpgradeComponent.
 		if (checkIfPlayerEntityUpgrade(name))
 		{
-			m_pParentEntity->GetComponent<component::UpgradeComponent>()->AddUpgrade(m_AllAvailableUpgrades[name]);
+
+			m_pParentEntity->GetComponent<component::UpgradeComponent>()->AddUpgrade(newUpgrade(name, m_pParentEntity));
 		}
 	}
 	else
 	{
 		// If it is not a Range Upgrade then it goes on the player entity.
 		// So add it to player entitys UpgradeComponent.
-		m_pParentEntity->GetComponent<component::UpgradeComponent>()->AddUpgrade(m_AllAvailableUpgrades[name]);
+		m_pParentEntity->GetComponent<component::UpgradeComponent>()->AddUpgrade(newUpgrade(name, m_pParentEntity));
 	}
 }
 
@@ -56,11 +54,12 @@ void UpgradeManager::ApplyRangeUpgrades(Entity* ent)
 	for (auto upgradeName : m_AllAppliedProjectileUpgrades)
 	{
 		// get NEW RangeUpgrade for the projectile entity
-		rangeUpgrade = newRangeUpgrade(upgradeName, ent);
+		rangeUpgrade = newUpgrade(upgradeName, ent);
 		// Check if the upgrade has increased in level. 
 		// If so increase level of the new upgrade so it matches the one in m_AllAvailableUpgrades
 		// i = 1, because upgrades start at level 1.
-		for (int i = 1; i < m_AllAvailableUpgrades[upgradeName]->GetLevel(); i++)
+		int upgradeLevel = m_pParentEntity->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(upgradeName)->GetLevel();
+		for (int i = 1; i < upgradeLevel; i++)
 		{
 			rangeUpgrade->IncreaseLevel();
 		}
@@ -106,8 +105,7 @@ void UpgradeManager::fillUpgradeMap()
 	upgrade = new UpgradeRangeTest(m_pParentEntity);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
-	// Also, since it is of type RANGE, add its' Enum to the enum map.
-	m_RangeUpgradeEnums[upgrade->GetName()] = UPGRADE_RANGE_TEST;
+
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
 	upgrade->SetID(UPGRADE_RANGE_TEST);
 
@@ -145,14 +143,17 @@ bool UpgradeManager::checkIfPlayerEntityUpgrade(std::string name)
 	}
 }
 
-Upgrade* UpgradeManager::newRangeUpgrade(std::string name, Entity* ent)
+Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 {
 	// Using the enum that is mapped to name,
-	// return the correct NEW range upgrade with parentEntity ent
-	switch (m_RangeUpgradeEnums[name])
+	// return the correct NEW upgrade with parentEntity ent
+	switch (m_AppliedUpgradeEnums[name])
 	{
 	case UPGRADE_RANGE_TEST:
 		return new UpgradeRangeTest(ent);
+		break;
+	case UPGRADE_MELEE_TEST:
+		return new UpgradeMeleeTest(ent);
 		break;
 	default:
 		break;

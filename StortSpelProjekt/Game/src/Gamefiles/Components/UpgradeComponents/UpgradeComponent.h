@@ -20,10 +20,7 @@ namespace component
 		// inherited pure virtual functions
 		//SceneInit
 		void OnInitScene();
-		// Called on LoadScene for each component
-		void OnLoadScene();
-		// Called on UnloadScene for each component
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 		// setters and getters for private member variables
 		void AddUpgrade(Upgrade* upgrade);

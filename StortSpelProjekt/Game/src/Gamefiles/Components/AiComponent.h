@@ -51,8 +51,7 @@ namespace component
 		void RenderUpdate(double dt);
 
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 		void AddTarget(Entity* target);
 		void RemoveTarget(std::string name);

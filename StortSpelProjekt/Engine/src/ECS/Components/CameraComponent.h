@@ -20,6 +20,7 @@ namespace component
 
 		void RenderUpdate(double dt);
 		void OnInitScene();
+		void OnUnInitScene();
 
 	private:
 		BaseCamera* m_pCamera = nullptr;
@@ -34,7 +35,7 @@ namespace component
 			double fov = 45.0f,
 			double aspectRatio = 16.0f / 9.0f,
 			double zNear = 0.1f,
-			double zFar = 1000.0f);
+			double zFar = 3000.0f);
 
 		BaseCamera* createOrthographic(
 			DirectX::XMVECTOR position = { 0.0, 4.0, -10.0 },

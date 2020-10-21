@@ -29,10 +29,26 @@ namespace component
 
 	void GUI2DComponent::Update(double dt)
 	{
+		if (m_pQuadMan.IsMarkable())
+		{
+			if (m_pQuadMan.IsMarked())
+			{
+				m_pQuadMan.SetActiveTexture(1);
+			}
+			else
+			{
+				m_pQuadMan.SetActiveTexture(0);
+			}
+		}
 	}
 
 	void GUI2DComponent::OnInitScene()
 	{
-		Renderer::GetInstance().InitGUI2DComponent(GetParent());
+		Renderer::GetInstance().InitGUI2DComponent(this);
+	}
+
+	void GUI2DComponent::OnUnInitScene()
+	{
+		Renderer::GetInstance().UnInitGUI2DComponent(this);
 	}
 }
