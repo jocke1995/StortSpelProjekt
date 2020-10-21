@@ -218,10 +218,10 @@ An example of an upgrade constructor:
 	}
 ```
 
-An uppgrade has many inherited functions such as OnHit(), ApplyStat() or OnDamage().
+An uppgrade has many inherited functions such as **OnHit()**, **ApplyStat()** or **OnDamage()**.
 It is by using these functions that you decide where/what your upgrade will affect. 
-As an Example, take UpgradeRangeTest, which will have an immediate effect on player health in its ApplyBoughtUpgrade() function which calls on the ApplyStat() function,
-as well as making projectiles shoot upwards when hitting something in the function OnRangeHit().
+As an Example, take **UpgradeRangeTest**, which will have an immediate effect on player health in its **ApplyBoughtUpgrade()** function which calls on the **ApplyStat()** function,
+as well as making projectiles shoot upwards when hitting something in the function **OnRangeHit()**.
 
 ```cpp
 	void UpgradeRangeTest::OnRangedHit()
