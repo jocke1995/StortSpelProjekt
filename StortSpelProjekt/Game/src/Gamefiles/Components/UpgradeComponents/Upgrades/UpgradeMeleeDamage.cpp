@@ -42,6 +42,4 @@ void UpgradeMeleeDamage::IncreaseLevel()
 	m_Price = m_StartingPrice * m_Level;
 	// now apply the new stat
 	ApplyStat();
-	std::string print = std::to_string(m_DamageChange).c_str();
-	Log::Print(print);
 }
