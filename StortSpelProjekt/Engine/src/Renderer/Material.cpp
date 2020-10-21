@@ -11,6 +11,7 @@ Material::Material(const std::wstring* name, std::map<TEXTURE2D_TYPE, Texture*>*
 
 Material::~Material()
 {
+
 }
 
 const std::wstring& Material::GetPath() const
