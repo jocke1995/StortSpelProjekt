@@ -2,9 +2,9 @@
 
 Name floor
 ModelPath Textures/Heightmaps/aiRidges.hm
-ModelScaling 1.0, 100.0, 1.0
+ModelScaling 1.0, 10.0, 1.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition -175.0, -50.0, 175.0
+ModelPosition -175.0, -5.0, 175.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
 ModelMass 0.0
@@ -70,7 +70,7 @@ Submit CollisionCube 1.0, 0.0, 1.0
 Name sun
 ModelLightColor 0.5, 0.5, 0.5
 ModelLightFlag 1,1
-ModelLightDirection 0.0, -1.0, 1.0
+ModelLightDirection -1.0, -1.0, 1.0
 ModelLightLeft -355.0
 ModelLightRight 355.0
 ModelLightTop 250.0
