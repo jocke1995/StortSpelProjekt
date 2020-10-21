@@ -8,6 +8,7 @@
 #include "Components/BoundingBoxComponent.h"
 #include "Components/GUI2DComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/SkyboxComponent.h"
 
 // Audio
 #include "Components/Audio2DVoiceComponent.h"
@@ -26,6 +27,7 @@
 #include "Components/Lights/PointLightComponent.h"
 #include "Components/Lights/DirectionalLightComponent.h"
 #include "Components/Lights/SpotLightComponent.h"
+
 
 static unsigned int staticID = 0;
 class Entity
@@ -54,6 +56,7 @@ public:
 	void RenderUpdate(double dt);
 
 	void OnInitScene();
+	void OnUnInitScene();
 
 	std::vector<Component*>* GetAllComponents();
 

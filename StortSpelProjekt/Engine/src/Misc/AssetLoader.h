@@ -69,6 +69,7 @@ private:
     friend class PipelineState;
     // Renderer needs access to m_LoadedModels & m_LoadedTextures so it can check if they are uploaded to GPU.
     friend class Renderer;
+	friend class QuadManager;
 
     // Constructor currently called from m_pRenderer to set dx12 specific objects
     AssetLoader(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr, const Window* window = nullptr);

@@ -344,7 +344,7 @@ Submit DirectionalLight
 Submit CollisionSphere 
 Submit CollisionCapsule
 Submit CollisionCube
-Submit CollisionHeightMap
+Submit CollisionHeightmap
 ```
 ## Model related commands
 The model related commands are used to define a model.
@@ -392,7 +392,44 @@ ModelLightDirection 0.0,-1.0,0.0
 ```
 ModelLightAttenuation 0.0,0.8,0.0
 ```
+**ModelLightAspectRatio** Sets the aspect for shadow camera of the light.
 
+**ModelLightCutOff** Sets the angle where the light starts to fade out (Spotlight).
+```
+ModelLightCutOff 30.0
+```
+**ModelLightOuterCutoff** Sets the angle where the light completely fades out (Spotlight).
+```
+ModelLightOuterCutOff 35.0
+```
+**ModelLightNear** sets the distance to the nearplane of the shadow camera (Directional light).
+```
+ModelLightNear -1000.0
+```
+**ModelLightFar** sets the distance to the farplane of the shadow camera (Directional light).
+```
+ModelLightFar 1000.0
+```
+**ModelLightLeft** sets limit for shadow camera to the Left (Directional light).
+```
+ModelLightLeft -355.0
+```
+**ModelLightRight** sets limit for shadow camera to the Right (Directional light).
+```
+ModelLightLeft 355.0
+```
+**ModelLightTop** sets limit for shadow camera to the Top (Directional light).
+```
+ModelLightTop 250.0
+```
+**ModelLightBottom** sets limit for shadow camera to the Bottom (Directional light).
+```
+ModelLightBottom -250.0
+```
+**ModelMass** Sets the mass of the collision object.
+```
+ModelMass 1.0
+```
 ## Collision related commands
 The collision related commands used to define the collision shape of an entity.
 

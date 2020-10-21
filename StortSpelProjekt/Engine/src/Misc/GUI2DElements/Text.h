@@ -31,6 +31,7 @@ struct TextData
 	float2 scale = { 0.0f, 0.0f };
 	float2 padding = { 0.0f, 0.0f };
 	float4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
+	float4 blendFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
 };
 
 class Text
@@ -43,6 +44,7 @@ public:
 	TextData* const GetTextData(int pos);
 	Font* const GetFont() const;
 	const int GetNrOfCharacters() const;
+	const float4 GetAmountOfBlend() const;
 
 	void SetTextData(TextData* textData, Font* font);
 
