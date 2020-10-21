@@ -476,7 +476,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			{
 				fscanf(file, "%f,%f,%f", &rot.x, &rot.y, &rot.z);
 			}
-			else if (strcmp(lineHeader.c_str(), "ModelPosition") == 0 || strcmp(lineHeader.c_str(), "NavQuadPosition") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelPosition") == 0 || strcmp(lineHeader.c_str(), "NavQuadPosition") == 0 || strcmp(lineHeader.c_str(), "Position") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &pos.x, &pos.y, &pos.z);
 			}
@@ -576,9 +576,9 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					tc = entity->AddComponent<component::TransformComponent>();
 					tc->GetTransform()->SetScale(1.0f);
 					tc->GetTransform()->SetScale(scaling.x,scaling.y,scaling.z);
-					tc->GetTransform()->SetRotationX(rot.x);
-					tc->GetTransform()->SetRotationY(rot.y);
-					tc->GetTransform()->SetRotationZ(rot.z);
+					tc->GetTransform()->SetRotationX(rot.x * (PI / 180));
+					tc->GetTransform()->SetRotationY(rot.y * (PI / 180));
+					tc->GetTransform()->SetRotationZ(rot.z * (PI / 180));
 					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
 
 					mc->SetModel(AssetLoader::LoadModel(to_wstring(fullPath)));

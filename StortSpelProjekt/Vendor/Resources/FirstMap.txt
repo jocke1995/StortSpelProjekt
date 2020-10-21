@@ -1,8 +1,8 @@
 Name NorthEastWall
 ModelPath Models/Cube/crate.obj
-ModelScaling 1.0, 20.0, 95.0
+ModelScaling 1.0, 20.0, 25.0
 ModelRotation 0.0, 0.0, 0.0, 0.0
-ModelPosition -150.0, 20.0, 95.0
+ModelPosition -150.0, 20.0, 165.0
 ModelDrawFlag 1, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
@@ -19,8 +19,8 @@ Submit CollisionCube 1.0, 1.0, 1.0
 Name NorthDiagonalWall
 ModelPath Models/Cube/crate.obj
 ModelScaling 110.0, 20.0, 1.0
-ModelRotation 0.0, 0.85, 0.0, 0.0
-ModelPosition 42.0, 20.0, 108.0
+ModelRotation 0.0, 45.0, 0.0, 0.0
+ModelPosition 48.0, 20.0, 112.0
 ModelDrawFlag 1, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
@@ -29,7 +29,7 @@ Name WestWall
 ModelPath Models/Cube/crate.obj
 ModelScaling 1.0, 20.0, 20.0
 ModelRotation 0.0, 0.0, 0.0, 0.0
-ModelPosition 115.0, 20.0, 5.0
+ModelPosition 125.0, 20.0, 15.0
 ModelDrawFlag 1, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
@@ -38,8 +38,8 @@ Submit CollisionCube 1.0, 1.0, 1.0
 Name SouthWestDiagonalWall
 ModelPath Models/Cube/crate.obj
 ModelScaling 50.0, 20.0, 1.0
-ModelRotation 0.0, 2.3, 0.0, 0.0
-ModelPosition 82.0, 20.0, -52.0
+ModelRotation 0.0, -45.0, 0.0, 0.0
+ModelPosition 90.0, 20.0, -40.0
 ModelDrawFlag 1, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
@@ -48,7 +48,7 @@ Name SouthWestWall
 ModelPath Models/Cube/crate.obj
 ModelScaling 1.0, 20.0, 40.0
 ModelRotation 0.0, 0.0, 0.0, 0.0
-ModelPosition 49.0, 20.0, -129.0
+ModelPosition 55.0, 20.0, -115.0
 ModelDrawFlag 1, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
@@ -56,40 +56,82 @@ Submit CollisionCube 1.0, 1.0, 1.0
 Name SouthDiagonalWall
 ModelPath Models/Cube/crate.obj
 ModelScaling 50.0, 20.0, 1.0
-ModelRotation 0.0, 2.3, 0.0, 0.0
-ModelPosition 16.0, 20.0, -205.0
+ModelRotation 0.0, -45.0, 0.0, 0.0
+ModelPosition 20.0, 20.0, -190.0
 ModelDrawFlag 1, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
-Name Light
+Name SouthWall
 ModelPath Models/Cube/crate.obj
-ModelScaling 1.0, 1.0, 1.0
-ModelRotation 0.0, 0.0, 0.0 ,0.0
-ModelPosition 0.0, 10.0, 0.0
-ModelDrawFlag 1,1
-ModelLightColor 0.2,0.0,0.0
-ModelLightFlag 0,1
-ModelLightFlag 1,1
-ModelLightAttenuation 1.0,0.09f,0.032f
+ModelScaling 30.0, 20.0, 1.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition -40.0, 20.0, -225.0
+ModelDrawFlag 1, 1
 Submit Model
-Submit PointLight
+Submit CollisionCube 1.0, 1.0, 1.0
 
-Name HeightmapGround
-ModelPath Textures/GravelHeightMap/hm.hm
-ModelScaling 1.0, 1.0, 1.0
+Name SouthEastWall
+ModelPath Models/Cube/crate.obj
+ModelScaling 1.0, 20.0, 105.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition -71.0, 20.0, -125.0
+ModelDrawFlag 1, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name NorthBuildingWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 20.0, 30.0, 40.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition -90.0, 30.0, 100.0
+ModelDrawFlag 1, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name SouthBuildingWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 40.0, 30.0, 20.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition -110.0, 30.0, 0.0
+ModelDrawFlag 1, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name EastBuildingWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 1.0, 30.0, 60.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition -150.0, 30.0, 80.0
+ModelDrawFlag 1, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name RuinWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 20.0, 20.0, 2.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition 0.0, 20.0, -100.0
+ModelDrawFlag 1, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name Ground
+ModelPath Models/PebbleGround/pebbles.obj
+ModelScaling 150.0, 0.1, 250.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 0.0, 0.0, -50.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
+ModelMass 0.0
 ModelFriction 1.0
-ModelRestitution 1.0
-Submit Heightmap
-Submit CollisionHeightmap
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
 
 Name Skybox
 ModelPath Textures/CubeMaps/skymap.dds
-Submit SkyBox
+Submit Skybox
 
 NavMesh
 #0
