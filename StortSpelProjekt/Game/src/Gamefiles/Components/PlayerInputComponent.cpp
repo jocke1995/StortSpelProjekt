@@ -6,6 +6,7 @@
 #include "../Renderer/Transform.h"
 #include "../ECS/Components/Collision/CollisionComponent.h"
 #include "Physics/Physics.h"
+#include "../Misc/Option.h"
 
 component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned int camFlags)
 	:InputComponent(parent)
@@ -27,6 +28,8 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 
 	m_Dashing = false;
 	m_DashReady = true;
+
+	m_Elevation = std::stof(Option::GetInstance().GetVariable("f_playerElevation"));
 
 	specificUpdate = &PlayerInputComponent::updateDefault;
 }
@@ -291,12 +294,12 @@ void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 
 void component::PlayerInputComponent::updateDefault(double dt)
 {
-	double distanceToBottom = m_pCC->GetDistanceToBottom() + 1;
+	double distanceToBottom = m_pCC->GetDistanceToBottom() + m_Elevation;
 	double distanceToGround = m_pCC->CastRay({ 0.0, -1.0, 0.0 }, distanceToBottom);
 	if (distanceToGround != -1)
 	{
 		double3 pos = m_pCC->GetPosition();
-		pos.y = pos.y - distanceToGround + distanceToBottom - 0.5;
+		pos.y = pos.y - distanceToGround + distanceToBottom - m_Elevation / 2;
 		m_pCC->SetPosition(pos.x,pos.y,pos.z);
 	}
 }
@@ -332,7 +335,7 @@ void component::PlayerInputComponent::updateDash(double dt)
 
 void component::PlayerInputComponent::updateJump(double dt)
 {
-	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 1) != -1)
+	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation / 2) != -1)
 	{
 		double3 move =
 		{
