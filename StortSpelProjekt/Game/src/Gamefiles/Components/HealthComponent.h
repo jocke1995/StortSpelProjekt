@@ -27,8 +27,13 @@ namespace component
 
 		int GetHealth();
 
+		int GetMaxHealth() const;
+		void SetMaxHealth(int newHealth);
+		void ChangeMaxHealth(int hpChange);
+
 	private:
 		int m_Health;
+		int m_MaxHealth;
 		bool m_Dead = false;
 		// temporary function that decreases health by 1 everytime collision happens
 		// void decreaseHealth(Collision* event);

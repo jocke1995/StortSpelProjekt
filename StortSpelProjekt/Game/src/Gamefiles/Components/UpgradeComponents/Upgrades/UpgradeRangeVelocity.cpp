@@ -12,8 +12,10 @@ UpgradeRangeVelocity::UpgradeRangeVelocity(Entity* parent)
 	SetType(F_UpgradeType::PLAYER);		//The range velocity is set on a rangecomponent which gones on the player, not the projectile entity
 	// set the price of this upgrade 
 	m_Price = 1;
+	m_StartingPrice = m_Price;
 	// set short description 
-	m_Description = "Increases velocity of the range attacks with 10 per level. Max velocity is 100.";
+	m_Description = "Increases velocity of the range attacks with 10 per level. Max velocity is 100, at upgrade level 5";
+	// this upgrade will have a max level
 	m_MaxLevel = 5;
 }
 
@@ -30,17 +32,18 @@ void UpgradeRangeVelocity::IncreaseLevel()
 		// double the velocity of the shots
 		float newVelocity = oldVelocity + 10;
 		m_pParentEntity->GetComponent<component::RangeComponent>()->SetVelocity(newVelocity);
-		Log::Print("Velocity: %f \n", newVelocity);
 		m_Price = m_Price * 2;
 	}
 }
 
 void UpgradeRangeVelocity::ApplyBoughtUpgrade()
 {
-	float oldVelocity = m_pParentEntity->GetComponent<component::RangeComponent>()->GetVelocity();
+	// get current velocity
+	float currentVelocity = m_pParentEntity->GetComponent<component::RangeComponent>()->GetVelocity();
 	// double the velocity of the shots
-	float newVelocity = oldVelocity + 10;
+	float newVelocity = currentVelocity + 10;
 	m_pParentEntity->GetComponent<component::RangeComponent>()->SetVelocity(newVelocity);
-	Log::Print("Velocity: %f \n", newVelocity);
-	m_Price = m_Price * 2;
+
+	// increase price for next level
+	m_Price *= 2;
 }

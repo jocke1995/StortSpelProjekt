@@ -28,7 +28,7 @@ UpgradeHealthBoost::~UpgradeHealthBoost()
 
 void UpgradeHealthBoost::ApplyStat()
 {
-	m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeHealth(m_HealthBoost);
+	m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeMaxHealth(m_HealthBoost);
 }
 
 void UpgradeHealthBoost::IncreaseLevel()
@@ -39,4 +39,10 @@ void UpgradeHealthBoost::IncreaseLevel()
 	// increase the price of the upgrade
 	m_Price = m_StartingPrice * m_Level;
 	ApplyStat();
+}
+
+void UpgradeHealthBoost::ApplyBoughtUpgrade()
+{
+	ApplyStat();
+	m_Price = m_StartingPrice * m_Level;
 }

@@ -30,6 +30,11 @@ void component::ProjectileComponent::OnUnInitScene()
 {
 }
 
+int component::ProjectileComponent::GetDamage() const
+{
+	return m_Damage;
+}
+
 void component::ProjectileComponent::hit(Collision* event)
 {
 	// if we are the one that collided then make 
@@ -46,7 +51,6 @@ void component::ProjectileComponent::hit(Collision* event)
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit();
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit();
 		}
-		Log::Print("Collision!\n");
 		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}
 	else if (event->ent2 == m_pParent)
@@ -61,7 +65,6 @@ void component::ProjectileComponent::hit(Collision* event)
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit();
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit();
 		}
-		Log::Print("Collision!\n");
 		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}
 }

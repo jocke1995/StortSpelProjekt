@@ -4,7 +4,7 @@
 
 class Entity;
 
-// Upgrade description: 
+// Upgrade description: This upgrade gives the player life steal based on ranged attack damage. First level gives 10 percent, next levels increase 5 percent per level.  Price doubles per level.
 class UpgradeRangeLifeSteal : public Upgrade
 {
 public:
@@ -15,12 +15,9 @@ public:
 	void IncreaseLevel();
 	void OnRangedHit();
 
-
 private:
 	float m_PercentageGain;
-
 
 };
 
 #endif
-
