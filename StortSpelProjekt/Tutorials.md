@@ -222,7 +222,7 @@ An uppgrade has many inherited functions such as **OnHit()**, **ApplyStat()** or
 It is by using these functions that you decide where/what your upgrade will affect. 
 As an Example, take **UpgradeRangeTest**, which will have an immediate effect on player health in its **ApplyBoughtUpgrade()** function which calls on the **ApplyStat()** function.
 Here we also increse the price since the upgrade has been bought. 
-**UpgradeRangeTest** as well as making projectiles shoot upwards when hitting something in the function **OnRangeHit()**.
+**UpgradeRangeTest** also makes it so that projectiles shoot upwards when hitting something in the function **OnRangeHit()**.
 
 ```cpp
 	void UpgradeRangeTest::OnRangedHit()
