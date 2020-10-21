@@ -41,7 +41,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Physics* const physics = engine.GetPhysics();
     AudioEngine* const audioEngine = engine.GetAudioEngine();
 
-
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
@@ -49,13 +48,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     /*----- Set the scene -----*/
     Scene* demoScene = GetDemoScene(sceneManager);
+
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &demoScene);
 
     GameNetwork gameNetwork;
 
     /*------ Network Init -----*/
-
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
         gameNetwork.SetScenes(sceneManager->GetActiveScenes());
@@ -66,11 +65,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
-
     while (!window->ExitWindow())
     {
+        // Check if player walks into portal and should be teleported
+        if (sceneManager->GetActiveScenes()->at(0)->GetEntity("teleporter")->GetComponent<component::TeleportComponent>()->ChangeSceneThisFrame())
+        {
+            Scene* shopScene = ShopScene(sceneManager);
+            sceneManager->SetScenes(1, &shopScene);
+        }
         /* ------ Update ------ */
         timer->Update();
+        
 
         UpdateScene(sceneManager, timer->GetDeltaTime());
         logicTimer += timer->GetDeltaTime();
@@ -125,6 +130,7 @@ Scene* GetDemoScene(SceneManager* sm)
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* bcc = nullptr;
     component::RangeComponent* rc = nullptr;
+    component::TeleportComponent* teleC = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -150,7 +156,8 @@ Scene* GetDemoScene(SceneManager* sm)
     attackSound->SetAudioLoop(1);
 
     /* ---------------------- Player ---------------------- */
-    Entity* entity = scene->AddEntity("player");
+    std::string playerName = "player";
+    Entity* entity = scene->AddEntity(playerName);
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
@@ -195,6 +202,8 @@ Scene* GetDemoScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 1.0, 1.0);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName));
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(cubeModel);
@@ -203,6 +212,9 @@ Scene* GetDemoScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(-50.0f, 5.0f, -25.0f);
     tc->GetTransform()->SetScale(5.0f, 5.0f, 1.0f);
     tc->GetTransform()->SetRotationY(PI / 2);
+
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
     /* ---------------------- Teleporter ---------------------- */
 
     /* ---------------------- dirLight ---------------------- */
@@ -210,6 +222,10 @@ Scene* GetDemoScene(SceneManager* sm)
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
     dlc->SetColor({ 1.0f, 1.0f, 1.0f });
     dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
+    dlc->SetCameraTop(50.0f);
+    dlc->SetCameraBot(-50.0f);
+    dlc->SetCameraRight(90.0f);
+    dlc->SetCameraLeft(-90.0f);
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Spotlights ---------------------- */
@@ -290,7 +306,7 @@ Scene* GetDemoScene(SceneManager* sm)
     entity = scene->AddEntity("stefan");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-
+    
     mc->SetModel(posterModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();

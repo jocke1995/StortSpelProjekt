@@ -10,6 +10,8 @@ class Entity;
 class Renderer;
 class AudioEngine;
 
+struct SceneChange;
+
 class SceneManager 
 {
 public:

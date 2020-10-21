@@ -1,6 +1,7 @@
 #pragma once
 #include "../Input/Input.h"
 #include "../ECS/Scene.h"
+#include <string>
 
 class Entity;
 class Event
