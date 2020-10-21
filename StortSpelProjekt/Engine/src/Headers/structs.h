@@ -25,8 +25,9 @@ struct SlotInfo
 	unsigned int textureMetallic;
 	unsigned int textureNormal;
 	unsigned int textureEmissive;
+	unsigned int textureOpacity;
 
-	unsigned int pad[2];
+	unsigned int pad[1];
 };
 
 struct MaterialAttributes
