@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "BlendRenderTask.h"
+#include "TransparentRenderTask.h"
 
 #include "../RenderView.h"
 #include "../RootSignature.h"
@@ -15,7 +15,7 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Camera/BaseCamera.h"
 
-BlendRenderTask::BlendRenderTask(	
+TransparentRenderTask::TransparentRenderTask(	
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
 	const std::wstring& VSName, const std::wstring& PSName,
@@ -27,11 +27,12 @@ BlendRenderTask::BlendRenderTask(
 	
 }
 
-BlendRenderTask::~BlendRenderTask()
+TransparentRenderTask::~TransparentRenderTask()
 {
+
 }
 
-void BlendRenderTask::Execute()
+void TransparentRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
