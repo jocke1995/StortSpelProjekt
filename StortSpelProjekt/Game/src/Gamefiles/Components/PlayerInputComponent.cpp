@@ -291,10 +291,19 @@ void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 
 void component::PlayerInputComponent::updateDefault(double dt)
 {
+	double distanceToBottom = m_pCC->GetDistanceToBottom() + 1;
+	double distanceToGround = m_pCC->CastRay({ 0.0, -1.0, 0.0 }, distanceToBottom);
+	if (distanceToGround != -1)
+	{
+		double3 pos = m_pCC->GetPosition();
+		pos.y = pos.y - distanceToGround + distanceToBottom - 0.5;
+		m_pCC->SetPosition(pos.x,pos.y,pos.z);
+	}
 }
 
 void component::PlayerInputComponent::updateDash(double dt)
 {
+	updateDefault(dt);
 	if (m_DashTimer > 0.3 && m_Dashing)
 	{
 		double3 vel = m_pCC->GetLinearVelocity();
@@ -323,7 +332,7 @@ void component::PlayerInputComponent::updateDash(double dt)
 
 void component::PlayerInputComponent::updateJump(double dt)
 {
-	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.5) != -1)
+	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 1) != -1)
 	{
 		double3 move =
 		{
