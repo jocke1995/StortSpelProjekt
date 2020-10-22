@@ -167,7 +167,7 @@ Scene* GameScene(SceneManager* sm)
 
     ccc = entity->AddComponent<component::CubeCollisionComponent>(1, mc->GetModelDim().x / 2.0f, mc->GetModelDim().y / 2.0f, mc->GetModelDim().z / 2.0f, 0, 0, false);
     pic->Init();
-    pic->SetJumpTime(0.18);
+    pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
 
     avc->AddVoice(L"Bruh");
