@@ -129,7 +129,7 @@ Scene* GetDemoScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
     Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
@@ -155,7 +155,6 @@ Scene* GetDemoScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.01);
     audioListener = entity->AddComponent<component::Audio3DListenerComponent>();
     ic->Init();
     hc = entity->AddComponent<component::HealthComponent>(15);
@@ -165,7 +164,8 @@ Scene* GetDemoScene(SceneManager* sm)
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(1.0f);
+    bcc = entity->AddComponent<component::CapsuleCollisionComponent>(100, mc->GetModelDim().z * 0.5, mc->GetModelDim().y - (mc->GetModelDim().z * 0.5), 0.0, 0.0, false);
+    tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0, 1, -40);
     // initialize OBB after we have the transform info
     bbc->Init();
@@ -289,9 +289,9 @@ Scene* GetDemoScene(SceneManager* sm)
     /* ---------------------- Enemy -------------------------------- */
     enemyFactory.SetScene(scene);
     enemyFactory.AddSpawnPoint({  0, 10, 40 });
-    enemyFactory.AddSpawnPoint({ 10, 10, 40 });
+    enemyFactory.AddSpawnPoint({ 10, 10, 0 });
     enemyFactory.AddSpawnPoint({ 20, 10, 10 });
-    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB, 0, 0.04);
+    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04);
 
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
     for (int i = 0; i < 75; i++)
