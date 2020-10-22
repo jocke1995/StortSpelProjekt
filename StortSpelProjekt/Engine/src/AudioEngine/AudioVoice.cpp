@@ -52,7 +52,7 @@ void AudioVoice::Play()
         // reset the buffer if sound has ended
         XAUDIO2_VOICE_STATE test;
         m_pSourceVoice->GetState(&test);
-        if (test.BuffersQueued == 0)
+        if (test.BuffersQueued >= 0)
         {
             Stop();
         }

@@ -34,7 +34,7 @@ namespace component
 		void OnUnInitScene();
 
 		void Update(double dt);
-		void Attack(bool attack);
+		void Attack();
 		
 		void setAttackInterval(float interval);
 		void SetDamage(int damage);

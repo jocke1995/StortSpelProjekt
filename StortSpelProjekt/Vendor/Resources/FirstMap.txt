@@ -111,9 +111,9 @@ Submit CollisionCube 1.0, 1.0, 1.0
 
 Name NorthBuildingWall
 ModelPath Models/StoneWall/stoneWall.obj
-ModelScaling 20.0, 30.0, 2.0
+ModelScaling 20.0, 25.0, 2.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition -94.0, 30.0, 138.0
+ModelPosition -94.0, 25.0, 138.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 4, 1
 Submit Model
@@ -143,7 +143,7 @@ Name SouthBuildingRamp
 ModelPath Models/StoneWall/stoneWall.obj
 ModelScaling 18.0, 10.0, 5.0
 ModelRotation -70.0, 0.0, 0.0
-ModelPosition -132.0, -3.05, 147.0
+ModelPosition -132.0, -3.05, 147.5
 ModelDrawFlag 1, 1
 ModelDrawFlag 4, 1
 Submit Model
@@ -151,9 +151,9 @@ Submit CollisionCube 1.0, 1.0, 1.0
 
 Name BuildingRoof
 ModelPath Models/StoneWall/stoneWall.obj
-ModelScaling 40.0, 5.0, 60.0
+ModelScaling 40.0, 5.0, 80.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition -110.0, 55, 80.0
+ModelPosition -110.0, 55, 60.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 4, 1
 Submit Model
