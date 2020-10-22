@@ -117,6 +117,97 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             }
         }
 
+		// This is test. To be removed before pull into develop
+		static int nr = 0;
+		static float change = 0;
+		Scene* activeScene = sceneManager->GetActiveScenes()->at(0);
+		if (window->WasSpacePressed())
+		{
+			Texture* headTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png");
+
+			/* ------------------------- text and quad --------------------------- */
+			Entity* entity = activeScene->AddEntity(std::to_string(nr++));
+
+			std::string textToRender = "TEST" + std::to_string(nr);
+			float2 textPos = { 0.0f + change, 0.0f + change };
+			float2 textPadding = { 0.5f, 0.0f };
+			float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			float2 textScale = { 1.0f, 1.0f };
+
+			component::GUI2DComponent* gui = entity->AddComponent<component::GUI2DComponent>();
+
+			std::string textName = "health" + std::to_string(nr);
+			gui->GetTextManager()->AddText(textName);
+			gui->GetTextManager()->SetColor(textColor, textName);
+			gui->GetTextManager()->SetPadding(textPadding, textName);
+			gui->GetTextManager()->SetPos(textPos, textName);
+			gui->GetTextManager()->SetScale(textScale, textName);
+			gui->GetTextManager()->SetText(textToRender, textName);
+
+			std::string name = "head" + std::to_string(nr);
+			float2 quadPos = { 0.4f + change , 0.6f + change };
+			float2 quadScale = { 0.2, 0.2f };
+			gui->GetQuadManager()->CreateQuad(
+				name,
+				quadPos, quadScale,
+				true, true,
+				E_DEPTH_LEVEL::FRONT,
+				float4{ 1.0, 1.0, 1.0, 1.0 },
+				headTexture);
+
+			sceneManager->AddEntity(entity, activeScene);
+
+			change += 0.001;
+			/* ------------------------- text --------------------------- */
+
+			entity = activeScene->AddEntity(std::to_string(nr++));
+
+			textToRender = "TEST" + std::to_string(nr);
+			textPos = { 0.3f + change, 0.3f + change };
+			textPadding = { 0.5f, 0.0f };
+			textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			textScale = { 1.0f, 1.0f };
+
+			gui = entity->AddComponent<component::GUI2DComponent>();
+
+			textName = "health" + std::to_string(nr);
+			gui->GetTextManager()->AddText(textName);
+			gui->GetTextManager()->SetColor(textColor, textName);
+			gui->GetTextManager()->SetPadding(textPadding, textName);
+			gui->GetTextManager()->SetPos(textPos, textName);
+			gui->GetTextManager()->SetScale(textScale, textName);
+			gui->GetTextManager()->SetText(textToRender, textName);
+
+			sceneManager->AddEntity(entity, activeScene);
+
+			change += 0.001;
+			/* ------------------------- quad --------------------------- */
+			entity = activeScene->AddEntity(std::to_string(nr++));
+
+			name = "head" + std::to_string(nr);
+
+			gui = entity->AddComponent<component::GUI2DComponent>();
+
+			quadPos = { 0.09f + change, 0.04f + change };
+			quadScale = { 0.07f, 0.07f };
+			gui->GetQuadManager()->CreateQuad(
+				name,
+				quadPos, quadScale,
+				true, true,
+				E_DEPTH_LEVEL::FRONT,
+				float4{ 1.0, 1.0, 1.0, 1.0 },
+				headTexture);
+
+			sceneManager->AddEntity(entity, activeScene);
+
+			change += 0.001;
+			/* ---------------------------------------------------------- */
+		}
+		else if (window->WasTabPressed())
+		{
+			sceneManager->RemoveEntity(activeScene->GetEntity(std::to_string(--nr)), activeScene);
+		}
+
         /* ------ Sort ------ */
         renderer->SortObjects();
 
