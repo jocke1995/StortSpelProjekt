@@ -53,12 +53,12 @@ void component::HealthComponent::ChangeHealth(int hpChange)
 
 }
 
-int component::HealthComponent::GetHealth()
+const int component::HealthComponent::GetHealth() const
 {
 	return m_Health;
 }
 
-int component::HealthComponent::GetMaxHealth() const
+const int component::HealthComponent::GetMaxHealth() const
 {
 	return m_MaxHealth;
 }
