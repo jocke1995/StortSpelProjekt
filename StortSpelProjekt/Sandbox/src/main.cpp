@@ -361,7 +361,7 @@ Scene* AntonTestScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
@@ -398,22 +398,27 @@ Scene* AntonTestScene(SceneManager* sm)
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
 
-    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
-
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0, 0, false);
-    pic->Init();
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
+
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(1, mc->GetModelDim().x / 2.0f, mc->GetModelDim().y / 2.0f, mc->GetModelDim().z / 2.0f, 0, 0, false);
+    pic->Init();
 
     avc->AddVoice(L"Bruh");
     entity = scene->AddEntity("sun");
 
     // components
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    dlc->SetDirection({ 1.0f, -1.0f, -1.0f });
-    dlc->SetColor({ 0.5f, 0.5f, 0.5f });
+    dlc->SetDirection({ 0.05f, -0.3f, 0.5f });
+    dlc->SetColor({ 252.0f / 256.0f, 156.0f / 256.0f, 84.0f / 256.0f });
+    dlc->SetCameraTop(150.0f);
+    dlc->SetCameraBot(-100.0f);
+    dlc->SetCameraRight(130.0f);
+    dlc->SetCameraLeft(-180.0f);
+    dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
     UpdateScene = &TimUpdateScene;

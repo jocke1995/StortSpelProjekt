@@ -196,7 +196,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		{
 			move.x * m_pTransform->GetVelocity(),
 			//Constant value to compensate for sprint velocity
-			jump * BASE_VEL,
+			jump * BASE_VEL * JUMP_MOD,
 			move.z * m_pTransform->GetVelocity()
 		};
 
