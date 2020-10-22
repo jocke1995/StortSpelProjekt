@@ -110,12 +110,6 @@ void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 
 void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
-	// Use the first active scene if not specified
-	if (scene == nullptr)
-	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "You need to specify the scene!!\n");
-	}
-
 	entity->OnInitScene();
 
 	// Some components need to be sent to the gpu each frame

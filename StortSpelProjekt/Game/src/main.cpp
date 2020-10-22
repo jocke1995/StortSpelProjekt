@@ -97,6 +97,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             }
         }
 
+        static Model* m = AssetLoader::Get()->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+        static int nr = 0;
+        Scene* s = sceneManager->GetActiveScenes()->at(0);
+        
+        if (window->WasSpacePressed())
+        {
+            Entity* ent = s->AddEntity(std::to_string(nr++));
+            component::TransformComponent* tc = ent->AddComponent<component::TransformComponent>();
+            component::ModelComponent* mc = ent->AddComponent<component::ModelComponent>();
+
+            tc->GetTransform()->SetPosition(s->GetEntity("player")->GetComponent<component::CameraComponent>()->GetCamera()->GetPosition());
+            mc->SetModel(m);
+
+            sceneManager->AddEntity(ent, s);
+        }
+        
+        if (window->WasTabPressed())
+        {
+            sceneManager->RemoveEntity(s->GetEntity(std::to_string(--nr)), s);
+        }
+
         /* ------ Sort ------ */
         renderer->SortObjects();
 
