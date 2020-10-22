@@ -39,7 +39,10 @@ void UpgradeRangeLifeSteal::OnRangedHit()
 	int hpChange = static_cast<int>(damage * m_PercentageGain);
 	// add a bit of health
 	Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->ChangeHealth(hpChange);
+}
 
-	// increase price for next level
+void UpgradeRangeLifeSteal::ApplyBoughtUpgrade()
+{
+	// This upgrade only needs to increase price for next level when bought
 	m_Price *= 2;
 }

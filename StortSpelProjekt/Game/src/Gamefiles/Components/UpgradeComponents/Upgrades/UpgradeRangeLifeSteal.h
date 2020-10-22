@@ -14,6 +14,7 @@ public:
 	// Inherited functions that are needed for this upgrade
 	void IncreaseLevel();
 	void OnRangedHit();
+	void ApplyBoughtUpgrade();
 
 private:
 	float m_PercentageGain;
