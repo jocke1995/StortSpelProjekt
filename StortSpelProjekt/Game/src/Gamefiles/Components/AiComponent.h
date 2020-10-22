@@ -33,6 +33,8 @@ namespace component
 		void RemoveTarget(std::string name);
 		Entity* GetTarget();
 
+		void SetAttackInterval(float interval);
+
 	private:
 		Entity* m_pTarget;
 		std::vector<Entity*> m_Targets;
@@ -40,6 +42,8 @@ namespace component
 		float m_AttackingDistance;
 		unsigned int m_Flags;
 		bool m_CanJump;
+		float m_AttackInterval;
+		float m_TimeAccumulator;
 
 		void selectTarget();
 	};

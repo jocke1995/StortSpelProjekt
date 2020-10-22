@@ -30,7 +30,7 @@ void EnemyFactory::SetScene(Scene* scene)
 	m_pScene = scene;
 }
 
-Entity* EnemyFactory::AddEnemy(const std::string& entityName, Model* model, int hp, float3 pos, const std::wstring& sound3D, unsigned int compFlags, unsigned int aiFlags, float scale, float3 rot, const std::string& aiTarget, float aiDetectionRadius, float aiAttackingDistance)
+Entity* EnemyFactory::AddEnemy(const std::string& entityName, Model* model, int hp, float3 pos, const std::wstring& sound3D, unsigned int compFlags, unsigned int aiFlags, float scale, float3 rot, const std::string& aiTarget, float aiDetectionRadius, float aiAttackingDistance, float aiAttackInterval)
 {
 	for (auto pair : m_EnemyComps)
 	{
@@ -56,10 +56,11 @@ Entity* EnemyFactory::AddEnemy(const std::string& entityName, Model* model, int 
 	enemy->sound3D = sound3D;
 	enemy->detectionRad = aiDetectionRadius;
 	enemy->attackingDist = aiAttackingDistance;
+	enemy->attackInterval = aiAttackInterval;
 
 	enemy->dim = model->GetModelDim();
 
-	return Add(entityName, model, hp, pos, sound3D, compFlags, aiFlags, enemy->dim, scale, rot, aiTarget, aiDetectionRadius, aiAttackingDistance);
+	return Add(entityName, model, hp, pos, sound3D, compFlags, aiFlags, enemy->dim, scale, rot, aiTarget, aiDetectionRadius, aiAttackingDistance, aiAttackInterval);
 }
 
 Entity* EnemyFactory::AddExistingEnemy(const std::string& entityName, float3 pos)
@@ -74,7 +75,7 @@ Entity* EnemyFactory::AddExistingEnemy(const std::string& entityName, float3 pos
 			std::string name = entityName + std::to_string(enemy->enemiesOfThisType);
 			enemy->enemiesOfThisType++;
 
-			return Add(name, enemy->model, enemy->hp, pos, enemy->sound3D, enemy->compFlags, enemy->aiFlags, enemy->dim, enemy->scale, enemy->rot, enemy->targetName, enemy->detectionRad, enemy->attackingDist);
+			return Add(name, enemy->model, enemy->hp, pos, enemy->sound3D, enemy->compFlags, enemy->aiFlags, enemy->dim, enemy->scale, enemy->rot, enemy->targetName, enemy->detectionRad, enemy->attackingDist, enemy->attackInterval);
 		}
 		else
 		{
@@ -144,7 +145,7 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(const std::string& entityName,
 				newHP = enemy->hp;
 			}
 
-			return Add(name, enemy->model, newHP, pos, enemy->sound3D, newCompFlags, newAiFlags, enemy->dim, newScale, newRot, enemy->targetName, enemy->detectionRad, enemy->attackingDist);
+			return Add(name, enemy->model, newHP, pos, enemy->sound3D, newCompFlags, newAiFlags, enemy->dim, newScale, newRot, enemy->targetName, enemy->detectionRad, enemy->attackingDist, enemy->attackInterval);
 		}
 		else
 		{
@@ -154,7 +155,7 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(const std::string& entityName,
 	}
 }
 
-Entity* EnemyFactory::Add(const std::string& name, Model* model, int hp, float3 pos, const std::wstring& sound3D, unsigned int compFlags, unsigned int aiFlags, double3 dim, float scale, float3 rot, const std::string& aiTarget, float aiDetectionRadius, float aiAttackingDistance)
+Entity* EnemyFactory::Add(const std::string& name, Model* model, int hp, float3 pos, const std::wstring& sound3D, unsigned int compFlags, unsigned int aiFlags, double3 dim, float scale, float3 rot, const std::string& aiTarget, float aiDetectionRadius, float aiAttackingDistance, float aiAttackInterval)
 {
 	Entity* ent = m_pScene->AddEntity(name);
 
@@ -175,6 +176,7 @@ Entity* EnemyFactory::Add(const std::string& name, Model* model, int hp, float3 
 	if (target != nullptr)
 	{
 		ai = ent->AddComponent<component::AiComponent>(target, aiFlags, aiDetectionRadius, aiAttackingDistance);
+		ai->SetAttackInterval(aiAttackInterval);
 	}
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
 	ae->AddVoice(sound3D);
@@ -235,7 +237,7 @@ Entity* EnemyFactory::SpawnEnemy(std::string entityName)
 	return SpawnEnemy(entityName, m_RandGen.Rand(0,m_SpawnPoints.size()));
 }
 
-EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, Model* model, int hp, const std::wstring& sound3D, unsigned int compFlags, unsigned int aiFlags, float scale, float3 rot, const std::string& aiTarget, float aiDetectionRadius, float aiAttackingDistance)
+EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, Model* model, int hp, const std::wstring& sound3D, unsigned int compFlags, unsigned int aiFlags, float scale, float3 rot, const std::string& aiTarget, float aiDetectionRadius, float aiAttackingDistance, float aiAttackInterval)
 {
 	for (auto pair : m_EnemyComps)
 	{
@@ -261,6 +263,7 @@ EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, Model* mode
 	enemy->sound3D = sound3D;
 	enemy->detectionRad = aiDetectionRadius;
 	enemy->attackingDist = aiAttackingDistance;
+	enemy->attackInterval = aiAttackInterval;
 	enemy->dim = model->GetModelDim();
 	return enemy;
 }
