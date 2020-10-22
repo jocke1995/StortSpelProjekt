@@ -3,6 +3,10 @@
 
 #include "../../Engine/src/ECS/Components/Component.h"
 
+#include <string>
+
+class SceneManager;
+class Scene;
 class Entity;
 struct Collision;
 
@@ -11,7 +15,7 @@ namespace component
 	class TeleportComponent : public Component
 	{
 	public:
-		TeleportComponent(Entity* parent, Entity* player);
+		TeleportComponent(Entity* parent, Entity* player, std::string newSceneName);
 		~TeleportComponent();
 
 		void OnInitScene();
@@ -19,10 +23,10 @@ namespace component
 
 		void OnCollision(Collision* collisionEvent);
 
-		bool ChangeSceneThisFrame();
 	private:
-		bool m_ChangeSceneThisFrame = false;
 		Entity* m_pPlayerInstance = nullptr;
+
+		std::string m_NewSceneName = "";
 	};
 }
 

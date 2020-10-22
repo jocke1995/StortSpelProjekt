@@ -1,10 +1,12 @@
 #include "TeleportComponent.h"
 
 #include "Events/EventBus.h"
+#include "ECS/SceneManager.h"
 
-component::TeleportComponent::TeleportComponent(Entity* parent, Entity* player)
+component::TeleportComponent::TeleportComponent(Entity* parent, Entity* player, std::string newSceneName)
 	:Component(parent)
 {
+	m_NewSceneName = newSceneName;
 	m_pPlayerInstance = player;
 	EventBus::GetInstance().Subscribe(this, &TeleportComponent::OnCollision);
 }
@@ -26,21 +28,10 @@ void component::TeleportComponent::OnCollision(Collision* collisionEvent)
 {
 	if (collisionEvent->ent1 == m_pPlayerInstance && collisionEvent->ent2 == m_pParent)
 	{
-		m_ChangeSceneThisFrame = true;
+		EventBus::GetInstance().Publish(&SceneChange(m_NewSceneName));
 	}
 	else if (collisionEvent->ent2 == m_pPlayerInstance && collisionEvent->ent1 == m_pParent)
 	{
-		m_ChangeSceneThisFrame = true;
+		EventBus::GetInstance().Publish(&SceneChange(m_NewSceneName));
 	}
-}
-
-bool component::TeleportComponent::ChangeSceneThisFrame()
-{
-	bool changeScene = m_ChangeSceneThisFrame;
-	if (changeScene == true)
-	{
-		m_ChangeSceneThisFrame = false;
-	}
-
-	return changeScene;
 }

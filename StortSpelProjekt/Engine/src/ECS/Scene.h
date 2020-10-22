@@ -1,11 +1,15 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include <map>
 #include "Core.h"
+#include "EngineMath.h"
 class Entity;
 class BaseCamera;
 class NavMesh;
+class SceneManager;
+
+#include <map>
+#include <vector>
 
 class Scene
 {
@@ -31,20 +35,33 @@ public:
 
 	NavMesh* GetNavMesh();
 
-	void Update(double dt);
-	void RenderUpdate(double dt);
+	void SetUpdateScene(void(*UpdateScene)(SceneManager*, double dt));
+
+	void Update(SceneManager* sm, double dt);
+	void RenderUpdate(SceneManager* sm, double dt);
 	
+	void SetCollisionEntities(const std::vector<Entity*>* collisionEntities);
+	const std::vector<Entity*>* GetCollisionEntities() const;
+
+	// Scene default values, to for example reset the players position if the same scene is used more then once.
+	void SetOriginalPosition(float x, float y, float z);
+
 private:
 	friend class SceneManager;
 
 	std::string m_SceneName;
 
 	std::map<std::string, Entity*> m_Entities;
+	std::vector<Entity*> m_CollisionEntities;
 	unsigned int m_NrOfEntities = 0;
 
 	BaseCamera* m_pPrimaryCamera = nullptr;
 
 	NavMesh* m_pNavMesh;
+
+	// Every scene has its own functionpointer to a updateSceneFunction in main
+	void(*m_UpdateScene)(SceneManager*, double dt);
+	float3 m_OriginalPosition = {};
 };
 
 #endif

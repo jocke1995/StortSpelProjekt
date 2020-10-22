@@ -27,7 +27,9 @@ public:
 	void SetScenes(unsigned int numScenes, Scene** scene);
 	std::vector<Scene*>* GetActiveScenes();
 	Scene* GetScene(std::string sceneName) const;
+	void ChangeSceneIfTeleported();
 	void ResetScene();
+	
 
 	// Entity
 	void RemoveEntity(Entity* entity, Scene* scene);
@@ -36,9 +38,12 @@ public:
 private:
 	std::map<std::string, Scene*> m_Scenes;
 	std::vector<Scene*> m_ActiveScenes;
-	std::set<Scene*> m_LoadedScenes;
 
 	bool sceneExists(std::string sceneName) const;
+
+	std::string m_SceneToChangeToWhenTeleported = "";
+	bool m_ChangeSceneNextFrame = false;
+	void changeSceneNextFrame(SceneChange* sceneChangeEvent);
 };
 
 #endif

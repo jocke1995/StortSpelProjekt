@@ -90,3 +90,12 @@ struct UForUpgrade : public Event
 {
 	UForUpgrade() {};
 };
+
+struct SceneChange : public Event
+{
+	SceneChange(std::string newSceneName)
+	:m_NewSceneName(newSceneName)
+	{};
+
+	std::string m_NewSceneName = "";
+};

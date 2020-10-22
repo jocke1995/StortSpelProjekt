@@ -63,7 +63,7 @@ void component::RangeComponent::Attack(MouseClick* event)
 		// get the pos of parent object and forward of camera 
 		// so we know where to spawn and in which direction
 		float3 ParentPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
-		float3 forward = m_pScene->GetMainCamera()->GetDirectionFloat3();
+		float3 forward = m_pSceneMan->GetActiveScenes()->at(0)->GetMainCamera()->GetDirectionFloat3();
 		float length = forward.length();
 
 		double3 dim = m_pParent->GetComponent<component::ModelComponent>()->GetModelDim();

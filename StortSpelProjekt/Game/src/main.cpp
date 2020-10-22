@@ -9,8 +9,6 @@
 Scene* GetDemoScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
-void(*UpdateScene)(SceneManager*, double dt);
-
 void DemoUpdateScene(SceneManager* sm, double dt);
 void DefaultUpdateScene(SceneManager* sm, double dt);
 
@@ -44,10 +42,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
-    UpdateScene = &DefaultUpdateScene;
-
     /*----- Set the scene -----*/
     Scene* demoScene = GetDemoScene(sceneManager);
+    Scene* shopScene = ShopScene(sceneManager);
 
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &demoScene);
@@ -68,16 +65,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     while (!window->ExitWindow())
     {
         // Check if player walks into portal and should be teleported
-        if (sceneManager->GetActiveScenes()->at(0)->GetEntity("teleporter")->GetComponent<component::TeleportComponent>()->ChangeSceneThisFrame())
-        {
-            Scene* shopScene = ShopScene(sceneManager);
-            sceneManager->SetScenes(1, &shopScene);
-        }
+        sceneManager->ChangeSceneIfTeleported();
+
         /* ------ Update ------ */
         timer->Update();
         
-
-        UpdateScene(sceneManager, timer->GetDeltaTime());
         logicTimer += timer->GetDeltaTime();
         if (gameNetwork.IsConnected())
         {
@@ -173,11 +165,13 @@ Scene* GetDemoScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
+    
+    // Save startposition in scene, so it can be reused when player is teleported back
+    scene->SetOriginalPosition(0, 1, -40);
     tc->GetTransform()->SetPosition(0, 1, -40);
     // initialize OBB after we have the transform info
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
-
     /* ---------------------- Player ---------------------- */
 
     /* ---------------------- Floor ---------------------- */
@@ -191,7 +185,7 @@ Scene* GetDemoScene(SceneManager* sm)
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(60, 1, 60);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
@@ -203,7 +197,7 @@ Scene* GetDemoScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 1.0, 1.0);
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName));
+    teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "shopScene");
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(cubeModel);
@@ -344,8 +338,10 @@ Scene* GetDemoScene(SceneManager* sm)
     /* ---------------------- Skybox ---------------------- */
 
 
+    scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
+    Physics::GetInstance().OnResetScene();
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &DemoUpdateScene;
+    scene->SetUpdateScene(&DemoUpdateScene);
     srand(time(NULL));
     /* ---------------------- Update Function ---------------------- */
 
@@ -371,6 +367,7 @@ Scene* ShopScene(SceneManager* sm)
     component::UpgradeComponent* uc = nullptr;
     component::CapsuleCollisionComponent* ccc = nullptr;
     component::HealthComponent* hc = nullptr;
+    component::TeleportComponent* teleC = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -380,11 +377,13 @@ Scene* ShopScene(SceneManager* sm)
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
+    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/CubePBR/cube.obj");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
 #pragma region player
-    Entity* entity = (scene->AddEntity("player"));
+    std::string playerName = "player";
+    Entity* entity = scene->AddEntity(playerName);
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
@@ -397,6 +396,7 @@ Scene* ShopScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
+    scene->SetOriginalPosition(0.0, 20.0, 0.0);
     tc->GetTransform()->SetPosition(0.0, 20.0, 0.0);
 
     double3 playerDim = mc->GetModelDim();
@@ -431,6 +431,26 @@ Scene* ShopScene(SceneManager* sm)
     tc->GetTransform()->SetScale(50, 1, 50);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /* ---------------------- Floor ---------------------- */
+
+    /* ---------------------- Teleporter ---------------------- */
+    entity = scene->AddEntity("teleporter");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 1.0, 1.0);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "DemoScene");
+    
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(cubeModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(-10.0f, 5.0f, -25.0f);
+    tc->GetTransform()->SetScale(5.0f, 5.0f, 1.0f);
+    tc->GetTransform()->SetRotationY(PI / 2);
+    
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
+    /* ---------------------- Teleporter ---------------------- */
 
     /* ---------------------- Poster ---------------------- */
     entity = scene->AddEntity("poster");
@@ -547,8 +567,10 @@ Scene* ShopScene(SceneManager* sm)
     dlc->SetCameraRight(70.0f);
     /* ---------------------- dirLight ---------------------- */
 
+    scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
+    Physics::GetInstance().OnResetScene();
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &ShopUpdateScene;
+    scene->SetUpdateScene(&ShopUpdateScene);
     return scene;
 }
 
