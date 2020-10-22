@@ -160,6 +160,11 @@ Scene* JacobsTestScene(SceneManager* sm)
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
 
+    scene->CreateNavMesh();
+    NavMesh* nav = scene->GetNavMesh();
+    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
+    nav->CreateGrid();
+
     /*--------------------- Player ---------------------*/
     // entity
     entity = scene->AddEntity("player");
@@ -300,7 +305,7 @@ Scene* LeosTestScene(SceneManager* sm)
 #pragma region enemies
     enemyFactory.SetScene(scene);
     enemyFactory.AddEnemy("zombie", zombieModel, 20, float3{ -10.0, 10.0, 340.0 }, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
-    //enemyFactory.AddExistingEnemy("zombie", float3{ -340.0, 10.0, 340.0 });
+    enemyFactory.AddExistingEnemy("zombie", float3{ -340.0, 10.0, 340.0 });
 #pragma endregion
 
 #pragma endregion
@@ -341,6 +346,10 @@ Scene* AntonTestScene(SceneManager* sm)
     component::PlayerInputComponent* pic = nullptr;
     component::CollisionComponent* bcc = nullptr;
 
+    scene->CreateNavMesh();
+    NavMesh* nav = scene->GetNavMesh();
+    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
+    nav->CreateGrid();
     /*--------------------- Player ---------------------*/
     // entity
     entity = scene->AddEntity("player");
@@ -457,7 +466,11 @@ Scene* TimScene(SceneManager* sm)
     component::CollisionComponent* ccc = nullptr;
     component::SphereCollisionComponent* scc = nullptr;
     /*--------------------- Component declarations ---------------------*/
-    
+
+    scene->CreateNavMesh();
+    NavMesh* nav = scene->GetNavMesh();
+    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
+    nav->CreateGrid();
     /*--------------------- Player ---------------------*/
     // entity
     entity = scene->AddEntity("player");
@@ -595,6 +608,10 @@ Scene* JockesTestScene(SceneManager* sm)
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
+    scene->CreateNavMesh();
+    NavMesh* nav = scene->GetNavMesh();
+    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
+    nav->CreateGrid();
     /* ---------------------- Player ---------------------- */
     Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
@@ -715,6 +732,10 @@ Scene* FloppipTestScene(SceneManager* sm)
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
+    scene->CreateNavMesh();
+    NavMesh* nav = scene->GetNavMesh();
+    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
+    nav->CreateGrid();
     /* ---------------------- Player ---------------------- */
     entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -837,6 +858,10 @@ Scene* FredriksTestScene(SceneManager* sm)
 	horseSound->SetAudioLoop(0);
 	attackSound->SetAudioLoop(1);
 
+    scene->CreateNavMesh();
+    NavMesh* nav = scene->GetNavMesh();
+    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
+    nav->CreateGrid();
 	/* ---------------------- Player ---------------------- */
 	Entity* entity = scene->AddEntity("player");
 	mc = entity->AddComponent<component::ModelComponent>();
@@ -1097,6 +1122,10 @@ Scene* WilliamsTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
 
+    scene->CreateNavMesh();
+    NavMesh* nav = scene->GetNavMesh();
+    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
+    nav->CreateGrid();
     /* ---------------------- Skybox ---------------------- */
 
     // Skybox
@@ -1258,6 +1287,10 @@ Scene* AndresTestScene(SceneManager* sm)
     horseSound->SetAudioLoop(0);
     attackSound->SetAudioLoop(1);
 
+    scene->CreateNavMesh();
+    NavMesh* nav = scene->GetNavMesh();
+    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
+    nav->CreateGrid();
     /* ---------------------- Player ---------------------- */
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -1460,6 +1493,11 @@ Scene* BjornsTestScene(SceneManager* sm)
     // Audio may loop infinetly (0) once (1) or otherwise specified amount of times!
     bruhSound->SetAudioLoop(1);
 
+    scene->CreateNavMesh();
+    NavMesh* nav = scene->GetNavMesh();
+    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
+    nav->CreateGrid();
+
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -1620,6 +1658,11 @@ Scene* ShopScene(SceneManager* sm)
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+
+    scene->CreateNavMesh();
+    NavMesh* nav = scene->GetNavMesh();
+    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
+    nav->CreateGrid();
 
 #pragma region player
     Entity* entity = (scene->AddEntity("player"));
