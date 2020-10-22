@@ -2,14 +2,22 @@
 #include "EngineMath.h"
 #include "ECS/Entity.h"
 #include "Components/UpgradeComponents/UpgradeComponent.h"
+// Include all uppgrades under here:
+#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeDamage.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
-#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeTest.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeHealthBoost.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
 {
 	m_pParentEntity = parentEntity;
 	// After parent entity is set we fill in our map of upgrades.
 	fillUpgradeMap();
+
+	// Fill in the names of all upgrades in m_AppliedUpgradeLevel and set their level to level 1
+	for (auto u : m_AllAvailableUpgrades)
+	{
+		m_AppliedUpgradeLevel[u.first] = 1;
+	}
 }
 
 UpgradeManager::~UpgradeManager()
@@ -56,9 +64,9 @@ void UpgradeManager::ApplyRangeUpgrades(Entity* ent)
 		// get NEW RangeUpgrade for the projectile entity
 		rangeUpgrade = newUpgrade(upgradeName, ent);
 		// Check if the upgrade has increased in level. 
-		// If so increase level of the new upgrade so it matches the one in m_AllAvailableUpgrades
+		// If so increase level of the new upgrade so it matches the one in m_AppliedUpgradeLevel
 		// i = 1, because upgrades start at level 1.
-		int upgradeLevel = m_pParentEntity->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(upgradeName)->GetLevel();
+		int upgradeLevel = m_AppliedUpgradeLevel[upgradeName];
 		for (int i = 1; i < upgradeLevel; i++)
 		{
 			rangeUpgrade->IncreaseLevel();
@@ -97,24 +105,42 @@ std::map<std::string, Upgrade*> UpgradeManager::GetAllAvailableUpgrades()
 	return m_AllAvailableUpgrades;
 }
 
+void UpgradeManager::IncreaseLevel(std::string name)
+{
+	if (m_AppliedUpgradeLevel[name] >= 1)
+	{
+		m_AppliedUpgradeLevel[name]++;
+	}
+	else
+	{
+		m_AppliedUpgradeLevel[name] = 2;
+	}
+}
+
 void UpgradeManager::fillUpgradeMap()
 {
 	Upgrade* upgrade;
 
 	// Adding RangeTest Upgrade
 	upgrade = new UpgradeRangeTest(m_pParentEntity);
-	// add the upgrade to the list of all upgrades
-	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
-
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
 	upgrade->SetID(UPGRADE_RANGE_TEST);
-
-	// Adding MeleeTest Upgrade
-	upgrade = new UpgradeMeleeTest(m_pParentEntity);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding MeleeDamage Upgrade
+	upgrade = new UpgradeMeleeDamage(m_pParentEntity);
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	upgrade->SetID(UPGRADE_MELEE_TEST);
+	upgrade->SetID(UPGRADE_MELEE_DAMAGE);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding HealthBoost Upgrade
+	upgrade = new UpgradeHealthBoost(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_HEALTH_BOOST);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 }
 
 bool UpgradeManager::checkIfRangeUpgrade(std::string name)
@@ -152,8 +178,11 @@ Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 	case UPGRADE_RANGE_TEST:
 		return new UpgradeRangeTest(ent);
 		break;
-	case UPGRADE_MELEE_TEST:
-		return new UpgradeMeleeTest(ent);
+	case UPGRADE_MELEE_DAMAGE:
+		return new UpgradeMeleeDamage(ent);
+		break;
+	case UPGRADE_HEALTH_BOOST:
+		return new UpgradeHealthBoost(ent);
 		break;
 	default:
 		break;
