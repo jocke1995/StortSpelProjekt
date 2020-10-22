@@ -8,7 +8,7 @@ class Entity;
 // Types of upgrades, for sorting/call purposes
 enum F_UpgradeType
 {
-	RANGE = BIT(1),			// Range weapon/attack upgrades which go on a projectile entity's UpgradeComponent
+	RANGE = BIT(1),			// Range weapon/attack upgrades which go on a PROJECTILE entity's UpgradeComponent
 	PLAYER = BIT(2),		// Upgrades that go on the player entity's UpgradeComponent
 	ENEMYSPECIFIC = BIT(3)	// Upgrades only relevant for enemy entities. example: enemy explode on death
 };
@@ -61,6 +61,8 @@ public:
 	virtual void RangedModifier();
 	// upgrades that applies/adds stats (ex: more hp, more stamina)
 	virtual void ApplyStat();
+	// upgrades that need to be applied once when bought to take effect
+	virtual void ApplyBoughtUpgrade();
 
 protected:
 	Entity* m_pParentEntity;
@@ -77,6 +79,7 @@ protected:
 	int m_ID;
 	// What level the upgrade is, for keeping track of stacking of upgrades and price
 	int m_Level = 1;
+	// Some upgrade might have a maximum upgrade level. Set in upgrade class, else "unlimited" levels.
 	int m_MaxLevel = INT_MAX;
 	// What type of upgrade this is, for ease of sorting or making calls to certain types
 	unsigned int m_Type = 0;
