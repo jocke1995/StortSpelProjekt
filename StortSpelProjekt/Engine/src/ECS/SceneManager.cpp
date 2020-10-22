@@ -106,8 +106,6 @@ void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 
 	// Remove from the scene
 	scene->RemoveEntity(entity->GetName());
-
-	Renderer::GetInstance().executeCopyOnDemand();
 }
 
 void SceneManager::AddEntity(Entity* entity, Scene* scene)
@@ -123,7 +121,6 @@ void SceneManager::AddEntity(Entity* entity, Scene* scene)
 	// Some components need to be sent to the gpu each frame
 	Renderer::GetInstance().SubmitUploadPerFrameData();
 	Renderer::GetInstance().SubmitUploadPerSceneData();
-	Renderer::GetInstance().executeCopyOnDemand();
 }
 
 void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
@@ -156,7 +153,6 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 		}
 	}
 
-	renderer->executeCopyOnDemand();
 	return;
 }
 

@@ -345,6 +345,12 @@ void Renderer::Execute()
 	ComputeTask* computeTask = nullptr;
 	RenderTask* renderTask = nullptr;
 	/* --------------------- Record command lists --------------------- */
+
+	// Copy on demand
+	copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(copyTask);
+
 	// Copy per frame
 	copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
 	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
@@ -450,6 +456,11 @@ void Renderer::Execute()
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
 	waitForFrame();
 
+	/*------------------- Post draw stuff -------------------*/
+	// Clear copy on demand
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
+
+	/*------------------- Present -------------------*/
 	HRESULT hr = dx12SwapChain->Present(0, 0);
 	
 #ifdef _DEBUG
@@ -1826,7 +1837,7 @@ void Renderer::initRenderTasks()
 
 	// CopyTasks
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE, FLAG_THREAD::RENDER);
-	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5, COMMAND_INTERFACE_TYPE::COPY_TYPE, FLAG_THREAD::RENDER);
+	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE, FLAG_THREAD::RENDER);
 
 #pragma endregion ComputeAndCopyTasks
 	
@@ -1894,11 +1905,6 @@ void Renderer::initRenderTasks()
 	m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME] = copyPerFrameTask;
 	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND] = copyOnDemandTask;
 
-	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-	{
-		m_CopyOnDemandCmdList[i] = copyOnDemandTask->GetCommandInterface()->GetCommandList(i);
-	}
-
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
 	
 	m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR] = blurComputeTask;
@@ -1919,6 +1925,11 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::QUAD] = quadTask;
 
 	// Pushback in the order of execution
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(copyOnDemandTask->GetCommandInterface()->GetCommandList(i));
+	}
+
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_DirectCommandLists[i].push_back(copyPerFrameTask->GetCommandInterface()->GetCommandList(i));
@@ -2065,29 +2076,30 @@ void Renderer::waitForFrame(unsigned int framesToBeAhead)
 	}
 }
 
-void Renderer::waitForCopyOnDemand()
-{
-	//Signal and increment the fence value.
-	const UINT64 oldFenceValue = m_FenceFrameValue;
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(m_pFenceFrame, oldFenceValue);
-	m_FenceFrameValue++;
-
-	//Wait until command queue is done.
-	if (m_pFenceFrame->GetCompletedValue() < oldFenceValue)
-	{
-		m_pFenceFrame->SetEventOnCompletion(oldFenceValue, m_EventHandle);
-		WaitForSingleObject(m_EventHandle, INFINITE);
-	}
-}
-
-void Renderer::executeCopyOnDemand()
-{
-	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
-	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &m_CopyOnDemandCmdList[0]);
-	waitForCopyOnDemand();
-	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
-}
+// Saving these incase we for some reason want to go back
+//void Renderer::waitForCopyOnDemand()
+//{
+//	//Signal and increment the fence value.
+//	const UINT64 oldFenceValue = m_FenceFrameValue;
+//	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->Signal(m_pFenceFrame, oldFenceValue);
+//	m_FenceFrameValue++;
+//
+//	//Wait until command queue is done.
+//	if (m_pFenceFrame->GetCompletedValue() < oldFenceValue)
+//	{
+//		m_pFenceFrame->SetEventOnCompletion(oldFenceValue, m_EventHandle);
+//		WaitForSingleObject(m_EventHandle, INFINITE);
+//	}
+//}
+//
+//void Renderer::executeCopyOnDemand()
+//{
+//	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->SetCommandInterfaceIndex(0);
+//	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Execute();
+//	m_CommandQueues[COMMAND_INTERFACE_TYPE::COPY_TYPE]->ExecuteCommandLists(1, &m_CopyOnDemandCmdList[0]);
+//	waitForCopyOnDemand();
+//	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
+//}
 
 void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 {

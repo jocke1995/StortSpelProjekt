@@ -168,8 +168,6 @@ void QuadManager::UploadAndExecuteQuadData()
 	Renderer* renderer = &Renderer::GetInstance();
 
 	uploadQuadData(renderer);
-
-	renderer->executeCopyOnDemand();
 }
 
 const bool QuadManager::HasTexture() const

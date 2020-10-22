@@ -210,8 +210,6 @@ private:
 
 	// Commandlists holders
 	std::vector<ID3D12CommandList*> m_DirectCommandLists[NUM_SWAP_BUFFERS];
-	std::vector<ID3D12CommandList*> m_ComputeCommandLists[NUM_SWAP_BUFFERS];
-	ID3D12CommandList* m_CopyOnDemandCmdList[NUM_SWAP_BUFFERS];
 	
 	// DescriptorHeaps
 	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> m_DescriptorHeaps = {};
@@ -240,8 +238,8 @@ private:
 
 
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene
-	void waitForCopyOnDemand();
-	void executeCopyOnDemand();
+	//void waitForCopyOnDemand();
+	//void executeCopyOnDemand();
 
 	// Setup the whole scene
 	void prepareScenes(std::vector<Scene*>* scenes);
