@@ -6,7 +6,6 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include "../Misc/Multithreading/MultiThreadedTask.h"
 
 class EngineRand;
 class Scene;
@@ -30,7 +29,7 @@ struct PathQuad
 
 namespace component
 {
-	class AiComponent : public Component, public MultiThreadedTask
+	class AiComponent : public Component
 	{
 	public:
 		// Default Settings
@@ -48,8 +47,6 @@ namespace component
 		void AddTarget(Entity* target);
 		void RemoveTarget(std::string name);
 		Entity* GetTarget();
-
-		void Execute();
 
 	private:
 		Entity* m_pTarget;

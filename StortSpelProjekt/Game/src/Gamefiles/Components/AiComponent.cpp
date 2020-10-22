@@ -5,9 +5,8 @@
 #include "../Misc/EngineRand.h"
 #include "Components/HealthComponent.h"
 #include "Misc/NavMesh.h"
-#include "Misc/Multithreading/ThreadPool.h"
 
-component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int flags, float detectionRadius, float attackingDistance) : Component(parent), MultiThreadedTask(FLAG_THREAD::A_STAR)
+component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int flags, float detectionRadius, float attackingDistance) : Component(parent)
 {
 	m_pTarget = target;
 	m_Targets.push_back(target);
@@ -62,8 +61,6 @@ void component::AiComponent::Update(double dt)
 
 		if (targetQuad != m_pGoalQuad)
 		{
-			/*ThreadPool::GetInstance().WaitForThreads(FLAG_THREAD::A_STAR);
-			ThreadPool::GetInstance().AddTask(this);*/
 			findPathToTarget();
 		}
 
@@ -71,18 +68,26 @@ void component::AiComponent::Update(double dt)
 		{
 			m_Path = m_NextPath;
 			m_PathFound = false;
+			if (!m_Path.empty())
+			{
+				m_NextTargetPos = m_Path.back();
+			}
 		}
-
-		if (m_pNavMesh->GetQuad(pos) == m_pNavMesh->GetQuad(m_NextTargetPos) && !m_Path.empty())
-		{
-			m_Path.pop_back();
-		}
-
+		
 		if (!m_Path.empty())
 		{
-			m_NextTargetPos = m_Path.back();
+			if (m_pNavMesh->GetQuad(pos) == m_pNavMesh->GetQuad({ m_Path.back().x, 0.0, m_Path.back().z }) && !m_Path.empty())
+			{
+				m_Path.pop_back();
+
+				if (!m_Path.empty())
+				{
+					m_NextTargetPos = m_Path.back();
+				}
+			}
 		}
-		else
+
+		if (m_Path.empty() || m_NextTargetPos.y == -1.0 || m_NextTargetPos == finalTargetPos)
 		{
 			m_NextTargetPos = finalTargetPos;
 		}
@@ -171,11 +176,6 @@ Entity* component::AiComponent::GetTarget()
 	return m_pTarget;
 }
 
-void component::AiComponent::Execute()
-{
-	findPathToTarget();
-}
-
 void component::AiComponent::selectTarget()
 {
 	float distance = (m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3() - m_Targets.at(0)->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3()).length();
@@ -229,19 +229,25 @@ void component::AiComponent::findPathToTarget()
 		found = moveToNextTile();
 	} while (!m_OpenList.empty() && !found);
 
-	float2 topLeft, topRight, bottomLeft, bottomRight, point1, point2;
+	float2 topLeft, topRight, bottomLeft, bottomRight, pointCurrentQuad, pointGoalQuad, pointCurrentPos, pointGoalPos;
 	do
 	{
 		topLeft = { m_pCurrentQuad->position.x - (m_pCurrentQuad->size.x / 2.0f), m_pCurrentQuad->position.z + (m_pCurrentQuad->size.y / 2.0f) };
 		topRight = { m_pCurrentQuad->position.x + (m_pCurrentQuad->size.x / 2.0f), m_pCurrentQuad->position.z + (m_pCurrentQuad->size.y / 2.0f) };
 		bottomLeft = { m_pCurrentQuad->position.x - (m_pCurrentQuad->size.x / 2.0f), m_pCurrentQuad->position.z - (m_pCurrentQuad->size.y / 2.0f) };
 		bottomRight = { m_pCurrentQuad->position.x + (m_pCurrentQuad->size.x / 2.0f), m_pCurrentQuad->position.z - (m_pCurrentQuad->size.y / 2.0f) };
-		point1 = { m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id]->position.x, m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id]->position.z };
-		point2 = { m_pGoalQuad->position.x, m_pGoalQuad->position.z };
-		if (!checkIntersect(point1, point2, topLeft, topRight, bottomLeft, bottomRight))
+		pointCurrentQuad = { m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id]->position.x, m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id]->position.z };
+		pointGoalQuad = { m_pGoalQuad->position.x, m_pGoalQuad->position.z };
+
+		if (!checkIntersect(pointCurrentQuad, pointGoalQuad, topLeft, topRight, bottomLeft, bottomRight))
 		{
 			m_NextPath.push_back(m_pCurrentQuad->position);
 		}
+		else if (!m_NextPath.empty())
+		{
+			m_NextPath.push_back({ m_pCurrentQuad->position.x, -1.0, m_pCurrentQuad->position.z });
+		}
+
 		m_pCurrentQuad = m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id];
 	} while (m_pCurrentQuad != m_pStartQuad);
 
