@@ -264,7 +264,7 @@ Scene* LeosTestScene(SceneManager* sm)
     // Get the models needed
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
+    Model* zombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
 #pragma endregion
 
 #pragma region entities
@@ -296,8 +296,8 @@ Scene* LeosTestScene(SceneManager* sm)
 
 #pragma region enemies
     enemyFactory.SetScene(scene);
-    enemyFactory.AddEnemy("conanLarge", barbModel, 20, float3{ -340.0, 10.0, 340.0 }, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 1.0, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
-    enemyFactory.AddExistingEnemy("conanLarge", float3{ -10.0, 10.0, 340.0 });
+    enemyFactory.AddEnemy("zombie", zombieModel, 20, float3{ -340.0, 10.0, 340.0 }, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
+    enemyFactory.AddExistingEnemy("zombie", float3{ -10.0, 10.0, 340.0 });
 #pragma endregion
 
 #pragma endregion

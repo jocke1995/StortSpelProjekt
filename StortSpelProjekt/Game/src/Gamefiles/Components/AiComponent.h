@@ -28,14 +28,6 @@ struct PathQuad
 	PathQuad* parent;
 };
 
-struct Tile
-{
-	float g = 0;
-	float f = 0;
-	bool closed = false;
-	float3 parent;
-};
-
 namespace component
 {
 	class AiComponent : public Component, public MultiThreadedTask
@@ -67,14 +59,12 @@ namespace component
 		NavQuad* m_pStartQuad;
 		NavQuad* m_pGoalQuad;
 		PathQuad** m_pQuads;
-		std::unordered_map<std::string, Tile> m_Tiles;
 		std::vector<Entity*> m_Targets;
 		std::vector<float3> m_Path;
 		std::vector<float3> m_NextPath;
 		std::vector<int> m_OpenList;
 		float3 m_StartPos;
 		float3 m_GoalPos;
-		float3 m_CurrentTile;
 		float3 m_NextTargetPos;
 		float m_DetectionRadius;
 		float m_AttackingDistance;
