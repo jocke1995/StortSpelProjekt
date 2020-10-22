@@ -10,6 +10,9 @@ class Entity;
 class Renderer;
 class AudioEngine;
 
+// Event
+struct Death;
+
 class SceneManager 
 {
 public:
@@ -27,6 +30,9 @@ public:
 	Scene* GetScene(std::string sceneName) const;
 	void ResetScene();
 
+	// Special scenes
+	void SetGameOverScene(Scene* scene);
+
 	// Entity
 	void RemoveEntity(Entity* entity, Scene* scene);
 	void AddEntity(Entity* entity, Scene* scene = nullptr);
@@ -36,7 +42,12 @@ private:
 	std::vector<Scene*> m_ActiveScenes;
 	std::set<Scene*> m_LoadedScenes;
 
+	Scene* m_GameOverScene = nullptr;
+
 	bool sceneExists(std::string sceneName) const;
+
+	// Entity events
+	void onEntityDeath(Death* evnt);
 };
 
 #endif
