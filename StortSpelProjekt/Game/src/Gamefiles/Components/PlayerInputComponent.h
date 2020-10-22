@@ -51,6 +51,7 @@ namespace component
 		float m_Pitch;
 		float m_Yaw;
 		float m_CameraDistance;
+		float m_Elevation;
 		PerspectiveCamera* m_pCamera;
 		Transform* m_pTransform;
 
