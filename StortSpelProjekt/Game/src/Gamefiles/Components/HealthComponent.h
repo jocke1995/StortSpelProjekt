@@ -25,9 +25,9 @@ namespace component
 		// will publish a death event if hp reaches 0 or bellow
 		void ChangeHealth(int hpChange);
 
-		const int GetHealth() const;
+		int GetHealth() const;
 
-		const int GetMaxHealth() const;
+		int GetMaxHealth() const;
 		void SetMaxHealth(int newHealth);
 		void ChangeMaxHealth(int hpChange);
 
