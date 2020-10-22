@@ -22,7 +22,6 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_GoalPos = m_pTarget->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 	m_pStartQuad = nullptr;
 	m_pGoalQuad = nullptr;
-	m_CurrentTile = m_StartPos;
 	m_NextTargetPos = m_StartPos;
 	m_PathFound = false;
 }
@@ -230,9 +229,19 @@ void component::AiComponent::findPathToTarget()
 		found = moveToNextTile();
 	} while (!m_OpenList.empty() && !found);
 
+	float2 topLeft, topRight, bottomLeft, bottomRight, point1, point2;
 	do
 	{
-		m_NextPath.push_back(m_pCurrentQuad->position);
+		topLeft = { m_pCurrentQuad->position.x - (m_pCurrentQuad->size.x / 2.0f), m_pCurrentQuad->position.z + (m_pCurrentQuad->size.y / 2.0f) };
+		topRight = { m_pCurrentQuad->position.x + (m_pCurrentQuad->size.x / 2.0f), m_pCurrentQuad->position.z + (m_pCurrentQuad->size.y / 2.0f) };
+		bottomLeft = { m_pCurrentQuad->position.x - (m_pCurrentQuad->size.x / 2.0f), m_pCurrentQuad->position.z - (m_pCurrentQuad->size.y / 2.0f) };
+		bottomRight = { m_pCurrentQuad->position.x + (m_pCurrentQuad->size.x / 2.0f), m_pCurrentQuad->position.z - (m_pCurrentQuad->size.y / 2.0f) };
+		point1 = { m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id]->position.x, m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id]->position.z };
+		point2 = { m_pGoalQuad->position.x, m_pGoalQuad->position.z };
+		if (!checkIntersect(point1, point2, topLeft, topRight, bottomLeft, bottomRight))
+		{
+			m_NextPath.push_back(m_pCurrentQuad->position);
+		}
 		m_pCurrentQuad = m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id];
 	} while (m_pCurrentQuad != m_pStartQuad);
 
@@ -285,4 +294,21 @@ bool component::AiComponent::moveToNextTile()
 	}
 
 	return false;
+}
+
+bool component::AiComponent::checkIntersect(float2 point1, float2 point2, float2 topLeft, float2 topRight, float2 bottomLeft, float2 bottomRight)
+{
+	if ((lineFunction(topLeft, point1, point2) > 0 && lineFunction(topRight, point1, point2) > 0 && lineFunction(bottomLeft, point1, point2) > 0 && lineFunction(bottomRight, point1, point2) > 0) ||
+		(lineFunction(topLeft, point1, point2) < 0 && lineFunction(topRight, point1, point2) < 0 && lineFunction(bottomLeft, point1, point2) < 0 && lineFunction(bottomRight, point1, point2) < 0) ||
+		(point1.x > topRight.x && point2.x > topRight.x) || (point1.x < bottomLeft.x && point2.x < bottomLeft.x) || (point1.y > topRight.y && point2.y > topRight.y) || (point1.y < bottomLeft.y && point2.y < bottomLeft.y))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+float component::AiComponent::lineFunction(float2 point, float2 linePoint1, float2 linePoint2)
+{
+	return (linePoint2.y - linePoint1.y) * point.x + (linePoint1.x - linePoint2.x) * point.y + (linePoint2.x * linePoint1.y - linePoint1.x * linePoint2.y);
 }

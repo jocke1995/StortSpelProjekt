@@ -76,6 +76,9 @@ namespace component
 
 		void checkAdjacent();
 		bool moveToNextTile();
+
+		bool checkIntersect(float2 point1, float2 point2, float2 topLeft, float2 topRight, float2 bottomLeft, float2 bottomRight);
+		float lineFunction(float2 point, float2 linePoint1, float2 linePoint2);
 	};
 }
 
