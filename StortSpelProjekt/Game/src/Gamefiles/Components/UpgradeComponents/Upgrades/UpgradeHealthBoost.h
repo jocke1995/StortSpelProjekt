@@ -11,6 +11,7 @@ public:
 
 	void ApplyStat();
 	void IncreaseLevel();
+	void ApplyBoughtUpgrade();
 
 private:
 	int m_HealthBoost;

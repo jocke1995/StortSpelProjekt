@@ -30,6 +30,11 @@ void component::ProjectileComponent::OnUnInitScene()
 {
 }
 
+int component::ProjectileComponent::GetDamage() const
+{
+	return m_Damage;
+}
+
 void component::ProjectileComponent::hit(Collision* event)
 {
 	// if we are the one that collided then make 
