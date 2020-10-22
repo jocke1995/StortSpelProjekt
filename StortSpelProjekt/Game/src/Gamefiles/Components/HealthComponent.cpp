@@ -6,6 +6,8 @@
 component::HealthComponent::HealthComponent(Entity* parent, int hp) : Component(parent)
 {
 	m_Health = hp;
+	// set max health to same as hp arg when created
+	m_MaxHealth = m_Health;
 
 	// temp so that we can print when health = 0
 	EventBus::GetInstance().Subscribe(this, &HealthComponent::printDeath);
@@ -43,11 +45,32 @@ void component::HealthComponent::ChangeHealth(int hpChange)
 		EventBus::GetInstance().Publish(&Death(m_pParent));
 		m_Dead = true;
 	}
+
+	if (m_Health > m_MaxHealth)
+	{
+		m_Health = m_MaxHealth;
+	}
+
 }
 
-int component::HealthComponent::GetHealth()
+int component::HealthComponent::GetHealth() const
 {
 	return m_Health;
+}
+
+int component::HealthComponent::GetMaxHealth() const
+{
+	return m_MaxHealth;
+}
+
+void component::HealthComponent::SetMaxHealth(int newHealth)
+{
+	m_MaxHealth = newHealth;
+}
+
+void component::HealthComponent::ChangeMaxHealth(int hpChange)
+{
+	m_MaxHealth += hpChange;
 }
 
 

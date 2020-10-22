@@ -16,6 +16,8 @@ namespace component
 		void OnInitScene();
 		void OnUnInitScene();
 
+		int GetDamage() const;
+
 	private:
 		int m_Damage;
 

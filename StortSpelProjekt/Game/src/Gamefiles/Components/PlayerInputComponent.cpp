@@ -6,6 +6,7 @@
 #include "../Renderer/Transform.h"
 #include "../ECS/Components/Collision/CollisionComponent.h"
 #include "Physics/Physics.h"
+#include "../Misc/Option.h"
 
 component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned int camFlags)
 	:InputComponent(parent)
@@ -27,6 +28,8 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 
 	m_Dashing = false;
 	m_DashReady = true;
+
+	m_Elevation = std::stof(Option::GetInstance().GetVariable("f_playerElevation"));
 
 	specificUpdate = &PlayerInputComponent::updateDefault;
 }
@@ -124,7 +127,7 @@ void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 	{
 		m_pTransform->SetVelocity(SPRINT_MOD * BASE_VEL);
 		// Check if the player is in the air. If not, allow sprint
-		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.5) != -1)
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1)
 		{
 			// Get the current linear velocity of the player
 			double3 vel = m_pCC->GetLinearVelocity();
@@ -137,7 +140,7 @@ void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 	{
 		m_pTransform->SetVelocity(BASE_VEL);
 		// Check if the player is in the air. If not, allow sprint
-		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.5) != -1)
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1)
 		{
 			// Get the current linear velocity of the player
 			double3 vel = m_pCC->GetLinearVelocity();
@@ -172,7 +175,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	};
 
 	// Check if the player is in the air. If not, allow movement
-	double dist = m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.5);
+	double dist = m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75);
 	if (dist != -1 && !m_Dashing)
 	{
 		double moveRight = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::D)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::A)));
@@ -217,6 +220,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	else if (evnt->key == SCAN_CODES::SPACE && !evnt->pressed)
 	{
 		specificUpdate = &PlayerInputComponent::updateJump;
+		m_pCC->SetGravity(true);
 	}
 
 	moveCam *= m_pTransform->GetVelocity() / 5.0;
@@ -252,7 +256,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		m_pCC->SetAngularVelocity(0.0, 0.0, 0.0);
 
 		// Check if in air. If not, change movement direction to match up with camera direction
-		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.5) != -1 && !m_Dashing)
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1 && !m_Dashing)
 		{
 			// Get new direction
 			forward = m_pTransform->GetForwardFloat3();
@@ -291,10 +295,24 @@ void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 
 void component::PlayerInputComponent::updateDefault(double dt)
 {
+	double distanceToBottom = m_pCC->GetDistanceToBottom() + m_Elevation;
+	double distanceToGround = m_pCC->CastRay({ 0.0, -1.0, 0.0 }, distanceToBottom);
+	if (distanceToGround != -1)
+	{
+		double3 pos = m_pCC->GetPosition();
+		pos.y = pos.y - distanceToGround + distanceToBottom - m_Elevation * 0.5;
+		m_pCC->SetPosition(pos.x,pos.y,pos.z);
+		m_pCC->SetGravity(false);
+	}
+	else
+	{
+		m_pCC->SetGravity(true);
+	}
 }
 
 void component::PlayerInputComponent::updateDash(double dt)
 {
+	updateDefault(dt);
 	if (m_DashTimer > 0.3 && m_Dashing)
 	{
 		double3 vel = m_pCC->GetLinearVelocity();
@@ -318,12 +336,17 @@ void component::PlayerInputComponent::updateDash(double dt)
 		m_Dashing = false;
 
 		specificUpdate = &PlayerInputComponent::updateDefault;
+		if (!(m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1))
+		{
+			specificUpdate = &PlayerInputComponent::updateJump;
+		}
+
 	}
 }
 
 void component::PlayerInputComponent::updateJump(double dt)
 {
-	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + 0.5) != -1)
+	if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1)
 	{
 		double3 move =
 		{

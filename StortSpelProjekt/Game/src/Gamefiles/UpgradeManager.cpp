@@ -5,6 +5,8 @@
 // Include all uppgrades under here:
 #include "Components/UpgradeComponents/Upgrades/UpgradeMeleeDamage.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeRangeVelocity.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeRangeLifeSteal.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeHealthBoost.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
@@ -121,10 +123,17 @@ void UpgradeManager::fillUpgradeMap()
 {
 	Upgrade* upgrade;
 
-	// Adding RangeTest Upgrade
-	upgrade = new UpgradeRangeTest(m_pParentEntity);
+	// Adding RangeVelocity Upgrade - The range velocity is set on rangecomponent which goes on the player
+	upgrade = new UpgradeRangeVelocity(m_pParentEntity);
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	upgrade->SetID(UPGRADE_RANGE_TEST);
+	upgrade->SetID(UPGRADE_RANGE_VELOCITY);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding Range lifesteal Upgrade
+	upgrade = new UpgradeRangeLifeSteal(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_LIFESTEAL);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
@@ -175,14 +184,17 @@ Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 	// return the correct NEW upgrade with parentEntity ent
 	switch (m_AppliedUpgradeEnums[name])
 	{
-	case UPGRADE_RANGE_TEST:
-		return new UpgradeRangeTest(ent);
-		break;
 	case UPGRADE_MELEE_DAMAGE:
 		return new UpgradeMeleeDamage(ent);
 		break;
 	case UPGRADE_HEALTH_BOOST:
 		return new UpgradeHealthBoost(ent);
+		break;
+	case UPGRADE_RANGE_VELOCITY:
+		return new UpgradeRangeVelocity(ent);
+		break;
+	case UPGRADE_RANGE_LIFESTEAL:
+		return new UpgradeRangeLifeSteal(ent);
 		break;
 	default:
 		break;
