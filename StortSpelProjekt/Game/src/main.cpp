@@ -167,6 +167,8 @@ Scene* GameScene(SceneManager* sm)
 
     ccc = entity->AddComponent<component::CubeCollisionComponent>(1, mc->GetModelDim().x / 2.0f, mc->GetModelDim().y / 2.0f, mc->GetModelDim().z / 2.0f, 0, 0, false);
     pic->Init();
+    pic->SetJumpTime(0.18);
+    pic->SetJumpHeight(6.0);
 
     avc->AddVoice(L"Bruh");
     entity = scene->AddEntity("sun");
@@ -176,7 +178,7 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetDirection({ 0.05f, -0.3f, 0.5f });
     dlc->SetColor({ 252.0f / 256.0f, 156.0f / 256.0f, 84.0f / 256.0f });
     dlc->SetCameraTop(150.0f);
-    dlc->SetCameraBot(-100.0f);
+    dlc->SetCameraBot(-120.0f);
     dlc->SetCameraRight(130.0f);
     dlc->SetCameraLeft(-180.0f);
     dlc->SetCameraNearZ(-1000.0f);
