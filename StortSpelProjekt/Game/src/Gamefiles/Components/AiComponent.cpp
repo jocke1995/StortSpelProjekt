@@ -68,30 +68,23 @@ void component::AiComponent::Update(double dt)
 		{
 			m_Path = m_NextPath;
 			m_PathFound = false;
-			if (!m_Path.empty())
-			{
-				m_NextTargetPos = m_Path.back();
-			}
 		}
-		
+
+		m_pNextQuad = m_pNavMesh->GetQuad(m_NextTargetPos);
+
+		if (m_pNavMesh->GetQuad(pos) == m_pNextQuad && !m_Path.empty())
+		{
+			m_Path.pop_back();
+		}
+
 		if (!m_Path.empty())
 		{
-			if (m_pNavMesh->GetQuad(pos) == m_pNavMesh->GetQuad({ m_Path.back().x, 0.0, m_Path.back().z }) && !m_Path.empty())
-			{
-				m_Path.pop_back();
-
-				if (!m_Path.empty())
-				{
-					m_NextTargetPos = m_Path.back();
-				}
-			}
+			m_NextTargetPos = m_Path.back();
 		}
-
-		if (m_Path.empty() || m_NextTargetPos.y == -1.0 || m_NextTargetPos == finalTargetPos)
+		else
 		{
 			m_NextTargetPos = finalTargetPos;
 		}
-
 
 		float3 direction = { m_NextTargetPos.x - pos.x, (m_NextTargetPos.y - pos.y) * static_cast<float>(m_Flags & F_AI_FLAGS::CAN_JUMP), m_NextTargetPos.z - pos.z };
 		if (!(m_Flags & F_AI_FLAGS::CAN_ROLL))
@@ -229,7 +222,8 @@ void component::AiComponent::findPathToTarget()
 		found = moveToNextTile();
 	} while (!m_OpenList.empty() && !found);
 
-	float2 topLeft, topRight, bottomLeft, bottomRight, pointCurrentQuad, pointGoalQuad, pointCurrentPos, pointGoalPos;
+	float2 topLeft, topRight, bottomLeft, bottomRight, pointCurrentQuad, pointGoalQuad;
+
 	do
 	{
 		topLeft = { m_pCurrentQuad->position.x - (m_pCurrentQuad->size.x / 2.0f), m_pCurrentQuad->position.z + (m_pCurrentQuad->size.y / 2.0f) };
@@ -239,13 +233,9 @@ void component::AiComponent::findPathToTarget()
 		pointCurrentQuad = { m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id]->position.x, m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id]->position.z };
 		pointGoalQuad = { m_pGoalQuad->position.x, m_pGoalQuad->position.z };
 
-		if (!checkIntersect(pointCurrentQuad, pointGoalQuad, topLeft, topRight, bottomLeft, bottomRight))
+		if (!checkIntersect(pointCurrentQuad, pointGoalQuad, topLeft, topRight, bottomLeft, bottomRight) || !m_NextPath.empty())
 		{
 			m_NextPath.push_back(m_pCurrentQuad->position);
-		}
-		else if (!m_NextPath.empty())
-		{
-			m_NextPath.push_back({ m_pCurrentQuad->position.x, -1.0, m_pCurrentQuad->position.z });
 		}
 
 		m_pCurrentQuad = m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id];

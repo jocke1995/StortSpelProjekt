@@ -55,6 +55,7 @@ namespace component
 		NavQuad* m_pCurrentQuad;
 		NavQuad* m_pStartQuad;
 		NavQuad* m_pGoalQuad;
+		NavQuad* m_pNextQuad;
 		PathQuad** m_pQuads;
 		std::vector<Entity*> m_Targets;
 		std::vector<float3> m_Path;
