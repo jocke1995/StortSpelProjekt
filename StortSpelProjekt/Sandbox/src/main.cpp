@@ -59,8 +59,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* leoScene = LeosTestScene(sceneManager);
-    //Scene* leoBounceScene = LeosBounceScene(sceneManager);
+    //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
@@ -68,10 +67,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* antonScene = AntonTestScene(sceneManager);
-    //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* shopScene = ShopScene(sceneManager);
+    Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { leoScene };
+    Scene* activeScenes[] = { andresScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -143,6 +142,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
     /*--------------------- Assets ---------------------*/
 
@@ -158,6 +158,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     component::PlayerInputComponent* pic = nullptr;
     component::CollisionComponent* bcc = nullptr;
     component::MeleeComponent* melc = nullptr;
+    component::RangeComponent* ranc = nullptr;
 
     /*--------------------- Player ---------------------*/
     // entity
@@ -171,6 +172,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
 
     Transform* t = tc->GetTransform();
 
@@ -1023,7 +1025,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	float2 textScale = { 0.5f, 0.5f };
 	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    entity = scene->AddEntity("text");
+    entity = scene->AddEntity("health");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	gui->GetTextManager()->AddText("health");
 	gui->GetTextManager()->SetColor(textColor, "health");
@@ -1038,6 +1040,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	float4 blended = { 1.0, 1.0, 1.0, 0.99 };
 	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
 	gui->GetQuadManager()->CreateQuad(
+		"health",
 		quadPos, quadScale,
 		false, false,
 		E_DEPTH_LEVEL::MID,
@@ -1052,6 +1055,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	quadPos = { 0.009f, 0.014f };
 	quadScale = { 0.07f, 0.07f };
 	gui->GetQuadManager()->CreateQuad(
+		"head",
 		quadPos, quadScale,
 		true, true,
 		E_DEPTH_LEVEL::FRONT,
@@ -1065,6 +1069,7 @@ Scene* FredriksTestScene(SceneManager* sm)
     quadPos = { 0.0f, 0.0f };
     quadScale = { 0.3f, 0.1f };
     gui->GetQuadManager()->CreateQuad(
+		"overlay",
 		quadPos, quadScale,
 		false, false,
 		E_DEPTH_LEVEL::BACK, 
@@ -1078,6 +1083,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 	quadPos = { 0.85f, 0.0f };
 	quadScale = { 0.15f, 0.15f };
 	gui->GetQuadManager()->CreateQuad(
+		"minimap",
 		quadPos, quadScale,
 		false, false,
 		E_DEPTH_LEVEL::FRONT,
@@ -1275,11 +1281,8 @@ Scene* AndresTestScene(SceneManager* sm)
 
     // Get the models needed
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
-    //Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
-    Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
-    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
 
@@ -1304,13 +1307,12 @@ Scene* AndresTestScene(SceneManager* sm)
     bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.01);
     audioListener = entity->AddComponent<component::Audio3DListenerComponent>();
     ic->Init();
-    hc = entity->AddComponent<component::HealthComponent>(15);
-    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    hc = entity->AddComponent<component::HealthComponent>(100);
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 10, 40);
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     melc = entity->AddComponent<component::MeleeComponent>();
     upgradeComp = entity->AddComponent<component::UpgradeComponent>();
-
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -1320,17 +1322,8 @@ Scene* AndresTestScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     
-    // Shop/Upgrade test
     // Set the player entity in Player
     Player::GetInstance().SetPlayer(entity);
-    //// Create the shop
-    //Shop shop;
-    //// Fill the inventory in shop
-    //shop.RandomizeInventory();
-    //// We only have 2 upgrades so add them both.
-    //// If a projectile starts flying up into the sky on collision then it works.
-    //shop.ApplyUppgrade(shop.GetInventoryNames().at(0));
-    //shop.ApplyUppgrade(shop.GetInventoryNames().at(1));
 
     /* ---------------------- Player ---------------------- */
 
@@ -1446,7 +1439,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0, 0, 0 }, "player");
+    entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 2, float3{ 0, 0, 0 }, "player");
     /* ---------------------- Enemy -------------------------------- */
 
 
@@ -1892,11 +1885,6 @@ void FredriksUpdateScene(SceneManager* sm, double dt)
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
 	tx->GetTextManager()->UploadAndExecuteTextData("health");*/
-
-	if (head->GetQuadManager()->HasBeenPressed())
-	{
-		Log::Print("PRESSED!\n");
-	}
 }
 
 void DefaultUpdateScene(SceneManager* sm, double dt)
@@ -1905,8 +1893,8 @@ void DefaultUpdateScene(SceneManager* sm, double dt)
 
 void AndresUpdateScene(SceneManager* sm, double dt)
 {
-    component::Audio3DEmitterComponent* ec = sm->GetScene("AndresTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
-    ec->UpdateEmitter(L"Bruh");
+    //component::Audio3DEmitterComponent* ec = sm->GetScene("AndresTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
+    //ec->UpdateEmitter(L"Bruh");
 }
 
 void ShopUpdateScene(SceneManager* sm, double dt)

@@ -91,6 +91,12 @@ struct UForUpgrade : public Event
 	UForUpgrade() {};
 };
 
+struct ButtonPressed : public Event
+{
+	ButtonPressed(std::string name) : name{ name } {};
+	std::string name;
+};
+
 struct SceneChange : public Event
 {
 	SceneChange(std::string newSceneName)

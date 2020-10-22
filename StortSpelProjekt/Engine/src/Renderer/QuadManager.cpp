@@ -42,6 +42,7 @@ bool QuadManager::operator==(const QuadManager& other) const
 }
 
 void QuadManager::CreateQuad(
+	std::string name,
 	float2 pos, float2 size,
 	bool clickable, bool markable,
 	E_DEPTH_LEVEL depthLevel,
@@ -73,6 +74,7 @@ void QuadManager::CreateQuad(
 		m_pQuadTexture = texture;
 	}
 
+	m_Name = name;
 	m_Clickable = clickable;
 	m_Markable = markable;
 	m_DepthLevel = depthLevel;
@@ -133,6 +135,9 @@ void QuadManager::CreateQuad(
 	if (m_Clickable)
 	{
 		EventBus::GetInstance().Subscribe(this, &QuadManager::pressed);
+
+		// tmp
+		EventBus::GetInstance().Subscribe(this, &QuadManager::test);
 	}
 
 	if (m_Markable)
@@ -167,22 +172,6 @@ void QuadManager::UploadAndExecuteQuadData()
 	renderer->executeCopyOnDemand();
 }
 
-bool QuadManager::HasBeenPressed()
-{
-	if (m_Pressed)
-	{
-		m_Pressed = false;
-		return true;
-	}
-
-	if (!m_Clickable)
-	{
-		Log::PrintSeverity(Log::Severity::WARNING, "This quad is not clickable!\n");
-	}
-
-	return false;
-}
-
 const bool QuadManager::HasTexture() const
 {
 	bool exists = false;
@@ -194,7 +183,7 @@ const bool QuadManager::HasTexture() const
 	return exists;
 }
 
-const bool QuadManager::IsMarked()
+const bool QuadManager::IsMarked() const
 {
 	bool marked = false;
 
@@ -202,10 +191,10 @@ const bool QuadManager::IsMarked()
 	Renderer* renderer = &Renderer::GetInstance();
 	renderer->GetWindow()->MouseInClipspace(&x, &y);
 
-	if ((x >= m_Positions["upper_left"].x && y <= m_Positions["upper_left"].y)
-		&& (x >= m_Positions["lower_left"].x && y >= m_Positions["lower_left"].y)
-		&& (x <= m_Positions["upper_right"].x && y <= m_Positions["upper_right"].y)
-		&& (x <= m_Positions["lower_right"].x && y >= m_Positions["lower_right"].y))
+	if ((x >= m_Positions.at("upper_left").x && y <= m_Positions.at("upper_left").y)
+		&& (x >= m_Positions.at("lower_left").x && y >= m_Positions.at("lower_left").y)
+		&& (x <= m_Positions.at("upper_right").x && y <= m_Positions.at("upper_right").y)
+		&& (x <= m_Positions.at("lower_right").x && y >= m_Positions.at("lower_right").y))
 	{
 		marked = true;
 	}
@@ -255,6 +244,11 @@ const float4 QuadManager::GetAmountOfBlend() const
 	return m_AmountOfBlend;
 }
 
+const int QuadManager::GetId() const
+{
+	return m_Id;
+}
+
 const bool QuadManager::GetActiveTexture() const
 {
 	return m_ActiveTexture;
@@ -267,9 +261,9 @@ void QuadManager::SetActiveTexture(const bool texture)
 
 void QuadManager::pressed(MouseClick* evnt)
 {
-	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN && evnt->pressed == true)
+	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN && evnt->pressed && IsMarked())
 	{
-		m_Pressed = IsMarked();
+		EventBus::GetInstance().Publish(&ButtonPressed(m_Name));
 	}
 }
 
@@ -286,5 +280,13 @@ void QuadManager::uploadQuadData(Renderer* renderer)
 	if (m_pQuadTextureMarked != nullptr)
 	{
 		renderer->submitTextureToCodt(m_pQuadTextureMarked);
+	}
+}
+
+void QuadManager::test(ButtonPressed* evnt)
+{
+	if (evnt->name == "head")
+	{
+		Log::Print("Pressed\n");
 	}
 }

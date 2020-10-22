@@ -127,7 +127,7 @@ Scene* GetDemoScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
     Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* stoneModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
@@ -154,7 +154,6 @@ Scene* GetDemoScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.01);
     audioListener = entity->AddComponent<component::Audio3DListenerComponent>();
     ic->Init();
     hc = entity->AddComponent<component::HealthComponent>(15);
@@ -164,9 +163,8 @@ Scene* GetDemoScene(SceneManager* sm)
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(1.0f);
-    
-    // Save startposition in scene, so it can be reused when player is teleported back
+    bcc = entity->AddComponent<component::CapsuleCollisionComponent>(100, mc->GetModelDim().z * 0.5, mc->GetModelDim().y - (mc->GetModelDim().z * 0.5), 0.0, 0.0, false);
+    tc->GetTransform()->SetScale(0.5f);
     scene->SetOriginalPosition(0, 1, -40);
     tc->GetTransform()->SetPosition(0, 1, -40);
     // initialize OBB after we have the transform info
@@ -313,21 +311,15 @@ Scene* GetDemoScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     enemyFactory.SetScene(scene);
-    entity = enemyFactory.AddEnemy("enemy", enemyModel, 10, float3{ 0, 10, 40 }, L"Bruh", F_COMP_FLAGS::OBB, 0, 0.04, float3{ 0, 0, 0 });
+    enemyFactory.AddSpawnPoint({  0, 10, 40 });
+    enemyFactory.AddSpawnPoint({ 10, 10, 0 });
+    enemyFactory.AddSpawnPoint({ 20, 10, 10 });
+    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04);
 
-    // add bunch of enemies
-    float xVal = 8;
-    float zVal = 20;
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
     for (int i = 0; i < 75; i++)
     {
-        zVal += 8;
-        entity = enemyFactory.AddExistingEnemy("enemy", float3{ xVal - 64, 1, zVal });
-        if ((i + 1) % 5 == 0)
-        {
-            xVal += 8;
-            zVal = 10;
-        }
+        entity = enemyFactory.SpawnEnemy("Enemy");
     }
     /* ---------------------- Enemy -------------------------------- */
 
@@ -580,13 +572,12 @@ void DefaultUpdateScene(SceneManager* sm, double dt)
 
 void DemoUpdateScene(SceneManager* sm, double dt)
 {
-    component::Audio3DEmitterComponent* ec = sm->GetScene("DemoScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
-    ec->UpdateEmitter(L"Bruh");
+    component::Audio3DEmitterComponent* ec;
 
-    std::string name = "enemy";
-    for (int i = 1; i < 76; i++)
+    std::string name = "Enemy";
+    for (int i = 0; i < 75; i++)
     {
-        name = "enemy" + std::to_string(i);
+        name = "Enemy" + std::to_string(i);
         ec = sm->GetScene("DemoScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
         ec->UpdateEmitter(L"Bruh");
     }
