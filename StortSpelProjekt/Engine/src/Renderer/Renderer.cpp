@@ -332,6 +332,7 @@ void Renderer::SortObjects()
 	}
 	
 	// Update the entity-arrays inside the rendertasks
+	setRenderTasksGUI2DComponents();
 	setRenderTasksRenderComponents();
 }
 
@@ -673,6 +674,8 @@ void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 		// Finally store the quad in m_pRenderer so it will be drawn
 		m_QuadComponents.push_back(component);
 	}
+
+	setRenderTasksGUI2DComponents();
 }
 
 void Renderer::UnInitSkyboxComponent(component::SkyboxComponent* component)
@@ -2052,6 +2055,12 @@ void Renderer::waitForGPU()
 	}
 }
 
+void Renderer::setRenderTasksGUI2DComponents()
+{
+	static_cast<QuadTask*>(m_RenderTasks[RENDER_TASK_TYPE::QUAD])->SetQuadComponents(&m_QuadComponents);
+	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
+}
+
 void Renderer::waitForFrame(unsigned int framesToBeAhead)
 {
 	static constexpr unsigned int nrOfFenceChangesPerFrame = 1;
@@ -2115,8 +2124,7 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 	}
 	m_pMousePicker->SetPrimaryCamera(m_pScenePrimaryCamera);
 
-	static_cast<QuadTask*>(m_RenderTasks[RENDER_TASK_TYPE::QUAD])->SetQuadComponents(&m_QuadComponents);
-	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
+	setRenderTasksGUI2DComponents();
 	setRenderTasksRenderComponents();
 	setRenderTasksPrimaryCamera();
 }

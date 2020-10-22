@@ -32,24 +32,31 @@ QuadTask::~QuadTask()
 
 void QuadTask::SetQuadComponents(std::vector<component::GUI2DComponent*>* quadComponents)
 {
-	m_QuadComponents = *quadComponents;
-
-	// Put each quad in one out of three vectors depending on depth level
-	for (component::GUI2DComponent* qui2DComponent : m_QuadComponents)
+	// If m_Quadcomponents has changed, update the map
+	if (m_QuadComponents != *quadComponents)
 	{
-		switch (*qui2DComponent->GetQuadManager()->GetDepthLevel())
+		m_QuadManagers.clear();
+
+		// Put each quad in one out of three vectors depending on depth level
+		int counter = 0;
+		for (component::GUI2DComponent* qui2DComponent : *quadComponents)
 		{
-		case E_DEPTH_LEVEL::BACK:
-			m_QuadManagers[E_DEPTH_LEVEL::BACK].push_back(qui2DComponent->GetQuadManager());
-			break;
-		case E_DEPTH_LEVEL::MID:
-			m_QuadManagers[E_DEPTH_LEVEL::MID].push_back(qui2DComponent->GetQuadManager());
-			break;
-		case E_DEPTH_LEVEL::FRONT:
-			m_QuadManagers[E_DEPTH_LEVEL::FRONT].push_back(qui2DComponent->GetQuadManager());
-			break;
+			switch (*qui2DComponent->GetQuadManager()->GetDepthLevel())
+			{
+			case E_DEPTH_LEVEL::BACK:
+				m_QuadManagers[E_DEPTH_LEVEL::BACK].push_back(qui2DComponent->GetQuadManager());
+				break;
+			case E_DEPTH_LEVEL::MID:
+				m_QuadManagers[E_DEPTH_LEVEL::MID].push_back(qui2DComponent->GetQuadManager());
+				break;
+			case E_DEPTH_LEVEL::FRONT:
+				m_QuadManagers[E_DEPTH_LEVEL::FRONT].push_back(qui2DComponent->GetQuadManager());
+				break;
+			}
 		}
 	}
+
+	m_QuadComponents = *quadComponents;
 }
 
 void QuadTask::Execute()
