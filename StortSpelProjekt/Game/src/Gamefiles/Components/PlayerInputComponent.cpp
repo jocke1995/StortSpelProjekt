@@ -220,6 +220,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	else if (evnt->key == SCAN_CODES::SPACE && !evnt->pressed)
 	{
 		specificUpdate = &PlayerInputComponent::updateJump;
+		m_pCC->SetGravity(true);
 	}
 
 	moveCam *= m_pTransform->GetVelocity() / 5.0;
