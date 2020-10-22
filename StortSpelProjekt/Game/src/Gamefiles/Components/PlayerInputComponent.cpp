@@ -220,6 +220,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	else if (evnt->key == SCAN_CODES::SPACE && !evnt->pressed)
 	{
 		specificUpdate = &PlayerInputComponent::updateJump;
+		m_pCC->SetGravity(true);
 	}
 
 	moveCam *= m_pTransform->GetVelocity() / 5.0;
@@ -284,10 +285,10 @@ void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 {
 	switch (evnt->button) {
 	case MOUSE_BUTTON::LEFT_DOWN:
-		m_pParent->GetComponent<component::MeleeComponent>()->Attack(true);
+		m_pParent->GetComponent<component::MeleeComponent>()->Attack();
 		break;
 	case MOUSE_BUTTON::RIGHT_DOWN:
-		Log::Print("Right Mouse button down \n");
+		m_pParent->GetComponent<component::RangeComponent>()->Attack();
 		break;
 	}
 }
