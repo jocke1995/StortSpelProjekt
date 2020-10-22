@@ -21,6 +21,9 @@ namespace component
 		void OnInitScene();
 		void OnUnInitScene();
 
+		void SetVelocity(float velocity);
+		float GetVelocity();
+
 		void Attack();
 		
 	private:

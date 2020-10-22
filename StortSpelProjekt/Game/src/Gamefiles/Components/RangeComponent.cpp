@@ -56,6 +56,16 @@ void component::RangeComponent::OnUnInitScene()
 {
 }
 
+void component::RangeComponent::SetVelocity(float velocity)
+{
+	m_Velocity = velocity;
+}
+
+float component::RangeComponent::GetVelocity()
+{
+	return m_Velocity;
+}
+
 void component::RangeComponent::Attack()
 {
 	Entity* ent = m_pScene->AddEntity("RangeAttack" + std::to_string(++m_NrOfProjectiles));
@@ -69,7 +79,7 @@ void component::RangeComponent::Attack()
 	mc = ent->AddComponent<component::ModelComponent>();
 	tc = ent->AddComponent<component::TransformComponent>();
 	pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
-	ac = ent->AddComponent<component::AccelerationComponent>(50);
+	ac = ent->AddComponent<component::AccelerationComponent>(98.2);
 	uc = ent->AddComponent<component::UpgradeComponent>();
 
 	// Applying all range uppgrades to the new projectile entity "RangeAttack"
