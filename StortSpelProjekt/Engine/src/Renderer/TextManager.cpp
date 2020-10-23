@@ -67,8 +67,6 @@ void TextManager::UploadAndExecuteTextData(std::string name)
 	Renderer* renderer = &Renderer::GetInstance();
 
 	uploadTextData(name, renderer);
-
-	renderer->executeCopyOnDemand();
 }
 
 void TextManager::SetFont(Font* font)
