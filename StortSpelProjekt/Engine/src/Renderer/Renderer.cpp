@@ -60,6 +60,7 @@
 #include "DX12Tasks/WireframeRenderTask.h"
 #include "DX12Tasks/OutliningRenderTask.h"
 #include "DX12Tasks/ForwardRenderTask.h"
+#include "DX12Tasks/AnimationRenderTask.h"
 #include "DX12Tasks/TransparentRenderTask.h"
 #include "DX12Tasks/ShadowRenderTask.h"
 #include "DX12Tasks/DownSampleRenderTask.h"
@@ -498,6 +499,11 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
 		{
 			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
+		}
+
+		if (FLAG_DRAW::DRAW_ANIMATED & mc->GetDrawFlag())
+		{
+			m_RenderComponents[FLAG_DRAW::DRAW_ANIMATED].push_back(std::make_pair(mc, tc));
 		}
 
 		if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
