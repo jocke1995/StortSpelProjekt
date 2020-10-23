@@ -1,8 +1,8 @@
 Name NorthEastWall
 ModelPath Models/StoneWall/stoneWall.obj
-ModelScaling 1.0, 20.0, 25.0
+ModelScaling 20.0, 20.0, 25.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition -150.0, 20.0, 165.0
+ModelPosition -170.0, 20.0, 165.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 4, 1
 Submit Model
@@ -10,9 +10,9 @@ Submit CollisionCube 1.0, 1.0, 1.0
 
 Name NorthWall
 ModelPath Models/StoneWall/stoneWall.obj
-ModelScaling 60.0, 20.0, 1.0
+ModelScaling 60.0, 20.0, 20.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition -90.0, 20.0, 190.0
+ModelPosition -90.0, 20.0, 210.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 4, 1
 Submit Model
@@ -20,9 +20,9 @@ Submit CollisionCube 1.0, 1.0, 1.0
 
 Name NorthDiagonalWall
 ModelPath Models/StoneWall/stoneWall.obj
-ModelScaling 110.0, 20.0, 1.0
+ModelScaling 110.0, 20.0, 20.0
 ModelRotation 0.0, 45.0, 0.0
-ModelPosition 48.0, 20.0, 112.0
+ModelPosition 56.5, 20.0, 126.5
 ModelDrawFlag 1, 1
 ModelDrawFlag 4, 1
 Submit Model
@@ -30,9 +30,9 @@ Submit CollisionCube 1.0, 1.0, 1.0
 
 Name WestWall
 ModelPath Models/WoodDoor/woodDoor.obj
-ModelScaling 1.0, 20.0, 20.0
+ModelScaling 20.0, 20.0, 20.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition 125.0, 20.0, 15.0
+ModelPosition 140.0, 20.0, 15.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 4, 1
 Submit Model
@@ -41,9 +41,9 @@ Submit CollisionCube 1.0, 1.0, 1.0
 
 Name SouthWestDiagonalWall
 ModelPath Models/StoneWall/stoneWall.obj
-ModelScaling 50.0, 20.0, 1.0
+ModelScaling 50.0, 20.0, 20.0
 ModelRotation 0.0, -45.0, 0.0
-ModelPosition 90.0, 20.0, -40.0
+ModelPosition 104.0, 20.0, -52.5
 ModelDrawFlag 1, 1
 ModelDrawFlag 4, 1
 Submit Model
@@ -51,9 +51,9 @@ Submit CollisionCube 1.0, 1.0, 1.0
 
 Name SouthWestWall
 ModelPath Models/StoneWall/stoneWall.obj
-ModelScaling 1.0, 20.0, 40.0
+ModelScaling 20.0, 20.0, 40.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition 55.0, 20.0, -115.0
+ModelPosition 75.0, 20.0, -115.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 4, 1
 Submit Model
@@ -61,9 +61,9 @@ Submit CollisionCube 1.0, 1.0, 1.0
 
 Name SouthDiagonalWall
 ModelPath Models/StoneWall/stoneWall.obj
-ModelScaling 50.0, 20.0, 1.0
-ModelRotation 0.0, -45.0, 0.0
-ModelPosition 20.0, 20.0, -190.0
+ModelScaling 55.0, 20.0, 20.0
+ModelRotation 0.0, -46.0, 0.0
+ModelPosition 40.0, 20.0, -200.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 4, 1
 Submit Model
@@ -71,9 +71,9 @@ Submit CollisionCube 1.0, 1.0, 1.0
 
 Name SouthWall
 ModelPath Models/StoneWall/stoneWall.obj
-ModelScaling 30.0, 20.0, 1.0
+ModelScaling 30.0, 20.0, 20.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition -40.0, 20.0, -225.0
+ModelPosition -40.0, 20.0, -245.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 4, 1
 Submit Model
@@ -81,9 +81,9 @@ Submit CollisionCube 1.0, 1.0, 1.0
 
 Name SouthEastWall
 ModelPath Models/StoneWall/stoneWall.obj
-ModelScaling 1.0, 20.0, 105.0
+ModelScaling 20.0, 20.0, 105.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition -71.0, 20.0, -125.0
+ModelPosition -90.0, 20.0, -125.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 4, 1
 Submit Model
@@ -121,9 +121,9 @@ Submit CollisionCube 1.0, 1.0, 1.0
 
 Name EastBuildingWall
 ModelPath Models/StoneWall/stoneWall.obj
-ModelScaling 1.0, 30.0, 60.0
+ModelScaling 20.0, 30.0, 60.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition -150.0, 30.0, 80.0
+ModelPosition -170.0, 30.0, 80.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 4, 1
 Submit Model

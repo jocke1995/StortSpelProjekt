@@ -48,6 +48,8 @@ namespace component
 		void RemoveTarget(std::string name);
 		Entity* GetTarget();
 
+		void SetAttackInterval(float interval);
+
 	private:
 		Entity* m_pTarget;
 		Scene* m_pScene;
@@ -67,6 +69,9 @@ namespace component
 		float m_DetectionRadius;
 		float m_AttackingDistance;
 		unsigned int m_Flags;
+		bool m_CanJump;
+		float m_AttackInterval;
+		float m_TimeAccumulator;
 		bool m_PathFound;
 
 		void selectTarget();
