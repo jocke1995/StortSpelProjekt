@@ -195,9 +195,9 @@ Scene* GameScene(SceneManager* sm)
 
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);
-    enemyFactory.AddSpawnPoint({ 0, 10, 40 });
-    enemyFactory.AddSpawnPoint({ 10, 10, 0 });
-    enemyFactory.AddSpawnPoint({ 20, 10, 10 });
+    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
+    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
+    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
     enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04);
 #pragma endregion
     UpdateScene = &GameUpdateScene;
