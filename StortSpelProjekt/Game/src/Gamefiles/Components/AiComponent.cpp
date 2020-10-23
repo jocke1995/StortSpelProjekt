@@ -226,19 +226,21 @@ void component::AiComponent::findPathToTarget()
 
 	do
 	{
+		NavQuad* parentQuad = m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id];
+
 		topLeft = { m_pCurrentQuad->position.x - (m_pCurrentQuad->size.x / 2.0f), m_pCurrentQuad->position.z + (m_pCurrentQuad->size.y / 2.0f) };
 		topRight = { m_pCurrentQuad->position.x + (m_pCurrentQuad->size.x / 2.0f), m_pCurrentQuad->position.z + (m_pCurrentQuad->size.y / 2.0f) };
 		bottomLeft = { m_pCurrentQuad->position.x - (m_pCurrentQuad->size.x / 2.0f), m_pCurrentQuad->position.z - (m_pCurrentQuad->size.y / 2.0f) };
 		bottomRight = { m_pCurrentQuad->position.x + (m_pCurrentQuad->size.x / 2.0f), m_pCurrentQuad->position.z - (m_pCurrentQuad->size.y / 2.0f) };
-		pointCurrentQuad = { m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id]->position.x, m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id]->position.z };
+		pointCurrentQuad = { parentQuad->position.x, parentQuad->position.z };
 		pointGoalQuad = { m_pGoalQuad->position.x, m_pGoalQuad->position.z };
 
-		if (!checkIntersect(pointCurrentQuad, pointGoalQuad, topLeft, topRight, bottomLeft, bottomRight) || !m_NextPath.empty())
+		if (!checkIntersect(pointCurrentQuad, pointGoalQuad, topLeft, topRight, bottomLeft, bottomRight) || !m_NextPath.empty() || (parentQuad->position.x != m_pGoalQuad->position.x && parentQuad->position.z != m_pGoalQuad->position.z))
 		{
 			m_NextPath.push_back(m_pCurrentQuad->position);
 		}
 
-		m_pCurrentQuad = m_pNavMesh->GetAllQuads()[m_pQuads[m_pCurrentQuad->id]->parent->id];
+		m_pCurrentQuad = parentQuad;
 	} while (m_pCurrentQuad != m_pStartQuad);
 
 	m_PathFound = true;
