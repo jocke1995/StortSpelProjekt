@@ -14,6 +14,7 @@ struct NavQuad
 {
 	float3 position;
 	float2 size;
+	int id;
 
 	std::vector<Connection*> connections;
 };
@@ -50,6 +51,8 @@ public:
 
 	//Returns a quad for the given position
 	NavQuad* GetQuad(float3 position);
+	std::vector<NavQuad*> GetAllQuads();
+	int GetNumQuads();
 
 	void CreateGrid();
 

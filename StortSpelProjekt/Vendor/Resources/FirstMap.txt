@@ -1,0 +1,234 @@
+Name NorthEastWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 20.0, 20.0, 25.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -170.0, 20.0, 165.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name NorthWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 60.0, 20.0, 20.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -90.0, 20.0, 210.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name NorthDiagonalWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 110.0, 20.0, 20.0
+ModelRotation 0.0, 45.0, 0.0
+ModelPosition 56.5, 20.0, 126.5
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name WestWall
+ModelPath Models/WoodDoor/woodDoor.obj
+ModelScaling 20.0, 20.0, 20.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 140.0, 20.0, 15.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+
+Name SouthWestDiagonalWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 50.0, 20.0, 20.0
+ModelRotation 0.0, -45.0, 0.0
+ModelPosition 104.0, 20.0, -52.5
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name SouthWestWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 20.0, 20.0, 40.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 75.0, 20.0, -115.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name SouthDiagonalWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 55.0, 20.0, 20.0
+ModelRotation 0.0, -46.0, 0.0
+ModelPosition 40.0, 20.0, -200.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name SouthWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 30.0, 20.0, 20.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -40.0, 20.0, -245.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name SouthEastWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 20.0, 20.0, 105.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -90.0, 20.0, -125.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name SouthBuildingWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 40.0, 25.0, 20.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -110.0, 25.0, 0.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name WestBuildingWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 2.0, 25.0, 40.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -72.0, 25.0, 100.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name NorthBuildingWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 20.0, 25.0, 2.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -94.0, 25.0, 138.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name EastBuildingWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 20.0, 30.0, 60.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -170.0, 30.0, 80.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name WestBuildingRamp
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 5.0, 10.0, 20.0
+ModelRotation 0.0, 0.0, 70.0
+ModelPosition -62.5, -3.0, 40.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name SouthBuildingRamp
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 18.0, 10.0, 5.0
+ModelRotation -70.0, 0.0, 0.0
+ModelPosition -132.0, -3.05, 147.5
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name BuildingRoof
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 40.0, 5.0, 80.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -110.0, 55, 60.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+
+Name RuinWall
+ModelPath Models/StoneWall/stoneWall.obj
+ModelScaling 30.0, 20.0, 2.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition 0.0, 20.0, -100.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name BuildingFloor
+ModelPath Models/Floor/floor.obj
+ModelScaling 40.0, 0.1, 60.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -110.0, 5.0, 80.0
+ModelDrawFlag 1,1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name BuildingLight
+ModelPosition -110.0, 30.0, 70.0
+ModelLightColor 10.0, 9.0, 5.0
+ModelLightFlag 0,0
+ModelLightAttenuation 0.01, 0.4, 0.01
+Submit PointLight
+
+Name Ground
+ModelPath Models/PebbleGround/pebbles.obj
+ModelScaling 150.0, 0.1, 250.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 0.0, 0.01, -50.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 2, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+
+Name Skybox
+ModelPath Textures/CubeMaps/skymap.dds
+Submit Skybox
+
+NavMesh
+#0
+NavQuadPosition 0.0, 0.0, 0.0
+NavQuadSize 5.0, 5.0
+Submit NavQuad
+
+#1
+NavQuadPosition 5.0, 0.0, 2.0
+NavQuadSize 5.0, 5.0
+Submit NavQuad
+
+#2
+NavQuadPosition 4.0, 0.0, -2.0
+NavQuadSize 3.0, 3.0
+Submit NavQuad
+
+NavConnectionQuads 0, 1
+Submit NavConnection
+
+NavConnectionQuads 2, 0
+Submit NavConnection
+
+NavConnectionQuads 2, 1
+Submit NavConnection
+
+Submit NavMesh
