@@ -330,8 +330,15 @@ void Renderer::SortObjects()
 		// Free memory
 		delete distFromCamArr;
 	}
+
+	// Sort the quads by looking at their depths
+	std::sort(m_QuadComponents.begin(), m_QuadComponents.end(), [](component::GUI2DComponent* a, component::GUI2DComponent* b)
+	{
+		return a->GetQuadManager()->GetDepth() < b->GetQuadManager()->GetDepth();
+	});
 	
 	// Update the entity-arrays inside the rendertasks
+	setRenderTasksGUI2DComponents();
 	setRenderTasksRenderComponents();
 }
 
@@ -2063,6 +2070,12 @@ void Renderer::waitForGPU()
 	}
 }
 
+void Renderer::setRenderTasksGUI2DComponents()
+{
+	static_cast<QuadTask*>(m_RenderTasks[RENDER_TASK_TYPE::QUAD])->SetQuadComponents(&m_QuadComponents);
+	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
+}
+
 void Renderer::waitForFrame(unsigned int framesToBeAhead)
 {
 	static constexpr unsigned int nrOfFenceChangesPerFrame = 1;
@@ -2127,8 +2140,7 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 	}
 	m_pMousePicker->SetPrimaryCamera(m_pScenePrimaryCamera);
 
-	static_cast<QuadTask*>(m_RenderTasks[RENDER_TASK_TYPE::QUAD])->SetQuadComponents(&m_QuadComponents);
-	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
+	setRenderTasksGUI2DComponents();
 	setRenderTasksRenderComponents();
 	setRenderTasksPrimaryCamera();
 }

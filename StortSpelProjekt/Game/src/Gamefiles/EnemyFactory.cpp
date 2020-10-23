@@ -240,7 +240,7 @@ Entity* EnemyFactory::SpawnEnemy(std::string entityName)
 	return SpawnEnemy(entityName, m_RandGen.Rand(0,m_SpawnPoints.size()));
 }
 
-EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, Model* model, int hp, const std::wstring& sound3D, unsigned int compFlags, unsigned int aiFlags, float scale, float3 rot, const std::string& aiTarget, float aiDetectionRadius, float aiAttackingDistance, float aiAttackInterval)
+EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, Model* model, int hp, const std::wstring& sound3D, unsigned int compFlags, unsigned int aiFlags, float scale, float3 rot, const std::string& aiTarget, float aiDetectionRadius, float aiAttackingDistance, float aiAttackInterval, float aiAttackDmg)
 {
 	for (auto pair : m_EnemyComps)
 	{
@@ -267,6 +267,7 @@ EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, Model* mode
 	enemy->detectionRad = aiDetectionRadius;
 	enemy->attackingDist = aiAttackingDistance;
 	enemy->attackInterval = aiAttackInterval;
+	enemy->meleeAttackDmg = aiAttackDmg;
 	enemy->dim = model->GetModelDim();
 	return enemy;
 }

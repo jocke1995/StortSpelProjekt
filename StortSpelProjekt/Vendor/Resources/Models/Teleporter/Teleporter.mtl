@@ -1,0 +1,8 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl Material.001
+map_Kd Steel_albedo.dds
+map_Ks Steel_roughness.dds
+map_Kn Steel_normal.dds
+map_Ka Steel_metallic.dds
