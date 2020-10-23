@@ -882,6 +882,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 		&vertices, &indices,
 		filePath);
 
+	mesh->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 	// save mesh
 	m_LoadedMeshes.push_back(mesh);
 
@@ -1095,7 +1096,6 @@ SkeletonNode* AssetLoader::processAnimatedModel(std::map<std::string, BoneInfo> 
 		aiMesh* assimpMesh = assimpScene->mMeshes[assimpNode->mMeshes[i]];	// The aiNode only contains indices to the meshes
 		Mesh* mesh = processAnimatedMesh(boneCounter, assimpMesh, assimpScene, meshes, materials, filePath);
 
-
 		meshes->push_back(mesh);
 	}
 
@@ -1166,6 +1166,7 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo> boneCount
 		m_pDescriptorHeap_CBV_UAV_SRV,
 		filePath);
 
+	mesh->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 	// save mesh
 	m_LoadedMeshes.push_back(mesh);
 

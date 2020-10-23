@@ -483,42 +483,20 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 	// Only add the m_Entities that actually should be drawn
 	if (tc != nullptr)
 	{
-		AnimatedModel* animatedModel = dynamic_cast<AnimatedModel*>(mc->m_pModel);
-		if (!animatedModel)
+		// Finally store the object in the corresponding renderComponent vectors so it will be drawn
+		if (FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT & mc->GetDrawFlag())
 		{
-			// Finally store the object in the corresponding renderComponent vectors so it will be drawn
-			if (FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT & mc->GetDrawFlag())
-			{
-				m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT].push_back(std::make_pair(mc, tc));
-			}
+			m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT].push_back(std::make_pair(mc, tc));
+		}
 
-			if (FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE & mc->GetDrawFlag())
-			{
-				m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE].push_back(std::make_pair(mc, tc));
-			}
+		if (FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE & mc->GetDrawFlag())
+		{
+			m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE].push_back(std::make_pair(mc, tc));
+		}
 
-			if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
-			{
-				m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
-			}
-		}
-		else
+		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
 		{
-			Log::PrintSeverity(Log::Severity::WARNING, "Wrong draw flags set for animated model. Should be FLAG_DRAW::ANIMATED. Model affected: %s\n", mc->GetModelPath());
-		}
-		
-
-		if (FLAG_DRAW::ANIMATED & mc->GetDrawFlag() && animatedModel)
-		{
-			m_RenderComponents[FLAG_DRAW::ANIMATED].push_back(std::make_pair(mc, tc));
-		}
-		else if (FLAG_DRAW::ANIMATED & mc->GetDrawFlag())
-		{
-			Log::PrintSeverity(Log::Severity::WARNING, "Draw flag ANIMATED in a model with no animations\n");
-		}
-		else if (animatedModel)
-		{
-			Log::PrintSeverity(Log::Severity::WARNING, "Model with animations lacks the ANIMATED draw flag\n");
+			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
 		}
 	}
 }
@@ -2022,6 +2000,7 @@ void Renderer::setRenderTasksRenderComponents()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::NO_DEPTH]);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
+	//m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::ANIMATED]);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT]);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
