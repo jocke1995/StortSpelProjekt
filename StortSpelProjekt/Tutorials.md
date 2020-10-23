@@ -198,7 +198,9 @@ your keyboard. While doing so, the exclusive fullscreen will be changed to a win
 # Upgrades
 ## Making new Upgrades
 To make a new upgrade you need to make a new class that inherits from **Upgrade.h**. 
-In the constructor of this class you need to set the **name** of the class as well as its **type**. 
+In the constructor of this class you need to set the **name** of the class as well as its **type**.
+You will also need to decide on the **price** of your upgrade, also set the **starting price** to be the same as **price**.
+A **description** is also needed . 
 The naming convention we have chosen is to name it the same as the class itself. 
 When it comes to types there are three of them: **PLAYER**, **RANGE** and **ENEMYSPECIFIC**.
 **RANGE** is for when the upgrade has to go on projectiles, **PLAYER** on player/enemy and **ENEMYSPECIFIC** are only for enemies.
@@ -210,13 +212,17 @@ An example of an upgrade constructor:
 		SetName("UpgradeMeleeTest");
 		SetType(F_UpgradeType::PLAYER);
 		m_DamageChange = 2;
+		m_Price = 5;
+		m_StartingPrice = m_Price;
+		m_Description = "Gives the player 2 extra damage at level 1. At subsequent levels the health increase will increase by 2 for each level. So level 1-5 vill be 2, 4, 6, 8, 10.";
 	}
 ```
 
-An uppgrade has many inherited functions such as OnHit(), ApplyStat() or OnDamage().
+An uppgrade has many inherited functions such as **OnHit()**, **ApplyStat()** or **OnDamage()**.
 It is by using these functions that you decide where/what your upgrade will affect. 
-As an Example, take UpgradeRangeTest, which will have an immediate effect on player health in its ApplyStat() function,
-as well as making projectiles shoot upwards when hitting something in the function OnRangeHit().
+As an Example, take **UpgradeRangeTest**, which will have an immediate effect on player health in its **ApplyBoughtUpgrade()** function which calls on the **ApplyStat()** function.
+Here we also increse the price since the upgrade has been bought. 
+**UpgradeRangeTest** also makes it so that projectiles shoot upwards when hitting something in the function **OnRangeHit()**.
 
 ```cpp
 	void UpgradeRangeTest::OnRangedHit()
@@ -232,18 +238,26 @@ as well as making projectiles shoot upwards when hitting something in the functi
 			m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeHealth(m_HealthChange);
 		}
 	}
+
+	void UpgradeRangeTest::ApplyBoughtUpgrade()
+	{
+		ApplyStat();
+		m_Price = m_StartingPrice * (m_Level * + 1); 
+	}
 ```
 
 If an upgrade is bought more than once its level should be increased in the function **IncreaseLevel()**.
 It is in this function you define what will happen with each increase in level. 
 Examples could be multiplying stat increases by level or maybe a switch case that adds functionallity for every level.
-Here is an example from UpgradeRangeTest where the speed at which they are accelerating is multiplied by level. The health change you get will not increase but you will still get 100 more health for each level.
+Here is an example from **UpgradeRangeTest** where the speed at which they are accelerating is multiplied by level. The health change you get will not increase but you will still get 100 more health for each level.
+Price is also increased.
 
 ```cpp
 	void UpgradeRangeTest::IncreaseLevel()
 	{
 		m_Level++;
 		m_AccelerationSpeed = 1000 * m_Level;
+		m_Price = m_StartingPrice * m_Level;
 		ApplyStat();
 	}
 ```
@@ -271,38 +285,40 @@ Here is an example with the two test upgrades:
 
 		// Adding RangeTest Upgrade
 		upgrade = new UpgradeRangeTest(m_pParentEntity);
+		// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+		upgrade->SetID(UPGRADE_RANGE_TEST);	
 		// add the upgrade to the list of all upgrades
 		m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
-		// Also, since it is of type RANGE, add its Enum to the enum map.
-		m_RangeUpgradeEnums[upgrade->GetName()] = UPGRADE_RANGE_TEST;
-		// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-		upgrade->SetID(UPGRADE_RANGE_TEST);		
+	
 
 		// Adding MeleeTest Upgrade
 		upgrade = new UpgradeMeleeTest(m_pParentEntity);
-		// add the upgrade to the list of all upgrades
-		m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 		// Set upgrade ID to the appropriate enum in E_UpgradeIDs
 		upgrade->SetID(UPGRADE_MELEE_TEST);
+		// add the upgrade to the list of all upgrades
+		m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
 	}
 ```
 
 As can be seen in the code, this is mostly a copy paste operation where the main change is which class you make a new instance of, 
-as well as setting the enum as the upgrade ID.
-Notice that UpgradeRangeTest has to add its enum to a map. This is because it is of type **RANGE**.
+as well as setting the enum as the **upgrade ID**.
 
-Lastly for **Range** type upgrades you also have to add the upgrade to the switch case in the function called **RangeUpgrade**.
-Here you only have to copy the previous cases and change the enum and class.
+Lastly you also have to add the upgrade to the switch case in the function called **newUpgrade**.
+Here you only have to copy the previous cases and change the **enum** and **class**.
 
 ```cpp
-	Upgrade* UpgradeManager::RangeUpgrade(std::string name, Entity* ent)
+	Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 	{
 		// Using the enum that is mapped to name,
-		// return the correct NEW range upgrade with parentEntity ent
-		switch (m_RangeUpgradeEnmus[name])
+		// return the correct NEW upgrade with parentEntity ent
+		switch (m_AppliedUpgradeEnums[name])
 		{
 		case UPGRADE_RANGE_TEST:
 			return new UpgradeRangeTest(ent);
+			break;
+		case UPGRADE_MELEE_TEST:
+			return new UpgradeMeleeTest(ent);
 			break;
 		default:
 			break;

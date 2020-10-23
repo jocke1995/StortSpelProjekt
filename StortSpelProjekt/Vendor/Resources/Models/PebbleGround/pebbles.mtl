@@ -1,0 +1,8 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl pebbleMat
+
+map_Kd Pebbles_019_Base_Color.dds
+map_Kn Pebbles_019_Normal.dds
+map_Ks Pebbles_019_Roughness.dds

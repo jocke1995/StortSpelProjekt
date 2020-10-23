@@ -6,6 +6,7 @@
 
 #define DASH_MOD 4.0
 #define SPRINT_MOD 3.0
+#define JUMP_MOD 1.5
 
 //Camera
 class BaseCamera;
@@ -51,6 +52,7 @@ namespace component
 		float m_Pitch;
 		float m_Yaw;
 		float m_CameraDistance;
+		float m_Elevation;
 		PerspectiveCamera* m_pCamera;
 		Transform* m_pTransform;
 

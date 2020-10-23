@@ -3,10 +3,13 @@
 
 #include "../ECS/Components/Component.h"
 
+
 class SceneManager;
 class Scene;
 class Model;
+class Audio2DVoiceComponent;
 struct MouseClick;
+
 namespace component
 {
 	class RangeComponent : public Component
@@ -17,6 +20,11 @@ namespace component
 
 		void OnInitScene();
 		void OnUnInitScene();
+
+		void SetVelocity(float velocity);
+		float GetVelocity();
+
+		void Attack();
 		
 	private:
 		int m_Damage;
@@ -24,11 +32,15 @@ namespace component
 		float m_Scale;
 		int m_NrOfProjectiles = 0;
 
+		bool audioPlay;
+
 		Model* m_pModel = nullptr;
 		SceneManager* m_pSceneMan = nullptr;
 		Scene* m_pScene = nullptr;
 
-		void Attack(MouseClick* event);
+		Audio2DVoiceComponent* m_pVoiceComponent;
+
+		
 	};
 }
 

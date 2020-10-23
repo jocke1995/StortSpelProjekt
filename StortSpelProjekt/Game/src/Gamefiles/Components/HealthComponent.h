@@ -25,10 +25,15 @@ namespace component
 		// will publish a death event if hp reaches 0 or bellow
 		void ChangeHealth(int hpChange);
 
-		int GetHealth();
+		int GetHealth() const;
+
+		int GetMaxHealth() const;
+		void SetMaxHealth(int newHealth);
+		void ChangeMaxHealth(int hpChange);
 
 	private:
 		int m_Health;
+		int m_MaxHealth;
 		bool m_Dead = false;
 		// temporary function that decreases health by 1 everytime collision happens
 		// void decreaseHealth(Collision* event);
