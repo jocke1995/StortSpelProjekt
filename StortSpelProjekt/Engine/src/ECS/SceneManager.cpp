@@ -5,6 +5,7 @@
 
 #include "../Renderer/Renderer.h"
 #include "../Physics/Physics.h"
+#include "../Events/EventBus.h"
 
 // Renderer
 #include "../Renderer/CommandInterface.h"
@@ -34,10 +35,14 @@
 SceneManager::SceneManager()
 {
 	m_ActiveScenes.reserve(2);
+
+	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityDeath);
 }
 
 SceneManager::~SceneManager()
 {
+	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityDeath);
+
 	for (auto pair : m_Scenes)
 	{
 		delete pair.second;
@@ -117,6 +122,18 @@ void SceneManager::AddEntity(Entity* entity, Scene* scene)
 	Renderer::GetInstance().SubmitUploadPerSceneData();
 }
 
+void SceneManager::SetGameOverScene(Scene* scene)
+{
+	if (scene != nullptr)
+	{
+		m_pGameOverScene = scene;
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "SetGameOverScene:: scene was nullptr");
+	}
+}
+
 void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 {
 	ResetScene();
@@ -183,4 +200,13 @@ bool SceneManager::sceneExists(std::string sceneName) const
     }
 
     return false;
+}
+
+void SceneManager::onEntityDeath(Death* evnt)
+{
+	if (evnt->ent->GetName() == "player")
+	{
+		SetScenes(1, &m_pGameOverScene);
+	}
+	// TODO: Other entity deaths here
 }
