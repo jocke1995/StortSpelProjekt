@@ -5,6 +5,7 @@
 #include <DirectXCollision.h>
 
 # define PI           3.14159265358979323846  /* pi */
+#define EPSILON		  0.000001
 
 typedef DirectX::XMMATRIX float4x4;
 
@@ -26,7 +27,7 @@ typedef union float3
 	void normalize()
 	{
 		float length = this->length();
-		if (length > 0.001)
+		if (length > EPSILON)
 		{
 			x /= length;
 			y /= length;
@@ -69,6 +70,11 @@ typedef union float3
 	bool operator == (float3 other)
 	{
 		return (x == other.x && y == other.y && z == other.z);
+	}
+
+	bool operator != (float3 other)
+	{
+		return (x != other.x || y != other.y || z != other.z);
 	}
 
 	float3 cross(float3* that) const
@@ -117,7 +123,7 @@ typedef union double3
 	void normalize()
 	{
 		double length = this->length();
-		if (length > 0.001)
+		if (length > EPSILON)
 		{
 			x /= length;
 			y /= length;
