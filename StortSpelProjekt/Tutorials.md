@@ -475,20 +475,30 @@ Submit CollisionHeightmap
 ```
 
 ## Navmesh
-To create a NavMesh, use the command NavMesh. To add a NavQuad to the NavMesh, define its position and size, and then submit it, with the following commands.
+To create a NavMesh, use the command NavMesh followed by the type of NavMesh, either Quads or Triangles. To add a NavQuad to the NavMesh, define its position and size, and then submit it, with the following commands.
 ```
 NavQuadPosition 0.0, 0.0, 0.0
 NavQuadSize 5.0, 5.0
 Submit NavQuad
 ```
-In a similar manner, to add a connection between two NavQuads use the following commands. The parameters for **NavConnectionQuads** are the id's of the NavQuads to be connected. These are defined by the order in which they have been added to the file. 
+To add a NavTriangle to the NavMesh, define its three vertices, and then submit it, with the following commands.
 ```
-NavConnectionQuads 0, 1
+NavTriangle 0.0, 0.0, 0.0; 0.0, 0.0, 20.0; -20.0, 0.0, 20.0
+Submit NavTriangle
+```
+In a similar manner, to add a connection between two NavQuads use the following commands. The parameters for **ConnectNavQuads** are the id's of the NavQuads to be connected. These are defined by the order in which they have been added to the file. 
+```
+ConnectNavQuads 0, 1
 Submit NavConnection
 ```
-Finally, submit the NavMesh with the command **Submit NavMesh**. A complete command sequence could look like the following.
+A connection between two NavTriangles is added in almost the same way
 ```
-NavMesh
+ConnectNavTriangles 0, 1
+Submit NavConenction
+```
+Finally, submit the NavMesh with the command **Submit NavMesh**. A complete command sequence for a small NavMesh could look like the following.
+```
+NavMesh Quads
 #0
 NavQuadPosition 0.0, 0.0, 0.0
 NavQuadSize 5.0, 5.0
@@ -504,13 +514,13 @@ NavQuadPosition 4.0, 0.0, -2.0
 NavQuadSize 3.0, 3.0
 Submit NavQuad
 
-NavConnectionQuads 0, 1
+ConnectNavQuads 0, 1
 Submit NavConnection
 
-NavConnectionQuads 2, 0
+ConnectNavQuads 2, 0
 Submit NavConnection
 
-NavConnectionQuads 2, 1
+ConnectNavQuads 2, 1
 Submit NavConnection
 
 Submit NavMesh
