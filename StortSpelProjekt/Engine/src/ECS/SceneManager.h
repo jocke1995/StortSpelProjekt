@@ -13,9 +13,9 @@ class AudioEngine;
 class SceneManager 
 {
 public:
-	SceneManager();
+	static SceneManager& GetInstance();
 	~SceneManager();
-
+	void EraseSceneManager();
 	// Update
 	void Update(double dt);
 	void RenderUpdate(double dt);
@@ -32,6 +32,7 @@ public:
 	void AddEntity(Entity* entity, Scene* scene = nullptr);
 
 private:
+	SceneManager();
 	std::map<std::string, Scene*> m_Scenes;
 	std::vector<Scene*> m_ActiveScenes;
 	std::set<Scene*> m_LoadedScenes;

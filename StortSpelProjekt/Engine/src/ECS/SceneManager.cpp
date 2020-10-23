@@ -36,14 +36,24 @@ SceneManager::SceneManager()
 	m_ActiveScenes.reserve(2);
 }
 
+SceneManager& SceneManager::GetInstance()
+{
+	static SceneManager instance;
+	return instance;
+}
+
 SceneManager::~SceneManager()
+{
+}
+
+void SceneManager::EraseSceneManager()
 {
 	for (auto pair : m_Scenes)
 	{
 		delete pair.second;
 	}
 
-    m_Scenes.clear();
+	m_Scenes.clear();
 }
 
 void SceneManager::Update(double dt)
