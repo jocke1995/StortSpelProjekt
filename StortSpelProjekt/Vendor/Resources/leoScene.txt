@@ -3,7 +3,7 @@
 Name floor
 ModelPath Textures/Heightmaps/tst.hm
 ModelScaling 1.0, 10.0, 1.0
-ModelRotation 0.0, 1.57079632679, 0.0
+ModelRotation 0.0, 90.0, 0.0
 ModelPosition 0.0, -1.0, 0.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
@@ -16,7 +16,7 @@ Submit CollisionHeightmap
 Name wall0
 ModelPath Models/FloorPBR/floor.obj
 ModelScaling 10.0, 1.0, 250.0
-ModelRotation 4.71238898038, 0.0, 4.71238898038
+ModelRotation 270.0, 0.0, 270.0
 ModelPosition 0.0, 5.0, 249.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
@@ -29,7 +29,7 @@ Submit CollisionCube 250.0, 0.0, 1.0
 Name wall1
 ModelPath Models/FloorPBR/floor.obj
 ModelScaling 10.0, 1.0, 250.0
-ModelRotation 7.85398163397, 0.0, 4.71238898038
+ModelRotation 90.0, 0.0, 270.0
 ModelPosition 0.0, 5.0, -249.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
@@ -42,7 +42,7 @@ Submit CollisionCube 250.0, 0.0, 1.0
 Name wall2
 ModelPath Models/FloorPBR/floor.obj
 ModelScaling 10.0, 1.0, 250.0
-ModelRotation 6.28318530718, 0.0, 4.71238898038
+ModelRotation 0.0, 0.0, 270.0
 ModelPosition -249.0, 5.0, 0.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
@@ -55,7 +55,7 @@ Submit CollisionCube 250.0, 0.0, 1.0
 Name wall3
 ModelPath Models/FloorPBR/floor.obj
 ModelScaling 10.0, 1.0, 250.0
-ModelRotation 3.1415, 0.0, 4.71238898038
+ModelRotation 180.0, 0.0, 270.0
 ModelPosition 249.0, 5.0, 0.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
@@ -68,7 +68,7 @@ Submit CollisionCube 250.0, 0.0, 1.0
 Name stefan
 ModelPath Models/Poster/Poster.obj
 ModelScaling 35.0, 1.0, 35.0
-ModelRotation -2.35619449019, 0.0, 4.71238898038
+ModelRotation 225.0, 0.0, 270.0
 ModelPosition 70.0, 50.0, 70.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
@@ -80,7 +80,7 @@ Submit CollisionCube 1.0, 0.0, 1.0
 
 Name hasse
 ModelPath Models/Poster/Poster.obj
-ModelRotation 2.35619449019, 0.0, 4.71238898038
+ModelRotation 135.0, 0.0, 270.0
 ModelPosition -70.0, 50.0, 70.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
@@ -93,7 +93,7 @@ Submit CollisionCube 1.0, 0.0, 1.0
 Name Shop
 ModelPath Models/Shop/shop.obj
 ModelScaling 1.0, 1.0, 1.0
-ModelRotation 0.0, 3.14159265359, 0.0
+ModelRotation 0.0, 180.0, 0.0
 ModelPosition 0.0, 10.0, 15.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
@@ -106,7 +106,7 @@ Submit CollisionCube 0.0, 0.0, 0.0
 Name Ball1
 ModelPath Models/SpherePBR/ball.obj
 ModelScaling 1.0, 1.0, 1.0
-ModelRotation 0.0, 3.14159265359, 0.0
+ModelRotation 0.0, 180.0, 0.0
 ModelPosition -16.0, 10.0, -133.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1

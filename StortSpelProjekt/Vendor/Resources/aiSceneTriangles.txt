@@ -16,7 +16,7 @@ Submit CollisionHeightmap
 Name wall0
 ModelPath Models/FloorPBR/floor.obj
 ModelScaling 10.0, 1.0, 175.0
-ModelRotation 4.71238898038, 0.0, 4.71238898038
+ModelRotation 270.0, 0.0, 270.0
 ModelPosition -175.0, 5.0, 349.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
@@ -29,7 +29,7 @@ Submit CollisionCube 1.0, 0.0, 1.0
 Name wall1
 ModelPath Models/FloorPBR/floor.obj
 ModelScaling 10.0, 1.0, 175.0
-ModelRotation 7.85398163397, 0.0, 4.71238898038
+ModelRotation 90.0, 0.0, 270.0
 ModelPosition -175.0, 5.0, 0.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
@@ -42,7 +42,7 @@ Submit CollisionCube 1.0, 0.0, 1.0
 Name wall2
 ModelPath Models/FloorPBR/floor.obj
 ModelScaling 10.0, 1.0, 175.0
-ModelRotation 6.28318530718, 0.0, 4.71238898038
+ModelRotation 0.0, 0.0, 270.0
 ModelPosition -350.0, 5.0, 175.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1
@@ -55,7 +55,7 @@ Submit CollisionCube 1.0, 0.0, 1.0
 Name wall3
 ModelPath Models/FloorPBR/floor.obj
 ModelScaling 10.0, 1.0, 175.0
-ModelRotation 3.1415, 0.0, 4.71238898038
+ModelRotation 180.0, 0.0, 270.0
 ModelPosition -1.0, 5.0, 175.0
 ModelDrawFlag 3,1
 ModelDrawFlag 1,1

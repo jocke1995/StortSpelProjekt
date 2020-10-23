@@ -666,7 +666,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			}
 			else if (strcmp(lineHeader.c_str(), "TexturePath") == 0)
 			{
-				fscanf(file, "%f", &mass);
+				fscanf(file, "%s", texturePath.c_str());
 			}
 			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
 			{

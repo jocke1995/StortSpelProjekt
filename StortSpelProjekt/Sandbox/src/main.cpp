@@ -59,18 +59,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* activeScenes[] = { jacobScene };
+    Scene* leoScene = LeosTestScene(sceneManager);
+    Scene* activeScenes[] = { leoScene };
     //Scene* timScene = TimScene(sceneManager);
+    //Scene* activeScenes[] = { timScene };
     //Scene* jockeScene = JockesTestScene(sceneManager);
+    //Scene* activeScenes[] = { jockeScene };
     //Scene* filipScene = FloppipTestScene(sceneManager);
+    //Scene* activeScenes[] = { filipScene };
 	//Scene* fredrikScene = FredriksTestScene(sceneManager);
+    //Scene* activeScenes[] = { fredrikScene };
     //Scene* williamScene = WilliamsTestScene(sceneManager);
+    //Scene* activeScenes[] = { williamScene };
     //Scene* bjornScene = BjornsTestScene(sceneManager);
+    //Scene* activeScenes[] = { bjornScene };
     //Scene* antonScene = AntonTestScene(sceneManager);
-    Scene* shopScene = ShopScene(sceneManager);
+    //Scene* activeScenes[] = { antonScene };
+    //Scene* shopScene = ShopScene(sceneManager);
+    //Scene* activeScenes[] = { shopScene };
     //Scene* andresScene = AndresTestScene(sceneManager);
-
-    Scene* activeScenes[] = { shopScene };
+    //Scene* activeScenes[] = { andresScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -356,10 +365,6 @@ Scene* AntonTestScene(SceneManager* sm)
     component::RangeComponent* ranc = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
-    scene->CreateNavMesh("Quads");
-    NavMesh* nav = scene->GetNavMesh();
-    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateQuadGrid();
     /*--------------------- Player ---------------------*/
     // entity
     entity = scene->AddEntity("player");
