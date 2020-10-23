@@ -6,6 +6,7 @@
 
 #define DASH_MOD 4.0
 #define SPRINT_MOD 3.0
+#define JUMP_MOD 1.5
 
 //Camera
 class BaseCamera;

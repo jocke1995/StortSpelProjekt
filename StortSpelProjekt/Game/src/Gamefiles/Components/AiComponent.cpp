@@ -13,6 +13,8 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_DetectionRadius = detectionRadius;
 	m_AttackingDistance = attackingDistance;
 	m_Flags = flags;
+	m_AttackInterval = 0.5;
+	m_TimeAccumulator = 0.0;
 	m_pScene = nullptr;
 	m_pNavMesh = nullptr;
 	m_pQuads = nullptr;
@@ -176,8 +178,19 @@ void component::AiComponent::Update(double dt)
 				HealthComponent* hc = m_pTarget->GetComponent<component::HealthComponent>();
 				if (hc != nullptr)
 				{
-					m_pTarget->GetComponent<component::HealthComponent>()->ChangeHealth(-1);
+					m_TimeAccumulator += static_cast<float>(dt);
+					if (m_TimeAccumulator > m_AttackInterval)
+					{
+						m_pTarget->GetComponent<component::HealthComponent>()->ChangeHealth(-1);
+						Log::Print("ENEMY ATTACK!\n");
+						m_TimeAccumulator = 0.0;
+					}
 				}
+			}
+			else
+			{
+				// "reset" accumulator if out of attack range
+				m_TimeAccumulator = 0.0;
 			}
 		}
 	}
@@ -219,6 +232,11 @@ void component::AiComponent::RemoveTarget(std::string name)
 Entity* component::AiComponent::GetTarget()
 {
 	return m_pTarget;
+}
+
+void component::AiComponent::SetAttackInterval(float interval)
+{
+	m_AttackInterval = interval;
 }
 
 void component::AiComponent::selectTarget()
