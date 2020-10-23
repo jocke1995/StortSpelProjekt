@@ -114,3 +114,7 @@ void Upgrade::RangedModifier()
 void Upgrade::ApplyStat()
 {
 }
+
+void Upgrade::ApplyBoughtUpgrade()
+{
+}
