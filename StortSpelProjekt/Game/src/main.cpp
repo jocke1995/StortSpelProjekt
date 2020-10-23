@@ -669,11 +669,6 @@ void DemoUpdateScene(SceneManager* sm, double dt)
         ec = sm->GetScene("DemoScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
         ec->UpdateEmitter(L"Bruh");
     }
-
-    // Test
-    auto healthComp = sm->GetScene("DemoScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
-    auto health = healthComp->GetHealth();
-    healthComp->SetHealth(--health);
 }
 
 void ShopUpdateScene(SceneManager* sm, double dt)
