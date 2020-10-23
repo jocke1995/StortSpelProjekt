@@ -16,7 +16,6 @@ Scene* AntonTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
-
 void(*UpdateScene)(SceneManager*, double dt);
 void LeoUpdateScene(SceneManager* sm, double dt);
 void TimUpdateScene(SceneManager* sm, double dt);
@@ -120,7 +119,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ---- Network ---- */
         if (gameNetwork.IsConnected())
         {
-            if (networkTimer >= networkUpdateRate) {
+            if (networkTimer >= networkUpdateRate) 
+			{
                 networkTimer = 0;
 
                 gameNetwork.Update(networkUpdateRate);
@@ -1002,7 +1002,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 		"health",
 		quadPos, quadScale,
 		false, false,
-		E_DEPTH_LEVEL::MID,
+		1,
 		notBlended,
 		buttonTexture);
 
@@ -1017,7 +1017,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 		"head",
 		quadPos, quadScale,
 		true, true,
-		E_DEPTH_LEVEL::FRONT,
+		2,
 		notBlended,
 		headTexture);
 	/* ---------------------------------------------------------- */
@@ -1031,7 +1031,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 		"overlay",
 		quadPos, quadScale,
 		false, false,
-		E_DEPTH_LEVEL::BACK, 
+		0, 
 		blended,
 		transTexture);
     /* ---------------------------------------------------------- */
@@ -1045,7 +1045,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 		"minimap",
 		quadPos, quadScale,
 		false, false,
-		E_DEPTH_LEVEL::FRONT,
+		2,
 		notBlended,
 		mapTexture);
 	/* ---------------------------------------------------------- */
@@ -1835,8 +1835,6 @@ void JockeUpdateScene(SceneManager* sm, double dt)
 
 void FredriksUpdateScene(SceneManager* sm, double dt)
 {
-	component::GUI2DComponent* head = sm->GetScene("FredriksTestScene")->GetEntity("head")->GetComponent<component::GUI2DComponent>();
-
 	/*AssetLoader* al = AssetLoader::Get();
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
