@@ -42,7 +42,7 @@ private:
 	std::vector<Scene*> m_ActiveScenes;
 	std::set<Scene*> m_LoadedScenes;
 
-	Scene* m_GameOverScene = nullptr;
+	Scene* m_pGameOverScene = nullptr;
 
 	bool sceneExists(std::string sceneName) const;
 

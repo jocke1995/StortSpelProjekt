@@ -135,7 +135,7 @@ void SceneManager::SetGameOverScene(Scene* scene)
 {
 	if (scene != nullptr)
 	{
-		m_GameOverScene = scene;
+		m_pGameOverScene = scene;
 	}
 	else
 	{
@@ -216,7 +216,7 @@ void SceneManager::onEntityDeath(Death* evnt)
 {
 	if (evnt->ent->GetName() == "player")
 	{
-		SetScenes(1, &m_GameOverScene);
+		SetScenes(1, &m_pGameOverScene);
 	}
 	// TODO: Other entity deaths here
 }
