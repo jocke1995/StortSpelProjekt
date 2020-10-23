@@ -43,6 +43,7 @@ void component::UpgradeComponent::AddUpgrade(Upgrade* upgrade)
 	}
 
 	m_AppliedUpgrades.emplace(std::make_pair(upgrade->GetName(), upgrade));
+	upgrade->ApplyBoughtUpgrade();
 }
 
 void component::UpgradeComponent::RemoveUpgrade(Upgrade* upgrade)

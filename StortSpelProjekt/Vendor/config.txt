@@ -11,3 +11,4 @@ i_shadowResolution 2
 i_network 1
 s_ip wiko97.ddns.net
 i_port 55555
+f_playerElevation 1

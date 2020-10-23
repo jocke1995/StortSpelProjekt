@@ -95,7 +95,7 @@ void component::MeleeComponent::Update(double dt)
 
 }
 
-void component::MeleeComponent::Attack(bool attack)
+void component::MeleeComponent::Attack()
 {
 	
 	if (!m_Cooldown)
@@ -105,7 +105,7 @@ void component::MeleeComponent::Attack(bool attack)
 			m_pVoiceComponent->Play(L"SwordSwing");
 		}
 		Log::Print("Attacking now \n");
-		m_Attacking = attack;
+		m_Attacking = true;
 		//Checks collision of entities
 		CheckCollision();
 		m_Cooldown = true;
