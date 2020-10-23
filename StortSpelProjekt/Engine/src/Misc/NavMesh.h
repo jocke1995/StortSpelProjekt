@@ -64,7 +64,7 @@ struct NavTriangle
 class NavMesh
 {
 public:
-	NavMesh(Scene* scene);
+	NavMesh(Scene* scene, const std::string& type);
 	~NavMesh();
 
 	NavQuad* AddNavQuad(float3 position, float2 size);
@@ -82,6 +82,7 @@ public:
 	std::vector<NavTriangle*> GetAllTriangles();
 	int GetNumQuads();
 	int GetNumTriangles();
+	const std::string& GetType();
 
 	void CreateQuadGrid();
 	void CreateTriangleGrid();
@@ -90,6 +91,8 @@ private:
 	std::vector<NavQuad*> m_NavQuads;
 	std::vector<NavTriangle*> m_NavTriangles;
 	std::vector<Connection*> m_Connections;
+
+	std::string m_Type;
 
 	Entity* m_pEntity;
 

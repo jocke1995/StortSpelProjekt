@@ -17,7 +17,7 @@ public:
 	Entity* AddEntity(std::string entityName);
 	bool RemoveEntity(std::string entityName);
 
-	NavMesh* CreateNavMesh();
+	NavMesh* CreateNavMesh(const std::string& type);
 
 	void SetPrimaryCamera(BaseCamera* primaryCamera);
 

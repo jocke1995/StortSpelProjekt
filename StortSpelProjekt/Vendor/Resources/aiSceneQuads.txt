@@ -83,7 +83,7 @@ Name skybox
 ModelPath Textures/CubeMaps/skymap_dark.dds
 Submit Skybox
 
-NavMesh
+NavMesh Quads
 
 #0
 NavQuadPosition -60.0, 0.0, 10.0
@@ -325,163 +325,163 @@ NavQuadPosition -310.0, 0.0, 10.0
 NavQuadSize 20.0, 20.0
 Submit NavQuad
 
-NavConnectionQuads 0, 1
+ConnectNavQuads 0, 1
 Submit NavConnection
 
-NavConnectionQuads 1, 2
+ConnectNavQuads 1, 2
 Submit NavConnection
 
-NavConnectionQuads 2, 3
+ConnectNavQuads 2, 3
 Submit NavConnection
 
-NavConnectionQuads 3, 4
+ConnectNavQuads 3, 4
 Submit NavConnection
 
-NavConnectionQuads 4, 5
+ConnectNavQuads 4, 5
 Submit NavConnection
 
-NavConnectionQuads 5, 6
+ConnectNavQuads 5, 6
 Submit NavConnection
 
-NavConnectionQuads 6, 7
+ConnectNavQuads 6, 7
 Submit NavConnection
 
-NavConnectionQuads 7, 8
+ConnectNavQuads 7, 8
 Submit NavConnection
 
-NavConnectionQuads 8, 9
+ConnectNavQuads 8, 9
 Submit NavConnection
 
-NavConnectionQuads 9, 10
+ConnectNavQuads 9, 10
 Submit NavConnection
 
-NavConnectionQuads 10, 11
+ConnectNavQuads 10, 11
 Submit NavConnection
 
-NavConnectionQuads 11, 12
+ConnectNavQuads 11, 12
 Submit NavConnection
 
-NavConnectionQuads 12, 13
+ConnectNavQuads 12, 13
 Submit NavConnection
 
-NavConnectionQuads 13, 14
+ConnectNavQuads 13, 14
 Submit NavConnection
 
-NavConnectionQuads 13, 15
+ConnectNavQuads 13, 15
 Submit NavConnection
 
-NavConnectionQuads 15, 16
+ConnectNavQuads 15, 16
 Submit NavConnection
 
-NavConnectionQuads 16, 17
+ConnectNavQuads 16, 17
 Submit NavConnection
 
-NavConnectionQuads 17, 18
+ConnectNavQuads 17, 18
 Submit NavConnection
 
-NavConnectionQuads 18, 19
+ConnectNavQuads 18, 19
 Submit NavConnection
 
-NavConnectionQuads 19, 10
+ConnectNavQuads 19, 10
 Submit NavConnection
 
-NavConnectionQuads 18, 20
+ConnectNavQuads 18, 20
 Submit NavConnection
 
-NavConnectionQuads 20, 21
+ConnectNavQuads 20, 21
 Submit NavConnection
 
-NavConnectionQuads 21, 22
+ConnectNavQuads 21, 22
 Submit NavConnection
 
-NavConnectionQuads 21, 44
+ConnectNavQuads 21, 44
 Submit NavConnection
 
-NavConnectionQuads 18, 23
+ConnectNavQuads 18, 23
 Submit NavConnection
 
-NavConnectionQuads 23, 24
+ConnectNavQuads 23, 24
 Submit NavConnection
 
-NavConnectionQuads 24, 25
+ConnectNavQuads 24, 25
 Submit NavConnection
 
-NavConnectionQuads 25, 5
+ConnectNavQuads 25, 5
 Submit NavConnection
 
-NavConnectionQuads 24, 26
+ConnectNavQuads 24, 26
 Submit NavConnection
 
-NavConnectionQuads 26, 27
+ConnectNavQuads 26, 27
 Submit NavConnection
 
-NavConnectionQuads 27, 28
+ConnectNavQuads 27, 28
 Submit NavConnection
 
-NavConnectionQuads 28, 44
+ConnectNavQuads 28, 44
 Submit NavConnection
 
-NavConnectionQuads 28, 45
+ConnectNavQuads 28, 45
 Submit NavConnection
 
-NavConnectionQuads 26, 29
+ConnectNavQuads 26, 29
 Submit NavConnection
 
-NavConnectionQuads 29, 30
+ConnectNavQuads 29, 30
 Submit NavConnection
 
-NavConnectionQuads 30, 31
+ConnectNavQuads 30, 31
 Submit NavConnection
 
-NavConnectionQuads 31, 32
+ConnectNavQuads 31, 32
 Submit NavConnection
 
-NavConnectionQuads 32, 33
+ConnectNavQuads 32, 33
 Submit NavConnection
 
-NavConnectionQuads 33, 34
+ConnectNavQuads 33, 34
 Submit NavConnection
 
-NavConnectionQuads 34, 35
+ConnectNavQuads 34, 35
 Submit NavConnection
 
-NavConnectionQuads 35, 36
+ConnectNavQuads 35, 36
 Submit NavConnection
 
-NavConnectionQuads 36, 37
+ConnectNavQuads 36, 37
 Submit NavConnection
 
-NavConnectionQuads 37, 5
+ConnectNavQuads 37, 5
 Submit NavConnection
 
-NavConnectionQuads 36, 38
+ConnectNavQuads 36, 38
 Submit NavConnection
 
-NavConnectionQuads 38, 39
+ConnectNavQuads 38, 39
 Submit NavConnection
 
-NavConnectionQuads 39, 40
+ConnectNavQuads 39, 40
 Submit NavConnection
 
-NavConnectionQuads 40, 47
+ConnectNavQuads 40, 47
 Submit NavConnection
 
-NavConnectionQuads 47, 41
+ConnectNavQuads 47, 41
 Submit NavConnection
 
-NavConnectionQuads 41, 42
+ConnectNavQuads 41, 42
 Submit NavConnection
 
-NavConnectionQuads 42, 43
+ConnectNavQuads 42, 43
 Submit NavConnection
 
-NavConnectionQuads 43, 32
+ConnectNavQuads 43, 32
 Submit NavConnection
 
-NavConnectionQuads 46, 0
+ConnectNavQuads 46, 0
 Submit NavConnection
 
-NavConnectionQuads 46, 14
+ConnectNavQuads 46, 14
 Submit NavConnection
 
 Submit NavMesh

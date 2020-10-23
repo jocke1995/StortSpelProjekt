@@ -7,11 +7,13 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/BoundingBoxPool.h"
 
-NavMesh::NavMesh(Scene* scene)
+NavMesh::NavMesh(Scene* scene, const std::string& type)
 {
 	m_NumScenes = 0;
 
 	m_pEntity = scene->AddEntity("NavMesh");
+
+	m_Type = type;
 
 	// components
 	component::TransformComponent* tc = m_pEntity->AddComponent<component::TransformComponent>();
@@ -197,6 +199,11 @@ int NavMesh::GetNumQuads()
 int NavMesh::GetNumTriangles()
 {
 	return m_NavTriangles.size();
+}
+
+const std::string& NavMesh::GetType()
+{
+	return m_Type;
 }
 
 void NavMesh::CreateQuadGrid()

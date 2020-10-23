@@ -184,7 +184,7 @@ Name skybox
 ModelPath Textures/CubeMaps/skymap_dark.dds
 Submit Skybox
 
-NavMesh
+NavMesh Quads
 #0
 NavQuadPosition 0.0, 0.0, 30.0
 NavQuadSize 50.0, 50.0
@@ -210,19 +210,19 @@ NavQuadPosition 0.0, 0.0, -60.0
 NavQuadSize 50.0, 70.0
 Submit NavQuad
 
-NavConnectionQuads 0, 1
+ConnectNavQuads 0, 1
 Submit NavConnection
 
-NavConnectionQuads 2, 1
+ConnectNavQuads 2, 1
 Submit NavConnection
 
-NavConnectionQuads 0, 3
+ConnectNavQuads 0, 3
 Submit NavConnection
 
-NavConnectionQuads 3, 4
+ConnectNavQuads 3, 4
 Submit NavConnection
 
-NavConnectionQuads 3, 2
+ConnectNavQuads 3, 2
 Submit NavConnection
 
 Submit NavMesh

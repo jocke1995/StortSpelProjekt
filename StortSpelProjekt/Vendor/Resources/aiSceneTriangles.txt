@@ -1,0 +1,500 @@
+/* Entities */
+
+Name floor
+ModelPath Textures/Heightmaps/aiRidges.hm
+ModelScaling 1.0, 10.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -175.0, -5.0, 175.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Heightmap
+Submit CollisionHeightmap
+
+Name wall0
+ModelPath Models/FloorPBR/floor.obj
+ModelScaling 10.0, 1.0, 175.0
+ModelRotation 4.71238898038, 0.0, 4.71238898038
+ModelPosition -175.0, 5.0, 349.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.5
+Submit Model
+Submit CollisionCube 1.0, 0.0, 1.0
+
+Name wall1
+ModelPath Models/FloorPBR/floor.obj
+ModelScaling 10.0, 1.0, 175.0
+ModelRotation 7.85398163397, 0.0, 4.71238898038
+ModelPosition -175.0, 5.0, 0.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.5
+Submit Model
+Submit CollisionCube 1.0, 0.0, 1.0
+
+Name wall2
+ModelPath Models/FloorPBR/floor.obj
+ModelScaling 10.0, 1.0, 175.0
+ModelRotation 6.28318530718, 0.0, 4.71238898038
+ModelPosition -350.0, 5.0, 175.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.5
+Submit Model
+Submit CollisionCube 1.0, 0.0, 1.0
+
+Name wall3
+ModelPath Models/FloorPBR/floor.obj
+ModelScaling 10.0, 1.0, 175.0
+ModelRotation 3.1415, 0.0, 4.71238898038
+ModelPosition -1.0, 5.0, 175.0
+ModelDrawFlag 3,1
+ModelDrawFlag 1,1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.5
+Submit Model
+Submit CollisionCube 1.0, 0.0, 1.0
+
+/* Lights */
+
+Name sun
+ModelLightColor 0.5, 0.5, 0.5
+ModelLightFlag 1,1
+ModelLightDirection -1.0, -1.0, 1.0
+ModelLightLeft -355.0
+ModelLightRight 355.0
+ModelLightTop 355.0
+ModelLightBottom -250.0
+ModelLightFar 1000.0
+ModelLightNear -1000.0
+Submit DirectionalLight
+
+Name skybox
+ModelPath Textures/CubeMaps/skymap_dark.dds
+Submit Skybox
+
+NavMesh Triangles
+
+NavTriangle 0.0, 0.0, 0.0 0.0, 0.0, 20.0 -20.0, 0.0, 20.0
+Submit NavTriangle
+NavTriangle 0.0, 0.0, 0.0 -20.0, 0.0, 20.0 -20.0, 0.0, 0.0
+Submit NavTriangle
+NavTriangle -20.0, 0.0, 0.0 -20.0, 0.0, 20.0 -100.0, 0.0, 20.0
+Submit NavTriangle
+NavTriangle -20.0, 0.0, 0.0 -100.0, 0.0, 20.0 -100.0, 0.0, 0.0
+Submit NavTriangle
+NavTriangle -100.0, 0.0, 0.0 -100.0, 0.0, 20.0 -120.0, 0.0, 20.0
+Submit NavTriangle
+NavTriangle -100.0, 0.0, 0.0 -120.0, 0.0, 20.0 -120.0, 0.0, 0.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 0.0 -260.0, 0.0, 20.0 -280.0, 0.0, 20.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 0.0 -280.0, 0.0, 20.0 -280.0, 0.0, 0.0
+Submit NavTriangle
+NavTriangle -280.0, 0.0, 0.0 -280.0, 0.0, 20.0 -300.0, 0.0, 20.0
+Submit NavTriangle
+NavTriangle -280.0, 0.0, 0.0 -300.0, 0.0, 20.0 -300.0, 0.0, 0.0
+Submit NavTriangle
+NavTriangle -300.0, 0.0, 0.0 -300.0, 0.0, 20.0 -320.0, 0.0, 20.0
+Submit NavTriangle
+NavTriangle -300.0, 0.0, 0.0 -320.0, 0.0, 20.0 -320.0, 0.0, 0.0
+Submit NavTriangle
+
+NavTriangle 0.0, 0.0, 20.0 0.0, 0.0, 40.0 -20.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle 0.0, 0.0, 20.0 -20.0, 0.0, 40.0 -20.0, 0.0, 20.0
+Submit NavTriangle
+NavTriangle -100.0, 0.0, 20.0 -100.0, 0.0, 40.0 -120.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -100.0, 0.0, 20.0 -120.0, 0.0, 40.0 -120.0, 0.0, 20.0
+Submit NavTriangle
+NavTriangle -120.0, 0.0, 20.0 -120.0, 0.0, 40.0 -220.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -120.0, 0.0, 20.0 -220.0, 0.0, 40.0 -220.0, 0.0, 20.0
+Submit NavTriangle
+NavTriangle -220.0, 0.0, 20.0 -240.0, 0.0, 40.0 -240.0, 0.0, 20.0
+Submit NavTriangle
+NavTriangle -220.0, 0.0, 20.0 -220.0, 0.0, 40.0 -240.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 20.0 -260.0, 0.0, 40.0 -280.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 20.0 -280.0, 0.0, 40.0 -280.0, 0.0, 20.0
+Submit NavTriangle
+NavTriangle -300.0, 0.0, 20.0 -300.0, 0.0, 40.0 -320.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -300.0, 0.0, 20.0 -320.0, 0.0, 40.0 -320.0, 0.0, 20.0
+Submit NavTriangle
+NavTriangle -320.0, 0.0, 20.0 -320.0, 0.0, 40.0 -350.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -320.0, 0.0, 20.0 -350.0, 0.0, 40.0 -350.0, 0.0, 20.0
+Submit NavTriangle
+
+NavTriangle 0.0, 0.0, 40.0 0.0, 0.0, 60.0 -20.0, 0.0, 60.0
+Submit NavTriangle
+NavTriangle 0.0, 0.0, 40.0 -20.0, 0.0, 60.0 -20.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -20.0, 0.0, 40.0 -20.0, 0.0, 60.0 -60.0, 0.0, 60.0
+Submit NavTriangle
+NavTriangle -20.0, 0.0, 40.0 -60.0, 0.0, 60.0 -60.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, 40.0 -60.0, 0.0, 60.0 -80.0, 0.0, 60.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, 40.0 -80.0, 0.0, 60.0 -80.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -140.0, 0.0, 40.0 -140.0, 0.0, 60.0 -160.0, 0.0, 60.0
+Submit NavTriangle
+NavTriangle -140.0, 0.0, 40.0 -160.0, 0.0, 60.0 -160.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -160.0, 0.0, 40.0 -160.0, 0.0, 60.0 -220.0, 0.0, 60.0
+Submit NavTriangle
+NavTriangle -160.0, 0.0, 40.0 -220.0, 0.0, 60.0 -220.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -220.0, 0.0, 40.0 -220.0, 0.0, 60.0 -240.0, 0.0, 60.0
+Submit NavTriangle
+NavTriangle -220.0, 0.0, 40.0 -240.0, 0.0, 60.0 -240.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -240.0, 0.0, 40.0 -240.0, 0.0, 60.0 -260.0, 0.0, 60.0
+Submit NavTriangle
+NavTriangle -240.0, 0.0, 40.0 -260.0, 0.0, 60.0 -260.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 40.0 -260.0, 0.0, 60.0 -280.0, 0.0, 60.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 40.0 -280.0, 0.0, 60.0 -280.0, 0.0, 40.0
+Submit NavTriangle
+NavTriangle -320.0, 0.0, 40.0 -320.0, 0.0, 80.0 -350.0, 0.0, 80.0
+Submit NavTriangle
+NavTriangle -320.0, 0.0, 40.0 -350.0, 0.0, 80.0 -350.0, 0.0, 40.0
+Submit NavTriangle
+
+NavTriangle 0.0, 0.0, 60.0 0.0, 0.0, 120.0 -20.0, 0.0, 120.0
+Submit NavTriangle
+NavTriangle 0.0, 0.0, 60.0 -20.0, 0.0, 120.0 -20.0, 0.0, 60.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, 60.0 -60.0, 0.0, 80.0 -80.0, 0.0, 80.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, 60.0 -80.0, 0.0, 80.0 -80.0, 0.0, 60.0
+Submit NavTriangle
+NavTriangle -80.0, 0.0, 60.0 -80.0, 0.0, 80.0 -140.0, 0.0, 80.0
+Submit NavTriangle
+NavTriangle -80.0, 0.0, 60.0 -140.0, 0.0, 80.0 -140.0, 0.0, 60.0
+Submit NavTriangle
+NavTriangle -140.0, 0.0, 60.0 -140.0, 0.0, 80.0 -160.0, 0.0, 80.0
+Submit NavTriangle
+NavTriangle -140.0, 0.0, 60.0 -160.0, 0.0, 80.0 -160.0, 0.0, 60.0
+Submit NavTriangle
+NavTriangle -220.0, 0.0, 60.0 -220.0, 0.0, 120.0 -240.0, 0.0, 120.0
+Submit NavTriangle
+NavTriangle -220.0, 0.0, 60.0 -240.0, 0.0, 120.0 -240.0, 0.0, 60.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 60.0 -260.0, 0.0, 80.0 -280.0, 0.0, 80.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 60.0 -280.0, 0.0, 80.0 -280.0, 0.0, 60.0
+Submit NavTriangle
+
+NavTriangle -60.0, 0.0, 80.0 -60.0, 0.0, 120.0 -80.0, 0.0, 120.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, 80.0 -80.0, 0.0, 120.0 -80.0, 0.0, 80.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 80.0 -260.0, 0.0, 100.0 -280.0, 0.0, 100.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 80.0 -280.0, 0.0, 100.0 -280.0, 0.0, 80.0
+Submit NavTriangle
+NavTriangle -280.0, 0.0, 80.0 -280.0, 0.0, 100.0 -320.0, 0.0, 100.0
+Submit NavTriangle
+NavTriangle -280.0, 0.0, 80.0 -320.0, 0.0, 100.0 -320.0, 0.0, 80.0
+Submit NavTriangle
+NavTriangle -320.0, 0.0, 80.0 -320.0, 0.0, 100.0 -350.0, 0.0, 100.0
+Submit NavTriangle
+NavTriangle -320.0, 0.0, 80.0 -350.0, 0.0, 100.0 -350.0, 0.0, 80.0
+Submit NavTriangle
+
+NavTriangle -320.0, 0.0, 100.0 -320.0, 0.0, 120.0 -350.0, 0.0, 120.0
+Submit NavTriangle
+NavTriangle -320.0, 0.0, 100.0 -350.0, 0.0, 120.0 -350.0, 0.0, 100.0
+Submit NavTriangle
+
+NavTriangle 0.0, 0.0, 120.0 0.0, 0.0, 140.0 -20.0, 0.0, 140.0
+Submit NavTriangle
+NavTriangle 0.0, 0.0, 120.0 -20.0, 0.0, 140.0 -20.0, 0.0, 120.0
+Submit NavTriangle
+NavTriangle -20.0, 0.0, 120.0 -20.0, 0.0, 140.0 -60.0, 0.0, 140.0
+Submit NavTriangle
+NavTriangle -20.0, 0.0, 120.0 -60.0, 0.0, 140.0 -60.0, 0.0, 120.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, 120.0 -60.0, 0.0, 140.0 -80.0, 0.0, 140.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, 120.0 -80.0, 0.0, 140.0 -80.0, 0.0, 120.0
+Submit NavTriangle
+NavTriangle -80.0, 0.0, 120.0 -80.0, 0.0, 140.0 -220.0, 0.0, 140.0
+Submit NavTriangle
+NavTriangle -80.0, 0.0, 120.0 -220.0, 0.0, 140.0 -220.0, 0.0, 120.0
+Submit NavTriangle
+NavTriangle -220.0, 0.0, 120.0 -220.0, 0.0, 140.0 -240.0, 0.0, 140.0
+Submit NavTriangle
+NavTriangle -220.0, 0.0, 120.0 -240.0, 0.0, 140.0 -240.0, 0.0, 120.0
+Submit NavTriangle
+NavTriangle -240.0, 0.0, 120.0 -240.0, 0.0, 140.0 -260.0, 0.0, 140.0
+Submit NavTriangle
+NavTriangle -240.0, 0.0, 120.0 -260.0, 0.0, 140.0 -260.0, 0.0, 120.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 120.0 -260.0, 0.0, 140.0 -320.0, 0.0, 140.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 120.0 -320.0, 0.0, 140.0 -320.0, 0.0, 120.0
+Submit NavTriangle
+NavTriangle -320.0, 0.0, 120.0 -320.0, 0.0, 140.0 -350.0, 0.0, 140.0
+Submit NavTriangle
+NavTriangle -320.0, 0.0, 120.0 -350.0, 0.0, 140.0 -350.0, 0.0, 120.0
+Submit NavTriangle
+
+NavTriangle -60.0, 0.0, 140.0 -60.0, 0.0, 240.0 -80.0, 0.0, 240.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, 140.0 -80.0, 0.0, 240.0 -80.0, 0.0, 140.0
+Submit NavTriangle
+NavTriangle -240.0, 0.0, 140.0 -240.0, 0.0, 240.0 -260.0, 0.0, 240.0
+Submit NavTriangle
+NavTriangle -240.0, 0.0, 140.0 -260.0, 0.0, 240.0 -260.0, 0.0, 140.0
+Submit NavTriangle
+
+NavTriangle 0.0, 0.0, 240.0 0.0, 0.0, 350.0 -60.0, 0.0, 350.0
+Submit NavTriangle
+NavTriangle 0.0, 0.0, 240.0 -60.0, 0.0, 350.0 -60.0, 0.0, 240.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, 240.0 -60.0, 0.0, 350.0 -80.0, 0.0, 350.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, 240.0 -80.0, 0.0, 350.0 -80.0, 0.0, 240.0
+Submit NavTriangle
+NavTriangle -80.0, 0.0, 240.0 -80.0, 0.0, 350.0 -240.0, 0.0, 350.0
+Submit NavTriangle
+NavTriangle -80.0, 0.0, 240.0 -240.0, 0.0, 350.0 -240.0, 0.0, 240.0
+Submit NavTriangle
+NavTriangle -240.0, 0.0, 240.0 -240.0, 0.0, 350.0 -260.0, 0.0, 350.0
+Submit NavTriangle
+NavTriangle -240.0, 0.0, 240.0 -260.0, 0.0, 350.0 -260.0, 0.0, 240.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 240.0 -260.0, 0.0, 350.0 -350.0, 0.0, 350.0
+Submit NavTriangle
+NavTriangle -260.0, 0.0, 240.0 -350.0, 0.0, 350.0 -350.0, 0.0, 240.0
+Submit NavTriangle
+
+ConnectNavTriangles 0, 1
+Submit NavConnection
+ConnectNavTriangles 1, 2
+Submit NavConnection
+ConnectNavTriangles 2, 3
+Submit NavConnection
+ConnectNavTriangles 3, 4
+Submit NavConnection
+ConnectNavTriangles 4, 5
+Submit NavConnection
+ConnectNavTriangles 6, 7
+Submit NavConnection
+ConnectNavTriangles 7, 8
+Submit NavConnection
+ConnectNavTriangles 8, 9
+Submit NavConnection
+ConnectNavTriangles 9, 10
+Submit NavConnection
+ConnectNavTriangles 10, 11
+Submit NavConnection
+
+ConnectNavTriangles 12, 13
+Submit NavConnection
+ConnectNavTriangles 13, 0
+Submit NavConnection
+ConnectNavTriangles 14, 15
+Submit NavConnection
+ConnectNavTriangles 15, 4
+Submit NavConnection
+ConnectNavTriangles 15, 16
+Submit NavConnection
+ConnectNavTriangles 16, 17
+Submit NavConnection
+ConnectNavTriangles 17, 18
+Submit NavConnection
+ConnectNavTriangles 18, 19
+Submit NavConnection
+ConnectNavTriangles 20, 21
+Submit NavConnection
+ConnectNavTriangles 21, 6
+Submit NavConnection
+ConnectNavTriangles 22, 23
+Submit NavConnection
+ConnectNavTriangles 23, 24
+Submit NavConnection
+ConnectNavTriangles 23, 10
+Submit NavConnection
+ConnectNavTriangles 24, 25
+Submit NavConnection
+
+ConnectNavTriangles 26, 27
+Submit NavConnection
+ConnectNavTriangles 27, 28
+Submit NavConnection
+ConnectNavTriangles 27, 12
+Submit NavConnection
+ConnectNavTriangles 28, 29
+Submit NavConnection
+ConnectNavTriangles 29, 30
+Submit NavConnection
+ConnectNavTriangles 30, 31
+Submit NavConnection
+ConnectNavTriangles 32, 33
+Submit NavConnection
+ConnectNavTriangles 33, 34
+Submit NavConnection
+ConnectNavTriangles 34, 35
+Submit NavConnection
+ConnectNavTriangles 35, 36
+Submit NavConnection
+ConnectNavTriangles 36, 37
+Submit NavConnection
+ConnectNavTriangles 37, 38
+Submit NavConnection
+ConnectNavTriangles 37, 18
+Submit NavConnection
+ConnectNavTriangles 38, 39
+Submit NavConnection
+ConnectNavTriangles 39, 40
+Submit NavConnection
+ConnectNavTriangles 40, 41
+Submit NavConnection
+ConnectNavTriangles 41, 20
+Submit NavConnection
+ConnectNavTriangles 42, 43
+Submit NavConnection
+ConnectNavTriangles 43, 24
+Submit NavConnection
+
+ConnectNavTriangles 44, 45
+Submit NavConnection
+ConnectNavTriangles 45, 26
+Submit NavConnection
+ConnectNavTriangles 46, 47
+Submit NavConnection
+ConnectNavTriangles 47, 30
+Submit NavConnection
+ConnectNavTriangles 47, 48
+Submit NavConnection
+ConnectNavTriangles 48, 49
+Submit NavConnection
+ConnectNavTriangles 49, 50
+Submit NavConnection
+ConnectNavTriangles 50, 51
+Submit NavConnection
+ConnectNavTriangles 51, 32
+Submit NavConnection
+ConnectNavTriangles 52, 53
+Submit NavConnection
+ConnectNavTriangles 53, 36
+Submit NavConnection
+ConnectNavTriangles 54, 55
+Submit NavConnection
+ConnectNavTriangles 55, 40
+Submit NavConnection
+
+ConnectNavTriangles 56, 57
+Submit NavConnection
+ConnectNavTriangles 57, 46
+Submit NavConnection
+ConnectNavTriangles 58, 59
+Submit NavConnection
+ConnectNavTriangles 59, 54
+Submit NavConnection
+ConnectNavTriangles 59, 60
+Submit NavConnection
+ConnectNavTriangles 60, 61
+Submit NavConnection
+ConnectNavTriangles 61, 62
+Submit NavConnection
+ConnectNavTriangles 62, 63
+Submit NavConnection
+ConnectNavTriangles 63, 42
+Submit NavConnection
+
+ConnectNavTriangles 64, 65
+Submit NavConnection
+
+ConnectNavTriangles 65, 62
+Submit NavConnection
+ConnectNavTriangles 66, 67
+Submit NavConnection
+ConnectNavTriangles 67, 44
+Submit NavConnection
+ConnectNavTriangles 67, 68
+Submit NavConnection
+ConnectNavTriangles 68, 69
+Submit NavConnection
+ConnectNavTriangles 69, 70
+Submit NavConnection
+ConnectNavTriangles 70, 71
+Submit NavConnection
+ConnectNavTriangles 71, 56
+Submit NavConnection
+ConnectNavTriangles 71, 72
+Submit NavConnection
+ConnectNavTriangles 72, 73
+Submit NavConnection
+ConnectNavTriangles 73, 74
+Submit NavConnection
+ConnectNavTriangles 74, 75
+Submit NavConnection
+ConnectNavTriangles 75, 52
+Submit NavConnection
+ConnectNavTriangles 75, 76
+Submit NavConnection
+ConnectNavTriangles 76, 77
+Submit NavConnection
+ConnectNavTriangles 77, 78
+Submit NavConnection
+ConnectNavTriangles 78, 79
+Submit NavConnection
+ConnectNavTriangles 79, 80
+Submit NavConnection
+ConnectNavTriangles 80, 81
+Submit NavConnection
+ConnectNavTriangles 81, 64
+Submit NavConnection
+
+ConnectNavTriangles 82, 83
+Submit NavConnection
+ConnectNavTriangles 83, 70
+Submit NavConnection
+ConnectNavTriangles 84, 85
+Submit NavConnection
+ConnectNavTriangles 85, 76
+Submit NavConnection
+
+ConnectNavTriangles 86, 87
+Submit NavConnection
+ConnectNavTriangles 87, 88
+Submit NavConnection
+ConnectNavTriangles 88, 89
+Submit NavConnection
+ConnectNavTriangles 89, 82
+Submit NavConnection
+ConnectNavTriangles 89, 90
+Submit NavConnection
+ConnectNavTriangles 90, 91
+Submit NavConnection
+ConnectNavTriangles 91, 92
+Submit NavConnection
+ConnectNavTriangles 92, 93
+Submit NavConnection
+ConnectNavTriangles 93, 84
+Submit NavConnection
+ConnectNavTriangles 93, 94
+Submit NavConnection
+ConnectNavTriangles 94, 95
+Submit NavConnection
+
+Submit NavMesh

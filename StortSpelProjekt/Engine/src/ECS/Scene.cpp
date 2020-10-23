@@ -74,9 +74,9 @@ bool Scene::RemoveEntity(std::string entityName)
     return true;
 }
 
-NavMesh* Scene::CreateNavMesh()
+NavMesh* Scene::CreateNavMesh(const std::string& type)
 {
-    m_pNavMesh = new NavMesh(this);
+    m_pNavMesh = new NavMesh(this, type);
     return m_pNavMesh;
 }
 
