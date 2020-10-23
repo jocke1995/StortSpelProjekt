@@ -146,13 +146,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			gui->GetTextManager()->SetText(textToRender, textName);
 
 			std::string name = "head" + std::to_string(nr);
+			gui = entity->AddComponent<component::GUI2DComponent>();
 			float2 quadPos = { 0.4f + change , 0.6f + change };
 			float2 quadScale = { 0.2, 0.2f };
 			gui->GetQuadManager()->CreateQuad(
 				name,
 				quadPos, quadScale,
 				true, true,
-				E_DEPTH_LEVEL::FRONT,
+				2,
 				float4{ 1.0, 1.0, 1.0, 1.0 },
 				headTexture);
 
@@ -186,16 +187,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			entity = activeScene->AddEntity(std::to_string(nr++));
 
 			name = "head" + std::to_string(nr);
-
 			gui = entity->AddComponent<component::GUI2DComponent>();
-
 			quadPos = { 0.09f + change, 0.04f + change };
 			quadScale = { 0.07f, 0.07f };
 			gui->GetQuadManager()->CreateQuad(
 				name,
 				quadPos, quadScale,
 				true, true,
-				E_DEPTH_LEVEL::FRONT,
+				2,
 				float4{ 1.0, 1.0, 1.0, 1.0 },
 				headTexture);
 
@@ -206,7 +205,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		}
 		else if (window->WasTabPressed())
 		{
-			sceneManager->RemoveEntity(activeScene->GetEntity(std::to_string(--nr)), activeScene);
+			if (nr >= 1)
+			{
+				sceneManager->RemoveEntity(activeScene->GetEntity(std::to_string(--nr)), activeScene);
+			}
 		}
 
         /* ------ Sort ------ */
