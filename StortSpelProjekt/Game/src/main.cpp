@@ -290,6 +290,7 @@ Scene* GetDemoScene(SceneManager* sm)
     /* ---------------------- Stefan ---------------------- */
 
 
+
     /* ---------------------- Enemy -------------------------------- */
     enemyFactory.SetScene(scene);
     enemyFactory.AddSpawnPoint({  0, 10, 40 });
