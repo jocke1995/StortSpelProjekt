@@ -315,14 +315,14 @@ Scene* GetDemoScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ 10, 10, 0 });
     enemyFactory.AddSpawnPoint({ 20, 10, 10 });
     enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04);
-
+    
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
     for (int i = 0; i < 75; i++)
     {
         entity = enemyFactory.SpawnEnemy("Enemy");
     }
     /* ---------------------- Enemy -------------------------------- */
-
+    
     /* ---------------------- Skybox ---------------------- */
     TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
     entity = scene->AddEntity("skybox");
@@ -387,7 +387,7 @@ Scene* ShopScene(SceneManager* sm)
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetScale(0.5f);
     scene->SetOriginalPosition(0.0, 20.0, 0.0);
     tc->GetTransform()->SetPosition(0.0, 20.0, 0.0);
 
@@ -574,13 +574,13 @@ void DemoUpdateScene(SceneManager* sm, double dt)
 {
     component::Audio3DEmitterComponent* ec;
 
-    std::string name = "Enemy";
-    for (int i = 0; i < 75; i++)
-    {
-        name = "Enemy" + std::to_string(i);
-        ec = sm->GetScene("DemoScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
-        ec->UpdateEmitter(L"Bruh");
-    }
+    //std::string name = "Enemy";
+    //for (int i = 0; i < 75; i++)
+    //{
+    //    name = "Enemy" + std::to_string(i);
+    //    ec = sm->GetScene("DemoScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
+    //    ec->UpdateEmitter(L"Bruh");
+    //}
 }
 
 void ShopUpdateScene(SceneManager* sm, double dt)
