@@ -9,7 +9,6 @@
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
-void DefaultUpdateScene(SceneManager* sm, double dt);
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
@@ -114,6 +113,7 @@ Scene* GameScene(SceneManager* sm)
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/CubePBR/cube.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+    Model* teleportModel = al->LoadModel(L"../Vendor/Resources/Models/Teleporter/Teleporter.obj");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
@@ -193,12 +193,11 @@ Scene* GameScene(SceneManager* sm)
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "shopScene");
 
     mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(cubeModel);
+    mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(-50.0f, 5.0f, -25.0f);
-    tc->GetTransform()->SetScale(5.0f, 5.0f, 1.0f);
-    tc->GetTransform()->SetRotationY(PI / 2);
+    tc->GetTransform()->SetPosition(-50.0f, 1.0f, -25.0f);
+    tc->GetTransform()->SetScale(7.0f);
 
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
@@ -242,6 +241,7 @@ Scene* ShopScene(SceneManager* sm)
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/CubePBR/cube.obj");
+    Model* teleportModel = al->LoadModel(L"../Vendor/Resources/Models/Teleporter/Teleporter.obj");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
@@ -305,12 +305,11 @@ Scene* ShopScene(SceneManager* sm)
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "GameScene");
     
     mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(cubeModel);
+    mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(-10.0f, 5.0f, -25.0f);
-    tc->GetTransform()->SetScale(5.0f, 5.0f, 1.0f);
-    tc->GetTransform()->SetRotationY(PI / 2);
+    tc->GetTransform()->SetPosition(-10.0f, 1.0f, -25.0f);
+    tc->GetTransform()->SetScale(7.0f);
     
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
@@ -436,10 +435,6 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&ShopUpdateScene);
     return scene;
-}
-
-void DefaultUpdateScene(SceneManager* sm, double dt)
-{
 }
 
 void GameUpdateScene(SceneManager* sm, double dt)
