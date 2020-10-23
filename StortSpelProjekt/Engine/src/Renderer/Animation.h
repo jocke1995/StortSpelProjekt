@@ -119,11 +119,4 @@ struct Animation
 	}
 };
 
-
-
-
-
-
-
-
 #endif

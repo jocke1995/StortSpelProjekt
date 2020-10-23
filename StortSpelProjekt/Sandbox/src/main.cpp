@@ -1066,9 +1066,9 @@ Scene* WilliamsTestScene(SceneManager* sm)
     // Get the models needed
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
-    Model* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
-    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
-    //Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/aniTest/Standard_Walk.fbx");
+    //Model* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
+    //Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/aniTest/Standard_Walk.fbx");
     //Model* amongUsModel = al->LoadModel(L"../Vendor/Resources/Models/amongus/AmongUs.fbx");
 
     Entity* entity = scene->AddEntity("player");
@@ -1090,115 +1090,113 @@ Scene* WilliamsTestScene(SceneManager* sm)
     nav->CreateGrid();
     /* ---------------------- Skybox ---------------------- */
 
-    // Skybox
-    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
-    entity = scene->AddEntity("skybox");
-    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    sbc->SetTexture(skyboxCubemap);
-
-    /* ---------------------- Skybox ---------------------- */
-
+    //// Skybox
+    //TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+    //entity = scene->AddEntity("skybox");
+    //component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    //sbc->SetTexture(skyboxCubemap);
+    //
+    ///* ---------------------- Skybox ---------------------- */
+    //
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
-
+    
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-
-
-    entity = scene->AddEntity("dragon");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    
-    mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(dragonModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(0.0f, -20.0f, 70.0f);
-    tc->GetTransform()->SetRotationX(1.5708);
-
-
-    //entity = scene->AddEntity("amongUs");
+    //
+    //
+    //entity = scene->AddEntity("dragon");
     //mc = entity->AddComponent<component::ModelComponent>();
     //tc = entity->AddComponent<component::TransformComponent>();
     //
     //mc = entity->GetComponent<component::ModelComponent>();
-    //mc->SetModel(aniTest);
+    //mc->SetModel(dragonModel);
     //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     //tc = entity->GetComponent<component::TransformComponent>();
-    //tc->GetTransform()->SetPosition(0.0f, 5.0f, 40.0f);
+    //tc->GetTransform()->SetPosition(0.0f, -20.0f, 70.0f);
+    //tc->GetTransform()->SetRotationX(1.5708);
 
-
+    entity = scene->AddEntity("amongUs");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(aniTest);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(0.0f, 5.0f, 40.0f);
 
     entity = scene->AddEntity("pointLight1");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+   // mc = entity->AddComponent<component::ModelComponent>();
+   // tc = entity->AddComponent<component::TransformComponent>();
+    plc = entity->AddComponent<component::PointLightComponent>();
+    plc->SetPosition({ -30.0f, 4.0f, 15.0f });
 
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(-30.0f, 4.0f, 15.0f);
+    //mc->SetModel(cubeModel);
+    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    //tc->GetTransform()->SetScale(0.5f);
+    //tc->GetTransform()->SetPosition(-30.0f, 4.0f, 15.0f);
 
-    entity = scene->AddEntity("pointLight2");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
-
-    plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
-
-
-    entity = scene->AddEntity("pointLight3");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
-
-    entity = scene->AddEntity("pointLight4");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(-30.0f, 4.0f, -15.0f);
-
-    entity = scene->AddEntity("pointLight5");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
-
-    plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
-
-    entity = scene->AddEntity("pointLight6");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
+   // entity = scene->AddEntity("pointLight2");
+   // mc = entity->AddComponent<component::ModelComponent>();
+   // tc = entity->AddComponent<component::TransformComponent>();
+   // plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+   //
+   // mc->SetModel(cubeModel);
+   // mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+   // tc->GetTransform()->SetScale(0.5f);
+   // tc->GetTransform()->SetPosition(0.0f, 4.0f, 15.0f);
+   //
+   // plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
+   //
+   //
+   // entity = scene->AddEntity("pointLight3");
+   // mc = entity->AddComponent<component::ModelComponent>();
+   // tc = entity->AddComponent<component::TransformComponent>();
+   // plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+   //
+   // mc->SetModel(cubeModel);
+   // mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+   // tc->GetTransform()->SetScale(0.5f);
+   // tc->GetTransform()->SetPosition(30.0f, 4.0f, 15.0f);
+   //
+   // entity = scene->AddEntity("pointLight4");
+   // mc = entity->AddComponent<component::ModelComponent>();
+   // tc = entity->AddComponent<component::TransformComponent>();
+   // plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+   //
+   // mc->SetModel(cubeModel);
+   // mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+   // tc->GetTransform()->SetScale(0.5f);
+   // tc->GetTransform()->SetPosition(-30.0f, 4.0f, -15.0f);
+   //
+   // entity = scene->AddEntity("pointLight5");
+   // mc = entity->AddComponent<component::ModelComponent>();
+   // tc = entity->AddComponent<component::TransformComponent>();
+   // plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+   //
+   // mc->SetModel(cubeModel);
+   // mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+   // tc->GetTransform()->SetScale(0.5f);
+   // tc->GetTransform()->SetPosition(0.0f, 4.0f, -15.0f);
+   //
+   // plc->SetAttenuation({ 1.0f, 0.045f, 0.0075 });
+   //
+   // entity = scene->AddEntity("pointLight6");
+   // mc = entity->AddComponent<component::ModelComponent>();
+   // tc = entity->AddComponent<component::TransformComponent>();
+   // plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+   //
+   // mc->SetModel(cubeModel);
+   // mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+   // tc->GetTransform()->SetScale(0.5f);
+   // tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
 
     return scene;
 }

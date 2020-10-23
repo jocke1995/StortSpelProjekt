@@ -107,6 +107,11 @@ const size_t Mesh::GetNumVertices() const
 	return m_Vertices.size();
 }
 
+const void* Mesh::GetVertexData() const
+{
+	return m_Vertices.data();
+}
+
 Resource* Mesh::GetDefaultResourceIndices() const
 {
 	return m_pDefaultResourceIndices;

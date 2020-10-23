@@ -35,6 +35,7 @@
 #include "Model.h"
 #include "AnimatedModel.h"
 #include "Mesh.h"
+#include "AnimatedMesh.h"
 #include "Texture/Texture.h"
 #include "Texture/TextureCubeMap.h"
 #include "Material.h"
@@ -932,7 +933,7 @@ void Renderer::submitMeshToCodt(Mesh* mesh)
 {
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 
-	std::tuple<Resource*, Resource*, const void*> Vert_Upload_Default_Data(mesh->m_pUploadResourceVertices, mesh->m_pDefaultResourceVertices, mesh->m_Vertices.data());
+	std::tuple<Resource*, Resource*, const void*> Vert_Upload_Default_Data(mesh->m_pUploadResourceVertices, mesh->m_pDefaultResourceVertices, mesh->GetVertexData());
 	std::tuple<Resource*, Resource*, const void*> Indi_Upload_Default_Data(mesh->m_pUploadResourceIndices, mesh->m_pDefaultResourceIndices, mesh->m_Indices.data());
 
 	codt->Submit(&Vert_Upload_Default_Data);
@@ -944,6 +945,7 @@ void Renderer::submitModelToCodt(Model* model)
 	for (unsigned int i = 0; i < model->GetSize(); i++)
 	{
 		Mesh* mesh = model->GetMeshAt(i);
+
 		// Submit Mesh
 		submitMeshToCodt(mesh);
 

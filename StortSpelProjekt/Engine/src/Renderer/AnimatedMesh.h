@@ -42,18 +42,17 @@ public:
         DescriptorHeap* descriptorHeap_SRV,
         const std::wstring& path = L"NOPATH");
 
+    void Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_heap);
+
+    const size_t GetSizeOfVertices() const;
+    const size_t GetNumVertices() const;
+
+    const void* GetVertexData() const;
+
     virtual ~AnimatedMesh();
 private:
     std::vector<AnimatedVertex> m_AnimatedVertices;
 
 };
-
-
-
-
-
-
-
-
 
 #endif
