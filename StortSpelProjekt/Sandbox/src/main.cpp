@@ -110,7 +110,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ---- Network ---- */
         if (gameNetwork.IsConnected())
         {
-            if (networkTimer >= networkUpdateRate) {
+            if (networkTimer >= networkUpdateRate) 
+			{
                 networkTimer = 0;
 
                 gameNetwork.Update(networkUpdateRate);
@@ -1042,7 +1043,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 		"health",
 		quadPos, quadScale,
 		false, false,
-		E_DEPTH_LEVEL::MID,
+		1,
 		notBlended,
 		buttonTexture);
 
@@ -1057,7 +1058,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 		"head",
 		quadPos, quadScale,
 		true, true,
-		E_DEPTH_LEVEL::FRONT,
+		2,
 		notBlended,
 		headTexture);
 	/* ---------------------------------------------------------- */
@@ -1071,7 +1072,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 		"overlay",
 		quadPos, quadScale,
 		false, false,
-		E_DEPTH_LEVEL::BACK, 
+		0, 
 		blended,
 		transTexture);
     /* ---------------------------------------------------------- */
@@ -1085,7 +1086,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 		"minimap",
 		quadPos, quadScale,
 		false, false,
-		E_DEPTH_LEVEL::FRONT,
+		2,
 		notBlended,
 		mapTexture);
 	/* ---------------------------------------------------------- */

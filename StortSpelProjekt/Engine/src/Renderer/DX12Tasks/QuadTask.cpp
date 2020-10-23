@@ -32,30 +32,6 @@ QuadTask::~QuadTask()
 
 void QuadTask::SetQuadComponents(std::vector<component::GUI2DComponent*>* quadComponents)
 {
-	// If m_Quadcomponents has changed, update the map
-	if (m_QuadComponents != *quadComponents)
-	{
-		m_QuadManagers.clear();
-
-		// Put each quad in one out of three vectors depending on depth level
-		int counter = 0;
-		for (component::GUI2DComponent* qui2DComponent : *quadComponents)
-		{
-			switch (*qui2DComponent->GetQuadManager()->GetDepthLevel())
-			{
-			case E_DEPTH_LEVEL::BACK:
-				m_QuadManagers[E_DEPTH_LEVEL::BACK].push_back(qui2DComponent->GetQuadManager());
-				break;
-			case E_DEPTH_LEVEL::MID:
-				m_QuadManagers[E_DEPTH_LEVEL::MID].push_back(qui2DComponent->GetQuadManager());
-				break;
-			case E_DEPTH_LEVEL::FRONT:
-				m_QuadManagers[E_DEPTH_LEVEL::FRONT].push_back(qui2DComponent->GetQuadManager());
-				break;
-			}
-		}
-	}
-
 	m_QuadComponents = *quadComponents;
 }
 
@@ -98,11 +74,7 @@ void QuadTask::Execute()
 	commandList->RSSetViewports(1, swapChainRenderTarget->GetRenderView()->GetViewPort());
 	commandList->RSSetScissorRects(1, swapChainRenderTarget->GetRenderView()->GetScissorRect());
 
-	for (int i = 0; i < E_DEPTH_LEVEL::NUM_DEPTH_LEVELS; i++)
-	{
-		E_DEPTH_LEVEL type = static_cast<E_DEPTH_LEVEL>(i);
-		draw(commandList, type);
-	}
+	draw(commandList);
 
 	// Change state on front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
@@ -113,10 +85,12 @@ void QuadTask::Execute()
 	commandList->Close();
 }
 
-void QuadTask::draw(ID3D12GraphicsCommandList5* commandList, E_DEPTH_LEVEL type)
+void QuadTask::draw(ID3D12GraphicsCommandList5* commandList)
 {
-	for (QuadManager* qm : m_QuadManagers[type])
+	for (int i = 0; i < m_QuadComponents.size(); i++)
 	{
+		QuadManager* qm = m_QuadComponents.at(i)->GetQuadManager();
+
 		// Create a CB_PER_GUI2D_OBJECT_STRUCT struct
 		size_t num_Indices = qm->GetQuad()->GetNumIndices();
 		const SlotInfo* info = qm->GetSlotInfo();
