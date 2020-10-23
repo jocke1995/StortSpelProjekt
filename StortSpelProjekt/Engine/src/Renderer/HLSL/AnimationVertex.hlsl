@@ -2,10 +2,12 @@
 
 struct VS_OUT
 {
-	float4 pos      : SV_Position;
-	float4 worldPos : WPos;
-	float2 uv       : UV;
-	float3x3 tbn	: TBN;
+	float4 pos				: SV_Position;
+	float4 worldPos			: WPos;
+	float2 uv				: UV;
+	float3x3 tbn			: TBN;
+	unsigned int boneIds[10]: IDS;
+	float weights[10]		: WEIGHTS;
 };
 
 struct vertex
@@ -14,6 +16,8 @@ struct vertex
 	float2 uv;
 	float3 norm;
 	float3 tang;
+	unsigned int boneIds[10];
+	float weights[10];
 };
 
 ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);

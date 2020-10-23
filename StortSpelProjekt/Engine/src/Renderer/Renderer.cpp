@@ -364,8 +364,14 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
 
-	// Drawing
+	// Opaque draw
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
+	// Animation draw
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::ANIMATION];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
@@ -997,6 +1003,7 @@ void Renderer::setRenderTasksPrimaryCamera()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::ANIMATION]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
@@ -1382,6 +1389,48 @@ void Renderer::initRenderTasks()
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion ForwardRendering
+
+#pragma region AnimationPass
+	/* Forward rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdAnimation = {};
+	gpsdAnimation.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdAnimation.NumRenderTargets = 1;
+	gpsdAnimation.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	// Depthstencil usage
+	gpsdAnimation.SampleDesc.Count = 1;
+	gpsdAnimation.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdAnimation.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdAnimation.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdAnimation.RasterizerState.FrontCounterClockwise = false;
+
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdAnimation.BlendState.RenderTarget[i] = defaultRTdesc;
+
+	gpsdAnimation.DepthStencilState = dsd;
+	gpsdAnimation.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
+
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdAnimationVector;
+	gpsdAnimationVector.push_back(&gpsdAnimation);
+
+	RenderTask* animationRenderTask = new AnimationRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"AnimationVertex.hlsl", L"AnimationPixel.hlsl",
+		&gpsdAnimationVector,
+		L"animationPSO",
+		FLAG_THREAD::RENDER);
+
+	animationRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
+	animationRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
+	animationRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
+	animationRenderTask->SetSwapChain(m_pSwapChain);
+	animationRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion AnimationPass
 
 #pragma region DownSampleTextureTask
 	/* Forward rendering without stencil testing */
@@ -1916,6 +1965,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS] = DepthPrePassRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::ANIMATION] = animationRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT] = transparentConstantRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE] = transparentTextureRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME] = wireFrameRenderTask;
@@ -1946,6 +1996,11 @@ void Renderer::initRenderTasks()
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandInterface()->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(animationRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -2018,7 +2073,7 @@ void Renderer::setRenderTasksRenderComponents()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::NO_DEPTH]);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
-	//m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::ANIMATED]);
+	m_RenderTasks[RENDER_TASK_TYPE::ANIMATION]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_ANIMATED]);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT]);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);

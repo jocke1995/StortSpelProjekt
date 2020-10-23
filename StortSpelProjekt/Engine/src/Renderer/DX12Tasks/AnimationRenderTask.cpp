@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ForwardRenderTask.h"
+#include "AnimationRenderTask.h"
 
 #include "../RenderView.h"
 #include "../RootSignature.h"
@@ -16,7 +16,7 @@
 #include "../GPUMemory/DepthStencil.h"
 #include "../GPUMemory/DepthStencilView.h"
 
-FowardRenderTask::FowardRenderTask(
+AnimationRenderTask::AnimationRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
 	const std::wstring& VSName, const std::wstring& PSName,
@@ -28,11 +28,11 @@ FowardRenderTask::FowardRenderTask(
 	
 }
 
-FowardRenderTask::~FowardRenderTask()
+AnimationRenderTask::~AnimationRenderTask()
 {
 }
 
-void FowardRenderTask::Execute()
+void AnimationRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
@@ -61,31 +61,22 @@ void FowardRenderTask::Execute()
 
 	// RenderTargets
 	const unsigned int swapChainIndex = swapChainRenderTarget->GetDescriptorHeapIndex();
-	const unsigned int brightTargetIndex = m_RenderTargetViews["brightTarget"]->GetDescriptorHeapIndex();
 	D3D12_CPU_DESCRIPTOR_HANDLE cdhSwapChain = renderTargetHeap->GetCPUHeapAt(swapChainIndex);
-	D3D12_CPU_DESCRIPTOR_HANDLE cdhBrightTarget = renderTargetHeap->GetCPUHeapAt(brightTargetIndex);
-	D3D12_CPU_DESCRIPTOR_HANDLE cdhs[] = { cdhSwapChain, cdhBrightTarget };
+	D3D12_CPU_DESCRIPTOR_HANDLE cdh = cdhSwapChain;
 
 	// Depth
 	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(m_pDepthStencil->GetDSV()->GetDescriptorHeapIndex());
 
-	commandList->OMSetRenderTargets(2, cdhs, false, &dsh);
-
-	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	commandList->ClearRenderTargetView(cdhSwapChain, clearColor, 0, nullptr);
-	commandList->ClearRenderTargetView(cdhBrightTarget, clearColor, 0, nullptr);
+	commandList->OMSetRenderTargets(1, &cdh, false, &dsh);
 
 	const D3D12_VIEWPORT viewPortSwapChain = *swapChainRenderTarget->GetRenderView()->GetViewPort();
-	const D3D12_VIEWPORT viewPortBrightTarget = *m_RenderTargetViews["brightTarget"]->GetRenderView()->GetViewPort();
-	const D3D12_VIEWPORT viewPorts[2] = { viewPortSwapChain, viewPortBrightTarget };
+	const D3D12_VIEWPORT viewPorts[1] = { viewPortSwapChain };
 
 	const D3D12_RECT rectSwapChain = *swapChainRenderTarget->GetRenderView()->GetScissorRect();
-	const D3D12_RECT rectBrightTarget = *m_RenderTargetViews["brightTarget"]->GetRenderView()->GetScissorRect();
-	const D3D12_RECT rects[2] = { rectSwapChain, rectBrightTarget };
+	const D3D12_RECT rects[1] = { rectSwapChain };
 
-	const D3D12_RECT* rect = swapChainRenderTarget->GetRenderView()->GetScissorRect();
-	commandList->RSSetViewports(2, viewPorts);
-	commandList->RSSetScissorRects(2, rects);
+	commandList->RSSetViewports(1, viewPorts);
+	commandList->RSSetScissorRects(1, rects);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Set cbvs
@@ -94,34 +85,14 @@ void FowardRenderTask::Execute()
 
 	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
 
-	// This pair for m_RenderComponents will be used for model-outlining in case any model is picked.
-	std::pair<component::ModelComponent*, component::TransformComponent*> outlinedModel = std::make_pair(nullptr, nullptr);
-
 	// Draw for every Rendercomponent with stencil testing disabled
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 	for (int i = 0; i < m_RenderComponents.size(); i++)
 	{
-		
 		component::ModelComponent* mc = m_RenderComponents.at(i).first;
 		component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
-		// If the model is picked, we dont draw it with default stencil buffer.
-		// Instead we store it and draw it later with a different pso to allow for model-outlining
-		if (mc->IsPickedThisFrame() == true)
-		{
-			outlinedModel = std::make_pair(m_RenderComponents.at(i).first, m_RenderComponents.at(i).second);
-			continue;
-		}
-		commandList->OMSetStencilRef(1);
 		drawRenderComponent(mc, tc, viewProjMatTrans, commandList);
-	}
-
-	// Draw Rendercomponent with stencil testing enabled
-	if (outlinedModel.first != nullptr)
-	{
-		commandList->SetPipelineState(m_PipelineStates[1]->GetPSO());
-		commandList->OMSetStencilRef(1);
-		drawRenderComponent(outlinedModel.first, outlinedModel.second, viewProjMatTrans, commandList);
 	}
 
 	// Change state on front/backbuffer
@@ -133,7 +104,7 @@ void FowardRenderTask::Execute()
 	commandList->Close();
 }
 
-void FowardRenderTask::drawRenderComponent(
+void AnimationRenderTask::drawRenderComponent(
 	component::ModelComponent* mc,
 	component::TransformComponent* tc,
 	const DirectX::XMMATRIX* viewProjTransposed,
