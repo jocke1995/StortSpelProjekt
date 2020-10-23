@@ -6,6 +6,8 @@ struct VS_OUT
 	float4 worldPos : WPos;
 	float2 uv       : UV;
 	float3x3 tbn	: TBN;
+	unsigned int boneIds[10]: IDS;
+	float weights[10]		: WEIGHTS;
 };
 
 struct PS_OUTPUT

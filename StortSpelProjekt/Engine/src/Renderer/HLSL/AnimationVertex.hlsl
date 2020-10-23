@@ -10,7 +10,7 @@ struct VS_OUT
 	float weights[10]		: WEIGHTS;
 };
 
-struct vertex
+struct animatedVertex
 {
 	float3 pos;
 	float2 uv;
@@ -21,14 +21,13 @@ struct vertex
 };
 
 ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
-
-StructuredBuffer<vertex> meshes[] : register(t0);
+StructuredBuffer<animatedVertex> meshes[] : register(t0);
 
 VS_OUT VS_main(uint vID : SV_VertexID)
 {
 	VS_OUT output = (VS_OUT)0;
 
-	vertex v = meshes[cbPerObject.info.vertexDataIndex][vID];
+	animatedVertex v = meshes[cbPerObject.info.vertexDataIndex][vID];
 	float4 vertexPosition = float4(v.pos.xyz, 1.0f);
 
 	output.pos = mul(vertexPosition, cbPerObject.WVP);
