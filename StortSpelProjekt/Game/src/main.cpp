@@ -60,7 +60,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     for (int i = 0; i < 75; i++)
     {
         entity = enemyFactory.SpawnEnemy("Enemy");
-        sceneManager->AddEntity(entity, demoScene);
     }
 
     //Scene* shopScene = ShopScene(sceneManager);
