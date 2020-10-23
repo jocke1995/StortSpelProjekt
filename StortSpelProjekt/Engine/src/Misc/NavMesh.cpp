@@ -41,6 +41,7 @@ NavQuad* NavMesh::AddNavQuad(float3 position, float2 size)
 	NavQuad* temp = new NavQuad();
 	temp->position = position;
 	temp->size = size;
+	temp->id = m_NavQuads.size();
 
 	m_NavQuads.push_back(temp);
 
@@ -71,18 +72,55 @@ void NavMesh::ConnectNavQuads(int nav1, int nav2)
 
 NavQuad* NavMesh::GetQuad(float3 position)
 {
-	for (int i = 0; i < m_NavQuads.size(); i++)
+	float minDist = D3D12_FLOAT32_MAX;
+	int closestQuad = 0;
+	for (NavQuad* quad : m_NavQuads)
 	{
-		NavQuad* temp = m_NavQuads.at(i);
-		if (temp->position.x - temp->size.x <= position.x && position.x <= temp->position.x + temp->size.x &&
-			temp->position.y - temp->size.y <= position.y && position.y <= temp->position.y + temp->size.y &&
-			temp->position.z == position.z)
+
+		float	left = quad->position.x - (quad->size.x / 2.0),
+				right = quad->position.x + (quad->size.x / 2.0),
+				back = quad->position.z - (quad->size.y / 2.0),
+				forward = quad->position.z + (quad->size.y / 2.0);
+		float dist = D3D12_FLOAT32_MAX;
+		if (left <= position.x && position.x <= right)
 		{
-			return temp;
+			if (back <= position.z && position.z <= forward)
+			{
+				return quad;
+			}
+			dist = std::min(abs(position.z - forward), abs(position.z - back));
+		}
+		else if (back <= position.z && position.z <= forward)
+		{
+			if (left <= position.x && position.x <= right)
+			{
+				return quad;
+			}
+			dist = std::min(abs(position.x - left), abs(position.x - right));
+		}
+		else
+		{
+			dist = float3({ std::min(abs(position.x - left), abs(position.x - right)), 0.0f, std::min(abs(position.z - forward), abs(position.z - back)) }).length();
+		}
+
+		if (dist < minDist)
+		{
+			minDist = dist;
+			closestQuad = quad->id;
 		}
 	}
 
-	return nullptr;
+	return m_NavQuads.at(closestQuad);
+}
+
+std::vector<NavQuad*> NavMesh::GetAllQuads()
+{
+	return m_NavQuads;
+}
+
+int NavMesh::GetNumQuads()
+{
+	return m_NavQuads.size();
 }
 
 void NavMesh::CreateGrid()
