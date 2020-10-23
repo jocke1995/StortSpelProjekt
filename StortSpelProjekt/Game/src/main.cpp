@@ -149,6 +149,11 @@ Scene* GetDemoScene(SceneManager* sm)
     horseSound->SetAudioLoop(0);
     attackSound->SetAudioLoop(1);
 
+    scene->CreateNavMesh();
+    NavMesh* nav = scene->GetNavMesh();
+    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
+    nav->CreateGrid();
+
     /* ---------------------- Player ---------------------- */
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -512,6 +517,7 @@ Scene* ShopScene(SceneManager* sm)
 
     /* ---------------------- Update Function ---------------------- */
     UpdateScene = &ShopUpdateScene;
+
     return scene;
 }
 
