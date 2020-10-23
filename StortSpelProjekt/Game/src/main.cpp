@@ -342,15 +342,15 @@ Scene* GameOverScene(SceneManager* sm)
     component::GUI2DComponent* textComp = text->AddComponent<component::GUI2DComponent>();
     textComp->GetTextManager()->AddText("GameOverText");
     textComp->GetTextManager()->SetScale({2, 2}, "GameOverText");
-    textComp->GetTextManager()->SetPos({0.30, 0.41}, "GameOverText");
-    textComp->GetTextManager()->SetText("GameOver", "GameOverText");
+    textComp->GetTextManager()->SetPos({0.29, 0.41}, "GameOverText");
+    textComp->GetTextManager()->SetText("Game Over", "GameOverText");
 
     // text2
     Entity* text2 = scene->AddEntity("youDiedText");
     component::GUI2DComponent* textComp2 = text2->AddComponent<component::GUI2DComponent>();
     textComp->GetTextManager()->AddText("youDiedText");
     textComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "youDiedText");
-    textComp->GetTextManager()->SetPos({ 0.48, 0.61 }, "youDiedText");
+    textComp->GetTextManager()->SetPos({ 0.43, 0.56 }, "youDiedText");
     textComp->GetTextManager()->SetText("(You Died...)", "youDiedText");
     
     return scene;
