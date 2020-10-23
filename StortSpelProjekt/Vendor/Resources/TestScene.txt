@@ -1,6 +1,6 @@
 Name testEntity
-ModelPath Models/Cube/crate.obj
-ModelScaling 1.0,1.0,1.0
+ModelPath Models/Teleporter/Teleporter.obj
+ModelScaling 10.0,10.0,10.0
 ModelRotation 1.0,0.0,0.0,1.0
 ModelPosition 1.0,10.0,1.0
 ModelDrawFlag 1,1

@@ -3,7 +3,7 @@
 #include "../ECS/Entity.h"
 #include "../Renderer/Transform.h"
 #include "../Physics/Physics.h"
-component::CollisionComponent::CollisionComponent(Entity* parent, double mass, double friction, double restitution, bool canFall, bool gravity) : Component(parent),
+component::CollisionComponent::CollisionComponent(Entity* parent, double mass, double friction, double restitution, bool canFall, double gravity) : Component(parent),
 m_pTrans(nullptr),
 m_pBody(nullptr),
 m_pMotionState(nullptr),
@@ -98,7 +98,7 @@ void component::CollisionComponent::OnInitScene()
 	// Add the collisioncomponent to the physics sub-engine.
 	Physics::GetInstance().AddCollisionComponent(this);
 
-	m_pBody->setGravity({ 0.0, -98.2 * m_Gravity, 0.0 });
+	m_pBody->setGravity({ 0.0, m_Gravity, 0.0 });
 
 	m_pBody->setAngularFactor({ 0.0, 1.0 * m_CanFall, 0.0 });
 }
@@ -190,13 +190,13 @@ void component::CollisionComponent::SetLinearFactor(double3& factor)
 	m_pBody->setLinearFactor({ factor.x, factor.y, factor.z });
 }
 
-void component::CollisionComponent::SetGravity(bool affectedByGravity)
+void component::CollisionComponent::SetGravity(double gravity)
 {
-	m_Gravity = affectedByGravity;
+	m_Gravity = gravity;
 
 	if (m_pBody)
 	{
-		m_pBody->setGravity({ 0.0, -98.2 * m_Gravity, 0.0 });
+		m_pBody->setGravity({ 0.0, m_Gravity, 0.0 });
 	}
 }
 
