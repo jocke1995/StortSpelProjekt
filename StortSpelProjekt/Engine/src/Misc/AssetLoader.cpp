@@ -486,6 +486,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	entityName.reserve(128);
 	std::string modelPath;
 	modelPath.reserve(128);
+	std::string texturePath;
+	modelPath.reserve(128);
 	std::string toSubmit;
 	toSubmit.reserve(128);
 	unsigned int flag;
@@ -520,6 +522,13 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	float2 size = { 0.0, 0.0 };
 	int quad1 = 0;
 	int quad2 = 0;
+	int tri1 = 0;
+	int tri2 = 0;
+	float3 vertex1;
+	float3 vertex2;
+	float3 vertex3;
+	std::string navMeshType;
+	navMeshType.reserve(128);
 
 	NavMesh* navMesh;
 
@@ -542,7 +551,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			}
 			else if (strcmp(lineHeader.c_str(), "NavMesh") == 0)
 			{
-				scene->CreateNavMesh();
+				fscanf(file, "%s", navMeshType.c_str());
+				scene->CreateNavMesh(navMeshType.c_str());
 				navMesh = scene->GetNavMesh();
 			}
 			else if (strcmp(lineHeader.c_str(), "ModelPath") == 0)
@@ -560,7 +570,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			{
 				fscanf(file, "%f,%f,%f", &rot.x, &rot.y, &rot.z);
 			}
-			else if (strcmp(lineHeader.c_str(), "ModelPosition") == 0 || strcmp(lineHeader.c_str(), "NavQuadPosition") == 0)
+			else if (strcmp(lineHeader.c_str(), "ModelPosition") == 0 || strcmp(lineHeader.c_str(), "NavQuadPosition") == 0 || strcmp(lineHeader.c_str(), "Position") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &pos.x, &pos.y, &pos.z);
 			}
@@ -638,9 +648,25 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			{
 				fscanf(file, "%f,%f", &size.x, &size.y);
 			}
-			else if (strcmp(lineHeader.c_str(), "NavConnectionQuads") == 0)
+			else if (strcmp(lineHeader.c_str(), "ConnectNavQuads") == 0)
 			{
 				fscanf(file, "%d,%d", &quad1, &quad2);
+			}
+			else if (strcmp(lineHeader.c_str(), "NavTriangle") == 0)
+			{
+				fscanf(file, "%f,%f,%f; %f,%f,%f; %f,%f,%f", &vertex1.x, &vertex1.y, &vertex1.z, &vertex2.x, &vertex2.y, &vertex2.z, &vertex3.x, &vertex3.y, &vertex3.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ConnectNavTriangles") == 0)
+			{
+				fscanf(file, "%d,%d", &tri1, &tri2);
+			}
+			else if (strcmp(lineHeader.c_str(), "EntityMass") == 0)
+			{
+				fscanf(file, "%f", &mass);
+			}
+			else if (strcmp(lineHeader.c_str(), "TexturePath") == 0)
+			{
+				fscanf(file, "%s", texturePath.c_str());
 			}
 			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
 			{
@@ -652,9 +678,9 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					tc = entity->AddComponent<component::TransformComponent>();
 					tc->GetTransform()->SetScale(1.0f);
 					tc->GetTransform()->SetScale(scaling.x,scaling.y,scaling.z);
-					tc->GetTransform()->SetRotationX(rot.x);
-					tc->GetTransform()->SetRotationY(rot.y);
-					tc->GetTransform()->SetRotationZ(rot.z);
+					tc->GetTransform()->SetRotationX(rot.x * (PI / 180));
+					tc->GetTransform()->SetRotationY(rot.y * (PI / 180));
+					tc->GetTransform()->SetRotationZ(rot.z * (PI / 180));
 					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
 
 					mc->SetModel(AssetLoader::LoadModel(to_wstring(fullPath)));
@@ -797,13 +823,31 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 				{
 					navMesh->AddNavQuad(pos, size);
 				}
+				else if (strcmp(toSubmit.c_str(), "NavTriangle") == 0)
+				{
+					navMesh->AddNavTriangle(vertex1, vertex2, vertex3);
+				}
 				else if (strcmp(toSubmit.c_str(), "NavConnection") == 0)
 				{
-					navMesh->ConnectNavQuads(quad1, quad2);
+					if (std::strcmp(navMeshType.c_str(), "Quads") == 0)
+					{
+						navMesh->ConnectNavQuads(quad1, quad2);
+					}
+					else if (std::strcmp(navMeshType.c_str(), "Triangles") == 0)
+					{
+						navMesh->ConnectNavTriangles(tri1, tri2);
+					}
 				}
 				else if (strcmp(toSubmit.c_str(), "NavMesh") == 0)
 				{
-					navMesh->CreateGrid();
+					if (std::strcmp(navMeshType.c_str(), "Quads") == 0)
+					{
+						navMesh->CreateQuadGrid();
+					}
+					else if (std::strcmp(navMeshType.c_str(), "Triangles") == 0)
+					{
+						navMesh->CreateTriangleGrid();
+					}
 				}
 				else if (strcmp(toSubmit.c_str(), "Skybox") == 0)
 				{

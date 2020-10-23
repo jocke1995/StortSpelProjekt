@@ -23,7 +23,10 @@ QuadManager::QuadManager()
 
 QuadManager::~QuadManager()
 {
-	EventBus::GetInstance().Unsubscribe(this, &QuadManager::pressed);
+	if (m_Clickable == true)
+	{
+		EventBus::GetInstance().Unsubscribe(this, &QuadManager::pressed);
+	}
 
 	if (m_pQuad != nullptr)
 	{
@@ -45,7 +48,7 @@ void QuadManager::CreateQuad(
 	std::string name,
 	float2 pos, float2 size,
 	bool clickable, bool markable,
-	E_DEPTH_LEVEL depthLevel,
+	int depthLevel,
 	float4 blend,
 	Texture* texture,
 	float3 color)
@@ -77,7 +80,7 @@ void QuadManager::CreateQuad(
 	m_Name = name;
 	m_Clickable = clickable;
 	m_Markable = markable;
-	m_DepthLevel = depthLevel;
+	m_Depth = depthLevel;
 	m_AmountOfBlend = blend;
 
 	float x = (pos.x * 2.0f) - 1.0f;
@@ -168,8 +171,6 @@ void QuadManager::UploadAndExecuteQuadData()
 	Renderer* renderer = &Renderer::GetInstance();
 
 	uploadQuadData(renderer);
-
-	renderer->executeCopyOnDemand();
 }
 
 const bool QuadManager::HasTexture() const
@@ -234,11 +235,6 @@ SlotInfo* const QuadManager::GetSlotInfo() const
 	return m_pSlotInfo;
 }
 
-const E_DEPTH_LEVEL* QuadManager::GetDepthLevel() const
-{
-	return &m_DepthLevel;
-}
-
 const float4 QuadManager::GetAmountOfBlend() const
 {
 	return m_AmountOfBlend;
@@ -247,6 +243,11 @@ const float4 QuadManager::GetAmountOfBlend() const
 const int QuadManager::GetId() const
 {
 	return m_Id;
+}
+
+int QuadManager::GetDepth() const
+{
+	return m_Depth;
 }
 
 const bool QuadManager::GetActiveTexture() const

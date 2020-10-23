@@ -111,24 +111,15 @@ void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 
 	// Remove from the scene
 	scene->RemoveEntity(entity->GetName());
-
-	Renderer::GetInstance().executeCopyOnDemand();
 }
 
 void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
-	// Use the first active scene if not specified
-	if (scene == nullptr)
-	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "You need to specify the scene!!\n");
-	}
-
 	entity->OnInitScene();
 
 	// Some components need to be sent to the gpu each frame
 	Renderer::GetInstance().SubmitUploadPerFrameData();
 	Renderer::GetInstance().SubmitUploadPerSceneData();
-	Renderer::GetInstance().executeCopyOnDemand();
 }
 
 void SceneManager::SetGameOverScene(Scene* scene)
@@ -173,7 +164,6 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 		}
 	}
 
-	renderer->executeCopyOnDemand();
 	return;
 }
 

@@ -139,6 +139,7 @@ enum FLAG_THREAD
 	RENDER = BIT(1),
 	NETWORK = BIT(2),
 	HEIGHTMAPLOAD = BIT(3),
+	A_STAR = BIT(4),
 	// CopyTextures,
 	// PrepareNextScene ..
 	// etc
