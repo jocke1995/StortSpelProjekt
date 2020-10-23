@@ -58,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    //Scene* jacobScene = JacobsTestScene(sceneManager);
+    Scene* jacobScene = JacobsTestScene(sceneManager);
     //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -68,9 +68,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* shopScene = ShopScene(sceneManager);
-    Scene* andresScene = AndresTestScene(sceneManager);
+    //Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { andresScene };
+    Scene* activeScenes[] = { jacobScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -149,6 +149,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     /*--------------------- Component declarations ---------------------*/
     Entity* entity = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
+    component::Audio3DListenerComponent* avc2 = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CameraComponent* cc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
@@ -170,6 +171,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    avc2 = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
@@ -258,10 +260,13 @@ Scene* LeosTestScene(SceneManager* sm)
     component::InputComponent* ic = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* ccc = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
+    component::Audio3DListenerComponent* avc2 = nullptr;
     component::HealthComponent* hc = nullptr;
     component::MeleeComponent* mac = nullptr;
     component::RangeComponent* rc = nullptr;
     component::UpgradeComponent* uc = nullptr;
+
     AssetLoader* al = AssetLoader::Get();
 
     al->LoadMap(scene, "../Vendor/Resources/leoScene.txt");
@@ -269,6 +274,9 @@ Scene* LeosTestScene(SceneManager* sm)
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
+    AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
+    AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
 #pragma endregion
 
 #pragma region entities
@@ -280,9 +288,12 @@ Scene* LeosTestScene(SceneManager* sm)
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    avc2 = entity->AddComponent<component::Audio3DListenerComponent>();
     mac = entity->AddComponent<component::MeleeComponent>();
     rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
     uc = entity->AddComponent<component::UpgradeComponent>();
+
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);

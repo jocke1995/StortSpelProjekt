@@ -1,9 +1,12 @@
 #include "ProjectileComponent.h"
 #include "Engine.h"
-#include "Events/Events.h"
-#include "../ECS/Entity.h"
 #include "HealthComponent.h"
 #include "UpgradeComponents/UpgradeComponent.h"
+
+#include "Events/Events.h"
+#include "../ECS/Entity.h"
+
+#include "../ECS/Components/Audio3DEmitterComponent.h"
 
 component::ProjectileComponent::ProjectileComponent(Entity* parent, int damage) : Component(parent)
 {
@@ -44,6 +47,11 @@ void component::ProjectileComponent::hit(Collision* event)
 		if (event->ent2->HasComponent<component::HealthComponent>())
 		{
 			event->ent2->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
+			if (event->ent2->GetName().find("conan") != std::string::npos && event->ent2->GetComponent<component::Audio3DEmitterComponent>())
+			{
+				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
+				event->ent2->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
+			}
 		}
 		// Call on upgrade on hit functions
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
@@ -58,6 +66,11 @@ void component::ProjectileComponent::hit(Collision* event)
 		if (event->ent1->HasComponent<component::HealthComponent>())
 		{
 			event->ent1->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
+			if (event->ent1->GetName().find("conan") != std::string::npos && event->ent1->GetComponent<component::Audio3DEmitterComponent>())
+			{
+				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
+				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
+			}
 		}
 		// Call on upgrade on hit functions
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
