@@ -59,7 +59,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
@@ -67,10 +67,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* antonScene = AntonTestScene(sceneManager);
-    //Scene* shopScene = ShopScene(sceneManager);
+    Scene* shopScene = ShopScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { leoScene };
+    Scene* activeScenes[] = { shopScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -320,18 +320,21 @@ Scene* LeosTestScene(SceneManager* sm)
 
 Scene* AntonTestScene(SceneManager* sm)
 {
-    Scene* scene = sm->CreateScene("antonScene");
+    Scene* scene = sm->CreateScene("AntonScene");
 
     AssetLoader* al = AssetLoader::Get();
 
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
+    AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
+
     /*--------------------- Assets ---------------------*/
 
     /*--------------------- Component declarations ---------------------*/
@@ -344,7 +347,12 @@ Scene* AntonTestScene(SceneManager* sm)
     component::PointLightComponent* plc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PlayerInputComponent* pic = nullptr;
-    component::CollisionComponent* bcc = nullptr;
+    component::GUI2DComponent* txc = nullptr;
+    component::CollisionComponent* ccc = nullptr;
+    component::SphereCollisionComponent* scc = nullptr;
+    component::MeleeComponent* melc = nullptr;
+    component::RangeComponent* ranc = nullptr;
+    /*--------------------- Component declarations ---------------------*/
 
     scene->CreateNavMesh();
     NavMesh* nav = scene->GetNavMesh();
@@ -360,76 +368,34 @@ Scene* AntonTestScene(SceneManager* sm)
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
-    bbc = entity->AddComponent < component::BoundingBoxComponent>();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>();
+    melc = entity->AddComponent<component::MeleeComponent>();
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.2, 1, 50);
 
-    Transform* t = tc->GetTransform();
-
-    tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(-15.0f, 10.0f, 0.0f);
-
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f, false);
-    pic->Init();
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
 
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(1, mc->GetModelDim().x / 2.0f, mc->GetModelDim().y / 2.0f, mc->GetModelDim().z / 2.0f, 0, 0, false);
+    pic->Init();
+
     avc->AddVoice(L"Bruh");
-
-    enemyFactory.SetScene(scene);
-
-    enemyFactory.AddEnemy("conan", barbModel, 20, float3{ 50.0, 1.0, -10.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 0.0f);
-    enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 0.0 });
-    enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 10.0 });
-    enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 20.0 });
-
-    /*--------------------- Box ---------------------*/
-    // entity
-    entity = scene->AddEntity("Box");
-
-    // components
-    mc = entity->AddComponent<component::ModelComponent>();
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(5.0f, 1.0f, 4.0f);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(1000.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
-
-    mc->SetModel(cubeModel);
-
-    /*--------------------- Floor ---------------------*/
-    // entity
-    entity = scene->AddEntity("floor");
-
-    // components
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 350.0, 0.0, 350.0);
-
-
-    mc->SetModel(floorModel);
-    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(350.0f, 1.0f, 350.0f);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-
-    /* ---------------------- PointLight1 ---------------------- */
-    entity = scene->AddEntity("pointLight1");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(cubeModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
-
-    /*--------------------- DirectionalLight ---------------------*/
-    // entity
     entity = scene->AddEntity("sun");
 
     // components
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    dlc->SetDirection({ 1.0f, -1.0f, -1.0f });
-    dlc->SetColor({ 0.5f, 0.5f, 0.5f });
+    dlc->SetDirection({ 0.05f, -0.3f, 0.5f });
+    dlc->SetColor({ 252.0f / 256.0f, 156.0f / 256.0f, 84.0f / 256.0f });
+    dlc->SetCameraTop(150.0f);
+    dlc->SetCameraBot(-100.0f);
+    dlc->SetCameraRight(130.0f);
+    dlc->SetCameraLeft(-180.0f);
+    dlc->SetCameraNearZ(-1000.0f);
+    /*--------------------- DirectionalLight ---------------------*/
+
+    UpdateScene = &TimUpdateScene;
 
     return scene;
 }
