@@ -6,7 +6,6 @@
 
 #define DASH_MOD 4.0
 #define SPRINT_MOD 3.0
-#define JUMP_MOD 1.5
 
 //Camera
 class BaseCamera;
@@ -46,6 +45,11 @@ namespace component
 
 		void RenderUpdate(double dt);
 
+		//Sets the maximum height of a jump
+		void SetJumpHeight(double height);
+		//Sets the time until maximum height. Total time is twice
+		void SetJumpTime(double time);
+
 	private:
 		unsigned int m_CameraFlags = 0;
 		float m_Zoom;
@@ -61,6 +65,10 @@ namespace component
 		double m_DashTimer;
 		bool m_DashReady;
 		bool m_Dashing;
+
+		double m_JumpHeight;
+		double m_JumpTime;
+		double m_Gravity;
 
 		void(PlayerInputComponent::*specificUpdate)(double dt);
 
