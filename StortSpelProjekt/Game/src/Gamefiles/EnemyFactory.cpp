@@ -177,6 +177,7 @@ Entity* EnemyFactory::Add(const std::string& name, Model* model, int hp, float3 
 	{
 		ai = ent->AddComponent<component::AiComponent>(target, aiFlags, aiDetectionRadius, aiAttackingDistance);
 		ai->SetAttackInterval(aiAttackInterval);
+		ai->SetScene(m_pScene);
 	}
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
 	ae->AddVoice(sound3D);
