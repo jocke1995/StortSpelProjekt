@@ -654,7 +654,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			}
 			else if (strcmp(lineHeader.c_str(), "NavTriangle") == 0)
 			{
-				fscanf(file, "%f,%f,%f %f,%f,%f %f,%f,%f", &vertex1.x, &vertex1.y, &vertex1.z, &vertex2.x, &vertex2.y, &vertex2.z, &vertex3.x, &vertex3.y, &vertex3.z);
+				fscanf(file, "%f,%f,%f; %f,%f,%f; %f,%f,%f", &vertex1.x, &vertex1.y, &vertex1.z, &vertex2.x, &vertex2.y, &vertex2.z, &vertex3.x, &vertex3.y, &vertex3.z);
 			}
 			else if (strcmp(lineHeader.c_str(), "ConnectNavTriangles") == 0)
 			{
