@@ -313,8 +313,16 @@ Scene* LeosTestScene(SceneManager* sm)
 
 #pragma region enemies
     enemyFactory.SetScene(scene);
-    enemyFactory.AddEnemy("zombie", zombieModel, 20, float3{ -10.0, 10.0, 340.0 }, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
-    enemyFactory.AddExistingEnemy("zombie", float3{ -340.0, 10.0, 340.0 });
+
+    enemyFactory.AddSpawnPoint({ -10.0, 10.0, 340.0 });
+    enemyFactory.AddSpawnPoint({ -340.0, 10.0, 340.0 });
+    enemyFactory.DefineEnemy("zombie", zombieModel, 20, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
+
+    for (int i = 0; i < 75; i++)
+    {
+        entity = enemyFactory.SpawnEnemy("zombie");
+    }
+
 #pragma endregion
 
 #pragma endregion
