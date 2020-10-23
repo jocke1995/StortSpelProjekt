@@ -62,16 +62,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* leoBounceScene = LeosBounceScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
-    Scene* jockeScene = JockesTestScene(sceneManager);
+    //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
 	//Scene* fredrikScene = FredriksTestScene(sceneManager);
-    //Scene* williamScene = WilliamsTestScene(sceneManager);
+    Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* shopScene = ShopScene(sceneManager);
 
-    Scene* activeScenes[] = { jockeScene };
+    Scene* activeScenes[] = { williamScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -1116,7 +1116,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     // Get the models needed
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
-    //Model* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
+    Model* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     //Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/aniTest/Standard_Walk.fbx");
     //Model* amongUsModel = al->LoadModel(L"../Vendor/Resources/Models/amongus/AmongUs.fbx");
@@ -1157,16 +1157,16 @@ Scene* WilliamsTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
 
-    //entity = scene->AddEntity("dragon");
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //
-    //mc = entity->GetComponent<component::ModelComponent>();
-    //mc->SetModel(dragonModel);
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    //tc = entity->GetComponent<component::TransformComponent>();
-    //tc->GetTransform()->SetPosition(0.0f, -20.0f, 70.0f);
-    //tc->GetTransform()->SetRotationX(1.5708);
+    entity = scene->AddEntity("dragon");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(dragonModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(0.0f, -20.0f, 70.0f);
+    tc->GetTransform()->SetRotationX(1.5708);
 
 
     //entity = scene->AddEntity("amongUs");

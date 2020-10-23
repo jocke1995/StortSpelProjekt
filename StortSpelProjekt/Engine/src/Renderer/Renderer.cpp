@@ -498,6 +498,16 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 		{
 			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
 		}
+
+		if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
+		{
+			m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
+		}
+
+		if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
+		{
+			m_RenderComponents[FLAG_DRAW::GIVE_SHADOW].push_back(std::make_pair(mc, tc));
+		}
 	}
 }
 
