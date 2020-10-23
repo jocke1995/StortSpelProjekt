@@ -16,14 +16,6 @@ struct MouseClick;
 
 static int s_Id = 0;
 
-enum E_DEPTH_LEVEL
-{
-	BACK,
-	MID,
-	FRONT,
-	NUM_DEPTH_LEVELS
-};
-
 class QuadManager
 {
 public:
@@ -37,7 +29,7 @@ public:
 		std::string name,
 		float2 pos, float2 size, 
 		bool clickable, bool markable,
-		E_DEPTH_LEVEL depthLevel, 
+		int depthLevel, 
 		float4 blend = float4{ 1.0, 1.0, 1.0, 1.0 },
 		Texture* texture = nullptr,
 		float3 color = float3{ 0.0, 0.0, 0.0 });
@@ -51,9 +43,9 @@ public:
 	Mesh* const GetQuad() const;
 	Texture* const GetTexture(bool texture) const;
 	SlotInfo* const GetSlotInfo() const;
-	const E_DEPTH_LEVEL* GetDepthLevel() const;
 	const float4 GetAmountOfBlend() const;
 	const int GetId() const;
+	int GetDepth() const;
 
 	// 0 (false) for the normal texture and 1 (true) for the marked texture
 	const bool GetActiveTexture() const;
@@ -66,10 +58,10 @@ private:
 	friend class Renderer;
 
 	int m_Id = 0;
+	int m_Depth = 0;
 	std::string m_Name;
 	float4 m_AmountOfBlend = float4{ 1.0, 1.0, 1.0, 1.0 };
 	std::map<std::string, float2> m_Positions = {};
-	E_DEPTH_LEVEL m_DepthLevel = {};
 
 	Mesh* m_pQuad = nullptr;
 	SlotInfo* m_pSlotInfo = nullptr;

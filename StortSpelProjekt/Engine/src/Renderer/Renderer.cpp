@@ -330,6 +330,12 @@ void Renderer::SortObjects()
 		// Free memory
 		delete distFromCamArr;
 	}
+
+	// Sort the quads by looking at their depths
+	std::sort(m_QuadComponents.begin(), m_QuadComponents.end(), [](component::GUI2DComponent* a, component::GUI2DComponent* b)
+	{
+		return a->GetQuadManager()->GetDepth() < b->GetQuadManager()->GetDepth();
+	});
 	
 	// Update the entity-arrays inside the rendertasks
 	setRenderTasksGUI2DComponents();
@@ -674,8 +680,6 @@ void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 		// Finally store the quad in m_pRenderer so it will be drawn
 		m_QuadComponents.push_back(component);
 	}
-
-	setRenderTasksGUI2DComponents();
 }
 
 void Renderer::UnInitSkyboxComponent(component::SkyboxComponent* component)

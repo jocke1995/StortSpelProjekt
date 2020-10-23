@@ -9,6 +9,9 @@
 Scene* GetDemoScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
+Scene* GameScene(SceneManager* sm);
+void GameUpdateScene(SceneManager* sm, double dt);
+
 void(*UpdateScene)(SceneManager*, double dt);
 
 void DemoUpdateScene(SceneManager* sm, double dt);
@@ -48,7 +51,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     /*----- Set the scene -----*/
-    Scene* demoScene = GetDemoScene(sceneManager);
+    Scene* demoScene = GameScene(sceneManager);
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &demoScene);
 
@@ -106,6 +109,107 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     return 0;
 }
 
+Scene* GameScene(SceneManager* sm)
+{
+    Scene* scene = sm->CreateScene("GameScene");
+
+    AssetLoader* al = AssetLoader::Get();
+
+    al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
+    Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
+    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+
+    AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
+    AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
+
+    /*--------------------- Assets ---------------------*/
+
+    /*--------------------- Component declarations ---------------------*/
+    Entity* entity = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
+    component::BoundingBoxComponent* bbc = nullptr;
+    component::CameraComponent* cc = nullptr;
+    component::DirectionalLightComponent* dlc = nullptr;
+    component::ModelComponent* mc = nullptr;
+    component::PointLightComponent* plc = nullptr;
+    component::TransformComponent* tc = nullptr;
+    component::PlayerInputComponent* pic = nullptr;
+    component::GUI2DComponent* txc = nullptr;
+    component::CollisionComponent* ccc = nullptr;
+    component::SphereCollisionComponent* scc = nullptr;
+    component::MeleeComponent* melc = nullptr;
+    component::RangeComponent* ranc = nullptr;
+    /*--------------------- Component declarations ---------------------*/
+
+    /*--------------------- Player ---------------------*/
+    // entity
+    entity = scene->AddEntity("player");
+
+    // components
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>();
+    melc = entity->AddComponent<component::MeleeComponent>();
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.2, 1, 50);
+
+    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
+
+    mc->SetModel(playerModel);
+    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
+
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(1, mc->GetModelDim().x / 2.0f, mc->GetModelDim().y / 2.0f, mc->GetModelDim().z / 2.0f, 0, 0, false);
+    pic->Init();
+
+    avc->AddVoice(L"Bruh");
+    entity = scene->AddEntity("sun");
+
+    // components
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
+    dlc->SetDirection({ 0.05f, -0.3f, 0.5f });
+    dlc->SetColor({ 252.0f / 256.0f, 156.0f / 256.0f, 84.0f / 256.0f });
+    dlc->SetCameraTop(150.0f);
+    dlc->SetCameraBot(-100.0f);
+    dlc->SetCameraRight(130.0f);
+    dlc->SetCameraLeft(-180.0f);
+    dlc->SetCameraNearZ(-1000.0f);
+    /*--------------------- DirectionalLight ---------------------*/
+
+    UpdateScene = &GameUpdateScene;
+
+    return scene;
+}
+
+void GameUpdateScene(SceneManager* sm, double dt)
+{
+    if (ImGuiHandler::GetInstance().GetBool("reset"))
+    {
+        ImGuiHandler::GetInstance().SetBool("reset", false);
+
+        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetPosition(0, 10, 0);
+
+        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
+        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetPosition(1, 1, 1);
+
+        sm->GetScene("TimScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 3.14, 0);
+        sm->GetScene("TimScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetFriction(0);
+
+    }
+}
+
+
 Scene* GetDemoScene(SceneManager* sm)
 {
     // Create Scene
@@ -148,6 +252,11 @@ Scene* GetDemoScene(SceneManager* sm)
     melodySound->SetAudioLoop(0);
     horseSound->SetAudioLoop(0);
     attackSound->SetAudioLoop(1);
+
+    scene->CreateNavMesh();
+    NavMesh* nav = scene->GetNavMesh();
+    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
+    nav->CreateGrid();
 
     /* ---------------------- Player ---------------------- */
     Entity* entity = scene->AddEntity("player");
@@ -512,6 +621,7 @@ Scene* ShopScene(SceneManager* sm)
 
     /* ---------------------- Update Function ---------------------- */
     UpdateScene = &ShopUpdateScene;
+
     return scene;
 }
 
