@@ -7,6 +7,8 @@
 #include "Shop.h"
 
 Scene* GetDemoScene(SceneManager* sm);
+
+Scene* GameOverScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
 Scene* GameScene(SceneManager* sm);
@@ -52,8 +54,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     /*----- Set the scene -----*/
     Scene* demoScene = GameScene(sceneManager);
+    Scene* gameOverScene = GameOverScene(sceneManager);
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &demoScene);
+    sceneManager->SetGameOverScene(gameOverScene);
 
     GameNetwork gameNetwork;
 
@@ -383,6 +387,7 @@ Scene* GetDemoScene(SceneManager* sm)
     /* ---------------------- Stefan ---------------------- */
 
 
+
     /* ---------------------- Enemy -------------------------------- */
     enemyFactory.SetScene(scene);
     enemyFactory.AddSpawnPoint({  0, 10, 40 });
@@ -409,6 +414,42 @@ Scene* GetDemoScene(SceneManager* sm)
     srand(time(NULL));
     /* ---------------------- Update Function ---------------------- */
 
+    return scene;
+}
+
+Scene* GameOverScene(SceneManager* sm)
+{
+    AssetLoader* al = AssetLoader::Get();
+
+    // Create Scene
+    Scene* scene = sm->CreateScene("gameOverScene");
+
+    // Player (Need a camera)
+    Entity* entity = scene->AddEntity("player");
+    entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+
+    // Skybox
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
+    sbc->SetTexture(blackCubeMap);
+
+    // Game over Text
+    Entity* text = scene->AddEntity("gameOverText");
+    component::GUI2DComponent* textComp = text->AddComponent<component::GUI2DComponent>();
+    textComp->GetTextManager()->AddText("GameOverText");
+    textComp->GetTextManager()->SetScale({2, 2}, "GameOverText");
+    textComp->GetTextManager()->SetPos({0.29, 0.41}, "GameOverText");
+    textComp->GetTextManager()->SetText("Game Over", "GameOverText");
+
+    // text2
+    Entity* text2 = scene->AddEntity("youDiedText");
+    component::GUI2DComponent* textComp2 = text2->AddComponent<component::GUI2DComponent>();
+    textComp->GetTextManager()->AddText("youDiedText");
+    textComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "youDiedText");
+    textComp->GetTextManager()->SetPos({ 0.43, 0.56 }, "youDiedText");
+    textComp->GetTextManager()->SetText("(You Died...)", "youDiedText");
+    
     return scene;
 }
 
