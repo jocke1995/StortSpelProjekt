@@ -1425,7 +1425,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 2, float3{ 0, 0, 0 }, "player");
+    entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 5.0f, 0.5f);
     /* ---------------------- Enemy -------------------------------- */
 
 

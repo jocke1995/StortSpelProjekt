@@ -36,6 +36,7 @@ struct EnemyComps
 	double3 dim;
 	float detectionRad;
 	float attackingDist;
+	float attackInterval;
 };
 
 class EnemyFactory
@@ -51,7 +52,7 @@ public:
 	// Flag is used for selecting which specific components are needed for this enemy e.g. OBB. 
 	// Components that enemies have as default won't have a flag.
 	// Will allways draw_opaque and give shadows.
-	Entity* AddEnemy(const std::string& entityName, Model* model, int hp, float3 pos, const std::wstring& sound3D, unsigned int compFlags = 0, unsigned int aiFlags = 0, float scale = 1, float3 rot = { 0, 0, 0 }, const std::string& aiTarget = "player", float aiDetectionRadius = 25.0f, float aiAttackingDistance = 3.5f);
+	Entity* AddEnemy(const std::string& entityName, Model* model, int hp, float3 pos, const std::wstring& sound3D, unsigned int compFlags = 0, unsigned int aiFlags = 0, float scale = 1, float3 rot = { 0, 0, 0 }, const std::string& aiTarget = "player", float aiDetectionRadius = 25.0f, float aiAttackingDistance = 3.5f, float aiAttackInterval = 0.5f);
 	// used if you want to add an already existing enemy type to the scene with only the pos being different
 	Entity* AddExistingEnemy(const std::string& entityName, float3 pos);
 	// Used if you want to add an already existing enemy but change some of the values; flag, scale, rot or hp.
@@ -60,7 +61,7 @@ public:
 	// To skipp scale and write to rot the equvalent would be FLT_MAX.
 	Entity* AddExistingEnemyWithChanges(const std::string& entityName, float3 pos, unsigned int compFlags = UINT_MAX, unsigned int aiFlags = UINT_MAX, float scale = FLT_MAX, float3 rot = { FLT_MAX , FLT_MAX , FLT_MAX }, int hp = INT_MAX);
 	// Helper function for adding an enemy
-	Entity* Add(const std::string& entityName, Model* model, int hp, float3 pos, const std::wstring& sound3D, unsigned int flag, unsigned int aiFlags, double3 dim, float scale, float3 rot, const std::string& aiTarget, float aiDetectionRadius, float aiAttackingDistance);
+	Entity* Add(const std::string& entityName, Model* model, int hp, float3 pos, const std::wstring& sound3D, unsigned int flag, unsigned int aiFlags, double3 dim, float scale, float3 rot, const std::string& aiTarget, float aiDetectionRadius, float aiAttackingDistance, float aiAttackInterval);
 
 	std::vector<Entity*>* GetAllEnemies();
 	
@@ -71,7 +72,7 @@ public:
 	// Spawns an enemy at random spawnpoint. Assumes that there are atleast two spawnpoints!
 	Entity* SpawnEnemy(std::string entityName);
 	// Defines an enemy without adding it to the scene.
-	EnemyComps* DefineEnemy(const std::string& entityName, Model* model, int hp, const std::wstring& sound3D, unsigned int compFlags = 0, unsigned int aiFlags = 0, float scale = 1, float3 rot = { 0, 0, 0 }, const std::string& aiTarget = "player", float aiDetectionRadius = 25.0f, float aiAttackingDistance = 3.5f);
+	EnemyComps* DefineEnemy(const std::string& entityName, Model* model, int hp, const std::wstring& sound3D, unsigned int compFlags = 0, unsigned int aiFlags = 0, float scale = 1, float3 rot = { 0, 0, 0 }, const std::string& aiTarget = "player", float aiDetectionRadius = 25.0f, float aiAttackingDistance = 3.5f, float aiAttackInterval = 0.5f);
 
 private:
 	Scene* m_pScene = nullptr;
