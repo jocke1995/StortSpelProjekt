@@ -9,8 +9,6 @@
 class RootSignature;
 class QuadManager;
 
-enum E_DEPTH_LEVEL;
-
 namespace component
 {
 	class GUI2DComponent;
@@ -34,8 +32,7 @@ public:
 private:
 	std::vector<component::GUI2DComponent*> m_QuadComponents;
 
-	std::map<E_DEPTH_LEVEL, std::vector<QuadManager*>> m_QuadManagers;
-	void draw(ID3D12GraphicsCommandList5* commandList, E_DEPTH_LEVEL type);
+	void draw(ID3D12GraphicsCommandList5* commandList);
 };
 
 #endif

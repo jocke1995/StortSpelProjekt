@@ -16,7 +16,6 @@ Scene* AntonTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
-
 void(*UpdateScene)(SceneManager*, double dt);
 void LeoUpdateScene(SceneManager* sm, double dt);
 void TimUpdateScene(SceneManager* sm, double dt);
@@ -59,18 +58,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    //Scene* leoScene = LeosTestScene(sceneManager);
+    Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* filipScene = FloppipTestScene(sceneManager);
-	//Scene* fredrikScene = FredriksTestScene(sceneManager);
+	Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* antonScene = AntonTestScene(sceneManager);
-    Scene* shopScene = ShopScene(sceneManager);
+    //Scene* shopScene = ShopScene(sceneManager);
     //Scene* andresScene = AndresTestScene(sceneManager);
 
-    Scene* activeScenes[] = { shopScene };
+    Scene* activeScenes[] = { leoScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -111,7 +110,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ---- Network ---- */
         if (gameNetwork.IsConnected())
         {
-            if (networkTimer >= networkUpdateRate) {
+            if (networkTimer >= networkUpdateRate) 
+			{
                 networkTimer = 0;
 
                 gameNetwork.Update(networkUpdateRate);
@@ -987,7 +987,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 		"health",
 		quadPos, quadScale,
 		false, false,
-		E_DEPTH_LEVEL::MID,
+		1,
 		notBlended,
 		buttonTexture);
 
@@ -1002,7 +1002,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 		"head",
 		quadPos, quadScale,
 		true, true,
-		E_DEPTH_LEVEL::FRONT,
+		2,
 		notBlended,
 		headTexture);
 	/* ---------------------------------------------------------- */
@@ -1016,7 +1016,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 		"overlay",
 		quadPos, quadScale,
 		false, false,
-		E_DEPTH_LEVEL::BACK, 
+		0, 
 		blended,
 		transTexture);
     /* ---------------------------------------------------------- */
@@ -1030,7 +1030,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 		"minimap",
 		quadPos, quadScale,
 		false, false,
-		E_DEPTH_LEVEL::FRONT,
+		2,
 		notBlended,
 		mapTexture);
 	/* ---------------------------------------------------------- */
@@ -1682,12 +1682,12 @@ Scene* ShopScene(SceneManager* sm)
     mc->SetModel(shopModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 
+    double3 shopDim = mc->GetModelDim();
     tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(30.0f, 0.0f, 30.0f);
+    tc->GetTransform()->SetPosition(30.0f, shopDim.y/2, 30.0f);
     tc->GetTransform()->SetRotationY(PI + PI / 4);
 
-    double3 shopDim = mc->GetModelDim();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(10000000.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
     /* ---------------------- Shop ---------------------- */
 #pragma region walls
     // Left wall
@@ -1820,8 +1820,6 @@ void JockeUpdateScene(SceneManager* sm, double dt)
 
 void FredriksUpdateScene(SceneManager* sm, double dt)
 {
-	component::GUI2DComponent* head = sm->GetScene("FredriksTestScene")->GetEntity("head")->GetComponent<component::GUI2DComponent>();
-
 	/*AssetLoader* al = AssetLoader::Get();
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
