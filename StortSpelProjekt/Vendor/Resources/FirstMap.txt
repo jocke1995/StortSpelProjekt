@@ -170,6 +170,45 @@ ModelDrawFlag 4, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
+Name Barrel1
+ModelPath Models/WoodenBarrel/woodenBarrel.obj
+ModelScaling 7.0, 7.0, 7.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition -70.0, 5.0, 1.0
+ModelMass 15.0
+ModelFriction 1.0
+ModelRestitution 1.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCapsule 0.0, 0.0
+
+Name Barrel2
+ModelPath Models/WoodenBarrel/woodenBarrel.obj
+ModelScaling 7.0, 7.0, 7.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition -70.0, 5.0, 5.0
+ModelMass 15.0
+ModelFriction 1.0
+ModelRestitution 1.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCapsule 0.0, 0.0
+
+Name Barrel3
+ModelPath Models/WoodenBarrel/woodenBarrel.obj
+ModelScaling 7.0, 7.0, 7.0
+ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelPosition -65.0, 5.0, 3.0
+ModelMass 15.0
+ModelFriction 1.0
+ModelRestitution 1.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 4, 1
+Submit Model
+Submit CollisionCapsule 0.0, 0.0
+
 Name BuildingFloor
 ModelPath Models/Floor/floor.obj
 ModelScaling 40.0, 0.1, 60.0
