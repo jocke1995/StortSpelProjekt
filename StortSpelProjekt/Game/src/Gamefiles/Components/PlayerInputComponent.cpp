@@ -8,6 +8,7 @@
 #include "Physics/Physics.h"
 #include "../Misc/Option.h"
 
+
 component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned int camFlags)
 	:InputComponent(parent)
 {
@@ -19,6 +20,10 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_Pitch = 0.15f;
 
 	m_Yaw = 10.0f;
+
+	m_JumpHeight = 5.0;
+	m_JumpTime = 0.25;
+	m_Gravity = (-2 * m_JumpHeight) / (m_JumpTime * m_JumpTime);
 
 	m_CameraDistance = sqrt(m_Zoom * 4 * m_Zoom * 4 + m_Zoom * m_Zoom);
 
@@ -111,6 +116,18 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	(this->*specificUpdate)(dt);
 }
 
+void component::PlayerInputComponent::SetJumpHeight(double height)
+{
+	m_JumpHeight = height;
+	m_Gravity = (-2 * m_JumpHeight) / (m_JumpTime * m_JumpTime);
+}
+
+void component::PlayerInputComponent::SetJumpTime(double time)
+{
+	m_JumpTime = time;
+	m_Gravity = (-2 * m_JumpHeight) / (m_JumpTime * m_JumpTime);
+}
+
 void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 {
 	if (evnt->key == SCAN_CODES::LEFT_CTRL && evnt->pressed)
@@ -182,7 +199,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		double moveForward = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::W)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::S)));
 
 		double jump = static_cast<double>(evnt->key == SCAN_CODES::SPACE) * static_cast<double>(evnt->pressed);
-		
+
 		// Get the forward and right vectors to determine in which direction to move
 		float3 forward = m_pTransform->GetForwardFloat3();
 		float3 right = m_pTransform->GetRightFloat3();
@@ -193,13 +210,13 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 			forward.z * moveForward + right.z * moveRight
 		};
 
-		move.normalize();
+ 		move.normalize();
 		// Get the current linear velocity of the player
 		vel =
 		{
 			move.x * m_pTransform->GetVelocity(),
 			//Constant value to compensate for sprint velocity
-			jump * BASE_VEL * JUMP_MOD,
+			jump * ((2*m_JumpHeight) / (m_JumpTime)),
 			move.z * m_pTransform->GetVelocity()
 		};
 
@@ -219,8 +236,8 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	}
 	else if (evnt->key == SCAN_CODES::SPACE && !evnt->pressed)
 	{
-		specificUpdate = &PlayerInputComponent::updateJump;
-		m_pCC->SetGravity(true);
+ 		specificUpdate = &PlayerInputComponent::updateJump;
+		m_pCC->SetGravity(m_Gravity);
 	}
 
 	moveCam *= m_pTransform->GetVelocity() / 5.0;
@@ -255,7 +272,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		m_pCC->Rotate({ 0.0, 1.0, 0.0 }, rotateX);
 		m_pCC->SetAngularVelocity(0.0, 0.0, 0.0);
 
-		// Check if in air. If not, change movement direction to match up with camera direction
+		//Check if in air. If not, change movement direction to match up with camera direction
 		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1 && !m_Dashing)
 		{
 			// Get new direction
@@ -270,10 +287,11 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 			double3 vel = m_pCC->GetLinearVelocity();
 			double3 move = {
 				forward.x * isMovingZ + right.x * isMovingX,
-				vel.y,
+				0.0,
 				forward.z * isMovingZ + right.z * isMovingX
 			};
 			move.normalize();
+			move.y = vel.y;
 
 			// Update the player's velocity
 			m_pCC->SetVelVector(move.x * m_pTransform->GetVelocity(), move.y, move.z * m_pTransform->GetVelocity());
@@ -302,11 +320,11 @@ void component::PlayerInputComponent::updateDefault(double dt)
 		double3 pos = m_pCC->GetPosition();
 		pos.y = pos.y - distanceToGround + distanceToBottom - m_Elevation * 0.5;
 		m_pCC->SetPosition(pos.x,pos.y,pos.z);
-		m_pCC->SetGravity(false);
+		m_pCC->SetGravity(0);
 	}
 	else
 	{
-		m_pCC->SetGravity(true);
+		m_pCC->SetGravity(m_Gravity);
 	}
 }
 
