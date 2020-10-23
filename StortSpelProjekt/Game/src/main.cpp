@@ -122,6 +122,7 @@ Scene* GetDemoScene(SceneManager* sm)
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* bcc = nullptr;
     component::RangeComponent* rc = nullptr;
+    component::MeleeComponent* mac = nullptr;
     component::TeleportComponent* teleC = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
@@ -158,6 +159,7 @@ Scene* GetDemoScene(SceneManager* sm)
     ic->Init();
     hc = entity->AddComponent<component::HealthComponent>(15);
     rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 10);
+    
     // adding OBB with collision
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 
@@ -170,6 +172,8 @@ Scene* GetDemoScene(SceneManager* sm)
     // initialize OBB after we have the transform info
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
+
+    mac = entity->AddComponent<component::MeleeComponent>();
     /* ---------------------- Player ---------------------- */
 
     /* ---------------------- Floor ---------------------- */
@@ -310,17 +314,17 @@ Scene* GetDemoScene(SceneManager* sm)
 
 
     /* ---------------------- Enemy -------------------------------- */
-    enemyFactory.SetScene(scene);
-    enemyFactory.AddSpawnPoint({  0, 10, 40 });
-    enemyFactory.AddSpawnPoint({ 10, 10, 0 });
-    enemyFactory.AddSpawnPoint({ 20, 10, 10 });
-    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04);
-    
-    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 75; i++)
-    {
-        entity = enemyFactory.SpawnEnemy("Enemy");
-    }
+    //enemyFactory.SetScene(scene);
+    //enemyFactory.AddSpawnPoint({  0, 10, 40 });
+    //enemyFactory.AddSpawnPoint({ 10, 10, 0 });
+    //enemyFactory.AddSpawnPoint({ 20, 10, 10 });
+    //enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04);
+    //
+    //// extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
+    //for (int i = 0; i < 75; i++)
+    //{
+    //    entity = enemyFactory.SpawnEnemy("Enemy");
+    //}
     /* ---------------------- Enemy -------------------------------- */
     
     /* ---------------------- Skybox ---------------------- */
