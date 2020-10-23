@@ -12,7 +12,6 @@
 #include "../Renderer/Material.h"
 #include "../Renderer/Animation.h"
 #include "../Renderer/Transform.h"
-#include "../ECS/Components/SkyboxComponent.h"
 
 #include "../Misc/GUI2DElements/Text.h"
 #include "../Misc/GUI2DElements/Font.h"
