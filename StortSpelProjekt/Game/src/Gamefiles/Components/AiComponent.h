@@ -49,6 +49,7 @@ namespace component
 		Entity* GetTarget();
 
 		void SetAttackInterval(float interval);
+		void SetMeleeAttackDmg(float dmg);
 
 	private:
 		Entity* m_pTarget;
@@ -68,6 +69,7 @@ namespace component
 		float3 m_NextTargetPos;
 		float m_DetectionRadius;
 		float m_AttackingDistance;
+		float m_MeleeAttackDmg;
 		unsigned int m_Flags;
 		bool m_CanJump;
 		float m_AttackInterval;
