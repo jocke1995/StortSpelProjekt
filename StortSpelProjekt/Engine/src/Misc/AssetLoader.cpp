@@ -803,7 +803,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 				}
 				else if (strcmp(toSubmit.c_str(), "NavMesh") == 0)
 				{
-					navMesh->CreateGrid();
+					navMesh->CreateQuadGrid();
 				}
 				else if (strcmp(toSubmit.c_str(), "Skybox") == 0)
 				{

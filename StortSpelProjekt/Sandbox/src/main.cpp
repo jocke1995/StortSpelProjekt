@@ -163,7 +163,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     scene->CreateNavMesh();
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
 
     /*--------------------- Player ---------------------*/
     // entity
@@ -277,7 +277,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
 #pragma region entities
 
-    al->LoadMap(scene, "../Vendor/Resources/aiSceneRidges.txt");
+    al->LoadMap(scene, "../Vendor/Resources/aiSceneRidgesTriangles.txt");
 
 #pragma region player
     Entity* entity = (scene->AddEntity("player"));
@@ -303,12 +303,231 @@ Scene* LeosTestScene(SceneManager* sm)
 #pragma endregion
 
 #pragma region enemies
-    enemyFactory.SetScene(scene);
-    enemyFactory.AddEnemy("zombie", zombieModel, 20, float3{ -10.0, 10.0, 340.0 }, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
-    enemyFactory.AddExistingEnemy("zombie", float3{ -340.0, 10.0, 340.0 });
+    //enemyFactory.SetScene(scene);
+    //enemyFactory.AddEnemy("zombie", zombieModel, 20, float3{ -10.0, 10.0, 340.0 }, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
+    //enemyFactory.AddExistingEnemy("zombie", float3{ -340.0, 10.0, 340.0 });
 #pragma endregion
 
 #pragma endregion
+
+    NavMesh* nav = scene->CreateNavMesh();
+
+    /*0*/ nav->AddNavTriangle({ 0.0, 0.0, 0.0 }, { 0.0, 0.0, 20.0 }, { -20.0, 0.0, 20.0 });
+    /*1*/ nav->AddNavTriangle({ 0.0, 0.0, 0.0 }, { -20.0, 0.0, 20.0 }, { -20.0, 0.0, 0.0 });
+    /*2*/ nav->AddNavTriangle({ -20.0, 0.0, 0.0 }, { -20.0, 0.0, 20.0 }, { -100.0, 0.0, 20.0 });
+    /*3*/ nav->AddNavTriangle({ -20.0, 0.0, 0.0 }, { -100.0, 0.0, 20.0 }, { -100.0, 0.0, 0.0 });
+    /*4*/ nav->AddNavTriangle({ -100.0, 0.0, 0.0 }, { -100.0, 0.0, 20.0 }, { -120.0, 0.0, 20.0 });
+    /*5*/ nav->AddNavTriangle({ -100.0, 0.0, 0.0 }, { -120.0, 0.0, 20.0 }, { -120.0, 0.0, 0.0 });
+    /*6*/ nav->AddNavTriangle({ -260.0, 0.0, 0.0 }, { -260.0, 0.0, 20.0 }, { -280.0, 0.0, 20.0 });
+    /*7*/ nav->AddNavTriangle({ -260.0, 0.0, 0.0 }, { -280.0, 0.0, 20.0 }, { -280.0, 0.0, 0.0 });
+    /*8*/ nav->AddNavTriangle({ -280.0, 0.0, 0.0 }, { -280.0, 0.0, 20.0 }, { -300.0, 0.0, 20.0 });
+    /*9*/ nav->AddNavTriangle({ -280.0, 0.0, 0.0 }, { -300.0, 0.0, 20.0 }, { -300.0, 0.0, 0.0 });
+    /*10*/ nav->AddNavTriangle({ -300.0, 0.0, 0.0 }, { -300.0, 0.0, 20.0 }, { -320.0, 0.0, 20.0 });
+    /*11*/ nav->AddNavTriangle({ -300.0, 0.0, 0.0 }, { -320.0, 0.0, 20.0 }, { -320.0, 0.0, 0.0 });
+
+    /*12*/ nav->AddNavTriangle({ 0.0, 0.0, 20.0 }, { 0.0, 0.0, 40.0 }, { -20.0, 0.0, 40.0 });
+    /*13*/ nav->AddNavTriangle({ 0.0, 0.0, 20.0 }, { -20.0, 0.0, 40.0 }, { -20.0, 0.0, 20.0 });
+    /*14*/ nav->AddNavTriangle({ -100.0, 0.0, 20.0 }, { -100.0, 0.0, 40.0 }, { -120.0, 0.0, 40.0 });
+    /*15*/ nav->AddNavTriangle({ -100.0, 0.0, 20.0 }, { -120.0, 0.0, 40.0 }, { -120.0, 0.0, 20.0 });
+    /*16*/ nav->AddNavTriangle({ -120.0, 0.0, 20.0 }, { -120.0, 0.0, 40.0 }, { -220.0, 0.0, 40.0 });
+    /*17*/ nav->AddNavTriangle({ -120.0, 0.0, 20.0 }, { -220.0, 0.0, 40.0 }, { -220.0, 0.0, 20.0 });
+    /*18*/ nav->AddNavTriangle({ -220.0, 0.0, 20.0 }, { -240.0, 0.0, 40.0 }, { -240.0, 0.0, 20.0 });
+    /*19*/ nav->AddNavTriangle({ -220.0, 0.0, 20.0 }, { -220.0, 0.0, 40.0 }, { -240.0, 0.0, 40.0 });
+    /*20*/ nav->AddNavTriangle({ -260.0, 0.0, 20.0 }, { -260.0, 0.0, 40.0 }, { -280.0, 0.0, 40.0 });
+    /*21*/ nav->AddNavTriangle({ -260.0, 0.0, 20.0 }, { -280.0, 0.0, 40.0 }, { -280.0, 0.0, 20.0 });
+    /*22*/ nav->AddNavTriangle({ -300.0, 0.0, 20.0 }, { -300.0, 0.0, 40.0 }, { -320.0, 0.0, 40.0 });
+    /*23*/ nav->AddNavTriangle({ -300.0, 0.0, 20.0 }, { -320.0, 0.0, 40.0 }, { -320.0, 0.0, 20.0 });
+    /*24*/ nav->AddNavTriangle({ -320.0, 0.0, 20.0 }, { -320.0, 0.0, 40.0 }, { -350.0, 0.0, 40.0 });
+    /*25*/ nav->AddNavTriangle({ -320.0, 0.0, 20.0 }, { -350.0, 0.0, 40.0 }, { -350.0, 0.0, 20.0 });
+
+    /*26*/ nav->AddNavTriangle({ 0.0, 0.0, 40.0 }, { 0.0, 0.0, 60.0 }, { -20.0, 0.0, 60.0 });
+    /*27*/ nav->AddNavTriangle({ 0.0, 0.0, 40.0 }, { -20.0, 0.0, 60.0 }, { -20.0, 0.0, 40.0 });
+    /*28*/ nav->AddNavTriangle({ -20.0, 0.0, 40.0 }, { -20.0, 0.0, 60.0 }, { -60.0, 0.0, 60.0 });
+    /*29*/ nav->AddNavTriangle({ -20.0, 0.0, 40.0 }, { -60.0, 0.0, 60.0 }, { -60.0, 0.0, 40.0 });
+    /*30*/ nav->AddNavTriangle({ -60.0, 0.0, 40.0 }, { -60.0, 0.0, 60.0 }, { -80.0, 0.0, 60.0 });
+    /*31*/ nav->AddNavTriangle({ -60.0, 0.0, 40.0 }, { -80.0, 0.0, 60.0 }, { -80.0, 0.0, 40.0 });
+    /*32*/ nav->AddNavTriangle({ -140.0, 0.0, 40.0 }, { -140.0, 0.0, 60.0 }, { -160.0, 0.0, 60.0 });
+    /*33*/ nav->AddNavTriangle({ -140.0, 0.0, 40.0 }, { -160.0, 0.0, 60.0 }, { -160.0, 0.0, 40.0 });
+    /*34*/ nav->AddNavTriangle({ -160.0, 0.0, 40.0 }, { -160.0, 0.0, 60.0 }, { -220.0, 0.0, 60.0 });
+    /*35*/ nav->AddNavTriangle({ -160.0, 0.0, 40.0 }, { -220.0, 0.0, 60.0 }, { -220.0, 0.0, 40.0 });
+    /*36*/ nav->AddNavTriangle({ -220.0, 0.0, 40.0 }, { -220.0, 0.0, 60.0 }, { -240.0, 0.0, 60.0 });
+    /*37*/ nav->AddNavTriangle({ -220.0, 0.0, 40.0 }, { -240.0, 0.0, 60.0 }, { -240.0, 0.0, 40.0 });
+    /*38*/ nav->AddNavTriangle({ -240.0, 0.0, 40.0 }, { -240.0, 0.0, 60.0 }, { -260.0, 0.0, 60.0 });
+    /*39*/ nav->AddNavTriangle({ -240.0, 0.0, 40.0 }, { -260.0, 0.0, 60.0 }, { -260.0, 0.0, 40.0 });
+    /*40*/ nav->AddNavTriangle({ -260.0, 0.0, 40.0 }, { -260.0, 0.0, 60.0 }, { -280.0, 0.0, 60.0 });
+    /*41*/ nav->AddNavTriangle({ -260.0, 0.0, 40.0 }, { -280.0, 0.0, 60.0 }, { -280.0, 0.0, 40.0 });
+    /*42*/ nav->AddNavTriangle({ -320.0, 0.0, 40.0 }, { -320.0, 0.0, 80.0 }, { -350.0, 0.0, 80.0 });
+    /*43*/ nav->AddNavTriangle({ -320.0, 0.0, 40.0 }, { -350.0, 0.0, 80.0 }, { -350.0, 0.0, 40.0 });
+
+    /*44*/ nav->AddNavTriangle({ 0.0, 0.0, 60.0 }, { 0.0, 0.0, 120.0 }, { -20.0, 0.0, 120.0 });
+    /*45*/ nav->AddNavTriangle({ 0.0, 0.0, 60.0 }, { -20.0, 0.0, 120.0 }, { -20.0, 0.0, 60.0 });
+    /*46*/ nav->AddNavTriangle({ -60.0, 0.0, 60.0 }, { -60.0, 0.0, 80.0 }, { -80.0, 0.0, 80.0 });
+    /*47*/ nav->AddNavTriangle({ -60.0, 0.0, 60.0 }, { -80.0, 0.0, 80.0 }, { -80.0, 0.0, 60.0 });
+    /*48*/ nav->AddNavTriangle({ -80.0, 0.0, 60.0 }, { -80.0, 0.0, 80.0 }, { -140.0, 0.0, 80.0 });
+    /*49*/ nav->AddNavTriangle({ -80.0, 0.0, 60.0 }, { -140.0, 0.0, 80.0 }, { -140.0, 0.0, 60.0 });
+    /*50*/ nav->AddNavTriangle({ -140.0, 0.0, 60.0 }, { -140.0, 0.0, 80.0 }, { -160.0, 0.0, 80.0 });
+    /*51*/ nav->AddNavTriangle({ -140.0, 0.0, 60.0 }, { -160.0, 0.0, 80.0 }, { -160.0, 0.0, 60.0 });
+    /*52*/ nav->AddNavTriangle({ -220.0, 0.0, 60.0 }, { -220.0, 0.0, 120.0 }, { -240.0, 0.0, 120.0 });
+    /*53*/ nav->AddNavTriangle({ -220.0, 0.0, 60.0 }, { -240.0, 0.0, 120.0 }, { -240.0, 0.0, 60.0 });
+    /*54*/ nav->AddNavTriangle({ -260.0, 0.0, 60.0 }, { -260.0, 0.0, 80.0 }, { -280.0, 0.0, 80.0 });
+    /*55*/ nav->AddNavTriangle({ -260.0, 0.0, 60.0 }, { -280.0, 0.0, 80.0 }, { -280.0, 0.0, 60.0 });
+
+    /*56*/ nav->AddNavTriangle({ -60.0, 0.0, 80.0 }, { -60.0, 0.0, 120.0 }, { -80.0, 0.0, 120.0 });
+    /*57*/ nav->AddNavTriangle({ -60.0, 0.0, 80.0 }, { -80.0, 0.0, 120.0 }, { -80.0, 0.0, 80.0 });
+    /*58*/ nav->AddNavTriangle({ -260.0, 0.0, 80.0 }, { -260.0, 0.0, 100.0 }, { -280.0, 0.0, 100.0 });
+    /*59*/ nav->AddNavTriangle({ -260.0, 0.0, 80.0 }, { -280.0, 0.0, 100.0 }, { -280.0, 0.0, 80.0 });
+    /*60*/ nav->AddNavTriangle({ -280.0, 0.0, 80.0 }, { -280.0, 0.0, 100.0 }, { -320.0, 0.0, 100.0 });
+    /*61*/ nav->AddNavTriangle({ -280.0, 0.0, 80.0 }, { -320.0, 0.0, 100.0 }, { -320.0, 0.0, 80.0 });
+    /*62*/ nav->AddNavTriangle({ -320.0, 0.0, 80.0 }, { -320.0, 0.0, 100.0 }, { -350.0, 0.0, 100.0 });
+    /*63*/ nav->AddNavTriangle({ -320.0, 0.0, 80.0 }, { -350.0, 0.0, 100.0 }, { -350.0, 0.0, 80.0 });
+
+    /*64*/ nav->AddNavTriangle({ -320.0, 0.0, 100.0 }, { -320.0, 0.0, 120.0 }, { -350.0, 0.0, 120.0 });
+    /*65*/ nav->AddNavTriangle({ -320.0, 0.0, 100.0 }, { -350.0, 0.0, 120.0 }, { -350.0, 0.0, 100.0 });
+
+    /*66*/ nav->AddNavTriangle({ 0.0, 0.0, 120.0 }, { 0.0, 0.0, 140.0 }, { -20.0, 0.0, 140.0 });
+    /*67*/ nav->AddNavTriangle({ 0.0, 0.0, 120.0 }, { -20.0, 0.0, 140.0 }, { -20.0, 0.0, 120.0 });
+    /*68*/ nav->AddNavTriangle({ -20.0, 0.0, 120.0 }, { -20.0, 0.0, 140.0 }, { -60.0, 0.0, 140.0 });
+    /*69*/ nav->AddNavTriangle({ -20.0, 0.0, 120.0 }, { -60.0, 0.0, 140.0 }, { -60.0, 0.0, 120.0 });
+    /*70*/ nav->AddNavTriangle({ -60.0, 0.0, 120.0 }, { -60.0, 0.0, 140.0 }, { -80.0, 0.0, 140.0 });
+    /*71*/ nav->AddNavTriangle({ -60.0, 0.0, 120.0 }, { -80.0, 0.0, 140.0 }, { -80.0, 0.0, 120.0 });
+    /*72*/ nav->AddNavTriangle({ -80.0, 0.0, 120.0 }, { -80.0, 0.0, 140.0 }, { -220.0, 0.0, 140.0 });
+    /*73*/ nav->AddNavTriangle({ -80.0, 0.0, 120.0 }, { -220.0, 0.0, 140.0 }, { -220.0, 0.0, 120.0 });
+    /*74*/ nav->AddNavTriangle({ -220.0, 0.0, 120.0 }, { -220.0, 0.0, 140.0 }, { -240.0, 0.0, 140.0 });
+    /*75*/ nav->AddNavTriangle({ -220.0, 0.0, 120.0 }, { -240.0, 0.0, 140.0 }, { -240.0, 0.0, 120.0 });
+    /*76*/ nav->AddNavTriangle({ -240.0, 0.0, 120.0 }, { -240.0, 0.0, 140.0 }, { -260.0, 0.0, 140.0 });
+    /*77*/ nav->AddNavTriangle({ -240.0, 0.0, 120.0 }, { -260.0, 0.0, 140.0 }, { -260.0, 0.0, 120.0 });
+    /*78*/ nav->AddNavTriangle({ -260.0, 0.0, 120.0 }, { -260.0, 0.0, 140.0 }, { -320.0, 0.0, 140.0 });
+    /*79*/ nav->AddNavTriangle({ -260.0, 0.0, 120.0 }, { -320.0, 0.0, 140.0 }, { -320.0, 0.0, 120.0 });
+    /*80*/ nav->AddNavTriangle({ -320.0, 0.0, 120.0 }, { -320.0, 0.0, 140.0 }, { -350.0, 0.0, 140.0 });
+    /*81*/ nav->AddNavTriangle({ -320.0, 0.0, 120.0 }, { -350.0, 0.0, 140.0 }, { -350.0, 0.0, 120.0 });
+
+    /*82*/ nav->AddNavTriangle({ -60.0, 0.0, 140.0 }, { -60.0, 0.0, 240.0 }, { -80.0, 0.0, 240.0 });
+    /*83*/ nav->AddNavTriangle({ -60.0, 0.0, 140.0 }, { -80.0, 0.0, 240.0 }, { -80.0, 0.0, 140.0 });
+    /*84*/ nav->AddNavTriangle({ -240.0, 0.0, 140.0 }, { -240.0, 0.0, 240.0 }, { -260.0, 0.0, 240.0 });
+    /*85*/ nav->AddNavTriangle({ -240.0, 0.0, 140.0 }, { -260.0, 0.0, 240.0 }, { -260.0, 0.0, 140.0 });
+
+    /*86*/ nav->AddNavTriangle({ 0.0, 0.0, 240.0 }, { 0.0, 0.0, 350.0 }, { -60.0, 0.0, 350.0 });
+    /*87*/ nav->AddNavTriangle({ 0.0, 0.0, 240.0 }, { -60.0, 0.0, 350.0 }, { -60.0, 0.0, 240.0 });
+    /*88*/ nav->AddNavTriangle({ -60.0, 0.0, 240.0 }, { -60.0, 0.0, 350.0 }, { -80.0, 0.0, 350.0 });
+    /*89*/ nav->AddNavTriangle({ -60.0, 0.0, 240.0 }, { -80.0, 0.0, 350.0 }, { -80.0, 0.0, 240.0 });
+    /*90*/ nav->AddNavTriangle({ -80.0, 0.0, 240.0 }, { -80.0, 0.0, 350.0 }, { -240.0, 0.0, 350.0 });
+    /*91*/ nav->AddNavTriangle({ -80.0, 0.0, 240.0 }, { -240.0, 0.0, 350.0 }, { -240.0, 0.0, 240.0 });
+    /*92*/ nav->AddNavTriangle({ -240.0, 0.0, 240.0 }, { -240.0, 0.0, 350.0 }, { -260.0, 0.0, 350.0 });
+    /*93*/ nav->AddNavTriangle({ -240.0, 0.0, 240.0 }, { -260.0, 0.0, 350.0 }, { -260.0, 0.0, 240.0 });
+    /*94*/ nav->AddNavTriangle({ -260.0, 0.0, 240.0 }, { -260.0, 0.0, 350.0 }, { -350.0, 0.0, 350.0 });
+    /*95*/ nav->AddNavTriangle({ -260.0, 0.0, 240.0 }, { -350.0, 0.0, 350.0 }, { -350.0, 0.0, 240.0 });
+
+    nav->ConnectNavTriangles(0, 1);
+    nav->ConnectNavTriangles(1, 2);
+    nav->ConnectNavTriangles(2, 3);
+    nav->ConnectNavTriangles(3, 4);
+    nav->ConnectNavTriangles(4, 5);
+    nav->ConnectNavTriangles(6, 7);
+    nav->ConnectNavTriangles(7, 8);
+    nav->ConnectNavTriangles(8, 9);
+    nav->ConnectNavTriangles(9, 10);
+    nav->ConnectNavTriangles(10, 11);
+
+    nav->ConnectNavTriangles(12, 13);
+    nav->ConnectNavTriangles(13, 0);
+    nav->ConnectNavTriangles(14, 15);
+    nav->ConnectNavTriangles(15, 4);
+    nav->ConnectNavTriangles(15, 16);
+    nav->ConnectNavTriangles(16, 17);
+    nav->ConnectNavTriangles(17, 18);
+    nav->ConnectNavTriangles(18, 19);
+    nav->ConnectNavTriangles(20, 21);
+    nav->ConnectNavTriangles(21, 6);
+    nav->ConnectNavTriangles(22, 23);
+    nav->ConnectNavTriangles(23, 24);
+    nav->ConnectNavTriangles(23, 10);
+    nav->ConnectNavTriangles(24, 25);
+
+    nav->ConnectNavTriangles(26, 27);
+    nav->ConnectNavTriangles(27, 28);
+    nav->ConnectNavTriangles(27, 12);
+    nav->ConnectNavTriangles(28, 29);
+    nav->ConnectNavTriangles(29, 30);
+    nav->ConnectNavTriangles(30, 31);
+    nav->ConnectNavTriangles(32, 33);
+    nav->ConnectNavTriangles(33, 34);
+    nav->ConnectNavTriangles(34, 35);
+    nav->ConnectNavTriangles(35, 36);
+    nav->ConnectNavTriangles(36, 37);
+    nav->ConnectNavTriangles(37, 38);
+    nav->ConnectNavTriangles(37, 18);
+    nav->ConnectNavTriangles(38, 39);
+    nav->ConnectNavTriangles(39, 40);
+    nav->ConnectNavTriangles(40, 41);
+    nav->ConnectNavTriangles(41, 20);
+    nav->ConnectNavTriangles(42, 43);
+    nav->ConnectNavTriangles(43, 24);
+
+    nav->ConnectNavTriangles(44, 45);
+    nav->ConnectNavTriangles(45, 26);
+    nav->ConnectNavTriangles(46, 47);
+    nav->ConnectNavTriangles(47, 30);
+    nav->ConnectNavTriangles(47, 48);
+    nav->ConnectNavTriangles(48, 49);
+    nav->ConnectNavTriangles(49, 50);
+    nav->ConnectNavTriangles(50, 51);
+    nav->ConnectNavTriangles(51, 32);
+    nav->ConnectNavTriangles(52, 53);
+    nav->ConnectNavTriangles(53, 36);
+    nav->ConnectNavTriangles(54, 55);
+    nav->ConnectNavTriangles(55, 40);
+
+    nav->ConnectNavTriangles(56, 57);
+    nav->ConnectNavTriangles(57, 46);
+    nav->ConnectNavTriangles(58, 59);
+    nav->ConnectNavTriangles(59, 54);
+    nav->ConnectNavTriangles(59, 60);
+    nav->ConnectNavTriangles(60, 61);
+    nav->ConnectNavTriangles(61, 62);
+    nav->ConnectNavTriangles(62, 63);
+    nav->ConnectNavTriangles(63, 42);
+
+    nav->ConnectNavTriangles(64, 65);
+
+    nav->ConnectNavTriangles(65, 62);
+    nav->ConnectNavTriangles(66, 67);
+    nav->ConnectNavTriangles(67, 44);
+    nav->ConnectNavTriangles(67, 68);
+    nav->ConnectNavTriangles(68, 69);
+    nav->ConnectNavTriangles(69, 70);
+    nav->ConnectNavTriangles(70, 71);
+    nav->ConnectNavTriangles(71, 56);
+    nav->ConnectNavTriangles(71, 72);
+    nav->ConnectNavTriangles(72, 73);
+    nav->ConnectNavTriangles(73, 74);
+    nav->ConnectNavTriangles(74, 75);
+    nav->ConnectNavTriangles(75, 52);
+    nav->ConnectNavTriangles(75, 76);
+    nav->ConnectNavTriangles(76, 77);
+    nav->ConnectNavTriangles(77, 78);
+    nav->ConnectNavTriangles(78, 79);
+    nav->ConnectNavTriangles(79, 80);
+    nav->ConnectNavTriangles(80, 81);
+    nav->ConnectNavTriangles(81, 64);
+
+    nav->ConnectNavTriangles(82, 83);
+    nav->ConnectNavTriangles(83, 70);
+    nav->ConnectNavTriangles(84, 85);
+    nav->ConnectNavTriangles(85, 76);
+
+    nav->ConnectNavTriangles(86, 87);
+    nav->ConnectNavTriangles(87, 88);
+    nav->ConnectNavTriangles(88, 89);
+    nav->ConnectNavTriangles(89, 82);
+    nav->ConnectNavTriangles(89, 90);
+    nav->ConnectNavTriangles(90, 91);
+    nav->ConnectNavTriangles(91, 92);
+    nav->ConnectNavTriangles(92, 93);
+    nav->ConnectNavTriangles(93, 84);
+    nav->ConnectNavTriangles(93, 94);
+    nav->ConnectNavTriangles(94, 95);
+
+    nav->CreateTriangleGrid();
 
     /* ---------------------- Update Function ---------------------- */    
     UpdateScene = &LeoUpdateScene;
@@ -349,7 +568,7 @@ Scene* AntonTestScene(SceneManager* sm)
     scene->CreateNavMesh();
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
     /*--------------------- Player ---------------------*/
     // entity
     entity = scene->AddEntity("player");
@@ -470,7 +689,7 @@ Scene* TimScene(SceneManager* sm)
     scene->CreateNavMesh();
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
     /*--------------------- Player ---------------------*/
     // entity
     entity = scene->AddEntity("player");
@@ -611,7 +830,7 @@ Scene* JockesTestScene(SceneManager* sm)
     scene->CreateNavMesh();
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
     /* ---------------------- Player ---------------------- */
     Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
@@ -735,7 +954,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     scene->CreateNavMesh();
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
     /* ---------------------- Player ---------------------- */
     entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -861,7 +1080,7 @@ Scene* FredriksTestScene(SceneManager* sm)
     scene->CreateNavMesh();
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
 	/* ---------------------- Player ---------------------- */
 	Entity* entity = scene->AddEntity("player");
 	mc = entity->AddComponent<component::ModelComponent>();
@@ -1125,7 +1344,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     scene->CreateNavMesh();
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
     /* ---------------------- Skybox ---------------------- */
 
     // Skybox
@@ -1290,7 +1509,7 @@ Scene* AndresTestScene(SceneManager* sm)
     scene->CreateNavMesh();
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
     /* ---------------------- Player ---------------------- */
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -1496,7 +1715,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     scene->CreateNavMesh();
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
 
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -1662,7 +1881,7 @@ Scene* ShopScene(SceneManager* sm)
     scene->CreateNavMesh();
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
 
 #pragma region player
     Entity* entity = (scene->AddEntity("player"));

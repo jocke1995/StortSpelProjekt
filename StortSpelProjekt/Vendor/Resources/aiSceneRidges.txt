@@ -286,8 +286,8 @@ NavQuadSize 20.0, 20.0
 Submit NavQuad
 
 #40
-NavQuadPosition -300.0, 0.0, 10.0
-NavQuadSize 40.0, 20.0
+NavQuadPosition -290.0, 0.0, 10.0
+NavQuadSize 20.0, 20.0
 Submit NavQuad
 
 #41
@@ -317,6 +317,11 @@ Submit NavQuad
 
 #46
 NavQuadPosition -10.0, 0.0, 10.0
+NavQuadSize 20.0, 20.0
+Submit NavQuad
+
+#47
+NavQuadPosition -310.0, 0.0, 10.0
 NavQuadSize 20.0, 20.0
 Submit NavQuad
 
@@ -458,7 +463,10 @@ Submit NavConnection
 NavConnectionQuads 39, 40
 Submit NavConnection
 
-NavConnectionQuads 40, 41
+NavConnectionQuads 40, 47
+Submit NavConnection
+
+NavConnectionQuads 47, 41
 Submit NavConnection
 
 NavConnectionQuads 41, 42

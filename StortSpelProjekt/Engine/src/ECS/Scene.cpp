@@ -74,9 +74,10 @@ bool Scene::RemoveEntity(std::string entityName)
     return true;
 }
 
-void Scene::CreateNavMesh()
+NavMesh* Scene::CreateNavMesh()
 {
     m_pNavMesh = new NavMesh(this);
+    return m_pNavMesh;
 }
 
 void Scene::SetPrimaryCamera(BaseCamera* primaryCamera)
