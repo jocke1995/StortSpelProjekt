@@ -467,10 +467,6 @@ Scene* TimScene(SceneManager* sm)
     component::SphereCollisionComponent* scc = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
-    scene->CreateNavMesh();
-    NavMesh* nav = scene->GetNavMesh();
-    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
     /*--------------------- Player ---------------------*/
     // entity
     entity = scene->AddEntity("player");
