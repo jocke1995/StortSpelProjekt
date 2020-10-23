@@ -1409,9 +1409,15 @@ void Renderer::initRenderTasks()
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
 		gpsdAnimation.BlendState.RenderTarget[i] = defaultRTdesc;
 
-	gpsdAnimation.DepthStencilState = dsd;
-	gpsdAnimation.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
+	// Depth descriptor
+	D3D12_DEPTH_STENCIL_DESC dsdAnimation = {};
+	dsdAnimation.DepthEnable = true;
+	dsdAnimation.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	dsdAnimation.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	dsdAnimation.StencilEnable = false;
 
+	gpsdAnimation.DepthStencilState = dsdAnimation;
+	gpsdAnimation.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdAnimationVector;
 	gpsdAnimationVector.push_back(&gpsdAnimation);

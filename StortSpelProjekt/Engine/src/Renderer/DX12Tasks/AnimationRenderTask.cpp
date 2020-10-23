@@ -67,7 +67,7 @@ void AnimationRenderTask::Execute()
 	// Depth
 	D3D12_CPU_DESCRIPTOR_HANDLE dsh = depthBufferHeap->GetCPUHeapAt(m_pDepthStencil->GetDSV()->GetDescriptorHeapIndex());
 
-	commandList->OMSetRenderTargets(1, &cdh, false, &dsh);
+	commandList->OMSetRenderTargets(1, &cdh, true, &dsh);
 
 	const D3D12_VIEWPORT viewPortSwapChain = *swapChainRenderTarget->GetRenderView()->GetViewPort();
 	const D3D12_VIEWPORT viewPorts[1] = { viewPortSwapChain };
