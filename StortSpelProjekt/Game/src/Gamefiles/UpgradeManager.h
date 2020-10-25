@@ -31,7 +31,6 @@ public:
 
 	// Applies an upgrade to the entitys upgradeComponent.
 	void ApplyUpgrade(std::string name);
-	void ApplyUpgrade(std::string name);
 	// Applies all bought upgrades of type RANGE on projectile entities in the RangeComponent.
 	void ApplyRangeUpgrades(Entity* ent);
 

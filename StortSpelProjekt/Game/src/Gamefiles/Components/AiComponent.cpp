@@ -129,7 +129,7 @@ void component::AiComponent::Update(double dt)
 					m_TimeAccumulator += static_cast<float>(dt);
 					if (m_TimeAccumulator > m_AttackInterval)
 					{
-						m_pTarget->GetComponent<component::HealthComponent>()->ChangeHealth(-1);
+						m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(-10);
 						Log::Print("ENEMY ATTACK!\n");
 						m_TimeAccumulator = 0.0;
 					}

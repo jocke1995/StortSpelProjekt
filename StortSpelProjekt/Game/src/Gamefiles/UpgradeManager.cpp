@@ -204,6 +204,9 @@ Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 	case UPGRADE_RANGE_LIFESTEAL:
 		return new UpgradeRangeLifeSteal(ent);
 		break;
+	case UPGRADE_BLUE_JEWEL:
+		return new UpgradeBlueJewel(ent);
+		break;
 	default:
 		break;
 	}
