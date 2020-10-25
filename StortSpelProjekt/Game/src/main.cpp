@@ -190,7 +190,7 @@ Scene* GameScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 1.0, 1.0);
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "shopScene");
+    teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "ShopScene");
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(teleportModel);
@@ -206,15 +206,17 @@ Scene* GameScene(SceneManager* sm)
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();
 
+    /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&GameUpdateScene);
 
+    sm->SetStartStateForScene("GameScene");
     return scene;
 }
 
 Scene* ShopScene(SceneManager* sm)
 {
     // Create Scene
-    Scene* scene = sm->CreateScene("shopScene");
+    Scene* scene = sm->CreateScene("ShopScene");
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
@@ -432,8 +434,11 @@ Scene* ShopScene(SceneManager* sm)
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();
+
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&ShopUpdateScene);
+
+    sm->SetStartStateForScene("ShopScene");
     return scene;
 }
 
@@ -445,7 +450,8 @@ void GameUpdateScene(SceneManager* sm, double dt)
 void ShopUpdateScene(SceneManager* sm, double dt)
 {
     static float rotValue = 0.0f;
-    Transform* trans = sm->GetScene("shopScene")->GetEntity("poster")->GetComponent<component::TransformComponent>()->GetTransform();
+    component::TransformComponent* tc = sm->GetScene("ShopScene")->GetEntity("poster")->GetComponent<component::TransformComponent>();
+    Transform* trans = tc->GetTransform();
     trans->SetRotationX(rotValue);
 
     rotValue += 0.005f;

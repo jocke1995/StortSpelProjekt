@@ -25,7 +25,12 @@ Scene::~Scene()
         }
     }
 
-    delete m_pNavMesh;
+    //static int a = 0;
+    //if (a == 0)
+    //{
+        delete m_pNavMesh;
+       // a++;
+   // }
 }
 
 Entity* Scene::AddEntityFromOther(Entity* other)

@@ -43,7 +43,9 @@ SceneManager::~SceneManager()
 {
 	for (auto pair : m_Scenes)
 	{
-		delete pair.second;
+		// delete both scenes (starting-state and current-state)
+		delete pair.second[0];
+		delete pair.second[1];
 	}
 
     m_Scenes.clear();
@@ -80,8 +82,16 @@ Scene* SceneManager::CreateScene(std::string sceneName)
     }
 
     // Create Scene and return it
-    m_Scenes[sceneName] = new Scene(sceneName);
-    return m_Scenes[sceneName];
+    m_Scenes[sceneName][0] = new Scene(sceneName);
+
+	// Also make a hardcopy to be used to reset the scene to its starting-state
+	m_Scenes[sceneName][1] = new Scene(sceneName);
+    return m_Scenes[sceneName][0];
+}
+
+void SceneManager::SetStartStateForScene(std::string sceneName)
+{
+	*m_Scenes[sceneName][1] = *m_Scenes[sceneName][0];
 }
 
 std::vector<Scene*>* SceneManager::GetActiveScenes()
@@ -93,7 +103,7 @@ Scene* SceneManager::GetScene(std::string sceneName) const
 {
     if (sceneExists(sceneName))
     {
-        return m_Scenes.at(sceneName);
+        return m_Scenes.at(sceneName)[0];
     }
 	
     Log::PrintSeverity(Log::Severity::CRITICAL, "No Scene with name: \'%s\' was found.\n", sceneName.c_str());
@@ -107,11 +117,10 @@ void SceneManager::ChangeSceneIfTeleported()
 		// Set new scene
 		if (m_ActiveScenes[0]->GetName() != m_SceneToChangeToWhenTeleported)
 		{
-			Scene* scene = m_Scenes[m_SceneToChangeToWhenTeleported];
+			*m_Scenes[m_SceneToChangeToWhenTeleported][0] = *m_Scenes[m_SceneToChangeToWhenTeleported][1];
+			Scene* scene = m_Scenes[m_SceneToChangeToWhenTeleported][0];
 
 			// Change the player back to its original position
-			Transform* trans = scene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform();
-			trans->SetPosition({ scene->m_OriginalPosition.x, scene->m_OriginalPosition.y, scene->m_OriginalPosition.z });
 			SetScenes(1, &scene);
 			m_ChangeSceneNextFrame = false;
 		}

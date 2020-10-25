@@ -24,6 +24,7 @@ public:
 
 	// Scene
 	Scene* CreateScene(std::string sceneName);
+	void SetStartStateForScene(std::string sceneName);
 	void SetScenes(unsigned int numScenes, Scene** scene);
 	std::vector<Scene*>* GetActiveScenes();
 	Scene* GetScene(std::string sceneName) const;
@@ -36,7 +37,9 @@ public:
 	void AddEntity(Entity* entity, Scene* scene);
 
 private:
-	std::map<std::string, Scene*> m_Scenes;
+
+	// Each scene stores the scene in its starting state, so that the scene can be reset easily.
+	std::map<std::string, std::array<Scene*, 2>> m_Scenes;
 	std::vector<Scene*> m_ActiveScenes;
 
 	bool sceneExists(std::string sceneName) const;
