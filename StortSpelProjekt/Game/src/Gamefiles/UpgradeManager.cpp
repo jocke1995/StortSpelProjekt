@@ -8,6 +8,7 @@
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeVelocity.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeLifeSteal.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeHealthBoost.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeBlueJewel.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
 {
@@ -148,6 +149,13 @@ void UpgradeManager::fillUpgradeMap()
 	upgrade = new UpgradeHealthBoost(m_pParentEntity);
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
 	upgrade->SetID(UPGRADE_HEALTH_BOOST);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding BlueJewel Upgrade
+	upgrade = new UpgradeBlueJewel(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_BLUE_JEWEL);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 }
