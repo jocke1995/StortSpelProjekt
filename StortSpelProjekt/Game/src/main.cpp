@@ -52,9 +52,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
+
     /*----- Set the scene -----*/
     Scene* demoScene = GameScene(sceneManager);
     Scene* gameOverScene = GameOverScene(sceneManager);
+
+
+    Entity* entity;
+    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
+    for (int i = 0; i < 75; i++)
+    {
+        entity = enemyFactory.SpawnEnemy("Enemy");
+    }
+
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &demoScene);
     sceneManager->SetGameOverScene(gameOverScene);
@@ -72,7 +82,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double networkTimer = 0;
     double logicTimer = 0;
     int count = 0;
-
 
     while (!window->ExitWindow())
     {
@@ -120,7 +129,8 @@ Scene* GameScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");    
+    Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
@@ -188,6 +198,14 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
+
+#pragma region Enemyfactory
+    enemyFactory.SetScene(scene);
+    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
+    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
+    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
+    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04);
+#pragma endregion
     UpdateScene = &GameUpdateScene;
 
     return scene;
@@ -200,7 +218,6 @@ void GameUpdateScene(SceneManager* sm, double dt)
         ImGuiHandler::GetInstance().SetBool("reset", false);
     }
 }
-
 
 Scene* GetDemoScene(SceneManager* sm)
 {

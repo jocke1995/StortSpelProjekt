@@ -39,16 +39,26 @@ SceneManager::SceneManager()
 	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityDeath);
 }
 
+SceneManager& SceneManager::GetInstance()
+{
+	static SceneManager instance;
+	return instance;
+}
+
 SceneManager::~SceneManager()
 {
 	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityDeath);
 
+}
+
+void SceneManager::EraseSceneManager()
+{
 	for (auto pair : m_Scenes)
 	{
 		delete pair.second;
 	}
 
-    m_Scenes.clear();
+	m_Scenes.clear();
 }
 
 void SceneManager::Update(double dt)
