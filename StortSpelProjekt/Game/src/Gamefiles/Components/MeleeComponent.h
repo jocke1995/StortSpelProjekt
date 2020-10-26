@@ -20,6 +20,7 @@
 
 class Entity;
 class Audio2DVoiceComponent;
+class Audio3DEmitterComponent;
 
 namespace component
 {
