@@ -16,8 +16,7 @@ Engine::~Engine()
 	delete m_pTimer;
 
 	Physics::GetInstance().DestroyPhysics();
-	delete m_pSceneManager;
-
+	m_pSceneManager->EraseSceneManager();
 	m_pRenderer->DeleteDxResources();
 }
 
@@ -56,7 +55,7 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	m_pAudioEngine = &AudioEngine::GetInstance();
 
 	// ECS
-	m_pSceneManager = new SceneManager();
+	m_pSceneManager = &SceneManager::GetInstance();
 
 	// Physics
 	m_pPhysics = &Physics::GetInstance();
