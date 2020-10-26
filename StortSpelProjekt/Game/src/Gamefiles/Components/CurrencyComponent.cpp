@@ -48,7 +48,7 @@ void component::CurrencyComponent::ChangeBalance(Death* evnt)
 	}
 	else 
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Death event called without currency component active on player, monster currently not giving the player any curreny");
+		Log::PrintSeverity(Log::Severity::WARNING, "Death event called without currency component active on player, enemy currently not giving the player any curreny");
 	}
 }
 
