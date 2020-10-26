@@ -4,6 +4,8 @@
 #include "../../Engine/src/ECS/Components/Component.h"
 
 struct Collision;
+class Audio3DEmitterComponent;
+
 namespace component 
 {
 	class ProjectileComponent : public Component
