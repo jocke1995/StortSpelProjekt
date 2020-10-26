@@ -12,7 +12,7 @@ UpgradeBlueJewel::UpgradeBlueJewel(Entity* parentEntity) : Upgrade(parentEntity)
 	m_Price = 10;
 	m_StartingPrice = m_Price;
 	
-	m_DamageRediction = 0.50;
+	m_DamageReduction = 0.50;
 	
 	// Write a description for the upgrade
 	m_Description = "An iridecent blue jewel that reduces damage taken by (50% ^ level) while under 30% max health";
@@ -28,7 +28,7 @@ void UpgradeBlueJewel::OnDamage()
 {
 	if (m_pParentEntity->GetComponent<component::HealthComponent>()->GetHealth() <= float(m_pParentEntity->GetComponent<component::HealthComponent>()->GetMaxHealth() * 0.3))
 	{
-		m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeProcentileDamageReduction(m_DamageRediction);
+		m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeProcentileDamageReduction(m_DamageReduction);
 	}
 }
 
@@ -36,7 +36,7 @@ void UpgradeBlueJewel::IncreaseLevel()
 {
 	m_Level++;
 	// increase the boost
-	m_DamageRediction = pow(m_DamageRediction, m_Level);
+	m_DamageReduction = pow(m_DamageReduction, m_Level);
 	// increase the price of the upgrade
 	m_Price = m_StartingPrice * m_Level;
 }

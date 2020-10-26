@@ -13,7 +13,7 @@ public:
 	void IncreaseLevel();
 
 private:
-	float m_DamageRediction;
+	float m_DamageReduction;
 
 };
 
