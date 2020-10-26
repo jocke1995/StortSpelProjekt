@@ -59,6 +59,7 @@ void component::ProjectileComponent::hit(Collision* event)
 			{
 				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
 				event->ent2->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
+				EventBus::GetInstance().Publish(&Death(m_pParent));
 			}
 		}
 		// Call on upgrade on hit functions
@@ -78,6 +79,7 @@ void component::ProjectileComponent::hit(Collision* event)
 			{
 				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
 				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
+				EventBus::GetInstance().Publish(&Death(m_pParent));
 			}
 		}
 		// Call on upgrade on hit functions
