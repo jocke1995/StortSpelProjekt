@@ -74,6 +74,9 @@ public:
 	// Defines an enemy without adding it to the scene.
 	EnemyComps* DefineEnemy(const std::string& entityName, Model* model, int hp, const std::wstring& sound3D, unsigned int compFlags = 0, unsigned int aiFlags = 0, float scale = 1, float3 rot = { 0, 0, 0 }, const std::string& aiTarget = "player", float aiDetectionRadius = 25.0f, float aiAttackingDistance = 3.5f, float aiAttackInterval = 0.5f);
 
+	// Sets the max health of all enemies of a specific type
+	void SetEnemyTypeMaxHealth(const std::string& enemyName, int hp);
+
 private:
 	Scene* m_pScene = nullptr;
 	std::map<std::string, EnemyComps*> m_EnemyComps;

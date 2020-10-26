@@ -82,7 +82,7 @@ void component::MeleeComponent::Update(double dt)
 		if (m_Attacking == true)
 		{
 			// Sets the attacking state to false (=able to attack again)
-			Log::Print("Attack off cooldown \n");
+			//Log::Print("Attack off cooldown \n");
 			m_Attacking = false;
 			m_Cooldown = false;
 		}
@@ -104,7 +104,7 @@ void component::MeleeComponent::Attack()
 		{
 			m_pVoiceComponent->Play(L"SwordSwing");
 		}
-		Log::Print("Attacking now \n");
+		//Log::Print("Attacking now \n");
 		m_Attacking = true;
 		//Checks collision of entities
 		CheckCollision();
