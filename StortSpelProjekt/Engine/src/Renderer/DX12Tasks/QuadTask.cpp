@@ -98,7 +98,9 @@ void QuadTask::draw(ID3D12GraphicsCommandList5* commandList)
 		float4 textureInfo = float4{ 0.0 };
 		textureInfo.x = qm->HasTexture();
 		textureInfo.y = qm->GetActiveTexture();
-		CB_PER_GUI2D_OBJECT_STRUCT perObject = { qm->GetAmountOfBlend(), textureInfo, *info };
+		float4 amountOfBlend = qm->GetAmountOfBlend();
+		amountOfBlend.w *= !m_QuadComponents.at(i)->IsQuadHidden();
+		CB_PER_GUI2D_OBJECT_STRUCT perObject = { amountOfBlend, textureInfo, *info };
 
 		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_GUI2D_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 		commandList->IASetIndexBuffer(qm->GetQuad()->GetIndexBufferView());
