@@ -215,6 +215,8 @@ Entity* EnemyFactory::Add(const std::string& name, Model* model, int hp, float3 
 		bbc->Init();
 		Physics::GetInstance().AddCollisionEntity(ent);
 	}
+
+	SceneManager::GetInstance().AddEntity(ent, m_pScene);
 	return ent;
 }
 
