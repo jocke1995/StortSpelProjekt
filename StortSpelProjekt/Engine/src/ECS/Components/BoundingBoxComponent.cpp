@@ -47,6 +47,7 @@ namespace component
 	void BoundingBoxComponent::OnUnInitScene()
 	{
 		Renderer::GetInstance().UnInitBoundingBoxComponent(this);
+		Physics::GetInstance().RemoveCollisionEntity(m_pParent);
 	}
 
 

@@ -47,12 +47,12 @@ SceneManager& SceneManager::GetInstance()
 
 SceneManager::~SceneManager()
 {
-	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityDeath);
-
 }
 
 void SceneManager::EraseSceneManager()
 {
+	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityDeath);
+
 	for (auto pair : m_Scenes)
 	{
 		delete pair.second;
@@ -68,6 +68,13 @@ void SceneManager::Update(double dt)
 	{
 		scene->Update(dt);
 	}
+
+	unsigned int removeSize = m_ToRemove.size() - 1;
+	for (int i = removeSize; i >= 0; --i)
+	{
+		RemoveEntity(m_ToRemove[i].ent, m_ToRemove[i].scene);
+	}
+	m_ToRemove.clear();
 }
 
 void SceneManager::RenderUpdate(double dt)
@@ -218,5 +225,8 @@ void SceneManager::onEntityDeath(Death* evnt)
 	{
 		SetScenes(1, &m_pGameOverScene);
 	}
-	// TODO: Other entity deaths here
+	else
+	{
+		m_ToRemove.push_back({ evnt->ent, m_ActiveScenes[0] });
+	}
 }

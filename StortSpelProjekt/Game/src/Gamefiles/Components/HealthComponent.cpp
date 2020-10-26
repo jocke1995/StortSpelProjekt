@@ -3,8 +3,9 @@
 #include "../Events/Events.h"
 #include "ECS/Entity.h"
 
-component::HealthComponent::HealthComponent(Entity* parent, int hp) : Component(parent)
+component::HealthComponent::HealthComponent(Entity* parent, int hp, float removalTime) : Component(parent)
 {
+	m_RemovalTimer = removalTime;
 	m_Health = hp;
 	// set max health to same as hp arg when created
 	m_MaxHealth = m_Health;
@@ -17,6 +18,11 @@ component::HealthComponent::HealthComponent(Entity* parent, int hp) : Component(
 component::HealthComponent::~HealthComponent()
 {
 
+}
+
+void component::HealthComponent::Update(double dt)
+{
+	m_DeathDuration += static_cast<double>(m_Dead * dt);
 }
 
 void component::HealthComponent::OnInitScene()
@@ -32,8 +38,11 @@ void component::HealthComponent::SetHealth(int hp)
 	m_Health = hp;
 	if (m_Health <= 0 && m_Dead == false)
 	{
-		EventBus::GetInstance().Publish(&Death(m_pParent));
-		m_Dead = true;
+		if (m_RemovalTimer <= m_DeathDuration)
+		{
+			EventBus::GetInstance().Publish(&Death(m_pParent));
+			m_Dead = true;
+		}
 	}
 }
 
