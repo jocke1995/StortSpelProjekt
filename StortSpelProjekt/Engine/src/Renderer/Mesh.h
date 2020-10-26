@@ -40,7 +40,6 @@ public:
     const std::vector<Vertex>* GetVertices() const;
     virtual const size_t GetSizeOfVertices() const;
     virtual const size_t GetNumVertices() const;
-    virtual const void* GetVertexData() const;
 
     // Indices
     Resource* GetDefaultResourceIndices() const;

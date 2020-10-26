@@ -84,4 +84,8 @@ namespace component
 	{
 		return m_pModel->GetModelDim();
 	}
+	Model* ModelComponent::GetModel() const
+	{
+		return m_pModel;
+	}
 }

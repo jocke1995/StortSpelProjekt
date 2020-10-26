@@ -1157,7 +1157,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     mc->SetModel(aniTest);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::NO_DEPTH);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED);
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 10.0f);
     tc->GetTransform()->SetScale(0.1f);
 

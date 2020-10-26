@@ -1,5 +1,6 @@
 #include "AnimatedModel.h"
 #include "Animation.h"
+#include "GPUMemory/ConstantBuffer.h"
 
 AnimatedModel::AnimatedModel(const std::wstring* path, SkeletonNode* rootNode, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<Material*>* materials, unsigned int numBones)
 	: Model(path, meshes, materials)
@@ -13,7 +14,6 @@ AnimatedModel::AnimatedModel(const std::wstring* path, SkeletonNode* rootNode, s
 		m_UploadMatrices.push_back(DirectX::XMMatrixIdentity());
 	}
 
-	// TEMP
 	if (!m_Animations.empty())
 	{
 		m_pActiveAnimation = m_Animations[0];
@@ -30,11 +30,20 @@ AnimatedModel::AnimatedModel(const std::wstring* path, SkeletonNode* rootNode, s
 		globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
 		DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
 	}
+
+	// WIlle fixa klart, något ska du väl göra i dina animationer iaf
+	//m_pCB = new ConstantBuffer()
 }
 
 AnimatedModel::~AnimatedModel()
 {
 	delete m_pSkeleton;
+	delete m_pCB;
+}
+
+const ConstantBuffer* AnimatedModel::GetConstantBuffer() const
+{
+	return m_pCB;
 }
 
 void AnimatedModel::Update(double dt)

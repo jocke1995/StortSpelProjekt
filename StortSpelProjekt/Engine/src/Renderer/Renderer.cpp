@@ -57,10 +57,10 @@
 
 // Graphics
 #include "DX12Tasks/DepthRenderTask.h"
+#include "DX12Tasks/AnimatedDepthRenderTask.h"
 #include "DX12Tasks/WireframeRenderTask.h"
 #include "DX12Tasks/OutliningRenderTask.h"
 #include "DX12Tasks/ForwardRenderTask.h"
-#include "DX12Tasks/AnimationRenderTask.h"
 #include "DX12Tasks/TransparentRenderTask.h"
 #include "DX12Tasks/ShadowRenderTask.h"
 #include "DX12Tasks/DownSampleRenderTask.h"
@@ -366,25 +366,25 @@ void Renderer::Execute()
 	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(copyTask);
 
+	// Depth pre-pass
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS];
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
+	// Animation Depth pre-pass
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::ANIMATION_DEPTH_PRE_PASS];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
 	// Recording shadowmaps
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SHADOW];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
 
-	// Depth pre-pass
-	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS];
-	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
-
 	// Opaque draw
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER];
-	renderTask->SetBackBufferIndex(backBufferIndex);
-	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
-
-	// Animation draw
-	renderTask = m_RenderTasks[RENDER_TASK_TYPE::ANIMATION];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
@@ -524,10 +524,13 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 		{
 			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
 		}
-
-		if (FLAG_DRAW::DRAW_ANIMATED & mc->GetDrawFlag())
+		else if (FLAG_DRAW::DRAW_ANIMATED & mc->GetDrawFlag())
 		{
+			// Depth pre-pass calculations of vertices
 			m_RenderComponents[FLAG_DRAW::DRAW_ANIMATED].push_back(std::make_pair(mc, tc));
+
+			// Opaque drawing as usual
+			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
 		}
 
 		if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
@@ -963,7 +966,7 @@ void Renderer::submitMeshToCodt(Mesh* mesh)
 {
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 
-	std::tuple<Resource*, Resource*, const void*> Vert_Upload_Default_Data(mesh->m_pUploadResourceVertices, mesh->m_pDefaultResourceVertices, mesh->GetVertexData());
+	std::tuple<Resource*, Resource*, const void*> Vert_Upload_Default_Data(mesh->m_pUploadResourceVertices, mesh->m_pDefaultResourceVertices, mesh->m_Vertices.data());
 	std::tuple<Resource*, Resource*, const void*> Indi_Upload_Default_Data(mesh->m_pUploadResourceIndices, mesh->m_pDefaultResourceIndices, mesh->m_Indices.data());
 
 	codt->Submit(&Vert_Upload_Default_Data);
@@ -1021,7 +1024,7 @@ void Renderer::setRenderTasksPrimaryCamera()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
-	m_RenderTasks[RENDER_TASK_TYPE::ANIMATION]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::ANIMATION_DEPTH_PRE_PASS]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
@@ -1268,6 +1271,7 @@ void Renderer::updateMousePicker()
 
 void Renderer::initRenderTasks()
 {
+
 #pragma region DepthPrePass
 
 	/* Depth Pre-Pass rendering without stencil testing */
@@ -1319,13 +1323,53 @@ void Renderer::initRenderTasks()
 		L"DepthPrePassPSO",
 		FLAG_THREAD::RENDER);
 
-	
-	// TODO: remove swapchain, using swapchains render view currently.
 	DepthPrePassRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	DepthPrePassRenderTask->SetSwapChain(m_pSwapChain);
 	DepthPrePassRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion DepthPrePass
+
+#pragma region AnimationPass
+	/* Depth Pre-Pass rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdAnimatedDepthPrePass = {};
+	gpsdAnimatedDepthPrePass.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	// RenderTarget
+	gpsdAnimatedDepthPrePass.NumRenderTargets = 0;
+	gpsdAnimatedDepthPrePass.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+	// Depthstencil usage
+	gpsdAnimatedDepthPrePass.SampleDesc.Count = 1;
+	gpsdAnimatedDepthPrePass.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdAnimatedDepthPrePass.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdAnimatedDepthPrePass.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdAnimatedDepthPrePass.RasterizerState.DepthBias = 0;
+	gpsdAnimatedDepthPrePass.RasterizerState.DepthBiasClamp = 0.0f;
+	gpsdAnimatedDepthPrePass.RasterizerState.SlopeScaledDepthBias = 0.0f;
+	gpsdAnimatedDepthPrePass.RasterizerState.FrontCounterClockwise = false;
+
+	// Specify Blend descriptions
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdAnimatedDepthPrePass.BlendState.RenderTarget[i] = depthPrePassRTdesc;
+
+	gpsdDepthPrePass.DepthStencilState = depthPrePassDsd;
+	gpsdDepthPrePass.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdDepthPreAnimationVector;
+	gpsdDepthPreAnimationVector.push_back(&gpsdAnimatedDepthPrePass);
+
+	RenderTask* animationDepthPreRenderTask = new AnimatedDepthRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"AnimationDepthVertex.hlsl", L"AnimationDepthPixel.hlsl",
+		&gpsdDepthPreAnimationVector,
+		L"animationDepthPrePSO",
+		FLAG_THREAD::RENDER);
+
+	animationDepthPreRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
+	animationDepthPreRenderTask->SetSwapChain(m_pSwapChain);
+	animationDepthPreRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion AnimationPass
 
 #pragma region ForwardRendering
 	/* Forward rendering without stencil testing */
@@ -1407,54 +1451,6 @@ void Renderer::initRenderTasks()
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion ForwardRendering
-
-#pragma region AnimationPass
-	/* Forward rendering without stencil testing */
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdAnimation = {};
-	gpsdAnimation.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	// RenderTarget
-	gpsdAnimation.NumRenderTargets = 1;
-	gpsdAnimation.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	// Depthstencil usage
-	gpsdAnimation.SampleDesc.Count = 1;
-	gpsdAnimation.SampleMask = UINT_MAX;
-	// Rasterizer behaviour
-	gpsdAnimation.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-	gpsdAnimation.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
-	gpsdAnimation.RasterizerState.FrontCounterClockwise = false;
-
-	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
-		gpsdAnimation.BlendState.RenderTarget[i] = defaultRTdesc;
-
-	// Depth descriptor
-	D3D12_DEPTH_STENCIL_DESC dsdAnimation = {};
-	dsdAnimation.DepthEnable = true;
-	dsdAnimation.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-	dsdAnimation.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-	dsdAnimation.StencilEnable = false;
-
-	gpsdAnimation.DepthStencilState = dsdAnimation;
-	gpsdAnimation.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
-
-	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdAnimationVector;
-	gpsdAnimationVector.push_back(&gpsdAnimation);
-
-	RenderTask* animationRenderTask = new AnimationRenderTask(
-		m_pDevice5,
-		m_pRootSignature,
-		L"AnimationVertex.hlsl", L"AnimationPixel.hlsl",
-		&gpsdAnimationVector,
-		L"animationPSO",
-		FLAG_THREAD::RENDER);
-
-	animationRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
-	animationRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
-	animationRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
-	animationRenderTask->SetSwapChain(m_pSwapChain);
-	animationRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
-
-#pragma endregion AnimationPass
 
 #pragma region DownSampleTextureTask
 	/* Forward rendering without stencil testing */
@@ -1982,9 +1978,9 @@ void Renderer::initRenderTasks()
 
 	/* ------------------------- DirectQueue Tasks ---------------------- */
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS] = DepthPrePassRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::ANIMATION_DEPTH_PRE_PASS] = animationDepthPreRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
-	m_RenderTasks[RENDER_TASK_TYPE::ANIMATION] = animationRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT] = transparentConstantRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE] = transparentTextureRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME] = wireFrameRenderTask;
@@ -2009,9 +2005,15 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
+		m_DirectCommandLists[i].push_back(animationDepthPreRenderTask->GetCommandInterface()->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
+	// todo jocke
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_DirectCommandLists[i].push_back(DepthPrePassRenderTask->GetCommandInterface()->GetCommandList(i));
@@ -2022,10 +2024,7 @@ void Renderer::initRenderTasks()
 		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
-	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-	{
-		m_DirectCommandLists[i].push_back(animationRenderTask->GetCommandInterface()->GetCommandList(i));
-	}
+	
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
@@ -2096,8 +2095,8 @@ void Renderer::initRenderTasks()
 void Renderer::setRenderTasksRenderComponents()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::NO_DEPTH]);
+	m_RenderTasks[RENDER_TASK_TYPE::ANIMATION_DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_ANIMATED]);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
-	m_RenderTasks[RENDER_TASK_TYPE::ANIMATION]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_ANIMATED]);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT]);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);

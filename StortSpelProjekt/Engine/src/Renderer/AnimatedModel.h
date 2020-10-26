@@ -7,6 +7,7 @@
 struct Animation;
 struct SkeletonNode;
 struct VertexWeight;
+class ConstantBuffer;
 
 class AnimatedModel : public Model
 {
@@ -19,6 +20,7 @@ public:
         unsigned int numBones);
     virtual ~AnimatedModel();
 
+    const ConstantBuffer* GetConstantBuffer() const;
     void Update(double dt);
 
 private:
@@ -29,6 +31,8 @@ private:
     std::vector<Animation*> m_Animations;
     DirectX::XMFLOAT4X4 m_GlobalInverseTransform;
     std::vector<DirectX::XMMATRIX> m_UploadMatrices;
+
+    ConstantBuffer* m_pCB = nullptr;
 };
 
 
