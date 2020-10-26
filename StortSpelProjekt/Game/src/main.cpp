@@ -58,12 +58,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* gameOverScene = GameOverScene(sceneManager);
 
 
-    Entity* entity;
-    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 75; i++)
-    {
-        entity = enemyFactory.SpawnEnemy("enemyZombie");
-    }
+    //Entity* entity;
+    //// extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
+    //for (int i = 0; i < 75; i++)
+    //{
+    //    entity = enemyFactory.SpawnEnemy("enemyZombie");
+    //}
 
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &demoScene);
@@ -101,6 +101,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             logicTimer = 0;
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
+            enemyFactory.Update(updateRate);
         }
 
         /* ---- Network ---- */

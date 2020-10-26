@@ -6,12 +6,21 @@
 #include "Misc/EngineRand.h"
 EnemyFactory::EnemyFactory()
 {
+	m_MaxEnemies = 20;
+	m_SpawnCooldown = 5;
+	m_MinimumDistanceToPlayer = 100;
+	m_SpawnTimer = 0.0f;
 	m_RandGen.SetSeed(time(NULL));
 }
 
 EnemyFactory::EnemyFactory(Scene* scene)
 {
 	m_pScene = scene;
+	m_MaxEnemies = 20;
+	m_SpawnCooldown = 5;
+	m_MinimumDistanceToPlayer = 1;
+	m_SpawnTimer = 0.0f;
+	m_RandGen.SetSeed(time(NULL));
 }
 
 EnemyFactory::~EnemyFactory()
@@ -289,5 +298,45 @@ void EnemyFactory::RemoveEnemyFromList(Entity* enemy)
 			return;
 		}
 	}
-	Log::PrintSeverity(Log::Severity::WARNING, "Tried to erase enemy that does not exist!");
+	Log::PrintSeverity(Log::Severity::WARNING, "Tried to erase enemy that does not exist!\n");
+}
+
+void EnemyFactory::SetMaxNrOfEnemies(unsigned int val)
+{
+	m_MaxEnemies = val;
+}
+
+void EnemyFactory::SetSpawnCooldown(float val)
+{
+	m_SpawnCooldown = val;
+}
+
+void EnemyFactory::SetMinDistanceFromPlayer(float val)
+{
+	m_MinimumDistanceToPlayer = val;
+}
+
+void EnemyFactory::Update(double dt)
+{
+	m_SpawnTimer += dt;
+	if (m_SpawnCooldown <= m_SpawnTimer)
+	{
+		std::vector<int> eligblePoints;
+		float3 playerPos = m_pScene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform()->GetRenderPositionFloat3();
+		for (int i = 0; i < m_SpawnPoints.size(); i++)
+		{
+			float distToPlayer = (m_SpawnPoints[i] - playerPos).length();
+			if(distToPlayer > m_MinimumDistanceToPlayer)
+				eligblePoints.push_back(i);
+		}
+		unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
+
+		unsigned int toSpawn = (m_MaxEnemies - m_Enemies.size()) / 2;
+
+		for (unsigned int i = 0; i < toSpawn; ++i)
+		{
+			SpawnEnemy("enemyZombie", eligblePoints[point]);
+		}
+		m_SpawnTimer = 0.0;
+	}
 }
