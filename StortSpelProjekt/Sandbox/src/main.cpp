@@ -55,18 +55,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AssetLoader* al = AssetLoader::Get();
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
+    //Scene* activeScenes[] = { jacobScene };
     //Scene* leoScene = LeosTestScene(sceneManager);
-    Scene* timScene = TimScene(sceneManager);
+    //Scene* activeScenes[] = { leoScene };
+    //Scene* timScene = TimScene(sceneManager);
+    //Scene* activeScenes[] = { timScene };
     //Scene* jockeScene = JockesTestScene(sceneManager);
+    //Scene* activeScenes[] = { jockeScene };
     //Scene* filipScene = FloppipTestScene(sceneManager);
+    //Scene* activeScenes[] = { filipScene };
 	//Scene* fredrikScene = FredriksTestScene(sceneManager);
+    //Scene* activeScenes[] = { fredrikScene };
     //Scene* williamScene = WilliamsTestScene(sceneManager);
+    //Scene* activeScenes[] = { williamScene };
     //Scene* bjornScene = BjornsTestScene(sceneManager);
+    //Scene* activeScenes[] = { bjornScene };
     //Scene* antonScene = AntonTestScene(sceneManager);
+    //Scene* activeScenes[] = { antonScene };
     //Scene* shopScene = ShopScene(sceneManager);
-    //Scene* andresScene = AndresTestScene(sceneManager);
-
-    Scene* activeScenes[] = { timScene };
+    //Scene* activeScenes[] = { shopScene };
+    Scene* andresScene = AndresTestScene(sceneManager);
+    Scene* activeScenes[] = { andresScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -154,10 +163,10 @@ Scene* JacobsTestScene(SceneManager* sm)
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
 
-    scene->CreateNavMesh();
+    scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
 
     /*--------------------- Player ---------------------*/
     // entity
@@ -268,10 +277,10 @@ Scene* LeosTestScene(SceneManager* sm)
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* zombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
 #pragma endregion
-
+ 
 #pragma region entities
 
-    al->LoadMap(scene, "../Vendor/Resources/aiSceneRidges.txt");
+    al->LoadMap(scene, "../Vendor/Resources/aiSceneTriangles.txt");
 
 #pragma region player
     Entity* entity = (scene->AddEntity("player"));
@@ -298,11 +307,21 @@ Scene* LeosTestScene(SceneManager* sm)
 
 #pragma region enemies
     enemyFactory.SetScene(scene);
-    enemyFactory.AddEnemy("zombie", zombieModel, 20, float3{ -10.0, 10.0, 340.0 }, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
-    //enemyFactory.AddExistingEnemy("zombie", float3{ -340.0, 10.0, 340.0 });
+
+    enemyFactory.AddSpawnPoint({ -10.0, 10.0, 340.0 });
+    enemyFactory.AddSpawnPoint({ -340.0, 10.0, 340.0 });
+    enemyFactory.DefineEnemy("zombie", zombieModel, 20, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
+
+    for (int i = 0; i < 75; i++)
+    {
+        entity = enemyFactory.SpawnEnemy("zombie");
+    }
+
 #pragma endregion
 
 #pragma endregion
+
+    
 
     /* ---------------------- Update Function ---------------------- */    
     scene->SetUpdateScene(&LeoUpdateScene);
@@ -348,10 +367,6 @@ Scene* AntonTestScene(SceneManager* sm)
     component::RangeComponent* ranc = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
-    scene->CreateNavMesh();
-    NavMesh* nav = scene->GetNavMesh();
-    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
     /*--------------------- Player ---------------------*/
     // entity
     entity = scene->AddEntity("player");
@@ -564,10 +579,10 @@ Scene* JockesTestScene(SceneManager* sm)
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
-    scene->CreateNavMesh();
+    scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
     /* ---------------------- Player ---------------------- */
     Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
@@ -688,10 +703,10 @@ Scene* FloppipTestScene(SceneManager* sm)
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 
-    scene->CreateNavMesh();
+    scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
     /* ---------------------- Player ---------------------- */
     entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -814,10 +829,10 @@ Scene* FredriksTestScene(SceneManager* sm)
 	horseSound->SetAudioLoop(0);
 	attackSound->SetAudioLoop(1);
 
-    scene->CreateNavMesh();
+    scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
 	/* ---------------------- Player ---------------------- */
 	Entity* entity = scene->AddEntity("player");
 	mc = entity->AddComponent<component::ModelComponent>();
@@ -1078,10 +1093,10 @@ Scene* WilliamsTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
 
-    scene->CreateNavMesh();
+    scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
     /* ---------------------- Skybox ---------------------- */
 
     // Skybox
@@ -1228,22 +1243,22 @@ Scene* AndresTestScene(SceneManager* sm)
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
 
-    // Get the audio needed and add settings to it.
-    AudioBuffer* melodySound = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"melody");
-    AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
-    AudioBuffer* horseSound = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"horse");
-    AudioBuffer* attackSound = al->LoadAudio(L"../Vendor/Resources/Audio/attack.wav", L"attack");
+    // audio stuff
+    //// Get the audio needed and add settings to it.
+    //AudioBuffer* melodySound = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"melody");
+    //AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    //AudioBuffer* horseSound = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"horse");
+    //AudioBuffer* attackSound = al->LoadAudio(L"../Vendor/Resources/Audio/attack.wav", L"attack");
+    //// Audio may loop infinetly (0) once (1) or otherwise specified amount of times!
+    //bruhSound->SetAudioLoop(0);
+    //melodySound->SetAudioLoop(0);
+    //horseSound->SetAudioLoop(0);
+    //attackSound->SetAudioLoop(1);
 
-    // Audio may loop infinetly (0) once (1) or otherwise specified amount of times!
-    bruhSound->SetAudioLoop(0);
-    melodySound->SetAudioLoop(0);
-    horseSound->SetAudioLoop(0);
-    attackSound->SetAudioLoop(1);
-
-    scene->CreateNavMesh();
+    scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
     /* ---------------------- Player ---------------------- */
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -1385,7 +1400,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 5.0f, 0.5f);
+    entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 7.0f, 0.5f, 10.0f);
     /* ---------------------- Enemy -------------------------------- */
 
 
@@ -1436,10 +1451,10 @@ Scene* BjornsTestScene(SceneManager* sm)
     // Audio may loop infinetly (0) once (1) or otherwise specified amount of times!
     bruhSound->SetAudioLoop(1);
 
-    scene->CreateNavMesh();
+    scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
 
     Entity* entity = scene->AddEntity("player");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -1602,10 +1617,10 @@ Scene* ShopScene(SceneManager* sm)
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
-    scene->CreateNavMesh();
+    scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
 
 #pragma region player
     Entity* entity = (scene->AddEntity("player"));

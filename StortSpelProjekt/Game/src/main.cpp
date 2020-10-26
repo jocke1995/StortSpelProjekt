@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "Shop.h"
 
+Scene* GameOverScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
@@ -43,9 +44,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*----- Set the scene -----*/
     Scene* gameScene = GameScene(sceneManager);
     Scene* shopScene = ShopScene(sceneManager);
+    Scene* gameOverScene = GameOverScene(sceneManager);
+
+
+    Entity* entity;
+    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
+    //for (int i = 0; i < 75; i++)
+    //{
+    //    entity = enemyFactory.SpawnEnemy("Enemy");
+    //}
 
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &gameScene);
+    sceneManager->SetGameOverScene(gameOverScene);
 
     GameNetwork gameNetwork;
 
@@ -108,7 +119,8 @@ Scene* GameScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");    
+    Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/CubePBR/cube.obj");
@@ -209,6 +221,42 @@ Scene* GameScene(SceneManager* sm)
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&GameUpdateScene);
 
+    return scene;
+}
+
+Scene* GameOverScene(SceneManager* sm)
+{
+    AssetLoader* al = AssetLoader::Get();
+
+    // Create Scene
+    Scene* scene = sm->CreateScene("gameOverScene");
+
+    // Player (Need a camera)
+    Entity* entity = scene->AddEntity("player");
+    entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+
+    // Skybox
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
+    sbc->SetTexture(blackCubeMap);
+
+    // Game over Text
+    Entity* text = scene->AddEntity("gameOverText");
+    component::GUI2DComponent* textComp = text->AddComponent<component::GUI2DComponent>();
+    textComp->GetTextManager()->AddText("GameOverText");
+    textComp->GetTextManager()->SetScale({2, 2}, "GameOverText");
+    textComp->GetTextManager()->SetPos({0.29, 0.41}, "GameOverText");
+    textComp->GetTextManager()->SetText("Game Over", "GameOverText");
+
+    // text2
+    Entity* text2 = scene->AddEntity("youDiedText");
+    component::GUI2DComponent* textComp2 = text2->AddComponent<component::GUI2DComponent>();
+    textComp->GetTextManager()->AddText("youDiedText");
+    textComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "youDiedText");
+    textComp->GetTextManager()->SetPos({ 0.43, 0.56 }, "youDiedText");
+    textComp->GetTextManager()->SetText("(You Died...)", "youDiedText");
+    
     return scene;
 }
 

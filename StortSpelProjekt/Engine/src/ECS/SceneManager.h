@@ -10,14 +10,17 @@ class Entity;
 class Renderer;
 class AudioEngine;
 
+// Event
+struct Death;
+
 struct SceneChange;
 
 class SceneManager 
 {
 public:
-	SceneManager();
+	static SceneManager& GetInstance();
 	~SceneManager();
-
+	void EraseSceneManager();
 	// Update
 	void Update(double dt);
 	void RenderUpdate(double dt);
@@ -31,17 +34,24 @@ public:
 	void ResetScene();
 	
 
+	// Special scenes
+	void SetGameOverScene(Scene* scene);
+
 	// Entity
 	void RemoveEntity(Entity* entity, Scene* scene);
 	void AddEntity(Entity* entity, Scene* scene);
 
 private:
-
-	// Each scene stores the scene in its starting state, so that the scene can be reset easily.
+	SceneManager();
 	std::map<std::string, Scene*> m_Scenes;
 	std::vector<Scene*> m_ActiveScenes;
 
+	Scene* m_pGameOverScene = nullptr;
+
 	bool sceneExists(std::string sceneName) const;
+
+	// Entity events
+	void onEntityDeath(Death* evnt);
 
 	std::string m_SceneToChangeToWhenTeleported = "";
 	bool m_ChangeSceneNextFrame = false;
