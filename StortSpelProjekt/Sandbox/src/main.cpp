@@ -205,10 +205,10 @@ Scene* JacobsTestScene(SceneManager* sm)
 
     enemyFactory.SetScene(scene);
 
-    enemyFactory.AddEnemy("conan", barbModel, 20, float3{ 50.0, 1.0, -10.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 0.0f);
-    enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 0.0 });
-    enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 10.0 });
-    enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 20.0 });
+    enemyFactory.AddEnemy("enemyConan", barbModel, 20, float3{ 50.0, 1.0, -10.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 0.0f);
+    enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 0.0 });
+    enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 10.0 });
+    enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 20.0 });
 
     /*--------------------- Box ---------------------*/
     // entity
@@ -332,11 +332,11 @@ Scene* LeosTestScene(SceneManager* sm)
 
     enemyFactory.AddSpawnPoint({ -10.0, 10.0, 340.0 });
     enemyFactory.AddSpawnPoint({ -340.0, 10.0, 340.0 });
-    enemyFactory.DefineEnemy("zombie", zombieModel, 20, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
+    enemyFactory.DefineEnemy("enemyZombie", zombieModel, 20, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
 
     for (int i = 0; i < 75; i++)
     {
-        entity = enemyFactory.SpawnEnemy("zombie");
+        entity = enemyFactory.SpawnEnemy("enemyZombie");
     }
 
 #pragma endregion
@@ -1559,7 +1559,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     for (int i = 0; i < 50; i++)
     {
         zVal += 8;
-        enH.AddExistingEnemy("rock", float3{ xVal, 0, zVal });
+        enH.AddExistingEnemy("enemy", float3{ xVal, 0, zVal });
         if ((i + 1) % 5 == 0)
         {
             xVal += 8;
