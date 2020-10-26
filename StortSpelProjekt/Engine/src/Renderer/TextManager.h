@@ -36,8 +36,6 @@ public:
 	const int GetNumOfTexts() const;
 	const int GetNumOfCharacters(std::string name) const;
 
-	void UploadAndExecuteTextData(std::string name);
-
 private:
 	friend class Renderer;
 
