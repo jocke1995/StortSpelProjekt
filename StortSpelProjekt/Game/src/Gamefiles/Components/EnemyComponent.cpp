@@ -6,7 +6,6 @@ component::EnemyComponent::EnemyComponent(Entity* parent, EnemyFactory* factory)
 
 component::EnemyComponent::~EnemyComponent()
 {
-	m_pFactory->RemoveEnemyFromList(m_pParent);
 }
 
 void component::EnemyComponent::OnInitScene()
