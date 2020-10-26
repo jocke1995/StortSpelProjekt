@@ -20,9 +20,12 @@ namespace component
 
 		void OnInitScene();
 		void OnUnInitScene();
+		void Update(double dt);
 
 		void SetVelocity(float velocity);
 		float GetVelocity();
+		void SetAttackInterval(float interval);
+		float GetAttackInterval() const;
 
 		void Attack();
 		
@@ -31,6 +34,8 @@ namespace component
 		float m_Velocity;
 		float m_Scale;
 		int m_NrOfProjectiles = 0;
+		float m_AttackInterval;
+		double m_TimeAccumulator;
 
 		bool audioPlay;
 

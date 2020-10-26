@@ -7,6 +7,8 @@
 #include "Shop.h"
 
 Scene* GetDemoScene(SceneManager* sm);
+
+Scene* GameOverScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
 Scene* GameScene(SceneManager* sm);
@@ -50,10 +52,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
+
     /*----- Set the scene -----*/
     Scene* demoScene = GameScene(sceneManager);
+    Scene* gameOverScene = GameOverScene(sceneManager);
+
+
+    Entity* entity;
+    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
+    for (int i = 0; i < 75; i++)
+    {
+        entity = enemyFactory.SpawnEnemy("Enemy");
+    }
+
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &demoScene);
+    sceneManager->SetGameOverScene(gameOverScene);
 
     GameNetwork gameNetwork;
 
@@ -68,7 +82,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double networkTimer = 0;
     double logicTimer = 0;
     int count = 0;
-
 
     while (!window->ExitWindow())
     {
@@ -116,7 +129,8 @@ Scene* GameScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");    
+    Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
@@ -167,6 +181,8 @@ Scene* GameScene(SceneManager* sm)
 
     ccc = entity->AddComponent<component::CubeCollisionComponent>(1, mc->GetModelDim().x / 2.0f, mc->GetModelDim().y / 2.0f, mc->GetModelDim().z / 2.0f, 0, 0, false);
     pic->Init();
+    pic->SetJumpTime(0.17);
+    pic->SetJumpHeight(6.0);
 
     avc->AddVoice(L"Bruh");
     entity = scene->AddEntity("sun");
@@ -176,12 +192,20 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetDirection({ 0.05f, -0.3f, 0.5f });
     dlc->SetColor({ 252.0f / 256.0f, 156.0f / 256.0f, 84.0f / 256.0f });
     dlc->SetCameraTop(150.0f);
-    dlc->SetCameraBot(-100.0f);
+    dlc->SetCameraBot(-120.0f);
     dlc->SetCameraRight(130.0f);
     dlc->SetCameraLeft(-180.0f);
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
+
+#pragma region Enemyfactory
+    enemyFactory.SetScene(scene);
+    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
+    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
+    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
+    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04);
+#pragma endregion
     UpdateScene = &GameUpdateScene;
 
     return scene;
@@ -192,23 +216,8 @@ void GameUpdateScene(SceneManager* sm, double dt)
     if (ImGuiHandler::GetInstance().GetBool("reset"))
     {
         ImGuiHandler::GetInstance().SetBool("reset", false);
-
-        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
-        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
-        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
-        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetPosition(0, 10, 0);
-
-        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
-        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
-        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
-        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetPosition(1, 1, 1);
-
-        sm->GetScene("TimScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 3.14, 0);
-        sm->GetScene("TimScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetFriction(0);
-
     }
 }
-
 
 Scene* GetDemoScene(SceneManager* sm)
 {
@@ -253,10 +262,10 @@ Scene* GetDemoScene(SceneManager* sm)
     horseSound->SetAudioLoop(0);
     attackSound->SetAudioLoop(1);
 
-    scene->CreateNavMesh();
+    scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
 
     /* ---------------------- Player ---------------------- */
     Entity* entity = scene->AddEntity("player");
@@ -395,6 +404,7 @@ Scene* GetDemoScene(SceneManager* sm)
     /* ---------------------- Stefan ---------------------- */
 
 
+
     /* ---------------------- Enemy -------------------------------- */
     enemyFactory.SetScene(scene);
     enemyFactory.AddSpawnPoint({  0, 10, 40 });
@@ -421,6 +431,42 @@ Scene* GetDemoScene(SceneManager* sm)
     srand(time(NULL));
     /* ---------------------- Update Function ---------------------- */
 
+    return scene;
+}
+
+Scene* GameOverScene(SceneManager* sm)
+{
+    AssetLoader* al = AssetLoader::Get();
+
+    // Create Scene
+    Scene* scene = sm->CreateScene("gameOverScene");
+
+    // Player (Need a camera)
+    Entity* entity = scene->AddEntity("player");
+    entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+
+    // Skybox
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
+    sbc->SetTexture(blackCubeMap);
+
+    // Game over Text
+    Entity* text = scene->AddEntity("gameOverText");
+    component::GUI2DComponent* textComp = text->AddComponent<component::GUI2DComponent>();
+    textComp->GetTextManager()->AddText("GameOverText");
+    textComp->GetTextManager()->SetScale({2, 2}, "GameOverText");
+    textComp->GetTextManager()->SetPos({0.29, 0.41}, "GameOverText");
+    textComp->GetTextManager()->SetText("Game Over", "GameOverText");
+
+    // text2
+    Entity* text2 = scene->AddEntity("youDiedText");
+    component::GUI2DComponent* textComp2 = text2->AddComponent<component::GUI2DComponent>();
+    textComp->GetTextManager()->AddText("youDiedText");
+    textComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "youDiedText");
+    textComp->GetTextManager()->SetPos({ 0.43, 0.56 }, "youDiedText");
+    textComp->GetTextManager()->SetText("(You Died...)", "youDiedText");
+    
     return scene;
 }
 

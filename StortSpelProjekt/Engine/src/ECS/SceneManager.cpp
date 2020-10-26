@@ -5,6 +5,7 @@
 
 #include "../Renderer/Renderer.h"
 #include "../Physics/Physics.h"
+#include "../Events/EventBus.h"
 
 // Renderer
 #include "../Renderer/CommandInterface.h"
@@ -34,16 +35,30 @@
 SceneManager::SceneManager()
 {
 	m_ActiveScenes.reserve(2);
+
+	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityDeath);
+}
+
+SceneManager& SceneManager::GetInstance()
+{
+	static SceneManager instance;
+	return instance;
 }
 
 SceneManager::~SceneManager()
+{
+	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityDeath);
+
+}
+
+void SceneManager::EraseSceneManager()
 {
 	for (auto pair : m_Scenes)
 	{
 		delete pair.second;
 	}
 
-    m_Scenes.clear();
+	m_Scenes.clear();
 }
 
 void SceneManager::Update(double dt)
@@ -106,24 +121,27 @@ void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 
 	// Remove from the scene
 	scene->RemoveEntity(entity->GetName());
-
-	Renderer::GetInstance().executeCopyOnDemand();
 }
 
 void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
-	// Use the first active scene if not specified
-	if (scene == nullptr)
-	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "You need to specify the scene!!\n");
-	}
-
 	entity->OnInitScene();
 
 	// Some components need to be sent to the gpu each frame
 	Renderer::GetInstance().SubmitUploadPerFrameData();
 	Renderer::GetInstance().SubmitUploadPerSceneData();
-	Renderer::GetInstance().executeCopyOnDemand();
+}
+
+void SceneManager::SetGameOverScene(Scene* scene)
+{
+	if (scene != nullptr)
+	{
+		m_pGameOverScene = scene;
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "SetGameOverScene:: scene was nullptr");
+	}
 }
 
 void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
@@ -156,7 +174,6 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 		}
 	}
 
-	renderer->executeCopyOnDemand();
 	return;
 }
 
@@ -193,4 +210,13 @@ bool SceneManager::sceneExists(std::string sceneName) const
     }
 
     return false;
+}
+
+void SceneManager::onEntityDeath(Death* evnt)
+{
+	if (evnt->ent->GetName() == "player")
+	{
+		SetScenes(1, &m_pGameOverScene);
+	}
+	// TODO: Other entity deaths here
 }
