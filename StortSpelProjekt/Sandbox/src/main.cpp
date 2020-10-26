@@ -57,8 +57,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* activeScenes[] = { jacobScene };
+    //Scene* jacobScene = JacobsTestScene(sceneManager);
+    //Scene* activeScenes[] = { jacobScene };
     //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* activeScenes[] = { leoScene };
     //Scene* timScene = TimScene(sceneManager);
@@ -77,8 +77,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScenes[] = { antonScene };
     //Scene* shopScene = ShopScene(sceneManager);
     //Scene* activeScenes[] = { shopScene };
-    Scene* andresScene = AndresTestScene(sceneManager);
-    Scene* activeScenes[] = { andresScene };
+    //Scene* andresScene = AndresTestScene(sceneManager);
+    //Scene* activeScenes[] = { andresScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
