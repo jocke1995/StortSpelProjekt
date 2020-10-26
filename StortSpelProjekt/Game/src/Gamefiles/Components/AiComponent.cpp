@@ -19,11 +19,18 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_pScene = nullptr;
 	m_pNavMesh = nullptr;
 	m_pQuads = nullptr;
+	m_pTriangles = nullptr;
 	m_pCurrentQuad = nullptr;
+	m_pCurrentTriangle = nullptr;
 	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 	m_GoalPos = m_pTarget->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 	m_pStartQuad = nullptr;
 	m_pGoalQuad = nullptr;
+	m_pNextQuad = nullptr;
+	m_pStartTriangle = nullptr;
+	m_pGoalTriangle = nullptr;
+	m_pNextTriangle = nullptr;
+	m_LastPos = m_StartPos;
 	m_NextTargetPos = m_StartPos;
 	m_PathFound = false;
 }
@@ -35,6 +42,12 @@ component::AiComponent::~AiComponent()
 		delete m_pQuads[i];
 	}
 	delete[] m_pQuads;
+
+	for (unsigned int i = 0; i < m_pNavMesh->GetNumTriangles(); ++i)
+	{
+		delete m_pTriangles[i];
+	}
+	delete[] m_pTriangles;
 }
 
 void component::AiComponent::SetScene(Scene* scene)
@@ -46,6 +59,12 @@ void component::AiComponent::SetScene(Scene* scene)
 	{
 		m_pQuads[i] = new PathQuad;
 		m_pQuads[i]->id = i;
+	}
+	m_pTriangles = new PathTriangle*[m_pNavMesh->GetNumTriangles()];
+	for (unsigned int i = 0; i < m_pNavMesh->GetNumTriangles(); ++i)
+	{
+		m_pTriangles[i] = new PathTriangle;
+		m_pTriangles[i]->id = i;
 	}
 }
 
@@ -60,24 +79,55 @@ void component::AiComponent::Update(double dt)
 
 		float3 finalTargetPos = targetTrans->GetPositionFloat3();
 		float3 pos = parentTrans->GetPositionFloat3();
-		NavQuad* targetQuad = m_pNavMesh->GetQuad(finalTargetPos);
 
-		if (targetQuad != m_pGoalQuad)
+
+		if (std::strcmp(m_pNavMesh->GetType().c_str(), "Quads") == 0)
 		{
-			findPathToTarget();
+			NavQuad* targetQuad = m_pNavMesh->GetQuad(finalTargetPos);
+
+			if (targetQuad != m_pGoalQuad)
+			{
+				findPathToTargetQuad();
+			}
+
+			if (m_PathFound)
+			{
+				m_Path = m_NextPath;
+				m_LastPos = pos;
+				m_PathFound = false;
+			}
+
+			m_pNextQuad = m_pNavMesh->GetQuad(m_NextTargetPos);
+
+			if (m_pNavMesh->GetQuad(pos) == m_pNextQuad && !m_Path.empty())
+			{
+				m_LastPos = pos;
+				m_Path.pop_back();
+			}
 		}
-
-		if (m_PathFound)
+		else if (std::strcmp(m_pNavMesh->GetType().c_str(), "Triangles") == 0)
 		{
-			m_Path = m_NextPath;
-			m_PathFound = false;
-		}
+			NavTriangle* targetTriangle = m_pNavMesh->GetTriangle(finalTargetPos);
 
-		m_pNextQuad = m_pNavMesh->GetQuad(m_NextTargetPos);
+			if (targetTriangle != m_pGoalTriangle)
+			{
+				findPathToTargetTriangle();
+			}
 
-		if (m_pNavMesh->GetQuad(pos) == m_pNextQuad && !m_Path.empty())
-		{
-			m_Path.pop_back();
+			if (m_PathFound)
+			{
+				m_Path = m_NextPath;
+				m_LastPos = pos;
+				m_PathFound = false;
+			}
+
+			m_pNextTriangle = m_pNavMesh->GetTriangle(m_NextTargetPos);
+
+			if (m_pNavMesh->GetTriangle(pos) == m_pNextTriangle && !m_Path.empty())
+			{
+				m_LastPos = pos;
+				m_Path.pop_back();
+			}
 		}
 
 		if (!m_Path.empty())
@@ -87,9 +137,11 @@ void component::AiComponent::Update(double dt)
 		else
 		{
 			m_NextTargetPos = finalTargetPos;
+			m_LastPos = pos;
 		}
 
-		float3 direction = { m_NextTargetPos.x - pos.x, (m_NextTargetPos.y - pos.y) * static_cast<float>(m_Flags & F_AI_FLAGS::CAN_JUMP), m_NextTargetPos.z - pos.z };
+		float3 direction = { m_NextTargetPos.x - m_LastPos.x, (m_NextTargetPos.y - m_LastPos.y) * static_cast<float>(m_Flags & F_AI_FLAGS::CAN_JUMP), m_NextTargetPos.z - m_LastPos.z };
+
 		if (!(m_Flags & F_AI_FLAGS::CAN_ROLL))
 		{
 			double angle = std::atan2(direction.x, direction.z);
@@ -204,9 +256,8 @@ void component::AiComponent::selectTarget()
 	m_pTarget = m_Targets.at(index);
 }
 
-void component::AiComponent::findPathToTarget()
+void component::AiComponent::findPathToTargetQuad()
 {
-
 	m_NextPath.clear();
 	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 	m_GoalPos = m_pTarget->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
@@ -233,12 +284,12 @@ void component::AiComponent::findPathToTarget()
 	m_pQuads[m_pStartQuad->id]->parent = m_pQuads[m_pStartQuad->id];
 	m_pQuads[m_pStartQuad->id]->closed = true;
 
-	checkAdjacent();
+	checkAdjacentQuad();
 
 	bool found = false;
 	do
 	{
-		found = moveToNextTile();
+		found = moveToNextQuad();
 	} while (!m_OpenList.empty() && !found);
 
 	float2 topLeft, topRight, bottomLeft, bottomRight, pointCurrentQuad, pointGoalQuad;
@@ -254,7 +305,7 @@ void component::AiComponent::findPathToTarget()
 		pointCurrentQuad = { parentQuad->position.x, parentQuad->position.z };
 		pointGoalQuad = { m_pGoalQuad->position.x, m_pGoalQuad->position.z };
 
-		if (!checkIntersect(pointCurrentQuad, pointGoalQuad, topLeft, topRight, bottomLeft, bottomRight) || !m_NextPath.empty() || (parentQuad->position.x != m_pGoalQuad->position.x && parentQuad->position.z != m_pGoalQuad->position.z))
+		if (!checkIntersectQuad(pointCurrentQuad, pointGoalQuad, topLeft, topRight, bottomLeft, bottomRight) || !m_NextPath.empty() || (parentQuad->position.x != m_pGoalQuad->position.x && parentQuad->position.z != m_pGoalQuad->position.z))
 		{
 			m_NextPath.push_back(m_pCurrentQuad->position);
 		}
@@ -265,7 +316,66 @@ void component::AiComponent::findPathToTarget()
 	m_PathFound = true;
 }
 
-void component::AiComponent::checkAdjacent()
+void component::AiComponent::findPathToTargetTriangle()
+{
+	m_NextPath.clear();
+	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+	m_GoalPos = m_pTarget->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+
+	m_pStartTriangle = m_pNavMesh->GetTriangle(m_StartPos);
+	m_pCurrentTriangle = m_pNavMesh->GetTriangle(m_StartPos);
+	m_pGoalTriangle = m_pNavMesh->GetTriangle(m_GoalPos);
+
+	if (m_pStartTriangle == m_pGoalTriangle)
+	{
+		m_PathFound = true;
+		return;
+	}
+
+	for (unsigned int i = 0; i < m_pNavMesh->GetNumTriangles(); ++i)
+	{
+		m_pTriangles[i]->g = 0;
+		m_pTriangles[i]->f = 0;
+		m_pTriangles[i]->closed = false;
+		m_pTriangles[i]->parent = nullptr;
+	}
+	m_OpenList.clear();
+
+	m_pTriangles[m_pStartTriangle->id]->parent = m_pTriangles[m_pStartTriangle->id];
+	m_pTriangles[m_pStartTriangle->id]->closed = true;
+
+	checkAdjacentTriangle();
+
+	bool found = false;
+	do
+	{
+		found = moveToNextTriangle();
+	} while (!m_OpenList.empty() && !found);
+
+	float2 vertex1, vertex2, vertex3, pointCurrentTriangle, pointGoalTriangle;
+
+	do
+	{
+		NavTriangle* parentTriangle = m_pNavMesh->GetAllTriangles()[m_pTriangles[m_pCurrentTriangle->id]->parent->id];
+
+		vertex1 = { m_pCurrentTriangle->vertex1.x, m_pCurrentTriangle->vertex1.z };
+		vertex2 = { m_pCurrentTriangle->vertex2.x, m_pCurrentTriangle->vertex2.z };
+		vertex3 = { m_pCurrentTriangle->vertex3.x, m_pCurrentTriangle->vertex3.z };
+		pointCurrentTriangle = { parentTriangle->center.x, parentTriangle->center.z };
+		pointGoalTriangle = { m_pGoalTriangle->center.x, m_pGoalTriangle->center.z };
+
+		if (!checkIntersectTriangle(pointCurrentTriangle, pointGoalTriangle, vertex1, vertex2, vertex3) || !m_NextPath.empty())
+		{
+			m_NextPath.push_back(m_pCurrentTriangle->center);
+		}
+
+		m_pCurrentTriangle = parentTriangle;
+	} while (m_pCurrentTriangle != m_pStartTriangle);
+
+	m_PathFound = true;
+}
+
+void component::AiComponent::checkAdjacentQuad()
 {
 	for (Connection* connection : m_pCurrentQuad->connections)
 	{
@@ -286,7 +396,28 @@ void component::AiComponent::checkAdjacent()
 	}
 }
 
-bool component::AiComponent::moveToNextTile()
+void component::AiComponent::checkAdjacentTriangle()
+{
+	for (Connection* connection : m_pCurrentTriangle->connections)
+	{
+		NavTriangle* tri = connection->GetConnectedTriangle(m_pCurrentTriangle);
+		if (!m_pTriangles[tri->id]->closed)
+		{
+			if (m_pTriangles[tri->id]->g == 0 || m_pTriangles[tri->id]->g > m_pTriangles[m_pCurrentTriangle->id]->g)
+			{
+				m_OpenList.push_back(tri->id);
+				m_pTriangles[tri->id]->parent = m_pTriangles[m_pCurrentTriangle->id];
+
+				m_pTriangles[tri->id]->g = m_pTriangles[m_pCurrentTriangle->id]->g + (tri->center - m_pCurrentTriangle->center).length();
+
+				float h = (tri->center - m_GoalPos).length();
+				m_pTriangles[tri->id]->f = m_pTriangles[tri->id]->g + h;
+			}
+		}
+	}
+}
+
+bool component::AiComponent::moveToNextQuad()
 {
 	if (!m_OpenList.empty())
 	{
@@ -305,7 +436,7 @@ bool component::AiComponent::moveToNextTile()
 		m_pQuads[m_OpenList.at(index)]->closed = true;
 		m_OpenList.erase(m_OpenList.begin() + index);
 
-		checkAdjacent();
+		checkAdjacentQuad();
 
 		return m_pCurrentQuad == m_pGoalQuad;
 	}
@@ -313,11 +444,49 @@ bool component::AiComponent::moveToNextTile()
 	return false;
 }
 
-bool component::AiComponent::checkIntersect(float2 point1, float2 point2, float2 topLeft, float2 topRight, float2 bottomLeft, float2 bottomRight)
+bool component::AiComponent::moveToNextTriangle()
+{
+	if (!m_OpenList.empty())
+	{
+		int index = 0;
+		float f = m_pTriangles[m_OpenList.back()]->f;
+		for (unsigned int i = 0; i < m_OpenList.size(); ++i)
+		{
+			if ((m_pTriangles[m_OpenList.at(i)]->f < f) && !(m_pTriangles[m_OpenList.at(i)]->closed))
+			{
+				f = m_pTriangles[m_OpenList.at(i)]->f;
+				index = i;
+			}
+		}
+
+		m_pCurrentTriangle = m_pNavMesh->GetAllTriangles()[m_OpenList.at(index)];
+		m_pTriangles[m_OpenList.at(index)]->closed = true;
+		m_OpenList.erase(m_OpenList.begin() + index);
+
+		checkAdjacentTriangle();
+
+		return m_pCurrentTriangle == m_pGoalTriangle;
+	}
+
+	return false;
+}
+
+bool component::AiComponent::checkIntersectQuad(float2 point1, float2 point2, float2 topLeft, float2 topRight, float2 bottomLeft, float2 bottomRight)
 {
 	if ((lineFunction(topLeft, point1, point2) > 0 && lineFunction(topRight, point1, point2) > 0 && lineFunction(bottomLeft, point1, point2) > 0 && lineFunction(bottomRight, point1, point2) > 0) ||
 		(lineFunction(topLeft, point1, point2) < 0 && lineFunction(topRight, point1, point2) < 0 && lineFunction(bottomLeft, point1, point2) < 0 && lineFunction(bottomRight, point1, point2) < 0) ||
 		(point1.x > topRight.x && point2.x > topRight.x) || (point1.x < bottomLeft.x && point2.x < bottomLeft.x) || (point1.y > topRight.y && point2.y > topRight.y) || (point1.y < bottomLeft.y && point2.y < bottomLeft.y))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool component::AiComponent::checkIntersectTriangle(float2 point1, float2 point2, float2 vertex1, float2 vertex2, float2 vertex3)
+{
+	if (( lineFunction(vertex1, point1, point2) > 0 && lineFunction(vertex2, point1, point2) > 0 && lineFunction(vertex3, point1, point2) > 0 ) ||
+		( lineFunction(vertex1, point1, point2) < 0 && lineFunction(vertex2, point1, point2) < 0 && lineFunction(vertex3, point1, point2) < 0 ))
 	{
 		return false;
 	}
