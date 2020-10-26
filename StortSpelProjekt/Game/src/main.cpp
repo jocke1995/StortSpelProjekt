@@ -158,6 +158,7 @@ Scene* GameScene(SceneManager* sm)
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
     component::HealthComponent* hc = nullptr;
+    component::UpgradeComponent* uc = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
     /*--------------------- Player ---------------------*/
@@ -173,7 +174,10 @@ Scene* GameScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.2, 1, 50);
-    hc = entity->AddComponent<component::HealthComponent>(10);
+    hc = entity->AddComponent<component::HealthComponent>(10000);
+    uc = entity->AddComponent<component::UpgradeComponent>();
+
+    Player::GetInstance().SetPlayer(entity);
 
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);

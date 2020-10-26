@@ -25,6 +25,11 @@ namespace component
 		// will publish a death event if hp reaches 0 or bellow
 		void ChangeHealth(int hpChange);
 
+		void TakeDamage(int damage);
+
+		void ChangeFlatDamageReduction(int flatDamageReduction);
+		void ChangeProcentileDamageReduction(float procentileDamageReduction);
+
 		int GetHealth() const;
 
 		int GetMaxHealth() const;
@@ -32,6 +37,8 @@ namespace component
 		void ChangeMaxHealth(int hpChange);
 
 	private:
+		int m_FlatDamageReduction;
+		float m_ProcentileDamageReduction;
 		int m_Health;
 		int m_MaxHealth;
 		bool m_Dead = false;
