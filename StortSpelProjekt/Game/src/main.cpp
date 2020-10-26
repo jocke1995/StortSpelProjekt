@@ -7,6 +7,8 @@
 #include "Shop.h"
 
 Scene* GetDemoScene(SceneManager* sm);
+
+Scene* GameOverScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
 Scene* GameScene(SceneManager* sm);
@@ -53,6 +55,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     /*----- Set the scene -----*/
     Scene* demoScene = GameScene(sceneManager);
+    Scene* gameOverScene = GameOverScene(sceneManager);
 
 
     Entity* entity;
@@ -64,6 +67,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &demoScene);
+    sceneManager->SetGameOverScene(gameOverScene);
 
     GameNetwork gameNetwork;
 
@@ -212,20 +216,6 @@ void GameUpdateScene(SceneManager* sm, double dt)
     if (ImGuiHandler::GetInstance().GetBool("reset"))
     {
         ImGuiHandler::GetInstance().SetBool("reset", false);
-
-        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
-        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
-        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
-        sm->GetScene("TimScene")->GetEntity("player")->GetComponent<component::CollisionComponent>()->SetPosition(0, 10, 0);
-
-        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetVelVector(0, 0, 0);
-        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 0, 0);
-        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetRotation(0, 0, 0);
-        sm->GetScene("TimScene")->GetEntity("Box1")->GetComponent<component::CollisionComponent>()->SetPosition(1, 1, 1);
-
-        sm->GetScene("TimScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetAngularVelocity(0, 3.14, 0);
-        sm->GetScene("TimScene")->GetEntity("Box2")->GetComponent<component::CollisionComponent>()->SetFriction(0);
-
     }
 }
 
@@ -272,10 +262,10 @@ Scene* GetDemoScene(SceneManager* sm)
     horseSound->SetAudioLoop(0);
     attackSound->SetAudioLoop(1);
 
-    scene->CreateNavMesh();
+    scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
     nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateGrid();
+    nav->CreateQuadGrid();
 
     /* ---------------------- Player ---------------------- */
     Entity* entity = scene->AddEntity("player");
@@ -414,6 +404,7 @@ Scene* GetDemoScene(SceneManager* sm)
     /* ---------------------- Stefan ---------------------- */
 
 
+
     /* ---------------------- Enemy -------------------------------- */
     enemyFactory.SetScene(scene);
     enemyFactory.AddSpawnPoint({  0, 10, 40 });
@@ -440,6 +431,42 @@ Scene* GetDemoScene(SceneManager* sm)
     srand(time(NULL));
     /* ---------------------- Update Function ---------------------- */
 
+    return scene;
+}
+
+Scene* GameOverScene(SceneManager* sm)
+{
+    AssetLoader* al = AssetLoader::Get();
+
+    // Create Scene
+    Scene* scene = sm->CreateScene("gameOverScene");
+
+    // Player (Need a camera)
+    Entity* entity = scene->AddEntity("player");
+    entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+
+    // Skybox
+    entity = scene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
+    sbc->SetTexture(blackCubeMap);
+
+    // Game over Text
+    Entity* text = scene->AddEntity("gameOverText");
+    component::GUI2DComponent* textComp = text->AddComponent<component::GUI2DComponent>();
+    textComp->GetTextManager()->AddText("GameOverText");
+    textComp->GetTextManager()->SetScale({2, 2}, "GameOverText");
+    textComp->GetTextManager()->SetPos({0.29, 0.41}, "GameOverText");
+    textComp->GetTextManager()->SetText("Game Over", "GameOverText");
+
+    // text2
+    Entity* text2 = scene->AddEntity("youDiedText");
+    component::GUI2DComponent* textComp2 = text2->AddComponent<component::GUI2DComponent>();
+    textComp->GetTextManager()->AddText("youDiedText");
+    textComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "youDiedText");
+    textComp->GetTextManager()->SetPos({ 0.43, 0.56 }, "youDiedText");
+    textComp->GetTextManager()->SetText("(You Died...)", "youDiedText");
+    
     return scene;
 }
 
