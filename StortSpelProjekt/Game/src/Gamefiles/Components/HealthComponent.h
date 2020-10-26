@@ -39,10 +39,6 @@ namespace component
 		float m_RemovalTimer;
 		// temporary function that decreases health by 1 everytime collision happens
 		// void decreaseHealth(Collision* event);
-
-		// temporary function that prints when death event is published
-		// and m_parent was the entity that died
-		void printDeath(Death* event);
 	};
 
 
