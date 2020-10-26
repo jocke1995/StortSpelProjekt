@@ -9,10 +9,6 @@ component::HealthComponent::HealthComponent(Entity* parent, int hp, float remova
 	m_Health = hp;
 	// set max health to same as hp arg when created
 	m_MaxHealth = m_Health;
-
-	// temp so that we can print when health = 0
-	EventBus::GetInstance().Subscribe(this, &HealthComponent::printDeath);
-	
 }
 
 component::HealthComponent::~HealthComponent()
