@@ -58,8 +58,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    //Scene* jacobScene = JacobsTestScene(sceneManager);
-    //Scene* activeScenes[] = { jacobScene };
+    Scene* jacobScene = JacobsTestScene(sceneManager);
+    Scene* activeScenes[] = { jacobScene };
     //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* activeScenes[] = { leoScene };
     //Scene* timScene = TimScene(sceneManager);
