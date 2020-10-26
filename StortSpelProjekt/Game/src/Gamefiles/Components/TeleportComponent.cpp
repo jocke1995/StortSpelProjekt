@@ -2,6 +2,7 @@
 
 #include "Events/EventBus.h"
 #include "ECS/SceneManager.h"
+#include "Player.h"
 
 component::TeleportComponent::TeleportComponent(Entity* parent, Entity* player, std::string newSceneName)
 	:Component(parent)
@@ -29,9 +30,25 @@ void component::TeleportComponent::OnCollision(Collision* collisionEvent)
 	if (collisionEvent->ent1 == m_pPlayerInstance && collisionEvent->ent2 == m_pParent)
 	{
 		EventBus::GetInstance().Publish(&SceneChange(m_NewSceneName));
+		if (m_NewSceneName == "ShopScene")
+		{
+			Player::GetInstance().IsInShop(true);
+		}
+		else
+		{
+			Player::GetInstance().IsInShop(false);
+		}
 	}
 	else if (collisionEvent->ent2 == m_pPlayerInstance && collisionEvent->ent1 == m_pParent)
 	{
 		EventBus::GetInstance().Publish(&SceneChange(m_NewSceneName));
+		if (m_NewSceneName == "ShopScene")
+		{
+			Player::GetInstance().IsInShop(true);
+		}
+		else
+		{
+			Player::GetInstance().IsInShop(false);
+		}
 	}
 }

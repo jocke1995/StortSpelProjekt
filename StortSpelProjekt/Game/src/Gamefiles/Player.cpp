@@ -48,15 +48,23 @@ Shop* Player::GetShop()
 	return m_pShop;
 }
 
+void Player::IsInShop(bool value)
+{
+	m_IsInShop = value;
+}
+
 // TODO: When Shop has UI remove this way of getting upgrades
 void Player::buyUpgrade(UForUpgrade* evnt)
 {
-	m_pShop->ApplyUppgrade("UpgradeRangeLifeSteal");
-	Log::Print("UpgradeRangeLifeSteal applied!\n");
-	m_pShop->ApplyUppgrade("UpgradeRangeVelocity");
-	Log::Print("UpgradeRangeVelocity applied!\n");
-	m_pShop->ApplyUppgrade("UpgradeMeleeDamage");
-	Log::Print("UpgradeMeleeDamage applied!\n");
-	m_pShop->ApplyUppgrade("UpgradeHealthBoost");
-	Log::Print("UpgradeHealthBoost applied!\n");
+	if (m_IsInShop)
+	{
+		m_pShop->ApplyUppgrade("UpgradeRangeLifeSteal");
+		Log::Print("UpgradeRangeLifeSteal applied!\n");
+		m_pShop->ApplyUppgrade("UpgradeRangeVelocity");
+		Log::Print("UpgradeRangeVelocity applied!\n");
+		m_pShop->ApplyUppgrade("UpgradeMeleeDamage");
+		Log::Print("UpgradeMeleeDamage applied!\n");
+		m_pShop->ApplyUppgrade("UpgradeHealthBoost");
+		Log::Print("UpgradeHealthBoost applied!\n");
+	}
 }

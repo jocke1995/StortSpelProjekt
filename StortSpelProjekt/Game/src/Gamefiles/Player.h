@@ -26,10 +26,12 @@ public:
 	// Get the manager so we can use it in places such as Shop or RangeComponent.
 	UpgradeManager* GetUpgradeManager();
 	Shop* GetShop();
+	void IsInShop(bool value);
 
 private:
 	Player();
 	Entity* m_pPlayer;
+	bool m_IsInShop = false;
 
 	// Player entitys upgrade manager
 	UpgradeManager* m_pUpgradeManager = nullptr;
