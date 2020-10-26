@@ -43,9 +43,6 @@ public:
 	void SetCollisionEntities(const std::vector<Entity*>* collisionEntities);
 	const std::vector<Entity*>* GetCollisionEntities() const;
 
-	// Scene default values, to for example reset the players position if the same scene is used more then once.
-	void SetOriginalPosition(float x, float y, float z);
-
 private:
 	friend class SceneManager;
 

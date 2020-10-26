@@ -25,12 +25,7 @@ Scene::~Scene()
         }
     }
 
-    //static int a = 0;
-    //if (a == 0)
-    //{
-        delete m_pNavMesh;
-       // a++;
-   // }
+    delete m_pNavMesh;
 }
 
 Entity* Scene::AddEntityFromOther(Entity* other)
@@ -149,11 +144,6 @@ void Scene::SetCollisionEntities(const std::vector<Entity*>* collisionEntities)
 const std::vector<Entity*>* Scene::GetCollisionEntities() const
 {
     return &m_CollisionEntities;
-}
-
-void Scene::SetOriginalPosition(float x, float y, float z)
-{
-    m_OriginalPosition = {x, y, z};
 }
 
 void Scene::Update(SceneManager* sm, double dt)
