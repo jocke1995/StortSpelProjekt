@@ -182,7 +182,7 @@ void component::AiComponent::Update(double dt)
 					m_TimeAccumulator += static_cast<float>(dt);
 					if (m_TimeAccumulator > m_AttackInterval)
 					{
-						m_pTarget->GetComponent<component::HealthComponent>()->ChangeHealth(-m_MeleeAttackDmg);
+						m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(-m_MeleeAttackDmg);
 						Log::Print("ENEMY ATTACK!\n");
 						m_TimeAccumulator = 0.0;
 					}
