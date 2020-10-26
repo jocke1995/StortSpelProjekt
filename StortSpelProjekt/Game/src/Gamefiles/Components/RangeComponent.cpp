@@ -60,7 +60,7 @@ void component::RangeComponent::OnUnInitScene()
 
 void component::RangeComponent::Update(double dt)
 {
-	m_TimeAccumulator += static_cast<float>(dt);
+	m_TimeAccumulator += dt;
 }
 
 void component::RangeComponent::SetVelocity(float velocity)
@@ -85,7 +85,7 @@ float component::RangeComponent::GetAttackInterval() const
 
 void component::RangeComponent::Attack()
 {
-	if (m_TimeAccumulator > m_AttackInterval)
+	if (m_TimeAccumulator >= m_AttackInterval)
 	{
 		Entity* ent = m_pScene->AddEntity("RangeAttack" + std::to_string(++m_NrOfProjectiles));
 		component::ModelComponent* mc = nullptr;

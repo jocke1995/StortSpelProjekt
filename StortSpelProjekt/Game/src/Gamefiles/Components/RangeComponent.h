@@ -35,7 +35,7 @@ namespace component
 		float m_Scale;
 		int m_NrOfProjectiles = 0;
 		float m_AttackInterval;
-		float m_TimeAccumulator;
+		double m_TimeAccumulator;
 
 		bool audioPlay;
 
