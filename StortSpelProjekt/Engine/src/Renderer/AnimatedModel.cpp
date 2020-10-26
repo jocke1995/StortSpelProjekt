@@ -1,11 +1,17 @@
 #include "AnimatedModel.h"
 #include "Animation.h"
 
-AnimatedModel::AnimatedModel(const std::wstring* path, SkeletonNode* rootNode, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<Material*>* materials)
+AnimatedModel::AnimatedModel(const std::wstring* path, SkeletonNode* rootNode, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<Material*>* materials, unsigned int numBones)
 	: Model(path, meshes, materials)
 {
 	m_pSkeleton = rootNode;
 	m_Animations = (*animations);
+	m_UploadMatrices.reserve(numBones);
+
+	for (unsigned int i = 0; i < numBones; i++)
+	{
+		m_UploadMatrices.push_back(DirectX::XMMatrixIdentity());
+	}
 
 	// TEMP
 	if (!m_Animations.empty())
@@ -71,5 +77,6 @@ void AnimatedModel::updateSkeleton(float animationTime, SkeletonNode* node, Dire
 	DirectX::XMMATRIX inverseBindPose = DirectX::XMLoadFloat4x4(&node->inverseBindPose);
 	transform = globalInverse * transform * inverseBindPose;
 
+	m_UploadMatrices[node->boneID] = transform;
 	DirectX::XMStoreFloat4x4(&node->modelSpaceTransform, transform);
 }

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ModelComponent.h"
 
+#include "../Renderer/AnimatedModel.h"
 #include "../Renderer/Model.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/Renderer.h"
@@ -30,6 +31,11 @@ namespace component
 
 	void ModelComponent::Update(double dt)
 	{
+		AnimatedModel* animatedModel = dynamic_cast<AnimatedModel*>(m_pModel);
+		if (animatedModel)
+		{
+			animatedModel->Update(dt);
+		}
 	}
 
 	void ModelComponent::OnInitScene()

@@ -5,10 +5,10 @@
 #include "DescriptorHeap.h"
 #include "Texture/Texture.h"
 
-AnimatedMesh::AnimatedMesh(ID3D12Device5* device, std::vector<AnimatedVertex>* vertices, std::vector<unsigned int>* indices, std::map<unsigned int, VertexWeight>* perVertexBoneData, DescriptorHeap* descriptorHeap_SRV, const std::wstring& path)
-	:Mesh(nullptr, indices, path)
+AnimatedMesh::AnimatedMesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<VertexWeight>* vertexWeights, std::vector<unsigned int>* indices, std::map<unsigned int, VertexWeight>* perVertexBoneData, DescriptorHeap* descriptorHeap_SRV, const std::wstring& path)
+	:Mesh(vertices, indices, path)
 {
-	m_AnimatedVertices = *vertices;
+	m_VertexWeights = *vertexWeights;
 }
 
 void AnimatedMesh::Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_heap)
@@ -24,7 +24,7 @@ void AnimatedMesh::Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_h
 	dsrv.Format = DXGI_FORMAT_UNKNOWN;
 	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	dsrv.Buffer.NumElements = GetNumVertices();
-	dsrv.Buffer.StructureByteStride = sizeof(AnimatedVertex);
+	dsrv.Buffer.StructureByteStride = sizeof(VertexWeight);
 
 	// Set view to mesh
 	m_pSRV = new ShaderResourceView(
@@ -46,17 +46,17 @@ void AnimatedMesh::Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_h
 
 const size_t AnimatedMesh::GetSizeOfVertices() const
 {
-	return m_AnimatedVertices.size() * sizeof(AnimatedVertex);
+	return m_VertexWeights.size() * sizeof(VertexWeight);
 }
 
 const size_t AnimatedMesh::GetNumVertices() const
 {
-	return  m_AnimatedVertices.size();
+	return  m_VertexWeights.size();
 }
 
 const void* AnimatedMesh::GetVertexData() const
 {
-	return m_AnimatedVertices.data();
+	return m_VertexWeights.data();
 }
 
 AnimatedMesh::~AnimatedMesh()

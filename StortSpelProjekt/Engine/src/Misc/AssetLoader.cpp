@@ -185,14 +185,14 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 		animations.reserve(assimpScene->mNumAnimations);
 		std::map<std::string, BoneInfo> boneCounter;
 
-		SkeletonNode* rootNode = processAnimatedModel(boneCounter, assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
+		SkeletonNode* rootNode = processAnimatedModel(&boneCounter, assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
 		processAnimations(assimpScene, &animations);
 		if (!animations.empty())	// Possibly useless now
 		{
-			initializeSkeleton(rootNode, boneCounter, animations[0]);	// Ugly solution, should not pass animation[0].
+			initializeSkeleton(rootNode, &boneCounter, animations[0]);	// Ugly solution, should not pass animation[0].
 		}
 
-		m_LoadedModels[path].second = new AnimatedModel(&path, rootNode, &meshes, &animations, &materials);
+		m_LoadedModels[path].second = new AnimatedModel(&path, rootNode, &meshes, &animations, &materials, boneCounter.size());
 	}
 	else
 	{
@@ -1092,7 +1092,7 @@ Texture* AssetLoader::processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_typ
 	return nullptr;
 }
 
-SkeletonNode* AssetLoader::processAnimatedModel(std::map<std::string, BoneInfo> boneCounter, aiNode* assimpNode, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
+SkeletonNode* AssetLoader::processAnimatedModel(std::map<std::string, BoneInfo>* boneCounter, aiNode* assimpNode, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
 {
 	SkeletonNode* currentNode = new SkeletonNode();
 	currentNode->name = assimpNode->mName.C_Str();
@@ -1118,16 +1118,17 @@ SkeletonNode* AssetLoader::processAnimatedModel(std::map<std::string, BoneInfo> 
 	return currentNode;
 }
 
-Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo> boneCounter, const aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
+Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo>* boneCounter, const aiMesh* assimpMesh, const aiScene* assimpScene, std::vector<Mesh*>* meshes, std::vector<Material*>* materials, const std::wstring& filePath)
 {
 	// Fill this data
 	std::vector<Vertex> vertices;
-	std::vector<AnimatedVertex> animatedVertices;
 	std::vector<unsigned int> indices;
+	std::vector<VertexWeight> vertexWeights;
 	std::map<unsigned int, VertexWeight> perVertexBoneData;
 
 	vertices.reserve(assimpMesh->mNumVertices);
-	animatedVertices.reserve(assimpMesh->mNumVertices);
+	indices.reserve(assimpMesh->mNumVertices);
+	vertexWeights.reserve(assimpMesh->mNumVertices);
 
 	processMeshData(assimpScene, assimpMesh, &vertices, &indices);
 
@@ -1140,10 +1141,10 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo> boneCount
 		std::string boneName = assimpBone->mName.C_Str();
 		// Give each bone an ID. If we already gave it an ID we don't want to change it. Also store the offset matrix.
 		// This information is later stored in the SkeletonNode.
-		if (boneCounter.find(boneName) != boneCounter.end())
+		if (boneCounter->find(boneName) == boneCounter->end())
 		{
-			boneCounter[boneName].boneID = boneCounter.size();
-			boneCounter[boneName].boneOffset = aiMatrix4x4ToXMFloat4x4(&assimpBone->mOffsetMatrix);
+			(*boneCounter)[boneName].boneID = boneCounter->size();
+			(*boneCounter)[boneName].boneOffset = aiMatrix4x4ToXMFloat4x4(&assimpBone->mOffsetMatrix);
 		}
 
 		// Add the vertexID and weight to the map of VertexWeights
@@ -1153,7 +1154,7 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo> boneCount
 			aiVertexWeight assimpWeight = assimpBone->mWeights[j];
 			assert(vertexCounter[assimpWeight.mVertexId] < MAX_BONES_PER_VERTEX);
 			// Set the bone ID in the correct vertex
-			perVertexBoneData[assimpWeight.mVertexId].boneIDs[vertexCounter[assimpWeight.mVertexId]] = boneCounter[boneName].boneID;
+			perVertexBoneData[assimpWeight.mVertexId].boneIDs[vertexCounter[assimpWeight.mVertexId]] = (*boneCounter)[boneName].boneID;
 			// Set the weight of the vertex
 			perVertexBoneData[assimpWeight.mVertexId].weights[vertexCounter[assimpWeight.mVertexId]++] = assimpWeight.mWeight;
 		}
@@ -1162,21 +1163,18 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo> boneCount
 	// Fill the vector of animated vertices
 	for (unsigned int i = 0; i < vertices.size(); i++)
 	{
-		// Look in AnimatedMesh.h for the definitions of these operator=
-		AnimatedVertex animVertex;
-		animVertex = vertices[i];
-		animVertex = perVertexBoneData[i];
-		animatedVertices.push_back(animVertex);
+		vertexWeights.push_back(perVertexBoneData[i]);
 	}
 
 	// Create Mesh
 	Mesh* mesh = new AnimatedMesh(
 		m_pDevice,
-		&animatedVertices, &indices, &perVertexBoneData,
+		&vertices, &vertexWeights, &indices, &perVertexBoneData,
 		m_pDescriptorHeap_CBV_UAV_SRV,
 		filePath);
 
 	mesh->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
+
 	// save mesh
 	m_LoadedMeshes.push_back(mesh);
 
@@ -1186,13 +1184,13 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo> boneCount
 	return mesh;
 }
 
-void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo> boneCounter, Animation* animation)
+void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter, Animation* animation)
 {
 	// Attach the bone ID and the offset matrix to its corresponding SkeletonNode
-	if (boneCounter.find(node->name) != boneCounter.end())
+	if (boneCounter->find(node->name) != boneCounter->end())
 	{
-		node->boneID = boneCounter[node->name].boneID;
-		node->inverseBindPose = boneCounter[node->name].boneOffset;
+		node->boneID = (*boneCounter)[node->name].boneID;
+		node->inverseBindPose = (*boneCounter)[node->name].boneOffset;
 	}
 	
 	// Set the currentStateTransform pointer. This would look nicer if we didn't need the animation to do it

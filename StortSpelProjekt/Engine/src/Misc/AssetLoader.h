@@ -118,14 +118,14 @@ private:
         std::vector<Material*>* materials,
         const std::wstring& filePath);
 
-    SkeletonNode* processAnimatedModel(std::map<std::string, BoneInfo> boneCounter,
+    SkeletonNode* processAnimatedModel(std::map<std::string, BoneInfo>* boneCounter,
         aiNode* assimpNode,
         const aiScene* assimpScene, 
         std::vector<Mesh*>* meshes,
         std::vector<Material*>* materials,
         const std::wstring& filePath);
 
-    Mesh* processAnimatedMesh(std::map<std::string, BoneInfo> boneCounter,
+    Mesh* processAnimatedMesh(std::map<std::string, BoneInfo>* boneCounter,
         const aiMesh* assimpMesh,
         const aiScene* assimpScene,
         std::vector<Mesh*>* meshes,
@@ -139,7 +139,7 @@ private:
 
     Texture* processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture);
     
-    void initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo> boneCounter, Animation* animation);
+    void initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter, Animation* animation);
     void processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations);
 
     DirectX::XMFLOAT4X4 aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix);

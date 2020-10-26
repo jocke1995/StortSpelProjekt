@@ -3,12 +3,6 @@
 
 #define MAX_BONES_PER_VERTEX 10
 
-struct VertexWeight
-{
-	unsigned int boneIDs[MAX_BONES_PER_VERTEX];
-	float weights[MAX_BONES_PER_VERTEX];
-};
-
 struct BoneInfo
 {
 	unsigned int boneID;
@@ -32,6 +26,7 @@ struct SkeletonNode
 {
 	std::string name;
 	unsigned int boneID;
+	std::vector<BoneInfo> bones;
 	std::vector<SkeletonNode*> children;
 
 	DirectX::XMFLOAT4X4 defaultTransform;

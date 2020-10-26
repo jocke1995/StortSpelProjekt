@@ -8,7 +8,6 @@ struct Animation;
 struct SkeletonNode;
 struct VertexWeight;
 
-
 class AnimatedModel : public Model
 {
 public:
@@ -16,7 +15,8 @@ public:
         SkeletonNode* rootNode,
         std::vector<Mesh*>* meshes,
         std::vector<Animation*>* animations,
-        std::vector<Material*>* materials);
+        std::vector<Material*>* materials,
+        unsigned int numBones);
     virtual ~AnimatedModel();
 
     void Update(double dt);
@@ -28,6 +28,7 @@ private:
     SkeletonNode* m_pSkeleton;
     std::vector<Animation*> m_Animations;
     DirectX::XMFLOAT4X4 m_GlobalInverseTransform;
+    std::vector<DirectX::XMMATRIX> m_UploadMatrices;
 };
 
 
