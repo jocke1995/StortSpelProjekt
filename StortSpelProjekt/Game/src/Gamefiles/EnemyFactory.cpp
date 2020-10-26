@@ -2,6 +2,7 @@
 #include "ECS/Scene.h"
 #include "Engine.h"
 #include "Components/HealthComponent.h"
+#include "Components/EnemyComponent.h"
 #include "Misc/EngineRand.h"
 EnemyFactory::EnemyFactory()
 {
@@ -160,19 +161,18 @@ Entity* EnemyFactory::Add(const std::string& name, Model* model, int hp, float3 
 {
 	Entity* ent = m_pScene->AddEntity(name);
 
-	m_Enemies.push_back(ent);
-
 	component::ModelComponent* mc = nullptr;
 	component::TransformComponent* tc = nullptr;
 	component::BoundingBoxComponent* bbc = nullptr;
 	component::CollisionComponent* cc = nullptr;
 	component::AiComponent* ai = nullptr;
 	component::Audio3DEmitterComponent* ae = nullptr;
+	component::EnemyComponent* ec = nullptr;
 
 	mc = ent->AddComponent<component::ModelComponent>();
 	tc = ent->AddComponent<component::TransformComponent>();
 	ent->AddComponent<component::HealthComponent>(hp);
-
+	ec = ent->AddComponent<component::EnemyComponent>(this);
 	Entity* target = m_pScene->GetEntity(aiTarget);
 	if (target != nullptr)
 	{
@@ -274,3 +274,20 @@ EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, Model* mode
 	return enemy;
 }
 
+void EnemyFactory::AddEnemyToList(Entity* enemy)
+{
+	m_Enemies.push_back(enemy);
+}
+
+void EnemyFactory::RemoveEnemyFromList(Entity* enemy)
+{
+	for (auto enemyInList = m_Enemies.begin(); enemyInList != m_Enemies.end(); ++enemyInList)
+	{
+		if (*enemyInList == enemy)
+		{
+			m_Enemies.erase(enemyInList);
+			return;
+		}
+	}
+	Log::PrintSeverity(Log::Severity::WARNING, "Tried to erase enemy that does not exist!");
+}
