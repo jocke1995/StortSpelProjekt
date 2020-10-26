@@ -5,8 +5,10 @@
 #include "HealthComponent.h"
 #include "UpgradeComponents/UpgradeComponent.h"
 
-component::ProjectileComponent::ProjectileComponent(Entity* parent, int damage) : Component(parent)
+component::ProjectileComponent::ProjectileComponent(Entity* parent, int damage, float ttl) : Component(parent)
 {
+	m_TimeToLive = ttl;
+	m_CurrentDuration = 0.0f;
 	m_Damage = damage;
 
 	EventBus::GetInstance().Subscribe(this, &ProjectileComponent::hit);
@@ -17,9 +19,14 @@ component::ProjectileComponent::~ProjectileComponent()
 
 }
 
-void component::ProjectileComponent::Update(float dt)
+void component::ProjectileComponent::Update(double dt)
 {
-	
+	m_CurrentDuration += dt;
+
+	if (m_CurrentDuration >= m_TimeToLive)
+	{
+		EventBus::GetInstance().Publish(&Death(m_pParent));
+	}
 }
 
 void component::ProjectileComponent::OnInitScene()
@@ -28,6 +35,7 @@ void component::ProjectileComponent::OnInitScene()
 
 void component::ProjectileComponent::OnUnInitScene()
 {
+	EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 }
 
 int component::ProjectileComponent::GetDamage() const

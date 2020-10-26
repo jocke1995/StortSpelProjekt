@@ -9,9 +9,9 @@ namespace component
 	class ProjectileComponent : public Component
 	{
 	public:
-		ProjectileComponent(Entity* parent, int damage);
+		ProjectileComponent(Entity* parent, int damage, float ttl = 1.0f);
 		~ProjectileComponent();
-		void Update(float dt);
+		void Update(double dt);
 
 		void OnInitScene();
 		void OnUnInitScene();
@@ -20,6 +20,8 @@ namespace component
 
 	private:
 		int m_Damage;
+		float m_CurrentDuration;
+		float m_TimeToLive;
 
 		void hit(Collision* event);
 	};
