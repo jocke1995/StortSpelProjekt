@@ -86,6 +86,13 @@ inline void EventBus::Unsubscribe(T* classInstance, void(T::* memberFunction)(Ev
 	{
 		HandlerList* handlers = m_Subscribers[typeid(EventType)];
 
+		// Handlers could be null when closing down the program
+		// This could probably be improved.
+		if (handlers == nullptr)
+		{
+			return;
+		}
+
 		unsigned id = getID<T, EventType>(classInstance);
 		std::vector<HandlerFunctionBase*>::iterator it;
 		for (it = handlers->begin(); it != handlers->end(); ++it)
