@@ -56,11 +56,16 @@ void RootSignature::createRootSignatureStructure()
 	dtCBV.pDescriptorRanges = dtRangesCBV;
 
 	// DescriptorTable for SRV's (bindless)
-	D3D12_DESCRIPTOR_RANGE dtRangesSRV[1]{};
+	D3D12_DESCRIPTOR_RANGE dtRangesSRV[2]{};
 	dtRangesSRV[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	dtRangesSRV[0].NumDescriptors = -1; // Bindless
+	dtRangesSRV[0].NumDescriptors = -1;		// Bindless
 	dtRangesSRV[0].BaseShaderRegister = 0;	// t0
 	dtRangesSRV[0].RegisterSpace = 0;
+
+	dtRangesSRV[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	dtRangesSRV[1].NumDescriptors = -1;		// Bindless
+	dtRangesSRV[1].BaseShaderRegister = 0;	// t0
+	dtRangesSRV[1].RegisterSpace = 1;		// space1
 
 	D3D12_ROOT_DESCRIPTOR_TABLE dtSRV = {};
 	dtSRV.NumDescriptorRanges = ARRAYSIZE(dtRangesSRV);
