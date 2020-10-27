@@ -25,7 +25,7 @@ struct Keyframe
 struct SkeletonNode
 {
 	std::string name;
-	unsigned int boneID;
+	int boneID;
 	std::vector<BoneInfo> bones;
 	std::vector<SkeletonNode*> children;
 
@@ -70,6 +70,7 @@ struct Animation
 					if (animationTime < bone.second[i + 1].time)
 					{
 						keyIndex = i;
+						Log::Print("Animationframe: %d\n", keyIndex);
 						break;
 					}
 				}

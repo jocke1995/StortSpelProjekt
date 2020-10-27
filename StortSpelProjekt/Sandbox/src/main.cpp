@@ -1087,6 +1087,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::CollisionComponent* bcc = nullptr;
+    component::DirectionalLightComponent* dlc = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1096,7 +1097,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     //Model* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/aniTest/Standard_Walk.fbx");
-    //Model* amongUsModel = al->LoadModel(L"../Vendor/Resources/Models/amongus/AmongUs.fbx");
+    //Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/amongus/AmongUs.fbx");
 
     Entity* entity = scene->AddEntity("player");
     bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.1);
@@ -1125,35 +1126,32 @@ Scene* WilliamsTestScene(SceneManager* sm)
     //
     ///* ---------------------- Skybox ---------------------- */
     //
+
+
+    /* ---------------------- dirLight ---------------------- */
+    entity = scene->AddEntity("dirLight");
+    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
+    dlc->SetColor({ 0.3f, 0.3f, 0.3f });
+    dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
+    /* ---------------------- dirLight ---------------------- */
+
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 70.0, 0.0, 70.0);
     
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(35, 1, 35);
+    tc->GetTransform()->SetScale(70, 1, 70);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-    //
-    //
-    //entity = scene->AddEntity("dragon");
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //
-    //mc = entity->GetComponent<component::ModelComponent>();
-    //mc->SetModel(dragonModel);
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    //tc = entity->GetComponent<component::TransformComponent>();
-    //tc->GetTransform()->SetPosition(0.0f, -20.0f, 70.0f);
-    //tc->GetTransform()->SetRotationX(1.5708);
 
     entity = scene->AddEntity("amongUs");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     mc->SetModel(aniTest);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 10.0f);
     tc->GetTransform()->SetScale(0.1f);
 

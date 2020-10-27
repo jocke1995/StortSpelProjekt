@@ -66,8 +66,6 @@ Vertex AnimateVertex(Vertex vertex, VertexWeight vertexWeight)
 {
 	Vertex animatedVertex = vertex;
 	float4x4 animationTransform;
-	//
-	animationTransform = Identity;
 
 	animationTransform  = animationMatrices.matrices[vertexWeight.boneIDs[0]] * vertexWeight.weights[0];
 	animationTransform += animationMatrices.matrices[vertexWeight.boneIDs[1]] * vertexWeight.weights[1];
@@ -81,7 +79,9 @@ Vertex AnimateVertex(Vertex vertex, VertexWeight vertexWeight)
 	animationTransform += animationMatrices.matrices[vertexWeight.boneIDs[9]] * vertexWeight.weights[9];
 	
 	float4 animatedPosition = mul(animationTransform, float4(vertex.pos, 1.0f));
+	float4 animatedNormal = mul(animationTransform, float4(vertex.norm, 0.0f));
 	animatedVertex.pos = animatedPosition.xyz;
+	animatedVertex.norm = animatedNormal.xyz;
 
 	return animatedVertex;
 }

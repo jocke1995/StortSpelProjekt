@@ -189,6 +189,10 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 		processAnimations(assimpScene, &animations);
 		if (!animations.empty())	// Possibly useless now
 		{
+			for (int i = 0; i < animations.size(); i++)
+			{
+				animations[i]->Update(0);
+			}
 			initializeSkeleton(rootNode, &boneCounter, animations[0]);	// Ugly solution, should not pass animation[0].
 		}
 
@@ -1231,11 +1235,19 @@ void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, B
 		node->boneID = (*boneCounter)[node->name].boneID;
 		node->inverseBindPose = (*boneCounter)[node->name].boneOffset;
 	}
+	else
+	{
+		node->boneID = -1;
+	}
 	
 	// Set the currentStateTransform pointer. This would look nicer if we didn't need the animation to do it
 	if (animation->currentState.find(node->name) != animation->currentState.end())
 	{
 		node->currentStateTransform = &animation->currentState[node->name].transform;
+	}
+	else
+	{
+		node->currentStateTransform = nullptr;
 	}
 	
 	// Loop through all nodes in the tree
@@ -1463,11 +1475,15 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 					assimpNodeAnimation->mPositionKeys[k].mValue.y,
 					assimpNodeAnimation->mPositionKeys[k].mValue.z);
 
-				key.transform.rotationQuaternion = DirectX::XMFLOAT4(
+				DirectX::XMVECTOR rotVec = {
 					assimpNodeAnimation->mRotationKeys[k].mValue.x,
 					assimpNodeAnimation->mRotationKeys[k].mValue.y,
 					assimpNodeAnimation->mRotationKeys[k].mValue.z,
-					assimpNodeAnimation->mRotationKeys[k].mValue.w);
+					assimpNodeAnimation->mRotationKeys[k].mValue.w};
+
+				//DirectX::XMQuaternionInverse(rotVec);
+
+				DirectX::XMStoreFloat4(&key.transform.rotationQuaternion, rotVec);
 
 				key.transform.scaling = DirectX::XMFLOAT3(
 					assimpNodeAnimation->mScalingKeys[k].mValue.x,

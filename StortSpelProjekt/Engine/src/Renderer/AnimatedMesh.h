@@ -12,6 +12,15 @@ struct VertexWeight
 {
     unsigned int boneIDs[MAX_BONES_PER_VERTEX];
     float weights[MAX_BONES_PER_VERTEX];
+
+    VertexWeight()
+    {
+        for (unsigned int i = 0; i < MAX_BONES_PER_VERTEX; i++)
+        {
+            boneIDs[i] = 0;
+            weights[i] = 0.0f;
+        }
+    }
 };
 
 class AnimatedMesh : public Mesh
