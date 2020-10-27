@@ -43,18 +43,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     /*----- Set the scene -----*/
     Scene* gameScene = GameScene(sceneManager);
-    //Scene* shopScene = ShopScene(sceneManager);
+    Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverScene(sceneManager);
 
 
     Entity* entity;
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 75; i++)
-    {
-        entity = enemyFactory.SpawnEnemy("Enemy");
-    }
+    //for (int i = 0; i < 75; i++)
+    //{
+    //    entity = enemyFactory.SpawnEnemy("Enemy");
+    //}
 
-    //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &gameScene);
     sceneManager->SetGameOverScene(gameOverScene);
 
@@ -170,8 +169,6 @@ Scene* GameScene(SceneManager* sm)
     hc = entity->AddComponent<component::HealthComponent>(10000);
     uc = entity->AddComponent<component::UpgradeComponent>();
 
-    Player::GetInstance().SetPlayer(entity);
-
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
     tc->SetTransformOriginalState();
@@ -202,14 +199,35 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
+    /*--------------------- Teleporter ---------------------*/
+    entity = scene->AddEntity("teleporter");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 1.0, 1.0);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "ShopScene");
+
+    mc->SetModel(teleportModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
+    tc->GetTransform()->SetPosition(-50.0f, 1.0f, -25.0f);
+    tc->GetTransform()->SetScale(7.0f);
+    tc->SetTransformOriginalState();
+
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
+    /*--------------------- Teleporter ---------------------*/
 
 #pragma region Enemyfactory
-    enemyFactory.SetScene(scene);
-    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
-    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
-    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 5.0f, 0.04);
+    //enemyFactory.SetScene(scene);
+    //enemyFactory.AddSpawnPoint({ 70, 5, 20 });
+    //enemyFactory.AddSpawnPoint({ -20, 5, -190 });
+    //enemyFactory.AddSpawnPoint({ -120, 10, 75 });
+    //enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 5.0f, 0.04);
 #pragma endregion
+
+    scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
+    Physics::GetInstance().OnResetScene();
 
     scene->SetUpdateScene(&GameUpdateScene);
 
