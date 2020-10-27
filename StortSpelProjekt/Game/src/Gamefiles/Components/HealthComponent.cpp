@@ -6,6 +6,8 @@
 
 component::HealthComponent::HealthComponent(Entity* parent, int hp, float removalTime) : Component(parent)
 {
+	m_FlatDamageReduction = 0;
+	m_ProcentileDamageReduction = 1.0f;
 	m_RemovalTimer = removalTime;
 	m_Health = hp;
 	// set max health to same as hp arg when created
@@ -23,6 +25,13 @@ component::HealthComponent::~HealthComponent()
 void component::HealthComponent::Update(double dt)
 {
 	m_DeathDuration += static_cast<double>(m_Dead * dt);
+	if (m_RemovalTimer <= m_DeathDuration && m_Dead)
+	{
+		if (m_pParent->GetName() != "player")
+		{
+			EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
+		}
+	}
 }
 
 void component::HealthComponent::OnInitScene()
@@ -38,11 +47,13 @@ void component::HealthComponent::SetHealth(int hp)
 	m_Health = hp;
 	if (m_Health <= 0 && m_Dead == false)
 	{
-		if (m_RemovalTimer <= m_DeathDuration)
+		m_Dead = true;
+		component::CollisionComponent* comp = m_pParent->GetComponent<component::CollisionComponent>();
+		if (comp)
 		{
-			EventBus::GetInstance().Publish(&Death(m_pParent));
-			m_Dead = true;
+			comp->SetAngularFactor({ 1,1,1 });
 		}
+		EventBus::GetInstance().Publish(&Death(m_pParent));
 	}
 }
 
@@ -51,8 +62,12 @@ void component::HealthComponent::ChangeHealth(int hpChange)
 	m_Health += hpChange * static_cast<float>(m_Health > 0);
 	if (m_Health <= 0 && m_Dead == false)
 	{
-		EventBus::GetInstance().Publish(&Death(m_pParent));
 		m_Dead = true;
+		component::CollisionComponent* comp = m_pParent->GetComponent<component::CollisionComponent>();
+		if (comp)
+		{
+			comp->SetAngularFactor({ 1,1,1 });
+		}
 	}
 
 	if (m_Health > m_MaxHealth)

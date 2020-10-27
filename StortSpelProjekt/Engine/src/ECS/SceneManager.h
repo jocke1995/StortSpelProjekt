@@ -12,6 +12,7 @@ class AudioEngine;
 
 // Event
 struct Death;
+struct RemoveMe;
 
 class SceneManager 
 {
@@ -57,6 +58,8 @@ private:
 
 	// Entity events
 	void onEntityDeath(Death* evnt);
+
+	void onEntityRemove(RemoveMe* evnt);
 };
 
 #endif

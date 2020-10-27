@@ -37,6 +37,7 @@ SceneManager::SceneManager()
 	m_ActiveScenes.reserve(2);
 
 	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityDeath);
+	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityRemove);
 }
 
 SceneManager& SceneManager::GetInstance()
@@ -52,6 +53,7 @@ SceneManager::~SceneManager()
 void SceneManager::EraseSceneManager()
 {
 	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityDeath);
+	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityRemove);
 
 	for (auto pair : m_Scenes)
 	{
@@ -225,8 +227,9 @@ void SceneManager::onEntityDeath(Death* evnt)
 	{
 		SetScenes(1, &m_pGameOverScene);
 	}
-	else
-	{
-		m_ToRemove.push_back({ evnt->ent, m_ActiveScenes[0] });
-	}
+}
+
+void SceneManager::onEntityRemove(RemoveMe* evnt)
+{
+	m_ToRemove.push_back({ evnt->ent, m_ActiveScenes[0] });
 }
