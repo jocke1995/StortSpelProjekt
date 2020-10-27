@@ -51,6 +51,7 @@ public:
 private:
 	friend class Renderer;
 	friend class SceneManager;
+	friend class CopyOnDemandTask;
 
 	Font* m_pFont = nullptr;
 

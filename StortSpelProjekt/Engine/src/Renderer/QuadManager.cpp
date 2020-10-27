@@ -138,9 +138,6 @@ void QuadManager::CreateQuad(
 	if (m_Clickable)
 	{
 		EventBus::GetInstance().Subscribe(this, &QuadManager::pressed);
-
-		// tmp
-		EventBus::GetInstance().Subscribe(this, &QuadManager::test);
 	}
 
 	if (m_Markable)
@@ -281,13 +278,5 @@ void QuadManager::uploadQuadData(Renderer* renderer)
 	if (m_pQuadTextureMarked != nullptr)
 	{
 		renderer->submitTextureToCodt(m_pQuadTextureMarked);
-	}
-}
-
-void QuadManager::test(ButtonPressed* evnt)
-{
-	if (evnt->name == "head")
-	{
-		Log::Print("Pressed\n");
 	}
 }

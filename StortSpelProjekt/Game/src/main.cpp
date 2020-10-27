@@ -49,12 +49,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     Entity* entity;
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    //for (int i = 0; i < 75; i++)
-    //{
-    //    entity = enemyFactory.SpawnEnemy("Enemy");
-    //}
+    for (int i = 0; i < 75; i++)
+    {
+        entity = enemyFactory.SpawnEnemy("Enemy");
+    }
 
-    //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &gameScene);
     sceneManager->SetGameOverScene(gameOverScene);
 
@@ -150,6 +149,8 @@ Scene* GameScene(SceneManager* sm)
     component::TeleportComponent* teleC = nullptr;
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
+    component::HealthComponent* hc = nullptr;
+    component::UpgradeComponent* uc = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
     /*--------------------- Player ---------------------*/
@@ -165,6 +166,8 @@ Scene* GameScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     melc = entity->AddComponent<component::MeleeComponent>();
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.2, 1, 50);
+    hc = entity->AddComponent<component::HealthComponent>(10000);
+    uc = entity->AddComponent<component::UpgradeComponent>();
 
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
@@ -196,7 +199,7 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
-    /* ---------------------- Teleporter ---------------------- */
+    /*--------------------- Teleporter ---------------------*/
     entity = scene->AddEntity("teleporter");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -204,21 +207,28 @@ Scene* GameScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "ShopScene");
 
-    mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
     tc->GetTransform()->SetPosition(-50.0f, 1.0f, -25.0f);
     tc->GetTransform()->SetScale(7.0f);
-
     tc->SetTransformOriginalState();
+
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
-    /* ---------------------- Teleporter ---------------------- */
+    /*--------------------- Teleporter ---------------------*/
+
+#pragma region Enemyfactory
+    enemyFactory.SetScene(scene);
+    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
+    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
+    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
+    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 5.0f, 0.04);
+#pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();
 
-    /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&GameUpdateScene);
 
     return scene;
@@ -493,7 +503,10 @@ Scene* ShopScene(SceneManager* sm)
 
 void GameUpdateScene(SceneManager* sm, double dt)
 {
-    
+    if (ImGuiHandler::GetInstance().GetBool("reset"))
+    {
+        ImGuiHandler::GetInstance().SetBool("reset", false);
+    }
 }
 
 void ShopUpdateScene(SceneManager* sm, double dt)
