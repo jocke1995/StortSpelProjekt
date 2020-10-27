@@ -3,7 +3,6 @@
 #include "GameNetwork.h"
 #include "Player.h"
 #include "Shop.h"
-#include "Components/CurrencyComponent.h"
 
 Scene* JacobsTestScene(SceneManager* sm);
 Scene* LeosTestScene(SceneManager* sm);

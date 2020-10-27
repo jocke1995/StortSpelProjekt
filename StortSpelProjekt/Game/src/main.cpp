@@ -6,9 +6,6 @@
 #include "Player.h"
 #include "Shop.h"
 
-// Game components includes
-#include "Gamefiles/Components/CurrencyComponent.h"
-
 Scene* GetDemoScene(SceneManager* sm);
 
 Scene* GameOverScene(SceneManager* sm);
