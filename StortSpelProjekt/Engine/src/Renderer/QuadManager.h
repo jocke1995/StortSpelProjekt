@@ -14,9 +14,6 @@ class Renderer;
 struct Vertex;
 struct MouseClick;
 
-// tmp
-struct ButtonPressed;
-
 static int s_Id = 0;
 
 class QuadManager
@@ -76,8 +73,5 @@ private:
 	
 	void pressed(MouseClick* evnt);
 	void uploadQuadData(Renderer* renderer);
-
-	// tmp
-	void test(ButtonPressed* evnt);
 };
 #endif
