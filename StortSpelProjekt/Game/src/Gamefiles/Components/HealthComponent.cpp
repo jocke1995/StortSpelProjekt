@@ -22,6 +22,10 @@ component::HealthComponent::~HealthComponent()
 void component::HealthComponent::Update(double dt)
 {
 	m_DeathDuration += static_cast<double>(m_Dead * dt);
+	if (m_RemovalTimer <= m_DeathDuration && m_Dead)
+	{
+		EventBus::GetInstance().Publish(&Death(m_pParent));
+	}
 }
 
 void component::HealthComponent::OnInitScene()
@@ -44,10 +48,6 @@ void component::HealthComponent::SetHealth(int hp)
 			comp->SetAngularFactor({ 1,1,1 });
 		}
 	}
-	if (m_RemovalTimer <= m_DeathDuration && m_Dead)
-	{
-		EventBus::GetInstance().Publish(&Death(m_pParent));
-	}
 }
 
 void component::HealthComponent::ChangeHealth(int hpChange)
@@ -61,10 +61,6 @@ void component::HealthComponent::ChangeHealth(int hpChange)
 		{
 			comp->SetAngularFactor({ 1,1,1 });
 		}
-	}
-	if (m_RemovalTimer <= m_DeathDuration && m_Dead)
-	{
-		EventBus::GetInstance().Publish(&Death(m_pParent));
 	}
 
 	if (m_Health > m_MaxHealth)
