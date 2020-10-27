@@ -28,7 +28,7 @@ void component::ProjectileComponent::Update(double dt)
 
 	if (m_CurrentDuration >= m_TimeToLive)
 	{
-		EventBus::GetInstance().Publish(&Death(m_pParent));
+		EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
 	}
 }
 
