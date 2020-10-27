@@ -18,8 +18,6 @@ public:
 	virtual void OnInitScene() = 0;
 	virtual void OnUnInitScene() = 0;
 
-	virtual void Reset();
-
 	Entity* const GetParent() const;
 
 protected:
