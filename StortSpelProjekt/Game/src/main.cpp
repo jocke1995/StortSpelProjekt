@@ -49,10 +49,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     Entity* entity;
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    //for (int i = 0; i < 75; i++)
-    //{
-    //    entity = enemyFactory.SpawnEnemy("Enemy");
-    //}
+    for (int i = 0; i < 75; i++)
+    {
+        entity = enemyFactory.SpawnEnemy("Enemy");
+    }
 
     sceneManager->SetScenes(1, &gameScene);
     sceneManager->SetGameOverScene(gameOverScene);
@@ -219,11 +219,11 @@ Scene* GameScene(SceneManager* sm)
     /*--------------------- Teleporter ---------------------*/
 
 #pragma region Enemyfactory
-    //enemyFactory.SetScene(scene);
-    //enemyFactory.AddSpawnPoint({ 70, 5, 20 });
-    //enemyFactory.AddSpawnPoint({ -20, 5, -190 });
-    //enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    //enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 5.0f, 0.04);
+    enemyFactory.SetScene(scene);
+    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
+    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
+    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
+    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 5.0f, 0.04);
 #pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
