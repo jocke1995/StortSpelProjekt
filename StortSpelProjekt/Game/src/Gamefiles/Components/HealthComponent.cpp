@@ -12,6 +12,9 @@ component::HealthComponent::HealthComponent(Entity* parent, int hp, float remova
 	m_Health = hp;
 	// set max health to same as hp arg when created
 	m_MaxHealth = m_Health;
+
+	m_FlatDamageReduction = 0;
+	m_ProcentileDamageReduction = 1.0;
 }
 
 component::HealthComponent::~HealthComponent()
@@ -65,6 +68,7 @@ void component::HealthComponent::ChangeHealth(int hpChange)
 		{
 			comp->SetAngularFactor({ 1,1,1 });
 		}
+		EventBus::GetInstance().Publish(&Death(m_pParent));
 	}
 
 	if (m_Health > m_MaxHealth)
