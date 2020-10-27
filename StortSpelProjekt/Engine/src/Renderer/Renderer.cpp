@@ -504,7 +504,7 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 	component::TransformComponent* tc = mc->GetParent()->GetComponent<component::TransformComponent>();
 
 	// Submit to codt
-	submitModelToCodt(mc->m_pModel);
+	submitModelToGPU(mc->m_pModel);
 	
 	// Only add the m_Entities that actually should be drawn
 	if (tc != nullptr)
@@ -953,7 +953,7 @@ void Renderer::submitMeshToCodt(Mesh* mesh)
 	codt->Submit(&Indi_Upload_Default_Data);
 }
 
-void Renderer::submitModelToCodt(Model* model)
+void Renderer::submitModelToGPU(Model* model)
 {
 	// Check if the model is animated
 	bool isAnimated = false;
@@ -976,11 +976,32 @@ void Renderer::submitModelToCodt(Model* model)
 			// Submit the basic vertex data again. These vertex data will remain unchange during animations,
 			// while the other resource will contain the modified vertex data. But as the initial state, both resources
 			// will contain the same data.
-			std::tuple<Resource*, Resource*, const void*> defaultResourceOrigVertices(am->GetUploadResourceOrigVertices(), am->GetDefaultResourceOrigVertices(), mesh->m_Vertices.data());
-			std::tuple<Resource*, Resource*, const void*> defaultResourceVertexWeights(am->GetUploadResourceVertexWeights(), am->GetDefaultResourceVertexWeights(), am->GetVertexWeights()->data());
+			std::tuple<Resource*, Resource*, const void*> defaultResourceOrigVertices(
+				am->GetUploadResourceOrigVertices(),
+				am->GetDefaultResourceOrigVertices(),
+				mesh->m_Vertices.data());
+
+			std::tuple<Resource*, Resource*, const void*> defaultResourceVertexWeights(
+				am->GetUploadResourceVertexWeights(),
+				am->GetDefaultResourceVertexWeights(),
+				am->GetVertexWeights()->data());
 
 			codt->Submit(&defaultResourceOrigVertices);
 			codt->Submit(&defaultResourceVertexWeights);
+
+			// Also submit the matrices to be uploaded everyframe
+			CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+
+			AnimatedModel* aModel = static_cast<AnimatedModel*>(model);
+			const ConstantBuffer* cb = aModel->GetConstantBuffer();
+
+			const void* data = aModel->GetUploadMatrices()->data();
+			std::tuple<Resource*, Resource*, const void*> matrices(
+				cb->GetUploadResource(),
+				cb->GetDefaultResource(),
+				data);
+
+			cpft->Submit(&matrices);
 		}
 
 		// Submit Mesh

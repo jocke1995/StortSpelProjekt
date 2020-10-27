@@ -29,6 +29,8 @@ public:
     void InitConstantBuffer(ID3D12Device5* device5, DescriptorHeap* CBV_UAV_SRV_heap);
 
     const ConstantBuffer* GetConstantBuffer() const;
+    const std::vector<DirectX::XMMATRIX>* GetUploadMatrices() const;
+
     void Update(double dt);
 
 private:

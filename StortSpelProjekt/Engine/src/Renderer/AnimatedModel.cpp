@@ -51,16 +51,21 @@ AnimatedModel::~AnimatedModel()
 
 void AnimatedModel::InitConstantBuffer(ID3D12Device5* device5, DescriptorHeap* CBV_UAV_SRV_heap)
 {
-	
 	std::string temp = to_string(m_Path);
 	temp = temp.substr(temp.find_last_of("/\\") + 1);
 	std::wstring resourceName = L"CB_Matrices_" + to_wstring(temp);
+
 	m_pCB = new ConstantBuffer(device5, sizeof(ANIMATION_MATRICES_STRUCT), resourceName, CBV_UAV_SRV_heap);
 }
 
 const ConstantBuffer* AnimatedModel::GetConstantBuffer() const
 {
 	return m_pCB;
+}
+
+const std::vector<DirectX::XMMATRIX>* AnimatedModel::GetUploadMatrices() const
+{
+	return &m_UploadMatrices;
 }
 
 void AnimatedModel::Update(double dt)

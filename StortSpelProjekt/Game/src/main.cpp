@@ -46,13 +46,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverScene(sceneManager);
 
-    Entity* entity;
-    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 75; i++)
-    {
-        entity = enemyFactory.SpawnEnemy("Enemy");
-    }
-
     sceneManager->SetScenes(1, &gameScene);
     sceneManager->SetGameOverScene(gameOverScene);
 
@@ -146,6 +139,7 @@ Scene* GameScene(SceneManager* sm)
     component::CubeCollisionComponent* bcc = nullptr;
     component::SphereCollisionComponent* scc = nullptr;
     component::TeleportComponent* teleC = nullptr;
+    component::Audio3DListenerComponent* alc = nullptr;
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
     component::HealthComponent* hc = nullptr;
@@ -167,6 +161,7 @@ Scene* GameScene(SceneManager* sm)
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.2, 1, 50);
     hc = entity->AddComponent<component::HealthComponent>(10000);
     uc = entity->AddComponent<component::UpgradeComponent>();
+    alc = entity->AddComponent<component::Audio3DListenerComponent>();
 
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
@@ -222,8 +217,14 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ 70, 5, 20 });
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 5.0f, 0.04);
+    enemyFactory.DefineEnemy("enemyZombie", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 5.0f, 0.04);
 #pragma endregion
+
+    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
+    for (int i = 0; i < 75; i++)
+    {
+        enemyFactory.SpawnEnemy("enemyZombie");
+    }
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();

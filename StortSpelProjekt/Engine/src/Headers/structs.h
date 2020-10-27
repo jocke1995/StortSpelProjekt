@@ -8,7 +8,7 @@
 
 // Animation defines
 #define MAX_BONES_PER_VERTEX 10
-#define MAX_ANIMATION_MATRICES 256
+#define MAX_ANIMATION_MATRICES 52
 
 // This struct can be used to send specific indices as a root constant to the GPU.
 // Example usage is when the indices for pp-effects are sent to gpu.
