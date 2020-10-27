@@ -62,7 +62,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
     for (int i = 0; i < 75; i++)
     {
-        entity = enemyFactory.SpawnEnemy("Enemy");
+        entity = enemyFactory.SpawnEnemy("enemyZombie");
     }
 
     //Scene* shopScene = ShopScene(sceneManager);
@@ -145,6 +145,7 @@ Scene* GameScene(SceneManager* sm)
     /*--------------------- Component declarations ---------------------*/
     Entity* entity = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
+    component::Audio3DListenerComponent* alc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CameraComponent* cc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
@@ -157,6 +158,9 @@ Scene* GameScene(SceneManager* sm)
     component::SphereCollisionComponent* scc = nullptr;
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
+    component::CurrencyComponent* currc = nullptr;
+    component::HealthComponent* hc = nullptr;
+    component::UpgradeComponent* uc = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
     /*--------------------- Player ---------------------*/
@@ -169,9 +173,15 @@ Scene* GameScene(SceneManager* sm)
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    alc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.2, 1, 50);
+    currc = entity->AddComponent<component::CurrencyComponent>();
+    hc = entity->AddComponent<component::HealthComponent>(10000);
+    uc = entity->AddComponent<component::UpgradeComponent>();
+
+    Player::GetInstance().SetPlayer(entity);
 
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
@@ -204,7 +214,7 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ 70, 5, 20 });
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04);
+    enemyFactory.DefineEnemy("enemyZombie", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 5.0f, 0.04);
 #pragma endregion
     UpdateScene = &GameUpdateScene;
 
@@ -410,12 +420,12 @@ Scene* GetDemoScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({  0, 10, 40 });
     enemyFactory.AddSpawnPoint({ 10, 10, 0 });
     enemyFactory.AddSpawnPoint({ 20, 10, 10 });
-    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04);
+    enemyFactory.DefineEnemy("enemyZombie", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04);
 
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
     for (int i = 0; i < 75; i++)
     {
-        entity = enemyFactory.SpawnEnemy("Enemy");
+        entity = enemyFactory.SpawnEnemy("enemyZombie");
     }
     /* ---------------------- Enemy -------------------------------- */
 
@@ -679,10 +689,10 @@ void DemoUpdateScene(SceneManager* sm, double dt)
 {
     component::Audio3DEmitterComponent* ec;
 
-    std::string name = "Enemy";
+    std::string name = "enemyZombie";
     for (int i = 0; i < 75; i++)
     {
-        name = "Enemy" + std::to_string(i);
+        name = "enemyZombie" + std::to_string(i);
         ec = sm->GetScene("DemoScene")->GetEntity(name)->GetComponent<component::Audio3DEmitterComponent>();
         ec->UpdateEmitter(L"Bruh");
     }

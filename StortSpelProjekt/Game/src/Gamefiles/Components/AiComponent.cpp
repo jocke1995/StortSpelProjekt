@@ -15,6 +15,7 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_Flags = flags;
 	m_AttackInterval = 0.5;
 	m_TimeAccumulator = 0.0;
+	m_MeleeAttackDmg = 10;
 	m_pScene = nullptr;
 	m_pNavMesh = nullptr;
 	m_pQuads = nullptr;
@@ -181,16 +182,11 @@ void component::AiComponent::Update(double dt)
 					m_TimeAccumulator += static_cast<float>(dt);
 					if (m_TimeAccumulator > m_AttackInterval)
 					{
-						m_pTarget->GetComponent<component::HealthComponent>()->ChangeHealth(-1);
+						m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(-m_MeleeAttackDmg);
 						Log::Print("ENEMY ATTACK!\n");
 						m_TimeAccumulator = 0.0;
 					}
 				}
-			}
-			else
-			{
-				// "reset" accumulator if out of attack range
-				m_TimeAccumulator = 0.0;
 			}
 		}
 	}
@@ -237,6 +233,11 @@ Entity* component::AiComponent::GetTarget()
 void component::AiComponent::SetAttackInterval(float interval)
 {
 	m_AttackInterval = interval;
+}
+
+void component::AiComponent::SetMeleeAttackDmg(float dmg)
+{
+	m_MeleeAttackDmg = dmg;
 }
 
 void component::AiComponent::selectTarget()

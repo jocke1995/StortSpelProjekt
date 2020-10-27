@@ -57,10 +57,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    //Scene* jacobScene = JacobsTestScene(sceneManager);
-    //Scene* activeScenes[] = { jacobScene };
-    Scene* leoScene = LeosTestScene(sceneManager);
-    Scene* activeScenes[] = { leoScene };
+    Scene* jacobScene = JacobsTestScene(sceneManager);
+    Scene* activeScenes[] = { jacobScene };
+    //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScenes[] = { timScene };
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -158,6 +157,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     /*--------------------- Component declarations ---------------------*/
     Entity* entity = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
+    component::Audio3DListenerComponent* avc2 = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CameraComponent* cc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
@@ -168,6 +168,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
+    component::CurrencyComponent* currc = nullptr;
 
     scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
@@ -184,9 +185,11 @@ Scene* JacobsTestScene(SceneManager* sm)
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    avc2 = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    currc = entity->AddComponent<component::CurrencyComponent>();
 
     Transform* t = tc->GetTransform();
 
@@ -203,10 +206,10 @@ Scene* JacobsTestScene(SceneManager* sm)
 
     enemyFactory.SetScene(scene);
 
-    enemyFactory.AddEnemy("conan", barbModel, 20, float3{ 50.0, 1.0, -10.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 0.0f);
-    enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 0.0 });
-    enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 10.0 });
-    enemyFactory.AddExistingEnemy("conan", float3{ 50.0, 1.0, 20.0 });
+    enemyFactory.AddEnemy("enemyConan", barbModel, 20, float3{ 50.0, 1.0, -10.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 0.0f);
+    enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 0.0 });
+    enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 10.0 });
+    enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 20.0 });
 
     /*--------------------- Box ---------------------*/
     // entity
@@ -273,15 +276,22 @@ Scene* LeosTestScene(SceneManager* sm)
     component::InputComponent* ic = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* ccc = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
+    component::Audio3DListenerComponent* avc2 = nullptr;
     component::HealthComponent* hc = nullptr;
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
     component::UpgradeComponent* uc = nullptr;
+
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+    Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
+    AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
+    AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
     Model* zombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
 
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
@@ -298,10 +308,13 @@ Scene* LeosTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
-    bbc = entity->AddComponent<component::BoundingBoxComponent>();
-    melc = entity->AddComponent<component::MeleeComponent>();
-    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    avc2 = entity->AddComponent<component::Audio3DListenerComponent>();
+    mac = entity->AddComponent<component::MeleeComponent>();
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    uc = entity->AddComponent<component::UpgradeComponent>();
+
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -324,11 +337,11 @@ Scene* LeosTestScene(SceneManager* sm)
 
     enemyFactory.AddSpawnPoint({ -10.0, 10.0, 340.0 });
     enemyFactory.AddSpawnPoint({ -340.0, 10.0, 340.0 });
-    enemyFactory.DefineEnemy("zombie", zombieModel, 20, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
+    enemyFactory.DefineEnemy("enemyZombie", zombieModel, 20, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
 
     for (int i = 0; i < 75; i++)
     {
-        entity = enemyFactory.SpawnEnemy("zombie");
+        entity = enemyFactory.SpawnEnemy("enemyZombie");
     }
 
     Log::Print("Zombie 16 HP: %d\n", scene->GetEntity("zombie16")->GetComponent<component::HealthComponent>()->GetMaxHealth());
@@ -1019,7 +1032,6 @@ Scene* FredriksTestScene(SceneManager* sm)
 		1,
 		notBlended,
 		buttonTexture);
-
 	/* ---------------------------------------------------------- */
 
 	/* ------------------------- head --------------------------- */
@@ -1263,17 +1275,17 @@ Scene* AndresTestScene(SceneManager* sm)
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
 
-    // Get the audio needed and add settings to it.
-    AudioBuffer* melodySound = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"melody");
-    AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
-    AudioBuffer* horseSound = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"horse");
-    AudioBuffer* attackSound = al->LoadAudio(L"../Vendor/Resources/Audio/attack.wav", L"attack");
-
-    // Audio may loop infinetly (0) once (1) or otherwise specified amount of times!
-    bruhSound->SetAudioLoop(0);
-    melodySound->SetAudioLoop(0);
-    horseSound->SetAudioLoop(0);
-    attackSound->SetAudioLoop(1);
+    // audio stuff
+    //// Get the audio needed and add settings to it.
+    //AudioBuffer* melodySound = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"melody");
+    //AudioBuffer* bruhSound = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    //AudioBuffer* horseSound = al->LoadAudio(L"../Vendor/Resources/Audio/AGameWithNoName.wav", L"horse");
+    //AudioBuffer* attackSound = al->LoadAudio(L"../Vendor/Resources/Audio/attack.wav", L"attack");
+    //// Audio may loop infinetly (0) once (1) or otherwise specified amount of times!
+    //bruhSound->SetAudioLoop(0);
+    //melodySound->SetAudioLoop(0);
+    //horseSound->SetAudioLoop(0);
+    //attackSound->SetAudioLoop(1);
 
     scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
@@ -1420,7 +1432,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 5.0f, 0.5f);
+    entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 7.0f, 0.5f, 10.0f);
     /* ---------------------- Enemy -------------------------------- */
 
 
@@ -1557,7 +1569,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     for (int i = 0; i < 50; i++)
     {
         zVal += 8;
-        enH.AddExistingEnemy("rock", float3{ xVal, 0, zVal });
+        enH.AddExistingEnemy("enemy", float3{ xVal, 0, zVal });
         if ((i + 1) % 5 == 0)
         {
             xVal += 8;

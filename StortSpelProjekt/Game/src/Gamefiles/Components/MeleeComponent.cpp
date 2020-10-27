@@ -3,6 +3,8 @@
 #include "MeleeComponent.h"
 #include "HealthComponent.h"
 #include "../Renderer/BoundingBoxPool.h"
+
+#include "../ECS/Components/Audio3DEmitterComponent.h"
 #include "../ECS/Components/Audio2DVoiceComponent.h"
 
 
@@ -136,6 +138,8 @@ void component::MeleeComponent::CheckCollision()
 		// Checks if the collision occurs on something with a healthcomponent and is not the player themselves
 		if (list.at(i)->GetName() != "player" && list.at(i)->GetComponent<component::HealthComponent>() != nullptr)
 		{
+			list.at(i)->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
+			list.at(i)->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
 			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 		}
 	}
