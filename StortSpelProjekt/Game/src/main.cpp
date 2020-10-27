@@ -153,7 +153,6 @@ Scene* GameScene(SceneManager* sm)
     component::RangeComponent* ranc = nullptr;
     component::CurrencyComponent* currc = nullptr;
     component::HealthComponent* hc = nullptr;
-    component::Audio3DListenerComponent* alc = nullptr;
     component::UpgradeComponent* uc = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
