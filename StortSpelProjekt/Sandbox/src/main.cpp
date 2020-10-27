@@ -59,8 +59,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScenes[] = { leoScene };
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScenes[] = { timScene };
-    //Scene* jockeScene = JockesTestScene(sceneManager);
-    //Scene* activeScenes[] = { jockeScene };
+    Scene* jockeScene = JockesTestScene(sceneManager);
+    Scene* activeScenes[] = { jockeScene };
     //Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* activeScenes[] = { filipScene };
 	//Scene* fredrikScene = FredriksTestScene(sceneManager);
@@ -73,8 +73,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScenes[] = { antonScene };
     //Scene* shopScene = ShopScene(sceneManager);
     //Scene* activeScenes[] = { shopScene };
-    Scene* andresScene = AndresTestScene(sceneManager);
-    Scene* activeScenes[] = { andresScene };
+    //Scene* andresScene = AndresTestScene(sceneManager);
+    //Scene* activeScenes[] = { andresScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -251,6 +251,8 @@ Scene* JacobsTestScene(SceneManager* sm)
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
     dlc->SetDirection({ 1.0f, -1.0f, -1.0f });
     dlc->SetColor({ 0.5f, 0.5f, 0.5f });
+
+    scene->SetUpdateScene(&DefaultUpdateScene);
 
     return scene;
 }
@@ -791,6 +793,8 @@ Scene* FloppipTestScene(SceneManager* sm)
     dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
     /* ---------------------- The Sun ---------------------- */
 
+    scene->SetUpdateScene(&DefaultUpdateScene);
+
     return scene;
 }
 
@@ -1224,6 +1228,8 @@ Scene* WilliamsTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
 
+    scene->SetUpdateScene(&DefaultUpdateScene);
+
     return scene;
 }
 
@@ -1597,6 +1603,8 @@ Scene* BjornsTestScene(SceneManager* sm)
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ -2.0, -1.0, 0.0f });
     /* ---------------------- Spotlight ---------------------- */
+
+    scene->SetUpdateScene(&DefaultUpdateScene);
 
     return scene;
 }

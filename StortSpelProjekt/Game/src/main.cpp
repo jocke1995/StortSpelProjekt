@@ -49,10 +49,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     Entity* entity;
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    //for (int i = 0; i < 75; i++)
-    //{
-    //    entity = enemyFactory.SpawnEnemy("Enemy");
-    //}
+    for (int i = 0; i < 75; i++)
+    {
+        entity = enemyFactory.SpawnEnemy("Enemy");
+    }
 
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &gameScene);
