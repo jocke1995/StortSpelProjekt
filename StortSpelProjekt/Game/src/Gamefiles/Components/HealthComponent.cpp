@@ -2,12 +2,16 @@
 #include "../Events/EventBus.h"
 #include "../Events/Events.h"
 #include "ECS/Entity.h"
+#include "UpgradeComponents/UpgradeComponent.h"
 
 component::HealthComponent::HealthComponent(Entity* parent, int hp) : Component(parent)
 {
 	m_Health = hp;
 	// set max health to same as hp arg when created
 	m_MaxHealth = m_Health;
+
+	m_FlatDamageReduction = 0;
+	m_ProcentileDamageReduction = 1.0;
 
 	// temp so that we can print when health = 0
 	EventBus::GetInstance().Subscribe(this, &HealthComponent::printDeath);
@@ -51,6 +55,30 @@ void component::HealthComponent::ChangeHealth(int hpChange)
 		m_Health = m_MaxHealth;
 	}
 
+}
+
+void component::HealthComponent::TakeDamage(int damage)
+{
+	// Call on upgrade on damage functions
+	if (m_pParent->HasComponent<component::UpgradeComponent>())
+	{
+		m_pParent->GetComponent<component::UpgradeComponent>()->OnDamage();
+	}
+
+	ChangeHealth((damage - m_FlatDamageReduction) * m_ProcentileDamageReduction); //Flat Damage gets applied first followed by multaplicative damage
+	//Damage reduction stat is reset to allow upgrade to change again
+	m_FlatDamageReduction = 0.0;
+	m_ProcentileDamageReduction = 1.0;
+}
+
+void component::HealthComponent::ChangeFlatDamageReduction(int flatDamageReduction)
+{
+	m_FlatDamageReduction += flatDamageReduction;
+}
+
+void component::HealthComponent::ChangeProcentileDamageReduction(float procentileDamageReduction)
+{
+	m_ProcentileDamageReduction *= procentileDamageReduction;
 }
 
 int component::HealthComponent::GetHealth() const

@@ -63,8 +63,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* activeScenes[] = { jockeScene };
     //Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* activeScenes[] = { filipScene };
-	//Scene* fredrikScene = FredriksTestScene(sceneManager);
-    //Scene* activeScenes[] = { fredrikScene };
+	Scene* fredrikScene = FredriksTestScene(sceneManager);
+    Scene* activeScenes[] = { fredrikScene };
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* activeScenes[] = { williamScene };
     //Scene* bjornScene = BjornsTestScene(sceneManager);
@@ -1018,7 +1018,6 @@ Scene* FredriksTestScene(SceneManager* sm)
 		1,
 		notBlended,
 		buttonTexture);
-
 	/* ---------------------------------------------------------- */
 
 	/* ------------------------- head --------------------------- */

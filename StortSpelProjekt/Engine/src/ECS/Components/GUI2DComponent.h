@@ -17,6 +17,12 @@ namespace component
 		TextManager* GetTextManager();
 		QuadManager* GetQuadManager();
 
+		void HideText(bool hide);
+		void HideQuad(bool hide);
+
+		bool IsTextHidden() const;
+		bool IsQuadHidden() const;
+
 		void Update(double dt);
 		void OnInitScene();
 		void OnUnInitScene();
@@ -26,6 +32,11 @@ namespace component
 
 		TextManager m_pTextMan;
 		QuadManager m_pQuadMan;
+
+		// In case you want overlays or other possible moments
+		// when it may be appropiate to hide the gui
+		bool m_TextIsHidden = false;
+		bool m_QuadIsHidden = false;
 	};
 }
 #endif
