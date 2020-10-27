@@ -57,14 +57,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* demoScene = GameScene(sceneManager);
     Scene* gameOverScene = GameOverScene(sceneManager);
 
-
-    //Entity* entity;
-    //// extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    //for (int i = 0; i < 75; i++)
-    //{
-    //    entity = enemyFactory.SpawnEnemy("enemyZombie");
-    //}
-
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &demoScene);
     sceneManager->SetGameOverScene(gameOverScene);
@@ -146,6 +138,7 @@ Scene* GameScene(SceneManager* sm)
     /*--------------------- Component declarations ---------------------*/
     Entity* entity = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
+    component::Audio3DListenerComponent* alc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CameraComponent* cc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
@@ -158,6 +151,7 @@ Scene* GameScene(SceneManager* sm)
     component::SphereCollisionComponent* scc = nullptr;
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
+    component::CurrencyComponent* currc = nullptr;
     component::HealthComponent* hc = nullptr;
     component::Audio3DListenerComponent* alc = nullptr;
     component::UpgradeComponent* uc = nullptr;
@@ -177,6 +171,7 @@ Scene* GameScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.2, 1, 50);
+    currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(10000);
     uc = entity->AddComponent<component::UpgradeComponent>();
 

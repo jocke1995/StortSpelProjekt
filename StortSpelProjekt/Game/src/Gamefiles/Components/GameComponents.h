@@ -7,5 +7,6 @@
 #include "PlayerInputComponent.h"
 #include "HealthComponent.h"
 #include "RangeComponent.h"
+#include "CurrencyComponent.h"
 
 #endif // !GAMECOMPONENTS_H
