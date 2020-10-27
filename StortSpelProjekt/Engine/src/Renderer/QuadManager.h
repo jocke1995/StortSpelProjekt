@@ -8,14 +8,11 @@ class Texture;
 class Mesh;
 class Resource;
 class ShaderResourceView;
-class Eventbus;
+class EventBus;
 class Renderer;
 
 struct Vertex;
 struct MouseClick;
-
-// tmp
-struct ButtonPressed;
 
 static int s_Id = 0;
 
@@ -76,8 +73,5 @@ private:
 	
 	void pressed(MouseClick* evnt);
 	void uploadQuadData(Renderer* renderer);
-
-	// tmp
-	void test(ButtonPressed* evnt);
 };
 #endif

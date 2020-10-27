@@ -11,9 +11,9 @@ namespace component
 	class HealthComponent : public Component
 	{
 	public:
-		HealthComponent(Entity* parent, int hp);
+		HealthComponent(Entity* parent, int hp, float removalTime = -1);
 		~HealthComponent();
-
+		void Update(double dt);
 		void OnInitScene();
 		void OnUnInitScene();
 
@@ -25,6 +25,11 @@ namespace component
 		// will publish a death event if hp reaches 0 or bellow
 		void ChangeHealth(int hpChange);
 
+		void TakeDamage(int damage);
+
+		void ChangeFlatDamageReduction(int flatDamageReduction);
+		void ChangeProcentileDamageReduction(float procentileDamageReduction);
+
 		int GetHealth() const;
 
 		int GetMaxHealth() const;
@@ -32,16 +37,13 @@ namespace component
 		void ChangeMaxHealth(int hpChange);
 
 	private:
+		int m_FlatDamageReduction;
+		float m_ProcentileDamageReduction;
 		int m_Health;
 		int m_MaxHealth;
 		bool m_Dead = false;
-		// temporary function that decreases health by 1 everytime collision happens
-		// void decreaseHealth(Collision* event);
-
-		// temporary function that prints when death event is published
-		// and m_parent was the entity that died
-		void printDeath(Death* event);
-
+		float m_DeathDuration = 0.0f;
+		float m_RemovalTimer;
 	};
 
 

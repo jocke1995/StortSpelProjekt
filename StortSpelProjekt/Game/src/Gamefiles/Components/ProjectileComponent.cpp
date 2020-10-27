@@ -1,12 +1,17 @@
 #include "ProjectileComponent.h"
 #include "Engine.h"
-#include "Events/Events.h"
-#include "../ECS/Entity.h"
 #include "HealthComponent.h"
 #include "UpgradeComponents/UpgradeComponent.h"
 
-component::ProjectileComponent::ProjectileComponent(Entity* parent, int damage) : Component(parent)
+#include "Events/Events.h"
+#include "../ECS/Entity.h"
+
+#include "../ECS/Components/Audio3DEmitterComponent.h"
+
+component::ProjectileComponent::ProjectileComponent(Entity* parent, int damage, float ttl) : Component(parent)
 {
+	m_TimeToLive = ttl;
+	m_CurrentDuration = 0.0f;
 	m_Damage = damage;
 
 	EventBus::GetInstance().Subscribe(this, &ProjectileComponent::hit);
@@ -17,9 +22,14 @@ component::ProjectileComponent::~ProjectileComponent()
 
 }
 
-void component::ProjectileComponent::Update(float dt)
+void component::ProjectileComponent::Update(double dt)
 {
-	
+	m_CurrentDuration += dt;
+
+	if (m_CurrentDuration >= m_TimeToLive)
+	{
+		EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
+	}
 }
 
 void component::ProjectileComponent::OnInitScene()
@@ -28,6 +38,7 @@ void component::ProjectileComponent::OnInitScene()
 
 void component::ProjectileComponent::OnUnInitScene()
 {
+	EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 }
 
 int component::ProjectileComponent::GetDamage() const
@@ -44,6 +55,11 @@ void component::ProjectileComponent::hit(Collision* event)
 		if (event->ent2->HasComponent<component::HealthComponent>())
 		{
 			event->ent2->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
+			if (event->ent2->GetName().find("enemy") != std::string::npos && event->ent2->GetComponent<component::Audio3DEmitterComponent>())
+			{
+				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
+				event->ent2->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
+			}
 		}
 		// Call on upgrade on hit functions
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
@@ -58,6 +74,11 @@ void component::ProjectileComponent::hit(Collision* event)
 		if (event->ent1->HasComponent<component::HealthComponent>())
 		{
 			event->ent1->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
+			if (event->ent1->GetName().find("enemy") != std::string::npos && event->ent1->GetComponent<component::Audio3DEmitterComponent>())
+			{
+				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
+				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
+			}
 		}
 		// Call on upgrade on hit functions
 		if (m_pParent->HasComponent<component::UpgradeComponent>())

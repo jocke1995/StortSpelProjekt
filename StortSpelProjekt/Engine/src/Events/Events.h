@@ -80,6 +80,12 @@ struct Death : public Event
 	Entity* ent;
 };
 
+struct RemoveMe : public Event
+{
+	RemoveMe(Entity* ent) : ent(ent) {};
+	Entity* ent;
+};
+
 struct WindowChange : public Event
 {
 	WindowChange() {};

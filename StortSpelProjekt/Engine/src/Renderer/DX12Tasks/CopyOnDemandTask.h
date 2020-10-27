@@ -3,6 +3,8 @@
 
 #include "CopyTask.h"
 class Texture;
+class TextData;
+class Text;
 
 class CopyOnDemandTask : public CopyTask
 {
@@ -11,6 +13,10 @@ public:
 	virtual ~CopyOnDemandTask();
 
 	void SubmitTexture(Texture* texture);
+
+	// Todo: Remove this funciton
+	// Bad coding, have to have currently for text to work.
+	void UnSubmitText(Text* text);
 
 	// Removal
 	void Clear();

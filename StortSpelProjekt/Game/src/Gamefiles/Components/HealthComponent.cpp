@@ -2,21 +2,33 @@
 #include "../Events/EventBus.h"
 #include "../Events/Events.h"
 #include "ECS/Entity.h"
+#include "UpgradeComponents/UpgradeComponent.h"
 
-component::HealthComponent::HealthComponent(Entity* parent, int hp) : Component(parent)
+component::HealthComponent::HealthComponent(Entity* parent, int hp, float removalTime) : Component(parent)
 {
+	m_FlatDamageReduction = 0;
+	m_ProcentileDamageReduction = 1.0f;
+	m_RemovalTimer = removalTime;
 	m_Health = hp;
 	// set max health to same as hp arg when created
 	m_MaxHealth = m_Health;
-
-	// temp so that we can print when health = 0
-	EventBus::GetInstance().Subscribe(this, &HealthComponent::printDeath);
-	
 }
 
 component::HealthComponent::~HealthComponent()
 {
 
+}
+
+void component::HealthComponent::Update(double dt)
+{
+	m_DeathDuration += static_cast<double>(m_Dead * dt);
+	if (m_RemovalTimer <= m_DeathDuration && m_Dead)
+	{
+		if (m_pParent->GetName() != "player")
+		{
+			EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
+		}
+	}
 }
 
 void component::HealthComponent::OnInitScene()
@@ -32,8 +44,13 @@ void component::HealthComponent::SetHealth(int hp)
 	m_Health = hp;
 	if (m_Health <= 0 && m_Dead == false)
 	{
-		EventBus::GetInstance().Publish(&Death(m_pParent));
 		m_Dead = true;
+		component::CollisionComponent* comp = m_pParent->GetComponent<component::CollisionComponent>();
+		if (comp)
+		{
+			comp->SetAngularFactor({ 1,1,1 });
+		}
+		EventBus::GetInstance().Publish(&Death(m_pParent));
 	}
 }
 
@@ -42,8 +59,12 @@ void component::HealthComponent::ChangeHealth(int hpChange)
 	m_Health += hpChange * static_cast<float>(m_Health > 0);
 	if (m_Health <= 0 && m_Dead == false)
 	{
-		EventBus::GetInstance().Publish(&Death(m_pParent));
 		m_Dead = true;
+		component::CollisionComponent* comp = m_pParent->GetComponent<component::CollisionComponent>();
+		if (comp)
+		{
+			comp->SetAngularFactor({ 1,1,1 });
+		}
 	}
 
 	if (m_Health > m_MaxHealth)
@@ -51,6 +72,30 @@ void component::HealthComponent::ChangeHealth(int hpChange)
 		m_Health = m_MaxHealth;
 	}
 
+}
+
+void component::HealthComponent::TakeDamage(int damage)
+{
+	// Call on upgrade on damage functions
+	if (m_pParent->HasComponent<component::UpgradeComponent>())
+	{
+		m_pParent->GetComponent<component::UpgradeComponent>()->OnDamage();
+	}
+
+	ChangeHealth((damage - m_FlatDamageReduction) * m_ProcentileDamageReduction); //Flat Damage gets applied first followed by multaplicative damage
+	//Damage reduction stat is reset to allow upgrade to change again
+	m_FlatDamageReduction = 0.0;
+	m_ProcentileDamageReduction = 1.0;
+}
+
+void component::HealthComponent::ChangeFlatDamageReduction(int flatDamageReduction)
+{
+	m_FlatDamageReduction += flatDamageReduction;
+}
+
+void component::HealthComponent::ChangeProcentileDamageReduction(float procentileDamageReduction)
+{
+	m_ProcentileDamageReduction *= procentileDamageReduction;
 }
 
 int component::HealthComponent::GetHealth() const
@@ -71,19 +116,4 @@ void component::HealthComponent::SetMaxHealth(int newHealth)
 void component::HealthComponent::ChangeMaxHealth(int hpChange)
 {
 	m_MaxHealth += hpChange;
-}
-
-
-void component::HealthComponent::printDeath(Death* event)
-{
-	// TODO: When more of the game is inplace make an improved version of this function
-	if (event->ent == m_pParent)
-	{
-		Log::Print("%s died!\n", event->ent->GetName().c_str());
-		component::CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
-		cc->SetVelVector(0.0, 0.0, 0.0);
-		cc->SetAngularVelocity(0.0, 0.0, 0.0);
-		cc->SetAngularFactor({ 1.0, 1.0, 1.0 });
-		cc->SetFriction(1000.0);
-	}
 }

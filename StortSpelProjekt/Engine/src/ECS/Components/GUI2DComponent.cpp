@@ -27,6 +27,26 @@ namespace component
 		return &m_pQuadMan;
 	}
 
+	void GUI2DComponent::HideText(bool hide)
+	{
+		m_TextIsHidden = hide;
+	}
+
+	void GUI2DComponent::HideQuad(bool hide)
+	{
+		m_QuadIsHidden = hide;
+	}
+
+	bool GUI2DComponent::IsTextHidden() const
+	{
+		return m_TextIsHidden;
+	}
+
+	bool GUI2DComponent::IsQuadHidden() const
+	{
+		return m_QuadIsHidden;
+	}
+
 	void GUI2DComponent::Update(double dt)
 	{
 		if (m_pQuadMan.IsMarkable())
