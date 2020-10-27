@@ -17,9 +17,6 @@
 
 #include "../Memory/PoolAllocator.h"
 
-
-
-
 component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale, int damage, float velocity) : Component(parent)
 {
 	m_pSceneMan = sm;
@@ -144,6 +141,5 @@ void component::RangeComponent::Attack()
 
 		m_TimeAccumulator = 0.0;
 	}
-
 }
 		

@@ -36,6 +36,8 @@ namespace component
 		void SetMaxHealth(int newHealth);
 		void ChangeMaxHealth(int hpChange);
 
+		void Reset();
+
 	private:
 		int m_FlatDamageReduction;
 		float m_ProcentileDamageReduction;

@@ -101,6 +101,11 @@ void component::HealthComponent::ChangeMaxHealth(int hpChange)
 	m_MaxHealth += hpChange;
 }
 
+void component::HealthComponent::Reset()
+{
+	m_Health = m_MaxHealth;
+	m_Dead = false;
+}
 
 void component::HealthComponent::printDeath(Death* event)
 {

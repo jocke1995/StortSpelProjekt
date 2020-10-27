@@ -19,6 +19,7 @@ public:
 
 	Entity* AddEntityFromOther(Entity* other);
 	Entity* AddEntity(std::string entityName);
+
 	bool RemoveEntity(std::string entityName);
 
 	NavMesh* CreateNavMesh(const std::string& type);
@@ -48,7 +49,8 @@ private:
 
 	std::string m_SceneName;
 
-	std::map<std::string, Entity*> m_Entities;
+	std::map<std::string, Entity*> m_EntitiesToKeep;
+
 	std::vector<Entity*> m_CollisionEntities;
 	unsigned int m_NrOfEntities = 0;
 

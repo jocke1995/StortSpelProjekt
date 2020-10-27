@@ -124,10 +124,20 @@ void SceneManager::ChangeSceneIfTeleported()
 		// Set new scene
 		if (m_ActiveScenes[0]->GetName() != m_SceneToChangeToWhenTeleported)
 		{
+			// Reset old scene
+			std::map<std::string, Entity*> entities = *m_ActiveScenes[0]->GetEntities();
+			for (auto pair : entities)
+			{
+				for (Component* comp : *pair.second->GetAllComponents())
+				{
+					comp->Reset();
+				}
+			}
+
 			Scene* scene = m_Scenes[m_SceneToChangeToWhenTeleported];
 
 			// ResetScene
-			std::map<std::string, Entity*> entities = *scene->GetEntities();
+			entities = *scene->GetEntities();
 			for (auto pair : entities)
 			{
 				for (Component* comp : *pair.second->GetAllComponents())

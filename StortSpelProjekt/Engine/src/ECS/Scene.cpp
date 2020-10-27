@@ -13,7 +13,7 @@ Scene::Scene(std::string sceneName)
 
 Scene::~Scene()
 {
-    for (auto pair : m_Entities)
+    for (auto pair : m_EntitiesToKeep)
     {
         if (pair.second != nullptr)
         {
@@ -36,7 +36,7 @@ Entity* Scene::AddEntityFromOther(Entity* other)
         return nullptr;
     }
 
-    m_Entities[other->GetName()] = other;
+    m_EntitiesToKeep[other->GetName()] = other;
     other->IncrementRefCount();
 
     m_NrOfEntities++;
@@ -52,11 +52,11 @@ Entity* Scene::AddEntity(std::string entityName)
         return nullptr;
     }
 
-    m_Entities[entityName] = PoolAllocator<Entity>::GetInstance().Allocate(entityName);
-    m_Entities[entityName]->IncrementRefCount();
+    m_EntitiesToKeep[entityName] = PoolAllocator<Entity>::GetInstance().Allocate(entityName);
+    m_EntitiesToKeep[entityName]->IncrementRefCount();
     m_NrOfEntities++;
 
-    return m_Entities[entityName];
+    return m_EntitiesToKeep[entityName];
 }
 
 bool Scene::RemoveEntity(std::string entityName)
@@ -67,8 +67,8 @@ bool Scene::RemoveEntity(std::string entityName)
         return false;
     }
 
-    PoolAllocator<Entity>::GetInstance().Delete(m_Entities[entityName]);
-    m_Entities.erase(entityName);
+    PoolAllocator<Entity>::GetInstance().Delete(m_EntitiesToKeep[entityName]);
+    m_EntitiesToKeep.erase(entityName);
 
     m_NrOfEntities--;
     return true;
@@ -89,7 +89,7 @@ Entity* Scene::GetEntity(std::string entityName)
 {
     if (EntityExists(entityName))
     {
-        return m_Entities.at(entityName);
+        return m_EntitiesToKeep.at(entityName);
     }
 
     Log::PrintSeverity(Log::Severity::CRITICAL, "No Entity with name: \'%s\' was found.\n", entityName.c_str());
@@ -98,7 +98,7 @@ Entity* Scene::GetEntity(std::string entityName)
 
 const std::map<std::string, Entity*>* Scene::GetEntities() const
 {
-	return &m_Entities;
+	return &m_EntitiesToKeep;
 }
 
 unsigned int Scene::GetNrOfEntites() const
@@ -131,7 +131,7 @@ void Scene::RenderUpdate(SceneManager* sm, double dt)
     // Run the scenes specific update function
     m_UpdateScene(sm, dt);
 
-    for (auto pair : m_Entities)
+    for (auto pair : m_EntitiesToKeep)
     {
         pair.second->RenderUpdate(dt);
     }
@@ -149,7 +149,7 @@ const std::vector<Entity*>* Scene::GetCollisionEntities() const
 
 void Scene::Update(SceneManager* sm, double dt)
 {
-    for (auto pair : m_Entities)
+    for (auto pair : m_EntitiesToKeep)
     {
         pair.second->Update(dt);
     }
@@ -157,7 +157,7 @@ void Scene::Update(SceneManager* sm, double dt)
 
 bool Scene::EntityExists(std::string entityName) const
 {
-    for (auto pair : m_Entities)
+    for (auto pair : m_EntitiesToKeep)
     {
         // An entity with this m_Name already exists
         if (pair.first == entityName)
