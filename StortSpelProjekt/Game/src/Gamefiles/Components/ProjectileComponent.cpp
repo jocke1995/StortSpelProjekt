@@ -8,8 +8,10 @@
 
 #include "../ECS/Components/Audio3DEmitterComponent.h"
 
-component::ProjectileComponent::ProjectileComponent(Entity* parent, int damage) : Component(parent)
+component::ProjectileComponent::ProjectileComponent(Entity* parent, int damage, float ttl) : Component(parent)
 {
+	m_TimeToLive = ttl;
+	m_CurrentDuration = 0.0f;
 	m_Damage = damage;
 
 	EventBus::GetInstance().Subscribe(this, &ProjectileComponent::hit);
@@ -20,9 +22,14 @@ component::ProjectileComponent::~ProjectileComponent()
 
 }
 
-void component::ProjectileComponent::Update(float dt)
+void component::ProjectileComponent::Update(double dt)
 {
-	
+	m_CurrentDuration += dt;
+
+	if (m_CurrentDuration >= m_TimeToLive)
+	{
+		EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
+	}
 }
 
 void component::ProjectileComponent::OnInitScene()
@@ -31,6 +38,7 @@ void component::ProjectileComponent::OnInitScene()
 
 void component::ProjectileComponent::OnUnInitScene()
 {
+	EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 }
 
 int component::ProjectileComponent::GetDamage() const
@@ -51,6 +59,7 @@ void component::ProjectileComponent::hit(Collision* event)
 			{
 				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
 				event->ent2->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
+				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
 			}
 		}
 		// Call on upgrade on hit functions
@@ -70,6 +79,7 @@ void component::ProjectileComponent::hit(Collision* event)
 			{
 				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
 				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
+				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
 			}
 		}
 		// Call on upgrade on hit functions

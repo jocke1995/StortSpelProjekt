@@ -12,6 +12,7 @@ class AudioEngine;
 
 // Event
 struct Death;
+struct RemoveMe;
 
 class SceneManager 
 {
@@ -37,11 +38,19 @@ public:
 	void RemoveEntity(Entity* entity, Scene* scene);
 	void AddEntity(Entity* entity, Scene* scene);
 
+
+
 private:
 	SceneManager();
 	std::map<std::string, Scene*> m_Scenes;
 	std::vector<Scene*> m_ActiveScenes;
 	std::set<Scene*> m_LoadedScenes;
+	struct EntityScene
+	{
+		Entity* ent;
+		Scene* scene;
+	};
+	std::vector<EntityScene> m_ToRemove;
 
 	Scene* m_pGameOverScene = nullptr;
 
@@ -49,6 +58,8 @@ private:
 
 	// Entity events
 	void onEntityDeath(Death* evnt);
+
+	void onEntityRemove(RemoveMe* evnt);
 };
 
 #endif

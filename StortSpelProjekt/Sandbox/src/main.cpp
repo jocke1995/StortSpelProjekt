@@ -57,8 +57,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    //Scene* jacobScene = JacobsTestScene(sceneManager);
-    //Scene* activeScenes[] = { jacobScene };
+    Scene* jacobScene = JacobsTestScene(sceneManager);
+    Scene* activeScenes[] = { jacobScene };
     //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScenes[] = { timScene };
@@ -66,8 +66,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScenes[] = { jockeScene };
     //Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* activeScenes[] = { filipScene };
-	Scene* fredrikScene = FredriksTestScene(sceneManager);
-    Scene* activeScenes[] = { fredrikScene };
+	//Scene* fredrikScene = FredriksTestScene(sceneManager);
+    //Scene* activeScenes[] = { fredrikScene };
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* activeScenes[] = { williamScene };
     //Scene* bjornScene = BjornsTestScene(sceneManager);
@@ -168,6 +168,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
+    component::CurrencyComponent* currc = nullptr;
 
     scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
@@ -188,6 +189,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    currc = entity->AddComponent<component::CurrencyComponent>();
 
     Transform* t = tc->GetTransform();
 
