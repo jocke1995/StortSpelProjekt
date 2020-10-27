@@ -18,16 +18,9 @@ namespace component
         void OnInitScene();
         void OnUnInitScene();
 
-        // Resets the transform to its original state
-        void Reset();
-
-        void SetTransformOriginalState();
-
-
         Transform* GetTransform() const;
     private:
         Transform* m_pTransform = nullptr;
-        Transform* m_pOriginalTransform = nullptr;
     };
 }
 
