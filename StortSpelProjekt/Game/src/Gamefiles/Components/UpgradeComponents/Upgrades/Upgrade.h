@@ -24,6 +24,8 @@ public:
 	// setters and getters for private member variables
 	void SetName(std::string name);
 	std::string GetName() const;
+	void SetImage(std::string imageName);
+	std::string GetImage();
 	int GetLevel() const;
 	int GetMaxLevel() const;
 	void SetType(unsigned int type);
@@ -70,6 +72,8 @@ protected:
 	std::string m_Name = "";
 	// Description is used in shop when describing the upgrade.
 	std::string m_Description;
+	// Image associated with the upgrade for shop
+	std::string m_ImageName;
 	// Price is used in shop when buying upgrades
 	int m_Price;
 	// Price that will not be increased by level

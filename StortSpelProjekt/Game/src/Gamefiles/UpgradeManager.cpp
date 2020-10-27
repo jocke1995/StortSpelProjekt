@@ -120,6 +120,11 @@ void UpgradeManager::IncreaseLevel(std::string name)
 	}
 }
 
+std::map<std::string, int> UpgradeManager::GetAppliedUpgradesLevel()
+{
+	return m_AppliedUpgradeLevel;
+}
+
 void UpgradeManager::fillUpgradeMap()
 {
 	Upgrade* upgrade;

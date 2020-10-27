@@ -7,7 +7,9 @@
 #include "Components/UpgradeComponents/Upgrades/Upgrade.h"
 #include <string>
 #include "Misc/EngineRand.h"
+#include "Events/Events.h"
 
+class Texture;
 
 class Shop
 {
@@ -40,9 +42,13 @@ public:
 	int GetPrice(std::string name);
 	// Get player currency balance
 	int GetPlayerBalance();
+	// Get upgrade image
+	Texture* GetUpgradeImage(std::string name);
 
 
 private:
+	void upgradePressed(ButtonPressed* evnt);
+
 	// upgradeManager
 	UpgradeManager* m_pUpgradeManager = nullptr;
 	// Player entity

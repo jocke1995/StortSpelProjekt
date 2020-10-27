@@ -44,6 +44,8 @@ public:
 	// This is then used to get the correct level for range upgrades that go on projectile entities.
 	void IncreaseLevel(std::string name);
 
+	std::map<std::string, int> GetAppliedUpgradesLevel();
+
 private:
 	Entity* m_pParentEntity = nullptr;
 	// Contains all upgrades that the player can buy

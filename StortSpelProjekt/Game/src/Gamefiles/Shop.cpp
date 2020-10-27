@@ -3,6 +3,9 @@
 #include "EngineMath.h"
 #include "ECS/Entity.h"
 #include "Components/CurrencyComponent.h"
+#include "Misc/AssetLoader.h"
+#include "Renderer/Texture/Texture.h"
+#include "Events/EventBus.h"
 
 Shop::Shop()
 {
@@ -16,6 +19,8 @@ Shop::Shop()
 	m_Rand = EngineRand(time(NULL));
 	// Set the size of shop inventory - how many upgrades the shop will contain.
 	m_InvSize = 3;
+
+	EventBus::GetInstance().Subscribe(this, &Shop::upgradePressed);
 }
 
 Shop::~Shop()
@@ -156,6 +161,23 @@ int Shop::GetPrice(std::string name)
 int Shop::GetPlayerBalance()
 {
 	return m_pPlayer->GetComponent<component::CurrencyComponent>()->GetBalace();
+}
+
+Texture* Shop::GetUpgradeImage(std::string name)
+{
+	return AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Upgrades/" + to_wstring(m_AllAvailableUpgrades[name]->GetImage()));
+}
+
+void Shop::upgradePressed(ButtonPressed* evnt)
+{
+	for (int i = 0; i < GetInventorySize(); i++)
+	{
+		if (evnt->name == "uppgradebutton" + std::to_string(i))
+		{
+			m_pPlayer->GetComponent<component::CurrencyComponent>()->ChangeBalance(GetPrice(m_InventoryNames.at(i)));
+			ApplyUppgrade(m_InventoryNames.at(i));
+		}
+	}
 }
 
 void Shop::clearInventory()
