@@ -46,7 +46,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverScene(sceneManager);
 
-
     Entity* entity;
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
     for (int i = 0; i < 75; i++)

@@ -7,7 +7,13 @@
 struct Animation;
 struct SkeletonNode;
 struct VertexWeight;
+
 class ConstantBuffer;
+class DescriptorHeap;
+
+struct ID3D12Device5;
+
+static unsigned int s_AnimatedModelIdCounter = 0;
 
 class AnimatedModel : public Model
 {
@@ -19,6 +25,8 @@ public:
         std::vector<Material*>* materials,
         unsigned int numBones);
     virtual ~AnimatedModel();
+
+    void InitConstantBuffer(ID3D12Device5* device5, DescriptorHeap* CBV_UAV_SRV_heap);
 
     const ConstantBuffer* GetConstantBuffer() const;
     void Update(double dt);
@@ -33,14 +41,8 @@ private:
     std::vector<DirectX::XMMATRIX> m_UploadMatrices;
 
     ConstantBuffer* m_pCB = nullptr;
+
+    unsigned int m_Id = 0;
 };
-
-
-
-
-
-
-
-
 
 #endif

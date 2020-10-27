@@ -1,10 +1,21 @@
+#include "stdafx.h"
 #include "AnimatedModel.h"
 #include "Animation.h"
 #include "GPUMemory/ConstantBuffer.h"
 
-AnimatedModel::AnimatedModel(const std::wstring* path, SkeletonNode* rootNode, std::vector<Mesh*>* meshes, std::vector<Animation*>* animations, std::vector<Material*>* materials, unsigned int numBones)
+#include "DescriptorHeap.h"
+
+AnimatedModel::AnimatedModel(
+	const std::wstring* path,
+	SkeletonNode* rootNode,
+	std::vector<Mesh*>* meshes,
+	std::vector<Animation*>* animations,
+	std::vector<Material*>* materials,
+	unsigned int numBones)
 	: Model(path, meshes, materials)
 {
+	m_Id = s_AnimatedModelIdCounter++;
+
 	m_pSkeleton = rootNode;
 	m_Animations = (*animations);
 	m_UploadMatrices.reserve(numBones);
@@ -30,15 +41,21 @@ AnimatedModel::AnimatedModel(const std::wstring* path, SkeletonNode* rootNode, s
 		globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
 		DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
 	}
-
-	// WIlle fixa klart, något ska du väl göra i dina animationer iaf
-	//m_pCB = new ConstantBuffer()
 }
 
 AnimatedModel::~AnimatedModel()
 {
 	delete m_pSkeleton;
 	delete m_pCB;
+}
+
+void AnimatedModel::InitConstantBuffer(ID3D12Device5* device5, DescriptorHeap* CBV_UAV_SRV_heap)
+{
+	
+	std::string temp = to_string(m_Path);
+	temp = temp.substr(temp.find_last_of("/\\") + 1);
+	std::wstring resourceName = L"CB_Matrices_" + to_wstring(temp);
+	m_pCB = new ConstantBuffer(device5, sizeof(ANIMATION_MATRICES_STRUCT), resourceName, CBV_UAV_SRV_heap);
 }
 
 const ConstantBuffer* AnimatedModel::GetConstantBuffer() const
