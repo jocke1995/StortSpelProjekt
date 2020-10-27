@@ -1,6 +1,5 @@
 #include "../../Headers/structs.h"
 
-#define MAX_BONES_PER_VERTEX 10
 struct VS_OUT
 {
 	float4 pos  : SV_Position;
@@ -27,6 +26,10 @@ StructuredBuffer<VertexWeight> vertexWeights[] : register(t0);
 
 RWStructuredBuffer<Vertex> verticesUAV[] : register(u0);
 
+// Matrices
+ConstantBuffer<ANIMATION_MATRICES_STRUCT> animationMatrices[]  : register(b3, space3);
+
+// Helper functions
 Vertex AnimateVertex(Vertex origVertex, VertexWeight vertexWeight);
 
 VS_OUT VS_main(uint vID : SV_VertexID)
@@ -36,11 +39,11 @@ VS_OUT VS_main(uint vID : SV_VertexID)
 	// SRV2 vertexWeights
 	VertexWeight vertexWeight	= vertexWeights[cbPerObject.info.textureRoughness][vID];	
 
-	// UAV1 Write modified vertices
+	// UAV1 Write modified vertices, these vertices will henceforth be used in future rendering passes each frame
 	Vertex transformedVertex = AnimateVertex(origVertex, vertexWeight);
 	verticesUAV[cbPerObject.info.textureMetallic][vID] = transformedVertex;
 
-	// Continue as usual with depth pre-pass
+	// Continue as usual with depth pre-pass with new transformed vertices
 	VS_OUT output = (VS_OUT)0;
 
 	Vertex mesh = transformedVertex;
