@@ -16,7 +16,6 @@ Scene* AntonTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
-void(*UpdateScene)(SceneManager*, double dt);
 void LeoUpdateScene(SceneManager* sm, double dt);
 void TimUpdateScene(SceneManager* sm, double dt);
 void JockeUpdateScene(SceneManager* sm, double dt);
@@ -53,21 +52,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 
     /*------ AssetLoader to load models / textures ------*/
-    AssetLoader* al = AssetLoader::Get();
-
-    UpdateScene = &DefaultUpdateScene;
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
     //Scene* activeScenes[] = { jacobScene };
-    //Scene* leoScene = LeosTestScene(sceneManager);
+    Scene* leoScene = LeosTestScene(sceneManager);
+    Scene* activeScenes[] = { leoScene };
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScenes[] = { timScene };
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* activeScenes[] = { jockeScene };
     //Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* activeScenes[] = { filipScene };
-	Scene* fredrikScene = FredriksTestScene(sceneManager);
-    Scene* activeScenes[] = { fredrikScene };
+	//Scene* fredrikScene = FredriksTestScene(sceneManager);
+    //Scene* activeScenes[] = { fredrikScene };
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* activeScenes[] = { williamScene };
     //Scene* bjornScene = BjornsTestScene(sceneManager);
@@ -97,9 +94,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     while (!window->ExitWindow())
     {
-        /* ------ Update ------ */
-        UpdateScene(sceneManager, timer->GetDeltaTime());
-
         timer->Update();
         logicTimer += timer->GetDeltaTime();
         if (gameNetwork.IsConnected())
@@ -258,6 +252,8 @@ Scene* JacobsTestScene(SceneManager* sm)
     dlc->SetDirection({ 1.0f, -1.0f, -1.0f });
     dlc->SetColor({ 0.5f, 0.5f, 0.5f });
 
+    scene->SetUpdateScene(&DefaultUpdateScene);
+
     return scene;
 }
 
@@ -345,7 +341,7 @@ Scene* LeosTestScene(SceneManager* sm)
     
 
     /* ---------------------- Update Function ---------------------- */    
-    UpdateScene = &LeoUpdateScene;
+    scene->SetUpdateScene(&LeoUpdateScene);
 
     srand(time(NULL));
 
@@ -425,7 +421,7 @@ Scene* AntonTestScene(SceneManager* sm)
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
-    UpdateScene = &TimUpdateScene;
+    scene->SetUpdateScene(&TimUpdateScene);
 
     return scene;
 }
@@ -570,7 +566,7 @@ Scene* TimScene(SceneManager* sm)
     dlc->SetColor({ 0.5f, 0.5f, 0.5f });
     /*--------------------- DirectionalLight ---------------------*/
 
-    UpdateScene = &TimUpdateScene;
+    scene->SetUpdateScene(&TimUpdateScene);
 
     return scene;
 }
@@ -700,7 +696,7 @@ Scene* JockesTestScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &JockeUpdateScene;
+    scene->SetUpdateScene(&JockeUpdateScene);
     return scene;
 }
 
@@ -796,6 +792,8 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
     /* ---------------------- The Sun ---------------------- */
+
+    scene->SetUpdateScene(&DefaultUpdateScene);
 
     return scene;
 }
@@ -1072,7 +1070,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 
 	/* ---------------------- Update Function ---------------------- */
-	UpdateScene = &FredriksUpdateScene;
+    scene->SetUpdateScene(&FredriksUpdateScene);
 	srand(time(NULL));
 	/* ---------------------- Update Function ---------------------- */
 
@@ -1228,6 +1226,8 @@ Scene* WilliamsTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
+
+    scene->SetUpdateScene(&DefaultUpdateScene);
 
     return scene;
 }
@@ -1432,7 +1432,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
 
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &AndresUpdateScene;
+    scene->SetUpdateScene(&AndresUpdateScene);
     srand(time(NULL));
     /* ---------------------- Update Function ---------------------- */
 
@@ -1602,6 +1602,8 @@ Scene* BjornsTestScene(SceneManager* sm)
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ -2.0, -1.0, 0.0f });
     /* ---------------------- Spotlight ---------------------- */
+
+    scene->SetUpdateScene(&DefaultUpdateScene);
 
     return scene;
 }
@@ -1807,7 +1809,7 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &ShopUpdateScene;
+    scene->SetUpdateScene(&ShopUpdateScene);
     return scene;
 }
 
