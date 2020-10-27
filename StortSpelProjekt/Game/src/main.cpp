@@ -193,6 +193,7 @@ Scene* GameScene(SceneManager* sm)
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
+	pic->SetMovementSpeed(70.0);
 
     avc->AddVoice(L"Bruh");
     entity = scene->AddEntity("sun");
@@ -208,13 +209,25 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
+	EnemyComps* zombie = new EnemyComps();
+	zombie->model = enemyModel;
+	zombie->hp = 10;
+	zombie->sound3D = L"Bruh";
+	zombie->compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+	zombie->meleeAttackDmg = 10.0f;
+	zombie->attackInterval = 0.04f;
+	zombie->movementSpeed = 20.0f;
+	zombie->attackingDist = 0.0f;
+	zombie->rot = { 0.0, 0.0, 0.0 };
+	zombie->targetName = "player";
+	zombie->scale = 0.05;
 
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);
     enemyFactory.AddSpawnPoint({ 70, 5, 20 });
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("enemyZombie", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 5.0f, 0.04);
+    enemyFactory.DefineEnemy("enemyZombie", zombie);
 #pragma endregion
     UpdateScene = &GameUpdateScene;
 
@@ -416,11 +429,24 @@ Scene* GetDemoScene(SceneManager* sm)
 
 
     /* ---------------------- Enemy -------------------------------- */
+	EnemyComps* zombie = new EnemyComps();
+	zombie->model = enemyModel;
+	zombie->hp = 10;
+	zombie->sound3D = L"Bruh";
+	zombie->compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+	zombie->meleeAttackDmg = 10.0f;
+	zombie->attackInterval = 0.04f;
+	zombie->movementSpeed = 20.0f;
+	zombie->attackingDist = 0.0f;
+	zombie->rot = { 0.0, 0.0, 0.0 };
+	zombie->targetName = "player";
+	zombie->scale = 0.05;
+
     enemyFactory.SetScene(scene);
     enemyFactory.AddSpawnPoint({  0, 10, 40 });
     enemyFactory.AddSpawnPoint({ 10, 10, 0 });
     enemyFactory.AddSpawnPoint({ 20, 10, 10 });
-    enemyFactory.DefineEnemy("enemyZombie", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04);
+    enemyFactory.DefineEnemy("enemyZombie", zombie);
 
     // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
     for (int i = 0; i < 75; i++)

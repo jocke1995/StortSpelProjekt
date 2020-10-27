@@ -49,6 +49,8 @@ namespace component
 		void SetJumpHeight(double height);
 		//Sets the time until maximum height. Total time is twice
 		void SetJumpTime(double time);
+		//Sets the movement speed
+		void SetMovementSpeed(float speed);
 
 	private:
 		unsigned int m_CameraFlags = 0;
@@ -57,6 +59,7 @@ namespace component
 		float m_Yaw;
 		float m_CameraDistance;
 		float m_Elevation;
+		float m_MovementSpeed = 10.0f;
 		PerspectiveCamera* m_pCamera;
 		Transform* m_pTransform;
 
