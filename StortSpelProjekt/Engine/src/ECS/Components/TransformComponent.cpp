@@ -9,13 +9,11 @@ namespace component
 		:Component(parent)
 	{
 		m_pTransform = new Transform();
-		m_pOriginalTransform = new Transform();
 	}
 
 	TransformComponent::~TransformComponent()
 	{
 		delete m_pTransform;
-		delete m_pOriginalTransform;
 	}
 
 	void TransformComponent::Update(double dt)
@@ -35,16 +33,6 @@ namespace component
 
 	void TransformComponent::OnUnInitScene()
 	{
-	}
-
-	void TransformComponent::Reset()
-	{
-		*m_pTransform = *m_pOriginalTransform;
-	}
-
-	void TransformComponent::SetTransformOriginalState()
-	{
-		*m_pOriginalTransform = *m_pTransform;
 	}
 
 	Transform* TransformComponent::GetTransform() const

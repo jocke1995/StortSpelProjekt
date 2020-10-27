@@ -121,33 +121,15 @@ NavMesh* Scene::GetNavMesh()
     return m_pNavMesh;
 }
 
-void Scene::SetUpdateScene(void(*UpdateScene)(SceneManager*, double dt))
+void Scene::RenderUpdate(double dt)
 {
-    m_UpdateScene = UpdateScene;
-}
-
-void Scene::RenderUpdate(SceneManager* sm, double dt)
-{
-    // Run the scenes specific update function
-    m_UpdateScene(sm, dt);
-
     for (auto pair : m_Entities)
     {
         pair.second->RenderUpdate(dt);
     }
 }
 
-void Scene::SetCollisionEntities(const std::vector<Entity*>* collisionEntities)
-{
-    m_CollisionEntities = *collisionEntities;
-}
-
-const std::vector<Entity*>* Scene::GetCollisionEntities() const
-{
-    return &m_CollisionEntities;
-}
-
-void Scene::Update(SceneManager* sm, double dt)
+void Scene::Update(double dt)
 {
     for (auto pair : m_Entities)
     {

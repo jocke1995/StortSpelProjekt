@@ -50,8 +50,6 @@ namespace component
 		//Sets the time until maximum height. Total time is twice
 		void SetJumpTime(double time);
 
-		void Reset();
-
 	private:
 		unsigned int m_CameraFlags = 0;
 		float m_Zoom;

@@ -55,6 +55,7 @@ void component::PlayerInputComponent::OnInitScene()
 
 	m_pCC = m_pParent->GetComponent<component::CollisionComponent>();
 
+	// TODO: Unsubrscibe somewhere
 	if (m_pCC && m_pCamera && m_pTransform)
 	{
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::alternativeInput);
@@ -127,18 +128,6 @@ void component::PlayerInputComponent::SetJumpTime(double time)
 	m_Gravity = (-2 * m_JumpHeight) / (m_JumpTime * m_JumpTime);
 }
 
-void component::PlayerInputComponent::Reset()
-{
-	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::alternativeInput);
-	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::zoom);
-	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::rotate);
-	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::move);
-	if (m_pParent->GetComponent<component::MeleeComponent>() != nullptr)
-	{
-		EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::mouseClick);
-	}
-}
-
 void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 {
 	if (evnt->key == SCAN_CODES::LEFT_CTRL && evnt->pressed)
@@ -160,8 +149,6 @@ void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 			// Get the current linear velocity of the player
 			double3 vel = m_pCC->GetLinearVelocity();
 			vel *= SPRINT_MOD;
-
-
 			m_pCC->SetVelVector(vel.x, vel.y, vel.z);
 		}
 	}
