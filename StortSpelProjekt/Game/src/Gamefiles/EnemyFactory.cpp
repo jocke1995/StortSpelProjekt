@@ -326,8 +326,10 @@ void EnemyFactory::Update(double dt)
 		for (int i = 0; i < m_SpawnPoints.size(); i++)
 		{
 			float distToPlayer = (m_SpawnPoints[i] - playerPos).length();
-			if(distToPlayer > m_MinimumDistanceToPlayer)
+			if (distToPlayer > m_MinimumDistanceToPlayer)
+			{
 				eligblePoints.push_back(i);
+			}
 		}
 		unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
 

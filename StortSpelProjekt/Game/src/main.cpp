@@ -173,7 +173,7 @@ Scene* GameScene(SceneManager* sm)
     // range velocity should be 50, otherwise range velocity upgrade does not make sense (may be scrapped later)
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.2, 10, 50);
     currc = entity->AddComponent<component::CurrencyComponent>();
-    hc = entity->AddComponent<component::HealthComponent>(10000);
+    hc = entity->AddComponent<component::HealthComponent>(100);
     uc = entity->AddComponent<component::UpgradeComponent>();
 
     Player::GetInstance().SetPlayer(entity);

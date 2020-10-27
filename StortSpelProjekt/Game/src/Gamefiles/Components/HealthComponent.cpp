@@ -68,6 +68,7 @@ void component::HealthComponent::ChangeHealth(int hpChange)
 		{
 			comp->SetAngularFactor({ 1,1,1 });
 		}
+		EventBus::GetInstance().Publish(&Death(m_pParent));
 	}
 
 	if (m_Health > m_MaxHealth)
