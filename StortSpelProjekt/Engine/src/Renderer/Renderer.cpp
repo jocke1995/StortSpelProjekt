@@ -960,6 +960,20 @@ void Renderer::submitModelToGPU(Model* model)
 	if (dynamic_cast<AnimatedModel*>(model) != nullptr)
 	{
 		isAnimated = true;
+
+		// Submit the matrices to be uploaded everyframe
+		CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+
+		AnimatedModel* aModel = static_cast<AnimatedModel*>(model);
+		const ConstantBuffer* cb = aModel->GetConstantBuffer();
+
+		const void* data = aModel->GetUploadMatrices()->data();
+		std::tuple<Resource*, Resource*, const void*> matrices(
+			cb->GetUploadResource(),
+			cb->GetDefaultResource(),
+			data);
+
+		cpft->Submit(&matrices);
 	}
 
 	for (unsigned int i = 0; i < model->GetSize(); i++)
@@ -988,20 +1002,6 @@ void Renderer::submitModelToGPU(Model* model)
 
 			codt->Submit(&defaultResourceOrigVertices);
 			codt->Submit(&defaultResourceVertexWeights);
-
-			// Also submit the matrices to be uploaded everyframe
-			CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-
-			AnimatedModel* aModel = static_cast<AnimatedModel*>(model);
-			const ConstantBuffer* cb = aModel->GetConstantBuffer();
-
-			const void* data = aModel->GetUploadMatrices()->data();
-			std::tuple<Resource*, Resource*, const void*> matrices(
-				cb->GetUploadResource(),
-				cb->GetDefaultResource(),
-				data);
-
-			cpft->Submit(&matrices);
 		}
 
 		// Submit Mesh
@@ -2030,6 +2030,11 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
+		m_DirectCommandLists[i].push_back(DepthPrePassRenderTask->GetCommandInterface()->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
 		m_DirectCommandLists[i].push_back(animationDepthPreRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
@@ -2038,18 +2043,10 @@ void Renderer::initRenderTasks()
 		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
-	// todo jocke
-	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-	{
-		m_DirectCommandLists[i].push_back(DepthPrePassRenderTask->GetCommandInterface()->GetCommandList(i));
-	}
-
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
-
-	
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{

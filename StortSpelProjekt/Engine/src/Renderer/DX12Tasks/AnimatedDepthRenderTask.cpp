@@ -111,7 +111,7 @@ void AnimatedDepthRenderTask::drawRenderComponent(component::ModelComponent* mc,
 		unsigned int size = sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT);
 		cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, size, &perObject, 0);
 
-		//cl->SetGraphicsRootConstantBufferView(RS::CB_PER_FRAME, am->GetConstantBuffer()->GetDefaultResource()->GetID3D12Resource1()->GetGPUVirtualAddress());
+		cl->SetGraphicsRootConstantBufferView(RS::CB_PER_FRAME, am->GetConstantBuffer()->GetDefaultResource()->GetID3D12Resource1()->GetGPUVirtualAddress());
 
 		cl->IASetIndexBuffer(m->GetIndexBufferView());
 		cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
