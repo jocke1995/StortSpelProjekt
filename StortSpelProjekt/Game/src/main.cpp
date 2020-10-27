@@ -57,14 +57,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* demoScene = GameScene(sceneManager);
     Scene* gameOverScene = GameOverScene(sceneManager);
 
-
-    Entity* entity;
-    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 75; i++)
-    {
-        entity = enemyFactory.SpawnEnemy("Enemy");
-    }
-
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &demoScene);
     sceneManager->SetGameOverScene(gameOverScene);
@@ -179,7 +171,7 @@ Scene* GameScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
 
-    ccc = entity->AddComponent<component::CubeCollisionComponent>(1, mc->GetModelDim().x / 2.0f, mc->GetModelDim().y / 2.0f, mc->GetModelDim().z / 2.0f, 0, 0, false);
+    ccc = entity->AddComponent<component::CubeCollisionComponent>(200, mc->GetModelDim().x / 2.0f, mc->GetModelDim().y / 2.0f, mc->GetModelDim().z / 2.0f, 0, 0, false);
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
@@ -204,7 +196,12 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ 70, 5, 20 });
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("Enemy", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04);
+    enemyFactory.DefineEnemy("enemyZombie", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04, { 0.0, 0.0, 0.0 }, "player", 500.0f);
+
+    for (int i = 0; i < 75; i++)
+    {
+        entity = enemyFactory.SpawnEnemy("enemyZombie");
+    }
 #pragma endregion
     UpdateScene = &GameUpdateScene;
 

@@ -408,6 +408,14 @@ void component::AiComponent::checkAdjacentTriangle()
 				m_pTriangles[tri->id]->parent = m_pTriangles[m_pCurrentTriangle->id];
 
 				m_pTriangles[tri->id]->g = m_pTriangles[m_pCurrentTriangle->id]->g + (tri->center - m_pCurrentTriangle->center).length();
+				if (m_pTriangles[tri->id] == m_pTriangles[m_pGoalTriangle->id])
+				{
+					m_pTriangles[tri->id]->g = m_pTriangles[m_pCurrentTriangle->id]->g + (m_GoalPos - m_pCurrentTriangle->center).length();
+				}
+				if (m_pTriangles[tri->id] == m_pTriangles[m_pStartTriangle->id])
+				{
+					m_pTriangles[tri->id]->g = m_pTriangles[m_pCurrentTriangle->id]->g + (m_GoalPos - m_StartPos).length();
+				}
 
 				float h = (tri->center - m_GoalPos).length();
 				m_pTriangles[tri->id]->f = m_pTriangles[tri->id]->g + h;
