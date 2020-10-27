@@ -1,0 +1,8 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl medievalBraizerMat
+
+map_Kd brazier_albedo.png
+map_Kn brazier_normal.png
+map_Ks brazier_roughness.png
