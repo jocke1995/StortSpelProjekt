@@ -15,15 +15,6 @@ void ShopUpdateScene(SceneManager* sm, double dt);
 
 EnemyFactory enemyFactory;
 
-// enemy - löst
-// ljud  - löst
-// Reset player hp - löst
-// MovementReset - kaos
-
-// Rotation på fiender - tim fixar
-// boll i mitten - björn carry
-// andres konstig tp random - vettifan
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
