@@ -975,9 +975,33 @@ void Renderer::submitMeshToCodt(Mesh* mesh)
 
 void Renderer::submitModelToCodt(Model* model)
 {
+	// Check if the model is animated
+	bool isAnimated = false;
+	if (dynamic_cast<AnimatedModel*>(model) != nullptr)
+	{
+		isAnimated = true;
+	}
+
 	for (unsigned int i = 0; i < model->GetSize(); i++)
 	{
 		Mesh* mesh = model->GetMeshAt(i);
+
+		// Submit more data if the model is animated
+		if (isAnimated == true)
+		{
+			AnimatedMesh* am = static_cast<AnimatedMesh*>(mesh);
+
+			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+
+			// Submit the basic vertex data again. These vertex data will remain unchange during animations,
+			// while the other resource will contain the modified vertex data. But as the initial state, both resources
+			// will contain the same data.
+			std::tuple<Resource*, Resource*, const void*> defaultResourceOrigVertices(am->GetUploadResourceOrigVertices(), am->GetDefaultResourceOrigVertices(), mesh->m_Vertices.data());
+			std::tuple<Resource*, Resource*, const void*> defaultResourceVertexWeights(am->GetUploadResourceVertexWeights(), am->GetDefaultResourceVertexWeights(), am->GetVertexWeights()->data());
+
+			codt->Submit(&defaultResourceOrigVertices);
+			codt->Submit(&defaultResourceVertexWeights);
+		}
 
 		// Submit Mesh
 		submitMeshToCodt(mesh);

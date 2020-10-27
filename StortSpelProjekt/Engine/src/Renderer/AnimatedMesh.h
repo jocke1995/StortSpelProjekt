@@ -30,7 +30,10 @@ public:
     void Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_heap);
 
     // Data used for animation (base vertices + base vertex weights)
+    Resource* GetUploadResourceOrigVertices() const;
     Resource* GetDefaultResourceOrigVertices() const;
+
+    Resource* GetUploadResourceVertexWeights() const;
     Resource* GetDefaultResourceVertexWeights() const;
     const std::vector<VertexWeight>* GetVertexWeights() const;
 

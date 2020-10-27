@@ -108,9 +108,19 @@ void AnimatedMesh::Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_h
 	/* ------------------------- To be animated vertex data ------------------------- */
 }
 
+Resource* AnimatedMesh::GetUploadResourceOrigVertices() const
+{
+	return m_pUploadResourceOrigVertices;
+}
+
 Resource* AnimatedMesh::GetDefaultResourceOrigVertices() const
 {
 	return m_pDefaultResourceOrigVertices;
+}
+
+Resource* AnimatedMesh::GetUploadResourceVertexWeights() const
+{
+	return m_pUploadResourceVertexWeights;
 }
 
 Resource* AnimatedMesh::GetDefaultResourceVertexWeights() const
