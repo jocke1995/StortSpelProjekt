@@ -57,14 +57,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* demoScene = GameScene(sceneManager);
     Scene* gameOverScene = GameOverScene(sceneManager);
 
-
-    Entity* entity;
-    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 75; i++)
-    {
-        entity = enemyFactory.SpawnEnemy("enemyZombie");
-    }
-
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(1, &demoScene);
     sceneManager->SetGameOverScene(gameOverScene);
@@ -101,6 +93,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             logicTimer = 0;
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
+            enemyFactory.Update(updateRate);
         }
 
         /* ---- Network ---- */
@@ -180,7 +173,7 @@ Scene* GameScene(SceneManager* sm)
     // range velocity should be 50, otherwise range velocity upgrade does not make sense (may be scrapped later)
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.2, 10, 50);
     currc = entity->AddComponent<component::CurrencyComponent>();
-    hc = entity->AddComponent<component::HealthComponent>(10000);
+    hc = entity->AddComponent<component::HealthComponent>(100);
     uc = entity->AddComponent<component::UpgradeComponent>();
 
     Player::GetInstance().SetPlayer(entity);
