@@ -890,53 +890,33 @@ void Renderer::UnInitBoundingBoxComponent(component::BoundingBoxComponent* compo
 
 void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 {
-	/*
-	Filips try at removing GUI2DComponents.
-	(Completly wrong)
+	waitForGPU();
 
 	// Remove component from textComponents
 	// TODO: change data structure to allow O(1) add and remove
-	static int count = 0;
-	bool atEnd = false;
-	auto it = m_TextComponents.begin();
-	while(!atEnd)
+	for (int i = 0; i < m_TextComponents.size(); i++)
 	{
-		if (component == (*it))
+		// Remove from all textComponent-vectors if they are there
+		component::GUI2DComponent* comp = m_TextComponents.at(i);
+		if (comp == component)
 		{
-			CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-
-			auto textMap = component->GetTextManager()->GetTextMap();
-			auto itt = textMap->begin();
-			// Clear all resources from copyperframe
-			while (true)
-			{
-				if (itt == textMap->end())
-				{
-					break;
-				}
-
-				// Remove resource from copyperframe
-				Resource* uploadResourse = (*itt).second->m_pUploadResourceVertices;
-				cpft->ClearSpecific(uploadResourse);
-
-				itt++;
-			}
-
-			// remove from renderer.
-			it = m_TextComponents.erase(it);
-		}
-		else
-		{
-			it++;
-		}
-
-		if (it == m_TextComponents.end())
-		{
-			atEnd = true;
+			m_TextComponents.erase(m_TextComponents.begin() + i);
 		}
 	}
 
-	*/
+	// Remove component from quadComponents
+	// TODO: change data structure to allow O(1) add and remove
+	for (int i = 0; i < m_QuadComponents.size(); i++)
+	{
+		// Remove from all quadComponent-vectors if they are there
+		component::GUI2DComponent* comp = m_QuadComponents.at(i);
+		if (comp == component)
+		{
+			m_QuadComponents.erase(m_QuadComponents.begin() + i);
+		}
+	}
+
+	setRenderTasksGUI2DComponents();
 }
 
 void Renderer::OnResetScene()

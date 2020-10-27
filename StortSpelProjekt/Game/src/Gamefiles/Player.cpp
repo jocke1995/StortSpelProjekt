@@ -59,4 +59,6 @@ void Player::buyUpgrade(UForUpgrade* evnt)
 	Log::Print("UpgradeMeleeDamage applied!\n");
 	m_pShop->ApplyUppgrade("UpgradeHealthBoost");
 	Log::Print("UpgradeHealthBoost applied!\n");
+	m_pShop->ApplyUppgrade("UpgradeBlueJewel");
+	Log::Print("UpgradeBlueJewel applied!\n");
 }
