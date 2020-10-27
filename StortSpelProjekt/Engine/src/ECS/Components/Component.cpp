@@ -20,6 +20,11 @@ void Component::RenderUpdate(double dt)
 {
 }
 
+void Component::Reset()
+{
+
+}
+
 Entity* const Component::GetParent() const
 {
 	return m_pParent;

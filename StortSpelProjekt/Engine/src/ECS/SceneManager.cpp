@@ -2,6 +2,7 @@
 #include "SceneManager.h"
 
 #include "../Misc/AssetLoader.h"
+#include "../Events/EventBus.h"
 
 #include "../Renderer/Renderer.h"
 #include "../Physics/Physics.h"
@@ -37,6 +38,8 @@ SceneManager::SceneManager()
 	m_ActiveScenes.reserve(2);
 
 	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityDeath);
+
+	EventBus::GetInstance().Subscribe(this, &SceneManager::changeSceneNextFrame);
 }
 
 SceneManager& SceneManager::GetInstance()
@@ -55,10 +58,12 @@ void SceneManager::EraseSceneManager()
 {
 	for (auto pair : m_Scenes)
 	{
+		// delete Scenes
 		delete pair.second;
 	}
 
-	m_Scenes.clear();
+    m_Scenes.clear();
+	EventBus::GetInstance().Unsubscribe(this, &SceneManager::changeSceneNextFrame);
 }
 
 void SceneManager::Update(double dt)
@@ -66,7 +71,7 @@ void SceneManager::Update(double dt)
 	// Update scenes
 	for (auto scene : m_ActiveScenes)
 	{
-		scene->Update(dt);
+		scene->Update(this, dt);
 	}
 }
 
@@ -75,7 +80,7 @@ void SceneManager::RenderUpdate(double dt)
 	// Update scenes (Render)
 	for (auto scene : m_ActiveScenes)
 	{
-		scene->RenderUpdate(dt);
+		scene->RenderUpdate(this, dt);
 	}
 
 	// Renderer updates some stuff
@@ -92,6 +97,7 @@ Scene* SceneManager::CreateScene(std::string sceneName)
 
     // Create Scene and return it
     m_Scenes[sceneName] = new Scene(sceneName);
+
     return m_Scenes[sceneName];
 }
 
@@ -109,6 +115,32 @@ Scene* SceneManager::GetScene(std::string sceneName) const
 	
     Log::PrintSeverity(Log::Severity::CRITICAL, "No Scene with name: \'%s\' was found.\n", sceneName.c_str());
     return nullptr;
+}
+
+void SceneManager::ChangeSceneIfTeleported()
+{
+	if (m_ChangeSceneNextFrame == true)
+	{
+		// Set new scene
+		if (m_ActiveScenes[0]->GetName() != m_SceneToChangeToWhenTeleported)
+		{
+			Scene* scene = m_Scenes[m_SceneToChangeToWhenTeleported];
+
+			// ResetScene
+			std::map<std::string, Entity*> entities = *scene->GetEntities();
+			for (auto pair : entities)
+			{
+				for (Component* comp : *pair.second->GetAllComponents())
+				{
+					comp->Reset();
+				}
+			}
+
+			// Change the player back to its original position
+			SetScenes(1, &scene);
+			m_ChangeSceneNextFrame = false;
+		}
+	}
 }
 
 void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
@@ -162,6 +194,8 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 
 		m_ActiveScenes.push_back(scenes[i]);
 	}
+	// TODO: Currently only works for 1 scene. (1 scene active at a given time)
+	Physics::GetInstance().SetCollisionEntities(scenes[0]->GetCollisionEntities());
 
 	Renderer* renderer = &Renderer::GetInstance();
 	renderer->prepareScenes(&m_ActiveScenes);
@@ -196,6 +230,12 @@ void SceneManager::ResetScene()
 	/* ------------------------- Audio -------------------------*/
 
 	/* ------------------------- Audio -------------------------*/
+}
+
+void SceneManager::changeSceneNextFrame(SceneChange* sceneChangeEvent)
+{
+	m_SceneToChangeToWhenTeleported = sceneChangeEvent->m_NewSceneName;
+	m_ChangeSceneNextFrame = true;
 }
 
 bool SceneManager::sceneExists(std::string sceneName) const

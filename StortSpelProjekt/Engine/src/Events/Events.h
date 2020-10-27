@@ -1,6 +1,7 @@
 #pragma once
 #include "../Input/Input.h"
 #include "../ECS/Scene.h"
+#include <string>
 
 class Entity;
 class Event
@@ -94,4 +95,13 @@ struct ButtonPressed : public Event
 {
 	ButtonPressed(std::string name) : name{ name } {};
 	std::string name;
+};
+
+struct SceneChange : public Event
+{
+	SceneChange(std::string newSceneName)
+	:m_NewSceneName(newSceneName)
+	{};
+
+	std::string m_NewSceneName = "";
 };
