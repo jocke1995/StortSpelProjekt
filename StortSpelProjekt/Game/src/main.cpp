@@ -5,7 +5,9 @@
 
 // Game includes
 #include "Player.h"
+#include "UpgradeManager.h"
 #include "Shop.h"
+#include "Components/CurrencyComponent.h"
 
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
@@ -196,7 +198,7 @@ Scene* GameScene(SceneManager* sm)
     avc->AddVoice(L"Bruh");
 
     bbc->Init();
-    Physics::GetInstance().AddCollisionEntity(entity);
+    Physics::GetInstance().AddCollisionEntity(entity);;
     /*--------------------- Player ---------------------*/
 
     /*--------------------- DirectionalLight ---------------------*/
@@ -367,6 +369,7 @@ Scene* ShopScene(SceneManager* sm)
     component::UpgradeComponent* uc = nullptr;
     component::CapsuleCollisionComponent* ccc = nullptr;
     component::HealthComponent* hc = nullptr;
+    component::CurrencyComponent* cur = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -391,6 +394,7 @@ Scene* ShopScene(SceneManager* sm)
     mac = entity->AddComponent<component::MeleeComponent>();
     rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
     uc = entity->AddComponent<component::UpgradeComponent>();
+    cur = entity->AddComponent<component::CurrencyComponent>();
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);

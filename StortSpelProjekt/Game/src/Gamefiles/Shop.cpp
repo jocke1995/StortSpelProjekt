@@ -3,6 +3,10 @@
 #include "EngineMath.h"
 #include "ECS/Entity.h"
 #include "Components/CurrencyComponent.h"
+#include "Misc/AssetLoader.h"
+#include "Renderer/Texture/Texture.h"
+#include "Events/EventBus.h"
+#include "ECS/SceneManager.h"
 
 Shop::Shop()
 {
@@ -16,6 +20,9 @@ Shop::Shop()
 	m_Rand = EngineRand(time(NULL));
 	// Set the size of shop inventory - how many upgrades the shop will contain.
 	m_InvSize = 3;
+
+	EventBus::GetInstance().Subscribe(this, &Shop::upgradePressed);
+	EventBus::GetInstance().Subscribe(this, &Shop::sceneChange);
 }
 
 Shop::~Shop()
@@ -59,7 +66,7 @@ void Shop::RandomizeInventory()
 			// need to reset this bool every loop
 			inStock = false;
 			// Get a random number that will be used to get an upgrade to the inventory
-			upgradeNum = m_Rand.Rand(0, m_InvSize);
+			upgradeNum = m_Rand.Rand(0, m_AllAvailableUpgrades.size());
 			// Take this number to get a name from m_UpgradeNames, which contains all avalible upgrades
 			name = m_UpgradeNames.at(upgradeNum);
 			for (auto names : m_InventoryNames)
@@ -83,11 +90,64 @@ void Shop::RandomizeInventory()
 		// When we get an upgrade that was not already in our inventory or max level,
 		// we add it to the inventory.
 		m_InventoryNames.push_back(name);
+		m_InventoryIsBought.push_back(false);
 		m_Prices[name] = m_AllAvailableUpgrades[name]->GetPrice();
 		m_UpgradeDescriptions[name] = m_AllAvailableUpgrades[name]->GetDescription();
+
 	}
 
+	/* ------------------------- Shop Buttons --------------------------- */
+	component::GUI2DComponent* gui = nullptr;
+	for (int i = 0; i < GetInventorySize(); i++)
+	{
+		std::string textToRender = m_UpgradeDescriptions.find(m_InventoryNames.at(i))->second;
+		textToRender += "\nPrice: " + std::to_string(GetPrice(GetInventoryNames().at(i)));
+		textToRender += "\t Level: " + std::to_string(Player::GetInstance().GetUpgradeManager()->GetAppliedUpgradesLevel().find(GetInventoryNames().at(i))->second);
+		float2 textPos = { 0.1f, 0.15f * (i + 1) + 0.1f };
+		float2 textPadding = { 0.5f, 0.0f };
+		float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		float2 textScale = { 0.3f, 0.3f };
+		float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
+		Entity* entity = SceneManager::GetInstance().GetScene("ShopScene")->AddEntity("upgrade" + std::to_string(i));
+		gui = entity->AddComponent<component::GUI2DComponent>();
+		gui->GetTextManager()->AddText("upgrade" + std::to_string(i));
+		gui->GetTextManager()->SetColor(textColor, "upgrade" + std::to_string(i));
+		gui->GetTextManager()->SetPadding(textPadding, "upgrade" + std::to_string(i));
+		gui->GetTextManager()->SetPos(textPos, "upgrade" + std::to_string(i));
+		gui->GetTextManager()->SetScale(textScale, "upgrade" + std::to_string(i));
+		gui->GetTextManager()->SetText(textToRender, "upgrade" + std::to_string(i));
+		gui->GetTextManager()->SetBlend(textBlend, "upgrade" + std::to_string(i));
+
+		float2 quadPos = { 0.09f, 0.15f * (i + 1) + 0.099f };
+		float2 quadScale = { 0.75f, 0.1f };
+		float4 blended = { 1.0, 1.0, 1.0, 0.75 };
+		float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+		gui->GetQuadManager()->CreateQuad(
+			"upgrade" + std::to_string(i),
+			quadPos, quadScale,
+			false, false,
+			1,
+			blended,
+			nullptr, { 0.0f, 0.0f, 0.0f });
+		/* ---------------------------------------------------------- */
+
+		/* ------------------------- head --------------------------- */
+		entity = SceneManager::GetInstance().GetScene("ShopScene")->AddEntity("upgradebutton" + std::to_string(i));
+		gui = entity->AddComponent<component::GUI2DComponent>();
+		quadPos = { 0.01f, 0.15f * (i + 1) + 0.099f };
+		quadScale = { 0.09f, 0.09f };
+		Texture* shopImage = GetUpgradeImage(&GetInventoryNames().at(i));
+		gui->GetQuadManager()->CreateQuad(
+			"upgradebutton" + std::to_string(i),
+			quadPos, quadScale,
+			true, true,
+			2,
+			notBlended,
+			shopImage
+		);
+		/* ---------------------------------------------------------- */
+	}
 }
 
 void Shop::ApplyUppgrade(std::string name)
@@ -158,10 +218,50 @@ int Shop::GetPlayerBalance()
 	return m_pPlayer->GetComponent<component::CurrencyComponent>()->GetBalace();
 }
 
+Texture* Shop::GetUpgradeImage(std::string* name)
+{
+	return AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Upgrades/" + to_wstring(m_AllAvailableUpgrades[*name]->GetImage()));
+}
+
+void Shop::upgradePressed(ButtonPressed* evnt)
+{
+	for (int i = 0; i < GetInventorySize(); i++)
+	{
+		if (evnt->name == "upgradebutton" + std::to_string(i) && m_InventoryIsBought.at(i) == false)
+		{
+			if (m_pPlayer->GetComponent<component::CurrencyComponent>()->GetBalace() >= GetPrice(m_InventoryNames.at(i)))
+			{
+				m_pPlayer->GetComponent<component::CurrencyComponent>()->ChangeBalance(-GetPrice(m_InventoryNames.at(i)));
+				m_InventoryIsBought.at(i) = true;
+				ApplyUppgrade(m_InventoryNames.at(i));
+
+				SceneManager::GetInstance().GetActiveScenes()->at(0)->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("UPGRADE BOUGHT", "upgrade" + std::to_string(i));
+			}
+		}
+	}
+}
+
+void Shop::sceneChange(SceneChange* evnt)
+{
+	if (evnt->m_NewSceneName == "ShopScene")
+	{
+		RandomizeInventory();
+	}
+}
+
 void Shop::clearInventory()
 {
+	for (int i = 0; i < GetInventorySize(); i++)
+	{
+		if (SceneManager::GetInstance().GetScene("ShopScene")->EntityExists("upgrade" + std::to_string(i)))
+		{
+			SceneManager::GetInstance().GetScene("ShopScene")->RemoveEntity("upgrade" + std::to_string(i));
+			SceneManager::GetInstance().GetScene("ShopScene")->RemoveEntity("upgradebutton" + std::to_string(i));
+		}
+	}
 	m_InventoryNames.clear();
 	m_UpgradeDescriptions.clear();
+	m_InventoryIsBought.clear();
 }
 
 bool Shop::checkExisting(std::string name)

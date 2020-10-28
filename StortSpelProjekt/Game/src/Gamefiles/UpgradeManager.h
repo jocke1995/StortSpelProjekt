@@ -20,7 +20,7 @@ enum E_UpgradeIDs
 	UPGRADE_HEALTH_BOOST = 2,
 	UPGRADE_RANGE_VELOCITY = 3,
 	UPGRADE_RANGE_LIFESTEAL = 4,
-	UPGRADE_BLUE_JEWEL = 5,
+	UPGRADE_BLUE_JEWEL = 5
 };
 
 class UpgradeManager
@@ -43,6 +43,8 @@ public:
 	// Used to increase the level of an upgrade in m_AppliedUpgradeLevel.
 	// This is then used to get the correct level for range upgrades that go on projectile entities.
 	void IncreaseLevel(std::string name);
+
+	std::map<std::string, int> GetAppliedUpgradesLevel();
 
 private:
 	Entity* m_pParentEntity = nullptr;
