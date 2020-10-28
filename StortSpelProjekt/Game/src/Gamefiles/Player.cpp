@@ -29,8 +29,6 @@ void Player::SetPlayer(Entity* player)
 	m_pPlayer = player;
 	m_pUpgradeManager = new UpgradeManager(player);
 	m_pShop = new Shop;
-
-	EventBus::GetInstance().Subscribe(this, &Player::buyUpgrade);
 }
 
 Entity* Player::GetPlayer()
@@ -51,22 +49,4 @@ Shop* Player::GetShop()
 void Player::IsInShop(bool value)
 {
 	m_IsInShop = value;
-}
-
-// TODO: When Shop has UI remove this way of getting upgrades
-void Player::buyUpgrade(UForUpgrade* evnt)
-{
-	if (m_IsInShop)
-	{
-		m_pShop->ApplyUppgrade("UpgradeRangeLifeSteal");
-		Log::Print("UpgradeRangeLifeSteal applied!\n");
-		m_pShop->ApplyUppgrade("UpgradeRangeVelocity");
-		Log::Print("UpgradeRangeVelocity applied!\n");
-		m_pShop->ApplyUppgrade("UpgradeMeleeDamage");
-		Log::Print("UpgradeMeleeDamage applied!\n");
-		m_pShop->ApplyUppgrade("UpgradeHealthBoost");
-		Log::Print("UpgradeHealthBoost applied!\n");
-		m_pShop->ApplyUppgrade("UpgradeBlueJewel");
-		Log::Print("UpgradeBlueJewel applied!\n");
-	}
 }

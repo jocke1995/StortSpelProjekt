@@ -59,6 +59,8 @@ private:
 	std::vector<std::string> m_UpgradeNames;
 	// vector of names of the upgrades in inventory
 	std::vector<std::string> m_InventoryNames;
+	// vector to check if inventory has been bought
+	std::vector<bool> m_InventoryIsBought;
 	// inventory size
 	int m_InvSize;
 	// Used to randomize the inventory

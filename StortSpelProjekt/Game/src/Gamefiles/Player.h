@@ -37,7 +37,6 @@ private:
 	UpgradeManager* m_pUpgradeManager = nullptr;
 	Shop* m_pShop;
 
-	void buyUpgrade(UForUpgrade* evnt);
 	int m_UpgradeApplied = 0;
 };
 

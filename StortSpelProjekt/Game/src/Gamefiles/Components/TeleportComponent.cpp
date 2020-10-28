@@ -3,6 +3,7 @@
 #include "Events/EventBus.h"
 #include "ECS/SceneManager.h"
 #include "Player.h"
+#include "Shop.h"
 
 component::TeleportComponent::TeleportComponent(Entity* parent, Entity* player, std::string newSceneName)
 	:Component(parent)
@@ -33,6 +34,7 @@ void component::TeleportComponent::OnCollision(Collision* collisionEvent)
 		if (m_NewSceneName == "ShopScene")
 		{
 			Player::GetInstance().IsInShop(true);
+			Player::GetInstance().GetShop()->RandomizeInventory();
 		}
 		else
 		{
@@ -45,6 +47,7 @@ void component::TeleportComponent::OnCollision(Collision* collisionEvent)
 		if (m_NewSceneName == "ShopScene")
 		{
 			Player::GetInstance().IsInShop(true);
+			Player::GetInstance().GetShop()->RandomizeInventory();
 		}
 		else
 		{

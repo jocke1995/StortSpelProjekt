@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "UpgradeManager.h"
 #include "Shop.h"
+#include "Components/CurrencyComponent.h"
 
 Scene* GameOverScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
@@ -294,6 +295,7 @@ Scene* ShopScene(SceneManager* sm)
     component::HealthComponent* hc = nullptr;
     component::TeleportComponent* teleC = nullptr;
     component::GUI2DComponent* gui = nullptr;
+    component::CurrencyComponent* cur = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -319,6 +321,8 @@ Scene* ShopScene(SceneManager* sm)
     mac = entity->AddComponent<component::MeleeComponent>();
     rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
     uc = entity->AddComponent<component::UpgradeComponent>();
+    cur = entity->AddComponent<component::CurrencyComponent>();
+    cur->SetBalance(1000);
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -337,7 +341,6 @@ Scene* ShopScene(SceneManager* sm)
     Physics::GetInstance().AddCollisionEntity(entity);
 
     Player::GetInstance().SetPlayer(entity);
-    Player::GetInstance().GetShop()->RandomizeInventory();
 #pragma endregion player
     /* ---------------------- Skybox ---------------------- */
     entity = scene->AddEntity("skybox");
@@ -403,59 +406,6 @@ Scene* ShopScene(SceneManager* sm)
     double3 shopDim = mc->GetModelDim();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(10000000.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
     /* ---------------------- Shop ---------------------- */
-
-    /* ------------------------- Shop Buttons --------------------------- */
-    Shop* shop = Player::GetInstance().GetShop();
-    for (int i = 0; i < shop->GetInventorySize(); i++)
-    {
-        std::string textToRender = shop->GetUpgradeDescriptions().find(shop->GetInventoryNames().at(i))->second;
-        textToRender += "\nPrice: " + std::to_string(shop->GetPrice(shop->GetInventoryNames().at(i)));
-        textToRender += "\t Level: " + std::to_string(Player::GetInstance().GetUpgradeManager()->GetAppliedUpgradesLevel().find(shop->GetInventoryNames().at(i))->second);
-        float2 textPos = { 0.1f, 0.15f * (i + 1) + 0.1f };
-        float2 textPadding = { 0.5f, 0.0f };
-        float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-        float2 textScale = { 0.3f, 0.3f };
-        float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-        entity = scene->AddEntity("uppgrade" + std::to_string(i));
-        gui = entity->AddComponent<component::GUI2DComponent>();
-        gui->GetTextManager()->AddText("uppgrade" + std::to_string(i));
-        gui->GetTextManager()->SetColor(textColor, "uppgrade" + std::to_string(i));
-        gui->GetTextManager()->SetPadding(textPadding, "uppgrade" + std::to_string(i));
-        gui->GetTextManager()->SetPos(textPos, "uppgrade" + std::to_string(i));
-        gui->GetTextManager()->SetScale(textScale, "uppgrade" + std::to_string(i));
-        gui->GetTextManager()->SetText(textToRender, "uppgrade" + std::to_string(i));
-        gui->GetTextManager()->SetBlend(textBlend, "uppgrade" + std::to_string(i));
-
-        float2 quadPos = { 0.09f, 0.15f * (i + 1) + 0.099f };
-        float2 quadScale = { 0.75f, 0.1f };
-        float4 blended = { 1.0, 1.0, 1.0, 0.75 };
-        float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
-        gui->GetQuadManager()->CreateQuad(
-            "uppgrade" + std::to_string(i),
-            quadPos, quadScale,
-            false, false,
-            1,
-            blended,
-            nullptr, {0.0f, 0.0f, 0.0f});
-        /* ---------------------------------------------------------- */
-
-        /* ------------------------- head --------------------------- */
-        entity = scene->AddEntity("head" + std::to_string(i));
-        gui = entity->AddComponent<component::GUI2DComponent>();
-        quadPos = { 0.01f, 0.15f * (i + 1) + 0.099f };
-        quadScale = { 0.09f, 0.09f };
-        Texture* shopImage = shop->GetUpgradeImage(shop->GetInventoryNames().at(i));
-        gui->GetQuadManager()->CreateQuad(
-            "uppgradebutton" + std::to_string(i),
-            quadPos, quadScale,
-            true, true,
-            2,
-            notBlended,
-            shopImage
-        );
-        /* ---------------------------------------------------------- */
-    }
 
 #pragma region walls
     // Left wall

@@ -9,7 +9,7 @@ UpgradeBlueJewel::UpgradeBlueJewel(Entity* parentEntity) : Upgrade(parentEntity)
 	// set the type of the upgrade
 	SetType(F_UpgradeType::PLAYER);
 	// set the price of the upgrade
-	m_Price = 10;
+	m_Price = 100;
 	m_StartingPrice = m_Price;
 
 	m_ImageName = "BlueJewel.png";
