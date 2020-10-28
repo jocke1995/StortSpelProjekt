@@ -224,16 +224,22 @@ Scene* GameScene(SceneManager* sm)
 	zombie.scale = 0.04;
 	zombie.detectionRad = 500.0f;
 
+    /* ---------------------- Teleporter ---------------------- */
+    entity = scene->AddEntity("teleporter");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "ShopScene");
+
     mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-
-    tc->GetTransform()->SetPosition(-50.0f, 1.0f, -25.0f);
+    tc->GetTransform()->SetPosition(-10.0f, 1.0f, -25.0f);
     tc->GetTransform()->SetScale(7.0f);
     tc->SetTransformOriginalState();
 
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
-    /*--------------------- Teleporter ---------------------*/
+    /* ---------------------- Teleporter ---------------------- */
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);
     enemyFactory.AddSpawnPoint({ 70, 5, 20 });
