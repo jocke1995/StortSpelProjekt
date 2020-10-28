@@ -35,13 +35,14 @@ public:
 
 	// Add an entity with collision enabled to the collision entities vector
 	void AddCollisionEntity(Entity* ent);
+	void RemoveCollisionEntity(Entity* ent);
 
 	void AddCollisionComponent(component::CollisionComponent* comp);
 	void RemoveCollisionComponent(component::CollisionComponent* comp);
-
+	
 	void SetCollisionEntities(const std::vector<Entity*>* collisionEntities);
 	const std::vector<Entity*>* GetCollisionEntities() const;
-	
+
 	void OnResetScene();
 
 	const btDynamicsWorld* GetWorld();

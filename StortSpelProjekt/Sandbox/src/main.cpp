@@ -23,8 +23,6 @@ void FredriksUpdateScene(SceneManager* sm, double dt);
 void AndresUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
-void DefaultUpdateScene(SceneManager* sm, double dt);
-
 EnemyFactory enemyFactory;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -52,11 +50,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 
     /*------ AssetLoader to load models / textures ------*/
+    AssetLoader* al = AssetLoader::Get();
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
     //Scene* activeScenes[] = { jacobScene };
-    Scene* leoScene = LeosTestScene(sceneManager);
-    Scene* activeScenes[] = { leoScene };
+    //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* activeScenes[] = { leoScene };
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScenes[] = { timScene };
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -73,8 +72,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScenes[] = { antonScene };
     //Scene* shopScene = ShopScene(sceneManager);
     //Scene* activeScenes[] = { shopScene };
-    //Scene* andresScene = AndresTestScene(sceneManager);
-    //Scene* activeScenes[] = { andresScene };
+    Scene* andresScene = AndresTestScene(sceneManager);
+    Scene* activeScenes[] = { andresScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -94,6 +93,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     while (!window->ExitWindow())
     {
+        /* ------ Update ------ */
+
         timer->Update();
         logicTimer += timer->GetDeltaTime();
         if (gameNetwork.IsConnected())
@@ -162,6 +163,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
+    component::CurrencyComponent* currc = nullptr;
 
     scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
@@ -182,6 +184,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    currc = entity->AddComponent<component::CurrencyComponent>();
 
     Transform* t = tc->GetTransform();
 
@@ -252,8 +255,6 @@ Scene* JacobsTestScene(SceneManager* sm)
     dlc->SetDirection({ 1.0f, -1.0f, -1.0f });
     dlc->SetColor({ 0.5f, 0.5f, 0.5f });
 
-    scene->SetUpdateScene(&DefaultUpdateScene);
-
     return scene;
 }
 
@@ -319,7 +320,6 @@ Scene* LeosTestScene(SceneManager* sm)
     ic->Init();
 
     Player::GetInstance().SetPlayer(entity);
-    Player::GetInstance().GetShop()->RandomizeInventory();
 #pragma endregion
 
 #pragma region enemies
@@ -793,8 +793,6 @@ Scene* FloppipTestScene(SceneManager* sm)
     dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
     /* ---------------------- The Sun ---------------------- */
 
-    scene->SetUpdateScene(&DefaultUpdateScene);
-
     return scene;
 }
 
@@ -1070,7 +1068,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 
 	/* ---------------------- Update Function ---------------------- */
-    scene->SetUpdateScene(&FredriksUpdateScene);
+	scene->SetUpdateScene(&FredriksUpdateScene);
 	srand(time(NULL));
 	/* ---------------------- Update Function ---------------------- */
 
@@ -1226,8 +1224,6 @@ Scene* WilliamsTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
-
-    scene->SetUpdateScene(&DefaultUpdateScene);
 
     return scene;
 }
@@ -1419,8 +1415,9 @@ Scene* AndresTestScene(SceneManager* sm)
 
 
     /* ---------------------- Enemy -------------------------------- */
-    EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 7.0f, 0.5f, 10.0f);
+    // Enemyfactory used in the wrong way. 
+    //EnemyFactory enH(scene);
+    //entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 7.0f, 0.5f, 10.0f);
     /* ---------------------- Enemy -------------------------------- */
 
 
@@ -1602,9 +1599,6 @@ Scene* BjornsTestScene(SceneManager* sm)
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ -2.0, -1.0, 0.0f });
     /* ---------------------- Spotlight ---------------------- */
-
-    scene->SetUpdateScene(&DefaultUpdateScene);
-
     return scene;
 }
 
@@ -1855,10 +1849,6 @@ void FredriksUpdateScene(SceneManager* sm, double dt)
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
 	tx->GetTextManager()->UploadAndExecuteTextData("health");*/
-}
-
-void DefaultUpdateScene(SceneManager* sm, double dt)
-{
 }
 
 void AndresUpdateScene(SceneManager* sm, double dt)

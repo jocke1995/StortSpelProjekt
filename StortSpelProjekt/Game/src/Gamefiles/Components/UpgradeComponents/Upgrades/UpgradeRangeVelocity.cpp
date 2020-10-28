@@ -40,7 +40,7 @@ void UpgradeRangeVelocity::ApplyBoughtUpgrade()
 {
 	// get current velocity
 	float currentVelocity = m_pParentEntity->GetComponent<component::RangeComponent>()->GetVelocity();
-	// double the velocity of the shots
+	// increase velocity with 10
 	float newVelocity = currentVelocity + 10;
 	m_pParentEntity->GetComponent<component::RangeComponent>()->SetVelocity(newVelocity);
 

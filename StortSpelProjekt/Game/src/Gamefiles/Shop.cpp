@@ -22,6 +22,7 @@ Shop::Shop()
 	m_InvSize = 3;
 
 	EventBus::GetInstance().Subscribe(this, &Shop::upgradePressed);
+	EventBus::GetInstance().Subscribe(this, &Shop::sceneChange);
 }
 
 Shop::~Shop()
@@ -240,12 +241,23 @@ void Shop::upgradePressed(ButtonPressed* evnt)
 	}
 }
 
+void Shop::sceneChange(SceneChange* evnt)
+{
+	if (evnt->m_NewSceneName == "ShopScene")
+	{
+		RandomizeInventory();
+	}
+}
+
 void Shop::clearInventory()
 {
 	for (int i = 0; i < GetInventorySize(); i++)
 	{
-		 SceneManager::GetInstance().GetScene("ShopScene")->RemoveEntity("upgrade" + std::to_string(i));
-		 SceneManager::GetInstance().GetScene("ShopScene")->RemoveEntity("upgradebutton" + std::to_string(i));
+		if (SceneManager::GetInstance().GetScene("ShopScene")->EntityExists("upgrade" + std::to_string(i)))
+		{
+			SceneManager::GetInstance().GetScene("ShopScene")->RemoveEntity("upgrade" + std::to_string(i));
+			SceneManager::GetInstance().GetScene("ShopScene")->RemoveEntity("upgradebutton" + std::to_string(i));
+		}
 	}
 	m_InventoryNames.clear();
 	m_UpgradeDescriptions.clear();

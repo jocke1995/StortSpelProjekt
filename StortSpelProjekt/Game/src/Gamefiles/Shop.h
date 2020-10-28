@@ -48,6 +48,7 @@ public:
 
 private:
 	void upgradePressed(ButtonPressed* evnt);
+	void sceneChange(SceneChange* evnt);
 
 	// upgradeManager
 	UpgradeManager* m_pUpgradeManager = nullptr;

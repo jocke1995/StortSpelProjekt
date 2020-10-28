@@ -34,7 +34,6 @@ void component::TeleportComponent::OnCollision(Collision* collisionEvent)
 		if (m_NewSceneName == "ShopScene")
 		{
 			Player::GetInstance().IsInShop(true);
-			Player::GetInstance().GetShop()->RandomizeInventory();
 		}
 		else
 		{
@@ -47,7 +46,6 @@ void component::TeleportComponent::OnCollision(Collision* collisionEvent)
 		if (m_NewSceneName == "ShopScene")
 		{
 			Player::GetInstance().IsInShop(true);
-			Player::GetInstance().GetShop()->RandomizeInventory();
 		}
 		else
 		{

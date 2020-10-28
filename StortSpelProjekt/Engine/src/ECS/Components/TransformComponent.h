@@ -17,12 +17,10 @@ namespace component
         void RenderUpdate(double dt);
         void OnInitScene();
         void OnUnInitScene();
-
+        
         // Resets the transform to its original state
         void Reset();
-
         void SetTransformOriginalState();
-
 
         Transform* GetTransform() const;
     private:

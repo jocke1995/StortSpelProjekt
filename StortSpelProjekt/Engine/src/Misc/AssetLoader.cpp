@@ -684,6 +684,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
 
 					tc->SetTransformOriginalState();
+
 					mc->SetModel(AssetLoader::LoadModel(to_wstring(fullPath)));
 					combinedFlag = 0;
 					for (int i = 0; i < FLAG_DRAW::NUM_FLAG_DRAWS; ++i)
