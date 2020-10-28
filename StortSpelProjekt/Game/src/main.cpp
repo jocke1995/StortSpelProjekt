@@ -20,7 +20,6 @@ EnemyFactory enemyFactory;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //_CrtSetBreakAlloc(82031);
 
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
@@ -194,8 +193,7 @@ Scene* GameScene(SceneManager* sm)
     avc->AddVoice(L"Bruh");
 
     bbc->Init();
-    Physics::GetInstance().AddCollisionEntity(entity);
-    //Player::GetInstance().SetPlayer(entity);
+    Physics::GetInstance().AddCollisionEntity(entity);;
     /*--------------------- Player ---------------------*/
 
     /*--------------------- DirectionalLight ---------------------*/
