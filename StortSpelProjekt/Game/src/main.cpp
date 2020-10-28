@@ -209,7 +209,7 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ 70, 5, 20 });
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("enemyZombie", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04, { 0.0, 0.0, 0.0 }, "player", 500.0f, 10.0f, 1.0f);
+    enemyFactory.DefineEnemy("enemyZombie", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04, { 0.0, 0.0, 0.0 }, "player", 500.0f, 0.5f, 1.0f);
 
     for (int i = 0; i < 75; i++)
     {
