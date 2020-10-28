@@ -1,4 +1,4 @@
-f_volume 5.0
+f_volume 3.0
 f_backgroundVolume 0.2
 f_updateRate 30
 f_networkUpdateRate 15
