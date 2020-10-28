@@ -218,7 +218,7 @@ Scene* GameScene(SceneManager* sm)
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
 	zombie.scale = 0.04;
-	zombie.detectionRad = 50.0f;
+	zombie.detectionRad = 500.0f;
 
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);
