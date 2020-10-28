@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
+#include "GameGUI.h"
 
 // Game includes
 #include "Player.h"
@@ -16,6 +17,7 @@ void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
 EnemyFactory enemyFactory;
+GameGUI gameGUI;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -87,6 +89,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
+            gameGUI.Update(updateRate, sceneManager->GetActiveScenes()->at(0));
         }
 
         /* ---- Network ---- */
@@ -149,6 +152,7 @@ Scene* GameScene(SceneManager* sm)
     component::CurrencyComponent* currc = nullptr;
     component::HealthComponent* hc = nullptr;
     component::UpgradeComponent* uc = nullptr;
+    component::GUI2DComponent* gui = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
     /*--------------------- Player ---------------------*/
@@ -232,6 +236,13 @@ Scene* GameScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "ShopScene");
+    /* ------------------------- GUI --------------------------- */
+    std::string textToRender = "HEALTH";
+    float2 textPos = { 0.45f, 0.96f };
+    float2 textPadding = { 0.5f, 0.0f };
+    float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    float2 textScale = { 0.5f, 0.5f };
+    float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -242,6 +253,50 @@ Scene* GameScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /* ---------------------- Teleporter ---------------------- */
+    /*--------------------- Teleporter ---------------------*/
+    entity = scene->AddEntity("health");
+    gui = entity->AddComponent<component::GUI2DComponent>();
+    gui->GetTextManager()->AddText("health");
+    gui->GetTextManager()->SetColor(textColor, "health");
+    gui->GetTextManager()->SetPadding(textPadding, "health");
+    gui->GetTextManager()->SetPos(textPos, "health");
+    gui->GetTextManager()->SetScale(textScale, "health");
+    gui->GetTextManager()->SetText(textToRender, "health");
+    gui->GetTextManager()->SetBlend(textBlend, "health");
+
+    float2 quadPos = { 0.4f, 0.95f };
+    float2 quadScale = { 0.2f, 0.1f };
+    float4 blended = { 1.0, 1.0, 1.0, 0.99 };
+    float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+    gui->GetQuadManager()->CreateQuad(
+        "health",
+        quadPos, quadScale,
+        false, false,
+        1,
+        notBlended,
+        nullptr,
+        { 0.0, 1.0, 0.0 }
+    );
+
+    textToRender = "Currency: 0";
+    textPos = { 0.01f, 0.95f };
+    textPadding = { 0.5f, 0.0f };
+    textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    textScale = { 0.5f, 0.5f };
+    textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    entity = scene->AddEntity("money");
+    gui = entity->AddComponent<component::GUI2DComponent>();
+    gui->GetTextManager()->AddText("money");
+    gui->GetTextManager()->SetColor(textColor, "money");
+    gui->GetTextManager()->SetPadding(textPadding, "money");
+    gui->GetTextManager()->SetPos(textPos, "money");
+    gui->GetTextManager()->SetScale(textScale, "money");
+    gui->GetTextManager()->SetText(textToRender, "money");
+    gui->GetTextManager()->SetBlend(textBlend, "money");
+
+    /* ---------------------------------------------------------- */
+
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);
     enemyFactory.AddSpawnPoint({ 70, 5, 20 });
