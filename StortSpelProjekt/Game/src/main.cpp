@@ -321,7 +321,7 @@ Scene* ShopScene(SceneManager* sm)
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(0.0, 20.0, 0.0);
     tc->SetTransformOriginalState();
 
