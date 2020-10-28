@@ -165,7 +165,7 @@ Scene* GameScene(SceneManager* sm)
     melc = entity->AddComponent<component::MeleeComponent>();
     // range damage should be at least 10 for ranged life steal upgrade to work
     // range velocity should be 50, otherwise range velocity upgrade does not make sense (may be scrapped later)
-    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.2, 10, 50);
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.5, 10, 50);
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(50);
     uc = entity->AddComponent<component::UpgradeComponent>();
@@ -211,14 +211,14 @@ Scene* GameScene(SceneManager* sm)
 
 	EnemyComps zombie = {};
 	zombie.model = enemyModel;
-	zombie.hp = 10;
+	zombie.hp = 30;
 	zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
 	zombie.meleeAttackDmg = 10.0f;
 	zombie.attackInterval = 1.0f;
 	zombie.movementSpeed = 30.0f;
-	zombie.attackingDist = 0.5f;
+	zombie.attackingDist = 1.5f;
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
 	zombie.scale = 0.04;

@@ -6,7 +6,7 @@
 #include <functional>
 
 #define DASH_MOD 12.0
-#define SPRINT_MOD 3.0
+#define SPRINT_MOD 1.5
 
 //Camera
 class BaseCamera;
