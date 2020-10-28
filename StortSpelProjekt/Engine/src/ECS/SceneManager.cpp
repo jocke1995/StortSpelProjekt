@@ -164,6 +164,9 @@ void SceneManager::ChangeSceneIfPlayerDied()
 	{
 		SetScenes(1, &m_pGameOverScene);;
 		m_ChangeSceneNextFrameToDeathScene = false;
+
+		Physics::GetInstance().OnResetScene();
+		EventBus::GetInstance().UnsubscribeAll();
 	}
 }
 
