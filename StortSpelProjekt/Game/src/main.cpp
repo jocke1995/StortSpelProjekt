@@ -71,6 +71,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         timer->Update();
 
         sceneManager->ChangeSceneIfTeleported();
+        sceneManager->ChangeSceneIfPlayerDied();
 
         logicTimer += timer->GetDeltaTime();
         if (gameNetwork.IsConnected())

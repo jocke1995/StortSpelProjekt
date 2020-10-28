@@ -32,6 +32,7 @@ public:
 	Scene* GetScene(std::string sceneName) const;
 
 	void ChangeSceneIfTeleported();
+	void ChangeSceneIfPlayerDied();
 
 	void ResetScene();
 
@@ -59,7 +60,9 @@ private:
 	bool sceneExists(std::string sceneName) const;
 
 	// Entity events
+	bool m_ChangeSceneNextFrameToDeathScene = false;
 	void onEntityDeath(Death* evnt);
+
 	void onEntityRemove(RemoveMe* evnt);
 
 	std::string m_SceneToChangeToWhenTeleported = "";

@@ -158,6 +158,15 @@ void SceneManager::ChangeSceneIfTeleported()
 	}
 }
 
+void SceneManager::ChangeSceneIfPlayerDied()
+{
+	if (m_ChangeSceneNextFrameToDeathScene == true)
+	{
+		SetScenes(1, &m_pGameOverScene);;
+		m_ChangeSceneNextFrameToDeathScene = false;
+	}
+}
+
 void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
 	entity->OnUnInitScene();
@@ -282,7 +291,7 @@ void SceneManager::onEntityDeath(Death* evnt)
 {
 	if (evnt->ent->GetName() == "player")
 	{
-		SetScenes(1, &m_pGameOverScene);
+		m_ChangeSceneNextFrameToDeathScene = true;
 	}
 }
 
