@@ -14,7 +14,7 @@ UpgradeBlueJewel::UpgradeBlueJewel(Entity* parentEntity) : Upgrade(parentEntity)
 
 	m_ImageName = "BlueJewel.png";
 	
-	m_DamageReduction = 1.0 - 0.50;
+	m_DamageReduction = 0.50;
 	
 	// Write a description for the upgrade
 	m_Description = "Blue Jewel: An iridecent blue jewel that reduces damage taken by (50% ^ level) while under 30% max health";
@@ -38,7 +38,7 @@ void UpgradeBlueJewel::IncreaseLevel()
 {
 	m_Level++;
 	// increase the boost
-	m_DamageReduction = 1.0f - pow(m_DamageReduction, m_Level);
+	m_DamageReduction = pow(m_DamageReduction, m_Level);
 	// increase the price of the upgrade
 	m_Price = m_StartingPrice * m_Level;
 }
