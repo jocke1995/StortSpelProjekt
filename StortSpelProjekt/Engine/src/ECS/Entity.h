@@ -60,6 +60,9 @@ public:
 
 	std::vector<Component*>* GetAllComponents();
 
+	void SetEntityState(bool dynamic);
+	bool IsEntityDynamic() const;
+
 private:
 	friend class SceneManager;
 
@@ -71,6 +74,9 @@ private:
 	unsigned int m_ReferenceCount = 0;
 
 	std::vector<Component*> m_Components;
+
+	// All entities will be assumed to be dynamic
+	bool m_Dynamic = true;
 };
 
 template<class T, typename... Args>
