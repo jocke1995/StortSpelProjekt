@@ -199,6 +199,11 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 		m_LoadedModels[path].second = new AnimatedModel(&path, rootNode, &meshes, &animations, &materials, boneCounter.size());
 
+		// For some reason i don't read all bones. There is currently only 52, while there should be 60+.
+		// Seems like the end nodes have no meshes, which might be related to this.
+		// All nodes are included however. So the node tree is correct.
+		// Next step is finding out where the remaining bones are dissapearing.
+
 		static_cast<AnimatedModel*>(m_LoadedModels[path].second)->InitConstantBuffer(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 	}
 	else
@@ -1140,7 +1145,8 @@ SkeletonNode* AssetLoader::processAnimatedModel(std::map<std::string, BoneInfo>*
 {
 	SkeletonNode* currentNode = new SkeletonNode();
 	currentNode->name = assimpNode->mName.C_Str();
-	
+	if (currentNode->name == "mixamorig:RightHandThumb4")
+		int a = 5;
 	// Store the default transform
 	currentNode->defaultTransform = aiMatrix4x4ToXMFloat4x4(&assimpNode->mTransformation);
 
