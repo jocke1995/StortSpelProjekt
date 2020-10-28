@@ -3,6 +3,7 @@
 #include "EngineMath.h"
 #include "..\ECS\Components\InputComponent.h"
 #include "Core.h"
+#include <functional>
 
 #define DASH_MOD 12.0
 #define SPRINT_MOD 3.0
@@ -70,7 +71,12 @@ namespace component
 		double m_JumpTime;
 		double m_Gravity;
 
+		int m_UpdateShootId;
+		int m_UpdateDashId;
+
+		std::vector<void(PlayerInputComponent::*)(double dt)> specificUpdates;
 		void(PlayerInputComponent::*specificUpdate)(double dt);
+
 
 		void alternativeInput(ModifierInput* evnt);
 		void zoom(MouseScroll* evnt);
@@ -83,6 +89,7 @@ namespace component
 		void updateDefault(double dt);
 		void updateDash(double dt);
 		void updateJump(double dt);
+		void updateShoot(double dt);
 	};
 }
 
