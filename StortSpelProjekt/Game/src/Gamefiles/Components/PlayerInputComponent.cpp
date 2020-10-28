@@ -57,6 +57,8 @@ void component::PlayerInputComponent::OnInitScene()
 	m_pCamera = static_cast<PerspectiveCamera*>(m_pParent->GetComponent<component::CameraComponent>()->GetCamera());
 	m_pTransform = static_cast<Transform*>(m_pParent->GetComponent<component::TransformComponent>()->GetTransform());
 
+	m_pTransform->SetVelocity(m_MovementSpeed);
+
 	m_pCC = m_pParent->GetComponent<component::CollisionComponent>();
 
 	// TODO: Unsubrscibe somewhere
@@ -136,6 +138,11 @@ void component::PlayerInputComponent::SetJumpTime(double time)
 	m_Gravity = (-2 * m_JumpHeight) / (m_JumpTime * m_JumpTime);
 }
 
+void component::PlayerInputComponent::SetMovementSpeed(float speed)
+{
+	m_MovementSpeed = speed;
+}
+
 void component::PlayerInputComponent::Reset()
 {
 	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::alternativeInput);
@@ -162,7 +169,7 @@ void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 	// If shift is pressed and held, increase velocity (Number not set in stone)
 	else if (evnt->key == SCAN_CODES::LEFT_SHIFT && evnt->pressed)
 	{
-		m_pTransform->SetVelocity(SPRINT_MOD * BASE_VEL);
+		m_pTransform->SetVelocity(SPRINT_MOD * m_MovementSpeed);
 		// Check if the player is in the air. If not, allow sprint
 		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1)
 		{
@@ -175,7 +182,7 @@ void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 	// If shift is released, decrease velocity to "normal" values
 	else if (evnt->key == SCAN_CODES::LEFT_SHIFT && !evnt->pressed)
 	{
-		m_pTransform->SetVelocity(BASE_VEL);
+		m_pTransform->SetVelocity(m_MovementSpeed);
 		// Check if the player is in the air. If not, allow sprint
 		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1)
 		{
