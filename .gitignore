@@ -19,3 +19,7 @@ StortSpelProjekt/Sandbox/imgui.ini
 StortSpelProjekt/Game/imgui.ini
 
 *.ini
+
+StortSpelProjekt/Vendor/Resources/Models/Female/
+
+StortSpelProjekt/Vendor/Resources/Models/PlayerHuman/
