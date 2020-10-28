@@ -8,7 +8,7 @@ class Texture;
 class Mesh;
 class Resource;
 class ShaderResourceView;
-class Eventbus;
+class EventBus;
 class Renderer;
 
 struct Vertex;

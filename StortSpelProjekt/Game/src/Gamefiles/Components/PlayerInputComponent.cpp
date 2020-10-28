@@ -204,6 +204,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	{
 		double moveRight = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::D)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::A)));
 		double moveForward = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::W)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::S)));
+		bool dash = (evnt->key == SCAN_CODES::E || evnt->key == SCAN_CODES::Q) && evnt->pressed;
 
 		double jump = static_cast<double>(evnt->key == SCAN_CODES::SPACE) * static_cast<double>(evnt->pressed);
 
@@ -228,11 +229,20 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		};
 
 		bool wasDashing = m_Dashing;
-		m_Dashing = m_DashReady && evnt->doubleTap && static_cast<double>(evnt->key != SCAN_CODES::SPACE);
-		if (m_Dashing && Input::GetInstance().GetKeyState(SCAN_CODES::LEFT_SHIFT))
+		m_Dashing = m_DashReady && dash && static_cast<double>(evnt->key != SCAN_CODES::SPACE);
+		if (m_Dashing)
 		{
 			m_DashTimer = 0;
-			vel *= DASH_MOD;
+			if (vel == double3({ 0.0, 0.0, 0.0 }))
+			{
+				forward.normalize();
+				vel = { forward.x * BASE_VEL * DASH_MOD, forward.y, forward.z * BASE_VEL * DASH_MOD };
+			}
+			else
+			{
+				vel.normalize();
+				vel *= BASE_VEL * DASH_MOD;
+			}
 			specificUpdate = &PlayerInputComponent::updateDash;
 		}
 		else

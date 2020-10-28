@@ -4,6 +4,7 @@
 #include "EngineMath.h"
 #include "Core.h"
 #include "Misc/EngineRand.h"
+#include "Misc/EngineRand.h"
 #include <map>
 #include <vector>
 
@@ -79,12 +80,27 @@ public:
 	// Defines an enemy without adding it to the scene.
 	EnemyComps* DefineEnemy(const std::string& entityName, EnemyComps* comps);
 
+
+	void AddEnemyToList(Entity* enemy);
+	void RemoveEnemyFromList(Entity* enemy);
+
+	void SetMaxNrOfEnemies(unsigned int val);
+	void SetSpawnCooldown(float val);
+	void SetMinDistanceFromPlayer(float val);
+
+	void Update(double dt);
+
 private:
 	Scene* m_pScene = nullptr;
 	std::map<std::string, EnemyComps*> m_EnemyComps;
 	std::vector<Entity*> m_Enemies;
 	std::vector<float3> m_SpawnPoints;
 	EngineRand m_RandGen;
+
+	unsigned int m_MaxEnemies;
+	float m_SpawnCooldown;
+	float m_SpawnTimer;
+	float m_MinimumDistanceToPlayer;
 };
 
 #endif
