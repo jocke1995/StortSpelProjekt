@@ -35,13 +35,13 @@ struct EnemyComps
 	int hp = 10;
 	std::string targetName = "player";
 	int enemiesOfThisType = 0;
-	std::wstring sound3D = L"DEFAULT";
+	std::wstring sound3D = L"Bruh";
 	double3 dim = double3({ 0.0, 0.0, 0.0 });
 	float detectionRad = 25.0f;
 	float attackingDist = 3.5f;
-	float attackInterval = 0.5f;
+	float attackInterval = 1.0f;
 	float meleeAttackDmg = 10.0f;
-	float movementSpeed = 1.0f;
+	float movementSpeed = 30.0f;
 };
 
 class EnemyFactory

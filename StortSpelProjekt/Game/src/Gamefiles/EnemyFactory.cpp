@@ -75,6 +75,7 @@ Entity* EnemyFactory::AddExistingEnemy(const std::string& entityName, float3 pos
 		if (pair.first == entityName)
 		{
 			EnemyComps* enemy = m_EnemyComps[entityName];
+			enemy->pos = pos;
 			std::string name = entityName + std::to_string(enemy->enemiesOfThisType);
 			enemy->enemiesOfThisType++;
 
@@ -102,35 +103,32 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(const std::string& entityName,
 		{
 			// if any of the inputs are not default values use them
 			// otherwise use the values from the struct
-			unsigned int newCompFlags;
 			if (compFlags != UINT_MAX)
 			{
 				enemy->compFlags = compFlags;
 			}
 
-			unsigned int newAiFlags;
 			if (aiFlags != UINT_MAX)
 			{
 				enemy->aiFlags = aiFlags;
 			}
 
-			float newScale;
 			if (scale != FLT_MAX)
 			{
 				enemy->scale = scale;
 			}
 
-			float3 newRot;
 			if (rot.x != FLT_MAX)
 			{
 				enemy->rot = rot;
 			}
 
-			int newHP;
 			if (hp != INT_MAX)
 			{
 				enemy->hp = hp;
 			}
+
+			enemy->pos = pos;
 
 			return Add(name, enemy);
 		}

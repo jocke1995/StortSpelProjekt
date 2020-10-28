@@ -214,13 +214,15 @@ Scene* GameScene(SceneManager* sm)
 	zombie->hp = 10;
 	zombie->sound3D = L"Bruh";
 	zombie->compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+	zombie->aiFlags = 0;
 	zombie->meleeAttackDmg = 10.0f;
-	zombie->attackInterval = 0.04f;
-	zombie->movementSpeed = 20.0f;
-	zombie->attackingDist = 0.0f;
+	zombie->attackInterval = 1.0f;
+	zombie->movementSpeed = 30.0f;
+	zombie->attackingDist = 10.0f;
 	zombie->rot = { 0.0, 0.0, 0.0 };
 	zombie->targetName = "player";
-	zombie->scale = 0.05;
+	zombie->scale = 0.04;
+	zombie->detectionRad = 50.0f;
 
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);
@@ -434,13 +436,15 @@ Scene* GetDemoScene(SceneManager* sm)
 	zombie->hp = 10;
 	zombie->sound3D = L"Bruh";
 	zombie->compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+	zombie->aiFlags = 0;
 	zombie->meleeAttackDmg = 10.0f;
-	zombie->attackInterval = 0.04f;
-	zombie->movementSpeed = 20.0f;
-	zombie->attackingDist = 0.0f;
+	zombie->attackInterval = 1.0f;
+	zombie->movementSpeed = 30.0f;
+	zombie->attackingDist = 10.0f;
 	zombie->rot = { 0.0, 0.0, 0.0 };
 	zombie->targetName = "player";
-	zombie->scale = 0.05;
+	zombie->scale = 0.04;
+	zombie->detectionRad = 50.0f;
 
     enemyFactory.SetScene(scene);
     enemyFactory.AddSpawnPoint({  0, 10, 40 });
