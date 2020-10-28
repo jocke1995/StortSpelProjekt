@@ -183,9 +183,11 @@ Entity* EnemyFactory::Add(const std::string& name, Model* model, int hp, float3 
 	ent->AddComponent<component::HealthComponent>(hp);
 	ec = ent->AddComponent<component::EnemyComponent>(this);
 	Entity* target = m_pScene->GetEntity(aiTarget);
+	double3 targetDim = target->GetComponent<component::ModelComponent>()->GetModelDim();
+	float targetScale = target->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().z;
 	if (target != nullptr)
 	{
-		ai = ent->AddComponent<component::AiComponent>(target, aiFlags, aiDetectionRadius, aiAttackingDistance);
+		ai = ent->AddComponent<component::AiComponent>(target, aiFlags, aiDetectionRadius, (dim.z * scale * 0.5) + (targetDim.z * targetScale * 0.5) + aiAttackingDistance);
 		ai->SetAttackInterval(aiAttackInterval);
 		ai->SetMeleeAttackDmg(aiMeleeAttackDmg);
 		ai->SetScene(m_pScene);
