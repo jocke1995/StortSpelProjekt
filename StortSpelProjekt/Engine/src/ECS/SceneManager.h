@@ -13,6 +13,7 @@ class AudioEngine;
 // Event
 struct Death;
 struct RemoveMe;
+struct SceneChange;
 
 class SceneManager 
 {
@@ -29,6 +30,8 @@ public:
 	void SetScenes(unsigned int numScenes, Scene** scene);
 	std::vector<Scene*>* GetActiveScenes();
 	Scene* GetScene(std::string sceneName) const;
+	void ChangeScene();
+
 	void ResetScene();
 
 	// Special scenes
@@ -38,13 +41,11 @@ public:
 	void RemoveEntity(Entity* entity, Scene* scene);
 	void AddEntity(Entity* entity, Scene* scene);
 
-
-
 private:
 	SceneManager();
 	std::map<std::string, Scene*> m_Scenes;
 	std::vector<Scene*> m_ActiveScenes;
-	std::set<Scene*> m_LoadedScenes;
+
 	struct EntityScene
 	{
 		Entity* ent;
@@ -57,9 +58,13 @@ private:
 	bool sceneExists(std::string sceneName) const;
 
 	// Entity events
-	void onEntityDeath(Death* evnt);
+	bool m_ChangeSceneNextFrameToDeathScene = false;
 
 	void onEntityRemove(RemoveMe* evnt);
+
+	std::string m_SceneToChangeToWhenTeleported = "";
+	bool m_ChangeSceneNextFrame = false;
+	void changeSceneNextFrame(SceneChange* sceneChangeEvent);
 };
 
 #endif

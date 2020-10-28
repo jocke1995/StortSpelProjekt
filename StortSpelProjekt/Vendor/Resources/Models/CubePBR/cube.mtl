@@ -1,0 +1,10 @@
+# Blender MTL File: 'Crate1.blend'
+# Material Count: 1
+
+newmtl cubeMat
+
+map_Ka cube_metallic.dds
+map_Kd cube_albedo.dds
+map_Ks cube_roughness.dds
+map_Kn cube_normal.dds
+
