@@ -336,7 +336,6 @@ Scene* LeosTestScene(SceneManager* sm)
     ic->Init();
 
     Player::GetInstance().SetPlayer(entity);
-    Player::GetInstance().GetShop()->RandomizeInventory();
 #pragma endregion
 
 #pragma region enemies

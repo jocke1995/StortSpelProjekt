@@ -7,7 +7,9 @@
 #include "Components/UpgradeComponents/Upgrades/Upgrade.h"
 #include <string>
 #include "Misc/EngineRand.h"
+#include "Events/Events.h"
 
+class Texture;
 
 class Shop
 {
@@ -40,9 +42,14 @@ public:
 	int GetPrice(std::string name);
 	// Get player currency balance
 	int GetPlayerBalance();
+	// Get upgrade image
+	Texture* GetUpgradeImage(std::string* name);
 
 
 private:
+	void upgradePressed(ButtonPressed* evnt);
+	void sceneChange(SceneChange* evnt);
+
 	// upgradeManager
 	UpgradeManager* m_pUpgradeManager = nullptr;
 	// Player entity
@@ -53,6 +60,8 @@ private:
 	std::vector<std::string> m_UpgradeNames;
 	// vector of names of the upgrades in inventory
 	std::vector<std::string> m_InventoryNames;
+	// vector to check if inventory has been bought
+	std::vector<bool> m_InventoryIsBought;
 	// inventory size
 	int m_InvSize;
 	// Used to randomize the inventory
