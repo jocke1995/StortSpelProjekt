@@ -81,6 +81,9 @@ public:
 	// Defines an enemy without adding it to the scene.
 	EnemyComps* DefineEnemy(const std::string& entityName, EnemyComps* comps);
 
+	// Sets the max health of all enemies of a specific type
+	void SetEnemyTypeMaxHealth(const std::string& enemyName, int hp);
+
 
 	void AddEnemyToList(Entity* enemy);
 	void RemoveEnemyFromList(Entity* enemy);
