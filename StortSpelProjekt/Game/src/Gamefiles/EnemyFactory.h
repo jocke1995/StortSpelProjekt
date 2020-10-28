@@ -12,6 +12,7 @@ class Scene;
 class Component;
 class Model;
 class Entity;
+struct SceneChange;
 
 static int s_EnemyId = 0;
 
@@ -91,6 +92,7 @@ public:
 	void Update(double dt);
 
 private:
+	void onSceneSwitch(SceneChange* evnt);
 	Scene* m_pScene = nullptr;
 	std::map<std::string, EnemyComps*> m_EnemyComps;
 	std::vector<Entity*> m_Enemies;
@@ -101,6 +103,8 @@ private:
 	float m_SpawnCooldown;
 	float m_SpawnTimer;
 	float m_MinimumDistanceToPlayer;
+
+	bool m_IsActive = true;
 };
 
 #endif

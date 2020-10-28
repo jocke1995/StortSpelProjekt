@@ -21,7 +21,9 @@ void* MemoryManager::AllocHeapBlock()
 
 #ifdef _DEBUG
     if (!toReturn)
+    {
         Log::PrintSeverity(Log::Severity::CRITICAL, "MemoryManager could not hand out memory!\n");
+    }
 #endif // _DEBUG
 
     return toReturn;
@@ -63,14 +65,20 @@ void* MemoryManager::AllocHeap(size_t size)
     {
         toReturn = candChild->pMem;
         if (candidate == mm.m_pHeapHead)
+        {
             mm.m_pHeapHead = candChild->pNext;
+        }
         else
+        {
             mm.m_pHeapHead->pNext = candChild->pNext;
+        }
         candChild->pNext = candidate;
     }
 #ifdef _DEBUG
     if (!toReturn)
+    {
         Log::PrintSeverity(Log::Severity::CRITICAL, "MemoryManager could not hand out memory!\n");
+    }
 #endif // _DEBUG
 
     return toReturn;
@@ -89,7 +97,9 @@ void* MemoryManager::AllocStackBlock()
 
 #ifdef _DEBUG
     if (!toReturn)
+    {
         Log::PrintSeverity(Log::Severity::CRITICAL, "MemoryManager could not hand out memory!\n");
+    }
 #endif // _DEBUG
 
     return toReturn;
@@ -112,7 +122,9 @@ void* MemoryManager::AllocStack(size_t size)
 
 #ifdef _DEBUG
     if (!toReturn)
+    {
         Log::PrintSeverity(Log::Severity::CRITICAL, "MemoryManager could not hand out memory!\n");
+    }
 #endif // _DEBUG
 
     return toReturn;

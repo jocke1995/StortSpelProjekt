@@ -52,6 +52,8 @@ namespace component
 		//Sets the movement speed
 		void SetMovementSpeed(float speed);
 
+		void Reset();
+
 	private:
 		unsigned int m_CameraFlags = 0;
 		float m_Zoom;

@@ -31,6 +31,10 @@ void component::HealthComponent::Update(double dt)
 		{
 			EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
 		}
+		else
+		{
+			EventBus::GetInstance().Publish(&SceneChange("gameOverScene"));
+		}
 	}
 }
 
@@ -52,6 +56,7 @@ void component::HealthComponent::SetHealth(int hp)
 		if (comp)
 		{
 			comp->SetAngularFactor({ 1,1,1 });
+			comp->SetAngularVelocity(5, 0, 0);
 		}
 		EventBus::GetInstance().Publish(&Death(m_pParent));
 	}
@@ -67,6 +72,7 @@ void component::HealthComponent::ChangeHealth(int hpChange)
 		if (comp)
 		{
 			comp->SetAngularFactor({ 1,1,1 });
+			comp->SetAngularVelocity(5,0,0);
 		}
 		EventBus::GetInstance().Publish(&Death(m_pParent));
 	}
@@ -120,4 +126,10 @@ void component::HealthComponent::SetMaxHealth(int newHealth)
 void component::HealthComponent::ChangeMaxHealth(int hpChange)
 {
 	m_MaxHealth += hpChange;
+}
+
+void component::HealthComponent::Reset()
+{
+	m_Health = m_MaxHealth;
+	m_Dead = false;
 }

@@ -683,6 +683,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					tc->GetTransform()->SetRotationZ(rot.z * (PI / 180));
 					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
 
+					tc->SetTransformOriginalState();
+
 					mc->SetModel(AssetLoader::LoadModel(to_wstring(fullPath)));
 					combinedFlag = 0;
 					for (int i = 0; i < FLAG_DRAW::NUM_FLAG_DRAWS; ++i)
@@ -709,6 +711,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					tc->GetTransform()->SetRotationZ(rot.z);
 					tc->GetTransform()->SetScale(scaling.x, scaling.y, scaling.z);
 					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+
+					tc->SetTransformOriginalState();
 				}
 				else if (strcmp(toSubmit.c_str(), "PointLight") == 0)
 				{

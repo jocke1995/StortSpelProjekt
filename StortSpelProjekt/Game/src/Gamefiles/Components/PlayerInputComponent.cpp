@@ -135,6 +135,18 @@ void component::PlayerInputComponent::SetMovementSpeed(float speed)
 	m_MovementSpeed = speed;
 }
 
+void component::PlayerInputComponent::Reset()
+{
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::alternativeInput);
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::zoom);
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::rotate);
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::move);
+	if (m_pParent->GetComponent<component::MeleeComponent>() != nullptr)
+	{
+		EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::mouseClick);
+	}
+}
+
 void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 {
 	if (evnt->key == SCAN_CODES::LEFT_CTRL && evnt->pressed)
