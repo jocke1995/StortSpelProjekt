@@ -14,7 +14,7 @@ UpgradeRangeVelocity::UpgradeRangeVelocity(Entity* parent)
 	m_Price = 1;
 	m_StartingPrice = m_Price;
 	// set short description 
-	m_Description = "Increases velocity of the range attacks with 10 per level. Max velocity is 100, at upgrade level 5";
+	m_Description = "Range Velocity: Increases velocity of the range attacks with 10 per level. Max velocity is 100, at upgrade level 5";
 	// this upgrade will have a max level
 	m_MaxLevel = 5;
 }

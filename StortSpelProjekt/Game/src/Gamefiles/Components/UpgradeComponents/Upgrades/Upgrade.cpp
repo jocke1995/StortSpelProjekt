@@ -5,6 +5,7 @@
 Upgrade::Upgrade(Entity* parentEntity)
 {
 	m_pParentEntity = parentEntity;
+	m_ImageName = "default.png";
 }
 
 Upgrade::~Upgrade()
@@ -24,6 +25,16 @@ void Upgrade::SetName(std::string name)
 std::string Upgrade::GetName() const
 {
 	return m_Name;
+}
+
+void Upgrade::SetImage(std::string* imageName)
+{ 
+	m_ImageName = *imageName;
+}
+
+std::string Upgrade::GetImage() const
+{
+	return m_ImageName;
 }
 
 int Upgrade::GetLevel() const

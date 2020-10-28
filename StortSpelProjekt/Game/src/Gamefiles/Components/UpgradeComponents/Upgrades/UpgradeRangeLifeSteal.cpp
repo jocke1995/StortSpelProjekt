@@ -15,7 +15,7 @@ UpgradeRangeLifeSteal::UpgradeRangeLifeSteal(Entity* parent)
 	m_Price = 1;
 	m_StartingPrice = m_Price;
 	// set short description 
-	m_Description = "Converts a percentage of range damage done into own health. 10\% for the first level, 5\% more per upgrade level";
+	m_Description = "Ranged Lifesteal: Converts a percentage of range damage done into own health. 10\% for the first level, 5\% more per upgrade level";
 	// percentage of damage done to steal as life
 	m_PercentageGain = 0.10;
 }
