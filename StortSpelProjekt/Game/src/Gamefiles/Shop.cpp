@@ -174,7 +174,7 @@ void Shop::upgradePressed(ButtonPressed* evnt)
 	{
 		if (evnt->name == "uppgradebutton" + std::to_string(i))
 		{
-			m_pPlayer->GetComponent<component::CurrencyComponent>()->ChangeBalance(GetPrice(m_InventoryNames.at(i)));
+			m_pPlayer->GetComponent<component::CurrencyComponent>()->ChangeBalance(-GetPrice(m_InventoryNames.at(i)));
 			ApplyUppgrade(m_InventoryNames.at(i));
 		}
 	}
