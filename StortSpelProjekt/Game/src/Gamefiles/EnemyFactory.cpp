@@ -355,7 +355,7 @@ void EnemyFactory::Update(double dt)
 
 void EnemyFactory::onSceneSwitch(SceneChange* evnt)
 {
-	if (evnt->m_NewSceneName == "ShopScene")
+	if (evnt->m_NewSceneName == "ShopScene" || evnt->m_NewSceneName == "gameOverScene")
 	{
 		m_IsActive = false;
 		m_Enemies.clear();
