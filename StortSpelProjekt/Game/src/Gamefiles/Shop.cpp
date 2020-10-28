@@ -66,7 +66,7 @@ void Shop::RandomizeInventory()
 			// need to reset this bool every loop
 			inStock = false;
 			// Get a random number that will be used to get an upgrade to the inventory
-			upgradeNum = m_Rand.Rand(0, m_InvSize);
+			upgradeNum = m_Rand.Rand(0, m_AllAvailableUpgrades.size());
 			// Take this number to get a name from m_UpgradeNames, which contains all avalible upgrades
 			name = m_UpgradeNames.at(upgradeNum);
 			for (auto names : m_InventoryNames)
