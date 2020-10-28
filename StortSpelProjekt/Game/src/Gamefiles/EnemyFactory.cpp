@@ -290,6 +290,19 @@ EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, Model* mode
 	return enemy;
 }
 
+void EnemyFactory::SetEnemyTypeMaxHealth(const std::string& enemyName, int hp)
+{
+	m_EnemyComps[enemyName]->hp = hp;
+
+	for (Entity* enemy : m_Enemies)
+	{
+		if (enemy->GetName().find(enemyName) != std::string::npos)
+		{
+			enemy->GetComponent<component::HealthComponent>()->SetMaxHealth(hp);
+		}
+	}
+}
+
 void EnemyFactory::AddEnemyToList(Entity* enemy)
 {
 	m_Enemies.push_back(enemy);

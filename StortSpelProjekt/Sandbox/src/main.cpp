@@ -264,17 +264,17 @@ Scene* LeosTestScene(SceneManager* sm)
     Scene* scene = sm->CreateScene("LeoScene");
 
 #pragma region init
+    component::Audio2DVoiceComponent* avc = nullptr;
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::InputComponent* ic = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* ccc = nullptr;
-    component::Audio2DVoiceComponent* avc = nullptr;
     component::Audio3DListenerComponent* avc2 = nullptr;
     component::HealthComponent* hc = nullptr;
-    component::MeleeComponent* mac = nullptr;
-    component::RangeComponent* rc = nullptr;
+    component::MeleeComponent* melc = nullptr;
+    component::RangeComponent* ranc = nullptr;
     component::UpgradeComponent* uc = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
@@ -287,6 +287,7 @@ Scene* LeosTestScene(SceneManager* sm)
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
     Model* zombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
+
 #pragma endregion
  
 #pragma region entities
@@ -302,8 +303,8 @@ Scene* LeosTestScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     avc2 = entity->AddComponent<component::Audio3DListenerComponent>();
-    mac = entity->AddComponent<component::MeleeComponent>();
-    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    melc = entity->AddComponent<component::MeleeComponent>();
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
     uc = entity->AddComponent<component::UpgradeComponent>();
 
 
@@ -334,6 +335,12 @@ Scene* LeosTestScene(SceneManager* sm)
     {
         entity = enemyFactory.SpawnEnemy("enemyZombie");
     }
+
+    Log::Print("Zombie 16 HP: %d\n", scene->GetEntity("enemyZombie16")->GetComponent<component::HealthComponent>()->GetMaxHealth());
+
+    enemyFactory.SetEnemyTypeMaxHealth("enemyZombie", 50);
+
+    Log::Print("Zombie 16 HP: %d\n", scene->GetEntity("enemyZombie16")->GetComponent<component::HealthComponent>()->GetMaxHealth());
 
 #pragma endregion
 
