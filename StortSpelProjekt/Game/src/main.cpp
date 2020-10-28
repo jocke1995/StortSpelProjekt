@@ -335,8 +335,6 @@ Scene* ShopScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
 
-    Player::GetInstance().SetPlayer(entity);
-    Player::GetInstance().GetShop()->RandomizeInventory();
 #pragma endregion player
     /* ---------------------- Skybox ---------------------- */
     entity = scene->AddEntity("skybox");
