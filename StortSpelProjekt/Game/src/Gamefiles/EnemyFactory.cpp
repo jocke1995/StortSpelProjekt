@@ -286,10 +286,6 @@ EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, Model* mode
 void EnemyFactory::SetEnemyTypeMaxHealth(const std::string& enemyName, int hp)
 {
 	m_EnemyComps[enemyName]->hp = hp;
-void EnemyFactory::AddEnemyToList(Entity* enemy)
-{
-	m_Enemies.push_back(enemy);
-}
 
 	for (Entity* enemy : m_Enemies)
 	{
@@ -300,6 +296,10 @@ void EnemyFactory::AddEnemyToList(Entity* enemy)
 	}
 }
 
+void EnemyFactory::AddEnemyToList(Entity* enemy)
+{
+	m_Enemies.push_back(enemy);
+}
 
 void EnemyFactory::RemoveEnemyFromList(Entity* enemy)
 {
