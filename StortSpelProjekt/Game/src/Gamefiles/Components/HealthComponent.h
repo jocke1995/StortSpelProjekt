@@ -11,7 +11,7 @@ namespace component
 	class HealthComponent : public Component
 	{
 	public:
-		HealthComponent(Entity* parent, int hp, float removalTime = -1);
+		HealthComponent(Entity* parent, int hp, float removalTime = 5);
 		~HealthComponent();
 		void Update(double dt);
 		void OnInitScene();
