@@ -191,6 +191,7 @@ Scene* GameScene(SceneManager* sm)
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
+	pic->SetMovementSpeed(70.0);
 
     avc->AddVoice(L"Bruh");
 
@@ -212,7 +213,22 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
-    /*--------------------- Teleporter ---------------------*/
+	EnemyComps zombie = {};
+	zombie.model = enemyModel;
+	zombie.hp = 10;
+	zombie.sound3D = L"Bruh";
+	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+	zombie.aiFlags = 0;
+	zombie.meleeAttackDmg = 10.0f;
+	zombie.attackInterval = 1.0f;
+	zombie.movementSpeed = 30.0f;
+	zombie.attackingDist = 0.5f;
+	zombie.rot = { 0.0, 0.0, 0.0 };
+	zombie.targetName = "player";
+	zombie.scale = 0.04;
+	zombie.detectionRad = 500.0f;
+
+    /* ---------------------- Teleporter ---------------------- */
     entity = scene->AddEntity("teleporter");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -228,13 +244,13 @@ Scene* GameScene(SceneManager* sm)
 
     mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-
-    tc->GetTransform()->SetPosition(-50.0f, 1.0f, -25.0f);
+    tc->GetTransform()->SetPosition(-10.0f, 1.0f, -25.0f);
     tc->GetTransform()->SetScale(7.0f);
     tc->SetTransformOriginalState();
 
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
+    /* ---------------------- Teleporter ---------------------- */
     /*--------------------- Teleporter ---------------------*/
     entity = scene->AddEntity("health");
     gui = entity->AddComponent<component::GUI2DComponent>();
@@ -284,7 +300,7 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ 70, 5, 20 });
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("enemyZombie", enemyModel, 30, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04, { 0.0, 0.0, 0.0 }, "player", 500.0f, 1.5f, 1.0f);
+    enemyFactory.DefineEnemy("enemyZombie", &zombie);
 #pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
@@ -460,6 +476,7 @@ Scene* ShopScene(SceneManager* sm)
     double3 shopDim = mc->GetModelDim();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(10000000.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
     /* ---------------------- Shop ---------------------- */
+
 #pragma region walls
     // Left wall
     entity = scene->AddEntity("wallLeft");
