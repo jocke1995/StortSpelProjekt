@@ -4,6 +4,7 @@
 #include "Components/HealthComponent.h"
 #include "Components/EnemyComponent.h"
 #include "Misc/EngineRand.h"
+
 EnemyFactory::EnemyFactory()
 {
 	m_MaxEnemies = 20;
@@ -43,7 +44,7 @@ void EnemyFactory::SetScene(Scene* scene)
 	m_pScene = scene;
 }
 
-Entity* EnemyFactory::AddEnemy(const std::string& entityName, Model* model, int hp, float3 pos, const std::wstring& sound3D, unsigned int compFlags, unsigned int aiFlags, float scale, float3 rot, const std::string& aiTarget, float aiDetectionRadius, float aiAttackingDistance, float aiAttackInterval, float aiMeleeAttackDmg)
+Entity* EnemyFactory::AddEnemy(const std::string& entityName, EnemyComps* comps)
 {
 	for (auto pair : m_EnemyComps)
 	{
@@ -52,29 +53,30 @@ Entity* EnemyFactory::AddEnemy(const std::string& entityName, Model* model, int 
 		if (pair.first == entityName)
 		{
 			Log::PrintSeverity(Log::Severity::WARNING, "Enemy of this type \"%s\" already exists! Overloaded funtion will be used instead!\n", entityName.c_str());
-			return AddExistingEnemyWithChanges(entityName, pos, compFlags, aiFlags, scale, rot);
+			return AddExistingEnemyWithChanges(entityName, comps->pos, comps->compFlags, comps->aiFlags, comps->scale, comps->rot);
 		}
 	}	
 	EnemyComps* enemy = new EnemyComps;
 	m_EnemyComps[entityName] = enemy;
 
 	enemy->enemiesOfThisType++;
-	enemy->compFlags = compFlags;
-	enemy->aiFlags = aiFlags;
-	enemy->scale = scale;
-	enemy->rot = rot;
-	enemy->model = model;
-	enemy->targetName = aiTarget;
-	enemy->hp = hp;
-	enemy->sound3D = sound3D;
-	enemy->detectionRad = aiDetectionRadius;
-	enemy->attackingDist = aiAttackingDistance;
-	enemy->attackInterval = aiAttackInterval;
-	enemy->meleeAttackDmg = aiMeleeAttackDmg;
+	enemy->compFlags = comps->compFlags;
+	enemy->aiFlags = comps->aiFlags;
+	enemy->scale = comps->scale;
+	enemy->rot = comps->rot;
+	enemy->model = comps->model;
+	enemy->targetName = comps->targetName;
+	enemy->hp = comps->hp;
+	enemy->sound3D = comps->sound3D;
+	enemy->detectionRad = comps->detectionRad;
+	enemy->attackingDist = comps->attackingDist;
+	enemy->attackInterval = comps->attackInterval;
+	enemy->meleeAttackDmg = comps->meleeAttackDmg;
+	enemy->movementSpeed = comps->movementSpeed;
 
-	enemy->dim = model->GetModelDim();
+	enemy->dim = comps->model->GetModelDim();
 
-	return Add(entityName, model, hp, pos, sound3D, compFlags, aiFlags, enemy->dim, scale, rot, aiTarget, aiDetectionRadius, aiAttackingDistance, aiAttackInterval, aiMeleeAttackDmg);
+	return Add(entityName, enemy);
 }
 
 Entity* EnemyFactory::AddExistingEnemy(const std::string& entityName, float3 pos)
@@ -86,10 +88,11 @@ Entity* EnemyFactory::AddExistingEnemy(const std::string& entityName, float3 pos
 		if (pair.first == entityName)
 		{
 			EnemyComps* enemy = m_EnemyComps[entityName];
+			enemy->pos = pos;
 			std::string name = entityName + std::to_string(enemy->enemiesOfThisType);
 			enemy->enemiesOfThisType++;
 
-			return Add(name, enemy->model, enemy->hp, pos, enemy->sound3D, enemy->compFlags, enemy->aiFlags, enemy->dim, enemy->scale, enemy->rot, enemy->targetName, enemy->detectionRad, enemy->attackingDist, enemy->attackInterval, enemy->meleeAttackDmg);
+			return Add(name, enemy);
 		}
 		else
 		{
@@ -113,53 +116,34 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(const std::string& entityName,
 		{
 			// if any of the inputs are not default values use them
 			// otherwise use the values from the struct
-			unsigned int newCompFlags;
 			if (compFlags != UINT_MAX)
 			{
-				newCompFlags = compFlags;
-			}
-			else
-			{
-				newCompFlags = enemy->compFlags;
-			}
-			unsigned int newAiFlags;
-			if (aiFlags != UINT_MAX)
-			{
-				newAiFlags = aiFlags;
-			}
-			else
-			{
-				newAiFlags = enemy->aiFlags;
-			}
-			float newScale;
-			if (scale != FLT_MAX)
-			{
-				newScale = scale;
-			}
-			else
-			{
-				newScale = enemy->scale;
-			}
-			float3 newRot;
-			if (rot.x != FLT_MAX)
-			{
-				newRot = rot;
-			}
-			else
-			{
-				newRot = enemy->rot;
-			}
-			int newHP;
-			if (hp != INT_MAX)
-			{
-				newHP = hp;
-			}
-			else
-			{
-				newHP = enemy->hp;
+				enemy->compFlags = compFlags;
 			}
 
-			return Add(name, enemy->model, newHP, pos, enemy->sound3D, newCompFlags, newAiFlags, enemy->dim, newScale, newRot, enemy->targetName, enemy->detectionRad, enemy->attackingDist, enemy->attackInterval, enemy->meleeAttackDmg);
+			if (aiFlags != UINT_MAX)
+			{
+				enemy->aiFlags = aiFlags;
+			}
+
+			if (scale != FLT_MAX)
+			{
+				enemy->scale = scale;
+			}
+
+			if (rot.x != FLT_MAX)
+			{
+				enemy->rot = rot;
+			}
+
+			if (hp != INT_MAX)
+			{
+				enemy->hp = hp;
+			}
+
+			enemy->pos = pos;
+
+			return Add(name, enemy);
 		}
 		else
 		{
@@ -169,9 +153,9 @@ Entity* EnemyFactory::AddExistingEnemyWithChanges(const std::string& entityName,
 	}
 }
 
-Entity* EnemyFactory::Add(const std::string& name, Model* model, int hp, float3 pos, const std::wstring& sound3D, unsigned int compFlags, unsigned int aiFlags, double3 dim, float scale, float3 rot, const std::string& aiTarget, float aiDetectionRadius, float aiAttackingDistance, float aiAttackInterval, float aiMeleeAttackDmg)
+Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 {
-	Entity* ent = m_pScene->AddEntity(name);
+	Entity* ent = m_pScene->AddEntity(entityName);
 
 	component::ModelComponent* mc = nullptr;
 	component::TransformComponent* tc = nullptr;
@@ -183,51 +167,50 @@ Entity* EnemyFactory::Add(const std::string& name, Model* model, int hp, float3 
 
 	mc = ent->AddComponent<component::ModelComponent>();
 	tc = ent->AddComponent<component::TransformComponent>();
-	ent->AddComponent<component::HealthComponent>(hp);
+	ent->AddComponent<component::HealthComponent>(comps->hp);
 	ec = ent->AddComponent<component::EnemyComponent>(this);
-	Entity* target = m_pScene->GetEntity(aiTarget);
+	Entity* target = m_pScene->GetEntity(comps->targetName);
 	double3 targetDim = target->GetComponent<component::ModelComponent>()->GetModelDim();
 	float targetScale = target->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().z;
 	if (target != nullptr)
 	{
-		ai = ent->AddComponent<component::AiComponent>(target, aiFlags, aiDetectionRadius, (dim.z * scale * 0.5) + (targetDim.z * targetScale * 0.5) + aiAttackingDistance);
-		ai->SetAttackInterval(aiAttackInterval);
-		ai->SetMeleeAttackDmg(aiMeleeAttackDmg);
+		ai = ent->AddComponent<component::AiComponent>(target, comps->aiFlags, comps->detectionRad, (comps->dim.z * comps->scale * 0.5) + (targetDim.z * targetScale * 0.5) + comps->attackingDist);
+		ai->SetAttackInterval(comps->attackInterval);
+		ai->SetMeleeAttackDmg(comps->meleeAttackDmg);
 		ai->SetScene(m_pScene);
 	}
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
-	ae->AddVoice(sound3D);
+	ae->AddVoice(comps->sound3D);
 
-	mc->SetModel(model);
+	mc->SetModel(comps->model);
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 	Transform* t = tc->GetTransform();
-	t->SetPosition(pos.x, pos.y, pos.z);
-	t->SetScale(scale);
-	t->SetRotationX(rot.x);
-	t->SetRotationY(rot.y);
-	t->SetRotationZ(rot.z);
-	t->SetVelocity(BASE_VEL * 0.5);
+	t->SetPosition(comps->pos.x, comps->pos.y, comps->pos.z);
+	t->SetScale(comps->scale);
+	t->SetRotationX(comps->rot.x);
+	t->SetRotationY(comps->rot.y);
+	t->SetRotationZ(comps->rot.z);
+	t->SetVelocity(comps->movementSpeed * 0.5);
 
 	tc->SetTransformOriginalState();
-
-	if (compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
+	if (comps->compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
 	{
-		cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, dim.z / 2.0, dim.y - dim.z, 0.01, 0.5, false);
+		cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, comps->dim.z / 2.0, comps->dim.y - comps->dim.z, 0.01, 0.5, false);
 	}
-	else if (compFlags & F_COMP_FLAGS::SPHERE_COLLISION)
+	else if (comps->compFlags & F_COMP_FLAGS::SPHERE_COLLISION)
 	{
-		cc = ent->AddComponent<component::SphereCollisionComponent>(1.0, dim.y / 2.0, 1.0, 0.0);
+		cc = ent->AddComponent<component::SphereCollisionComponent>(1.0, comps->dim.y / 2.0, 1.0, 0.0);
 	}
-	else if (compFlags & F_COMP_FLAGS::CUBE_COLLISION)
+	else if (comps->compFlags & F_COMP_FLAGS::CUBE_COLLISION)
 	{
-		cc = ent->AddComponent<component::CubeCollisionComponent>(1.0, dim.x / 2.0, dim.y / 2.0, dim.z / 2.0, 0.01, 0.5, false);
+		cc = ent->AddComponent<component::CubeCollisionComponent>(1.0, comps->dim.x / 2.0, comps->dim.y / 2.0, comps->dim.z / 2.0, 0.01, 0.5, false);
 	}
 	else
 	{
 		cc = ent->AddComponent<component::CubeCollisionComponent>(0.0, 0.0, 0.0, 0.0);
 	}
 
-	if (F_COMP_FLAGS::OBB & compFlags)
+	if (F_COMP_FLAGS::OBB & comps->compFlags)
 	{
 		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 		bbc->Init();
@@ -258,7 +241,7 @@ Entity* EnemyFactory::SpawnEnemy(std::string entityName)
 	return SpawnEnemy(entityName, m_RandGen.Rand(0,m_SpawnPoints.size()));
 }
 
-EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, Model* model, int hp, const std::wstring& sound3D, unsigned int compFlags, unsigned int aiFlags, float scale, float3 rot, const std::string& aiTarget, float aiDetectionRadius, float aiAttackingDistance, float aiAttackInterval, float aiAttackDmg)
+EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, EnemyComps* comps)
 {
 	for (auto pair : m_EnemyComps)
 	{
@@ -274,19 +257,21 @@ EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, Model* mode
 	m_EnemyComps[entityName] = enemy;
 
 	enemy->enemiesOfThisType = 0;
-	enemy->compFlags = compFlags;
-	enemy->aiFlags = aiFlags;
-	enemy->scale = scale;
-	enemy->rot = rot;
-	enemy->model = model;
-	enemy->targetName = aiTarget;
-	enemy->hp = hp;
-	enemy->sound3D = sound3D;
-	enemy->detectionRad = aiDetectionRadius;
-	enemy->attackingDist = aiAttackingDistance;
-	enemy->attackInterval = aiAttackInterval;
-	enemy->meleeAttackDmg = aiAttackDmg;
-	enemy->dim = model->GetModelDim();
+	enemy->compFlags = comps->compFlags;
+	enemy->aiFlags = comps->aiFlags;
+	enemy->scale = comps->scale;
+	enemy->rot = comps->rot;
+	enemy->model = comps->model;
+	enemy->targetName = comps->targetName;
+	enemy->hp = comps->hp;
+	enemy->sound3D = comps->sound3D;
+	enemy->detectionRad = comps->detectionRad;
+	enemy->attackingDist = comps->attackingDist;
+	enemy->attackInterval = comps->attackInterval;
+	enemy->meleeAttackDmg = comps->meleeAttackDmg;
+	enemy->movementSpeed = comps->movementSpeed;
+	enemy->dim = comps->model->GetModelDim();
+
 	return enemy;
 }
 
