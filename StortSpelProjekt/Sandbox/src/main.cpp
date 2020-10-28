@@ -16,15 +16,12 @@ Scene* AntonTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
-void(*UpdateScene)(SceneManager*, double dt);
 void LeoUpdateScene(SceneManager* sm, double dt);
 void TimUpdateScene(SceneManager* sm, double dt);
 void JockeUpdateScene(SceneManager* sm, double dt);
 void FredriksUpdateScene(SceneManager* sm, double dt);
 void AndresUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
-
-void DefaultUpdateScene(SceneManager* sm, double dt);
 
 EnemyFactory enemyFactory;
 
@@ -55,11 +52,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
-    UpdateScene = &DefaultUpdateScene;
-
-    Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* activeScenes[] = { jacobScene };
+    //Scene* jacobScene = JacobsTestScene(sceneManager);
+    //Scene* activeScenes[] = { jacobScene };
     //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* activeScenes[] = { leoScene };
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScenes[] = { timScene };
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -76,8 +72,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScenes[] = { antonScene };
     //Scene* shopScene = ShopScene(sceneManager);
     //Scene* activeScenes[] = { shopScene };
-    //Scene* andresScene = AndresTestScene(sceneManager);
-    //Scene* activeScenes[] = { andresScene };
+    Scene* andresScene = AndresTestScene(sceneManager);
+    Scene* activeScenes[] = { andresScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -98,7 +94,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
-        UpdateScene(sceneManager, timer->GetDeltaTime());
 
         timer->Update();
         logicTimer += timer->GetDeltaTime();
@@ -269,17 +264,17 @@ Scene* LeosTestScene(SceneManager* sm)
     Scene* scene = sm->CreateScene("LeoScene");
 
 #pragma region init
+    component::Audio2DVoiceComponent* avc = nullptr;
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::InputComponent* ic = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* ccc = nullptr;
-    component::Audio2DVoiceComponent* avc = nullptr;
     component::Audio3DListenerComponent* avc2 = nullptr;
     component::HealthComponent* hc = nullptr;
-    component::MeleeComponent* mac = nullptr;
-    component::RangeComponent* rc = nullptr;
+    component::MeleeComponent* melc = nullptr;
+    component::RangeComponent* ranc = nullptr;
     component::UpgradeComponent* uc = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
@@ -292,6 +287,7 @@ Scene* LeosTestScene(SceneManager* sm)
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
     Model* zombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
+
 #pragma endregion
  
 #pragma region entities
@@ -307,8 +303,8 @@ Scene* LeosTestScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     avc2 = entity->AddComponent<component::Audio3DListenerComponent>();
-    mac = entity->AddComponent<component::MeleeComponent>();
-    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    melc = entity->AddComponent<component::MeleeComponent>();
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
     uc = entity->AddComponent<component::UpgradeComponent>();
 
 
@@ -340,6 +336,12 @@ Scene* LeosTestScene(SceneManager* sm)
         entity = enemyFactory.SpawnEnemy("enemyZombie");
     }
 
+    Log::Print("Zombie 16 HP: %d\n", scene->GetEntity("enemyZombie16")->GetComponent<component::HealthComponent>()->GetMaxHealth());
+
+    enemyFactory.SetEnemyTypeMaxHealth("enemyZombie", 50);
+
+    Log::Print("Zombie 16 HP: %d\n", scene->GetEntity("enemyZombie16")->GetComponent<component::HealthComponent>()->GetMaxHealth());
+
 #pragma endregion
 
 #pragma endregion
@@ -347,7 +349,7 @@ Scene* LeosTestScene(SceneManager* sm)
     
 
     /* ---------------------- Update Function ---------------------- */    
-    UpdateScene = &LeoUpdateScene;
+    scene->SetUpdateScene(&LeoUpdateScene);
 
     srand(time(NULL));
 
@@ -427,7 +429,7 @@ Scene* AntonTestScene(SceneManager* sm)
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
-    UpdateScene = &TimUpdateScene;
+    scene->SetUpdateScene(&TimUpdateScene);
 
     return scene;
 }
@@ -572,7 +574,7 @@ Scene* TimScene(SceneManager* sm)
     dlc->SetColor({ 0.5f, 0.5f, 0.5f });
     /*--------------------- DirectionalLight ---------------------*/
 
-    UpdateScene = &TimUpdateScene;
+    scene->SetUpdateScene(&TimUpdateScene);
 
     return scene;
 }
@@ -702,7 +704,7 @@ Scene* JockesTestScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &JockeUpdateScene;
+    scene->SetUpdateScene(&JockeUpdateScene);
     return scene;
 }
 
@@ -1074,7 +1076,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 
 	/* ---------------------- Update Function ---------------------- */
-	UpdateScene = &FredriksUpdateScene;
+	scene->SetUpdateScene(&FredriksUpdateScene);
 	srand(time(NULL));
 	/* ---------------------- Update Function ---------------------- */
 
@@ -1421,8 +1423,9 @@ Scene* AndresTestScene(SceneManager* sm)
 
 
     /* ---------------------- Enemy -------------------------------- */
-    EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 7.0f, 0.5f, 10.0f);
+    // Enemyfactory used in the wrong way. 
+    //EnemyFactory enH(scene);
+    //entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 7.0f, 0.5f, 10.0f);
     /* ---------------------- Enemy -------------------------------- */
 
 
@@ -1434,7 +1437,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
 
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &AndresUpdateScene;
+    scene->SetUpdateScene(&AndresUpdateScene);
     srand(time(NULL));
     /* ---------------------- Update Function ---------------------- */
 
@@ -1604,7 +1607,6 @@ Scene* BjornsTestScene(SceneManager* sm)
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ -2.0, -1.0, 0.0f });
     /* ---------------------- Spotlight ---------------------- */
-
     return scene;
 }
 
@@ -1809,7 +1811,7 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &ShopUpdateScene;
+    scene->SetUpdateScene(&ShopUpdateScene);
     return scene;
 }
 
@@ -1855,10 +1857,6 @@ void FredriksUpdateScene(SceneManager* sm, double dt)
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
 	tx->GetTextManager()->UploadAndExecuteTextData("health");*/
-}
-
-void DefaultUpdateScene(SceneManager* sm, double dt)
-{
 }
 
 void AndresUpdateScene(SceneManager* sm, double dt)

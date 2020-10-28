@@ -36,8 +36,8 @@ SceneManager::SceneManager()
 {
 	m_ActiveScenes.reserve(2);
 
-	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityDeath);
 	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityRemove);
+	EventBus::GetInstance().Subscribe(this, &SceneManager::changeSceneNextFrame);
 }
 
 SceneManager& SceneManager::GetInstance()
@@ -52,8 +52,8 @@ SceneManager::~SceneManager()
 
 void SceneManager::EraseSceneManager()
 {
-	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityDeath);
 	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityRemove);
+	EventBus::GetInstance().Unsubscribe(this, &SceneManager::changeSceneNextFrame);
 
 	for (auto pair : m_Scenes)
 	{
@@ -68,7 +68,7 @@ void SceneManager::Update(double dt)
 	// Update scenes
 	for (auto scene : m_ActiveScenes)
 	{
-		scene->Update(dt);
+		scene->Update(this, dt);
 	}
 
 	unsigned int removeSize = m_ToRemove.size() - 1;
@@ -84,7 +84,7 @@ void SceneManager::RenderUpdate(double dt)
 	// Update scenes (Render)
 	for (auto scene : m_ActiveScenes)
 	{
-		scene->RenderUpdate(dt);
+		scene->RenderUpdate(this, dt);
 	}
 
 	// Renderer updates some stuff
@@ -118,6 +118,49 @@ Scene* SceneManager::GetScene(std::string sceneName) const
 	
     Log::PrintSeverity(Log::Severity::CRITICAL, "No Scene with name: \'%s\' was found.\n", sceneName.c_str());
     return nullptr;
+}
+
+void SceneManager::ChangeScene()
+{
+	if (m_ChangeSceneNextFrame)
+	{
+		if (m_ActiveScenes[0]->GetName() == "ShopScene" || m_ActiveScenes[0]->GetName() == "GameScene")
+		{
+			// Reset old scene
+			std::map<std::string, Entity*> entities = *m_ActiveScenes[0]->GetEntities();
+			for (auto pair : entities)
+			{
+				for (Component* comp : *pair.second->GetAllComponents())
+				{
+					comp->Reset();
+				}
+			}
+
+			Scene* scene = m_Scenes[m_SceneToChangeToWhenTeleported];
+
+			// Reset new Scene
+			entities = *scene->GetEntities();
+			for (auto pair : entities)
+			{
+				for (Component* comp : *pair.second->GetAllComponents())
+				{
+					comp->Reset();
+				}
+			}
+
+			// Change the player back to its original position
+			SetScenes(1, &scene);
+			m_ChangeSceneNextFrame = false;
+		}
+		else if (m_ActiveScenes[0]->GetName() == "gameOverScene")
+		{
+			SetScenes(1, &m_pGameOverScene);;
+			m_ChangeSceneNextFrameToDeathScene = false;
+
+			Physics::GetInstance().OnResetScene();
+			EventBus::GetInstance().UnsubscribeAll();
+		}
+	}
 }
 
 void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
@@ -157,6 +200,22 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 {
 	ResetScene();
 
+	// Remove dynamic entities from m_ActiveScenes
+	if (m_ActiveScenes.size() > 0)
+	{
+		Scene* activeScene = m_ActiveScenes[0];
+
+		std::map<std::string, Entity*> entities = *m_ActiveScenes[0]->GetEntities();
+		for (auto pair : entities)
+		{
+			Entity* ent = pair.second;
+			if (ent->IsEntityDynamic() == true)
+			{
+				activeScene->RemoveEntity(ent->GetName());
+			}
+		}
+	}
+
 	// Set the active scenes
 	m_ActiveScenes.clear();
 	
@@ -166,11 +225,14 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
 		for (auto const& [entityName, entity] : entities)
 		{
+			entity->SetEntityState(false);
 			entity->OnInitScene();
 		}
 
 		m_ActiveScenes.push_back(scenes[i]);
 	}
+
+	Physics::GetInstance().SetCollisionEntities(scenes[0]->GetCollisionEntities());
 
 	Renderer* renderer = &Renderer::GetInstance();
 	renderer->prepareScenes(&m_ActiveScenes);
@@ -221,15 +283,13 @@ bool SceneManager::sceneExists(std::string sceneName) const
     return false;
 }
 
-void SceneManager::onEntityDeath(Death* evnt)
-{
-	if (evnt->ent->GetName() == "player")
-	{
-		SetScenes(1, &m_pGameOverScene);
-	}
-}
-
 void SceneManager::onEntityRemove(RemoveMe* evnt)
 {
 	m_ToRemove.push_back({ evnt->ent, m_ActiveScenes[0] });
+}
+
+void SceneManager::changeSceneNextFrame(SceneChange* sceneChangeEvent)
+{
+	m_SceneToChangeToWhenTeleported = sceneChangeEvent->m_NewSceneName;
+	m_ChangeSceneNextFrame = true;
 }

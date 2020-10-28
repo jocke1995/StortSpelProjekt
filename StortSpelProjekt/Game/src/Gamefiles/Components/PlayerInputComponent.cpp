@@ -37,6 +37,10 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_Elevation = std::stof(Option::GetInstance().GetVariable("f_playerElevation"));
 
 	specificUpdate = &PlayerInputComponent::updateDefault;
+	specificUpdates.push_back(&PlayerInputComponent::updateDefault);
+
+	m_UpdateShootId = -1;
+	m_UpdateDashId = -1;
 }
 
 component::PlayerInputComponent::~PlayerInputComponent()
@@ -113,7 +117,11 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 
 	m_DashTimer += dt;
 	m_DashReady = m_DashTimer > 1.5;
-	(this->*specificUpdate)(dt);
+	for (unsigned int i = 0; i < specificUpdates.size(); ++i)
+	{
+		specificUpdate = specificUpdates.at(i);
+		(this->*specificUpdate)(dt);
+	}
 }
 
 void component::PlayerInputComponent::SetJumpHeight(double height)
@@ -126,6 +134,18 @@ void component::PlayerInputComponent::SetJumpTime(double time)
 {
 	m_JumpTime = time;
 	m_Gravity = (-2 * m_JumpHeight) / (m_JumpTime * m_JumpTime);
+}
+
+void component::PlayerInputComponent::Reset()
+{
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::alternativeInput);
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::zoom);
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::rotate);
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::move);
+	if (m_pParent->GetComponent<component::MeleeComponent>() != nullptr)
+	{
+		EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::mouseClick);
+	}
 }
 
 void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
@@ -197,6 +217,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	{
 		double moveRight = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::D)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::A)));
 		double moveForward = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::W)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::S)));
+		bool dash = (evnt->key == SCAN_CODES::E || evnt->key == SCAN_CODES::Q) && evnt->pressed;
 
 		double jump = static_cast<double>(evnt->key == SCAN_CODES::SPACE) * static_cast<double>(evnt->pressed);
 
@@ -221,12 +242,22 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		};
 
 		bool wasDashing = m_Dashing;
-		m_Dashing = m_DashReady && evnt->doubleTap && static_cast<double>(evnt->key != SCAN_CODES::SPACE);
-		if (m_Dashing && Input::GetInstance().GetKeyState(SCAN_CODES::LEFT_SHIFT))
+		m_Dashing = m_DashReady && dash && static_cast<double>(evnt->key != SCAN_CODES::SPACE);
+		if (m_Dashing)
 		{
 			m_DashTimer = 0;
-			vel *= DASH_MOD;
-			specificUpdate = &PlayerInputComponent::updateDash;
+			if (vel == double3({ 0.0, 0.0, 0.0 }))
+			{
+				forward.normalize();
+				vel = { forward.x * BASE_VEL * DASH_MOD, forward.y, forward.z * BASE_VEL * DASH_MOD };
+			}
+			else
+			{
+				vel.normalize();
+				vel *= BASE_VEL * DASH_MOD;
+			}
+			m_UpdateDashId = specificUpdates.size();
+			specificUpdates.push_back(&PlayerInputComponent::updateDash);
 		}
 		else
 		{
@@ -236,7 +267,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	}
 	else if (evnt->key == SCAN_CODES::SPACE && !evnt->pressed)
 	{
- 		specificUpdate = &PlayerInputComponent::updateJump;
+ 		specificUpdates.at(0) = &PlayerInputComponent::updateJump;
 		m_pCC->SetGravity(m_Gravity);
 	}
 
@@ -307,6 +338,14 @@ void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 		break;
 	case MOUSE_BUTTON::RIGHT_DOWN:
 		m_pParent->GetComponent<component::RangeComponent>()->Attack();
+		m_UpdateShootId = specificUpdates.size();
+		specificUpdates.push_back(&PlayerInputComponent::updateShoot);
+		break;
+	case MOUSE_BUTTON::RIGHT_UP:
+		if (m_UpdateShootId != -1)
+		{
+			specificUpdates.erase(specificUpdates.begin() + m_UpdateShootId);
+		}
 		break;
 	}
 }
@@ -330,7 +369,6 @@ void component::PlayerInputComponent::updateDefault(double dt)
 
 void component::PlayerInputComponent::updateDash(double dt)
 {
-	updateDefault(dt);
 	if (m_DashTimer > 0.3 && m_Dashing)
 	{
 		double3 vel = m_pCC->GetLinearVelocity();
@@ -353,12 +391,10 @@ void component::PlayerInputComponent::updateDash(double dt)
 		m_pCC->SetVelVector(vel.x, vel.y, vel.z);
 		m_Dashing = false;
 
-		specificUpdate = &PlayerInputComponent::updateDefault;
-		if (!(m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1))
+		if (m_UpdateDashId != -1)
 		{
-			specificUpdate = &PlayerInputComponent::updateJump;
+			specificUpdates.erase(specificUpdates.begin() + m_UpdateDashId);
 		}
-
 	}
 }
 
@@ -383,6 +419,14 @@ void component::PlayerInputComponent::updateJump(double dt)
 		};
 		m_pCC->SetVelVector(vel.x, vel.y, vel.z);
 
-		specificUpdate = &PlayerInputComponent::updateDefault;
+		specificUpdates.at(0) = &PlayerInputComponent::updateDefault;
+	}
+}
+
+void component::PlayerInputComponent::updateShoot(double dt)
+{
+	if (Input::GetInstance().GetMouseButtonState(MOUSE_BUTTON::RIGHT_DOWN))
+	{
+		m_pParent->GetComponent<component::RangeComponent>()->Attack();
 	}
 }

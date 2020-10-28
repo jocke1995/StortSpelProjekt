@@ -12,6 +12,7 @@ class Scene;
 class Component;
 class Model;
 class Entity;
+struct SceneChange;
 
 enum F_COMP_FLAGS
 {
@@ -76,6 +77,9 @@ public:
 	// Defines an enemy without adding it to the scene.
 	EnemyComps* DefineEnemy(const std::string& entityName, Model* model, int hp, const std::wstring& sound3D, unsigned int compFlags = 0, unsigned int aiFlags = 0, float scale = 1, float3 rot = { 0, 0, 0 }, const std::string& aiTarget = "player", float aiDetectionRadius = 25.0f, float aiAttackingDistance = 3.5f, float aiAttackInterval = 0.5f, float aiMeleeAttackDmg = 10.0f);
 
+	// Sets the max health of all enemies of a specific type
+	void SetEnemyTypeMaxHealth(const std::string& enemyName, int hp);
+
 
 	void AddEnemyToList(Entity* enemy);
 	void RemoveEnemyFromList(Entity* enemy);
@@ -87,6 +91,7 @@ public:
 	void Update(double dt);
 
 private:
+	void onSceneSwitch(SceneChange* evnt);
 	Scene* m_pScene = nullptr;
 	std::map<std::string, EnemyComps*> m_EnemyComps;
 	std::vector<Entity*> m_Enemies;
@@ -97,6 +102,8 @@ private:
 	float m_SpawnCooldown;
 	float m_SpawnTimer;
 	float m_MinimumDistanceToPlayer;
+
+	bool m_IsActive = true;
 };
 
 #endif

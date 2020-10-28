@@ -40,6 +40,8 @@ public:
 	void AddCollisionComponent(component::CollisionComponent* comp);
 	void RemoveCollisionComponent(component::CollisionComponent* comp);
 	
+	void SetCollisionEntities(const std::vector<Entity*>* collisionEntities);
+	const std::vector<Entity*>* GetCollisionEntities() const;
 
 	void OnResetScene();
 
@@ -61,6 +63,7 @@ private:
 	btConstraintSolver* m_pSolver;
 
 	void removeAllCollisionComponents();
+	void removeAllCollisionEntities();
 
 	// Checks collision for all entities in the collison entities vector
 	// publishes an event if a collision has happened
