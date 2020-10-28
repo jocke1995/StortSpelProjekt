@@ -16,6 +16,7 @@ Scene* AntonTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
+void(*UpdateScene)(SceneManager*, double dt);
 void LeoUpdateScene(SceneManager* sm, double dt);
 void TimUpdateScene(SceneManager* sm, double dt);
 void JockeUpdateScene(SceneManager* sm, double dt);
@@ -342,7 +343,7 @@ Scene* LeosTestScene(SceneManager* sm)
     
 
     /* ---------------------- Update Function ---------------------- */    
-    scene->SetUpdateScene(&LeoUpdateScene);
+    UpdateScene = &LeoUpdateScene;
 
     srand(time(NULL));
 
@@ -422,7 +423,7 @@ Scene* AntonTestScene(SceneManager* sm)
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
-    scene->SetUpdateScene(&TimUpdateScene);
+    UpdateScene = &TimUpdateScene;
 
     return scene;
 }
@@ -567,7 +568,7 @@ Scene* TimScene(SceneManager* sm)
     dlc->SetColor({ 0.5f, 0.5f, 0.5f });
     /*--------------------- DirectionalLight ---------------------*/
 
-    scene->SetUpdateScene(&TimUpdateScene);
+    UpdateScene = &TimUpdateScene;
 
     return scene;
 }
@@ -697,7 +698,7 @@ Scene* JockesTestScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Update Function ---------------------- */
-    scene->SetUpdateScene(&JockeUpdateScene);
+    UpdateScene = &JockeUpdateScene;
     return scene;
 }
 
@@ -1430,7 +1431,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
 
     /* ---------------------- Update Function ---------------------- */
-    scene->SetUpdateScene(&AndresUpdateScene);
+    UpdateScene = &AndresUpdateScene;
     srand(time(NULL));
     /* ---------------------- Update Function ---------------------- */
 
@@ -1804,7 +1805,7 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Update Function ---------------------- */
-    scene->SetUpdateScene(&ShopUpdateScene);
+    UpdateScene = &ShopUpdateScene;
     return scene;
 }
 

@@ -1,15 +1,11 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <map>
 #include "Core.h"
-#include "EngineMath.h"
 class Entity;
 class BaseCamera;
 class NavMesh;
-class SceneManager;
-
-#include <map>
-#include <vector>
 
 class Scene
 {
@@ -57,10 +53,6 @@ private:
 	BaseCamera* m_pPrimaryCamera = nullptr;
 
 	NavMesh* m_pNavMesh;
-
-	// Every scene has its own functionpointer to a updateSceneFunction in main
-	void(*m_UpdateScene)(SceneManager*, double dt);
-	float3 m_OriginalPosition = {};
 };
 
 #endif

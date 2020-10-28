@@ -208,8 +208,6 @@ Entity* EnemyFactory::Add(const std::string& name, Model* model, int hp, float3 
 	t->SetRotationZ(rot.z);
 	t->SetVelocity(BASE_VEL * 0.5);
 
-	tc->SetTransformOriginalState();
-
 	if (compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
 	{
 		cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, dim.z / 2.0, dim.y - dim.z, 0.01, 0.5, false);

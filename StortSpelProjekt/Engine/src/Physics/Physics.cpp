@@ -110,20 +110,9 @@ void Physics::RemoveCollisionComponent(component::CollisionComponent* comp)
 	m_pWorld->removeRigidBody(comp->GetBody());
 }
 
-void Physics::SetCollisionEntities(const std::vector<Entity*>* collisionEntities)
-{
-	m_CollisionEntities = *collisionEntities;
-}
-
-const std::vector<Entity*>* Physics::GetCollisionEntities() const
-{
-	return &m_CollisionEntities;
-}
-
 void Physics::OnResetScene()
 {
 	removeAllCollisionComponents();
-	removeAllCollisionEntities();
 }
 
 const btDynamicsWorld* Physics::GetWorld()
@@ -141,11 +130,6 @@ void Physics::removeAllCollisionComponents()
 	}
 
 	m_CollisionComponents.clear();
-}
-
-void Physics::removeAllCollisionEntities()
-{
-	m_CollisionEntities.clear();
 }
 
 void Physics::collisionChecks(double dt)
