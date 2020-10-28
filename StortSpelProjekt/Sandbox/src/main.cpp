@@ -16,15 +16,12 @@ Scene* AntonTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
-void(*UpdateScene)(SceneManager*, double dt);
 void LeoUpdateScene(SceneManager* sm, double dt);
 void TimUpdateScene(SceneManager* sm, double dt);
 void JockeUpdateScene(SceneManager* sm, double dt);
 void FredriksUpdateScene(SceneManager* sm, double dt);
 void AndresUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
-
-void DefaultUpdateScene(SceneManager* sm, double dt);
 
 EnemyFactory enemyFactory;
 
@@ -55,11 +52,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
-    UpdateScene = &DefaultUpdateScene;
-
-    Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* activeScenes[] = { jacobScene };
+    //Scene* jacobScene = JacobsTestScene(sceneManager);
+    //Scene* activeScenes[] = { jacobScene };
     //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* activeScenes[] = { leoScene };
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScenes[] = { timScene };
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -76,8 +72,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScenes[] = { antonScene };
     //Scene* shopScene = ShopScene(sceneManager);
     //Scene* activeScenes[] = { shopScene };
-    //Scene* andresScene = AndresTestScene(sceneManager);
-    //Scene* activeScenes[] = { andresScene };
+    Scene* andresScene = AndresTestScene(sceneManager);
+    Scene* activeScenes[] = { andresScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -98,7 +94,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
-        UpdateScene(sceneManager, timer->GetDeltaTime());
 
         timer->Update();
         logicTimer += timer->GetDeltaTime();
@@ -347,7 +342,7 @@ Scene* LeosTestScene(SceneManager* sm)
     
 
     /* ---------------------- Update Function ---------------------- */    
-    UpdateScene = &LeoUpdateScene;
+    scene->SetUpdateScene(&LeoUpdateScene);
 
     srand(time(NULL));
 
@@ -427,7 +422,7 @@ Scene* AntonTestScene(SceneManager* sm)
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
-    UpdateScene = &TimUpdateScene;
+    scene->SetUpdateScene(&TimUpdateScene);
 
     return scene;
 }
@@ -572,7 +567,7 @@ Scene* TimScene(SceneManager* sm)
     dlc->SetColor({ 0.5f, 0.5f, 0.5f });
     /*--------------------- DirectionalLight ---------------------*/
 
-    UpdateScene = &TimUpdateScene;
+    scene->SetUpdateScene(&TimUpdateScene);
 
     return scene;
 }
@@ -702,7 +697,7 @@ Scene* JockesTestScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &JockeUpdateScene;
+    scene->SetUpdateScene(&JockeUpdateScene);
     return scene;
 }
 
@@ -1074,7 +1069,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 
 	/* ---------------------- Update Function ---------------------- */
-	UpdateScene = &FredriksUpdateScene;
+	scene->SetUpdateScene(&FredriksUpdateScene);
 	srand(time(NULL));
 	/* ---------------------- Update Function ---------------------- */
 
@@ -1421,8 +1416,9 @@ Scene* AndresTestScene(SceneManager* sm)
 
 
     /* ---------------------- Enemy -------------------------------- */
-    EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 7.0f, 0.5f, 10.0f);
+    // Enemyfactory used in the wrong way. 
+    //EnemyFactory enH(scene);
+    //entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 7.0f, 0.5f, 10.0f);
     /* ---------------------- Enemy -------------------------------- */
 
 
@@ -1434,7 +1430,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
 
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &AndresUpdateScene;
+    scene->SetUpdateScene(&AndresUpdateScene);
     srand(time(NULL));
     /* ---------------------- Update Function ---------------------- */
 
@@ -1604,7 +1600,6 @@ Scene* BjornsTestScene(SceneManager* sm)
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ -2.0, -1.0, 0.0f });
     /* ---------------------- Spotlight ---------------------- */
-
     return scene;
 }
 
@@ -1809,7 +1804,7 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Update Function ---------------------- */
-    UpdateScene = &ShopUpdateScene;
+    scene->SetUpdateScene(&ShopUpdateScene);
     return scene;
 }
 
@@ -1855,10 +1850,6 @@ void FredriksUpdateScene(SceneManager* sm, double dt)
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
 	tx->GetTextManager()->UploadAndExecuteTextData("health");*/
-}
-
-void DefaultUpdateScene(SceneManager* sm, double dt)
-{
 }
 
 void AndresUpdateScene(SceneManager* sm, double dt)
