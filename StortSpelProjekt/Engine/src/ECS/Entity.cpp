@@ -89,3 +89,13 @@ std::vector<Component*>* Entity::GetAllComponents()
 {
 	return &m_Components;
 }
+
+void Entity::SetEntityState(bool dynamic)
+{
+	m_Dynamic = dynamic;
+}
+
+bool Entity::IsEntityDynamic() const
+{
+	return m_Dynamic;
+}

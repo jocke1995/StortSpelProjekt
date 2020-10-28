@@ -190,6 +190,22 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 {
 	ResetScene();
 
+	// Remove dynamic entities from m_ActiveScenes
+	if (m_ActiveScenes.size() > 0)
+	{
+		Scene* activeScene = m_ActiveScenes[0];
+
+		std::map<std::string, Entity*> entities = *m_ActiveScenes[0]->GetEntities();
+		for (auto pair : entities)
+		{
+			Entity* ent = pair.second;
+			if (ent->IsEntityDynamic() == true)
+			{
+				activeScene->RemoveEntity(ent->GetName());
+			}
+		}
+	}
+
 	// Set the active scenes
 	m_ActiveScenes.clear();
 	
@@ -199,6 +215,7 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
 		for (auto const& [entityName, entity] : entities)
 		{
+			entity->SetEntityState(false);
 			entity->OnInitScene();
 		}
 
