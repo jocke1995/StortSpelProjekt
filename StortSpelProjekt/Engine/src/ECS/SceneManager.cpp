@@ -70,7 +70,7 @@ void SceneManager::Update(double dt)
 	// Update scenes
 	for (auto scene : m_ActiveScenes)
 	{
-		scene->Update(dt);
+		scene->Update(this, dt);
 	}
 
 	unsigned int removeSize = m_ToRemove.size() - 1;
@@ -86,7 +86,7 @@ void SceneManager::RenderUpdate(double dt)
 	// Update scenes (Render)
 	for (auto scene : m_ActiveScenes)
 	{
-		scene->RenderUpdate(dt);
+		scene->RenderUpdate(this, dt);
 	}
 
 	// Renderer updates some stuff

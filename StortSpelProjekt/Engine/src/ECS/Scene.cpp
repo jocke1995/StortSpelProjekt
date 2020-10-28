@@ -129,7 +129,7 @@ NavMesh* Scene::GetNavMesh()
     return m_pNavMesh;
 }
 
-void Scene::RenderUpdate(double dt)
+void Scene::SetUpdateScene(void(*UpdateScene)(SceneManager*, double dt))
 {
     m_UpdateScene = UpdateScene;
 }
@@ -145,7 +145,7 @@ void Scene::RenderUpdate(SceneManager* sm, double dt)
     }
 }
 
-void Scene::Update(double dt)
+void Scene::SetCollisionEntities(const std::vector<Entity*>* collisionEntities)
 {
     m_CollisionEntities = *collisionEntities;
 }

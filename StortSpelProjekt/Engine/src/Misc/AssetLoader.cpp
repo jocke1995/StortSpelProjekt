@@ -711,6 +711,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					tc->GetTransform()->SetRotationZ(rot.z);
 					tc->GetTransform()->SetScale(scaling.x, scaling.y, scaling.z);
 					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+
+					tc->SetTransformOriginalState();
 				}
 				else if (strcmp(toSubmit.c_str(), "PointLight") == 0)
 				{

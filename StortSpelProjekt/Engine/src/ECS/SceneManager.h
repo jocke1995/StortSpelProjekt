@@ -42,19 +42,10 @@ public:
 	void RemoveEntity(Entity* entity, Scene* scene);
 	void AddEntity(Entity* entity, Scene* scene);
 
-
-
 private:
 	SceneManager();
 	std::map<std::string, Scene*> m_Scenes;
 	std::vector<Scene*> m_ActiveScenes;
-	std::set<Scene*> m_LoadedScenes;
-	struct EntityScene
-	{
-		Entity* ent;
-		Scene* scene;
-	};
-	std::vector<EntityScene> m_ToRemove;
 
 	struct EntityScene
 	{
@@ -71,7 +62,9 @@ private:
 	void onEntityDeath(Death* evnt);
 	void onEntityRemove(RemoveMe* evnt);
 
-	void onEntityRemove(RemoveMe* evnt);
+	std::string m_SceneToChangeToWhenTeleported = "";
+	bool m_ChangeSceneNextFrame = false;
+	void changeSceneNextFrame(SceneChange* sceneChangeEvent);
 };
 
 #endif
