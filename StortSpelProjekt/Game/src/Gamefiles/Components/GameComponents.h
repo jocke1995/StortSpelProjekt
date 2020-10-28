@@ -8,5 +8,6 @@
 #include "HealthComponent.h"
 #include "RangeComponent.h"
 #include "CurrencyComponent.h"
+#include "TeleportComponent.h"
 
 #endif // !GAMECOMPONENTS_H
