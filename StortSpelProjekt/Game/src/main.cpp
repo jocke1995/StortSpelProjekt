@@ -113,7 +113,7 @@ Scene* GameScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");    
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");    
     Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
@@ -172,7 +172,7 @@ Scene* GameScene(SceneManager* sm)
 
     Player::GetInstance().SetPlayer(entity);
 
-    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetScale(0.9f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
     tc->SetTransformOriginalState();
 
@@ -302,7 +302,7 @@ Scene* ShopScene(SceneManager* sm)
     // Get the models needed
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
@@ -324,7 +324,7 @@ Scene* ShopScene(SceneManager* sm)
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(0.5f);
+    tc->GetTransform()->SetScale(0.9f);
     tc->GetTransform()->SetPosition(0.0, 20.0, 0.0);
     tc->SetTransformOriginalState();
 
