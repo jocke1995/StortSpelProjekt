@@ -27,12 +27,12 @@ std::string Upgrade::GetName() const
 	return m_Name;
 }
 
-void Upgrade::SetImage(std::string imageName)
+void Upgrade::SetImage(std::string* imageName)
 { 
-	m_ImageName = imageName;
+	m_ImageName = *imageName;
 }
 
-std::string Upgrade::GetImage()
+std::string Upgrade::GetImage() const
 {
 	return m_ImageName;
 }

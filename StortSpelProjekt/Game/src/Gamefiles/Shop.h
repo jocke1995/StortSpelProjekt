@@ -43,7 +43,7 @@ public:
 	// Get player currency balance
 	int GetPlayerBalance();
 	// Get upgrade image
-	Texture* GetUpgradeImage(std::string name);
+	Texture* GetUpgradeImage(std::string* name);
 
 
 private:

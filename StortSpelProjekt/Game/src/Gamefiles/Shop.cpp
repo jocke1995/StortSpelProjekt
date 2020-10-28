@@ -137,7 +137,7 @@ void Shop::RandomizeInventory()
 		gui = entity->AddComponent<component::GUI2DComponent>();
 		quadPos = { 0.01f, 0.15f * (i + 1) + 0.099f };
 		quadScale = { 0.09f, 0.09f };
-		Texture* shopImage = GetUpgradeImage(GetInventoryNames().at(i));
+		Texture* shopImage = GetUpgradeImage(&GetInventoryNames().at(i));
 		gui->GetQuadManager()->CreateQuad(
 			"upgradebutton" + std::to_string(i),
 			quadPos, quadScale,
@@ -218,9 +218,9 @@ int Shop::GetPlayerBalance()
 	return m_pPlayer->GetComponent<component::CurrencyComponent>()->GetBalace();
 }
 
-Texture* Shop::GetUpgradeImage(std::string name)
+Texture* Shop::GetUpgradeImage(std::string* name)
 {
-	return AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Upgrades/" + to_wstring(m_AllAvailableUpgrades[name]->GetImage()));
+	return AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Upgrades/" + to_wstring(m_AllAvailableUpgrades[*name]->GetImage()));
 }
 
 void Shop::upgradePressed(ButtonPressed* evnt)

@@ -24,8 +24,8 @@ public:
 	// setters and getters for private member variables
 	void SetName(std::string name);
 	std::string GetName() const;
-	void SetImage(std::string imageName);
-	std::string GetImage();
+	void SetImage(std::string* imageName);
+	std::string GetImage() const;
 	int GetLevel() const;
 	int GetMaxLevel() const;
 	void SetType(unsigned int type);
