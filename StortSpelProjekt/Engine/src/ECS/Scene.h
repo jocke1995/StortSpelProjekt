@@ -27,7 +27,7 @@ public:
 	void SetPrimaryCamera(BaseCamera* primaryCamera);
 
 	Entity* GetEntity(std::string entityName);
-	const std::map<std::string, Entity*> *GetEntities() const;
+	const std::map<std::string, Entity*>* GetEntities() const;
 	bool EntityExists(std::string entityName) const;
 
 	unsigned int GetNrOfEntites() const;
@@ -40,7 +40,7 @@ public:
 
 	void Update(SceneManager* sm, double dt);
 	void RenderUpdate(SceneManager* sm, double dt);
-	
+
 	void SetCollisionEntities(const std::vector<Entity*>* collisionEntities);
 	const std::vector<Entity*>* GetCollisionEntities() const;
 

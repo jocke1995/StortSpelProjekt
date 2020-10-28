@@ -16,6 +16,7 @@ Scene* AntonTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
+void(*UpdateScene)(SceneManager*, double dt);
 void LeoUpdateScene(SceneManager* sm, double dt);
 void TimUpdateScene(SceneManager* sm, double dt);
 void JockeUpdateScene(SceneManager* sm, double dt);
@@ -52,11 +53,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 
     /*------ AssetLoader to load models / textures ------*/
+    AssetLoader* al = AssetLoader::Get();
 
-    //Scene* jacobScene = JacobsTestScene(sceneManager);
-    //Scene* activeScenes[] = { jacobScene };
-    Scene* leoScene = LeosTestScene(sceneManager);
-    Scene* activeScenes[] = { leoScene };
+    UpdateScene = &DefaultUpdateScene;
+
+    Scene* jacobScene = JacobsTestScene(sceneManager);
+    Scene* activeScenes[] = { jacobScene };
+    //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScenes[] = { timScene };
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -94,6 +97,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     while (!window->ExitWindow())
     {
+        /* ------ Update ------ */
+        UpdateScene(sceneManager, timer->GetDeltaTime());
+
         timer->Update();
         logicTimer += timer->GetDeltaTime();
         if (gameNetwork.IsConnected())
@@ -162,6 +168,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
+    component::CurrencyComponent* currc = nullptr;
 
     scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
@@ -182,6 +189,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    currc = entity->AddComponent<component::CurrencyComponent>();
 
     Transform* t = tc->GetTransform();
 
@@ -251,8 +259,6 @@ Scene* JacobsTestScene(SceneManager* sm)
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
     dlc->SetDirection({ 1.0f, -1.0f, -1.0f });
     dlc->SetColor({ 0.5f, 0.5f, 0.5f });
-
-    scene->SetUpdateScene(&DefaultUpdateScene);
 
     return scene;
 }
@@ -341,7 +347,7 @@ Scene* LeosTestScene(SceneManager* sm)
     
 
     /* ---------------------- Update Function ---------------------- */    
-    scene->SetUpdateScene(&LeoUpdateScene);
+    UpdateScene = &LeoUpdateScene;
 
     srand(time(NULL));
 
@@ -421,7 +427,7 @@ Scene* AntonTestScene(SceneManager* sm)
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
-    scene->SetUpdateScene(&TimUpdateScene);
+    UpdateScene = &TimUpdateScene;
 
     return scene;
 }
@@ -566,7 +572,7 @@ Scene* TimScene(SceneManager* sm)
     dlc->SetColor({ 0.5f, 0.5f, 0.5f });
     /*--------------------- DirectionalLight ---------------------*/
 
-    scene->SetUpdateScene(&TimUpdateScene);
+    UpdateScene = &TimUpdateScene;
 
     return scene;
 }
@@ -696,7 +702,7 @@ Scene* JockesTestScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Update Function ---------------------- */
-    scene->SetUpdateScene(&JockeUpdateScene);
+    UpdateScene = &JockeUpdateScene;
     return scene;
 }
 
@@ -792,8 +798,6 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
     /* ---------------------- The Sun ---------------------- */
-
-    scene->SetUpdateScene(&DefaultUpdateScene);
 
     return scene;
 }
@@ -1070,7 +1074,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 
 	/* ---------------------- Update Function ---------------------- */
-    scene->SetUpdateScene(&FredriksUpdateScene);
+	UpdateScene = &FredriksUpdateScene;
 	srand(time(NULL));
 	/* ---------------------- Update Function ---------------------- */
 
@@ -1226,8 +1230,6 @@ Scene* WilliamsTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
-
-    scene->SetUpdateScene(&DefaultUpdateScene);
 
     return scene;
 }
@@ -1432,7 +1434,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
 
     /* ---------------------- Update Function ---------------------- */
-    scene->SetUpdateScene(&AndresUpdateScene);
+    UpdateScene = &AndresUpdateScene;
     srand(time(NULL));
     /* ---------------------- Update Function ---------------------- */
 
@@ -1602,8 +1604,6 @@ Scene* BjornsTestScene(SceneManager* sm)
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ -2.0, -1.0, 0.0f });
     /* ---------------------- Spotlight ---------------------- */
-
-    scene->SetUpdateScene(&DefaultUpdateScene);
 
     return scene;
 }
@@ -1809,7 +1809,7 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Update Function ---------------------- */
-    scene->SetUpdateScene(&ShopUpdateScene);
+    UpdateScene = &ShopUpdateScene;
     return scene;
 }
 

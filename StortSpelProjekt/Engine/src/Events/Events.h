@@ -1,7 +1,6 @@
 #pragma once
 #include "../Input/Input.h"
 #include "../ECS/Scene.h"
-#include <string>
 
 class Entity;
 class Event
@@ -81,6 +80,12 @@ struct Death : public Event
 	Entity* ent;
 };
 
+struct RemoveMe : public Event
+{
+	RemoveMe(Entity* ent) : ent(ent) {};
+	Entity* ent;
+};
+
 struct WindowChange : public Event
 {
 	WindowChange() {};
@@ -100,8 +105,8 @@ struct ButtonPressed : public Event
 struct SceneChange : public Event
 {
 	SceneChange(std::string newSceneName)
-	:m_NewSceneName(newSceneName)
+		:m_NewSceneName(newSceneName)
 	{};
 
-	std::string m_NewSceneName = "";
+	std::string m_NewSceneName;
 };

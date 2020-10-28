@@ -5,10 +5,18 @@
 #include "../Misc/NavMesh.h"
 
 #include "../Renderer/Camera/BaseCamera.h"
+
+void DefaultUpdateScene(SceneManager* sm, double dt)
+{
+
+}
+
 Scene::Scene(std::string sceneName)
 {
     m_SceneName = sceneName;
     m_pNavMesh = nullptr;
+
+    m_UpdateScene = &DefaultUpdateScene;
 }
 
 Scene::~Scene()
@@ -98,7 +106,7 @@ Entity* Scene::GetEntity(std::string entityName)
 
 const std::map<std::string, Entity*>* Scene::GetEntities() const
 {
-	return &m_EntitiesToKeep;
+    return &m_EntitiesToKeep;
 }
 
 unsigned int Scene::GetNrOfEntites() const
@@ -108,7 +116,7 @@ unsigned int Scene::GetNrOfEntites() const
 
 BaseCamera* Scene::GetMainCamera() const
 {
-	return m_pPrimaryCamera;
+    return m_pPrimaryCamera;
 }
 
 std::string Scene::GetName() const
@@ -165,6 +173,6 @@ bool Scene::EntityExists(std::string entityName) const
             return true;
         }
     }
-    
+
     return false;
 }

@@ -2,7 +2,6 @@
 #include "SceneManager.h"
 
 #include "../Misc/AssetLoader.h"
-#include "../Events/EventBus.h"
 
 #include "../Renderer/Renderer.h"
 #include "../Physics/Physics.h"
@@ -38,7 +37,7 @@ SceneManager::SceneManager()
 	m_ActiveScenes.reserve(2);
 
 	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityDeath);
-
+	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityRemove);
 	EventBus::GetInstance().Subscribe(this, &SceneManager::changeSceneNextFrame);
 }
 
@@ -50,20 +49,20 @@ SceneManager& SceneManager::GetInstance()
 
 SceneManager::~SceneManager()
 {
-	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityDeath);
-
 }
 
 void SceneManager::EraseSceneManager()
 {
+	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityDeath);
+	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityRemove);
+	EventBus::GetInstance().Unsubscribe(this, &SceneManager::changeSceneNextFrame);
+
 	for (auto pair : m_Scenes)
 	{
-		// delete Scenes
 		delete pair.second;
 	}
 
-    m_Scenes.clear();
-	EventBus::GetInstance().Unsubscribe(this, &SceneManager::changeSceneNextFrame);
+	m_Scenes.clear();
 }
 
 void SceneManager::Update(double dt)
@@ -73,6 +72,13 @@ void SceneManager::Update(double dt)
 	{
 		scene->Update(this, dt);
 	}
+
+	unsigned int removeSize = m_ToRemove.size() - 1;
+	for (int i = removeSize; i >= 0; --i)
+	{
+		RemoveEntity(m_ToRemove[i].ent, m_ToRemove[i].scene);
+	}
+	m_ToRemove.clear();
 }
 
 void SceneManager::RenderUpdate(double dt)
@@ -97,7 +103,6 @@ Scene* SceneManager::CreateScene(std::string sceneName)
 
     // Create Scene and return it
     m_Scenes[sceneName] = new Scene(sceneName);
-
     return m_Scenes[sceneName];
 }
 
@@ -136,7 +141,7 @@ void SceneManager::ChangeSceneIfTeleported()
 
 			Scene* scene = m_Scenes[m_SceneToChangeToWhenTeleported];
 
-			// ResetScene
+			// Reset new Scene
 			entities = *scene->GetEntities();
 			for (auto pair : entities)
 			{
@@ -221,7 +226,7 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 
 		m_ActiveScenes.push_back(scenes[i]);
 	}
-	// TODO: Currently only works for 1 scene. (1 scene active at a given time)
+
 	Physics::GetInstance().SetCollisionEntities(scenes[0]->GetCollisionEntities());
 
 	Renderer* renderer = &Renderer::GetInstance();
@@ -259,12 +264,6 @@ void SceneManager::ResetScene()
 	/* ------------------------- Audio -------------------------*/
 }
 
-void SceneManager::changeSceneNextFrame(SceneChange* sceneChangeEvent)
-{
-	m_SceneToChangeToWhenTeleported = sceneChangeEvent->m_NewSceneName;
-	m_ChangeSceneNextFrame = true;
-}
-
 bool SceneManager::sceneExists(std::string sceneName) const
 {
     for (auto pair : m_Scenes)
@@ -285,5 +284,15 @@ void SceneManager::onEntityDeath(Death* evnt)
 	{
 		SetScenes(1, &m_pGameOverScene);
 	}
-	// TODO: Other entity deaths here
+}
+
+void SceneManager::onEntityRemove(RemoveMe* evnt)
+{
+	m_ToRemove.push_back({ evnt->ent, m_ActiveScenes[0] });
+}
+
+void SceneManager::changeSceneNextFrame(SceneChange* sceneChangeEvent)
+{
+	m_SceneToChangeToWhenTeleported = sceneChangeEvent->m_NewSceneName;
+	m_ChangeSceneNextFrame = true;
 }

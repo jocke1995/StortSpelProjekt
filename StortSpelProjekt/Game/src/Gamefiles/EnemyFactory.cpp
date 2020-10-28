@@ -2,15 +2,25 @@
 #include "ECS/Scene.h"
 #include "Engine.h"
 #include "Components/HealthComponent.h"
+#include "Components/EnemyComponent.h"
 #include "Misc/EngineRand.h"
 EnemyFactory::EnemyFactory()
 {
+	m_MaxEnemies = 20;
+	m_SpawnCooldown = 5;
+	m_MinimumDistanceToPlayer = 100;
+	m_SpawnTimer = 0.0f;
 	m_RandGen.SetSeed(time(NULL));
 }
 
 EnemyFactory::EnemyFactory(Scene* scene)
 {
 	m_pScene = scene;
+	m_MaxEnemies = 20;
+	m_SpawnCooldown = 5;
+	m_MinimumDistanceToPlayer = 1;
+	m_SpawnTimer = 0.0f;
+	m_RandGen.SetSeed(time(NULL));
 }
 
 EnemyFactory::~EnemyFactory()
@@ -160,23 +170,24 @@ Entity* EnemyFactory::Add(const std::string& name, Model* model, int hp, float3 
 {
 	Entity* ent = m_pScene->AddEntity(name);
 
-	m_Enemies.push_back(ent);
-
 	component::ModelComponent* mc = nullptr;
 	component::TransformComponent* tc = nullptr;
 	component::BoundingBoxComponent* bbc = nullptr;
 	component::CollisionComponent* cc = nullptr;
 	component::AiComponent* ai = nullptr;
 	component::Audio3DEmitterComponent* ae = nullptr;
+	component::EnemyComponent* ec = nullptr;
 
 	mc = ent->AddComponent<component::ModelComponent>();
 	tc = ent->AddComponent<component::TransformComponent>();
 	ent->AddComponent<component::HealthComponent>(hp);
-
+	ec = ent->AddComponent<component::EnemyComponent>(this);
 	Entity* target = m_pScene->GetEntity(aiTarget);
+	double3 targetDim = target->GetComponent<component::ModelComponent>()->GetModelDim();
+	float targetScale = target->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().z;
 	if (target != nullptr)
 	{
-		ai = ent->AddComponent<component::AiComponent>(target, aiFlags, aiDetectionRadius, aiAttackingDistance);
+		ai = ent->AddComponent<component::AiComponent>(target, aiFlags, aiDetectionRadius, (dim.z * scale * 0.5) + (targetDim.z * targetScale * 0.5) + aiAttackingDistance);
 		ai->SetAttackInterval(aiAttackInterval);
 		ai->SetMeleeAttackDmg(aiMeleeAttackDmg);
 		ai->SetScene(m_pScene);
@@ -276,3 +287,62 @@ EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, Model* mode
 	return enemy;
 }
 
+void EnemyFactory::AddEnemyToList(Entity* enemy)
+{
+	m_Enemies.push_back(enemy);
+}
+
+void EnemyFactory::RemoveEnemyFromList(Entity* enemy)
+{
+	for (auto enemyInList = m_Enemies.begin(); enemyInList != m_Enemies.end(); ++enemyInList)
+	{
+		if (*enemyInList == enemy)
+		{
+			m_Enemies.erase(enemyInList);
+			return;
+		}
+	}
+	Log::PrintSeverity(Log::Severity::WARNING, "Tried to erase enemy that does not exist!\n");
+}
+
+void EnemyFactory::SetMaxNrOfEnemies(unsigned int val)
+{
+	m_MaxEnemies = val;
+}
+
+void EnemyFactory::SetSpawnCooldown(float val)
+{
+	m_SpawnCooldown = val;
+}
+
+void EnemyFactory::SetMinDistanceFromPlayer(float val)
+{
+	m_MinimumDistanceToPlayer = val;
+}
+
+void EnemyFactory::Update(double dt)
+{
+	m_SpawnTimer += dt;
+	if (m_SpawnCooldown <= m_SpawnTimer)
+	{
+		std::vector<int> eligblePoints;
+		float3 playerPos = m_pScene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform()->GetRenderPositionFloat3();
+		for (int i = 0; i < m_SpawnPoints.size(); i++)
+		{
+			float distToPlayer = (m_SpawnPoints[i] - playerPos).length();
+			if (distToPlayer > m_MinimumDistanceToPlayer)
+			{
+				eligblePoints.push_back(i);
+			}
+		}
+		unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
+
+		unsigned int toSpawn = (m_MaxEnemies - m_Enemies.size()) / 2;
+
+		for (unsigned int i = 0; i < toSpawn; ++i)
+		{
+			SpawnEnemy("enemyZombie", eligblePoints[point]);
+		}
+		m_SpawnTimer = 0.0;
+	}
+}
