@@ -358,6 +358,7 @@ void EnemyFactory::onSceneSwitch(SceneChange* evnt)
 	if (evnt->m_NewSceneName == "ShopScene")
 	{
 		m_IsActive = false;
+		m_Enemies.clear();
 	}
 	else
 	{
