@@ -169,6 +169,7 @@ Scene* GameScene(SceneManager* sm)
     alc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
+    melc->SetDamage(10);
     // range damage should be at least 10 for ranged life steal upgrade to work
     // range velocity should be 50, otherwise range velocity upgrade does not make sense (may be scrapped later)
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.2, 10, 50);
@@ -209,7 +210,7 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ 70, 5, 20 });
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("enemyZombie", enemyModel, 10, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04, { 0.0, 0.0, 0.0 }, "player", 500.0f, 0.5f, 1.0f);
+    enemyFactory.DefineEnemy("enemyZombie", enemyModel, 30, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.04, { 0.0, 0.0, 0.0 }, "player", 500.0f, 0.5f, 1.0f);
 #pragma endregion
     UpdateScene = &GameUpdateScene;
 
