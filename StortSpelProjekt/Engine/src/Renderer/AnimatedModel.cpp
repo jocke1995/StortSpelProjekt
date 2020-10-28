@@ -85,14 +85,22 @@ void AnimatedModel::updateSkeleton(float animationTime, SkeletonNode* node, Dire
 			position = DirectX::XMLoadFloat3(&node->currentStateTransform->position);
 			rotationQ = DirectX::XMLoadFloat4(&node->currentStateTransform->rotationQuaternion);
 			scale = DirectX::XMLoadFloat3(&node->currentStateTransform->scaling);
-			rotationOrigin = { 0.0f,0.0f,0.0f };
-			transform = DirectX::XMMatrixAffineTransformation(scale, rotationOrigin, rotationQ, position);
+			DirectX::XMMATRIX trans = DirectX::XMMatrixTranslationFromVector(position);
+			DirectX::XMMATRIX rot = DirectX::XMMatrixRotationQuaternion(rotationQ);
+			DirectX::XMMATRIX scal = DirectX::XMMatrixScalingFromVector(scale);
+			transform = scal * rot * trans;
+
+			//rotationOrigin = { 0.0f,0.0f,0.0f };
+			//transform = DirectX::XMMatrixAffineTransformation(scale, rotationOrigin, rotationQ, position);
 		}
-		transform = parentTransform * transform;
+		transform = transform * parentTransform;
 
 		DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&m_GlobalInverseTransform);
 		DirectX::XMMATRIX inverseBindPose = DirectX::XMLoadFloat4x4(&node->inverseBindPose);
-		m_UploadMatrices[node->boneID] = globalInverse * transform;// *inverseBindPose;
+
+		m_UploadMatrices[node->boneID] = transform * inverseBindPose * globalInverse;// *transform; //globalInverse * 
+		m_UploadMatrices[node->boneID] = DirectX::XMMatrixTranspose(m_UploadMatrices[node->boneID]);
+
 		DirectX::XMStoreFloat4x4(&node->modelSpaceTransform, m_UploadMatrices[node->boneID]);
 	}
 	else

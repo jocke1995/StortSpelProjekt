@@ -78,8 +78,8 @@ Vertex AnimateVertex(Vertex vertex, VertexWeight vertexWeight)
 	animationTransform += animationMatrices.matrices[vertexWeight.boneIDs[8]] * vertexWeight.weights[8];
 	animationTransform += animationMatrices.matrices[vertexWeight.boneIDs[9]] * vertexWeight.weights[9];
 	
-	float4 animatedPosition = mul(animationTransform, float4(vertex.pos, 1.0f));
-	float4 animatedNormal = mul(animationTransform, float4(vertex.norm, 0.0f));
+	float4 animatedPosition = mul(float4(vertex.pos, 1.0f), animationTransform);
+	float4 animatedNormal = mul(float4(vertex.norm, 0.0f), animationTransform);
 	animatedVertex.pos = animatedPosition.xyz;
 	animatedVertex.norm = animatedNormal.xyz;
 

@@ -162,6 +162,7 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	// Else load the model
 	const std::string filePath(path.begin(), path.end());
 	Assimp::Importer importer;
+	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 
 	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes);
 
@@ -1139,7 +1140,7 @@ SkeletonNode* AssetLoader::processAnimatedModel(std::map<std::string, BoneInfo>*
 {
 	SkeletonNode* currentNode = new SkeletonNode();
 	currentNode->name = assimpNode->mName.C_Str();
-
+	
 	// Store the default transform
 	currentNode->defaultTransform = aiMatrix4x4ToXMFloat4x4(&assimpNode->mTransformation);
 
@@ -1182,6 +1183,7 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo>* boneCoun
 	{
 		aiBone* assimpBone = assimpMesh->mBones[i];
 		std::string boneName = assimpBone->mName.C_Str();
+
 		// Give each bone an ID. If we already gave it an ID we don't want to change it. Also store the offset matrix.
 		// This information is later stored in the SkeletonNode.
 		if (boneCounter->find(boneName) == boneCounter->end())
@@ -1243,7 +1245,7 @@ void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, B
 	// Set the currentStateTransform pointer. This would look nicer if we didn't need the animation to do it
 	if (animation->currentState.find(node->name) != animation->currentState.end())
 	{
-		node->currentStateTransform = &animation->currentState[node->name].transform;
+		node->currentStateTransform = &animation->currentState[node->name];
 	}
 	else
 	{
@@ -1466,31 +1468,45 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 			// Store all the keyframes (transform data) belonging to this nodeAnimation (bone)
 			for (unsigned int k = 0; k < assimpNodeAnimation->mNumPositionKeys; k++)
 			{
-				Keyframe key;
+				TranslationKey key;
 
 				key.time = assimpNodeAnimation->mPositionKeys[k].mTime;
 
-				key.transform.position = DirectX::XMFLOAT3(
+				key.position = DirectX::XMFLOAT3(
 					assimpNodeAnimation->mPositionKeys[k].mValue.x,
 					assimpNodeAnimation->mPositionKeys[k].mValue.y,
 					assimpNodeAnimation->mPositionKeys[k].mValue.z);
 
-				DirectX::XMVECTOR rotVec = {
+				animation->translationKeyframes[nodeName].push_back(key);
+			}
+
+			for (unsigned int k = 0; k < assimpNodeAnimation->mNumRotationKeys; k++)
+			{
+				RotationKey key;
+
+				key.time = assimpNodeAnimation->mRotationKeys[k].mTime;
+
+				key.rotationQuaternion = {
 					assimpNodeAnimation->mRotationKeys[k].mValue.x,
 					assimpNodeAnimation->mRotationKeys[k].mValue.y,
 					assimpNodeAnimation->mRotationKeys[k].mValue.z,
 					assimpNodeAnimation->mRotationKeys[k].mValue.w};
 
-				//DirectX::XMQuaternionInverse(rotVec);
+				animation->rotationKeyframes[nodeName].push_back(key);
+			}
 
-				DirectX::XMStoreFloat4(&key.transform.rotationQuaternion, rotVec);
+			for (unsigned int k = 0; k < assimpNodeAnimation->mNumScalingKeys; k++)
+			{
+				ScalingKey key;
 
-				key.transform.scaling = DirectX::XMFLOAT3(
+				key.time = assimpNodeAnimation->mScalingKeys[k].mTime;
+
+				key.scaling = DirectX::XMFLOAT3(
 					assimpNodeAnimation->mScalingKeys[k].mValue.x,
 					assimpNodeAnimation->mScalingKeys[k].mValue.y,
 					assimpNodeAnimation->mScalingKeys[k].mValue.z);
 
-				animation->nodeAnimationKeyframes[nodeName].push_back(key);
+				animation->scalingKeyframes[nodeName].push_back(key);
 			}
 		}
 
@@ -1503,6 +1519,16 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 DirectX::XMFLOAT4X4 AssetLoader::aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix)
 {
 	DirectX::XMFLOAT4X4 matrix;
+
+	//aiVector3D pos;
+	//aiQuaternion quat;
+	//aiVector3D scale;
+	//aiMatrix->Decompose(scale, quat, pos);
+	//pos.z *= -1;
+	//quat.x *= -1;
+	//quat.y *= -1;
+	//*aiMatrix = aiMatrix4x4(scale, quat, pos);
+	//*aiMatrix = aiMatrix->Transpose();
 
 	matrix._11 = aiMatrix->a1;
 	matrix._12 = aiMatrix->a2;
