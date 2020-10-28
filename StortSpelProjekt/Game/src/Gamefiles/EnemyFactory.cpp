@@ -164,16 +164,16 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 
 	mc = ent->AddComponent<component::ModelComponent>();
 	tc = ent->AddComponent<component::TransformComponent>();
-	ent->AddComponent<component::HealthComponent>(hp);
+	ent->AddComponent<component::HealthComponent>(comps->hp);
 	ec = ent->AddComponent<component::EnemyComponent>(this);
-	Entity* target = m_pScene->GetEntity(aiTarget);
+	Entity* target = m_pScene->GetEntity(comps->targetName);
 	double3 targetDim = target->GetComponent<component::ModelComponent>()->GetModelDim();
 	float targetScale = target->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().z;
 	if (target != nullptr)
 	{
-		ai = ent->AddComponent<component::AiComponent>(target, aiFlags, aiDetectionRadius, (dim.z * scale * 0.5) + (targetDim.z * targetScale * 0.5) + aiAttackingDistance);
-		ai->SetAttackInterval(aiAttackInterval);
-		ai->SetMeleeAttackDmg(aiMeleeAttackDmg);
+		ai = ent->AddComponent<component::AiComponent>(target, comps->aiFlags, comps->detectionRad, (comps->dim.z * comps->scale * 0.5) + (targetDim.z * targetScale * 0.5) + comps->attackingDist);
+		ai->SetAttackInterval(comps->attackInterval);
+		ai->SetMeleeAttackDmg(comps->meleeAttackDmg);
 		ai->SetScene(m_pScene);
 	}
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();

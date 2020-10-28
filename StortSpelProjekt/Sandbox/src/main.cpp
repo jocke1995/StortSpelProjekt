@@ -57,9 +57,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     UpdateScene = &DefaultUpdateScene;
 
-    Scene* jacobScene = JacobsTestScene(sceneManager);
-    Scene* activeScenes[] = { jacobScene };
+    //Scene* jacobScene = JacobsTestScene(sceneManager);
+    //Scene* activeScenes[] = { jacobScene };
     //Scene* leoScene = LeosTestScene(sceneManager);
+	//Scene* activeScenes[] = { leoScene };
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScenes[] = { timScene };
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -206,7 +207,22 @@ Scene* JacobsTestScene(SceneManager* sm)
 
     enemyFactory.SetScene(scene);
 
-    enemyFactory.AddEnemy("enemyConan", barbModel, 20, float3{ 50.0, 1.0, -10.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 0.0f);
+	EnemyComps conan = {};
+	conan.model = barbModel;
+	conan.hp = 20;
+	conan.sound3D = L"Bruh";
+	conan.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+	conan.aiFlags = 0;
+	conan.meleeAttackDmg = 10.0f;
+	conan.attackInterval = 1.0f;
+	conan.movementSpeed = 30.0f;
+	conan.attackingDist = 0.5f;
+	conan.rot = { 0.0, 0.0, 0.0 };
+	conan.targetName = "player";
+	conan.scale = 0.3;
+	conan.detectionRad = 50.0f;
+
+    enemyFactory.AddEnemy("enemyConan", &conan);
     enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 0.0 });
     enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 10.0 });
     enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 20.0 });
@@ -329,11 +345,26 @@ Scene* LeosTestScene(SceneManager* sm)
 #pragma endregion
 
 #pragma region enemies
+	EnemyComps zombie = {};
+	zombie.model = zombieModel;
+	zombie.hp = 10;
+	zombie.sound3D = L"Bruh";
+	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+	zombie.aiFlags = 0;
+	zombie.meleeAttackDmg = 10.0f;
+	zombie.attackInterval = 1.0f;
+	zombie.movementSpeed = 30.0f;
+	zombie.attackingDist = 0.5f;
+	zombie.rot = { 0.0, 0.0, 0.0 };
+	zombie.targetName = "player";
+	zombie.scale = 0.04;
+	zombie.detectionRad = 50.0f;
+
     enemyFactory.SetScene(scene);
 
     enemyFactory.AddSpawnPoint({ -10.0, 10.0, 340.0 });
     enemyFactory.AddSpawnPoint({ -340.0, 10.0, 340.0 });
-    enemyFactory.DefineEnemy("enemyZombie", zombieModel, 20, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
+    enemyFactory.DefineEnemy("enemyZombie", &zombie);
 
     for (int i = 0; i < 75; i++)
     {
@@ -1422,7 +1453,23 @@ Scene* AndresTestScene(SceneManager* sm)
 
     /* ---------------------- Enemy -------------------------------- */
     EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 7.0f, 0.5f, 10.0f);
+
+	EnemyComps conan = {};
+	conan.model = enemyModel;
+	conan.hp = 20;
+	conan.sound3D = L"Bruh";
+	conan.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+	conan.aiFlags = 0;
+	conan.meleeAttackDmg = 10.0f;
+	conan.attackInterval = 1.0f;
+	conan.movementSpeed = 30.0f;
+	conan.attackingDist = 0.5f;
+	conan.rot = { 0.0, 0.0, 0.0 };
+	conan.targetName = "player";
+	conan.scale = 0.3;
+	conan.detectionRad = 50.0f;
+
+    entity = enH.AddEnemy("enemy", &conan);
     /* ---------------------- Enemy -------------------------------- */
 
 

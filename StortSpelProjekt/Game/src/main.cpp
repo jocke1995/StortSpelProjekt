@@ -204,27 +204,27 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
-	EnemyComps* zombie = new EnemyComps();
-	zombie->model = enemyModel;
-	zombie->hp = 10;
-	zombie->sound3D = L"Bruh";
-	zombie->compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
-	zombie->aiFlags = 0;
-	zombie->meleeAttackDmg = 10.0f;
-	zombie->attackInterval = 1.0f;
-	zombie->movementSpeed = 30.0f;
-	zombie->attackingDist = 10.0f;
-	zombie->rot = { 0.0, 0.0, 0.0 };
-	zombie->targetName = "player";
-	zombie->scale = 0.04;
-	zombie->detectionRad = 50.0f;
+	EnemyComps zombie = {};
+	zombie.model = enemyModel;
+	zombie.hp = 10;
+	zombie.sound3D = L"Bruh";
+	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+	zombie.aiFlags = 0;
+	zombie.meleeAttackDmg = 10.0f;
+	zombie.attackInterval = 1.0f;
+	zombie.movementSpeed = 30.0f;
+	zombie.attackingDist = 0.5f;
+	zombie.rot = { 0.0, 0.0, 0.0 };
+	zombie.targetName = "player";
+	zombie.scale = 0.04;
+	zombie.detectionRad = 50.0f;
 
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);
     enemyFactory.AddSpawnPoint({ 70, 5, 20 });
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("enemyZombie", zombie);
+    enemyFactory.DefineEnemy("enemyZombie", &zombie);
 #pragma endregion
     UpdateScene = &GameUpdateScene;
 
