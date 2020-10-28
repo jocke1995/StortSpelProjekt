@@ -30,9 +30,7 @@ public:
 	void SetScenes(unsigned int numScenes, Scene** scene);
 	std::vector<Scene*>* GetActiveScenes();
 	Scene* GetScene(std::string sceneName) const;
-
-	void ChangeSceneIfTeleported();
-	void ChangeSceneIfPlayerDied();
+	void ChangeScene();
 
 	void ResetScene();
 
@@ -61,7 +59,6 @@ private:
 
 	// Entity events
 	bool m_ChangeSceneNextFrameToDeathScene = false;
-	void onEntityDeath(Death* evnt);
 
 	void onEntityRemove(RemoveMe* evnt);
 

@@ -36,7 +36,6 @@ SceneManager::SceneManager()
 {
 	m_ActiveScenes.reserve(2);
 
-	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityDeath);
 	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityRemove);
 	EventBus::GetInstance().Subscribe(this, &SceneManager::changeSceneNextFrame);
 }
@@ -53,7 +52,6 @@ SceneManager::~SceneManager()
 
 void SceneManager::EraseSceneManager()
 {
-	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityDeath);
 	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityRemove);
 	EventBus::GetInstance().Unsubscribe(this, &SceneManager::changeSceneNextFrame);
 
@@ -122,12 +120,11 @@ Scene* SceneManager::GetScene(std::string sceneName) const
     return nullptr;
 }
 
-void SceneManager::ChangeSceneIfTeleported()
+void SceneManager::ChangeScene()
 {
-	if (m_ChangeSceneNextFrame == true)
+	if (m_ChangeSceneNextFrame)
 	{
-		// Set new scene
-		if (m_ActiveScenes[0]->GetName() != m_SceneToChangeToWhenTeleported)
+		if (m_ActiveScenes[0]->GetName() == "ShopScene" || m_ActiveScenes[0]->GetName() == "GameScene")
 		{
 			// Reset old scene
 			std::map<std::string, Entity*> entities = *m_ActiveScenes[0]->GetEntities();
@@ -155,18 +152,14 @@ void SceneManager::ChangeSceneIfTeleported()
 			SetScenes(1, &scene);
 			m_ChangeSceneNextFrame = false;
 		}
-	}
-}
+		else if (m_ActiveScenes[0]->GetName() == "gameOverScene")
+		{
+			SetScenes(1, &m_pGameOverScene);;
+			m_ChangeSceneNextFrameToDeathScene = false;
 
-void SceneManager::ChangeSceneIfPlayerDied()
-{
-	if (m_ChangeSceneNextFrameToDeathScene == true)
-	{
-		SetScenes(1, &m_pGameOverScene);;
-		m_ChangeSceneNextFrameToDeathScene = false;
-
-		Physics::GetInstance().OnResetScene();
-		EventBus::GetInstance().UnsubscribeAll();
+			Physics::GetInstance().OnResetScene();
+			EventBus::GetInstance().UnsubscribeAll();
+		}
 	}
 }
 
@@ -288,14 +281,6 @@ bool SceneManager::sceneExists(std::string sceneName) const
     }
 
     return false;
-}
-
-void SceneManager::onEntityDeath(Death* evnt)
-{
-	if (evnt->ent->GetName() == "player")
-	{
-		m_ChangeSceneNextFrameToDeathScene = true;
-	}
 }
 
 void SceneManager::onEntityRemove(RemoveMe* evnt)
