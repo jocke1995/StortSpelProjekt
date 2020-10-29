@@ -256,12 +256,12 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 			if (vel == double3({ 0.0, 0.0, 0.0 }))
 			{
 				forward.normalize();
-				vel = { forward.x * BASE_VEL * DASH_MOD, forward.y, forward.z * BASE_VEL * DASH_MOD };
+				vel = { forward.x * m_MovementSpeed * DASH_MOD, forward.y, forward.z * m_MovementSpeed * DASH_MOD };
 			}
 			else
 			{
 				vel.normalize();
-				vel *= BASE_VEL * DASH_MOD;
+				vel *= m_MovementSpeed * DASH_MOD;
 			}
 			m_UpdateDashId = specificUpdates.size();
 			specificUpdates.push_back(&PlayerInputComponent::updateDash);

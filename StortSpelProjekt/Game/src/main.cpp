@@ -171,7 +171,7 @@ Scene* GameScene(SceneManager* sm)
     melc = entity->AddComponent<component::MeleeComponent>();
     // range damage should be at least 10 for ranged life steal upgrade to work
     // range velocity should be 50, otherwise range velocity upgrade does not make sense (may be scrapped later)
-    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.2, 10, 50);
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 10, 50);
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(50);
     uc = entity->AddComponent<component::UpgradeComponent>();
@@ -184,12 +184,14 @@ Scene* GameScene(SceneManager* sm)
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-
+    
     double3 playerDim = mc->GetModelDim();
 
     double rad = playerDim.z / 2.0;
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
+
+    melc->SetDamage(10);
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
@@ -217,7 +219,7 @@ Scene* GameScene(SceneManager* sm)
 
 	EnemyComps zombie = {};
 	zombie.model = enemyModel;
-	zombie.hp = 10;
+	zombie.hp = 30;
 	zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
