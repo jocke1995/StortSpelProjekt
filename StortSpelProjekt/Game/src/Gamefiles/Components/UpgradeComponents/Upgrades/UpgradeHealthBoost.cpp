@@ -15,7 +15,7 @@ UpgradeHealthBoost::UpgradeHealthBoost(Entity* parentEntity) : Upgrade(parentEnt
 	m_HealthBoost = 10;
 	
 	// Write a description for the upgrade
-	m_Description = "Gives player a health increase. At level 1 the increase is 10 hp. The following levels it will be ((10 / 2) * level). So level 5 will be 25";
+	m_Description = "Health Boost: Gives player a health increase. At level 1 the increase is 10 hp. The following levels it will increase by 5";
 
 }
 

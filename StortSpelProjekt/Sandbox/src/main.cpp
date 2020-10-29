@@ -23,8 +23,6 @@ void FredriksUpdateScene(SceneManager* sm, double dt);
 void AndresUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
-void DefaultUpdateScene(SceneManager* sm, double dt);
-
 EnemyFactory enemyFactory;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -52,6 +50,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 
     /*------ AssetLoader to load models / textures ------*/
+    AssetLoader* al = AssetLoader::Get();
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
     //Scene* activeScenes[] = { jacobScene };
@@ -94,6 +93,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     while (!window->ExitWindow())
     {
+        /* ------ Update ------ */
+
         timer->Update();
         logicTimer += timer->GetDeltaTime();
         if (gameNetwork.IsConnected())
@@ -162,6 +163,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
+    component::CurrencyComponent* currc = nullptr;
 
     scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
@@ -182,6 +184,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    currc = entity->AddComponent<component::CurrencyComponent>();
 
     Transform* t = tc->GetTransform();
 
@@ -198,7 +201,22 @@ Scene* JacobsTestScene(SceneManager* sm)
 
     enemyFactory.SetScene(scene);
 
-    enemyFactory.AddEnemy("enemyConan", barbModel, 20, float3{ 50.0, 1.0, -10.0 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.3, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 0.0f);
+	EnemyComps conan = {};
+	conan.model = barbModel;
+	conan.hp = 20;
+	conan.sound3D = L"Bruh";
+	conan.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+	conan.aiFlags = 0;
+	conan.meleeAttackDmg = 10.0f;
+	conan.attackInterval = 1.0f;
+	conan.movementSpeed = 30.0f;
+	conan.attackingDist = 0.5f;
+	conan.rot = { 0.0, 0.0, 0.0 };
+	conan.targetName = "player";
+	conan.scale = 0.3;
+	conan.detectionRad = 50.0f;
+
+    enemyFactory.AddEnemy("enemyConan", &conan);
     enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 0.0 });
     enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 10.0 });
     enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 20.0 });
@@ -252,8 +270,6 @@ Scene* JacobsTestScene(SceneManager* sm)
     dlc->SetDirection({ 1.0f, -1.0f, -1.0f });
     dlc->SetColor({ 0.5f, 0.5f, 0.5f });
 
-    scene->SetUpdateScene(&DefaultUpdateScene);
-
     return scene;
 }
 
@@ -263,17 +279,17 @@ Scene* LeosTestScene(SceneManager* sm)
     Scene* scene = sm->CreateScene("LeoScene");
 
 #pragma region init
+    component::Audio2DVoiceComponent* avc = nullptr;
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::InputComponent* ic = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* ccc = nullptr;
-    component::Audio2DVoiceComponent* avc = nullptr;
     component::Audio3DListenerComponent* avc2 = nullptr;
     component::HealthComponent* hc = nullptr;
-    component::MeleeComponent* mac = nullptr;
-    component::RangeComponent* rc = nullptr;
+    component::MeleeComponent* melc = nullptr;
+    component::RangeComponent* ranc = nullptr;
     component::UpgradeComponent* uc = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
@@ -286,6 +302,7 @@ Scene* LeosTestScene(SceneManager* sm)
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
     Model* zombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
+
 #pragma endregion
  
 #pragma region entities
@@ -301,8 +318,8 @@ Scene* LeosTestScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     avc2 = entity->AddComponent<component::Audio3DListenerComponent>();
-    mac = entity->AddComponent<component::MeleeComponent>();
-    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    melc = entity->AddComponent<component::MeleeComponent>();
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
     uc = entity->AddComponent<component::UpgradeComponent>();
 
 
@@ -319,20 +336,40 @@ Scene* LeosTestScene(SceneManager* sm)
     ic->Init();
 
     Player::GetInstance().SetPlayer(entity);
-    Player::GetInstance().GetShop()->RandomizeInventory();
 #pragma endregion
 
 #pragma region enemies
+	EnemyComps zombie = {};
+	zombie.model = zombieModel;
+	zombie.hp = 10;
+	zombie.sound3D = L"Bruh";
+	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+	zombie.aiFlags = 0;
+	zombie.meleeAttackDmg = 10.0f;
+	zombie.attackInterval = 1.0f;
+	zombie.movementSpeed = 30.0f;
+	zombie.attackingDist = 0.5f;
+	zombie.rot = { 0.0, 0.0, 0.0 };
+	zombie.targetName = "player";
+	zombie.scale = 0.04;
+	zombie.detectionRad = 50.0f;
+
     enemyFactory.SetScene(scene);
 
     enemyFactory.AddSpawnPoint({ -10.0, 10.0, 340.0 });
     enemyFactory.AddSpawnPoint({ -340.0, 10.0, 340.0 });
-    enemyFactory.DefineEnemy("enemyZombie", zombieModel, 20, L"Bruh", F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.1, float3{ 0.0, 0.0, 0.0 }, "player", 500.0f, 10.5f);
+    enemyFactory.DefineEnemy("enemyZombie", &zombie);
 
     for (int i = 0; i < 75; i++)
     {
         entity = enemyFactory.SpawnEnemy("enemyZombie");
     }
+
+    Log::Print("Zombie 16 HP: %d\n", scene->GetEntity("enemyZombie16")->GetComponent<component::HealthComponent>()->GetMaxHealth());
+
+    enemyFactory.SetEnemyTypeMaxHealth("enemyZombie", 50);
+
+    Log::Print("Zombie 16 HP: %d\n", scene->GetEntity("enemyZombie16")->GetComponent<component::HealthComponent>()->GetMaxHealth());
 
 #pragma endregion
 
@@ -793,8 +830,6 @@ Scene* FloppipTestScene(SceneManager* sm)
     dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
     /* ---------------------- The Sun ---------------------- */
 
-    scene->SetUpdateScene(&DefaultUpdateScene);
-
     return scene;
 }
 
@@ -1070,7 +1105,7 @@ Scene* FredriksTestScene(SceneManager* sm)
 
 
 	/* ---------------------- Update Function ---------------------- */
-    scene->SetUpdateScene(&FredriksUpdateScene);
+	scene->SetUpdateScene(&FredriksUpdateScene);
 	srand(time(NULL));
 	/* ---------------------- Update Function ---------------------- */
 
@@ -1220,8 +1255,6 @@ Scene* WilliamsTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
     tc->GetTransform()->SetScale(0.5f);
     tc->GetTransform()->SetPosition(30.0f, 4.0f, -15.0f);
-
-    scene->SetUpdateScene(&DefaultUpdateScene);
 
     return scene;
 }
@@ -1413,8 +1446,9 @@ Scene* AndresTestScene(SceneManager* sm)
 
 
     /* ---------------------- Enemy -------------------------------- */
-    EnemyFactory enH(scene);
-    entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 7.0f, 0.5f, 10.0f);
+    // Enemyfactory used in the wrong way. 
+    //EnemyFactory enH(scene);
+    //entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 7.0f, 0.5f, 10.0f);
     /* ---------------------- Enemy -------------------------------- */
 
 
@@ -1596,9 +1630,6 @@ Scene* BjornsTestScene(SceneManager* sm)
     slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
     slc->SetDirection({ -2.0, -1.0, 0.0f });
     /* ---------------------- Spotlight ---------------------- */
-
-    scene->SetUpdateScene(&DefaultUpdateScene);
-
     return scene;
 }
 
@@ -1849,10 +1880,6 @@ void FredriksUpdateScene(SceneManager* sm, double dt)
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
 	tx->GetTextManager()->UploadAndExecuteTextData("health");*/
-}
-
-void DefaultUpdateScene(SceneManager* sm, double dt)
-{
 }
 
 void AndresUpdateScene(SceneManager* sm, double dt)

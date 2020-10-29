@@ -84,7 +84,7 @@ void component::MeleeComponent::Update(double dt)
 		if (m_Attacking == true)
 		{
 			// Sets the attacking state to false (=able to attack again)
-			Log::Print("Attack off cooldown \n");
+			//Log::Print("Attack off cooldown \n");
 			m_Attacking = false;
 			m_Cooldown = false;
 		}
@@ -106,7 +106,7 @@ void component::MeleeComponent::Attack()
 		{
 			m_pVoiceComponent->Play(L"SwordSwing");
 		}
-		Log::Print("Attacking now \n");
+		//Log::Print("Attacking now \n");
 		m_Attacking = true;
 		//Checks collision of entities
 		CheckCollision();
@@ -150,15 +150,15 @@ void component::MeleeComponent::createCornersHitbox()
 {
 	//Create position for each corner of the hitbox
 	// Front vertices
-	m_Corners[0].x =  3;	m_Corners[0].y =  1;	m_Corners[0].z = -1;
-	m_Corners[1].x =  3;	m_Corners[1].y = -1;	m_Corners[1].z = -1;
-	m_Corners[2].x = -3;	m_Corners[2].y = -1;	m_Corners[2].z = -1;
-	m_Corners[3].x = -3;	m_Corners[3].y =  1;	m_Corners[3].z = -1;
+	m_Corners[0].x =  8;	m_Corners[0].y =  1;	m_Corners[0].z = -5;
+	m_Corners[1].x =  8;	m_Corners[1].y = -1;	m_Corners[1].z = -5;
+	m_Corners[2].x = -8;	m_Corners[2].y = -1;	m_Corners[2].z = -5;
+	m_Corners[3].x = -8;	m_Corners[3].y =  1;	m_Corners[3].z = -5;
 	// Back vertices
-	m_Corners[4].x =  3;	m_Corners[4].y =  1;	m_Corners[4].z = 2;
-	m_Corners[5].x =  3;	m_Corners[5].y = -1;	m_Corners[5].z = 2;
-	m_Corners[6].x = -3;	m_Corners[6].y = -1;	m_Corners[6].z = 2;
-	m_Corners[7].x = -3;	m_Corners[7].y =  1;	m_Corners[7].z = 2;
+	m_Corners[4].x =  8;	m_Corners[4].y =  1;	m_Corners[4].z = 15;
+	m_Corners[5].x =  8;	m_Corners[5].y = -1;	m_Corners[5].z = 15;
+	m_Corners[6].x = -8;	m_Corners[6].y = -1;	m_Corners[6].z = 15;
+	m_Corners[7].x = -8;	m_Corners[7].y =  1;	m_Corners[7].z = 15;
 }
 
 void component::MeleeComponent::createDrawnHitbox(component::BoundingBoxComponent* bbc)

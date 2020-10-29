@@ -16,8 +16,6 @@ public:
 	void ApplyBoughtUpgrade();
 
 private:
-	// Member varibles to be used for this upgrade
-	std::string m_Description;
 
 };
 

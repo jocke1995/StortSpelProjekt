@@ -80,6 +80,18 @@ void Physics::AddCollisionEntity(Entity *ent)
 	}
 }
 
+void Physics::RemoveCollisionEntity(Entity* ent)
+{
+	for (int i = 0; i < m_CollisionEntities.size(); i++)
+	{
+		if (m_CollisionEntities[i] == ent)
+		{
+			m_CollisionEntities.erase(m_CollisionEntities.begin() + i);
+			break;
+		}
+	}
+}
+
 void Physics::AddCollisionComponent(component::CollisionComponent* comp)
 {
 	m_CollisionComponents.push_back(comp);
