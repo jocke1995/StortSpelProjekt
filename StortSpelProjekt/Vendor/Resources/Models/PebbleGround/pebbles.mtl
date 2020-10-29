@@ -3,6 +3,6 @@
 
 newmtl pebbleMat
 
-map_Kd Pebbles_019_Base_Color.dds
-map_Kn Pebbles_019_Normal.dds
-map_Ks Pebbles_019_Roughness.dds
+map_Kd Pebbles_albedo.dds
+map_Kn Pebbles_normal.dds
+map_Ks Pebbles_roughness.dds
