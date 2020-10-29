@@ -161,10 +161,10 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 	// Else load the model
 	const std::string filePath(path.begin(), path.end());
-	Assimp::Importer importer;
-	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 
-	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes);
+	Assimp::Importer importer;
+	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true);
+	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph);
 
 	if (assimpScene == nullptr)
 	{
@@ -198,11 +198,6 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 		}
 
 		m_LoadedModels[path].second = new AnimatedModel(&path, rootNode, &meshes, &animations, &materials, boneCounter.size());
-
-		// For some reason i don't read all bones. There is currently only 52, while there should be 60+.
-		// Seems like the end nodes have no meshes, which might be related to this.
-		// All nodes are included however. So the node tree is correct.
-		// Next step is finding out where the remaining bones are dissapearing.
 
 		static_cast<AnimatedModel*>(m_LoadedModels[path].second)->InitConstantBuffer(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 	}
@@ -1145,10 +1140,9 @@ SkeletonNode* AssetLoader::processAnimatedModel(std::map<std::string, BoneInfo>*
 {
 	SkeletonNode* currentNode = new SkeletonNode();
 	currentNode->name = assimpNode->mName.C_Str();
-	if (currentNode->name == "mixamorig:RightHandThumb4")
-		int a = 5;
+
 	// Store the default transform
-	currentNode->defaultTransform = aiMatrix4x4ToXMFloat4x4(&assimpNode->mTransformation);
+	currentNode->defaultTransform = aiMatrix4x4ToTransposedXMFloat4x4(&assimpNode->mTransformation);
 
 	// Process all meshes
 	for (unsigned int i = 0; i < assimpNode->mNumMeshes; i++)
@@ -1195,7 +1189,7 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo>* boneCoun
 		if (boneCounter->find(boneName) == boneCounter->end())
 		{
 			(*boneCounter)[boneName].boneID = boneCounter->size();
-			(*boneCounter)[boneName].boneOffset = aiMatrix4x4ToXMFloat4x4(&assimpBone->mOffsetMatrix);
+			(*boneCounter)[boneName].boneOffset = aiMatrix4x4ToTransposedXMFloat4x4(&assimpBone->mOffsetMatrix);
 		}
 
 		// Add the vertexID and weight to the map of VertexWeights
@@ -1204,10 +1198,16 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo>* boneCoun
 		{
 			aiVertexWeight assimpWeight = assimpBone->mWeights[j];
 			assert(vertexCounter[assimpWeight.mVertexId] < MAX_BONES_PER_VERTEX);
+
+			VertexWeight& vw = perVertexBoneData[assimpWeight.mVertexId];
+			unsigned int& vertexInfluenceCount = vertexCounter[assimpWeight.mVertexId];
+
 			// Set the bone ID in the correct vertex
-			perVertexBoneData[assimpWeight.mVertexId].boneIDs[vertexCounter[assimpWeight.mVertexId]] = (*boneCounter)[boneName].boneID;
+			vw.boneIDs[vertexInfluenceCount] = (*boneCounter)[boneName].boneID;
 			// Set the weight of the vertex
-			perVertexBoneData[assimpWeight.mVertexId].weights[vertexCounter[assimpWeight.mVertexId]++] = assimpWeight.mWeight;
+			vw.weights[vertexInfluenceCount] = assimpWeight.mWeight;
+
+			vertexInfluenceCount++;
 		}
 	}
 
@@ -1238,7 +1238,7 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo>* boneCoun
 void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter, Animation* animation)
 {
 	// Attach the bone ID and the offset matrix to its corresponding SkeletonNode
-	if (boneCounter->find(node->name) != boneCounter->end())
+	if (node->name.find("_$", 0) == std::string::npos)
 	{
 		node->boneID = (*boneCounter)[node->name].boneID;
 		node->inverseBindPose = (*boneCounter)[node->name].boneOffset;
@@ -1248,9 +1248,9 @@ void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, B
 		node->boneID = -1;
 	}
 	
-	// Set the currentStateTransform pointer. This would look nicer if we didn't need the animation to do it
 	if (animation->currentState.find(node->name) != animation->currentState.end())
 	{
+		// Set the currentStateTransform pointer. This would look nicer if we didn't need the animation to do it
 		node->currentStateTransform = &animation->currentState[node->name];
 	}
 	else
@@ -1522,19 +1522,9 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 	}
 }
 
-DirectX::XMFLOAT4X4 AssetLoader::aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix)
+DirectX::XMFLOAT4X4 AssetLoader::aiMatrix4x4ToTransposedXMFloat4x4(aiMatrix4x4* aiMatrix)
 {
 	DirectX::XMFLOAT4X4 matrix;
-
-	//aiVector3D pos;
-	//aiQuaternion quat;
-	//aiVector3D scale;
-	//aiMatrix->Decompose(scale, quat, pos);
-	//pos.z *= -1;
-	//quat.x *= -1;
-	//quat.y *= -1;
-	//*aiMatrix = aiMatrix4x4(scale, quat, pos);
-	//*aiMatrix = aiMatrix->Transpose();
 
 	matrix._11 = aiMatrix->a1;
 	matrix._12 = aiMatrix->a2;
@@ -1555,6 +1545,8 @@ DirectX::XMFLOAT4X4 AssetLoader::aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix)
 	matrix._42 = aiMatrix->d2;
 	matrix._43 = aiMatrix->d3;
 	matrix._44 = aiMatrix->d4;
+
+	DirectX::XMStoreFloat4x4(&matrix, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&matrix)));
 
 	return matrix;
 }

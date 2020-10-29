@@ -20,9 +20,12 @@ AnimatedModel::AnimatedModel(
 	m_Animations = (*animations);
 	m_UploadMatrices.reserve(numBones);
 
+	DirectX::XMFLOAT4X4 matIdentity;
+	DirectX::XMStoreFloat4x4(&matIdentity, DirectX::XMMatrixIdentity());
+
 	for (unsigned int i = 0; i < numBones; i++)
 	{
-		m_UploadMatrices.push_back(DirectX::XMMatrixIdentity());
+		m_UploadMatrices.push_back(matIdentity);
 	}
 
 	m_pActiveAnimation = m_Animations[0];
@@ -53,7 +56,7 @@ const ConstantBuffer* AnimatedModel::GetConstantBuffer() const
 	return m_pCB;
 }
 
-const std::vector<DirectX::XMMATRIX>* AnimatedModel::GetUploadMatrices() const
+const std::vector<DirectX::XMFLOAT4X4>* AnimatedModel::GetUploadMatrices() const
 {
 	return &m_UploadMatrices;
 }
@@ -74,42 +77,36 @@ void AnimatedModel::Update(double dt)
 
 void AnimatedModel::updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform)
 {
-	DirectX::XMMATRIX transform;
+	DirectX::XMMATRIX localTransform;
+
+	if (node->currentStateTransform) // node animated? could be optimized to only transform the parts (rot, scale or trans) that were actually animated --> example $AssimpFbx$_Rotation only afftect rotation part
+	{
+		DirectX::XMVECTOR position, rotationQ, scale, rotationOrigin;
+		position = DirectX::XMLoadFloat3(&node->currentStateTransform->position);
+		rotationQ = DirectX::XMLoadFloat4(&node->currentStateTransform->rotationQuaternion);
+		scale = DirectX::XMLoadFloat3(&node->currentStateTransform->scaling);
+		DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslationFromVector(position);
+		DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationQuaternion(rotationQ);
+		DirectX::XMMATRIX scaleMatrix = DirectX::XMMatrixScalingFromVector(scale);
+		localTransform = scaleMatrix * rotationMatrix * translationMatrix;
+	}
+	else // use src transformation otherwise
+	{
+		localTransform = DirectX::XMLoadFloat4x4(&node->defaultTransform);
+	}
+
+	DirectX::XMMATRIX finalTransform = localTransform * parentTransform;
+
 	if (node->boneID != -1)
 	{
-		transform = DirectX::XMLoadFloat4x4(&node->defaultTransform);
-
-		if (node->currentStateTransform)
-		{
-			DirectX::XMVECTOR position, rotationQ, scale, rotationOrigin;
-			position = DirectX::XMLoadFloat3(&node->currentStateTransform->position);
-			rotationQ = DirectX::XMLoadFloat4(&node->currentStateTransform->rotationQuaternion);
-			scale = DirectX::XMLoadFloat3(&node->currentStateTransform->scaling);
-			DirectX::XMMATRIX trans = DirectX::XMMatrixTranslationFromVector(position);
-			DirectX::XMMATRIX rot = DirectX::XMMatrixRotationQuaternion(rotationQ);
-			DirectX::XMMATRIX scal = DirectX::XMMatrixScalingFromVector(scale);
-			transform = scal * rot * trans;
-
-			//rotationOrigin = { 0.0f,0.0f,0.0f };
-			//transform = DirectX::XMMatrixAffineTransformation(scale, rotationOrigin, rotationQ, position);
-		}
-		transform = transform * parentTransform;
-
 		DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&m_GlobalInverseTransform);
 		DirectX::XMMATRIX inverseBindPose = DirectX::XMLoadFloat4x4(&node->inverseBindPose);
 
-		m_UploadMatrices[node->boneID] = transform * inverseBindPose * globalInverse;// *transform; //globalInverse * 
-		m_UploadMatrices[node->boneID] = DirectX::XMMatrixTranspose(m_UploadMatrices[node->boneID]);
-
-		DirectX::XMStoreFloat4x4(&node->modelSpaceTransform, m_UploadMatrices[node->boneID]);
-	}
-	else
-	{
-		transform = parentTransform;
+		DirectX::XMStoreFloat4x4(&m_UploadMatrices[node->boneID], DirectX::XMMatrixTranspose(inverseBindPose * finalTransform));// *transform; //globalInverse * 
 	}
 
 	for (unsigned int i = 0; i < node->children.size(); i++)
 	{
-		updateSkeleton(animationTime, node->children[i], transform);
+		updateSkeleton(animationTime, node->children[i], finalTransform);
 	}
 }

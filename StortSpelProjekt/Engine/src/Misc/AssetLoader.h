@@ -142,7 +142,7 @@ private:
     void initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter, Animation* animation);
     void processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations);
 
-    DirectX::XMFLOAT4X4 aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix);
+    DirectX::XMFLOAT4X4 aiMatrix4x4ToTransposedXMFloat4x4(aiMatrix4x4* aiMatrix);
     
     Shader* loadShader(const std::wstring& fileName, ShaderType type);
 	Font* loadFont(LPCWSTR filename, int windowWidth, int windowHeight);

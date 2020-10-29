@@ -29,14 +29,6 @@ RWStructuredBuffer<Vertex> verticesUAV[] : register(u0);
 // Matrices
 ConstantBuffer<ANIMATION_MATRICES_STRUCT> animationMatrices  : register(b3, space3);
 
-static float4x4 Identity =
-{
-	{ 1, 0, 0, 0 },
-	{ 0, 1, 0, 0 },
-	{ 0, 0, 1, 0 },
-	{ 0, 0, 0, 1 }
-};
-
 // Helper functions
 Vertex AnimateVertex(Vertex origVertex, VertexWeight vertexWeight);
 
@@ -65,23 +57,21 @@ VS_OUT VS_main(uint vID : SV_VertexID)
 Vertex AnimateVertex(Vertex vertex, VertexWeight vertexWeight)
 {
 	Vertex animatedVertex = vertex;
-	float4x4 animationTransform;
 
-	animationTransform  = animationMatrices.matrices[vertexWeight.boneIDs[0]] * vertexWeight.weights[0];
-	animationTransform += animationMatrices.matrices[vertexWeight.boneIDs[1]] * vertexWeight.weights[1];
-	animationTransform += animationMatrices.matrices[vertexWeight.boneIDs[2]] * vertexWeight.weights[2];
-	animationTransform += animationMatrices.matrices[vertexWeight.boneIDs[3]] * vertexWeight.weights[3];
-	animationTransform += animationMatrices.matrices[vertexWeight.boneIDs[4]] * vertexWeight.weights[4];
-	animationTransform += animationMatrices.matrices[vertexWeight.boneIDs[5]] * vertexWeight.weights[5];
-	animationTransform += animationMatrices.matrices[vertexWeight.boneIDs[6]] * vertexWeight.weights[6];
-	animationTransform += animationMatrices.matrices[vertexWeight.boneIDs[7]] * vertexWeight.weights[7];
-	animationTransform += animationMatrices.matrices[vertexWeight.boneIDs[8]] * vertexWeight.weights[8];
-	animationTransform += animationMatrices.matrices[vertexWeight.boneIDs[9]] * vertexWeight.weights[9];
-	
-	float4 animatedPosition = mul(float4(vertex.pos, 1.0f), animationTransform);
-	float4 animatedNormal = mul(float4(vertex.norm, 0.0f), animationTransform);
-	animatedVertex.pos = animatedPosition.xyz;
-	animatedVertex.norm = animatedNormal.xyz;
+	float3 skinnedPosL = 0;
+	float3 skinnedNormalL = 0;
+	[loop] for (int i = 0; i < MAX_BONES_PER_VERTEX; i++)
+	{
+		if (vertexWeight.weights[i] > 0)
+		{
+			// For each bone affecting the vertex, transform the vertex and normal according to the matrix of the bone and the influence (weight).
+			skinnedPosL += mul(float4(vertex.pos, 1), animationMatrices.matrices[vertexWeight.boneIDs[i]]).xyz * vertexWeight.weights[i];
+			skinnedNormalL += mul(float4(vertex.norm, 0), animationMatrices.matrices[vertexWeight.boneIDs[i]]).xyz * vertexWeight.weights[i];
+		}
+	}
+
+	animatedVertex.pos = skinnedPosL;
+	animatedVertex.norm = skinnedNormalL;
 
 	return animatedVertex;
 }

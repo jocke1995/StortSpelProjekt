@@ -32,13 +32,6 @@ struct ScalingKey
 	DirectX::XMFLOAT3 scaling;
 };
 
-
-struct Keyframe
-{
-	float time;
-	TransformKey transform;
-};
-
 struct SkeletonNode
 {
 	std::string name;
@@ -48,7 +41,6 @@ struct SkeletonNode
 
 	DirectX::XMFLOAT4X4 defaultTransform;
 	DirectX::XMFLOAT4X4 inverseBindPose;	// Bone offset
-	DirectX::XMFLOAT4X4 modelSpaceTransform;
 	TransformKey* currentStateTransform;
 
 	~SkeletonNode()
@@ -89,7 +81,6 @@ struct Animation
 					if (animationTime < bone.second[i + 1].time)
 					{
 						keyIndex = i;
-						Log::Print("TranslationIndex: %d\n", keyIndex);
 						break;
 					}
 				}
@@ -123,7 +114,6 @@ struct Animation
 					if (animationTime < bone.second[i + 1].time)
 					{
 						keyIndex = i;
-						Log::Print("RotationIndex: %d\n", keyIndex);
 						break;
 					}
 				}
@@ -157,7 +147,6 @@ struct Animation
 					if (animationTime < bone.second[i + 1].time)
 					{
 						keyIndex = i;
-						Log::Print("ScalingIndex: %d\n", keyIndex);
 						break;
 					}
 				}
