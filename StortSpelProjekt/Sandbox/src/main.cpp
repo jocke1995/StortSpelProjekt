@@ -1882,12 +1882,18 @@ void JockeUpdateScene(SceneManager* sm, double dt)
 
 void FredriksUpdateScene(SceneManager* sm, double dt)
 {
+	static float4 color = { 0.0, 0.3, 0.6, 1.0 };
+
 	AssetLoader* al = AssetLoader::Get();
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 	component::GUI2DComponent* gui = sm->GetScene("FredriksTestScene")->GetEntity("head")->GetComponent<component::GUI2DComponent>();
-	gui->GetQuadManager()->HideQuad(true);
-	//tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
-	//tx->GetTextManager()->UploadAndExecuteTextData("health");
+	component::GUI2DComponent* text = sm->GetScene("FredriksTestScene")->GetEntity("health")->GetComponent<component::GUI2DComponent>();
+	text->GetTextManager()->SetText("Color.x: " + std::to_string(color.x), "health");
+	text->GetTextManager()->SetColor(float4{ sinf(color.x), sinf(color.y), sinf(color.z), 1.0}, "health");
+
+	color.x += 0.01;
+	color.y += 0.01;
+	color.z += 0.01;
 }
 
 void AndresUpdateScene(SceneManager* sm, double dt)

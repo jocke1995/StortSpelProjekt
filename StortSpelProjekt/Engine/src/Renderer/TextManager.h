@@ -46,8 +46,8 @@ private:
 	std::map<std::string, Text*> m_TextMap = {};
 	Font* m_pFont = nullptr;
 	TextData m_DefaultTextData;
-
 	bool m_TextIsHidden = false;
+	std::vector<Text*> m_TrashBuffer = {};
 
 	void submitText(Text* text, std::string name);
 	void replaceText(Text* text, std::string name);
