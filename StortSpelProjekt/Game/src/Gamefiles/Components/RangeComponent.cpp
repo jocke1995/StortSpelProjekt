@@ -14,7 +14,7 @@
 
 #include "UpgradeComponents/UpgradeComponent.h"
 #include "UpgradeComponents/Upgrades/UpgradeRangeTest.h"
-
+#include "../CollisionCategories/PlayerProjectileCollisionCategory.h"
 #include "../Memory/PoolAllocator.h"
 
 component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale, int damage, float velocity) : Component(parent)
@@ -129,6 +129,7 @@ void component::RangeComponent::Attack()
 		tc->Update(0.02);
 		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 		bbc->Init();
+		bbc->AddCollisionCategory<PlayerProjectileCollisionCategory>();
 		Physics::GetInstance().AddCollisionEntity(ent);
 		if (audioPlay)
 		{
