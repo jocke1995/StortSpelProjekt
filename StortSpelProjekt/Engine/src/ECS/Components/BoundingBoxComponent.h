@@ -22,6 +22,7 @@ class ShaderResourceView;
 class Mesh;
 class Transform;
 struct SlotInfo;
+class CollisionCategory;
 
 namespace component
 {
@@ -70,7 +71,7 @@ namespace component
 		std::vector<Mesh*> m_Meshes;
 		std::vector<BoundingBoxData*> m_Bbds;
 		std::vector<SlotInfo*> m_SlotInfos;
-
+		CollisionCategory* m_pCategory = nullptr;
 		bool createOrientedBoundingBox();
 	};
 }

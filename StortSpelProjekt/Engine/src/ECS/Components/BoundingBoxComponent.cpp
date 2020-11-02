@@ -24,6 +24,7 @@ namespace component
 		:Component(parent)
 	{
 		m_FlagOBB = flagOBB;
+		m_pCategory = nullptr;
 	}
 
 	BoundingBoxComponent::~BoundingBoxComponent()
@@ -31,6 +32,10 @@ namespace component
 		for (SlotInfo* slotinfo : m_SlotInfos)
 		{
 			delete slotinfo;
+		}
+		if (m_pCategory)
+		{
+			delete m_pCategory;
 		}
 	}
 
