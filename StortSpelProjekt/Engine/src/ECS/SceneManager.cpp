@@ -34,7 +34,11 @@
 
 SceneManager::SceneManager()
 {
-	m_ActiveScenes.reserve(2);
+	m_ActiveScenes.reserve(1);
+	// "Default scene"
+	Scene* m_DefaultScene = new Scene("defaultScene");
+	m_Scenes["defaultScene"] = m_DefaultScene;
+	m_ActiveScenes.push_back(m_DefaultScene); 
 
 	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityRemove);
 	EventBus::GetInstance().Subscribe(this, &SceneManager::changeSceneNextFrame);
@@ -149,12 +153,12 @@ void SceneManager::ChangeScene()
 			}
 
 			// Change the player back to its original position
-			SetScenes(1, &scene);
+			SetScenes(scene);
 			m_ChangeSceneNextFrame = false;
 		}
 		else if (m_ActiveScenes[0]->GetName() == "gameOverScene")
 		{
-			SetScenes(1, &m_pGameOverScene);;
+			SetScenes(m_pGameOverScene);
 			m_ChangeSceneNextFrameToDeathScene = false;
 
 			Physics::GetInstance().OnResetScene();
@@ -196,43 +200,51 @@ void SceneManager::SetGameOverScene(Scene* scene)
 	}
 }
 
-void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
+void SceneManager::SetScenes(Scene* scene)
 {
+	if (scene == m_ActiveScenes.at(0))
+	{
+		Log::PrintSeverity(Log::Severity::WARNING, "SetScene on same scene %s\n", scene->GetName());
+		return;
+	}
+
 	ResetScene();
 
-	// Remove dynamic entities from m_ActiveScenes
-	if (m_ActiveScenes.size() > 0)
-	{
-		Scene* activeScene = m_ActiveScenes[0];
+	Scene* oldScene = m_ActiveScenes.at(0);
 
-		std::map<std::string, Entity*> entities = *m_ActiveScenes[0]->GetEntities();
-		for (auto pair : entities)
+	std::map<std::string, Entity*> oldEntities = *oldScene->GetEntities();
+	for (auto pair : oldEntities)
+	{
+		Entity* ent = pair.second;
+		if (ent->IsEntityDynamic() == true)
 		{
-			Entity* ent = pair.second;
-			if (ent->IsEntityDynamic() == true)
-			{
-				activeScene->RemoveEntity(ent->GetName());
-			}
+			oldScene->RemoveEntity(ent->GetName());
+		}
+	}
+
+	// Check if we should uninit
+	if (oldScene != scene)
+	{
+		for (auto const& [entityName, entity] : oldEntities)
+		{
+			entity->OnUnInitScene();
 		}
 	}
 
 	// Set the active scenes
 	m_ActiveScenes.clear();
-	
-	for (unsigned int i = 0; i < numScenes; i++)
-	{
-		// init the active scenes
-		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
-		for (auto const& [entityName, entity] : entities)
-		{
-			entity->SetEntityState(false);
-			entity->OnInitScene();
-		}
 
-		m_ActiveScenes.push_back(scenes[i]);
+	// init the active scenes
+	std::map<std::string, Entity*> entities = *(scene->GetEntities());
+	for (auto const& [entityName, entity] : entities)
+	{
+		entity->SetEntityState(false);
+		entity->OnInitScene();
 	}
 
-	Physics::GetInstance().SetCollisionEntities(scenes[0]->GetCollisionEntities());
+	m_ActiveScenes.push_back(scene);
+
+	Physics::GetInstance().SetCollisionEntities(scene->GetCollisionEntities());
 
 	Renderer* renderer = &Renderer::GetInstance();
 	renderer->prepareScenes(&m_ActiveScenes);
@@ -247,6 +259,62 @@ void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
 
 	return;
 }
+
+// Archived code
+//void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
+//{
+//	// Only support for 1 scene currently.
+//	numScenes = 1;
+//
+//	ResetScene();
+//
+//	// Remove dynamic entities from m_ActiveScenes
+//	if (m_ActiveScenes.size() > 0)
+//	{
+//		Scene* activeScene = m_ActiveScenes[0];
+//
+//		std::map<std::string, Entity*> entities = *m_ActiveScenes[0]->GetEntities();
+//		for (auto pair : entities)
+//		{
+//			Entity* ent = pair.second;
+//			if (ent->IsEntityDynamic() == true)
+//			{
+//				activeScene->RemoveEntity(ent->GetName());
+//			}
+//		}
+//	}
+//
+//	// Set the active scenes
+//	m_ActiveScenes.clear();
+//	
+//	for (unsigned int i = 0; i < numScenes; i++)
+//	{
+//		// init the active scenes
+//		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
+//		for (auto const& [entityName, entity] : entities)
+//		{
+//			entity->SetEntityState(false);
+//			entity->OnInitScene();
+//		}
+//
+//		m_ActiveScenes.push_back(scenes[i]);
+//	}
+//
+//	Physics::GetInstance().SetCollisionEntities(scenes[0]->GetCollisionEntities());
+//
+//	Renderer* renderer = &Renderer::GetInstance();
+//	renderer->prepareScenes(&m_ActiveScenes);
+//
+//	for (Scene* scene : m_ActiveScenes)
+//	{
+//		if (scene->GetMainCamera() == nullptr)
+//		{
+//			scene->SetPrimaryCamera(renderer->m_pScenePrimaryCamera);
+//		}
+//	}
+//
+//	return;
+//}
 
 void SceneManager::ResetScene()
 {
