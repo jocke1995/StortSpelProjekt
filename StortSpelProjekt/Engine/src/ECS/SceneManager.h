@@ -28,7 +28,6 @@ public:
 	// Scene
 	Scene* CreateScene(std::string sceneName);
 	void SetScenes(Scene* scene);
-	//void SetScenes(unsigned int numScenes, Scene** scene); // Archived
 	std::vector<Scene*>* GetActiveScenes();
 	Scene* GetScene(std::string sceneName) const;
 	void ChangeScene();
@@ -46,7 +45,7 @@ private:
 	SceneManager();
 	std::map<std::string, Scene*> m_Scenes;
 	std::vector<Scene*> m_ActiveScenes;
-	Scene* m_DefaultScene;
+	Scene* m_pDefaultScene;
 
 	struct EntityScene
 	{

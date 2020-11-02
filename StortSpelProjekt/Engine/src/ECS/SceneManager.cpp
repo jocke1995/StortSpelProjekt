@@ -260,62 +260,6 @@ void SceneManager::SetScenes(Scene* scene)
 	return;
 }
 
-// Archived code
-//void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
-//{
-//	// Only support for 1 scene currently.
-//	numScenes = 1;
-//
-//	ResetScene();
-//
-//	// Remove dynamic entities from m_ActiveScenes
-//	if (m_ActiveScenes.size() > 0)
-//	{
-//		Scene* activeScene = m_ActiveScenes[0];
-//
-//		std::map<std::string, Entity*> entities = *m_ActiveScenes[0]->GetEntities();
-//		for (auto pair : entities)
-//		{
-//			Entity* ent = pair.second;
-//			if (ent->IsEntityDynamic() == true)
-//			{
-//				activeScene->RemoveEntity(ent->GetName());
-//			}
-//		}
-//	}
-//
-//	// Set the active scenes
-//	m_ActiveScenes.clear();
-//	
-//	for (unsigned int i = 0; i < numScenes; i++)
-//	{
-//		// init the active scenes
-//		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
-//		for (auto const& [entityName, entity] : entities)
-//		{
-//			entity->SetEntityState(false);
-//			entity->OnInitScene();
-//		}
-//
-//		m_ActiveScenes.push_back(scenes[i]);
-//	}
-//
-//	Physics::GetInstance().SetCollisionEntities(scenes[0]->GetCollisionEntities());
-//
-//	Renderer* renderer = &Renderer::GetInstance();
-//	renderer->prepareScenes(&m_ActiveScenes);
-//
-//	for (Scene* scene : m_ActiveScenes)
-//	{
-//		if (scene->GetMainCamera() == nullptr)
-//		{
-//			scene->SetPrimaryCamera(renderer->m_pScenePrimaryCamera);
-//		}
-//	}
-//
-//	return;
-//}
-
 void SceneManager::ResetScene()
 {
 	Renderer::GetInstance().waitForGPU();

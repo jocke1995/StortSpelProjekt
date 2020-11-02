@@ -48,10 +48,6 @@ public:
 
 	unsigned int GetID() const;
 	std::string GetName() const;
-	unsigned int GetRefCount() const;
-
-	void IncrementRefCount(); // Not used
-	void DecrementRefCount(); // Not used
 	void Update(double dt);
 	void RenderUpdate(double dt);
 
