@@ -14,7 +14,7 @@ UpgradeRangeVelocity::UpgradeRangeVelocity(Entity* parent)
 	m_Price = 1;
 	m_StartingPrice = m_Price;
 	// set short description 
-	m_Description = "Increases velocity of the range attacks with 10 per level. Max velocity is 100, at upgrade level 5";
+	m_Description = "Range Velocity: Increases velocity of the range attacks with 10 per level. Max velocity is 100, at upgrade level 5";
 	// this upgrade will have a max level
 	m_MaxLevel = 5;
 }
@@ -40,7 +40,7 @@ void UpgradeRangeVelocity::ApplyBoughtUpgrade()
 {
 	// get current velocity
 	float currentVelocity = m_pParentEntity->GetComponent<component::RangeComponent>()->GetVelocity();
-	// double the velocity of the shots
+	// increase velocity with 10
 	float newVelocity = currentVelocity + 10;
 	m_pParentEntity->GetComponent<component::RangeComponent>()->SetVelocity(newVelocity);
 

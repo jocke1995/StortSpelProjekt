@@ -161,9 +161,10 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 	// Else load the model
 	const std::string filePath(path.begin(), path.end());
-	Assimp::Importer importer;
 
-	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes);
+	Assimp::Importer importer;
+	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true);
+	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph);
 
 	if (assimpScene == nullptr)
 	{
@@ -189,6 +190,10 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 		processAnimations(assimpScene, &animations);
 		if (!animations.empty())	// Possibly useless now
 		{
+			for (int i = 0; i < animations.size(); i++)
+			{
+				animations[i]->Update(0);
+			}
 			initializeSkeleton(rootNode, &boneCounter, animations[0]);	// Ugly solution, should not pass animation[0].
 		}
 
@@ -687,6 +692,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
 
 					tc->SetTransformOriginalState();
+
 					mc->SetModel(AssetLoader::LoadModel(to_wstring(fullPath)));
 					combinedFlag = 0;
 					for (int i = 0; i < FLAG_DRAW::NUM_FLAG_DRAWS; ++i)
@@ -1137,7 +1143,7 @@ SkeletonNode* AssetLoader::processAnimatedModel(std::map<std::string, BoneInfo>*
 	currentNode->name = assimpNode->mName.C_Str();
 
 	// Store the default transform
-	currentNode->defaultTransform = aiMatrix4x4ToXMFloat4x4(&assimpNode->mTransformation);
+	currentNode->defaultTransform = aiMatrix4x4ToTransposedXMFloat4x4(&assimpNode->mTransformation);
 
 	// Process all meshes
 	for (unsigned int i = 0; i < assimpNode->mNumMeshes; i++)
@@ -1178,12 +1184,13 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo>* boneCoun
 	{
 		aiBone* assimpBone = assimpMesh->mBones[i];
 		std::string boneName = assimpBone->mName.C_Str();
+
 		// Give each bone an ID. If we already gave it an ID we don't want to change it. Also store the offset matrix.
 		// This information is later stored in the SkeletonNode.
 		if (boneCounter->find(boneName) == boneCounter->end())
 		{
 			(*boneCounter)[boneName].boneID = boneCounter->size();
-			(*boneCounter)[boneName].boneOffset = aiMatrix4x4ToXMFloat4x4(&assimpBone->mOffsetMatrix);
+			(*boneCounter)[boneName].boneOffset = aiMatrix4x4ToTransposedXMFloat4x4(&assimpBone->mOffsetMatrix);
 		}
 
 		// Add the vertexID and weight to the map of VertexWeights
@@ -1192,10 +1199,16 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo>* boneCoun
 		{
 			aiVertexWeight assimpWeight = assimpBone->mWeights[j];
 			assert(vertexCounter[assimpWeight.mVertexId] < MAX_BONES_PER_VERTEX);
+
+			VertexWeight& vw = perVertexBoneData[assimpWeight.mVertexId];
+			unsigned int& vertexInfluenceCount = vertexCounter[assimpWeight.mVertexId];
+
 			// Set the bone ID in the correct vertex
-			perVertexBoneData[assimpWeight.mVertexId].boneIDs[vertexCounter[assimpWeight.mVertexId]] = (*boneCounter)[boneName].boneID;
+			vw.boneIDs[vertexInfluenceCount] = (*boneCounter)[boneName].boneID;
 			// Set the weight of the vertex
-			perVertexBoneData[assimpWeight.mVertexId].weights[vertexCounter[assimpWeight.mVertexId]++] = assimpWeight.mWeight;
+			vw.weights[vertexInfluenceCount] = assimpWeight.mWeight;
+
+			vertexInfluenceCount++;
 		}
 	}
 
@@ -1226,16 +1239,24 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo>* boneCoun
 void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter, Animation* animation)
 {
 	// Attach the bone ID and the offset matrix to its corresponding SkeletonNode
-	if (boneCounter->find(node->name) != boneCounter->end())
+	if (node->name.find("_$", 0) == std::string::npos)
 	{
 		node->boneID = (*boneCounter)[node->name].boneID;
 		node->inverseBindPose = (*boneCounter)[node->name].boneOffset;
 	}
+	else
+	{
+		node->boneID = -1;
+	}
 	
-	// Set the currentStateTransform pointer. This would look nicer if we didn't need the animation to do it
 	if (animation->currentState.find(node->name) != animation->currentState.end())
 	{
-		node->currentStateTransform = &animation->currentState[node->name].transform;
+		// Set the currentStateTransform pointer. This would look nicer if we didn't need the animation to do it
+		node->currentStateTransform = &animation->currentState[node->name];
+	}
+	else
+	{
+		node->currentStateTransform = nullptr;
 	}
 	
 	// Loop through all nodes in the tree
@@ -1454,27 +1475,45 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 			// Store all the keyframes (transform data) belonging to this nodeAnimation (bone)
 			for (unsigned int k = 0; k < assimpNodeAnimation->mNumPositionKeys; k++)
 			{
-				Keyframe key;
+				TranslationKey key;
 
 				key.time = assimpNodeAnimation->mPositionKeys[k].mTime;
 
-				key.transform.position = DirectX::XMFLOAT3(
+				key.position = DirectX::XMFLOAT3(
 					assimpNodeAnimation->mPositionKeys[k].mValue.x,
 					assimpNodeAnimation->mPositionKeys[k].mValue.y,
 					assimpNodeAnimation->mPositionKeys[k].mValue.z);
 
-				key.transform.rotationQuaternion = DirectX::XMFLOAT4(
+				animation->translationKeyframes[nodeName].push_back(key);
+			}
+
+			for (unsigned int k = 0; k < assimpNodeAnimation->mNumRotationKeys; k++)
+			{
+				RotationKey key;
+
+				key.time = assimpNodeAnimation->mRotationKeys[k].mTime;
+
+				key.rotationQuaternion = {
 					assimpNodeAnimation->mRotationKeys[k].mValue.x,
 					assimpNodeAnimation->mRotationKeys[k].mValue.y,
 					assimpNodeAnimation->mRotationKeys[k].mValue.z,
-					assimpNodeAnimation->mRotationKeys[k].mValue.w);
+					assimpNodeAnimation->mRotationKeys[k].mValue.w};
 
-				key.transform.scaling = DirectX::XMFLOAT3(
+				animation->rotationKeyframes[nodeName].push_back(key);
+			}
+
+			for (unsigned int k = 0; k < assimpNodeAnimation->mNumScalingKeys; k++)
+			{
+				ScalingKey key;
+
+				key.time = assimpNodeAnimation->mScalingKeys[k].mTime;
+
+				key.scaling = DirectX::XMFLOAT3(
 					assimpNodeAnimation->mScalingKeys[k].mValue.x,
 					assimpNodeAnimation->mScalingKeys[k].mValue.y,
 					assimpNodeAnimation->mScalingKeys[k].mValue.z);
 
-				animation->nodeAnimationKeyframes[nodeName].push_back(key);
+				animation->scalingKeyframes[nodeName].push_back(key);
 			}
 		}
 
@@ -1484,7 +1523,7 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 	}
 }
 
-DirectX::XMFLOAT4X4 AssetLoader::aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix)
+DirectX::XMFLOAT4X4 AssetLoader::aiMatrix4x4ToTransposedXMFloat4x4(aiMatrix4x4* aiMatrix)
 {
 	DirectX::XMFLOAT4X4 matrix;
 
@@ -1507,6 +1546,8 @@ DirectX::XMFLOAT4X4 AssetLoader::aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix)
 	matrix._42 = aiMatrix->d2;
 	matrix._43 = aiMatrix->d3;
 	matrix._44 = aiMatrix->d4;
+
+	DirectX::XMStoreFloat4x4(&matrix, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&matrix)));
 
 	return matrix;
 }

@@ -9,13 +9,15 @@ UpgradeBlueJewel::UpgradeBlueJewel(Entity* parentEntity) : Upgrade(parentEntity)
 	// set the type of the upgrade
 	SetType(F_UpgradeType::PLAYER);
 	// set the price of the upgrade
-	m_Price = 10;
+	m_Price = 100;
 	m_StartingPrice = m_Price;
+
+	m_ImageName = "BlueJewel.png";
 	
 	m_DamageReduction = 0.50;
 	
 	// Write a description for the upgrade
-	m_Description = "An iridecent blue jewel that reduces damage taken by (50% ^ level) while under 30% max health";
+	m_Description = "Blue Jewel: An iridecent blue jewel that reduces damage taken by (50% ^ level) while under 30% max health";
 
 }
 

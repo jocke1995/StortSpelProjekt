@@ -3,9 +3,10 @@
 #include "EngineMath.h"
 #include "..\ECS\Components\InputComponent.h"
 #include "Core.h"
+#include <functional>
 
-#define DASH_MOD 4.0
-#define SPRINT_MOD 3.0
+#define DASH_MOD 3.0
+#define SPRINT_MOD 1.5
 
 //Camera
 class BaseCamera;
@@ -49,6 +50,8 @@ namespace component
 		void SetJumpHeight(double height);
 		//Sets the time until maximum height. Total time is twice
 		void SetJumpTime(double time);
+		//Sets the movement speed
+		void SetMovementSpeed(float speed);
 
 		void Reset();
 
@@ -59,6 +62,7 @@ namespace component
 		float m_Yaw;
 		float m_CameraDistance;
 		float m_Elevation;
+		float m_MovementSpeed = 10.0f;
 		PerspectiveCamera* m_pCamera;
 		Transform* m_pTransform;
 
@@ -72,7 +76,12 @@ namespace component
 		double m_JumpTime;
 		double m_Gravity;
 
+		int m_UpdateShootId;
+		int m_UpdateDashId;
+
+		std::vector<void(PlayerInputComponent::*)(double dt)> specificUpdates;
 		void(PlayerInputComponent::*specificUpdate)(double dt);
+
 
 		void alternativeInput(ModifierInput* evnt);
 		void zoom(MouseScroll* evnt);
@@ -85,6 +94,7 @@ namespace component
 		void updateDefault(double dt);
 		void updateDash(double dt);
 		void updateJump(double dt);
+		void updateShoot(double dt);
 	};
 }
 
