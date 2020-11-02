@@ -194,7 +194,7 @@ void component::AiComponent::Update(double dt)
 				}
 				else
 				{
-					SetAimDirection();
+					setAimDirection();
 					// shoot
 					RangeEnemyComponent* range = m_pParent->GetComponent<component::RangeEnemyComponent>();
 					range->Attack();
@@ -257,7 +257,7 @@ void component::AiComponent::SetRangedAI()
 	m_isRanged = true;
 }
 
-void component::AiComponent::SetAimDirection()
+void component::AiComponent::setAimDirection()
 {
 	// get target position
 	float3 targetPos = m_pTarget->GetComponent<TransformComponent>()->GetTransform()->GetPositionFloat3();

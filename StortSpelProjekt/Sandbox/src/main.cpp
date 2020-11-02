@@ -1276,7 +1276,7 @@ Scene* AndresTestScene(SceneManager* sm)
     component::DirectionalLightComponent* dlc = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::SpotLightComponent* slc = nullptr;
-    component::InputComponent* ic = nullptr;
+    component::PlayerInputComponent* ic = nullptr;
     component::Audio3DListenerComponent* audioListener = nullptr;
     component::Audio3DEmitterComponent* audioEmitter = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
@@ -1321,6 +1321,7 @@ Scene* AndresTestScene(SceneManager* sm)
     bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.01);
     audioListener = entity->AddComponent<component::Audio3DListenerComponent>();
     ic->Init();
+    ic->SetMovementSpeed(70);
     hc = entity->AddComponent<component::HealthComponent>(100);
     rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 10, 40);
     // adding OBB with collision
@@ -1485,6 +1486,7 @@ Scene* AndresTestScene(SceneManager* sm)
         ai->SetAttackInterval(1.0f);
         ai->SetMeleeAttackDmg(10.0f);
         ai->SetScene(scene);
+        ai->SetRangedAI();
     }
     //ae = ent->AddComponent<component::Audio3DEmitterComponent>();
     //ae->AddVoice(comps->sound3D);
