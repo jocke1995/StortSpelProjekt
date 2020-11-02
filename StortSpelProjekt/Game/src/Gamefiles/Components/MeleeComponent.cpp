@@ -17,6 +17,8 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	m_pMesh = nullptr;
 	m_Damage = 1;
 
+	m_HalfSize = { 8.0f, 1.0f, 10.0f };
+
 	//Create bounding box for collision for melee
 	m_pBbc = parent->GetComponent<component::BoundingBoxComponent>();
 	createCornersHitbox();
@@ -62,14 +64,24 @@ void component::MeleeComponent::Update(double dt)
 {
 	// Takes the transform of the player cube and moves it forward to act as a hitbox
 	m_MeleeTransformModified = *m_pMeleeTransform;
-	double3 modelDim = m_pParent->GetComponent<component::ModelComponent>()->GetModelDim();
-	modelDim *= 0.5;
-	float positonX = m_MeleeTransformModified.GetPositionFloat3().x + (modelDim.x + 1.0) * m_MeleeTransformModified.GetRotMatrix().r[2].m128_f32[0];
-	float positonY = m_MeleeTransformModified.GetPositionFloat3().y + (modelDim.y + 1.0) * m_MeleeTransformModified.GetRotMatrix().r[2].m128_f32[1];
-	float positonZ = m_MeleeTransformModified.GetPositionFloat3().z + (modelDim.z + 1.0) * m_MeleeTransformModified.GetRotMatrix().r[2].m128_f32[2];
+	Transform* trans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
 	
+	DirectX::BoundingOrientedBox obb;
+	obb.Center = m_pBbc->GetOriginalOBB()->Center;
+	obb.Extents = m_pBbc->GetOriginalOBB()->Extents;
+	obb.Orientation = m_pBbc->GetOriginalOBB()->Orientation;
+
+	// then do all the transformations on this temoporary OBB so we don't change the original state
+	obb.Transform(obb, *m_MeleeTransformModified.GetWorldMatrix());
+
+	bool t_pose = m_pBbc->GetFlagOBB() & F_OBBFlags::T_POSE;
+
+	float positionX = obb.Center.x + (obb.Extents.x + ((static_cast<float>(!t_pose) * m_HalfSize.x + static_cast<float>(t_pose) * m_HalfSize.z) * trans->GetScale().x)) * m_MeleeTransformModified.GetForwardFloat3().x;
+	float positionY = obb.Center.y + (obb.Extents.y + (m_HalfSize.y * trans->GetScale().y)) * m_MeleeTransformModified.GetForwardFloat3().y;
+	float positionZ = obb.Center.z + (obb.Extents.z + (m_HalfSize.z * trans->GetScale().z)) * m_MeleeTransformModified.GetForwardFloat3().z;
+
 	// Sets the position and updates the matrix to reflect movement of the player
-	m_MeleeTransformModified.SetPosition(positonX, positonY, positonZ);
+	m_MeleeTransformModified.SetPosition(positionX, positionY, positionZ);
 	m_MeleeTransformModified.Move(dt);
 	m_MeleeTransformModified.UpdateWorldMatrix();
 
@@ -150,15 +162,15 @@ void component::MeleeComponent::createCornersHitbox()
 {
 	//Create position for each corner of the hitbox
 	// Front vertices
-	m_Corners[0].x =  8;	m_Corners[0].y =  1;	m_Corners[0].z = -5;
-	m_Corners[1].x =  8;	m_Corners[1].y = -1;	m_Corners[1].z = -5;
-	m_Corners[2].x = -8;	m_Corners[2].y = -1;	m_Corners[2].z = -5;
-	m_Corners[3].x = -8;	m_Corners[3].y =  1;	m_Corners[3].z = -5;
+	m_Corners[0].x =  m_HalfSize.x;	m_Corners[0].y =  m_HalfSize.y;	m_Corners[0].z = -m_HalfSize.z;
+	m_Corners[1].x =  m_HalfSize.x;	m_Corners[1].y = -m_HalfSize.y;	m_Corners[1].z = -m_HalfSize.z;
+	m_Corners[2].x = -m_HalfSize.x;	m_Corners[2].y = -m_HalfSize.y;	m_Corners[2].z = -m_HalfSize.z;
+	m_Corners[3].x = -m_HalfSize.x;	m_Corners[3].y =  m_HalfSize.y;	m_Corners[3].z = -m_HalfSize.z;
 	// Back vertices
-	m_Corners[4].x =  8;	m_Corners[4].y =  1;	m_Corners[4].z = 15;
-	m_Corners[5].x =  8;	m_Corners[5].y = -1;	m_Corners[5].z = 15;
-	m_Corners[6].x = -8;	m_Corners[6].y = -1;	m_Corners[6].z = 15;
-	m_Corners[7].x = -8;	m_Corners[7].y =  1;	m_Corners[7].z = 15;
+	m_Corners[4].x =  m_HalfSize.x;	m_Corners[4].y =  m_HalfSize.y;	m_Corners[4].z = m_HalfSize.z;
+	m_Corners[5].x =  m_HalfSize.x;	m_Corners[5].y = -m_HalfSize.y;	m_Corners[5].z = m_HalfSize.z;
+	m_Corners[6].x = -m_HalfSize.x;	m_Corners[6].y = -m_HalfSize.y;	m_Corners[6].z = m_HalfSize.z;
+	m_Corners[7].x = -m_HalfSize.x;	m_Corners[7].y =  m_HalfSize.y;	m_Corners[7].z = m_HalfSize.z;
 }
 
 void component::MeleeComponent::createDrawnHitbox(component::BoundingBoxComponent* bbc)

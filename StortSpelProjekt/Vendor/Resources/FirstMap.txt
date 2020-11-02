@@ -4,7 +4,7 @@ ModelScaling 20.0, 20.0, 25.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -170.0, 20.0, 165.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -14,7 +14,7 @@ ModelScaling 60.0, 20.0, 20.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -90.0, 20.0, 210.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -24,7 +24,7 @@ ModelScaling 110.0, 20.0, 20.0
 ModelRotation 0.0, 45.0, 0.0
 ModelPosition 56.5, 20.0, 126.5
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -34,7 +34,7 @@ ModelScaling 20.0, 20.0, 20.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 140.0, 20.0, 15.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -45,7 +45,7 @@ ModelScaling 50.0, 20.0, 20.0
 ModelRotation 0.0, -45.0, 0.0
 ModelPosition 104.0, 20.0, -52.5
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -55,7 +55,7 @@ ModelScaling 20.0, 20.0, 40.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 75.0, 20.0, -115.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -65,7 +65,7 @@ ModelScaling 55.0, 20.0, 20.0
 ModelRotation 0.0, -46.0, 0.0
 ModelPosition 40.0, 20.0, -200.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -75,7 +75,7 @@ ModelScaling 30.0, 20.0, 20.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -40.0, 20.0, -245.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -85,7 +85,7 @@ ModelScaling 20.0, 20.0, 105.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -90.0, 20.0, -125.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -95,7 +95,7 @@ ModelScaling 40.0, 25.0, 20.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -110.0, 25.0, 0.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -105,7 +105,7 @@ ModelScaling 2.0, 25.0, 40.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -72.0, 25.0, 100.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -115,7 +115,7 @@ ModelScaling 20.0, 25.0, 2.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -94.0, 25.0, 138.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -125,7 +125,7 @@ ModelScaling 20.0, 30.0, 61.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -170.0, 30.0, 79.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -135,7 +135,7 @@ ModelScaling 5.0, 10.0, 20.0
 ModelRotation 0.0, 0.0, 70.0
 ModelPosition -62.5, -3.0, 40.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -145,7 +145,7 @@ ModelScaling 18.0, 10.0, 5.0
 ModelRotation -70.0, 0.0, 0.0
 ModelPosition -132.0, -3.05, 147.5
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -155,18 +155,17 @@ ModelScaling 40.0, 5.0, 80.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -110.0, 55, 60.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
-
 
 Name RuinWall
 ModelPath Models/StoneWall/stoneWall.obj
 ModelScaling 30.0, 20.0, 2.0
-ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelRotation 0.0, 0.0, 0.0
 ModelPosition 0.0, 20.0, -100.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
@@ -179,7 +178,7 @@ ModelMass 15.0
 ModelFriction 1.0
 ModelRestitution 1.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCapsule 0.0, 0.0
 
@@ -192,7 +191,7 @@ ModelMass 15.0
 ModelFriction 1.0
 ModelRestitution 1.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCapsule 0.0, 0.0
 
@@ -205,7 +204,7 @@ ModelMass 15.0
 ModelFriction 1.0
 ModelRestitution 1.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCapsule 0.0, 0.0
 
@@ -218,7 +217,7 @@ ModelMass 15.0
 ModelFriction 1.0
 ModelRestitution 1.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCapsule 0.0, 0.0
 
@@ -231,7 +230,7 @@ ModelMass 15.0
 ModelFriction 1.0
 ModelRestitution 1.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCapsule 0.0, 0.0
 
@@ -241,7 +240,7 @@ ModelScaling 5.0, 5.0, 5.0
 ModelRotation 0.0, 0.0, 0.0, 0.0
 ModelPosition -78.0, 7.0, 75.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCapsule 0.0, 0.0
 
@@ -258,7 +257,7 @@ ModelScaling 5.0, 5.0, 5.0
 ModelRotation 0.0, 0.0, 0.0, 0.0
 ModelPosition -135.0, 7.0, 23.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCapsule 0.0, 0.0
 
@@ -275,7 +274,7 @@ ModelScaling 5.0, 5.0, 5.0
 ModelRotation 0.0, 0.0, 0.0, 0.0
 ModelPosition 113.0, 2.0, -8.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 4, 1
+ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCapsule 0.0, 0.0
 
@@ -291,7 +290,7 @@ ModelPath Models/Floor/floor.obj
 ModelScaling 40.0, 0.1, 60.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -110.0, 5.0, 80.0
-ModelDrawFlag 1,1
+ModelDrawFlag 1, 1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
@@ -306,7 +305,7 @@ ModelScaling 150.0, 0.1, 250.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 0.0, 0.01, -50.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 2, 1
+ModelDrawFlag 3, 1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0

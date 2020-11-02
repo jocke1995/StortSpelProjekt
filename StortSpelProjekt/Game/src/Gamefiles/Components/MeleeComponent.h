@@ -56,6 +56,8 @@ namespace component
 		float m_TimeSinceLastAttackCheck;
 		int m_Damage;
 
+		float3 m_HalfSize;
+
 		Transform* m_pMeleeTransform;
 		Transform m_MeleeTransformModified;
 
