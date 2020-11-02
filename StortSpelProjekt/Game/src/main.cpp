@@ -298,7 +298,7 @@ Scene* GameScene(SceneManager* sm)
     gui->GetTextManager()->SetText(textToRender, "money");
     gui->GetTextManager()->SetBlend(textBlend, "money");
 
-    textToRender = "Enemies: \?/\?";
+    textToRender = "Enemies: 0/20";
     textPos = { 0.01f, 0.1f };
     textPadding = { 0.5f, 0.0f };
     textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
