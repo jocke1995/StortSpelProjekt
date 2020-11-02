@@ -62,8 +62,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScenes[] = { jockeScene };
     //Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* activeScenes[] = { filipScene };
-	//Scene* fredrikScene = FredriksTestScene(sceneManager);
-    //Scene* activeScenes[] = { fredrikScene };
+	Scene* fredrikScene = FredriksTestScene(sceneManager);
+    Scene* activeScenes[] = { fredrikScene };
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* activeScenes[] = { williamScene };
     //Scene* bjornScene = BjornsTestScene(sceneManager);
@@ -72,8 +72,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScenes[] = { antonScene };
     //Scene* shopScene = ShopScene(sceneManager);
     //Scene* activeScenes[] = { shopScene };
-    Scene* andresScene = AndresTestScene(sceneManager);
-    Scene* activeScenes[] = { andresScene };
+    //Scene* andresScene = AndresTestScene(sceneManager);
+    //Scene* activeScenes[] = { andresScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -1882,10 +1882,12 @@ void JockeUpdateScene(SceneManager* sm, double dt)
 
 void FredriksUpdateScene(SceneManager* sm, double dt)
 {
-	/*AssetLoader* al = AssetLoader::Get();
+	AssetLoader* al = AssetLoader::Get();
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
-	tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
-	tx->GetTextManager()->UploadAndExecuteTextData("health");*/
+	component::GUI2DComponent* gui = sm->GetScene("FredriksTestScene")->GetEntity("head")->GetComponent<component::GUI2DComponent>();
+	gui->GetQuadManager()->HideQuad(true);
+	//tx->GetTextManager()->SetText("HP: " + std::to_string(hc->GetHealth()), "health");
+	//tx->GetTextManager()->UploadAndExecuteTextData("health");
 }
 
 void AndresUpdateScene(SceneManager* sm, double dt)

@@ -191,6 +191,16 @@ void TextManager::SetBlend(float4 blend, std::string name)
 	}
 }
 
+void TextManager::HideText(bool hide)
+{
+	m_TextIsHidden = hide;
+}
+
+const bool TextManager::IsTextHidden() const
+{
+	return m_TextIsHidden;
+}
+
 Font* TextManager::GetFont() const
 {
 	return m_pFont;

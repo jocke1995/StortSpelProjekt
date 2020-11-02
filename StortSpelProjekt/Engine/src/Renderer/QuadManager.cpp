@@ -210,6 +210,11 @@ const bool QuadManager::IsMarkable() const
 	return m_Markable;
 }
 
+const bool QuadManager::IsQuadHidden() const
+{
+	return m_QuadIsHidden;
+}
+
 Mesh* const QuadManager::GetQuad() const
 {
 	return m_pQuad;
@@ -257,9 +262,14 @@ void QuadManager::SetActiveTexture(const bool texture)
 	m_ActiveTexture = texture;
 }
 
+void QuadManager::HideQuad(bool hide)
+{
+	m_QuadIsHidden = hide;
+}
+
 void QuadManager::pressed(MouseClick* evnt)
 {
-	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN && evnt->pressed && IsMarked())
+	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN && evnt->pressed && IsMarked() && !m_QuadIsHidden)
 	{
 		EventBus::GetInstance().Publish(&ButtonPressed(m_Name));
 	}

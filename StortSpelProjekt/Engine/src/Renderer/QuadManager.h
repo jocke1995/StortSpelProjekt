@@ -39,6 +39,7 @@ public:
 	const bool IsMarked() const;
 	const bool IsClickable() const; 
 	const bool IsMarkable() const;
+	const bool IsQuadHidden() const;
 
 	Mesh* const GetQuad() const;
 	Texture* const GetTexture(bool texture) const;
@@ -52,6 +53,8 @@ public:
 
 	// 0 (false) for the normal texture and 1 (true) for the marked texture
 	void SetActiveTexture(const bool texture);
+
+	void HideQuad(bool hide);
 
 private:
 	friend class AssetLoader;
@@ -70,6 +73,7 @@ private:
 	bool m_Clickable = false;
 	bool m_Markable = false;
 	bool m_ActiveTexture = false;
+	bool m_QuadIsHidden = false;
 	
 	void pressed(MouseClick* evnt);
 	void uploadQuadData(Renderer* renderer);
