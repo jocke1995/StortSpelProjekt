@@ -60,6 +60,8 @@ namespace component
 
 		void SetAttackInterval(float interval);
 		void SetMeleeAttackDmg(float dmg);
+		void SetRangedAI();
+		void SetAimDirection();
 
 	private:
 		Entity* m_pTarget;
@@ -91,6 +93,7 @@ namespace component
 		float m_AttackInterval;
 		float m_TimeAccumulator;
 		bool m_PathFound;
+		bool m_isRanged;
 
 		void selectTarget();
 		void findPathToTargetQuad();
