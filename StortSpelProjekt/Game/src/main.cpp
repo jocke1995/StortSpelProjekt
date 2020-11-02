@@ -308,12 +308,6 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
 #pragma endregion
 
-    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 75; i++)
-    {
-        enemyFactory.SpawnEnemy("enemyZombie");
-    }
-
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();
 
