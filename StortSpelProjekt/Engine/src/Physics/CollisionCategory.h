@@ -7,6 +7,7 @@ class CollisionCategory
 {
 public:
 	CollisionCategory(Entity* parent);
+	virtual ~CollisionCategory();
 	virtual void Collide(CollisionCategory* other) = 0;
 private:
 	Entity* m_pParent;

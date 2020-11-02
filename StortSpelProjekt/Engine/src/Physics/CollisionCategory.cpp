@@ -5,3 +5,7 @@
 CollisionCategory::CollisionCategory(Entity* parent) : m_pParent(parent)
 {
 }
+
+CollisionCategory::~CollisionCategory()
+{
+}
