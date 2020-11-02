@@ -60,8 +60,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScenes[] = { timScene };
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* activeScenes[] = { jockeScene };
-    //Scene* filipScene = FloppipTestScene(sceneManager);
-    //Scene* activeScenes[] = { filipScene };
+    Scene* filipScene = FloppipTestScene(sceneManager);
+    Scene* activeScenes[] = { filipScene };
 	//Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScenes[] = { fredrikScene };
     //Scene* williamScene = WilliamsTestScene(sceneManager);
@@ -72,8 +72,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScenes[] = { antonScene };
     //Scene* shopScene = ShopScene(sceneManager);
     //Scene* activeScenes[] = { shopScene };
-    Scene* andresScene = AndresTestScene(sceneManager);
-    Scene* activeScenes[] = { andresScene };
+    //Scene* andresScene = AndresTestScene(sceneManager);
+    //Scene* activeScenes[] = { andresScene };
 
     // Set scene
     sceneManager->SetScenes(1, activeScenes);
@@ -746,8 +746,9 @@ Scene* FloppipTestScene(SceneManager* sm)
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
-    component::InputComponent* ic = nullptr;
+    component::PlayerInputComponent* ic = nullptr;
     component::CollisionComponent* bcc = nullptr;
+    component::ParticleEmitterComponent* pe = nullptr;
 
     Entity* entity = nullptr;
 
@@ -767,6 +768,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    ic->SetMovementSpeed(50);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
 
@@ -776,13 +778,15 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0, 1, -30);
     /* ---------------------- Player ---------------------- */
 
+    pe = entity->AddComponent<component::ParticleEmitterComponent>();
+
     /* ---------------------- Skybox ---------------------- */
 
     // Skybox
-    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/cubemap.dds");
+    //TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/cubemap.dds");
     entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    sbc->SetTexture(skyboxCubemap);
+    //sbc->SetTexture(skyboxCubemap);
 
     /* ---------------------- Skybox ---------------------- */
 

@@ -19,6 +19,7 @@
 #include "ECS/Components/CameraComponent.h"
 #include "ECS/Components/GUI2DComponent.h"
 #include "ECS/Components/SkyboxComponent.h"
+#include "ECS/Components/ParticleEmitterComponent.h"
 
 // Sub-engines
 #include "Renderer/Renderer.h"
