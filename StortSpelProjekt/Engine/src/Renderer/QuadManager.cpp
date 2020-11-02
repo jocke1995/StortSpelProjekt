@@ -37,6 +37,11 @@ QuadManager::~QuadManager()
 	{
 		delete m_pSlotInfo;
 	}
+
+	for (int i = 0; i < m_TrashBuffer.size(); i++)
+	{
+		delete m_TrashBuffer.at(i);
+	}
 }
 
 bool QuadManager::operator==(const QuadManager& other) const
@@ -53,23 +58,11 @@ void QuadManager::CreateQuad(
 	Texture* texture,
 	float3 color)
 {
-	// Examine if we are going to overwrite the current quad
+	// We can't create a quad if the quad is already created!
 	if (m_pQuad != nullptr)
 	{
-		delete m_pQuad;
-		m_pQuad = nullptr;
-		m_Clickable = false;
-
-		if (m_pQuadTexture != nullptr)
-		{
-			delete m_pQuadTexture;
-			m_pQuadTexture = nullptr;
-		}
-		if (m_pQuadTextureMarked != nullptr)
-		{
-			delete m_pQuadTextureMarked;
-			m_pQuadTextureMarked = nullptr;
-		}
+		Log::PrintSeverity(Log::Severity::WARNING, "This quad is already created... Could not create a new quad with the name %s!\n", name.c_str());
+		return;
 	}
 
 	if (m_pQuadTexture == nullptr && texture != nullptr)
@@ -142,7 +135,7 @@ void QuadManager::CreateQuad(
 
 	if (m_Markable)
 	{
-		// The quad should have a "marked" texture if it is clickable and has a texture
+		// The quad should have a "marked" texture if it is markable and has a texture
 		if (m_pQuadTexture != nullptr)
 		{
 			AssetLoader* al = AssetLoader::Get();
@@ -161,13 +154,30 @@ void QuadManager::CreateQuad(
 			m_pSlotInfo->textureEmissive = m_pQuadTextureMarked->GetDescriptorHeapIndex();
 		}
 	}
-}
-
-void QuadManager::UploadAndExecuteQuadData()
-{
-	Renderer* renderer = &Renderer::GetInstance();
 
 	uploadQuadData(renderer);
+}
+
+void QuadManager::UpdateQuad(float2 pos, float2 size, bool clickable, bool markable, float4 blend, float3 color)
+{
+	// Delete the old quad
+	if (m_pQuad == nullptr)
+	{
+		Log::PrintSeverity(Log::Severity::WARNING, "The quad does not exist... Could not update quad!\n");
+		return;
+	}
+	else
+	{
+		deleteQuadData();
+	}
+
+	// If we no longer want the quad to be clickable, unsubscribe it from the eventbus
+	if (m_Clickable == true && clickable == false)
+	{
+		EventBus::GetInstance().Unsubscribe(this, &QuadManager::pressed);
+	}
+
+	CreateQuad(m_Name, pos, size, clickable, markable, m_Depth, blend, nullptr, color);
 }
 
 const bool QuadManager::HasTexture() const
@@ -289,4 +299,33 @@ void QuadManager::uploadQuadData(Renderer* renderer)
 	{
 		renderer->submitTextureToCodt(m_pQuadTextureMarked);
 	}
+}
+
+void QuadManager::deleteQuadData()
+{
+	Renderer* renderer = &Renderer::GetInstance();
+
+	// Temp code, removes the text from CopyOnDemandTask before we delete the text*
+	CopyTask* task = renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
+	codt->UnSubmitMesh(m_pQuad);
+
+	// This is an ugly solution, however, it is noticable faster than waiting for the
+	// GPU every time we want to delete a quad, while also emptying the buffer so that
+	// we don't need to worry about the memory getting full
+	if (m_TrashBuffer.size() == 50)
+	{
+		renderer->waitForGPU();
+
+		for (int i = 0; i < m_TrashBuffer.size(); i++)
+		{
+			delete m_TrashBuffer.at(i);
+		}
+		m_TrashBuffer.clear();
+	}
+
+	m_TrashBuffer.push_back(m_pQuad);
+	m_pQuad = nullptr;
+
+	delete m_pSlotInfo;
 }

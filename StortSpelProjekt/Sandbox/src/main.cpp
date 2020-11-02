@@ -1884,16 +1884,25 @@ void FredriksUpdateScene(SceneManager* sm, double dt)
 {
 	static float4 color = { 0.0, 0.3, 0.6, 1.0 };
 
+	static float2 quadPos = { 0.0f, 0.5f };
+	static float2 quadScale = { 0.25f, 0.1f };
+	static float4 blended = { 1.0, 1.0, 1.0, 0.5 };
+	static float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	
 	AssetLoader* al = AssetLoader::Get();
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
-	component::GUI2DComponent* gui = sm->GetScene("FredriksTestScene")->GetEntity("head")->GetComponent<component::GUI2DComponent>();
-	component::GUI2DComponent* text = sm->GetScene("FredriksTestScene")->GetEntity("health")->GetComponent<component::GUI2DComponent>();
-	text->GetTextManager()->SetText("Color.x: " + std::to_string(color.x), "health");
-	text->GetTextManager()->SetColor(float4{ sinf(color.x), sinf(color.y), sinf(color.z), 1.0}, "health");
 
-	color.x += 0.01;
-	color.y += 0.01;
-	color.z += 0.01;
+	component::GUI2DComponent* health = sm->GetScene("FredriksTestScene")->GetEntity("health")->GetComponent<component::GUI2DComponent>();
+	health->GetTextManager()->SetText("Color.x: " + std::to_string(color.x), "health");
+	health->GetTextManager()->SetColor(float4{ sinf(color.x), sinf(color.y), sinf(color.z), 1.0}, "health");
+
+	health->GetQuadManager()->UpdateQuad(quadPos, quadScale, false, false, notBlended);
+
+	color.x += 0.001;
+	color.y += 0.001;
+	color.z += 0.001;
+
+	quadScale.x = sinf(color.x);
 }
 
 void AndresUpdateScene(SceneManager* sm, double dt)

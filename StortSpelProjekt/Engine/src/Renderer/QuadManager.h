@@ -32,8 +32,12 @@ public:
 		int depthLevel, 
 		float4 blend = float4{ 1.0, 1.0, 1.0, 1.0 },
 		Texture* texture = nullptr,
-		float3 color = float3{ 0.0, 0.0, 0.0 });
-	void UploadAndExecuteQuadData();
+		float3 color = float3{ 1.0, 1.0, 1.0 });
+	void UpdateQuad(
+		float2 pos, float2 size,
+		bool clickable, bool markable,
+		float4 blend = float4{ 1.0, 1.0, 1.0, 1.0 },
+		float3 color = float3{ 1.0, 1.0, 1.0 });
 
 	const bool HasTexture() const;
 	const bool IsMarked() const;
@@ -74,8 +78,10 @@ private:
 	bool m_Markable = false;
 	bool m_ActiveTexture = false;
 	bool m_QuadIsHidden = false;
+	std::vector<Mesh*> m_TrashBuffer = {};
 	
 	void pressed(MouseClick* evnt);
 	void uploadQuadData(Renderer* renderer);
+	void deleteQuadData();
 };
 #endif
