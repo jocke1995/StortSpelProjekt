@@ -3,6 +3,7 @@
 #include "MeleeComponent.h"
 #include "HealthComponent.h"
 #include "../Renderer/BoundingBoxPool.h"
+#include "../Renderer/Camera/PerspectiveCamera.h"
 
 #include "../ECS/Components/Audio3DEmitterComponent.h"
 #include "../ECS/Components/Audio2DVoiceComponent.h"
@@ -112,6 +113,14 @@ void component::MeleeComponent::Attack()
 		CheckCollision();
 		m_Cooldown = true;
 		m_TimeSinceLastAttackCheck = 0;
+
+		float3 forward = m_pParent->GetComponent<component::CameraComponent>()->GetCamera()->GetDirectionFloat3();
+
+		double angle = std::atan2(forward.x, forward.z);
+		int angleDegrees = EngineMath::convertToWholeDegrees(angle);
+		angleDegrees = (angleDegrees + 360) % 360;
+		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAngleToTurnTo(angleDegrees);
+		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAttacking(true);
 	}
 }
 

@@ -52,17 +52,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AssetLoader* al = AssetLoader::Get();
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* activeScene = jacobScene;
+    Scene* leoScene = LeosTestScene(sceneManager);
+    Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
+    //Scene* activeScene = timScene;
     //Scene* jockeScene = JockesTestScene(sceneManager);
-    Scene* filipScene = FloppipTestScene(sceneManager);
+    //Scene* activeScene = jockeScene;
+    //Scene* filipScene = FloppipTestScene(sceneManager);
+    //Scene* activeScene = filipScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
+    //Scene* activeScene = fredrikScene;
     //Scene* williamScene = WilliamsTestScene(sceneManager);
+    //Scene* activeScene = williamScene;
     //Scene* bjornScene = BjornsTestScene(sceneManager);
+    //Scene* activeScene = bjornScene;
     //Scene* antonScene = AntonTestScene(sceneManager);
+    //Scene* activeScene = antonScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
-
-    Scene* activeScene = filipScene;
+    //Scene* activeScene = andreScene;
 
     // Set scene
     sceneManager->SetScenes(activeScene);
@@ -272,7 +280,7 @@ Scene* LeosTestScene(SceneManager* sm)
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
-    component::InputComponent* ic = nullptr;
+    component::PlayerInputComponent* ic = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::CollisionComponent* ccc = nullptr;
     component::Audio3DListenerComponent* avc2 = nullptr;
@@ -323,6 +331,7 @@ Scene* LeosTestScene(SceneManager* sm)
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
     ic->Init();
+    ic->SetMovementSpeed(57.0f);
 
     Player::GetInstance().SetPlayer(entity);
 #pragma endregion
@@ -340,8 +349,8 @@ Scene* LeosTestScene(SceneManager* sm)
 	zombie.attackingDist = 0.5f;
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
-	zombie.scale = 0.04;
-	zombie.detectionRad = 50.0f;
+	zombie.scale = 1.0;
+	zombie.detectionRad = 500.0f;
 
     enemyFactory.SetScene(scene);
 
@@ -349,16 +358,10 @@ Scene* LeosTestScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ -340.0, 10.0, 340.0 });
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
 
-    for (int i = 0; i < 75; i++)
+    for (int i = 0; i < 0; i++)
     {
         entity = enemyFactory.SpawnEnemy("enemyZombie");
     }
-
-    Log::Print("Zombie 16 HP: %d\n", scene->GetEntity("enemyZombie16")->GetComponent<component::HealthComponent>()->GetMaxHealth());
-
-    enemyFactory.SetEnemyTypeMaxHealth("enemyZombie", 50);
-
-    Log::Print("Zombie 16 HP: %d\n", scene->GetEntity("enemyZombie16")->GetComponent<component::HealthComponent>()->GetMaxHealth());
 
 #pragma endregion
 

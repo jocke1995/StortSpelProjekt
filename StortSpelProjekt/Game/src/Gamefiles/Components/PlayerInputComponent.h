@@ -53,14 +53,16 @@ namespace component
 		//Sets the movement speed
 		void SetMovementSpeed(float speed);
 
+		void SetAngleToTurnTo(int angle);
+
+		void SetAttacking(bool attacking);
+
 		void Reset();
 
 	private:
 		unsigned int m_CameraFlags = 0;
-		float m_Zoom;
 		float m_Pitch;
 		float m_Yaw;
-		float m_CameraDistance;
 		float m_Elevation;
 		float m_MovementSpeed = 10.0f;
 		PerspectiveCamera* m_pCamera;
@@ -71,6 +73,7 @@ namespace component
 		double m_DashTimer;
 		bool m_DashReady;
 		bool m_Dashing;
+		bool m_Attacking;
 
 		double m_JumpHeight;
 		double m_JumpTime;
@@ -78,13 +81,13 @@ namespace component
 
 		int m_UpdateShootId;
 		int m_UpdateDashId;
+		int m_AngleToTurnTo;
 
 		std::vector<void(PlayerInputComponent::*)(double dt)> specificUpdates;
 		void(PlayerInputComponent::*specificUpdate)(double dt);
 
 
 		void alternativeInput(ModifierInput* evnt);
-		void zoom(MouseScroll* evnt);
 
 		void move(MovementInput* evnt);
 		void rotate(MouseMovement* evnt);
