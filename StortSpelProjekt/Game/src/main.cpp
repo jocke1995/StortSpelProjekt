@@ -192,7 +192,7 @@ Scene* GameScene(SceneManager* sm)
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
 
     melc->SetDamage(10);
-    melc->setAttackInterval(1.0);
+    melc->setAttackInterval(0.8);
     ranc->SetAttackInterval(0.8);
     pic->Init();
     pic->SetJumpTime(0.17);
