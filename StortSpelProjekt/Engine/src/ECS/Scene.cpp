@@ -25,11 +25,7 @@ Scene::~Scene()
     {
         if (pair.second != nullptr)
         {
-            pair.second->DecrementRefCount();
-            if (pair.second->GetRefCount() == 0)
-            {
-                PoolAllocator<Entity>::GetInstance().Delete(pair.second);
-            }
+            PoolAllocator<Entity>::GetInstance().Delete(pair.second);
         }
     }
 
@@ -45,7 +41,6 @@ Entity* Scene::AddEntityFromOther(Entity* other)
     }
 
     m_EntitiesToKeep[other->GetName()] = other;
-    other->IncrementRefCount();
 
     m_NrOfEntities++;
     return other;
@@ -61,7 +56,6 @@ Entity* Scene::AddEntity(std::string entityName)
     }
 
     m_EntitiesToKeep[entityName] = PoolAllocator<Entity>::GetInstance().Allocate(entityName);
-    m_EntitiesToKeep[entityName]->IncrementRefCount();
     m_NrOfEntities++;
 
     return m_EntitiesToKeep[entityName];
