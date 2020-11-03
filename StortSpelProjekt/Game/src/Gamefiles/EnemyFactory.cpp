@@ -8,27 +8,37 @@
 EnemyFactory::EnemyFactory()
 {
 	m_MaxEnemies = 20;
+	m_LevelMaxEnemies = 20;
+	m_EnemiesKilled = 0;
 	m_SpawnCooldown = 5;
 	m_MinimumDistanceToPlayer = 100;
 	m_SpawnTimer = 0.0f;
+	m_DifficultScale = 1.0f;
 	m_RandGen.SetSeed(time(NULL));
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
+	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
+	EventBus::GetInstance().Subscribe(this, &EnemyFactory::levelDone);
 }
 
 EnemyFactory::EnemyFactory(Scene* scene)
 {
 	m_pScene = scene;
 	m_MaxEnemies = 20;
+	m_LevelMaxEnemies = 20;
+	m_EnemiesKilled = 0;
 	m_SpawnCooldown = 5;
 	m_MinimumDistanceToPlayer = 1;
 	m_SpawnTimer = 0.0f;
+	m_DifficultScale = 1.0f;
 	m_RandGen.SetSeed(time(NULL));
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
+	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
 }
 
 EnemyFactory::~EnemyFactory()
 {
 	EventBus::GetInstance().Unsubscribe(this, &EnemyFactory::onSceneSwitch);
+	EventBus::GetInstance().Unsubscribe(this, &EnemyFactory::enemyDeath);
 	for (auto pair : m_EnemyComps)
 	{
 		if (pair.second != nullptr)
@@ -340,14 +350,51 @@ void EnemyFactory::Update(double dt)
 			}
 			unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
 
-			unsigned int toSpawn = (m_MaxEnemies - m_Enemies.size()) / 2;
+			int toSpawn = (m_MaxEnemies - m_Enemies.size()) / 2;
 
-			for (unsigned int i = 0; i < toSpawn; ++i)
+			int enemySlotsLeft = m_LevelMaxEnemies - m_EnemiesKilled - GetAllEnemies()->size();
+			if (toSpawn > enemySlotsLeft)
 			{
-				SpawnEnemy("enemyZombie", eligblePoints[point]);
+				toSpawn = enemySlotsLeft;
+			}
+			if (toSpawn > 0)
+			{
+				for (unsigned int i = 0; i < toSpawn; ++i)
+				{
+					SpawnEnemy("enemyZombie", eligblePoints[point]);
+				}
 			}
 			m_SpawnTimer = 0.0;
 		}
+	}
+}
+
+void EnemyFactory::enemyDeath(Death* evnt)
+{
+	if (strcmp(evnt->ent->GetName().substr(0, 5).c_str(), "enemy") == 0)
+	{
+		m_EnemiesKilled++;
+
+		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+		if (enemyGui != nullptr)
+		{
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Enemies: " + std::to_string(m_EnemiesKilled) + "/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+		}
+
+		//If we have reached the kill goal we are done with the level and should do anything coming from that
+		if (m_EnemiesKilled >= m_LevelMaxEnemies)
+		{
+			EventBus::GetInstance().Publish(&LevelDone());
+		}
+	}
+}
+
+void EnemyFactory::levelDone(LevelDone* evnt)
+{
+	Entity* teleport = m_pScene->GetEntity("teleporter");
+	if (teleport != nullptr)
+	{
+		teleport->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
 	}
 }
 
@@ -362,5 +409,20 @@ void EnemyFactory::onSceneSwitch(SceneChange* evnt)
 	{
 		m_IsActive = true;
 		m_SpawnTimer = 0.0f;
+		m_EnemiesKilled = 0;
+
+		Entity* teleport = m_pScene->GetEntity("teleporter");
+		teleport->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+
+		//Scaling difficulty
+		m_DifficultScale += pow(m_DifficultScale, 1.15);
+		m_LevelMaxEnemies = 20 + log(m_DifficultScale) * 10;
+
+		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+		if (enemyGui != nullptr)
+		{
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Enemies: 0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+		}
+
 	}
 }
