@@ -5,17 +5,11 @@
 #include "structs.h"
 
 class Mesh;
-class Model;
-class TextureCubeMap;
 class Transform;
-class BaseCamera;
+class Texture2DGUI;
 
 namespace component
 {
-    // To use a skybox:
-    // 1. Create skyboxcompoenent on an entity
-    // 2. Set Mesh
-    // 3. Set Cubemap Texture
     class ParticleEmitterComponent : public Component
     {
     public:
@@ -28,18 +22,15 @@ namespace component
 
         // Sets
         void SetMesh(Mesh* mesh);
-        void SetTexture(TextureCubeMap* texture);
-        void SetCamera(BaseCamera* camera);
+        void SetTexture(Texture2DGUI* texture);
 
         // Gets
-        Transform* GetTransform() const;
         Mesh* GetMesh() const;
-        TextureCubeMap* GetTexture() const;
-        BaseCamera* GetCamera() const;
+        Texture2DGUI* GetTexture() const;
 
     private:
         Mesh* m_pMesh = nullptr;
-        TextureCubeMap* m_pTexture = nullptr;
+        Texture2DGUI* m_pTexture = nullptr;
     };
 }
 #endif

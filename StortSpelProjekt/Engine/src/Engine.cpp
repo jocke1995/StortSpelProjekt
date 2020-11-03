@@ -60,6 +60,8 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	// Physics
 	m_pPhysics = &Physics::GetInstance();
 
+	m_pParticleSystem = &ParticleSystem::GetInstance();
+
 	Input::GetInstance().RegisterDevices(m_pWindow->GetHwnd());
 }
 

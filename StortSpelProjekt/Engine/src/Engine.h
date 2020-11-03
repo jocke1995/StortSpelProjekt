@@ -31,6 +31,7 @@
 #include "Renderer/Camera/BaseCamera.h"
 #include "Physics/Physics.h"
 #include "AudioEngine/AudioBuffer.h"
+#include "Particles/ParticleSystem.h"
 
 // Textures
 #include "Renderer/Material.h"
@@ -79,6 +80,7 @@ private:
 	SceneManager* m_pSceneManager = nullptr;
 	Physics* m_pPhysics = nullptr;
 	AudioEngine* m_pAudioEngine = nullptr;
+	ParticleSystem* m_pParticleSystem = nullptr;
 
 	int m_ThreadLimit = 4;
 };
