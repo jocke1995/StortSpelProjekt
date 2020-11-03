@@ -22,10 +22,10 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 	}
 	else if (cbPerObject.textureInfo.y == 0.0)
 	{
-		return float4(textures[cbPerObject.info.textureAlbedo].Sample(point_Wrap, input.texCoord)) * blend;
+		return float4(input.color * textures[cbPerObject.info.textureAlbedo].Sample(point_Wrap, input.texCoord)) * blend;
 	}
 	else
 	{
-		return float4(textures[cbPerObject.info.textureEmissive].Sample(point_Wrap, input.texCoord)) * blend;
+		return float4(input.color * textures[cbPerObject.info.textureEmissive].Sample(point_Wrap, input.texCoord)) * blend;
 	}
 }

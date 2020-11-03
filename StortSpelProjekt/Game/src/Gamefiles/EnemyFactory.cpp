@@ -371,7 +371,7 @@ void EnemyFactory::Update(double dt)
 
 void EnemyFactory::enemyDeath(Death* evnt)
 {
-	if (strcmp(evnt->ent->GetName().substr(0, 6).c_str(), "enemy"))
+	if (strcmp(evnt->ent->GetName().substr(0, 5).c_str(), "enemy") == 0)
 	{
 		m_EnemiesKilled++;
 
@@ -414,14 +414,15 @@ void EnemyFactory::onSceneSwitch(SceneChange* evnt)
 		Entity* teleport = m_pScene->GetEntity("teleporter");
 		teleport->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
-		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
-		if (enemyGui != nullptr)
-		{
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Enemies: ?/?", "enemyGui");
-		}
-
 		//Scaling difficulty
 		m_DifficultScale += pow(m_DifficultScale, 1.15);
 		m_LevelMaxEnemies = 20 + log(m_DifficultScale) * 10;
+
+		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+		if (enemyGui != nullptr)
+		{
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Enemies: 0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+		}
+
 	}
 }

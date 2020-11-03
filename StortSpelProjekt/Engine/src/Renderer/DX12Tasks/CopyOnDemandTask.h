@@ -5,6 +5,7 @@
 class Texture;
 class TextData;
 class Text;
+class Mesh;
 
 class CopyOnDemandTask : public CopyTask
 {
@@ -15,7 +16,8 @@ public:
 	void SubmitTexture(Texture* texture);
 
 	// Todo: Remove this funciton
-	// Bad coding, have to have currently for text to work.
+	// Bad coding, have to have currently for text and quads to work.
+	void UnSubmitMesh(Mesh* mesh);
 	void UnSubmitText(Text* text);
 
 	// Removal
