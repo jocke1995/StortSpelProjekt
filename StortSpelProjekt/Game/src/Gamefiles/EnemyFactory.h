@@ -95,7 +95,7 @@ public:
 	void SetMinDistanceFromPlayer(float val);
 
 	void Update(double dt);
-
+	void SetActive(bool active);
 private:
 	void enemyDeath(Death* evnt);
 	void levelDone(LevelDone* evnt);

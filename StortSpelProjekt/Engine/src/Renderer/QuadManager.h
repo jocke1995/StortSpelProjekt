@@ -60,6 +60,9 @@ public:
 
 	void HideQuad(bool hide);
 
+	//Set the function to be called when this quad is clicked.
+	void SetOnClicked(void (*clickFunc)(const std::string&));
+
 private:
 	friend class AssetLoader;
 	friend class Renderer;
@@ -79,6 +82,8 @@ private:
 	bool m_ActiveTexture = false;
 	bool m_QuadIsHidden = false;
 	std::vector<Mesh*> m_TrashBuffer = {};
+	// Needs to take in the name of the button.
+	void (*m_pOnClicked)(const std::string &);
 	
 	void pressed(MouseClick* evnt);
 	void uploadQuadData(Renderer* renderer);

@@ -14,11 +14,15 @@
 #include "../Misc/AssetLoader.h"
 
 #include "../Events/EventBus.h"
-
+void SendButtonEvent(const std::string& name)
+{
+	EventBus::GetInstance().Publish(&ButtonPressed(name));
+}
 QuadManager::QuadManager()
 {
 	m_Id = s_Id;
 	s_Id++;
+	m_pOnClicked = &SendButtonEvent;
 }
 
 QuadManager::~QuadManager()
@@ -277,11 +281,16 @@ void QuadManager::HideQuad(bool hide)
 	m_QuadIsHidden = hide;
 }
 
+void QuadManager::SetOnClicked(void(*clickFunc)(const std::string&))
+{
+	m_pOnClicked = clickFunc;
+}
+
 void QuadManager::pressed(MouseClick* evnt)
 {
 	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN && evnt->pressed && IsMarked() && !m_QuadIsHidden)
 	{
-		EventBus::GetInstance().Publish(&ButtonPressed(m_Name));
+		m_pOnClicked(m_Name);
 	}
 }
 

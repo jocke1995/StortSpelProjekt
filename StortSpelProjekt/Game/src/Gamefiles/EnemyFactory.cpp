@@ -369,6 +369,11 @@ void EnemyFactory::Update(double dt)
 	}
 }
 
+void EnemyFactory::SetActive(bool active)
+{
+	m_IsActive = active;
+}
+
 void EnemyFactory::enemyDeath(Death* evnt)
 {
 	if (strcmp(evnt->ent->GetName().substr(0, 5).c_str(), "enemy") == 0)
@@ -400,7 +405,7 @@ void EnemyFactory::levelDone(LevelDone* evnt)
 
 void EnemyFactory::onSceneSwitch(SceneChange* evnt)
 {
-	if (evnt->m_NewSceneName == "ShopScene" || evnt->m_NewSceneName == "gameOverScene")
+	if (evnt->m_NewSceneName == "ShopScene" || evnt->m_NewSceneName == "gameOverScene" || evnt->m_NewSceneName == "MainMenuScene")
 	{
 		m_IsActive = false;
 		m_Enemies.clear();
