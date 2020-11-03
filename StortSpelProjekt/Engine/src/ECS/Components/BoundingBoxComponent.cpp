@@ -15,7 +15,7 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/GPUMemory/ShaderResourceView.h"
 #include "../Renderer/Renderer.h"
-
+#include "../Physics/CollisionCategory.h"
 
 
 namespace component
@@ -24,6 +24,7 @@ namespace component
 		:Component(parent)
 	{
 		m_FlagOBB = flagOBB;
+		m_pCategory = new CollisionCategory(parent);
 	}
 
 	BoundingBoxComponent::~BoundingBoxComponent()
@@ -32,6 +33,8 @@ namespace component
 		{
 			delete slotinfo;
 		}
+
+		delete m_pCategory;
 	}
 
 	void BoundingBoxComponent::Init()
@@ -146,6 +149,11 @@ namespace component
 	bool& BoundingBoxComponent::IsPickedThisFrame()
 	{
 		return m_pParent->GetComponent<ModelComponent>()->m_IsPickedThisFrame;
+	}
+
+	void BoundingBoxComponent::Collide(const BoundingBoxComponent& other)
+	{
+		m_pCategory->Collide(other.m_pCategory);
 	}
 
 	bool BoundingBoxComponent::createOrientedBoundingBox()

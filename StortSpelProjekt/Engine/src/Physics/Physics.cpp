@@ -157,15 +157,20 @@ void Physics::collisionChecks(double dt)
 		// if there is 0 or only 1 object in our vector then we don't have to check collision
 		if (m_CollisionEntities.size() > 1)
 		{
+			component::BoundingBoxComponent* first;
+			component::BoundingBoxComponent* second;
 			for (int i = 0; i < m_CollisionEntities.size(); i++)
 			{
+				first = m_CollisionEntities.at(i)->GetComponent<component::BoundingBoxComponent>();
 				for (int j = i + 1; j < m_CollisionEntities.size(); j++)
 				{
+					second = m_CollisionEntities.at(j)->GetComponent<component::BoundingBoxComponent>();
 					if (CheckOBBCollision(
-						m_CollisionEntities.at(i)->GetComponent<component::BoundingBoxComponent>()->GetOBB(),
-						m_CollisionEntities.at(j)->GetComponent<component::BoundingBoxComponent>()->GetOBB()))
+						first->GetOBB(),
+						second->GetOBB()))
 					{
-						EventBus::GetInstance().Publish(&Collision(m_CollisionEntities.at(i), m_CollisionEntities.at(j)));
+						first->Collide(*second);
+						//EventBus::GetInstance().Publish(&Collision(m_CollisionEntities.at(i), m_CollisionEntities.at(j)));
 					}
 				}
 			}
