@@ -31,11 +31,15 @@ public:
     const ConstantBuffer* GetConstantBuffer() const;
     const std::vector<DirectX::XMFLOAT4X4>* GetUploadMatrices() const;
 
+    bool SetActiveAnimation(std::string animationName);
     void Update(double dt);
+    void toggleAnimation();
 
 private:
+    void initializeAnimation(SkeletonNode* node);   // Attach the currentStateTransforms of the animation to the skeleton.
     void updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform);
 
+    bool animationIsPaused = true;
     Animation* m_pActiveAnimation;
     SkeletonNode* m_pSkeleton;
     std::vector<Animation*> m_Animations;

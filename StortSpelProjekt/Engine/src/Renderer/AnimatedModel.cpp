@@ -28,8 +28,6 @@ AnimatedModel::AnimatedModel(
 		m_UploadMatrices.push_back(matIdentity);
 	}
 
-	m_pActiveAnimation = m_Animations[0];
-
 	// Store the globalInverse transform.
 	DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
 	globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
@@ -61,9 +59,27 @@ const std::vector<DirectX::XMFLOAT4X4>* AnimatedModel::GetUploadMatrices() const
 	return &m_UploadMatrices;
 }
 
+bool AnimatedModel::SetActiveAnimation(std::string animationName)
+{
+	for (auto& animation : m_Animations)
+	{
+		if (animation->name == animationName)
+		{
+			m_pActiveAnimation = animation;
+			m_pActiveAnimation->Update(0);
+			initializeAnimation(m_pSkeleton);
+			return true;
+		}
+	}
+
+	Log::PrintSeverity(Log::Severity::CRITICAL, "Wrong name for the animation!\n");
+
+	return false;
+}
+
 void AnimatedModel::Update(double dt)
 {
-	if (m_pActiveAnimation != nullptr)
+	if (m_pActiveAnimation != nullptr && !animationIsPaused)
 	{
 		static double time;
 		time += dt;
@@ -72,6 +88,36 @@ void AnimatedModel::Update(double dt)
 		float animationTime = fmod(timeInTicks, m_pActiveAnimation->durationInTicks);
 		m_pActiveAnimation->Update(animationTime);
 		updateSkeleton(animationTime, m_pSkeleton, DirectX::XMMatrixIdentity());
+	}
+}
+
+void AnimatedModel::toggleAnimation()
+{
+	if (animationIsPaused)
+	{
+		animationIsPaused = false;
+	}
+	else
+	{
+		animationIsPaused = true;
+	}
+}
+
+void AnimatedModel::initializeAnimation(SkeletonNode* node)
+{
+	if (m_pActiveAnimation->currentState.find(node->name) != m_pActiveAnimation->currentState.end())
+	{
+		node->currentStateTransform = &m_pActiveAnimation->currentState[node->name];
+	}
+	else
+	{
+		node->currentStateTransform = nullptr;
+	}
+
+	// Loop through all nodes in the tree
+	for (auto& child : node->children)
+	{
+		initializeAnimation(child);
 	}
 }
 

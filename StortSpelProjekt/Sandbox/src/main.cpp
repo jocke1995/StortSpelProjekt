@@ -1119,10 +1119,12 @@ Scene* WilliamsTestScene(SceneManager* sm)
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
+    component::AnimationComponent* ac = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::CollisionComponent* bcc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
+    component::PlayerInputComponent* ic = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1137,15 +1139,19 @@ Scene* WilliamsTestScene(SceneManager* sm)
     Entity* entity = scene->AddEntity("player");
     bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.1);
     mc = entity->AddComponent<component::ModelComponent>();
-    component::PlayerInputComponent* ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    ac = entity->AddComponent<component::AnimationComponent>();
+    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     tc = entity->AddComponent<component::TransformComponent>();
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
 
-    mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0, 1, -30);
+    mc->SetModel(aniTest);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
+    ac->Initialize();
+    ac->SetActiveAnimation("mixamo.com");
+    tc->GetTransform()->SetPosition(0.0f, 5.0f, 10.0f);
+    tc->GetTransform()->SetScale(0.1f);
+    tc->GetTransform()->SetRotationY(PI);
 
     scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
@@ -1181,14 +1187,6 @@ Scene* WilliamsTestScene(SceneManager* sm)
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(70, 1, 70);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-
-    entity = scene->AddEntity("amongUs");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    mc->SetModel(aniTest);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetPosition(0.0f, 5.0f, 10.0f);
-    tc->GetTransform()->SetScale(0.1f);
 
     entity = scene->AddEntity("pointLight1");
     mc = entity->AddComponent<component::ModelComponent>();

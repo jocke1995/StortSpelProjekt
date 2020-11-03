@@ -188,14 +188,7 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 		SkeletonNode* rootNode = processAnimatedModel(&boneCounter, assimpScene->mRootNode, assimpScene, &meshes, &materials, path);
 		processAnimations(assimpScene, &animations);
-		if (!animations.empty())	// Possibly useless now
-		{
-			for (int i = 0; i < animations.size(); i++)
-			{
-				animations[i]->Update(0);
-			}
-			initializeSkeleton(rootNode, &boneCounter, animations[0]);	// Ugly solution, should not pass animation[0].
-		}
+		initializeSkeleton(rootNode, &boneCounter);
 
 		m_LoadedModels[path].second = new AnimatedModel(&path, rootNode, &meshes, &animations, &materials, boneCounter.size());
 
@@ -1236,7 +1229,7 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo>* boneCoun
 	return mesh;
 }
 
-void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter, Animation* animation)
+void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter)
 {
 	// Attach the bone ID and the offset matrix to its corresponding SkeletonNode
 	if (node->name.find("_$", 0) == std::string::npos)
@@ -1249,20 +1242,10 @@ void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, B
 		node->boneID = -1;
 	}
 	
-	if (animation->currentState.find(node->name) != animation->currentState.end())
-	{
-		// Set the currentStateTransform pointer. This would look nicer if we didn't need the animation to do it
-		node->currentStateTransform = &animation->currentState[node->name];
-	}
-	else
-	{
-		node->currentStateTransform = nullptr;
-	}
-	
 	// Loop through all nodes in the tree
 	for (auto& child : node->children)
 	{
-		initializeSkeleton(child, boneCounter, animation);
+		initializeSkeleton(child, boneCounter);
 	}
 }
 
@@ -1462,6 +1445,7 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 		Animation* animation = new Animation();
 		aiAnimation* assimpAnimation = assimpScene->mAnimations[i];
 
+		animation->name = assimpAnimation->mName.C_Str();
 		animation->durationInTicks = assimpAnimation->mDuration;
 		animation->ticksPerSecond = assimpAnimation->mTicksPerSecond != 0 ?
 			assimpAnimation->mTicksPerSecond : 25.0f;

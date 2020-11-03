@@ -55,6 +55,7 @@ struct SkeletonNode
 
 struct Animation
 {
+	std::string name;
 	double durationInTicks;
 	double ticksPerSecond;
 	std::map<std::string, TransformKey> currentState;
