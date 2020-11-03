@@ -19,25 +19,25 @@ namespace component
 
 	TextManager* GUI2DComponent::GetTextManager()
 	{
-		return &m_pTextMan;
+		return &m_TextMan;
 	}
 
 	QuadManager* GUI2DComponent::GetQuadManager()
 	{
-		return &m_pQuadMan;
+		return &m_QuadMan;
 	}
 
 	void GUI2DComponent::Update(double dt)
 	{
-		if (m_pQuadMan.IsMarkable() && !m_pQuadMan.IsQuadHidden())
+		if (m_QuadMan.IsMarkable() && !m_QuadMan.IsQuadHidden())
 		{
-			if (m_pQuadMan.IsMarked())
+			if (m_QuadMan.IsMarked())
 			{
-				m_pQuadMan.SetActiveTexture(1);
+				m_QuadMan.SetActiveTexture(1);
 			}
 			else
 			{
-				m_pQuadMan.SetActiveTexture(0);
+				m_QuadMan.SetActiveTexture(0);
 			}
 		}
 	}

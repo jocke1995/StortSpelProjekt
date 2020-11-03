@@ -24,8 +24,8 @@ namespace component
 	private:
 		friend class Renderer;
 
-		TextManager m_pTextMan;
-		QuadManager m_pQuadMan;
+		TextManager m_TextMan;
+		QuadManager m_QuadMan;
 	};
 }
 #endif
