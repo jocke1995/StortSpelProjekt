@@ -192,6 +192,8 @@ Scene* GameScene(SceneManager* sm)
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
 
     melc->SetDamage(10);
+    melc->setAttackInterval(1.0);
+    ranc->SetAttackInterval(0.8);
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
@@ -223,10 +225,11 @@ Scene* GameScene(SceneManager* sm)
 	zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
-	zombie.meleeAttackDmg = 10.0f;
-	zombie.attackInterval = 1.0f;
+	zombie.meleeAttackDmg = 5.0f;
+	zombie.attackInterval = 1.5f;
+	zombie.attackSpeed = 0.1f;
 	zombie.movementSpeed = 30.0f;
-	zombie.attackingDist = 1.0f;
+	zombie.attackingDist = 1.5f;
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
 	zombie.scale = 0.04;

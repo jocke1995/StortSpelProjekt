@@ -59,6 +59,7 @@ namespace component
 		Entity* GetTarget();
 
 		void SetAttackInterval(float interval);
+		void SetAttackSpeed(float speed);
 		void SetMeleeAttackDmg(float dmg);
 
 	private:

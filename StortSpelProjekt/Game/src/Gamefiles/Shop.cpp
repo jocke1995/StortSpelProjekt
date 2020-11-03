@@ -165,6 +165,7 @@ void Shop::ApplyUppgrade(std::string name)
 	else
 	{
 		m_pUpgradeManager->ApplyUpgrade(name);
+		m_pUpgradeManager->IncreaseLevel(name);
 	}
 }
 

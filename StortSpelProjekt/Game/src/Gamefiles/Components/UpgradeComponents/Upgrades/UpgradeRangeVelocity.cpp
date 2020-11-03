@@ -32,7 +32,7 @@ void UpgradeRangeVelocity::IncreaseLevel()
 		// double the velocity of the shots
 		float newVelocity = oldVelocity + 10;
 		m_pParentEntity->GetComponent<component::RangeComponent>()->SetVelocity(newVelocity);
-		m_Price = m_Price * 2;
+		m_Price = m_StartingPrice * m_Level;
 	}
 }
 
@@ -45,5 +45,5 @@ void UpgradeRangeVelocity::ApplyBoughtUpgrade()
 	m_pParentEntity->GetComponent<component::RangeComponent>()->SetVelocity(newVelocity);
 
 	// increase price for next level
-	m_Price *= 2;
+	m_Price = m_StartingPrice * m_Level;
 }

@@ -176,7 +176,8 @@ void component::AiComponent::Update(double dt)
 			}
 
 			m_IntervalTimeAccumulator += static_cast<float>(dt);
-			if (distance <= m_AttackingDistance)
+			float playerDistance = (targetTrans->GetPositionFloat3() - parentTrans->GetPositionFloat3()).length();
+			if (playerDistance <= m_AttackingDistance)
 			{
 				// TODO: fix this when meele attack is implemented
 				HealthComponent* hc = m_pTarget->GetComponent<component::HealthComponent>();
@@ -241,6 +242,11 @@ Entity* component::AiComponent::GetTarget()
 void component::AiComponent::SetAttackInterval(float interval)
 {
 	m_AttackInterval = interval;
+}
+
+void component::AiComponent::SetAttackSpeed(float speed)
+{
+	m_AttackSpeed = speed;
 }
 
 void component::AiComponent::SetMeleeAttackDmg(float dmg)
