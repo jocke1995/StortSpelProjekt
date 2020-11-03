@@ -1,7 +1,7 @@
+#include "stdafx.h"
 #include "PlayerProjectileCollisionCategory.h"
 #include "PlayerCollisionCategory.h"
-#include "Headers/Core.h"
-#include "Events/EventBus.h"
+#include "../Events/EventBus.h"
 
 PlayerProjectileCollisionCategory::PlayerProjectileCollisionCategory(Entity* parent) : CollisionCategory(parent)
 {

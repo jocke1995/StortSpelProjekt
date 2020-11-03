@@ -2,8 +2,8 @@
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 #include "GameGUI.h"
-#include "CollisionCategories/PlayerCollisionCategory.h"
-#include "CollisionCategories/PlayerProjectileCollisionCategory.h"
+#include "Physics/CollisionCategories/PlayerCollisionCategory.h"
+#include "Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
 // Game includes
 #include "Player.h"
 #include "UpgradeManager.h"
@@ -23,6 +23,7 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();

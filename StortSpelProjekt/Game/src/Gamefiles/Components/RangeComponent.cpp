@@ -14,7 +14,7 @@
 
 #include "UpgradeComponents/UpgradeComponent.h"
 #include "UpgradeComponents/Upgrades/UpgradeRangeTest.h"
-#include "../CollisionCategories/PlayerProjectileCollisionCategory.h"
+#include "../Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
 #include "../Memory/PoolAllocator.h"
 
 component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale, int damage, float velocity) : Component(parent)

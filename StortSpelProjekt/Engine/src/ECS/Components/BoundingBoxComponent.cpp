@@ -15,7 +15,7 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/GPUMemory/ShaderResourceView.h"
 #include "../Renderer/Renderer.h"
-#include "../Physics/DefaultCollisionCategory.h"
+#include "../Physics/CollisionCategory.h"
 
 
 namespace component
@@ -24,7 +24,7 @@ namespace component
 		:Component(parent)
 	{
 		m_FlagOBB = flagOBB;
-		m_pCategory = new DefaultCollisionCategory(parent);
+		m_pCategory = new CollisionCategory(parent);
 	}
 
 	BoundingBoxComponent::~BoundingBoxComponent()

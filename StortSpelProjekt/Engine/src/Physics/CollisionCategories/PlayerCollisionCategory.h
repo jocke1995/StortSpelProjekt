@@ -1,6 +1,6 @@
 #ifndef PLAYERCOLLISIONCATEGORY_H
 #define PLAYERCOLLISIONCATEGORY_H
-#include "Physics/CollisionCategory.h"
+#include "../CollisionCategory.h"
 class PlayerProjectileCollisionCategory;
 class PlayerCollisionCategory : public CollisionCategory
 {
