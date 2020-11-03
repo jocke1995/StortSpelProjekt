@@ -52,7 +52,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* gameOverScene = GameOverScene(sceneManager);
 
     //Scene* shopScene = ShopScene(sceneManager);
-    sceneManager->SetScenes(1, &demoScene);
+    sceneManager->SetScenes(demoScene);
     sceneManager->SetGameOverScene(gameOverScene);
 
     GameNetwork gameNetwork;
@@ -377,7 +377,7 @@ Scene* ShopScene(SceneManager* sm)
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
-    component::InputComponent* ic = nullptr;
+    component::PlayerInputComponent* ic = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
@@ -428,6 +428,7 @@ Scene* ShopScene(SceneManager* sm)
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(10000000);
+    ic->SetMovementSpeed(70.0);
     ic->Init();
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
