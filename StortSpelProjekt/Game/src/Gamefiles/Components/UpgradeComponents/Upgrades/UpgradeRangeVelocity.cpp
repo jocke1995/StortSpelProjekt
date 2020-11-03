@@ -11,7 +11,7 @@ UpgradeRangeVelocity::UpgradeRangeVelocity(Entity* parent)
 	// set upgrade type/types!
 	SetType(F_UpgradeType::PLAYER);		//The range velocity is set on a rangecomponent which gones on the player, not the projectile entity
 	// set the price of this upgrade 
-	m_Price = 1;
+	m_Price = 50;
 	m_StartingPrice = m_Price;
 	// set short description 
 	m_Description = "Range Velocity: Increases velocity of the range attacks with 10 per level. Max velocity is 100, at upgrade level 5";

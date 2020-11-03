@@ -9,14 +9,15 @@ UpgradeHealthBoost::UpgradeHealthBoost(Entity* parentEntity) : Upgrade(parentEnt
 	// set the type of the upgrade
 	SetType(F_UpgradeType::PLAYER);
 	// set the price of the upgrade
-	m_Price = 5;
+	m_Price = 100;
 	m_StartingPrice = m_Price;
 	
 	m_HealthBoost = 10;
 	
 	// Write a description for the upgrade
-	m_Description = "Health Boost: Gives player a health increase. At level 1 the increase is 10 hp. The following levels it will increase by 5";
+	m_Description = "Health Boost: Increases the players health by 10";
 
+	m_ImageName = "HealthBoost.png";
 }
 
 UpgradeHealthBoost::~UpgradeHealthBoost()
@@ -32,10 +33,8 @@ void UpgradeHealthBoost::ApplyStat()
 void UpgradeHealthBoost::IncreaseLevel()
 {
 	m_Level++;
-	// increase the boost
-	m_HealthBoost = (m_HealthBoost / 2) * m_Level;
 	// increase the price of the upgrade
-	m_Price = m_StartingPrice * m_Level;
+	m_Price = m_StartingPrice + m_StartingPrice * (m_Level/2);
 	ApplyStat();
 }
 

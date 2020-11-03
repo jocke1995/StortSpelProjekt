@@ -226,7 +226,7 @@ Scene* GameScene(SceneManager* sm)
 	zombie.meleeAttackDmg = 10.0f;
 	zombie.attackInterval = 1.0f;
 	zombie.movementSpeed = 30.0f;
-	zombie.attackingDist = 0.5f;
+	zombie.attackingDist = 1.0f;
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
 	zombie.scale = 0.04;

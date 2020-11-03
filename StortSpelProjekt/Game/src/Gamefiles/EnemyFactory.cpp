@@ -201,6 +201,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	t->SetRotationY(comps->rot.y);
 	t->SetRotationZ(comps->rot.z);
 	t->SetVelocity(comps->movementSpeed * 0.5);
+	t->UpdateWorldMatrix();
 
 	tc->SetTransformOriginalState();
 	if (comps->compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
@@ -424,5 +425,12 @@ void EnemyFactory::onSceneSwitch(SceneChange* evnt)
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Enemies: 0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
 		}
 
+		//Scaling difficulty
+		m_DifficultScale *= 2;
+		m_LevelMaxEnemies = 20 + log(m_DifficultScale) * 10;
+
+		m_EnemyComps.find("enemyZombie")->second->hp *= 1.33;
+		m_EnemyComps.find("enemyZombie")->second->meleeAttackDmg += 2;
+		m_EnemyComps.find("enemyZombie")->second->movementSpeed += 1;
 	}
 }
