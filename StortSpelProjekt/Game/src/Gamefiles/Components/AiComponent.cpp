@@ -34,7 +34,7 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_LastPos = m_StartPos;
 	m_NextTargetPos = m_StartPos;
 	m_PathFound = false;
-	m_isRanged = false;
+	m_isRanged = false;		// default melee
 }
 
 component::AiComponent::~AiComponent()
@@ -177,7 +177,7 @@ void component::AiComponent::Update(double dt)
 
 			if (distance <= m_AttackingDistance)
 			{
-				if (!m_isRanged)
+				if (!m_isRanged) // melee 
 				{
 					// TODO: fix this when meele attack is implemented
 					HealthComponent* hc = m_pTarget->GetComponent<component::HealthComponent>();
@@ -192,12 +192,12 @@ void component::AiComponent::Update(double dt)
 						}
 					}
 				}
-				else
+				else // range
 				{
-					setAimDirection();
-					// shoot
-					RangeEnemyComponent* range = m_pParent->GetComponent<component::RangeEnemyComponent>();
-					range->Attack();
+						// set direction
+						float3 direction = setAimDirection();
+						// shoot
+						m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(direction);
 				}				
 			}
 		}
@@ -257,7 +257,7 @@ void component::AiComponent::SetRangedAI()
 	m_isRanged = true;
 }
 
-void component::AiComponent::setAimDirection()
+float3 component::AiComponent::setAimDirection()
 {
 	// get target position
 	float3 targetPos = m_pTarget->GetComponent<TransformComponent>()->GetTransform()->GetPositionFloat3();
@@ -267,6 +267,7 @@ void component::AiComponent::setAimDirection()
 	double angle = std::atan2(direction.x, direction.z);
 	CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
 	cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
+	return direction;
 }
 
 void component::AiComponent::selectTarget()

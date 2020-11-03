@@ -24,7 +24,7 @@ namespace component
 		void SetAttackInterval(float interval);
 		float GetAttackInterval() const;
 
-		void Attack();
+		void Attack(float3 direction);
 
 	private:
 		int m_Damage;
@@ -33,6 +33,7 @@ namespace component
 		int m_NrOfProjectiles = 0;
 		float m_AttackInterval;
 		double m_TimeAccumulator;
+		std::string m_ParentName;
 
 		bool audioPlay;
 

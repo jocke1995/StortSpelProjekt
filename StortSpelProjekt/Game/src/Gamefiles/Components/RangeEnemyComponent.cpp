@@ -15,9 +15,11 @@ component::RangeEnemyComponent::RangeEnemyComponent(Entity* parent, SceneManager
 	m_Damage = damage;
 	m_Velocity = velocity;
 	m_pVoiceComponent = nullptr;
-	m_AttackInterval = 0.5;
+	m_AttackInterval = 1.5;
 	m_TimeAccumulator = 0.0;
+	m_ParentName = m_pParent->GetName();
 
+	// this component will not have a 2d voice, but probably a 3dvoice so i'll leave this here for now as a "template"
 	if (parent->GetComponent<component::Audio2DVoiceComponent>())
 	{
 		audioPlay = true;
@@ -68,57 +70,37 @@ float component::RangeEnemyComponent::GetAttackInterval() const
 	return m_AttackInterval;
 }
 
-void component::RangeEnemyComponent::Attack()
+void component::RangeEnemyComponent::Attack(float3 direction)
 {
 	if (m_TimeAccumulator >= m_AttackInterval)
 	{
-		Entity* ent = m_pScene->AddEntity("RangeAttack" + std::to_string(++m_NrOfProjectiles));
+		Entity* ent = m_pScene->AddEntity(m_ParentName + "RangeAttack" + std::to_string(++m_NrOfProjectiles));
 		component::ModelComponent* mc = nullptr;
 		component::TransformComponent* tc = nullptr;
 		component::BoundingBoxComponent* bbc = nullptr;
 		component::ProjectileComponent* pc = nullptr;
-		//component::UpgradeComponent* uc = nullptr;
 		component::AccelerationComponent* ac = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
-		ac = ent->AddComponent<component::AccelerationComponent>(98.2);
-		//uc = ent->AddComponent<component::UpgradeComponent>();
+		//ac = ent->AddComponent<component::AccelerationComponent>(98.2);	// no drop
 
-		//// Applying all range uppgrades to the new projectile entity "RangeAttack"
-		//if (m_pParent->HasComponent<component::UpgradeComponent>())
-		//{
-		//	Player::GetInstance().GetUpgradeManager()->ApplyRangeUpgrades(ent);
-		//}
-
-		// get the pos of parent object and forward of camera 
-		// so we know where to spawn and in which direction
+		// get the position of parent entity
 		float3 ParentPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
-		//float3 forward = m_pScene->GetMainCamera()->GetDirectionFloat3();
-		float3 forward = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetForwardFloat3();
-		float length = forward.length();
-
-		double3 dim = m_pParent->GetComponent<component::ModelComponent>()->GetModelDim();
-
-		// add the forward vector to parent pos 
-		// so the projectile doesn't spawn inside of us
-		float3 pos;
-		//pos.x = ParentPos.x + (forward.x / length) * (dim.x / 2.0);
-		//pos.y = ParentPos.y + (forward.y / length);
-		pos.z = ParentPos.z + (forward.z / length) * (dim.z / 2.0);
 
 		// initialize the components
 		mc->SetModel(m_pModel);
 		mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-		tc->GetTransform()->SetPosition(ParentPos.x, ParentPos.y, ParentPos.z); // enemy might kill himself
-		tc->GetTransform()->SetMovement(forward.x * m_Velocity, forward.y * m_Velocity, forward.z * m_Velocity);
+		tc->GetTransform()->SetPosition(ParentPos.x, ParentPos.y, ParentPos.z);
+		tc->GetTransform()->SetMovement(direction.x * m_Velocity, direction.y * m_Velocity, direction.z * m_Velocity);
 		tc->GetTransform()->SetScale(m_Scale);
 		tc->GetTransform()->SetVelocity(m_Velocity);
 		tc->Update(0.02);
 		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 		bbc->Init();
 		Physics::GetInstance().AddCollisionEntity(ent);
+
 		if (audioPlay)
 		{
 			m_pVoiceComponent->Play(L"Fireball");

@@ -94,7 +94,7 @@ namespace component
 		bool m_PathFound;
 		bool m_isRanged;
 
-		void setAimDirection();
+		float3 setAimDirection();
 
 		void selectTarget();
 		void findPathToTargetQuad();

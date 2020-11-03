@@ -52,17 +52,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AssetLoader* al = AssetLoader::Get();
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
+    //Scene* activeScene = jacobScene;
     //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
+    //Scene* activeScene = timScene;
     //Scene* jockeScene = JockesTestScene(sceneManager);
-    Scene* filipScene = FloppipTestScene(sceneManager);
+    //Scene* activeScene = jockeScene;
+    //Scene* filipScene = FloppipTestScene(sceneManager);
+    //Scene* activeScene = filipScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
+    //Scene* activeScene = fredrikScene;
     //Scene* williamScene = WilliamsTestScene(sceneManager);
+    //Scene* activeScene = williamScene;
     //Scene* bjornScene = BjornsTestScene(sceneManager);
+    //Scene* activeScene = bjornScene;
     //Scene* antonScene = AntonTestScene(sceneManager);
-    //Scene* andresScene = AndresTestScene(sceneManager);
-
-    Scene* activeScene = filipScene;
+    //Scene* activeScene = antonScene;
+    Scene* andresScene = AndresTestScene(sceneManager);
+    Scene* activeScene = andresScene;
 
     // Set scene
     sceneManager->SetScenes(activeScene);
@@ -1280,6 +1288,7 @@ Scene* AndresTestScene(SceneManager* sm)
 
     // Get the models needed
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
+    //Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
@@ -1442,43 +1451,31 @@ Scene* AndresTestScene(SceneManager* sm)
 
 
     /* ---------------------- Enemy -------------------------------- */
-    // Enemyfactory used in the wrong way. 
-    //EnemyFactory enH(scene);
-    //entity = enH.AddEnemy("enemy", enemyModel, 1000, float3{ 0, 10, 20 }, L"Bruh", F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION, 0, 0.5, float3{ 0, 0, 0 }, "player", 25.0f, 7.0f, 0.5f, 10.0f);
-
 #pragma region enemyRangeTest
-    
     Entity* ent = scene->AddEntity("enemyRangeTest");
-
     mc = nullptr;
     tc = nullptr;
     bbc = nullptr;
     component::CollisionComponent* colc = nullptr;
     component::AiComponent* ai = nullptr;
-    //component::Audio3DEmitterComponent* ae = nullptr;
-    //component::EnemyComponent* ec = nullptr;
     component::RangeEnemyComponent* enemyRange = nullptr;
 
     mc = ent->AddComponent<component::ModelComponent>();
     tc = ent->AddComponent<component::TransformComponent>();
     ent->AddComponent<component::HealthComponent>(100);
-
     enemyRange = ent->AddComponent<component::RangeEnemyComponent>(sm, scene, sphereModel, 0.3, 10, 100);
 
-    //ec = ent->AddComponent<component::EnemyComponent>(this);
     Entity* target = scene->GetEntity("player");
     double3 targetDim = target->GetComponent<component::ModelComponent>()->GetModelDim();
     float targetScale = target->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().z;
     if (target != nullptr)
     {
-        ai = ent->AddComponent<component::AiComponent>(target, 0, 200, 50);
+        ai = ent->AddComponent<component::AiComponent>(target, 0, 100, 50);
         ai->SetAttackInterval(1.0f);
         ai->SetMeleeAttackDmg(10.0f);
         ai->SetScene(scene);
         ai->SetRangedAI();
     }
-    //ae = ent->AddComponent<component::Audio3DEmitterComponent>();
-    //ae->AddVoice(comps->sound3D);
 
     mc->SetModel(enemyModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -1488,38 +1485,16 @@ Scene* AndresTestScene(SceneManager* sm)
     t->SetRotationX(0.0);
     t->SetRotationY(0.0);
     t->SetRotationZ(0.0);
-    t->SetVelocity(1);
+    t->SetVelocity(5);
 
     tc->SetTransformOriginalState();
-    //if (comps->compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
-    //{
-        colc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, mc->GetModelDim().z / 2.0, mc->GetModelDim().y - mc->GetModelDim().z, 0.01, 0.5, false);
-    //}
-   /* else if (comps->compFlags & F_COMP_FLAGS::SPHERE_COLLISION)
-    {
-        cc = ent->AddComponent<component::SphereCollisionComponent>(1.0, comps->dim.y / 2.0, 1.0, 0.0);
-    }
-    else if (comps->compFlags & F_COMP_FLAGS::CUBE_COLLISION)
-    {
-        cc = ent->AddComponent<component::CubeCollisionComponent>(1.0, comps->dim.x / 2.0, comps->dim.y / 2.0, comps->dim.z / 2.0, 0.01, 0.5, false);
-    }
-    else
-    {
-        cc = ent->AddComponent<component::CubeCollisionComponent>(0.0, 0.0, 0.0, 0.0);
-    }*/
-
-    //if (F_COMP_FLAGS::OBB & comps->compFlags)
-    //{
-        bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-        bbc->Init();
-        Physics::GetInstance().AddCollisionEntity(ent);
-    //}
-
+    colc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, mc->GetModelDim().z / 2.0, mc->GetModelDim().y - mc->GetModelDim().z, 0.01, 0.5, false);
+    bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(ent);
     SceneManager::GetInstance().AddEntity(ent, scene);
-    
+ 
 #pragma endregion
-    
-
     /* ---------------------- Enemy -------------------------------- */
 
 
