@@ -371,7 +371,7 @@ void EnemyFactory::Update(double dt)
 
 void EnemyFactory::enemyDeath(Death* evnt)
 {
-	if (strcmp(evnt->ent->GetName().substr(0, 6).c_str(), "enemy"))
+	if (strcmp(evnt->ent->GetName().substr(0, 5).c_str(), "enemy") == 0)
 	{
 		m_EnemiesKilled++;
 
