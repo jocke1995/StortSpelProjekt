@@ -99,7 +99,7 @@ void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::GUI2DCom
 		// Create a CB_PER_GUI2D_OBJECT_STRUCT struct
 		SlotInfo* info = text->GetSlotInfo();
 		float4 amountOfBlend = text->GetAmountOfBlend();
-		amountOfBlend.w *= !tc->IsTextHidden();
+		amountOfBlend.w *= !tc->GetTextManager()->IsTextHidden();
 		CB_PER_GUI2D_OBJECT_STRUCT perObject = { amountOfBlend, float4{ 1.0 }, *info };
 		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_GUI2D_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
