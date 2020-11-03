@@ -14,6 +14,7 @@ Scene* WilliamsTestScene(SceneManager* sm);
 Scene* AndresTestScene(SceneManager* sm);
 Scene* AntonTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
+Scene* ShopScene(SceneManager* sm);
 
 void LeoUpdateScene(SceneManager* sm, double dt);
 void TimUpdateScene(SceneManager* sm, double dt);
@@ -52,24 +53,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AssetLoader* al = AssetLoader::Get();
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
+    //Scene* activeScene = jacobScene;
     //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
+    //Scene* activeScene = timScene;
     //Scene* jockeScene = JockesTestScene(sceneManager);
+    //Scene* activeScene = jockeScene;
     //Scene* filipScene = FloppipTestScene(sceneManager);
-    //Scene* activeScenes[] = { filipScene };
+    //Scene* activeScene = filipScene;
 	//Scene* fredrikScene = FredriksTestScene(sceneManager);
-    //Scene* activeScenes[] = { fredrikScene };
+    //Scene* activeScene = fredrikScene;
     Scene* williamScene = WilliamsTestScene(sceneManager);
-    Scene* activeScenes[] = { williamScene };
+    Scene* activeScene = williamScene;
     //Scene* bjornScene = BjornsTestScene(sceneManager);
+    //Scene* activeScene = bjornScene;
     //Scene* antonScene = AntonTestScene(sceneManager);
-    //Scene* activeScenes[] = { antonScene };
+    //Scene* activeScene = antonScene;
     //Scene* shopScene = ShopScene(sceneManager);
-    //Scene* activeScenes[] = { shopScene };
+    //Scene* activeScene = shopScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
-    //Scene* activeScenes[] = { andresScene };
+    //Scene* activeScene = andresScene;
 
-    Scene* activeScene = fredrikScene;
 
     // Set scene
     sceneManager->SetScenes(activeScene);
