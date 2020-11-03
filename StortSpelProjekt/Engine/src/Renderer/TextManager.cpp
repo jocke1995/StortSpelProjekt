@@ -33,6 +33,11 @@ TextManager::~TextManager()
 		}
 	}
 	m_TextMap.clear();
+
+	for (int i = 0; i < m_TrashBuffer.size(); i++)
+	{
+		delete m_TrashBuffer.at(i);
+	}
 }
 
 std::map<std::string, TextData>* const TextManager::GetTextDataMap()
@@ -191,6 +196,16 @@ void TextManager::SetBlend(float4 blend, std::string name)
 	}
 }
 
+void TextManager::HideText(bool hide)
+{
+	m_TextIsHidden = hide;
+}
+
+const bool TextManager::IsTextHidden() const
+{
+	return m_TextIsHidden;
+}
+
 Font* TextManager::GetFont() const
 {
 	return m_pFont;
@@ -232,17 +247,32 @@ void TextManager::replaceText(Text* text, std::string name)
 	auto it = m_TextDataMap.find(name);
 	if (it != m_TextDataMap.end())
 	{
+		Renderer* renderer = &Renderer::GetInstance();
+
 		// Temp code, removes the text from CopyOnDemandTask before we delete the text*
 		if (m_TextMap[name] != nullptr)
 		{
-			CopyTask* task = Renderer::GetInstance().m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+			CopyTask* task = renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
 			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
 			codt->UnSubmitText(m_TextMap[name]);
 		}
 
-		// Temp code, needs rewrite
-		Renderer::GetInstance().waitForGPU();
-		delete m_TextMap[name];
+		// This is an ugly solution, however, it is noticable faster than waiting for the
+		// GPU every time we want to delete a text, while also emptying the buffer so that
+		// we don't need to worry about the memory getting full
+		if (m_TrashBuffer.size() == 50)
+		{
+			renderer->waitForGPU();
+
+			for (int i = 0; i < m_TrashBuffer.size(); i++)
+			{
+				delete m_TrashBuffer.at(i);
+			}
+			m_TrashBuffer.clear();
+		}
+	
+		m_TrashBuffer.push_back(m_TextMap[name]);
+
 		m_TextMap[name] = text;
 		found = true;
 	}
