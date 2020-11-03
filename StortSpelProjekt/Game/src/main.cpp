@@ -23,9 +23,6 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    CollisionCategory* tmp1 = new PlayerCollisionCategory(nullptr);
-    CollisionCategory* tmp2 = new PlayerProjectileCollisionCategory(nullptr);
-    tmp1->Collide(tmp2);
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
