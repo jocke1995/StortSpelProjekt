@@ -33,7 +33,9 @@
 #include "Transform.h"
 #include "Camera/BaseCamera.h"
 #include "Model.h"
+#include "AnimatedModel.h"
 #include "Mesh.h"
+#include "AnimatedMesh.h"
 #include "Texture/Texture.h"
 #include "Texture/TextureCubeMap.h"
 #include "Material.h"
@@ -55,6 +57,7 @@
 
 // Graphics
 #include "DX12Tasks/DepthRenderTask.h"
+#include "DX12Tasks/AnimatedDepthRenderTask.h"
 #include "DX12Tasks/WireframeRenderTask.h"
 #include "DX12Tasks/OutliningRenderTask.h"
 #include "DX12Tasks/ForwardRenderTask.h"
@@ -363,18 +366,24 @@ void Renderer::Execute()
 	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(copyTask);
 
+	// Depth pre-pass
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS];
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
+	// Animation Depth pre-pass
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::ANIMATION_DEPTH_PRE_PASS];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
 	// Recording shadowmaps
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SHADOW];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
 
-	// Depth pre-pass
-	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS];
-	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
-
-	// Drawing
+	// Opaque draw
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
@@ -495,7 +504,7 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 	component::TransformComponent* tc = mc->GetParent()->GetComponent<component::TransformComponent>();
 
 	// Submit to codt
-	submitModelToCodt(mc->m_pModel);
+	submitModelToGPU(mc->m_pModel);
 	
 	// Only add the m_Entities that actually should be drawn
 	if (tc != nullptr)
@@ -513,6 +522,14 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 
 		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
 		{
+			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
+		}
+		else if (FLAG_DRAW::DRAW_ANIMATED & mc->GetDrawFlag())
+		{
+			// Depth pre-pass calculations of vertices
+			m_RenderComponents[FLAG_DRAW::DRAW_ANIMATED].push_back(std::make_pair(mc, tc));
+
+			// Opaque drawing as usual
 			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
 		}
 
@@ -936,11 +953,57 @@ void Renderer::submitMeshToCodt(Mesh* mesh)
 	codt->Submit(&Indi_Upload_Default_Data);
 }
 
-void Renderer::submitModelToCodt(Model* model)
+void Renderer::submitModelToGPU(Model* model)
 {
+	// Check if the model is animated
+	bool isAnimated = false;
+	if (dynamic_cast<AnimatedModel*>(model) != nullptr)
+	{
+		isAnimated = true;
+
+		// Submit the matrices to be uploaded everyframe
+		CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+
+		AnimatedModel* aModel = static_cast<AnimatedModel*>(model);
+		const ConstantBuffer* cb = aModel->GetConstantBuffer();
+
+		const void* data = aModel->GetUploadMatrices()->data();
+		std::tuple<Resource*, Resource*, const void*> matrices(
+			cb->GetUploadResource(),
+			cb->GetDefaultResource(),
+			data);
+
+		cpft->Submit(&matrices);
+	}
+
 	for (unsigned int i = 0; i < model->GetSize(); i++)
 	{
 		Mesh* mesh = model->GetMeshAt(i);
+
+		// Submit more data if the model is animated
+		if (isAnimated == true)
+		{
+			AnimatedMesh* am = static_cast<AnimatedMesh*>(mesh);
+
+			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+
+			// Submit the basic vertex data again. These vertex data will remain unchange during animations,
+			// while the other resource will contain the modified vertex data. But as the initial state, both resources
+			// will contain the same data.
+			std::tuple<Resource*, Resource*, const void*> defaultResourceOrigVertices(
+				am->GetUploadResourceOrigVertices(),
+				am->GetDefaultResourceOrigVertices(),
+				mesh->m_Vertices.data());
+
+			std::tuple<Resource*, Resource*, const void*> defaultResourceVertexWeights(
+				am->GetUploadResourceVertexWeights(),
+				am->GetDefaultResourceVertexWeights(),
+				am->GetVertexWeights()->data());
+
+			codt->Submit(&defaultResourceOrigVertices);
+			codt->Submit(&defaultResourceVertexWeights);
+		}
+
 		// Submit Mesh
 		submitMeshToCodt(mesh);
 
@@ -986,6 +1049,7 @@ void Renderer::setRenderTasksPrimaryCamera()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::ANIMATION_DEPTH_PRE_PASS]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
@@ -1232,6 +1296,7 @@ void Renderer::updateMousePicker()
 
 void Renderer::initRenderTasks()
 {
+
 #pragma region DepthPrePass
 
 	/* Depth Pre-Pass rendering without stencil testing */
@@ -1283,13 +1348,53 @@ void Renderer::initRenderTasks()
 		L"DepthPrePassPSO",
 		FLAG_THREAD::RENDER);
 
-	
-	// TODO: remove swapchain, using swapchains render view currently.
 	DepthPrePassRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	DepthPrePassRenderTask->SetSwapChain(m_pSwapChain);
 	DepthPrePassRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion DepthPrePass
+
+#pragma region AnimationPass
+	/* Depth Pre-Pass rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdAnimatedDepthPrePass = {};
+	gpsdAnimatedDepthPrePass.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	// RenderTarget
+	gpsdAnimatedDepthPrePass.NumRenderTargets = 0;
+	gpsdAnimatedDepthPrePass.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+	// Depthstencil usage
+	gpsdAnimatedDepthPrePass.SampleDesc.Count = 1;
+	gpsdAnimatedDepthPrePass.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdAnimatedDepthPrePass.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdAnimatedDepthPrePass.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdAnimatedDepthPrePass.RasterizerState.DepthBias = 0;
+	gpsdAnimatedDepthPrePass.RasterizerState.DepthBiasClamp = 0.0f;
+	gpsdAnimatedDepthPrePass.RasterizerState.SlopeScaledDepthBias = 0.0f;
+	gpsdAnimatedDepthPrePass.RasterizerState.FrontCounterClockwise = false;
+
+	// Specify Blend descriptions
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdAnimatedDepthPrePass.BlendState.RenderTarget[i] = depthPrePassRTdesc;
+
+	gpsdAnimatedDepthPrePass.DepthStencilState = depthPrePassDsd;
+	gpsdAnimatedDepthPrePass.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdDepthPreAnimationVector;
+	gpsdDepthPreAnimationVector.push_back(&gpsdAnimatedDepthPrePass);
+
+	RenderTask* animationDepthPreRenderTask = new AnimatedDepthRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"AnimationDepthVertex.hlsl", L"AnimationDepthPixel.hlsl",
+		&gpsdDepthPreAnimationVector,
+		L"animationDepthPrePSO",
+		FLAG_THREAD::RENDER);
+
+	animationDepthPreRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
+	animationDepthPreRenderTask->SetSwapChain(m_pSwapChain);
+	animationDepthPreRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+#pragma endregion AnimationPass
 
 #pragma region ForwardRendering
 	/* Forward rendering without stencil testing */
@@ -1898,6 +2003,7 @@ void Renderer::initRenderTasks()
 
 	/* ------------------------- DirectQueue Tasks ---------------------- */
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS] = DepthPrePassRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::ANIMATION_DEPTH_PRE_PASS] = animationDepthPreRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW] = shadowRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER] = forwardRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT] = transparentConstantRenderTask;
@@ -1924,12 +2030,17 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandInterface()->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(DepthPrePassRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(DepthPrePassRenderTask->GetCommandInterface()->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(animationDepthPreRenderTask->GetCommandInterface()->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -2006,6 +2117,7 @@ void Renderer::initRenderTasks()
 void Renderer::setRenderTasksRenderComponents()
 {
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::NO_DEPTH]);
+	m_RenderTasks[RENDER_TASK_TYPE::ANIMATION_DEPTH_PRE_PASS]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_ANIMATED]);
 	m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE]);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT]);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE]);

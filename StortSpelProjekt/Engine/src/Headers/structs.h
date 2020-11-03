@@ -1,9 +1,14 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+// Light defines
 #define MAX_DIR_LIGHTS   10
 #define MAX_POINT_LIGHTS 10
 #define MAX_SPOT_LIGHTS  10
+
+// Animation defines
+#define MAX_BONES_PER_VERTEX 10
+#define MAX_ANIMATION_MATRICES 52
 
 // This struct can be used to send specific indices as a root constant to the GPU.
 // Example usage is when the indices for pp-effects are sent to gpu.
@@ -28,6 +33,11 @@ struct SlotInfo
 	unsigned int textureOpacity;
 
 	unsigned int pad[1];
+};
+
+struct ANIMATION_MATRICES_STRUCT
+{
+	float4x4 matrices[MAX_ANIMATION_MATRICES];
 };
 
 struct MaterialAttributes

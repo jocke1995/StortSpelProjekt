@@ -175,6 +175,7 @@ Scene* GameScene(SceneManager* sm)
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(50);
     uc = entity->AddComponent<component::UpgradeComponent>();
+    alc = entity->AddComponent<component::Audio3DListenerComponent>();
 
     Player::GetInstance().SetPlayer(entity);
 
@@ -306,6 +307,12 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
 #pragma endregion
+
+    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
+    for (int i = 0; i < 75; i++)
+    {
+        enemyFactory.SpawnEnemy("enemyZombie");
+    }
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();
