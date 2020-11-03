@@ -15,7 +15,7 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_DashTimer = 0;
 	m_CameraFlags = camFlags;
 
-	m_Zoom = 16.0f;
+	m_Zoom = 10.0f;
 
 	m_Pitch = 0.15f;
 
@@ -196,8 +196,8 @@ void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 
 void component::PlayerInputComponent::zoom(MouseScroll* evnt)
 {
-	m_Zoom = max(m_Zoom - static_cast<float>(evnt->scroll) / 4, 1.5f);
-	m_CameraDistance = sqrt(m_Zoom * 4 * m_Zoom * 4 + m_Zoom * m_Zoom);
+	/*m_Zoom = max(m_Zoom - static_cast<float>(evnt->scroll) / 4, 1.5f);
+	m_CameraDistance = sqrt(m_Zoom * 4 * m_Zoom * 4 + m_Zoom * m_Zoom);*/
 }
 
 void component::PlayerInputComponent::move(MovementInput* evnt)
