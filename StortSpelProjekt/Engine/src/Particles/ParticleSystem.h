@@ -1,6 +1,8 @@
 #ifndef PARTICLESYSTEM_H
 #define PARTICLESYSTEM_H
 
+class ParticleEffect;
+
 namespace component
 {
 	class ParticleEmitterComponent;
@@ -18,6 +20,8 @@ public:
 
 private:
 	ParticleSystem();
+
+	ParticleEffect* effect;
 };
 
 #endif

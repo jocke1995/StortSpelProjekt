@@ -4,6 +4,9 @@
 // Component
 #include "../ECS/Components/ParticleEmitterComponent.h"
 
+// Particle Stuff
+#include "ParticleEffect.h"
+
 ParticleSystem& ParticleSystem::GetInstance()
 {
 	static ParticleSystem instance;
@@ -12,7 +15,7 @@ ParticleSystem& ParticleSystem::GetInstance()
 
 ParticleSystem::ParticleSystem()
 {
-
+	effect = new ParticleEffect();
 }
 
 ParticleSystem::~ParticleSystem()
