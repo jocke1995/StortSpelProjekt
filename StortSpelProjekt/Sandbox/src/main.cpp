@@ -1146,7 +1146,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     ic->Init();
 
     mc->SetModel(aniTest);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
     ac->Initialize();
     ac->SetActiveAnimation("mixamo.com");
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 10.0f);
