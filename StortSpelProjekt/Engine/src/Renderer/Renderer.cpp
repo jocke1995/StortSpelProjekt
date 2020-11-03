@@ -1376,8 +1376,8 @@ void Renderer::initRenderTasks()
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
 		gpsdAnimatedDepthPrePass.BlendState.RenderTarget[i] = depthPrePassRTdesc;
 
-	gpsdDepthPrePass.DepthStencilState = depthPrePassDsd;
-	gpsdDepthPrePass.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
+	gpsdAnimatedDepthPrePass.DepthStencilState = depthPrePassDsd;
+	gpsdAnimatedDepthPrePass.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdDepthPreAnimationVector;
 	gpsdDepthPreAnimationVector.push_back(&gpsdAnimatedDepthPrePass);
