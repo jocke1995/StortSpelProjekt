@@ -68,6 +68,7 @@ public:
 	SceneManager* const GetSceneHandler() const;
 	Physics* const GetPhysics() const;
 	AudioEngine* const GetAudioEngine() const;
+	ParticleSystem* const GetParticleSystem() const;
 
 private:
 	friend class ModelComponent;

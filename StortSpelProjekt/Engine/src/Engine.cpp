@@ -95,6 +95,11 @@ AudioEngine* const Engine::GetAudioEngine() const
 	return m_pAudioEngine;
 }
 
+ParticleSystem* const Engine::GetParticleSystem() const
+{
+	return m_pParticleSystem;
+}
+
 Renderer* const Engine::GetRenderer() const
 {
 	return m_pRenderer;

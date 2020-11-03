@@ -20,10 +20,12 @@ ParticleSystem::ParticleSystem()
 
 ParticleSystem::~ParticleSystem()
 {
+	delete effect;
 }
 
 void ParticleSystem::Update(double dt)
 {
+	effect->Update(dt);
 }
 
 void ParticleSystem::OnResetScene()
