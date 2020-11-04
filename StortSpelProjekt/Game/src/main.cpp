@@ -610,11 +610,6 @@ Scene* ShopScene(SceneManager* sm)
     return scene;
 }
 
-void logSchtuff(const std::string& name)
-{
-    Log::Print("%s\n", name.c_str());
-}
-
 Scene* MainMenuScene(SceneManager* sm)
 {
     AssetLoader* al = AssetLoader::Get();
