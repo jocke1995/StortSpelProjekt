@@ -17,7 +17,7 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	m_pMesh = nullptr;
 	m_Damage = 1;
 
-	m_HalfSize = { 8.0f, 1.0f, 10.0f };
+	m_HalfSize = { 8.0f, 1.0f, MELEE_RANGE / 2.0 };
 
 	//Create bounding box for collision for melee
 	m_pBbc = parent->GetComponent<component::BoundingBoxComponent>();

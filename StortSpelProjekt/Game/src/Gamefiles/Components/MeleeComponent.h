@@ -22,7 +22,7 @@ class Entity;
 class Audio2DVoiceComponent;
 class Audio3DEmitterComponent;
 
-#define MELEE_RANGE 12
+#define MELEE_RANGE 18.0
 
 namespace component
 {
