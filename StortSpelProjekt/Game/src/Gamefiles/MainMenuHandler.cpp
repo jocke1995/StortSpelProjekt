@@ -30,14 +30,20 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     Scene* scene = sm->CreateScene("MainMenuScene");
 
     component::GUI2DComponent* guic = nullptr;
+    component::Audio2DVoiceComponent* vc = nullptr;
 
     Texture* startTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Start.png");
     Texture* optionsTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Options.png");
     Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Exit.png");
 
+    AudioBuffer* menuSound = al->LoadAudio(L"../Vendor/Resources/Audio/Menu.wav", L"MenuMusic");
+
     // Player (Need a camera)
     Entity* entity = scene->AddEntity("player");
     entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    vc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    vc->AddVoice(L"MenuMusic");
+    vc->Play(L"MenuMusic");
 
     // Skybox
     entity = scene->AddEntity("skybox");
