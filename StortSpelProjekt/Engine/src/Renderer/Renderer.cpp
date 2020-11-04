@@ -886,14 +886,15 @@ void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 
 void Renderer::OnResetScene()
 {
-	m_RenderComponents.clear();
-	for (auto& light : m_Lights)
-	{
-		light.second.clear();
-	}
-	m_pViewPool->ClearAll();
-	static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
+	// Lights will be cleared in respective UninitComponent function
+	//for (auto& light : m_Lights)
+	//{
+	//	light.second.clear();
+	//}
+	//static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
 
+	m_RenderComponents.clear();
+	m_pViewPool->ClearAll();
 	m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
 	m_pScenePrimaryCamera = nullptr;
 	static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();

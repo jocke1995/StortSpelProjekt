@@ -91,6 +91,7 @@ void component::RangeComponent::Attack()
 		component::ProjectileComponent* pc = nullptr;
 		component::UpgradeComponent* uc = nullptr;
 		component::AccelerationComponent* ac = nullptr;
+		component::PointLightComponent* plc = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
