@@ -2,7 +2,8 @@
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 #include "GameGUI.h"
-
+#include "Physics/CollisionCategories/PlayerCollisionCategory.h"
+#include "Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
 // Game includes
 #include "Player.h"
 #include "UpgradeManager.h"
@@ -52,7 +53,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* gameOverScene = GameOverScene(sceneManager);
 
     //Scene* shopScene = ShopScene(sceneManager);
-    sceneManager->SetScenes(1, &demoScene);
+    sceneManager->SetScenes(demoScene);
     sceneManager->SetGameOverScene(gameOverScene);
 
     GameNetwork gameNetwork;
@@ -201,6 +202,7 @@ Scene* GameScene(SceneManager* sm)
     avc->AddVoice(L"Bruh");
 
     bbc->Init();
+    bbc->AddCollisionCategory<PlayerCollisionCategory>();
     Physics::GetInstance().AddCollisionEntity(entity);;
     /*--------------------- Player ---------------------*/
 
@@ -239,6 +241,17 @@ Scene* GameScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "ShopScene");
+
+
+    mc->SetModel(teleportModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetPosition(1000.0f, 1000.0f, 1000.0f);
+    tc->GetTransform()->SetScale(7.0f);
+    tc->SetTransformOriginalState();
+
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
+    /*--------------------- Teleporter ---------------------*/
     /* ------------------------- GUI --------------------------- */
     std::string textToRender = "HEALTH";
     float2 textPos = { 0.45f, 0.96f };
@@ -247,16 +260,6 @@ Scene* GameScene(SceneManager* sm)
     float2 textScale = { 0.5f, 0.5f };
     float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    mc->SetModel(teleportModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetPosition(-10.0f, 1.0f, -25.0f);
-    tc->GetTransform()->SetScale(7.0f);
-    tc->SetTransformOriginalState();
-
-    bbc->Init();
-    Physics::GetInstance().AddCollisionEntity(entity);
-    /* ---------------------- Teleporter ---------------------- */
-    /*--------------------- Teleporter ---------------------*/
     entity = scene->AddEntity("health");
     gui = entity->AddComponent<component::GUI2DComponent>();
     gui->GetTextManager()->AddText("health");
@@ -297,6 +300,23 @@ Scene* GameScene(SceneManager* sm)
     gui->GetTextManager()->SetScale(textScale, "money");
     gui->GetTextManager()->SetText(textToRender, "money");
     gui->GetTextManager()->SetBlend(textBlend, "money");
+
+    textToRender = "Enemies: 0/20";
+    textPos = { 0.01f, 0.1f };
+    textPadding = { 0.5f, 0.0f };
+    textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    textScale = { 0.5f, 0.5f };
+    textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    entity = scene->AddEntity("enemyGui");
+    gui = entity->AddComponent<component::GUI2DComponent>();
+    gui->GetTextManager()->AddText("enemyGui");
+    gui->GetTextManager()->SetColor(textColor, "enemyGui");
+    gui->GetTextManager()->SetPadding(textPadding, "enemyGui");
+    gui->GetTextManager()->SetPos(textPos, "enemyGui");
+    gui->GetTextManager()->SetScale(textScale, "enemyGui");
+    gui->GetTextManager()->SetText(textToRender, "enemyGui");
+    gui->GetTextManager()->SetBlend(textBlend, "enemyGui");
 
     /* ---------------------------------------------------------- */
 
@@ -360,7 +380,7 @@ Scene* ShopScene(SceneManager* sm)
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
-    component::InputComponent* ic = nullptr;
+    component::PlayerInputComponent* ic = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
     component::PointLightComponent* plc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
@@ -411,6 +431,7 @@ Scene* ShopScene(SceneManager* sm)
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(10000000);
+    ic->SetMovementSpeed(70.0);
     ic->Init();
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);

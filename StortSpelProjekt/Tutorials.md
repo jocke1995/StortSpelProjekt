@@ -525,3 +525,127 @@ Submit NavConnection
 
 Submit NavMesh
 ```
+
+# How to Categorise collisions
+BoundingBoxComponent now has collisioncategories, these help you as a developer to define how different objects react to each other. The system is built from a base class which each category must inherit from.
+
+## How to create a category
+To create a new category, you must create a class which inherits from "CollisionCategory" located in Engine/Physics. You must also forward declare your new category in this baseclass and create a "Collide" function for it. See the example below for "PlayerCollisionCategory" and "PlayerProjectileCollisionCategory".
+```cpp
+// CollisionCategory.h
+#ifndef COLLISIONCATEGORY_H
+#define COLLISIONCATEGORY_H
+class Entity;
+
+class PlayerCollisionCategory;
+class PlayerProjectileCollisionCategory;
+
+class CollisionCategory
+{
+public:
+	CollisionCategory(Entity* parent);
+	virtual ~CollisionCategory();
+	Entity* GetParent() const;
+
+	// The first collision function is only used to forward one of the categories to the other or to default call the collision event.
+	virtual void Collide(CollisionCategory* other);
+
+	// The baseclass should as default call the collision event if two objects are colliding with each other, but this is not a rule
+	// so if any category is supposed to act different from other categories as default it should.
+	// When a new collisioncategory is added it needs to have a collisionfunction declared in this baseclass.
+
+	virtual void Collide(PlayerCollisionCategory* other);
+	virtual void Collide(PlayerProjectileCollisionCategory* other);
+protected:
+	Entity* m_pParent;
+};
+
+#endif
+
+```
+```cpp
+// CollisionCategory.cpp
+#include "stdafx.h"
+#include "CollisionCategory.h"
+#include "../ECS/Entity.h"
+#include "../Events/EventBus.h"
+#include "CollisionCategories/PlayerCollisionCategory.h"
+#include "CollisionCategories/PlayerProjectileCollisionCategory.h"
+
+CollisionCategory::CollisionCategory(Entity* parent) : m_pParent(parent)
+{
+}
+
+CollisionCategory::~CollisionCategory()
+{
+}
+
+Entity* CollisionCategory::GetParent() const
+{
+    return m_pParent;
+}
+
+void CollisionCategory::Collide(CollisionCategory* other)
+{
+    EventBus::GetInstance().Publish(&Collision(m_pParent, other->GetParent()));
+}
+
+void CollisionCategory::Collide(PlayerCollisionCategory* other)
+{
+    EventBus::GetInstance().Publish(&Collision(m_pParent, other->GetParent()));
+}
+
+void CollisionCategory::Collide(PlayerProjectileCollisionCategory* other)
+{
+    EventBus::GetInstance().Publish(&Collision(m_pParent, other->GetParent()));
+}
+
+
+```
+
+To get a specific behaviour for your object when it collides with another object you now need to call its colide funtion with your new category as an argument. This is a downcast as not to see the category as a "CollisionCategory" object. See the implementations of "PlayerCollisionCategory" and "PlayerProjectileCollisionCategory" for an example.
+
+```cpp
+//PlayerCollisionCategory.h
+#ifndef PLAYERCOLLISIONCATEGORY_H
+#define PLAYERCOLLISIONCATEGORY_H
+#include "../CollisionCategory.h"
+class PlayerProjectileCollisionCategory;
+class PlayerCollisionCategory : public CollisionCategory
+{
+public:
+	PlayerCollisionCategory(Entity* parent);
+	virtual ~PlayerCollisionCategory();
+	void Collide(CollisionCategory* other) override;
+	void Collide(PlayerProjectileCollisionCategory* other) override;
+};
+
+#endif
+```
+```cpp
+//PlayerCollisionCategory.cpp
+#include "stdafx.h"
+#include "PlayerCollisionCategory.h"
+#include "PlayerProjectileCollisionCategory.h"
+#include "../Events/EventBus.h"
+
+PlayerCollisionCategory::PlayerCollisionCategory(Entity* parent) : CollisionCategory(parent)
+{
+}
+
+PlayerCollisionCategory::~PlayerCollisionCategory()
+{
+}
+
+void PlayerCollisionCategory::Collide(CollisionCategory* other)
+{
+	other->Collide(this);
+}
+
+void PlayerCollisionCategory::Collide(PlayerProjectileCollisionCategory* other)
+{
+	Log::Print("A player collided with projectile, no collision event sent!\n");
+	//EventBus::GetInstance().Publish(&Collision(m_pParent, other->GetParent()));
+}
+
+```
