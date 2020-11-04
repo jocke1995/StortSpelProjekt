@@ -20,7 +20,6 @@ void TimUpdateScene(SceneManager* sm, double dt);
 void JockeUpdateScene(SceneManager* sm, double dt);
 void FredriksUpdateScene(SceneManager* sm, double dt);
 void AndresUpdateScene(SceneManager* sm, double dt);
-void ShopUpdateScene(SceneManager* sm, double dt);
 
 EnemyFactory enemyFactory;
 
@@ -1696,13 +1695,4 @@ void AndresUpdateScene(SceneManager* sm, double dt)
 {
     //component::Audio3DEmitterComponent* ec = sm->GetScene("AndresTestScene")->GetEntity("enemy")->GetComponent<component::Audio3DEmitterComponent>();
     //ec->UpdateEmitter(L"Bruh");
-}
-
-void ShopUpdateScene(SceneManager* sm, double dt)
-{
-    static float rotValue = 0.0f;
-    Transform* trans = sm->GetScene("ShopScene")->GetEntity("poster")->GetComponent<component::TransformComponent>()->GetTransform();
-    trans->SetRotationX(rotValue);
-
-    rotValue += 0.005f;
 }
