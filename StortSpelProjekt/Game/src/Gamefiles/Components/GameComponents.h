@@ -9,5 +9,6 @@
 #include "RangeComponent.h"
 #include "CurrencyComponent.h"
 #include "TeleportComponent.h"
+#include "RangeEnemyComponent.h"
 
 #endif // !GAMECOMPONENTS_H

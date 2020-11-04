@@ -155,10 +155,10 @@ void component::MeleeComponent::createCornersHitbox()
 	m_Corners[2].x = -8;	m_Corners[2].y = -1;	m_Corners[2].z = -5;
 	m_Corners[3].x = -8;	m_Corners[3].y =  1;	m_Corners[3].z = -5;
 	// Back vertices
-	m_Corners[4].x =  8;	m_Corners[4].y =  1;	m_Corners[4].z = 15;
-	m_Corners[5].x =  8;	m_Corners[5].y = -1;	m_Corners[5].z = 15;
-	m_Corners[6].x = -8;	m_Corners[6].y = -1;	m_Corners[6].z = 15;
-	m_Corners[7].x = -8;	m_Corners[7].y =  1;	m_Corners[7].z = 15;
+	m_Corners[4].x =  8;	m_Corners[4].y =  1;	m_Corners[4].z = MELEE_RANGE;
+	m_Corners[5].x =  8;	m_Corners[5].y = -1;	m_Corners[5].z = MELEE_RANGE;
+	m_Corners[6].x = -8;	m_Corners[6].y = -1;	m_Corners[6].z = MELEE_RANGE;
+	m_Corners[7].x = -8;	m_Corners[7].y =  1;	m_Corners[7].z = MELEE_RANGE;
 }
 
 void component::MeleeComponent::createDrawnHitbox(component::BoundingBoxComponent* bbc)

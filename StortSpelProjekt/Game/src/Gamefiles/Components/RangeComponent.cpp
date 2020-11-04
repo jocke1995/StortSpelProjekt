@@ -14,7 +14,7 @@
 
 #include "UpgradeComponents/UpgradeComponent.h"
 #include "UpgradeComponents/Upgrades/UpgradeRangeTest.h"
-
+#include "../Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
 #include "../Memory/PoolAllocator.h"
 
 component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale, int damage, float velocity) : Component(parent)
@@ -28,17 +28,18 @@ component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scen
 	m_pVoiceComponent = nullptr;
 	m_AttackInterval = 0.5;
 	m_TimeAccumulator = 0.0;
+	m_NrOfProjectiles = 0;
 
 	if (parent->GetComponent<component::Audio2DVoiceComponent>())
 	{
-		audioPlay = true;
+		m_AudioPlay = true;
 		// Fetch the player audio component (if one exists)
 		m_pVoiceComponent = parent->GetComponent<component::Audio2DVoiceComponent>();
 		m_pVoiceComponent->AddVoice(L"Fireball");
 	}
 	else
 	{
-		audioPlay = false;
+		m_AudioPlay = false;
 	}
 }
 
@@ -129,8 +130,9 @@ void component::RangeComponent::Attack()
 		tc->Update(0.02);
 		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 		bbc->Init();
+		bbc->AddCollisionCategory<PlayerProjectileCollisionCategory>();
 		Physics::GetInstance().AddCollisionEntity(ent);
-		if (audioPlay)
+		if (m_AudioPlay)
 		{
 			m_pVoiceComponent->Play(L"Fireball");
 		}

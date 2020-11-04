@@ -5,7 +5,8 @@ Resource::Resource(
 	ID3D12Device* device,
 	unsigned long long entrySize,
 	RESOURCE_TYPE type,
-	std::wstring name)
+	std::wstring name,
+	D3D12_RESOURCE_FLAGS flags)
 {
 	m_Id = s_IdCounter++;
 	m_EntrySize = entrySize;
@@ -37,6 +38,7 @@ Resource::Resource(
 	resourceDesc.MipLevels = 1;
 	resourceDesc.SampleDesc.Count = 1;
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	resourceDesc.Flags = flags;
 
 	createResource(device, &resourceDesc, nullptr, startState);
 }
