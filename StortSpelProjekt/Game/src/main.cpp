@@ -130,6 +130,11 @@ Scene* GameScene(SceneManager* sm)
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
 
+	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
+	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
+	Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
+	Texture* healthHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthHolder.png");
+
     /*--------------------- Assets ---------------------*/
 
     /*--------------------- Component declarations ---------------------*/
@@ -249,37 +254,99 @@ Scene* GameScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /*--------------------- Teleporter ---------------------*/
+
     /* ------------------------- GUI --------------------------- */
-    std::string textToRender = "HEALTH";
-    float2 textPos = { 0.45f, 0.96f };
-    float2 textPadding = { 0.5f, 0.0f };
-    float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-    float2 textScale = { 0.5f, 0.5f };
-    float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+	/* ----------------- healthBackground ---------------------- */
+	std::string textToRender = "";
+	float2 textPos = { 0.473f, 0.965f };
+	float2 textPadding = { 0.8f, 0.0f };
+	float4 textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float2 textScale = { 0.3f, 0.3f };
+	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    entity = scene->AddEntity("health");
-    gui = entity->AddComponent<component::GUI2DComponent>();
-    gui->GetTextManager()->AddText("health");
-    gui->GetTextManager()->SetColor(textColor, "health");
-    gui->GetTextManager()->SetPadding(textPadding, "health");
-    gui->GetTextManager()->SetPos(textPos, "health");
-    gui->GetTextManager()->SetScale(textScale, "health");
-    gui->GetTextManager()->SetText(textToRender, "health");
-    gui->GetTextManager()->SetBlend(textBlend, "health");
+	entity = scene->AddEntity("healthBackground");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->AddText("currentHealth");
+	gui->GetTextManager()->SetColor(textColor, "currentHealth");
+	gui->GetTextManager()->SetPadding(textPadding, "currentHealth");
+	gui->GetTextManager()->SetPos(textPos, "currentHealth");
+	gui->GetTextManager()->SetScale(textScale, "currentHealth");
+	gui->GetTextManager()->SetText(std::to_string(hc->GetHealth()), "currentHealth");
+	gui->GetTextManager()->SetBlend(textBlend, "currentHealth");
 
-    float2 quadPos = { 0.4f, 0.95f };
-    float2 quadScale = { 0.2f, 0.1f };
-    float4 blended = { 1.0, 1.0, 1.0, 0.99 };
-    float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
-    gui->GetQuadManager()->CreateQuad(
-        "health",
-        quadPos, quadScale,
-        false, false,
-        1,
-        notBlended,
-        nullptr,
-        { 0.0, 1.0, 0.0 }
-    );
+	textPos = { 0.499f, 0.965f };
+	gui->GetTextManager()->AddText("slash");
+	gui->GetTextManager()->SetColor(textColor, "slash");
+	gui->GetTextManager()->SetPadding(textPadding, "slash");
+	gui->GetTextManager()->SetPos(textPos, "slash");
+	gui->GetTextManager()->SetScale(textScale, "slash");
+	gui->GetTextManager()->SetText("/", "slash");
+	gui->GetTextManager()->SetBlend(textBlend, "slash");
+
+	textPos = { 0.503f, 0.965f };
+	gui->GetTextManager()->AddText("maxHealth");
+	gui->GetTextManager()->SetColor(textColor, "maxHealth");
+	gui->GetTextManager()->SetPadding(textPadding, "maxHealth");
+	gui->GetTextManager()->SetPos(textPos, "maxHealth");
+	gui->GetTextManager()->SetScale(textScale, "maxHealth");
+	gui->GetTextManager()->SetText(std::to_string(hc->GetMaxHealth()), "maxHealth");
+	gui->GetTextManager()->SetBlend(textBlend, "maxHealth");
+
+	float2 quadPos = { 0.3f, 0.85f };
+	float2 quadScale = { 0.4f, 0.15f };
+	float4 blended = { 1.0, 1.0, 1.0, 0.99 };
+	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	gui->GetQuadManager()->CreateQuad(
+		"healthBackground",
+		quadPos, quadScale,
+		false, false,
+		0,
+		notBlended,
+		healthBackgroundTexture);
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- healthHolder --------------------------- */
+	entity = scene->AddEntity("healthHolder");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.35f, 0.85f };
+	quadScale = { 0.3f, 0.115f };
+	gui->GetQuadManager()->CreateQuad(
+		"healthHolder",
+		quadPos, quadScale,
+		false, false,
+		1,
+		notBlended,
+		healthHolderTexture);
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- healthbar --------------------------- */
+	entity = scene->AddEntity("healthbar");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.365f, 0.892f };
+	quadScale = { 0.275f, 0.055f }; // This is also set in GameGUI!
+	gui->GetQuadManager()->CreateQuad(
+		"healthbar",
+		quadPos, quadScale,
+		false, false,
+		2,
+		notBlended,
+		healthbarTexture,
+		float3{ 0.0f, 1.0f, 0.0f });
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- healthGuardians --------------------------- */
+	entity = scene->AddEntity("healthGuardians");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.32f, 0.86f };
+	quadScale = { 0.3625f, 0.14f };
+	gui->GetQuadManager()->CreateQuad(
+		"healthGuardians",
+		quadPos, quadScale,
+		false, false,
+		3,
+		blended,
+		healthGuardiansTexture);
+	/* ---------------------------------------------------------- */
 
     textToRender = "Currency: 0";
     textPos = { 0.01f, 0.95f };
@@ -315,7 +382,7 @@ Scene* GameScene(SceneManager* sm)
     gui->GetTextManager()->SetText(textToRender, "enemyGui");
     gui->GetTextManager()->SetBlend(textBlend, "enemyGui");
 
-    /* ---------------------------------------------------------- */
+    /* --------------------------- GUI ------------------------------- */
 
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);
