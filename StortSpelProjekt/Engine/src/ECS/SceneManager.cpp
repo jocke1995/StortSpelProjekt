@@ -171,10 +171,6 @@ void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
 	entity->OnUnInitScene();
 
-	// Some components need to be sent to the gpu each frame
-	Renderer::GetInstance().SubmitUploadPerFrameData();
-	Renderer::GetInstance().SubmitUploadPerSceneData();
-
 	// Remove from the scene
 	scene->RemoveEntity(entity->GetName());
 }
@@ -182,10 +178,6 @@ void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
 	entity->OnInitScene();
-
-	// Some components need to be sent to the gpu each frame
-	Renderer::GetInstance().SubmitUploadPerFrameData();
-	Renderer::GetInstance().SubmitUploadPerSceneData();
 }
 
 void SceneManager::SetGameOverScene(Scene* scene)

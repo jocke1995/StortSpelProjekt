@@ -98,6 +98,7 @@ void component::RangeComponent::Attack()
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
 		ac = ent->AddComponent<component::AccelerationComponent>(98.2);
 		uc = ent->AddComponent<component::UpgradeComponent>();
+		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
 		// Applying all range uppgrades to the new projectile entity "RangeAttack"
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
@@ -135,6 +136,8 @@ void component::RangeComponent::Attack()
 		{
 			m_pVoiceComponent->Play(L"Fireball");
 		}
+
+		plc->SetColor({ 3.0f, 0.0f, 0.0f });
 
 		// add the entity to the sceneManager so it can be spawned in in run time
 		// TODO: add dynamicly correct

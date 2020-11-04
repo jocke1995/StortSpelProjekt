@@ -570,8 +570,25 @@ void Renderer::InitDirectionalLightComponent(component::DirectionalLightComponen
 	// Save in m_pRenderer
 	m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(component, cb, si));
 
-	// Submit to cbperframe
 	
+	// Submit to gpu
+	CopyTask* copyTask = nullptr;
+
+	if (component->GetLightFlags() & FLAG_LIGHT::STATIC)
+	{
+		copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+	}
+	else
+	{
+		copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
+	}
+
+	const void* data = static_cast<const void*>(component->GetLightData());
+	copyTask->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+	
+	// We also need to update the indexBuffer with lights if a light is added.
+	// The buffer with indices is inside cbPerSceneData, which is updated in the following function:
+	SubmitUploadPerSceneData();
 }
 
 void Renderer::InitPointLightComponent(component::PointLightComponent* component)
@@ -585,6 +602,25 @@ void Renderer::InitPointLightComponent(component::PointLightComponent* component
 
 	// Save in m_pRenderer
 	m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(component, cb, si));
+
+	// Submit to gpu
+	CopyTask* copyTask = nullptr;
+
+	if (component->GetLightFlags() & FLAG_LIGHT::STATIC)
+	{
+		copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+	}
+	else
+	{
+		copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
+	}
+
+	const void* data = static_cast<const void*>(component->GetLightData());
+	copyTask->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+
+	// We also need to update the indexBuffer with lights if a light is added.
+	// The buffer with indices is inside cbPerSceneData, which is updated in the following function:
+	SubmitUploadPerSceneData();
 }
 
 void Renderer::InitSpotLightComponent(component::SpotLightComponent* component)
@@ -2150,21 +2186,21 @@ void Renderer::SubmitUploadPerSceneData()
 	// Submit static-light-data to be uploaded to VRAM
 	ConstantBuffer* cb = nullptr;
 
-	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
-	{
-		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
-		for (auto& tuple : m_Lights[type])
-		{
-			Light* light = std::get<0>(tuple);
-			unsigned int lightFlags = light->GetLightFlags();
-			if (lightFlags & FLAG_LIGHT::STATIC)
-			{
-				data = light->GetLightData();
-				cb = std::get<1>(tuple);
-				codt->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
-			}
-		}
-	}
+	//for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	//{
+	//	LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+	//	for (auto& tuple : m_Lights[type])
+	//	{
+	//		Light* light = std::get<0>(tuple);
+	//		unsigned int lightFlags = light->GetLightFlags();
+	//		if (lightFlags & FLAG_LIGHT::STATIC)
+	//		{
+	//			data = light->GetLightData();
+	//			cb = std::get<1>(tuple);
+	//			codt->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+	//		}
+	//	}
+	//}
 }
 
 void Renderer::SubmitUploadPerFrameData()
@@ -2174,21 +2210,21 @@ void Renderer::SubmitUploadPerFrameData()
 	const void* data = nullptr;
 	ConstantBuffer* cb = nullptr;
 
-	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
-	{
-		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
-		for (auto& tuple : m_Lights[type])
-		{
-			unsigned int lightFlags = static_cast<Light*>(std::get<0>(tuple))->GetLightFlags();
-	
-			if ((lightFlags & FLAG_LIGHT::STATIC) == 0)
-			{
-				data = std::get<0>(tuple)->GetLightData();
-				cb = std::get<1>(tuple);
-				cpft->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
-			}
-		}
-	}
+	//for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	//{
+	//	LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
+	//	for (auto& tuple : m_Lights[type])
+	//	{
+	//		unsigned int lightFlags = static_cast<Light*>(std::get<0>(tuple))->GetLightFlags();
+	//
+	//		if ((lightFlags & FLAG_LIGHT::STATIC) == 0)
+	//		{
+	//			data = std::get<0>(tuple)->GetLightData();
+	//			cb = std::get<1>(tuple);
+	//			cpft->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+	//		}
+	//	}
+	//}
 
 	// CB_PER_FRAME_STRUCT
 	if (cpft != nullptr)
