@@ -59,6 +59,7 @@ namespace component
 		Entity* GetTarget();
 
 		void SetAttackInterval(float interval);
+		void SetAttackSpeed(float speed);
 		void SetMeleeAttackDmg(float dmg);
 		void SetRangedAI();
 
@@ -90,7 +91,9 @@ namespace component
 		unsigned int m_Flags;
 		bool m_CanJump;
 		float m_AttackInterval;
-		float m_TimeAccumulator;
+		float m_AttackSpeed;
+		float m_IntervalTimeAccumulator;
+		float m_SpeedTimeAccumulator;
 		bool m_PathFound;
 		bool m_isRanged;
 

@@ -15,7 +15,9 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_AttackingDistance = attackingDistance;
 	m_Flags = flags;
 	m_AttackInterval = 0.5;
-	m_TimeAccumulator = 0.0;
+	m_AttackSpeed = 0.1;
+	m_IntervalTimeAccumulator = 0.0;
+	m_SpeedTimeAccumulator = 0.0;
 	m_MeleeAttackDmg = 10;
 	m_pScene = nullptr;
 	m_pNavMesh = nullptr;
@@ -175,7 +177,9 @@ void component::AiComponent::Update(double dt)
 				cc->SetVelVector(min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel), 0.0f, min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel));
 			}
 
-			if (distance <= m_AttackingDistance)
+			m_IntervalTimeAccumulator += static_cast<float>(dt);
+			float playerDistance = (targetTrans->GetPositionFloat3() - parentTrans->GetPositionFloat3()).length();
+			if (playerDistance <= m_AttackingDistance)
 			{
 				if (!m_isRanged) // melee 
 				{
@@ -183,12 +187,13 @@ void component::AiComponent::Update(double dt)
 					HealthComponent* hc = m_pTarget->GetComponent<component::HealthComponent>();
 					if (hc != nullptr)
 					{
-						m_TimeAccumulator += static_cast<float>(dt);
-						if (m_TimeAccumulator > m_AttackInterval)
+						m_SpeedTimeAccumulator += static_cast<float>(dt);
+						if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
 						{
 							m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(-m_MeleeAttackDmg);
 							Log::Print("ENEMY ATTACK!\n");
-							m_TimeAccumulator = 0.0;
+							m_SpeedTimeAccumulator = 0.0;
+							m_IntervalTimeAccumulator = 0.0;
 						}
 					}
 				}
@@ -199,6 +204,10 @@ void component::AiComponent::Update(double dt)
 						// shoot
 						m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(direction);
 				}				
+			}
+			else
+			{
+				m_SpeedTimeAccumulator = 0.0;
 			}
 		}
 	}
@@ -245,6 +254,11 @@ Entity* component::AiComponent::GetTarget()
 void component::AiComponent::SetAttackInterval(float interval)
 {
 	m_AttackInterval = interval;
+}
+
+void component::AiComponent::SetAttackSpeed(float speed)
+{
+	m_AttackSpeed = speed;
 }
 
 void component::AiComponent::SetMeleeAttackDmg(float dmg)
