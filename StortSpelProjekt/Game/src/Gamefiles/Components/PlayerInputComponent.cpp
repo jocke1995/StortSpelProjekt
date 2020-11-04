@@ -105,6 +105,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		float3 playerPosition = m_pTransform->GetRenderPositionFloat3();
 		float3 cameraDir = m_pCamera->GetDirectionFloat3();
 		float3 cameraPos = m_pCamera->GetPositionFloat3();
+		float height = (m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y * m_pTransform->GetScale().y * 0.5) + 1.0;
 
 		// Move the camera in y-direction
 		cameraPos.y = min(max(cameraPos.y + m_RotateY * 100.0f * static_cast<float>(dt), -80.0f), 80.0f);
@@ -115,7 +116,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		// Rotate the camera direction vector using a homemade rotation matrix (around y) and calculate the correct y-direction using the camera's position
 		cameraDir = {
 			cameraDir.x * cos(m_RotateX) + cameraDir.z * sin(m_RotateX),
-			playerPosition.y - cameraPos.y + (static_cast<float>(m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y) * m_pTransform->GetScale().y * 0.5f) + 1.0f,
+			playerPosition.y - cameraPos.y + height,
 			-cameraDir.x * sin(m_RotateX) + cameraDir.z * cos(m_RotateX)
 		};
 
@@ -126,7 +127,6 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		forward.normalize();
 		forward *= 75.0f;
 		float3 cameraPosition = playerPosition - forward;
-		float height = (m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y * m_pTransform->GetScale().y * 0.5) + 1.0;
 		cameraPosition.y += height;
 
 		m_pCamera->SetPosition(cameraPosition.x, cameraPosition.y, cameraPosition.z);
@@ -315,12 +315,12 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 			if (m_Attacking || m_TurnToCamera)
 			{
 				// If the player is in attacking position, turn in the camera direction
-				angle = std::atan2(forward.x, forward.z);
+				angle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
 			}
 			else
 			{
 				// If the player is not in attacking position, turn in the movement direction
-				angle = std::atan2(move.x, move.z);
+				angle = std::atan2(m_pTransform->GetInvDir() * move.x, m_pTransform->GetInvDir() * move.z);
 			}
 			int angleDegrees = EngineMath::convertToWholeDegrees(angle);
 			angleDegrees = (angleDegrees + 360) % 360;
@@ -434,12 +434,12 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 				if (m_Attacking || m_TurnToCamera)
 				{
 					// If the player is in attacking position, turn in the camera direction
-					angle = std::atan2(forward.x, forward.z);
+					angle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
 				}
 				else
 				{
 					// If the player is not in attacking position, turn in the movement direction
-					angle = std::atan2(move.x, move.z);
+					angle = std::atan2(m_pTransform->GetInvDir() * move.x, m_pTransform->GetInvDir() * move.z);
 				}
 				int angleDegrees = EngineMath::convertToWholeDegrees(angle);
 				angleDegrees = (angleDegrees + 360) % 360;
@@ -448,7 +448,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 			// Check if the player is moving in the direction she is turned. If not, lower the movement speed
 			float3 playerDir = m_pTransform->GetForwardFloat3();
-			float3 moveDir = { move.x, 0.0, move.z };
+			float3 moveDir = { m_pTransform->GetInvDir() * move.x, 0.0, m_pTransform->GetInvDir() * move.z };
 			moveDir.normalize();
 			playerDir.normalize();
 

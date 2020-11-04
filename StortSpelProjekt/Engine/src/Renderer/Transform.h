@@ -8,7 +8,7 @@
 class Transform
 {
 public:
-	Transform();
+	Transform(bool invertDirection = false);
 	virtual ~Transform();
 
 	void SetPosition(float x, float y, float z);
@@ -87,6 +87,8 @@ public:
 	float GetVelocity() const;
 	void SetVelocity(float vel);
 
+	int GetInvDir();
+
 	// Sets the movement. Also sets the velocity to the length of the given vector.
 	void SetActualMovement(float x, float y, float z);
 	// Sets the movement. Also sets the velocity to the length of the given vector.
@@ -109,6 +111,8 @@ private:
 	DirectX::XMMATRIX m_RotationMat;
 
 	float m_Velocity;
+
+	int m_InvDir;
 };
 
 #endif
