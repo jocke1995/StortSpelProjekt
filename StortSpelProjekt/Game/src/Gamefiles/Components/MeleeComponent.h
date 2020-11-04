@@ -22,6 +22,8 @@ class Entity;
 class Audio2DVoiceComponent;
 class Audio3DEmitterComponent;
 
+#define MELEE_RANGE 12
+
 namespace component
 {
 	class MeleeComponent : public Component
