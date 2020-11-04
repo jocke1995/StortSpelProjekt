@@ -9,7 +9,6 @@
 Mesh::Mesh(std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, const std::wstring& path)
 {
 	m_Path = path;
-
 	m_Vertices = *vertices;
 	m_Indices = *indices;
 }

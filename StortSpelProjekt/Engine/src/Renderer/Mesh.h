@@ -32,25 +32,26 @@ public:
             const std::wstring& path = L"NOPATH");
     virtual ~Mesh();
 
-    void Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_heap);
+    // Virtual so that animatedMesh can override this
+    virtual void Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_heap);
 
     // Vertices
     Resource* GetDefaultResourceVertices() const;
     const std::vector<Vertex>* GetVertices() const;
-    const size_t GetSizeOfVertices() const;
-    const size_t GetNumVertices() const;
+    virtual const size_t GetSizeOfVertices() const;
+    virtual const size_t GetNumVertices() const;
 
     // Indices
     Resource* GetDefaultResourceIndices() const;
     const std::vector<unsigned int>* GetIndices() const;
-    const size_t GetSizeOfIndices() const;
-    const size_t GetNumIndices() const;
+    virtual const size_t GetSizeOfIndices() const;
+    virtual const size_t GetNumIndices() const;
     const D3D12_INDEX_BUFFER_VIEW* GetIndexBufferView() const;
 
     const std::wstring& GetPath() const;
 	ShaderResourceView* const GetSRV() const;
 
-private:
+protected:
     friend class MergeRenderTask;
     friend class DownSampleRenderTask;
     friend class SkyboxRenderTask;
@@ -60,6 +61,7 @@ private:
 	friend class QuadManager;
 	friend class Model;
 	friend class component::BoundingBoxComponent;
+	friend class CopyOnDemandTask;
 
     std::vector<Vertex> m_Vertices;
     std::vector<unsigned int> m_Indices;
