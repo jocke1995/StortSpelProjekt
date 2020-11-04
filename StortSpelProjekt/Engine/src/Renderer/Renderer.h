@@ -240,7 +240,7 @@ private:
 	//void executeCopyOnDemand();
 
 	// Setup the whole scene
-	void prepareScenes(std::vector<Scene*>* scenes);
+	void prepareScene(Scene* activeScene);
 
 	// Submit cbPerSceneData to the copyQueue that updates once
 	void submitUploadPerSceneData();

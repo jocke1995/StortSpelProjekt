@@ -235,7 +235,7 @@ void Shop::upgradePressed(ButtonPressed* evnt)
 				m_InventoryIsBought.at(i) = true;
 				ApplyUppgrade(m_InventoryNames.at(i));
 
-				SceneManager::GetInstance().GetActiveScenes()->at(0)->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("UPGRADE BOUGHT", "upgrade" + std::to_string(i));
+				SceneManager::GetInstance().GetActiveScene()->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("UPGRADE BOUGHT", "upgrade" + std::to_string(i));
 			}
 		}
 	}

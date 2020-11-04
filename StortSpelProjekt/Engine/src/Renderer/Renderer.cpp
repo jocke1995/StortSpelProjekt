@@ -938,12 +938,8 @@ void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 void Renderer::OnResetScene()
 {
 	// Lights will be cleared in respective UninitComponent function
-	//for (auto& light : m_Lights)
-	//{
-	//	light.second.clear();
-	//}
-	//static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
 
+	// Clear the rest
 	m_RenderComponents.clear();
 	m_pViewPool->ClearAll();
 	m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
@@ -2129,7 +2125,7 @@ void Renderer::waitForFrame(unsigned int framesToBeAhead)
 //	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
 //}
 
-void Renderer::prepareScenes(std::vector<Scene*>* scenes)
+void Renderer::prepareScene(Scene* activeScene)
 {
 	submitUploadPerFrameData();
 	submitUploadPerSceneData();

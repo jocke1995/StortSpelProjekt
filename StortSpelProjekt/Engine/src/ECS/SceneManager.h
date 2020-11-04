@@ -27,8 +27,8 @@ public:
 
 	// Scene
 	Scene* CreateScene(std::string sceneName);
-	void SetScenes(Scene* scene);
-	std::vector<Scene*>* GetActiveScenes();
+	void SetScene(Scene* scene);
+	Scene* GetActiveScene();
 	Scene* GetScene(std::string sceneName) const;
 	void ChangeScene();
 
@@ -47,7 +47,7 @@ private:
 	void deleteSceneManager();
 
 	std::map<std::string, Scene*> m_Scenes;
-	std::vector<Scene*> m_ActiveScenes;
+	Scene* m_pActiveScene;
 	Scene* m_pDefaultScene;
 
 	struct EntityScene

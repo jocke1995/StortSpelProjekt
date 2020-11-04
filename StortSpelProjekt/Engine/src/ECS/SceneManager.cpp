@@ -34,12 +34,6 @@
 
 SceneManager::SceneManager()
 {
-	m_ActiveScenes.reserve(1);
-	// "Default scene"
-	Scene* m_DefaultScene = new Scene("defaultScene");
-	m_Scenes["defaultScene"] = m_DefaultScene;
-	m_ActiveScenes.push_back(m_DefaultScene); 
-
 	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityRemove);
 	EventBus::GetInstance().Subscribe(this, &SceneManager::changeSceneNextFrame);
 }
@@ -69,11 +63,8 @@ void SceneManager::deleteSceneManager()
 
 void SceneManager::Update(double dt)
 {
-	// Update scenes
-	for (auto scene : m_ActiveScenes)
-	{
-		scene->Update(this, dt);
-	}
+	// Update scene
+	m_pActiveScene->Update(this, dt);
 
 	unsigned int removeSize = m_ToRemove.size() - 1;
 	for (int i = removeSize; i >= 0; --i)
@@ -86,10 +77,7 @@ void SceneManager::Update(double dt)
 void SceneManager::RenderUpdate(double dt)
 {
 	// Update scenes (Render)
-	for (auto scene : m_ActiveScenes)
-	{
-		scene->RenderUpdate(this, dt);
-	}
+	m_pActiveScene->RenderUpdate(this, dt);
 
 	// Renderer updates some stuff
 	Renderer::GetInstance().RenderUpdate(dt);
@@ -108,9 +96,9 @@ Scene* SceneManager::CreateScene(std::string sceneName)
     return m_Scenes[sceneName];
 }
 
-std::vector<Scene*>* SceneManager::GetActiveScenes()
+Scene* SceneManager::GetActiveScene()
 {
-	return &m_ActiveScenes;
+	return m_pActiveScene;
 }
 
 Scene* SceneManager::GetScene(std::string sceneName) const
@@ -128,10 +116,10 @@ void SceneManager::ChangeScene()
 {
 	if (m_ChangeSceneNextFrame)
 	{
-		if (m_ActiveScenes[0]->GetName() == "ShopScene" || m_ActiveScenes[0]->GetName() == "GameScene")
+		if (m_pActiveScene->GetName() == "ShopScene" || m_pActiveScene->GetName() == "GameScene")
 		{
 			// Reset old scene
-			std::map<std::string, Entity*> entities = *m_ActiveScenes[0]->GetEntities();
+			std::map<std::string, Entity*> entities = *m_pActiveScene->GetEntities();
 			for (auto pair : entities)
 			{
 				for (Component* comp : *pair.second->GetAllComponents())
@@ -153,12 +141,12 @@ void SceneManager::ChangeScene()
 			}
 
 			// Change the player back to its original position
-			SetScenes(scene);
+			SetScene(scene);
 			m_ChangeSceneNextFrame = false;
 		}
-		else if (m_ActiveScenes[0]->GetName() == "gameOverScene")
+		else if (m_pActiveScene->GetName() == "gameOverScene")
 		{
-			SetScenes(m_pGameOverScene);
+			SetScene(m_pGameOverScene);
 			m_ChangeSceneNextFrameToDeathScene = false;
 
 			Physics::GetInstance().OnResetScene();
@@ -192,9 +180,9 @@ void SceneManager::SetGameOverScene(Scene* scene)
 	}
 }
 
-void SceneManager::SetScenes(Scene* scene)
+void SceneManager::SetScene(Scene* scene)
 {
-	if (scene == m_ActiveScenes.at(0))
+	if (scene == m_pActiveScene)
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "SetScene on same scene %s\n", scene->GetName());
 		return;
@@ -202,47 +190,42 @@ void SceneManager::SetScenes(Scene* scene)
 
 	ResetScene();
 
-	Scene* oldScene = m_ActiveScenes.at(0);
-
-	std::map<std::string, Entity*> oldEntities = *oldScene->GetEntities();
-	for (auto pair : oldEntities)
+	if (m_pActiveScene != nullptr)
 	{
-		Entity* ent = pair.second;
-		if (ent->IsEntityDynamic() == true)
+		std::map<std::string, Entity*> oldEntities = *m_pActiveScene->GetEntities();
+		for (auto pair : oldEntities)
 		{
-			oldScene->RemoveEntity(ent->GetName());
+			Entity* ent = pair.second;
+			if (ent->IsEntityDynamic() == true)
+			{
+				m_pActiveScene->RemoveEntity(ent->GetName());
+			}
+		}
+
+		for (auto const& [entityName, entity] : oldEntities)
+		{
+			entity->OnUnInitScene();
 		}
 	}
 
-	for (auto const& [entityName, entity] : oldEntities)
-	{
-		entity->OnUnInitScene();
-	}
-
-	// Set the active scenes
-	m_ActiveScenes.clear();
-
 	// init the active scenes
-	std::map<std::string, Entity*> entities = *(scene->GetEntities());
+	std::map<std::string, Entity*> entities = *scene->GetEntities();
 	for (auto const& [entityName, entity] : entities)
 	{
 		entity->SetEntityState(false);
 		entity->OnInitScene();
 	}
 
-	m_ActiveScenes.push_back(scene);
+	m_pActiveScene = scene;
 
 	Physics::GetInstance().SetCollisionEntities(scene->GetCollisionEntities());
 
 	Renderer* renderer = &Renderer::GetInstance();
-	renderer->prepareScenes(&m_ActiveScenes);
+	renderer->prepareScene(m_pActiveScene);
 
-	for (Scene* scene : m_ActiveScenes)
+	if (m_pActiveScene->GetMainCamera() == nullptr)
 	{
-		if (scene->GetMainCamera() == nullptr)
-		{
-			scene->SetPrimaryCamera(renderer->m_pScenePrimaryCamera);
-		}
+		m_pActiveScene->SetPrimaryCamera(renderer->m_pScenePrimaryCamera);
 	}
 
 	return;
@@ -285,7 +268,7 @@ bool SceneManager::sceneExists(std::string sceneName) const
 
 void SceneManager::onEntityRemove(RemoveMe* evnt)
 {
-	m_ToRemove.push_back({ evnt->ent, m_ActiveScenes[0] });
+	m_ToRemove.push_back({ evnt->ent, m_pActiveScene });
 }
 
 void SceneManager::changeSceneNextFrame(SceneChange* sceneChangeEvent)
