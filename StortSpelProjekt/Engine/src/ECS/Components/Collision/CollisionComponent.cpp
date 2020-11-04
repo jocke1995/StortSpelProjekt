@@ -217,7 +217,7 @@ double3 component::CollisionComponent::GetRotationEuler() const
 
 	double roll, pitch, yaw;
 
-	rot.getEulerZYX(roll, pitch, yaw);
+	rot.getEulerZYX(roll, yaw, pitch);
 
 	return { pitch, yaw, roll };
 }
