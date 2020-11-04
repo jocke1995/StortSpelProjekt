@@ -28,17 +28,18 @@ component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scen
 	m_pVoiceComponent = nullptr;
 	m_AttackInterval = 0.5;
 	m_TimeAccumulator = 0.0;
+	m_NrOfProjectiles = 0;
 
 	if (parent->GetComponent<component::Audio2DVoiceComponent>())
 	{
-		audioPlay = true;
+		m_AudioPlay = true;
 		// Fetch the player audio component (if one exists)
 		m_pVoiceComponent = parent->GetComponent<component::Audio2DVoiceComponent>();
 		m_pVoiceComponent->AddVoice(L"Fireball");
 	}
 	else
 	{
-		audioPlay = false;
+		m_AudioPlay = false;
 	}
 }
 
@@ -131,7 +132,7 @@ void component::RangeComponent::Attack()
 		bbc->Init();
 		bbc->AddCollisionCategory<PlayerProjectileCollisionCategory>();
 		Physics::GetInstance().AddCollisionEntity(ent);
-		if (audioPlay)
+		if (m_AudioPlay)
 		{
 			m_pVoiceComponent->Play(L"Fireball");
 		}
