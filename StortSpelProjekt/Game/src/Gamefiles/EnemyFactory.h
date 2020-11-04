@@ -44,6 +44,7 @@ struct EnemyComps
 	float detectionRad = 25.0f;
 	float attackingDist = 0.5f;
 	float attackInterval = 1.0f;
+	float attackSpeed = 0.2f;
 	float meleeAttackDmg = 10.0f;
 	float movementSpeed = 30.0f;
 };
@@ -109,7 +110,6 @@ private:
 	unsigned int m_MaxEnemies;
 	unsigned int m_LevelMaxEnemies;
 	unsigned int m_EnemiesKilled;
-	float m_DifficultScale;
 	float m_SpawnCooldown;
 	float m_SpawnTimer;
 	float m_MinimumDistanceToPlayer;

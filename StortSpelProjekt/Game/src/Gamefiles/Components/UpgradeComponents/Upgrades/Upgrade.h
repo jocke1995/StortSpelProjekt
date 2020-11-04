@@ -82,7 +82,7 @@ protected:
 	// Is set in UpgradeManagers fillUpgradeMap() function.
 	int m_ID;
 	// What level the upgrade is, for keeping track of stacking of upgrades and price
-	int m_Level = 1;
+	int m_Level = 0;
 	// Some upgrade might have a maximum upgrade level. Set in upgrade class, else "unlimited" levels.
 	int m_MaxLevel = INT_MAX;
 	// What type of upgrade this is, for ease of sorting or making calls to certain types
