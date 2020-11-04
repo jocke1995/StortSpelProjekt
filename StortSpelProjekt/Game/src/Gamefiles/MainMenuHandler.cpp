@@ -57,7 +57,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     entity = scene->AddEntity("ExitOption");
     guic = entity->AddComponent<component::GUI2DComponent>();
     guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.3f }, { (float)exitTex->GetWidth() / std::stoi(Option::GetInstance().GetVariable("i_resolutionWidth")), (float)exitTex->GetHeight() / std::stoi(Option::GetInstance().GetVariable("i_resolutionHeight")) }, true, true, 0, { 1.0,1.0,1.0,1.0 }, exitTex);
-
+    guic->GetQuadManager()->SetOnClicked(&onExit);
     m_pSceneManager = sm;
     m_pScene = scene;
     return scene;
@@ -75,6 +75,7 @@ void onStart(const std::string& name)
 
 void onExit(const std::string& name)
 {
+    EventBus::GetInstance().Publish(&ShutDown());
 }
 
 void onOptions(const std::string& name)

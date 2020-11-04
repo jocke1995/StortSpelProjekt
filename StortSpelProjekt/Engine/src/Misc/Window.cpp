@@ -186,6 +186,8 @@ Window::Window(
 	initWindow(hInstance, nCmdShow);
 
 	m_ShutDown = false;
+
+	EventBus::GetInstance().Subscribe(this, &Window::closeWindow);
 }
 
 
@@ -344,4 +346,9 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 	UpdateWindow(m_Hwnd);
 
 	return true;
+}
+
+void Window::closeWindow(ShutDown* evnt)
+{
+	m_ShutDown = true;
 }

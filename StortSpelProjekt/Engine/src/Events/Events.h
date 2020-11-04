@@ -115,3 +115,8 @@ struct SceneChange : public Event
 
 	std::string m_NewSceneName;
 };
+
+struct ShutDown : public Event
+{
+	ShutDown() {};
+};

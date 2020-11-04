@@ -7,6 +7,8 @@
 static bool spacePressed = false;
 static bool tabPressed = false;
 
+struct ShutDown;
+
 class Window
 {
 public:
@@ -51,6 +53,7 @@ private:
 	bool m_ShutDown;
 
 	bool initWindow(HINSTANCE hInstance, int nCmdShow);
+	void closeWindow(ShutDown* evnt);
 };
 
 #endif
