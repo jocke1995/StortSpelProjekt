@@ -138,8 +138,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 
 				Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
+				POINT pos;
+				GetCursorPos(&pos);
+				RECT win;
+				GetWindowRect(hWnd, &win);
+				LONG windowWidth = win.right - 100;
+				LONG windowHeight = win.bottom - 100;
+				int nextX = Max(Min(pos.x, windowWidth - 200), win.left + 100);
+				int nextY = Max(Min(pos.y, windowHeight - 200), win.top + 100);
 
-				SetCursorPos(500, 400);
+				SetCursorPos(nextX, nextY);
 			}
 
 			// This is temporarly to make sure that a mouse click works even though the 'alt' key is pressed
@@ -188,6 +196,7 @@ Window::Window(
 	m_ShutDown = false;
 
 	EventBus::GetInstance().Subscribe(this, &Window::closeWindow);
+	EventBus::GetInstance().Subscribe(this, &Window::setShowCursor);
 }
 
 
@@ -342,7 +351,7 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 	SetWindowLong(m_Hwnd, GWL_STYLE, 0);
 
 	ShowWindow(m_Hwnd, nCmdShow);
-	ShowCursor(false);
+	ShowCursor(true);
 	UpdateWindow(m_Hwnd);
 
 	return true;
@@ -351,4 +360,9 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 void Window::closeWindow(ShutDown* evnt)
 {
 	m_ShutDown = true;
+}
+
+void Window::setShowCursor(CursorShow* evnt)
+{
+	ShowCursor(evnt->m_Show);
 }
