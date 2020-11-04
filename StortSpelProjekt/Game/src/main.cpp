@@ -9,6 +9,7 @@
 #include "UpgradeManager.h"
 #include "Shop.h"
 #include "Components/CurrencyComponent.h"
+#include "MainMenuHandler.h"
 
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
@@ -49,11 +50,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AssetLoader* al = AssetLoader::Get();
 
     /*----- Set the scene -----*/
-    //Scene* demoScene = GameScene(sceneManager);
-    //Scene* shopScene = ShopScene(sceneManager);
+    Scene* demoScene = GameScene(sceneManager);
+    Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverScene(sceneManager);
-    Scene* mainMenuScene = MainMenuScene(sceneManager);
-    //Scene* shopScene = ShopScene(sceneManager);
+    Scene* mainMenuScene = MainMenuHandler::GetInstance().CreateScene(sceneManager);
+
     sceneManager->SetScenes(mainMenuScene);
     sceneManager->SetGameOverScene(gameOverScene);
 

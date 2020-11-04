@@ -63,7 +63,7 @@ private:
 
 	void onEntityRemove(RemoveMe* evnt);
 
-	std::string m_SceneToChangeToWhenTeleported = "";
+	std::string m_SceneToChangeTo = "";
 	bool m_ChangeSceneNextFrame = false;
 	void changeSceneNextFrame(SceneChange* sceneChangeEvent);
 };

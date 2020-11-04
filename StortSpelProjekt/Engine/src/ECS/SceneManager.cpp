@@ -128,7 +128,7 @@ void SceneManager::ChangeScene()
 {
 	if (m_ChangeSceneNextFrame)
 	{
-		if (m_ActiveScenes[0]->GetName() == "ShopScene" || m_ActiveScenes[0]->GetName() == "GameScene")
+		if (m_ActiveScenes[0]->GetName() != "gameOverScene")
 		{
 			// Reset old scene
 			std::map<std::string, Entity*> entities = *m_ActiveScenes[0]->GetEntities();
@@ -140,7 +140,7 @@ void SceneManager::ChangeScene()
 				}
 			}
 
-			Scene* scene = m_Scenes[m_SceneToChangeToWhenTeleported];
+			Scene* scene = m_Scenes[m_SceneToChangeTo];
 
 			// Reset new Scene
 			entities = *scene->GetEntities();
@@ -156,7 +156,7 @@ void SceneManager::ChangeScene()
 			SetScenes(scene);
 			m_ChangeSceneNextFrame = false;
 		}
-		else if (m_ActiveScenes[0]->GetName() == "gameOverScene")
+		else
 		{
 			SetScenes(m_pGameOverScene);
 			m_ChangeSceneNextFrameToDeathScene = false;
@@ -302,6 +302,6 @@ void SceneManager::onEntityRemove(RemoveMe* evnt)
 
 void SceneManager::changeSceneNextFrame(SceneChange* sceneChangeEvent)
 {
-	m_SceneToChangeToWhenTeleported = sceneChangeEvent->m_NewSceneName;
+	m_SceneToChangeTo = sceneChangeEvent->m_NewSceneName;
 	m_ChangeSceneNextFrame = true;
 }
