@@ -14,6 +14,7 @@ public:
 
 private:
 	float m_DamageReduction;
+	float m_StartDamageReduction;
 
 };
 
