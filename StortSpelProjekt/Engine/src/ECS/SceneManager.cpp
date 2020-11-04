@@ -222,13 +222,9 @@ void SceneManager::SetScenes(Scene* scene)
 		}
 	}
 
-	// Check if we should uninit
-	if (oldScene != scene)
+	for (auto const& [entityName, entity] : oldEntities)
 	{
-		for (auto const& [entityName, entity] : oldEntities)
-		{
-			entity->OnUnInitScene();
-		}
+		entity->OnUnInitScene();
 	}
 
 	// Set the active scenes
