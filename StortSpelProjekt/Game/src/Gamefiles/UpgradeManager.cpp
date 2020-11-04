@@ -19,7 +19,7 @@ UpgradeManager::UpgradeManager(Entity* parentEntity)
 	// Fill in the names of all upgrades in m_AppliedUpgradeLevel and set their level to level 1
 	for (auto u : m_AllAvailableUpgrades)
 	{
-		m_AppliedUpgradeLevel[u.first] = 1;
+		m_AppliedUpgradeLevel[u.first] = 0;
 	}
 }
 
@@ -70,7 +70,7 @@ void UpgradeManager::ApplyRangeUpgrades(Entity* ent)
 		// If so increase level of the new upgrade so it matches the one in m_AppliedUpgradeLevel
 		// i = 1, because upgrades start at level 1.
 		int upgradeLevel = m_AppliedUpgradeLevel[upgradeName];
-		for (int i = 1; i < upgradeLevel; i++)
+		for (int i = 0; i < upgradeLevel; i++)
 		{
 			rangeUpgrade->IncreaseLevel();
 		}
@@ -110,14 +110,8 @@ std::map<std::string, Upgrade*> UpgradeManager::GetAllAvailableUpgrades()
 
 void UpgradeManager::IncreaseLevel(std::string name)
 {
-	if (m_AppliedUpgradeLevel[name] >= 1)
-	{
-		m_AppliedUpgradeLevel[name]++;
-	}
-	else
-	{
-		m_AppliedUpgradeLevel[name] = 2;
-	}
+	m_AppliedUpgradeLevel[name]++;
+	m_AllAvailableUpgrades[name]->IncreaseLevel();
 }
 
 std::map<std::string, int> UpgradeManager::GetAppliedUpgradesLevel()
