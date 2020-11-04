@@ -310,6 +310,20 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		m_pCC->Rotate({ 0.0, 1.0, 0.0 }, rotateX);
 		m_pCC->SetAngularVelocity(0.0, 0.0, 0.0);
 
+		// Casting of ray
+		double convertX = m_pCamera->GetPositionFloat3().x;
+		double convertY = m_pCamera->GetPositionFloat3().y;
+		double convertZ = m_pCamera->GetPositionFloat3().z;
+
+		double3 cameraPosition = { 
+			convertX,
+			convertY,
+			convertZ 
+		};
+		
+		m_pCC->CastRay(cameraPosition);
+	
+
 		//Check if in air. If not, change movement direction to match up with camera direction
 		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1 && !m_Dashing)
 		{
