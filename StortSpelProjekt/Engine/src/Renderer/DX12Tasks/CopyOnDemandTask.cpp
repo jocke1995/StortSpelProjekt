@@ -8,6 +8,7 @@
 #include "../Texture/TextureCubeMap.h"
 
 #include "../../ECS/Components/GUI2DComponent.h"
+#include "../Renderer/Mesh.h"
 
 CopyOnDemandTask::CopyOnDemandTask(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType, unsigned int FLAG_THREAD)
 	:CopyTask(device, interfaceType, FLAG_THREAD)
@@ -30,12 +31,28 @@ void CopyOnDemandTask::SubmitTexture(Texture* texture)
 	m_Textures.push_back(texture);
 }
 
-void CopyOnDemandTask::UnSubmitText(Text* text)
+void CopyOnDemandTask::UnSubmitMesh(Mesh *mesh)
 {
-	Resource* uploadResource;
-	
 	// UploadDefaultData
-	uploadResource = text->m_pUploadResourceVertices;
+	Resource* uploadResource = mesh->m_pUploadResourceVertices;
+	auto it = m_UploadDefaultData.begin();
+	while (it != m_UploadDefaultData.end())
+	{
+		if (std::get<0>(*it) == uploadResource)
+		{
+			it = m_UploadDefaultData.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+}
+
+void CopyOnDemandTask::UnSubmitText(Text* text)
+{	
+	// UploadDefaultData
+	Resource* uploadResource = text->m_pUploadResourceVertices;
 	auto it = m_UploadDefaultData.begin();
 	while (it != m_UploadDefaultData.end())
 	{
