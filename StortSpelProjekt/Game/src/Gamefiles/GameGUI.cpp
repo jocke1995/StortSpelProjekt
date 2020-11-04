@@ -37,7 +37,7 @@ void GameGUI::Update(double dt, Scene* scene)
 			if (money != m_OldMoney)
 			{
 				entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(
-					"Currency: " + std::to_string(money),
+					std::to_string(money),
 					"money");
 				m_OldMoney = money;
 			}
