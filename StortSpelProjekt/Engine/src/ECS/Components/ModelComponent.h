@@ -34,6 +34,7 @@ namespace component
         const std::wstring& GetModelPath() const;
         bool IsPickedThisFrame() const;
         double3 GetModelDim() const;
+        Model* GetModel() const;
 
     private:
         // The boundingBox will update the "m_IsPickedThisFrame"
