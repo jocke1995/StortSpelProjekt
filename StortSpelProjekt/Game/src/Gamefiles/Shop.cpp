@@ -102,7 +102,7 @@ void Shop::RandomizeInventory()
 	{
 		std::string textToRender = m_UpgradeDescriptions.find(m_InventoryNames.at(i))->second;
 		textToRender += "\nPrice: " + std::to_string(GetPrice(GetInventoryNames().at(i)));
-		textToRender += "\t Level: " + std::to_string(Player::GetInstance().GetUpgradeManager()->GetAppliedUpgradesLevel().find(GetInventoryNames().at(i))->second);
+		textToRender += "\t Current Level: " + std::to_string(Player::GetInstance().GetUpgradeManager()->GetAppliedUpgradesLevel().find(GetInventoryNames().at(i))->second);
 		float2 textPos = { 0.1f, 0.15f * (i + 1) + 0.1f };
 		float2 textPadding = { 0.5f, 0.0f };
 		float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
