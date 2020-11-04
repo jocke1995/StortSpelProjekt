@@ -324,13 +324,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		if (m_pCC->CastRay(cameraPosition) != -1)
 		{
 			Log::Print("Test \n");
-			//m_pCamera->SetPosition(m_OriginalCameraPosition.x - m_pCC->CastRay(cameraPosition), m_OriginalCameraPosition.y - m_pCC->CastRay(cameraPosition), m_OriginalCameraPosition.z - m_pCC->CastRay(cameraPosition));
 		}
-		else
-		{
-			//m_pCamera->SetPosition(m_OriginalCameraPosition.x, m_OriginalCameraPosition.y, m_OriginalCameraPosition.z);
-		}
-
 
 		//Check if in air. If not, change movement direction to match up with camera direction
 		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1 && !m_Dashing)
