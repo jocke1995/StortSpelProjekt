@@ -411,6 +411,14 @@ void EnemyFactory::onSceneSwitch(SceneChange* evnt)
 		m_SpawnTimer = 0.0f;
 		m_EnemiesKilled = 0;
 
+
+		//Scaling difficulty
+		m_LevelMaxEnemies += 2;
+
+		m_EnemyComps.find("enemyZombie")->second->hp *= 1.30;
+		m_EnemyComps.find("enemyZombie")->second->meleeAttackDmg += 2;
+		m_EnemyComps.find("enemyZombie")->second->movementSpeed += 1;
+
 		Entity* teleport = m_pScene->GetEntity("teleporter");
 		teleport->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
@@ -419,12 +427,5 @@ void EnemyFactory::onSceneSwitch(SceneChange* evnt)
 		{
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Enemies: 0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
 		}
-
-		//Scaling difficulty
-		m_LevelMaxEnemies += 2;
-
-		m_EnemyComps.find("enemyZombie")->second->hp *= 1.30;
-		m_EnemyComps.find("enemyZombie")->second->meleeAttackDmg += 2;
-		m_EnemyComps.find("enemyZombie")->second->movementSpeed += 1;
 	}
 }
