@@ -18,18 +18,19 @@ component::RangeEnemyComponent::RangeEnemyComponent(Entity* parent, SceneManager
 	m_AttackInterval = 1.5;
 	m_TimeAccumulator = 0.0;
 	m_ParentName = m_pParent->GetName();
+	m_NrOfProjectiles = 0;
 
 	// this component will not have a 2d voice, but probably a 3dvoice so i'll leave this here for now as a "template"
 	if (parent->GetComponent<component::Audio2DVoiceComponent>())
 	{
-		audioPlay = true;
+		m_AudioPlay = true;
 		// Fetch the player audio component (if one exists)
 		m_pVoiceComponent = parent->GetComponent<component::Audio2DVoiceComponent>();
 		m_pVoiceComponent->AddVoice(L"Fireball");
 	}
 	else
 	{
-		audioPlay = false;
+		m_AudioPlay = false;
 	}
 }
 
@@ -101,7 +102,7 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 		bbc->Init();
 		Physics::GetInstance().AddCollisionEntity(ent);
 
-		if (audioPlay)
+		if (m_AudioPlay)
 		{
 			m_pVoiceComponent->Play(L"Fireball");
 		}

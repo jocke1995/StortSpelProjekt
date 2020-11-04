@@ -30,12 +30,12 @@ namespace component
 		int m_Damage;
 		float m_Velocity;
 		float m_Scale;
-		int m_NrOfProjectiles = 0;
+		int m_NrOfProjectiles;
 		float m_AttackInterval;
 		double m_TimeAccumulator;
 		std::string m_ParentName;
 
-		bool audioPlay;
+		bool m_AudioPlay;
 
 		Model* m_pModel = nullptr;
 		SceneManager* m_pSceneMan = nullptr;
