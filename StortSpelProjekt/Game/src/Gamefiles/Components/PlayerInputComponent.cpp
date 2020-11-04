@@ -16,7 +16,7 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_CameraFlags = camFlags;
 
 	m_Pitch = 0.15f;
-
+	m_CameraDistance = ORIGINAL_CAMERA_DISTANCE;
 	m_Yaw = 10.0f;
 
 	m_JumpHeight = 5.0;
@@ -124,7 +124,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		// Set camera position in relation to player
 		float3 forward = m_pCamera->GetDirectionFloat3();
 		forward.normalize();
-		forward *= 75.0f;
+		forward *= m_CameraDistance;
 		float3 cameraPosition = playerPosition - forward;
 		float height = (m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y * m_pTransform->GetScale().y * 0.5) + 1.0;
 		cameraPosition.y += height;
@@ -416,7 +416,11 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		
 		if (m_pCC->CastRay(cameraPosition) != -1)
 		{
-			Log::Print("Test \n");
+			m_CameraDistance = m_pCC->CastRay(cameraPosition);
+		}
+		else
+		{
+			m_CameraDistance = ORIGINAL_CAMERA_DISTANCE;
 		}
 
 		//Check if in air. If not, change movement direction to match up with camera direction

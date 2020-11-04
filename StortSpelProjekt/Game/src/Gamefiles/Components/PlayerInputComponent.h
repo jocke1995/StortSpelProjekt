@@ -8,6 +8,7 @@
 #define DASH_MOD 3.0
 #define SPRINT_MOD 1.5
 #define TURN_RATE 20.0
+#define ORIGINAL_CAMERA_DISTANCE 50.0
 
 //Camera
 class BaseCamera;
@@ -64,6 +65,7 @@ namespace component
 		unsigned int m_CameraFlags = 0;
 		float m_Pitch;
 		float m_Yaw;
+		float m_CameraDistance;
 		float m_Elevation;
 		float m_MovementSpeed;
 		float m_RotateX;
