@@ -242,9 +242,9 @@ private:
 	// Setup the whole scene
 	void prepareScenes(std::vector<Scene*>* scenes);
 
-	// Setup Per-scene data and send to GPU
+	// Submit cbPerSceneData to the copyQueue that updates once
 	void SubmitUploadPerSceneData();
-	// Submit per-frame data to the copyQueue that updates each frame
+	// Submit cbPerFrameData to the copyQueue that updates each frame
 	void SubmitUploadPerFrameData();
 
 	void toggleFullscreen(WindowChange* evnt);
