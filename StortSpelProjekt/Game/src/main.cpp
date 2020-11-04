@@ -57,7 +57,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     sceneManager->SetScenes(mainMenuScene);
     sceneManager->SetGameOverScene(gameOverScene);
-
     GameNetwork gameNetwork;
 
     /*------ Network Init -----*/

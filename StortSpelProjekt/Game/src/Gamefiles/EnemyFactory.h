@@ -114,7 +114,7 @@ private:
 	float m_SpawnTimer;
 	float m_MinimumDistanceToPlayer;
 
-	bool m_IsActive = true;
+	bool m_IsActive = false;
 };
 
 #endif
