@@ -610,47 +610,6 @@ Scene* ShopScene(SceneManager* sm)
     return scene;
 }
 
-Scene* MainMenuScene(SceneManager* sm)
-{
-    AssetLoader* al = AssetLoader::Get();
-
-    Scene* scene = sm->CreateScene("MainMenuScene");
-
-    component::GUI2DComponent* guic = nullptr;
-
-    Texture* startTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Start.png");
-    Texture* optionsTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Options.png");
-    Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Exit.png");
-
-    // Player (Need a camera)
-    Entity* entity = scene->AddEntity("player");
-    entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-
-    // Skybox
-    entity = scene->AddEntity("skybox");
-    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
-    sbc->SetTexture(blackCubeMap);
-
-    entity = scene->AddEntity("StartOption");
-    guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("StartOption", { 0.1f, 0.1f }, { (float)startTex->GetWidth() / std::stoi(Option::GetInstance().GetVariable("i_resolutionWidth")), (float)startTex->GetHeight() / std::stoi(Option::GetInstance().GetVariable("i_resolutionHeight")) }, true, true, 0, {1.0,1.0,1.0,1.0}, startTex);
-    guic->GetQuadManager()->SetOnClicked(logSchtuff);
-
-    entity = scene->AddEntity("OptionsOption");
-    guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("OptionsOption", { 0.1f, 0.2f }, { (float)optionsTex->GetWidth() / std::stoi(Option::GetInstance().GetVariable("i_resolutionWidth")), (float)optionsTex->GetHeight() / std::stoi(Option::GetInstance().GetVariable("i_resolutionHeight")) }, true, true, 0, { 1.0,1.0,1.0,1.0 }, optionsTex);
-    guic->GetQuadManager()->SetOnClicked(logSchtuff);
-
-    entity = scene->AddEntity("ExitOption");
-    guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.3f }, { (float)exitTex->GetWidth() / std::stoi(Option::GetInstance().GetVariable("i_resolutionWidth")), (float)exitTex->GetHeight() / std::stoi(Option::GetInstance().GetVariable("i_resolutionHeight")) }, true, true, 0, { 1.0,1.0,1.0,1.0 }, exitTex);
-    guic->GetQuadManager()->SetOnClicked(logSchtuff);
-
-    enemyFactory.SetActive(false);
-    return scene;
-}
-
 void GameUpdateScene(SceneManager* sm, double dt)
 {
     if (ImGuiHandler::GetInstance().GetBool("reset"))
