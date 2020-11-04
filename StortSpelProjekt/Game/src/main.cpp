@@ -176,6 +176,7 @@ Scene* GameScene(SceneManager* sm)
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(50);
     uc = entity->AddComponent<component::UpgradeComponent>();
+    alc = entity->AddComponent<component::Audio3DListenerComponent>();
 
     Player::GetInstance().SetPlayer(entity);
 
