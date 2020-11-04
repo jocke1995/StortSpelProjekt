@@ -116,6 +116,7 @@ void component::MeleeComponent::Attack()
 
 		float3 forward = m_pParent->GetComponent<component::CameraComponent>()->GetCamera()->GetDirectionFloat3();
 
+		// Makes player turn in direction of camera to attack
 		double angle = std::atan2(forward.x, forward.z);
 		int angleDegrees = EngineMath::convertToWholeDegrees(angle);
 		angleDegrees = (angleDegrees + 360) % 360;

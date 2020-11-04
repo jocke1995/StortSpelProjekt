@@ -7,6 +7,7 @@
 
 #define DASH_MOD 3.0
 #define SPRINT_MOD 1.5
+#define TURN_RATE 20.0
 
 //Camera
 class BaseCamera;
@@ -76,7 +77,10 @@ namespace component
 		double m_DashTimer;
 		bool m_DashReady;
 		bool m_Dashing;
+
+		// Is used to determine if the player is attacking, and should be turned in the camera direction, or if she should turn in the direction she is moving
 		bool m_Attacking;
+		bool m_TurnToCamera;
 
 		double m_JumpHeight;
 		double m_JumpTime;

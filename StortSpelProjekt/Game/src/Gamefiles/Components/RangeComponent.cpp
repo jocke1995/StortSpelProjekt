@@ -143,6 +143,7 @@ void component::RangeComponent::Attack()
 
 		m_TimeAccumulator = 0.0;
 
+		// Makes player turn in direction of camera to attack
 		double angle = std::atan2(forward.x, forward.z);
 		int angleDegrees = EngineMath::convertToWholeDegrees(angle);
 		angleDegrees = (angleDegrees + 360) % 360;
