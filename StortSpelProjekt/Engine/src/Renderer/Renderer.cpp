@@ -105,7 +105,7 @@ Renderer::~Renderer()
 	ImGui::DestroyContext();
 }
 
-void Renderer::DeleteDxResources()
+void Renderer::deleteRenderer()
 {
 	Log::Print("----------------------------  Deleting Renderer  ----------------------------------\n");
 	waitForGPU();
@@ -588,7 +588,7 @@ void Renderer::InitDirectionalLightComponent(component::DirectionalLightComponen
 	
 	// We also need to update the indexBuffer with lights if a light is added.
 	// The buffer with indices is inside cbPerSceneData, which is updated in the following function:
-	SubmitUploadPerSceneData();
+	submitUploadPerSceneData();
 }
 
 void Renderer::InitPointLightComponent(component::PointLightComponent* component)
@@ -619,7 +619,7 @@ void Renderer::InitPointLightComponent(component::PointLightComponent* component
 
 	// We also need to update the indexBuffer with lights if a light is added.
 	// The buffer with indices is inside cbPerSceneData, which is updated in the following function:
-	SubmitUploadPerSceneData();
+	submitUploadPerSceneData();
 }
 
 void Renderer::InitSpotLightComponent(component::SpotLightComponent* component)
@@ -679,7 +679,7 @@ void Renderer::InitSpotLightComponent(component::SpotLightComponent* component)
 
 	// We also need to update the indexBuffer with lights if a light is added.
 	// The buffer with indices is inside cbPerSceneData, which is updated in the following function:
-	SubmitUploadPerSceneData();
+	submitUploadPerSceneData();
 }
 
 void Renderer::InitCameraComponent(component::CameraComponent* component)
@@ -798,7 +798,7 @@ void Renderer::UnInitDirectionalLightComponent(component::DirectionalLightCompon
 			m_Lights[type].erase(m_Lights[type].begin() + count);
 
 			// Update cbPerScene
-			SubmitUploadPerSceneData();
+			submitUploadPerSceneData();
 			break;
 		}
 		count++;
@@ -831,7 +831,7 @@ void Renderer::UnInitPointLightComponent(component::PointLightComponent* compone
 			m_Lights[type].erase(m_Lights[type].begin() + count);
 
 			// Update cbPerScene
-			SubmitUploadPerSceneData();
+			submitUploadPerSceneData();
 			break;
 		}
 		count++;
@@ -867,7 +867,7 @@ void Renderer::UnInitSpotLightComponent(component::SpotLightComponent* component
 			m_Lights[type].erase(m_Lights[type].begin() + count);
 
 			// Update cbPerScene
-			SubmitUploadPerSceneData();
+			submitUploadPerSceneData();
 			break;
 		}
 		count++;
@@ -908,8 +908,6 @@ void Renderer::UnInitBoundingBoxComponent(component::BoundingBoxComponent* compo
 
 void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 {
-	waitForGPU();
-
 	// Remove component from textComponents
 	// TODO: change data structure to allow O(1) add and remove
 	for (int i = 0; i < m_TextComponents.size(); i++)
@@ -2133,8 +2131,8 @@ void Renderer::waitForFrame(unsigned int framesToBeAhead)
 
 void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 {
-	SubmitUploadPerFrameData();
-	SubmitUploadPerSceneData();
+	submitUploadPerFrameData();
+	submitUploadPerSceneData();
 
 	// -------------------- DEBUG STUFF --------------------
 	// Test to change m_pCamera to the shadow casting m_lights cameras
@@ -2162,7 +2160,7 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 	setRenderTasksPrimaryCamera();
 }
 
-void Renderer::SubmitUploadPerSceneData()
+void Renderer::submitUploadPerSceneData()
 {
 	*m_pCbPerSceneData = {};
 	// ----- directional lights -----
@@ -2201,7 +2199,7 @@ void Renderer::SubmitUploadPerSceneData()
 	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetDefaultResource(), data));
 }
 
-void Renderer::SubmitUploadPerFrameData()
+void Renderer::submitUploadPerFrameData()
 {
 	// Submit dynamic-light-data to be uploaded to VRAM
 	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);

@@ -54,7 +54,7 @@ SceneManager::~SceneManager()
 {
 }
 
-void SceneManager::EraseSceneManager()
+void SceneManager::deleteSceneManager()
 {
 	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityRemove);
 	EventBus::GetInstance().Unsubscribe(this, &SceneManager::changeSceneNextFrame);

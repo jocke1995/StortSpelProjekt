@@ -15,9 +15,9 @@ Engine::~Engine()
 	delete m_pWindow;
 	delete m_pTimer;
 
-	Physics::GetInstance().DestroyPhysics();
-	m_pSceneManager->EraseSceneManager();
-	m_pRenderer->DeleteDxResources();
+	Physics::GetInstance().deletePhysics();
+	m_pSceneManager->deleteSceneManager();
+	m_pRenderer->deleteRenderer();
 }
 
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)

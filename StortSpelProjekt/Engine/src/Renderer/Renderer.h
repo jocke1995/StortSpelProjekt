@@ -89,8 +89,6 @@ class Renderer
 public:
 	static Renderer& GetInstance();
 	virtual ~Renderer();
-	// For control of safe release of DirectX resources
-	void DeleteDxResources();
 
 	// PickedEntity
 	Entity* const GetPickedEntity() const;
@@ -138,6 +136,8 @@ private:
 	friend class TextManager;
 	friend class QuadManager;
 	Renderer();
+	// For control of safe release of DirectX resources
+	void deleteRenderer();
 
 	// SubmitToCodt functions
 	void submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
@@ -243,9 +243,9 @@ private:
 	void prepareScenes(std::vector<Scene*>* scenes);
 
 	// Submit cbPerSceneData to the copyQueue that updates once
-	void SubmitUploadPerSceneData();
+	void submitUploadPerSceneData();
 	// Submit cbPerFrameData to the copyQueue that updates each frame
-	void SubmitUploadPerFrameData();
+	void submitUploadPerFrameData();
 
 	void toggleFullscreen(WindowChange* evnt);
 
