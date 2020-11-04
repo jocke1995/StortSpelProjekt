@@ -16,7 +16,7 @@ private:
 	int m_OldCurrHealth;
 	int m_OldMaxHealth;
 	int m_OldMoney;
-	float2 m_HealthSize;
+	float m_OldHealthLength;
 
 	void updateHealth(Scene* scene);
 };

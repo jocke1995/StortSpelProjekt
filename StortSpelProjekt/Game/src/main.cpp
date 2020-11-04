@@ -326,7 +326,7 @@ Scene* GameScene(SceneManager* sm)
 	entity = scene->AddEntity("healthbar");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	quadPos = { 0.365f, 0.892f };
-	quadScale = { 0.275f, 0.055f }; // This is also set in GameGUI!
+	quadScale = { 0.275f, 0.055f }; // This is also set in the GameGUI constructor!
 	gui->GetQuadManager()->CreateQuad(
 		"healthbar",
 		quadPos, quadScale,

@@ -6,9 +6,10 @@
 
 GameGUI::GameGUI()
 {
+	m_OldMaxHealth = 0;
 	m_OldCurrHealth = 0;
 	m_OldMoney = 0;
-	m_HealthSize = { 0.275f, 0.055f };
+	m_OldHealthLength = 0.0f;
 }
 
 void GameGUI::Update(double dt, Scene* scene)
@@ -41,52 +42,60 @@ void GameGUI::updateHealth(Scene* scene)
 		{
 			int health = Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->GetHealth();
 			int maxHealth = Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->GetMaxHealth();
+			component::GUI2DComponent* healthbar = scene->GetEntity("healthbar")->GetComponent<component::GUI2DComponent>();
 
-			if (health != m_OldCurrHealth)
+			if (health != m_OldCurrHealth && healthbar != nullptr)
 			{
-				component::GUI2DComponent* healthbar = scene->GetEntity("healthbar")->GetComponent<component::GUI2DComponent>();
-
-				if (healthbar != nullptr)
+				// Percentage of max health
+				float percentage = static_cast<float>(health) / static_cast<float>(maxHealth);
+				float2 size = healthbar->GetQuadManager()->GetScale();
+				
+				if (m_OldHealthLength != 0.0f)
 				{
-					// Percent of maxhealth
-					float percent = static_cast<float>(health) / static_cast<float>(maxHealth);
-					float2 size = { m_HealthSize.x * percent, m_HealthSize.y };
-
-					// Coloring
-					float3 color = { 0.0f, 0.0f, 0.0f };
-					if (percent > 0.8f)
-					{
-						// Green
-						color = { 0.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
-					}
-					else if (percent > 0.6f)
-					{
-						// Lime
-						color = { 127.5f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
-					}
-					else if (percent > 0.4f)
-					{
-						// Yellow
-						color = { 255.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
-					}
-					else if (percent > 0.2f)
-					{
-						// Orange
-						color = { 255.0f / 255.0f, 127.5f / 255.0f, 0.0f / 255.0f };
-					}
-					else if (percent > 0.0f)
-					{
-						// Orange
-						color = { 255.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f };
-					}
-
-					healthbar->GetQuadManager()->UpdateQuad(
-						healthbar->GetQuadManager()->GetPos(),
-						size,
-						false, false,
-						healthbar->GetQuadManager()->GetAmountOfBlend(),
-						color);
+					size.x = m_OldHealthLength * percentage;
 				}
+				else
+				{
+					size.x *= percentage;
+				}
+
+				// Coloring
+				float3 color = { 0.0f, 0.0f, 0.0f };
+				if (percentage > 0.8f)
+				{
+					// Green
+					color = { 0.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
+				}
+				else if (percentage > 0.6f)
+				{
+					// Lime
+					color = { 127.5f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
+				}
+				else if (percentage > 0.4f)
+				{
+					// Yellow
+					color = { 255.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
+				}
+				else if (percentage > 0.2f)
+				{
+					// Orange
+					color = { 255.0f / 255.0f, 127.5f / 255.0f, 0.0f / 255.0f };
+				}
+				else if (percentage > 0.0f)
+				{
+					// Orange
+					color = { 255.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f };
+				}
+
+				healthbar->GetQuadManager()->UpdateQuad(
+					healthbar->GetQuadManager()->GetPos(),
+					size,
+					false, false,
+					healthbar->GetQuadManager()->GetAmountOfBlend(),
+					color);
+
+				// Always keep oldHealthLength at 100% of the original length
+				m_OldHealthLength = size.x + (m_OldHealthLength - m_OldHealthLength * percentage);
 
 				entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(std::to_string(health), "currentHealth");
 				m_OldCurrHealth = health;
