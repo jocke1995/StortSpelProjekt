@@ -14,7 +14,6 @@
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 Scene* GameOverScene(SceneManager* sm);
-Scene* MainMenuScene(SceneManager* sm);
 
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
