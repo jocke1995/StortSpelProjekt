@@ -16,6 +16,7 @@ class Material;
 class Window;
 class Scene;
 struct ID3D12Device5;
+struct Vertex;
 struct Font;
 struct aiNode;
 struct aiScene;
@@ -23,6 +24,9 @@ struct aiMesh;
 struct aiMaterial;
 struct aiNodeAnim;
 struct aiBone;
+
+class AnimatedModel;
+class AnimatedMesh;
 struct Animation;
 struct VertexWeight;
 struct BoneInfo;
@@ -103,30 +107,42 @@ private:
     // add map for audio (path, AudioObject)
 
     /* --------------- Functions --------------- */
-    void processNode(aiNode* node,
+    void processModel(const aiScene* assimpScene,
+        std::vector<Mesh*>* meshes,
+        std::vector<Material*>* materials,
+        const std::wstring& filePath);
+
+    Mesh* processMesh(aiMesh* assimpMesh,
         const aiScene* assimpScene,
         std::vector<Mesh*>* meshes,
         std::vector<Material*>* materials,
         const std::wstring& filePath);
 
-    Mesh* processMesh(aiMesh* mesh,
+    SkeletonNode* processAnimatedModel(std::map<std::string, BoneInfo>* boneCounter,
+        aiNode* assimpNode,
+        const aiScene* assimpScene, 
+        std::vector<Mesh*>* meshes,
+        std::vector<Material*>* materials,
+        const std::wstring& filePath);
+
+    Mesh* processAnimatedMesh(std::map<std::string, BoneInfo>* boneCounter,
+        const aiMesh* assimpMesh,
         const aiScene* assimpScene,
         std::vector<Mesh*>* meshes,
         std::vector<Material*>* materials,
         const std::wstring& filePath);
 
+    void processMeshData(const aiScene* assimpScene, const aiMesh* assimpMesh, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices);
+    Material* processMaterial(std::wstring path, const aiScene* assimpScene, const aiMesh* assimpMesh);
     Material* loadMaterial(aiMaterial* mat, const std::wstring& folderPath);
     
 
     Texture* processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture);
     
-    SkeletonNode* processSkeleton(std::map<std::string, BoneInfo> boneCounter, aiNode* assimpNode, const aiScene* assimpScene, std::map<unsigned int, VertexWeight>* perVertexBoneData);
-    void processBones(std::map<std::string, BoneInfo> boneCounter, const aiMesh* assimpMesh, std::map<unsigned int, VertexWeight>* perVertexBoneData);
-    void initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo> boneCounter, Animation* animation);
-
+    void initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter, Animation* animation);
     void processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations);
 
-    DirectX::XMFLOAT4X4 aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix);
+    DirectX::XMFLOAT4X4 aiMatrix4x4ToTransposedXMFloat4x4(aiMatrix4x4* aiMatrix);
     
     Shader* loadShader(const std::wstring& fileName, ShaderType type);
 	Font* loadFont(LPCWSTR filename, int windowWidth, int windowHeight);
