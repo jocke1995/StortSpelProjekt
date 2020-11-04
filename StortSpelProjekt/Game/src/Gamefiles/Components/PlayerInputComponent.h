@@ -55,7 +55,7 @@ namespace component
 
 		void SetAngleToTurnTo(int angle);
 
-		void SetAttacking(bool attacking);
+		void SetAttacking();
 
 		void Reset();
 
@@ -64,7 +64,10 @@ namespace component
 		float m_Pitch;
 		float m_Yaw;
 		float m_Elevation;
-		float m_MovementSpeed = 10.0f;
+		float m_MovementSpeed;
+		float m_RotateX;
+		float m_RotateY;
+
 		PerspectiveCamera* m_pCamera;
 		Transform* m_pTransform;
 

@@ -22,6 +22,7 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_JumpHeight = 5.0;
 	m_JumpTime = 0.25;
 	m_Gravity = (-2 * m_JumpHeight) / (m_JumpTime * m_JumpTime);
+	m_MovementSpeed = 10.0f;
 
 	m_pCamera = nullptr;
 	m_pTransform = nullptr;
@@ -40,6 +41,9 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_UpdateDashId = -1;
 
 	m_AngleToTurnTo = 0;
+
+	m_RotateX = 0.0f;
+	m_RotateY = 0.0f;
 }
 
 component::PlayerInputComponent::~PlayerInputComponent()
@@ -98,6 +102,22 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
 		float3 playerPosition = m_pTransform->GetRenderPositionFloat3();
+		float3 cameraDir = m_pCamera->GetDirectionFloat3();
+		float3 cameraPos = m_pCamera->GetPositionFloat3();
+
+		cameraPos.y = min(max(cameraPos.y + m_RotateY * 100.0f * static_cast<float>(dt), -80.0f), 80.0f);
+		m_pCamera->SetPosition(cameraPos.x, cameraPos.y, cameraPos.z);
+
+		m_RotateX *= 100.0f * dt;
+
+		cameraDir = {
+			cameraDir.x * cos(m_RotateX) + cameraDir.z * sin(m_RotateX),
+			playerPosition.y - cameraPos.y + (static_cast<float>(m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y) * m_pTransform->GetScale().y * 0.5f) + 1.0f,
+			-cameraDir.x * sin(m_RotateX) + cameraDir.z * cos(m_RotateX)
+		};
+
+		m_pCamera->SetDirection(cameraDir.x, cameraDir.y, cameraDir.z);
+
 		float3 forward = m_pCamera->GetDirectionFloat3();
 		forward.normalize();
 		forward *= 75.0f;
@@ -110,6 +130,8 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		float directionY = playerPosition.y - cameraPosition.y + height;
 		float directionZ = playerPosition.z - cameraPosition.z;
 		m_pCamera->SetDirection(directionX, directionY, directionZ);
+
+		m_RotateX = m_RotateY = 0.0;
 	}
 	else
 	{
@@ -162,9 +184,9 @@ void component::PlayerInputComponent::SetAngleToTurnTo(int angle)
 	m_AngleToTurnTo = angle;
 }
 
-void component::PlayerInputComponent::SetAttacking(bool attacking)
+void component::PlayerInputComponent::SetAttacking()
 {
-	m_Attacking = attacking;
+	m_Attacking = true;
 }
 
 void component::PlayerInputComponent::Reset()
@@ -333,22 +355,10 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
-		float3 dir = m_pCamera->GetDirectionFloat3();
-		float3 pos = m_pCamera->GetPositionFloat3();
-		float3 playerPos = m_pTransform->GetPositionFloat3();
-
 		rotateX = (static_cast<float>(x)) / 400.0 * PI;
 
-		pos.y = min(max(pos.y + rotateY, 0.0f), 80.0f);
-		m_pCamera->SetPosition(pos.x, pos.y, pos.z);
-
-		dir = {
-			dir.x * cos(rotateX) + dir.z * sin(rotateX),
-			playerPos.y - pos.y + (static_cast<float>(m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y) * m_pTransform->GetScale().y * 0.5f) + 1.0f,
-			-dir.x * sin(rotateX) + dir.z * cos(rotateX)
-		};
-
-		m_pCamera->SetDirection(dir.x, dir.y, dir.z);
+		m_RotateX = rotateX;
+		m_RotateY = rotateY;
 
 		//Check if in air. If not, change movement direction to match up with camera direction
 		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1 && !m_Dashing)
@@ -390,8 +400,18 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 				m_AngleToTurnTo = angleDegrees;
 			}
 
+			float3 playerDir = m_pTransform->GetForwardFloat3();
+			float3 moveDir = { move.x, 0.0, move.z };
+			moveDir.normalize();
+			playerDir.normalize();
+
+			float3 moveDif = moveDir - playerDir;
+
+			bool movingForward = moveDif.length() <= 1.0;
+			float speed = m_pTransform->GetVelocity() * (1 - 0.5 * static_cast<float>(!movingForward));
+
 			// Update the player's velocity
-			m_pCC->SetVelVector(move.x * m_pTransform->GetVelocity(), move.y, move.z * m_pTransform->GetVelocity());
+			m_pCC->SetVelVector(move.x * speed, move.y, move.z * speed);
 		}
 	}
 }

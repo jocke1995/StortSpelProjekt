@@ -146,7 +146,7 @@ void component::RangeComponent::Attack()
 		int angleDegrees = EngineMath::convertToWholeDegrees(angle);
 		angleDegrees = (angleDegrees + 360) % 360;
 		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAngleToTurnTo(angleDegrees);
-		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAttacking(true);
+		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAttacking();
 	}
 }
 		
