@@ -5,6 +5,7 @@
 #include "../Misc/EngineRand.h"
 #include "Components/HealthComponent.h"
 #include "Misc/NavMesh.h"
+#include "RangeEnemyComponent.h"
 
 component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int flags, float detectionRadius, float attackingDistance) : Component(parent)
 {
@@ -35,6 +36,7 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_LastPos = m_StartPos;
 	m_NextTargetPos = m_StartPos;
 	m_PathFound = false;
+	m_isRanged = false;		// default melee
 }
 
 component::AiComponent::~AiComponent()
@@ -179,19 +181,29 @@ void component::AiComponent::Update(double dt)
 			float playerDistance = (targetTrans->GetPositionFloat3() - parentTrans->GetPositionFloat3()).length();
 			if (playerDistance <= m_AttackingDistance)
 			{
-				// TODO: fix this when meele attack is implemented
-				HealthComponent* hc = m_pTarget->GetComponent<component::HealthComponent>();
-				if (hc != nullptr)
+				if (!m_isRanged) // melee 
 				{
-					m_SpeedTimeAccumulator += static_cast<float>(dt);
-					if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
+					// TODO: fix this when meele attack is implemented
+					HealthComponent* hc = m_pTarget->GetComponent<component::HealthComponent>();
+					if (hc != nullptr)
 					{
-						m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(-m_MeleeAttackDmg);
-						Log::Print("ENEMY ATTACK!\n");
-						m_SpeedTimeAccumulator = 0.0;
-						m_IntervalTimeAccumulator = 0.0;
+						m_SpeedTimeAccumulator += static_cast<float>(dt);
+						if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
+						{
+							m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(-m_MeleeAttackDmg);
+							Log::Print("ENEMY ATTACK!\n");
+							m_SpeedTimeAccumulator = 0.0;
+							m_IntervalTimeAccumulator = 0.0;
+						}
 					}
 				}
+				else // range
+				{
+						// set direction
+						float3 direction = setAimDirection();
+						// shoot
+						m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(direction);
+				}				
 			}
 			else
 			{
@@ -252,6 +264,24 @@ void component::AiComponent::SetAttackSpeed(float speed)
 void component::AiComponent::SetMeleeAttackDmg(float dmg)
 {
 	m_MeleeAttackDmg = dmg;
+}
+
+void component::AiComponent::SetRangedAI()
+{
+	m_isRanged = true;
+}
+
+float3 component::AiComponent::setAimDirection()
+{
+	// get target position
+	float3 targetPos = m_pTarget->GetComponent<TransformComponent>()->GetTransform()->GetPositionFloat3();
+	float3 parentPos = m_pParent->GetComponent<TransformComponent>()->GetTransform()->GetPositionFloat3();
+	// set direction
+	float3 direction = targetPos - parentPos;
+	double angle = std::atan2(direction.x, direction.z);
+	CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
+	cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
+	return direction;
 }
 
 void component::AiComponent::selectTarget()
