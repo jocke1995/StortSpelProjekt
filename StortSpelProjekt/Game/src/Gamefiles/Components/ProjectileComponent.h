@@ -11,7 +11,7 @@ namespace component
 	class ProjectileComponent : public Component
 	{
 	public:
-		ProjectileComponent(Entity* parent, int damage, float ttl = 1.0f);
+		ProjectileComponent(Entity* parent, int damage, float ttl = 2.0f);
 		~ProjectileComponent();
 		void Update(double dt);
 

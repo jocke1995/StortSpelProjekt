@@ -2,9 +2,11 @@
 #define VECTORFLOATS_H
 
 #include <string>
-// For wstring convertion
 #include <locale>
 #include <codecvt>
+#include <vector>
+#include <Windows.h>
+
 static std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> strconverter;
 inline std::string to_string(std::wstring wstr)
 {
@@ -126,12 +128,11 @@ enum FLAG_DRAW
 {
 	NO_DEPTH = BIT(1),
 	DRAW_OPAQUE = BIT(2),
-	DRAW_TRANSPARENT_CONSTANT = BIT(3),
-	DRAW_TRANSPARENT_TEXTURE = BIT(4),
-	GIVE_SHADOW = BIT(5),
-	NUM_FLAG_DRAWS = 5,
-	// animation = BIT(4),
-	// etc..
+	DRAW_ANIMATED = BIT(3),
+	DRAW_TRANSPARENT_CONSTANT = BIT(4),
+	DRAW_TRANSPARENT_TEXTURE = BIT(5),
+	GIVE_SHADOW = BIT(6),
+	NUM_FLAG_DRAWS = 6,
 };
 
 enum FLAG_THREAD
