@@ -51,9 +51,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AssetLoader* al = AssetLoader::Get();
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
-    //Scene* activeScenes[] = { jacobScene };
+    //Scene* activeScene = jacobScene;
     Scene* leoScene = LeosTestScene(sceneManager);
-    Scene* activeScenes[] = { leoScene };
+    Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -61,16 +61,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* activeScene = filipScene;
 	//Scene* fredrikScene = FredriksTestScene(sceneManager);
-    //Scene* activeScenes[] = { fredrikScene };
+    //Scene* activeScene = fredrikScene;
     //Scene* williamScene = WilliamsTestScene(sceneManager);
-    //Scene* activeScenes[] = { williamScene };
+    //Scene* activeScenes = williamScene;
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* activeScene = bjornScene;
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* activeScene = antonScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* activeScene = andresScene;
-
 
     // Set scene
     sceneManager->SetScenes(activeScene);
