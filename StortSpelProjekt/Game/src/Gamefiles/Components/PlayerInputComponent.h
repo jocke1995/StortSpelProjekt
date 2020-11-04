@@ -61,6 +61,7 @@ namespace component
 		float m_Pitch;
 		float m_Yaw;
 		float m_CameraDistance;
+		float3 m_OriginalCameraPosition;
 		float m_Elevation;
 		float m_MovementSpeed = 10.0f;
 		PerspectiveCamera* m_pCamera;

@@ -15,7 +15,7 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_DashTimer = 0;
 	m_CameraFlags = camFlags;
 
-	m_Zoom = 10.0f;
+	m_Zoom = 5.0f;
 
 	m_Pitch = 0.15f;
 
@@ -321,8 +321,16 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 			convertZ 
 		};
 		
-		m_pCC->CastRay(cameraPosition);
-	
+		if (m_pCC->CastRay(cameraPosition) != -1)
+		{
+			Log::Print("Test \n");
+			//m_pCamera->SetPosition(m_OriginalCameraPosition.x - m_pCC->CastRay(cameraPosition), m_OriginalCameraPosition.y - m_pCC->CastRay(cameraPosition), m_OriginalCameraPosition.z - m_pCC->CastRay(cameraPosition));
+		}
+		else
+		{
+			//m_pCamera->SetPosition(m_OriginalCameraPosition.x, m_OriginalCameraPosition.y, m_OriginalCameraPosition.z);
+		}
+
 
 		//Check if in air. If not, change movement direction to match up with camera direction
 		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1 && !m_Dashing)
