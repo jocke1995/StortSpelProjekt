@@ -85,7 +85,7 @@ void PerspectiveCamera::SetMovement(float x, float y, float z)
 
 void PerspectiveCamera::updateCameraMovement(double dt)
 {
-	m_RightVector = DirectX::XMVector3Cross(m_DirectionVector, m_UpVector);
+	m_RightVector = DirectX::XMVector3Cross(m_UpVector, m_DirectionVector);
 	
 	m_EyeVector = DirectX::XMVectorAdd(m_EyeVector, DirectX::operator*(m_RightVector, m_MoveLeftRight * 10 * dt));
 	m_EyeVector = DirectX::XMVectorAdd(m_EyeVector, DirectX::operator*(m_DirectionVector,  m_MoveForwardBackward * 10 * dt));

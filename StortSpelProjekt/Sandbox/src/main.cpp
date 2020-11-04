@@ -352,8 +352,8 @@ Scene* LeosTestScene(SceneManager* sm)
 	zombie.attackingDist = 0.5f;
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
-	zombie.scale = 0.04;
-	zombie.detectionRad = 50.0f;
+	zombie.scale = 1.0;
+	zombie.detectionRad = 500.0f;
 
     enemyFactory.SetScene(scene);
 
@@ -361,7 +361,7 @@ Scene* LeosTestScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ -340.0, 10.0, 340.0 });
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
 
-    /*for (int i = 0; i < 75; i++)
+    for (int i = 0; i < 0; i++)
     {
         entity = enemyFactory.SpawnEnemy("enemyZombie");
     }*/
