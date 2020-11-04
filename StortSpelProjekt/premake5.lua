@@ -29,7 +29,7 @@ project "Engine"
         "dxgi",
         "d3dcompiler",
         "dxguid",
-        "assimp-vc140-mt",
+        "assimp-vc142-mt",
     }
 
     postbuildcommands

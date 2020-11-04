@@ -2,7 +2,8 @@
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 #include "GameGUI.h"
-
+#include "Physics/CollisionCategories/PlayerCollisionCategory.h"
+#include "Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
 // Game includes
 #include "Player.h"
 #include "UpgradeManager.h"
@@ -180,6 +181,7 @@ Scene* GameScene(SceneManager* sm)
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(50);
     uc = entity->AddComponent<component::UpgradeComponent>();
+    alc = entity->AddComponent<component::Audio3DListenerComponent>();
 
     Player::GetInstance().SetPlayer(entity);
 
@@ -205,6 +207,7 @@ Scene* GameScene(SceneManager* sm)
     avc->AddVoice(L"Bruh");
 
     bbc->Init();
+    bbc->AddCollisionCategory<PlayerCollisionCategory>();
     Physics::GetInstance().AddCollisionEntity(entity);;
     /*--------------------- Player ---------------------*/
 
