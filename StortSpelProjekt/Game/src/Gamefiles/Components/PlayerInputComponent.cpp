@@ -48,6 +48,7 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_RotateX = 0.0f;
 	m_RotateY = 0.0f;
 
+	m_TurningTimer = 0.0f;
 }
 
 component::PlayerInputComponent::~PlayerInputComponent()
@@ -159,10 +160,13 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		m_pCamera->SetDirection(cos(m_Yaw), m_Pitch * -2, sin(m_Yaw));
 	}
 
+	/* ------------------ Increment timers -------------------- */
+
+	m_TurningTimer += dt;
 	m_DashTimer += dt;
 	m_DashReady = m_DashTimer > 1.5;
 
-	/* -------------- Update model rotation ------------------ */
+	/* ---------------- Update model rotation ----------------- */
 	// Get the current rotation of the player
 	double3 rot = m_pCC->GetRotationEuler();
 	// Calculate the angle around y in whole degrees
@@ -191,7 +195,20 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 
 	// Reset rotation, so the camera only rotates when the mouse has been moved
 	m_RotateX = m_RotateY = 0.0;
-	//m_CameraRotating = false;
+
+	if (m_TurningTimer > m_pParent->GetComponent<component::RangeComponent>()->GetAttackInterval() * 1.5f && m_Attacking)
+	{
+		m_Attacking = false;
+		double3 vel = m_pCC->GetLinearVelocity();
+		float speed = m_pTransform->GetVelocity();
+		double3 move = {
+			vel.x,
+			0.0,
+			vel.z
+		};
+		move.normalize();
+		m_pCC->SetVelVector(move.x * speed, vel.y, move.z * speed);
+	}
 }
 
 void component::PlayerInputComponent::SetJumpHeight(double height)
@@ -219,6 +236,7 @@ void component::PlayerInputComponent::SetAngleToTurnTo(int angle)
 void component::PlayerInputComponent::SetAttacking()
 {
 	m_Attacking = true;
+	m_TurningTimer = 0.0f;
 }
 
 void component::PlayerInputComponent::Reset()
@@ -278,16 +296,6 @@ void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 
 void component::PlayerInputComponent::move(MovementInput* evnt)
 {
-	// If we press a key, make the player turn towards the direction she is moving
-	if ((evnt->key == SCAN_CODES::S || evnt->key == SCAN_CODES::W))
-	{
-		m_Attacking = false;
-	}
-	if (evnt->key != SCAN_CODES::SPACE)
-	{
-		m_CameraRotating = false;
-	}
-
 	double3 vel = m_pCC->GetLinearVelocity();
 
 	// Check if the key has just been pressed or jsut been released and convert to a float. Multiply by two and subtract one to get 1 for true and -1 for false. If
@@ -361,7 +369,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		playerDir.normalize();
 
 		float speed = m_pTransform->GetVelocity();
-		if ((move.x > EPSILON || move.z > EPSILON) && (m_Attacking || m_TurnToCamera))
+		if ((std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON) && (m_Attacking || m_TurnToCamera))
 		{
 			// Check if the player is moving in the direction she is turned. If not, lower the movement speed
 			float3 playerDir = m_pTransform->GetForwardFloat3();
@@ -420,6 +428,12 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	moveCam *= m_pTransform->GetVelocity() / 5.0;
 	// If the camera uses the players position, update the player's velocity. Otherwise update the camera's movement.
 	(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? m_pCC->SetVelVector(vel.x, vel.y, vel.z) : m_pCamera->UpdateMovement(moveCam.x, moveCam.y, moveCam.z);
+
+	// If we press a key, make the player turn towards the direction she is moving
+	if (evnt->key != SCAN_CODES::SPACE)
+	{
+		m_CameraRotating = false;
+	}
 }
 
 void component::PlayerInputComponent::rotate(MouseMovement* evnt)
@@ -468,7 +482,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 			move.y = vel.y;
 
 			float speed = m_pTransform->GetVelocity();
-			if ((move.x > EPSILON || move.z > EPSILON) && (m_Attacking || m_TurnToCamera))
+			if ((std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON) && (m_Attacking || m_TurnToCamera))
 			{
 				// Check if the player is moving in the direction she is turned. If not, lower the movement speed
 				float3 playerDir = m_pTransform->GetForwardFloat3();

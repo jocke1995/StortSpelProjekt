@@ -79,6 +79,7 @@ namespace component
 		bool m_Dashing;
 
 		// Is used to determine if the player is attacking, and should be turned in the camera direction, or if she should turn in the direction she is moving
+		double m_TurningTimer;
 		bool m_Attacking;
 		bool m_TurnToCamera;
 		bool m_CameraRotating;
