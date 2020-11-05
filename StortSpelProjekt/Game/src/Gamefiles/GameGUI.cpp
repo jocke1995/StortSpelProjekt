@@ -10,6 +10,7 @@ GameGUI::GameGUI()
 	m_OldCurrHealth = 0;
 	m_OldMoney = 0;
 	m_OldHealthLength = 0.0f;
+	m_OldScene = nullptr;
 }
 
 void GameGUI::Update(double dt, Scene* scene)
@@ -31,6 +32,13 @@ void GameGUI::Update(double dt, Scene* scene)
 			}
 		}
 	}
+
+	if (scene != m_OldScene)
+	{
+		reset(scene);
+	}
+
+	m_OldScene = scene;
 }
 
 void GameGUI::updateHealth(Scene* scene)
@@ -40,8 +48,8 @@ void GameGUI::updateHealth(Scene* scene)
 	{
 		if (entity->HasComponent<component::GUI2DComponent>())
 		{
-			int health = Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->GetHealth();
-			int maxHealth = Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->GetMaxHealth();
+			int health = scene->GetEntity("player")->GetComponent<component::HealthComponent>()->GetHealth();
+			int maxHealth = scene->GetEntity("player")->GetComponent<component::HealthComponent>()->GetMaxHealth();
 			component::GUI2DComponent* healthbar = scene->GetEntity("healthbar")->GetComponent<component::GUI2DComponent>();
 
 			if (health != m_OldCurrHealth && healthbar != nullptr)
@@ -108,4 +116,23 @@ void GameGUI::updateHealth(Scene* scene)
 			}
 		}
 	}
+}
+
+void GameGUI::reset(Scene* scene)
+{
+	component::GUI2DComponent* healthbar = scene->GetEntity("healthbar")->GetComponent<component::GUI2DComponent>();
+	float2 size = healthbar->GetQuadManager()->GetScale();
+	size.x = m_OldHealthLength;
+	float3 color = { 0.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
+	healthbar->GetQuadManager()->UpdateQuad(
+		healthbar->GetQuadManager()->GetPos(),
+		size,
+		false, false,
+		healthbar->GetQuadManager()->GetAmountOfBlend(),
+		color);
+
+	m_OldCurrHealth = 0;
+	m_OldMaxHealth = 0;
+	m_OldMoney = 0;
+	m_OldHealthLength = 0;
 }

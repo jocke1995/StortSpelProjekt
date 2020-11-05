@@ -52,7 +52,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverScene(sceneManager);
 
-    //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(demoScene);
     sceneManager->SetGameOverScene(gameOverScene);
 
@@ -90,7 +89,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
-            gameGUI.Update(updateRate, sceneManager->GetActiveScenes()->at(0));
+			for (int i = 0; i < sceneManager->GetActiveScenes()->size(); i++)
+			{
+				gameGUI.Update(updateRate, sceneManager->GetActiveScenes()->at(i));
+			}
         }
 
         /* ---- Network ---- */
@@ -463,6 +465,7 @@ Scene* ShopScene(SceneManager* sm)
     component::CapsuleCollisionComponent* ccc = nullptr;
     component::HealthComponent* hc = nullptr;
     component::CurrencyComponent* cur = nullptr;
+	component::GUI2DComponent* gui = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -473,6 +476,11 @@ Scene* ShopScene(SceneManager* sm)
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
     Model* teleportModel = al->LoadModel(L"../Vendor/Resources/Models/Teleporter/Teleporter.obj");
+
+	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
+	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
+	Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
+	Texture* healthHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthHolder.png");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
@@ -500,7 +508,8 @@ Scene* ShopScene(SceneManager* sm)
     double rad = playerDim.z / 2.0;
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
-    hc = entity->AddComponent<component::HealthComponent>(10000000);
+    hc = entity->AddComponent<component::HealthComponent>(
+		Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->GetMaxHealth());
     ic->SetMovementSpeed(70.0);
     ic->Init();
     bbc->Init();
@@ -544,6 +553,99 @@ Scene* ShopScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /* ---------------------- Teleporter ---------------------- */
+
+	/* ------------------------- GUI --------------------------- */
+	/* ----------------- healthBackground ---------------------- */
+	std::string textToRender = "";
+	float2 textPos = { 0.473f, 0.965f };
+	float2 textPadding = { 0.8f, 0.0f };
+	float4 textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float2 textScale = { 0.3f, 0.3f };
+	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	entity = scene->AddEntity("healthBackground");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->AddText("currentHealth");
+	gui->GetTextManager()->SetColor(textColor, "currentHealth");
+	gui->GetTextManager()->SetPadding(textPadding, "currentHealth");
+	gui->GetTextManager()->SetPos(textPos, "currentHealth");
+	gui->GetTextManager()->SetScale(textScale, "currentHealth");
+	gui->GetTextManager()->SetText(std::to_string(hc->GetHealth()), "currentHealth");
+	gui->GetTextManager()->SetBlend(textBlend, "currentHealth");
+
+	textPos = { 0.499f, 0.965f };
+	gui->GetTextManager()->AddText("slash");
+	gui->GetTextManager()->SetColor(textColor, "slash");
+	gui->GetTextManager()->SetPadding(textPadding, "slash");
+	gui->GetTextManager()->SetPos(textPos, "slash");
+	gui->GetTextManager()->SetScale(textScale, "slash");
+	gui->GetTextManager()->SetText("/", "slash");
+	gui->GetTextManager()->SetBlend(textBlend, "slash");
+
+	textPos = { 0.503f, 0.965f };
+	gui->GetTextManager()->AddText("maxHealth");
+	gui->GetTextManager()->SetColor(textColor, "maxHealth");
+	gui->GetTextManager()->SetPadding(textPadding, "maxHealth");
+	gui->GetTextManager()->SetPos(textPos, "maxHealth");
+	gui->GetTextManager()->SetScale(textScale, "maxHealth");
+	gui->GetTextManager()->SetText(std::to_string(hc->GetMaxHealth()), "maxHealth");
+	gui->GetTextManager()->SetBlend(textBlend, "maxHealth");
+
+	float2 quadPos = { 0.3f, 0.85f };
+	float2 quadScale = { 0.4f, 0.15f };
+	float4 blended = { 1.0, 1.0, 1.0, 0.99 };
+	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	gui->GetQuadManager()->CreateQuad(
+		"healthBackground",
+		quadPos, quadScale,
+		false, false,
+		0,
+		notBlended,
+		healthBackgroundTexture);
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- healthHolder --------------------------- */
+	entity = scene->AddEntity("healthHolder");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.35f, 0.85f };
+	quadScale = { 0.3f, 0.115f };
+	gui->GetQuadManager()->CreateQuad(
+		"healthHolder",
+		quadPos, quadScale,
+		false, false,
+		1,
+		notBlended,
+		healthHolderTexture);
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- healthbar --------------------------- */
+	entity = scene->AddEntity("healthbar");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.365f, 0.892f };
+	quadScale = { 0.275f, 0.055f };
+	gui->GetQuadManager()->CreateQuad(
+		"healthbar",
+		quadPos, quadScale,
+		false, false,
+		2,
+		notBlended,
+		healthbarTexture,
+		float3{ 0.0f, 1.0f, 0.0f });
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- healthGuardians --------------------------- */
+	entity = scene->AddEntity("healthGuardians");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.32f, 0.86f };
+	quadScale = { 0.3625f, 0.14f };
+	gui->GetQuadManager()->CreateQuad(
+		"healthGuardians",
+		quadPos, quadScale,
+		false, false,
+		3,
+		blended,
+		healthGuardiansTexture);
+	/* ---------------------------------------------------------- */
 
     /* ---------------------- Poster ---------------------- */
     entity = scene->AddEntity("poster");
