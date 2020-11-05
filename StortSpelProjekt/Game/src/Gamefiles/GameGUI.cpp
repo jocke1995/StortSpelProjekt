@@ -34,10 +34,11 @@ void GameGUI::Update(double dt, Scene* scene)
 		if (entity->HasComponent<component::GUI2DComponent>())
 		{
 			int money = Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->GetBalace();
-			if (money != m_OldMoney)
+			//Check if the gui has the same amount as our actual currency count
+			if (entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->GetText("money")->GetTextData()->text != std::to_wstring(money))
 			{
 				entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(
-					"Currency: " + std::to_string(money),
+					std::to_string(money),
 					"money");
 				m_OldMoney = money;
 			}
