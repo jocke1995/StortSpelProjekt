@@ -22,7 +22,7 @@ class Entity;
 class Audio2DVoiceComponent;
 class Audio3DEmitterComponent;
 
-#define MELEE_RANGE 12
+#define MELEE_RANGE 18.0
 
 namespace component
 {
@@ -57,6 +57,8 @@ namespace component
 		float m_AttackInterval;
 		float m_TimeSinceLastAttackCheck;
 		int m_Damage;
+
+		float3 m_HalfSize;
 
 		Transform* m_pMeleeTransform;
 		Transform m_MeleeTransformModified;

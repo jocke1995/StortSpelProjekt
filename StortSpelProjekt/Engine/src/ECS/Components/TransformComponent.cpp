@@ -5,11 +5,11 @@
 
 namespace component
 {
-	TransformComponent::TransformComponent(Entity* parent)
+	TransformComponent::TransformComponent(Entity* parent, bool invertDirection)
 		:Component(parent)
 	{
-		m_pTransform = new Transform();
-		m_pOriginalTransform = new Transform();
+		m_pTransform = new Transform(invertDirection);
+		m_pOriginalTransform = new Transform(invertDirection);
 	}
 
 	TransformComponent::~TransformComponent()
