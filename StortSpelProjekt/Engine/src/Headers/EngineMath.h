@@ -3,6 +3,7 @@
 
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
+#include <algorithm>
 
 # define PI           3.14159265358979323846  /* pi */
 #define EPSILON		  0.000001
@@ -20,7 +21,7 @@ typedef union float3
 	struct { float x; float y; float z; };
 	struct { float r; float g; float b; };
 
-	float length()
+	float length() const
 	{
 		return sqrt(x * x + y * y + z * z);
 	};
@@ -48,14 +49,6 @@ typedef union float3
 		y *= factor;
 		z *= factor;
 	};
-	float3 operator - (float3 other)
-	{
-		return {
-			x - other.x,
-			y - other.y,
-			z - other.z
-		};
-	};
 
 	float3 operator +(const float3& other) const
 	{
@@ -67,12 +60,12 @@ typedef union float3
 		return { x - other.x, y - other.y, z - other.z };
 	};
 
-	bool operator == (float3 other)
+	bool operator == (float3 other) const
 	{
 		return (x == other.x && y == other.y && z == other.z);
 	}
 
-	bool operator != (float3 other)
+	bool operator != (float3 other) const
 	{
 		return (x != other.x || y != other.y || z != other.z);
 	}
@@ -86,6 +79,16 @@ typedef union float3
 			this->x * that.y - this->y * that.x,
 		};
 	};
+
+	float dot(const float3& other) const
+	{
+		return x * other.x + y * other.y + z * other.z;
+	}
+
+	float angle(const float3& other) const
+	{
+		return acosf(std::min<float>(std::max<float>(dot(other), -1.0f), 1.0f) / (length() * other.length()));
+	}
 
 } float3;
 
