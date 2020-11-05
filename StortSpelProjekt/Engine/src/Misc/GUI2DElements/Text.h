@@ -41,7 +41,7 @@ public:
 	~Text();
 
 	SlotInfo* const GetSlotInfo() const;
-	TextData* const GetTextData(int pos);
+	TextData* const GetTextData();
 	Font* const GetFont() const;
 	const int GetNrOfCharacters() const;
 	const float4 GetAmountOfBlend() const;
