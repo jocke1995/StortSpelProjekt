@@ -48,8 +48,8 @@ void GameGUI::updateHealth(Scene* scene)
 		Entity* entity = scene->GetEntity("healthBackground");
 		if (entity->HasComponent<component::GUI2DComponent>())
 		{
-			int health = scene->GetEntity("player")->GetComponent<component::HealthComponent>()->GetHealth();
-			int maxHealth = scene->GetEntity("player")->GetComponent<component::HealthComponent>()->GetMaxHealth();
+			int health = Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->GetHealth();
+			int maxHealth = Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->GetMaxHealth();
 			component::GUI2DComponent* healthbar = scene->GetEntity("healthbar")->GetComponent<component::GUI2DComponent>();
 
 			if (health != m_OldCurrHealth && healthbar != nullptr)
