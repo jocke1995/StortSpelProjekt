@@ -139,6 +139,23 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 
 		// Reset rotation, so the camera only rotates when the mouse has been moved
 		m_RotateX = m_RotateY = 0.0;
+
+		if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
+		{
+			double3 negCameraDir = {
+				-cameraDir.x,
+				-cameraDir.y,
+				-cameraDir.z};
+			double dist = m_pCC->CastRay(1, negCameraDir, ORIGINAL_CAMERA_DISTANCE);
+			if (dist > 0)
+			{
+				m_CameraDistance = dist;
+			}
+			else
+			{
+				m_CameraDistance = ORIGINAL_CAMERA_DISTANCE;
+			}
+		}
 	}
 	else
 	{
@@ -402,26 +419,6 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 		m_RotateX = rotateX;
 		m_RotateY = rotateY;
-
-		// Casting of ray
-		double convertX = m_pCamera->GetPositionFloat3().x;
-		double convertY = m_pCamera->GetPositionFloat3().y;
-		double convertZ = m_pCamera->GetPositionFloat3().z;
-
-		double3 cameraPosition = { 
-			convertX,
-			convertY,
-			convertZ 
-		};
-		
-		if (m_pCC->CastRay(cameraPosition) != -1)
-		{
-			m_CameraDistance = m_pCC->CastRay(cameraPosition);
-		}
-		else
-		{
-			m_CameraDistance = ORIGINAL_CAMERA_DISTANCE;
-		}
 
 		//Check if in air. If not, change movement direction to match up with camera direction
 		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1 && !m_Dashing)
