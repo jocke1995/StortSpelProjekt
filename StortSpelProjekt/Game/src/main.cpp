@@ -483,7 +483,6 @@ Scene* ShopScene(SceneManager* sm)
     component::HealthComponent* hc = nullptr;
     component::GUI2DComponent* gui = nullptr;
     component::CurrencyComponent* cur = nullptr;
-	component::GUI2DComponent* gui = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -682,13 +681,13 @@ Scene* ShopScene(SceneManager* sm)
     tc->SetTransformOriginalState();
     /* ---------------------- Poster ---------------------- */
 
-    /*---------------- GUI -----------------*/
-    std::string textToRender = "0";
-    float2 textPos = { 0.95f, 0.03f };
-    float2 textPadding = { 0.5f, 0.0f };
-    float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-    float2 textScale = { 0.4f, 0.4f };
-    float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+    /*---------------- GUI Coin -----------------*/
+    textToRender = "0";
+    textPos = { 0.95f, 0.03f };
+    textPadding = { 0.5f, 0.0f };
+    textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    textScale = { 0.4f, 0.4f };
+    textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     entity = scene->AddEntity("money");
     gui = entity->AddComponent<component::GUI2DComponent>();
@@ -700,9 +699,9 @@ Scene* ShopScene(SceneManager* sm)
     gui->GetTextManager()->SetText(textToRender, "money");
     gui->GetTextManager()->SetBlend(textBlend, "money");
 
-    float2 quadPos = { 0.91f, 0.03f };
-    float2 quadScale = { 0.03f, 0.03f };
-    float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+    quadPos = { 0.91f, 0.03f };
+    quadScale = { 0.03f, 0.03f };
+    notBlended = { 1.0, 1.0, 1.0, 1.0 };
     gui->GetQuadManager()->CreateQuad(
         "money",
         quadPos, quadScale,

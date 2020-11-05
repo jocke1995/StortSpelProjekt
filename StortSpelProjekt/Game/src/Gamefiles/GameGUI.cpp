@@ -17,9 +17,9 @@ void GameGUI::Update(double dt, Scene* scene)
 {
 	updateHealth(scene);
 
-	Entity* entity = scene->GetEntity("money");
-	if (entity != nullptr)
+	if (scene->EntityExists("money"))
 	{
+		Entity* entity = scene->GetEntity("money");
 		if (entity->HasComponent<component::GUI2DComponent>())
 		{
 			int money = Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->GetBalace();
@@ -43,9 +43,9 @@ void GameGUI::Update(double dt, Scene* scene)
 
 void GameGUI::updateHealth(Scene* scene)
 {
-	Entity* entity = scene->GetEntity("healthBackground");
-	if (entity != nullptr)
+	if (scene->EntityExists("healthBackground"))
 	{
+		Entity* entity = scene->GetEntity("healthBackground");
 		if (entity->HasComponent<component::GUI2DComponent>())
 		{
 			int health = scene->GetEntity("player")->GetComponent<component::HealthComponent>()->GetHealth();
@@ -91,7 +91,7 @@ void GameGUI::updateHealth(Scene* scene)
 				}
 				else if (percentage > 0.0f)
 				{
-					// Orange
+					// Red
 					color = { 255.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f };
 				}
 
@@ -120,16 +120,19 @@ void GameGUI::updateHealth(Scene* scene)
 
 void GameGUI::reset(Scene* scene)
 {
-	component::GUI2DComponent* healthbar = scene->GetEntity("healthbar")->GetComponent<component::GUI2DComponent>();
-	float2 size = healthbar->GetQuadManager()->GetScale();
-	size.x = m_OldHealthLength;
-	float3 color = { 0.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
-	healthbar->GetQuadManager()->UpdateQuad(
-		healthbar->GetQuadManager()->GetPos(),
-		size,
-		false, false,
-		healthbar->GetQuadManager()->GetAmountOfBlend(),
-		color);
+	if (scene->EntityExists("healthbar"))
+	{
+		component::GUI2DComponent* healthbar = scene->GetEntity("healthbar")->GetComponent<component::GUI2DComponent>();
+		float2 size = healthbar->GetQuadManager()->GetScale();
+		size.x = m_OldHealthLength;
+		float3 color = { 0.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
+		healthbar->GetQuadManager()->UpdateQuad(
+			healthbar->GetQuadManager()->GetPos(),
+			size,
+			false, false,
+			healthbar->GetQuadManager()->GetAmountOfBlend(),
+			color);
+	}
 
 	m_OldCurrHealth = 0;
 	m_OldMaxHealth = 0;
