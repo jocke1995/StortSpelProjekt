@@ -63,7 +63,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
     //Scene* williamScene = WilliamsTestScene(sceneManager);
-    //Scene* activeScene = williamScene;
+    //Scene* activeScenes = williamScene;
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* activeScene = bjornScene;
     //Scene* antonScene = AntonTestScene(sceneManager);
@@ -270,7 +270,7 @@ Scene* LeosTestScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Man/man.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/aniTest/Standard_Walk_Maya.fbx");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* barbModel = al->LoadModel(L"../Vendor/Resources/Models/Barb/conan_obj.obj");
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
@@ -287,10 +287,10 @@ Scene* LeosTestScene(SceneManager* sm)
 #pragma region player
     Entity* entity = (scene->AddEntity("player"));
     mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
+    tc = entity->AddComponent<component::TransformComponent>(true);
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::T_POSE);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     avc2 = entity->AddComponent<component::Audio3DListenerComponent>();
     melc = entity->AddComponent<component::MeleeComponent>();
@@ -299,8 +299,8 @@ Scene* LeosTestScene(SceneManager* sm)
 
 
     mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(1.0f);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.1f);
     tc->GetTransform()->SetPosition(-10.0, 20.0, 10.0);
 
     double3 playerDim = mc->GetModelDim();
@@ -309,8 +309,12 @@ Scene* LeosTestScene(SceneManager* sm)
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
     ic->Init();
-    ic->SetMovementSpeed(57.0f);
+    ic->SetJumpTime(0.17);
+    ic->SetJumpHeight(6.0);
+    ic->SetMovementSpeed(57.0);
 
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
     Player::GetInstance().SetPlayer(entity);
 #pragma endregion
 

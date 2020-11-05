@@ -159,11 +159,10 @@ ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 
-
 Name RuinWall
 ModelPath Models/StoneWall/stoneWall.obj
 ModelScaling 30.0, 20.0, 2.0
-ModelRotation 0.0, 0.0, 0.0, 0.0
+ModelRotation 0.0, 0.0, 0.0
 ModelPosition 0.0, 20.0, -100.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
@@ -291,7 +290,7 @@ ModelPath Models/Floor/floor.obj
 ModelScaling 40.0, 0.1, 60.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -110.0, 5.0, 80.0
-ModelDrawFlag 1,1
+ModelDrawFlag 1, 1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
