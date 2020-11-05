@@ -136,7 +136,7 @@ SlotInfo* const Text::GetSlotInfo() const
 	return m_pSlotInfo;
 }
 
-TextData* const Text::GetTextData(int pos)
+TextData* const Text::GetTextData()
 {
 	return &m_TextData;
 }

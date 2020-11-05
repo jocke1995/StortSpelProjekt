@@ -25,6 +25,7 @@ typedef union float3
 	{
 		return sqrt(x * x + y * y + z * z);
 	};
+
 	void normalize()
 	{
 		float length = this->length();
@@ -50,17 +51,22 @@ typedef union float3
 		z *= factor;
 	};
 
-	float3 operator +(const float3& other) const
+	float3 operator + (const float3& other) const
 	{
 		return {x + other.x, y + other.y, z + other.z};
 	};
 
-	float3 operator -(const float3& other) const
+	float3 operator - (const float3& other) const
 	{
 		return { x - other.x, y - other.y, z - other.z };
 	};
 
-	bool operator == (float3 other) const
+	float3 operator * (float factor)
+	{
+		return { x * factor, y * factor, z * factor };
+	};
+
+	bool operator == (float3 other)
 	{
 		return (x == other.x && y == other.y && z == other.z);
 	}
