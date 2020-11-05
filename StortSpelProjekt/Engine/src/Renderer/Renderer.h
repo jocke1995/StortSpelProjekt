@@ -141,7 +141,7 @@ private:
 
 	// SubmitToCodt functions
 	void submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
-	void submitModelToCodt(Model* model);
+	void submitModelToGPU(Model* model);
 	void submitMeshToCodt(Mesh* mesh);
 	void submitTextureToCodt(Texture* texture);
 

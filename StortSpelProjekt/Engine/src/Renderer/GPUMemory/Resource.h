@@ -17,7 +17,8 @@ public:
         ID3D12Device* device,
         unsigned long long entrySize,
         RESOURCE_TYPE type,
-        std::wstring name = L"RESOURCE_NONAME");
+        std::wstring name = L"RESOURCE_NONAME",
+        D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
 
     // Use for textures
     Resource(
