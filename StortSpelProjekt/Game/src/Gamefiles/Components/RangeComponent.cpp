@@ -145,6 +145,7 @@ void component::RangeComponent::Attack()
 		}
 
 		plc->SetColor({ 3.0f, 0.0f, 0.0f });
+		plc->Update(0);	// Init, so that the light doesn't spawn in origo first frame
 
 		// add the entity to the sceneManager so it can be spawned in in run time
 		// TODO: add dynamicly correct
@@ -160,4 +161,3 @@ void component::RangeComponent::Attack()
 		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAttacking();
 	}
 }
-		
