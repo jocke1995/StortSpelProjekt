@@ -13,6 +13,40 @@ MainMenuHandler::MainMenuHandler()
 {
 }
 
+void MainMenuHandler::createOptionScene()
+{
+    AssetLoader* al = AssetLoader::Get();
+
+    m_pOptionScene = m_pSceneManager->CreateScene("OptionScene");
+
+    component::GUI2DComponent* guic = nullptr;
+    component::Audio2DVoiceComponent* vc = nullptr;
+
+    Texture* startTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Start.png");
+    Texture* optionsTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Options.png");
+    Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Exit.png");
+
+    AudioBuffer* menuSound = al->LoadAudio(L"../Vendor/Resources/Audio/Menu.wav", L"MenuMusic");
+
+    // Player (Need a camera)
+    Entity* entity = m_pOptionScene->AddEntity("player");
+    entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    vc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    vc->AddVoice(L"MenuMusic");
+    vc->Play(L"MenuMusic");
+
+    // Skybox
+    entity = m_pOptionScene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
+    sbc->SetTexture(blackCubeMap);
+
+    entity = m_pOptionScene->AddEntity("Back");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("Back", { 0.1f, 0.3f }, { (float)exitTex->GetWidth() / std::stoi(Option::GetInstance().GetVariable("i_resolutionWidth")), (float)exitTex->GetHeight() / std::stoi(Option::GetInstance().GetVariable("i_resolutionHeight")) }, true, true, 0, { 1.0,1.0,1.0,1.0 }, exitTex);
+    guic->GetQuadManager()->SetOnClicked(&onExit);
+}
+
 MainMenuHandler& MainMenuHandler::GetInstance()
 {
     static MainMenuHandler instance;
@@ -59,6 +93,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     entity = scene->AddEntity("OptionsOption");
     guic = entity->AddComponent<component::GUI2DComponent>();
     guic->GetQuadManager()->CreateQuad("OptionsOption", { 0.1f, 0.2f }, { (float)optionsTex->GetWidth() / std::stoi(Option::GetInstance().GetVariable("i_resolutionWidth")), (float)optionsTex->GetHeight() / std::stoi(Option::GetInstance().GetVariable("i_resolutionHeight")) }, true, true, 0, { 1.0,1.0,1.0,1.0 }, optionsTex);
+    guic->GetQuadManager()->SetOnClicked(&onOptions);
 
     entity = scene->AddEntity("ExitOption");
     guic = entity->AddComponent<component::GUI2DComponent>();
@@ -87,4 +122,10 @@ void onExit(const std::string& name)
 
 void onOptions(const std::string& name)
 {
+    EventBus::GetInstance().Publish(&SceneChange("OptionScene"));
+}
+
+void onOptionBack()
+{
+    EventBus::GetInstance().Publish(&SceneChange("MainMenuScene"));
 }
