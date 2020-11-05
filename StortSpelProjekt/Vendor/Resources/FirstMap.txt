@@ -302,7 +302,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 
 Name Ground
 ModelPath Models/PebbleGround/pebbles.obj
-ModelScaling 150.0, 0.1, 250.0
+ModelScaling 150.0, 2.0, 250.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 0.0, 0.01, -50.0
 ModelDrawFlag 1, 1
