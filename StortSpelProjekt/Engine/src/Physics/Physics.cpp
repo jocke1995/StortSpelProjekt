@@ -26,7 +26,7 @@ Physics::~Physics()
 {
 }
 
-void Physics::DestroyPhysics()
+void Physics::deletePhysics()
 {
 	for (int i = 0; i < m_CollisionComponents.size(); i++)
 	{

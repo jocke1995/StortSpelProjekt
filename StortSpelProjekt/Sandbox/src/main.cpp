@@ -74,13 +74,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* activeScene = filipScene;
 
     // Set scene
-    sceneManager->SetScenes(activeScene);
+    sceneManager->SetScene(activeScene);
 
     GameNetwork gameNetwork;
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScenes(sceneManager->GetActiveScenes());
+        gameNetwork.SetScene(sceneManager->GetActiveScene());
         gameNetwork.SetSceneManager(sceneManager);
         gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
     }
@@ -92,7 +92,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
-
         timer->Update();
         logicTimer += timer->GetDeltaTime();
         if (gameNetwork.IsConnected())
