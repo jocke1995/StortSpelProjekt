@@ -25,8 +25,6 @@ class Physics
 public:
 	static Physics& GetInstance();
 	~Physics();
-	// Needs to be called before any collisioncomponents are destroyed (before scenemanager kills them...)
-	void DestroyPhysics();
 
 	void Update(double dt);
 	// returns true if there is an intersection between the OBBs
@@ -47,7 +45,11 @@ public:
 
 	const btDynamicsWorld* GetWorld();
 private:
+	friend class Engine;
 	Physics();
+	// Needs to be called before any collisioncomponents are destroyed (before scenemanager kills them...)
+	void deletePhysics();
+
 	double m_TimeSinceLastColCheck;
 	// How often the collisions are checked
 	const double m_CollisionUpdateInterval;
