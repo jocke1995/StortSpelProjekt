@@ -31,42 +31,6 @@ void CopyOnDemandTask::SubmitTexture(Texture* texture)
 	m_Textures.push_back(texture);
 }
 
-void CopyOnDemandTask::UnSubmitMesh(Mesh *mesh)
-{
-	// UploadDefaultData
-	Resource* uploadResource = mesh->m_pUploadResourceVertices;
-	auto it = m_UploadDefaultData.begin();
-	while (it != m_UploadDefaultData.end())
-	{
-		if (std::get<0>(*it) == uploadResource)
-		{
-			it = m_UploadDefaultData.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-}
-
-void CopyOnDemandTask::UnSubmitText(Text* text)
-{	
-	// UploadDefaultData
-	Resource* uploadResource = text->m_pUploadResourceVertices;
-	auto it = m_UploadDefaultData.begin();
-	while (it != m_UploadDefaultData.end())
-	{
-		if (std::get<0>(*it) == uploadResource)
-		{
-			it = m_UploadDefaultData.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-}
-
 void CopyOnDemandTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);

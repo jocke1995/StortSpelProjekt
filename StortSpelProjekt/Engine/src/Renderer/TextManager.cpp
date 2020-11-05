@@ -249,14 +249,6 @@ void TextManager::replaceText(Text* text, std::string name)
 	{
 		Renderer* renderer = &Renderer::GetInstance();
 
-		// Temp code, removes the text from CopyOnDemandTask before we delete the text*
-		if (m_TextMap[name] != nullptr)
-		{
-			CopyTask* task = renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
-			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
-			codt->UnSubmitText(m_TextMap[name]);
-		}
-
 		// This is an ugly solution, however, it is noticable faster than waiting for the
 		// GPU every time we want to delete a text, while also emptying the buffer so that
 		// we don't need to worry about the memory getting full

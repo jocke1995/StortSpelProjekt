@@ -317,11 +317,6 @@ void QuadManager::deleteQuadData()
 {
 	Renderer* renderer = &Renderer::GetInstance();
 
-	// Temp code, removes the text from CopyOnDemandTask before we delete the text*
-	CopyTask* task = renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
-	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
-	codt->UnSubmitMesh(m_pQuad);
-
 	// This is an ugly solution, however, it is noticable faster than waiting for the
 	// GPU every time we want to delete a quad, while also emptying the buffer so that
 	// we don't need to worry about the memory getting full
