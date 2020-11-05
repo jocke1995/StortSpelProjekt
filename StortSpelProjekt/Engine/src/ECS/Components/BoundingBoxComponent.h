@@ -15,6 +15,7 @@ enum F_OBBFlags
 {
 	COLLISION = BIT(1),
 	PICKING = BIT(2),
+	T_POSE = BIT(3),
 };
 
 struct BoundingBoxData;
@@ -22,6 +23,7 @@ class ShaderResourceView;
 class Mesh;
 class Transform;
 struct SlotInfo;
+class CollisionCategory;
 
 namespace component
 {
@@ -58,6 +60,11 @@ namespace component
 		// Renderer calls this function when an entity is picked
 		bool& IsPickedThisFrame();
 
+		template<typename T>
+		CollisionCategory* AddCollisionCategory();
+
+		void Collide(const BoundingBoxComponent& other);
+
 	private:
 		// used for collision checks
 		DirectX::BoundingOrientedBox m_OrientedBoundingBox;
@@ -70,9 +77,19 @@ namespace component
 		std::vector<Mesh*> m_Meshes;
 		std::vector<BoundingBoxData*> m_Bbds;
 		std::vector<SlotInfo*> m_SlotInfos;
+		CollisionCategory* m_pCategory = nullptr;
 
 		bool createOrientedBoundingBox();
 	};
+
+	template<typename T>
+	inline CollisionCategory* BoundingBoxComponent::AddCollisionCategory()
+	{
+		delete m_pCategory;
+
+		m_pCategory = new T(m_pParent);
+		return m_pCategory;
+	}
 }
 
 #endif

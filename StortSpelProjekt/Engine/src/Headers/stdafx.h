@@ -15,9 +15,6 @@
 #include "EngineMath.h"
 #include "d3dx12.h"
 
-// Windows stuff
-#include <Windows.h>
-
 // Time
 #include <chrono>
 #include <ctime>
@@ -37,7 +34,6 @@
 // Data Structures
 #include <sstream>
 #include <array>
-#include <vector>
 #include <map>
 #include <unordered_map>
 #include <set>

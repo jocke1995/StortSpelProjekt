@@ -13,6 +13,8 @@ class Component;
 class Model;
 class Entity;
 struct SceneChange;
+struct Death;
+struct LevelDone;
 
 static int s_EnemyId = 0;
 
@@ -42,6 +44,7 @@ struct EnemyComps
 	float detectionRad = 25.0f;
 	float attackingDist = 0.5f;
 	float attackInterval = 1.0f;
+	float attackSpeed = 0.2f;
 	float meleeAttackDmg = 10.0f;
 	float movementSpeed = 30.0f;
 };
@@ -95,6 +98,8 @@ public:
 	void Update(double dt);
 
 private:
+	void enemyDeath(Death* evnt);
+	void levelDone(LevelDone* evnt);
 	void onSceneSwitch(SceneChange* evnt);
 	Scene* m_pScene = nullptr;
 	std::map<std::string, EnemyComps*> m_EnemyComps;
@@ -103,6 +108,8 @@ private:
 	EngineRand m_RandGen;
 
 	unsigned int m_MaxEnemies;
+	unsigned int m_LevelMaxEnemies;
+	unsigned int m_EnemiesKilled;
 	float m_SpawnCooldown;
 	float m_SpawnTimer;
 	float m_MinimumDistanceToPlayer;

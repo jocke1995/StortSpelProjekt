@@ -49,10 +49,6 @@ public:
 
 	unsigned int GetID() const;
 	std::string GetName() const;
-	unsigned int GetRefCount() const;
-
-	void IncrementRefCount();
-	void DecrementRefCount();
 	void Update(double dt);
 	void RenderUpdate(double dt);
 
@@ -70,8 +66,7 @@ private:
 	unsigned int m_Id = -1;
 	std::string m_Name = "";
 	
-	// Multiple m_pScenes can use the same entity (player for example).
-	// This is to make sure that the player doesn't get deleted if its still in use AND to not delete it twice
+	// Multiple m_pScenes can use the same entity (player for example) and only init/uninit once.
 	unsigned int m_ReferenceCount = 0;
 
 	std::vector<Component*> m_Components;

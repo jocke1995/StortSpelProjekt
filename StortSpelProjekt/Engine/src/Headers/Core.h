@@ -2,9 +2,11 @@
 #define VECTORFLOATS_H
 
 #include <string>
-// For wstring convertion
 #include <locale>
 #include <codecvt>
+#include <vector>
+#include <Windows.h>
+
 static std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> strconverter;
 inline std::string to_string(std::wstring wstr)
 {

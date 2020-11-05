@@ -15,7 +15,7 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/GPUMemory/ShaderResourceView.h"
 #include "../Renderer/Renderer.h"
-
+#include "../Physics/CollisionCategory.h"
 
 
 namespace component
@@ -24,6 +24,7 @@ namespace component
 		:Component(parent)
 	{
 		m_FlagOBB = flagOBB;
+		m_pCategory = new CollisionCategory(parent);
 	}
 
 	BoundingBoxComponent::~BoundingBoxComponent()
@@ -32,6 +33,8 @@ namespace component
 		{
 			delete slotinfo;
 		}
+
+		delete m_pCategory;
 	}
 
 	void BoundingBoxComponent::Init()
@@ -148,6 +151,11 @@ namespace component
 		return m_pParent->GetComponent<ModelComponent>()->m_IsPickedThisFrame;
 	}
 
+	void BoundingBoxComponent::Collide(const BoundingBoxComponent& other)
+	{
+		m_pCategory->Collide(other.m_pCategory);
+	}
+
 	bool BoundingBoxComponent::createOrientedBoundingBox()
 	{
 		if (m_pParent->HasComponent<ModelComponent>() == true && m_pParent->HasComponent<TransformComponent>() == true)
@@ -186,13 +194,20 @@ namespace component
 			float3 absHalfLenghtOfRect = { (abs(minVertex.x) + abs(maxVertex.x)) / 2 ,
 											(abs(minVertex.y) + abs(maxVertex.y)) / 2 ,
 											(abs(minVertex.z) + abs(maxVertex.z)) / 2 };
-			m_OrientedBoundingBox.Extents.x = absHalfLenghtOfRect.x;
+			if (m_FlagOBB & F_OBBFlags::T_POSE)
+			{
+				m_OrientedBoundingBox.Extents.x = absHalfLenghtOfRect.z;
+			}
+			else
+			{
+				m_OrientedBoundingBox.Extents.x = absHalfLenghtOfRect.x;
+			}
 			m_OrientedBoundingBox.Extents.y = absHalfLenghtOfRect.y;
 			m_OrientedBoundingBox.Extents.z = absHalfLenghtOfRect.z;
 
 			// Set the position of the OBB
 			m_OrientedBoundingBox.Center.x = maxVertex.x - absHalfLenghtOfRect.x;
-			m_OrientedBoundingBox.Center.y = maxVertex.y - absHalfLenghtOfRect.y;
+			m_OrientedBoundingBox.Center.y = maxVertex.y - (static_cast<float>((m_FlagOBB & F_OBBFlags::T_POSE) > 0.0) + 1.0f) * absHalfLenghtOfRect.y;
 			m_OrientedBoundingBox.Center.z = maxVertex.z - absHalfLenghtOfRect.z;
 	
 
