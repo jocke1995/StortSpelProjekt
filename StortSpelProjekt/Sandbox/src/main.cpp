@@ -76,6 +76,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     // Set scene
     sceneManager->SetScenes(activeScene);
 
+
     GameNetwork gameNetwork;
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)

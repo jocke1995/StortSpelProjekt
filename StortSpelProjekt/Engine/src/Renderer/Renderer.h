@@ -137,6 +137,8 @@ private:
 	friend class SceneManager;
 	friend class TextManager;
 	friend class QuadManager;
+	friend class ParticleSystem;
+	friend class ParticleEffect;
 	Renderer();
 
 	// SubmitToCodt functions

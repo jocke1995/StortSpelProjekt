@@ -21,16 +21,13 @@ namespace component
         void OnUnInitScene();
 
         // Sets
-        void SetMesh(Mesh* mesh);
         void SetTexture(Texture2DGUI* texture);
 
         // Gets
-        Mesh* GetMesh() const;
         Texture2DGUI* GetTexture() const;
 
     private:
-        Mesh* m_pMesh = nullptr;
-        Texture2DGUI* m_pTexture = nullptr;
+
     };
 }
 #endif

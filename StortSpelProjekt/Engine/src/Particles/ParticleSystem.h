@@ -2,6 +2,7 @@
 #define PARTICLESYSTEM_H
 
 class ParticleEffect;
+class DescriptorHeap;
 
 namespace component
 {
@@ -16,12 +17,15 @@ public:
 
 	void Update(double dt);
 
-	void OnResetScene(); // Kanske
+	void OnResetScene(); // Kanske, Jocke?
 
 private:
 	ParticleSystem();
 
-	ParticleEffect* effect;
+	ParticleEffect* effect = nullptr;
+
+
+	void uploadParticleEffectsToGPU();
 };
 
 #endif
