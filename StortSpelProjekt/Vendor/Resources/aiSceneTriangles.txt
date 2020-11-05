@@ -19,7 +19,7 @@ ModelScaling 10.0, 1.0, 175.0
 ModelRotation 270.0, 0.0, 270.0
 ModelPosition -175.0, 5.0, 349.0
 ModelDrawFlag 3,1
-ModelDrawFlag 1,1
+ModelDrawFlag 5,1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.5
@@ -32,7 +32,7 @@ ModelScaling 10.0, 1.0, 175.0
 ModelRotation 90.0, 0.0, 270.0
 ModelPosition -175.0, 5.0, 0.0
 ModelDrawFlag 3,1
-ModelDrawFlag 1,1
+ModelDrawFlag 5,1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.5
@@ -45,7 +45,7 @@ ModelScaling 10.0, 1.0, 175.0
 ModelRotation 0.0, 0.0, 270.0
 ModelPosition -350.0, 5.0, 175.0
 ModelDrawFlag 3,1
-ModelDrawFlag 1,1
+ModelDrawFlag 5,1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.5
@@ -58,7 +58,7 @@ ModelScaling 10.0, 1.0, 175.0
 ModelRotation 180.0, 0.0, 270.0
 ModelPosition -1.0, 5.0, 175.0
 ModelDrawFlag 3,1
-ModelDrawFlag 1,1
+ModelDrawFlag 5,1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.5

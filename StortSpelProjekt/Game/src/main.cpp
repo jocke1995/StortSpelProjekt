@@ -2,7 +2,8 @@
 #include "EnemyFactory.h"
 #include "GameNetwork.h"
 #include "GameGUI.h"
-
+#include "Physics/CollisionCategories/PlayerCollisionCategory.h"
+#include "Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
 // Game includes
 #include "Player.h"
 #include "UpgradeManager.h"
@@ -52,7 +53,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* gameOverScene = GameOverScene(sceneManager);
 
     //Scene* shopScene = ShopScene(sceneManager);
-    sceneManager->SetScenes(1, &demoScene);
+    sceneManager->SetScenes(demoScene);
     sceneManager->SetGameOverScene(gameOverScene);
 
     GameNetwork gameNetwork;
@@ -193,6 +194,8 @@ Scene* GameScene(SceneManager* sm)
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
 
     melc->SetDamage(10);
+    melc->setAttackInterval(0.8);
+    ranc->SetAttackInterval(0.8);
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
@@ -201,6 +204,7 @@ Scene* GameScene(SceneManager* sm)
     avc->AddVoice(L"Bruh");
 
     bbc->Init();
+    bbc->AddCollisionCategory<PlayerCollisionCategory>();
     Physics::GetInstance().AddCollisionEntity(entity);;
     /*--------------------- Player ---------------------*/
 
@@ -224,10 +228,11 @@ Scene* GameScene(SceneManager* sm)
 	zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
-	zombie.meleeAttackDmg = 10.0f;
-	zombie.attackInterval = 1.0f;
+	zombie.meleeAttackDmg = 5.0f;
+	zombie.attackInterval = 1.5f;
+	zombie.attackSpeed = 0.1f;
 	zombie.movementSpeed = 30.0f;
-	zombie.attackingDist = 0.5f;
+	zombie.attackingDist = 1.5f;
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
 	zombie.scale = 0.04;
@@ -239,6 +244,17 @@ Scene* GameScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "ShopScene");
+
+
+    mc->SetModel(teleportModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetPosition(1000.0f, 1000.0f, 1000.0f);
+    tc->GetTransform()->SetScale(7.0f);
+    tc->SetTransformOriginalState();
+
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
+    /*--------------------- Teleporter ---------------------*/
     /* ------------------------- GUI --------------------------- */
     std::string textToRender = "HEALTH";
     float2 textPos = { 0.45f, 0.96f };
@@ -247,16 +263,6 @@ Scene* GameScene(SceneManager* sm)
     float2 textScale = { 0.5f, 0.5f };
     float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    mc->SetModel(teleportModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetPosition(-10.0f, 1.0f, -25.0f);
-    tc->GetTransform()->SetScale(7.0f);
-    tc->SetTransformOriginalState();
-
-    bbc->Init();
-    Physics::GetInstance().AddCollisionEntity(entity);
-    /* ---------------------- Teleporter ---------------------- */
-    /*--------------------- Teleporter ---------------------*/
     entity = scene->AddEntity("health");
     gui = entity->AddComponent<component::GUI2DComponent>();
     gui->GetTextManager()->AddText("health");
@@ -298,6 +304,23 @@ Scene* GameScene(SceneManager* sm)
     gui->GetTextManager()->SetText(textToRender, "money");
     gui->GetTextManager()->SetBlend(textBlend, "money");
 
+    textToRender = "Enemies: 0/20";
+    textPos = { 0.01f, 0.1f };
+    textPadding = { 0.5f, 0.0f };
+    textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    textScale = { 0.5f, 0.5f };
+    textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    entity = scene->AddEntity("enemyGui");
+    gui = entity->AddComponent<component::GUI2DComponent>();
+    gui->GetTextManager()->AddText("enemyGui");
+    gui->GetTextManager()->SetColor(textColor, "enemyGui");
+    gui->GetTextManager()->SetPadding(textPadding, "enemyGui");
+    gui->GetTextManager()->SetPos(textPos, "enemyGui");
+    gui->GetTextManager()->SetScale(textScale, "enemyGui");
+    gui->GetTextManager()->SetText(textToRender, "enemyGui");
+    gui->GetTextManager()->SetBlend(textBlend, "enemyGui");
+
     /* ---------------------------------------------------------- */
 
 #pragma region Enemyfactory
@@ -307,12 +330,6 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
 #pragma endregion
-
-    // extra 75 enemies, make sure to change number in for loop in DemoUpdateScene function if you change here
-    for (int i = 0; i < 75; i++)
-    {
-        enemyFactory.SpawnEnemy("enemyZombie");
-    }
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();

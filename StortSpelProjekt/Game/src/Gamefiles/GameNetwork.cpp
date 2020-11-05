@@ -87,5 +87,5 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
         m_pEnemies->at(i)->GetComponent<component::AiComponent>()->AddTarget(entity);
     }
 
-    m_pSceneManager->SetScenes(m_pSceneManager->GetActiveScenes()->size(), &activeScenes->at(0));
+    m_pSceneManager->SetScenes(activeScenes->at(0));
 }
