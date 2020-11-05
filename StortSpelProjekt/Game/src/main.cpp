@@ -89,7 +89,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             logicTimer = 0;
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
-            enemyFactory.Update(updateRate);
+            //enemyFactory.Update(updateRate);
             gameGUI.Update(updateRate, sceneManager->GetActiveScenes()->at(0));
         }
 
@@ -320,6 +320,71 @@ Scene* GameScene(SceneManager* sm)
     gui->GetTextManager()->SetScale(textScale, "enemyGui");
     gui->GetTextManager()->SetText(textToRender, "enemyGui");
     gui->GetTextManager()->SetBlend(textBlend, "enemyGui");
+
+
+
+
+
+
+
+#pragma region enemyRangeTest
+    Entity* ent = scene->AddEntity("enemyRangeTest");
+    mc = nullptr;
+    tc = nullptr;
+    bbc = nullptr;
+    component::CollisionComponent* colc = nullptr;
+    component::AiComponent* ai = nullptr;
+    component::Audio3DEmitterComponent* ae = nullptr;
+    component::RangeEnemyComponent* enemyRange = nullptr;
+
+    mc = ent->AddComponent<component::ModelComponent>();
+    tc = ent->AddComponent<component::TransformComponent>();
+    ent->AddComponent<component::HealthComponent>(100);
+    enemyRange = ent->AddComponent<component::RangeEnemyComponent>(sm, scene, sphereModel, 0.3, 10, 100);
+
+    Entity* target = scene->GetEntity("player");
+    double3 targetDim = target->GetComponent<component::ModelComponent>()->GetModelDim();
+    float targetScale = target->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().z;
+    if (target != nullptr)
+    {
+        ai = ent->AddComponent<component::AiComponent>(target, 0, 500, 100);
+        ai->SetAttackInterval(1.0f);
+        ai->SetMeleeAttackDmg(10.0f);
+        ai->SetScene(scene);
+        ai->SetRangedAI();
+    }
+    ae = ent->AddComponent<component::Audio3DEmitterComponent>();
+    ae->AddVoice(L"Bruh");
+
+    mc->SetModel(enemyModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    Transform* t = tc->GetTransform();
+    t->SetPosition(10, 10, 10);
+    t->SetScale(0.04);
+    t->SetRotationX(0.0);
+    t->SetRotationY(0.0);
+    t->SetRotationZ(0.0);
+    t->SetVelocity(15);
+
+    tc->SetTransformOriginalState();
+    colc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, mc->GetModelDim().z / 2.0, mc->GetModelDim().y - mc->GetModelDim().z, 0.01, 0.5, false);
+    bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(ent);
+
+    SceneManager::GetInstance().AddEntity(ent, scene);
+#pragma endregion
+
+
+
+
+
+
+
+
+
+
+
 
     /* ---------------------------------------------------------- */
 
