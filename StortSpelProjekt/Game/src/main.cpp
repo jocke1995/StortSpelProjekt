@@ -53,7 +53,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverScene(sceneManager);
 
-    sceneManager->SetScenes(demoScene);
+    sceneManager->SetScene(demoScene);
     sceneManager->SetGameOverScene(gameOverScene);
 
     GameNetwork gameNetwork;
