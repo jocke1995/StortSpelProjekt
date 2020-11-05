@@ -121,6 +121,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						break;
 					case MOUSE_BUTTON::LEFT_DOWN:
 						Input::GetInstance().SetMouseButtonState(button, true);
+						break;
 					case MOUSE_BUTTON::MIDDLE_DOWN:
 					case MOUSE_BUTTON::RIGHT_DOWN:
 						Input::GetInstance().SetMouseButtonState(button, true);
@@ -128,6 +129,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					case MOUSE_BUTTON::LEFT_UP:
 						button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
 						Input::GetInstance().SetMouseButtonState(button, false);
+						break;
 					case MOUSE_BUTTON::MIDDLE_UP:
 					case MOUSE_BUTTON::RIGHT_UP:
 						button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
@@ -344,7 +346,6 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 	SetWindowLong(m_Hwnd, GWL_STYLE, 0);
 
 	ShowWindow(m_Hwnd, nCmdShow);
-	ShowCursor(true);
 	UpdateWindow(m_Hwnd);
 
 	return true;

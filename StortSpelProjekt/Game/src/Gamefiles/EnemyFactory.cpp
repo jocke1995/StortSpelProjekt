@@ -7,6 +7,7 @@
 
 EnemyFactory::EnemyFactory()
 {
+	m_Level = 0;
 	m_MaxEnemies = 30;
 	m_LevelMaxEnemies = 20;
 	m_EnemiesKilled = 0;
@@ -17,10 +18,12 @@ EnemyFactory::EnemyFactory()
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::levelDone);
+	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onRoundStart);
 }
 
 EnemyFactory::EnemyFactory(Scene* scene)
 {
+	m_Level = 0;
 	m_pScene = scene;
 	m_MaxEnemies = 30;
 	m_LevelMaxEnemies = 20;
@@ -31,6 +34,8 @@ EnemyFactory::EnemyFactory(Scene* scene)
 	m_RandGen.SetSeed(time(NULL));
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
+	EventBus::GetInstance().Subscribe(this, &EnemyFactory::levelDone);
+	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onRoundStart);
 }
 
 EnemyFactory::~EnemyFactory()
@@ -274,12 +279,15 @@ EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, EnemyComps*
 	enemy->model = comps->model;
 	enemy->targetName = comps->targetName;
 	enemy->hp = comps->hp;
+	enemy->hpBase = comps->hp;
 	enemy->sound3D = comps->sound3D;
 	enemy->detectionRad = comps->detectionRad;
 	enemy->attackingDist = comps->attackingDist;
 	enemy->attackInterval = comps->attackInterval;
 	enemy->meleeAttackDmg = comps->meleeAttackDmg;
+	enemy->meleeAttackDmgBase = comps->meleeAttackDmg;
 	enemy->movementSpeed = comps->movementSpeed;
+	enemy->movementSpeedBase = comps->movementSpeed;
 	enemy->dim = comps->model->GetModelDim();
 
 	return enemy;
@@ -412,25 +420,29 @@ void EnemyFactory::onSceneSwitch(SceneChange* evnt)
 	}
 	else
 	{
-		m_IsActive = true;
-		m_SpawnTimer = 0.0f;
-		m_EnemiesKilled = 0;
-
-
-		//Scaling difficulty
-		m_LevelMaxEnemies += 2;
-
-		m_EnemyComps.find("enemyZombie")->second->hp *= 1.30;
-		m_EnemyComps.find("enemyZombie")->second->meleeAttackDmg += 2;
-		m_EnemyComps.find("enemyZombie")->second->movementSpeed += 1;
-
 		Entity* teleport = m_pScene->GetEntity("teleporter");
 		teleport->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-
-		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
-		if (enemyGui != nullptr)
-		{
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Enemies: 0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
-		}
 	}
+}
+
+void EnemyFactory::onRoundStart(RoundStart* evnt)
+{
+	m_IsActive = true;
+	m_SpawnTimer = 0.0f;
+	m_EnemiesKilled = 0;
+
+
+	//Scaling difficulty
+	m_LevelMaxEnemies = 20 + 2*m_Level;
+
+	m_EnemyComps.find("enemyZombie")->second->hp = m_EnemyComps.find("enemyZombie")->second->hpBase * pow(1.30, m_Level);
+	m_EnemyComps.find("enemyZombie")->second->meleeAttackDmg = m_EnemyComps.find("enemyZombie")->second->meleeAttackDmgBase + 2*m_Level;
+	m_EnemyComps.find("enemyZombie")->second->movementSpeed = m_EnemyComps.find("enemyZombie")->second->movementSpeedBase + 1 * m_Level;
+
+	Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+	if (enemyGui != nullptr)
+	{
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Enemies: 0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+	}
+	++m_Level;
 }

@@ -76,8 +76,9 @@ Scene* MainMenuHandler::GetScene()
 
 void onStart(const std::string& name)
 {
-    EventBus::GetInstance().Publish(&CursorShow(false));
     EventBus::GetInstance().Publish(&SceneChange("GameScene"));
+    EventBus::GetInstance().Publish(&CursorShow(false));
+    EventBus::GetInstance().Publish(&RoundStart());
 }
 
 void onExit(const std::string& name)
