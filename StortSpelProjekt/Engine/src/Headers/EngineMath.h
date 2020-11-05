@@ -84,13 +84,13 @@ typedef union float3
 		return (x != other.x || y != other.y || z != other.z);
 	}
 
-	float3 cross(float3* that) const
+	float3 cross(const float3& that) const
 	{
 		return
 		{
-			this->y * that->z - this->z * that->y,
-			this->z * that->x - this->x * that->z,
-			this->x * that->y - this->y * that->x,
+			this->y * that.z - this->z * that.y,
+			this->z * that.x - this->x * that.z,
+			this->x * that.y - this->y * that.x,
 		};
 	};
 
@@ -170,5 +170,26 @@ typedef union
 	struct { double x; double y; };
 	struct { double u; double v; };
 } double2;
+
+class EngineMath
+{
+public:
+	static inline float convertToRadians(float degrees)
+	{
+		return degrees * (PI / 180.0f);
+	}
+
+	static inline float convertToDegrees(float radians)
+	{
+		return radians * (180.0f / PI);
+	}
+
+	static inline int convertToWholeDegrees(float radians)
+	{
+		return static_cast<int>(radians * (180.0f / PI));
+	}
+private:
+	EngineMath() {};
+};
 
 #endif

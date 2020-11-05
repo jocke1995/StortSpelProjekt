@@ -79,10 +79,10 @@ void CalculateHeightmapNormalsTask::Execute()
 		neighbourTangents[2] = neighbours[2] - verPos;
 		neighbourTangents[3] = neighbours[3] - verPos;
 
-		normals[0] = neighbourTangents[1].cross(&neighbourTangents[0]);
-		normals[1] = neighbourTangents[2].cross(&neighbourTangents[1]);
-		normals[2] = neighbourTangents[3].cross(&neighbourTangents[2]);
-		normals[3] = neighbourTangents[0].cross(&neighbourTangents[3]);
+		normals[0] = neighbourTangents[1].cross(neighbourTangents[0]);
+		normals[1] = neighbourTangents[2].cross(neighbourTangents[1]);
+		normals[2] = neighbourTangents[3].cross(neighbourTangents[2]);
+		normals[3] = neighbourTangents[0].cross(neighbourTangents[3]);
 
 		vertexNormal = normals[0] + normals[1] + normals[2] + normals[3];
 		vertexNormal.normalize();
@@ -98,8 +98,8 @@ void CalculateHeightmapNormalsTask::Execute()
 	{
 		tangent = { 0,0,1 };
 		vertexNormal = { m_pVertices[i].normal.x , m_pVertices[i].normal.y, m_pVertices[i].normal.z };
-		biTangent = tangent.cross(&vertexNormal);
-		tangent = vertexNormal.cross(&biTangent);
+		biTangent = tangent.cross(vertexNormal);
+		tangent = vertexNormal.cross(biTangent);
 
 		m_pVertices[i].tangent.x = tangent.x;
 		m_pVertices[i].tangent.y = tangent.y;
