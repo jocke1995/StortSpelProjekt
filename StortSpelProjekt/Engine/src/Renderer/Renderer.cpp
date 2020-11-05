@@ -925,6 +925,9 @@ void Renderer::UnInitBoundingBoxComponent(component::BoundingBoxComponent* compo
 
 void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 {
+	// TODO: maybe put this inside "SceneManager::RemoveEntity"
+	Renderer::GetInstance().waitForGPU();
+
 	// Remove component from textComponents
 	// TODO: change data structure to allow O(1) add and remove
 	for (int i = 0; i < m_TextComponents.size(); i++)
