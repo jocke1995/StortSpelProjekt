@@ -89,7 +89,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
-            gameGUI.Update(updateRate, sceneManager->GetActiveScene()->at(0));
+            gameGUI.Update(updateRate, sceneManager->GetActiveScene());
         }
 
         /* ---- Network ---- */
