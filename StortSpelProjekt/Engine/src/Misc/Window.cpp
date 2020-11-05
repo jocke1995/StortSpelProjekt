@@ -138,16 +138,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 
 				Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
-				POINT pos;
-				GetCursorPos(&pos);
 				RECT win;
 				GetWindowRect(hWnd, &win);
-				LONG windowWidth = win.right - 100;
-				LONG windowHeight = win.bottom - 100;
-				int nextX = Max(Min(pos.x, windowWidth - 200), win.left + 100);
-				int nextY = Max(Min(pos.y, windowHeight - 200), win.top + 100);
-
-				SetCursorPos(nextX, nextY);
+				ClipCursor(&win);
 			}
 
 			// This is temporarly to make sure that a mouse click works even though the 'alt' key is pressed
