@@ -523,6 +523,11 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
 		{
 			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
+
+			if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
+			{
+				m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
+			}
 		}
 		else if (FLAG_DRAW::DRAW_ANIMATED & mc->GetDrawFlag())
 		{
@@ -531,11 +536,6 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 
 			// Opaque drawing as usual
 			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
-		}
-
-		if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
-		{
-			m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
 		}
 
 		if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
@@ -1410,8 +1410,8 @@ void Renderer::initRenderTasks()
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
 		gpsdAnimatedDepthPrePass.BlendState.RenderTarget[i] = depthPrePassRTdesc;
 
-	gpsdDepthPrePass.DepthStencilState = depthPrePassDsd;
-	gpsdDepthPrePass.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
+	gpsdAnimatedDepthPrePass.DepthStencilState = depthPrePassDsd;
+	gpsdAnimatedDepthPrePass.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdDepthPreAnimationVector;
 	gpsdDepthPreAnimationVector.push_back(&gpsdAnimatedDepthPrePass);
