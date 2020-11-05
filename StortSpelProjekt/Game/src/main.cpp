@@ -43,6 +43,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Renderer* const renderer = engine.GetRenderer();
     Physics* const physics = engine.GetPhysics();
     AudioEngine* const audioEngine = engine.GetAudioEngine();
+    ParticleSystem* const particleSystem = engine.GetParticleSystem();
 
 
     /*------ AssetLoader to load models / textures ------*/
@@ -62,7 +63,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScenes(sceneManager->GetActiveScenes());
+        gameNetwork.SetScene(sceneManager->GetActiveScene());
         gameNetwork.SetSceneManager(sceneManager);
         gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
     }
@@ -84,13 +85,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         }
 
         sceneManager->RenderUpdate(timer->GetDeltaTime());
+        particleSystem->Update(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
-            gameGUI.Update(updateRate, sceneManager->GetActiveScenes()->at(0));
+            gameGUI.Update(updateRate, sceneManager->GetActiveScene());
         }
 
         /* ---- Network ---- */
@@ -126,6 +128,8 @@ Scene* GameScene(SceneManager* sm)
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* teleportModel = al->LoadModel(L"../Vendor/Resources/Models/Teleporter/Teleporter.obj");
+
+    Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
@@ -287,11 +291,11 @@ Scene* GameScene(SceneManager* sm)
         { 0.0, 1.0, 0.0 }
     );
 
-    textToRender = "Currency: 0";
-    textPos = { 0.01f, 0.95f };
+    textToRender = "0";
+    textPos = { 0.95f, 0.03f };
     textPadding = { 0.5f, 0.0f };
     textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-    textScale = { 0.5f, 0.5f };
+    textScale = { 0.4f, 0.4f };
     textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     entity = scene->AddEntity("money");
@@ -303,6 +307,19 @@ Scene* GameScene(SceneManager* sm)
     gui->GetTextManager()->SetScale(textScale, "money");
     gui->GetTextManager()->SetText(textToRender, "money");
     gui->GetTextManager()->SetBlend(textBlend, "money");
+
+    quadPos = { 0.91f, 0.03f };
+    quadScale = { 0.03f, 0.03f };
+    blended = { 1.0, 1.0, 1.0, 0.99 };
+    notBlended = { 1.0, 1.0, 1.0, 1.0 };
+    gui->GetQuadManager()->CreateQuad(
+        "money",
+        quadPos, quadScale,
+        false, false,
+        1,
+        notBlended,
+        currencyIcon
+    );
 
     textToRender = "Enemies: 0/20";
     textPos = { 0.01f, 0.1f };
@@ -395,6 +412,7 @@ Scene* ShopScene(SceneManager* sm)
     component::UpgradeComponent* uc = nullptr;
     component::CapsuleCollisionComponent* ccc = nullptr;
     component::HealthComponent* hc = nullptr;
+    component::GUI2DComponent* gui = nullptr;
     component::CurrencyComponent* cur = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
@@ -406,6 +424,8 @@ Scene* ShopScene(SceneManager* sm)
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
     Model* teleportModel = al->LoadModel(L"../Vendor/Resources/Models/Teleporter/Teleporter.obj");
+
+    Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
@@ -493,6 +513,36 @@ Scene* ShopScene(SceneManager* sm)
     tc->SetTransformOriginalState();
     /* ---------------------- Poster ---------------------- */
 
+    /*---------------- GUI -----------------*/
+    std::string textToRender = "0";
+    float2 textPos = { 0.95f, 0.03f };
+    float2 textPadding = { 0.5f, 0.0f };
+    float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    float2 textScale = { 0.4f, 0.4f };
+    float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    entity = scene->AddEntity("money");
+    gui = entity->AddComponent<component::GUI2DComponent>();
+    gui->GetTextManager()->AddText("money");
+    gui->GetTextManager()->SetColor(textColor, "money");
+    gui->GetTextManager()->SetPadding(textPadding, "money");
+    gui->GetTextManager()->SetPos(textPos, "money");
+    gui->GetTextManager()->SetScale(textScale, "money");
+    gui->GetTextManager()->SetText(textToRender, "money");
+    gui->GetTextManager()->SetBlend(textBlend, "money");
+
+    float2 quadPos = { 0.91f, 0.03f };
+    float2 quadScale = { 0.03f, 0.03f };
+    float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+    gui->GetQuadManager()->CreateQuad(
+        "money",
+        quadPos, quadScale,
+        false, false,
+        1,
+        notBlended,
+        currencyIcon
+    );
+    /*---------------- GUI -----------------*/
     /* ---------------------- Shop ---------------------- */
     entity = scene->AddEntity("shop");
     mc = entity->AddComponent<component::ModelComponent>();
