@@ -40,7 +40,7 @@ void Option::WriteFile()
 {
 	std::ofstream file;
 
-	file.open("config.txt");
+	file.open("../Vendor/config.txt");
 	if (!file.is_open()) 
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "Attempted to open non-existing config file; Creating a new one");

@@ -154,7 +154,7 @@ void Renderer::DeleteDxResources()
 	delete m_pCbPerFrameData;
 }
 
-void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
+void Renderer::InitD3D12(Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
 {
 	m_pThreadPool = threadPool;
 	m_pWindow = window;
@@ -1040,7 +1040,7 @@ Scene* const Renderer::GetActiveScene() const
 	return m_pCurrActiveScene;
 }
 
-const Window* const Renderer::GetWindow() const
+Window* const Renderer::GetWindow() const
 {
 	return m_pWindow;
 }

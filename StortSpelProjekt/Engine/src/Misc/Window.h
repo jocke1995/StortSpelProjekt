@@ -32,8 +32,8 @@ public:
 	int GetScreenHeight() const;
 	const HWND* GetHwnd() const;
 
-	void SetScreenWidth(int width);
-	void SetScreenHeight(int height);
+	void SetScreenWidth(const int width);
+	void SetScreenHeight(const int height);
 
 	bool ExitWindow();
 
