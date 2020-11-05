@@ -12,8 +12,11 @@ struct BoneInfo
 struct TransformKey
 {
 	DirectX::XMFLOAT3 position = {};
+	DirectX::XMFLOAT3* pPosition = nullptr;
 	DirectX::XMFLOAT4 rotationQuaternion = {};
-	DirectX::XMFLOAT3 scaling = {};
+	DirectX::XMFLOAT4* pRotation = nullptr;
+	DirectX::XMFLOAT3 scaling = { 1.0f,1.0f,1.0f };
+	DirectX::XMFLOAT3* pScale = nullptr;
 };
 
 struct TranslationKey
@@ -69,11 +72,7 @@ struct Animation
 		{
 			assert(!bone.second.empty());
 			// If there is only one key we can't interpolate
-			if (bone.second.size() == 1)
-			{
-				currentState[bone.first].position = bone.second[0].position;
-			}
-			else
+			if (bone.second.size() > 1)
 			{
 				// Find the current key index
 				unsigned int keyIndex = 0;
@@ -95,6 +94,7 @@ struct Animation
 				assert(factor >= 0.0f && factor <= 1.0f);
 
 				currentState[bone.first].position = InterpolateTranslation(&bone.second[keyIndex].position, &bone.second[nextKeyIndex].position, factor);
+				currentState[bone.first].pPosition = &currentState[bone.first].position;
 			}
 		}
 
@@ -102,11 +102,7 @@ struct Animation
 		{
 			assert(!bone.second.empty());
 			// If there is only one key we can't interpolate
-			if (bone.second.size() == 1)
-			{
-				currentState[bone.first].rotationQuaternion = bone.second[0].rotationQuaternion;
-			}
-			else
+			if (bone.second.size() > 1)
 			{
 				// Find the current key index
 				unsigned int keyIndex = 0;
@@ -128,6 +124,7 @@ struct Animation
 				assert(factor >= 0.0f && factor <= 1.0f);
 
 				currentState[bone.first].rotationQuaternion = InterpolateRotation(&bone.second[keyIndex].rotationQuaternion, &bone.second[nextKeyIndex].rotationQuaternion, factor);
+				currentState[bone.first].pRotation = &currentState[bone.first].rotationQuaternion;
 			}
 		}
 
@@ -135,11 +132,7 @@ struct Animation
 		{
 			assert(!bone.second.empty());
 			// If there is only one key we can't interpolate
-			if (bone.second.size() == 1)
-			{
-				currentState[bone.first].scaling = bone.second[0].scaling;
-			}
-			else
+			if (bone.second.size() > 1)
 			{
 				// Find the current key index
 				unsigned int keyIndex = 0;
@@ -161,6 +154,7 @@ struct Animation
 				assert(factor >= 0.0f && factor <= 1.0f);
 
 				currentState[bone.first].scaling = InterpolateScaling(&bone.second[keyIndex].scaling, &bone.second[nextKeyIndex].scaling, factor);
+				currentState[bone.first].pScale = &currentState[bone.first].scaling;
 			}
 		}
 	}
