@@ -11,6 +11,7 @@
 class DescriptorHeap;
 class Resource;
 class ShaderResourceView;
+class UnorderedAccessView;
 class Texture2DGUI;
 
 class ParticleEffect
@@ -24,6 +25,7 @@ public:
 
 private:
 	friend class ParticleSystem;
+	friend class BillboardComputeTask;
 
 	static EngineRand rand;
 
@@ -37,7 +39,9 @@ private:
 
 	// Dx12
 	Resource* m_pUploadResource = nullptr;
+	Resource* m_pUAVResource = nullptr;
 	ShaderResourceView* m_pSRV = nullptr;
+	UnorderedAccessView* m_pUAV = nullptr;
 
 	void spawnParticle();
 
