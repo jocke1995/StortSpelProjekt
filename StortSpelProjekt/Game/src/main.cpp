@@ -42,6 +42,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Renderer* const renderer = engine.GetRenderer();
     Physics* const physics = engine.GetPhysics();
     AudioEngine* const audioEngine = engine.GetAudioEngine();
+    ParticleSystem* const particleSystem = engine.GetParticleSystem();
 
 
     /*------ AssetLoader to load models / textures ------*/
@@ -84,6 +85,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         }
 
         sceneManager->RenderUpdate(timer->GetDeltaTime());
+        particleSystem->Update(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;
