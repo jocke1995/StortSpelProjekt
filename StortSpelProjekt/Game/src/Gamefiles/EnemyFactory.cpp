@@ -331,6 +331,11 @@ void EnemyFactory::SetMinDistanceFromPlayer(float val)
 	m_MinimumDistanceToPlayer = val;
 }
 
+void EnemyFactory::SetActive(bool active)
+{
+	m_IsActive = active;
+}
+
 void EnemyFactory::Update(double dt)
 {
 	if (m_IsActive)
