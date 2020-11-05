@@ -52,8 +52,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
     //Scene* activeScene = jacobScene;
-    Scene* leoScene = LeosTestScene(sceneManager);
-    Scene* activeScene = leoScene;
+    //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -62,8 +62,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = filipScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
-    //Scene* williamScene = WilliamsTestScene(sceneManager);
-    //Scene* activeScenes = williamScene;
+    Scene* williamScene = WilliamsTestScene(sceneManager);
+    Scene* activeScene = williamScene;
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* activeScene = bjornScene;
     //Scene* antonScene = AntonTestScene(sceneManager);
@@ -1180,7 +1180,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     mc->SetModel(aniTest);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 10.0f);
     tc->GetTransform()->SetScale(0.1f);
 
