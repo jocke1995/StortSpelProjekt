@@ -14,7 +14,13 @@ public:
 
 private:
 	int m_OldHealth;
+	int m_OldMaxHealth;
 	int m_OldMoney;
+	float m_OldHealthLength;
+	Scene* m_pOldScene;
+
+	void updateHealth(Scene* scene);
+	void reset(Scene* scene);
 };
 
 

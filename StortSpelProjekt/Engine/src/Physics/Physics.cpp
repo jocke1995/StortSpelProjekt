@@ -165,12 +165,19 @@ void Physics::collisionChecks(double dt)
 				for (int j = i + 1; j < m_CollisionEntities.size(); j++)
 				{
 					second = m_CollisionEntities.at(j)->GetComponent<component::BoundingBoxComponent>();
-					if (CheckOBBCollision(
-						first->GetOBB(),
-						second->GetOBB()))
+					if (std::isnan(first->GetOBB()->Center.x) && std::isnan(second->GetOBB()->Center.x))
 					{
-						first->Collide(*second);
-						//EventBus::GetInstance().Publish(&Collision(m_CollisionEntities.at(i), m_CollisionEntities.at(j)));
+						Log::Print("One of the collision entities has nan values\n");
+					}
+					else
+					{
+						if (CheckOBBCollision(
+							first->GetOBB(),
+							second->GetOBB()))
+						{
+							first->Collide(*second);
+							//EventBus::GetInstance().Publish(&Collision(m_CollisionEntities.at(i), m_CollisionEntities.at(j)));
+						}
 					}
 				}
 			}

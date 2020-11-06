@@ -39,12 +39,12 @@ namespace component
 		void Update(double dt);
 		void Attack();
 		
-		void setAttackInterval(float interval);
+		void SetAttackInterval(float interval);
 		void SetDamage(int damage);
 		void ChangeDamage(int change);
 
-		void createCornersHitbox();
-		void createDrawnHitbox(component::BoundingBoxComponent* bbc);
+		void CreateCornersHitbox();
+		void CreateDrawnHitbox(component::BoundingBoxComponent* bbc);
 
 	private:
 
@@ -53,7 +53,7 @@ namespace component
 
 		bool m_Attacking;
 		bool m_Cooldown;
-		bool audioPlay;
+		bool m_AudioPlay;
 		float m_AttackInterval;
 		float m_TimeSinceLastAttackCheck;
 		int m_Damage;
@@ -73,7 +73,7 @@ namespace component
 		DirectX::BoundingOrientedBox m_Hitbox;
 		DirectX::BoundingOrientedBox m_TempHitbox;
 
-		void CheckCollision();
+		void checkCollision();
 
 	};
 }
