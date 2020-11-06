@@ -9,6 +9,7 @@
 #include "UpgradeManager.h"
 #include "Shop.h"
 #include "Components/CurrencyComponent.h"
+#include "UpgradeGUI.h"
 
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
@@ -53,6 +54,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverScene(sceneManager);
 
+    /*-------- UpgradeGUI ---------*/
+    //upgradeGUI.SetCurrentSceneMan(sceneManager);
+    UpgradeGUI::GetInstance().LoadTextures();
+
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScenes(demoScene);
     sceneManager->SetGameOverScene(gameOverScene);
@@ -93,6 +98,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
             gameGUI.Update(updateRate, sceneManager->GetActiveScenes()->at(0));
+            UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScenes()->at(0));
         }
 
         /* ---- Network ---- */
@@ -338,7 +344,106 @@ Scene* GameScene(SceneManager* sm)
     gui->GetTextManager()->SetText(textToRender, "enemyGui");
     gui->GetTextManager()->SetBlend(textBlend, "enemyGui");
 
-    /* ---------------------------------------------------------- */
+
+
+    /* ------------------------- Upgrade Menu --------------------------- */
+    //upgradeGUI.SetCurrentScene(scene);
+    /* ------------------------- Upgrade Menu Background --------------------------- */
+    ////std::string str = "UpgradeRangeLifeSteal";
+    //// textToRender = str.substr(7);
+    //textToRender = "Bought Upgrades            Upgrade Description";
+    //textPos = { 0.49f, 0.16f };
+    //textPadding = { 0.5f, 0.0f };
+    //textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    //textScale = { 0.5f, 0.5f };
+    //textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    //entity = scene->AddEntity("UpgradeMenuBackground");
+    //gui = entity->AddComponent<component::GUI2DComponent>();
+    //gui->GetTextManager()->AddText("UpgradeMenuBackground");
+    //gui->GetTextManager()->SetColor(textColor, "UpgradeMenuBackground");
+    //gui->GetTextManager()->SetPadding(textPadding, "UpgradeMenuBackground");
+    //gui->GetTextManager()->SetPos(textPos, "UpgradeMenuBackground");
+    //gui->GetTextManager()->SetScale(textScale, "UpgradeMenuBackground");
+    //gui->GetTextManager()->SetText(textToRender, "UpgradeMenuBackground");
+    //gui->GetTextManager()->SetBlend(textBlend, "UpgradeMenuBackground");
+
+    //quadPos = { 0.45f, 0.15f };
+    //quadScale = { 0.5f, 0.6f };
+    //blended = { 1.0, 1.0, 1.0, 0.4 };
+    //notBlended = { 1.0, 1.0, 1.0, 1.0 };
+    //gui->GetQuadManager()->CreateQuad(
+    //    "UpgradeMenuBackground",
+    //    quadPos, quadScale,
+    //    false, false,
+    //    1,
+    //    blended,
+    //    orangeBackgroundTexture);
+    ///* ------------------------- Upgrade Menu Background End --------------------------- */
+
+    ///* ------------------------- Upgrade Menu Devider --------------------------- */
+
+    //entity = scene->AddEntity("UpgradeMenuDevider");
+    //gui = entity->AddComponent<component::GUI2DComponent>();
+    ////gui->GetTextManager()->AddText("UpgradeMenuDevider");
+    ////gui->GetTextManager()->SetColor(textColor, "UpgradeMenuDevider");
+    ////gui->GetTextManager()->SetPadding(textPadding, "UpgradeMenuDevider");
+    ////gui->GetTextManager()->SetPos(textPos, "UpgradeMenuDevider");
+    ////gui->GetTextManager()->SetScale(textScale, "UpgradeMenuDevider");
+    ////gui->GetTextManager()->SetText(textToRender, "UpgradeMenuDevider");
+    ////gui->GetTextManager()->SetBlend(textBlend, "UpgradeMenuDevider");
+
+    //quadPos = { 0.45f, 0.20f };
+    //quadScale = { 0.5f, 0.001f };
+    //blended = { 1.0, 1.0, 1.0, 0.4 };
+    //notBlended = { 1.0, 1.0, 1.0, 1.0 };
+    //gui->GetQuadManager()->CreateQuad(
+    //    "UpgradeMenuDevider",
+    //    quadPos, quadScale,
+    //    false, false,
+    //    1,
+    //    blended,
+    //    deviderTexture);
+
+    ///* ------------------------- Upgrade Menu Devider End --------------------------- */
+
+    ///* ------------------------- Upgrade Menu Button --------------------------- */
+
+    //std::string str = "UpgradeRangeLifeSteal";
+    //textToRender = str.substr(7);
+    //textPos = { 0.495f, 0.202f };
+    //textPadding = { 0.5f, 0.0f };
+    //textColor = { .0f, .0f, .0f, 1.0f };
+    //textScale = { 0.5f, 0.5f };
+    //textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    //entity = scene->AddEntity("UpgradeRangeLifeSteal");
+    //gui = entity->AddComponent<component::GUI2DComponent>();
+    //gui->GetTextManager()->AddText("UpgradeRangeLifeSteal");
+    //gui->GetTextManager()->SetColor(textColor, "UpgradeRangeLifeSteal");
+    //gui->GetTextManager()->SetPadding(textPadding, "UpgradeRangeLifeSteal");
+    //gui->GetTextManager()->SetPos(textPos, "UpgradeRangeLifeSteal");
+    //gui->GetTextManager()->SetScale(textScale, "UpgradeRangeLifeSteal");
+    //gui->GetTextManager()->SetText(textToRender, "UpgradeRangeLifeSteal");
+    //gui->GetTextManager()->SetBlend(textBlend, "UpgradeRangeLifeSteal");
+
+    //quadPos = { 0.47f, 0.202f };
+    //quadScale = { 0.2f, 0.2f };
+    //blended = { 1.0, 1.0, 1.0, 1.0 };
+    //notBlended = { 1.0, 1.0, 1.0, 1.0 };
+    //gui->GetQuadManager()->CreateQuad(
+    //    "UpgradeRangeLifeSteal",
+    //    quadPos, quadScale,
+    //    true, true,
+    //    1,
+    //    blended,
+    //    buttonMintTexture);
+
+    ///* ------------------------- Upgrade Menu Button End --------------------------- */
+
+    ///* ----------------------- Upgrade Menu -------------------------- */
+
+    /* ------------------------ GUI END ---------------------------- */
 
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);
