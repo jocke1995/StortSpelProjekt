@@ -413,7 +413,7 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
-    enemyFactory.SetActive(false);
+    enemyFactory.SetActive(true);
 #pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());

@@ -149,12 +149,10 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 			double dist = m_pCC->CastRay(1, negCameraDir, ORIGINAL_CAMERA_DISTANCE, { 0, height, 0 });
 			if (dist != -1)
 			{
-				Log::Print("Less Distance %f \n", dist);
 				m_CameraDistance = abs(dist - 3);
 			}
 			else
 			{
-				Log::Print("Back to original distance \n");
 				m_CameraDistance = ORIGINAL_CAMERA_DISTANCE;
 			}
 		}
