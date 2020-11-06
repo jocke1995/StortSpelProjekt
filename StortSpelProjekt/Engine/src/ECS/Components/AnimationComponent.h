@@ -24,7 +24,7 @@ namespace component
 
     private:
         void walkAnimation(MovementInput* evnt);
-        AnimatedModel* m_pModel;
+        AnimatedModel* m_pAnimatedModel;
     };
 }
 #endif

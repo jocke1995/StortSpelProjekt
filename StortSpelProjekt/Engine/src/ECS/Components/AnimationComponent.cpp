@@ -7,7 +7,6 @@
 component::AnimationComponent::AnimationComponent(Entity* parent)
 	:Component(parent)
 {
-	EventBus::GetInstance().Subscribe(this, &AnimationComponent::walkAnimation);
 }
 
 component::AnimationComponent::~AnimationComponent()
@@ -16,15 +15,17 @@ component::AnimationComponent::~AnimationComponent()
 
 void component::AnimationComponent::RenderUpdate(double dt)
 {
-	m_pModel->Update(dt);
+	m_pAnimatedModel->Update(dt);
 }
 
 void component::AnimationComponent::OnInitScene()
 {
+	EventBus::GetInstance().Subscribe(this, &AnimationComponent::walkAnimation);
 }
 
 void component::AnimationComponent::OnUnInitScene()
 {
+	EventBus::GetInstance().Unsubscribe(this, &AnimationComponent::walkAnimation);
 }
 
 void component::AnimationComponent::Initialize()
@@ -32,8 +33,8 @@ void component::AnimationComponent::Initialize()
 	component::ModelComponent* mc = m_pParent->GetComponent<component::ModelComponent>();
 	if (mc != nullptr)
 	{
-		m_pModel = dynamic_cast<AnimatedModel*>(mc->GetModel());
-		if (m_pModel == nullptr)
+		m_pAnimatedModel = dynamic_cast<AnimatedModel*>(mc->GetModel());
+		if (m_pAnimatedModel == nullptr)
 		{
 			Log::PrintSeverity(Log::Severity::CRITICAL, "AnimationComponent initialized when there's no animated model! Make sure the model used actually has animations.\n");
 		}
@@ -46,7 +47,7 @@ void component::AnimationComponent::Initialize()
 
 void component::AnimationComponent::SetActiveAnimation(std::string animationName)
 {
-	m_pModel->SetActiveAnimation(animationName);
+	m_pAnimatedModel->SetActiveAnimation(animationName);
 }
 
 void component::AnimationComponent::walkAnimation(MovementInput* evnt)
@@ -56,11 +57,11 @@ void component::AnimationComponent::walkAnimation(MovementInput* evnt)
 			Input::GetInstance().GetKeyState(SCAN_CODES::S) || 
 			Input::GetInstance().GetKeyState(SCAN_CODES::D))
 	{
-		m_pModel->PlayAnimation();	// Play on movement.
+		m_pAnimatedModel->PlayAnimation();	// Play on movement.
 	}
 	else
 	{
-		m_pModel->PauseAnimation();	// Pause on no movement.
-		m_pModel->ResetAnimation();
+		m_pAnimatedModel->PauseAnimation();	// Pause on no movement.
+		m_pAnimatedModel->ResetAnimation();
 	}
 }
