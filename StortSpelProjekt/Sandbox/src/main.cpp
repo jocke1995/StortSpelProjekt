@@ -53,16 +53,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
     //Scene* activeScene = jacobScene;
-    //Scene* leoScene = LeosTestScene(sceneManager);
-    //Scene* activeScene = leoScene;
+    Scene* leoScene = LeosTestScene(sceneManager);
+    Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
-    Scene* williamScene = WilliamsTestScene(sceneManager);
-    Scene* activeScene = williamScene;
+    //Scene* williamScene = WilliamsTestScene(sceneManager);
+    //Scene* activeScene = williamScene;
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* activeScene = bjornScene;
     //Scene* antonScene = AntonTestScene(sceneManager);
@@ -289,6 +289,7 @@ Scene* LeosTestScene(SceneManager* sm)
     component::MeleeComponent* melc = nullptr;
     component::RangeComponent* ranc = nullptr;
     component::UpgradeComponent* uc = nullptr;
+    component::AnimationComponent* ac = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -319,10 +320,13 @@ Scene* LeosTestScene(SceneManager* sm)
     melc = entity->AddComponent<component::MeleeComponent>();
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
     uc = entity->AddComponent<component::UpgradeComponent>();
+    ac = entity->AddComponent<component::AnimationComponent>();
 
 
     mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
+    ac->Initialize();
+    ac->SetActiveAnimation("Take 001");
     tc->GetTransform()->SetScale(0.1f);
     tc->GetTransform()->SetPosition(-10.0, 20.0, 10.0);
 
