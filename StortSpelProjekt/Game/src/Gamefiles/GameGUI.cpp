@@ -10,7 +10,7 @@ GameGUI::GameGUI()
 	m_OldHealth = 0;
 	m_OldMoney = 0;
 	m_OldHealthLength = 0.0f;
-	m_OldScene = nullptr;
+	m_pOldScene = nullptr;
 }
 
 void GameGUI::Update(double dt, Scene* scene)
@@ -33,12 +33,12 @@ void GameGUI::Update(double dt, Scene* scene)
 		}
 	}
 
-	if (scene != m_OldScene)
+	if (scene != m_pOldScene)
 	{
 		reset(scene);
 	}
 
-	m_OldScene = scene;
+	m_pOldScene = scene;
 }
 
 void GameGUI::updateHealth(Scene* scene)
