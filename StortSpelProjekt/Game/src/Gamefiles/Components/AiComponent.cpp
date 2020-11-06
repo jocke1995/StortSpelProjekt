@@ -141,8 +141,7 @@ void component::AiComponent::SetRangedAI()
 	if (m_pParent->HasComponent<RangeEnemyComponent>())
 	{
 		SetAttackInterval(m_pParent->GetComponent<RangeEnemyComponent>()->GetAttackInterval());
-		// speed set to 1 for testing purposes
-		SetAttackSpeed(2.0);
+		SetAttackSpeed(m_AttackSpeed);
 	}
 	m_movementVelocity = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetVelocity();
 }
@@ -518,18 +517,7 @@ void component::AiComponent::updateMelee(double dt)
 			}
 			else
 			{
-				vel = parentTrans->GetVelocity();
-				float randX = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
-				float randZ = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
-				double moveX = min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel);
-				double moveZ = min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel);
-
-				if (!(m_Flags & F_AI_FLAGS::CAN_ROLL))
-				{
-					double angle = std::atan2(moveX, moveZ);
-					cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
-				}
-				cc->SetVelVector(min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel), 0.0f, min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel));
+				randMovement();
 			}
 
 			m_IntervalTimeAccumulator += static_cast<float>(dt);
@@ -574,7 +562,6 @@ void component::AiComponent::updateRange(double dt)
 
 		float3 finalTargetPos = targetTrans->GetPositionFloat3();
 		float3 pos = parentTrans->GetPositionFloat3();
-
 
 		if (std::strcmp(m_pNavMesh->GetType().c_str(), "Quads") == 0)
 		{
@@ -643,34 +630,29 @@ void component::AiComponent::updateRange(double dt)
 			cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
 		float distance = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
+		float playerDistance = (targetTrans->GetPositionFloat3() - parentTrans->GetPositionFloat3()).length();
+		
+		m_IntervalTimeAccumulator += static_cast<float>(dt);
 
 		if (cc->CastRay({ 0.0, -1.0, 0.0 }, cc->GetDistanceToBottom() + 0.5) != -1)
 		{
 			double vel;
-			if (distance <= m_DetectionRadius /*&& distance > (m_AttackingDistance - 0.5f)*/)
+			if (playerDistance > m_DetectionRadius)
 			{
-				vel = parentTrans->GetVelocity() * 3.0;
+				randMovement();
+			}
+			else if (playerDistance <= m_DetectionRadius && playerDistance > m_AttackingDistance)
+			{
+				if (m_StandStill)
+				{
+					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(m_movementVelocity);
+					m_StandStill = false;
+					m_SpeedTimeAccumulator = 0.0;
+				}
+				vel = parentTrans->GetVelocity();
 				cc->SetVelVector(vel * direction.x / distance, vel * 2 * direction.y / distance, vel * direction.z / distance);
 			}
-			else
-			{
-				vel = parentTrans->GetVelocity();
-				float randX = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
-				float randZ = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
-				double moveX = min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel);
-				double moveZ = min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel);
-
-				if (!(m_Flags & F_AI_FLAGS::CAN_ROLL))
-				{
-					double angle = std::atan2(moveX, moveZ);
-					cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
-				}
-				cc->SetVelVector(min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel), 0.0f, min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel));
-			}
-
-			m_IntervalTimeAccumulator += static_cast<float>(dt);
-			float playerDistance = (targetTrans->GetPositionFloat3() - parentTrans->GetPositionFloat3()).length();
-			if (playerDistance <= m_AttackingDistance)
+			else //if (playerDistance <= m_AttackingDistance)
 			{
 				// if something is in the way, keep moving, else shoot
 				double testDist = cc->CastRay({ targetTrans->GetPositionFloat3().x, targetTrans->GetPositionFloat3().y, targetTrans->GetPositionFloat3().z });
@@ -678,51 +660,29 @@ void component::AiComponent::updateRange(double dt)
 				double targetDist = targetDistVec.length();
 				if (abs(testDist - targetDist) > 5)
 				{
-					vel = parentTrans->GetVelocity() * 3.0;
+					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(m_movementVelocity);
+					vel = parentTrans->GetVelocity();
 					cc->SetVelVector(vel * direction.x / distance, vel * 2 * direction.y / distance, vel * direction.z / distance);
+					m_SpeedTimeAccumulator = 0.0;
 				}
 				else
 				{
 					// stand still to shoot
 					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(0);
+					cc->SetVelVector(0, 0, 0);
 					m_StandStill = true;
 					// set direction
-					float3 direction = setAimDirection();
+					float3 aimDirection = setAimDirection();
 
 					m_SpeedTimeAccumulator += static_cast<float>(dt);
 					if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
 					{
 						// shoot
-						m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(direction);
+						m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(aimDirection);
 						m_SpeedTimeAccumulator = 0.0;
 						m_IntervalTimeAccumulator = 0.0;
 					}
 				}
-				//// stand still to shoot
-				//m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(0);
-				//m_StandStill = true;
-				//// set direction
-				//float3 direction = setAimDirection();
-
-				//m_SpeedTimeAccumulator += static_cast<float>(dt);
-				//if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
-				//{
-				//	// shoot
-				//	m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(direction);
-				//	m_SpeedTimeAccumulator = 0.0;
-				//	m_IntervalTimeAccumulator = 0.0;
-				//}
-			}
-			else
-			{
-				if (m_StandStill)
-				{
-					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(m_movementVelocity);
-					m_StandStill = false;
-					vel = parentTrans->GetVelocity() * 3.0;
-					cc->SetVelVector(vel* direction.x / distance, vel * 2 * direction.y / distance, vel* direction.z / distance);
-				}
-				m_SpeedTimeAccumulator = 0.0;
 			}
 		}
 	}
@@ -730,5 +690,23 @@ void component::AiComponent::updateRange(double dt)
 	{
 		m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetMovement(0, 0, 0);
 	}
+}
 
+void component::AiComponent::randMovement()
+{
+	Transform* parentTrans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
+	CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
+
+	double vel = parentTrans->GetVelocity();
+	float randX = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
+	float randZ = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
+	double moveX = min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel);
+	double moveZ = min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel);
+
+	if (!(m_Flags & F_AI_FLAGS::CAN_ROLL))
+	{
+		double angle = std::atan2(moveX, moveZ);
+		cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
+	}
+	cc->SetVelVector(min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel), 0.0f, min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel));
 }

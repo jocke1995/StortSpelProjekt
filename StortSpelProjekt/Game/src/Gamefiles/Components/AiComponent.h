@@ -116,6 +116,7 @@ namespace component
 
 		void updateMelee(double dt);
 		void updateRange(double dt);
+		void randMovement();
 	};
 }
 
