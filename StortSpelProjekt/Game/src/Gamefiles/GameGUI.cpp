@@ -7,7 +7,7 @@
 GameGUI::GameGUI()
 {
 	m_OldMaxHealth = 0;
-	m_OldCurrHealth = 0;
+	m_OldHealth = 0;
 	m_OldMoney = 0;
 	m_OldHealthLength = 0.0f;
 	m_OldScene = nullptr;
@@ -52,7 +52,7 @@ void GameGUI::updateHealth(Scene* scene)
 			int maxHealth = Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->GetMaxHealth();
 			component::GUI2DComponent* healthbar = scene->GetEntity("healthbar")->GetComponent<component::GUI2DComponent>();
 
-			if (health != m_OldCurrHealth && healthbar != nullptr)
+			if (health != m_OldHealth && healthbar != nullptr)
 			{
 				// Percentage of max health
 				float percentage = static_cast<float>(health) / static_cast<float>(maxHealth);
@@ -106,7 +106,7 @@ void GameGUI::updateHealth(Scene* scene)
 				m_OldHealthLength = size.x + (m_OldHealthLength - m_OldHealthLength * percentage);
 
 				entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(std::to_string(health), "currentHealth");
-				m_OldCurrHealth = health;
+				m_OldHealth = health;
 			}
 
 			if (maxHealth != m_OldMaxHealth)
@@ -134,7 +134,7 @@ void GameGUI::reset(Scene* scene)
 			color);
 	}
 
-	m_OldCurrHealth = 0;
+	m_OldHealth = 0;
 	m_OldMaxHealth = 0;
 	m_OldMoney = 0;
 	m_OldHealthLength = 0;

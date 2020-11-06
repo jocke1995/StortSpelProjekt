@@ -13,7 +13,7 @@ public:
 	void Update(double dt, Scene* scene);
 
 private:
-	int m_OldCurrHealth;
+	int m_OldHealth;
 	int m_OldMaxHealth;
 	int m_OldMoney;
 	float m_OldHealthLength;
