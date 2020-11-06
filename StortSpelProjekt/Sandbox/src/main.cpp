@@ -53,16 +53,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
     //Scene* activeScene = jacobScene;
-    Scene* leoScene = LeosTestScene(sceneManager);
-    Scene* activeScene = leoScene;
+    //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
-    //Scene* williamScene = WilliamsTestScene(sceneManager);
-    //Scene* activeScene = williamScene;
+    Scene* williamScene = WilliamsTestScene(sceneManager);
+    Scene* activeScene = williamScene;
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* activeScene = bjornScene;
     //Scene* antonScene = AntonTestScene(sceneManager);
@@ -73,13 +73,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = filipScene;
 
     // Set scene
-    sceneManager->SetScenes(activeScene);
+    sceneManager->SetScene(activeScene);
 
     GameNetwork gameNetwork;
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScenes(sceneManager->GetActiveScenes());
+        gameNetwork.SetScene(sceneManager->GetActiveScene());
         gameNetwork.SetSceneManager(sceneManager);
         gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
     }
@@ -91,7 +91,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
-
         timer->Update();
         logicTimer += timer->GetDeltaTime();
         if (gameNetwork.IsConnected())
@@ -190,34 +189,13 @@ Scene* JacobsTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(-15.0f, 10.0f, 0.0f);
 
     bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f, false);
+    pic->SetMovementSpeed(200);
     pic->Init();
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
 
     avc->AddVoice(L"Bruh");
-
-    enemyFactory.SetScene(scene);
-
-	EnemyComps conan = {};
-	conan.model = barbModel;
-	conan.hp = 20;
-	conan.sound3D = L"Bruh";
-	conan.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
-	conan.aiFlags = 0;
-	conan.meleeAttackDmg = 10.0f;
-	conan.attackInterval = 1.0f;
-	conan.movementSpeed = 30.0f;
-	conan.attackingDist = 0.5f;
-	conan.rot = { 0.0, 0.0, 0.0 };
-	conan.targetName = "player";
-	conan.scale = 0.3;
-	conan.detectionRad = 50.0f;
-
-    enemyFactory.AddEnemy("enemyConan", &conan);
-    enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 0.0 });
-    enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 10.0 });
-    enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 20.0 });
 
     /*--------------------- Box ---------------------*/
     // entity
@@ -871,10 +849,10 @@ Scene* FredriksTestScene(SceneManager* sm)
 	Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
 	
 	// Get textures
-	Texture* buttonTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/greenButton.png");
-	Texture* headTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png");
-	Texture* mapTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/minimap.png");
-	Texture* transTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/transparent.png");
+	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
+	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
+	Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
+	Texture* healthHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthHolder.png");
 
 	// Get the audio needed and add settings to it.
 	AudioBuffer* melodySound = al->LoadAudio(L"../Vendor/Resources/Audio/melody.wav", L"melody");
@@ -1029,78 +1007,96 @@ Scene* FredriksTestScene(SceneManager* sm)
 	tc->GetTransform()->SetRotationZ(3 * 3.1415 / 2);
 	/* ---------------------- Stefan ---------------------- */
 
-	/* ------------------------- BUTTON 1 --------------------------- */
-	std::string textToRender = "TEST";
-	float2 textPos = { 0.095f, 0.031f };
-	float2 textPadding = { 0.5f, 0.0f };
-	float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float2 textScale = { 0.5f, 0.5f };
+	/* ------------------------- healthBackground --------------------------- */
+	float2 textPos = { 0.473f, 0.965f };
+	float2 textPadding = { 0.8f, 0.0f };
+	float4 textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float2 textScale = { 0.3f, 0.3f };
 	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    entity = scene->AddEntity("health");
+    entity = scene->AddEntity("healthBackground");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->AddText("health");
-	gui->GetTextManager()->SetColor(textColor, "health");
-	gui->GetTextManager()->SetPadding(textPadding, "health");
-	gui->GetTextManager()->SetPos(textPos, "health");
-	gui->GetTextManager()->SetScale(textScale, "health");
-	gui->GetTextManager()->SetText(textToRender, "health");
-	gui->GetTextManager()->SetBlend(textBlend, "health");
+	gui->GetTextManager()->AddText("currentHealth");
+	gui->GetTextManager()->SetColor(textColor, "currentHealth");
+	gui->GetTextManager()->SetPadding(textPadding, "currentHealth");
+	gui->GetTextManager()->SetPos(textPos, "currentHealth");
+	gui->GetTextManager()->SetScale(textScale, "currentHealth");
+	gui->GetTextManager()->SetText("1000", "currentHealth");
+	gui->GetTextManager()->SetBlend(textBlend, "currentHealth");
 
-	float2 quadPos = { 0.0f, 0.0f };
-	float2 quadScale = { 0.25f, 0.1f };
+	textPos = { 0.499f, 0.965f };
+	gui->GetTextManager()->AddText("slash");
+	gui->GetTextManager()->SetColor(textColor, "slash");
+	gui->GetTextManager()->SetPadding(textPadding, "slash");
+	gui->GetTextManager()->SetPos(textPos, "slash");
+	gui->GetTextManager()->SetScale(textScale, "slash");
+	gui->GetTextManager()->SetText("/", "slash");
+	gui->GetTextManager()->SetBlend(textBlend, "slash");
+
+	textPos = { 0.503f, 0.965f };
+	gui->GetTextManager()->AddText("maxHealth");
+	gui->GetTextManager()->SetColor(textColor, "maxHealth");
+	gui->GetTextManager()->SetPadding(textPadding, "maxHealth");
+	gui->GetTextManager()->SetPos(textPos, "maxHealth");
+	gui->GetTextManager()->SetScale(textScale, "maxHealth");
+	gui->GetTextManager()->SetText("1000", "maxHealth");
+	gui->GetTextManager()->SetBlend(textBlend, "maxHealth");
+
+	float2 quadPos = { 0.3f, 0.85f };
+	float2 quadScale = { 0.4f, 0.15f };
 	float4 blended = { 1.0, 1.0, 1.0, 0.99 };
 	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
 	gui->GetQuadManager()->CreateQuad(
-		"health",
+		"healthBackground",
+		quadPos, quadScale,
+		false, false,
+		0,
+		notBlended,
+		healthBackgroundTexture);
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- healthHolder --------------------------- */
+	entity = scene->AddEntity("healthHolder");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.35f, 0.85f };
+	quadScale = { 0.3f, 0.115f };
+	gui->GetQuadManager()->CreateQuad(
+		"healthHolder",
 		quadPos, quadScale,
 		false, false,
 		1,
 		notBlended,
-		buttonTexture);
+		healthHolderTexture);
 	/* ---------------------------------------------------------- */
 
-	/* ------------------------- head --------------------------- */
-	entity = scene->AddEntity("head");
+	/* ------------------------- healthbar --------------------------- */
+	entity = scene->AddEntity("healthbar");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	quadPos = { 0.009f, 0.014f };
-	quadScale = { 0.07f, 0.07f };
+	quadPos = { 0.359f, 0.892f };
+	quadScale = { 0.288f, 0.055f };
 	gui->GetQuadManager()->CreateQuad(
-		"head",
+		"healthbar",
 		quadPos, quadScale,
-		true, true,
+		false, false,
 		2,
 		notBlended,
-		headTexture);
+		healthbarTexture,
+		float3{ 0.0f, 1.0f, 0.0f });
 	/* ---------------------------------------------------------- */
 
-    /* ------------------------- overlay --------------------------- */
-    entity = scene->AddEntity("overlay");
+    /* ------------------------- healthGuardians --------------------------- */
+    entity = scene->AddEntity("healthGuardians");
     gui = entity->AddComponent<component::GUI2DComponent>();
-    quadPos = { 0.0f, 0.0f };
-    quadScale = { 0.3f, 0.1f };
+	quadPos = { 0.32f, 0.86f };
+	quadScale = { 0.3625f, 0.14f };
     gui->GetQuadManager()->CreateQuad(
-		"overlay",
+		"healthGuardians",
 		quadPos, quadScale,
 		false, false,
-		0, 
+		3, 
 		blended,
-		transTexture);
+		healthGuardiansTexture);
     /* ---------------------------------------------------------- */
-
-	/* ------------------------- minimap --------------------------- */
-	entity = scene->AddEntity("minimap");
-	gui = entity->AddComponent<component::GUI2DComponent>();
-	quadPos = { 0.85f, 0.0f };
-	quadScale = { 0.15f, 0.15f };
-	gui->GetQuadManager()->CreateQuad(
-		"minimap",
-		quadPos, quadScale,
-		false, false,
-		2,
-		notBlended,
-		mapTexture);
-	/* ---------------------------------------------------------- */
 
 	/* ---------------------- Skybox ---------------------- */
 	TextureCubeMap* skyboxCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
@@ -1715,27 +1711,55 @@ void JockeUpdateScene(SceneManager* sm, double dt)
 
 void FredriksUpdateScene(SceneManager* sm, double dt)
 {
-	static float4 color = { 0.0, 0.3, 0.6, 1.0 };
+	static float currentHealth = 1000.0f;
 
-	static float2 quadPos = { 0.0f, 0.5f };
-	static float2 quadScale = { 0.25f, 0.1f };
+	static float2 quadPos = { 0.359f, 0.892f };
+	static float2 quadScale = { 0.288f, 0.055f };
 	static float4 blended = { 1.0, 1.0, 1.0, 0.5 };
 	static float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	static float3 color = { 0.0, 1.0, 0.0 };
 	
 	AssetLoader* al = AssetLoader::Get();
 	component::HealthComponent* hc = sm->GetScene("FredriksTestScene")->GetEntity("player")->GetComponent<component::HealthComponent>();
 
-	component::GUI2DComponent* health = sm->GetScene("FredriksTestScene")->GetEntity("health")->GetComponent<component::GUI2DComponent>();
-	health->GetTextManager()->SetText("Color.x: " + std::to_string(color.x), "health");
-	health->GetTextManager()->SetColor(float4{ sinf(color.x), sinf(color.y), sinf(color.z), 1.0}, "health");
+	component::GUI2DComponent* healthBackground = sm->GetScene("FredriksTestScene")->GetEntity("healthBackground")->GetComponent<component::GUI2DComponent>();
+	healthBackground->GetTextManager()->SetText(std::to_string((int)(currentHealth)), "currentHealth");
+	currentHealth -= 0.1f;
 
-	health->GetQuadManager()->UpdateQuad(quadPos, quadScale, false, false, notBlended);
+	component::GUI2DComponent* healthbar = sm->GetScene("FredriksTestScene")->GetEntity("healthbar")->GetComponent<component::GUI2DComponent>();
+	healthbar->GetQuadManager()->UpdateQuad(quadPos, quadScale, false, false, notBlended, color);
 
-	color.x += 0.001;
-	color.y += 0.001;
-	color.z += 0.001;
+	// Scaling
+	if (quadScale.x < 0)
+	{
+		quadScale.x = 0;
+	}
+	else if (quadScale.x > 0)
+	{
+		quadScale.x -= 0.000028;
+	}
 
-	quadScale.x = sinf(color.x);
+	// Coloring
+	if (800.0f > currentHealth && currentHealth > 600.0f)
+	{
+		// Yellow green
+		color = { 127.5f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
+	}
+	else if (600.0f > currentHealth && currentHealth > 400.0f)
+	{
+		// Yellow
+		color = { 255.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
+	}
+	else if (400.0f > currentHealth && currentHealth > 200.0f)
+	{
+		// Orange
+		color = { 255.0f / 255.0f, 127.5f / 255.0f, 0.0f / 255.0f };
+	}
+	else if (200.0f > currentHealth)
+	{
+		// Orange
+		color = { 255.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f };
+	}
 }
 
 void AndresUpdateScene(SceneManager* sm, double dt)

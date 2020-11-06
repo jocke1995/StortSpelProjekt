@@ -92,12 +92,14 @@ void component::RangeComponent::Attack()
 		component::ProjectileComponent* pc = nullptr;
 		component::UpgradeComponent* uc = nullptr;
 		component::AccelerationComponent* ac = nullptr;
+		component::PointLightComponent* plc = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
 		ac = ent->AddComponent<component::AccelerationComponent>(98.2);
 		uc = ent->AddComponent<component::UpgradeComponent>();
+		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
 		// Applying all range uppgrades to the new projectile entity "RangeAttack"
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
@@ -142,8 +144,12 @@ void component::RangeComponent::Attack()
 			m_pVoiceComponent->Play(L"Fireball");
 		}
 
+		plc->SetColor({ 3.0f, 0.0f, 0.0f });
+		ent->Update(0);	// Init, so that the light doesn't spawn in origo first frame;
+		tc->RenderUpdate(0);
+
 		// add the entity to the sceneManager so it can be spawned in in run time
-		// TODO: add dynamicly correct
+		ent->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
 		m_pSceneMan->AddEntity(ent, m_pScene);
 
 		m_TimeAccumulator = 0.0;
@@ -156,4 +162,3 @@ void component::RangeComponent::Attack()
 		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAttacking();
 	}
 }
-		

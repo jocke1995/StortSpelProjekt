@@ -781,8 +781,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 						shapeInfo.x = entity->GetComponent<component::ModelComponent>()->GetModelDim().y / 2.0;
 					}
 					cc = entity->AddComponent<component::SphereCollisionComponent>(mass, shapeInfo.x, friction, restitution);
+					cc->SetUserID(1);
 					shapeInfo = { 0.0f, 0.0f, 0.0f };
 					mass = 0.0;
+
 				}
 				else if (strcmp(toSubmit.c_str(), "CollisionCapsule") == 0)
 				{
@@ -793,6 +795,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 						shapeInfo.y = entity->GetComponent<component::ModelComponent>()->GetModelDim().y - (shapeInfo.x * 2.0);
 					}
 					cc = entity->AddComponent<component::CapsuleCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, friction, restitution);
+					cc->SetUserID(1);
 					shapeInfo = { 0.0f, 0.0f, 0.0f };
 					mass = 0.0;
 				}
@@ -809,6 +812,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 						};
 					}
 					cc = entity->AddComponent<component::CubeCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, shapeInfo.z, friction, restitution);
+					cc->SetUserID(1);
 					shapeInfo = { 0.0f, 0.0f, 0.0f };
 					mass = 0.0;
 				}
@@ -822,6 +826,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					info.minHeight = -1;
 					// Implement when feature is merged to develop
 					cc = entity->AddComponent<component::HeightmapCollisionComponent>(info,mass,friction,restitution);
+					cc->SetUserID(1);
 					mass = 0.0;
 				}
 				else if (strcmp(toSubmit.c_str(), "NavQuad") == 0)
