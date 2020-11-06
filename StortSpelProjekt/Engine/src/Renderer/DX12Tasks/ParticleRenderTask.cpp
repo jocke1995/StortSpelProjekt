@@ -22,6 +22,7 @@
 #include "../ECS/Entity.h"
 #include "../Renderer/Texture/Texture2DGUI.h"
 #include "../ECS/Components/ParticleEmitterComponent.h"
+#include "../Particles/ParticleEffect.h"
 
 ParticleRenderTask::ParticleRenderTask(ID3D12Device5* device, RootSignature* rootSignature, const std::wstring& VSName, const std::wstring& PSName, std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds, const std::wstring& psoName, unsigned int FLAG_THREAD)
 	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
@@ -89,11 +90,16 @@ void ParticleRenderTask::Execute()
 		// It's a particle
 		if (mc == nullptr)
 		{
+			component::ParticleEmitterComponent* pec = tc->GetParent()->GetComponent<component::ParticleEmitterComponent>();
+			if (pec == nullptr)
+			{
+				Log::PrintSeverity(Log::Severity::CRITICAL, "ParticleComponent was nullptr!!, plez fix\n");
+				return;
+			}
+			ParticleEffect* effect = pec->m_pParticleEffect;
+			commandList->SetGraphicsRootShaderResourceView(RS::SRV0, effect->m_pSRV->GetResource()->GetGPUVirtualAdress());
 			commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
-			Entity* entity = tc->GetParent();
-
-			component::ParticleEmitterComponent* pec = entity->GetComponent<component::ParticleEmitterComponent>();
 			Texture2DGUI* texture = pec->GetTexture();
 
 			// Draw a quad (m_pParticleQuad)
@@ -114,7 +120,8 @@ void ParticleRenderTask::Execute()
 
 			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-			commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+			commandList->IASetIndexBuffer(m_pParticleQuad->GetIndexBufferView());
+			commandList->DrawIndexedInstanced(num_Indices, effect->m_ParticleCount, 0, 0, 0);
 		}
 	}
 

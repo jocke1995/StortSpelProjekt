@@ -28,6 +28,8 @@ namespace component
         Texture2DGUI* GetTexture() const;
 
     private:
+        friend class ParticleRenderTask;
+
         ParticleEffect* m_pParticleEffect = nullptr;
     };
 }

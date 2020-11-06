@@ -30,6 +30,7 @@ public:
 private:
 	friend class ParticleSystem;
 	friend class BillboardComputeTask;
+	friend class ParticleRenderTask;
 
 	static EngineRand rand;
 

@@ -96,6 +96,11 @@ void RootSignature::createRootSignatureStructure()
 	rootParam[RS::dtUAV].DescriptorTable = dtUAV;
 	rootParam[RS::dtUAV].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
+	rootParam[RS::SRV0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+	rootParam[RS::SRV0].Descriptor.ShaderRegister = 3;
+	rootParam[RS::SRV0].Descriptor.RegisterSpace = 3;
+	rootParam[RS::SRV0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
 	rootParam[RS::CB_PER_OBJECT_CONSTANTS].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	rootParam[RS::CB_PER_OBJECT_CONSTANTS].Constants.ShaderRegister = 1; // b1
 	rootParam[RS::CB_PER_OBJECT_CONSTANTS].Constants.RegisterSpace = 3; // space3
