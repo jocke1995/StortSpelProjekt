@@ -156,7 +156,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		// Set camera position in relation to player
 		float3 forward = m_pCamera->GetDirectionFloat3();
 		forward.normalize();
-		forward *= 35.0f;
+		forward *= CAMERA_DIST;
 		float3 cameraPosition = playerPosition - forward;
 		cameraPosition.y += height;
 
