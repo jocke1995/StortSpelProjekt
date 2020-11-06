@@ -49,6 +49,7 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_RotateY = 0.0f;
 
 	m_TurningTimer = 0.0f;
+	m_TurningInterval = 0.0f;
 }
 
 component::PlayerInputComponent::~PlayerInputComponent()
@@ -69,6 +70,8 @@ void component::PlayerInputComponent::OnInitScene()
 
 	m_pCC = m_pParent->GetComponent<component::CollisionComponent>();
 
+	component::RangeComponent* rc = m_pParent->GetComponent<component::RangeComponent>();
+
 	// TODO: Unsubrscibe somewhere
 	if (m_pCC && m_pCamera && m_pTransform)
 	{
@@ -79,7 +82,12 @@ void component::PlayerInputComponent::OnInitScene()
 		{
 			EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::mouseClick);
 		}
+		if (rc)
+		{
+			m_TurningInterval = rc->GetAttackInterval() * 1.5;
+		}
 	}
+
 
 	if (!m_pCC)
 	{
@@ -94,6 +102,11 @@ void component::PlayerInputComponent::OnInitScene()
 	if (!m_pTransform)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a Transform component!\n");
+	}
+
+	if (!rc)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a Range component for proper functionality!\n");
 	}
 }
 
@@ -143,7 +156,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		// Set camera position in relation to player
 		float3 forward = m_pCamera->GetDirectionFloat3();
 		forward.normalize();
-		forward *= 50.0f;
+		forward *= 35.0f;
 		float3 cameraPosition = playerPosition - forward;
 		cameraPosition.y += height;
 
@@ -196,7 +209,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	// Reset rotation, so the camera only rotates when the mouse has been moved
 	m_RotateX = m_RotateY = 0.0;
 
-	if (m_TurningTimer > m_pParent->GetComponent<component::RangeComponent>()->GetAttackInterval() * 1.5f && m_Attacking)
+	if (m_TurningTimer >= m_TurningInterval && m_Attacking)
 	{
 		m_Attacking = false;
 		double3 vel = m_pCC->GetLinearVelocity();
@@ -207,7 +220,24 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 			vel.z
 		};
 		move.normalize();
-		m_pCC->SetVelVector(move.x * speed, vel.y, move.z * speed);
+		if (!m_Dashing)
+		{
+			m_pCC->SetVelVector(move.x * speed, vel.y, move.z * speed);
+		}
+		float3 right = m_pCamera->GetRightVectorFloat3();
+		float3 up = m_pCamera->GetUpVectorFloat3();
+		float3 forward = right.cross(up);
+		forward.normalize();
+
+		if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON)
+		{
+			double angle = std::atan2(m_pTransform->GetInvDir() * move.x, m_pTransform->GetInvDir() * move.z);
+			double forwardAngle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
+			m_RadiansToTurn = angle - forwardAngle;
+			int angleDegrees = EngineMath::convertToWholeDegrees(angle);
+			angleDegrees = (angleDegrees + 360) % 360;
+			m_DegreesToTurnTo = angleDegrees;
+		}
 	}
 }
 
@@ -272,6 +302,8 @@ void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 			double3 vel = m_pCC->GetLinearVelocity();
 			vel *= SPRINT_MOD;
 			m_pCC->SetVelVector(vel.x, vel.y, vel.z);
+
+			m_TurningTimer = m_TurningInterval;
 		}
 	}
 	// If shift is released, decrease velocity to "normal" values
@@ -373,7 +405,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		{
 			// Check if the player is moving in the direction she is turned. If not, lower the movement speed
 			float3 playerDir = m_pTransform->GetForwardFloat3();
-			float3 moveDir = { m_pTransform->GetInvDir() * move.x, 0.0, m_pTransform->GetInvDir() * move.z };
+			float3 moveDir = { move.x, 0.0, move.z };
 			moveDir.normalize();
 			playerDir.normalize();
 
@@ -396,6 +428,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		m_Dashing = m_DashReady && dash && static_cast<double>(evnt->key != SCAN_CODES::SPACE);
 		if (m_Dashing)
 		{
+			m_TurningTimer = m_TurningInterval;
 			m_DashTimer = 0;
 			if (vel == double3({ 0.0, 0.0, 0.0 }))
 			{
@@ -412,6 +445,13 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 				m_UpdateDashId = specificUpdates.size();
 				specificUpdates.push_back(&PlayerInputComponent::updateDash);
 			}
+
+			double angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
+			double forwardAngle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
+			m_RadiansToTurn = angle - forwardAngle;
+			int angleDegrees = EngineMath::convertToWholeDegrees(angle);
+			angleDegrees = (angleDegrees + 360) % 360;
+			m_DegreesToTurnTo = angleDegrees;
 		}
 		else
 		{
@@ -486,13 +526,14 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 			{
 				// Check if the player is moving in the direction she is turned. If not, lower the movement speed
 				float3 playerDir = m_pTransform->GetForwardFloat3();
-				float3 moveDir = { m_pTransform->GetInvDir() * move.x, 0.0, m_pTransform->GetInvDir() * move.z };
+				float3 moveDir = { move.x, 0.0, move.z };
 				moveDir.normalize();
 				playerDir.normalize();
 
 				float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
 
 				speed *= (1.0f - (moveDif / 360.0f));
+				Log::Print("Speed: %f\n", speed);
 			}
 
 			// Update the player's velocity
@@ -566,14 +607,30 @@ void component::PlayerInputComponent::updateDash(double dt)
 
 		move = {
 			forward.x * move.z + right.x * move.x,
-			vel.y,
+			0.0,
 			forward.z * move.z + right.z * move.x
 		};
+		move.normalize();
+
+		float speed = m_pTransform->GetVelocity();
+		if ((std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON) && (m_Attacking || m_TurnToCamera))
+		{
+			// Check if the player is moving in the direction she is turned. If not, lower the movement speed
+			float3 playerDir = m_pTransform->GetForwardFloat3();
+			float3 moveDir = { move.x, 0.0, move.z };
+			moveDir.normalize();
+			playerDir.normalize();
+
+			float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
+
+			speed *= (1.0f - (moveDif / 360.0f));
+			Log::Print("Speed: %f\n", speed);
+		}
 
 		vel = {
-			move.x * m_pTransform->GetVelocity(),
+			move.x * speed,
 			velY,
-			move.z * m_pTransform->GetVelocity()
+			move.z * speed
 		};
 
 		m_pCC->SetVelVector(vel.x, vel.y, vel.z);
