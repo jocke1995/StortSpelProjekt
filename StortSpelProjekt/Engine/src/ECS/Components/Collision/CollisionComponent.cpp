@@ -354,13 +354,19 @@ double component::CollisionComponent::CastRay(int indexToReturn, double3 directi
 	Physics::GetInstance().GetWorld()->rayTest(btFrom, btTo, res);
 	if (res.hasHit())
 	{
+		double closestPoint = 500000.0;
 		for (unsigned int i = 0; i < res.m_hitPointWorld.size(); ++i)
 		{
 			if (res.m_collisionObjects.at(i)->getUserIndex() == indexToReturn)
 			{
-				return (res.m_hitPointWorld[i] - btFrom).length();
+				closestPoint = std::min<double>(closestPoint, (res.m_hitPointWorld[i] - btFrom).length());
 			}
 		}
+		if (std::abs(closestPoint - 500000.0) > EPSILON)
+		{
+			return closestPoint;
+		}
 	}
+
 	return -1;
 }
