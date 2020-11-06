@@ -9,6 +9,8 @@
 #include "Events/EventBus.h"
 #include "Renderer/Texture/Texture.h"
 #include "Renderer/Renderer.h"
+#include "UpgradeManager.h"
+//#include ""
 
 UpgradeGUI::UpgradeGUI()
 {
@@ -31,6 +33,10 @@ void UpgradeGUI::Update(double dt, Scene* scene)
     if (scene->GetName() != "GameScene" && scene->GetName() != "ShopScene")
     {
         m_Shown = false;
+        if (scene->GetName() == "gameOverScene")
+        {
+            m_Deleted = true;
+        }
     }
 
     // if shown is true we should draw the menu
@@ -53,7 +59,12 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 	{
         m_Sm->RemoveEntity(scene->GetEntity("UpgradeMenuBackground"), scene);
         m_Sm->RemoveEntity(scene->GetEntity("UpgradeMenuDevider"), scene);
-        m_Sm->RemoveEntity(scene->GetEntity("UpgradeRangeLifeSteal"), scene);
+        for (int i = 0; i < m_ButtonNames.size(); i++)
+        {
+            m_Sm->RemoveEntity(scene->GetEntity(m_ButtonNames[i]), scene);
+        }
+        //m_Sm->RemoveEntity(scene->GetEntity("UpgradeRangeLifeSteal"), scene);
+        m_ButtonNames.clear();
 		m_Deleted = true;
         m_Drawn = false;
 	}
@@ -63,6 +74,8 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 void UpgradeGUI::CreateMenu(Scene* scene)
 {
     m_CurrentScene = scene;
+    // Get this so we know which upgrades the player has.
+    m_AppliedUpgradeEnums = Player::GetInstance().GetUpgradeManager()->GetAppliedUpgradeEnums();
 
     Entity* entity = nullptr;
     component::GUI2DComponent* gui = nullptr;
@@ -132,39 +145,16 @@ void UpgradeGUI::CreateMenu(Scene* scene)
     m_Sm->AddEntity(entity, scene);
     /* ------------------------- Upgrade Menu Devider End --------------------------- */
 
-    /* ------------------------- Upgrade Menu Button --------------------------- */
+    /* ------------------------- Upgrade Menu Buttons --------------------------- */
+    int itterator = 0;
+    for (auto u : m_AppliedUpgradeEnums)
+    {
+        makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + (m_ButtonYOffset * itterator)) }, u.first);
+        itterator++;
+    }
+    //makeUpgradeButton({ m_ButtonPos.x, m_ButtonPos.y }, "bbNo$");
 
-    std::string str = "UpgradeRangeLifeSteal";
-    textToRender = str.substr(7);
-    textPos = { 0.495f, 0.202f };
-    textPadding = { 0.5f, 0.0f };
-    textColor = { .0f, .0f, .0f, 1.0f };
-    textScale = { 0.5f, 0.5f };
-    textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-    entity = scene->AddEntity("UpgradeRangeLifeSteal");
-    gui = entity->AddComponent<component::GUI2DComponent>();
-    gui->GetTextManager()->AddText("UpgradeRangeLifeSteal");
-    gui->GetTextManager()->SetColor(textColor, "UpgradeRangeLifeSteal");
-    gui->GetTextManager()->SetPadding(textPadding, "UpgradeRangeLifeSteal");
-    gui->GetTextManager()->SetPos(textPos, "UpgradeRangeLifeSteal");
-    gui->GetTextManager()->SetScale(textScale, "UpgradeRangeLifeSteal");
-    gui->GetTextManager()->SetText(textToRender, "UpgradeRangeLifeSteal");
-    gui->GetTextManager()->SetBlend(textBlend, "UpgradeRangeLifeSteal");
-
-    quadPos = { 0.47f, 0.202f };
-    quadScale = { 0.2f, 0.2f };
-    blended = { 1.0, 1.0, 1.0, 1.0 };
-    notBlended = { 1.0, 1.0, 1.0, 1.0 };
-    gui->GetQuadManager()->CreateQuad(
-        "UpgradeRangeLifeSteal",
-        quadPos, quadScale,
-        true, true,
-        1,
-        blended,
-        m_buttonMintTexture);
-
-    m_Sm->AddEntity(entity, scene);
+    //makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + m_ButtonYOffset) }, "bbMore$");
     /* ------------------------- Upgrade Menu Button End --------------------------- */
 
     /* ----------------------- Upgrade Menu -------------------------- */
@@ -173,13 +163,13 @@ void UpgradeGUI::CreateMenu(Scene* scene)
     m_Deleted = false;
 }
 
-void UpgradeGUI::LoadTextures()
+void UpgradeGUI::Init()
 {
     AssetLoader* al = AssetLoader::Get();
 
     // Get textures
     m_deviderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/black.png");
-    m_buttonMintTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/rundadRekt.png");
+    m_buttonMintTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/rundadRekt2.png");
     m_buttonElipseTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/elipse.png");
     m_orangeBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/orange.png");
     m_yellowGradientTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/YellowGradientBackground.png");
@@ -206,4 +196,58 @@ void UpgradeGUI::SetShown(bool shown)
 void UpgradeGUI::showMenu(UForUpgrade* keyPress)
 {
     m_Shown = !m_Shown;
+}
+
+void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
+{
+    Entity* entity = nullptr;
+    component::GUI2DComponent* gui = nullptr;
+    std::string textToRender;
+    float2 textPos;
+    float2 textPadding;
+    float4 textColor;
+    float2 textScale;
+    float4 textBlend;
+
+    float2 quadPos;
+    float2 quadScale;
+    float4 blended;
+    float4 notBlended;
+
+    // save the name so that we can use it for deletion and other things.
+    m_ButtonNames.push_back(name);
+
+    std::string str = name;
+    // Used to skipp the "Upgrade" part of the name
+    textToRender = str.substr(7);
+    textPos = { pos.x + 0.025f, pos.y};//{ 0.495f, 0.202f };
+    textPadding = { 0.5f, 0.0f };
+    textColor = { .0f, .0f, .0f, 1.0f };
+    textScale = { 0.5f, 0.5f };
+    textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    entity = m_CurrentScene->AddEntity(name);
+    gui = entity->AddComponent<component::GUI2DComponent>();
+    gui->GetTextManager()->AddText(name);
+    gui->GetTextManager()->SetColor(textColor, name);
+    gui->GetTextManager()->SetPadding(textPadding, name);
+    gui->GetTextManager()->SetPos(textPos, name);
+    gui->GetTextManager()->SetScale(textScale, name);
+    gui->GetTextManager()->SetText(textToRender, name);
+    gui->GetTextManager()->SetBlend(textBlend, name);
+
+    quadPos = { pos.x, pos.y };//{ 0.47f, 0.202f };
+    quadScale = { 0.2f, 0.04f };
+    blended = { 1.0, 1.0, 1.0, 1.0 };
+    notBlended = { 1.0, 1.0, 1.0, 1.0 };
+    gui->GetQuadManager()->CreateQuad(
+        name,
+        quadPos, quadScale,
+        true, true,
+        1,
+        blended,
+        m_buttonMintTexture);
+
+    m_Sm->AddEntity(entity, m_CurrentScene);
+
 }

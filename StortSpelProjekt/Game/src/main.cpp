@@ -57,7 +57,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     /*-------- UpgradeGUI ---------*/
     //upgradeGUI.SetCurrentSceneMan(sceneManager);
-    UpgradeGUI::GetInstance().LoadTextures();
+    UpgradeGUI::GetInstance().Init();
 
     //Scene* shopScene = ShopScene(sceneManager);
     sceneManager->SetScene(demoScene);
@@ -99,7 +99,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
             gameGUI.Update(updateRate, sceneManager->GetActiveScene());
-            UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScenes()->at(0));
+            UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
 
         /* ---- Network ---- */
@@ -128,7 +128,7 @@ Scene* GameScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");    
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");    
     Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
@@ -191,7 +191,7 @@ Scene* GameScene(SceneManager* sm)
 
     Player::GetInstance().SetPlayer(entity);
 
-    tc->GetTransform()->SetScale(0.9f);
+    tc->GetTransform()->SetScale(4.9f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
     tc->SetTransformOriginalState();
 

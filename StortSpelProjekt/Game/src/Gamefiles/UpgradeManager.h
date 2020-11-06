@@ -45,6 +45,7 @@ public:
 	void IncreaseLevel(std::string name);
 
 	std::map<std::string, int> GetAppliedUpgradesLevel();
+	std::map<std::string, int> GetAppliedUpgradeEnums();
 
 private:
 	Entity* m_pParentEntity = nullptr;

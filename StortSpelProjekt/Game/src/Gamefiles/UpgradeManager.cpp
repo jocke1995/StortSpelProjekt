@@ -119,6 +119,11 @@ std::map<std::string, int> UpgradeManager::GetAppliedUpgradesLevel()
 	return m_AppliedUpgradeLevel;
 }
 
+std::map<std::string, int> UpgradeManager::GetAppliedUpgradeEnums()
+{
+	return m_AppliedUpgradeEnums;
+}
+
 void UpgradeManager::fillUpgradeMap()
 {
 	Upgrade* upgrade;
