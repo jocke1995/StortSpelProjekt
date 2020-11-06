@@ -73,7 +73,6 @@ void DepthRenderTask::Execute()
 		drawRenderComponent(mc, tc, viewProjMatTrans, commandList);
 	}
 
-	
 	commandList->Close();
 }
 
