@@ -19,15 +19,15 @@ public:
 	);
 	virtual ~BillboardComputeTask();
 
-	void SetParticleEffects(std::vector<ParticleEffect*> particleEffects);
+	void SetParticleEffects(std::vector<ParticleEffect*>* particleEffects);
 
 	void Execute();
 private:
 	std::vector<ShaderResourceView*> m_pSRV;
 	std::vector<UnorderedAccessView*> m_pUAV;
 
-	unsigned int m_ThreadGroupsX = 0;
-	unsigned int m_ThreadGroupsY = 0;
+	unsigned int m_ThreadGroupsX = 1;
+	unsigned int m_ThreadGroupsY = 1;
 
 	const unsigned int m_ThreadsPerGroup = 256;
 

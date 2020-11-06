@@ -23,12 +23,12 @@ BillboardComputeTask::~BillboardComputeTask()
 {
 }
 
-void BillboardComputeTask::SetParticleEffects(std::vector<ParticleEffect*> particleEffects)
+void BillboardComputeTask::SetParticleEffects(std::vector<ParticleEffect*>* particleEffects)
 {
 	m_pSRV.clear();
 	m_pUAV.clear();
 
-	for (ParticleEffect* particleEffect : particleEffects)
+	for (ParticleEffect* particleEffect : *particleEffects)
 	{
 		m_pSRV.push_back(particleEffect->m_pSRV);
 		m_pUAV.push_back(particleEffect->m_pUAV);
@@ -49,9 +49,7 @@ void BillboardComputeTask::Execute()
 	ID3D12DescriptorHeap* d3d12DescriptorHeap = descriptorHeap_CBV_UAV_SRV->GetID3D12DescriptorHeap();
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
 
-	commandList->SetComputeRootDescriptorTable(RS::dtUAV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
-	commandList->SetComputeRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
-
+	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 	
 	for (unsigned int i = 0; i < m_pSRV.size(); i++)
 	{
@@ -68,6 +66,11 @@ void BillboardComputeTask::Execute()
 		// Blur horizontal
 		//commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 		//commandList->Dispatch(m_ThreadGroupsX, m_ThreadGroupsY, 1);
+
+		commandList->SetComputeRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(m_pSRV[i]->GetDescriptorHeapIndex()));
+		commandList->SetComputeRootDescriptorTable(RS::dtUAV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(m_pUAV[i]->GetDescriptorHeapIndex()));
+
+		commandList->Dispatch(m_ThreadGroupsX, m_ThreadGroupsY, 1);
 	}
 
 	commandList->Close();
