@@ -16,7 +16,7 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_CameraFlags = camFlags;
 
 	m_Pitch = 0.15f;
-
+	m_CameraDistance = ORIGINAL_CAMERA_DISTANCE;
 	m_Yaw = 10.0f;
 
 	m_JumpHeight = 5.0;
@@ -125,7 +125,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		float height = (m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y * m_pTransform->GetScale().y * 0.5) + 1.0;
 
 		// Move the camera in y-direction
-		cameraPos.y = min(max(cameraPos.y + m_RotateY * 100.0f * static_cast<float>(dt), -80.0f), 80.0f);
+		cameraPos.y = min(max(cameraPos.y + m_RotateY * 3.0f * m_CameraDistance * static_cast<float>(dt), -80.0f), 80.0f);
 		m_pCamera->SetPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 
 		m_RotateX *= 100.0f * dt;
@@ -156,7 +156,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		// Set camera position in relation to player
 		float3 forward = m_pCamera->GetDirectionFloat3();
 		forward.normalize();
-		forward *= CAMERA_DIST;
+		forward *= m_CameraDistance;
 		float3 cameraPosition = playerPosition - forward;
 		cameraPosition.y += height;
 
@@ -167,6 +167,26 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		float directionY = playerPosition.y - cameraPosition.y + height;
 		float directionZ = playerPosition.z - cameraPosition.z;
 		m_pCamera->SetDirection(directionX, directionY, directionZ);
+
+		// Reset rotation, so the camera only rotates when the mouse has been moved
+		m_RotateX = m_RotateY = 0.0;
+
+		if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
+		{
+			double3 negCameraDir = {
+				-directionX,
+				-directionY,
+				-directionZ};
+			double dist = m_pCC->CastRay(1, negCameraDir, ORIGINAL_CAMERA_DISTANCE, { 0, height, 0 });
+			if (dist != -1)
+			{
+				m_CameraDistance = abs(dist - 3);
+			}
+			else
+			{
+				m_CameraDistance = ORIGINAL_CAMERA_DISTANCE;
+			}
+		}
 	}
 	else
 	{

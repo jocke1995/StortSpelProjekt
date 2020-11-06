@@ -12,7 +12,8 @@ m_Mass(mass),
 m_Fric(friction),
 m_Rest(restitution),
 m_CanFall(canFall),
-m_Gravity(gravity)
+m_Gravity(gravity),
+m_UserID(0)
 {
 }
 
@@ -101,6 +102,7 @@ void component::CollisionComponent::OnInitScene()
 	m_pBody->setGravity({ 0.0, m_Gravity, 0.0 });
 
 	m_pBody->setAngularFactor({ 0.0, 1.0 * m_CanFall, 0.0 });
+	m_pBody->setUserIndex(m_UserID);
 }
 
 void component::CollisionComponent::OnUnInitScene()
@@ -214,6 +216,20 @@ void component::CollisionComponent::SetGravity(double gravity)
 	}
 }
 
+void component::CollisionComponent::SetUserID(int id)
+{
+	m_UserID = id;
+	if (m_pBody)
+	{
+		m_pBody->setUserIndex(m_UserID);
+	}
+}
+
+int component::CollisionComponent::GetUserID() const
+{
+	return m_UserID;
+}
+
 btRigidBody* component::CollisionComponent::GetBody() const
 {
 	return m_pBody;
@@ -286,7 +302,8 @@ double component::CollisionComponent::CastRay(double3 castTo) const
 
 	Physics::GetInstance().GetWorld()->rayTest(btFrom, btTo, res);
 
-	if (res.hasHit()) {
+	if (res.hasHit()) 
+	{
 		return (res.m_hitPointWorld - btFrom).length();
 	}
 	return -1;
@@ -306,8 +323,64 @@ double component::CollisionComponent::CastRay(double3 direction, double length) 
 
 	Physics::GetInstance().GetWorld()->rayTest(btFrom, btTo, res);
 
-	if (res.hasHit()) {
+	if (res.hasHit()) 
+	{
 		return (res.m_hitPointWorld - btFrom).length();
 	}
+	return -1;
+}
+
+double component::CollisionComponent::CastRay(int indexToReturn, double3 castTo)
+{
+	// The ray does not collide with the object itself (tested on cube).
+	// Probably the ray only collides with frontface of any triangle of objects.
+	btVector3 btFrom = m_pBody->getWorldTransform().getOrigin();
+	btVector3 btTo(castTo.x, castTo.y, castTo.z);
+	btCollisionWorld::AllHitsRayResultCallback res(btFrom, btTo);
+
+	Physics::GetInstance().GetWorld()->rayTest(btFrom, btTo, res);
+	if (res.hasHit())
+	{
+		for (unsigned int i = 0; i < res.m_hitPointWorld.size(); ++i)
+		{
+			if (res.m_collisionObjects.at(i)->getUserIndex() == indexToReturn)
+			{
+				return (res.m_hitPointWorld[i] - btFrom).length();
+			}
+		}
+	}
+	return -1;
+}
+
+double component::CollisionComponent::CastRay(int indexToReturn, double3 direction, double length, double3 offset)
+{
+	// The ray does not collide with the object itself (tested on cube).
+	// Probably the ray only collides with frontface of any triangle of objects.
+
+	btVector3 btFrom = m_pBody->getWorldTransform().getOrigin();
+	btFrom.setValue(btFrom.x() + offset.x, btFrom.y() + offset.y, btFrom.z() + offset.z);
+	btVector3 btTo(direction.x, direction.y, direction.z);
+
+	btTo = btFrom + btTo.normalize() * length;
+
+	btCollisionWorld::AllHitsRayResultCallback res(btFrom, btTo);
+
+	Physics::GetInstance().GetWorld()->rayTest(btFrom, btTo, res);
+	if (res.hasHit())
+	{
+		double closestPoint = 500000.0;
+		for (unsigned int i = 0; i < res.m_hitPointWorld.size(); ++i)
+		{
+			if (res.m_collisionObjects.at(i)->getUserIndex() == indexToReturn)
+			{
+				closestPoint = std::min<double>(closestPoint, (res.m_hitPointWorld[i] - btFrom).length());
+			}
+		}
+		if (std::abs(closestPoint - 500000.0) > EPSILON)
+		{
+			return closestPoint;
+		}
+	}
+
 	return -1;
 }

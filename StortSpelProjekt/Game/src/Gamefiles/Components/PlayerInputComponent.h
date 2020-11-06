@@ -8,7 +8,7 @@
 #define DASH_MOD 3.0
 #define SPRINT_MOD 1.5
 #define TURN_RATE 20.0
-#define CAMERA_DIST 35.0
+#define ORIGINAL_CAMERA_DISTANCE 35.0
 // Lower value means more slowdown when moving backwards
 #define SLOWDOWN_FACTOR 0.5
 
@@ -67,6 +67,7 @@ namespace component
 		unsigned int m_CameraFlags = 0;
 		float m_Pitch;
 		float m_Yaw;
+		float m_CameraDistance;
 		float m_Elevation;
 		float m_MovementSpeed;
 		float m_RotateX;
