@@ -33,12 +33,15 @@ public:
 
     bool SetActiveAnimation(std::string animationName);
     void Update(double dt);
-    void toggleAnimation();
+    void PlayAnimation();
+    void PauseAnimation();
+    void ResetAnimation();
 
 private:
     void initializeAnimation(SkeletonNode* node);   // Attach the currentStateTransforms of the animation to the skeleton.
-    void updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform);
+    void updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform);
 
+    double m_Time;
     bool animationIsPaused = true;
     Animation* m_pActiveAnimation;
     SkeletonNode* m_pSkeleton;

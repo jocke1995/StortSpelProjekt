@@ -51,12 +51,16 @@ void component::AnimationComponent::SetActiveAnimation(std::string animationName
 
 void component::AnimationComponent::walkAnimation(MovementInput* evnt)
 {
-	if (evnt->key == SCAN_CODES::W && evnt->pressed)
+	if (	Input::GetInstance().GetKeyState(SCAN_CODES::W) || 
+			Input::GetInstance().GetKeyState(SCAN_CODES::A) ||
+			Input::GetInstance().GetKeyState(SCAN_CODES::S) || 
+			Input::GetInstance().GetKeyState(SCAN_CODES::D))
 	{
-		m_pModel->toggleAnimation();	// Play on movement.
+		m_pModel->PlayAnimation();	// Play on movement.
 	}
-	else if (evnt->key == SCAN_CODES::W && !evnt->pressed)
+	else
 	{
-		m_pModel->toggleAnimation();	// Pause on no movement.
+		m_pModel->PauseAnimation();	// Pause on no movement.
+		m_pModel->ResetAnimation();
 	}
 }

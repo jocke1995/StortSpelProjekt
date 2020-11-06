@@ -66,7 +66,7 @@ struct Animation
 	std::map<std::string, std::vector<RotationKey>> rotationKeyframes;
 	std::map<std::string, std::vector<ScalingKey>> scalingKeyframes;
 
-	void Update(float animationTime)	// Interpolates the matrices and stores the finished animation as the current state
+	void Update(double animationTime)	// Interpolates the matrices and stores the finished animation as the current state
 	{
 		for (auto& bone : translationKeyframes)
 		{

@@ -20,6 +20,7 @@ AnimatedModel::AnimatedModel(
 	m_Animations = (*animations);
 	m_UploadMatrices.reserve(numBones);
 
+	m_Time = 0;
 	DirectX::XMFLOAT4X4 matIdentity;
 	DirectX::XMStoreFloat4x4(&matIdentity, DirectX::XMMatrixIdentity());
 
@@ -81,26 +82,30 @@ void AnimatedModel::Update(double dt)
 {
 	if (m_pActiveAnimation != nullptr && !animationIsPaused)
 	{
-		static double time;
-		time += dt;
-		float timeInTicks = time * m_pActiveAnimation->ticksPerSecond;
+		m_Time += dt;
+		double timeInTicks = m_Time * m_pActiveAnimation->ticksPerSecond;
 
-		float animationTime = fmod(timeInTicks, m_pActiveAnimation->durationInTicks);
+		double animationTime = fmod(timeInTicks, m_pActiveAnimation->durationInTicks);
 		m_pActiveAnimation->Update(animationTime);
-		updateSkeleton(animationTime, m_pSkeleton, DirectX::XMMatrixIdentity());
+		updateSkeleton(m_pSkeleton, DirectX::XMMatrixIdentity());
 	}
 }
 
-void AnimatedModel::toggleAnimation()
+void AnimatedModel::PlayAnimation()
 {
-	if (animationIsPaused)
-	{
-		animationIsPaused = false;
-	}
-	else
-	{
-		animationIsPaused = true;
-	}
+	animationIsPaused = false;
+}
+
+void AnimatedModel::PauseAnimation()
+{
+	animationIsPaused = true;
+}
+
+void AnimatedModel::ResetAnimation()
+{
+	m_Time = 0.0f;
+	m_pActiveAnimation->Update(0);
+	updateSkeleton(m_pSkeleton, DirectX::XMMatrixIdentity());
 }
 
 void AnimatedModel::initializeAnimation(SkeletonNode* node)
@@ -121,7 +126,7 @@ void AnimatedModel::initializeAnimation(SkeletonNode* node)
 	}
 }
 
-void AnimatedModel::updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform)
+void AnimatedModel::updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform)
 {
 	DirectX::XMMATRIX localTransform = DirectX::XMMatrixIdentity();
 
@@ -164,6 +169,6 @@ void AnimatedModel::updateSkeleton(float animationTime, SkeletonNode* node, Dire
 
 	for (unsigned int i = 0; i < node->children.size(); i++)
 	{
-		updateSkeleton(animationTime, node->children[i], finalTransform);
+		updateSkeleton(node->children[i], finalTransform);
 	}
 }
