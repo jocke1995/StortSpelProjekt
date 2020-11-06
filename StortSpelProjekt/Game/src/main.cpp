@@ -139,6 +139,7 @@ Scene* GameScene(SceneManager* sm)
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
 	Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
 	Texture* healthHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthHolder.png");
+	Texture* killedEnemiesHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/KilledEnemies.png");
 
     /*--------------------- Assets ---------------------*/
 
@@ -358,6 +359,7 @@ Scene* GameScene(SceneManager* sm)
 		healthGuardiansTexture);
 	/* ---------------------------------------------------------- */
 
+	/* ------------------------- money --------------------------- */
     textToRender = "0";
     textPos = { 0.95f, 0.03f };
     textPadding = { 0.5f, 0.0f };
@@ -388,12 +390,13 @@ Scene* GameScene(SceneManager* sm)
         currencyIcon
     );
 
-    textToRender = "Enemies: 0/20";
-    textPos = { 0.01f, 0.1f };
+	/* ------------------------- killedEnemies --------------------------- */
+    textToRender = "0/20";
+    textPos = { 0.074f, 0.044f };
     textPadding = { 0.5f, 0.0f };
-    textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
     textScale = { 0.5f, 0.5f };
-    textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+    textBlend = { 1.0f, 1.0f, 1.0f, 0.8f };
 
     entity = scene->AddEntity("enemyGui");
     gui = entity->AddComponent<component::GUI2DComponent>();
@@ -404,6 +407,19 @@ Scene* GameScene(SceneManager* sm)
     gui->GetTextManager()->SetScale(textScale, "enemyGui");
     gui->GetTextManager()->SetText(textToRender, "enemyGui");
     gui->GetTextManager()->SetBlend(textBlend, "enemyGui");
+
+	quadPos = { 0.015f, 0.021f };
+	quadScale = { 0.15f, 0.08f };
+	blended = { 1.0, 1.0, 1.0, 0.9 };
+	notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	gui->GetQuadManager()->CreateQuad(
+		"enemyGui",
+		quadPos, quadScale,
+		false, false,
+		1,
+		notBlended,
+		killedEnemiesHolderTexture
+	);
 
     /* --------------------------- GUI ------------------------------- */
 
