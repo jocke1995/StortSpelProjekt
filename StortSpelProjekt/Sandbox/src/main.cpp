@@ -1163,7 +1163,6 @@ Scene* WilliamsTestScene(SceneManager* sm)
     ///* ---------------------- Skybox ---------------------- */
     //
 
-
     /* ---------------------- dirLight ---------------------- */
     entity = scene->AddEntity("dirLight");
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);

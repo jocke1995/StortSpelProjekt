@@ -4,6 +4,7 @@
 #include "GameGUI.h"
 #include "Physics/CollisionCategories/PlayerCollisionCategory.h"
 #include "Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
+
 // Game includes
 #include "Player.h"
 #include "UpgradeManager.h"
@@ -259,6 +260,7 @@ Scene* GameScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /*--------------------- Teleporter ---------------------*/
+
     /* ------------------------- GUI --------------------------- */
     std::string textToRender = "HEALTH";
     float2 textPos = { 0.45f, 0.96f };
