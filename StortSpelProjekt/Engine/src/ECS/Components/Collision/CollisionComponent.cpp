@@ -125,6 +125,11 @@ void component::CollisionComponent::SetRotation(double pitch, double yaw, double
 	quat.setEulerZYX(roll, yaw, pitch);
 	trans.setRotation(quat);
 	m_pBody->setWorldTransform(trans);
+
+	quat.getEulerZYX(roll, pitch, yaw);
+	m_pTrans->SetRotationX(yaw);
+	m_pTrans->SetRotationY(pitch);
+	m_pTrans->SetRotationZ(roll);
 }
 
 void component::CollisionComponent::SetRotation(double3 axis, double angle)
@@ -136,6 +141,15 @@ void component::CollisionComponent::SetRotation(double3 axis, double angle)
 
 	trans.setRotation(rotQuat);
 	m_pBody->setWorldTransform(trans);
+
+	double roll;
+	double pitch;
+	double yaw;
+
+	rotQuat.getEulerZYX(roll, pitch, yaw);
+	m_pTrans->SetRotationX(yaw);
+	m_pTrans->SetRotationY(pitch);
+	m_pTrans->SetRotationZ(roll);
 }
 
 void component::CollisionComponent::Rotate(double3 axis, double angle)
