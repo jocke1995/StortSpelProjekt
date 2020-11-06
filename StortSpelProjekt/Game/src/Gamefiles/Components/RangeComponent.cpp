@@ -148,7 +148,7 @@ void component::RangeComponent::Attack()
 		plc->Update(0);	// Init, so that the light doesn't spawn in origo first frame
 
 		// add the entity to the sceneManager so it can be spawned in in run time
-		// TODO: add dynamicly correct
+		ent->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
 		m_pSceneMan->AddEntity(ent, m_pScene);
 
 		m_TimeAccumulator = 0.0;
