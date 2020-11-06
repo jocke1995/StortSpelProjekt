@@ -228,8 +228,6 @@ void SceneManager::SetScene(Scene* scene)
 	{
 		m_pActiveScene->SetPrimaryCamera(renderer->m_pScenePrimaryCamera);
 	}
-
-	return;
 }
 
 void SceneManager::ResetScene()
