@@ -22,7 +22,7 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 
 	//Create bounding box for collision for melee
 	m_pBbc = parent->GetComponent<component::BoundingBoxComponent>();
-	createCornersHitbox();
+	CreateCornersHitbox();
 	m_TempHitbox.CreateFromPoints(m_TempHitbox, 8, m_Corners, sizeof(DirectX::XMFLOAT3));
 	m_Hitbox = m_TempHitbox;
 
@@ -31,21 +31,21 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 
 	if (parent->GetComponent<component::Audio2DVoiceComponent>())
 	{
-		audioPlay = true;
+		m_AudioPlay = true;
 		// Fetch the player audio component (if one exists)
 		m_pVoiceComponent = parent->GetComponent<component::Audio2DVoiceComponent>();
 		m_pVoiceComponent->AddVoice(L"SwordSwing");
 	}
 	else
 	{
-		audioPlay = false;
+		m_AudioPlay = false;
 	}
 	
 
 	//Debugging purpose
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX)
 	{
-		createDrawnHitbox(m_pBbc);
+		CreateDrawnHitbox(m_pBbc);
 	}
 }
 
@@ -115,14 +115,14 @@ void component::MeleeComponent::Attack()
 	
 	if (!m_Cooldown)
 	{
-		if (audioPlay)
+		if (m_AudioPlay)
 		{
 			m_pVoiceComponent->Play(L"SwordSwing");
 		}
 		//Log::Print("Attacking now \n");
 		m_Attacking = true;
 		//Checks collision of entities
-		CheckCollision();
+		checkCollision();
 		m_Cooldown = true;
 		m_TimeSinceLastAttackCheck = 0;
 
@@ -137,7 +137,7 @@ void component::MeleeComponent::Attack()
 	}
 }
 
-void component::MeleeComponent::setAttackInterval(float interval)
+void component::MeleeComponent::SetAttackInterval(float interval)
 {
 	m_AttackInterval = interval;
 }
@@ -152,7 +152,7 @@ void component::MeleeComponent::ChangeDamage(int change)
 	m_Damage += change;
 }
 
-void component::MeleeComponent::CheckCollision()
+void component::MeleeComponent::checkCollision()
 {
 	std::vector<Entity*> list = Physics::GetInstance().SpecificCollisionCheck(&m_Hitbox);
 	for (unsigned int i = 0; i < list.size(); i++) 
@@ -168,7 +168,7 @@ void component::MeleeComponent::CheckCollision()
 	list.empty();
 }
 
-void component::MeleeComponent::createCornersHitbox()
+void component::MeleeComponent::CreateCornersHitbox()
 {
 	//Create position for each corner of the hitbox
 	// Front vertices
@@ -183,7 +183,7 @@ void component::MeleeComponent::createCornersHitbox()
 	m_Corners[7].x = -m_HalfSize.x;	m_Corners[7].y =  m_HalfSize.y;	m_Corners[7].z = m_HalfSize.z;
 }
 
-void component::MeleeComponent::createDrawnHitbox(component::BoundingBoxComponent* bbc)
+void component::MeleeComponent::CreateDrawnHitbox(component::BoundingBoxComponent* bbc)
 {
 	// Create the drawn bounding box
 	Vertex v[8] = {};

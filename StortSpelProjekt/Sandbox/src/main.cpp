@@ -189,34 +189,13 @@ Scene* JacobsTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(-15.0f, 10.0f, 0.0f);
 
     bcc = entity->AddComponent<component::CubeCollisionComponent>(1.0f, 1.0f, 1.0f, 1.0f, 0.01f, 0.0f, false);
+    pic->SetMovementSpeed(200);
     pic->Init();
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
 
     avc->AddVoice(L"Bruh");
-
-    enemyFactory.SetScene(scene);
-
-	EnemyComps conan = {};
-	conan.model = barbModel;
-	conan.hp = 20;
-	conan.sound3D = L"Bruh";
-	conan.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
-	conan.aiFlags = 0;
-	conan.meleeAttackDmg = 10.0f;
-	conan.attackInterval = 1.0f;
-	conan.movementSpeed = 30.0f;
-	conan.attackingDist = 0.5f;
-	conan.rot = { 0.0, 0.0, 0.0 };
-	conan.targetName = "player";
-	conan.scale = 0.3;
-	conan.detectionRad = 50.0f;
-
-    enemyFactory.AddEnemy("enemyConan", &conan);
-    enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 0.0 });
-    enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 10.0 });
-    enemyFactory.AddExistingEnemy("enemyConan", float3{ 50.0, 1.0, 20.0 });
 
     /*--------------------- Box ---------------------*/
     // entity
