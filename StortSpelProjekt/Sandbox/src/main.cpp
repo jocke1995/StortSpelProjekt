@@ -1470,7 +1470,7 @@ Scene* AndresTestScene(SceneManager* sm)
     t->SetRotationX(0.0);
     t->SetRotationY(0.0);
     t->SetRotationZ(0.0);
-    t->SetVelocity(5);
+    t->SetVelocity(30);
 
     if (target != nullptr)
     {
