@@ -70,7 +70,7 @@ namespace component
 		// Casts a ray from the object in the given direction and length, returning the minimal distance to another object. returns -1 if nothing is hit.
 		double CastRay(double3 direction, double length) const;
 		double CastRay(int indexToReturn, double3 castTo);
-		double CastRay(int indexToReturn, double3 direction, double length);
+		double CastRay(int indexToReturn, double3 direction, double length, double3 offset = { 0,0,0 });
 
 
 		virtual double GetDistanceToBottom() const = 0;

@@ -338,12 +338,13 @@ double component::CollisionComponent::CastRay(int indexToReturn, double3 castTo)
 	return -1;
 }
 
-double component::CollisionComponent::CastRay(int indexToReturn, double3 direction, double length)
+double component::CollisionComponent::CastRay(int indexToReturn, double3 direction, double length, double3 offset)
 {
 	// The ray does not collide with the object itself (tested on cube).
 	// Probably the ray only collides with frontface of any triangle of objects.
 
 	btVector3 btFrom = m_pBody->getWorldTransform().getOrigin();
+	btFrom.setValue(btFrom.x() + offset.x, btFrom.y() + offset.y, btFrom.z() + offset.z);
 	btVector3 btTo(direction.x, direction.y, direction.z);
 
 	btTo = btFrom + btTo.normalize() * length;

@@ -108,7 +108,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		float height = (m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y * m_pTransform->GetScale().y * 0.5) + 1.0;
 
 		// Move the camera in y-direction
-		cameraPos.y = min(max(cameraPos.y + m_RotateY * 100.0f * static_cast<float>(dt), -80.0f), 80.0f);
+		cameraPos.y = min(max(cameraPos.y + m_RotateY * 3.0f * m_CameraDistance * static_cast<float>(dt), -80.0f), 80.0f);
 		m_pCamera->SetPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 
 		m_RotateX *= 100.0f * dt;
@@ -143,16 +143,18 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 		{
 			double3 negCameraDir = {
-				-cameraDir.x,
-				-cameraDir.y,
-				-cameraDir.z};
-			double dist = m_pCC->CastRay(1, negCameraDir, ORIGINAL_CAMERA_DISTANCE);
-			if (dist > 0)
+				-directionX,
+				-directionY,
+				-directionZ};
+			double dist = m_pCC->CastRay(1, negCameraDir, ORIGINAL_CAMERA_DISTANCE, { 0, height, 0 });
+			if (dist != -1)
 			{
-				m_CameraDistance = dist;
+				Log::Print("Less Distance %f \n", dist);
+				m_CameraDistance = abs(dist - 3);
 			}
 			else
 			{
+				Log::Print("Back to original distance \n");
 				m_CameraDistance = ORIGINAL_CAMERA_DISTANCE;
 			}
 		}

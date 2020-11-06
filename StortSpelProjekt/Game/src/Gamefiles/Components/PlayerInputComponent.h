@@ -8,7 +8,7 @@
 #define DASH_MOD 3.0
 #define SPRINT_MOD 1.5
 #define TURN_RATE 20.0
-#define ORIGINAL_CAMERA_DISTANCE 50.0
+#define ORIGINAL_CAMERA_DISTANCE 35.0
 
 //Camera
 class BaseCamera;

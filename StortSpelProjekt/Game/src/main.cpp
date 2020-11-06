@@ -194,7 +194,7 @@ Scene* GameScene(SceneManager* sm)
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
 
     melc->SetDamage(10);
-    melc->setAttackInterval(0.8);
+    melc->SetAttackInterval(0.8);
     ranc->SetAttackInterval(0.8);
     pic->Init();
     pic->SetJumpTime(0.17);
@@ -329,7 +329,7 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
-    //enemyFactory.SetActive(false);
+    enemyFactory.SetActive(false);
 #pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
