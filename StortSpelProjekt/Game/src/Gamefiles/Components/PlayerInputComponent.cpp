@@ -32,6 +32,7 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_DashReady = true;
 	m_Attacking = false;
 	m_TurnToCamera = false;
+	m_CameraRotating = false;
 
 	m_Elevation = std::stof(Option::GetInstance().GetVariable("f_playerElevation"));
 
@@ -41,10 +42,14 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_UpdateShootId = -1;
 	m_UpdateDashId = -1;
 
-	m_AngleToTurnTo = 0;
+	m_DegreesToTurnTo = 0;
+	m_RadiansToTurn = 0;
 
 	m_RotateX = 0.0f;
 	m_RotateY = 0.0f;
+
+	m_TurningTimer = 0.0f;
+	m_TurningInterval = 0.0f;
 }
 
 component::PlayerInputComponent::~PlayerInputComponent()
@@ -65,6 +70,8 @@ void component::PlayerInputComponent::OnInitScene()
 
 	m_pCC = m_pParent->GetComponent<component::CollisionComponent>();
 
+	component::RangeComponent* rc = m_pParent->GetComponent<component::RangeComponent>();
+
 	// TODO: Unsubrscibe somewhere
 	if (m_pCC && m_pCamera && m_pTransform)
 	{
@@ -75,7 +82,12 @@ void component::PlayerInputComponent::OnInitScene()
 		{
 			EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::mouseClick);
 		}
+		if (rc)
+		{
+			m_TurningInterval = rc->GetAttackInterval() * 1.5;
+		}
 	}
+
 
 	if (!m_pCC)
 	{
@@ -90,6 +102,11 @@ void component::PlayerInputComponent::OnInitScene()
 	if (!m_pTransform)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a Transform component!\n");
+	}
+
+	if (!rc)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a Range component for proper functionality!\n");
 	}
 }
 
@@ -119,6 +136,20 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 			playerPosition.y - cameraPos.y + height,
 			-cameraDir.x * sin(m_RotateX) + cameraDir.z * cos(m_RotateX)
 		};
+
+		double3 vel = m_pCC->GetLinearVelocity();
+
+		// USed to rotate player when rotating camera while moving
+		float angle = std::atan2(m_pTransform->GetInvDir() * cameraDir.x, m_pTransform->GetInvDir() * cameraDir.z);
+		if (m_Attacking || m_TurnToCamera)
+		{
+			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
+		}
+		else if ((std::abs(vel.x) > EPSILON || std::abs(vel.y) > EPSILON) && m_CameraRotating)
+		{
+			angle += m_RadiansToTurn;
+			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
+		}
 
 		m_pCamera->SetDirection(cameraDir.x, cameraDir.y, cameraDir.z);
 
@@ -162,10 +193,13 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		m_pCamera->SetDirection(cos(m_Yaw), m_Pitch * -2, sin(m_Yaw));
 	}
 
+	/* ------------------ Increment timers -------------------- */
+
+	m_TurningTimer += dt;
 	m_DashTimer += dt;
 	m_DashReady = m_DashTimer > 1.5;
 
-	/* -------------- Update model rotation ------------------ */
+	/* ---------------- Update model rotation ----------------- */
 	// Get the current rotation of the player
 	double3 rot = m_pCC->GetRotationEuler();
 	// Calculate the angle around y in whole degrees
@@ -177,10 +211,10 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	angle = (mod * 360 + (mod * -2 + 1) * ((angle + 360) % 360) + mod * 180) % 360;
 
 	// Check which direction is closest, clockwise (1) or counter clockwise (-1)
-	int direction = static_cast<int>(((m_AngleToTurnTo - angle + 180) % 360 + 360) % 360 - 180 >= 0) * 2 - 1;
+	int direction = static_cast<int>(((m_DegreesToTurnTo - angle + 180) % 360 + 360) % 360 - 180 >= 0) * 2 - 1;
 
 	// If player is not facing the correct direction, turn towards it
-	if (angle != m_AngleToTurnTo)
+	if (std::abs(angle - m_DegreesToTurnTo) > 0 && !m_CameraRotating)
 	{
 		m_pCC->Rotate({ 0.0, 1.0, 0.0 }, direction * TURN_RATE * dt);
 	}
@@ -190,6 +224,40 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	{
 		specificUpdate = specificUpdates.at(i);
 		(this->*specificUpdate)(dt);
+	}
+
+	// Reset rotation, so the camera only rotates when the mouse has been moved
+	m_RotateX = m_RotateY = 0.0;
+
+	if (m_TurningTimer >= m_TurningInterval && m_Attacking)
+	{
+		m_Attacking = false;
+		double3 vel = m_pCC->GetLinearVelocity();
+		float speed = m_pTransform->GetVelocity();
+		double3 move = {
+			vel.x,
+			0.0,
+			vel.z
+		};
+		move.normalize();
+		if (!m_Dashing)
+		{
+			m_pCC->SetVelVector(move.x * speed, vel.y, move.z * speed);
+		}
+		float3 right = m_pCamera->GetRightVectorFloat3();
+		float3 up = m_pCamera->GetUpVectorFloat3();
+		float3 forward = right.cross(up);
+		forward.normalize();
+
+		if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON)
+		{
+			double angle = std::atan2(m_pTransform->GetInvDir() * move.x, m_pTransform->GetInvDir() * move.z);
+			double forwardAngle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
+			m_RadiansToTurn = angle - forwardAngle;
+			int angleDegrees = EngineMath::convertToWholeDegrees(angle);
+			angleDegrees = (angleDegrees + 360) % 360;
+			m_DegreesToTurnTo = angleDegrees;
+		}
 	}
 }
 
@@ -212,12 +280,13 @@ void component::PlayerInputComponent::SetMovementSpeed(float speed)
 
 void component::PlayerInputComponent::SetAngleToTurnTo(int angle)
 {
-	m_AngleToTurnTo = angle;
+	m_DegreesToTurnTo = angle;
 }
 
 void component::PlayerInputComponent::SetAttacking()
 {
 	m_Attacking = true;
+	m_TurningTimer = 0.0f;
 }
 
 void component::PlayerInputComponent::Reset()
@@ -253,6 +322,8 @@ void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 			double3 vel = m_pCC->GetLinearVelocity();
 			vel *= SPRINT_MOD;
 			m_pCC->SetVelVector(vel.x, vel.y, vel.z);
+
+			m_TurningTimer = m_TurningInterval;
 		}
 	}
 	// If shift is released, decrease velocity to "normal" values
@@ -277,12 +348,6 @@ void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 
 void component::PlayerInputComponent::move(MovementInput* evnt)
 {
-	// If we press a key, make the player turn towards the direction she is moving
-	if (evnt->pressed)
-	{
-		m_Attacking = false;
-	}
-
 	double3 vel = m_pCC->GetLinearVelocity();
 
 	// Check if the key has just been pressed or jsut been released and convert to a float. Multiply by two and subtract one to get 1 for true and -1 for false. If
@@ -328,20 +393,25 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		// If player is moving, turn in the direction of movement
 		if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON)
 		{
-			double angle;
+			double angle = std::atan2(m_pTransform->GetInvDir() * move.x, m_pTransform->GetInvDir() * move.z);
+			double forwardAngle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
 			if (m_Attacking || m_TurnToCamera)
 			{
 				// If the player is in attacking position, turn in the camera direction
-				angle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
+				angle = forwardAngle;
 			}
-			else
-			{
-				// If the player is not in attacking position, turn in the movement direction
-				angle = std::atan2(m_pTransform->GetInvDir() * move.x, m_pTransform->GetInvDir() * move.z);
-			}
+			m_RadiansToTurn = angle - forwardAngle;
 			int angleDegrees = EngineMath::convertToWholeDegrees(angle);
 			angleDegrees = (angleDegrees + 360) % 360;
-			m_AngleToTurnTo = angleDegrees;
+			m_DegreesToTurnTo = angleDegrees;
+		}
+		else
+		{
+			double angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
+			m_RadiansToTurn = angle;
+			int angleDegrees = EngineMath::convertToWholeDegrees(angle);
+			angleDegrees = (angleDegrees + 360) % 360;
+			m_DegreesToTurnTo = angleDegrees;
 		}
 
 		// Check if the player is moving in the direction she is turned. If not, lower the movement speed
@@ -350,10 +420,19 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		moveDir.normalize();
 		playerDir.normalize();
 
-		float3 moveDif = moveDir - playerDir;
+		float speed = m_pTransform->GetVelocity();
+		if ((std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON) && (m_Attacking || m_TurnToCamera))
+		{
+			// Check if the player is moving in the direction she is turned. If not, lower the movement speed
+			float3 playerDir = m_pTransform->GetForwardFloat3();
+			float3 moveDir = { move.x, 0.0, move.z };
+			moveDir.normalize();
+			playerDir.normalize();
 
-		bool movingForward = moveDif.length() <= 1.0;
-		float speed = m_pTransform->GetVelocity() * (1 - 0.5 * static_cast<float>(!movingForward));
+			float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
+
+			speed *= (1.0f - (moveDif / (180.0f / SLOWDOWN_FACTOR)));
+		}
 
 		// Get the current linear velocity of the player
 		vel =
@@ -369,6 +448,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		m_Dashing = m_DashReady && dash && static_cast<double>(evnt->key != SCAN_CODES::SPACE);
 		if (m_Dashing)
 		{
+			m_TurningTimer = m_TurningInterval;
 			m_DashTimer = 0;
 			if (vel == double3({ 0.0, 0.0, 0.0 }))
 			{
@@ -380,8 +460,18 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 				vel.normalize();
 				vel *= m_MovementSpeed * DASH_MOD;
 			}
-			m_UpdateDashId = specificUpdates.size();
-			specificUpdates.push_back(&PlayerInputComponent::updateDash);
+			if (m_UpdateDashId == -1)
+			{
+				m_UpdateDashId = specificUpdates.size();
+				specificUpdates.push_back(&PlayerInputComponent::updateDash);
+			}
+
+			double angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
+			double forwardAngle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
+			m_RadiansToTurn = angle - forwardAngle;
+			int angleDegrees = EngineMath::convertToWholeDegrees(angle);
+			angleDegrees = (angleDegrees + 360) % 360;
+			m_DegreesToTurnTo = angleDegrees;
 		}
 		else
 		{
@@ -398,6 +488,12 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	moveCam *= m_pTransform->GetVelocity() / 5.0;
 	// If the camera uses the players position, update the player's velocity. Otherwise update the camera's movement.
 	(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? m_pCC->SetVelVector(vel.x, vel.y, vel.z) : m_pCamera->UpdateMovement(moveCam.x, moveCam.y, moveCam.z);
+
+	// If we press a key, make the player turn towards the direction she is moving
+	if (evnt->key != SCAN_CODES::SPACE)
+	{
+		m_CameraRotating = false;
+	}
 }
 
 void component::PlayerInputComponent::rotate(MouseMovement* evnt)
@@ -419,6 +515,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 		m_RotateX = rotateX;
 		m_RotateY = rotateY;
+		m_CameraRotating = true;
 
 		//Check if in air. If not, change movement direction to match up with camera direction
 		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1 && !m_Dashing)
@@ -444,35 +541,19 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 			move.normalize();
 			move.y = vel.y;
 
-			// If the player is moving, turn in the correct direction
-			if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON)
+			float speed = m_pTransform->GetVelocity();
+			if ((std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON) && (m_Attacking || m_TurnToCamera))
 			{
-				double angle;
-				if (m_Attacking || m_TurnToCamera)
-				{
-					// If the player is in attacking position, turn in the camera direction
-					angle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
-				}
-				else
-				{
-					// If the player is not in attacking position, turn in the movement direction
-					angle = std::atan2(m_pTransform->GetInvDir() * move.x, m_pTransform->GetInvDir() * move.z);
-				}
-				int angleDegrees = EngineMath::convertToWholeDegrees(angle);
-				angleDegrees = (angleDegrees + 360) % 360;
-				m_AngleToTurnTo = angleDegrees;
+				// Check if the player is moving in the direction she is turned. If not, lower the movement speed
+				float3 playerDir = m_pTransform->GetForwardFloat3();
+				float3 moveDir = { move.x, 0.0, move.z };
+				moveDir.normalize();
+				playerDir.normalize();
+
+				float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
+
+				speed *= (1.0f - (moveDif / (180.0f / SLOWDOWN_FACTOR)));
 			}
-
-			// Check if the player is moving in the direction she is turned. If not, lower the movement speed
-			float3 playerDir = m_pTransform->GetForwardFloat3();
-			float3 moveDir = { m_pTransform->GetInvDir() * move.x, 0.0, m_pTransform->GetInvDir() * move.z };
-			moveDir.normalize();
-			playerDir.normalize();
-
-			float3 moveDif = moveDir - playerDir;
-
-			bool movingForward = moveDif.length() <= 1.0;
-			float speed = m_pTransform->GetVelocity() * (1 - 0.5 * static_cast<float>(!movingForward));
 
 			// Update the player's velocity
 			m_pCC->SetVelVector(move.x * speed, move.y, move.z * speed);
@@ -488,13 +569,17 @@ void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 		break;
 	case MOUSE_BUTTON::RIGHT_DOWN:
 		m_pParent->GetComponent<component::RangeComponent>()->Attack();
-		m_UpdateShootId = specificUpdates.size();
-		specificUpdates.push_back(&PlayerInputComponent::updateShoot);
+		if (m_UpdateShootId == -1)
+		{
+			m_UpdateShootId = specificUpdates.size();
+			specificUpdates.push_back(&PlayerInputComponent::updateShoot);
+		}
 		break;
 	case MOUSE_BUTTON::RIGHT_UP:
 		if (m_UpdateShootId != -1)
 		{
 			specificUpdates.erase(specificUpdates.begin() + m_UpdateShootId);
+			m_UpdateDashId -= static_cast<int>(m_UpdateShootId < m_UpdateDashId);
 			m_UpdateShootId = -1;
 		}
 		break;
@@ -541,14 +626,29 @@ void component::PlayerInputComponent::updateDash(double dt)
 
 		move = {
 			forward.x * move.z + right.x * move.x,
-			vel.y,
+			0.0,
 			forward.z * move.z + right.z * move.x
 		};
+		move.normalize();
+
+		float speed = m_pTransform->GetVelocity();
+		if ((std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON) && (m_Attacking || m_TurnToCamera))
+		{
+			// Check if the player is moving in the direction she is turned. If not, lower the movement speed
+			float3 playerDir = m_pTransform->GetForwardFloat3();
+			float3 moveDir = { move.x, 0.0, move.z };
+			moveDir.normalize();
+			playerDir.normalize();
+
+			float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
+
+			speed *= (1.0f - (moveDif / (180.0f / SLOWDOWN_FACTOR)));
+		}
 
 		vel = {
-			move.x * m_pTransform->GetVelocity(),
+			move.x * speed,
 			velY,
-			move.z * m_pTransform->GetVelocity()
+			move.z * speed
 		};
 
 		m_pCC->SetVelVector(vel.x, vel.y, vel.z);
@@ -557,6 +657,7 @@ void component::PlayerInputComponent::updateDash(double dt)
 		if (m_UpdateDashId != -1)
 		{
 			specificUpdates.erase(specificUpdates.begin() + m_UpdateDashId);
+			m_UpdateShootId -= static_cast<int>(m_UpdateDashId < m_UpdateShootId);
 			m_UpdateDashId = -1;
 		}
 	}
@@ -586,10 +687,24 @@ void component::PlayerInputComponent::updateJump(double dt)
 		};
 		move.normalize();
 
+		float speed = m_pTransform->GetVelocity();
+		if ((std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON) && (m_Attacking || m_TurnToCamera))
+		{
+			// Check if the player is moving in the direction she is turned. If not, lower the movement speed
+			float3 playerDir = m_pTransform->GetForwardFloat3();
+			float3 moveDir = { move.x, 0.0, move.z };
+			moveDir.normalize();
+			playerDir.normalize();
+
+			float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
+
+			speed *= (1.0f - (moveDif / (180.0f / SLOWDOWN_FACTOR)));
+		}
+
 		double3 vel = {
-			move.x * m_pTransform->GetVelocity(),
+			move.x * speed,
 			0.0,
-			move.z * m_pTransform->GetVelocity()
+			move.z * speed
 		};
 
 		m_pCC->SetVelVector(vel.x, vel.y, vel.z);
@@ -609,6 +724,7 @@ void component::PlayerInputComponent::updateShoot(double dt)
 		if (m_UpdateShootId != -1)
 		{
 			specificUpdates.erase(specificUpdates.begin() + m_UpdateShootId);
+			m_UpdateDashId -= static_cast<int>(m_UpdateShootId < m_UpdateDashId);
 			m_UpdateShootId = -1;
 		}
 	}
