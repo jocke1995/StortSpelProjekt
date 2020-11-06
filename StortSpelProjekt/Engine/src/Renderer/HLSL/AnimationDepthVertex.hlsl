@@ -19,7 +19,8 @@ struct VertexWeight
 	float weights[MAX_BONES_PER_VERTEX];
 };
 
-ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
+ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject	: register(b1, space3);
+ConstantBuffer<DescriptorHeapIndices> indexConstants : register(b2, space3);
 
 StructuredBuffer<Vertex> vertices[]				: register(t0, space0);
 StructuredBuffer<VertexWeight> vertexWeights[]	: register(t0, space1);
@@ -27,7 +28,7 @@ StructuredBuffer<VertexWeight> vertexWeights[]	: register(t0, space1);
 RWStructuredBuffer<Vertex> verticesUAV[] : register(u0);
 
 // Matrices
-ConstantBuffer<ANIMATION_MATRICES_STRUCT> animationMatrices  : register(b3, space3);
+ConstantBuffer<ANIMATION_MATRICES_STRUCT> animationMatrices  : register(b6, space3);
 
 // Helper functions
 Vertex AnimateVertex(Vertex origVertex, VertexWeight vertexWeight);
@@ -35,13 +36,13 @@ Vertex AnimateVertex(Vertex origVertex, VertexWeight vertexWeight);
 VS_OUT VS_main(uint vID : SV_VertexID)
 {
 	// SRV1 orig vertices
-	Vertex origVertex			= vertices[cbPerObject.info.textureAlbedo][vID];
+	Vertex origVertex			= vertices[indexConstants.index0][vID];
 	// SRV2 vertexWeights
-	VertexWeight vertexWeight	= vertexWeights[cbPerObject.info.textureRoughness][vID];
+	VertexWeight vertexWeight	= vertexWeights[indexConstants.index1][vID];
 
 	// UAV1 Write modified vertices, these vertices will henceforth be used in rendering passes each frame
 	Vertex transformedVertex = AnimateVertex(origVertex, vertexWeight);
-	verticesUAV[cbPerObject.info.textureMetallic][vID] = transformedVertex;
+	verticesUAV[indexConstants.index2][vID] = transformedVertex;
 
 	// Continue as usual with depth pre-pass with new transformed vertices
 	VS_OUT output = (VS_OUT)0;

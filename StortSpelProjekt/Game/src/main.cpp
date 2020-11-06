@@ -4,6 +4,7 @@
 #include "GameGUI.h"
 #include "Physics/CollisionCategories/PlayerCollisionCategory.h"
 #include "Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
+
 // Game includes
 #include "Player.h"
 #include "UpgradeManager.h"
@@ -59,7 +60,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     UpgradeGUI::GetInstance().LoadTextures();
 
     //Scene* shopScene = ShopScene(sceneManager);
-    sceneManager->SetScenes(demoScene);
+    sceneManager->SetScene(demoScene);
     sceneManager->SetGameOverScene(gameOverScene);
 
     GameNetwork gameNetwork;
@@ -68,7 +69,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScenes(sceneManager->GetActiveScenes());
+        gameNetwork.SetScene(sceneManager->GetActiveScene());
         gameNetwork.SetSceneManager(sceneManager);
         gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
     }
@@ -97,7 +98,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
-            gameGUI.Update(updateRate, sceneManager->GetActiveScenes()->at(0));
+            gameGUI.Update(updateRate, sceneManager->GetActiveScene());
             UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScenes()->at(0));
         }
 
@@ -265,6 +266,7 @@ Scene* GameScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /*--------------------- Teleporter ---------------------*/
+
     /* ------------------------- GUI --------------------------- */
     std::string textToRender = "HEALTH";
     float2 textPos = { 0.45f, 0.96f };
