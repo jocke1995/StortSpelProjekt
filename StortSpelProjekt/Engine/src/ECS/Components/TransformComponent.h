@@ -10,7 +10,7 @@ namespace component
     class TransformComponent : public Component
     {
     public:
-        TransformComponent(Entity* parent);
+        TransformComponent(Entity* parent, bool invertDirection = false);
         virtual ~TransformComponent();
 
         void Update(double dt);

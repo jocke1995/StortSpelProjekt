@@ -94,7 +94,7 @@ Entity* Scene::GetEntity(std::string entityName)
         return m_EntitiesToKeep.at(entityName);
     }
 
-    Log::PrintSeverity(Log::Severity::CRITICAL, "No Entity with name: \'%s\' was found.\n", entityName.c_str());
+    Log::PrintSeverity(Log::Severity::WARNING, "No Entity with name: \'%s\' was found.\n", entityName.c_str());
     return nullptr;
 }
 

@@ -89,6 +89,10 @@ void AnimatedDepthRenderTask::Execute()
 void AnimatedDepthRenderTask::drawRenderComponent(component::ModelComponent* mc, component::TransformComponent* tc, const DirectX::XMMATRIX* viewProjTransposed, ID3D12GraphicsCommandList5* cl)
 {
 	AnimatedModel* am = static_cast<AnimatedModel*>(mc->GetModel());
+
+	D3D12_GPU_VIRTUAL_ADDRESS gpuVA = am->GetConstantBuffer()->GetDefaultResource()->GetID3D12Resource1()->GetGPUVirtualAddress();
+	cl->SetGraphicsRootConstantBufferView(RS::CB_COMMON, gpuVA);
+
 	// Draw for every m_pMesh the meshComponent has
 	for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 	{
@@ -96,22 +100,25 @@ void AnimatedDepthRenderTask::drawRenderComponent(component::ModelComponent* mc,
 		size_t num_Indices = m->GetNumIndices();
 		SlotInfo* info = const_cast<SlotInfo*>(mc->GetSlotInfoAt(i));
 
-		// Assign srvs and uavs
-		info->textureAlbedo = m->GetOrigVerticesSRV()->GetDescriptorHeapIndex();	// SRV1 orig vertices
-		info->textureRoughness = m->GetVertexWeightSRV()->GetDescriptorHeapIndex();	// SRV2 vertexWeights
-		info->textureMetallic = m->GetUAV()->GetDescriptorHeapIndex();				// UAV1 animatedVertices (to be animated in this pass)
-
 		Transform* transform = tc->GetTransform();
 		DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
 		DirectX::XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
 
 		// CB_PER_OBJECT 
 		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
-
 		unsigned int size = sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT);
 		cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, size, &perObject, 0);
 
-		cl->SetGraphicsRootConstantBufferView(RS::CB_PER_FRAME, am->GetConstantBuffer()->GetDefaultResource()->GetID3D12Resource1()->GetGPUVirtualAddress());
+		// CB_INDICES 
+		DescriptorHeapIndices dhIndices = 
+		{ 
+			m->GetOrigVerticesSRV()->GetDescriptorHeapIndex(), 
+			m->GetVertexWeightSRV()->GetDescriptorHeapIndex(),
+			m->GetUAV()->GetDescriptorHeapIndex(),
+			0
+		};
+		size = sizeof(DescriptorHeapIndices) / sizeof(UINT);
+		cl->SetGraphicsRoot32BitConstants(RS::CB_INDICES_CONSTANTS, size, &dhIndices, 0);
 
 		cl->IASetIndexBuffer(m->GetIndexBufferView());
 		cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
