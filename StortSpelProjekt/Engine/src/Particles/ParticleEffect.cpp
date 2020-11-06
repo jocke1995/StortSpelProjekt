@@ -14,18 +14,18 @@
 
 EngineRand ParticleEffect::rand = {};
 
-ParticleEffect::ParticleEffect(DescriptorHeap* descriptorHeap)
+ParticleEffect::ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap)
 {
 	m_ParticleCount = 5;
 
-	init(descriptorHeap);
+	init(name, descriptorHeap);
 }
 
-ParticleEffect::ParticleEffect(DescriptorHeap* descriptorHeap, unsigned int particleCount)
+ParticleEffect::ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap, unsigned int particleCount)
 {
 	m_ParticleCount = particleCount;
-	
-	init(descriptorHeap);
+
+	init(name, descriptorHeap);
 }
 
 ParticleEffect::~ParticleEffect()
@@ -59,6 +59,16 @@ void ParticleEffect::Update(double dt)
 	}
 }
 
+const std::wstring& ParticleEffect::GetName() const
+{
+	return m_Name;
+}
+
+Texture2DGUI* ParticleEffect::GetTexture() const
+{
+	return m_pTexture;
+}
+
 void ParticleEffect::spawnParticle()
 {
 	// m_ParticleIndex is always at the oldest particle first
@@ -77,13 +87,12 @@ void ParticleEffect::spawnParticle()
 	initParticle(particle);
 }
 
-void ParticleEffect::init(DescriptorHeap* descriptorHeap)
+void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap)
 {
+	m_Name = name;
+
 	// Set default mesh and texture
 	AssetLoader* al = AssetLoader::Get();
-
-	// Todo, implement meshes on particleeffects
-	// m_pMesh = al->LoadModel(L"../Vendor/Resources/Models/Quad/NormalizedQuad.obj")->GetMeshAt(0);
 	m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/particle0.png"));
 
 	Renderer& renderer = Renderer::GetInstance();
@@ -118,7 +127,7 @@ void ParticleEffect::init(DescriptorHeap* descriptorHeap)
 	uavDesc.Buffer.StructureByteStride = UAVEntrySize;
 
 	m_pUAV = new UnorderedAccessView(renderer.m_pDevice5, descriptorHeap, &uavDesc, m_pUAVResource);
-	
+
 
 	m_Particles.reserve(m_ParticleCount);
 

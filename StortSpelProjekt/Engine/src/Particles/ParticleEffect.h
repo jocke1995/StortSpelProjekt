@@ -17,11 +17,15 @@ class Texture2DGUI;
 class ParticleEffect
 {
 public:
-	ParticleEffect(DescriptorHeap* descriptorHeap);
-	ParticleEffect(DescriptorHeap* descriptorHeap, unsigned int particleCount);
+	ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap);
+	ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap, unsigned int particleCount);
 	~ParticleEffect();
 
 	void Update(double dt);
+
+	const std::wstring& GetName() const;
+
+	Texture2DGUI* GetTexture() const;
 
 private:
 	friend class ParticleSystem;
@@ -29,6 +33,7 @@ private:
 
 	static EngineRand rand;
 
+	std::wstring m_Name = L"unnamed_particleEffect";
 	Texture2DGUI* m_pTexture = nullptr;
 	std::vector<Particle> m_Particles;
 	unsigned int m_ParticleIndex = 0;
@@ -45,7 +50,7 @@ private:
 
 	void spawnParticle();
 
-	void init(DescriptorHeap* descriptorHeap);
+	void init(std::wstring name, DescriptorHeap* descriptorHeap);
 	
 	void initParticle(Particle& particle);
 	void randomizePosition(Particle& particle);

@@ -71,6 +71,7 @@
 #include "DX12Tasks/ImGuiRenderTask.h"
 #include "DX12Tasks/SkyboxRenderTask.h"
 #include "DX12Tasks/QuadTask.h"
+#include "DX12Tasks/ParticleRenderTask.h"
 
 // Copy 
 #include "DX12Tasks/CopyPerFrameTask.h"
@@ -421,6 +422,12 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
 
+	// Blending with opacity texture
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::PARTICLE];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
 	// Blurring for bloom
 	computeTask = m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR];
 	computeTask->SetCommandInterfaceIndex(commandInterfaceIndex);
@@ -718,6 +725,17 @@ void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 	}
 }
 
+void Renderer::InitParticleEmitterComponent(component::ParticleEmitterComponent* component)
+{
+	auto mc = nullptr; // Particles don't have support for meshcomponent
+	auto tc = component->GetParent()->GetComponent<component::TransformComponent>();
+
+	if (tc != nullptr)
+	{
+		m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE].push_back(std::make_pair(mc, tc));
+	}
+}
+
 void Renderer::UnInitSkyboxComponent(component::SkyboxComponent* component)
 {
 }
@@ -929,6 +947,25 @@ void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 
 void Renderer::UnitParticleEmitterComponent(component::ParticleEmitterComponent* component)
 {
+	auto tc = component->GetParent()->GetComponent<component::TransformComponent>();
+
+	// Remove component from renderComponents
+	// TODO: change data structure to allow O(1) add and remove
+	auto renderComponents = m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE];
+
+	auto it = renderComponents.begin();
+	while (it != renderComponents.end())
+	{
+		// Remove from all renderComponent-vectors if they are there
+		component::TransformComponent* tcComp = nullptr;
+		tcComp = (*it).second;
+		if (tcComp == tc)
+		{
+			it = renderComponents.erase(it);
+		}
+
+		++it;
+	}
 }
 
 void Renderer::OnResetScene()
@@ -1067,6 +1104,7 @@ void Renderer::setRenderTasksPrimaryCamera()
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::PARTICLE]->SetCamera(m_pScenePrimaryCamera);
 
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
@@ -1630,7 +1668,9 @@ void Renderer::initRenderTasks()
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdBlendFrontCull = {};
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdBlendBackCull = {};
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdParticleEffect = {};
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdBlendVector;
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdParticleVector;
 
 	gpsdBlendFrontCull.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
@@ -1698,11 +1738,34 @@ void Renderer::initRenderTasks()
 	dsdBlend.StencilEnable = false;
 	dsdBlend.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 
-	gpsdBlendBackCull.DepthStencilState = dsdBlend;
-	gpsdBlendBackCull.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
+	// Particle Effect
+	gpsdParticleEffect.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdParticleEffect.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	gpsdParticleEffect.NumRenderTargets = 1;
+	// Depthstencil usage
+	gpsdParticleEffect.SampleDesc.Count = 1;
+	gpsdParticleEffect.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdParticleEffect.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdParticleEffect.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdParticleEffect.BlendState.RenderTarget[i] = blendRTdesc;
+
+	// DepthStencil
+	dsdBlend.StencilEnable = false;
+	dsdBlend.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+
+
+	// Push back to vector
 	gpsdBlendVector.push_back(&gpsdBlendFrontCull);
 	gpsdBlendVector.push_back(&gpsdBlendBackCull);
+
+
+	gpsdParticleVector.push_back(&gpsdParticleEffect);
 
 	RenderTask* transparentConstantRenderTask = new TransparentRenderTask(m_pDevice5,
 		m_pRootSignature,
@@ -1732,6 +1795,27 @@ void Renderer::initRenderTasks()
 	transparentTextureRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	transparentTextureRenderTask->SetSwapChain(m_pSwapChain);
 	transparentTextureRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+
+
+
+
+
+
+	/*---------------------------------- PARTICLE_RENDERTASK -------------------------------------*/
+	RenderTask* particleRenderTask = new ParticleRenderTask(m_pDevice5,
+		m_pRootSignature,
+		L"ParticleVertex.hlsl",
+		L"ParticlePixel.hlsl",
+		&gpsdParticleVector,
+		L"ParticlePSO",
+		FLAG_THREAD::RENDER);
+
+	particleRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
+	particleRenderTask->AddResource("cbPerScene", m_pCbPerScene->GetDefaultResource());
+	particleRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
+	particleRenderTask->SetSwapChain(m_pSwapChain);
+	particleRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion Blend
 
@@ -2041,6 +2125,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX] = skyboxRenderTask;
 	m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE] = downSampleTask;
 	m_RenderTasks[RENDER_TASK_TYPE::QUAD] = quadTask;
+	m_RenderTasks[RENDER_TASK_TYPE::PARTICLE] = particleRenderTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -2152,6 +2237,7 @@ void Renderer::setRenderTasksRenderComponents()
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_CONSTANT]);
 	m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE]);
 	m_RenderTasks[RENDER_TASK_TYPE::SHADOW]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::GIVE_SHADOW]);
+	m_RenderTasks[RENDER_TASK_TYPE::PARTICLE]->SetRenderComponents(&m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE]);
 
 	static_cast<SkyboxRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SKYBOX])->SetSkybox(m_pSkyboxComponent);
 }

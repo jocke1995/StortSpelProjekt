@@ -17,13 +17,15 @@ public:
 
 	void Update(double dt);
 
+	void SetParticleEffect(ParticleEffect* effect);
+
 	void OnResetScene(); // Kanske, Jocke?
 
 private:
 	ParticleSystem();
 
+	// Temp code
 	ParticleEffect* effect = nullptr;
-
 
 	void uploadParticleEffectsToGPU();
 };

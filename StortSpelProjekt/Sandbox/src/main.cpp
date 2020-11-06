@@ -57,7 +57,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
-    //Scene* jockeScene = JockesTestScene(sceneManager);
+    Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
@@ -75,6 +75,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     // Set scene
     sceneManager->SetScenes(activeScene);
+    //sceneManager->SetScenes(jockeScene);
 
 
     GameNetwork gameNetwork;
@@ -777,7 +778,9 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0, 1, -30);
     /* ---------------------- Player ---------------------- */
 
+    ParticleEffect* pEffect = al->CreateParticleEffect();
     pe = entity->AddComponent<component::ParticleEmitterComponent>();
+    pe->SetParticleEffect(pEffect);
 
     /* ---------------------- Skybox ---------------------- */
 

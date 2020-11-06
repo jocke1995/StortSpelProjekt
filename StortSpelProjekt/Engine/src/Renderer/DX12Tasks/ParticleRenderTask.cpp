@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "TransparentRenderTask.h"
+#include "ParticleRenderTask.h"
 
 #include "../RenderView.h"
 #include "../RootSignature.h"
@@ -16,25 +16,25 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Camera/BaseCamera.h"
 
+// Includes used for particles to work
+#include "../Misc/AssetLoader.h"
+#include "../Renderer/Model.h"
+#include "../ECS/Entity.h"
+#include "../Renderer/Texture/Texture2DGUI.h"
+#include "../ECS/Components/ParticleEmitterComponent.h"
 
-
-TransparentRenderTask::TransparentRenderTask(	
-	ID3D12Device5* device,
-	RootSignature* rootSignature,
-	const std::wstring& VSName, const std::wstring& PSName,
-	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds,
-	const std::wstring& psoName,
-	unsigned int FLAG_THREAD)
+ParticleRenderTask::ParticleRenderTask(ID3D12Device5* device, RootSignature* rootSignature, const std::wstring& VSName, const std::wstring& PSName, std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds, const std::wstring& psoName, unsigned int FLAG_THREAD)
 	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
+	AssetLoader* al = AssetLoader::Get();
+	m_pParticleQuad = al->LoadModel(L"../Vendor/Resources/Models/Quad/NormalizedQuad.obj")->GetMeshAt(0);
 }
 
-TransparentRenderTask::~TransparentRenderTask()
+ParticleRenderTask::~ParticleRenderTask()
 {
-
 }
 
-void TransparentRenderTask::Execute()
+void ParticleRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
@@ -44,7 +44,7 @@ void TransparentRenderTask::Execute()
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
 	commandList->SetGraphicsRootSignature(m_pRootSig);
-	
+
 	DescriptorHeap* descriptorHeap_CBV_UAV_SRV = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV];
 	ID3D12DescriptorHeap* d3d12DescriptorHeap = descriptorHeap_CBV_UAV_SRV->GetID3D12DescriptorHeap();
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
@@ -59,7 +59,7 @@ void TransparentRenderTask::Execute()
 		D3D12_RESOURCE_STATE_RENDER_TARGET));
 
 	DescriptorHeap* renderTargetHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::RTV];
-	DescriptorHeap* depthBufferHeap  = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
+	DescriptorHeap* depthBufferHeap = m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::DSV];
 
 	unsigned int renderTargetIndex = m_pSwapChain->GetRTV(m_BackBufferIndex)->GetDescriptorHeapIndex();
 	D3D12_CPU_DESCRIPTOR_HANDLE cdh = renderTargetHeap->GetCPUHeapAt(renderTargetIndex);
@@ -78,50 +78,46 @@ void TransparentRenderTask::Execute()
 	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_FRAME, m_Resources["cbPerFrame"]->GetGPUVirtualAdress());
 	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_SCENE, m_Resources["cbPerScene"]->GetGPUVirtualAdress());
 
-	const DirectX::XMMATRIX * viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
+	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
 
 	// Draw from opposite order from the sorted array
-	for(int i = m_RenderComponents.size() - 1; i >= 0; i--)
+	for (int i = m_RenderComponents.size() - 1; i >= 0; i--)
 	{
 		component::ModelComponent* mc = m_RenderComponents.at(i).first;
 		component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
-		if (mc != nullptr)
+		// It's a particle
+		if (mc == nullptr)
 		{
-			// Draw for every m_pMesh the MeshComponent has
-			for (unsigned int j = 0; j < mc->GetNrOfMeshes(); j++)
-			{
-				Mesh* m = mc->GetMeshAt(j);
-				size_t num_Indices = m->GetNumIndices();
-				const SlotInfo* info = mc->GetSlotInfoAt(j);
+			commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
-				Transform* transform = tc->GetTransform();
+			Entity* entity = tc->GetParent();
 
-				DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-				DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+			component::ParticleEmitterComponent* pec = entity->GetComponent<component::ParticleEmitterComponent>();
+			Texture2DGUI* texture = pec->GetTexture();
 
-				// Create a CB_PER_OBJECT struct
-				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed , *info };
+			// Draw a quad (m_pParticleQuad)
+			size_t num_Indices = m_pParticleQuad->GetNumIndices();
+			SlotInfo info = {};
+			info.vertexDataIndex = m_pParticleQuad->GetSRV()->GetDescriptorHeapIndex();
+			info.textureAlbedo = texture->GetDescriptorHeapIndex();
 
-				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+			// Get uav
+			Transform* transform = tc->GetTransform();
 
-				commandList->IASetIndexBuffer(mc->GetMeshAt(j)->GetIndexBufferView());
-				// Draw each object twice with different PSO 
-				for (int k = 0; k < 2; k++)
-				{
-					commandList->SetPipelineState(m_PipelineStates[k]->GetPSO());
-					commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
-				}
-			}
+
+			DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+			DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+
+			// Create a CB_PER_OBJECT struct
+			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed , info };
+
+			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+
+			commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 		}
-		// It's a particleEffect (This is pretty hardcoded to make stuff work)
-		else
-		{
-			// handeled by ParticleRenderTask
-		}
-			
 	}
-	
+
 	// Change state on front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		swapChainResource,

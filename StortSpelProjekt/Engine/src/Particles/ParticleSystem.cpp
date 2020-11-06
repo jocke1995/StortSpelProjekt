@@ -21,8 +21,6 @@ ParticleSystem& ParticleSystem::GetInstance()
 ParticleSystem::ParticleSystem()
 {
 	Renderer& renderer = Renderer::GetInstance();
-
-	effect = new ParticleEffect(renderer.m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 }
 
 void ParticleSystem::uploadParticleEffectsToGPU()
@@ -34,22 +32,27 @@ void ParticleSystem::uploadParticleEffectsToGPU()
 
 ParticleSystem::~ParticleSystem()
 {
-	
-	if(effect != nullptr)
-	delete effect;
 }
 
 void ParticleSystem::Update(double dt)
 {
-	//for(ParticleEffect& particleEffect : )
-	effect->Update(dt);
-	effect->updateResourceData();
+	if (effect != nullptr)
+	{
+		//for(ParticleEffect& particleEffect : )
+		effect->Update(dt);
+		effect->updateResourceData();
 
-	std::vector<ParticleEffect*> effects = { effect };
+		std::vector<ParticleEffect*> effects = { effect };
 
-	// Tell renderer to billboard the particles
-	BillboardComputeTask* billboardTask = static_cast<BillboardComputeTask*>(Renderer::GetInstance().m_ComputeTasks[COMPUTE_TASK_TYPE::BILLBOARD]);
-	billboardTask->SetParticleEffects(&effects);
+		// Tell renderer to billboard the particles
+		BillboardComputeTask* billboardTask = static_cast<BillboardComputeTask*>(Renderer::GetInstance().m_ComputeTasks[COMPUTE_TASK_TYPE::BILLBOARD]);
+		billboardTask->SetParticleEffects(&effects);
+	}
+}
+
+void ParticleSystem::SetParticleEffect(ParticleEffect* effect)
+{
+	this->effect = effect;
 }
 
 void ParticleSystem::OnResetScene()

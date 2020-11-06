@@ -199,6 +199,7 @@ private:
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::GUI2DComponent*> m_TextComponents;
 	std::vector<component::GUI2DComponent*> m_QuadComponents;
+	std::vector<component::ParticleEmitterComponent*> m_ParticleEmitterComponents;
 	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
