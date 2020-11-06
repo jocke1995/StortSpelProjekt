@@ -9,6 +9,8 @@
 #define SPRINT_MOD 1.5
 #define TURN_RATE 20.0
 #define CAMERA_DIST 35.0
+// Lower value means more slowdown when moving backwards
+#define SLOWDOWN_FACTOR 0.5
 
 //Camera
 class BaseCamera;

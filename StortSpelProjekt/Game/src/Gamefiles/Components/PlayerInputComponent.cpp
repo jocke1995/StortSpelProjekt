@@ -411,7 +411,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 
 			float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
 
-			speed *= (1.0f - (moveDif / 360.0f));
+			speed *= (1.0f - (moveDif / (180.0f / SLOWDOWN_FACTOR)));
 		}
 
 		// Get the current linear velocity of the player
@@ -532,8 +532,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 				float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
 
-				speed *= (1.0f - (moveDif / 360.0f));
-				Log::Print("Speed: %f\n", speed);
+				speed *= (1.0f - (moveDif / (180.0f / SLOWDOWN_FACTOR)));
 			}
 
 			// Update the player's velocity
@@ -623,8 +622,7 @@ void component::PlayerInputComponent::updateDash(double dt)
 
 			float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
 
-			speed *= (1.0f - (moveDif / 360.0f));
-			Log::Print("Speed: %f\n", speed);
+			speed *= (1.0f - (moveDif / (180.0f / SLOWDOWN_FACTOR)));
 		}
 
 		vel = {
@@ -669,10 +667,24 @@ void component::PlayerInputComponent::updateJump(double dt)
 		};
 		move.normalize();
 
+		float speed = m_pTransform->GetVelocity();
+		if ((std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON) && (m_Attacking || m_TurnToCamera))
+		{
+			// Check if the player is moving in the direction she is turned. If not, lower the movement speed
+			float3 playerDir = m_pTransform->GetForwardFloat3();
+			float3 moveDir = { move.x, 0.0, move.z };
+			moveDir.normalize();
+			playerDir.normalize();
+
+			float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
+
+			speed *= (1.0f - (moveDif / (180.0f / SLOWDOWN_FACTOR)));
+		}
+
 		double3 vel = {
-			move.x * m_pTransform->GetVelocity(),
+			move.x * speed,
 			0.0,
-			move.z * m_pTransform->GetVelocity()
+			move.z * speed
 		};
 
 		m_pCC->SetVelVector(vel.x, vel.y, vel.z);
