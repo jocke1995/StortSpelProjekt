@@ -193,6 +193,12 @@ void SceneManager::SetScene(Scene* scene)
 	if (m_pActiveScene != nullptr)
 	{
 		std::map<std::string, Entity*> oldEntities = *m_pActiveScene->GetEntities();
+
+		for (auto const& [entityName, entity] : oldEntities)
+		{
+			entity->OnUnInitScene();
+		}
+
 		for (auto pair : oldEntities)
 		{
 			Entity* ent = pair.second;
@@ -200,11 +206,6 @@ void SceneManager::SetScene(Scene* scene)
 			{
 				m_pActiveScene->RemoveEntity(ent->GetName());
 			}
-		}
-
-		for (auto const& [entityName, entity] : oldEntities)
-		{
-			entity->OnUnInitScene();
 		}
 	}
 
@@ -227,8 +228,6 @@ void SceneManager::SetScene(Scene* scene)
 	{
 		m_pActiveScene->SetPrimaryCamera(renderer->m_pScenePrimaryCamera);
 	}
-
-	return;
 }
 
 void SceneManager::ResetScene()
