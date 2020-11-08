@@ -7,6 +7,7 @@
 #include <string>
 #include <unordered_map>
 
+class Transform;
 class EngineRand;
 class Scene;
 class NavMesh;
@@ -95,9 +96,14 @@ namespace component
 		float m_IntervalTimeAccumulator;
 		float m_SpeedTimeAccumulator;
 		bool m_PathFound;
+		float3 m_DirectionPath;
+		float m_DistancePath;
 		bool m_IsRanged;
 		bool m_StandStill;
-		float m_movementVelocity;
+		float m_MovementVelocity;
+		float m_DistanceToPlayer;
+		Transform* m_pTargetTrans;
+		Transform* m_pParentTrans;
 
 		float3 setAimDirection();
 
@@ -116,6 +122,7 @@ namespace component
 
 		void updateMelee(double dt);
 		void updateRange(double dt);
+		void pathFinding();
 		void randMovement();
 	};
 }
