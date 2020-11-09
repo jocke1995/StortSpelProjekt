@@ -63,13 +63,10 @@ void BillboardComputeTask::Execute()
 		//	D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 		//	D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-		// Blur horizontal
-		//commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
-		//commandList->Dispatch(m_ThreadGroupsX, m_ThreadGroupsY, 1);
-
 		commandList->SetComputeRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(m_pSRV[i]->GetDescriptorHeapIndex()));
 		commandList->SetComputeRootDescriptorTable(RS::dtUAV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(m_pUAV[i]->GetDescriptorHeapIndex()));
 
+		m_ThreadGroupsX = 1;
 		commandList->Dispatch(m_ThreadGroupsX, m_ThreadGroupsY, 1);
 	}
 

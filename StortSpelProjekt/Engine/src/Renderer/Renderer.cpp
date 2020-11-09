@@ -39,6 +39,8 @@
 #include "Mesh.h"
 #include "AnimatedMesh.h"
 #include "Texture/Texture.h"
+#include "Texture/Texture2D.h"
+#include "Texture/Texture2DGUI.h"
 #include "Texture/TextureCubeMap.h"
 #include "Material.h"
 
@@ -729,6 +731,9 @@ void Renderer::InitParticleEmitterComponent(component::ParticleEmitterComponent*
 {
 	auto mc = nullptr; // Particles don't have support for meshcomponent
 	auto tc = component->GetParent()->GetComponent<component::TransformComponent>();
+
+	Texture* texture = static_cast<Texture*>(component->GetTexture());
+	submitTextureToCodt(texture);
 
 	if (tc != nullptr)
 	{

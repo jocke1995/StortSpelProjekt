@@ -34,6 +34,7 @@ ParticleEffect::~ParticleEffect()
 	delete m_pUAVResource;
 	delete m_pSRV;
 	delete m_pUAV;
+	delete m_pUAVSRV;
 }
 
 void ParticleEffect::Update(double dt)
@@ -93,7 +94,8 @@ void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap)
 
 	// Set default mesh and texture
 	AssetLoader* al = AssetLoader::Get();
-	m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/particle0.png"));
+	m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/particle00.png"));
+	//m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/minimap.png"));
 
 	Renderer& renderer = Renderer::GetInstance();
 
@@ -126,8 +128,17 @@ void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap)
 	uavDesc.Buffer.NumElements = m_ParticleCount;
 	uavDesc.Buffer.StructureByteStride = UAVEntrySize;
 
-	m_pUAV = new UnorderedAccessView(renderer.m_pDevice5, descriptorHeap, &uavDesc, m_pUAVResource);
+	D3D12_SHADER_RESOURCE_VIEW_DESC uavSrvDesc = {};
+	uavSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	uavSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	uavSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	uavSrvDesc.Buffer.FirstElement = 0;
+	uavSrvDesc.Buffer.NumElements = m_ParticleCount;
+	uavSrvDesc.Buffer.StructureByteStride = particleEntrySize;
+	uavSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
+	m_pUAV = new UnorderedAccessView(renderer.m_pDevice5, descriptorHeap, &uavDesc, m_pUAVResource);
+	m_pUAVSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &uavSrvDesc, m_pUAVResource);
 
 	m_Particles.reserve(m_ParticleCount);
 
@@ -181,11 +192,13 @@ void ParticleEffect::updateResourceData()
 	unsigned int index = 0;
 	for (Particle& p : m_Particles)
 	{
-		pos = { p.m_Position.x, p.m_Position.y, p.m_Position.z, p.m_Size };
-		if (pos.y < -4000)
+		if (!p.IsAlive())
 		{
-			int a = 0;
+			p.m_Size = 0;
 		}
+
+		pos = { p.m_Position.x, p.m_Position.y, p.m_Position.z, p.m_Size };
+		
 		tempData[index++] = pos;
 	}
 

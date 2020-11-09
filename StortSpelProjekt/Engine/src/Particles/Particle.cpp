@@ -13,7 +13,7 @@ Particle::~Particle()
 void Particle::Update(double dt)
 {
 	m_Position = m_Position + m_Velocity * dt;
-
+	
 	changeVelocity(dt);
 	m_Lifetime -= dt;
 }
@@ -35,5 +35,5 @@ void Particle::initDefaultValues()
 
 void Particle::changeVelocity(float dt)
 {
-	m_Velocity.y -= m_Gravity;
+	m_Velocity.y -= m_Gravity*dt;
 }

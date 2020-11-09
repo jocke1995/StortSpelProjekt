@@ -14,8 +14,9 @@ SamplerState point_Wrap : register (s5);
 float4 PS_main(VS_OUT input) : SV_TARGET0
 {
 	// Sample from textures
-	float4 texColor	= textures[cbPerObject.info.textureAlbedo	].Sample(point_Wrap, input.uv);
+	float4 texColor	= textures[cbPerObject.info.textureAlbedo].Sample(point_Wrap, input.uv);
 	float opacity = textures[cbPerObject.info.textureOpacity].Sample(point_Wrap, input.uv).r;
+	opacity = texColor.a;
 
 	return float4(texColor.rgb, opacity);
 }

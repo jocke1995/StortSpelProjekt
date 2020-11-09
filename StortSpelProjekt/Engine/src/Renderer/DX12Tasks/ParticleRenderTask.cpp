@@ -8,6 +8,7 @@
 #include "../GPUMemory/DepthStencil.h"
 #include "../GPUMemory/DepthStencilView.h"
 #include "../GPUMemory/ShaderResourceView.h"
+#include "../GPUMemory/UnorderedAccessView.h"
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
 #include "../GPUMemory/Resource.h"
@@ -97,7 +98,7 @@ void ParticleRenderTask::Execute()
 				return;
 			}
 			ParticleEffect* effect = pec->m_pParticleEffect;
-			commandList->SetGraphicsRootShaderResourceView(RS::SRV0, effect->m_pSRV->GetResource()->GetGPUVirtualAdress());
+			commandList->SetGraphicsRootShaderResourceView(RS::SRV0, effect->m_pUAVSRV->GetResource()->GetGPUVirtualAdress());
 			commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
 			Texture2DGUI* texture = pec->GetTexture();

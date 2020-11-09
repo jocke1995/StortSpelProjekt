@@ -48,6 +48,7 @@ private:
 	Resource* m_pUAVResource = nullptr;
 	ShaderResourceView* m_pSRV = nullptr;
 	UnorderedAccessView* m_pUAV = nullptr;
+	ShaderResourceView* m_pUAVSRV = nullptr;
 
 	void spawnParticle();
 
