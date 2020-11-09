@@ -1772,7 +1772,7 @@ void Renderer::initRenderTasks()
 		L"TransparentConstantVertex.hlsl",
 		L"TransparentConstantPixel.hlsl",
 		&gpsdBlendVector,
-		L"BlendPSO",
+		L"BlendPSOConstant",
 		FLAG_THREAD::RENDER);
 
 	transparentConstantRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
@@ -1787,7 +1787,7 @@ void Renderer::initRenderTasks()
 		L"TransparentTextureVertex.hlsl",
 		L"TransparentTexturePixel.hlsl",
 		&gpsdBlendVector,
-		L"BlendPSO",
+		L"BlendPSOTexture",
 		FLAG_THREAD::RENDER);
 
 	transparentTextureRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
@@ -2026,7 +2026,7 @@ void Renderer::initRenderTasks()
 
 	// Billboarding
 	std::vector<std::pair<std::wstring, std::wstring>> billcsNamePSOName;
-	billcsNamePSOName.push_back(std::make_pair(L"ComputeBillboard.hlsl", L"billboardPSO"));
+	billcsNamePSOName.push_back(std::make_pair(L"ComputeBillboard.hlsl", L"BillboardPSO"));
 	ComputeTask* billboardComputeTask = new BillboardComputeTask(
 		m_pDevice5, m_pRootSignature,
 		billcsNamePSOName,
