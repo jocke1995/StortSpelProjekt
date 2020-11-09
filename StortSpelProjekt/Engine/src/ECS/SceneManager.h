@@ -47,8 +47,8 @@ private:
 	void deleteSceneManager();
 
 	std::map<std::string, Scene*> m_Scenes;
-	Scene* m_pActiveScene;
-	Scene* m_pDefaultScene;
+	Scene* m_pActiveScene = nullptr;
+	Scene* m_pDefaultScene = nullptr;
 
 	struct EntityScene
 	{

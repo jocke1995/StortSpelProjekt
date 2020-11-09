@@ -382,11 +382,6 @@ void EnemyFactory::Update(double dt)
 	}
 }
 
-void EnemyFactory::SetActive(bool active)
-{
-	m_IsActive = active;
-}
-
 void EnemyFactory::enemyDeath(Death* evnt)
 {
 	if (strcmp(evnt->ent->GetName().substr(0, 5).c_str(), "enemy") == 0)
@@ -444,11 +439,10 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	m_EnemyComps.find("enemyZombie")->second->meleeAttackDmg = m_EnemyComps.find("enemyZombie")->second->meleeAttackDmgBase + 2*m_Level;
 	m_EnemyComps.find("enemyZombie")->second->movementSpeed = m_EnemyComps.find("enemyZombie")->second->movementSpeedBase + 1 * m_Level;
 
-		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
-		if (enemyGui != nullptr)
-		{
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
-		}
+	Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+	if (enemyGui != nullptr)
+	{
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
 	}
 	++m_Level;
 }

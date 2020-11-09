@@ -41,6 +41,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     // Player (Need a camera)
     Entity* entity = scene->AddEntity("player");
     entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    // Add a voice to the player to play some music.
     vc = entity->AddComponent<component::Audio2DVoiceComponent>();
     vc->AddVoice(L"MenuMusic");
     vc->Play(L"MenuMusic");

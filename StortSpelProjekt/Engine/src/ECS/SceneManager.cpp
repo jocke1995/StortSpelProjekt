@@ -116,7 +116,7 @@ void SceneManager::ChangeScene()
 {
 	if (m_ChangeSceneNextFrame)
 	{
-		if (m_ActiveScenes[0]->GetName() != "gameOverScene")
+		if (m_pActiveScene->GetName() != "gameOverScene")
 		{
 			// Reset old scene
 			std::map<std::string, Entity*> entities = *m_pActiveScene->GetEntities();

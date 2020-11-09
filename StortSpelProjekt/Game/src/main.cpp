@@ -56,7 +56,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* gameOverScene = GameOverScene(sceneManager);
     Scene* mainMenuScene = MainMenuHandler::GetInstance().CreateScene(sceneManager);
 
-    sceneManager->SetScene(demoScene);
+    sceneManager->SetScene(mainMenuScene);
     sceneManager->SetGameOverScene(gameOverScene);
     GameNetwork gameNetwork;
 
