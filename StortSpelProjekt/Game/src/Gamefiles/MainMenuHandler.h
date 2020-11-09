@@ -14,10 +14,13 @@ public:
 private:
 	MainMenuHandler();
 
+	//OPTION MENU
 	void createOptionScene();
+	Scene* m_pOptionScene = nullptr;
+	bool m_RestartSetting;
+
 
 	Scene* m_pScene = nullptr;
-	Scene* m_pOptionScene = nullptr;
 	SceneManager* m_pSceneManager = nullptr;
 };
 

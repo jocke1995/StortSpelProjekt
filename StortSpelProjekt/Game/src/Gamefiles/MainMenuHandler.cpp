@@ -12,6 +12,7 @@ void onStart(const std::string& name);
 void onExit(const std::string& name);
 void onOptions(const std::string& name);
 void onOptionBack(const std::string& name);
+void on2560x1440(const std::string& name);
 void on1920x1080(const std::string& name);
 void on1280x720(const std::string& name);
 
@@ -29,6 +30,9 @@ void MainMenuHandler::createOptionScene()
     component::Audio2DVoiceComponent* vc = nullptr;
 
     Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Back.png");
+    Texture* resolution = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Resolution.png");
+    Texture* restart = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/RestartWarning.png");
+    Texture* res1440p = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/2560x1440.png");
     Texture* res1080p = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/1920x1080.png");
     Texture* res720p = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/1280x720.png");
 
@@ -43,18 +47,111 @@ void MainMenuHandler::createOptionScene()
     TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
     sbc->SetTexture(blackCubeMap);
 
+    entity = m_pOptionScene->AddEntity("resolution");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("resolution",
+        { 0.35f, 0.05f },
+        { (float)resolution->GetWidth() / 1920.0f, (float)resolution->GetHeight() / 1080.0f },
+        false,
+        false,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        resolution);
+    entity = m_pOptionScene->AddEntity("1444p");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("1444p",
+        { 0.35f, 0.15f },
+        { (float)res1440p->GetWidth() / 1920.0f, (float)res1440p->GetHeight() / 1080.0f },
+        true,
+        true,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        res1440p);
+    guic->GetQuadManager()->SetOnClicked(&on2560x1440);
     entity = m_pOptionScene->AddEntity("1080p");
     guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("1080p", { 0.3f, 0.2f }, { (float)res1080p->GetWidth() / std::stoi(Option::GetInstance().GetVariable("i_resolutionWidth")), (float)res1080p->GetHeight() / std::stoi(Option::GetInstance().GetVariable("i_resolutionHeight")) }, true, true, 0, { 1.0,1.0,1.0,1.0 }, res1080p);
+    guic->GetQuadManager()->CreateQuad("1080p",
+        { 0.35f, 0.25f },
+        { (float)res1080p->GetWidth() / 1920.0f, (float)res1080p->GetHeight() / 1080.0f },
+        true,
+        true,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        res1080p);
     guic->GetQuadManager()->SetOnClicked(&on1920x1080);
     entity = m_pOptionScene->AddEntity("720p");
     guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("720p", { 0.3f, 0.3f }, { (float)res720p->GetWidth() / std::stoi(Option::GetInstance().GetVariable("i_resolutionWidth")), (float)res720p->GetHeight() / std::stoi(Option::GetInstance().GetVariable("i_resolutionHeight")) }, true, true, 0, { 1.0,1.0,1.0,1.0 }, res720p);
+    guic->GetQuadManager()->CreateQuad("720p",
+        { 0.35f, 0.35f },
+        { (float)res720p->GetWidth() / 1920.0f, (float)res720p->GetHeight() / 1080.0f },
+        true,
+        true,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        res720p);
     guic->GetQuadManager()->SetOnClicked(&on1280x720);
+
+    entity = m_pOptionScene->AddEntity("activeResolution");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    switch (std::stoi(Option::GetInstance().GetVariable("i_resolutionHeight")))
+    {
+    case 720:
+        guic->GetQuadManager()->CreateQuad("activeResolution",
+            { 0.35f, 0.35f },
+            { (float)res720p->GetWidth() / 1920.0f, (float)res720p->GetHeight() / 1080.0f },
+            true,
+            true,
+            0,
+            { 1.0,1.0,1.0,1.0 },
+            nullptr,
+            { 0.0f, 1.0f, 0.0f });
+        break;
+    case 1080:
+        guic->GetQuadManager()->CreateQuad("activeResolution",
+            { 0.35f, 0.25f },
+            { (float)res1080p->GetWidth() / 1920.0f, (float)res1080p->GetHeight() / 1080.0f },
+            true,
+            true,
+            0,
+            { 1.0, 1.0, 1.0, 1.0 },
+            nullptr,
+            { 0.0f, 1.0f, 0.0f });
+        break;
+    case 1440:
+        guic->GetQuadManager()->CreateQuad("1444p",
+            { 0.35f, 0.15f },
+            { (float)res1440p->GetWidth() / 1920.0f, (float)res1440p->GetHeight() / 1080.0f },
+            true,
+            true,
+            0,
+            { 1.0,1.0,1.0,1.0 },
+            nullptr,
+            { 0.0f, 1.0f, 0.0f });
+        break;
+    }
+
+    entity = m_pOptionScene->AddEntity("restartWarning");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("restartWarning",
+        { 0.03f, 0.55f },
+        { (float)restart->GetWidth() / 1920.0f, (float)restart->GetHeight() / 1080.0f },
+        false,
+        false,
+        0,
+        { 1.0,1.0,1.0,1.0 },
+        restart);
+
 
     entity = m_pOptionScene->AddEntity("Back");
     guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("Back", { 0.05f, 0.8f }, { (float)exitTex->GetWidth() / std::stoi(Option::GetInstance().GetVariable("i_resolutionWidth")), (float)exitTex->GetHeight() / std::stoi(Option::GetInstance().GetVariable("i_resolutionHeight")) }, true, true, 0, { 1.0,1.0,1.0,1.0 }, exitTex);
+    guic->GetQuadManager()->CreateQuad("Back",
+        { 0.05f, 0.8f },
+        { (float)exitTex->GetWidth() / 1920.0f, (float)exitTex->GetHeight() / 1080.0f },
+        true,
+        true,
+        0,
+        { 1.0,1.0,1.0,1.0 },
+        exitTex);
     guic->GetQuadManager()->SetOnClicked(&onOptionBack);
 }
 
@@ -107,6 +204,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     entity = scene->AddEntity("OptionsOption");
     guic = entity->AddComponent<component::GUI2DComponent>();
     guic->GetQuadManager()->CreateQuad("OptionsOption", { 0.1f, 0.2f }, { optionsTex->GetWidth() / 1920.0f, optionsTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, optionsTex);
+    guic->GetQuadManager()->SetOnClicked(&onOptions);
 
     entity = scene->AddEntity("ExitOption");
     guic = entity->AddComponent<component::GUI2DComponent>();
@@ -147,6 +245,21 @@ void onOptionBack(const std::string& name)
     EventBus::GetInstance().Publish(&SceneChange("MainMenuScene"));
 }
 
+void on2560x1440(const std::string& name)
+{
+    Option::GetInstance().SetVariable("i_resolutionWidth", "2560");
+    Option::GetInstance().SetVariable("i_resolutionHeight", "1440");
+
+    //If we are not in fullscreen we should change the window to match the resolution
+    if (Renderer::GetInstance().GetWindow()->IsFullScreen() == false)
+    {
+        Option::GetInstance().SetVariable("i_windowWidth", "2560");
+        Option::GetInstance().SetVariable("i_windowHeight", "1440");
+    }
+
+    Option::GetInstance().WriteFile();
+}
+
 void on1920x1080(const std::string& name)
 {
     Option::GetInstance().SetVariable("i_resolutionWidth", "1920");
@@ -160,8 +273,6 @@ void on1920x1080(const std::string& name)
     }
 
     Option::GetInstance().WriteFile();
-
-    EventBus::GetInstance().Publish(&WindowChange());
 }
 
 void on1280x720(const std::string& name)
@@ -177,6 +288,4 @@ void on1280x720(const std::string& name)
     }
 
     Option::GetInstance().WriteFile();
-
-    EventBus::GetInstance().Publish(&WindowChange());
 }

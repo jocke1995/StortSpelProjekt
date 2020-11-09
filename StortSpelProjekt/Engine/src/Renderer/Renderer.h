@@ -83,6 +83,7 @@ namespace component
 
 // Events
 struct WindowChange;
+struct WindowSettingChange;
 
 class Renderer
 {
