@@ -15,7 +15,7 @@ class TextureCubeMap;
 class Material;
 class Window;
 class Scene;
-
+struct ID3D12Device5;
 struct Vertex;
 struct Font;
 struct aiNode;
