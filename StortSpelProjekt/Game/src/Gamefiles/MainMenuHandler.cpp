@@ -5,8 +5,11 @@
 #include "Renderer/Texture/Texture2D.h"
 #include "Misc/Option.h"
 #include "Events/EventBus.h"
+#include "Events/Events.h"
 #include "Renderer/Renderer.h"
 #include "Misc/Window.h"
+#include <iomanip>
+#include <sstream>
 
 void onStart(const std::string& name);
 void onExit(const std::string& name);
@@ -15,6 +18,13 @@ void onOptionBack(const std::string& name);
 void on2560x1440(const std::string& name);
 void on1920x1080(const std::string& name);
 void on1280x720(const std::string& name);
+void onFullscreen(const std::string& name);
+void onWindowed(const std::string& name);
+void onLowShadowQuality(const std::string& name);
+void onMedShadowQuality(const std::string& name);
+void onHighShadowQuality(const std::string& name);
+void onVolumePlus(const std::string& name);
+void onVolumeMinus(const std::string& name);
 
 MainMenuHandler::MainMenuHandler()
 {
@@ -35,6 +45,14 @@ void MainMenuHandler::createOptionScene()
     Texture* res1440p = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/2560x1440.png");
     Texture* res1080p = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/1920x1080.png");
     Texture* res720p = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/1280x720.png");
+    Texture* fullscreen = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Fullscreen.png");
+    Texture* windowed = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Windowed.png");
+    Texture* shadowQuality = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/ShadowQuality.png");
+    Texture* lowShadowQuality = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Low.png");
+    Texture* medShadowQuality = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Med.png");
+    Texture* highShadowQuality = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/High.png");
+    Texture* plus = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Plus.png");
+    Texture* minus = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Minus.png");
 
     // Player (Need a camera)
     Entity* entity = m_pOptionScene->AddEntity("player");
@@ -47,6 +65,7 @@ void MainMenuHandler::createOptionScene()
     TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
     sbc->SetTexture(blackCubeMap);
 
+    /*------------Resolution------------*/
     entity = m_pOptionScene->AddEntity("resolution");
     guic = entity->AddComponent<component::GUI2DComponent>();
     guic->GetQuadManager()->CreateQuad("resolution",
@@ -130,6 +149,195 @@ void MainMenuHandler::createOptionScene()
         break;
     }
 
+    /*-------------Window Mode-------------------*/
+    entity = m_pOptionScene->AddEntity("Fullscreen");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("Fullscreen",
+        { 0.60f, 0.15f },
+        { (float)fullscreen->GetWidth() / 1920.0f, (float)fullscreen->GetHeight() / 1080.0f },
+        true,
+        true,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        fullscreen);
+    guic->GetQuadManager()->SetOnClicked(&onFullscreen);
+
+    entity = m_pOptionScene->AddEntity("Windowed");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("Windowed",
+        { 0.60f, 0.25f },
+        { (float)windowed->GetWidth() / 1920.0f, (float)windowed->GetHeight() / 1080.0f },
+        true,
+        true,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        windowed);
+    guic->GetQuadManager()->SetOnClicked(&onWindowed);
+
+    entity = m_pOptionScene->AddEntity("activeWindowmode");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    switch (std::stoi(Option::GetInstance().GetVariable("i_windowMode")))
+    {
+    case 1:
+        guic->GetQuadManager()->CreateQuad("activeWindowmode",
+            { 0.60f, 0.15f },
+            { (float)fullscreen->GetWidth() / 1920.0f, (float)fullscreen->GetHeight() / 1080.0f },
+            true,
+            true,
+            0,
+            { 1.0,1.0,1.0,1.0 },
+            nullptr,
+            { 0.0f, 1.0f, 0.0f });
+        break;
+    case 0:
+        guic->GetQuadManager()->CreateQuad("activeWindowmode",
+            { 0.60f, 0.25f },
+            { (float)windowed->GetWidth() / 1920.0f, (float)windowed->GetHeight() / 1080.0f },
+            true,
+            true,
+            0,
+            { 1.0, 1.0, 1.0, 1.0 },
+            nullptr,
+            { 0.0f, 1.0f, 0.0f });
+        break;
+    }
+
+    /*-------------Shadow Quality--------------*/
+    entity = m_pOptionScene->AddEntity("shadowQuality");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("shadowQuality",
+        { 0.32f, 0.50f },
+        { (float)shadowQuality->GetWidth() / 1920.0f, (float)shadowQuality->GetHeight() / 1080.0f },
+        false,
+        false,
+        0,
+        { 1.0,1.0,1.0,1.0 },
+        shadowQuality);
+
+    entity = m_pOptionScene->AddEntity("lowShadowQuality");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("lowShadowQuality",
+        { 0.35f, 0.60f },
+        { (float)lowShadowQuality->GetWidth() / 1920.0f, (float)lowShadowQuality->GetHeight() / 1080.0f },
+        true,
+        true,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        lowShadowQuality);
+    guic->GetQuadManager()->SetOnClicked(&onLowShadowQuality);
+    entity = m_pOptionScene->AddEntity("medShadowQuality");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("medShadowQuality",
+        { 0.35f, 0.70f },
+        { (float)medShadowQuality->GetWidth() / 1920.0f, (float)medShadowQuality->GetHeight() / 1080.0f },
+        true,
+        true,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        medShadowQuality);
+    guic->GetQuadManager()->SetOnClicked(&onMedShadowQuality);
+    entity = m_pOptionScene->AddEntity("highShadowQuality");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("highShadowQuality",
+        { 0.35f, 0.80f },
+        { (float)highShadowQuality->GetWidth() / 1920.0f, (float)highShadowQuality->GetHeight() / 1080.0f },
+        true,
+        true,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        highShadowQuality);
+    guic->GetQuadManager()->SetOnClicked(&onHighShadowQuality);
+
+    entity = m_pOptionScene->AddEntity("activeShadowQuality");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    switch (std::stoi(Option::GetInstance().GetVariable("i_shadowResolution")))
+    {
+    case 0:
+        guic->GetQuadManager()->CreateQuad("activeShadowQuality",
+            { 0.35f, 0.60f },
+            { (float)lowShadowQuality->GetWidth() / 1920.0f, (float)lowShadowQuality->GetHeight() / 1080.0f },
+            true,
+            true,
+            0,
+            { 1.0,1.0,1.0,1.0 },
+            nullptr,
+            { 0.0f, 1.0f, 0.0f });
+        break;
+    case 1:
+        guic->GetQuadManager()->CreateQuad("activeShadowQuality",
+            { 0.35f, 0.70f },
+            { (float)medShadowQuality->GetWidth() / 1920.0f, (float)medShadowQuality->GetHeight() / 1080.0f },
+            true,
+            true,
+            0,
+            { 1.0, 1.0, 1.0, 1.0 },
+            nullptr,
+            { 0.0f, 1.0f, 0.0f });
+        break;
+    case 2:
+        guic->GetQuadManager()->CreateQuad("activeShadowQuality",
+            { 0.35f, 0.80f },
+            { (float)highShadowQuality->GetWidth() / 1920.0f, (float)highShadowQuality->GetHeight() / 1080.0f },
+            true,
+            true,
+            0,
+            { 1.0, 1.0, 1.0, 1.0 },
+            nullptr,
+            { 0.0f, 1.0f, 0.0f });
+        break;
+    }
+    /*-------------Volume--------------*/
+    entity = m_pOptionScene->AddEntity("volumePlus");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("volumePlus",
+        { 0.66f, 0.70f },
+        { (float)plus->GetWidth() / 1920.0f, (float)plus->GetHeight() / 1080.0f },
+        true,
+        true,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        plus);
+    guic->GetQuadManager()->SetOnClicked(&onVolumePlus);
+
+    entity = m_pOptionScene->AddEntity("volumeMinus");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("volumeMinus",
+        { 0.75f, 0.70f },
+        { (float)minus->GetWidth() / 1920.0f, (float)minus->GetHeight() / 1080.0f },
+        true,
+        true,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        minus);
+    guic->GetQuadManager()->SetOnClicked(&onVolumeMinus);
+
+    std::string textToRender = Option::GetInstance().GetVariable("f_volume");
+    float2 textPos = { 0.7f, 0.62f };
+    float2 textPadding = { 0.5f, 0.0f };
+    float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    float2 textScale = { 1.0f, 1.0f };
+    float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    entity = m_pOptionScene->AddEntity("volume");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetTextManager()->AddText("volume");
+    guic->GetTextManager()->SetColor(textColor, "volume");
+    guic->GetTextManager()->SetPadding(textPadding, "volume");
+    guic->GetTextManager()->SetPos(textPos, "volume");
+    guic->GetTextManager()->SetScale(textScale, "volume");
+    guic->GetTextManager()->SetText(textToRender, "volume");
+    guic->GetTextManager()->SetBlend(textBlend, "volume");
+
+    guic->GetQuadManager()->CreateQuad(
+        "money",
+        { 0.7f, 0.65f }, { 0.1f, 0.1f },
+        false, false,
+        1,
+        { 1.0, 1.0, 1.0, 0.0 },
+        nullptr
+    );
+
+    /*-------------Back--------------*/
     entity = m_pOptionScene->AddEntity("restartWarning");
     guic = entity->AddComponent<component::GUI2DComponent>();
     guic->GetQuadManager()->CreateQuad("restartWarning",
@@ -250,12 +458,8 @@ void on2560x1440(const std::string& name)
     Option::GetInstance().SetVariable("i_resolutionWidth", "2560");
     Option::GetInstance().SetVariable("i_resolutionHeight", "1440");
 
-    //If we are not in fullscreen we should change the window to match the resolution
-    if (Renderer::GetInstance().GetWindow()->IsFullScreen() == false)
-    {
-        Option::GetInstance().SetVariable("i_windowWidth", "2560");
-        Option::GetInstance().SetVariable("i_windowHeight", "1440");
-    }
+    Option::GetInstance().SetVariable("i_windowWidth", "2560");
+    Option::GetInstance().SetVariable("i_windowHeight", "1440");
 
     Option::GetInstance().WriteFile();
 }
@@ -265,12 +469,8 @@ void on1920x1080(const std::string& name)
     Option::GetInstance().SetVariable("i_resolutionWidth", "1920");
     Option::GetInstance().SetVariable("i_resolutionHeight", "1080");
 
-    //If we are not in fullscreen we should change the window to match the resolution
-    if (Renderer::GetInstance().GetWindow()->IsFullScreen() == false)
-    {
-        Option::GetInstance().SetVariable("i_windowWidth", "1920");
-        Option::GetInstance().SetVariable("i_windowHeight", "1080");
-    }
+    Option::GetInstance().SetVariable("i_windowWidth", "1920");
+    Option::GetInstance().SetVariable("i_windowHeight", "1080");
 
     Option::GetInstance().WriteFile();
 }
@@ -280,12 +480,61 @@ void on1280x720(const std::string& name)
     Option::GetInstance().SetVariable("i_resolutionWidth", "1280");
     Option::GetInstance().SetVariable("i_resolutionHeight", "720");
 
-    //If we are not in fullscreen we should change the window to match the resolution
-    if (Renderer::GetInstance().GetWindow()->IsFullScreen() == false)
-    {
-        Option::GetInstance().SetVariable("i_windowWidth", "1280");
-        Option::GetInstance().SetVariable("i_windowHeight", "720");
-    }
+    Option::GetInstance().SetVariable("i_windowWidth", "1280");
+    Option::GetInstance().SetVariable("i_windowHeight", "720");
+
+    Option::GetInstance().WriteFile();
+}
+
+void onFullscreen(const std::string& name)
+{
+    Option::GetInstance().SetVariable("i_windowMode", "1");
+
+    Option::GetInstance().WriteFile();
+}
+
+void onWindowed(const std::string& name)
+{
+    Option::GetInstance().SetVariable("i_windowMode", "0");
+
+    Option::GetInstance().WriteFile();
+}
+
+void onLowShadowQuality(const std::string& name)
+{
+    Option::GetInstance().SetVariable("i_shadowResolution", "0");
+
+    Option::GetInstance().WriteFile();
+}
+
+void onMedShadowQuality(const std::string& name)
+{
+    Option::GetInstance().SetVariable("i_shadowResolution", "1");
+
+    Option::GetInstance().WriteFile();
+}
+
+void onHighShadowQuality(const std::string& name)
+{
+    Option::GetInstance().SetVariable("i_shadowResolution", "2");
+
+    Option::GetInstance().WriteFile();
+}
+
+void onVolumePlus(const std::string& name)
+{
+    std::ostringstream str;
+    str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_volume")) + 0.1f;
+    Option::GetInstance().SetVariable("f_volume", str.str());
+
+    Option::GetInstance().WriteFile();
+}
+
+void onVolumeMinus(const std::string& name)
+{
+    std::ostringstream str;
+    str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_volume")) - 0.1f;
+    Option::GetInstance().SetVariable("f_volume", str.str());
 
     Option::GetInstance().WriteFile();
 }
