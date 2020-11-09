@@ -339,6 +339,11 @@ void EnemyFactory::SetMinDistanceFromPlayer(float val)
 	m_MinimumDistanceToPlayer = val;
 }
 
+void EnemyFactory::SetActive(bool active)
+{
+	m_IsActive = active;
+}
+
 void EnemyFactory::Update(double dt)
 {
 	if (m_IsActive)
@@ -391,7 +396,7 @@ void EnemyFactory::enemyDeath(Death* evnt)
 		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
 		if (enemyGui != nullptr)
 		{
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Enemies: " + std::to_string(m_EnemiesKilled) + "/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(std::to_string(m_EnemiesKilled) + "/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
 		}
 
 		//If we have reached the kill goal we are done with the level and should do anything coming from that
@@ -439,10 +444,11 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	m_EnemyComps.find("enemyZombie")->second->meleeAttackDmg = m_EnemyComps.find("enemyZombie")->second->meleeAttackDmgBase + 2*m_Level;
 	m_EnemyComps.find("enemyZombie")->second->movementSpeed = m_EnemyComps.find("enemyZombie")->second->movementSpeedBase + 1 * m_Level;
 
-	Entity* enemyGui = m_pScene->GetEntity("enemyGui");
-	if (enemyGui != nullptr)
-	{
-		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Enemies: 0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+		if (enemyGui != nullptr)
+		{
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+		}
 	}
 	++m_Level;
 }

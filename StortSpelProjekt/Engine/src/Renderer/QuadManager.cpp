@@ -79,11 +79,13 @@ void QuadManager::CreateQuad(
 	m_Markable = markable;
 	m_Depth = depthLevel;
 	m_AmountOfBlend = blend;
+	m_Scale = size;
+	m_Pos = pos;
 
-	float x = (pos.x * 2.0f) - 1.0f;
-	float y = ((1.0f - pos.y) * 2.0f) - 1.0f;
-	size.x = ((pos.x + size.x) * 2.0f) - 1.0f;
-	size.y = ((1.0f - (pos.y + size.y)) * 2.0f) - 1.0f;
+	float x = (m_Pos.x * 2.0f) - 1.0f;
+	float y = ((1.0f - m_Pos.y) * 2.0f) - 1.0f;
+	size.x = ((m_Pos.x + m_Scale.x) * 2.0f) - 1.0f;
+	size.y = ((1.0f - (m_Pos.y + m_Scale.y)) * 2.0f) - 1.0f;
 
 	std::vector<Vertex> m_Vertices = {};
 
@@ -264,6 +266,16 @@ const int QuadManager::GetId() const
 int QuadManager::GetDepth() const
 {
 	return m_Depth;
+}
+
+float2 QuadManager::GetScale() const
+{
+	return m_Scale;
+}
+
+float2 QuadManager::GetPos() const
+{
+	return m_Pos;
 }
 
 const bool QuadManager::GetActiveTexture() const
