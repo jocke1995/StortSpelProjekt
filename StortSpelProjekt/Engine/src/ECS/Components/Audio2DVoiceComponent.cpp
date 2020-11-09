@@ -30,6 +30,10 @@ void component::Audio2DVoiceComponent::OnInitScene()
 
 void component::Audio2DVoiceComponent::OnUnInitScene()
 {
+	for (auto audio : m_Voices)
+	{
+		audio.second.Stop();
+	}
 }
 
 void component::Audio2DVoiceComponent::AddVoice(const std::wstring& name)

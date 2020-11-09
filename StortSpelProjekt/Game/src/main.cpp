@@ -10,6 +10,7 @@
 #include "UpgradeManager.h"
 #include "Shop.h"
 #include "Components/CurrencyComponent.h"
+#include "MainMenuHandler.h"
 
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
@@ -53,10 +54,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* demoScene = GameScene(sceneManager);
     Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverScene(sceneManager);
+    Scene* mainMenuScene = MainMenuHandler::GetInstance().CreateScene(sceneManager);
 
-    sceneManager->SetScene(demoScene);
+    sceneManager->SetScene(mainMenuScene);
     sceneManager->SetGameOverScene(gameOverScene);
-
     GameNetwork gameNetwork;
 
     /*------ Network Init -----*/
