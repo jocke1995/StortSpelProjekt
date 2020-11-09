@@ -74,7 +74,7 @@ void ParticleEffect::spawnParticle()
 	// m_ParticleIndex is always at the oldest particle first
 	Particle& particle = m_Particles.at(m_ParticleIndex);
 
-	// If particle is alive, don't spawn
+	// If particle is alive, wait (don't spawn yet / continue)
 	if (particle.IsAlive())
 	{
 		return;
@@ -169,7 +169,7 @@ void ParticleEffect::randomizeRotation(Particle& particle)
 
 void ParticleEffect::randomizeLifetime(Particle& particle)
 {
-	particle.m_Lifetime = 10;
+	particle.m_Lifetime = 5;
 }
 
 void ParticleEffect::updateResourceData()
@@ -182,6 +182,10 @@ void ParticleEffect::updateResourceData()
 	for (Particle& p : m_Particles)
 	{
 		pos = { p.m_Position.x, p.m_Position.y, p.m_Position.z, p.m_Size };
+		if (pos.y < -4000)
+		{
+			int a = 0;
+		}
 		tempData[index++] = pos;
 	}
 
