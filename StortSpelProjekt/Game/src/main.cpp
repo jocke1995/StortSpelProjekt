@@ -18,6 +18,7 @@ Scene* GameOverScene(SceneManager* sm);
 
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
+void MainMenuUpdateScene(SceneManager* sm, double dt);
 
 EnemyFactory enemyFactory;
 GameGUI gameGUI;
@@ -55,6 +56,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverScene(sceneManager);
     Scene* mainMenuScene = MainMenuHandler::GetInstance().CreateScene(sceneManager);
+    mainMenuScene->SetUpdateScene(&MainMenuUpdateScene);
 
     sceneManager->SetScene(mainMenuScene);
     sceneManager->SetGameOverScene(gameOverScene);
@@ -857,4 +859,14 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     trans->SetRotationX(rotValue);
 
     rotValue += 0.005f;
+}
+
+void MainMenuUpdateScene(SceneManager* sm, double dt)
+{
+    static float rotValue = 0.0f;
+    Transform* trans = sm->GetScene("MainMenuScene")->GetEntity("Zombie")->GetComponent<component::TransformComponent>()->GetTransform();
+    trans->SetRotationY(rotValue);
+    trans->SetPosition({ 0.0, std::sin(rotValue), 10.0 });
+
+    rotValue += dt;
 }
