@@ -3,6 +3,7 @@
 #include "../Events/Events.h"
 #include "ECS/Entity.h"
 #include "UpgradeComponents/UpgradeComponent.h"
+#include "Player.h"
 
 component::HealthComponent::HealthComponent(Entity* parent, int hp, float removalTime) : Component(parent)
 {
@@ -67,6 +68,7 @@ void component::HealthComponent::ChangeHealth(int hpChange)
 	m_Health += hpChange * static_cast<float>(m_Health > 0);
 	if (m_Health <= 0 && m_Dead == false)
 	{
+		m_Health = 0;
 		m_Dead = true;
 		component::CollisionComponent* comp = m_pParent->GetComponent<component::CollisionComponent>();
 		if (comp)
@@ -81,7 +83,6 @@ void component::HealthComponent::ChangeHealth(int hpChange)
 	{
 		m_Health = m_MaxHealth;
 	}
-
 }
 
 void component::HealthComponent::TakeDamage(int damage)
@@ -126,10 +127,16 @@ void component::HealthComponent::SetMaxHealth(int newHealth)
 void component::HealthComponent::ChangeMaxHealth(int hpChange)
 {
 	m_MaxHealth += hpChange;
+	m_Health = m_MaxHealth;
 }
 
 void component::HealthComponent::Reset()
 {
+	if (m_pParent->GetName() == "player")
+	{
+		m_MaxHealth = Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->GetMaxHealth();
+	}
+
 	m_Health = m_MaxHealth;
 	m_Dead = false;
 }

@@ -86,6 +86,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     // Player (Need a camera)
     Entity* entity = scene->AddEntity("player");
     entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    // Add a voice to the player to play some music.
     vc = entity->AddComponent<component::Audio2DVoiceComponent>();
     vc->AddVoice(L"MenuMusic");
     vc->Play(L"MenuMusic");
@@ -125,8 +126,9 @@ Scene* MainMenuHandler::GetScene()
 
 void onStart(const std::string& name)
 {
-    EventBus::GetInstance().Publish(&CursorShow(false));
     EventBus::GetInstance().Publish(&SceneChange("GameScene"));
+    EventBus::GetInstance().Publish(&CursorShow(false));
+    EventBus::GetInstance().Publish(&RoundStart());
 }
 
 void onExit(const std::string& name)

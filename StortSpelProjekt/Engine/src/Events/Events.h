@@ -129,3 +129,8 @@ struct CursorShow : public Event
 
 	bool m_Show;
 };
+
+struct RoundStart : public Event
+{
+	RoundStart() {};
+};

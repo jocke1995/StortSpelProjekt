@@ -20,15 +20,15 @@ class SceneManager
 public:
 	static SceneManager& GetInstance();
 	~SceneManager();
-	void EraseSceneManager();
+	
 	// Update
 	void Update(double dt);
 	void RenderUpdate(double dt);
 
 	// Scene
 	Scene* CreateScene(std::string sceneName);
-	void SetScenes(Scene* scene);
-	std::vector<Scene*>* GetActiveScenes();
+	void SetScene(Scene* scene);
+	Scene* GetActiveScene();
 	Scene* GetScene(std::string sceneName) const;
 	void ChangeScene();
 
@@ -42,10 +42,13 @@ public:
 	void AddEntity(Entity* entity, Scene* scene);
 
 private:
+	friend class Engine;
 	SceneManager();
+	void deleteSceneManager();
+
 	std::map<std::string, Scene*> m_Scenes;
-	std::vector<Scene*> m_ActiveScenes;
-	Scene* m_pDefaultScene;
+	Scene* m_pActiveScene = nullptr;
+	Scene* m_pDefaultScene = nullptr;
 
 	struct EntityScene
 	{

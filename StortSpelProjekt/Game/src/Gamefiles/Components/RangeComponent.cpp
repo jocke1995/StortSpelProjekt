@@ -92,12 +92,14 @@ void component::RangeComponent::Attack()
 		component::ProjectileComponent* pc = nullptr;
 		component::UpgradeComponent* uc = nullptr;
 		component::AccelerationComponent* ac = nullptr;
+		component::PointLightComponent* plc = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
 		ac = ent->AddComponent<component::AccelerationComponent>(98.2);
 		uc = ent->AddComponent<component::UpgradeComponent>();
+		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
 		// Applying all range uppgrades to the new projectile entity "RangeAttack"
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
@@ -112,13 +114,18 @@ void component::RangeComponent::Attack()
 		float length = forward.length();
 
 		double3 dim = m_pParent->GetComponent<component::ModelComponent>()->GetModelDim();
-
+		float3 scale = {
+						m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().x,
+						m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().y,
+						m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().z
+		};
 		// add the forward vector to parent pos 
 		// so the projectile doesn't spawn inside of us
 		float3 pos;
-		pos.x = ParentPos.x + (forward.x / length) * (dim.x / 2.0);
+		bool t_pose = m_pParent->GetComponent<component::BoundingBoxComponent>()->GetFlagOBB() & F_OBBFlags::T_POSE;
+		pos.x = ParentPos.x + (forward.x / length) * ((static_cast<float>(!t_pose) * dim.x + static_cast<float>(t_pose) * dim.z) * scale.x / 2.0);
 		pos.y = ParentPos.y + (forward.y / length);
-		pos.z = ParentPos.z + (forward.z / length) * (dim.z / 2.0);
+		pos.z = ParentPos.z + (forward.z / length) * (dim.z * scale.z / 2.0);
 
 		// initialize the components
 		mc->SetModel(m_pModel);
@@ -137,8 +144,12 @@ void component::RangeComponent::Attack()
 			m_pVoiceComponent->Play(L"Fireball");
 		}
 
+		plc->SetColor({ 3.0f, 0.0f, 0.0f });
+		ent->Update(0);	// Init, so that the light doesn't spawn in origo first frame;
+		tc->RenderUpdate(0);
+
 		// add the entity to the sceneManager so it can be spawned in in run time
-		// TODO: add dynamicly correct
+		ent->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
 		m_pSceneMan->AddEntity(ent, m_pScene);
 
 		m_TimeAccumulator = 0.0;
@@ -151,4 +162,3 @@ void component::RangeComponent::Attack()
 		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAttacking();
 	}
 }
-		

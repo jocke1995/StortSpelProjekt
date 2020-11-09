@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Transform.h"
 
-Transform::Transform()
+Transform::Transform(bool invertDirection)
 {
 	m_Position = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 	m_RenderPosition = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
@@ -15,6 +15,8 @@ Transform::Transform()
 	m_RotYMat = DirectX::XMMatrixIdentity();
 	m_RotZMat = DirectX::XMMatrixIdentity();
 	m_Velocity = BASE_VEL;
+
+	m_InvDir = static_cast<int>(invertDirection) * -2 + 1;
 }
 
 Transform::~Transform()
@@ -207,7 +209,7 @@ DirectX::XMFLOAT3 Transform::GetForwardXMFLOAT3() const
 	DirectX::XMFLOAT3 forward;
 	DirectX::XMStoreFloat3(&forward, m_RotationMat.r[2]);
 
-	return forward;
+	return DirectX::XMFLOAT3(m_InvDir * forward.x, m_InvDir * forward.y, m_InvDir * forward.z);
 }
 
 float3 Transform::GetForwardFloat3() const
@@ -215,7 +217,7 @@ float3 Transform::GetForwardFloat3() const
 	DirectX::XMFLOAT3 forward;
 	DirectX::XMStoreFloat3(&forward, m_RotationMat.r[2]);
 
-	return { forward.x, forward.y, forward.z };
+	return { m_InvDir * forward.x, m_InvDir * forward.y, m_InvDir * forward.z };
 }
 
 DirectX::XMFLOAT3 Transform::GetRightXMFLOAT3() const
@@ -223,14 +225,14 @@ DirectX::XMFLOAT3 Transform::GetRightXMFLOAT3() const
 	DirectX::XMFLOAT3 right;
 	DirectX::XMStoreFloat3(&right, m_RotationMat.r[0]);
 
-	return right;
+	return DirectX::XMFLOAT3(m_InvDir * right.x, m_InvDir * right.y, m_InvDir * right.z);
 }
 float3 Transform::GetRightFloat3() const
 {
 	DirectX::XMFLOAT3 right;
 	DirectX::XMStoreFloat3(&right, m_RotationMat.r[0]);
 
-	return { right.x, right.y, right.z };
+	return { m_InvDir * right.x, m_InvDir * right.y, m_InvDir * right.z };
 }
 DirectX::XMFLOAT3 Transform::GetUpXMFLOAT3() const
 {
@@ -255,6 +257,11 @@ float Transform::GetVelocity() const
 void Transform::SetVelocity(float vel)
 {
 	m_Velocity = vel;
+}
+
+int Transform::GetInvDir()
+{
+	return m_InvDir;
 }
 
 void Transform::SetActualMovement(float x, float y, float z)

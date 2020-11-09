@@ -79,11 +79,13 @@ void QuadManager::CreateQuad(
 	m_Markable = markable;
 	m_Depth = depthLevel;
 	m_AmountOfBlend = blend;
+	m_Scale = size;
+	m_Pos = pos;
 
-	float x = (pos.x * 2.0f) - 1.0f;
-	float y = ((1.0f - pos.y) * 2.0f) - 1.0f;
-	size.x = ((pos.x + size.x) * 2.0f) - 1.0f;
-	size.y = ((1.0f - (pos.y + size.y)) * 2.0f) - 1.0f;
+	float x = (m_Pos.x * 2.0f) - 1.0f;
+	float y = ((1.0f - m_Pos.y) * 2.0f) - 1.0f;
+	size.x = ((m_Pos.x + m_Scale.x) * 2.0f) - 1.0f;
+	size.y = ((1.0f - (m_Pos.y + m_Scale.y)) * 2.0f) - 1.0f;
 
 	std::vector<Vertex> m_Vertices = {};
 
@@ -266,6 +268,16 @@ int QuadManager::GetDepth() const
 	return m_Depth;
 }
 
+float2 QuadManager::GetScale() const
+{
+	return m_Scale;
+}
+
+float2 QuadManager::GetPos() const
+{
+	return m_Pos;
+}
+
 const bool QuadManager::GetActiveTexture() const
 {
 	return m_ActiveTexture;
@@ -313,11 +325,6 @@ void QuadManager::uploadQuadData(Renderer* renderer)
 void QuadManager::deleteQuadData()
 {
 	Renderer* renderer = &Renderer::GetInstance();
-
-	// Temp code, removes the text from CopyOnDemandTask before we delete the text*
-	CopyTask* task = renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
-	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
-	codt->UnSubmitMesh(m_pQuad);
 
 	// This is an ugly solution, however, it is noticable faster than waiting for the
 	// GPU every time we want to delete a quad, while also emptying the buffer so that
