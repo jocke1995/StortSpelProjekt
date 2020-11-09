@@ -10,13 +10,13 @@
 #include "../GPUMemory/Resource.h"
 #include "../DescriptorHeap.h"
 
+#include "../Renderer/Mesh.h"
+
 #include "../Particles/ParticleEffect.h"
 
 BillboardComputeTask::BillboardComputeTask(ID3D12Device5* device, RootSignature* rootSignature, std::vector<std::pair<std::wstring, std::wstring>> csNamePSOName, COMMAND_INTERFACE_TYPE interfaceType, unsigned int FLAG_THREAD)
 	: ComputeTask(device, rootSignature, csNamePSOName, FLAG_THREAD, interfaceType)
 {
-	m_pSRV.reserve(10); // Pre allocate space for 10 particle effects
-	m_pUAV.reserve(10);
 }
 
 BillboardComputeTask::~BillboardComputeTask()
@@ -25,14 +25,7 @@ BillboardComputeTask::~BillboardComputeTask()
 
 void BillboardComputeTask::SetParticleEffects(std::vector<ParticleEffect*>* particleEffects)
 {
-	m_pSRV.clear();
-	m_pUAV.clear();
-
-	for (ParticleEffect* particleEffect : *particleEffects)
-	{
-		m_pSRV.push_back(particleEffect->m_pSRV);
-		m_pUAV.push_back(particleEffect->m_pUAV);
-	}
+	m_ParticleEffects = *particleEffects;
 }
 
 void BillboardComputeTask::Execute()
@@ -50,8 +43,12 @@ void BillboardComputeTask::Execute()
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
 
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
+
 	
-	for (unsigned int i = 0; i < m_pSRV.size(); i++)
+
+	
+	
+	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
 	{
 		//// The resource to read (Resource Barrier)
 		//TransResourceState(commandList, const_cast<Resource*>(m_pSRV[i]->GetResource()),

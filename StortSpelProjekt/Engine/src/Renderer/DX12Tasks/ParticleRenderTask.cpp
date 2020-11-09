@@ -29,7 +29,7 @@ ParticleRenderTask::ParticleRenderTask(ID3D12Device5* device, RootSignature* roo
 	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
 	AssetLoader* al = AssetLoader::Get();
-	m_pParticleQuad = al->LoadModel(L"../Vendor/Resources/Models/Quad/NormalizedQuad.obj")->GetMeshAt(0);
+	
 }
 
 ParticleRenderTask::~ParticleRenderTask()
@@ -98,15 +98,15 @@ void ParticleRenderTask::Execute()
 				return;
 			}
 			ParticleEffect* effect = pec->m_pParticleEffect;
-			commandList->SetGraphicsRootShaderResourceView(RS::SRV0, effect->m_pUAVSRV->GetResource()->GetGPUVirtualAdress());
+			commandList->SetGraphicsRootShaderResourceView(RS::SRV0, effect->m_pSRV->GetResource()->GetGPUVirtualAdress());
 			commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
 			Texture2DGUI* texture = pec->GetTexture();
 
 			// Draw a quad (m_pParticleQuad)
-			size_t num_Indices = m_pParticleQuad->GetNumIndices();
+			size_t num_Indices = effect->m_pMesh->GetNumIndices();
 			SlotInfo info = {};
-			info.vertexDataIndex = m_pParticleQuad->GetSRV()->GetDescriptorHeapIndex();
+			info.vertexDataIndex = effect->m_pMesh->GetSRV()->GetDescriptorHeapIndex();
 			info.textureAlbedo = texture->GetDescriptorHeapIndex();
 
 			// Get uav
@@ -121,7 +121,7 @@ void ParticleRenderTask::Execute()
 
 			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-			commandList->IASetIndexBuffer(m_pParticleQuad->GetIndexBufferView());
+			commandList->IASetIndexBuffer(effect->m_pMesh->GetIndexBufferView());
 			commandList->DrawIndexedInstanced(num_Indices, effect->m_ParticleCount, 0, 0, 0);
 		}
 	}

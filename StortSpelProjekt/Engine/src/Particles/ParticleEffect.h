@@ -13,6 +13,7 @@ class Resource;
 class ShaderResourceView;
 class UnorderedAccessView;
 class Texture2DGUI;
+class Mesh;
 
 class ParticleEffect
 {
@@ -25,6 +26,7 @@ public:
 
 	const std::wstring& GetName() const;
 
+	Mesh* GetMesh() const;
 	Texture2DGUI* GetTexture() const;
 
 private:
@@ -36,6 +38,7 @@ private:
 
 	std::wstring m_Name = L"unnamed_particleEffect";
 	Texture2DGUI* m_pTexture = nullptr;
+	Mesh* m_pMesh = nullptr;
 	std::vector<Particle> m_Particles;
 	unsigned int m_ParticleIndex = 0;
 	unsigned int m_ParticleCount = PARTICLE_EFFECT_DEFAULT_SIZE;
@@ -57,7 +60,6 @@ private:
 	// WVP matrix
 	Resource* m_pUAVDefaultResource = nullptr;
 	UnorderedAccessView* m_pUAV = nullptr;
-	ShaderResourceView* m_pUAVSRV = nullptr;
 
 	void spawnParticle();
 

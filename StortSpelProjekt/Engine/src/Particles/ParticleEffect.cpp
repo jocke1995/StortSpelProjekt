@@ -11,6 +11,8 @@
 #include "../Renderer/GPUMemory/UnorderedAccessView.h"
 
 #include "../Renderer/Texture/Texture2DGUI.h"
+#include "../Renderer/Model.h"
+#include "../Renderer/Mesh.h"
 
 EngineRand ParticleEffect::rand = {};
 
@@ -31,12 +33,11 @@ ParticleEffect::ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap
 ParticleEffect::~ParticleEffect()
 {
 	delete m_pUploadResource;
-	delete m_pUAVResource;
+	delete m_pDefaultResource;
 	delete m_pSRV;
 	delete m_pUAVUploadResource;
 	delete m_pUAVDefaultResource;
 	delete m_pUAV;
-	delete m_pUAVSRV;
 }
 
 void ParticleEffect::Update(double dt)
@@ -67,6 +68,11 @@ const std::wstring& ParticleEffect::GetName() const
 	return m_Name;
 }
 
+Mesh* ParticleEffect::GetMesh() const
+{
+	return m_pMesh;
+}
+
 Texture2DGUI* ParticleEffect::GetTexture() const
 {
 	return m_pTexture;
@@ -95,9 +101,10 @@ void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap)
 	m_Name = name;
 
 	// Set default mesh and texture
+	// TODO: allow any mesh (not priority)
 	AssetLoader* al = AssetLoader::Get();
-	m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/particle00.png"));
-	//m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/minimap.png"));
+	m_pMesh = al->LoadModel(L"../Vendor/Resources/Models/Quad/NormalizedQuad.obj")->GetMeshAt(0);
+	m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/minimap.png"));
 
 	Renderer& renderer = Renderer::GetInstance();
 
@@ -124,7 +131,7 @@ void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap)
 	srvDesc.Buffer.StructureByteStride = entrySize;
 	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
-	m_pSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &srvDesc, m_pUploadResource);
+	m_pSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &srvDesc, m_pDefaultResource);
 
 	// ------------------------------------------------------------------------------------------------------
 
@@ -221,5 +228,10 @@ void ParticleEffect::updateResourceData()
 
 	// Todo, sort z for blend
 
-	m_pUploadResource->SetData(tempData.data());
+	const void* data = static_cast<void*>(tempData.data());
+	std::tuple temp = { m_pUploadResource, m_pDefaultResource, data };
+	
+	// Copy to ondemand
+	Renderer& renderer = Renderer::GetInstance();
+	renderer.submitToCodt(&temp);
 }

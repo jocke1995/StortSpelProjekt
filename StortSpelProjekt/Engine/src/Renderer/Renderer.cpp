@@ -732,6 +732,8 @@ void Renderer::InitParticleEmitterComponent(component::ParticleEmitterComponent*
 	auto mc = nullptr; // Particles don't have support for meshcomponent
 	auto tc = component->GetParent()->GetComponent<component::TransformComponent>();
 
+	submitMeshToCodt(component->GetMesh());
+	
 	Texture* texture = static_cast<Texture*>(component->GetTexture());
 	submitTextureToCodt(texture);
 

@@ -23,8 +23,9 @@ public:
 
 	void Execute();
 private:
-	std::vector<ShaderResourceView*> m_pSRV;
-	std::vector<UnorderedAccessView*> m_pUAV;
+	friend class ParticleRenderTask;
+
+	std::vector<ParticleEffect*> m_ParticleEffects;
 
 	unsigned int m_ThreadGroupsX = 1;
 	unsigned int m_ThreadGroupsY = 1;

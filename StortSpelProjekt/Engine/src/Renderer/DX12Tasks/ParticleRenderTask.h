@@ -19,7 +19,6 @@ public:
 	void Execute();
 
 private:
-	Mesh* m_pParticleQuad; // Set on constructor
 };
 
 #endif

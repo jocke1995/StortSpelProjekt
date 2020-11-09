@@ -57,6 +57,11 @@ void component::ParticleEmitterComponent::SetParticleEffect(ParticleEffect* effe
 	m_pParticleEffect = effect;
 }
 
+Mesh* component::ParticleEmitterComponent::GetMesh() const
+{
+	return m_pParticleEffect->GetMesh();
+}
+
 Texture2DGUI* component::ParticleEmitterComponent::GetTexture() const
 {
 	return m_pParticleEffect->GetTexture();
