@@ -383,7 +383,7 @@ void EnemyFactory::enemyDeath(Death* evnt)
 		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
 		if (enemyGui != nullptr)
 		{
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Enemies: " + std::to_string(m_EnemiesKilled) + "/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(std::to_string(m_EnemiesKilled) + "/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
 		}
 
 		//If we have reached the kill goal we are done with the level and should do anything coming from that
@@ -430,7 +430,7 @@ void EnemyFactory::onSceneSwitch(SceneChange* evnt)
 		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
 		if (enemyGui != nullptr)
 		{
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Enemies: 0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
 		}
 	}
 }
