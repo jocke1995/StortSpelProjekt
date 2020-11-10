@@ -130,19 +130,15 @@ void component::RangeComponent::Attack()
 		pos.y = ParentPos.y + (forward.y / length);
 		pos.z = ParentPos.z + (forward.z / length) * (dim.z * scale.z / 2.0);
 
-		float3 camPos = m_pScene->GetMainCamera()->GetPositionFloat3();
-		float3 camForward = m_pScene->GetMainCamera()->GetDirectionFloat3();
-		float3 camUp = m_pScene->GetMainCamera()->GetUpVectorFloat3();
-
 		// Send ray from the middle of the screen towards the world
-		float searchDist = 500.0f;
+		// A distance of 100 seems like a good sweetspot
+		float searchDist = 100.0f;
+		float3 camForward = m_pScene->GetMainCamera()->GetDirectionFloat3();
 		double dist = m_pParent->GetComponent<component::CollisionComponent>()->CastRay(double3{ camForward.x, camForward.y, camForward.z }, searchDist);
 
+		// Normalize the camera forward vector
 		float vecLen = sqrtf(powf(camForward.x, 2) + powf(camForward.y, 2) + powf(camForward.z, 2));
-		float3 camForwardNorm;
-		camForwardNorm.x = camForward.x / vecLen;
-		camForwardNorm.y = camForward.y / vecLen;
-		camForwardNorm.z = camForward.z / vecLen;
+		float3 camForwardNorm = { camForward.x / vecLen, camForward.y / vecLen, camForward.z / vecLen };
 
 		// If it hits something before a certain length, make the projectile move towards that point
 		float3 hitPoint;
@@ -150,27 +146,14 @@ void component::RangeComponent::Attack()
 		{
 			hitPoint = camForward + camForwardNorm * dist;
 		}
-		// else set the point at the end of the length
+		// Else set the point at the end of the length
 		else
 		{
 			hitPoint = camForward + camForwardNorm * searchDist;
 		}
 
-		// Height difference between projectile spawn and camera height
-		float height = hitPoint.y - pos.y;
-		if (height > 0.0f && height < 17.0f) // TODOOOOo
-		{
-			hitPoint.y += height;
-		}
-		/*else
-		{
-			hitPoint.y -= height;
-		}*/
-
-		//newPoint.y = camPos.y;
-
-		Log::Print("dist %f\n", height);
-		//Log::Print("Campos.x %f, Campos.y %f, Campos.z %f \n", rand.x, rand.y, rand.z);
+		// Compensate for the low spawnpoint of the projectile compared to the height of the crosshair
+		hitPoint.y += dim.y;
 
 		// initialize the components
 		mc->SetModel(m_pModel);
