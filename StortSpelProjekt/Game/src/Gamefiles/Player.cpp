@@ -4,12 +4,14 @@
 #include "UpgradeManager.h"
 #include "Shop.h"
 #include "Events/EventBus.h"
+#include "ECS/SceneManager.h"
 
 Player::Player()
 {
 	m_pPlayer = nullptr;
 	m_pShop = nullptr;
 	m_pUpgradeManager = nullptr;
+	EventBus::GetInstance().Subscribe(this, &Player::onResetGame);
 }
 
 Player& Player::GetInstance()
@@ -20,6 +22,7 @@ Player& Player::GetInstance()
 
 Player::~Player()
 {
+	EventBus::GetInstance().Unsubscribe(this, &Player::onResetGame);
 	delete m_pUpgradeManager;
 	delete m_pShop;
 }
@@ -49,4 +52,12 @@ Shop* Player::GetShop()
 void Player::IsInShop(bool value)
 {
 	m_IsInShop = value;
+}
+
+void Player::onResetGame(ResetGame* evnt)
+{
+	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player")->GetComponent<component::CurrencyComponent>()->SetBalance(0);
+	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("money")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0", "money");
+	SceneManager::GetInstance().GetScene("ShopScene")->GetEntity("player")->GetComponent<component::CurrencyComponent>()->SetBalance(0);
+	SceneManager::GetInstance().GetScene("ShopScene")->GetEntity("money")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0", "money");
 }

@@ -10,6 +10,7 @@ class Shop;
 class UpgradeManager;
 
 struct UForUpgrade;
+struct ResetGame;
 
 class Player
 {
@@ -38,6 +39,8 @@ private:
 	Shop* m_pShop;
 
 	int m_UpgradeApplied = 0;
+
+	void onResetGame(ResetGame* evnt);
 };
 
 
