@@ -17,6 +17,9 @@
 #include "../Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
 #include "../Memory/PoolAllocator.h"
 
+#include "../Renderer/Renderer.h"
+#include "../Misc/Window.h"
+
 component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale, int damage, float velocity) : Component(parent)
 {
 	m_pSceneMan = sm;
@@ -127,11 +130,53 @@ void component::RangeComponent::Attack()
 		pos.y = ParentPos.y + (forward.y / length);
 		pos.z = ParentPos.z + (forward.z / length) * (dim.z * scale.z / 2.0);
 
+		float3 camPos = m_pScene->GetMainCamera()->GetPositionFloat3();
+		float3 camForward = m_pScene->GetMainCamera()->GetDirectionFloat3();
+		float3 camUp = m_pScene->GetMainCamera()->GetUpVectorFloat3();
+
+		// Send ray from the middle of the screen towards the world
+		float searchDist = 500.0f;
+		double dist = m_pParent->GetComponent<component::CollisionComponent>()->CastRay(double3{ camForward.x, camForward.y, camForward.z }, searchDist);
+
+		float vecLen = sqrtf(powf(camForward.x, 2) + powf(camForward.y, 2) + powf(camForward.z, 2));
+		float3 camForwardNorm;
+		camForwardNorm.x = camForward.x / vecLen;
+		camForwardNorm.y = camForward.y / vecLen;
+		camForwardNorm.z = camForward.z / vecLen;
+
+		// If it hits something before a certain length, make the projectile move towards that point
+		float3 hitPoint;
+		if (dist != -1)
+		{
+			hitPoint = camForward + camForwardNorm * dist;
+		}
+		// else set the point at the end of the length
+		else
+		{
+			hitPoint = camForward + camForwardNorm * searchDist;
+		}
+
+		// Height difference between projectile spawn and camera height
+		float height = hitPoint.y - pos.y;
+		if (height > 0.0f && height < 17.0f) // TODOOOOo
+		{
+			hitPoint.y += height;
+		}
+		/*else
+		{
+			hitPoint.y -= height;
+		}*/
+
+		//newPoint.y = camPos.y;
+
+		Log::Print("dist %f\n", height);
+		//Log::Print("Campos.x %f, Campos.y %f, Campos.z %f \n", rand.x, rand.y, rand.z);
+
 		// initialize the components
 		mc->SetModel(m_pModel);
 		mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 		tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
-		tc->GetTransform()->SetMovement(forward.x * m_Velocity, forward.y * m_Velocity, forward.z * m_Velocity);
+		tc->GetTransform()->SetMovement(hitPoint.x * m_Velocity, hitPoint.y * m_Velocity, hitPoint.z * m_Velocity);
 		tc->GetTransform()->SetScale(m_Scale);
 		tc->GetTransform()->SetVelocity(m_Velocity);
 		tc->Update(0.02);
@@ -155,7 +200,7 @@ void component::RangeComponent::Attack()
 		m_TimeAccumulator = 0.0;
 
 		// Makes player turn in direction of camera to attack
-		double angle = std::atan2(forward.x, forward.z);
+		int angle = std::atan2(forward.x, forward.z);
 		int angleDegrees = EngineMath::convertToWholeDegrees(angle);
 		angleDegrees = (angleDegrees + 360) % 360;
 		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAngleToTurnTo(angleDegrees);
