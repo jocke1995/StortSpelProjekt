@@ -75,10 +75,7 @@ void ParticleRenderTask::Execute()
 	commandList->RSSetScissorRects(1, rect);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// Create a CB_PER_FRAME struct
-	CB_PER_FRAME_STRUCT perFrame = { m_pCamera->GetPosition().x, m_pCamera->GetPosition().y, m_pCamera->GetPosition().z };
-	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_FRAME, m_Resources["cbPerFrame"]->GetGPUVirtualAdress());
-	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_SCENE, m_Resources["cbPerScene"]->GetGPUVirtualAdress());
+	
 
 	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
 
@@ -98,7 +95,13 @@ void ParticleRenderTask::Execute()
 				return;
 			}
 			ParticleEffect* effect = pec->m_pParticleEffect;
+
+			// Test to multiply in render (Later do it in compute)
 			commandList->SetGraphicsRootShaderResourceView(RS::SRV0, effect->m_pSRV->GetResource()->GetGPUVirtualAdress());
+			// Create a CB_PER_FRAME struct
+			CB_PER_FRAME_STRUCT perFrame = { m_pCamera->GetPosition().x, m_pCamera->GetPosition().y, m_pCamera->GetPosition().z };
+			commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_FRAME, m_Resources["cbPerFrame"]->GetGPUVirtualAdress());
+
 			commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
 			Texture2DGUI* texture = pec->GetTexture();
@@ -109,15 +112,12 @@ void ParticleRenderTask::Execute()
 			info.vertexDataIndex = effect->m_pMesh->GetSRV()->GetDescriptorHeapIndex();
 			info.textureAlbedo = texture->GetDescriptorHeapIndex();
 
-			// Get uav
-			Transform* transform = tc->GetTransform();
 
-
-			DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-			DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+			DirectX::XMMATRIX WTransposed = DirectX::XMMatrixIdentity();
+			DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (WTransposed);
 
 			// Create a CB_PER_OBJECT struct
-			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed , info };
+			CB_PER_OBJECT_STRUCT perObject = { WTransposed, WVPTransposed , info };
 
 			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
