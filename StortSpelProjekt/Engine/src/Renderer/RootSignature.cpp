@@ -55,34 +55,21 @@ void RootSignature::createRootSignatureStructure()
 	dtCBV.NumDescriptorRanges = ARRAYSIZE(dtRangesCBV);
 	dtCBV.pDescriptorRanges = dtRangesCBV;
 
-	// DescriptorTable for SRV0's (bindless)
-	D3D12_DESCRIPTOR_RANGE dtRangesSRV0[2]{};
-	dtRangesSRV0[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	dtRangesSRV0[0].NumDescriptors = -1;		// Bindless
-	dtRangesSRV0[0].BaseShaderRegister = 0;	// t0
-	dtRangesSRV0[0].RegisterSpace = 0;
+	// DescriptorTable for SRV's (bindless)
+	D3D12_DESCRIPTOR_RANGE dtRangesSRV[2]{};
+	dtRangesSRV[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	dtRangesSRV[0].NumDescriptors = -1;		// Bindless
+	dtRangesSRV[0].BaseShaderRegister = 0;	// t0
+	dtRangesSRV[0].RegisterSpace = 0;
 
-	dtRangesSRV0[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	dtRangesSRV0[1].NumDescriptors = -1;		// Bindless
-	dtRangesSRV0[1].BaseShaderRegister = 0;	// t0
-	dtRangesSRV0[1].RegisterSpace = 1;		// space1
+	dtRangesSRV[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	dtRangesSRV[1].NumDescriptors = -1;		// Bindless
+	dtRangesSRV[1].BaseShaderRegister = 0;	// t0
+	dtRangesSRV[1].RegisterSpace = 1;		// space1
 
-	// 0
-	D3D12_ROOT_DESCRIPTOR_TABLE dtSRV0 = {};
-	dtSRV0.NumDescriptorRanges = ARRAYSIZE(dtRangesSRV0);
-	dtSRV0.pDescriptorRanges = dtRangesSRV0;
-
-	// DescriptorTable for SRV1's (bindless)
-	D3D12_DESCRIPTOR_RANGE dtRangesSRV1[1]{};
-	dtRangesSRV1[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	dtRangesSRV1[0].NumDescriptors = -1;		// Bindless
-	dtRangesSRV1[0].BaseShaderRegister = 0;	// t0
-	dtRangesSRV1[0].RegisterSpace = 5;
-
-	// 1
-	D3D12_ROOT_DESCRIPTOR_TABLE dtSRV1 = {};
-	dtSRV1.NumDescriptorRanges = ARRAYSIZE(dtRangesSRV1);
-	dtSRV1.pDescriptorRanges = dtRangesSRV1;
+	D3D12_ROOT_DESCRIPTOR_TABLE dtSRV = {};
+	dtSRV.NumDescriptorRanges = ARRAYSIZE(dtRangesSRV);
+	dtSRV.pDescriptorRanges = dtRangesSRV;
 
 	// DescriptorTable for UAV's (bindless)
 	D3D12_DESCRIPTOR_RANGE dtRangesUAV[1]{};
@@ -101,13 +88,9 @@ void RootSignature::createRootSignatureStructure()
 	rootParam[RS::dtCBV].DescriptorTable = dtCBV;
 	rootParam[RS::dtCBV].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	rootParam[RS::dtSRV0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParam[RS::dtSRV0].DescriptorTable = dtSRV0;
-	rootParam[RS::dtSRV0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-	rootParam[RS::dtSRV1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParam[RS::dtSRV1].DescriptorTable = dtSRV1;
-	rootParam[RS::dtSRV1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	rootParam[RS::dtSRV].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParam[RS::dtSRV].DescriptorTable = dtSRV;
+	rootParam[RS::dtSRV].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	rootParam[RS::dtUAV].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParam[RS::dtUAV].DescriptorTable = dtUAV;

@@ -62,7 +62,7 @@ void BillboardComputeTask::Execute()
 
 		// Descriptorheap indices for what mesh is used
 		
-		commandList->SetComputeRootDescriptorTable(RS::dtSRV0, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(m_ParticleEffects.at(i)->m_pSRV->GetDescriptorHeapIndex()));
+		commandList->SetComputeRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(m_ParticleEffects.at(i)->m_pSRV->GetDescriptorHeapIndex()));
 		commandList->SetComputeRootDescriptorTable(RS::dtUAV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(m_ParticleEffects.at(i)->m_pUAV->GetDescriptorHeapIndex()));
 
 		m_ThreadGroupsX = 5;

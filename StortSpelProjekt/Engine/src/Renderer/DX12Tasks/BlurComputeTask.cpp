@@ -57,7 +57,7 @@ void BlurComputeTask::Execute()
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
 
 	commandList->SetComputeRootDescriptorTable(RS::dtUAV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
-	commandList->SetComputeRootDescriptorTable(RS::dtSRV0, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
+	commandList->SetComputeRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
 
 	// Descriptorheap indices for the textures to blur
 	// Horizontal pass
