@@ -15,7 +15,7 @@ class TextureCubeMap;
 class Material;
 class Window;
 class Scene;
-
+struct ID3D12Device5;
 struct Vertex;
 struct Font;
 struct aiNode;
@@ -136,10 +136,9 @@ private:
     Material* processMaterial(std::wstring path, const aiScene* assimpScene, const aiMesh* assimpMesh);
     Material* loadMaterial(aiMaterial* mat, const std::wstring& folderPath);
     
-
     Texture* processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture);
     
-    void initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter, Animation* animation);
+    void initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter);
     void processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations);
 
     DirectX::XMFLOAT4X4 aiMatrix4x4ToTransposedXMFloat4x4(aiMatrix4x4* aiMatrix);

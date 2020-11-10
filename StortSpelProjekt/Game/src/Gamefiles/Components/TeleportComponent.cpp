@@ -38,6 +38,7 @@ void component::TeleportComponent::OnCollision(Collision* collisionEvent)
 		else
 		{
 			Player::GetInstance().IsInShop(false);
+			EventBus::GetInstance().Publish(&RoundStart());
 		}
 	}
 	else if (collisionEvent->ent2 == m_pPlayerInstance && collisionEvent->ent1 == m_pParent)
@@ -50,6 +51,7 @@ void component::TeleportComponent::OnCollision(Collision* collisionEvent)
 		else
 		{
 			Player::GetInstance().IsInShop(false);
+			EventBus::GetInstance().Publish(&RoundStart());
 		}
 	}
 }

@@ -89,11 +89,27 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 
 		// get the position of parent entity
 		float3 ParentPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+		float3 forward = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetForwardFloat3();
+		float length = forward.length();
+
+		double3 dim = m_pParent->GetComponent<component::ModelComponent>()->GetModelDim();
+		float3 scale = {
+						m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().x,
+						m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().y,
+						m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().z
+		};
+		// add the forward vector to parent pos 
+		// so the projectile doesn't spawn inside of enemy
+		float3 pos;
+		bool t_pose = m_pParent->GetComponent<component::BoundingBoxComponent>()->GetFlagOBB() & F_OBBFlags::T_POSE;
+		pos.x = ParentPos.x + (forward.x / length) * ((static_cast<float>(!t_pose) * dim.x + static_cast<float>(t_pose) * dim.z) * scale.x / 2.0);
+		pos.y = ParentPos.y + (forward.y / length);
+		pos.z = ParentPos.z + (forward.z / length) * (dim.z * scale.z / 2.0);
 
 		// initialize the components
 		mc->SetModel(m_pModel);
 		mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-		tc->GetTransform()->SetPosition(ParentPos.x, ParentPos.y, ParentPos.z);
+		tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
 		tc->GetTransform()->SetMovement(direction.x * m_Velocity, direction.y * m_Velocity, direction.z * m_Velocity);
 		tc->GetTransform()->SetScale(m_Scale);
 		tc->GetTransform()->SetVelocity(m_Velocity);
@@ -107,8 +123,11 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 			m_pVoiceComponent->Play(L"Fireball");
 		}
 
+		ent->Update(0);	// Init, so that the light doesn't spawn in origo first frame;
+		tc->RenderUpdate(0);
+
 		// add the entity to the sceneManager so it can be spawned in in run time
-		// TODO: add dynamicly correct
+		ent->SetEntityState(true);
 		m_pSceneMan->AddEntity(ent, m_pScene);
 
 		m_TimeAccumulator = 0.0;

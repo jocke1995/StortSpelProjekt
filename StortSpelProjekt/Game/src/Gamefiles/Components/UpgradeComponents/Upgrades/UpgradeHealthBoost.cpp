@@ -33,6 +33,9 @@ void UpgradeHealthBoost::ApplyStat()
 void UpgradeHealthBoost::IncreaseLevel()
 {
 	m_Level++;
+
+	ApplyStat();
+
 	// increase the price of the upgrade
 	m_Price = m_StartingPrice + m_StartingPrice * ((float)m_Level/2.0f);
 }

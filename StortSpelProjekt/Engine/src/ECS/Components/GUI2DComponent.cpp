@@ -45,10 +45,14 @@ namespace component
 	void GUI2DComponent::OnInitScene()
 	{
 		Renderer::GetInstance().InitGUI2DComponent(this);
+		m_QuadMan.HideQuad(false);
+		m_TextMan.HideText(false);
 	}
 
 	void GUI2DComponent::OnUnInitScene()
 	{
 		Renderer::GetInstance().UnInitGUI2DComponent(this);
+		m_QuadMan.HideQuad(true);
+		m_TextMan.HideText(true);
 	}
 }

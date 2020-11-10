@@ -115,3 +115,22 @@ struct SceneChange : public Event
 
 	std::string m_NewSceneName;
 };
+
+struct ShutDown : public Event
+{
+	ShutDown() {};
+};
+
+struct CursorShow : public Event
+{
+	CursorShow(bool show)
+		:m_Show(show) 
+	{};
+
+	bool m_Show;
+};
+
+struct RoundStart : public Event
+{
+	RoundStart() {};
+};
