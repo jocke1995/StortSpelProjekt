@@ -15,7 +15,7 @@ UpgradeHealthBoost::UpgradeHealthBoost(Entity* parentEntity) : Upgrade(parentEnt
 	m_HealthBoost = 10;
 	
 	// Write a description for the upgrade
-	m_Description = "Health Boost: Increases the players health by ten";
+	m_Description = "Health Boost: Increases the players health by 10";
 
 	m_ImageName = "HealthBoost.png";
 }

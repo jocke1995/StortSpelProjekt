@@ -132,7 +132,6 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 
 
 		m_Sm->RemoveEntity(scene->GetEntity("UpgradeMenuBackground"), scene);
-		m_Sm->RemoveEntity(scene->GetEntity("UpgradeMenuDevider"), scene);
 		if (m_ButtonsMultipleTen > 0)
 		{
 			m_Sm->RemoveEntity(scene->GetEntity("NextButton"), scene);
