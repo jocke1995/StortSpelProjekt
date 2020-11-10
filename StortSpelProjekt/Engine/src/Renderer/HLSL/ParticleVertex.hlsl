@@ -26,8 +26,8 @@ VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
 	vertex v = meshes[cbPerObject.info.vertexDataIndex][vID];
 	float4 vertexPosition = float4(v.pos.xyz, 1.0f);
 
-	float4 a = float4(0.5, 0.5, 0, 1);
 	output.pos = mul(vertexPosition, a);
+	output.pos = vertexPosition;
 
 	output.uv = float2(v.uv.x, v.uv.y);
 
