@@ -31,6 +31,8 @@ UpgradeGUI::~UpgradeGUI()
 
 void UpgradeGUI::Update(double dt, Scene* scene)
 {
+	// If we are not in game or shop scene then we should not show this menu. 
+	// Thinking this might change depending on if this will be shown in the pause menu later.
 	if (scene->GetName() != "GameScene" && scene->GetName() != "ShopScene")
 	{
 		m_Shown = false;
@@ -63,6 +65,8 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 			m_Drawn = true;
 		}
 
+		// Here we change the Upgrade buttons if we have pressed the next button.
+		// Next button is only shown when we have more than 10 object so we acually need to cycle between them.
 		if (m_LoopButtons)
 		{
 			// Delete existing buttons.
@@ -129,19 +133,20 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 	// if the menu should not be showed AND we have not already deleted the menu, then delete the menu
 	else if (m_Deleted == false)
 	{
-
-
+		// Delete the background
 		m_Sm->RemoveEntity(scene->GetEntity("UpgradeMenuBackground"), scene);
+		// If we have a next button it should be deleted
 		if (m_ButtonsMultipleTen > 0)
 		{
 			m_Sm->RemoveEntity(scene->GetEntity("NextButton"), scene);
 		}
+		// If we have a description, that is not empty, it should be deleted
 		if (m_CurrentDescription != "")
 		{
 			m_Sm->RemoveEntity(scene->GetEntity("Description"), scene);
 			m_CurrentDescription = "";
 		}
-
+		// Delete the Upgrade Buttons
 		for (int i = 0; i < m_ButtonNames.size(); i++)
 		{
 			if (scene->EntityExists(m_ButtonNames[i]))
@@ -215,29 +220,6 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 
 	/* ------------------------- Upgrade Menu Background End --------------------------- */
 
-	///* ------------------------- Upgrade Menu Devider --------------------------- */
-
-	//entity = scene->AddEntity("UpgradeMenuDevider");
-	//gui = entity->AddComponent<component::GUI2DComponent>();
-
-
-	//quadPos = { 0.4704f, 0.20f };
-	//quadScale = { 0.45f, 0.001f };
-	//blended = { 1.0, 1.0, 1.0, 0.4 };
-	//notBlended = { 1.0, 1.0, 1.0, 1.0 };
-	//gui->GetQuadManager()->CreateQuad(
-	//	"UpgradeMenuDevider",
-	//	quadPos, quadScale,
-	//	false, false,
-	//	1,
-	//	blended,
-	//	m_deviderTexture);
-	//m_Sm->AddEntity(entity, scene);
-	//entity->Update(0);
-	//entity->SetEntityState(true);
-
-	///* ------------------------- Upgrade Menu Devider End --------------------------- */
-
 	/* ------------------------- Upgrade Menu Buttons --------------------------- */
 	int itterator = 0;
 
@@ -279,9 +261,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 		itterator++;
 	}
 	m_TimesFilledMenu++;
-	//makeUpgradeButton({ m_ButtonPos.x, m_ButtonPos.y }, "bbNo$");
 
-	//makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + m_ButtonYOffset) }, "bbMore$");
 	/* ------------------------- Upgrade Menu Button End --------------------------- */
 
 	/* ------------------------- Upgrade Menu Next Button --------------------------- */
@@ -346,6 +326,7 @@ void UpgradeGUI::Init()
 	m_buttonParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_hor.png");
 	m_DescriptionParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_vert.png");
 
+	// Subscribe to events
 	EventBus::GetInstance().Subscribe(this, &UpgradeGUI::showMenu);
 	EventBus::GetInstance().Subscribe(this, &UpgradeGUI::getButtonPress);
 }
@@ -386,7 +367,7 @@ void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
 	float4 blended;
 	float4 notBlended;
 
-	// save the name so that we can use it for deletion and other things.
+	// Save the name so that we can use it for deletion and other things.
 	m_ButtonNames.push_back(name);
 
 	std::string str = name;
@@ -408,7 +389,7 @@ void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
 	gui->GetTextManager()->SetText(textToRender, name);
 	gui->GetTextManager()->SetBlend(textBlend, name);
 
-	quadPos = { pos.x, pos.y };//{ 0.47f, 0.202f };
+	quadPos = { pos.x, pos.y };
 	quadScale = { 0.2f, 0.04f };
 	blended = { 1.0, 1.0, 1.0, 1.0 };
 	notBlended = { 1.0, 1.0, 1.0, 1.0 };
@@ -441,6 +422,7 @@ void UpgradeGUI::getButtonPress(ButtonPressed* event)
 
 		updateDescription();
 	}
+	// Checking if the button is next. If so then set the bool to true so we change the buttons in update.
 	else if (event->name == "NextButton")
 	{
 		m_LoopButtons = true;
@@ -478,15 +460,18 @@ void UpgradeGUI::updateDescription()
 	{
 		token = description.substr(0, pos);
 		newLinePos += pos;
+		// If we exceed 42 characters in lenght then we put a newLine before the word that broke the limit.
 		if (newLinePos > (42 * newLineAmount))
 		{
 			newLineAmount++;
 			textToRender += "\n" + token + " ";
 		}
+		// Else we just take the word as is and put back a space
 		else
 		{
 			textToRender += token + " ";
 		}
+		// Get the last word that we didn't get in the loop
 		description.erase(0, pos + delimiter.length());
 	}
 	textToRender += description.substr(0, description.length());
@@ -507,7 +492,7 @@ void UpgradeGUI::updateDescription()
 	gui->GetTextManager()->SetText(textToRender, name);
 	gui->GetTextManager()->SetBlend(textBlend, name);
 
-	quadPos = { 0.68, m_ButtonPos.y - 0.05f };//{ 0.47f, 0.202f };
+	quadPos = { 0.68, m_ButtonPos.y - 0.05f };
 	quadScale = { 0.27f, 0.57f };
 	blended = { 1.0, 1.0, 1.0, 1.0 };
 	notBlended = { 1.0, 1.0, 1.0, 1.0 };
