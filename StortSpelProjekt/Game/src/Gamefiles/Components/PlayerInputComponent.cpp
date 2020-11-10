@@ -8,6 +8,8 @@
 #include "Physics/Physics.h"
 #include "../Misc/Option.h"
 
+#include "stdafx.h"
+
 
 component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned int camFlags)
 	:InputComponent(parent)
@@ -119,7 +121,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	// Lock camera to player
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
-		float3 playerPosition = m_pTransform->GetRenderPositionFloat3();
+		float3 playerPosition = m_pTransform->GetPositionFloat3();
 		float3 cameraDir = m_pCamera->GetDirectionFloat3();
 		float3 cameraPos = m_pCamera->GetPositionFloat3();
 		float height = (m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y * m_pTransform->GetScale().y * 0.5) + 1.0;
@@ -573,14 +575,6 @@ void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 		{
 			m_UpdateShootId = specificUpdates.size();
 			specificUpdates.push_back(&PlayerInputComponent::updateShoot);
-		}
-		break;
-	case MOUSE_BUTTON::RIGHT_UP:
-		if (m_UpdateShootId != -1)
-		{
-			specificUpdates.erase(specificUpdates.begin() + m_UpdateShootId);
-			m_UpdateDashId -= static_cast<int>(m_UpdateShootId < m_UpdateDashId);
-			m_UpdateShootId = -1;
 		}
 		break;
 	}

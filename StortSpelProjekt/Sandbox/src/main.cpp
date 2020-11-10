@@ -53,8 +53,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
     //Scene* activeScene = jacobScene;
-    Scene* leoScene = LeosTestScene(sceneManager);
-    Scene* activeScene = leoScene;
+    //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -67,8 +67,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = bjornScene;
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* activeScene = antonScene;
-    //Scene* andresScene = AndresTestScene(sceneManager);
-    //Scene* activeScene = andresScene;
+    Scene* andresScene = AndresTestScene(sceneManager);
+    Scene* activeScene = andresScene;
     //Scene* filipScene = FloppipTestScene(sceneManager);
     //Scene* activeScene = filipScene;
 
@@ -1461,14 +1461,6 @@ Scene* AndresTestScene(SceneManager* sm)
     Entity* target = scene->GetEntity("player");
     double3 targetDim = target->GetComponent<component::ModelComponent>()->GetModelDim();
     float targetScale = target->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().z;
-    if (target != nullptr)
-    {
-        ai = ent->AddComponent<component::AiComponent>(target, 0, 100, 50);
-        ai->SetAttackInterval(1.0f);
-        ai->SetMeleeAttackDmg(10.0f);
-        ai->SetScene(scene);
-        ai->SetRangedAI();
-    }
 
     mc->SetModel(enemyModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -1478,7 +1470,17 @@ Scene* AndresTestScene(SceneManager* sm)
     t->SetRotationX(0.0);
     t->SetRotationY(0.0);
     t->SetRotationZ(0.0);
-    t->SetVelocity(5);
+    t->SetVelocity(30);
+
+    if (target != nullptr)
+    {
+        ai = ent->AddComponent<component::AiComponent>(target, 0, 100, 50);
+        ai->SetAttackInterval(1.0f);
+        ai->SetMeleeAttackDmg(10.0f);
+        ai->SetScene(scene);
+        ai->SetRangedAI();
+        ai->SetAttackSpeed(1.0);
+    }
 
     tc->SetTransformOriginalState();
     colc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, mc->GetModelDim().z / 2.0, mc->GetModelDim().y - mc->GetModelDim().z, 0.01, 0.5, false);

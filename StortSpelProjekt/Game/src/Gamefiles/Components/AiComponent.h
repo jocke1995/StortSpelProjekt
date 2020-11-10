@@ -7,6 +7,7 @@
 #include <string>
 #include <unordered_map>
 
+class Transform;
 class EngineRand;
 class Scene;
 class NavMesh;
@@ -95,7 +96,14 @@ namespace component
 		float m_IntervalTimeAccumulator;
 		float m_SpeedTimeAccumulator;
 		bool m_PathFound;
-		bool m_isRanged;
+		float3 m_DirectionPath;
+		float m_DistancePath;
+		bool m_IsRanged;
+		bool m_StandStill;
+		float m_MovementVelocity;
+		float m_DistanceToPlayer;
+		Transform* m_pTargetTrans;
+		Transform* m_pParentTrans;
 
 		float3 setAimDirection();
 
@@ -111,6 +119,11 @@ namespace component
 		bool checkIntersectQuad(float2 point1, float2 point2, float2 topLeft, float2 topRight, float2 bottomLeft, float2 bottomRight);
 		bool checkIntersectTriangle(float2 point1, float2 point2, float2 vertex1, float2 vertex2, float2 vertex3);
 		float lineFunction(float2 point, float2 linePoint1, float2 linePoint2);
+
+		void updateMelee(double dt);
+		void updateRange(double dt);
+		void pathFinding();
+		void randMovement();
 	};
 }
 
