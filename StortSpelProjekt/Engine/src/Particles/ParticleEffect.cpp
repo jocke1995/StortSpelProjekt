@@ -38,6 +38,7 @@ ParticleEffect::~ParticleEffect()
 	delete m_pUAVUploadResource;
 	delete m_pUAVDefaultResource;
 	delete m_pUAV;
+	delete m_pUAVSRV;
 }
 
 void ParticleEffect::Update(double dt)
