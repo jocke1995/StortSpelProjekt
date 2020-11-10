@@ -15,6 +15,4 @@ private:
 	Scene* m_pScene = nullptr;
 	SceneManager* m_pSceneManager = nullptr;
 };
-
-
 #endif
