@@ -81,7 +81,7 @@ bool AnimatedModel::SetActiveAnimation(std::string animationName)
 
 void AnimatedModel::Update(double dt)
 {
-	if (m_pActiveAnimation != nullptr && !animationIsPaused)
+	if (m_pActiveAnimation != nullptr && !m_AnimationIsPaused)
 	{
 		m_Time += dt;
 		double timeInTicks = m_Time * m_pActiveAnimation->ticksPerSecond;
@@ -94,12 +94,12 @@ void AnimatedModel::Update(double dt)
 
 void AnimatedModel::PlayAnimation()
 {
-	animationIsPaused = false;
+	m_AnimationIsPaused = false;
 }
 
 void AnimatedModel::PauseAnimation()
 {
-	animationIsPaused = true;
+	m_AnimationIsPaused = true;
 }
 
 void AnimatedModel::ResetAnimation()

@@ -42,7 +42,7 @@ private:
     void updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform);
 
     double m_Time;
-    bool animationIsPaused = true;
+    bool m_AnimationIsPaused = true;
     Animation* m_pActiveAnimation;
     SkeletonNode* m_pSkeleton;
     std::vector<Animation*> m_Animations;
