@@ -27,6 +27,10 @@ namespace component
 		void SetAttackInterval(float interval);
 		float GetAttackInterval() const;
 
+		void SetDamage(int damage);
+		int GetDamage() const;
+		void ChangeDamage(int dmgChange);
+
 		void Attack();
 		
 	private:

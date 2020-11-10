@@ -42,6 +42,7 @@ namespace component
 		void SetAttackInterval(float interval);
 		void SetDamage(int damage);
 		void ChangeDamage(int change);
+		int GetDamage() const;
 
 		void CreateCornersHitbox();
 		void CreateDrawnHitbox(component::BoundingBoxComponent* bbc);

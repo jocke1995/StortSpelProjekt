@@ -81,6 +81,21 @@ float component::RangeComponent::GetAttackInterval() const
 	return m_AttackInterval;
 }
 
+void component::RangeComponent::SetDamage(int damage)
+{
+	m_Damage = damage;
+}
+
+int component::RangeComponent::GetDamage() const
+{
+	return m_Damage;
+}
+
+void component::RangeComponent::ChangeDamage(int dmgChange)
+{
+	m_Damage += dmgChange;
+}
+
 void component::RangeComponent::Attack()
 {
 	if (m_TimeAccumulator >= m_AttackInterval)
