@@ -93,7 +93,7 @@ typedef union float3
 	
 	float angle(const float3& other) const
 	{
-		return acosf(std::min<float>(std::max<float>(dot(other), -1.0f), 1.0f) / (length() * other.length()));
+		return acosf(std::min<float>(std::max<float>(dot(other) / (length() * other.length()), -1.0f), 1.0f));
 	}
 
 } float3;
