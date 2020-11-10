@@ -63,6 +63,67 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 			m_Drawn = true;
 		}
 
+		if (m_LoopButtons)
+		{
+			// Delete existing buttons.
+			for (int i = 0; i < m_ButtonNames.size(); i++)
+			{
+				if (m_CurrentScene->EntityExists(m_ButtonNames[i]))
+				{
+					m_Sm->RemoveEntity(m_CurrentScene->GetEntity(m_ButtonNames[i]), m_CurrentScene);
+				}
+			}
+
+			int itterator = 0;
+			int posItterator = 0;
+
+			//std::map<std::string, int> vec;
+			//vec["TestButton1"] = 1;
+			//vec["TestButton2"] = 2;
+			//vec["TestButton3"] = 3;
+			//vec["TestButton4"] = 4;
+			//vec["TestButton5"] = 5;
+			//vec["TestButton6"] = 6;
+			//vec["TestButton7"] = 7;
+			//vec["TestButton8"] = 8;
+			//vec["TestButton9"] = 9;
+			//vec["TestButton10"] = 10;
+			//vec["TestButton11"] = 11;
+			//vec["TestButton12"] = 12;
+			//vec["TestButton13"] = 13;
+			//vec["TestButton14"] = 14;
+			//vec["TestButton15"] = 15;
+			//vec["TestButton16"] = 16;
+			//vec["TestButton17"] = 17;
+			//vec["TestButton18"] = 18;
+			//vec["TestButton19"] = 19;
+			//vec["TestButton20"] = 20;
+			//vec["TestButton21"] = 21;
+			// Loop through and populate with the next buttons that should be shown.
+			if (m_TimesFilledMenu > m_ButtonsMultipleTen)
+			{
+				m_TimesFilledMenu = 0;
+			}
+			for (auto u : m_AppliedUpgradeEnums)
+			//for (auto u : vec)
+			{
+				// Bigger than number of times the menu has been filled multiplied by the number of buttons, which is 10.
+				// But we want no more than 10 buttons at a time so do this no more than 10 times 
+				// example: i >= 10 * 1 && i < 10 * 2. So we add buttons at place 10 to 19
+				if (itterator >= 10 * m_TimesFilledMenu && itterator < 10 * (m_TimesFilledMenu + 1))
+				{
+					if (m_CurrentScene->EntityExists(u.first) == false)
+					{
+						makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + (m_ButtonYOffset * posItterator)) }, u.first);
+						posItterator++;
+					}
+				}
+				itterator++;
+
+			}
+			m_TimesFilledMenu++;
+			m_LoopButtons = false;
+		}
 
 	}
 	// if the menu should not be showed AND we have not already deleted the menu, then delete the menu
@@ -72,7 +133,10 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 
 		m_Sm->RemoveEntity(scene->GetEntity("UpgradeMenuBackground"), scene);
 		m_Sm->RemoveEntity(scene->GetEntity("UpgradeMenuDevider"), scene);
-		m_Sm->RemoveEntity(scene->GetEntity("NextButton"), scene);
+		if (m_ButtonsMultipleTen > 0)
+		{
+			m_Sm->RemoveEntity(scene->GetEntity("NextButton"), scene);
+		}
 		if (m_CurrentDescription != "")
 		{
 			m_Sm->RemoveEntity(scene->GetEntity("Description"), scene);
@@ -81,7 +145,7 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 
 		for (int i = 0; i < m_ButtonNames.size(); i++)
 		{
-			if (scene->GetEntity(m_ButtonNames[i]))
+			if (scene->EntityExists(m_ButtonNames[i]))
 			{
 				m_Sm->RemoveEntity(scene->GetEntity(m_ButtonNames[i]), scene);
 			}
@@ -152,46 +216,57 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 
 	/* ------------------------- Upgrade Menu Background End --------------------------- */
 
-	/* ------------------------- Upgrade Menu Devider --------------------------- */
+	///* ------------------------- Upgrade Menu Devider --------------------------- */
 
-	entity = scene->AddEntity("UpgradeMenuDevider");
-	gui = entity->AddComponent<component::GUI2DComponent>();
+	//entity = scene->AddEntity("UpgradeMenuDevider");
+	//gui = entity->AddComponent<component::GUI2DComponent>();
 
 
-	quadPos = { 0.45f, 0.20f };
-	quadScale = { 0.5f, 0.001f };
-	blended = { 1.0, 1.0, 1.0, 0.4 };
-	notBlended = { 1.0, 1.0, 1.0, 1.0 };
-	gui->GetQuadManager()->CreateQuad(
-		"UpgradeMenuDevider",
-		quadPos, quadScale,
-		false, false,
-		1,
-		blended,
-		m_deviderTexture);
-	m_Sm->AddEntity(entity, scene);
-	entity->Update(0);
-	entity->SetEntityState(true);
+	//quadPos = { 0.4704f, 0.20f };
+	//quadScale = { 0.45f, 0.001f };
+	//blended = { 1.0, 1.0, 1.0, 0.4 };
+	//notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	//gui->GetQuadManager()->CreateQuad(
+	//	"UpgradeMenuDevider",
+	//	quadPos, quadScale,
+	//	false, false,
+	//	1,
+	//	blended,
+	//	m_deviderTexture);
+	//m_Sm->AddEntity(entity, scene);
+	//entity->Update(0);
+	//entity->SetEntityState(true);
 
-	/* ------------------------- Upgrade Menu Devider End --------------------------- */
+	///* ------------------------- Upgrade Menu Devider End --------------------------- */
 
 	/* ------------------------- Upgrade Menu Buttons --------------------------- */
 	int itterator = 0;
 
-	std::map<std::string, int> vec;
-	vec["TestButton1"] = 1;
-	vec["TestButton2"] = 2;
-	vec["TestButton3"] = 3;
-	vec["TestButton4"] = 4;
-	vec["TestButton5"] = 5;
-	vec["TestButton6"] = 6;
-	vec["TestButton7"] = 7;
-	vec["TestButton8"] = 8;
-	vec["TestButton9"] = 9;
-	vec["TestButton10"] = 10;
-	vec["TestButton11"] = 11;
-	//for (auto u : m_AppliedUpgradeEnums)
-	for (auto u : vec)
+	//std::map<std::string, int> vec;
+	//vec["TestButton1"] = 1;
+	//vec["TestButton2"] = 2;
+	//vec["TestButton3"] = 3;
+	//vec["TestButton4"] = 4;
+	//vec["TestButton5"] = 5;
+	//vec["TestButton6"] = 6;
+	//vec["TestButton7"] = 7;
+	//vec["TestButton8"] = 8;
+	//vec["TestButton9"] = 9;
+	//vec["TestButton10"] = 10;
+	//vec["TestButton11"] = 11;
+	//vec["TestButton12"] = 12;
+	//vec["TestButton13"] = 13;
+	//vec["TestButton14"] = 14;
+	//vec["TestButton15"] = 15;
+	//vec["TestButton16"] = 16;
+	//vec["TestButton17"] = 17;
+	//vec["TestButton18"] = 18;
+	//vec["TestButton19"] = 19;
+	//vec["TestButton20"] = 20;
+	//vec["TestButton21"] = 21;
+
+	for (auto u : m_AppliedUpgradeEnums)
+	//for (auto u : vec)
 	{
 		if (itterator < 10)
 		{
@@ -215,7 +290,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 	if (m_ButtonsMultipleTen > 0)
 	{
 		textToRender = "Next";
-		textPos = { 0.55f, m_ButtonPos.y + (m_ButtonYOffset * 10) };
+		textPos = { 0.538f, m_ButtonPos.y + (m_ButtonYOffset * 10) };
 		textPadding = { 0.5f, 0.0f };
 		textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 		textScale = { 0.5f, 0.5f };
@@ -364,55 +439,12 @@ void UpgradeGUI::getButtonPress(ButtonPressed* event)
 			m_CurrentDescription = "";
 		}
 		m_CurrentDescription = Player::GetInstance().GetUpgradeManager()->GetAllAvailableUpgrades().at(event->name)->GetDescription();
-		//GetPlayer()->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(event->name)->GetDescription();
+
 		updateDescription();
 	}
 	else if (event->name == "NextButton")
 	{
-		// Delete existing buttons.
-		for (int i = 0; i < m_ButtonNames.size(); i++)
-		{
-			if (m_CurrentScene->GetEntity(m_ButtonNames[i]))
-			{
-				m_Sm->RemoveEntity(m_CurrentScene->GetEntity(m_ButtonNames[i]), m_CurrentScene);
-			}
-		}
-
-		int itterator = 0;
-		int posItterator = 0;
-
-		std::map<std::string, int> vec;
-		vec["TestButton1"] = 1;
-		vec["TestButton2"] = 2;
-		vec["TestButton3"] = 3;
-		vec["TestButton4"] = 4;
-		vec["TestButton5"] = 5;
-		vec["TestButton6"] = 6;
-		vec["TestButton7"] = 7;
-		vec["TestButton8"] = 8;
-		vec["TestButton9"] = 9;
-		vec["TestButton10"] = 10;
-		vec["TestButton11"] = 11;
-		// Loop through and populate with the next buttons that should be shown.
-		//for (auto u : m_AppliedUpgradeEnums)
-		if (m_TimesFilledMenu > m_ButtonsMultipleTen)
-		{
-			m_TimesFilledMenu = 0;
-		}
-		for (auto u : vec)
-		{
-			// Bigger than number of times the menu has been filled multiplied by the number of buttons, which is 10.
-			// But we want no more than 10 buttons at a time so do this no more than 10 times 
-			// example: i >= 10 * 1 && i < 10 * 2. So we add buttons at place 10 to 19
-			if (itterator >= 10 * m_TimesFilledMenu && itterator < 10 * (m_TimesFilledMenu + 1))
-			{
-				makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + (m_ButtonYOffset * posItterator)) }, u.first);
-				posItterator++;
-			}
-			itterator++;
-
-		}
-		m_TimesFilledMenu++;
+		m_LoopButtons = true;
 	}
 }
 
@@ -443,10 +475,11 @@ void UpgradeGUI::updateDescription()
 	int newLineAmount = 1;
 	// Loop through the description and save every word to the sting that will be drawn on screen.
 	// If we reach a character length of 50 then put in a newLine character after the word to split the scentence appropriately.
-	while ((pos = description.find(delimiter)) != std::string::npos) {
+	while ((pos = description.find(delimiter)) != std::string::npos) 
+	{
 		token = description.substr(0, pos);
 		newLinePos += pos;
-		if (newLinePos > (50 * newLineAmount))
+		if (newLinePos > (42 * newLineAmount))
 		{
 			newLineAmount++;
 			textToRender += "\n" + token + " ";
@@ -457,11 +490,12 @@ void UpgradeGUI::updateDescription()
 		}
 		description.erase(0, pos + delimiter.length());
 	}
+	textToRender += description.substr(0, description.length());
 
 	textPos = { 0.7 + 0.0065, m_ButtonPos.y + 0.03f };
 	textPadding = { 0.5f, 0.0f };
 	textColor = { .0f, .0f, .0f, 1.0f };
-	textScale = { 0.2f, 0.2f };
+	textScale = { 0.215f, 0.215f };
 	textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	entity = m_CurrentScene->AddEntity(name);

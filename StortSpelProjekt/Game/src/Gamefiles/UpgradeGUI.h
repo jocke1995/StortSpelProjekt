@@ -46,6 +46,8 @@ private:
 	SceneManager* m_Sm = nullptr;
 	std::map<std::string, int> m_AppliedUpgradeEnums;
 	std::vector<std::string> m_ButtonNames;
+	std::vector<std::string> m_ButtonsToDelete;
+	bool m_LoopButtons = false;
 
 	void showMenu(UForUpgrade* keyPress);
 	//void get
