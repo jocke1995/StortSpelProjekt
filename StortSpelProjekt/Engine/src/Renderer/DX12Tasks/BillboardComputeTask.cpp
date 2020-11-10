@@ -63,10 +63,12 @@ void BillboardComputeTask::Execute()
 		//	D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 		//	D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-		commandList->SetComputeRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(m_pSRV[i]->GetDescriptorHeapIndex()));
-		commandList->SetComputeRootDescriptorTable(RS::dtUAV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(m_pUAV[i]->GetDescriptorHeapIndex()));
+		// Descriptorheap indices for what mesh is used
+		
+		commandList->SetComputeRootDescriptorTable(RS::dtSRV0, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(m_ParticleEffects.at(i)->m_pSRV->GetDescriptorHeapIndex()));
+		commandList->SetComputeRootDescriptorTable(RS::dtUAV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(m_ParticleEffects.at(i)->m_pUAV->GetDescriptorHeapIndex()));
 
-		m_ThreadGroupsX = 1;
+		m_ThreadGroupsX = 5;
 		commandList->Dispatch(m_ThreadGroupsX, m_ThreadGroupsY, 1);
 	}
 

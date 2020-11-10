@@ -6,8 +6,8 @@ struct srv
 	float size;
 };
 
-StructuredBuffer<srv> srvIn[]   : register (t0);
-RWStructuredBuffer<float4x4> uavOut[] : register(u0);
+StructuredBuffer<float4> pos3size[] : register(t0);
+RWStructuredBuffer<float4x4> uav[] : register(u0);
 
 //ConstantBuffer<DescriptorHeapIndices> dhIndices : register(b2, space4);
 
@@ -23,10 +23,13 @@ void CS_main(uint3 dispatchThreadID : SV_DispatchThreadID, int3 groupThreadID : 
 					1, 0, 1, 0,
 					1, 0, 1, 0 };
 
-	float4x4 p = { 0.5, 0, 0, 0,
-					0, 0.5, 0, 0,
-					0, 0, 0.5, 0,
-					0, 0, 0, 1 };
+	float4x4 outMat = {
+	{ 1, 0, 0, 0 },
+	{ 0, 1, 0, 0 },
+	{ 0, 0, 1, 0 },
+	{ 0, 0, 0, 1 }
+	};
 
-	uavOut[0][0] = p;
+	// Write to uav
+	uav[0][0] = outMat;
 }

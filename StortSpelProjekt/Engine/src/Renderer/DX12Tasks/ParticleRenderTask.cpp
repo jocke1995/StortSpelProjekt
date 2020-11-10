@@ -52,7 +52,7 @@ void ParticleRenderTask::Execute()
 	commandList->SetDescriptorHeaps(1, &d3d12DescriptorHeap);
 
 	commandList->SetGraphicsRootDescriptorTable(RS::dtCBV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
-	commandList->SetGraphicsRootDescriptorTable(RS::dtSRV, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
+	commandList->SetGraphicsRootDescriptorTable(RS::dtSRV0, descriptorHeap_CBV_UAV_SRV->GetGPUHeapAt(0));
 
 	// Change state on front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(

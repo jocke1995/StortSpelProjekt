@@ -9,7 +9,8 @@ typedef ID3D10Blob ID3DBlob;
 enum RS
 {
 	dtCBV,
-	dtSRV,
+	dtSRV0,
+	dtSRV1,
 	dtUAV,
 	SRV0,
 	UAV0,

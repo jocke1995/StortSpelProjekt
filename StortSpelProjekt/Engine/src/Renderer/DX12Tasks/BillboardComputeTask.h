@@ -30,8 +30,6 @@ private:
 	unsigned int m_ThreadGroupsY = 1;
 
 	const unsigned int m_ThreadsPerGroup = 256;
-
-	DescriptorHeapIndices m_DhIndices = {};
 };
 
 #endif

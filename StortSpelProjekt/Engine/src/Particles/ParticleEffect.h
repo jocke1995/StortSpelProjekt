@@ -44,9 +44,18 @@ private:
 	float m_SpawnInterval = 0.5;
 
 	// Dx12
+
+	// float3, float (pos3, size)
 	Resource* m_pUploadResource = nullptr;
-	Resource* m_pUAVResource = nullptr;
+	// float3, float (pos3, size)
+	Resource* m_pDefaultResource = nullptr;
 	ShaderResourceView* m_pSRV = nullptr;
+
+	// Billboard compute task write to these UAV, then gets read in transparent render task.
+	// WVP matrix
+	Resource* m_pUAVUploadResource = nullptr;
+	// WVP matrix
+	Resource* m_pUAVDefaultResource = nullptr;
 	UnorderedAccessView* m_pUAV = nullptr;
 	ShaderResourceView* m_pUAVSRV = nullptr;
 

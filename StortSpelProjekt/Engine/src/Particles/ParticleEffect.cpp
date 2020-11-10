@@ -33,6 +33,8 @@ ParticleEffect::~ParticleEffect()
 	delete m_pUploadResource;
 	delete m_pUAVResource;
 	delete m_pSRV;
+	delete m_pUAVUploadResource;
+	delete m_pUAVDefaultResource;
 	delete m_pUAV;
 	delete m_pUAVSRV;
 }
@@ -100,10 +102,18 @@ void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap)
 	Renderer& renderer = Renderer::GetInstance();
 
 	// Only send position (float3) + size (float) to gpu
-	size_t particleEntrySize = sizeof(float4);
-	unsigned long long resourceByteSize = particleEntrySize * m_ParticleCount;
+	size_t entrySize = sizeof(float4);
+	unsigned long long resourceByteSize = entrySize * m_ParticleCount;
 
-	m_pUploadResource = new Resource(renderer.m_pDevice5, resourceByteSize, RESOURCE_TYPE::UPLOAD, L"ParticleEffect_UPLOAD");
+	// used to format a debug string
+	std::wstring a = L"ParticleEffect_";
+	std::wstring b = name;
+	std::wstring c = L"_UPLOAD";
+	std::wstring d = L"_DEFAULT";
+
+	// Resources
+	m_pUploadResource = new Resource(renderer.m_pDevice5, resourceByteSize, RESOURCE_TYPE::UPLOAD, a + b + c);
+	m_pDefaultResource = new Resource(renderer.m_pDevice5, resourceByteSize, RESOURCE_TYPE::DEFAULT, a + b + d);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -111,34 +121,41 @@ void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap)
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.Buffer.FirstElement = 0;
 	srvDesc.Buffer.NumElements = m_ParticleCount;
-	srvDesc.Buffer.StructureByteStride = particleEntrySize;
+	srvDesc.Buffer.StructureByteStride = entrySize;
 	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
 	m_pSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &srvDesc, m_pUploadResource);
 
-	// GPU writes to this resource, Billboarding creates worldMatrix
-	size_t UAVEntrySize = sizeof(float4x4);
-	resourceByteSize = UAVEntrySize * m_ParticleCount;
-	m_pUAVResource = new Resource(renderer.m_pDevice5, resourceByteSize, RESOURCE_TYPE::DEFAULT, L"ParticleEffect_UAV", D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	// ------------------------------------------------------------------------------------------------------
+
+	// UAV is 4x4float
+	entrySize = sizeof(float4x4);
+	resourceByteSize = entrySize * m_ParticleCount;
+	a = L"UAVParticleEffect_";
+
+	m_pUAVUploadResource = new Resource(renderer.m_pDevice5, resourceByteSize, RESOURCE_TYPE::UPLOAD, a + b + c);
+	m_pUAVDefaultResource = new Resource(renderer.m_pDevice5, resourceByteSize, RESOURCE_TYPE::DEFAULT, a + b + d, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
 	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
 	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.FirstElement = 0;
 	uavDesc.Buffer.NumElements = m_ParticleCount;
-	uavDesc.Buffer.StructureByteStride = UAVEntrySize;
+	uavDesc.Buffer.StructureByteStride = entrySize;
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC uavSrvDesc = {};
-	uavSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	uavSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	uavSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	uavSrvDesc.Buffer.FirstElement = 0;
-	uavSrvDesc.Buffer.NumElements = m_ParticleCount;
-	uavSrvDesc.Buffer.StructureByteStride = particleEntrySize;
-	uavSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+	m_pUAV = new UnorderedAccessView(renderer.m_pDevice5, descriptorHeap, &uavDesc, m_pUAVDefaultResource);
 
-	m_pUAV = new UnorderedAccessView(renderer.m_pDevice5, descriptorHeap, &uavDesc, m_pUAVResource);
-	m_pUAVSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &uavSrvDesc, m_pUAVResource);
+	srvDesc = {};
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Buffer.FirstElement = 0;
+	srvDesc.Buffer.NumElements = m_ParticleCount;
+	srvDesc.Buffer.StructureByteStride = entrySize;
+	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
+	m_pUAVSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &srvDesc, m_pUAVDefaultResource);
+
 
 	m_Particles.reserve(m_ParticleCount);
 

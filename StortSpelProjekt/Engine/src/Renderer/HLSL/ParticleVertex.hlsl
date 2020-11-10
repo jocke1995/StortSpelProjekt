@@ -16,7 +16,7 @@ struct vertex
 
 ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
 StructuredBuffer<vertex> meshes[] : register(t0);
-StructuredBuffer<float4x4> uavWMat : register(t3, space3); // Edited by billboard compute
+StructuredBuffer<float4x4> WVP : register(t0, space1); // Edited by billboard compute
 
 
 VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
@@ -26,7 +26,7 @@ VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
 	vertex v = meshes[cbPerObject.info.vertexDataIndex][vID];
 	float4 vertexPosition = float4(v.pos.xyz, 1.0f);
 
-	float4x4 a = uavWMat[0];
+	float4 a = float4(0.5, 0.5, 0, 1);
 	output.pos = mul(vertexPosition, a);
 
 	output.uv = float2(v.uv.x, v.uv.y);
