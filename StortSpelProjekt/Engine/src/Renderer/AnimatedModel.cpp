@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "structs.h"
 #include "AnimatedModel.h"
 #include "Animation.h"
 #include "GPUMemory/ConstantBuffer.h"
@@ -18,17 +19,16 @@ AnimatedModel::AnimatedModel(
 
 	m_pSkeleton = rootNode;
 	m_Animations = (*animations);
-	m_UploadMatrices.reserve(numBones);
+	m_UploadMatrices.reserve(MAX_ANIMATION_MATRICES);
 
+	m_Time = 0;
 	DirectX::XMFLOAT4X4 matIdentity;
 	DirectX::XMStoreFloat4x4(&matIdentity, DirectX::XMMatrixIdentity());
 
-	for (unsigned int i = 0; i < numBones; i++)
+	for (unsigned int i = 0; i < MAX_ANIMATION_MATRICES; i++)
 	{
 		m_UploadMatrices.push_back(matIdentity);
 	}
-
-	m_pActiveAnimation = m_Animations[0];
 
 	// Store the globalInverse transform.
 	DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
@@ -61,34 +61,97 @@ const std::vector<DirectX::XMFLOAT4X4>* AnimatedModel::GetUploadMatrices() const
 	return &m_UploadMatrices;
 }
 
+bool AnimatedModel::SetActiveAnimation(std::string animationName)
+{
+	for (auto& animation : m_Animations)
+	{
+		if (animation->name == animationName)
+		{
+			m_pActiveAnimation = animation;
+			m_pActiveAnimation->Update(0);
+			initializeAnimation(m_pSkeleton);
+			return true;
+		}
+	}
+
+	Log::PrintSeverity(Log::Severity::CRITICAL, "Wrong name for the animation!\n");
+
+	return false;
+}
+
 void AnimatedModel::Update(double dt)
 {
-	if (m_pActiveAnimation != nullptr)
+	if (m_pActiveAnimation != nullptr && !m_AnimationIsPaused)
 	{
-		static double time;
-		time += dt;
-		float timeInTicks = time * m_pActiveAnimation->ticksPerSecond;
+		m_Time += dt;
+		double timeInTicks = m_Time * m_pActiveAnimation->ticksPerSecond;
 
-		float animationTime = fmod(timeInTicks, m_pActiveAnimation->durationInTicks);
+		double animationTime = fmod(timeInTicks, m_pActiveAnimation->durationInTicks);
 		m_pActiveAnimation->Update(animationTime);
-		updateSkeleton(animationTime, m_pSkeleton, DirectX::XMMatrixIdentity());
+		updateSkeleton(m_pSkeleton, DirectX::XMMatrixIdentity());
 	}
 }
 
-void AnimatedModel::updateSkeleton(float animationTime, SkeletonNode* node, DirectX::XMMATRIX parentTransform)
+void AnimatedModel::PlayAnimation()
 {
-	DirectX::XMMATRIX localTransform;
+	m_AnimationIsPaused = false;
+}
 
-	if (node->currentStateTransform) // node animated? could be optimized to only transform the parts (rot, scale or trans) that were actually animated --> example $AssimpFbx$_Rotation only afftect rotation part
+void AnimatedModel::PauseAnimation()
+{
+	m_AnimationIsPaused = true;
+}
+
+void AnimatedModel::ResetAnimation()
+{
+	m_Time = 0.0f;
+	m_pActiveAnimation->Update(0);
+	updateSkeleton(m_pSkeleton, DirectX::XMMatrixIdentity());
+}
+
+void AnimatedModel::initializeAnimation(SkeletonNode* node)
+{
+	if (m_pActiveAnimation->currentState.find(node->name) != m_pActiveAnimation->currentState.end())
+	{
+		node->currentStateTransform = &m_pActiveAnimation->currentState[node->name];
+	}
+	else
+	{
+		node->currentStateTransform = nullptr;
+	}
+
+	// Loop through all nodes in the tree
+	for (auto& child : node->children)
+	{
+		initializeAnimation(child);
+	}
+}
+
+void AnimatedModel::updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform)
+{
+	DirectX::XMMATRIX localTransform = DirectX::XMMatrixIdentity();
+
+	if (node->currentStateTransform) // node animated?
 	{
 		DirectX::XMVECTOR position, rotationQ, scale, rotationOrigin;
-		position = DirectX::XMLoadFloat3(&node->currentStateTransform->position);
-		rotationQ = DirectX::XMLoadFloat4(&node->currentStateTransform->rotationQuaternion);
-		scale = DirectX::XMLoadFloat3(&node->currentStateTransform->scaling);
-		DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslationFromVector(position);
-		DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationQuaternion(rotationQ);
-		DirectX::XMMATRIX scaleMatrix = DirectX::XMMatrixScalingFromVector(scale);
-		localTransform = scaleMatrix * rotationMatrix * translationMatrix;
+
+		if (node->currentStateTransform->pScale)
+		{
+			scale = DirectX::XMLoadFloat3(node->currentStateTransform->pScale);
+			localTransform *= DirectX::XMMatrixScalingFromVector(scale);
+		}
+
+		if (node->currentStateTransform->pRotation)
+		{
+			rotationQ = DirectX::XMLoadFloat4(node->currentStateTransform->pRotation);
+			localTransform *= DirectX::XMMatrixRotationQuaternion(rotationQ);
+		}
+
+		if (node->currentStateTransform->pPosition)
+		{
+			position = DirectX::XMLoadFloat3(node->currentStateTransform->pPosition);
+			localTransform *= DirectX::XMMatrixTranslationFromVector(position);
+		}
 	}
 	else // use src transformation otherwise
 	{
@@ -102,11 +165,11 @@ void AnimatedModel::updateSkeleton(float animationTime, SkeletonNode* node, Dire
 		DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&m_GlobalInverseTransform);
 		DirectX::XMMATRIX inverseBindPose = DirectX::XMLoadFloat4x4(&node->inverseBindPose);
 
-		DirectX::XMStoreFloat4x4(&m_UploadMatrices[node->boneID], DirectX::XMMatrixTranspose(inverseBindPose * finalTransform));// *transform; //globalInverse * 
+		DirectX::XMStoreFloat4x4(&m_UploadMatrices[node->boneID], DirectX::XMMatrixTranspose(globalInverse * inverseBindPose * finalTransform));// *transform; //globalInverse * 
 	}
 
 	for (unsigned int i = 0; i < node->children.size(); i++)
 	{
-		updateSkeleton(animationTime, node->children[i], finalTransform);
+		updateSkeleton(node->children[i], finalTransform);
 	}
 }
