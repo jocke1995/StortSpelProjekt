@@ -8,6 +8,7 @@
 void onStart(const std::string& name);
 void onExit(const std::string& name);
 void onOptions(const std::string& name);
+void MainMenuUpdateScene(SceneManager* sm, double dt);
 
 MainMenuHandler::MainMenuHandler()
 {
@@ -101,6 +102,8 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     m_pSceneManager = sm;
     m_pScene = scene;
 
+    scene->SetUpdateScene(&MainMenuUpdateScene);
+
     return scene;
 }
 
@@ -123,4 +126,14 @@ void onExit(const std::string& name)
 
 void onOptions(const std::string& name)
 {
+}
+
+void MainMenuUpdateScene(SceneManager* sm, double dt)
+{
+    static float rotValue = 0.0f;
+    Transform* trans = sm->GetScene("MainMenuScene")->GetEntity("Zombie")->GetComponent<component::TransformComponent>()->GetTransform();
+    trans->SetRotationY(rotValue);
+    trans->SetPosition({ 0.0, std::sin(rotValue), 10.0 });
+
+    rotValue += dt;
 }
