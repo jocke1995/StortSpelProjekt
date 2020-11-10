@@ -9,10 +9,6 @@ struct srv
 StructuredBuffer<float4> pos3size[] : register(t0);
 RWStructuredBuffer<float4x4> uav[] : register(u0);
 
-RWStructuredBuffer<float4> uav[] : register(u0);
-ConstantBuffer<DescriptorHeapIndices> dhIndices : register(b2, space4);
-StructuredBuffer<vertex> meshes[] : register(t0);
-
 //ConstantBuffer<DescriptorHeapIndices> dhIndices : register(b2, space4);
 
 //static const int g_BlurRadius = 4;

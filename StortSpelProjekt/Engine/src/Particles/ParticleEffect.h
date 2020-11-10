@@ -60,6 +60,8 @@ private:
 	// WVP matrix
 	Resource* m_pUAVDefaultResource = nullptr;
 	UnorderedAccessView* m_pUAV = nullptr;
+	ShaderResourceView* m_pUAVSRV = nullptr;
+
 
 	void spawnParticle();
 
