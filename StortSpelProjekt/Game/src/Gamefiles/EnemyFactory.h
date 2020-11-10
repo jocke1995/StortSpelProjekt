@@ -16,6 +16,7 @@ struct SceneChange;
 struct Death;
 struct LevelDone;
 struct RoundStart;
+struct ResetGame;
 
 static int s_EnemyId = 0;
 
@@ -107,6 +108,7 @@ private:
 	void levelDone(LevelDone* evnt);
 	void onSceneSwitch(SceneChange* evnt);
 	void onRoundStart(RoundStart* evnt);
+	void onResetGame(ResetGame* evnt);
 	Scene* m_pScene = nullptr;
 	std::map<std::string, EnemyComps*> m_EnemyComps;
 	std::vector<Entity*> m_Enemies;
