@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "structs.h"
 #include "AnimatedModel.h"
 #include "Animation.h"
 #include "GPUMemory/ConstantBuffer.h"
@@ -18,13 +19,13 @@ AnimatedModel::AnimatedModel(
 
 	m_pSkeleton = rootNode;
 	m_Animations = (*animations);
-	m_UploadMatrices.reserve(numBones);
+	m_UploadMatrices.reserve(MAX_ANIMATION_MATRICES);
 
 	m_Time = 0;
 	DirectX::XMFLOAT4X4 matIdentity;
 	DirectX::XMStoreFloat4x4(&matIdentity, DirectX::XMMatrixIdentity());
 
-	for (unsigned int i = 0; i < numBones; i++)
+	for (unsigned int i = 0; i < MAX_ANIMATION_MATRICES; i++)
 	{
 		m_UploadMatrices.push_back(matIdentity);
 	}
