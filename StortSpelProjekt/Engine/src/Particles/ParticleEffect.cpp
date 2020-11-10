@@ -110,7 +110,7 @@ void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap)
 	Renderer& renderer = Renderer::GetInstance();
 
 	// Only send position (float3) + size (float) to gpu
-	size_t entrySize = sizeof(float4);
+	size_t entrySize = sizeof(PARTICLE_DATA);
 	unsigned long long resourceByteSize = entrySize * m_ParticleCount;
 
 	// used to format a debug string
@@ -166,6 +166,7 @@ void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap)
 
 
 	m_Particles.reserve(m_ParticleCount);
+	m_ParticlesData.resize(m_ParticleCount);
 
 	m_Particles = std::vector<Particle>(m_ParticleCount);
 }
@@ -210,9 +211,7 @@ void ParticleEffect::randomizeLifetime(Particle& particle)
 
 void ParticleEffect::updateResourceData()
 {
-	// build a array with float3 position
-	float4 pos;
-	std::vector<float4> tempData(m_ParticleCount);
+	PARTICLE_DATA tempData;
 
 	unsigned int index = 0;
 	for (Particle& p : m_Particles)
@@ -222,14 +221,14 @@ void ParticleEffect::updateResourceData()
 			p.m_Size = 0;
 		}
 
-		pos = { p.m_Position.x, p.m_Position.y, p.m_Position.z, p.m_Size };
+		tempData = { p.m_Position.x, p.m_Position.y, p.m_Position.z, p.m_Size };
 		
-		tempData[index++] = pos;
+		m_ParticlesData[index++] = tempData;
 	}
 
 	// Todo, sort z for blend
 
-	const void* data = static_cast<void*>(tempData.data());
+	const void* data = static_cast<void*>(m_ParticlesData.data());
 	std::tuple temp = { m_pUploadResource, m_pDefaultResource, data };
 	
 	// Copy to ondemand
