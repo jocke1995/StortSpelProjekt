@@ -8,6 +8,7 @@
 void onStart(const std::string& name);
 void onExit(const std::string& name);
 void onOptions(const std::string& name);
+void MainMenuUpdateScene(SceneManager* sm, double dt);
 
 MainMenuHandler::MainMenuHandler()
 {
@@ -67,8 +68,42 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     guic = entity->AddComponent<component::GUI2DComponent>();
     guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.3f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, exitTex);
     guic->GetQuadManager()->SetOnClicked(&onExit);
+
+    Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
+    entity = scene->AddEntity("Zombie");
+    component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
+    component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
+    mc->SetModel(enemyModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    Transform* t = tc->GetTransform();
+    t->SetPosition(0.0, 0.0, 10.0);
+    t->SetScale(0.03);
+    t->SetRotationX(0.0);
+    t->SetRotationY(PI);
+    t->SetRotationZ(0.0);
+    tc->SetTransformOriginalState();
+
+    double3 playerDim = mc->GetModelDim();
+
+    double rad = playerDim.z / 2.0;
+    double cylHeight = playerDim.y - (rad * 2.0);
+    component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
+    cc->SetGravity(0.0);
+    /* ----------------- Light ------------------- */
+
+    entity = scene->AddEntity("SpotLight");
+
+    component::SpotLightComponent* slc = entity->AddComponent<component::SpotLightComponent>();
+    slc->SetColor({ 4.0f, 4.0f, 4.0f });
+    slc->SetAttenuation({ 1.0f, 0.027f, 0.0028f });
+    slc->SetDirection({ 0.0, -1.0, 0.0f });
+    slc->SetPosition({ 0.0, 10.0, 10.0 });
+
     m_pSceneManager = sm;
     m_pScene = scene;
+
+    scene->SetUpdateScene(&MainMenuUpdateScene);
+
     return scene;
 }
 
@@ -91,4 +126,14 @@ void onExit(const std::string& name)
 
 void onOptions(const std::string& name)
 {
+}
+
+void MainMenuUpdateScene(SceneManager* sm, double dt)
+{
+    static float rotValue = 0.0f;
+    Transform* trans = sm->GetScene("MainMenuScene")->GetEntity("Zombie")->GetComponent<component::TransformComponent>()->GetTransform();
+    trans->SetRotationY(rotValue);
+    trans->SetPosition({ 0.0, std::sin(rotValue), 10.0 });
+
+    rotValue += dt;
 }
