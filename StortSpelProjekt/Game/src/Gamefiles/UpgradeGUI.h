@@ -31,8 +31,17 @@ private:
 	bool m_Shown = false;
 	bool m_Deleted = true;
 	bool m_Drawn = false;
-	float2 m_ButtonPos = { 0.47f, 0.206f };
-	float m_ButtonYOffset = 0.05f;
+	bool m_DescriptionDeleted = true;
+	float2 m_ButtonPos = { 0.47f, 0.211f };
+	float m_ButtonYOffset = 0.048f;
+	// How many times the menu can be filled with buttons.
+	// Used for keeping track of how many times we need to cycle
+	// the menu to show all buttons.
+	int m_ButtonsMultipleTen = 0;
+	// How many times we have filled the menu with buttons.
+	// Used for cycling through buttons.
+	int m_TimesFilledMenu = 0;
+	std::string m_CurrentDescription = "";
 	Scene* m_CurrentScene = nullptr;
 	SceneManager* m_Sm = nullptr;
 	std::map<std::string, int> m_AppliedUpgradeEnums;
@@ -41,8 +50,9 @@ private:
 	void showMenu(UForUpgrade* keyPress);
 	//void get
 	void makeUpgradeButton(float2 pos, std::string name);
-	void updateDescription(Scene* scene);
-	void getButtonPress(ButtonPressed* uPress);
+	void getButtonPress(ButtonPressed* event);
+	void updateDescription();
+
 
 
 	// Textures:
@@ -52,6 +62,9 @@ private:
 	Texture* m_orangeBackgroundTexture;
 	Texture* m_yellowGradientTexture;
 	Texture* m_orangeGradientTexture;
+	Texture* m_boardBackgroundTexture;
+	Texture* m_buttonParchment;
+	Texture* m_DescriptionParchment;
 };
 
 

@@ -10,7 +10,7 @@
 #include "Renderer/Texture/Texture.h"
 #include "Renderer/Renderer.h"
 #include "UpgradeManager.h"
-//#include ""
+#include "Components/UpgradeComponents/UpgradeComponent.h"
 
 UpgradeGUI::UpgradeGUI()
 {
@@ -26,6 +26,7 @@ UpgradeGUI& UpgradeGUI::GetInstance()
 UpgradeGUI::~UpgradeGUI()
 {
 	EventBus::GetInstance().Unsubscribe(this, &UpgradeGUI::showMenu);
+	EventBus::GetInstance().Unsubscribe(this, &UpgradeGUI::getButtonPress);
 }
 
 void UpgradeGUI::Update(double dt, Scene* scene)
@@ -44,6 +45,9 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 		m_Drawn = false;
 		m_Deleted = true;
 		m_CurrentScene = scene;
+		m_CurrentDescription = "";
+		m_ButtonsMultipleTen = 0;
+		m_TimesFilledMenu = 0;
 	}
 
 	// if shown is true we should draw the menu
@@ -68,6 +72,13 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 
 		m_Sm->RemoveEntity(scene->GetEntity("UpgradeMenuBackground"), scene);
 		m_Sm->RemoveEntity(scene->GetEntity("UpgradeMenuDevider"), scene);
+		m_Sm->RemoveEntity(scene->GetEntity("NextButton"), scene);
+		if (m_CurrentDescription != "")
+		{
+			m_Sm->RemoveEntity(scene->GetEntity("Description"), scene);
+			m_CurrentDescription = "";
+		}
+
 		for (int i = 0; i < m_ButtonNames.size(); i++)
 		{
 			if (scene->GetEntity(m_ButtonNames[i]))
@@ -78,8 +89,8 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 		m_ButtonNames.clear();
 		m_Deleted = true;
 		m_Drawn = false;
-
-
+		m_ButtonsMultipleTen = 0;
+		m_TimesFilledMenu = 0;
 	}
 
 }
@@ -108,7 +119,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 	/* ------------------------- Upgrade Menu Background --------------------------- */
 
 	textToRender = "Bought Upgrades            Upgrade Description";
-	textPos = { 0.49f, 0.16f };
+	textPos = { 0.49f, 0.165f };
 	textPadding = { 0.5f, 0.0f };
 	textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	textScale = { 0.5f, 0.5f };
@@ -126,7 +137,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 
 	quadPos = { 0.45f, 0.15f };
 	quadScale = { 0.5f, 0.6f };
-	blended = { 1.0, 1.0, 1.0, 0.4 };
+	blended = { 1.0, 1.0, 1.0, 1.0 };
 	notBlended = { 1.0, 1.0, 1.0, 1.0 };
 	gui->GetQuadManager()->CreateQuad(
 		"UpgradeMenuBackground",
@@ -134,7 +145,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 		false, false,
 		1,
 		blended,
-		m_orangeGradientTexture);
+		m_boardBackgroundTexture, {0.4, 0.4, 0.4});
 	m_Sm->AddEntity(entity, scene);
 	entity->Update(0);
 	entity->SetEntityState(true);
@@ -166,15 +177,79 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 
 	/* ------------------------- Upgrade Menu Buttons --------------------------- */
 	int itterator = 0;
-	for (auto u : m_AppliedUpgradeEnums)
+
+	std::map<std::string, int> vec;
+	vec["TestButton1"] = 1;
+	vec["TestButton2"] = 2;
+	vec["TestButton3"] = 3;
+	vec["TestButton4"] = 4;
+	vec["TestButton5"] = 5;
+	vec["TestButton6"] = 6;
+	vec["TestButton7"] = 7;
+	vec["TestButton8"] = 8;
+	vec["TestButton9"] = 9;
+	vec["TestButton10"] = 10;
+	vec["TestButton11"] = 11;
+	//for (auto u : m_AppliedUpgradeEnums)
+	for (auto u : vec)
 	{
-		makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + (m_ButtonYOffset * itterator)) }, u.first);
+		if (itterator < 10)
+		{
+			makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + (m_ButtonYOffset * itterator)) }, u.first);
+		}
+
+		if (itterator % 10 == 0 && itterator > 0)
+		{
+			m_ButtonsMultipleTen++;
+		}
 		itterator++;
 	}
+	m_TimesFilledMenu++;
 	//makeUpgradeButton({ m_ButtonPos.x, m_ButtonPos.y }, "bbNo$");
 
 	//makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + m_ButtonYOffset) }, "bbMore$");
 	/* ------------------------- Upgrade Menu Button End --------------------------- */
+
+	/* ------------------------- Upgrade Menu Next Button --------------------------- */
+
+	if (m_ButtonsMultipleTen > 0)
+	{
+		textToRender = "Next";
+		textPos = { 0.55f, m_ButtonPos.y + (m_ButtonYOffset * 10) };
+		textPadding = { 0.5f, 0.0f };
+		textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		textScale = { 0.5f, 0.5f };
+		textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		entity = scene->AddEntity("NextButton");
+		gui = entity->AddComponent<component::GUI2DComponent>();
+		gui->GetTextManager()->AddText("NextButton");
+		gui->GetTextManager()->SetColor(textColor, "NextButton");
+		gui->GetTextManager()->SetPadding(textPadding, "NextButton");
+		gui->GetTextManager()->SetPos(textPos, "NextButton");
+		gui->GetTextManager()->SetScale(textScale, "NextButton");
+		gui->GetTextManager()->SetText(textToRender, "NextButton");
+		gui->GetTextManager()->SetBlend(textBlend, "NextButton");
+
+
+		quadPos = { 0.49f, m_ButtonPos.y + (m_ButtonYOffset * 10) };//{ 0.47f, 0.202f };
+		quadScale = { 0.15f, 0.04f };
+		blended = { 1.0, 1.0, 1.0, 1.0 };
+		notBlended = { 1.0, 1.0, 1.0, 1.0 };
+		gui->GetQuadManager()->CreateQuad(
+			"NextButton",
+			quadPos, quadScale,
+			true, true,
+			1,
+			blended,
+			m_buttonParchment);
+
+		m_Sm->AddEntity(entity, scene);
+		entity->Update(0);
+		entity->SetEntityState(true);
+	}
+	
+	/* ------------------------- Upgrade Menu Next Button End --------------------------- */
 
 	/* ----------------------- Upgrade Menu -------------------------- */
 
@@ -193,8 +268,12 @@ void UpgradeGUI::Init()
 	m_orangeBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/orange.png");
 	m_yellowGradientTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/YellowGradientBackground.png");
 	m_orangeGradientTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/orangeGradient.png");
+	m_boardBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/board2.png");
+	m_buttonParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_hor.png");
+	m_DescriptionParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_vert.png");
 
 	EventBus::GetInstance().Subscribe(this, &UpgradeGUI::showMenu);
+	EventBus::GetInstance().Subscribe(this, &UpgradeGUI::getButtonPress);
 }
 
 void UpgradeGUI::SetCurrentScene(Scene* scene)
@@ -265,10 +344,149 @@ void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
 		true, true,
 		1,
 		blended,
-		m_buttonMintTexture);
+		m_buttonParchment);
 
 	m_Sm->AddEntity(entity, m_CurrentScene);
 	entity->Update(0);
 	entity->SetEntityState(true);
 
+}
+
+void UpgradeGUI::getButtonPress(ButtonPressed* event)
+{
+	std::string upgradePartOfName = event->name.substr(0, 7);
+	// Checking if the button that was pressed is an upgrade.
+	if (upgradePartOfName == "Upgrade")
+	{
+		if (m_CurrentDescription != "")
+		{
+			m_Sm->RemoveEntity(m_CurrentScene->GetEntity("Description"), m_CurrentScene);
+			m_CurrentDescription = "";
+		}
+		m_CurrentDescription = Player::GetInstance().GetUpgradeManager()->GetAllAvailableUpgrades().at(event->name)->GetDescription();
+		//GetPlayer()->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(event->name)->GetDescription();
+		updateDescription();
+	}
+	else if (event->name == "NextButton")
+	{
+		// Delete existing buttons.
+		for (int i = 0; i < m_ButtonNames.size(); i++)
+		{
+			if (m_CurrentScene->GetEntity(m_ButtonNames[i]))
+			{
+				m_Sm->RemoveEntity(m_CurrentScene->GetEntity(m_ButtonNames[i]), m_CurrentScene);
+			}
+		}
+
+		int itterator = 0;
+		int posItterator = 0;
+
+		std::map<std::string, int> vec;
+		vec["TestButton1"] = 1;
+		vec["TestButton2"] = 2;
+		vec["TestButton3"] = 3;
+		vec["TestButton4"] = 4;
+		vec["TestButton5"] = 5;
+		vec["TestButton6"] = 6;
+		vec["TestButton7"] = 7;
+		vec["TestButton8"] = 8;
+		vec["TestButton9"] = 9;
+		vec["TestButton10"] = 10;
+		vec["TestButton11"] = 11;
+		// Loop through and populate with the next buttons that should be shown.
+		//for (auto u : m_AppliedUpgradeEnums)
+		if (m_TimesFilledMenu > m_ButtonsMultipleTen)
+		{
+			m_TimesFilledMenu = 0;
+		}
+		for (auto u : vec)
+		{
+			// Bigger than number of times the menu has been filled multiplied by the number of buttons, which is 10.
+			// But we want no more than 10 buttons at a time so do this no more than 10 times 
+			// example: i >= 10 * 1 && i < 10 * 2. So we add buttons at place 10 to 19
+			if (itterator >= 10 * m_TimesFilledMenu && itterator < 10 * (m_TimesFilledMenu + 1))
+			{
+				makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + (m_ButtonYOffset * posItterator)) }, u.first);
+				posItterator++;
+			}
+			itterator++;
+
+		}
+		m_TimesFilledMenu++;
+	}
+}
+
+void UpgradeGUI::updateDescription()
+{
+	Entity* entity = nullptr;
+	component::GUI2DComponent* gui = nullptr;
+	std::string textToRender;
+	float2 textPos;
+	float2 textPadding;
+	float4 textColor;
+	float2 textScale;
+	float4 textBlend;
+
+	float2 quadPos;
+	float2 quadScale;
+	float4 blended;
+	float4 notBlended;
+
+	std::string name = "Description";
+	int newLinePos = 0;
+	int sizeLeft = m_CurrentDescription.size();
+	std::string description = m_CurrentDescription;
+
+	std::string delimiter = " ";
+	size_t pos = 0;
+	std::string token;
+	int newLineAmount = 1;
+	// Loop through the description and save every word to the sting that will be drawn on screen.
+	// If we reach a character length of 50 then put in a newLine character after the word to split the scentence appropriately.
+	while ((pos = description.find(delimiter)) != std::string::npos) {
+		token = description.substr(0, pos);
+		newLinePos += pos;
+		if (newLinePos > (50 * newLineAmount))
+		{
+			newLineAmount++;
+			textToRender += "\n" + token + " ";
+		}
+		else
+		{
+			textToRender += token + " ";
+		}
+		description.erase(0, pos + delimiter.length());
+	}
+
+	textPos = { 0.7 + 0.0065, m_ButtonPos.y + 0.03f };
+	textPadding = { 0.5f, 0.0f };
+	textColor = { .0f, .0f, .0f, 1.0f };
+	textScale = { 0.2f, 0.2f };
+	textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	entity = m_CurrentScene->AddEntity(name);
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->AddText(name);
+	gui->GetTextManager()->SetColor(textColor, name);
+	gui->GetTextManager()->SetPadding(textPadding, name);
+	gui->GetTextManager()->SetPos(textPos, name);
+	gui->GetTextManager()->SetScale(textScale, name);
+	gui->GetTextManager()->SetText(textToRender, name);
+	gui->GetTextManager()->SetBlend(textBlend, name);
+
+	quadPos = { 0.68, m_ButtonPos.y - 0.05f };//{ 0.47f, 0.202f };
+	quadScale = { 0.27f, 0.57f };
+	blended = { 1.0, 1.0, 1.0, 1.0 };
+	notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	gui->GetQuadManager()->CreateQuad(
+		name,
+		quadPos, quadScale,
+		true, false,
+		1,
+		blended,
+		m_DescriptionParchment);
+
+	m_Sm->AddEntity(entity, m_CurrentScene);
+	entity->Update(0);
+	entity->SetEntityState(true);
 }
