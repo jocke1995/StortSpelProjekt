@@ -91,7 +91,6 @@ void component::CollisionComponent::OnInitScene()
 	m_pBody = new btRigidBody(info);
 	m_pBody->setLinearVelocity({ m_pTrans->GetMovement().x, m_pTrans->GetMovement().y, m_pTrans->GetMovement().z });
 
-
 	// Will be removed in the future!
 	// If it isn't called, objects may be deactivated as Bullet deduces they wont be colliding with anything, but if user then changes position bullet does not react.
 	m_pBody->setActivationState(DISABLE_DEACTIVATION);
@@ -137,7 +136,6 @@ void component::CollisionComponent::SetRotation(double pitch, double yaw, double
 void component::CollisionComponent::SetRotation(double3 axis, double angle)
 {
 	btTransform trans = m_pBody->getWorldTransform();
-
 	btQuaternion rotQuat;
 	rotQuat.setRotation({ axis.x, axis.y, axis.z }, angle);
 

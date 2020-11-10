@@ -99,16 +99,16 @@ void AnimatedDepthRenderTask::drawRenderComponent(component::ModelComponent* mc,
 		AnimatedMesh* m = static_cast<AnimatedMesh*>(mc->GetMeshAt(i));
 		size_t num_Indices = m->GetNumIndices();
 		SlotInfo* info = const_cast<SlotInfo*>(mc->GetSlotInfoAt(i));
-
+	
 		Transform* transform = tc->GetTransform();
 		DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
 		DirectX::XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
-
+	
 		// CB_PER_OBJECT 
 		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
 		unsigned int size = sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT);
 		cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, size, &perObject, 0);
-
+	
 		// CB_INDICES 
 		DescriptorHeapIndices dhIndices = 
 		{ 
@@ -119,7 +119,7 @@ void AnimatedDepthRenderTask::drawRenderComponent(component::ModelComponent* mc,
 		};
 		size = sizeof(DescriptorHeapIndices) / sizeof(UINT);
 		cl->SetGraphicsRoot32BitConstants(RS::CB_INDICES_CONSTANTS, size, &dhIndices, 0);
-
+	
 		cl->IASetIndexBuffer(m->GetIndexBufferView());
 		cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 	}
