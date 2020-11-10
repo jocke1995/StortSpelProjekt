@@ -164,7 +164,6 @@ void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap)
 
 	m_pUAVSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &srvDesc, m_pUAVDefaultResource);
 
-
 	m_Particles.reserve(m_ParticleCount);
 	m_ParticlesData.resize(m_ParticleCount);
 
@@ -185,11 +184,11 @@ void ParticleEffect::initParticle(Particle& particle)
 
 void ParticleEffect::randomizePosition(Particle& particle)
 {
-	float x = rand.Randf(-1, 1);
-	float y = rand.Randf(-1, 1);
+	float x = rand.Randf(0, 3) -2;
+	float z = rand.Randf(0, 3) -2;
 	
 	particle.m_Position.x = x;
-	particle.m_Position.y = y;
+	particle.m_Position.z = z;
 }
 
 void ParticleEffect::randomizeVelocity(Particle& particle)
@@ -206,7 +205,7 @@ void ParticleEffect::randomizeRotation(Particle& particle)
 
 void ParticleEffect::randomizeLifetime(Particle& particle)
 {
-	particle.m_Lifetime = 5;
+	particle.m_Lifetime = 2;
 }
 
 void ParticleEffect::updateResourceData()

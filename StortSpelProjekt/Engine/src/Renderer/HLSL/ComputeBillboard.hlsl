@@ -15,7 +15,7 @@ RWStructuredBuffer<float4x4> uav[] : register(u0);
 //static const int g_NumThreads = 256;
 //groupshared float4 g_SharedMem[g_NumThreads + 2 * g_BlurRadius];
 
-[numthreads(5, 1, 4)]
+[numthreads(5, 1, 1)]
 void CS_main(uint3 dispatchThreadID : SV_DispatchThreadID, int3 groupThreadID : SV_GroupThreadID)
 {
 	// Position
