@@ -225,12 +225,12 @@ const HWND* Window::GetHwnd() const
 	return &m_Hwnd;
 }
 
-void Window::SetScreenWidth(const int width)
+void Window::SetScreenWidth(int width)
 {
 	m_ScreenWidth = width;
 }
 
-void Window::SetScreenHeight(const int height)
+void Window::SetScreenHeight(int height)
 {
 	m_ScreenHeight = height;
 }

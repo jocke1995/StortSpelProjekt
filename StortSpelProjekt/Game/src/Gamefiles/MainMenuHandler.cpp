@@ -51,6 +51,7 @@ void MainMenuHandler::createOptionScene()
     Texture* lowShadowQuality = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Low.png");
     Texture* medShadowQuality = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Med.png");
     Texture* highShadowQuality = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/High.png");
+    Texture* volume = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Volume.png");
     Texture* plus = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Plus.png");
     Texture* minus = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Minus.png");
 
@@ -118,8 +119,8 @@ void MainMenuHandler::createOptionScene()
         guic->GetQuadManager()->CreateQuad("activeResolution",
             { 0.35f, 0.35f },
             { (float)res720p->GetWidth() / 1920.0f, (float)res720p->GetHeight() / 1080.0f },
-            true,
-            true,
+            false,
+            false,
             0,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
@@ -129,8 +130,8 @@ void MainMenuHandler::createOptionScene()
         guic->GetQuadManager()->CreateQuad("activeResolution",
             { 0.35f, 0.25f },
             { (float)res1080p->GetWidth() / 1920.0f, (float)res1080p->GetHeight() / 1080.0f },
-            true,
-            true,
+            false,
+            false,
             0,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
@@ -140,8 +141,8 @@ void MainMenuHandler::createOptionScene()
         guic->GetQuadManager()->CreateQuad("1444p",
             { 0.35f, 0.15f },
             { (float)res1440p->GetWidth() / 1920.0f, (float)res1440p->GetHeight() / 1080.0f },
-            true,
-            true,
+            false,
+            false,
             0,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
@@ -182,8 +183,8 @@ void MainMenuHandler::createOptionScene()
         guic->GetQuadManager()->CreateQuad("activeWindowmode",
             { 0.60f, 0.15f },
             { (float)fullscreen->GetWidth() / 1920.0f, (float)fullscreen->GetHeight() / 1080.0f },
-            true,
-            true,
+            false,
+            false,
             0,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
@@ -193,8 +194,8 @@ void MainMenuHandler::createOptionScene()
         guic->GetQuadManager()->CreateQuad("activeWindowmode",
             { 0.60f, 0.25f },
             { (float)windowed->GetWidth() / 1920.0f, (float)windowed->GetHeight() / 1080.0f },
-            true,
-            true,
+            false,
+            false,
             0,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
@@ -256,8 +257,8 @@ void MainMenuHandler::createOptionScene()
         guic->GetQuadManager()->CreateQuad("activeShadowQuality",
             { 0.35f, 0.60f },
             { (float)lowShadowQuality->GetWidth() / 1920.0f, (float)lowShadowQuality->GetHeight() / 1080.0f },
-            true,
-            true,
+            false,
+            false,
             0,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
@@ -267,8 +268,8 @@ void MainMenuHandler::createOptionScene()
         guic->GetQuadManager()->CreateQuad("activeShadowQuality",
             { 0.35f, 0.70f },
             { (float)medShadowQuality->GetWidth() / 1920.0f, (float)medShadowQuality->GetHeight() / 1080.0f },
-            true,
-            true,
+            false,
+            false,
             0,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
@@ -278,8 +279,8 @@ void MainMenuHandler::createOptionScene()
         guic->GetQuadManager()->CreateQuad("activeShadowQuality",
             { 0.35f, 0.80f },
             { (float)highShadowQuality->GetWidth() / 1920.0f, (float)highShadowQuality->GetHeight() / 1080.0f },
-            true,
-            true,
+            false,
+            false,
             0,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
@@ -287,6 +288,17 @@ void MainMenuHandler::createOptionScene()
         break;
     }
     /*-------------Volume--------------*/
+    entity = m_pOptionScene->AddEntity("volumeText");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("volumeText",
+        { 0.65f, 0.52f },
+        { (float)volume->GetWidth() / 1920.0f, (float)volume->GetHeight() / 1080.0f },
+        false,
+        false,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        volume);
+
     entity = m_pOptionScene->AddEntity("volumePlus");
     guic = entity->AddComponent<component::GUI2DComponent>();
     guic->GetQuadManager()->CreateQuad("volumePlus",
@@ -431,6 +443,11 @@ Scene* MainMenuHandler::GetScene()
     return m_pScene;
 }
 
+Scene* MainMenuHandler::GetOptionScene()
+{
+    return m_pOptionScene;
+}
+
 void onStart(const std::string& name)
 {
     EventBus::GetInstance().Publish(&SceneChange("GameScene"));
@@ -462,6 +479,15 @@ void on2560x1440(const std::string& name)
     Option::GetInstance().SetVariable("i_windowHeight", "1440");
 
     Option::GetInstance().WriteFile();
+
+    Texture* high = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/2560x1440.png");
+    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeResolution")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
+        { 0.35f, 0.15f },
+        { (float)high->GetWidth() / 1920.0f, (float)high->GetHeight() / 1080.0f },
+        false,
+        false,
+        { 1.0, 1.0, 1.0, 1.0 },
+        { 0.0f, 1.0f, 0.0f });
 }
 
 void on1920x1080(const std::string& name)
@@ -473,6 +499,15 @@ void on1920x1080(const std::string& name)
     Option::GetInstance().SetVariable("i_windowHeight", "1080");
 
     Option::GetInstance().WriteFile();
+
+    Texture* med = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/1920x1080.png");
+    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeResolution")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
+        { 0.35f, 0.25f },
+        { (float)med->GetWidth() / 1920.0f, (float)med->GetHeight() / 1080.0f },
+        false,
+        false,
+        { 1.0, 1.0, 1.0, 1.0 },
+        { 0.0f, 1.0f, 0.0f });
 }
 
 void on1280x720(const std::string& name)
@@ -484,6 +519,15 @@ void on1280x720(const std::string& name)
     Option::GetInstance().SetVariable("i_windowHeight", "720");
 
     Option::GetInstance().WriteFile();
+
+    Texture* low = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/1280x720.png");
+    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeResolution")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
+        { 0.35f, 0.35f },
+        { (float)low->GetWidth() / 1920.0f, (float)low->GetHeight() / 1080.0f },
+        false,
+        false,
+        { 1.0, 1.0, 1.0, 1.0 },
+        { 0.0f, 1.0f, 0.0f });
 }
 
 void onFullscreen(const std::string& name)
@@ -491,6 +535,15 @@ void onFullscreen(const std::string& name)
     Option::GetInstance().SetVariable("i_windowMode", "1");
 
     Option::GetInstance().WriteFile();
+
+    Texture* fullscreen = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Fullscreen.png");
+    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeWindowmode")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
+        { 0.60f, 0.15f },
+        { (float)fullscreen->GetWidth() / 1920.0f, (float)fullscreen->GetHeight() / 1080.0f },
+        false,
+        false,
+        { 1.0, 1.0, 1.0, 1.0 },
+        { 0.0f, 1.0f, 0.0f });
 }
 
 void onWindowed(const std::string& name)
@@ -498,6 +551,15 @@ void onWindowed(const std::string& name)
     Option::GetInstance().SetVariable("i_windowMode", "0");
 
     Option::GetInstance().WriteFile();
+
+    Texture* window = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Windowed.png");
+    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeWindowmode")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
+        { 0.60f, 0.25f },
+        { (float)window->GetWidth() / 1920.0f, (float)window->GetHeight() / 1080.0f },
+        false,
+        false,
+        { 1.0, 1.0, 1.0, 1.0 },
+        { 0.0f, 1.0f, 0.0f });
 }
 
 void onLowShadowQuality(const std::string& name)
@@ -505,6 +567,15 @@ void onLowShadowQuality(const std::string& name)
     Option::GetInstance().SetVariable("i_shadowResolution", "0");
 
     Option::GetInstance().WriteFile();
+
+    Texture* low = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Low.png");
+    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeShadowQuality")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
+        { 0.35f, 0.60f },
+        { (float)low->GetWidth() / 1920.0f, (float)low->GetHeight() / 1080.0f },
+        false,
+        false,
+        { 1.0, 1.0, 1.0, 1.0 },
+        { 0.0f, 1.0f, 0.0f });
 }
 
 void onMedShadowQuality(const std::string& name)
@@ -512,6 +583,15 @@ void onMedShadowQuality(const std::string& name)
     Option::GetInstance().SetVariable("i_shadowResolution", "1");
 
     Option::GetInstance().WriteFile();
+
+    Texture* med = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Med.png");
+    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeShadowQuality")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
+        { 0.35f, 0.70f },
+        { (float)med->GetWidth() / 1920.0f, (float)med->GetHeight() / 1080.0f },
+        false,
+        false,
+        { 1.0, 1.0, 1.0, 1.0 },
+        { 0.0f, 1.0f, 0.0f });
 }
 
 void onHighShadowQuality(const std::string& name)
@@ -519,22 +599,37 @@ void onHighShadowQuality(const std::string& name)
     Option::GetInstance().SetVariable("i_shadowResolution", "2");
 
     Option::GetInstance().WriteFile();
+
+    Texture* high = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/High.png");
+    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeShadowQuality")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
+        { 0.35f, 0.80f },
+        { (float)high->GetWidth() / 1920.0f, (float)high->GetHeight() / 1080.0f },
+        false,
+        false,
+        { 1.0, 1.0, 1.0, 1.0 },
+        { 0.0f, 1.0f, 0.0f });
 }
 
 void onVolumePlus(const std::string& name)
 {
-    std::ostringstream str;
-    str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_volume")) + 0.1f;
-    Option::GetInstance().SetVariable("f_volume", str.str());
+    if (std::stof(Option::GetInstance().GetVariable("f_volume")) < 10)
+    {
+        std::ostringstream str;
+        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_volume")) + 0.1f;
+        Option::GetInstance().SetVariable("f_volume", str.str());
 
-    Option::GetInstance().WriteFile();
+        Option::GetInstance().WriteFile();
+    }
 }
 
 void onVolumeMinus(const std::string& name)
 {
-    std::ostringstream str;
-    str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_volume")) - 0.1f;
-    Option::GetInstance().SetVariable("f_volume", str.str());
+    if (std::stof(Option::GetInstance().GetVariable("f_volume")) > 0)
+    {
+        std::ostringstream str;
+        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_volume")) - 0.1f;
+        Option::GetInstance().SetVariable("f_volume", str.str());
 
-    Option::GetInstance().WriteFile();
+        Option::GetInstance().WriteFile();
+    }
 }

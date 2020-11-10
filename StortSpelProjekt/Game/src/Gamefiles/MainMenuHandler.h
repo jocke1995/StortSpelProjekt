@@ -1,5 +1,7 @@
 #ifndef MAINMENUHANDLER_H
 #define MAINMENUHANDLER_H
+#include <string.h>
+
 class Scene;
 class SceneManager;
 
@@ -10,6 +12,7 @@ public:
 	virtual ~MainMenuHandler();
 	Scene* CreateScene(SceneManager* sm);
 	Scene* GetScene();
+	Scene* GetOptionScene();
 
 private:
 	MainMenuHandler();
