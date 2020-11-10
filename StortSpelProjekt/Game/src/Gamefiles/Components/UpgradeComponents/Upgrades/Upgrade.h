@@ -68,6 +68,8 @@ public:
 
 protected:
 	Entity* m_pParentEntity;
+	//The entity that interacted with the player for purposes of applying effects on other
+	Entity* m_pTargetEntity;
 	// Name of the upgrade, for ease of access in shop or upgrade handlers
 	std::string m_Name = "";
 	// Description is used in shop when describing the upgrade.

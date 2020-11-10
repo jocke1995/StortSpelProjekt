@@ -204,7 +204,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	t->SetRotationX(comps->rot.x);
 	t->SetRotationY(comps->rot.y);
 	t->SetRotationZ(comps->rot.z);
-	t->SetVelocity(comps->movementSpeed * 0.5);
+	t->SetVelocity(comps->movementSpeed);
 	t->UpdateWorldMatrix();
 
 	tc->SetTransformOriginalState();
