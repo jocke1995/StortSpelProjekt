@@ -27,8 +27,8 @@ bool Particle::IsAlive()
 void Particle::initDefaultValues()
 {
 	m_Position = { 0, 0, 0 };
-	m_Velocity = { 0, 1, 0 };
-	m_Gravity = 1;
+	m_Velocity = { 0, 18, 0 };
+	m_Gravity = 9;
 	m_Size = 1;
 	m_Rotation = 0;
 	m_Lifetime = 0.0f;

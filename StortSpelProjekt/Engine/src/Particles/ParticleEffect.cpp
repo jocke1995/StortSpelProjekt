@@ -184,9 +184,9 @@ void ParticleEffect::initParticle(Particle& particle)
 
 void ParticleEffect::randomizePosition(Particle& particle)
 {
-	float x = rand.Randf(0, 3) -2;
-	float z = rand.Randf(0, 3) -2;
-	
+	float x = rand.Randf(0, 70) -35;
+	float z = rand.Randf(0, 70) -35;
+
 	particle.m_Position.x = x;
 	particle.m_Position.z = z;
 }
@@ -197,6 +197,9 @@ void ParticleEffect::randomizeVelocity(Particle& particle)
 
 void ParticleEffect::randomizeSize(Particle& particle)
 {
+	float size = rand.Randf(0, 20);
+
+	particle.m_Size = size;
 }
 
 void ParticleEffect::randomizeRotation(Particle& particle)
@@ -215,10 +218,12 @@ void ParticleEffect::updateResourceData()
 	unsigned int index = 0;
 	for (Particle& p : m_Particles)
 	{
+#ifndef PARTICLESYSTEM_RENDER_DEAD_PARTICLES
 		if (!p.IsAlive())
 		{
 			p.m_Size = 0;
 		}
+#endif // PARTICLESYSTEM_RENDER_DEAD_PARTICLES
 
 		tempData = { p.m_Position.x, p.m_Position.y, p.m_Position.z, p.m_Size };
 		

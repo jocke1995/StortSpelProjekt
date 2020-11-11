@@ -30,22 +30,23 @@ VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
 	float4 vertexPosition = float4(v.pos.xyz, 1.0f);
 
 	float4x4 identity = {
-	1, 0, 0, 0,
-	0, 1, 0, 0,
-	0, 0, 1, 0,
+	W[iID].a, 0, 0, 0,
+	0, W[iID].a, 0, 0,
+	0, 0, W[iID].a, 0,
 	0, 0, 0, 1
 	};
 	
-	float4x4 sizeMat = W[iID].a * identity;
+	float4x4 sizeMat = identity;
 	float4x4 transMat = {
 	1, 0, 0, W[iID].x,
 	0, 1, 0, W[iID].y,
 	0, 0, 1, W[iID].z,
 	0, 0, 0, 1
 	};
+	
 
 	float4x4 WorldMat = transpose(mul(transMat, sizeMat));
-	float4x4 WVP = mul(cbPerObject.WVP, WorldMat);
+	float4x4 WVP = mul(WorldMat, cbPerObject.WVP);
 
 	output.pos = mul(vertexPosition, WVP);
 
