@@ -17,9 +17,6 @@
 #include "../Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
 #include "../Memory/PoolAllocator.h"
 
-#include "../Renderer/Renderer.h"
-#include "../Misc/Window.h"
-
 component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale, int damage, float velocity) : Component(parent)
 {
 	m_pSceneMan = sm;
@@ -136,40 +133,63 @@ void component::RangeComponent::Attack()
 		// so the projectile doesn't spawn inside of us
 		float3 pos;
 		bool t_pose = m_pParent->GetComponent<component::BoundingBoxComponent>()->GetFlagOBB() & F_OBBFlags::T_POSE;
-		pos.x = ParentPos.x + (forward.x / length) * ((static_cast<float>(!t_pose) * dim.x + static_cast<float>(t_pose) * dim.z) * scale.x / 2.0);
+		pos.x = ParentPos.x + (forward.x / length) * ((static_cast<float>(!t_pose)* dim.x + static_cast<float>(t_pose)* dim.z)* scale.x / 2.0);
 		pos.y = ParentPos.y + (forward.y / length);
 		pos.z = ParentPos.z + (forward.z / length) * (dim.z * scale.z / 2.0);
 
+		// Raytrace from the middle of the screen
+		DirectX::XMVECTOR rayInWorldSpacePos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+		DirectX::XMVECTOR rayInWorldSpaceDir = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+
+		// Transform a ray to worldSpace by taking inverse of the view matrix
+		rayInWorldSpacePos = DirectX::XMVector3TransformCoord(rayInWorldSpacePos, *m_pScene->GetMainCamera()->GetViewMatrixInverse());
+		rayInWorldSpaceDir = DirectX::XMVector3TransformNormal(rayInWorldSpaceDir, *m_pScene->GetMainCamera()->GetViewMatrixInverse());
+		DirectX::XMFLOAT4 rayInWorldSpacePosFloat4;
+		DirectX::XMStoreFloat4(&rayInWorldSpacePosFloat4, rayInWorldSpacePos);
+		DirectX::XMFLOAT4 rayInWorldSpaceDirFloat4;
+		DirectX::XMStoreFloat4(&rayInWorldSpaceDirFloat4, rayInWorldSpaceDir);
+
 		// Send ray from the middle of the screen towards the world
 		// A distance of 100 seems like a good sweetspot
-		float searchDist = 100.0f;
-		float3 camForward = m_pScene->GetMainCamera()->GetDirectionFloat3();
-		double dist = m_pParent->GetComponent<component::CollisionComponent>()->CastRay(double3{ camForward.x, camForward.y, camForward.z }, searchDist);
+		float searchDist = 100.0f;	
+		double dist = m_pParent->GetComponent<component::CollisionComponent>()->CastRay(double3{
+			rayInWorldSpaceDirFloat4.x, 
+			rayInWorldSpaceDirFloat4.y, 
+			rayInWorldSpaceDirFloat4.z
+			}, searchDist);
 
 		// Normalize the camera forward vector
-		float vecLen = sqrtf(powf(camForward.x, 2) + powf(camForward.y, 2) + powf(camForward.z, 2));
-		float3 camForwardNorm = { camForward.x / vecLen, camForward.y / vecLen, camForward.z / vecLen };
+		float vecLen = sqrtf(powf(rayInWorldSpaceDirFloat4.x, 2) + powf(rayInWorldSpaceDirFloat4.y, 2) + powf(rayInWorldSpaceDirFloat4.z, 2));
+		float3 rayInWorldSpaceDirNorm = { rayInWorldSpaceDirFloat4.x / vecLen, rayInWorldSpaceDirFloat4.y / vecLen, rayInWorldSpaceDirFloat4.z / vecLen };
 
 		// If it hits something before a certain length, make the projectile move towards that point
-		float3 hitPoint;
+		float3 hitDir;
 		if (dist != -1)
 		{
-			hitPoint = camForward + camForwardNorm * dist;
+			hitDir = rayInWorldSpaceDirNorm * dist;
 		}
 		// Else set the point at the end of the length
 		else
 		{
-			hitPoint = camForward + camForwardNorm * searchDist;
+			hitDir = rayInWorldSpaceDirNorm * searchDist;
 		}
 
 		// Compensate for the low spawnpoint of the projectile compared to the height of the crosshair
-		hitPoint.y += dim.y;
+		double dirAngle = rayInWorldSpaceDirNorm.y;
+		if (dirAngle > -0.1f)
+		{
+			hitDir.y += 6.0f;
+		}
+		else
+		{
+			hitDir.y += 3.0f;
+		}
 
 		// initialize the components
 		mc->SetModel(m_pModel);
 		mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 		tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
-		tc->GetTransform()->SetMovement(hitPoint.x * m_Velocity, hitPoint.y * m_Velocity, hitPoint.z * m_Velocity);
+		tc->GetTransform()->SetMovement(hitDir.x * m_Velocity, hitDir.y * m_Velocity, hitDir.z * m_Velocity);
 		tc->GetTransform()->SetScale(m_Scale);
 		tc->GetTransform()->SetVelocity(m_Velocity);
 		tc->Update(0.02);
@@ -193,7 +213,7 @@ void component::RangeComponent::Attack()
 		m_TimeAccumulator = 0.0;
 
 		// Makes player turn in direction of camera to attack
-		int angle = std::atan2(forward.x, forward.z);
+		double angle = std::atan2(forward.x, forward.z);
 		int angleDegrees = EngineMath::convertToWholeDegrees(angle);
 		angleDegrees = (angleDegrees + 360) % 360;
 		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAngleToTurnTo(angleDegrees);
