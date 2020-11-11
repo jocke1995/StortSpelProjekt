@@ -51,6 +51,11 @@ struct EnemyComps
 	float meleeAttackDmgBase = 10.0f;
 	float movementSpeed = 30.0f;
 	float movementSpeedBase = 30.0f;
+	bool isRanged = false;
+	Model* projectileModel = nullptr;
+	float rangeAttackDmg = 10.0f;
+	float rangeAttackDmgBase = 10.0f;
+	float rangeVelocity = 50.0f;
 };
 
 class EnemyFactory
@@ -122,6 +127,8 @@ private:
 	float m_MinimumDistanceToPlayer;
 
 	bool m_IsActive = false;
+
+	int m_RangedSpawnCounter;
 };
 
 #endif
