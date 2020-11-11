@@ -39,14 +39,14 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 		m_Deleted = true;
 	}
 
-	if (m_CurrentScene != scene)
+	if (m_pCurrentScene != scene)
 	{
 		// Needs to be done here so these have the correct value when in a new scene.
 		// E.g. the menu starts not shown.
 		m_Shown = false;
 		m_Drawn = false;
 		m_Deleted = true;
-		m_CurrentScene = scene;
+		m_pCurrentScene = scene;
 		m_CurrentDescription = "";
 		m_ButtonsMultipleTen = 0;
 		m_TimesFilledMenu = 0;
@@ -72,14 +72,14 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 			// Delete existing buttons.
 			for (int i = 0; i < m_ButtonNames.size(); i++)
 			{
-				if (m_CurrentScene->EntityExists(m_ButtonNames[i]))
+				if (m_pCurrentScene->EntityExists(m_ButtonNames[i]))
 				{
-					m_Sm->RemoveEntity(m_CurrentScene->GetEntity(m_ButtonNames[i]), m_CurrentScene);
+					m_pSm->RemoveEntity(m_pCurrentScene->GetEntity(m_ButtonNames[i]), m_pCurrentScene);
 				}
 			}
 
-			int itterator = 0;
-			int posItterator = 0;
+			int iterator = 0;
+			int posIterator = 0;
 
 			//std::map<std::string, int> vec;
 			//vec["TestButton1"] = 1;
@@ -114,15 +114,15 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 				// Bigger than number of times the menu has been filled multiplied by the number of buttons, which is 10.
 				// But we want no more than 10 buttons at a time so do this no more than 10 times 
 				// example: i >= 10 * 1 && i < 10 * 2. So we add buttons at place 10 to 19
-				if (itterator >= 10 * m_TimesFilledMenu && itterator < 10 * (m_TimesFilledMenu + 1))
+				if (iterator >= 10 * m_TimesFilledMenu && iterator < 10 * (m_TimesFilledMenu + 1))
 				{
-					if (m_CurrentScene->EntityExists(u.first) == false)
+					if (m_pCurrentScene->EntityExists(u.first) == false)
 					{
-						makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + (m_ButtonYOffset * posItterator)) }, u.first);
-						posItterator++;
+						makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + (m_ButtonYOffset * posIterator)) }, u.first);
+						posIterator++;
 					}
 				}
-				itterator++;
+				iterator++;
 
 			}
 			m_TimesFilledMenu++;
@@ -134,16 +134,16 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 	else if (m_Deleted == false)
 	{
 		// Delete the background
-		m_Sm->RemoveEntity(scene->GetEntity("UpgradeMenuBackground"), scene);
+		m_pSm->RemoveEntity(scene->GetEntity("UpgradeMenuBackground"), scene);
 		// If we have a next button it should be deleted
 		if (m_ButtonsMultipleTen > 0)
 		{
-			m_Sm->RemoveEntity(scene->GetEntity("NextButton"), scene);
+			m_pSm->RemoveEntity(scene->GetEntity("NextButton"), scene);
 		}
 		// If we have a description, that is not empty, it should be deleted
 		if (m_CurrentDescription != "")
 		{
-			m_Sm->RemoveEntity(scene->GetEntity("Description"), scene);
+			m_pSm->RemoveEntity(scene->GetEntity("Description"), scene);
 			m_CurrentDescription = "";
 		}
 		// Delete the Upgrade Buttons
@@ -151,7 +151,7 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 		{
 			if (scene->EntityExists(m_ButtonNames[i]))
 			{
-				m_Sm->RemoveEntity(scene->GetEntity(m_ButtonNames[i]), scene);
+				m_pSm->RemoveEntity(scene->GetEntity(m_ButtonNames[i]), scene);
 			}
 		}
 		m_ButtonNames.clear();
@@ -165,7 +165,7 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 
 void UpgradeGUI::CreateMenu(Scene* scene)
 {
-	m_CurrentScene = scene;
+	m_pCurrentScene = scene;
 	// Get this so we know which upgrades the player has.
 	m_AppliedUpgradeEnums = Player::GetInstance().GetUpgradeManager()->GetAppliedUpgradeEnums();
 
@@ -213,15 +213,15 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 		false, false,
 		1,
 		blended,
-		m_boardBackgroundTexture, {0.4, 0.4, 0.4});
-	m_Sm->AddEntity(entity, scene);
+		m_BoardBackgroundTexture, {0.4, 0.4, 0.4});
+	m_pSm->AddEntity(entity, scene);
 	entity->Update(0);
 	entity->SetEntityState(true);
 
 	/* ------------------------- Upgrade Menu Background End --------------------------- */
 
 	/* ------------------------- Upgrade Menu Buttons --------------------------- */
-	int itterator = 0;
+	int iterator = 0;
 
 	//std::map<std::string, int> vec;
 	//vec["TestButton1"] = 1;
@@ -249,16 +249,16 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 	for (auto u : m_AppliedUpgradeEnums)
 	//for (auto u : vec)
 	{
-		if (itterator < 10)
+		if (iterator < 10)
 		{
-			makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + (m_ButtonYOffset * itterator)) }, u.first);
+			makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + (m_ButtonYOffset * iterator)) }, u.first);
 		}
 
-		if (itterator % 10 == 0 && itterator > 0)
+		if (iterator % 10 == 0 && iterator > 0)
 		{
 			m_ButtonsMultipleTen++;
 		}
-		itterator++;
+		iterator++;
 	}
 	m_TimesFilledMenu++;
 
@@ -296,9 +296,9 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 			true, true,
 			1,
 			blended,
-			m_buttonParchment);
+			m_ButtonParchment);
 
-		m_Sm->AddEntity(entity, scene);
+		m_pSm->AddEntity(entity, scene);
 		entity->Update(0);
 		entity->SetEntityState(true);
 	}
@@ -316,14 +316,8 @@ void UpgradeGUI::Init()
 	AssetLoader* al = AssetLoader::Get();
 
 	// Get textures
-	m_deviderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/black.png");
-	m_buttonMintTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/rundadRekt2.png");
-	m_buttonElipseTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/elipse.png");
-	m_orangeBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/orange.png");
-	m_yellowGradientTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/YellowGradientBackground.png");
-	m_orangeGradientTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/orangeGradient.png");
-	m_boardBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/board2.png");
-	m_buttonParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_hor.png");
+	m_BoardBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/board2.png");
+	m_ButtonParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_hor.png");
 	m_DescriptionParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_vert.png");
 
 	// Subscribe to events
@@ -333,12 +327,12 @@ void UpgradeGUI::Init()
 
 void UpgradeGUI::SetCurrentScene(Scene* scene)
 {
-	m_CurrentScene = scene;
+	m_pCurrentScene = scene;
 }
 
 void UpgradeGUI::SetSceneMan(SceneManager* sceneManager)
 {
-	m_Sm = sceneManager;
+	m_pSm = sceneManager;
 }
 
 void UpgradeGUI::SetShown(bool shown)
@@ -379,7 +373,7 @@ void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
 	textScale = { 0.5f, 0.5f };
 	textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	entity = m_CurrentScene->AddEntity(name);
+	entity = m_pCurrentScene->AddEntity(name);
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	gui->GetTextManager()->AddText(name);
 	gui->GetTextManager()->SetColor(textColor, name);
@@ -399,9 +393,9 @@ void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
 		true, true,
 		1,
 		blended,
-		m_buttonParchment);
+		m_ButtonParchment);
 
-	m_Sm->AddEntity(entity, m_CurrentScene);
+	m_pSm->AddEntity(entity, m_pCurrentScene);
 	entity->Update(0);
 	entity->SetEntityState(true);
 
@@ -415,12 +409,12 @@ void UpgradeGUI::getButtonPress(ButtonPressed* event)
 	{
 		if (m_CurrentDescription != "")
 		{
-			m_Sm->RemoveEntity(m_CurrentScene->GetEntity("Description"), m_CurrentScene);
+			m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("Description"), m_pCurrentScene);
 			m_CurrentDescription = "";
 		}
 		m_CurrentDescription = Player::GetInstance().GetUpgradeManager()->GetAllAvailableUpgrades().at(event->name)->GetDescription();
-
-		updateDescription();
+		
+		updateDescription(Player::GetInstance().GetUpgradeManager()->GetAllAvailableUpgrades().at(event->name)->GetLevel());
 	}
 	// Checking if the button is next. If so then set the bool to true so we change the buttons in update.
 	else if (event->name == "NextButton")
@@ -429,7 +423,7 @@ void UpgradeGUI::getButtonPress(ButtonPressed* event)
 	}
 }
 
-void UpgradeGUI::updateDescription()
+void UpgradeGUI::updateDescription(int level)
 {
 	Entity* entity = nullptr;
 	component::GUI2DComponent* gui = nullptr;
@@ -475,6 +469,7 @@ void UpgradeGUI::updateDescription()
 		description.erase(0, pos + delimiter.length());
 	}
 	textToRender += description.substr(0, description.length());
+	textToRender += "\n\nCurrent level: " + std::to_string(level);
 
 	textPos = { 0.7 + 0.0065, m_ButtonPos.y + 0.03f };
 	textPadding = { 0.5f, 0.0f };
@@ -482,7 +477,7 @@ void UpgradeGUI::updateDescription()
 	textScale = { 0.215f, 0.215f };
 	textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	entity = m_CurrentScene->AddEntity(name);
+	entity = m_pCurrentScene->AddEntity(name);
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	gui->GetTextManager()->AddText(name);
 	gui->GetTextManager()->SetColor(textColor, name);
@@ -504,7 +499,7 @@ void UpgradeGUI::updateDescription()
 		blended,
 		m_DescriptionParchment);
 
-	m_Sm->AddEntity(entity, m_CurrentScene);
+	m_pSm->AddEntity(entity, m_pCurrentScene);
 	entity->Update(0);
 	entity->SetEntityState(true);
 }

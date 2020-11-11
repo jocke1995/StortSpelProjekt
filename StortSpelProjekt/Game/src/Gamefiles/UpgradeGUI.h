@@ -28,10 +28,17 @@ public:
 private:
 	UpgradeGUI();
 
+	// are we supposed to show the menu?
 	bool m_Shown = false;
-	bool m_Deleted = true;
+	// Is the menu currently drawn on screen?
 	bool m_Drawn = false;
+	// Has the menu already been deleted?
+	bool m_Deleted = true;
+	// Has the description already been deleted?
 	bool m_DescriptionDeleted = true;
+	// Should we cycle through the UpgradeButtons?
+	bool m_LoopButtons = false;
+	// Value for buttons.
 	float2 m_ButtonPos = { 0.47f, 0.211f };
 	float m_ButtonYOffset = 0.048f;
 	// How many times the menu can be filled with buttons.
@@ -42,30 +49,23 @@ private:
 	// Used for cycling through buttons.
 	int m_TimesFilledMenu = 0;
 	std::string m_CurrentDescription = "";
-	Scene* m_CurrentScene = nullptr;
-	SceneManager* m_Sm = nullptr;
+	Scene* m_pCurrentScene = nullptr;
+	SceneManager* m_pSm = nullptr;
+	// Used to get names of upgrades for our buttons.
 	std::map<std::string, int> m_AppliedUpgradeEnums;
 	std::vector<std::string> m_ButtonNames;
-	std::vector<std::string> m_ButtonsToDelete;
-	bool m_LoopButtons = false;
 
 	void showMenu(UForUpgrade* keyPress);
 	//void get
 	void makeUpgradeButton(float2 pos, std::string name);
 	void getButtonPress(ButtonPressed* event);
-	void updateDescription();
+	void updateDescription(int level);
 
 
 
 	// Textures:
-	Texture* m_deviderTexture;
-	Texture* m_buttonMintTexture;
-	Texture* m_buttonElipseTexture;
-	Texture* m_orangeBackgroundTexture;
-	Texture* m_yellowGradientTexture;
-	Texture* m_orangeGradientTexture;
-	Texture* m_boardBackgroundTexture;
-	Texture* m_buttonParchment;
+	Texture* m_BoardBackgroundTexture;
+	Texture* m_ButtonParchment;
 	Texture* m_DescriptionParchment;
 };
 
