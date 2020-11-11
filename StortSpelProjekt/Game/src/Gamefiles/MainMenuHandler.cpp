@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <sstream>
 
+void onMainMenuSceneInit(Scene* scene);
 void onStart(const std::string& name);
 void onExit(const std::string& name);
 void onOptions(const std::string& name);
@@ -407,7 +408,6 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     // Add a voice to the player to play some music.
     vc = entity->AddComponent<component::Audio2DVoiceComponent>();
     vc->AddVoice(L"MenuMusic");
-    vc->Play(L"MenuMusic");
 
     // Skybox
     entity = scene->AddEntity("skybox");
@@ -424,12 +424,12 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
 
     entity = scene->AddEntity("OptionsOption");
     guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("OptionsOption", { 0.1f, 0.2f }, { optionsTex->GetWidth() / 1920.0f, optionsTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, optionsTex);
+    guic->GetQuadManager()->CreateQuad("OptionsOption", { 0.1f, 0.25f }, { optionsTex->GetWidth() / 1920.0f, optionsTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, optionsTex);
     guic->GetQuadManager()->SetOnClicked(&onOptions);
 
     entity = scene->AddEntity("ExitOption");
     guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.3f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, exitTex);
+    guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.4f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, exitTex);
     guic->GetQuadManager()->SetOnClicked(&onExit);
 
     Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
@@ -462,6 +462,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     slc->SetDirection({ 0.0, -1.0, 0.0f });
     slc->SetPosition({ 0.0, 10.0, 10.0 });
 
+    scene->SetOnInit(&onMainMenuSceneInit);
     m_pSceneManager = sm;
     m_pScene = scene;
 
@@ -476,6 +477,11 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
 Scene* MainMenuHandler::GetScene()
 {
     return m_pScene;
+}
+
+void onMainMenuSceneInit(Scene* scene)
+{
+    scene->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>()->Play(L"MenuMusic");
 }
 
 Scene* MainMenuHandler::GetOptionScene()

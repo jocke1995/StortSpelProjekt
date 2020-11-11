@@ -16,6 +16,7 @@ struct SceneChange;
 struct Death;
 struct LevelDone;
 struct RoundStart;
+struct ResetGame;
 
 static int s_EnemyId = 0;
 
@@ -51,6 +52,11 @@ struct EnemyComps
 	float meleeAttackDmgBase = 10.0f;
 	float movementSpeed = 30.0f;
 	float movementSpeedBase = 30.0f;
+	bool isRanged = false;
+	Model* projectileModel = nullptr;
+	float rangeAttackDmg = 10.0f;
+	float rangeAttackDmgBase = 10.0f;
+	float rangeVelocity = 50.0f;
 };
 
 class EnemyFactory
@@ -107,6 +113,7 @@ private:
 	void levelDone(LevelDone* evnt);
 	void onSceneSwitch(SceneChange* evnt);
 	void onRoundStart(RoundStart* evnt);
+	void onResetGame(ResetGame* evnt);
 	Scene* m_pScene = nullptr;
 	std::map<std::string, EnemyComps*> m_EnemyComps;
 	std::vector<Entity*> m_Enemies;
@@ -122,6 +129,8 @@ private:
 	float m_MinimumDistanceToPlayer;
 
 	bool m_IsActive = false;
+
+	int m_RangedSpawnCounter;
 };
 
 #endif

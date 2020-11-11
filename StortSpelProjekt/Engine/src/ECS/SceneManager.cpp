@@ -116,42 +116,31 @@ void SceneManager::ChangeScene()
 {
 	if (m_ChangeSceneNextFrame)
 	{
-		if (m_pActiveScene->GetName() != "gameOverScene")
+		// Reset old scene
+		std::map<std::string, Entity*> entities = *m_pActiveScene->GetEntities();
+		for (auto pair : entities)
 		{
-			// Reset old scene
-			std::map<std::string, Entity*> entities = *m_pActiveScene->GetEntities();
-			for (auto pair : entities)
+			for (Component* comp : *pair.second->GetAllComponents())
 			{
-				for (Component* comp : *pair.second->GetAllComponents())
-				{
-					comp->Reset();
-				}
+				comp->Reset();
 			}
-
-			Scene* scene = m_Scenes[m_SceneToChangeTo];
-
-			// Reset new Scene
-			entities = *scene->GetEntities();
-			for (auto pair : entities)
-			{
-				for (Component* comp : *pair.second->GetAllComponents())
-				{
-					comp->Reset();
-				}
-			}
-
-			// Change the player back to its original position
-			SetScene(scene);
-			m_ChangeSceneNextFrame = false;
 		}
-		else
+
+		Scene* scene = m_Scenes[m_SceneToChangeTo];
+
+		// Reset new Scene
+		entities = *scene->GetEntities();
+		for (auto pair : entities)
 		{
-			SetScene(m_pGameOverScene);
-			m_ChangeSceneNextFrameToDeathScene = false;
-
-			Physics::GetInstance().OnResetScene();
-			EventBus::GetInstance().UnsubscribeAll();
+			for (Component* comp : *pair.second->GetAllComponents())
+			{
+				comp->Reset();
+			}
 		}
+
+		// Change the player back to its original position
+		SetScene(scene);
+		m_ChangeSceneNextFrame = false;
 	}
 }
 
@@ -228,6 +217,7 @@ void SceneManager::SetScene(Scene* scene)
 	{
 		m_pActiveScene->SetPrimaryCamera(renderer->m_pScenePrimaryCamera);
 	}
+	scene->OnInit();
 }
 
 void SceneManager::ResetScene()

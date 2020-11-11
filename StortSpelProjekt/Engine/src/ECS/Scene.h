@@ -44,6 +44,9 @@ public:
 	void SetCollisionEntities(const std::vector<Entity*>* collisionEntities);
 	const std::vector<Entity*>* GetCollisionEntities() const;
 
+	// Init function to be called after all components have been initialized.
+	void OnInit();
+	void SetOnInit(void (*OnInit)(Scene*));
 private:
 	friend class SceneManager;
 
@@ -58,9 +61,12 @@ private:
 
 	NavMesh* m_pNavMesh;
 
+
 	// Every scene has its own functionpointer to a updateSceneFunction in main
-	void(*m_UpdateScene)(SceneManager*, double dt);
+	void(*m_pUpdateScene)(SceneManager*, double dt);
 	float3 m_OriginalPosition = {};
+	// Every scene has its own functionpointer to a inifunction. By default it does nothing.
+	void (*m_pOnInit)(Scene*);
 };
 
 #endif

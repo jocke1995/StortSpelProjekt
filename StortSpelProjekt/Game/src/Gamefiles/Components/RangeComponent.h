@@ -25,6 +25,8 @@ namespace component
 		void SetVelocity(float velocity);
 		float GetVelocity();
 		void SetAttackInterval(float interval);
+		void SetDamage(int damage);
+		void ChangeDamage(int change);
 		float GetAttackInterval() const;
 
 		void Attack();

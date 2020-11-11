@@ -79,6 +79,16 @@ void component::RangeComponent::SetAttackInterval(float interval)
 	m_AttackInterval = interval;
 }
 
+void component::RangeComponent::SetDamage(int damage)
+{
+	m_Damage = damage;
+}
+
+void component::RangeComponent::ChangeDamage(int change)
+{
+	m_Damage += change;
+}
+
 float component::RangeComponent::GetAttackInterval() const
 {
 	return m_AttackInterval;

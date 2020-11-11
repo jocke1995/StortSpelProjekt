@@ -11,6 +11,9 @@ namespace component
 	GUI2DComponent::GUI2DComponent(Entity* parent)
 		:Component(parent)
 	{
+		Renderer::GetInstance().UnInitGUI2DComponent(this);
+		m_QuadMan.HideQuad(true);
+		m_TextMan.HideText(true);
 	}
 
 	GUI2DComponent::~GUI2DComponent()

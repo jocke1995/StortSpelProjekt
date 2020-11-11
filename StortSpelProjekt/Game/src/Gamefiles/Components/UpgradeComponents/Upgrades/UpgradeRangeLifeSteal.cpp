@@ -26,9 +26,8 @@ UpgradeRangeLifeSteal::~UpgradeRangeLifeSteal()
 
 void UpgradeRangeLifeSteal::IncreaseLevel()
 {
-	m_Level++;
-	m_PercentageGain += 0.05;
-	m_Price *= 2;
+	m_PercentageGain = 0.10f + 0.05f * (m_Level++);
+	m_Price = 300 * pow(m_Level + 1,2);
 }
 
 void UpgradeRangeLifeSteal::OnRangedHit()
