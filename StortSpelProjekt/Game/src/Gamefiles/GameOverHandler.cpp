@@ -70,7 +70,7 @@ Scene* GameOverHandler::CreateScene(SceneManager* sm)
 #pragma region ExitQuad
     entity = scene->AddEntity("ExitQuad");
     guiComp = entity->AddComponent<component::GUI2DComponent>();
-    guiComp->GetQuadManager()->CreateQuad("ExitOption", { 0.6f, 0.8f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, exitTex);
+    guiComp->GetQuadManager()->CreateQuad("ExitOption", { 0.7f, 0.8f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, exitTex);
     guiComp->GetQuadManager()->SetOnClicked(&onExit);
 #pragma endregion
 
