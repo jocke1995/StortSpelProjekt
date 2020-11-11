@@ -11,11 +11,12 @@
 #include "Shop.h"
 #include "Components/CurrencyComponent.h"
 #include "MainMenuHandler.h"
+#include "GameOverHandler.h"
 
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
-Scene* GameOverScene(SceneManager* sm);
 
+void GameInitScene(Scene* scene);
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
@@ -53,7 +54,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*----- Set the scene -----*/
     Scene* demoScene = GameScene(sceneManager);
     Scene* shopScene = ShopScene(sceneManager);
-    Scene* gameOverScene = GameOverScene(sceneManager);
+    Scene* gameOverScene = GameOverHandler::GetInstance().CreateScene(sceneManager);
     Scene* mainMenuScene = MainMenuHandler::GetInstance().CreateScene(sceneManager);
 
     sceneManager->SetScene(mainMenuScene);
@@ -124,6 +125,7 @@ Scene* GameScene(SceneManager* sm)
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");    
     Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
+    Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
@@ -233,6 +235,8 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
+    /*--------------------- Enemy definitions ---------------------*/
+    // melee
 	EnemyComps zombie = {};
 	zombie.model = enemyModel;
 	zombie.hp = 30;
@@ -242,12 +246,32 @@ Scene* GameScene(SceneManager* sm)
 	zombie.meleeAttackDmg = 5.0f;
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
-	zombie.movementSpeed = 30.0f;
-	zombie.attackingDist = 1.5f;
-	zombie.rot = { 0.0, 0.0, 0.0 };
+	zombie.movementSpeed = 15.0f;
 	zombie.targetName = "player";
 	zombie.scale = 0.04;
 	zombie.detectionRad = 500.0f;
+	zombie.attackingDist = 1.5f;
+
+    // ranged
+    EnemyComps rangedDemon = {};
+    rangedDemon.model = enemyDemonModel;
+    rangedDemon.hp = 30;
+    rangedDemon.sound3D = L"Bruh";
+    rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+    rangedDemon.aiFlags = 0;
+    rangedDemon.attackInterval = 1.5f;
+    rangedDemon.attackSpeed = 1.0f;
+    rangedDemon.movementSpeed = 30.0f;
+    rangedDemon.targetName = "player";
+    rangedDemon.scale = 8.0f;
+    rangedDemon.isRanged = true;
+    rangedDemon.detectionRad = 500.0f;
+    rangedDemon.attackingDist = 100.0f;
+    rangedDemon.rangeAttackDmg = 10;
+    rangedDemon.rangeVelocity = 50.0f;
+    rangedDemon.projectileModel = sphereModel;
+
+    /*--------------------- Enemy definitions ---------------------*/
 
     /* ---------------------- Teleporter ---------------------- */
     entity = scene->AddEntity("teleporter");
@@ -430,7 +454,7 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
-    enemyFactory.SetActive(true);
+    enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
 #pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
@@ -438,42 +462,8 @@ Scene* GameScene(SceneManager* sm)
 
     scene->SetUpdateScene(&GameUpdateScene);
 
-    return scene;
-}
+    scene->SetOnInit(&GameInitScene);
 
-Scene* GameOverScene(SceneManager* sm)
-{
-    AssetLoader* al = AssetLoader::Get();
-
-    // Create Scene
-    Scene* scene = sm->CreateScene("gameOverScene");
-
-    // Player (Need a camera)
-    Entity* entity = scene->AddEntity("player");
-    entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-
-    // Skybox
-    entity = scene->AddEntity("skybox");
-    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
-    sbc->SetTexture(blackCubeMap);
-
-    // Game over Text
-    Entity* text = scene->AddEntity("gameOverText");
-    component::GUI2DComponent* textComp = text->AddComponent<component::GUI2DComponent>();
-    textComp->GetTextManager()->AddText("GameOverText");
-    textComp->GetTextManager()->SetScale({2, 2}, "GameOverText");
-    textComp->GetTextManager()->SetPos({0.29, 0.41}, "GameOverText");
-    textComp->GetTextManager()->SetText("Game Over", "GameOverText");
-
-    // text2
-    Entity* text2 = scene->AddEntity("youDiedText");
-    component::GUI2DComponent* textComp2 = text2->AddComponent<component::GUI2DComponent>();
-    textComp->GetTextManager()->AddText("youDiedText");
-    textComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "youDiedText");
-    textComp->GetTextManager()->SetPos({ 0.43, 0.56 }, "youDiedText");
-    textComp->GetTextManager()->SetText("(You Died...)", "youDiedText");
-    
     return scene;
 }
 
@@ -842,11 +832,16 @@ Scene* ShopScene(SceneManager* sm)
     return scene;
 }
 
+void GameInitScene(Scene* scene)
+{
+}
+
 void GameUpdateScene(SceneManager* sm, double dt)
 {
     if (ImGuiHandler::GetInstance().GetBool("reset"))
     {
         ImGuiHandler::GetInstance().SetBool("reset", false);
+        EventBus::GetInstance().Publish(&ResetGame());
     }
 }
 
