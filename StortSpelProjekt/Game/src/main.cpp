@@ -243,7 +243,7 @@ Scene* GameScene(SceneManager* sm)
     // melee
 	EnemyComps zombie = {};
 	zombie.model = enemyModel;
-	zombie.hp = 1;
+	zombie.hp = 30;
 	zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
