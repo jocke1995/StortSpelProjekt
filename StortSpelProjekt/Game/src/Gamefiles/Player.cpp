@@ -56,7 +56,18 @@ void Player::IsInShop(bool value)
 
 void Player::onResetGame(ResetGame* evnt)
 {
-	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player")->GetComponent<component::CurrencyComponent>()->SetBalance(0);
+	Entity* gamePlayer = SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player");
+	gamePlayer->GetComponent<component::CurrencyComponent>()->SetBalance(0);
+	gamePlayer->GetComponent<component::UpgradeComponent>()->RemoveAllUpgrades();
+	// Values copied from main.
+	gamePlayer->GetComponent<component::MeleeComponent>()->SetDamage(10);
+	gamePlayer->GetComponent<component::RangeComponent>()->SetDamage(10);
+
+	Entity* shopPlayer = SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player");
+	shopPlayer->GetComponent<component::CurrencyComponent>()->SetBalance(0);
+	shopPlayer->GetComponent<component::UpgradeComponent>()->RemoveAllUpgrades();
+
+
 	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("money")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0", "money");
 	SceneManager::GetInstance().GetScene("ShopScene")->GetEntity("player")->GetComponent<component::CurrencyComponent>()->SetBalance(0);
 	SceneManager::GetInstance().GetScene("ShopScene")->GetEntity("money")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0", "money");

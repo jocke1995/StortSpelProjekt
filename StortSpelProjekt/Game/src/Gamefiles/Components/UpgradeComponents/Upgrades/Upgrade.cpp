@@ -85,6 +85,12 @@ void Upgrade::RenderUpdate(double dt)
 {
 }
 
+void Upgrade::SetLevel(unsigned int lvl)
+{
+	m_Level = lvl - 1;
+	IncreaseLevel();
+}
+
 
 void Upgrade::IncreaseLevel()
 {

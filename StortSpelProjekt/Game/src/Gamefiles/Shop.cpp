@@ -224,6 +224,14 @@ Texture* Shop::GetUpgradeImage(std::string* name)
 	return AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Upgrades/" + to_wstring(m_AllAvailableUpgrades[*name]->GetImage()));
 }
 
+void Shop::Reset()
+{
+	for (auto item : m_AllAvailableUpgrades)
+	{
+		item.second->SetLevel(0);
+	}
+}
+
 void Shop::upgradePressed(ButtonPressed* evnt)
 {
 	for (int i = 0; i < GetInventorySize(); i++)

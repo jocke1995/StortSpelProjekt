@@ -55,6 +55,11 @@ void component::UpgradeComponent::RemoveUpgrade(Upgrade* upgrade)
 	}
 }
 
+void component::UpgradeComponent::RemoveAllUpgrades()
+{
+	m_AppliedUpgrades.clear();
+}
+
 bool component::UpgradeComponent::HasUpgrade(std::string name)
 {
 	std::map<std::string, Upgrade*>::iterator it = m_AppliedUpgrades.find(name);
