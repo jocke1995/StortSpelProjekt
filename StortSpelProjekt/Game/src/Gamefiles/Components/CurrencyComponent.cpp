@@ -40,6 +40,10 @@ void component::CurrencyComponent::ChangeBalance(Death* evnt)
 		{
 			m_Balance += 30;
 		}
+		else if (enemyType.find("enemyDemon") != std::string::npos)
+		{
+			m_Balance += 30;
+		}
 		else
 		{
 			Log::PrintSeverity(Log::Severity::WARNING, "Unknown enemy type, defaults to balance of 10 SEK \n");
