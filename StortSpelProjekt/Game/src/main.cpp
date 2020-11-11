@@ -89,7 +89,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         particleSystem->Update(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
-            logicTimer = 0;
+            logicTimer -= updateRate;
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
@@ -184,7 +184,7 @@ Scene* GameScene(SceneManager* sm)
     melc = entity->AddComponent<component::MeleeComponent>();
     // range damage should be at least 10 for ranged life steal upgrade to work
     // range velocity should be 50, otherwise range velocity upgrade does not make sense (may be scrapped later)
-    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 10, 50);
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 10, 5);
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(50);
     uc = entity->AddComponent<component::UpgradeComponent>();
@@ -454,7 +454,6 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
     enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
-    enemyFactory.SetActive(true);
 #pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
