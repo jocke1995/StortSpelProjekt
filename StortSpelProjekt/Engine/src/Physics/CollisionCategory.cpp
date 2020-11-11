@@ -32,3 +32,13 @@ void CollisionCategory::Collide(PlayerProjectileCollisionCategory* other)
 {
     EventBus::GetInstance().Publish(&Collision(m_pParent, other->GetParent()));
 }
+
+void CollisionCategory::Collide(EnemyCollisionCategory* other)
+{
+    EventBus::GetInstance().Publish(&Collision(m_pParent, other->GetParent()));
+}
+
+void CollisionCategory::Collide(EnemyProjectileCollisionCategory* other)
+{
+    EventBus::GetInstance().Publish(&Collision(m_pParent, other->GetParent()));
+}
