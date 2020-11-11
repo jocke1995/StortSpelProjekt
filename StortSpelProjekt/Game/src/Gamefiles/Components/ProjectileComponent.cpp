@@ -65,8 +65,8 @@ void component::ProjectileComponent::hit(Collision* event)
 		// Call on upgrade on hit functions
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
-			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit();
-			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit();
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit(event->ent2);
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit(event->ent2);
 		}
 		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}
@@ -85,8 +85,8 @@ void component::ProjectileComponent::hit(Collision* event)
 		// Call on upgrade on hit functions
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
-			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit();
-			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit();
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit(event->ent1);
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit(event->ent1);
 		}
 		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}

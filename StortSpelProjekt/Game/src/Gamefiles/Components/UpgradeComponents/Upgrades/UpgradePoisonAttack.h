@@ -13,7 +13,7 @@ public:
 
 	// Inherited functions that are needed for this upgrade
 	void IncreaseLevel();
-	void OnRangedHit();
+	void OnRangedHit(Entity* target);
 	void ApplyBoughtUpgrade();
 
 private:

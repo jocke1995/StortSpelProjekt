@@ -470,7 +470,7 @@ void component::AiComponent::updateMelee(double dt)
 				m_SpeedTimeAccumulator += static_cast<float>(dt);
 				if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
 				{
-					m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(-m_MeleeAttackDmg);
+					m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(m_MeleeAttackDmg);
 					Log::Print("ENEMY ATTACK!\n");
 					m_SpeedTimeAccumulator = 0.0;
 					m_IntervalTimeAccumulator = 0.0;

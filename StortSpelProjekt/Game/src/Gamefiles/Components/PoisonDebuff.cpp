@@ -15,6 +15,14 @@ component::PoisonDebuff::~PoisonDebuff()
 {
 }
 
+void component::PoisonDebuff::OnInitScene()
+{
+}
+
+void component::PoisonDebuff::OnUnInitScene()
+{
+}
+
 void component::PoisonDebuff::Reset(int damagePerTick, int ticks, double tickDuration, float percentageSlow)
 {
 	m_Damage = damagePerTick;

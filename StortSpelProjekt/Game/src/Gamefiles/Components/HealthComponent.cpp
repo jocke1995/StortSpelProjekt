@@ -93,7 +93,7 @@ void component::HealthComponent::TakeDamage(int damage)
 		m_pParent->GetComponent<component::UpgradeComponent>()->OnDamage();
 	}
 
-	ChangeHealth((damage - m_FlatDamageReduction) * m_ProcentileDamageReduction); //Flat Damage gets applied first followed by multaplicative damage
+	ChangeHealth((-damage - m_FlatDamageReduction) * m_ProcentileDamageReduction); //Flat Damage gets applied first followed by multaplicative damage
 	//Damage reduction stat is reset to allow upgrade to change again
 	m_FlatDamageReduction = 0.0;
 	m_ProcentileDamageReduction = 1.0;

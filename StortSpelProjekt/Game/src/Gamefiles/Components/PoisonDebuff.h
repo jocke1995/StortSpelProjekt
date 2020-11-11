@@ -13,6 +13,9 @@ namespace component
 		PoisonDebuff(Entity* parent, int damagePerTick, int ticks, double tickDuration, float percentageSlow);
 		~PoisonDebuff();
 
+		void OnInitScene();
+		void OnUnInitScene();
+
 		void Reset(int damagePerTick, int ticks, double tickDuration, float percentageSlow);
 
 		void Update(double dt);

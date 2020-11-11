@@ -89,7 +89,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         particleSystem->Update(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
-            logicTimer = 0;
+            logicTimer -= updateRate;
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
@@ -430,7 +430,6 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
-    enemyFactory.SetActive(true);
 #pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());

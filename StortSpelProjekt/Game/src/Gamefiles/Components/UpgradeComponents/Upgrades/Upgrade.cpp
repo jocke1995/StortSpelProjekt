@@ -90,15 +90,15 @@ void Upgrade::IncreaseLevel()
 {
 }
 
-void Upgrade::OnHit()
+void Upgrade::OnHit(Entity* target)
 {
 }
 
-void Upgrade::OnRangedHit()
+void Upgrade::OnRangedHit(Entity* target)
 {
 }
 
-void Upgrade::OnMeleeHit()
+void Upgrade::OnMeleeHit(Entity* target)
 {
 }
 

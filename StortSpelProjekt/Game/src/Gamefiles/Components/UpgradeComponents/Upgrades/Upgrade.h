@@ -20,7 +20,6 @@ public:
 	virtual ~Upgrade();
 	
 	void SetParentEntity(Entity* parentEntity);
-	void SetTargetEntity(Entity* targetEntity);
 	// setters and getters for private member variables
 	void SetName(std::string name);
 	std::string GetName() const;
@@ -46,11 +45,11 @@ public:
 	// This function is supposed to increase the level of the upgrade, and to make sure that appropriate changes are made in the upgrade to reflect the level of the upgrade.
 	virtual void IncreaseLevel();
 	// upgrades that are triggered on hit (ex: explosive, poison)
-	virtual void OnHit();
+	virtual void OnHit(Entity* target);
 	// specific for ranged hits
-	virtual void OnRangedHit();
+	virtual void OnRangedHit(Entity* target);
 	// specific for melee hits
-	virtual void OnMeleeHit();
+	virtual void OnMeleeHit(Entity* target);
 	// upgrades that are triggered when taking damage
 	virtual void OnDamage();
 	// upgrades that are applied immediately, for example apply stat when bought in shop
@@ -68,8 +67,6 @@ public:
 
 protected:
 	Entity* m_pParentEntity;
-	//The entity that interacted with the player for purposes of applying effects on other
-	Entity* m_pTargetEntity;
 	// Name of the upgrade, for ease of access in shop or upgrade handlers
 	std::string m_Name = "";
 	// Description is used in shop when describing the upgrade.
