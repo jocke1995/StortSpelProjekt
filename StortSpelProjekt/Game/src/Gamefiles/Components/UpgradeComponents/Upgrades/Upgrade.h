@@ -39,6 +39,7 @@ public:
 	virtual void Update(double dt);
 	virtual void RenderUpdate(double dt);
 
+	void SetLevel(unsigned int lvl);
 	// Below are all functions needed by upgrades. Some will be used by several upgrades and others might be unique.
 	// This way you can call functions that range over several "types" but might be called on in similar situations (such as melee/range OnHit).
 	// Definitions are to be implemented in the separate upgrade classes. Add more as needed.
