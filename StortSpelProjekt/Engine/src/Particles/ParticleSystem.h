@@ -24,10 +24,9 @@ public:
 private:
 	ParticleSystem();
 
-	// Temp code
+	// Temp code todo: vector of effects. component::init() pushes in.
 	ParticleEffect* effect = nullptr;
 
-	void uploadParticleEffectsToGPU();
 };
 
 #endif

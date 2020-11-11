@@ -16,18 +16,11 @@
 
 EngineRand ParticleEffect::rand = {};
 
-ParticleEffect::ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap)
-{
-	m_ParticleCount = 5;
-
-	init(name, descriptorHeap);
-}
-
-ParticleEffect::ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap, unsigned int particleCount)
+ParticleEffect::ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, unsigned int particleCount)
 {
 	m_ParticleCount = particleCount;
 
-	init(name, descriptorHeap);
+	init(name, descriptorHeap, texture);
 }
 
 ParticleEffect::~ParticleEffect()
@@ -88,14 +81,19 @@ void ParticleEffect::spawnParticle()
 	initParticle(particle);
 }
 
-void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap)
+void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap, Texture2DGUI* texture)
 {
 	m_Name = name;
+	m_pTexture = texture;
 
-	// Set default mesh and texture
-	// TODO: allow any mesh (not priority)
-	AssetLoader* al = AssetLoader::Get();
-	m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/minimap.png"));
+	if (texture == nullptr)
+	{
+		// Set default texture
+		AssetLoader* al = AssetLoader::Get();
+		m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/minimap.png"));
+
+		Log::PrintSeverity(Log::Severity::WARNING, "ParticleEffect::Texture was nullptr, %S\n", name.c_str());
+	}
 
 	Renderer& renderer = Renderer::GetInstance();
 
@@ -179,7 +177,7 @@ void ParticleEffect::updateResourceData()
 	unsigned int index = 0;
 	for (Particle& p : m_Particles)
 	{
-#ifndef PARTICLESYSTEM_RENDER_DEAD_PARTICLES
+#ifdef PARTICLESYSTEM_RENDER_DEAD_PARTICLES
 		if (!p.IsAlive())
 		{
 			p.m_Size = 0;

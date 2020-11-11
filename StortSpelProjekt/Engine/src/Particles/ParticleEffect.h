@@ -19,8 +19,7 @@ class Mesh;
 class ParticleEffect
 {
 public:
-	ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap);
-	ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap, unsigned int particleCount);
+	ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, unsigned int particleCount = PARTICLE_EFFECT_DEFAULT_SIZE);
 	~ParticleEffect();
 
 	void Update(double dt);
@@ -63,7 +62,7 @@ private:
 
 	void spawnParticle();
 
-	void init(std::wstring name, DescriptorHeap* descriptorHeap);
+	void init(std::wstring name, DescriptorHeap* descriptorHeap, Texture2DGUI* texture);
 	
 	void initParticle(Particle& particle);
 	void randomizePosition(Particle& particle);

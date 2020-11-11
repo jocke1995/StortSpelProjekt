@@ -487,7 +487,26 @@ ParticleEffect* AssetLoader::CreateParticleEffect()
 	}
 
 	// Create test particleEffect
-	ParticleEffect* effect = new ParticleEffect(name, m_pDescriptorHeap_CBV_UAV_SRV);
+	ParticleEffect* effect = new ParticleEffect(name, m_pDescriptorHeap_CBV_UAV_SRV, nullptr);
+
+	m_LoadedParticleEffects[name] = std::pair(false, effect);
+
+	return m_LoadedParticleEffects[name].second;
+}
+
+ParticleEffect* AssetLoader::CreateParticleEffect2()
+{
+	const std::wstring name = L"TESTINGPARTICLENAME2";
+
+	// Check if the model already exists
+	if (m_LoadedParticleEffects.count(name) != 0)
+	{
+		return m_LoadedParticleEffects[name].second;
+	}
+
+	Texture* tex = LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png");
+	// Create test particleEffect
+	ParticleEffect* effect = new ParticleEffect(name, m_pDescriptorHeap_CBV_UAV_SRV, static_cast<Texture2DGUI*>(tex));
 
 	m_LoadedParticleEffects[name] = std::pair(false, effect);
 

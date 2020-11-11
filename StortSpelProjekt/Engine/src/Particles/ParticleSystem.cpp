@@ -22,13 +22,6 @@ ParticleSystem::ParticleSystem()
 	Renderer& renderer = Renderer::GetInstance();
 }
 
-void ParticleSystem::uploadParticleEffectsToGPU()
-{
-	// todo, for each effect uploadResourceData
-
-	effect->updateResourceData();
-}
-
 ParticleSystem::~ParticleSystem()
 {
 }

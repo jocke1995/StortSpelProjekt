@@ -776,11 +776,17 @@ Scene* FloppipTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
+
     /* ---------------------- Player ---------------------- */
 
     ParticleEffect* pEffect = al->CreateParticleEffect();
     pe = entity->AddComponent<component::ParticleEmitterComponent>();
     pe->SetParticleEffect(pEffect);
+
+    // Wont work yet cause ParticleSystem only holds 1 particleeffect.
+    //ParticleEffect* ppEffect = al->CreateParticleEffect2();
+    //pe = entity->AddComponent<component::ParticleEmitterComponent>();
+    //pe->SetParticleEffect(ppEffect);
 
     /* ---------------------- Skybox ---------------------- */
 

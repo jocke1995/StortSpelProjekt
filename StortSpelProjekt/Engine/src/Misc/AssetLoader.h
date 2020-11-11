@@ -49,7 +49,10 @@ public:
     Texture* LoadTexture2D(const std::wstring& path);
     TextureCubeMap* LoadTextureCubeMap(const std::wstring& path);
     Material* LoadMaterialFromMTL(const std::wstring& path);
+
+    // For testing
     ParticleEffect* CreateParticleEffect();
+    ParticleEffect* CreateParticleEffect2();
 
     // Load Audio
     AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
