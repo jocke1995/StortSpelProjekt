@@ -31,9 +31,9 @@ VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
 	vertex v = meshes[cbPerObject.info.vertexDataIndex][vID];
 
 	float3x3 camSpace = { 
-		cbPerObject.worldMatrix[0].x, cbPerObject.worldMatrix[1].x, cbPerObject.worldMatrix[2].x,
-		cbPerObject.worldMatrix[0].y, cbPerObject.worldMatrix[1].y, cbPerObject.worldMatrix[2].y,
-		cbPerObject.worldMatrix[0].z, cbPerObject.worldMatrix[1].z, cbPerObject.worldMatrix[2].z
+		cbPerFrame.camRight.x, cbPerFrame.camUp.x, cbPerFrame.camForward.x,
+		cbPerFrame.camRight.y, cbPerFrame.camUp.y, cbPerFrame.camForward.y,
+		cbPerFrame.camRight.z, cbPerFrame.camUp.z, cbPerFrame.camForward.z
 	};
 
 	float3 vertexPosition = particlePos[iID].xyz + mul(v.pos * halfSize, transpose(camSpace));

@@ -8,6 +8,7 @@
 #define EPSILON		  0.000001
 
 typedef DirectX::XMMATRIX float4x4;
+typedef DirectX::XMFLOAT3X3 float3x3;
 
 typedef union
 {

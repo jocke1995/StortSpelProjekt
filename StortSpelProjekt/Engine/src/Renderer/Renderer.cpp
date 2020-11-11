@@ -268,8 +268,22 @@ void Renderer::RenderUpdate(double dt)
 	{
 		ImGuiHandler::GetInstance().NewFrame();
 	}
+	
+	float3 right = m_pScenePrimaryCamera->GetRightVectorFloat3();
+	right.normalize();
+
+	float3 forward = m_pScenePrimaryCamera->GetDirectionFloat3();
+	forward.normalize();
+
+	// TODO: fix camera up vector
+	float3 up = forward.cross(right);
+	up.normalize();
+
 	// Update CB_PER_FRAME data
 	m_pCbPerFrameData->camPos = m_pScenePrimaryCamera->GetPositionFloat3();
+	m_pCbPerFrameData->camRight = right;
+	m_pCbPerFrameData->camUp = up;
+	m_pCbPerFrameData->camForward = forward;
 
 	// Picking
 	updateMousePicker();

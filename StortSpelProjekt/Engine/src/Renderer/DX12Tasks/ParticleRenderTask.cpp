@@ -7,6 +7,7 @@
 #include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/DepthStencil.h"
 #include "../GPUMemory/DepthStencilView.h"
+#include "../GPUMemory/ConstantBufferView.h"
 #include "../GPUMemory/ShaderResourceView.h"
 #include "../GPUMemory/UnorderedAccessView.h"
 #include "../DescriptorHeap.h"
@@ -24,8 +25,12 @@
 #include "../Renderer/Texture/Texture2DGUI.h"
 #include "../ECS/Components/ParticleEmitterComponent.h"
 #include "../Particles/ParticleEffect.h"
+#include "../Renderer/GPUMemory/Resource.h"
 
-ParticleRenderTask::ParticleRenderTask(ID3D12Device5* device, RootSignature* rootSignature, const std::wstring& VSName, const std::wstring& PSName, std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds, const std::wstring& psoName, unsigned int FLAG_THREAD)
+ParticleRenderTask::ParticleRenderTask(ID3D12Device5* device, RootSignature* rootSignature, 
+	const std::wstring& VSName, const std::wstring& PSName, 
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds, 
+	const std::wstring& psoName, unsigned int FLAG_THREAD)
 	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
 	AssetLoader* al = AssetLoader::Get();
@@ -74,8 +79,9 @@ void ParticleRenderTask::Execute()
 	commandList->RSSetViewports(1, viewPort);
 	commandList->RSSetScissorRects(1, rect);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_FRAME, m_Resources["cbPerFrame"]->GetGPUVirtualAdress());
 
-	
+	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
 	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
 
@@ -98,11 +104,6 @@ void ParticleRenderTask::Execute()
 
 			// Test to multiply in render (Later do it in compute)
 			commandList->SetGraphicsRootShaderResourceView(RS::SRV0, effect->m_pSRV->GetResource()->GetGPUVirtualAdress());
-			// Create a CB_PER_FRAME struct
-			CB_PER_FRAME_STRUCT perFrame = { m_pCamera->GetPosition().x, m_pCamera->GetPosition().y, m_pCamera->GetPosition().z };
-			commandList->SetGraphicsRootConstantBufferView(RS::CB_PER_FRAME, m_Resources["cbPerFrame"]->GetGPUVirtualAdress());
-
-			commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
 			Texture2DGUI* texture = pec->GetTexture();
 
@@ -112,36 +113,11 @@ void ParticleRenderTask::Execute()
 			info.vertexDataIndex = m_pParticleMesh->GetSRV()->GetDescriptorHeapIndex();
 			info.textureAlbedo = texture->GetDescriptorHeapIndex();
 
-
-			float3 right = m_pCamera->GetRightVectorFloat3();
-			right.normalize();
-
-			float3 forward = m_pCamera->GetDirectionFloat3();
-			forward.normalize();
-
-			// TODO: fix camera up vector
-			float3 up = forward.cross(right);
-			up.normalize();
-
-			
-
-			
-
-			//float3 right = {1, 0, 0};
-			//float3 up = { 0, 1, 0 };
-			//float3 forward = { 0, 0, 1 };
-
-			// holds camera: right, up, forward
-			DirectX::XMMATRIX CAMruf = {
-				right.x, up.x, forward.x, 1,
-				right.y, up.y, forward.y, 1,
-				right.z, up.z, forward.z, 1,
-				0, 0, 0, 0
-			};
-			DirectX::XMMATRIX VPTransposed = (*viewProjMatTrans);
+			DirectX::XMMATRIX nothing = DirectX::XMMatrixIdentity();
+			DirectX::XMMATRIX VPTransposed = *viewProjMatTrans;
 
 			// Create a CB_PER_OBJECT struct
-			CB_PER_OBJECT_STRUCT perObject = { CAMruf, VPTransposed , info };
+			CB_PER_OBJECT_STRUCT perObject = { nothing, VPTransposed, info };
 
 			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 

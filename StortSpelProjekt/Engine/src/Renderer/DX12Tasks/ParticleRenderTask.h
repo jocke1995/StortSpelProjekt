@@ -5,6 +5,9 @@
 
 class RootSignature;
 
+class ConstantBufferView;
+class Resource;
+
 class ParticleRenderTask : public RenderTask
 {
 public:
