@@ -20,7 +20,7 @@ public:
 	virtual ~Upgrade();
 	
 	void SetParentEntity(Entity* parentEntity);
-
+	void SetTargetEntity(Entity* targetEntity);
 	// setters and getters for private member variables
 	void SetName(std::string name);
 	std::string GetName() const;
