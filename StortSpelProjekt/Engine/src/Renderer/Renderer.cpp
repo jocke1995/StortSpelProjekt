@@ -81,7 +81,6 @@
 
 // Compute
 #include "DX12Tasks/BlurComputeTask.h"
-#include "DX12Tasks/BillboardComputeTask.h"
 
 // Event
 #include "../Events/EventBus.h"
@@ -385,11 +384,6 @@ void Renderer::Execute()
 	copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
 	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(copyTask);
-
-	// Compute Particles (Billboard em' up)
-	computeTask = m_ComputeTasks[COMPUTE_TASK_TYPE::BILLBOARD];
-	computeTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(computeTask);
 
 	// Depth pre-pass
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS];
@@ -2042,18 +2036,6 @@ void Renderer::initRenderTasks()
 
 	blurComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
-
-	// Billboarding
-	std::vector<std::pair<std::wstring, std::wstring>> billcsNamePSOName;
-	billcsNamePSOName.push_back(std::make_pair(L"ComputeBillboard.hlsl", L"BillboardPSO"));
-	ComputeTask* billboardComputeTask = new BillboardComputeTask(
-		m_pDevice5, m_pRootSignature,
-		billcsNamePSOName,
-		COMMAND_INTERFACE_TYPE::DIRECT_TYPE,
-		FLAG_THREAD::RENDER);
-
-	billboardComputeTask->SetDescriptorHeaps(m_DescriptorHeaps);
-
 	// CopyTasks
 	CopyTask* copyPerFrameTask = new CopyPerFrameTask(m_pDevice5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE, FLAG_THREAD::RENDER);
 	CopyTask* copyOnDemandTask = new CopyOnDemandTask(m_pDevice5, COMMAND_INTERFACE_TYPE::DIRECT_TYPE, FLAG_THREAD::RENDER);
@@ -2127,7 +2109,6 @@ void Renderer::initRenderTasks()
 	/* ------------------------- ComputeQueue Tasks ------------------------ */
 	
 	m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR] = blurComputeTask;
-	m_ComputeTasks[COMPUTE_TASK_TYPE::BILLBOARD] = billboardComputeTask;
 
 	/* ------------------------- DirectQueue Tasks ---------------------- */
 	m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS] = DepthPrePassRenderTask;
@@ -2155,11 +2136,6 @@ void Renderer::initRenderTasks()
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_DirectCommandLists[i].push_back(copyPerFrameTask->GetCommandInterface()->GetCommandList(i));
-	}
-
-	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
-	{
-		m_DirectCommandLists[i].push_back(billboardComputeTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)

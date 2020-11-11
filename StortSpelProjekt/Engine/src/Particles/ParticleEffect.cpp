@@ -35,10 +35,6 @@ ParticleEffect::~ParticleEffect()
 	delete m_pUploadResource;
 	delete m_pDefaultResource;
 	delete m_pSRV;
-	delete m_pUAVUploadResource;
-	delete m_pUAVDefaultResource;
-	delete m_pUAV;
-	delete m_pUAVSRV;
 }
 
 void ParticleEffect::Update(double dt)
@@ -128,35 +124,6 @@ void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap)
 
 	m_pSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &srvDesc, m_pDefaultResource);
 
-	// ------------------------------------------------------------------------------------------------------
-
-	// UAV is 4x4float
-	entrySize = sizeof(float4x4);
-	resourceByteSize = entrySize * m_ParticleCount;
-	a = L"UAVParticleEffect_";
-
-	m_pUAVUploadResource = new Resource(renderer.m_pDevice5, resourceByteSize, RESOURCE_TYPE::UPLOAD, a + b + c);
-	m_pUAVDefaultResource = new Resource(renderer.m_pDevice5, resourceByteSize, RESOURCE_TYPE::DEFAULT, a + b + d, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-
-	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
-	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
-	uavDesc.Buffer.FirstElement = 0;
-	uavDesc.Buffer.NumElements = m_ParticleCount;
-	uavDesc.Buffer.StructureByteStride = entrySize;
-
-	m_pUAV = new UnorderedAccessView(renderer.m_pDevice5, descriptorHeap, &uavDesc, m_pUAVDefaultResource);
-
-	srvDesc = {};
-	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Buffer.FirstElement = 0;
-	srvDesc.Buffer.NumElements = m_ParticleCount;
-	srvDesc.Buffer.StructureByteStride = entrySize;
-	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-
-	m_pUAVSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &srvDesc, m_pUAVDefaultResource);
 
 	m_Particles.reserve(m_ParticleCount);
 	m_ParticlesData.resize(m_ParticleCount);
