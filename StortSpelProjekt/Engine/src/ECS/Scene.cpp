@@ -11,12 +11,17 @@ void DefaultUpdateScene(SceneManager* sm, double dt)
 
 }
 
+void DefaultInitScene(Scene* scene)
+{
+}
+
 Scene::Scene(std::string sceneName)
 {
     m_SceneName = sceneName;
     m_pNavMesh = nullptr;
 
-    m_UpdateScene = &DefaultUpdateScene;
+    m_pUpdateScene = &DefaultUpdateScene;
+    m_pOnInit = &DefaultInitScene;
 }
 
 Scene::~Scene()
@@ -125,13 +130,13 @@ NavMesh* Scene::GetNavMesh()
 
 void Scene::SetUpdateScene(void(*UpdateScene)(SceneManager*, double dt))
 {
-    m_UpdateScene = UpdateScene;
+    m_pUpdateScene = UpdateScene;
 }
 
 void Scene::RenderUpdate(SceneManager* sm, double dt)
 {
     // Run the scenes specific update function
-    m_UpdateScene(sm, dt);
+    m_pUpdateScene(sm, dt);
 
     for (auto pair : m_EntitiesToKeep)
     {
@@ -147,6 +152,16 @@ void Scene::SetCollisionEntities(const std::vector<Entity*>* collisionEntities)
 const std::vector<Entity*>* Scene::GetCollisionEntities() const
 {
     return &m_CollisionEntities;
+}
+
+void Scene::OnInit()
+{
+    m_pOnInit(this);
+}
+
+void Scene::SetOnInit(void(*OnInit)(Scene*))
+{
+    m_pOnInit = OnInit;
 }
 
 void Scene::Update(SceneManager* sm, double dt)

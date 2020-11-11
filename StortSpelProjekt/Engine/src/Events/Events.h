@@ -134,3 +134,8 @@ struct RoundStart : public Event
 {
 	RoundStart() {};
 };
+
+struct ResetGame : public Event
+{
+	ResetGame() {};
+};
