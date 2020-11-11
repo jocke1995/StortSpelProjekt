@@ -810,10 +810,6 @@ Scene* ShopScene(SceneManager* sm)
 
 void GameInitScene(Scene* scene)
 {
-    QuadManager* man = scene->GetEntity("healthbar")->GetComponent<component::GUI2DComponent>()->GetQuadManager();
-    scene->GetEntity("healthbar")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(man->GetPos(), { 0.275f, 0.055f }, false, false,
-        { 1.0, 1.0, 1.0, 1.0 },
-        float3{ 0.0f, 1.0f, 0.0f });
 }
 
 void GameUpdateScene(SceneManager* sm, double dt)
@@ -821,6 +817,7 @@ void GameUpdateScene(SceneManager* sm, double dt)
     if (ImGuiHandler::GetInstance().GetBool("reset"))
     {
         ImGuiHandler::GetInstance().SetBool("reset", false);
+        EventBus::GetInstance().Publish(&ResetGame());
     }
 }
 

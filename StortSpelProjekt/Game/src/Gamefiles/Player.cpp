@@ -60,4 +60,14 @@ void Player::onResetGame(ResetGame* evnt)
 	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("money")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0", "money");
 	SceneManager::GetInstance().GetScene("ShopScene")->GetEntity("player")->GetComponent<component::CurrencyComponent>()->SetBalance(0);
 	SceneManager::GetInstance().GetScene("ShopScene")->GetEntity("money")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0", "money");
+	// not suited here but otherwise it would be a loose function in main.
+	QuadManager* man = SceneManager::GetInstance().GetScene("GameScene")->GetEntity("healthbar")->GetComponent<component::GUI2DComponent>()->GetQuadManager();
+	man->UpdateQuad(man->GetPos(), { 0.275f, 0.055f }, false, false,
+		{ 1.0, 1.0, 1.0, 1.0 },
+		float3{ 0.0f, 1.0f, 0.0f });
+
+	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player")->GetComponent<component::HealthComponent>()->SetHealth(50);
+	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player")->GetComponent<component::HealthComponent>()->SetMaxHealth(50);
+	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("healthBackground")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("50", "currentHealth");
+	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("healthBackground")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("50", "maxHealth");
 }
