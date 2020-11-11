@@ -24,7 +24,7 @@ public:
 private:
 	ParticleSystem();
 
-	// Temp code todo: vector of effects. component::init() pushes in.
+	// Temp code todo: vector of effectComponents. component::init() pushes in.
 	ParticleEffect* effect = nullptr;
 
 };
