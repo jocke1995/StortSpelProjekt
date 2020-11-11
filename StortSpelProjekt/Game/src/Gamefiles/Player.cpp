@@ -59,9 +59,15 @@ void Player::onResetGame(ResetGame* evnt)
 	Entity* gamePlayer = SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player");
 	gamePlayer->GetComponent<component::CurrencyComponent>()->SetBalance(0);
 	gamePlayer->GetComponent<component::UpgradeComponent>()->RemoveAllUpgrades();
+	m_pUpgradeManager->RemoveAllUpgrades();
 	// Values copied from main.
-	gamePlayer->GetComponent<component::MeleeComponent>()->SetDamage(10);
-	gamePlayer->GetComponent<component::RangeComponent>()->SetDamage(10);
+	component::MeleeComponent* mec = gamePlayer->GetComponent<component::MeleeComponent>();
+	mec->SetDamage(10);
+	mec->SetAttackInterval(0.8);
+	component::RangeComponent* rac = gamePlayer->GetComponent<component::RangeComponent>();
+	rac->SetDamage(10);
+	rac->SetVelocity(50);
+	rac->SetAttackInterval(0.8);
 
 	Entity* shopPlayer = SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player");
 	shopPlayer->GetComponent<component::CurrencyComponent>()->SetBalance(0);
