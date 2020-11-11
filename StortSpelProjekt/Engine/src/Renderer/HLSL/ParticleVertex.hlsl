@@ -19,36 +19,26 @@ StructuredBuffer<vertex> meshes[] : register(t0);
 StructuredBuffer<float4x4> WVP : register(t0, space1); // Edited by billboard compute
 
 // Testing with getting pos in here.
-StructuredBuffer<float4> W : register(t3, space3); // Edited by billboard compute
+StructuredBuffer<float4> particlePos : register(t3, space3); // Edited by billboard compute
 ConstantBuffer<CB_PER_FRAME_STRUCT>  cbPerFrame  : register(b3, space3);
 
 VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
 {
 	VS_OUT output = (VS_OUT)0;
 
+	float halfSize = (particlePos[iID].a)/2;
+
 	vertex v = meshes[cbPerObject.info.vertexDataIndex][vID];
-	float4 vertexPosition = float4(v.pos.xyz, 1.0f);
 
-	float4x4 identity = {
-	W[iID].a, 0, 0, 0,
-	0, W[iID].a, 0, 0,
-	0, 0, W[iID].a, 0,
-	0, 0, 0, 1
+	float3x3 camSpace = { 
+		cbPerObject.worldMatrix[0].x, cbPerObject.worldMatrix[1].x, cbPerObject.worldMatrix[2].x,
+		cbPerObject.worldMatrix[0].y, cbPerObject.worldMatrix[1].y, cbPerObject.worldMatrix[2].y,
+		cbPerObject.worldMatrix[0].z, cbPerObject.worldMatrix[1].z, cbPerObject.worldMatrix[2].z
 	};
-	
-	float4x4 sizeMat = identity;
-	float4x4 transMat = {
-	1, 0, 0, W[iID].x,
-	0, 1, 0, W[iID].y,
-	0, 0, 1, W[iID].z,
-	0, 0, 0, 1
-	};
-	
 
-	float4x4 WorldMat = transpose(mul(transMat, sizeMat));
-	float4x4 WVP = mul(WorldMat, cbPerObject.WVP);
-
-	output.pos = mul(vertexPosition, WVP);
+	float3 vertexPosition = particlePos[iID].xyz + mul(v.pos * halfSize, transpose(camSpace));
+	
+	output.pos = mul(float4(vertexPosition, 1), cbPerObject.WVP);
 
 	output.uv = float2(v.uv.x, v.uv.y);
 

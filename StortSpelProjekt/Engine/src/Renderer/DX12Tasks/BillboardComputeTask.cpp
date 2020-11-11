@@ -44,10 +44,6 @@ void BillboardComputeTask::Execute()
 
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
-	
-
-	
-	
 	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
 	{
 		//// The resource to read (Resource Barrier)

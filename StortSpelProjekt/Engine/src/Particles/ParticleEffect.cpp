@@ -69,11 +69,6 @@ const std::wstring& ParticleEffect::GetName() const
 	return m_Name;
 }
 
-Mesh* ParticleEffect::GetMesh() const
-{
-	return m_pMesh;
-}
-
 Texture2DGUI* ParticleEffect::GetTexture() const
 {
 	return m_pTexture;
@@ -104,7 +99,6 @@ void ParticleEffect::init(std::wstring name, DescriptorHeap* descriptorHeap)
 	// Set default mesh and texture
 	// TODO: allow any mesh (not priority)
 	AssetLoader* al = AssetLoader::Get();
-	m_pMesh = al->LoadModel(L"../Vendor/Resources/Models/Quad/NormalizedQuad.obj")->GetMeshAt(0);
 	m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/minimap.png"));
 
 	Renderer& renderer = Renderer::GetInstance();

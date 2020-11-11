@@ -25,7 +25,6 @@ namespace component
         void SetParticleEffect(ParticleEffect* effect);
 
         // Gets
-        Mesh* GetMesh() const;
         Texture2DGUI* GetTexture() const;
 
     private:

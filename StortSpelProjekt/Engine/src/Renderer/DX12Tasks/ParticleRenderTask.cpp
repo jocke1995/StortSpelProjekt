@@ -29,7 +29,7 @@ ParticleRenderTask::ParticleRenderTask(ID3D12Device5* device, RootSignature* roo
 	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
 	AssetLoader* al = AssetLoader::Get();
-	
+	m_pParticleMesh = al->LoadModel(L"../Vendor/Resources/Models/Quad/NormalizedQuad.obj")->GetMeshAt(0);
 }
 
 ParticleRenderTask::~ParticleRenderTask()
@@ -107,21 +107,45 @@ void ParticleRenderTask::Execute()
 			Texture2DGUI* texture = pec->GetTexture();
 
 			// Draw a quad (m_pParticleQuad)
-			size_t num_Indices = effect->m_pMesh->GetNumIndices();
+			size_t num_Indices = m_pParticleMesh->GetNumIndices();
 			SlotInfo info = {};
-			info.vertexDataIndex = effect->m_pMesh->GetSRV()->GetDescriptorHeapIndex();
+			info.vertexDataIndex = m_pParticleMesh->GetSRV()->GetDescriptorHeapIndex();
 			info.textureAlbedo = texture->GetDescriptorHeapIndex();
 
 
-			DirectX::XMMATRIX WTransposed = DirectX::XMMatrixIdentity();
-			DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (WTransposed);
+			float3 right = m_pCamera->GetRightVectorFloat3();
+			right.normalize();
+
+			float3 forward = m_pCamera->GetDirectionFloat3();
+			forward.normalize();
+
+			// TODO: fix camera up vector
+			float3 up = forward.cross(right);
+			up.normalize();
+
+			
+
+			
+
+			//float3 right = {1, 0, 0};
+			//float3 up = { 0, 1, 0 };
+			//float3 forward = { 0, 0, 1 };
+
+			// holds camera: right, up, forward
+			DirectX::XMMATRIX CAMruf = {
+				right.x, up.x, forward.x, 1,
+				right.y, up.y, forward.y, 1,
+				right.z, up.z, forward.z, 1,
+				0, 0, 0, 0
+			};
+			DirectX::XMMATRIX VPTransposed = (*viewProjMatTrans);
 
 			// Create a CB_PER_OBJECT struct
-			CB_PER_OBJECT_STRUCT perObject = { WTransposed, WVPTransposed , info };
+			CB_PER_OBJECT_STRUCT perObject = { CAMruf, VPTransposed , info };
 
 			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-			commandList->IASetIndexBuffer(effect->m_pMesh->GetIndexBufferView());
+			commandList->IASetIndexBuffer(m_pParticleMesh->GetIndexBufferView());
 			commandList->DrawIndexedInstanced(num_Indices, effect->m_ParticleCount, 0, 0, 0);
 		}
 	}

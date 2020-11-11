@@ -19,6 +19,7 @@ public:
 	void Execute();
 
 private:
+	Mesh* m_pParticleMesh = nullptr;
 };
 
 #endif
