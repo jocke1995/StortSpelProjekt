@@ -57,6 +57,10 @@ void component::UpgradeComponent::RemoveUpgrade(Upgrade* upgrade)
 
 void component::UpgradeComponent::RemoveAllUpgrades()
 {
+	for (auto upgrade : m_AppliedUpgrades)
+	{
+		delete upgrade.second;
+	}
 	m_AppliedUpgrades.clear();
 }
 
