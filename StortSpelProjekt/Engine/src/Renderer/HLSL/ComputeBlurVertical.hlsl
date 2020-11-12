@@ -3,7 +3,7 @@
 Texture2D<float4> textures[]   : register (t0);
 RWTexture2D<float4> textureToBlur[] : register(u0);
 
-ConstantBuffer<DescriptorHeapIndices> dhIndices : register(b2, space4);
+ConstantBuffer<DescriptorHeapIndices> dhIndices : register(b2, space3);
 
 static const int g_BlurRadius = 4;
 static const int g_NumThreads = 256;

@@ -84,24 +84,23 @@ namespace component
 
 // Events
 struct WindowChange;
+struct WindowSettingChange;
 
 class Renderer
 {
 public:
 	static Renderer& GetInstance();
 	virtual ~Renderer();
-	// For control of safe release of DirectX resources
-	void DeleteDxResources();
 
 	// PickedEntity
 	Entity* const GetPickedEntity() const;
 	// Scene
 	Scene* const GetActiveScene() const;
 
-	const Window* const GetWindow() const;
+	Window* const GetWindow() const;
 
 	// Call once
-	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
+	void InitD3D12(Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
 	// Call on logic update *This should be moved to a more relevant logic class
 	void Update(double dt);
@@ -143,6 +142,8 @@ private:
 	friend class ParticleSystem;
 	friend class ParticleEffect;
 	Renderer();
+	// For control of safe release of DirectX resources
+	void deleteRenderer();
 
 	// SubmitToCodt functions
 	void submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
@@ -158,7 +159,7 @@ private:
 	unsigned int m_FrameCounter = 0;
 
 	// Window
-	const Window* m_pWindow;
+	Window* m_pWindow;
 
 	// Device
 	ID3D12Device5* m_pDevice5 = nullptr;
@@ -246,12 +247,12 @@ private:
 	//void executeCopyOnDemand();
 
 	// Setup the whole scene
-	void prepareScenes(std::vector<Scene*>* scenes);
+	void prepareScene(Scene* activeScene);
 
-	// Setup Per-scene data and send to GPU
-	void SubmitUploadPerSceneData();
-	// Submit per-frame data to the copyQueue that updates each frame
-	void SubmitUploadPerFrameData();
+	// Submit cbPerSceneData to the copyQueue that updates once
+	void submitUploadPerSceneData();
+	// Submit cbPerFrameData to the copyQueue that updates each frame
+	void submitUploadPerFrameData();
 
 	void toggleFullscreen(WindowChange* evnt);
 

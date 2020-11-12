@@ -102,7 +102,7 @@ void Shop::RandomizeInventory()
 	{
 		std::string textToRender = m_UpgradeDescriptions.find(m_InventoryNames.at(i))->second;
 		textToRender += "\nPrice: " + std::to_string(GetPrice(GetInventoryNames().at(i)));
-		textToRender += "\t Current Level: " + std::to_string(Player::GetInstance().GetUpgradeManager()->GetAppliedUpgradesLevel().find(GetInventoryNames().at(i))->second);
+		textToRender += "\t Current Level: " + std::to_string(Player::GetInstance().GetUpgradeManager()->GetAllAvailableUpgrades().find(GetInventoryNames().at(i))->second->GetLevel());
 		float2 textPos = { 0.1f, 0.15f * (i + 1) + 0.1f };
 		float2 textPadding = { 0.5f, 0.0f };
 		float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -224,6 +224,14 @@ Texture* Shop::GetUpgradeImage(std::string* name)
 	return AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Upgrades/" + to_wstring(m_AllAvailableUpgrades[*name]->GetImage()));
 }
 
+void Shop::Reset()
+{
+	for (auto item : m_AllAvailableUpgrades)
+	{
+		item.second->SetLevel(0);
+	}
+}
+
 void Shop::upgradePressed(ButtonPressed* evnt)
 {
 	for (int i = 0; i < GetInventorySize(); i++)
@@ -236,7 +244,7 @@ void Shop::upgradePressed(ButtonPressed* evnt)
 				m_InventoryIsBought.at(i) = true;
 				ApplyUppgrade(m_InventoryNames.at(i));
 
-				SceneManager::GetInstance().GetActiveScenes()->at(0)->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("UPGRADE BOUGHT", "upgrade" + std::to_string(i));
+				SceneManager::GetInstance().GetActiveScene()->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("UPGRADE BOUGHT", "upgrade" + std::to_string(i));
 			}
 		}
 	}

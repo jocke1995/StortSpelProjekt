@@ -4,16 +4,19 @@
 #include "GameGUI.h"
 #include "Physics/CollisionCategories/PlayerCollisionCategory.h"
 #include "Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
+
 // Game includes
 #include "Player.h"
 #include "UpgradeManager.h"
 #include "Shop.h"
 #include "Components/CurrencyComponent.h"
+#include "MainMenuHandler.h"
+#include "GameOverHandler.h"
 
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
-Scene* GameOverScene(SceneManager* sm);
 
+void GameInitScene(Scene* scene);
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
@@ -51,19 +54,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*----- Set the scene -----*/
     Scene* demoScene = GameScene(sceneManager);
     Scene* shopScene = ShopScene(sceneManager);
-    Scene* gameOverScene = GameOverScene(sceneManager);
+    Scene* gameOverScene = GameOverHandler::GetInstance().CreateScene(sceneManager);
+    Scene* mainMenuScene = MainMenuHandler::GetInstance().CreateScene(sceneManager);
 
-    //Scene* shopScene = ShopScene(sceneManager);
-    sceneManager->SetScenes(demoScene);
+    sceneManager->SetScene(mainMenuScene);
     sceneManager->SetGameOverScene(gameOverScene);
-
     GameNetwork gameNetwork;
 
     /*------ Network Init -----*/
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
-        gameNetwork.SetScenes(sceneManager->GetActiveScenes());
+        gameNetwork.SetScene(sceneManager->GetActiveScene());
         gameNetwork.SetSceneManager(sceneManager);
         gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
     }
@@ -92,7 +94,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
-            gameGUI.Update(updateRate, sceneManager->GetActiveScenes()->at(0));
+            gameGUI.Update(updateRate, sceneManager->GetActiveScene());
         }
 
         /* ---- Network ---- */
@@ -123,6 +125,7 @@ Scene* GameScene(SceneManager* sm)
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");    
     Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
+    Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
@@ -134,6 +137,12 @@ Scene* GameScene(SceneManager* sm)
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
+
+	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
+	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
+	Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
+	Texture* healthHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthHolder.png");
+	Texture* killedEnemiesHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/KilledEnemies.png");
 
     /*--------------------- Assets ---------------------*/
 
@@ -198,7 +207,7 @@ Scene* GameScene(SceneManager* sm)
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
 
     melc->SetDamage(10);
-    melc->setAttackInterval(0.8);
+    melc->SetAttackInterval(0.8);
     ranc->SetAttackInterval(0.8);
     pic->Init();
     pic->SetJumpTime(0.17);
@@ -226,6 +235,8 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetCameraNearZ(-1000.0f);
     /*--------------------- DirectionalLight ---------------------*/
 
+    /*--------------------- Enemy definitions ---------------------*/
+    // melee
 	EnemyComps zombie = {};
 	zombie.model = enemyModel;
 	zombie.hp = 30;
@@ -235,12 +246,32 @@ Scene* GameScene(SceneManager* sm)
 	zombie.meleeAttackDmg = 5.0f;
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
-	zombie.movementSpeed = 30.0f;
-	zombie.attackingDist = 1.5f;
-	zombie.rot = { 0.0, 0.0, 0.0 };
+	zombie.movementSpeed = 15.0f;
 	zombie.targetName = "player";
 	zombie.scale = 0.04;
 	zombie.detectionRad = 500.0f;
+	zombie.attackingDist = 1.5f;
+
+    // ranged
+    EnemyComps rangedDemon = {};
+    rangedDemon.model = enemyDemonModel;
+    rangedDemon.hp = 30;
+    rangedDemon.sound3D = L"Bruh";
+    rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+    rangedDemon.aiFlags = 0;
+    rangedDemon.attackInterval = 1.5f;
+    rangedDemon.attackSpeed = 1.0f;
+    rangedDemon.movementSpeed = 30.0f;
+    rangedDemon.targetName = "player";
+    rangedDemon.scale = 8.0f;
+    rangedDemon.isRanged = true;
+    rangedDemon.detectionRad = 500.0f;
+    rangedDemon.attackingDist = 100.0f;
+    rangedDemon.rangeAttackDmg = 10;
+    rangedDemon.rangeVelocity = 50.0f;
+    rangedDemon.projectileModel = sphereModel;
+
+    /*--------------------- Enemy definitions ---------------------*/
 
     /* ---------------------- Teleporter ---------------------- */
     entity = scene->AddEntity("teleporter");
@@ -259,38 +290,101 @@ Scene* GameScene(SceneManager* sm)
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
     /*--------------------- Teleporter ---------------------*/
+
     /* ------------------------- GUI --------------------------- */
-    std::string textToRender = "HEALTH";
-    float2 textPos = { 0.45f, 0.96f };
-    float2 textPadding = { 0.5f, 0.0f };
-    float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-    float2 textScale = { 0.5f, 0.5f };
-    float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+	/* ----------------- healthBackground ---------------------- */
+	std::string textToRender = "";
+	float2 textPos = { 0.473f, 0.965f };
+	float2 textPadding = { 0.8f, 0.0f };
+	float4 textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float2 textScale = { 0.3f, 0.3f };
+	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    entity = scene->AddEntity("health");
-    gui = entity->AddComponent<component::GUI2DComponent>();
-    gui->GetTextManager()->AddText("health");
-    gui->GetTextManager()->SetColor(textColor, "health");
-    gui->GetTextManager()->SetPadding(textPadding, "health");
-    gui->GetTextManager()->SetPos(textPos, "health");
-    gui->GetTextManager()->SetScale(textScale, "health");
-    gui->GetTextManager()->SetText(textToRender, "health");
-    gui->GetTextManager()->SetBlend(textBlend, "health");
+	entity = scene->AddEntity("healthBackground");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->AddText("currentHealth");
+	gui->GetTextManager()->SetColor(textColor, "currentHealth");
+	gui->GetTextManager()->SetPadding(textPadding, "currentHealth");
+	gui->GetTextManager()->SetPos(textPos, "currentHealth");
+	gui->GetTextManager()->SetScale(textScale, "currentHealth");
+	gui->GetTextManager()->SetText(std::to_string(hc->GetHealth()), "currentHealth");
+	gui->GetTextManager()->SetBlend(textBlend, "currentHealth");
 
-    float2 quadPos = { 0.4f, 0.95f };
-    float2 quadScale = { 0.2f, 0.1f };
-    float4 blended = { 1.0, 1.0, 1.0, 0.99 };
-    float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
-    gui->GetQuadManager()->CreateQuad(
-        "health",
-        quadPos, quadScale,
-        false, false,
-        1,
-        notBlended,
-        nullptr,
-        { 0.0, 1.0, 0.0 }
-    );
+	textPos = { 0.499f, 0.965f };
+	gui->GetTextManager()->AddText("slash");
+	gui->GetTextManager()->SetColor(textColor, "slash");
+	gui->GetTextManager()->SetPadding(textPadding, "slash");
+	gui->GetTextManager()->SetPos(textPos, "slash");
+	gui->GetTextManager()->SetScale(textScale, "slash");
+	gui->GetTextManager()->SetText("/", "slash");
+	gui->GetTextManager()->SetBlend(textBlend, "slash");
 
+	textPos = { 0.503f, 0.965f };
+	gui->GetTextManager()->AddText("maxHealth");
+	gui->GetTextManager()->SetColor(textColor, "maxHealth");
+	gui->GetTextManager()->SetPadding(textPadding, "maxHealth");
+	gui->GetTextManager()->SetPos(textPos, "maxHealth");
+	gui->GetTextManager()->SetScale(textScale, "maxHealth");
+	gui->GetTextManager()->SetText(std::to_string(hc->GetMaxHealth()), "maxHealth");
+	gui->GetTextManager()->SetBlend(textBlend, "maxHealth");
+
+	float2 quadPos = { 0.3f, 0.85f };
+	float2 quadScale = { 0.4f, 0.15f };
+	float4 blended = { 1.0, 1.0, 1.0, 0.99 };
+	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	gui->GetQuadManager()->CreateQuad(
+		"healthBackground",
+		quadPos, quadScale,
+		false, false,
+		0,
+		notBlended,
+		healthBackgroundTexture);
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- healthHolder --------------------------- */
+	entity = scene->AddEntity("healthHolder");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.35f, 0.85f };
+	quadScale = { 0.3f, 0.115f };
+	gui->GetQuadManager()->CreateQuad(
+		"healthHolder",
+		quadPos, quadScale,
+		false, false,
+		1,
+		notBlended,
+		healthHolderTexture);
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- healthbar --------------------------- */
+	entity = scene->AddEntity("healthbar");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.365f, 0.892f };
+	quadScale = { 0.275f, 0.055f };
+	gui->GetQuadManager()->CreateQuad(
+		"healthbar",
+		quadPos, quadScale,
+		false, false,
+		2,
+		notBlended,
+		healthbarTexture,
+		float3{ 0.0f, 1.0f, 0.0f });
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- healthGuardians --------------------------- */
+	entity = scene->AddEntity("healthGuardians");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.32f, 0.86f };
+	quadScale = { 0.3625f, 0.14f };
+	gui->GetQuadManager()->CreateQuad(
+		"healthGuardians",
+		quadPos, quadScale,
+		false, false,
+		3,
+		blended,
+		healthGuardiansTexture);
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- money --------------------------- */
     textToRender = "0";
     textPos = { 0.95f, 0.03f };
     textPadding = { 0.5f, 0.0f };
@@ -321,12 +415,13 @@ Scene* GameScene(SceneManager* sm)
         currencyIcon
     );
 
-    textToRender = "Enemies: 0/20";
-    textPos = { 0.01f, 0.1f };
+	/* ------------------------- killedEnemies --------------------------- */
+    textToRender = "0/20";
+    textPos = { 0.074f, 0.044f };
     textPadding = { 0.5f, 0.0f };
-    textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
     textScale = { 0.5f, 0.5f };
-    textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+    textBlend = { 1.0f, 1.0f, 1.0f, 0.8f };
 
     entity = scene->AddEntity("enemyGui");
     gui = entity->AddComponent<component::GUI2DComponent>();
@@ -338,7 +433,20 @@ Scene* GameScene(SceneManager* sm)
     gui->GetTextManager()->SetText(textToRender, "enemyGui");
     gui->GetTextManager()->SetBlend(textBlend, "enemyGui");
 
-    /* ---------------------------------------------------------- */
+	quadPos = { 0.015f, 0.021f };
+	quadScale = { 0.15f, 0.08f };
+	blended = { 1.0, 1.0, 1.0, 0.9 };
+	notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	gui->GetQuadManager()->CreateQuad(
+		"enemyGui",
+		quadPos, quadScale,
+		false, false,
+		1,
+		notBlended,
+		killedEnemiesHolderTexture
+	);
+
+    /* --------------------------- GUI ------------------------------- */
 
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);
@@ -346,6 +454,7 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
+    enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
 #pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
@@ -353,42 +462,8 @@ Scene* GameScene(SceneManager* sm)
 
     scene->SetUpdateScene(&GameUpdateScene);
 
-    return scene;
-}
+    scene->SetOnInit(&GameInitScene);
 
-Scene* GameOverScene(SceneManager* sm)
-{
-    AssetLoader* al = AssetLoader::Get();
-
-    // Create Scene
-    Scene* scene = sm->CreateScene("gameOverScene");
-
-    // Player (Need a camera)
-    Entity* entity = scene->AddEntity("player");
-    entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-
-    // Skybox
-    entity = scene->AddEntity("skybox");
-    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
-    sbc->SetTexture(blackCubeMap);
-
-    // Game over Text
-    Entity* text = scene->AddEntity("gameOverText");
-    component::GUI2DComponent* textComp = text->AddComponent<component::GUI2DComponent>();
-    textComp->GetTextManager()->AddText("GameOverText");
-    textComp->GetTextManager()->SetScale({2, 2}, "GameOverText");
-    textComp->GetTextManager()->SetPos({0.29, 0.41}, "GameOverText");
-    textComp->GetTextManager()->SetText("Game Over", "GameOverText");
-
-    // text2
-    Entity* text2 = scene->AddEntity("youDiedText");
-    component::GUI2DComponent* textComp2 = text2->AddComponent<component::GUI2DComponent>();
-    textComp->GetTextManager()->AddText("youDiedText");
-    textComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "youDiedText");
-    textComp->GetTextManager()->SetPos({ 0.43, 0.56 }, "youDiedText");
-    textComp->GetTextManager()->SetText("(You Died...)", "youDiedText");
-    
     return scene;
 }
 
@@ -425,6 +500,11 @@ Scene* ShopScene(SceneManager* sm)
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
     Model* teleportModel = al->LoadModel(L"../Vendor/Resources/Models/Teleporter/Teleporter.obj");
 
+	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
+	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
+	Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
+	Texture* healthHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthHolder.png");
+
     Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
@@ -453,7 +533,7 @@ Scene* ShopScene(SceneManager* sm)
     double rad = playerDim.z / 2.0;
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
-    hc = entity->AddComponent<component::HealthComponent>(10000000);
+    hc = entity->AddComponent<component::HealthComponent>(50);
     ic->SetMovementSpeed(70.0);
     ic->Init();
     bbc->Init();
@@ -498,6 +578,99 @@ Scene* ShopScene(SceneManager* sm)
     Physics::GetInstance().AddCollisionEntity(entity);
     /* ---------------------- Teleporter ---------------------- */
 
+	/* ------------------------- GUI --------------------------- */
+	/* ----------------- healthBackground ---------------------- */
+	std::string textToRender = "";
+	float2 textPos = { 0.473f, 0.965f };
+	float2 textPadding = { 0.8f, 0.0f };
+	float4 textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float2 textScale = { 0.3f, 0.3f };
+	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	entity = scene->AddEntity("healthBackground");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->AddText("currentHealth");
+	gui->GetTextManager()->SetColor(textColor, "currentHealth");
+	gui->GetTextManager()->SetPadding(textPadding, "currentHealth");
+	gui->GetTextManager()->SetPos(textPos, "currentHealth");
+	gui->GetTextManager()->SetScale(textScale, "currentHealth");
+	gui->GetTextManager()->SetText(std::to_string(hc->GetHealth()), "currentHealth");
+	gui->GetTextManager()->SetBlend(textBlend, "currentHealth");
+
+	textPos = { 0.499f, 0.965f };
+	gui->GetTextManager()->AddText("slash");
+	gui->GetTextManager()->SetColor(textColor, "slash");
+	gui->GetTextManager()->SetPadding(textPadding, "slash");
+	gui->GetTextManager()->SetPos(textPos, "slash");
+	gui->GetTextManager()->SetScale(textScale, "slash");
+	gui->GetTextManager()->SetText("/", "slash");
+	gui->GetTextManager()->SetBlend(textBlend, "slash");
+
+	textPos = { 0.503f, 0.965f };
+	gui->GetTextManager()->AddText("maxHealth");
+	gui->GetTextManager()->SetColor(textColor, "maxHealth");
+	gui->GetTextManager()->SetPadding(textPadding, "maxHealth");
+	gui->GetTextManager()->SetPos(textPos, "maxHealth");
+	gui->GetTextManager()->SetScale(textScale, "maxHealth");
+	gui->GetTextManager()->SetText(std::to_string(hc->GetMaxHealth()), "maxHealth");
+	gui->GetTextManager()->SetBlend(textBlend, "maxHealth");
+
+	float2 quadPos = { 0.3f, 0.85f };
+	float2 quadScale = { 0.4f, 0.15f };
+	float4 blended = { 1.0, 1.0, 1.0, 0.99 };
+	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	gui->GetQuadManager()->CreateQuad(
+		"healthBackground",
+		quadPos, quadScale,
+		false, false,
+		0,
+		notBlended,
+		healthBackgroundTexture);
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- healthHolder --------------------------- */
+	entity = scene->AddEntity("healthHolder");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.35f, 0.85f };
+	quadScale = { 0.3f, 0.115f };
+	gui->GetQuadManager()->CreateQuad(
+		"healthHolder",
+		quadPos, quadScale,
+		false, false,
+		1,
+		notBlended,
+		healthHolderTexture);
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- healthbar --------------------------- */
+	entity = scene->AddEntity("healthbar");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.365f, 0.892f };
+	quadScale = { 0.275f, 0.055f };
+	gui->GetQuadManager()->CreateQuad(
+		"healthbar",
+		quadPos, quadScale,
+		false, false,
+		2,
+		notBlended,
+		healthbarTexture,
+		float3{ 0.0f, 1.0f, 0.0f });
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- healthGuardians --------------------------- */
+	entity = scene->AddEntity("healthGuardians");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.32f, 0.86f };
+	quadScale = { 0.3625f, 0.14f };
+	gui->GetQuadManager()->CreateQuad(
+		"healthGuardians",
+		quadPos, quadScale,
+		false, false,
+		3,
+		blended,
+		healthGuardiansTexture);
+	/* ---------------------------------------------------------- */
+
     /* ---------------------- Poster ---------------------- */
     entity = scene->AddEntity("poster");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -513,13 +686,13 @@ Scene* ShopScene(SceneManager* sm)
     tc->SetTransformOriginalState();
     /* ---------------------- Poster ---------------------- */
 
-    /*---------------- GUI -----------------*/
-    std::string textToRender = "0";
-    float2 textPos = { 0.95f, 0.03f };
-    float2 textPadding = { 0.5f, 0.0f };
-    float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-    float2 textScale = { 0.4f, 0.4f };
-    float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+    /*---------------- GUI Coin -----------------*/
+    textToRender = "0";
+    textPos = { 0.95f, 0.03f };
+    textPadding = { 0.5f, 0.0f };
+    textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    textScale = { 0.4f, 0.4f };
+    textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     entity = scene->AddEntity("money");
     gui = entity->AddComponent<component::GUI2DComponent>();
@@ -531,9 +704,9 @@ Scene* ShopScene(SceneManager* sm)
     gui->GetTextManager()->SetText(textToRender, "money");
     gui->GetTextManager()->SetBlend(textBlend, "money");
 
-    float2 quadPos = { 0.91f, 0.03f };
-    float2 quadScale = { 0.03f, 0.03f };
-    float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+    quadPos = { 0.91f, 0.03f };
+    quadScale = { 0.03f, 0.03f };
+    notBlended = { 1.0, 1.0, 1.0, 1.0 };
     gui->GetQuadManager()->CreateQuad(
         "money",
         quadPos, quadScale,
@@ -659,11 +832,16 @@ Scene* ShopScene(SceneManager* sm)
     return scene;
 }
 
+void GameInitScene(Scene* scene)
+{
+}
+
 void GameUpdateScene(SceneManager* sm, double dt)
 {
     if (ImGuiHandler::GetInstance().GetBool("reset"))
     {
         ImGuiHandler::GetInstance().SetBool("reset", false);
+        EventBus::GetInstance().Publish(&ResetGame());
     }
 }
 

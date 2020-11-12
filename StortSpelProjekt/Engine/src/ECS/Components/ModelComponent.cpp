@@ -31,11 +31,6 @@ namespace component
 
 	void ModelComponent::Update(double dt)
 	{
-		AnimatedModel* animatedModel = dynamic_cast<AnimatedModel*>(m_pModel);
-		if (animatedModel)
-		{
-			animatedModel->Update(dt);
-		}
 	}
 
 	void ModelComponent::OnInitScene()

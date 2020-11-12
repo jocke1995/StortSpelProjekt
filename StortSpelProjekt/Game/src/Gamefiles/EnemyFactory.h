@@ -15,6 +15,8 @@ class Entity;
 struct SceneChange;
 struct Death;
 struct LevelDone;
+struct RoundStart;
+struct ResetGame;
 
 static int s_EnemyId = 0;
 
@@ -37,6 +39,7 @@ struct EnemyComps
 	float3 pos = { 0, 1, 0 };
 	float scale = 1.0;
 	int hp = 10;
+	int hpBase = 10;
 	std::string targetName = "player";
 	int enemiesOfThisType = 0;
 	std::wstring sound3D = L"Bruh";
@@ -46,7 +49,14 @@ struct EnemyComps
 	float attackInterval = 1.0f;
 	float attackSpeed = 0.2f;
 	float meleeAttackDmg = 10.0f;
+	float meleeAttackDmgBase = 10.0f;
 	float movementSpeed = 30.0f;
+	float movementSpeedBase = 30.0f;
+	bool isRanged = false;
+	Model* projectileModel = nullptr;
+	float rangeAttackDmg = 10.0f;
+	float rangeAttackDmgBase = 10.0f;
+	float rangeVelocity = 50.0f;
 };
 
 class EnemyFactory
@@ -95,12 +105,15 @@ public:
 	void SetSpawnCooldown(float val);
 	void SetMinDistanceFromPlayer(float val);
 
-	void Update(double dt);
+	void SetActive(bool active);
 
+	void Update(double dt);
 private:
 	void enemyDeath(Death* evnt);
 	void levelDone(LevelDone* evnt);
 	void onSceneSwitch(SceneChange* evnt);
+	void onRoundStart(RoundStart* evnt);
+	void onResetGame(ResetGame* evnt);
 	Scene* m_pScene = nullptr;
 	std::map<std::string, EnemyComps*> m_EnemyComps;
 	std::vector<Entity*> m_Enemies;
@@ -110,11 +123,14 @@ private:
 	unsigned int m_MaxEnemies;
 	unsigned int m_LevelMaxEnemies;
 	unsigned int m_EnemiesKilled;
+	unsigned int m_Level;
 	float m_SpawnCooldown;
 	float m_SpawnTimer;
 	float m_MinimumDistanceToPlayer;
 
-	bool m_IsActive = true;
+	bool m_IsActive = false;
+
+	int m_RangedSpawnCounter;
 };
 
 #endif

@@ -9,7 +9,7 @@ SamplerState Anisotropic8_Wrap	: register (s2);
 SamplerState Anisotropic16_Wrap	: register (s3);
 SamplerState samplerTypeBorder	: register (s4);
 
-ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b4, space3);
+ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b5, space3);
 
 float CalculateShadow(
 	in float4 fragPosLightSpace,

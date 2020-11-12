@@ -113,7 +113,7 @@ Renderer::~Renderer()
 	ImGui::DestroyContext();
 }
 
-void Renderer::DeleteDxResources()
+void Renderer::deleteRenderer()
 {
 	Log::Print("----------------------------  Deleting Renderer  ----------------------------------\n");
 	waitForGPU();
@@ -159,7 +159,7 @@ void Renderer::DeleteDxResources()
 	delete m_pCbPerFrameData;
 }
 
-void Renderer::InitD3D12(const Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
+void Renderer::InitD3D12(Window *window, HINSTANCE hInstance, ThreadPool* threadPool)
 {
 	m_pThreadPool = threadPool;
 	m_pWindow = window;
@@ -548,6 +548,11 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 		if (FLAG_DRAW::DRAW_OPAQUE & mc->GetDrawFlag())
 		{
 			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
+
+			if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
+			{
+				m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
+			}
 		}
 		else if (FLAG_DRAW::DRAW_ANIMATED & mc->GetDrawFlag())
 		{
@@ -556,11 +561,6 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 
 			// Opaque drawing as usual
 			m_RenderComponents[FLAG_DRAW::DRAW_OPAQUE].push_back(std::make_pair(mc, tc));
-		}
-
-		if (FLAG_DRAW::NO_DEPTH & ~mc->GetDrawFlag())
-		{
-			m_RenderComponents[FLAG_DRAW::NO_DEPTH].push_back(std::make_pair(mc, tc));
 		}
 
 		if (FLAG_DRAW::GIVE_SHADOW & mc->GetDrawFlag())
@@ -612,8 +612,25 @@ void Renderer::InitDirectionalLightComponent(component::DirectionalLightComponen
 	// Save in m_pRenderer
 	m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].push_back(std::make_tuple(component, cb, si));
 
-	// Submit to cbperframe
 	
+	// Submit to gpu
+	CopyTask* copyTask = nullptr;
+
+	if (component->GetLightFlags() & FLAG_LIGHT::STATIC)
+	{
+		copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+	}
+	else
+	{
+		copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
+	}
+
+	const void* data = static_cast<const void*>(component->GetLightData());
+	copyTask->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+	
+	// We also need to update the indexBuffer with lights if a light is added.
+	// The buffer with indices is inside cbPerSceneData, which is updated in the following function:
+	submitUploadPerSceneData();
 }
 
 void Renderer::InitPointLightComponent(component::PointLightComponent* component)
@@ -627,6 +644,24 @@ void Renderer::InitPointLightComponent(component::PointLightComponent* component
 
 	// Save in m_pRenderer
 	m_Lights[LIGHT_TYPE::POINT_LIGHT].push_back(std::make_tuple(component, cb, si));
+
+	// Submit to gpu
+	CopyTask* copyTask = nullptr;
+	if (component->GetLightFlags() & FLAG_LIGHT::STATIC)
+	{
+		copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+	}
+	else
+	{
+		copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
+	}
+
+	const void* data = static_cast<const void*>(component->GetLightData());
+	copyTask->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+
+	// We also need to update the indexBuffer with lights if a light is added.
+	// The buffer with indices is inside cbPerSceneData, which is updated in the following function:
+	submitUploadPerSceneData();
 }
 
 void Renderer::InitSpotLightComponent(component::SpotLightComponent* component)
@@ -669,6 +704,24 @@ void Renderer::InitSpotLightComponent(component::SpotLightComponent* component)
 	}
 	// Save in m_pRenderer
 	m_Lights[LIGHT_TYPE::SPOT_LIGHT].push_back(std::make_tuple(component, cb, si));
+
+	// Submit to gpu
+	CopyTask* copyTask = nullptr;
+	if (component->GetLightFlags() & FLAG_LIGHT::STATIC)
+	{
+		copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+	}
+	else
+	{
+		copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
+	}
+
+	const void* data = static_cast<const void*>(component->GetLightData());
+	copyTask->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+
+	// We also need to update the indexBuffer with lights if a light is added.
+	// The buffer with indices is inside cbPerSceneData, which is updated in the following function:
+	submitUploadPerSceneData();
 }
 
 void Renderer::InitCameraComponent(component::CameraComponent* component)
@@ -693,9 +746,6 @@ void Renderer::InitBoundingBoxComponent(component::BoundingBoxComponent* compone
 				return;
 			}
 
-			// TODO: don't load here, load in loadScene
-			// Submit to GPU
-			//LoadMesh(m);
 			submitMeshToCodt(m);
 
 			component->AddMesh(m);
@@ -777,121 +827,106 @@ void Renderer::UnInitModelComponent(component::ModelComponent* component)
 
 void Renderer::UnInitDirectionalLightComponent(component::DirectionalLightComponent* component)
 {
-	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	LIGHT_TYPE type = LIGHT_TYPE::DIRECTIONAL_LIGHT;
+	unsigned int count = 0;
+	for (auto& tuple : m_Lights[type])
 	{
-		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
-		unsigned int j = 0;
+		Light* light = std::get<0>(tuple);
 
-		for (auto& tuple : m_Lights[type])
+		component::DirectionalLightComponent* dlc = static_cast<component::DirectionalLightComponent*>(light);
+
+		// Remove light if it matches the entity
+		if (component == dlc)
 		{
-			Light* light = std::get<0>(tuple);
+			// Free memory so other m_Entities can use it
+			ConstantBuffer* cbv = std::get<1>(tuple);
+			ShadowInfo* si = std::get<2>(tuple);
+			m_pViewPool->ClearSpecificLight(type, cbv, si);
 
-			component::DirectionalLightComponent* dlc = static_cast<component::DirectionalLightComponent*>(light);
+			// Remove from CopyPerFrame
+			CopyPerFrameTask* cpft = nullptr;
+			cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+			cpft->ClearSpecific(cbv->GetUploadResource());
 
-			// Remove light if it matches the entity
-			if (component == dlc)
-			{
-				// Free memory so other m_Entities can use it
-				ConstantBuffer* cbv = std::get<1>(tuple);
-				ShadowInfo* si = std::get<2>(tuple);
-				m_pViewPool->ClearSpecificLight(type, cbv, si);
+			// Finally remove from m_pRenderer
+			ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
+			srt->ClearSpecificLight(std::get<0>(tuple));
+			m_Lights[type].erase(m_Lights[type].begin() + count);
 
-				// Remove from CopyPerFrame
-				CopyPerFrameTask* cpft = nullptr;
-				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-				cpft->ClearSpecific(cbv->GetUploadResource());
-
-				// Finally remove from m_pRenderer
-				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
-				srt->ClearSpecificLight(std::get<0>(tuple));
-				m_Lights[type].erase(m_Lights[type].begin() + j);
-
-				// Update cbPerScene
-				SubmitUploadPerSceneData();
-				break;
-			}
-			j++;
+			// Update cbPerScene
+			submitUploadPerSceneData();
+			break;
 		}
+		count++;
 	}
 }
 
 void Renderer::UnInitPointLightComponent(component::PointLightComponent* component)
 {
-	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	LIGHT_TYPE type = LIGHT_TYPE::POINT_LIGHT;
+	unsigned int count = 0;
+	for (auto& tuple : m_Lights[type])
 	{
-		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
-		unsigned int j = 0;
+		Light* light = std::get<0>(tuple);
 
-		for (auto& tuple : m_Lights[type])
+		component::PointLightComponent* plc = static_cast<component::PointLightComponent*>(light);
+
+		// Remove light if it matches the entity
+		if (component == plc)
 		{
-			Light* light = std::get<0>(tuple);
+			// Free memory so other m_Entities can use it
+			ConstantBuffer* cbv = std::get<1>(tuple);
+			m_pViewPool->ClearSpecificLight(type, cbv, nullptr);
 
-			component::PointLightComponent* plc = static_cast<component::PointLightComponent*>(light);
+			// Remove from CopyPerFrame
+			CopyPerFrameTask* cpft = nullptr;
+			cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+			cpft->ClearSpecific(cbv->GetUploadResource());
 
-			// Remove light if it matches the entity
-			if (component == plc)
-			{
-				// Free memory so other m_Entities can use it
-				ConstantBuffer* cbv = std::get<1>(tuple);
-				ShadowInfo* si = std::get<2>(tuple);
-				m_pViewPool->ClearSpecificLight(type, cbv, si);
+			// Finally remove from m_pRenderer
+			m_Lights[type].erase(m_Lights[type].begin() + count);
 
-				// Remove from CopyPerFrame
-				CopyPerFrameTask* cpft = nullptr;
-				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-				cpft->ClearSpecific(cbv->GetUploadResource());
-
-				// Finally remove from m_pRenderer
-				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
-				srt->ClearSpecificLight(std::get<0>(tuple));
-				m_Lights[type].erase(m_Lights[type].begin() + j);
-
-				// Update cbPerScene
-				SubmitUploadPerSceneData();
-				break;
-			}
-			j++;
+			// Update cbPerScene
+			submitUploadPerSceneData();
+			break;
 		}
+		count++;
 	}
 }
 
 void Renderer::UnInitSpotLightComponent(component::SpotLightComponent* component)
 {
-	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
+	LIGHT_TYPE type = LIGHT_TYPE::SPOT_LIGHT;
+	unsigned int count = 0;
+	for (auto& tuple : m_Lights[type])
 	{
-		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
-		unsigned int j = 0;
+		Light* light = std::get<0>(tuple);
 
-		for (auto& tuple : m_Lights[type])
+		component::SpotLightComponent* slc = static_cast<component::SpotLightComponent*>(light);
+
+		// Remove light if it matches the entity
+		if (component == slc)
 		{
-			Light* light = std::get<0>(tuple);
+			// Free memory so other m_Entities can use it
+			ConstantBuffer* cbv = std::get<1>(tuple);
+			ShadowInfo* si = std::get<2>(tuple);
+			m_pViewPool->ClearSpecificLight(type, cbv, si);
 
-			component::SpotLightComponent* slc = static_cast<component::SpotLightComponent*>(light);
+			// Remove from CopyPerFrame
+			CopyPerFrameTask* cpft = nullptr;
+			cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+			cpft->ClearSpecific(cbv->GetUploadResource());
 
-			// Remove light if it matches the entity
-			if (component == slc)
-			{
-				// Free memory so other m_Entities can use it
-				ConstantBuffer* cbv = std::get<1>(tuple);
-				ShadowInfo* si = std::get<2>(tuple);
-				m_pViewPool->ClearSpecificLight(type, cbv, si);
+			// Finally remove from m_pRenderer
+			ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
+			srt->ClearSpecificLight(std::get<0>(tuple));
+			m_Lights[type].erase(m_Lights[type].begin() + count);
 
-				// Remove from CopyPerFrame
-				CopyPerFrameTask* cpft = nullptr;
-				cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-				cpft->ClearSpecific(cbv->GetUploadResource());
-
-				// Finally remove from m_pRenderer
-				ShadowRenderTask* srt = static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW]);
-				srt->ClearSpecificLight(std::get<0>(tuple));
-				m_Lights[type].erase(m_Lights[type].begin() + j);
-
-				// Update cbPerScene
-				SubmitUploadPerSceneData();
-				break;
-			}
-			j++;
+			// Update cbPerScene
+			submitUploadPerSceneData();
+			break;
 		}
+		count++;
 	}
 }
 
@@ -929,7 +964,8 @@ void Renderer::UnInitBoundingBoxComponent(component::BoundingBoxComponent* compo
 
 void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 {
-	waitForGPU();
+	// TODO: maybe put this inside "SceneManager::RemoveEntity"
+	Renderer::GetInstance().waitForGPU();
 
 	// Remove component from textComponents
 	// TODO: change data structure to allow O(1) add and remove
@@ -983,14 +1019,12 @@ void Renderer::UnitParticleEmitterComponent(component::ParticleEmitterComponent*
 
 void Renderer::OnResetScene()
 {
+	// Lights will be cleared in respective UninitComponent function
+
+	// Clear the rest
 	m_RenderComponents.clear();
-	for (auto& light : m_Lights)
-	{
-		light.second.clear();
-	}
 	m_pViewPool->ClearAll();
 	m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->Clear();
-	static_cast<ShadowRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::SHADOW])->Clear();
 	m_pScenePrimaryCamera = nullptr;
 	static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
 	m_BoundingBoxesToBePicked.clear();
@@ -1102,7 +1136,7 @@ Scene* const Renderer::GetActiveScene() const
 	return m_pCurrActiveScene;
 }
 
-const Window* const Renderer::GetWindow() const
+Window* const Renderer::GetWindow() const
 {
 	return m_pWindow;
 }
@@ -1439,8 +1473,8 @@ void Renderer::initRenderTasks()
 	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
 		gpsdAnimatedDepthPrePass.BlendState.RenderTarget[i] = depthPrePassRTdesc;
 
-	gpsdDepthPrePass.DepthStencilState = depthPrePassDsd;
-	gpsdDepthPrePass.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
+	gpsdAnimatedDepthPrePass.DepthStencilState = depthPrePassDsd;
+	gpsdAnimatedDepthPrePass.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdDepthPreAnimationVector;
 	gpsdDepthPreAnimationVector.push_back(&gpsdAnimatedDepthPrePass);
@@ -2322,10 +2356,10 @@ void Renderer::waitForFrame(unsigned int framesToBeAhead)
 //	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
 //}
 
-void Renderer::prepareScenes(std::vector<Scene*>* scenes)
+void Renderer::prepareScene(Scene* activeScene)
 {
-	SubmitUploadPerFrameData();
-	SubmitUploadPerSceneData();
+	submitUploadPerFrameData();
+	submitUploadPerSceneData();
 
 	// -------------------- DEBUG STUFF --------------------
 	// Test to change m_pCamera to the shadow casting m_lights cameras
@@ -2353,8 +2387,9 @@ void Renderer::prepareScenes(std::vector<Scene*>* scenes)
 	setRenderTasksPrimaryCamera();
 }
 
-void Renderer::SubmitUploadPerSceneData()
+void Renderer::submitUploadPerSceneData()
 {
+	*m_pCbPerSceneData = {};
 	// ----- directional lights -----
 	m_pCbPerSceneData->Num_Dir_Lights = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].size();
 	unsigned int index = 0;
@@ -2389,54 +2424,17 @@ void Renderer::SubmitUploadPerSceneData()
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	const void* data = static_cast<const void*>(m_pCbPerSceneData);
 	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetDefaultResource(), data));
-
-	// Submit static-light-data to be uploaded to VRAM
-	ConstantBuffer* cb = nullptr;
-
-	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
-	{
-		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
-		for (auto& tuple : m_Lights[type])
-		{
-			Light* light = std::get<0>(tuple);
-			unsigned int lightFlags = light->GetLightFlags();
-			if (lightFlags & FLAG_LIGHT::STATIC)
-			{
-				data = light->GetLightData();
-				cb = std::get<1>(tuple);
-				codt->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
-			}
-		}
-	}
 }
 
-void Renderer::SubmitUploadPerFrameData()
+void Renderer::submitUploadPerFrameData()
 {
 	// Submit dynamic-light-data to be uploaded to VRAM
 	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-	const void* data = nullptr;
-	ConstantBuffer* cb = nullptr;
-
-	for (unsigned int i = 0; i < LIGHT_TYPE::NUM_LIGHT_TYPES; i++)
-	{
-		LIGHT_TYPE type = static_cast<LIGHT_TYPE>(i);
-		for (auto& tuple : m_Lights[type])
-		{
-			unsigned int lightFlags = static_cast<Light*>(std::get<0>(tuple))->GetLightFlags();
-	
-			if ((lightFlags & FLAG_LIGHT::STATIC) == 0)
-			{
-				data = std::get<0>(tuple)->GetLightData();
-				cb = std::get<1>(tuple);
-				cpft->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
-			}
-		}
-	}
 
 	// CB_PER_FRAME_STRUCT
 	if (cpft != nullptr)
 	{
-		data = static_cast<void*>(m_pCbPerFrameData);
+		const void* data = static_cast<void*>(m_pCbPerFrameData);
 		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetDefaultResource(), data));
 	}
 }

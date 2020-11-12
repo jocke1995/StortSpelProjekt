@@ -50,6 +50,9 @@ namespace component
 		// Sets the power of gravity in the Y vector. Use negative value for down
 		void SetGravity(double gravity);
 
+		// Sets a user specified index to the collision body. This has no effect on the physics but may be used to many things.
+		void SetUserID(int id);
+		int GetUserID() const;
 
 		btRigidBody* GetBody() const;
 		double3 GetPosition() const;
@@ -66,9 +69,13 @@ namespace component
 		double CastRay(double3 castTo) const;
 		// Casts a ray from the object in the given direction and length, returning the minimal distance to another object. returns -1 if nothing is hit.
 		double CastRay(double3 direction, double length) const;
+		double CastRay(int indexToReturn, double3 castTo);
+		double CastRay(int indexToReturn, double3 direction, double length, double3 offset = { 0,0,0 });
+
 
 		virtual double GetDistanceToBottom() const = 0;
 	protected:
+		int m_UserID;
 		bool m_CanFall;
 		double m_Gravity;
 		double m_Mass;
