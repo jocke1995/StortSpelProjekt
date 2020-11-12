@@ -77,16 +77,6 @@ bool AssetLoader::IsTextureLoadedOnGpu(const Texture* texture) const
 	return m_LoadedTextures.at(texture->GetPath()).first;
 }
 
-bool AssetLoader::IsParticleEffectLoadedOnGpu(const std::wstring& name) const
-{
-	return m_LoadedParticleEffects.at(name).first;
-}
-
-bool AssetLoader::IsParticleEffectLoadedOnGpu(const ParticleEffect* effect) const
-{
-	return m_LoadedParticleEffects.at(effect->GetName()).first;
-}
-
 void AssetLoader::loadDefaultMaterial()
 {
 	// Load default textures
@@ -138,12 +128,6 @@ AssetLoader::~AssetLoader()
 
 	// For every model
 	for (auto pair : m_LoadedModels)
-	{
-		delete pair.second.second;
-	}
-
-	// For every ParticleEffect
-	for (auto pair : m_LoadedParticleEffects)
 	{
 		delete pair.second.second;
 	}
@@ -467,21 +451,6 @@ Material* AssetLoader::LoadMaterialFromMTL(const std::wstring& path)
 	}
 
 	return mat;
-}
-
-ParticleEffect* AssetLoader::CreateParticleEffect(std::wstring name, Texture2DGUI* texture, ParticleEffectSettings* settings)
-{
-	// Check if the model already exists
-	if (m_LoadedParticleEffects.count(name) != 0)
-	{
-		return m_LoadedParticleEffects[name].second;
-	}
-	
-	ParticleEffect* effect = new ParticleEffect(name, m_pDescriptorHeap_CBV_UAV_SRV, texture, settings);
-
-	m_LoadedParticleEffects[name] = std::pair(false, effect);
-
-	return m_LoadedParticleEffects[name].second;
 }
 
 Font* AssetLoader::LoadFontFromFile(const std::wstring& fontName)

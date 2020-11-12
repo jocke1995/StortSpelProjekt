@@ -53,9 +53,6 @@ public:
     TextureCubeMap* LoadTextureCubeMap(const std::wstring& path);
     Material* LoadMaterialFromMTL(const std::wstring& path);
 
-    // For testing
-    ParticleEffect* CreateParticleEffect(std::wstring name, Texture2DGUI* texture, ParticleEffectSettings* settings);
-
     // Load Audio
     AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
     AudioBuffer* GetAudio(const std::wstring& name);
@@ -75,8 +72,6 @@ public:
     bool IsMaterialLoadedOnGpu(const Material* material) const;
     bool IsTextureLoadedOnGpu(const std::wstring& name) const;
     bool IsTextureLoadedOnGpu(const Texture* texture) const;
-    bool IsParticleEffectLoadedOnGpu(const std::wstring& name) const;
-    bool IsParticleEffectLoadedOnGpu(const ParticleEffect* effect) const;
 
 private:
     // PipelineState loads all shaders
@@ -106,7 +101,6 @@ private:
     std::map<std::wstring, std::pair<bool, Model*>> m_LoadedModels;
     std::map<std::wstring, std::pair<bool, Material*>> m_LoadedMaterials;
     std::map<std::wstring, std::pair<bool, Texture*>> m_LoadedTextures;
-    std::map<std::wstring, std::pair<bool, ParticleEffect*>> m_LoadedParticleEffects;
     std::vector<Mesh*> m_LoadedMeshes;
     std::vector<Animation*> m_LoadedAnimations;
     std::map<std::wstring, Shader*> m_LoadedShaders;

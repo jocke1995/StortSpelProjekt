@@ -19,9 +19,8 @@
 EngineRand ParticleEffect::rand = {};
 
 
-ParticleEffect::ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings)
+ParticleEffect::ParticleEffect(DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings)
 {
-	m_Name = name;
 	m_pTexture = texture;
 	m_Settings = *settings;
 
@@ -58,11 +57,6 @@ void ParticleEffect::Update(double dt)
 	}
 }
 
-const std::wstring& ParticleEffect::GetName() const
-{
-	return m_Name;
-}
-
 Texture2DGUI* ParticleEffect::GetTexture() const
 {
 	return m_pTexture;
@@ -96,7 +90,7 @@ void ParticleEffect::init(DescriptorHeap* descriptorHeap)
 		AssetLoader* al = AssetLoader::Get();
 		m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png"));
 
-		Log::PrintSeverity(Log::Severity::WARNING, "ParticleEffect::Texture was nullptr, %S\n", m_Name.c_str());
+		Log::PrintSeverity(Log::Severity::WARNING, "ParticleEffect::Texture was nullptr\n");
 	}
 
 	Renderer& renderer = Renderer::GetInstance();
@@ -107,7 +101,8 @@ void ParticleEffect::init(DescriptorHeap* descriptorHeap)
 
 	// used to format a debug string
 	std::wstring a = L"ParticleEffect_";
-	std::wstring b = m_Name;
+	static unsigned int particleCounter = 0;
+	std::wstring b = std::to_wstring(particleCounter++);
 	std::wstring c = L"_UPLOAD";
 	std::wstring d = L"_DEFAULT";
 
@@ -125,9 +120,6 @@ void ParticleEffect::init(DescriptorHeap* descriptorHeap)
 	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
 	m_pSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &srvDesc, m_pDefaultResource);
-
-
-	
 
 	m_Particles.resize(m_Settings.particleCount);
 	m_ParticlesData.resize(m_Settings.particleCount);

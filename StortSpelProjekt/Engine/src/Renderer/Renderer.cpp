@@ -91,6 +91,9 @@
 #include "../ImGUI/imgui_impl_dx12.h"
 #include "../ImGUI/ImGuiHandler.h"
 
+// Particle
+#include "../Particles/ParticleEffect.h"
+
 Renderer::Renderer()
 {
 	EventBus::GetInstance().Subscribe(this, &Renderer::toggleFullscreen);
@@ -790,7 +793,7 @@ void Renderer::InitParticleEmitterComponent(component::ParticleEmitterComponent*
 	auto mc = nullptr; // Particles don't have support for meshcomponent
 	auto tc = component->GetParent()->GetComponent<component::TransformComponent>();
 	
-	Texture* texture = static_cast<Texture*>(component->GetTexture());
+	Texture* texture = static_cast<Texture*>(component->GetParticleEffect()->GetTexture());
 	submitTextureToCodt(texture);
 
 	if (tc != nullptr)
@@ -1124,6 +1127,23 @@ void Renderer::submitTextureToCodt(Texture* texture)
 {
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	codt->SubmitTexture(texture);
+}
+
+void Renderer::submitToCpft(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
+{
+	CopyPerFrameTask* codt = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+	codt->Submit(Upload_Default_Data);
+}
+
+void Renderer::clearSpecificCpft(Resource* upload)
+{
+	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+	cpft->ClearSpecific(upload);
+}
+
+DescriptorHeap* Renderer::getCBVSRVUAVdHeap() const
+{
+	return m_DescriptorHeaps.at(DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV);
 }
 
 Entity* const Renderer::GetPickedEntity() const

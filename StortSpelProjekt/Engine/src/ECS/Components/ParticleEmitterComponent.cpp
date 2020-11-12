@@ -10,14 +10,12 @@
 #include "../Misc/AssetLoader.h"
 
 #include "../Particles/ParticleSystem.h"
-#include "../Particles/ParticleEffect.h"
 
 #include "../ECS/Entity.h"
 
-component::ParticleEmitterComponent::ParticleEmitterComponent(Entity* parent)
-	:Component(parent)
+component::ParticleEmitterComponent::ParticleEmitterComponent(Entity* parent, Texture2DGUI* texture, ParticleEffectSettings* settings, bool playOnInit)
+	:Component(parent), m_PlayOnInit(playOnInit), m_pParticleEffect(Renderer::GetInstance().getCBVSRVUAVdHeap(), texture, settings)
 {
-	
 }
 
 component::ParticleEmitterComponent::~ParticleEmitterComponent()
@@ -30,34 +28,53 @@ void component::ParticleEmitterComponent::RenderUpdate(double dt)
 
 void component::ParticleEmitterComponent::OnInitScene()
 {
-	if (m_pParticleEffect != nullptr)
+	if (m_PlayOnInit)
 	{
-		ParticleSystem::GetInstance().SetParticleEffect(m_pParticleEffect);
-
-		Renderer& renderer = Renderer::GetInstance();
-		renderer.InitParticleEmitterComponent(this);
+		Play();
 	}
-	else
-	{
-		Log::PrintSeverity(Log::Severity::WARNING, "ParticleEffect not set on component @Entity: %s\n", m_pParent->GetName().c_str());
-	}
+	
+	Renderer& renderer = Renderer::GetInstance();
+	renderer.InitParticleEmitterComponent(this);
 }
 
 void component::ParticleEmitterComponent::OnUnInitScene()
 {
-	// TODO: remove particle effect from particle system
-
-
+	Stop();
 	Renderer& renderer = Renderer::GetInstance();
 	renderer.UnInitParticleEmitterComponent(this);
 }
 
-void component::ParticleEmitterComponent::SetParticleEffect(ParticleEffect* effect)
+void component::ParticleEmitterComponent::Clear()
 {
-	m_pParticleEffect = effect;
+	m_pParticleEffect;
 }
 
-Texture2DGUI* component::ParticleEmitterComponent::GetTexture() const
+void component::ParticleEmitterComponent::Play()
 {
-	return m_pParticleEffect->GetTexture();
+	if (m_IsPlaying)
+	{
+		return;
+	}
+	ParticleSystem::GetInstance().ActivateParticleEffect(&m_pParticleEffect);
+	m_IsPlaying = true;
+}
+
+void component::ParticleEmitterComponent::Stop()
+{
+	if (!m_IsPlaying)
+	{
+		return;
+	}
+	ParticleSystem::GetInstance().DeactivateParticleEffect(&m_pParticleEffect);
+	m_IsPlaying = false;
+}
+
+bool component::ParticleEmitterComponent::IsPlaying() const
+{
+	return m_IsPlaying;
+}
+
+const ParticleEffect* component::ParticleEmitterComponent::GetParticleEffect() const
+{
+	return &m_pParticleEffect;
 }

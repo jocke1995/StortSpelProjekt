@@ -2,7 +2,7 @@
 #define PARTICLEEFFECT_H
 
 #define PARTICLE_EFFECT_DEFAULT_SIZE 100
-#define PARTICLESYSTEM_RENDER_DEAD_PARTICLES 1;
+#define PARTICLESYSTEM_RENDER_DEAD_PARTICLES 0;
 
 #include <vector>
 
@@ -50,12 +50,10 @@ struct ParticleEffectSettings
 class ParticleEffect
 {
 public:
-	ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings);
+	ParticleEffect(DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings);
 	~ParticleEffect();
 
 	void Update(double dt);
-
-	const std::wstring& GetName() const;
 
 	Texture2DGUI* GetTexture() const;
 
@@ -63,6 +61,7 @@ private:
 	friend class ParticleSystem;
 	friend class BillboardComputeTask;
 	friend class ParticleRenderTask;
+	friend class Renderer;
 
 	static EngineRand rand;
 
@@ -72,7 +71,6 @@ private:
 		float size;
 	};
 
-	std::wstring m_Name = L"unnamed_particleEffect";
 	Texture2DGUI* m_pTexture = nullptr;
 	std::vector<Particle> m_Particles;
 	std::vector<PARTICLE_DATA> m_ParticlesData;
