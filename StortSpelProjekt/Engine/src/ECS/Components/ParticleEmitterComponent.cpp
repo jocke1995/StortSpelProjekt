@@ -49,7 +49,7 @@ void component::ParticleEmitterComponent::OnUnInitScene()
 
 
 	Renderer& renderer = Renderer::GetInstance();
-	renderer.UnitParticleEmitterComponent(this);
+	renderer.UnInitParticleEmitterComponent(this);
 }
 
 void component::ParticleEmitterComponent::SetParticleEffect(ParticleEffect* effect)

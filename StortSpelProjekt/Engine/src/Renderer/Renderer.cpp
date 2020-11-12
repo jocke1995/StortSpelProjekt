@@ -994,7 +994,7 @@ void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 	setRenderTasksGUI2DComponents();
 }
 
-void Renderer::UnitParticleEmitterComponent(component::ParticleEmitterComponent* component)
+void Renderer::UnInitParticleEmitterComponent(component::ParticleEmitterComponent* component)
 {
 	auto tc = component->GetParent()->GetComponent<component::TransformComponent>();
 
