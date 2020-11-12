@@ -11,6 +11,9 @@
 // Particle Stuff
 #include "ParticleEffect.h"
 
+// For sort
+#include "../Renderer/Camera/BaseCamera.h"
+
 ParticleSystem& ParticleSystem::GetInstance()
 {
 	static ParticleSystem instance;
@@ -28,11 +31,12 @@ ParticleSystem::~ParticleSystem()
 
 void ParticleSystem::Update(double dt)
 {
+	Renderer& renderer = Renderer::GetInstance();
 	if (m_pEffect != nullptr)
 	{
 		//for(ParticleEffect& particleEffect : )
 		m_pEffect->Update(dt);
-		m_pEffect->updateResourceData();
+		m_pEffect->updateResourceData(renderer.m_pScenePrimaryCamera->GetPositionFloat3());
 	}
 }
 

@@ -761,7 +761,7 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.particleCount = 10000;
+    settings.particleCount = 200;
     settings.startValues.lifetime = 2;
     settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
 
@@ -770,13 +770,13 @@ Scene* FloppipTestScene(SceneManager* sm)
     RandomParameter3 randParam0 = { 1, 35, 1, 35, 1, 35 };
     RandomParameter3 randParam1 = { 0, 20, 0, 20, 0, 20 };
     randParam1.y = { 20, 100 };
-    RandomParameter randParam2 = { 2, 7 };
+    RandomParameter randParam2 = { 2, 50 };
 
     settings.randPosition = randParam0;
     settings.randVelocity = randParam1;
     settings.randSize = randParam2;
 
-    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/minimap.png"));
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/particle0.png"));
     ParticleEffect* pEffect = al->CreateParticleEffect(L"TESTINGPARTICLENAME", particleTexture, &settings);
     pe = entity->AddComponent<component::ParticleEmitterComponent>();
     pe->SetParticleEffect(pEffect);

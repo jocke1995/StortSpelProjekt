@@ -14,6 +14,8 @@
 #include "../Renderer/Model.h"
 #include "../Renderer/Mesh.h"
 
+#include <algorithm>
+
 EngineRand ParticleEffect::rand = {};
 
 
@@ -92,7 +94,7 @@ void ParticleEffect::init(DescriptorHeap* descriptorHeap)
 	{
 		// Set default texture
 		AssetLoader* al = AssetLoader::Get();
-		m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/minimap.png"));
+		m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png"));
 
 		Log::PrintSeverity(Log::Severity::WARNING, "ParticleEffect::Texture was nullptr, %S\n", m_Name.c_str());
 	}
@@ -191,7 +193,7 @@ void ParticleEffect::randomizeLifetime(Particle& particle)
 	particle.m_Rotation = lifetime;
 }
 
-void ParticleEffect::updateResourceData()
+void ParticleEffect::updateResourceData(float3 cameraPos)
 {
 	PARTICLE_DATA tempData;
 
@@ -210,7 +212,15 @@ void ParticleEffect::updateResourceData()
 		m_ParticlesData[index++] = tempData;
 	}
 
-	// Todo, sort z for blend
+	// Sort z from camera for blend
+	std::sort(m_ParticlesData.begin(), m_ParticlesData.end(),
+		[&](const PARTICLE_DATA& i, const PARTICLE_DATA& j) -> bool 
+	{
+		float distFromCamI = (i.position - cameraPos).length();
+		float distFromCamJ = (j.position - cameraPos).length();
+
+		return distFromCamI > distFromCamJ;
+	});
 
 	const void* data = static_cast<void*>(m_ParticlesData.data());
 	std::tuple temp = { m_pUploadResource, m_pDefaultResource, data };

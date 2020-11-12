@@ -101,7 +101,7 @@ private:
 	void randomizeRotation(Particle& particle);
 	void randomizeLifetime(Particle& particle);
 
-	void updateResourceData();
+	void updateResourceData(float3 cameraPos);
 };
 
 #endif
