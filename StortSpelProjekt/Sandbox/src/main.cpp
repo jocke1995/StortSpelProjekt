@@ -761,22 +761,21 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.particleCount = 200;
-    settings.startValues.lifetime = 2;
+    settings.particleCount = 50;
+    settings.startValues.lifetime = 0.7;
     settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
 
-    // Need to fix EngineRand.rand() for negative values and better randomize close to 0
-    RandomParameter3 randParam0 = { -35, 35, -35, 35, -35, 35 };
-    RandomParameter3 randParam1 = { 0, 20, 0, 20, 0, 20 };
-    randParam1.y = { 20, 100 };
+    // Need to fix EngineRand.rand() for negative values
+    RandomParameter3 randParam0 = {  };
+    RandomParameter3 randParam1 = { -5, 5, -5, 5, -5, 5 };
+    randParam1.y = { 1, 10 };
 
-    settings.randPosition = randParam0;
+    settings.randPosition = { 0, 0 };
     settings.randVelocity = randParam1;
-    settings.randSize = { 2, 50 };
-    settings.randRotation = {0, 2*PI};
-    settings.randRotationSpeed = {-4, 4};
+    settings.randSize = { 0.5, 2 };
 
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(nullptr, &settings, true);
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/particle0.png"));
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
 
 
     /* ---------------------- Skybox ---------------------- */
@@ -803,21 +802,22 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
     settings = {};
-    settings.particleCount = 50;
-    settings.startValues.lifetime = 0.7;
+    settings.particleCount = 200;
+    settings.startValues.lifetime = 2;
     settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
 
-    // Need to fix EngineRand.rand() for negative values
-    randParam0 = {  };
-    randParam1 = { -5, 5, -5, 5, -5, 5 };
-    randParam1.y = { 1, 10 };
+    // Need to fix EngineRand.rand() for negative values and better randomize close to 0
+    randParam0 = { -35, 35, -35, 35, -35, 35 };
+    randParam1 = { 0, 20, 0, 20, 0, 20 };
+    randParam1.y = { 20, 100 };
 
-    settings.randPosition = {0, 0};
+    settings.randPosition = randParam0;
     settings.randVelocity = randParam1;
-    settings.randSize = { 0.5, 2 };
+    settings.randSize = { 2, 50 };
+    settings.randRotation = { 0, 2 * PI };
+    settings.randRotationSpeed = { -4, 4 };
 
-    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/particle0.png"));
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(nullptr, &settings, true);
     
 
     /* ---------------------- Floor ---------------------- */

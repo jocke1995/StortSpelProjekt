@@ -44,8 +44,10 @@ VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
 	};
 	rotMatrix = transpose(rotMatrix);
 
+	float3 tcPos = { cbPerObject.worldMatrix[0].x, cbPerObject.worldMatrix[1].x, cbPerObject.worldMatrix[2].x };
+
 	// v.pos is from -1 -> 1, always 0 on z
-	float3 vertexPosition = particleData[iID].position + mul(v.pos * halfSize, mul(rotMatrix, camSpace));
+	float3 vertexPosition = particleData[iID].position + tcPos + mul(v.pos * halfSize, mul(rotMatrix, camSpace));
 	
 	output.pos = mul(float4(vertexPosition, 1), cbPerObject.WVP);
 
