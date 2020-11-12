@@ -51,9 +51,14 @@ Mesh::~Mesh()
 
 void Mesh::Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_heap)
 {
+	std::string temp = to_string(m_Path);
+	temp = temp.substr(temp.find_last_of("/\\") + 1);
+	std::wstring uploadResource  = L"VERTEX_UPLOAD_RESOURCE_" + to_wstring(temp);
+	std::wstring defaultResource = L"VERTEX_DEFAULT_RESOURCE_" + to_wstring(temp);
+
 	// create vertices resource
-	m_pUploadResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
-	m_pDefaultResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
+	m_pUploadResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, uploadResource);
+	m_pDefaultResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, defaultResource);
 
 	// Create SRV
 	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
