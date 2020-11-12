@@ -85,11 +85,22 @@ void Upgrade::RenderUpdate(double dt)
 {
 }
 
+void Upgrade::SetLevel(unsigned int lvl)
+{
+	m_Level = lvl;
+}
+
 
 void Upgrade::IncreaseLevel()
 {
 }
 
+void Upgrade::IncreaseLevelOnly()
+{
+	m_Level++;
+}
+
+void Upgrade::OnHit()
 void Upgrade::OnHit(Entity* target)
 {
 }

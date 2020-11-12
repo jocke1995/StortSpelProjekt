@@ -83,6 +83,7 @@ namespace component
 
 // Events
 struct WindowChange;
+struct WindowSettingChange;
 
 class Renderer
 {
@@ -95,10 +96,10 @@ public:
 	// Scene
 	Scene* const GetActiveScene() const;
 
-	const Window* const GetWindow() const;
+	Window* const GetWindow() const;
 
 	// Call once
-	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
+	void InitD3D12(Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
 	// Call on logic update *This should be moved to a more relevant logic class
 	void Update(double dt);
@@ -153,7 +154,7 @@ private:
 	unsigned int m_FrameCounter = 0;
 
 	// Window
-	const Window* m_pWindow;
+	Window* m_pWindow;
 
 	// Device
 	ID3D12Device5* m_pDevice5 = nullptr;

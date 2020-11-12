@@ -46,7 +46,9 @@ public:
 	void IncreaseLevel(std::string name);
 
 	std::map<std::string, int> GetAppliedUpgradesLevel();
+	std::map<std::string, int> GetAppliedUpgradeEnums();
 
+	void RemoveAllUpgrades();
 private:
 	Entity* m_pParentEntity = nullptr;
 	// Contains all upgrades that the player can buy

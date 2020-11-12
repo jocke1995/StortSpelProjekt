@@ -38,12 +38,17 @@ public:
 	virtual void Update(double dt);
 	virtual void RenderUpdate(double dt);
 
+	void SetLevel(unsigned int lvl);
 	// Below are all functions needed by upgrades. Some will be used by several upgrades and others might be unique.
 	// This way you can call functions that range over several "types" but might be called on in similar situations (such as melee/range OnHit).
 	// Definitions are to be implemented in the separate upgrade classes. Add more as needed.
 
 	// This function is supposed to increase the level of the upgrade, and to make sure that appropriate changes are made in the upgrade to reflect the level of the upgrade.
 	virtual void IncreaseLevel();
+	// This function should only be used when we want to increase just the level and not apply any stats.
+	// Exist to fix a bug made by increasing the level of an upgrade in AllAvailableUpgrades map in upgradeManager.
+	// So don't use this when you actually want to increase a level. This should not be overwritten!
+	void IncreaseLevelOnly();
 	// upgrades that are triggered on hit (ex: explosive, poison)
 	virtual void OnHit(Entity* target);
 	// specific for ranged hits

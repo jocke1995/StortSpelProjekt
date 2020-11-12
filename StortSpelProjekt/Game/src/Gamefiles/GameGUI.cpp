@@ -3,6 +3,7 @@
 #include "GameGUI.h"
 #include "ECS/Scene.h"
 #include "Player.h"
+#include "Misc/Option.h"
 
 GameGUI::GameGUI()
 {
@@ -31,6 +32,12 @@ void GameGUI::Update(double dt, Scene* scene)
 				m_OldMoney = money;
 			}
 		}
+	}
+
+	if (scene->GetName() == "OptionScene")
+	{
+		Entity* entity = scene->GetEntity("volume");
+		entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(Option::GetInstance().GetVariable("f_volume"), "volume");
 	}
 
 	if (scene != m_pOldScene)

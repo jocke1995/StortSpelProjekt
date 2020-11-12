@@ -25,6 +25,7 @@ namespace component
 		// setters and getters for private member variables
 		void AddUpgrade(Upgrade* upgrade);
 		void RemoveUpgrade(Upgrade* upgrade);
+		void RemoveAllUpgrades();
 		bool HasUpgrade(std::string name);
 		std::map<std::string, Upgrade*> GetUpgradeMap();
 		Upgrade* GetUpgradeByName(std::string name);
