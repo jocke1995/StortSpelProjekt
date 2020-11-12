@@ -4,6 +4,8 @@
 #include "../Events/EventBus.h"
 #include "CollisionCategories/PlayerCollisionCategory.h"
 #include "CollisionCategories/PlayerProjectileCollisionCategory.h"
+#include "CollisionCategories/EnemyCollisionCategory.h"
+#include "CollisionCategories/EnemyProjectileCollisionCategory.h"
 
 CollisionCategory::CollisionCategory(Entity* parent) : m_pParent(parent)
 {

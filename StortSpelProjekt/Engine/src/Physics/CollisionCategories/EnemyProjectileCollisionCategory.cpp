@@ -18,5 +18,5 @@ void EnemyProjectileCollisionCategory::Collide(CollisionCategory* other)
 
 void EnemyProjectileCollisionCategory::Collide(EnemyCollisionCategory* other)
 {
-	Log::Print("A projectile Collided with ENEMY\n");
+	// Do nothing
 }

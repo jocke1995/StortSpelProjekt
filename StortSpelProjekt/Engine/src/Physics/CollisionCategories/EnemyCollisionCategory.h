@@ -2,7 +2,6 @@
 #define ENEMYCOLLISIONCATEGORY_H
 #include "../CollisionCategory.h"
 
-class EnemyProjectileCollisionCategory;
 class EnemyCollisionCategory : public CollisionCategory
 {
 public:
@@ -10,6 +9,7 @@ public:
 	virtual ~EnemyCollisionCategory();
 	void Collide(CollisionCategory* other) override;
 	void Collide(EnemyProjectileCollisionCategory* other) override;
+	void Collide(PlayerProjectileCollisionCategory* other) override;
 };
 
 #endif

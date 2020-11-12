@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "EnemyCollisionCategory.h"
 #include "EnemyProjectileCollisionCategory.h"
+#include "PlayerProjectileCollisionCategory.h"
 #include "../Events/EventBus.h"
 
 EnemyCollisionCategory::EnemyCollisionCategory(Entity* parent) : CollisionCategory(parent)
@@ -18,5 +19,10 @@ void EnemyCollisionCategory::Collide(CollisionCategory* other)
 
 void EnemyCollisionCategory::Collide(EnemyProjectileCollisionCategory* other)
 {
-	Log::Print("Enemy collided with enemy projectile!\n");
+	// Do nothing
+}
+
+void EnemyCollisionCategory::Collide(PlayerProjectileCollisionCategory* other)
+{
+	EventBus::GetInstance().Publish(&Collision(m_pParent, other->GetParent()));
 }

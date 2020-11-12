@@ -1,7 +1,7 @@
 #ifndef ENEMYPROJECTILECOLLISIONCATEGORY_H
 #define ENEMYPROJECTILECOLLISIONCATEGORY_H
 #include "../CollisionCategory.h"
-class EnemyCollisionCategory;
+
 class EnemyProjectileCollisionCategory : public CollisionCategory
 {
 public:
