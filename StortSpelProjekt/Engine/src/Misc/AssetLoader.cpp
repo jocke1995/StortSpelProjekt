@@ -517,6 +517,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	float mass = 0.0f;
 	float friction = 0.0f;
 	float restitution = 0.0f;
+	float gravity = -98.2f;
 	HeightMapInfo hmInfo;
 	std::string fullPath;
 	fullPath.reserve(256);
@@ -644,6 +645,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			else if (strcmp(lineHeader.c_str(), "ModelRestitution") == 0)
 			{
 				fscanf(file, "%f", &restitution);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelGravity") == 0)
+			{
+				fscanf(file, "%f", &gravity);
 			}
 			else if (strcmp(lineHeader.c_str(), "NavQuadSize") == 0)
 			{
@@ -781,10 +786,11 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 						shapeInfo.x = entity->GetComponent<component::ModelComponent>()->GetModelDim().y / 2.0;
 					}
 					cc = entity->AddComponent<component::SphereCollisionComponent>(mass, shapeInfo.x, friction, restitution);
+					cc->SetGravity(gravity);
 					cc->SetUserID(1);
 					shapeInfo = { 0.0f, 0.0f, 0.0f };
 					mass = 0.0;
-
+					gravity = -98.2;
 				}
 				else if (strcmp(toSubmit.c_str(), "CollisionCapsule") == 0)
 				{
@@ -795,9 +801,11 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 						shapeInfo.y = entity->GetComponent<component::ModelComponent>()->GetModelDim().y - (shapeInfo.x * 2.0);
 					}
 					cc = entity->AddComponent<component::CapsuleCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, friction, restitution);
+					cc->SetGravity(gravity);
 					cc->SetUserID(1);
 					shapeInfo = { 0.0f, 0.0f, 0.0f };
 					mass = 0.0;
+					gravity = -98.2;
 				}
 				else if (strcmp(toSubmit.c_str(), "CollisionCube") == 0)
 				{
@@ -812,9 +820,11 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 						};
 					}
 					cc = entity->AddComponent<component::CubeCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, shapeInfo.z, friction, restitution);
+					cc->SetGravity(gravity);
 					cc->SetUserID(1);
 					shapeInfo = { 0.0f, 0.0f, 0.0f };
 					mass = 0.0;
+					gravity = -98.2;
 				}
 				else if (strcmp(toSubmit.c_str(), "CollisionHeightmap") == 0)
 				{

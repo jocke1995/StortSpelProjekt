@@ -168,7 +168,7 @@ Scene* GameScene(SceneManager* sm)
     component::GUI2DComponent* gui = nullptr;
     /*--------------------- Component declarations ---------------------*/
 
-    /*--------------------- Player ---------------------*/
+#pragma region player
     // entity
     std::string playerName = "player";
     entity = scene->AddEntity(playerName);
@@ -183,7 +183,7 @@ Scene* GameScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     melc = entity->AddComponent<component::MeleeComponent>();
     // range damage should be at least 10 for ranged life steal upgrade to work
-    // range velocity should be 50, otherwise range velocity upgrade does not make sense (may be scrapped later)
+    // range velocity should be 5, otherwise range velocity upgrade does not make sense (may be scrapped later)
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 10, 5);
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(50);
@@ -218,7 +218,7 @@ Scene* GameScene(SceneManager* sm)
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
     Physics::GetInstance().AddCollisionEntity(entity);;
-    /*--------------------- Player ---------------------*/
+#pragma endregion
 
     /*--------------------- DirectionalLight ---------------------*/
     entity = scene->AddEntity("sun");
