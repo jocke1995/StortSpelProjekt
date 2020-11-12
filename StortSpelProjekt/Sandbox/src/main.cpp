@@ -759,14 +759,27 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     /* ---------------------- Player ---------------------- */
 
-    ParticleEffect* pEffect = al->CreateParticleEffect();
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.particleCount = 10000;
+    settings.startValues.lifetime = 2;
+    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+
+    // Need to fix EngineRand.rand() for negative values
+    //RandomParameter3 randParam0 = { -35, 35, -35, 35, -35, 35 };
+    RandomParameter3 randParam0 = { 1, 35, 1, 35, 1, 35 };
+    RandomParameter3 randParam1 = { 0, 20, 0, 20, 0, 20 };
+    randParam1.y = { 20, 100 };
+    RandomParameter randParam2 = { 2, 7 };
+
+    settings.randPosition = randParam0;
+    settings.randVelocity = randParam1;
+    settings.randSize = randParam2;
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/minimap.png"));
+    ParticleEffect* pEffect = al->CreateParticleEffect(L"TESTINGPARTICLENAME", particleTexture, &settings);
     pe = entity->AddComponent<component::ParticleEmitterComponent>();
     pe->SetParticleEffect(pEffect);
-
-    // Wont work yet cause ParticleSystem only holds 1 particleeffect.
-    //ParticleEffect* ppEffect = al->CreateParticleEffect2();
-    //pe = entity->AddComponent<component::ParticleEmitterComponent>();
-    //pe->SetParticleEffect(ppEffect);
 
     /* ---------------------- Skybox ---------------------- */
 

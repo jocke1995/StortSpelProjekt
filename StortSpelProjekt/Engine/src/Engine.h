@@ -36,6 +36,7 @@
 // Textures
 #include "Renderer/Material.h"
 #include "Renderer/Texture/TextureCubeMap.h"
+#include "Renderer/Texture/Texture2DGUI.h"
 
 // Event-handling
 #include "Events/EventBus.h"

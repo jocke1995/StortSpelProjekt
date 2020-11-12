@@ -469,53 +469,15 @@ Material* AssetLoader::LoadMaterialFromMTL(const std::wstring& path)
 	return mat;
 }
 
-ParticleEffect* AssetLoader::CreateParticleEffect()
+ParticleEffect* AssetLoader::CreateParticleEffect(std::wstring name, Texture2DGUI* texture, ParticleEffectSettings* settings)
 {
-	const std::wstring name = L"TESTINGPARTICLENAME";
-
 	// Check if the model already exists
 	if (m_LoadedParticleEffects.count(name) != 0)
 	{
 		return m_LoadedParticleEffects[name].second;
 	}
-
-	// Create test particleEffect
-	ParticleEffectSettings settings = {};
-	settings.particleCount = 10000;
-	settings.startValues.lifetime = 2;
-	settings.spawnInterval = settings.startValues.lifetime/settings.particleCount;
-
-	// Need to fix EngineRand.rand() for negative values
-	//RandomParameter3 randParam0 = { -35, 35, -35, 35, -35, 35 };
-	RandomParameter3 randParam0 = { 1, 35, 1, 35, 1, 35 };
-	RandomParameter3 randParam1 = { 0, 20, 0, 20, 0, 20 };
-	randParam1.y = {20, 100};
-	RandomParameter randParam2 = { 2, 7 };
-
-	settings.randPosition = randParam0;
-	settings.randVelocity = randParam1;
-	settings.randSize = randParam2;
-	ParticleEffect* effect = new ParticleEffect(name, m_pDescriptorHeap_CBV_UAV_SRV, nullptr, &settings);
-
-	m_LoadedParticleEffects[name] = std::pair(false, effect);
-
-	return m_LoadedParticleEffects[name].second;
-}
-
-ParticleEffect* AssetLoader::CreateParticleEffect2()
-{
-	const std::wstring name = L"TESTINGPARTICLENAME2";
-
-	// Check if the model already exists
-	if (m_LoadedParticleEffects.count(name) != 0)
-	{
-		return m_LoadedParticleEffects[name].second;
-	}
-
-	Texture* tex = LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png");
-	// Create test particleEffect
-	ParticleEffectSettings settings = {};
-	ParticleEffect* effect = new ParticleEffect(name, m_pDescriptorHeap_CBV_UAV_SRV, static_cast<Texture2DGUI*>(tex), &settings);
+	
+	ParticleEffect* effect = new ParticleEffect(name, m_pDescriptorHeap_CBV_UAV_SRV, texture, settings);
 
 	m_LoadedParticleEffects[name] = std::pair(false, effect);
 

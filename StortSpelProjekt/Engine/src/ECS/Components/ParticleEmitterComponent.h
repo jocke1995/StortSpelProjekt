@@ -4,10 +4,11 @@
 #include "Component.h"
 #include "structs.h"
 
+#include "../Particles/ParticleEffect.h"
+
 class Mesh;
 class Transform;
 class Texture2DGUI;
-class ParticleEffect;
 
 namespace component
 {

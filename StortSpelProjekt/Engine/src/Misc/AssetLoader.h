@@ -12,6 +12,7 @@ class Mesh;
 class Shader;
 class Texture;
 class TextureCubeMap;
+class Texture2DGUI;
 class Material;
 class Window;
 class Scene;
@@ -26,6 +27,7 @@ struct aiMesh;
 struct aiMaterial;
 struct aiNodeAnim;
 struct aiBone;
+struct ParticleEffectSettings;
 
 class AnimatedModel;
 class AnimatedMesh;
@@ -52,8 +54,7 @@ public:
     Material* LoadMaterialFromMTL(const std::wstring& path);
 
     // For testing
-    ParticleEffect* CreateParticleEffect();
-    ParticleEffect* CreateParticleEffect2();
+    ParticleEffect* CreateParticleEffect(std::wstring name, Texture2DGUI* texture, ParticleEffectSettings* settings);
 
     // Load Audio
     AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
