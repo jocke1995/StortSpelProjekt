@@ -10,7 +10,6 @@ UpgradeRangeBounce::UpgradeRangeBounce(Entity* parentEntity) : Upgrade(parentEnt
 
 	m_Price = 1000;
 	m_StartingPrice = m_Price;
-	m_Description = "Makes your projectiles bouncy.";
 	m_MaxLevel = 1;
 
 	m_ImageName = "Bounce.png";
@@ -22,9 +21,15 @@ UpgradeRangeBounce::~UpgradeRangeBounce()
 
 void UpgradeRangeBounce::IncreaseLevel()
 {
+	++m_Level;
 }
 
 void UpgradeRangeBounce::ApplyBoughtUpgrade()
 {
 	m_pParentEntity->GetComponent<component::RangeComponent>()->MakeProjectileBouncy(true);
+}
+
+std::string UpgradeRangeBounce::GetDescription(unsigned int level)
+{
+	return "Makes your projectiles bouncy.";
 }

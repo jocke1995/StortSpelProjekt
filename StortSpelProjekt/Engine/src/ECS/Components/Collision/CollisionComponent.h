@@ -49,6 +49,8 @@ namespace component
 		void SetLinearFactor(double3& factor);
 		// Sets the power of gravity in the Y vector. Use negative value for down
 		void SetGravity(double gravity);
+		// Sets whether or not two bodies can collide with each other
+		void SetCollidesWith(CollisionComponent* other, bool collides);
 
 		// Sets a user specified index to the collision body. This has no effect on the physics but may be used to many things.
 		void SetUserID(int id);
