@@ -63,11 +63,11 @@ void QuadManager::CreateQuad(
 	float3 color)
 {
 	// We can't create a quad if the quad is already created!
-	if (m_pQuad != nullptr)
+	/*if (m_pQuad != nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "This quad is already created... Could not create a new quad with the name %s!\n", name.c_str());
 		return;
-	}
+	}*/
 
 	if (m_pQuadTexture == nullptr && texture != nullptr)
 	{
@@ -308,15 +308,17 @@ void QuadManager::pressed(MouseClick* evnt)
 
 void QuadManager::uploadQuadData(Renderer* renderer)
 {
+	AssetLoader* al = AssetLoader::Get();
+
 	// Submit to GPU
 	renderer->submitMeshToCodt(m_pQuad);
 
-	if (m_pQuadTexture != nullptr)
+	if (m_pQuadTexture != nullptr && !al->IsTextureLoadedOnGpu(m_pQuadTexture))
 	{
 		renderer->submitTextureToCodt(m_pQuadTexture);
 	}
 
-	if (m_pQuadTextureMarked != nullptr)
+	if (m_pQuadTextureMarked != nullptr && !al->IsTextureLoadedOnGpu(m_pQuadTextureMarked))
 	{
 		renderer->submitTextureToCodt(m_pQuadTextureMarked);
 	}
@@ -324,24 +326,32 @@ void QuadManager::uploadQuadData(Renderer* renderer)
 
 void QuadManager::deleteQuadData()
 {
-	Renderer* renderer = &Renderer::GetInstance();
-
-	// This is an ugly solution, however, it is noticable faster than waiting for the
-	// GPU every time we want to delete a quad, while also emptying the buffer so that
-	// we don't need to worry about the memory getting full
-	if (m_TrashBuffer.size() == 50)
+	if (m_pQuad != nullptr)
 	{
-		renderer->waitForGPU();
+		Renderer* renderer = &Renderer::GetInstance();
 
-		for (int i = 0; i < m_TrashBuffer.size(); i++)
+		CopyTask* task = renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
+		codt->UnSubmitMesh(m_pQuad);
+
+		// This is an ugly solution, however, it is noticable faster than waiting for the
+		// GPU every time we want to delete a quad, while also emptying the buffer so that
+		// we don't need to worry about the memory getting full
+		if (m_TrashBuffer.size() == 50)
 		{
-			delete m_TrashBuffer.at(i);
+			renderer->waitForGPU();
+
+			for (int i = 0; i < m_TrashBuffer.size(); i++)
+			{
+				delete m_TrashBuffer.at(i);
+			}
+			m_TrashBuffer.clear();
 		}
-		m_TrashBuffer.clear();
+
+		m_TrashBuffer.push_back(m_pQuad);
+		m_pQuad = nullptr;
+
+		delete m_pSlotInfo;
+		m_pSlotInfo = nullptr;
 	}
-
-	m_TrashBuffer.push_back(m_pQuad);
-	m_pQuad = nullptr;
-
-	delete m_pSlotInfo;
 }
