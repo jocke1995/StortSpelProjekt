@@ -54,10 +54,17 @@ void component::ProjectileComponent::hit(Collision* event)
 		if (event->ent2->HasComponent<component::HealthComponent>())
 		{
 			event->ent2->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
-			if (event->ent2->GetName().find("player") == std::string::npos && event->ent2->GetComponent<component::Audio3DEmitterComponent>())
+			if (event->ent2->GetName().find("enemy") != std::string::npos && event->ent2->GetComponent<component::Audio3DEmitterComponent>())
 			{
-				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
+				event->ent2->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
 				event->ent2->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
+				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
+			}
+		}
+		else if (m_pParent->HasComponent<CollisionComponent>())
+		{
+			if (m_pParent->GetComponent<component::CollisionComponent>()->GetRestitution() <= EPSILON)
+			{
 				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
 			}
 		}
@@ -74,10 +81,17 @@ void component::ProjectileComponent::hit(Collision* event)
 		if (event->ent1->HasComponent<component::HealthComponent>())
 		{
 			event->ent1->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
-			if (event->ent1->GetName().find("player") == std::string::npos && event->ent1->GetComponent<component::Audio3DEmitterComponent>())
+			if (event->ent1->GetName().find("enemy") != std::string::npos && event->ent1->GetComponent<component::Audio3DEmitterComponent>())
 			{
 				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
 				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
+				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
+			}
+		}
+		else if (m_pParent->HasComponent<CollisionComponent>())
+		{
+			if (m_pParent->GetComponent<component::CollisionComponent>()->GetRestitution() <= EPSILON)
+			{
 				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
 			}
 		}

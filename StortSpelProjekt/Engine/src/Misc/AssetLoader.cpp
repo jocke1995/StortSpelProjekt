@@ -541,6 +541,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	component::DirectionalLightComponent* dlc = nullptr;
 	component::CollisionComponent* cc = nullptr;
 	component::SkyboxComponent* sbc = nullptr;
+	component::BoundingBoxComponent* bbc = nullptr;
 	Entity* entity = nullptr;
 	if (file != NULL)
 	{
@@ -699,6 +700,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					}
 
 					mc->SetDrawFlag(combinedFlag);
+
+					bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+					bbc->Init();
+					Physics::GetInstance().AddCollisionEntity(entity);
 				}
 				else if (strcmp(toSubmit.c_str(), "Heightmap") == 0)
 				{

@@ -194,6 +194,7 @@ ModelPosition -70.0, 5.0, 1.0
 ModelMass 15.0
 ModelFriction 100.0
 ModelRestitution 1.0
+ModelGravity -400.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
 Submit Model
@@ -207,6 +208,7 @@ ModelPosition -70.0, 5.0, 5.0
 ModelMass 50.0
 ModelFriction 100.0
 ModelRestitution 1.0
+ModelGravity -400.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
 Submit Model
@@ -220,6 +222,7 @@ ModelPosition -65.0, 5.0, 3.0
 ModelMass 50.0
 ModelFriction 100.0
 ModelRestitution 1.0
+ModelGravity -400.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
 Submit Model
@@ -233,6 +236,7 @@ ModelPosition -146.0, 10.0, 25.0
 ModelMass 150.0
 ModelFriction 100.0
 ModelRestitution 1.0
+ModelGravity -400.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
 Submit Model
@@ -246,6 +250,7 @@ ModelPosition -146.0, 10.0, 32.0
 ModelMass 100.0
 ModelFriction 100.0
 ModelRestitution 1.0
+ModelGravity -400.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
 Submit Model

@@ -148,6 +148,7 @@ void component::RangeComponent::Attack()
 		double3 projectileDim = mc->GetModelDim();
 
 		cc = ent->AddComponent<component::SphereCollisionComponent>(5000.0, projectileDim.z, 1.0f, 0.0f, false);
+		cc->SetGravity(0.0f);
 
 		plc->SetColor({ 3.0f, 0.0f, 0.0f });
 
