@@ -29,6 +29,7 @@ component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scen
 	m_AttackInterval = 0.5;
 	m_TimeAccumulator = 0.0;
 	m_NrOfProjectiles = 0;
+	m_ProjectileRestitution = 0.0f;
 
 	if (parent->GetComponent<component::Audio2DVoiceComponent>())
 	{
@@ -89,6 +90,11 @@ void component::RangeComponent::ChangeDamage(int change)
 float component::RangeComponent::GetAttackInterval() const
 {
 	return m_AttackInterval;
+}
+
+void component::RangeComponent::MakeProjectileBouncy(bool bouncy)
+{
+	m_ProjectileRestitution = 0.5f * static_cast<float>(bouncy);
 }
 
 void component::RangeComponent::Attack()
@@ -202,7 +208,7 @@ void component::RangeComponent::Attack()
 		component::CollisionComponent* cc = nullptr;
 		double3 projectileDim = mc->GetModelDim();
 
-		cc = ent->AddComponent<component::SphereCollisionComponent>(5000.0, projectileDim.z, 1.0f, 0.0f, false);
+		cc = ent->AddComponent<component::SphereCollisionComponent>(5000.0, projectileDim.z, 1.0f, m_ProjectileRestitution, false);
 		cc->SetGravity(0.0f);
 
 		plc->SetColor({ 3.0f, 0.0f, 0.0f });
