@@ -7,6 +7,7 @@
 class Mesh;
 class Transform;
 class Texture2DGUI;
+class ParticleEffect;
 
 namespace component
 {
@@ -21,16 +22,15 @@ namespace component
         void OnUnInitScene();
 
         // Sets
-        void SetMesh(Mesh* mesh);
-        void SetTexture(Texture2DGUI* texture);
+        void SetParticleEffect(ParticleEffect* effect);
 
         // Gets
-        Mesh* GetMesh() const;
         Texture2DGUI* GetTexture() const;
 
     private:
-        Mesh* m_pMesh = nullptr;
-        Texture2DGUI* m_pTexture = nullptr;
+        friend class ParticleRenderTask;
+
+        ParticleEffect* m_pParticleEffect = nullptr;
     };
 }
 #endif

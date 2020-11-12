@@ -1,3 +1,4 @@
+
 #include "stdafx.h"
 #include "AssetLoader.h"
 
@@ -26,6 +27,8 @@
 #include "../Renderer/Texture/Texture2D.h"
 #include "../Renderer/Texture/Texture2DGUI.h"
 #include "../Renderer/Texture/TextureCubeMap.h"
+
+#include "../Particles/ParticleEffect.h"
 
 #include "MultiThreading/ThreadPool.h"
 #include "MultiThreading/CalculateHeightmapNormalsTask.h"
@@ -72,6 +75,16 @@ bool AssetLoader::IsTextureLoadedOnGpu(const std::wstring& name) const
 bool AssetLoader::IsTextureLoadedOnGpu(const Texture* texture) const
 {
 	return m_LoadedTextures.at(texture->GetPath()).first;
+}
+
+bool AssetLoader::IsParticleEffectLoadedOnGpu(const std::wstring& name) const
+{
+	return m_LoadedParticleEffects.at(name).first;
+}
+
+bool AssetLoader::IsParticleEffectLoadedOnGpu(const ParticleEffect* effect) const
+{
+	return m_LoadedParticleEffects.at(effect->GetName()).first;
 }
 
 void AssetLoader::loadDefaultMaterial()
@@ -125,6 +138,12 @@ AssetLoader::~AssetLoader()
 
 	// For every model
 	for (auto pair : m_LoadedModels)
+	{
+		delete pair.second.second;
+	}
+
+	// For every ParticleEffect
+	for (auto pair : m_LoadedParticleEffects)
 	{
 		delete pair.second.second;
 	}
@@ -448,6 +467,58 @@ Material* AssetLoader::LoadMaterialFromMTL(const std::wstring& path)
 	}
 
 	return mat;
+}
+
+ParticleEffect* AssetLoader::CreateParticleEffect()
+{
+	const std::wstring name = L"TESTINGPARTICLENAME";
+
+	// Check if the model already exists
+	if (m_LoadedParticleEffects.count(name) != 0)
+	{
+		return m_LoadedParticleEffects[name].second;
+	}
+
+	// Create test particleEffect
+	ParticleEffectSettings settings = {};
+	settings.particleCount = 500;
+	settings.spawnInterval = settings.startValues.lifetime/settings.particleCount;
+
+	// Need to fix EngineRand.rand() for negative values
+	//RandomParameter3 randParam0 = { -35, 35, -35, 35, -35, 35 };
+	RandomParameter3 randParam0 = { 1, 35, 1, 35, 1, 35 };
+	RandomParameter3 randParam1 = { 0, 20, 0, 20, 0, 20 };
+	randParam1.y = {20, 100};
+	RandomParameter randParam2 = { 2, 20 };
+
+	settings.randPosition = randParam0;
+	settings.randVelocity = randParam1;
+	settings.randSize = randParam2;
+	ParticleEffect* effect = new ParticleEffect(name, m_pDescriptorHeap_CBV_UAV_SRV, nullptr, &settings);
+
+	m_LoadedParticleEffects[name] = std::pair(false, effect);
+
+	return m_LoadedParticleEffects[name].second;
+}
+
+ParticleEffect* AssetLoader::CreateParticleEffect2()
+{
+	const std::wstring name = L"TESTINGPARTICLENAME2";
+
+	// Check if the model already exists
+	if (m_LoadedParticleEffects.count(name) != 0)
+	{
+		return m_LoadedParticleEffects[name].second;
+	}
+
+	Texture* tex = LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png");
+	// Create test particleEffect
+	ParticleEffectSettings settings = {};
+	ParticleEffect* effect = new ParticleEffect(name, m_pDescriptorHeap_CBV_UAV_SRV, static_cast<Texture2DGUI*>(tex), &settings);
+
+	m_LoadedParticleEffects[name] = std::pair(false, effect);
+
+	return m_LoadedParticleEffects[name].second;
 }
 
 Font* AssetLoader::LoadFontFromFile(const std::wstring& fontName)

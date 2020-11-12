@@ -2,6 +2,7 @@
 #define PARTICLESYSTEM_H
 
 class ParticleEffect;
+class DescriptorHeap;
 
 namespace component
 {
@@ -16,12 +17,16 @@ public:
 
 	void Update(double dt);
 
-	void OnResetScene(); // Kanske
+	void SetParticleEffect(ParticleEffect* effect);
+
+	void OnResetScene(); // Kanske, Jocke?
 
 private:
 	ParticleSystem();
 
-	ParticleEffect* effect;
+	// Temp code todo: vector of effectComponents. component::init() pushes in.
+	ParticleEffect* m_pEffect = nullptr;
+
 };
 
 #endif

@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "ParticleSystem.h"
 
+#include "../Renderer/Renderer.h"
+#include "../Renderer/DX12Tasks/DX12Task.h"
+#include "../Renderer/DescriptorHeap.h"
+
 // Component
 #include "../ECS/Components/ParticleEmitterComponent.h"
 
@@ -15,17 +19,26 @@ ParticleSystem& ParticleSystem::GetInstance()
 
 ParticleSystem::ParticleSystem()
 {
-	effect = new ParticleEffect();
+	Renderer& renderer = Renderer::GetInstance();
 }
 
 ParticleSystem::~ParticleSystem()
 {
-	delete effect;
 }
 
 void ParticleSystem::Update(double dt)
 {
-	effect->Update(dt);
+	if (m_pEffect != nullptr)
+	{
+		//for(ParticleEffect& particleEffect : )
+		m_pEffect->Update(dt);
+		m_pEffect->updateResourceData();
+	}
+}
+
+void ParticleSystem::SetParticleEffect(ParticleEffect* effect)
+{
+	m_pEffect = effect;
 }
 
 void ParticleSystem::OnResetScene()
