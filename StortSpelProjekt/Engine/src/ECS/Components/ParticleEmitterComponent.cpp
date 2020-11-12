@@ -14,7 +14,7 @@
 #include "../ECS/Entity.h"
 
 component::ParticleEmitterComponent::ParticleEmitterComponent(Entity* parent, Texture2DGUI* texture, ParticleEffectSettings* settings, bool playOnInit)
-	:Component(parent), m_PlayOnInit(playOnInit), m_pParticleEffect(Renderer::GetInstance().getCBVSRVUAVdHeap(), texture, settings)
+	:Component(parent), m_PlayOnInit(playOnInit), m_ParticleEffect(Renderer::GetInstance().getCBVSRVUAVdHeap(), texture, settings)
 {
 }
 
@@ -46,7 +46,7 @@ void component::ParticleEmitterComponent::OnUnInitScene()
 
 void component::ParticleEmitterComponent::Clear()
 {
-	m_pParticleEffect;
+	m_ParticleEffect;
 }
 
 void component::ParticleEmitterComponent::Play()
@@ -55,7 +55,7 @@ void component::ParticleEmitterComponent::Play()
 	{
 		return;
 	}
-	ParticleSystem::GetInstance().ActivateParticleEffect(&m_pParticleEffect);
+	ParticleSystem::GetInstance().ActivateParticleEffect(&m_ParticleEffect);
 	m_IsPlaying = true;
 }
 
@@ -65,7 +65,7 @@ void component::ParticleEmitterComponent::Stop()
 	{
 		return;
 	}
-	ParticleSystem::GetInstance().DeactivateParticleEffect(&m_pParticleEffect);
+	ParticleSystem::GetInstance().DeactivateParticleEffect(&m_ParticleEffect);
 	m_IsPlaying = false;
 }
 
@@ -76,5 +76,5 @@ bool component::ParticleEmitterComponent::IsPlaying() const
 
 const ParticleEffect* component::ParticleEmitterComponent::GetParticleEffect() const
 {
-	return &m_pParticleEffect;
+	return &m_ParticleEffect;
 }

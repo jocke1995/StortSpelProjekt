@@ -34,7 +34,7 @@ namespace component
     private:
         friend class ParticleRenderTask;
 
-        ParticleEffect m_pParticleEffect;
+        ParticleEffect m_ParticleEffect;
         bool m_PlayOnInit;
         
         bool m_IsPlaying = false;
