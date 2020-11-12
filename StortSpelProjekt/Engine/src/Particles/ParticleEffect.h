@@ -2,7 +2,7 @@
 #define PARTICLEEFFECT_H
 
 #define PARTICLE_EFFECT_DEFAULT_SIZE 100
-#define PARTICLESYSTEM_RENDER_DEAD_PARTICLES 0;
+#define PARTICLESYSTEM_RENDER_DEAD_PARTICLES 1;
 
 #include <vector>
 
@@ -90,7 +90,7 @@ private:
 	ShaderResourceView* m_pSRV = nullptr;
 
 
-	void spawnParticle();
+	bool spawnParticle();
 
 	void init(DescriptorHeap* descriptorHeap);
 	

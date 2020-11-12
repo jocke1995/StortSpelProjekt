@@ -38,11 +38,11 @@ void ParticleEffect::Update(double dt)
 	m_TimeSinceSpawn += dt;
 	
 	// spawn particles
-	if (m_TimeSinceSpawn >= m_Settings.spawnInterval)
+	while (m_TimeSinceSpawn >= m_Settings.spawnInterval)
 	{
 		spawnParticle();
 
-		m_TimeSinceSpawn = 0;
+		m_TimeSinceSpawn -= m_Settings.spawnInterval;
 	}
 
 	// Update all particles
@@ -66,7 +66,7 @@ Texture2DGUI* ParticleEffect::GetTexture() const
 	return m_pTexture;
 }
 
-void ParticleEffect::spawnParticle()
+bool ParticleEffect::spawnParticle()
 {
 	// m_ParticleIndex is always at the oldest particle first
 	Particle& particle = m_Particles.at(m_ParticleIndex);
@@ -74,7 +74,7 @@ void ParticleEffect::spawnParticle()
 	// If particle is alive, wait (don't spawn yet / continue)
 	if (particle.IsAlive())
 	{
-		return;
+		return false;
 	}
 
 	// Update ParticleIndex
@@ -82,6 +82,8 @@ void ParticleEffect::spawnParticle()
 
 	// "Spawn"
 	initParticle(particle);
+
+	return true;
 }
 
 void ParticleEffect::init(DescriptorHeap* descriptorHeap)
@@ -123,10 +125,10 @@ void ParticleEffect::init(DescriptorHeap* descriptorHeap)
 	m_pSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &srvDesc, m_pDefaultResource);
 
 
-	m_Particles.reserve(m_Settings.particleCount);
-	m_ParticlesData.resize(m_Settings.particleCount);
+	
 
-	m_Particles = std::vector<Particle>(m_Settings.particleCount);
+	m_Particles.resize(m_Settings.particleCount);
+	m_ParticlesData.resize(m_Settings.particleCount);
 }
 
 void ParticleEffect::initParticle(Particle& particle)

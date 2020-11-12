@@ -481,7 +481,8 @@ ParticleEffect* AssetLoader::CreateParticleEffect()
 
 	// Create test particleEffect
 	ParticleEffectSettings settings = {};
-	settings.particleCount = 500;
+	settings.particleCount = 10000;
+	settings.startValues.lifetime = 2;
 	settings.spawnInterval = settings.startValues.lifetime/settings.particleCount;
 
 	// Need to fix EngineRand.rand() for negative values
@@ -489,7 +490,7 @@ ParticleEffect* AssetLoader::CreateParticleEffect()
 	RandomParameter3 randParam0 = { 1, 35, 1, 35, 1, 35 };
 	RandomParameter3 randParam1 = { 0, 20, 0, 20, 0, 20 };
 	randParam1.y = {20, 100};
-	RandomParameter randParam2 = { 2, 20 };
+	RandomParameter randParam2 = { 2, 7 };
 
 	settings.randPosition = randParam0;
 	settings.randVelocity = randParam1;
