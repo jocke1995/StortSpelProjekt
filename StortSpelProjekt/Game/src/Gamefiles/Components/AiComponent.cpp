@@ -9,42 +9,48 @@
 
 component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int flags, float detectionRadius, float attackingDistance) : Component(parent)
 {
-	m_pTarget = target;
-	m_Targets.push_back(target);
-	m_DetectionRadius = detectionRadius;
-	m_AttackingDistance = attackingDistance;
-	m_Flags = flags;
 	m_CanJump = false;
-	m_AttackInterval = 0.5;
-	m_AttackSpeed = 0.1;
-	m_IntervalTimeAccumulator = 0.0;
-	m_SpeedTimeAccumulator = 0.0;
-	m_MeleeAttackDmg = 10;
-	m_pScene = nullptr;
-	m_pNavMesh = nullptr;
-	m_pQuads = nullptr;
-	m_pTriangles = nullptr;
-	m_pCurrentQuad = nullptr;
-	m_pCurrentTriangle = nullptr;
-	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
-	m_GoalPos = m_pTarget->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
-	m_pStartQuad = nullptr;
-	m_pGoalQuad = nullptr;
-	m_pNextQuad = nullptr;
-	m_pStartTriangle = nullptr;
-	m_pGoalTriangle = nullptr;
-	m_pNextTriangle = nullptr;
-	m_LastPos = m_StartPos;
-	m_NextTargetPos = m_StartPos;
 	m_PathFound = false;
 	m_IsRanged = false;		// default melee
 	m_StandStill = false;
-	m_MovementVelocity = 0.0;
+
+	m_Flags = flags;
+
+	m_DetectionRadius = detectionRadius;
+	m_AttackingDistance = attackingDistance;
+	m_MeleeAttackDmg = 10.0f;
+	m_AttackInterval = 0.5f;
+	m_AttackSpeed = 0.1f;
+	m_IntervalTimeAccumulator = 0.0f;
+	m_SpeedTimeAccumulator = 0.0f;
+	m_DistancePath = 0.0f;
+	m_MovementVelocity = 0.0f;
+	m_DistanceToPlayer = 0.0f;
+	m_KnockBackTimer = 0.5f;
+
+	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+	m_GoalPos = target->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+	m_NextTargetPos = m_StartPos;
+	m_LastPos = m_StartPos;
+	m_DirectionPath = { 0.0f, 0.0f, 0.0f };
+
+	m_Targets.push_back(target);
+
+	m_pTarget = target;
+	m_pScene = nullptr;
+	m_pNavMesh = nullptr;
+	m_pCurrentQuad = nullptr;
+	m_pStartQuad = nullptr;
+	m_pGoalQuad = nullptr;
+	m_pNextQuad = nullptr;
+	m_pCurrentTriangle = nullptr;
+	m_pStartTriangle = nullptr;
+	m_pGoalTriangle = nullptr;
+	m_pNextTriangle = nullptr;
+	m_pQuads = nullptr;
+	m_pTriangles = nullptr;
 	m_pTargetTrans = nullptr;
 	m_pParentTrans = nullptr;
-	m_DirectionPath = { 0, 0, 0 };
-	m_DistancePath = 0;
-	m_DistanceToPlayer = 0;
 }
 
 component::AiComponent::~AiComponent()
@@ -84,16 +90,17 @@ void component::AiComponent::Update(double dt)
 {
 	if (m_pParent->GetComponent<component::HealthComponent>()->GetHealth() > 0)
 	{
+		m_KnockBackTimer += dt;
 		pathFinding();
 
 		m_DistanceToPlayer = (m_pTargetTrans->GetPositionFloat3() - m_pParentTrans->GetPositionFloat3()).length();
 		m_IntervalTimeAccumulator += static_cast<float>(dt);
 
-		if (!m_IsRanged)
+		if (!m_IsRanged && m_KnockBackTimer >= 0.5f)
 		{
 			updateMelee(dt);
 		}
-		else
+		else if (m_KnockBackTimer >= 0.5f)
 		{
 			updateRange(dt);
 		}
@@ -163,6 +170,17 @@ void component::AiComponent::SetRangedAI()
 		SetAttackSpeed(m_AttackSpeed);
 	}
 	m_MovementVelocity = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetVelocity();
+}
+
+void component::AiComponent::KnockBack(const Transform& attackTransform, float knockback)
+{
+	float3 attackPos = attackTransform.GetPositionFloat3();
+	float3 enemyPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+	float3 direction = enemyPos - attackPos;
+	direction.normalize();
+	m_pParentTrans->SetMovement(0.0f, 0.0f, 0.0f);
+	m_pParent->GetComponent<component::CollisionComponent>()->SetVelVector(direction.x * knockback, 20.0, direction.z * knockback);
+	m_KnockBackTimer = 0.0f;
 }
 
 float3 component::AiComponent::setAimDirection()

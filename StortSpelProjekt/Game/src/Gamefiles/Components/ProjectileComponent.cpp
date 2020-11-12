@@ -19,7 +19,6 @@ component::ProjectileComponent::ProjectileComponent(Entity* parent, int damage, 
 
 component::ProjectileComponent::~ProjectileComponent()
 {
-
 }
 
 void component::ProjectileComponent::Update(double dt)
@@ -67,6 +66,13 @@ void component::ProjectileComponent::hit(Collision* event)
 				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
 			}
 		}
+		else if (m_pParent->HasComponent<CollisionComponent>())
+		{
+			if (m_pParent->GetComponent<component::CollisionComponent>()->GetRestitution() <= EPSILON)
+			{
+				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
+			}
+		}
 		// Call on upgrade on hit functions
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
@@ -84,6 +90,13 @@ void component::ProjectileComponent::hit(Collision* event)
 			{
 				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"DemonGotHit1");
 				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->Play(L"DemonGotHit1");
+				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
+			}
+		}
+		else if (m_pParent->HasComponent<CollisionComponent>())
+		{
+			if (m_pParent->GetComponent<component::CollisionComponent>()->GetRestitution() <= EPSILON)
+			{
 				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
 			}
 		}

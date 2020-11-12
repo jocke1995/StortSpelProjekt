@@ -64,7 +64,39 @@ namespace component
 		void SetMeleeAttackDmg(float dmg);
 		void SetRangedAI();
 
+		void KnockBack(const Transform& attackTransform, float knockback);
+
 	private:
+		bool m_CanJump;
+		bool m_PathFound;
+		bool m_IsRanged;
+		bool m_StandStill;
+
+		unsigned int m_Flags;
+
+		float m_DetectionRadius;
+		float m_AttackingDistance;
+		float m_MeleeAttackDmg;
+		float m_AttackInterval;
+		float m_AttackSpeed;
+		float m_IntervalTimeAccumulator;
+		float m_SpeedTimeAccumulator;
+		float m_DistancePath;
+		float m_MovementVelocity;
+		float m_DistanceToPlayer;
+		float m_KnockBackTimer;
+
+		float3 m_StartPos;
+		float3 m_GoalPos;
+		float3 m_NextTargetPos;
+		float3 m_LastPos;
+		float3 m_DirectionPath;
+
+		std::vector<int> m_OpenList;
+		std::vector<float3> m_Path;
+		std::vector<float3> m_NextPath;
+		std::vector<Entity*> m_Targets;
+
 		Entity* m_pTarget;
 		Scene* m_pScene;
 		NavMesh* m_pNavMesh;
@@ -78,30 +110,6 @@ namespace component
 		NavTriangle* m_pNextTriangle;
 		PathQuad** m_pQuads;
 		PathTriangle** m_pTriangles;
-		std::vector<Entity*> m_Targets;
-		std::vector<float3> m_Path;
-		std::vector<float3> m_NextPath;
-		std::vector<int> m_OpenList;
-		float3 m_StartPos;
-		float3 m_GoalPos;
-		float3 m_NextTargetPos;
-		float3 m_LastPos;
-		float m_DetectionRadius;
-		float m_AttackingDistance;
-		float m_MeleeAttackDmg;
-		unsigned int m_Flags;
-		bool m_CanJump;
-		float m_AttackInterval;
-		float m_AttackSpeed;
-		float m_IntervalTimeAccumulator;
-		float m_SpeedTimeAccumulator;
-		bool m_PathFound;
-		float3 m_DirectionPath;
-		float m_DistancePath;
-		bool m_IsRanged;
-		bool m_StandStill;
-		float m_MovementVelocity;
-		float m_DistanceToPlayer;
 		Transform* m_pTargetTrans;
 		Transform* m_pParentTrans;
 
