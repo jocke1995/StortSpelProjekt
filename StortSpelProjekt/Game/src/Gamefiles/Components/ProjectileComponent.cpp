@@ -45,6 +45,11 @@ int component::ProjectileComponent::GetDamage() const
 	return m_Damage;
 }
 
+int component::ProjectileComponent::GetTimeToLive() const
+{
+	return m_TimeToLive;
+}
+
 void component::ProjectileComponent::hit(Collision* event)
 {
 	// if we are the one that collided then make 

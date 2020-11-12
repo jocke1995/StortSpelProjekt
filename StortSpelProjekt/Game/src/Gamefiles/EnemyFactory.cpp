@@ -20,6 +20,7 @@ EnemyFactory::EnemyFactory()
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::levelDone);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onRoundStart);
+	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onResetGame);
 }
 
 EnemyFactory::EnemyFactory(Scene* scene)
@@ -478,4 +479,9 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
 	}
 	++m_Level;
+}
+
+void EnemyFactory::onResetGame(ResetGame* evnt)
+{
+	m_Level = 0;
 }

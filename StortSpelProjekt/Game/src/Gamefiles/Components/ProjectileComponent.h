@@ -19,6 +19,7 @@ namespace component
 		void OnUnInitScene();
 
 		int GetDamage() const;
+		int GetTimeToLive() const;
 
 	private:
 		int m_Damage;
