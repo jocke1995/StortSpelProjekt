@@ -53,8 +53,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
     //Scene* activeScene = jacobScene;
-    Scene* leoScene = LeosTestScene(sceneManager);
-    Scene* activeScene = leoScene;
+    //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -69,11 +69,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = antonScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* activeScene = andresScene;
-    //Scene* filipScene = FloppipTestScene(sceneManager);
-    //Scene* activeScene = filipScene;
+    Scene* filipScene = FloppipTestScene(sceneManager);
+    Scene* activeScene = filipScene;
 
     // Set scene
     sceneManager->SetScene(activeScene);
+
 
     GameNetwork gameNetwork;
 
@@ -755,9 +756,17 @@ Scene* FloppipTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
+
     /* ---------------------- Player ---------------------- */
 
+    ParticleEffect* pEffect = al->CreateParticleEffect();
     pe = entity->AddComponent<component::ParticleEmitterComponent>();
+    pe->SetParticleEffect(pEffect);
+
+    // Wont work yet cause ParticleSystem only holds 1 particleeffect.
+    //ParticleEffect* ppEffect = al->CreateParticleEffect2();
+    //pe = entity->AddComponent<component::ParticleEmitterComponent>();
+    //pe->SetParticleEffect(ppEffect);
 
     /* ---------------------- Skybox ---------------------- */
 
@@ -780,7 +789,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 30.0f);
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /* ---------------------- Floor ---------------------- */
 
     

@@ -78,6 +78,7 @@ namespace component
 	class DirectionalLightComponent;
 	class PointLightComponent;
 	class SpotLightComponent;
+	class ParticleEmitterComponent;
 
 }
 
@@ -117,6 +118,7 @@ public:
 	void InitCameraComponent(component::CameraComponent* component);
 	void InitBoundingBoxComponent(component::BoundingBoxComponent* component);
 	void InitGUI2DComponent(component::GUI2DComponent* component);
+	void InitParticleEmitterComponent(component::ParticleEmitterComponent* component);
 
 	void UnInitSkyboxComponent(component::SkyboxComponent* component);
 	void UnInitModelComponent(component::ModelComponent* component);
@@ -126,6 +128,7 @@ public:
 	void UnInitCameraComponent(component::CameraComponent* component);
 	void UnInitBoundingBoxComponent(component::BoundingBoxComponent* component);
 	void UnInitGUI2DComponent(component::GUI2DComponent* component);
+	void UnInitParticleEmitterComponent(component::ParticleEmitterComponent* component);
 
 	void OnResetScene();
 
@@ -136,6 +139,8 @@ private:
 	friend class SceneManager;
 	friend class TextManager;
 	friend class QuadManager;
+	friend class ParticleSystem;
+	friend class ParticleEffect;
 	Renderer();
 	// For control of safe release of DirectX resources
 	void deleteRenderer();
@@ -195,6 +200,7 @@ private:
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::GUI2DComponent*> m_TextComponents;
 	std::vector<component::GUI2DComponent*> m_QuadComponents;
+	std::vector<component::ParticleEmitterComponent*> m_ParticleEmitterComponents;
 	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
