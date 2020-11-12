@@ -45,6 +45,8 @@ public:
 	// Get upgrade image
 	Texture* GetUpgradeImage(std::string* name);
 
+	// Resets the inventory of the shop.
+	void Reset();
 
 private:
 	void upgradePressed(ButtonPressed* evnt);

@@ -19,7 +19,7 @@ void PlayerProjectileCollisionCategory::Collide(CollisionCategory* other)
 
 void PlayerProjectileCollisionCategory::Collide(PlayerCollisionCategory* other)
 {
-	Log::Print("A projectile Collided with player, no collisionevent sent!\n");
+	//Log::Print("A projectile Collided with player, no collisionevent sent!\n");
 	//EventBus::GetInstance().Publish(&Collision(m_pParent, other->GetParent()));
 }
 
