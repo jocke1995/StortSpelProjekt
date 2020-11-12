@@ -139,7 +139,7 @@ Scene* GameScene(SceneManager* sm)
 
     Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
 
-    AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/Demon_GotHit_1.wav", L"DemonGotHit1");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
 
@@ -220,8 +220,6 @@ Scene* GameScene(SceneManager* sm)
     pic->SetJumpHeight(6.0);
 	pic->SetMovementSpeed(70.0);
 
-    avc->AddVoice(L"Bruh");
-
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
     Physics::GetInstance().AddCollisionEntity(entity);;
@@ -246,7 +244,7 @@ Scene* GameScene(SceneManager* sm)
 	EnemyComps zombie = {};
 	zombie.model = enemyModel;
 	zombie.hp = 30;
-	zombie.sound3D = L"Bruh";
+	zombie.sound3D = L"DemonGotHit1";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
 	zombie.meleeAttackDmg = 5.0f;
@@ -262,7 +260,7 @@ Scene* GameScene(SceneManager* sm)
     EnemyComps rangedDemon = {};
     rangedDemon.model = enemyDemonModel;
     rangedDemon.hp = 30;
-    rangedDemon.sound3D = L"Bruh";
+    rangedDemon.sound3D = L"DemonGotHit1";
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = 0;
     rangedDemon.attackInterval = 1.5f;
