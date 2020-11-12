@@ -62,7 +62,7 @@ void component::ProjectileComponent::hit(Collision* event)
 			event->ent2->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 			if (event->ent2->GetName().find("enemy") != std::string::npos && event->ent2->GetComponent<component::Audio3DEmitterComponent>())
 			{
-				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"DemonGotHit1");
+				event->ent2->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"DemonGotHit1");
 				event->ent2->GetComponent<component::Audio3DEmitterComponent>()->Play(L"DemonGotHit1");
 				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
 			}
