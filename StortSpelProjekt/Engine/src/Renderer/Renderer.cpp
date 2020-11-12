@@ -714,16 +714,20 @@ void Renderer::InitBoundingBoxComponent(component::BoundingBoxComponent* compone
 	{
 		for (unsigned int i = 0; i < component->GetNumBoundingBoxes(); i++)
 		{
-			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(component->GetPathOfModel(i));
-			if (m == nullptr)
+			auto[mesh, toBeSubmitted] = BoundingBoxPool::Get()->CreateBoundingBoxMesh(component->GetPathOfModel(i));
+
+			if (mesh == nullptr)
 			{
 				Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", component->GetParent()->GetName().c_str());
 				return;
 			}
 
-			submitMeshToCodt(m);
+			if (toBeSubmitted == true)
+			{
+				submitMeshToCodt(mesh);
+			}
 
-			component->AddMesh(m);
+			component->AddMesh(mesh);
 		}
 		static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(component);
 	}

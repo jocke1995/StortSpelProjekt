@@ -51,14 +51,12 @@ Mesh::~Mesh()
 
 void Mesh::Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_heap)
 {
-	std::string temp = to_string(m_Path);
-	temp = temp.substr(temp.find_last_of("/\\") + 1);
-	std::wstring uploadResource  = L"VERTEX_UPLOAD_RESOURCE_" + to_wstring(temp);
-	std::wstring defaultResource = L"VERTEX_DEFAULT_RESOURCE_" + to_wstring(temp);
+	std::string modelPathName = to_string(m_Path);
+	modelPathName = modelPathName.substr(modelPathName.find_last_of("/\\") + 1);
 
 	// create vertices resource
-	m_pUploadResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, uploadResource);
-	m_pDefaultResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, defaultResource);
+	m_pUploadResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"VERTEX_UPLOAD_RESOURCE_" + to_wstring(modelPathName));
+	m_pDefaultResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"VERTEX_DEFAULT_RESOURCE_" + to_wstring(modelPathName));
 
 	// Create SRV
 	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
@@ -77,8 +75,8 @@ void Mesh::Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_heap)
 		m_pDefaultResourceVertices);
 
 	// Set indices resource
-	m_pUploadResourceIndices = new Resource(m_pDevice5, GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
-	m_pDefaultResourceIndices = new Resource(m_pDevice5, GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
+	m_pUploadResourceIndices = new Resource(m_pDevice5, GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"INDEX_UPLOAD_RESOURCE_" + to_wstring(modelPathName));
+	m_pDefaultResourceIndices = new Resource(m_pDevice5, GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"INDEX_DEFAULT_RESOURCE_" + to_wstring(modelPathName));
 
 	// Set indexBufferView
 	m_pIndexBufferView = new D3D12_INDEX_BUFFER_VIEW();
