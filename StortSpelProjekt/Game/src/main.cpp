@@ -12,6 +12,7 @@
 #include "Components/CurrencyComponent.h"
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
+#include "UpgradeGUI.h"
 
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
@@ -61,6 +62,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     sceneManager->SetGameOverScene(gameOverScene);
     GameNetwork gameNetwork;
 
+    /*-------- UpgradeGUI ---------*/
+    UpgradeGUI::GetInstance().Init();
+
     /*------ Network Init -----*/
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
@@ -95,6 +99,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
             gameGUI.Update(updateRate, sceneManager->GetActiveScene());
+            UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
 
         /* ---- Network ---- */
@@ -446,7 +451,7 @@ Scene* GameScene(SceneManager* sm)
 		killedEnemiesHolderTexture
 	);
 
-    /* --------------------------- GUI ------------------------------- */
+    /* ------------------------ GUI END ---------------------------- */
 
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);

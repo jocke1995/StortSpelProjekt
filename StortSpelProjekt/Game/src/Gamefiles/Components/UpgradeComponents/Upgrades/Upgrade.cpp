@@ -95,6 +95,11 @@ void Upgrade::IncreaseLevel()
 {
 }
 
+void Upgrade::IncreaseLevelOnly()
+{
+	m_Level++;
+}
+
 void Upgrade::OnHit()
 {
 }
