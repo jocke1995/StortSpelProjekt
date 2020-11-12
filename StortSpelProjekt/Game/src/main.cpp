@@ -94,7 +94,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         particleSystem->Update(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
-            logicTimer = 0;
+            if (logicTimer >= 0.5)
+            {
+                logicTimer = 0;
+            }
+            else
+            {
+                logicTimer -= updateRate;
+            }
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
@@ -245,11 +252,11 @@ Scene* GameScene(SceneManager* sm)
     // melee
 	EnemyComps zombie = {};
 	zombie.model = enemyModel;
-	zombie.hp = 30;
+	zombie.hp = 20;
 	zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
-	zombie.meleeAttackDmg = 5.0f;
+	zombie.meleeAttackDmg = 4.0f;
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
 	zombie.movementSpeed = 15.0f;
