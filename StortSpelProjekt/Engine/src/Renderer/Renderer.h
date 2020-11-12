@@ -136,6 +136,7 @@ private:
 	friend class Engine;
 	friend class component::SkyboxComponent;
 	friend class component::GUI2DComponent;
+	friend class component::ParticleEmitterComponent;
 	friend class SceneManager;
 	friend class TextManager;
 	friend class QuadManager;
@@ -150,6 +151,12 @@ private:
 	void submitModelToGPU(Model* model);
 	void submitMeshToCodt(Mesh* mesh);
 	void submitTextureToCodt(Texture* texture);
+
+	//SubmitToCpft functions
+	void submitToCpft(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
+	void clearSpecificCpft(Resource* upload);
+
+	DescriptorHeap* getCBVSRVUAVdHeap() const;
 
 	ThreadPool* m_pThreadPool = nullptr;
 

@@ -4,33 +4,40 @@
 #include "Component.h"
 #include "structs.h"
 
+#include "../Particles/ParticleEffect.h"
+
 class Mesh;
 class Transform;
 class Texture2DGUI;
-class ParticleEffect;
 
 namespace component
 {
     class ParticleEmitterComponent : public Component
     {
     public:
-        ParticleEmitterComponent(Entity* parent);
+        ParticleEmitterComponent(Entity* parent, Texture2DGUI* texture, ParticleEffectSettings* settings, bool playOnInit = false);
         virtual ~ParticleEmitterComponent();
 
         void RenderUpdate(double dt);
         void OnInitScene();
         void OnUnInitScene();
 
-        // Sets
-        void SetParticleEffect(ParticleEffect* effect);
+        // Reset ParticleEffect
+        void Clear();
+        void Play();
+        void Stop();
+        bool IsPlaying() const;
 
         // Gets
-        Texture2DGUI* GetTexture() const;
+        const ParticleEffect* GetParticleEffect() const;
 
     private:
         friend class ParticleRenderTask;
 
-        ParticleEffect* m_pParticleEffect = nullptr;
+        ParticleEffect m_ParticleEffect;
+        bool m_PlayOnInit;
+        
+        bool m_IsPlaying = false;
     };
 }
 #endif

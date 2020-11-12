@@ -11,6 +11,9 @@
 // Particle Stuff
 #include "ParticleEffect.h"
 
+// For sort
+#include "../Renderer/Camera/BaseCamera.h"
+
 ParticleSystem& ParticleSystem::GetInstance()
 {
 	static ParticleSystem instance;
@@ -20,6 +23,7 @@ ParticleSystem& ParticleSystem::GetInstance()
 ParticleSystem::ParticleSystem()
 {
 	Renderer& renderer = Renderer::GetInstance();
+	m_ActiveParticleEffects.reserve(50);
 }
 
 ParticleSystem::~ParticleSystem()
@@ -28,19 +32,33 @@ ParticleSystem::~ParticleSystem()
 
 void ParticleSystem::Update(double dt)
 {
-	if (m_pEffect != nullptr)
+	Renderer& renderer = Renderer::GetInstance();
+	for(ParticleEffect* effect : m_ActiveParticleEffects)
 	{
 		//for(ParticleEffect& particleEffect : )
-		m_pEffect->Update(dt);
-		m_pEffect->updateResourceData();
+		effect->Update(dt);
+		effect->updateResourceData(renderer.m_pScenePrimaryCamera->GetPositionFloat3());
 	}
 }
 
-void ParticleSystem::SetParticleEffect(ParticleEffect* effect)
+void ParticleSystem::ActivateParticleEffect(ParticleEffect* effect)
 {
-	m_pEffect = effect;
+	m_ActiveParticleEffects.insert(effect);
+
+	// Add to COPY_PER_FRAME
+	Renderer& renderer = Renderer::GetInstance();
+	
+	const void* pData = effect->m_ParticlesData.data();
+	renderer.submitToCpft(&std::tuple(effect->m_pUploadResource, effect->m_pDefaultResource, pData));
 }
 
-void ParticleSystem::OnResetScene()
+void ParticleSystem::DeactivateParticleEffect(ParticleEffect* effect)
 {
+	m_ActiveParticleEffects.erase(effect);
+
+	// remove from COPY_PER_FRAME
+	Renderer& renderer = Renderer::GetInstance();
+
+	const void* pData = effect->m_ParticlesData.data();
+	renderer.clearSpecificCpft(effect->m_pUploadResource);
 }
