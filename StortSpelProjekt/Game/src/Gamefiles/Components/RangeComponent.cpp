@@ -45,7 +45,7 @@ component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scen
 
 component::RangeComponent::~RangeComponent()
 {
-
+	
 }
 
 void component::RangeComponent::OnInitScene()
@@ -101,13 +101,11 @@ void component::RangeComponent::Attack()
 		component::BoundingBoxComponent* bbc = nullptr;
 		component::ProjectileComponent* pc = nullptr;
 		component::UpgradeComponent* uc = nullptr;
-		component::AccelerationComponent* ac = nullptr;
 		component::PointLightComponent* plc = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
-		ac = ent->AddComponent<component::AccelerationComponent>(98.2);
 		uc = ent->AddComponent<component::UpgradeComponent>();
 		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
@@ -189,7 +187,6 @@ void component::RangeComponent::Attack()
 		mc->SetModel(m_pModel);
 		mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 		tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
-		tc->GetTransform()->SetMovement(hitDir.x * m_Velocity, hitDir.y * m_Velocity, hitDir.z * m_Velocity);
 		tc->GetTransform()->SetScale(m_Scale);
 		tc->GetTransform()->SetVelocity(m_Velocity);
 		tc->Update(0.02);
@@ -202,15 +199,25 @@ void component::RangeComponent::Attack()
 			m_pVoiceComponent->Play(L"Fireball");
 		}
 
+		component::CollisionComponent* cc = nullptr;
+		double3 projectileDim = mc->GetModelDim();
+
+		cc = ent->AddComponent<component::SphereCollisionComponent>(5000.0, projectileDim.z, 1.0f, 0.0f, false);
+		cc->SetGravity(0.0f);
+
 		plc->SetColor({ 3.0f, 0.0f, 0.0f });
-		ent->Update(0);	// Init, so that the light doesn't spawn in origo first frame;
-		tc->RenderUpdate(0);
 
 		// add the entity to the sceneManager so it can be spawned in in run time
 		ent->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
 		m_pSceneMan->AddEntity(ent, m_pScene);
-
+		ent->Update(0);	// Init, so that the light doesn't spawn in origo first frame;
+		tc->RenderUpdate(0);
 		m_TimeAccumulator = 0.0;
+
+		hitDir.normalize();
+		hitDir *= m_Velocity;
+
+		cc->SetVelVector(hitDir.x, hitDir.y, hitDir.z);
 
 		// Makes player turn in direction of camera to attack
 		double angle = std::atan2(forward.x, forward.z);
