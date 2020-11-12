@@ -214,7 +214,10 @@ void component::RangeComponent::Attack()
 		tc->RenderUpdate(0);
 		m_TimeAccumulator = 0.0;
 
-		cc->SetVelVector(hitDir.x * m_Velocity, hitDir.y * m_Velocity, hitDir.z * m_Velocity);
+		hitDir.normalize();
+		hitDir *= m_Velocity;
+
+		cc->SetVelVector(hitDir.x, hitDir.y, hitDir.z);
 
 		// Makes player turn in direction of camera to attack
 		double angle = std::atan2(forward.x, forward.z);
