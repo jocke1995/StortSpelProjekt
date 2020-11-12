@@ -14,12 +14,13 @@
 #include "../Renderer/Model.h"
 #include "../Renderer/Mesh.h"
 
+#include <algorithm>
+
 EngineRand ParticleEffect::rand = {};
 
 
-ParticleEffect::ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings)
+ParticleEffect::ParticleEffect(DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings)
 {
-	m_Name = name;
 	m_pTexture = texture;
 	m_Settings = *settings;
 
@@ -38,11 +39,11 @@ void ParticleEffect::Update(double dt)
 	m_TimeSinceSpawn += dt;
 	
 	// spawn particles
-	if (m_TimeSinceSpawn >= m_Settings.spawnInterval)
+	while (m_TimeSinceSpawn >= m_Settings.spawnInterval)
 	{
 		spawnParticle();
 
-		m_TimeSinceSpawn = 0;
+		m_TimeSinceSpawn -= m_Settings.spawnInterval;
 	}
 
 	// Update all particles
@@ -56,17 +57,12 @@ void ParticleEffect::Update(double dt)
 	}
 }
 
-const std::wstring& ParticleEffect::GetName() const
-{
-	return m_Name;
-}
-
 Texture2DGUI* ParticleEffect::GetTexture() const
 {
 	return m_pTexture;
 }
 
-void ParticleEffect::spawnParticle()
+bool ParticleEffect::spawnParticle()
 {
 	// m_ParticleIndex is always at the oldest particle first
 	Particle& particle = m_Particles.at(m_ParticleIndex);
@@ -74,7 +70,7 @@ void ParticleEffect::spawnParticle()
 	// If particle is alive, wait (don't spawn yet / continue)
 	if (particle.IsAlive())
 	{
-		return;
+		return false;
 	}
 
 	// Update ParticleIndex
@@ -82,6 +78,8 @@ void ParticleEffect::spawnParticle()
 
 	// "Spawn"
 	initParticle(particle);
+
+	return true;
 }
 
 void ParticleEffect::init(DescriptorHeap* descriptorHeap)
@@ -90,9 +88,9 @@ void ParticleEffect::init(DescriptorHeap* descriptorHeap)
 	{
 		// Set default texture
 		AssetLoader* al = AssetLoader::Get();
-		m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/minimap.png"));
+		m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png"));
 
-		Log::PrintSeverity(Log::Severity::WARNING, "ParticleEffect::Texture was nullptr, %S\n", m_Name.c_str());
+		Log::PrintSeverity(Log::Severity::WARNING, "ParticleEffect::Texture was nullptr\n");
 	}
 
 	Renderer& renderer = Renderer::GetInstance();
@@ -103,7 +101,8 @@ void ParticleEffect::init(DescriptorHeap* descriptorHeap)
 
 	// used to format a debug string
 	std::wstring a = L"ParticleEffect_";
-	std::wstring b = m_Name;
+	static unsigned int particleCounter = 0;
+	std::wstring b = std::to_wstring(particleCounter++);
 	std::wstring c = L"_UPLOAD";
 	std::wstring d = L"_DEFAULT";
 
@@ -122,11 +121,8 @@ void ParticleEffect::init(DescriptorHeap* descriptorHeap)
 
 	m_pSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &srvDesc, m_pDefaultResource);
 
-
-	m_Particles.reserve(m_Settings.particleCount);
+	m_Particles.resize(m_Settings.particleCount);
 	m_ParticlesData.resize(m_Settings.particleCount);
-
-	m_Particles = std::vector<Particle>(m_Settings.particleCount);
 }
 
 void ParticleEffect::initParticle(Particle& particle)
@@ -189,7 +185,7 @@ void ParticleEffect::randomizeLifetime(Particle& particle)
 	particle.m_Rotation = lifetime;
 }
 
-void ParticleEffect::updateResourceData()
+void ParticleEffect::updateResourceData(float3 cameraPos)
 {
 	PARTICLE_DATA tempData;
 
@@ -208,7 +204,15 @@ void ParticleEffect::updateResourceData()
 		m_ParticlesData[index++] = tempData;
 	}
 
-	// Todo, sort z for blend
+	// Sort z from camera for blend
+	std::sort(m_ParticlesData.begin(), m_ParticlesData.end(),
+		[&](const PARTICLE_DATA& i, const PARTICLE_DATA& j) -> bool 
+	{
+		float distFromCamI = (i.position - cameraPos).length();
+		float distFromCamJ = (j.position - cameraPos).length();
+
+		return distFromCamI > distFromCamJ;
+	});
 
 	const void* data = static_cast<void*>(m_ParticlesData.data());
 	std::tuple temp = { m_pUploadResource, m_pDefaultResource, data };

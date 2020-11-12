@@ -100,12 +100,12 @@ void ParticleRenderTask::Execute()
 				Log::PrintSeverity(Log::Severity::CRITICAL, "ParticleComponent was nullptr!!, plez fix\n");
 				return;
 			}
-			ParticleEffect* effect = pec->m_pParticleEffect;
+			ParticleEffect* effect = &pec->m_ParticleEffect;
 
 			// Test to multiply in render (Later do it in compute)
 			commandList->SetGraphicsRootShaderResourceView(RS::SRV0, effect->m_pSRV->GetResource()->GetGPUVirtualAdress());
 
-			Texture2DGUI* texture = pec->GetTexture();
+			Texture2DGUI* texture = pec->GetParticleEffect()->GetTexture();
 
 			// Draw a quad (m_pParticleQuad)
 			size_t num_Indices = m_pParticleMesh->GetNumIndices();

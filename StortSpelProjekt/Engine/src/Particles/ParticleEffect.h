@@ -50,12 +50,10 @@ struct ParticleEffectSettings
 class ParticleEffect
 {
 public:
-	ParticleEffect(std::wstring name, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings);
+	ParticleEffect(DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings);
 	~ParticleEffect();
 
 	void Update(double dt);
-
-	const std::wstring& GetName() const;
 
 	Texture2DGUI* GetTexture() const;
 
@@ -63,6 +61,7 @@ private:
 	friend class ParticleSystem;
 	friend class BillboardComputeTask;
 	friend class ParticleRenderTask;
+	friend class Renderer;
 
 	static EngineRand rand;
 
@@ -72,7 +71,6 @@ private:
 		float size;
 	};
 
-	std::wstring m_Name = L"unnamed_particleEffect";
 	Texture2DGUI* m_pTexture = nullptr;
 	std::vector<Particle> m_Particles;
 	std::vector<PARTICLE_DATA> m_ParticlesData;
@@ -90,7 +88,7 @@ private:
 	ShaderResourceView* m_pSRV = nullptr;
 
 
-	void spawnParticle();
+	bool spawnParticle();
 
 	void init(DescriptorHeap* descriptorHeap);
 	
@@ -101,7 +99,7 @@ private:
 	void randomizeRotation(Particle& particle);
 	void randomizeLifetime(Particle& particle);
 
-	void updateResourceData();
+	void updateResourceData(float3 cameraPos);
 };
 
 #endif
