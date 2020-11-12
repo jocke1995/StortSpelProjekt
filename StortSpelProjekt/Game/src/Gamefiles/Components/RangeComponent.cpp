@@ -149,9 +149,9 @@ void component::RangeComponent::Attack()
 		DirectX::XMFLOAT4 rayInWorldSpaceDirFloat4;
 		DirectX::XMStoreFloat4(&rayInWorldSpaceDirFloat4, rayInWorldSpaceDir);
 
-		// Send ray from the middle of the screen towards the world
-		// A distance of 100 seems like a good sweetspot
-		float searchDist = 100.0f;	
+		// Send a ray from the middle of the screen towards the world
+		// The search distance is the length the projectile will travel before disappearing
+		float searchDist = pc->GetTimeToLive() * m_Velocity;
 		double dist = m_pParent->GetComponent<component::CollisionComponent>()->CastRay(double3{
 			rayInWorldSpaceDirFloat4.x, 
 			rayInWorldSpaceDirFloat4.y, 
