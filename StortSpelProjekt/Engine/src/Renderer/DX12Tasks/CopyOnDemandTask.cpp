@@ -37,20 +37,28 @@ void CopyOnDemandTask::UnSubmitMesh(Mesh* mesh)
 	Resource* uploadResourceVertices = mesh->m_pUploadResourceVertices;
 	Resource* uploadResourceIndices = mesh->m_pDefaultResourceIndices;
 	auto it = m_UploadDefaultData.begin();
+
+	// Remove vertexThings
 	while (it != m_UploadDefaultData.end())
 	{
 		if (std::get<0>(*it) == uploadResourceVertices)
 		{
 			it = m_UploadDefaultData.erase(it);
+			break;
 		}
-		else if (std::get<1>(*it) == uploadResourceIndices)
+		it++;
+	}
+
+	// Remove indexThings
+	it = m_UploadDefaultData.begin();
+	while (it != m_UploadDefaultData.end())
+	{
+		if (std::get<1>(*it) == uploadResourceIndices)
 		{
 			it = m_UploadDefaultData.erase(it);
+			break;
 		}
-		else
-		{
-			++it;
-		}
+		it++;
 	}
 }
 
