@@ -43,5 +43,5 @@ void UpgradeBlueJewel::IncreaseLevel()
 
 std::string UpgradeBlueJewel::GetDescription(unsigned int level)
 {
-	return "Blue Jewel: An iridecent blue jewel that reduces damage taken by " + std::to_string(pow(m_StartDamageReduction, level) * 100) + "\% while under " + std::to_string(m_HealthThreshold) + "\% max health";
+	return "Blue Jewel: An iridecent blue jewel that reduces damage taken by " + std::to_string(static_cast<int>(pow(m_StartDamageReduction, level) * 100)) + "\% while under " + std::to_string(static_cast<int>(m_HealthThreshold*100)) + "\% max health";
 }

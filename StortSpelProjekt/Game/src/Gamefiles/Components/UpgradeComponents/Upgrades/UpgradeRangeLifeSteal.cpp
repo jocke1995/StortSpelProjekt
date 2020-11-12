@@ -46,5 +46,5 @@ void UpgradeRangeLifeSteal::ApplyBoughtUpgrade()
 
 std::string UpgradeRangeLifeSteal::GetDescription(unsigned int level)
 {
-	return "Ranged Lifesteal: Converts a " + std::to_string(0.05f + 0.05f * level) + "\% of range damage done into own health.";
+	return "Ranged Lifesteal: Converts a " + std::to_string(static_cast<int>((0.05f + 0.05f * level)*100)) + "\% of range damage done into own health.";
 }
