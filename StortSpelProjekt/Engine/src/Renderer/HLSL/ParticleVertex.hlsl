@@ -20,7 +20,7 @@ StructuredBuffer<float4x4> WVP : register(t0, space1); // Edited by billboard co
 
 // Testing with getting pos in here.
 StructuredBuffer<float4> particlePos : register(t3, space3); // Edited by billboard compute
-ConstantBuffer<CB_PER_FRAME_STRUCT>  cbPerFrame  : register(b3, space3);
+ConstantBuffer<CB_PER_FRAME_STRUCT>  cbPerFrame  : register(b4, space3);
 
 VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
 {
