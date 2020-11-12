@@ -14,7 +14,7 @@
 #include "../ECS/Entity.h"
 
 component::ParticleEmitterComponent::ParticleEmitterComponent(Entity* parent, Texture2DGUI* texture, ParticleEffectSettings* settings, bool playOnInit)
-	:Component(parent), m_PlayOnInit(playOnInit), m_ParticleEffect(Renderer::GetInstance().getCBVSRVUAVdHeap(), texture, settings)
+	:Component(parent), m_PlayOnInit(playOnInit), m_ParticleEffect(this, Renderer::GetInstance().getCBVSRVUAVdHeap(), texture, settings)
 {
 }
 

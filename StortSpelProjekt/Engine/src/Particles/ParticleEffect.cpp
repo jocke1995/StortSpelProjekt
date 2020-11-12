@@ -14,13 +14,18 @@
 #include "../Renderer/Model.h"
 #include "../Renderer/Mesh.h"
 
+#include "../ECS/Components/ParticleEmitterComponent.h"
+#include "../ECS/Components/TransformComponent.h"
+#include "../ECS/Entity.h"
+
 #include <algorithm>
 
 EngineRand ParticleEffect::rand = {};
 
 
-ParticleEffect::ParticleEffect(DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings)
+ParticleEffect::ParticleEffect(component::ParticleEmitterComponent* pec, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings)
 {
+	m_pComponentParent = pec;
 	m_pTexture = texture;
 	m_Settings = *settings;
 
@@ -136,6 +141,14 @@ void ParticleEffect::initParticle(Particle& particle)
 	randomizeRotation(particle);
 	randomizeRotationSpeed(particle);
 	randomizeLifetime(particle);
+
+	// Add Entity transform position to start position.
+	component::TransformComponent* tc = m_pComponentParent->GetParent()->GetComponent<component::TransformComponent>();
+
+	if (tc != nullptr)
+	{
+		particle.m_Attributes.position = particle.m_Attributes.position + tc->GetTransform()->GetRenderPositionFloat3();
+	}
 }
 
 void ParticleEffect::randomizePosition(Particle& particle)

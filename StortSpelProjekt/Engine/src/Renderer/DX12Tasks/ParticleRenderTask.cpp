@@ -112,18 +112,11 @@ void ParticleRenderTask::Execute()
 			info.vertexDataIndex = m_pParticleMesh->GetSRV()->GetDescriptorHeapIndex();
 			info.textureAlbedo = texture->GetDescriptorHeapIndex();
 
-			float3 pos = tc->GetTransform()->GetPositionFloat3();
-			DirectX::XMMATRIX tcPos = {
-			pos.x, pos.y, pos.z, 1,
-			0, 0, 0, 0,
-			0, 0, 0, 0,
-			0, 0, 0, 0
-			};
 			DirectX::XMMATRIX VPTransposed = *viewProjMatTrans;
 
 			// Create a CB_PER_OBJECT struct
 			// Hack: sending in tcPos specially in this renderTask
-			CB_PER_OBJECT_STRUCT perObject = { tcPos, VPTransposed, info };
+			CB_PER_OBJECT_STRUCT perObject = { {}, VPTransposed, info };
 
 			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 

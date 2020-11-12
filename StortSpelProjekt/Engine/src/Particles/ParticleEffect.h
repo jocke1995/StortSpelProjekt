@@ -16,6 +16,11 @@ class ShaderResourceView;
 class UnorderedAccessView;
 class Texture2DGUI;
 class Mesh;
+namespace component
+{
+	class ParticleEmitterComponent;
+}
+
 
 struct RandomParameter
 {
@@ -52,7 +57,7 @@ struct ParticleEffectSettings
 class ParticleEffect
 {
 public:
-	ParticleEffect(DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings);
+	ParticleEffect(component::ParticleEmitterComponent* pec, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings);
 	~ParticleEffect();
 
 	void Update(double dt);
@@ -66,6 +71,7 @@ private:
 
 	static EngineRand rand;
 
+	component::ParticleEmitterComponent* m_pComponentParent = nullptr;
 	Texture2DGUI* m_pTexture = nullptr;
 	std::vector<Particle> m_Particles;
 	std::vector<PARTICLE_DATA> m_ParticlesData;

@@ -223,7 +223,7 @@ Scene* GameScene(SceneManager* sm)
     settings.randSize = { 0.5, 2 };
     settings.randRotationSpeed = { 1, 6 };
 
-    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/default_particle.png"));
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
     pec = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
 
     Player::GetInstance().SetPlayer(entity);

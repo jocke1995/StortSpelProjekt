@@ -1837,6 +1837,9 @@ void Renderer::initRenderTasks()
 	gpsdBlendBackCull.DepthStencilState = dsdBlend;
 	gpsdBlendBackCull.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
 
+	gpsdParticleEffect.DepthStencilState = dsdBlend;
+	gpsdParticleEffect.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
+
 
 	// Push back to vector
 	gpsdBlendVector.push_back(&gpsdBlendFrontCull);
