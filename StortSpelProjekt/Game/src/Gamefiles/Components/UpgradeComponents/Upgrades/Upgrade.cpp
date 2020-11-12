@@ -67,9 +67,9 @@ int Upgrade::GetID()
 	return m_ID;
 }
 
-std::string Upgrade::GetDescription()
+std::string Upgrade::GetDescription(unsigned int level)
 {
-	return m_Description;
+	return "THIS UPGRADE IS MISSING A DESCRIPTION";
 }
 
 int Upgrade::GetPrice()

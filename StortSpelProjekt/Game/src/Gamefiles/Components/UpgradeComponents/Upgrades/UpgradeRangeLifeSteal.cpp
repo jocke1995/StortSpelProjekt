@@ -14,8 +14,7 @@ UpgradeRangeLifeSteal::UpgradeRangeLifeSteal(Entity* parent)
 	// set the price of this upgrade
 	m_Price = 300;
 	m_StartingPrice = m_Price;
-	// set short description 
-	m_Description = "Ranged Lifesteal: Converts a percentage of range damage done into own health. 10\% for the first level, 5\% more per upgrade level";
+	
 	// percentage of damage done to steal as life
 	m_PercentageGain = 0.10;
 }
@@ -26,7 +25,8 @@ UpgradeRangeLifeSteal::~UpgradeRangeLifeSteal()
 
 void UpgradeRangeLifeSteal::IncreaseLevel()
 {
-	m_PercentageGain = 0.10f + 0.05f * (m_Level++);
+	m_Level++;
+	m_PercentageGain = 0.05f + 0.05f * m_Level; // Starts at 10% and increases by 5% per level
 	m_Price = 300 * pow(m_Level + 1,2);
 }
 
@@ -42,6 +42,9 @@ void UpgradeRangeLifeSteal::OnRangedHit()
 
 void UpgradeRangeLifeSteal::ApplyBoughtUpgrade()
 {
-	// This upgrade only needs to increase price for next level when bought
-	m_Price *= 2;
+}
+
+std::string UpgradeRangeLifeSteal::GetDescription(unsigned int level)
+{
+	return "Ranged Lifesteal: Converts a " + std::to_string(static_cast<int>((0.05f + 0.05f * level)*100)) + "\% of range damage done into own health.";
 }

@@ -11,6 +11,8 @@ EnemyFactory::EnemyFactory()
 	m_MaxEnemies = 30;
 	m_LevelMaxEnemies = 20;
 	m_EnemiesKilled = 0;
+	m_EnemiesToSpawn = 0;
+	m_EnemySlotsLeft = m_LevelMaxEnemies;
 	m_SpawnCooldown = 5;
 	m_MinimumDistanceToPlayer = 100;
 	m_SpawnTimer = 0.0f;
@@ -29,6 +31,8 @@ EnemyFactory::EnemyFactory(Scene* scene)
 	m_MaxEnemies = 30;
 	m_LevelMaxEnemies = 20;
 	m_EnemiesKilled = 0;
+	m_EnemiesToSpawn = 0;
+	m_EnemySlotsLeft = m_LevelMaxEnemies;
 	m_SpawnCooldown = 5;
 	m_MinimumDistanceToPlayer = 1;
 	m_SpawnTimer = 0.0f;
@@ -365,8 +369,23 @@ void EnemyFactory::Update(double dt)
 {
 	if (m_IsActive)
 	{
-		m_SpawnTimer += dt;
-		if (m_SpawnCooldown <= m_SpawnTimer)
+		//m_EnemiesToSpawn hold how many enemies are left to spawn
+		//This exist to stagger the spawning of enemies by one frame to spread the load over multiple frames
+		if (m_EnemiesToSpawn == 0  && m_EnemySlotsLeft > 0)
+		{
+			m_SpawnTimer += dt;
+			if (m_SpawnCooldown <= m_SpawnTimer)
+			{
+				m_SpawnTimer = 0.0;
+				m_EnemiesToSpawn = (m_MaxEnemies - m_Enemies.size()) / 2;
+
+				if (m_EnemiesToSpawn > m_EnemySlotsLeft)
+				{
+					m_EnemiesToSpawn = m_EnemySlotsLeft;
+				}
+			}
+		} 
+		else if(m_EnemySlotsLeft > 0)
 		{
 			std::vector<int> eligblePoints;
 			float3 playerPos = m_pScene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform()->GetRenderPositionFloat3();
@@ -379,30 +398,18 @@ void EnemyFactory::Update(double dt)
 				}
 			}
 
-			int toSpawn = (m_MaxEnemies - m_Enemies.size()) / 2;
-
-			int enemySlotsLeft = m_LevelMaxEnemies - m_EnemiesKilled - GetAllEnemies()->size();
-			if (toSpawn > enemySlotsLeft)
+			unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
+			int spawnNumber = m_RandGen.Rand(1, 100);
+			if (spawnNumber <= m_EnemyComps.find("enemyDemon")->second->spawnChance)
 			{
-				toSpawn = enemySlotsLeft;
+				SpawnEnemy("enemyDemon", eligblePoints[point]);
 			}
-			if (toSpawn > 0)
+			else
 			{
-				for (unsigned int i = 0; i < toSpawn; ++i)
-				{
-					unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
-					int spawnNumber = m_RandGen.Rand(1, 100);
- 					if ( spawnNumber <= m_EnemyComps.find("enemyDemon")->second->spawnChance)
-					{
-						SpawnEnemy("enemyDemon", eligblePoints[point]);
-					}
-					else
-					{
-						SpawnEnemy("enemyZombie", eligblePoints[point]);
-					}
-				}
+				SpawnEnemy("enemyZombie", eligblePoints[point]);
 			}
-			m_SpawnTimer = 0.0;
+			m_EnemiesToSpawn--;
+			m_EnemySlotsLeft--;
 		}
 	}
 }
@@ -459,6 +466,7 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 
 	//Scaling difficulty
 	m_LevelMaxEnemies = 20 + 2 * m_Level;
+	m_EnemySlotsLeft = m_LevelMaxEnemies;
 
 	// melee
 	m_EnemyComps.find("enemyZombie")->second->hp = m_EnemyComps.find("enemyZombie")->second->hpBase * pow(1.15, m_Level);
