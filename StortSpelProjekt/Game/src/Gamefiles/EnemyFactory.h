@@ -34,6 +34,7 @@ struct EnemyComps
 {
 	unsigned int compFlags = 0;
 	unsigned int aiFlags = 0;
+	unsigned int spawnChance = 0;
 	Model* model = nullptr;
 	float3 rot = { 0, 0, 0 };
 	float3 pos = { 0, 1, 0 };
@@ -129,8 +130,6 @@ private:
 	float m_MinimumDistanceToPlayer;
 
 	bool m_IsActive = false;
-
-	int m_RangedSpawnCounter;
 };
 
 #endif

@@ -247,24 +247,7 @@ void TextManager::replaceText(Text* text, std::string name)
 	auto it = m_TextDataMap.find(name);
 	if (it != m_TextDataMap.end())
 	{
-		Renderer* renderer = &Renderer::GetInstance();
-
-		// This is an ugly solution, however, it is noticable faster than waiting for the
-		// GPU every time we want to delete a text, while also emptying the buffer so that
-		// we don't need to worry about the memory getting full
-		if (m_TrashBuffer.size() == 50)
-		{
-			renderer->waitForGPU();
-
-			for (int i = 0; i < m_TrashBuffer.size(); i++)
-			{
-				delete m_TrashBuffer.at(i);
-			}
-			m_TrashBuffer.clear();
-		}
-	
-		m_TrashBuffer.push_back(m_TextMap[name]);
-
+		deleteTextData(name);
 		m_TextMap[name] = text;
 		found = true;
 	}
@@ -308,4 +291,32 @@ void TextManager::uploadTextData(std::string name, Renderer* renderer)
 
 	// Uploading the text data to the gpu
 	renderer->submitTextToGPU(text, this);
+}
+
+void TextManager::deleteTextData(std::string name)
+{
+	if (m_TextMap[name] != nullptr)
+	{
+		Renderer* renderer = &Renderer::GetInstance();
+
+		CopyTask* task = renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
+		codt->UnSubmitText(m_TextMap[name]);
+
+		// This is an ugly solution, however, it is noticable faster than waiting for the
+		// GPU every time we want to delete a text, while also emptying the buffer so that
+		// we don't need to worry about the memory getting full
+		if (m_TrashBuffer.size() == 50)
+		{
+			renderer->waitForGPU();
+
+			for (int i = 0; i < m_TrashBuffer.size(); i++)
+			{
+				delete m_TrashBuffer.at(i);
+			}
+			m_TrashBuffer.clear();
+		}
+
+		m_TrashBuffer.push_back(m_TextMap[name]);
+	}
 }

@@ -9,6 +9,7 @@ Resource::Resource(
 	D3D12_RESOURCE_FLAGS flags)
 {
 	m_Id = s_IdCounter++;
+
 	m_EntrySize = entrySize;
 	m_Type = type;
 	m_Name = name;

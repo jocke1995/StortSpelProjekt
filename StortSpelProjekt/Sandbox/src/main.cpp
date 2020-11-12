@@ -53,14 +53,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
     //Scene* activeScene = jacobScene;
-    Scene* leoScene = LeosTestScene(sceneManager);
-    Scene* activeScene = leoScene;
+    //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* activeScene = jockeScene;
-    //Scene* fredrikScene = FredriksTestScene(sceneManager);
-    //Scene* activeScene = fredrikScene;
+    Scene* fredrikScene = FredriksTestScene(sceneManager);
+    Scene* activeScene = fredrikScene;
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* activeScene = williamScene;
     //Scene* bjornScene = BjornsTestScene(sceneManager);
