@@ -12,6 +12,7 @@
 #include "Components/CurrencyComponent.h"
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
+#include "UpgradeGUI.h"
 
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
@@ -61,6 +62,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     sceneManager->SetGameOverScene(gameOverScene);
     GameNetwork gameNetwork;
 
+    /*-------- UpgradeGUI ---------*/
+    UpgradeGUI::GetInstance().Init();
+
     /*------ Network Init -----*/
 
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
@@ -95,6 +99,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
             gameGUI.Update(updateRate, sceneManager->GetActiveScene());
+            UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
 
         /* ---- Network ---- */
@@ -142,6 +147,7 @@ Scene* GameScene(SceneManager* sm)
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
 	Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
 	Texture* healthHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthHolder.png");
+	Texture* crosshairTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Crosshair.png");
 	Texture* killedEnemiesHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/KilledEnemies.png");
 
     /*--------------------- Assets ---------------------*/
@@ -384,6 +390,21 @@ Scene* GameScene(SceneManager* sm)
 		healthGuardiansTexture);
 	/* ---------------------------------------------------------- */
 
+	/* ------------------------- crosshair --------------------------- */
+	blended = { 1.0, 1.0, 1.0, 0.7 };
+	entity = scene->AddEntity("crosshair");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.497f, 0.495f };
+	quadScale = { 0.006f, 0.01f };
+	gui->GetQuadManager()->CreateQuad(
+		"crosshair",
+		quadPos, quadScale,
+		false, false,
+		3,
+		blended,
+		crosshairTexture);
+	/* ---------------------------------------------------------- */
+
 	/* ------------------------- money --------------------------- */
     textToRender = "0";
     textPos = { 0.95f, 0.03f };
@@ -446,7 +467,7 @@ Scene* GameScene(SceneManager* sm)
 		killedEnemiesHolderTexture
 	);
 
-    /* --------------------------- GUI ------------------------------- */
+    /* ------------------------ GUI END ---------------------------- */
 
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);
@@ -504,7 +525,6 @@ Scene* ShopScene(SceneManager* sm)
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
 	Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
 	Texture* healthHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthHolder.png");
-
     Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
