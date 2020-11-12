@@ -19,7 +19,7 @@ class Mesh;
 
 struct RandomParameter
 {
-	float2 interval = { 0.0f, 1.0f }; // default should be 0,0 rand does not work with 0,0
+	float2 interval = { 0.0f, 0.0f }; // default should be 0,0 rand does not work with 0,0
 	//rand distribution
 };
 
@@ -61,7 +61,6 @@ public:
 
 private:
 	friend class ParticleSystem;
-	friend class BillboardComputeTask;
 	friend class ParticleRenderTask;
 	friend class Renderer;
 

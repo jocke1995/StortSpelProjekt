@@ -21,6 +21,8 @@ public:
 
 	void Execute();
 
+	void SetBillboardMesh(Mesh* quadMesh);
+
 private:
 	Mesh* m_pParticleMesh = nullptr;
 };

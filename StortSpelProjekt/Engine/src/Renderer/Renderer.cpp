@@ -201,9 +201,12 @@ void Renderer::InitD3D12(Window *window, HINSTANCE hInstance, ThreadPool* thread
 
 	// FullScreenQuad
 	createFullScreenQuad();
-
 	// Init Assetloader
 	AssetLoader* al = AssetLoader::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], m_pWindow);
+
+	m_pQuadMesh = al->LoadModel(L"../Vendor/Resources/Models/Quad/NormalizedQuad.obj")->GetMeshAt(0);
+
+	
 
 	// Init BoundingBoxPool
 	BoundingBoxPool::Get(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
@@ -255,7 +258,9 @@ void Renderer::InitD3D12(Window *window, HINSTANCE hInstance, ThreadPool* thread
 
 	initRenderTasks();
 
+	
 	submitMeshToCodt(m_pFullScreenQuad);
+	submitMeshToCodt(m_pQuadMesh);
 }
 
 void Renderer::Update(double dt)
@@ -1003,7 +1008,7 @@ void Renderer::UnInitParticleEmitterComponent(component::ParticleEmitterComponen
 
 	// Remove component from renderComponents
 	// TODO: change data structure to allow O(1) add and remove
-	auto renderComponents = m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE];
+	auto& renderComponents = m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE];
 
 	auto it = renderComponents.begin();
 	while (it != renderComponents.end())
@@ -1015,8 +1020,11 @@ void Renderer::UnInitParticleEmitterComponent(component::ParticleEmitterComponen
 		{
 			it = renderComponents.erase(it);
 		}
-
-		++it;
+		else
+		{
+			++it;
+		}
+		
 	}
 }
 
@@ -1886,6 +1894,10 @@ void Renderer::initRenderTasks()
 	particleRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
 	particleRenderTask->SetSwapChain(m_pSwapChain);
 	particleRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+	// Please do not change mesh ;)
+	static_cast<ParticleRenderTask*>(particleRenderTask)->SetBillboardMesh(m_pQuadMesh);
+
 
 #pragma endregion Blend
 

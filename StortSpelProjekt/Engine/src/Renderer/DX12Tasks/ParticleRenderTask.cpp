@@ -33,8 +33,7 @@ ParticleRenderTask::ParticleRenderTask(ID3D12Device5* device, RootSignature* roo
 	const std::wstring& psoName, unsigned int FLAG_THREAD)
 	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
-	AssetLoader* al = AssetLoader::Get();
-	m_pParticleMesh = al->LoadModel(L"../Vendor/Resources/Models/Quad/NormalizedQuad.obj")->GetMeshAt(0);
+	
 }
 
 ParticleRenderTask::~ParticleRenderTask()
@@ -140,4 +139,9 @@ void ParticleRenderTask::Execute()
 		D3D12_RESOURCE_STATE_PRESENT));
 
 	commandList->Close();
+}
+
+void ParticleRenderTask::SetBillboardMesh(Mesh* quadMesh)
+{
+	m_pParticleMesh = quadMesh;
 }

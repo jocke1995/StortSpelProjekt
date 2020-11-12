@@ -142,13 +142,13 @@ void ParticleEffect::randomizePosition(Particle& particle)
 {
 	RandomParameter3 randParams = m_Settings.randPosition;
 	
-	if (randParams.x.interval.x != 0 && randParams.x.interval.y != 0)
+	if (!(randParams.x.interval.x == 0 && randParams.x.interval.y == 0))
 	{
 		float x = rand.Randf(randParams.x.interval.x, randParams.x.interval.y);
 		particle.m_Attributes.position.x = x;
 	}
 
-	if (randParams.y.interval.x != 0 && randParams.y.interval.y != 0)
+	if (!(randParams.y.interval.x == 0 && randParams.y.interval.y == 0))
 	{
 		float y = rand.Randf(randParams.y.interval.x, randParams.y.interval.y);
 		particle.m_Attributes.position.y = y;
@@ -165,19 +165,19 @@ void ParticleEffect::randomizeVelocity(Particle& particle)
 {
 	RandomParameter3 randParams = m_Settings.randVelocity;
 
-	if (randParams.x.interval.x != 0 && randParams.x.interval.y != 0)
+	if (!(randParams.x.interval.x == 0 && randParams.x.interval.y == 0))
 	{
 		float x = rand.Randf(randParams.x.interval.x, randParams.x.interval.y);
 		particle.m_Attributes.velocity.x = x;
 	}
 
-	if (randParams.y.interval.x != 0 && randParams.y.interval.y != 0)
+	if (!(randParams.y.interval.x == 0 && randParams.y.interval.y == 0))
 	{
 		float y = rand.Randf(randParams.y.interval.x, randParams.y.interval.y);
 		particle.m_Attributes.velocity.y = y;
 	}
 
-	if (randParams.z.interval.x != 0 && randParams.z.interval.y != 0)
+	if (!(randParams.z.interval.x == 0 && randParams.z.interval.y == 0))
 	{
 		float z = rand.Randf(randParams.z.interval.x, randParams.z.interval.y);
 		particle.m_Attributes.velocity.z = z;
@@ -188,7 +188,7 @@ void ParticleEffect::randomizeSize(Particle& particle)
 {
 	RandomParameter randParam = m_Settings.randSize;
 
-	if (randParam.interval.x != 0 && randParam.interval.y != 0)
+	if (!(randParam.interval.x == 0 && randParam.interval.y == 0))
 	{
 		float size = rand.Randf(randParam.interval.x, randParam.interval.y);
 		particle.m_Attributes.size = size;
@@ -199,7 +199,7 @@ void ParticleEffect::randomizeRotation(Particle& particle)
 {
 	RandomParameter randParam = m_Settings.randRotation;
 
-	if (randParam.interval.x != 0 && randParam.interval.y != 0)
+	if (!(randParam.interval.x == 0 && randParam.interval.y == 0))
 	{
 		float rot = rand.Randf(randParam.interval.x, randParam.interval.y);
 		particle.m_Attributes.rotation = rot;
@@ -210,7 +210,7 @@ void ParticleEffect::randomizeRotationSpeed(Particle& particle)
 {
 	RandomParameter randParam = m_Settings.randRotationSpeed;
 	
-	if (randParam.interval.x != 0 && randParam.interval.y != 0)
+	if (!(randParam.interval.x == 0 && randParam.interval.y == 0))
 	{
 		float rotSpeed = rand.Randf(randParam.interval.x, randParam.interval.y);
 		particle.m_Attributes.rotationSpeed = rotSpeed;
@@ -221,7 +221,7 @@ void ParticleEffect::randomizeLifetime(Particle& particle)
 {
 	RandomParameter randParam = m_Settings.randLifetime;
 	
-	if (randParam.interval.x != 0 && randParam.interval.y != 0)
+	if (!(randParam.interval.x == 0 && randParam.interval.y == 0))
 	{
 		float lifetime = rand.Randf(randParam.interval.x, randParam.interval.y);
 		particle.m_Attributes.lifetime = lifetime;
@@ -259,8 +259,4 @@ void ParticleEffect::updateResourceData(float3 cameraPos)
 
 	const void* data = static_cast<void*>(m_ParticlesData.data());
 	std::tuple temp = { m_pUploadResource, m_pDefaultResource, data };
-	
-	// Copy to ondemand
-	Renderer& renderer = Renderer::GetInstance();
-	renderer.submitToCodt(&temp);
 }

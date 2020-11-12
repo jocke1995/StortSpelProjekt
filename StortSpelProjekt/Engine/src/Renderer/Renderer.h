@@ -201,6 +201,7 @@ private:
 	//OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
 
 	Mesh* m_pFullScreenQuad = nullptr;
+	Mesh* m_pQuadMesh = nullptr;
 
 	// Group of components that's needed for rendering:
 	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;

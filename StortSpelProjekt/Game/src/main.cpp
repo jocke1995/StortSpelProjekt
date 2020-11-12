@@ -181,6 +181,7 @@ Scene* GameScene(SceneManager* sm)
     component::HealthComponent* hc = nullptr;
     component::UpgradeComponent* uc = nullptr;
     component::GUI2DComponent* gui = nullptr;
+    component::ParticleEmitterComponent* pec = nullptr;
 #pragma endregion
 
 #pragma region entities
@@ -205,6 +206,25 @@ Scene* GameScene(SceneManager* sm)
     hc = entity->AddComponent<component::HealthComponent>(50);
     uc = entity->AddComponent<component::UpgradeComponent>();
     alc = entity->AddComponent<component::Audio3DListenerComponent>();
+
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.particleCount = 50;
+    settings.startValues.lifetime = 0.7;
+    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+    settings.startValues.rotation = { 1 };
+
+    RandomParameter3 randParam0 = {  };
+    RandomParameter3 randParam1 = { -5, 5, -5, 5, -5, 5 };
+    randParam1.y = { 1, 10 };
+
+    settings.randPosition = { 0, 0 };
+    settings.randVelocity = randParam1;
+    settings.randSize = { 0.5, 2 };
+    settings.randRotationSpeed = { 1, 6 };
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/default_particle.png"));
+    pec = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
 
     Player::GetInstance().SetPlayer(entity);
 
@@ -521,6 +541,7 @@ Scene* ShopScene(SceneManager* sm)
     component::HealthComponent* hc = nullptr;
     component::GUI2DComponent* gui = nullptr;
     component::CurrencyComponent* cur = nullptr;
+    component::ParticleEmitterComponent* pec = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -823,6 +844,7 @@ Scene* ShopScene(SceneManager* sm)
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
 
 #pragma endregion walls
+
     /* ---------------------- SpotLightDynamic ---------------------- */
     entity = scene->AddEntity("spotLightDynamic");
     mc = entity->AddComponent<component::ModelComponent>();

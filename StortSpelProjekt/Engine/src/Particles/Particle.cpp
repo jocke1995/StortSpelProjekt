@@ -32,5 +32,5 @@ void Particle::initDefaultValues(ParticleAttributes* defaultValues)
 
 void Particle::changeVelocity(float dt)
 {
-	m_Attributes.velocity = m_Attributes.velocity - m_Attributes.acceleration *dt;
+	m_Attributes.velocity = m_Attributes.velocity + m_Attributes.acceleration *dt;
 }
