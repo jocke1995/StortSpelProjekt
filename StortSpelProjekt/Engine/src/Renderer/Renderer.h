@@ -128,7 +128,7 @@ public:
 	void UnInitCameraComponent(component::CameraComponent* component);
 	void UnInitBoundingBoxComponent(component::BoundingBoxComponent* component);
 	void UnInitGUI2DComponent(component::GUI2DComponent* component);
-	void UnitParticleEmitterComponent(component::ParticleEmitterComponent* component);
+	void UnInitParticleEmitterComponent(component::ParticleEmitterComponent* component);
 
 	void OnResetScene();
 

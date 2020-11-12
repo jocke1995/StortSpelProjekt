@@ -28,17 +28,17 @@ ParticleSystem::~ParticleSystem()
 
 void ParticleSystem::Update(double dt)
 {
-	if (effect != nullptr)
+	if (m_pEffect != nullptr)
 	{
 		//for(ParticleEffect& particleEffect : )
-		effect->Update(dt);
-		effect->updateResourceData();
+		m_pEffect->Update(dt);
+		m_pEffect->updateResourceData();
 	}
 }
 
 void ParticleSystem::SetParticleEffect(ParticleEffect* effect)
 {
-	this->effect = effect;
+	m_pEffect = effect;
 }
 
 void ParticleSystem::OnResetScene()
