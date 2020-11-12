@@ -11,11 +11,8 @@ UpgradeMeleeDamage::UpgradeMeleeDamage(Entity* parentEntity) : Upgrade(parentEnt
 	// set the price of the upgrade
 	m_Price = 100;
 	m_StartingPrice = m_Price;
-	// Write a description for the upgrade
-	m_Description = "Melee Damage: Improves the Melee damage by +2";
 
 	m_DamageChange = 2;
-	m_StartingDamageChange = m_DamageChange;
 
 	m_ImageName = "MeleeDamage.png";
 }
@@ -42,4 +39,9 @@ void UpgradeMeleeDamage::IncreaseLevel()
 void UpgradeMeleeDamage::ApplyBoughtUpgrade()
 {
 	ApplyStat();;
+}
+
+std::string UpgradeMeleeDamage::GetDescription(unsigned int level)
+{
+	return "Melee Damage: Improves the Melee damage by +2, for a total of: " + std::to_string(2*level);
 }

@@ -412,9 +412,10 @@ void UpgradeGUI::getButtonPress(ButtonPressed* event)
 			m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("Description"), m_pCurrentScene);
 			m_CurrentDescription = "";
 		}
-		m_CurrentDescription = Player::GetInstance().GetUpgradeManager()->GetAllAvailableUpgrades().at(event->name)->GetDescription();
+		Upgrade* upgrade = Player::GetInstance().GetUpgradeManager()->GetAllAvailableUpgrades().at(event->name);
+		m_CurrentDescription = upgrade->GetDescription(upgrade->GetLevel());
 		
-		updateDescription(Player::GetInstance().GetUpgradeManager()->GetAllAvailableUpgrades().at(event->name)->GetLevel());
+		updateDescription(upgrade->GetLevel());
 	}
 	// Checking if the button is next. If so then set the bool to true so we change the buttons in update.
 	else if (event->name == "NextButton")
