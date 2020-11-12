@@ -13,9 +13,6 @@ UpgradeHealthBoost::UpgradeHealthBoost(Entity* parentEntity) : Upgrade(parentEnt
 	m_StartingPrice = m_Price;
 	
 	m_HealthBoost = 10;
-	
-	// Write a description for the upgrade
-	m_Description = "Health Boost: Increases the players health by 10";
 
 	m_ImageName = "HealthBoost.png";
 }
@@ -34,8 +31,6 @@ void UpgradeHealthBoost::IncreaseLevel()
 {
 	m_Level++;
 
-	ApplyStat();
-
 	// increase the price of the upgrade
 	m_Price = m_StartingPrice + m_StartingPrice * ((float)m_Level/2.0f);
 }
@@ -43,4 +38,9 @@ void UpgradeHealthBoost::IncreaseLevel()
 void UpgradeHealthBoost::ApplyBoughtUpgrade()
 {
 	ApplyStat();
+}
+
+std::string UpgradeHealthBoost::GetDescription(unsigned int level)
+{
+	return "Health Boost: Increases the players health by 10, for a total of " + std::to_string(10*level);
 }

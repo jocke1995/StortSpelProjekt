@@ -163,6 +163,7 @@ void component::MeleeComponent::checkCollision()
 			list.at(i)->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
 			list.at(i)->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
 			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
+			list.at(i)->GetComponent<component::AiComponent>()->KnockBack(m_MeleeTransformModified, 40.0f);
 		}
 	}
 	list.empty();

@@ -34,6 +34,7 @@ struct EnemyComps
 {
 	unsigned int compFlags = 0;
 	unsigned int aiFlags = 0;
+	unsigned int spawnChance = 0;
 	Model* model = nullptr;
 	float3 rot = { 0, 0, 0 };
 	float3 pos = { 0, 1, 0 };
@@ -120,17 +121,17 @@ private:
 	std::vector<float3> m_SpawnPoints;
 	EngineRand m_RandGen;
 
-	unsigned int m_MaxEnemies;
-	unsigned int m_LevelMaxEnemies;
-	unsigned int m_EnemiesKilled;
+	int m_MaxEnemies;
+	int m_EnemiesToSpawn;
+	int m_LevelMaxEnemies;
+	int m_EnemySlotsLeft;
+	int m_EnemiesKilled;
 	unsigned int m_Level;
 	float m_SpawnCooldown;
 	float m_SpawnTimer;
 	float m_MinimumDistanceToPlayer;
 
 	bool m_IsActive = false;
-
-	int m_RangedSpawnCounter;
 };
 
 #endif
