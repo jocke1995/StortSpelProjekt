@@ -1806,6 +1806,9 @@ void Renderer::initRenderTasks()
 	dsdBlend.StencilEnable = false;
 	dsdBlend.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 
+	gpsdBlendBackCull.DepthStencilState = dsdBlend;
+	gpsdBlendBackCull.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
+
 
 	// Push back to vector
 	gpsdBlendVector.push_back(&gpsdBlendFrontCull);
