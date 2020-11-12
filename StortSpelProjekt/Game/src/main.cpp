@@ -402,7 +402,7 @@ Scene* GameScene(SceneManager* sm)
 		healthGuardiansTexture);
 #pragma endregion
 
-	/* ------------------------- crosshair --------------------------- */
+#pragma region crosshair
 	blended = { 1.0, 1.0, 1.0, 0.7 };
 	entity = scene->AddEntity("crosshair");
 	gui = entity->AddComponent<component::GUI2DComponent>();
@@ -415,7 +415,8 @@ Scene* GameScene(SceneManager* sm)
 		3,
 		blended,
 		crosshairTexture);
-	/* ---------------------------------------------------------- */
+#pragma endregion
+
 #pragma region money
     textToRender = "0";
     textPos = { 0.95f, 0.03f };

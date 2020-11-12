@@ -101,13 +101,11 @@ void component::RangeComponent::Attack()
 		component::BoundingBoxComponent* bbc = nullptr;
 		component::ProjectileComponent* pc = nullptr;
 		component::UpgradeComponent* uc = nullptr;
-		component::AccelerationComponent* ac = nullptr;
 		component::PointLightComponent* plc = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
-		ac = ent->AddComponent<component::AccelerationComponent>(98.2);
 		uc = ent->AddComponent<component::UpgradeComponent>();
 		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 
@@ -189,7 +187,6 @@ void component::RangeComponent::Attack()
 		mc->SetModel(m_pModel);
 		mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 		tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
-		tc->GetTransform()->SetMovement(hitDir.x * m_Velocity, hitDir.y * m_Velocity, hitDir.z * m_Velocity);
 		tc->GetTransform()->SetScale(m_Scale);
 		tc->GetTransform()->SetVelocity(m_Velocity);
 		tc->Update(0.02);
@@ -217,8 +214,7 @@ void component::RangeComponent::Attack()
 		tc->RenderUpdate(0);
 		m_TimeAccumulator = 0.0;
 
-
-		cc->SetVelVector(forward.x * m_Velocity, forward.y * m_Velocity, forward.z * m_Velocity);
+		cc->SetVelVector(hitDir.x * m_Velocity, hitDir.y * m_Velocity, hitDir.z * m_Velocity);
 
 		// Makes player turn in direction of camera to attack
 		double angle = std::atan2(forward.x, forward.z);
