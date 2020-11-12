@@ -8,6 +8,7 @@
 #include "Events/Events.h"
 #include "Renderer/Renderer.h"
 #include "Misc/Window.h"
+#include "Misc/GUI2DElements/Font.h"
 #include <iomanip>
 #include <sstream>
 
@@ -56,6 +57,8 @@ void MainMenuHandler::createOptionScene()
     Texture* volume = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Volume.png");
     Texture* plus = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Plus.png");
     Texture* minus = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Minus.png");
+
+	Font* arial = al->LoadFontFromFile(L"Arial.fnt");
 
     // Player (Need a camera)
     Entity* entity = m_pOptionScene->AddEntity("player");
@@ -334,6 +337,7 @@ void MainMenuHandler::createOptionScene()
 
     entity = m_pOptionScene->AddEntity("volume");
     guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetTextManager()->SetFont(arial);
     guic->GetTextManager()->AddText("volume");
     guic->GetTextManager()->SetColor(textColor, "volume");
     guic->GetTextManager()->SetPadding(textPadding, "volume");

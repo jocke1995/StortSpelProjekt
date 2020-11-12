@@ -55,6 +55,7 @@ void TextManager::AddText(std::string name)
 	// Look if a font is chosen, otherwise, set the default font
 	if (m_pFont == nullptr)
 	{
+		Log::PrintSeverity(Log::Severity::WARNING, "Font not set! Choosing default font...\n", name.c_str());
 		m_pFont = AssetLoader::Get()->LoadFontFromFile(L"Arial.fnt");
 	}
 

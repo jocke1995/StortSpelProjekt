@@ -11,6 +11,7 @@
 #include "Renderer/Renderer.h"
 #include "UpgradeManager.h"
 #include "Components/UpgradeComponents/UpgradeComponent.h"
+#include "Misc/GUI2DElements/Font.h"
 
 UpgradeGUI::UpgradeGUI()
 {
@@ -195,6 +196,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 
 	entity = scene->AddEntity("UpgradeMenuBackground");
 	gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->SetFont(m_pArial);
 	gui->GetTextManager()->AddText("UpgradeMenuBackground");
 	gui->GetTextManager()->SetColor(textColor, "UpgradeMenuBackground");
 	gui->GetTextManager()->SetPadding(textPadding, "UpgradeMenuBackground");
@@ -213,7 +215,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 		false, false,
 		1,
 		blended,
-		m_BoardBackgroundTexture, {0.4, 0.4, 0.4});
+		m_pBoardBackgroundTexture, {0.4, 0.4, 0.4});
 	m_pSm->AddEntity(entity, scene);
 	entity->Update(0);
 	entity->SetEntityState(true);
@@ -277,6 +279,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 
 		entity = scene->AddEntity("NextButton");
 		gui = entity->AddComponent<component::GUI2DComponent>();
+		gui->GetTextManager()->SetFont(m_pArial);
 		gui->GetTextManager()->AddText("NextButton");
 		gui->GetTextManager()->SetColor(textColor, "NextButton");
 		gui->GetTextManager()->SetPadding(textPadding, "NextButton");
@@ -296,7 +299,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 			true, true,
 			1,
 			blended,
-			m_ButtonParchment);
+			m_pButtonParchment);
 
 		m_pSm->AddEntity(entity, scene);
 		entity->Update(0);
@@ -316,9 +319,11 @@ void UpgradeGUI::Init()
 	AssetLoader* al = AssetLoader::Get();
 
 	// Get textures
-	m_BoardBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/board2.png");
-	m_ButtonParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_hor.png");
-	m_DescriptionParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_vert.png");
+	m_pBoardBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/board2.png");
+	m_pButtonParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_hor.png");
+	m_pDescriptionParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_vert.png");
+
+	m_pArial = al->LoadFontFromFile(L"Arial.fnt");
 
 	// Subscribe to events
 	EventBus::GetInstance().Subscribe(this, &UpgradeGUI::showMenu);
@@ -375,6 +380,7 @@ void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
 
 	entity = m_pCurrentScene->AddEntity(name);
 	gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->SetFont(m_pArial);
 	gui->GetTextManager()->AddText(name);
 	gui->GetTextManager()->SetColor(textColor, name);
 	gui->GetTextManager()->SetPadding(textPadding, name);
@@ -393,7 +399,7 @@ void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
 		true, true,
 		1,
 		blended,
-		m_ButtonParchment);
+		m_pButtonParchment);
 
 	m_pSm->AddEntity(entity, m_pCurrentScene);
 	entity->Update(0);
@@ -479,6 +485,7 @@ void UpgradeGUI::updateDescription(int level)
 
 	entity = m_pCurrentScene->AddEntity(name);
 	gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->SetFont(m_pArial);
 	gui->GetTextManager()->AddText(name);
 	gui->GetTextManager()->SetColor(textColor, name);
 	gui->GetTextManager()->SetPadding(textPadding, name);
@@ -497,7 +504,7 @@ void UpgradeGUI::updateDescription(int level)
 		true, false,
 		1,
 		blended,
-		m_DescriptionParchment);
+		m_pDescriptionParchment);
 
 	m_pSm->AddEntity(entity, m_pCurrentScene);
 	entity->Update(0);
