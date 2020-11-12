@@ -5,6 +5,7 @@
 #define PARTICLESYSTEM_RENDER_DEAD_PARTICLES 0;
 
 #include <vector>
+#include "structs.h"
 
 #include "Particle.h"
 #include "../Misc/EngineRand.h"
@@ -18,7 +19,7 @@ class Mesh;
 
 struct RandomParameter
 {
-	float2 interval = { 0.0f, 1.0f };
+	float2 interval = { 0.0f, 1.0f }; // default should be 0,0 rand does not work with 0,0
 	//rand distribution
 };
 
@@ -38,12 +39,13 @@ struct ParticleEffectSettings
 	float spawnInterval = 0.1;
 
 	// Default Particle Settings
-	ParticleStartValues startValues;
+	ParticleAttributes startValues;
 
 	RandomParameter3 randPosition;
 	RandomParameter3 randVelocity;
 	RandomParameter randSize;
 	RandomParameter randRotation;
+	RandomParameter randRotationSpeed;
 	RandomParameter randLifetime;
 };
 
@@ -64,12 +66,6 @@ private:
 	friend class Renderer;
 
 	static EngineRand rand;
-
-	struct PARTICLE_DATA
-	{
-		float3 position;
-		float size;
-	};
 
 	Texture2DGUI* m_pTexture = nullptr;
 	std::vector<Particle> m_Particles;
@@ -97,6 +93,7 @@ private:
 	void randomizeVelocity(Particle& particle);
 	void randomizeSize(Particle& particle);
 	void randomizeRotation(Particle& particle);
+	void randomizeRotationSpeed(Particle& particle);
 	void randomizeLifetime(Particle& particle);
 
 	void updateResourceData(float3 cameraPos);

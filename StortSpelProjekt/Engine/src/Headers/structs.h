@@ -144,4 +144,11 @@ struct SpotLight
 	unsigned int pad1[3];
 };
 
+struct PARTICLE_DATA
+{
+	float3 position;
+	float size;
+	float rotation;
+};
+
 #endif

@@ -134,55 +134,98 @@ void ParticleEffect::initParticle(Particle& particle)
 	randomizeVelocity(particle);
 	randomizeSize(particle);
 	randomizeRotation(particle);
+	randomizeRotationSpeed(particle);
 	randomizeLifetime(particle);
 }
 
 void ParticleEffect::randomizePosition(Particle& particle)
 {
 	RandomParameter3 randParams = m_Settings.randPosition;
-	float x = rand.Randf(randParams.x.interval.x, randParams.x.interval.y);
-	float y = rand.Randf(randParams.y.interval.x, randParams.y.interval.y);
-	float z = rand.Randf(randParams.z.interval.x, randParams.z.interval.y);
+	
+	if (randParams.x.interval.x != 0 && randParams.x.interval.y != 0)
+	{
+		float x = rand.Randf(randParams.x.interval.x, randParams.x.interval.y);
+		particle.m_Attributes.position.x = x;
+	}
 
-	particle.m_Position.x = x;
-	particle.m_Position.y = y;
-	particle.m_Position.z = z;
+	if (randParams.y.interval.x != 0 && randParams.y.interval.y != 0)
+	{
+		float y = rand.Randf(randParams.y.interval.x, randParams.y.interval.y);
+		particle.m_Attributes.position.y = y;
+	}
+
+	if (randParams.z.interval.x != 0 && randParams.z.interval.y != 0)
+	{
+		float z = rand.Randf(randParams.z.interval.x, randParams.z.interval.y);
+		particle.m_Attributes.position.z = z;
+	}
 }
 
 void ParticleEffect::randomizeVelocity(Particle& particle)
 {
 	RandomParameter3 randParams = m_Settings.randVelocity;
-	float x = rand.Randf(randParams.x.interval.x, randParams.x.interval.y);
-	float y = rand.Randf(randParams.y.interval.x, randParams.y.interval.y);
-	float z = rand.Randf(randParams.z.interval.x, randParams.z.interval.y);
 
-	particle.m_Velocity.x = x;
-	particle.m_Velocity.y = y;
-	particle.m_Velocity.z = z;
+	if (randParams.x.interval.x != 0 && randParams.x.interval.y != 0)
+	{
+		float x = rand.Randf(randParams.x.interval.x, randParams.x.interval.y);
+		particle.m_Attributes.velocity.x = x;
+	}
+
+	if (randParams.y.interval.x != 0 && randParams.y.interval.y != 0)
+	{
+		float y = rand.Randf(randParams.y.interval.x, randParams.y.interval.y);
+		particle.m_Attributes.velocity.y = y;
+	}
+
+	if (randParams.z.interval.x != 0 && randParams.z.interval.y != 0)
+	{
+		float z = rand.Randf(randParams.z.interval.x, randParams.z.interval.y);
+		particle.m_Attributes.velocity.z = z;
+	}
 }
 
 void ParticleEffect::randomizeSize(Particle& particle)
 {
 	RandomParameter randParam = m_Settings.randSize;
-	float size = rand.Randf(randParam.interval.x, randParam.interval.y);
 
-	particle.m_Size = size;
+	if (randParam.interval.x != 0 && randParam.interval.y != 0)
+	{
+		float size = rand.Randf(randParam.interval.x, randParam.interval.y);
+		particle.m_Attributes.size = size;
+	}
 }
 
 void ParticleEffect::randomizeRotation(Particle& particle)
 {
 	RandomParameter randParam = m_Settings.randRotation;
-	float rot = rand.Randf(randParam.interval.x, randParam.interval.y);
 
-	particle.m_Rotation = rot;
+	if (randParam.interval.x != 0 && randParam.interval.y != 0)
+	{
+		float rot = rand.Randf(randParam.interval.x, randParam.interval.y);
+		particle.m_Attributes.rotation = rot;
+	}
+}
+
+void ParticleEffect::randomizeRotationSpeed(Particle& particle)
+{
+	RandomParameter randParam = m_Settings.randRotationSpeed;
+	
+	if (randParam.interval.x != 0 && randParam.interval.y != 0)
+	{
+		float rotSpeed = rand.Randf(randParam.interval.x, randParam.interval.y);
+		particle.m_Attributes.rotationSpeed = rotSpeed;
+	}
 }
 
 void ParticleEffect::randomizeLifetime(Particle& particle)
 {
 	RandomParameter randParam = m_Settings.randLifetime;
-	float lifetime = rand.Randf(randParam.interval.x, randParam.interval.y);
-
-	particle.m_Rotation = lifetime;
+	
+	if (randParam.interval.x != 0 && randParam.interval.y != 0)
+	{
+		float lifetime = rand.Randf(randParam.interval.x, randParam.interval.y);
+		particle.m_Attributes.lifetime = lifetime;
+	}
 }
 
 void ParticleEffect::updateResourceData(float3 cameraPos)
@@ -195,11 +238,11 @@ void ParticleEffect::updateResourceData(float3 cameraPos)
 #ifdef PARTICLESYSTEM_RENDER_DEAD_PARTICLES
 		if (!p.IsAlive())
 		{
-			p.m_Size = 0;
+			p.m_Attributes.size = 0;
 		}
 #endif // PARTICLESYSTEM_RENDER_DEAD_PARTICLES
 
-		tempData = { p.m_Position.x, p.m_Position.y, p.m_Position.z, p.m_Size };
+		tempData = { p.m_Attributes.position.x, p.m_Attributes.position.y, p.m_Attributes.position.z, p.m_Attributes.size, p.m_Attributes.rotation };
 		
 		m_ParticlesData[index++] = tempData;
 	}

@@ -765,19 +765,19 @@ Scene* FloppipTestScene(SceneManager* sm)
     settings.startValues.lifetime = 2;
     settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
 
-    // Need to fix EngineRand.rand() for negative values
+    // Need to fix EngineRand.rand() for negative values and better randomize close to 0
     RandomParameter3 randParam0 = { -35, 35, -35, 35, -35, 35 };
     RandomParameter3 randParam1 = { 0, 20, 0, 20, 0, 20 };
     randParam1.y = { 20, 100 };
-    RandomParameter randParam2 = { 2, 50 };
 
     settings.randPosition = randParam0;
     settings.randVelocity = randParam1;
-    settings.randSize = randParam2;
+    settings.randSize = { 2, 50 };
+    settings.randRotation = {0, 2*PI};
+    settings.randRotationSpeed = {-4, 4};
 
     pe = entity->AddComponent<component::ParticleEmitterComponent>(nullptr, &settings, true);
 
-    
 
     /* ---------------------- Skybox ---------------------- */
 
@@ -811,11 +811,10 @@ Scene* FloppipTestScene(SceneManager* sm)
     randParam0 = {  };
     randParam1 = { -5, 5, -5, 5, -5, 5 };
     randParam1.y = { 1, 10 };
-    randParam2 = { 0.5, 2 };
 
-    settings.randPosition = randParam0;
+    settings.randPosition = {0, 0};
     settings.randVelocity = randParam1;
-    settings.randSize = randParam2;
+    settings.randSize = { 0.5, 2 };
 
     Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/particle0.png"));
     pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
