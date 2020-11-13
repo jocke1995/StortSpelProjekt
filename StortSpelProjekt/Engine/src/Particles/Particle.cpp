@@ -25,9 +25,9 @@ bool Particle::IsAlive()
 	return m_Attributes.lifetime > 0;
 }
 
-void Particle::initDefaultValues(ParticleAttributes* defaultValues)
+void Particle::initValues(ParticleAttributes* startValues)
 {
-	m_Attributes = *defaultValues;
+	m_Attributes = *startValues;
 }
 
 void Particle::changeVelocity(float dt)

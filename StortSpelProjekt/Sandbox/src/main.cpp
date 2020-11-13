@@ -760,9 +760,9 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.particleCount = 8;
+    settings.particleCount = 200;
     settings.startValues.lifetime = 0.8;
-    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount * 2;
     settings.startValues.acceleration = {0, -3, 0};
 
     // Need to fix EngineRand.rand() for negative values
@@ -770,9 +770,9 @@ Scene* FloppipTestScene(SceneManager* sm)
     RandomParameter3 randParam1 = { -2, 2, -2, 2, -2, 2 };
     randParam1.y = { 2, 6 };
 
-    settings.randPosition = { 0, 0, 0, 0, 0, 0 };
+    settings.randPosition = { 0, 1, 0, 1, 0, 1 };
     settings.randVelocity = randParam1;
-    settings.randSize = { 0.2, 1 };
+    settings.randSize = { 0.2, 2 };
     settings.randRotationSpeed = { 0, 3 };
 
     Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
@@ -802,6 +802,26 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     
+
+    // Create test particleEffect
+    settings = {};
+    settings.particleCount = 200;
+    settings.startValues.lifetime = 0.81;
+    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount * 2;
+    settings.startValues.acceleration = { 0, 3, 0 };
+    
+    // Need to fix EngineRand.rand() for negative values
+    randParam0 = {};
+    randParam1 = { -2, 2, -2,2, -2, 2 };
+    randParam1.y = { 8, 20 };
+    
+    settings.randPosition = { 0, 6, 0, 6, 0, 6 };
+    settings.randVelocity = randParam1;
+    settings.randSize = { 3, 7 };
+    settings.randRotationSpeed = { 0, 6 };
+    
+    particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/default_particle.png"));
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
 
     /* ---------------------- Floor ---------------------- */
 

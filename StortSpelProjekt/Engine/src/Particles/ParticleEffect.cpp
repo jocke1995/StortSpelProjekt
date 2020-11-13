@@ -23,11 +23,13 @@
 EngineRand ParticleEffect::rand = {};
 
 
-ParticleEffect::ParticleEffect(component::ParticleEmitterComponent* pec, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings)
+ParticleEffect::ParticleEffect(Entity* parent, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings)
 {
-	m_pComponentParent = pec;
+	m_pEntity = parent;
 	m_pTexture = texture;
 	m_Settings = *settings;
+
+	m_Settings.spawnInterval = 1.6;
 
 	init(descriptorHeap);
 }
@@ -42,13 +44,12 @@ ParticleEffect::~ParticleEffect()
 void ParticleEffect::Update(double dt)
 {
 	m_TimeSinceSpawn += dt;
-	
-	// spawn particles
-	while (m_TimeSinceSpawn >= m_Settings.spawnInterval)
-	{
-		spawnParticle();
 
-		m_TimeSinceSpawn -= m_Settings.spawnInterval;
+	// If should particle spawn
+	if (isTimeToSpawnParticles())
+	{
+		bool spawned = spawnParticle();
+		m_TimeSinceSpawn = 0;
 	}
 
 	// Update all particles
@@ -67,12 +68,17 @@ Texture2DGUI* ParticleEffect::GetTexture() const
 	return m_pTexture;
 }
 
+bool ParticleEffect::isTimeToSpawnParticles() const
+{
+	return m_TimeSinceSpawn >= m_Settings.spawnInterval;
+}
+
 bool ParticleEffect::spawnParticle()
 {
 	// m_ParticleIndex is always at the oldest particle first
 	Particle& particle = m_Particles.at(m_ParticleIndex);
 
-	// If particle is alive, wait (don't spawn yet / continue)
+	// If particle is alive/can't spawn particle
 	if (particle.IsAlive())
 	{
 		return false;
@@ -85,6 +91,11 @@ bool ParticleEffect::spawnParticle()
 	initParticle(particle);
 
 	return true;
+}
+
+void ParticleEffect::resetEffect()
+{
+	m_TimeSinceSpawn = 0;
 }
 
 void ParticleEffect::init(DescriptorHeap* descriptorHeap)
@@ -133,7 +144,7 @@ void ParticleEffect::init(DescriptorHeap* descriptorHeap)
 void ParticleEffect::initParticle(Particle& particle)
 {
 	// Set start values
-	particle.initDefaultValues(&m_Settings.startValues);
+	particle.initValues(&m_Settings.startValues);
 
 	randomizePosition(particle);
 	randomizeVelocity(particle);
@@ -143,7 +154,7 @@ void ParticleEffect::initParticle(Particle& particle)
 	randomizeLifetime(particle);
 
 	// Add Entity transform position to start position.
-	component::TransformComponent* tc = m_pComponentParent->GetParent()->GetComponent<component::TransformComponent>();
+	component::TransformComponent* tc = m_pEntity->GetComponent<component::TransformComponent>();
 
 	if (tc != nullptr)
 	{
@@ -155,21 +166,21 @@ void ParticleEffect::randomizePosition(Particle& particle)
 {
 	RandomParameter3 randParams = m_Settings.randPosition;
 	
-	if (!(randParams.x.interval.x == 0 && randParams.x.interval.y == 0))
+	if (!(randParams.x.intervalLower == 0 && randParams.x.intervalUpper == 0))
 	{
-		float x = rand.Randf(randParams.x.interval.x, randParams.x.interval.y);
+		float x = rand.Randf(randParams.x.intervalLower, randParams.x.intervalUpper);
 		particle.m_Attributes.position.x = x;
 	}
 
-	if (!(randParams.y.interval.x == 0 && randParams.y.interval.y == 0))
+	if (!(randParams.y.intervalLower == 0 && randParams.y.intervalUpper == 0))
 	{
-		float y = rand.Randf(randParams.y.interval.x, randParams.y.interval.y);
+		float y = rand.Randf(randParams.y.intervalLower, randParams.y.intervalUpper);
 		particle.m_Attributes.position.y = y;
 	}
 
-	if (randParams.z.interval.x != 0 && randParams.z.interval.y != 0)
+	if (randParams.z.intervalLower != 0 && randParams.z.intervalUpper != 0)
 	{
-		float z = rand.Randf(randParams.z.interval.x, randParams.z.interval.y);
+		float z = rand.Randf(randParams.z.intervalLower, randParams.z.intervalUpper);
 		particle.m_Attributes.position.z = z;
 	}
 }
@@ -178,21 +189,21 @@ void ParticleEffect::randomizeVelocity(Particle& particle)
 {
 	RandomParameter3 randParams = m_Settings.randVelocity;
 
-	if (!(randParams.x.interval.x == 0 && randParams.x.interval.y == 0))
+	if (!(randParams.x.intervalLower == 0 && randParams.x.intervalUpper == 0))
 	{
-		float x = rand.Randf(randParams.x.interval.x, randParams.x.interval.y);
+		float x = rand.Randf(randParams.x.intervalLower, randParams.x.intervalUpper);
 		particle.m_Attributes.velocity.x = x;
 	}
 
-	if (!(randParams.y.interval.x == 0 && randParams.y.interval.y == 0))
+	if (!(randParams.y.intervalLower == 0 && randParams.y.intervalUpper == 0))
 	{
-		float y = rand.Randf(randParams.y.interval.x, randParams.y.interval.y);
+		float y = rand.Randf(randParams.y.intervalLower, randParams.y.intervalUpper);
 		particle.m_Attributes.velocity.y = y;
 	}
 
-	if (!(randParams.z.interval.x == 0 && randParams.z.interval.y == 0))
+	if (!(randParams.z.intervalLower == 0 && randParams.z.intervalUpper == 0))
 	{
-		float z = rand.Randf(randParams.z.interval.x, randParams.z.interval.y);
+		float z = rand.Randf(randParams.z.intervalLower, randParams.z.intervalUpper);
 		particle.m_Attributes.velocity.z = z;
 	}
 }
@@ -201,9 +212,9 @@ void ParticleEffect::randomizeSize(Particle& particle)
 {
 	RandomParameter randParam = m_Settings.randSize;
 
-	if (!(randParam.interval.x == 0 && randParam.interval.y == 0))
+	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
-		float size = rand.Randf(randParam.interval.x, randParam.interval.y);
+		float size = rand.Randf(randParam.intervalLower, randParam.intervalUpper);
 		particle.m_Attributes.size = size;
 	}
 }
@@ -212,9 +223,9 @@ void ParticleEffect::randomizeRotation(Particle& particle)
 {
 	RandomParameter randParam = m_Settings.randRotation;
 
-	if (!(randParam.interval.x == 0 && randParam.interval.y == 0))
+	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
-		float rot = rand.Randf(randParam.interval.x, randParam.interval.y);
+		float rot = rand.Randf(randParam.intervalLower, randParam.intervalUpper);
 		particle.m_Attributes.rotation = rot;
 	}
 }
@@ -223,9 +234,9 @@ void ParticleEffect::randomizeRotationSpeed(Particle& particle)
 {
 	RandomParameter randParam = m_Settings.randRotationSpeed;
 	
-	if (!(randParam.interval.x == 0 && randParam.interval.y == 0))
+	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
-		float rotSpeed = rand.Randf(randParam.interval.x, randParam.interval.y);
+		float rotSpeed = rand.Randf(randParam.intervalLower, randParam.intervalUpper);
 		particle.m_Attributes.rotationSpeed = rotSpeed;
 	}
 }
@@ -234,9 +245,9 @@ void ParticleEffect::randomizeLifetime(Particle& particle)
 {
 	RandomParameter randParam = m_Settings.randLifetime;
 	
-	if (!(randParam.interval.x == 0 && randParam.interval.y == 0))
+	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
-		float lifetime = rand.Randf(randParam.interval.x, randParam.interval.y);
+		float lifetime = rand.Randf(randParam.intervalLower, randParam.intervalUpper);
 		particle.m_Attributes.lifetime = lifetime;
 	}
 }
@@ -248,7 +259,7 @@ void ParticleEffect::updateResourceData(float3 cameraPos)
 	unsigned int index = 0;
 	for (Particle& p : m_Particles)
 	{
-#ifdef PARTICLESYSTEM_RENDER_DEAD_PARTICLES
+#if !PARTICLESYSTEM_RENDER_DEAD_PARTICLES
 		if (!p.IsAlive())
 		{
 			p.m_Attributes.size = 0;

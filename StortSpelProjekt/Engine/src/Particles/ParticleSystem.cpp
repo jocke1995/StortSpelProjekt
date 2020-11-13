@@ -44,6 +44,7 @@ void ParticleSystem::Update(double dt)
 void ParticleSystem::ActivateParticleEffect(ParticleEffect* effect)
 {
 	m_ActiveParticleEffects.insert(effect);
+	effect->resetEffect();
 
 	// Add to COPY_PER_FRAME
 	Renderer& renderer = Renderer::GetInstance();

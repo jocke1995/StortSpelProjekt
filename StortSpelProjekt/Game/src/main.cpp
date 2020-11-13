@@ -207,25 +207,6 @@ Scene* GameScene(SceneManager* sm)
     uc = entity->AddComponent<component::UpgradeComponent>();
     alc = entity->AddComponent<component::Audio3DListenerComponent>();
 
-    // Create test particleEffect
-    ParticleEffectSettings settings = {};
-    settings.particleCount = 50;
-    settings.startValues.lifetime = 0.7;
-    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
-    settings.startValues.rotation = { 1 };
-
-    RandomParameter3 randParam0 = {  };
-    RandomParameter3 randParam1 = { -5, 5, -5, 5, -5, 5 };
-    randParam1.y = { 1, 10 };
-
-    settings.randPosition = { 0, 0 };
-    settings.randVelocity = randParam1;
-    settings.randSize = { 0.5, 2 };
-    settings.randRotationSpeed = { 1, 6 };
-
-    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
-    pec = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
-
     Player::GetInstance().SetPlayer(entity);
 
     tc->GetTransform()->SetScale(0.9f);

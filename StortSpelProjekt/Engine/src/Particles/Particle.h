@@ -4,7 +4,7 @@
 struct ParticleAttributes
 {
 	float3 position = { 0, 0, 0 };
-	float3 velocity = { 0, 18, 0 };
+	float3 velocity = { 0, 0, 0 };
 	float3 acceleration = { 0, -9.82, 0 };
 	float size = 1;
 	float rotation = 0;
@@ -28,7 +28,7 @@ private:
 
 	ParticleAttributes m_Attributes;
 
-	void initDefaultValues(ParticleAttributes* defaultValues);
+	void initValues(ParticleAttributes* startValues);
 
 	void changeVelocity(float dt);
 };

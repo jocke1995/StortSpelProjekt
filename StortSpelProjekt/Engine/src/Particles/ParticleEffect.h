@@ -2,7 +2,7 @@
 #define PARTICLEEFFECT_H
 
 #define PARTICLE_EFFECT_DEFAULT_SIZE 100
-#define PARTICLESYSTEM_RENDER_DEAD_PARTICLES 0;
+#define PARTICLESYSTEM_RENDER_DEAD_PARTICLES true;
 
 #include <vector>
 #include "structs.h"
@@ -16,15 +16,14 @@ class ShaderResourceView;
 class UnorderedAccessView;
 class Texture2DGUI;
 class Mesh;
-namespace component
-{
-	class ParticleEmitterComponent;
-}
+
+class Entity;
 
 
 struct RandomParameter
 {
-	float2 interval = { 0.0f, 0.0f }; // default should be 0,0 rand does not work with 0,0
+	float intervalLower = 0.0f;
+	float intervalUpper = 0.0f;
 	//rand distribution
 };
 
@@ -57,7 +56,7 @@ struct ParticleEffectSettings
 class ParticleEffect
 {
 public:
-	ParticleEffect(component::ParticleEmitterComponent* pec, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings);
+	ParticleEffect(Entity* parent, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings);
 	~ParticleEffect();
 
 	void Update(double dt);
@@ -71,12 +70,12 @@ private:
 
 	static EngineRand rand;
 
-	component::ParticleEmitterComponent* m_pComponentParent = nullptr;
+	Entity* m_pEntity = nullptr;
 	Texture2DGUI* m_pTexture = nullptr;
 	std::vector<Particle> m_Particles;
 	std::vector<PARTICLE_DATA> m_ParticlesData;
 	unsigned int m_ParticleIndex = 0;
-	float m_TimeSinceSpawn = 0;
+	double m_TimeSinceSpawn = 0;
 
 	ParticleEffectSettings m_Settings = {};
 
@@ -88,8 +87,10 @@ private:
 	Resource* m_pDefaultResource = nullptr;
 	ShaderResourceView* m_pSRV = nullptr;
 
-
+	bool isTimeToSpawnParticles() const;
 	bool spawnParticle();
+
+	void resetEffect();
 
 	void init(DescriptorHeap* descriptorHeap);
 	
