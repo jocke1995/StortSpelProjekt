@@ -44,11 +44,6 @@ void component::ParticleEmitterComponent::OnUnInitScene()
 	renderer.UnInitParticleEmitterComponent(this);
 }
 
-void component::ParticleEmitterComponent::Clear()
-{
-	m_ParticleEffect;
-}
-
 void component::ParticleEmitterComponent::Play()
 {
 	if (m_IsPlaying)

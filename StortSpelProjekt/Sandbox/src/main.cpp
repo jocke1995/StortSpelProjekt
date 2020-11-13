@@ -760,9 +760,9 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.particleCount = 200;
+    settings.particleCount = 50;
     settings.startValues.lifetime = 0.8;
-    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount * 2;
+    settings.spawnInterval = 1;
     settings.startValues.acceleration = {0, -3, 0};
 
     // Need to fix EngineRand.rand() for negative values
@@ -805,9 +805,9 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Create test particleEffect
     settings = {};
-    settings.particleCount = 200;
-    settings.startValues.lifetime = 0.81;
-    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount * 2;
+    settings.particleCount = 10;
+    settings.startValues.lifetime = 0.8;
+    settings.spawnInterval = 1;
     settings.startValues.acceleration = { 0, 3, 0 };
     
     // Need to fix EngineRand.rand() for negative values

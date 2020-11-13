@@ -1139,8 +1139,8 @@ void Renderer::submitTextureToCodt(Texture* texture)
 
 void Renderer::submitToCpft(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
 {
-	CopyPerFrameTask* codt = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-	codt->Submit(Upload_Default_Data);
+	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+	cpft->Submit(Upload_Default_Data);
 }
 
 void Renderer::clearSpecificCpft(Resource* upload)

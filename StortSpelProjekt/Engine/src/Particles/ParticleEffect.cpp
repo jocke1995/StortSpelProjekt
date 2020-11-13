@@ -29,8 +29,6 @@ ParticleEffect::ParticleEffect(Entity* parent, DescriptorHeap* descriptorHeap, T
 	m_pTexture = texture;
 	m_Settings = *settings;
 
-	m_Settings.spawnInterval = 1.6;
-
 	init(descriptorHeap);
 }
 
@@ -280,7 +278,4 @@ void ParticleEffect::updateResourceData(float3 cameraPos)
 
 		return distFromCamI > distFromCamJ;
 	});
-
-	const void* data = static_cast<void*>(m_ParticlesData.data());
-	std::tuple temp = { m_pUploadResource, m_pDefaultResource, data };
 }
