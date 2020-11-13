@@ -136,17 +136,17 @@ void SceneManager::ChangeScene()
 			{
 				comp->Reset();
 			}
-
-			// Change the player back to its original position
-			SetScene(scene);
-			if (scene->GetName() == "MainMenuScene" || scene->GetName() == "OptionScene")
-			{
-				component::Audio2DVoiceComponent* vc = scene->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>();
-				vc->Play(L"MenuMusic");
-			}
-
-			m_ChangeSceneNextFrame = false;
 		}
+
+		// Change the player back to its original position
+		SetScene(scene);
+		if (scene->GetName() == "MainMenuScene" || scene->GetName() == "OptionScene")
+		{
+			component::Audio2DVoiceComponent* vc = scene->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>();
+			vc->Play(L"MenuMusic");
+		}
+
+		m_ChangeSceneNextFrame = false;
 
 		// Change the player back to its original position
 		SetScene(scene);
