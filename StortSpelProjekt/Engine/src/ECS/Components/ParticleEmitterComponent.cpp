@@ -9,13 +9,13 @@
 
 #include "../Misc/AssetLoader.h"
 
-component::ParticleEmitterComponent::ParticleEmitterComponent(Entity* parent)
-	:Component(parent)
+#include "../Particles/ParticleSystem.h"
+
+#include "../ECS/Entity.h"
+
+component::ParticleEmitterComponent::ParticleEmitterComponent(Entity* parent, Texture2DGUI* texture, ParticleEffectSettings* settings, bool playOnInit)
+	:Component(parent), m_PlayOnInit(playOnInit), m_ParticleEffect(Renderer::GetInstance().getCBVSRVUAVdHeap(), texture, settings)
 {
-	// Set default mesh and texture
-	AssetLoader* al = AssetLoader::Get();
-	m_pMesh = al->LoadModel(L"../Vendor/Resources/Models/Quad/NormalizedQuad.obj")->GetMeshAt(0);
-	m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/particle0.png"));
 }
 
 component::ParticleEmitterComponent::~ParticleEmitterComponent()
@@ -28,28 +28,53 @@ void component::ParticleEmitterComponent::RenderUpdate(double dt)
 
 void component::ParticleEmitterComponent::OnInitScene()
 {
+	if (m_PlayOnInit)
+	{
+		Play();
+	}
+	
+	Renderer& renderer = Renderer::GetInstance();
+	renderer.InitParticleEmitterComponent(this);
 }
 
 void component::ParticleEmitterComponent::OnUnInitScene()
 {
+	Stop();
+	Renderer& renderer = Renderer::GetInstance();
+	renderer.UnInitParticleEmitterComponent(this);
 }
 
-void component::ParticleEmitterComponent::SetMesh(Mesh* mesh)
+void component::ParticleEmitterComponent::Clear()
 {
-	m_pMesh = mesh;
+	m_ParticleEffect;
 }
 
-void component::ParticleEmitterComponent::SetTexture(Texture2DGUI* texture)
+void component::ParticleEmitterComponent::Play()
 {
-	m_pTexture = texture;
+	if (m_IsPlaying)
+	{
+		return;
+	}
+	ParticleSystem::GetInstance().ActivateParticleEffect(&m_ParticleEffect);
+	m_IsPlaying = true;
 }
 
-Mesh* component::ParticleEmitterComponent::GetMesh() const
+void component::ParticleEmitterComponent::Stop()
 {
-	return m_pMesh;
+	if (!m_IsPlaying)
+	{
+		return;
+	}
+	ParticleSystem::GetInstance().DeactivateParticleEffect(&m_ParticleEffect);
+	m_IsPlaying = false;
 }
 
-Texture2DGUI* component::ParticleEmitterComponent::GetTexture() const
+bool component::ParticleEmitterComponent::IsPlaying() const
 {
-	return m_pTexture;
+	return m_IsPlaying;
+}
+
+const ParticleEffect* component::ParticleEmitterComponent::GetParticleEffect() const
+{
+	return &m_ParticleEffect;
 }

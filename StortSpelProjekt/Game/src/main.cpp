@@ -11,11 +11,13 @@
 #include "Shop.h"
 #include "Components/CurrencyComponent.h"
 #include "MainMenuHandler.h"
+#include "GameOverHandler.h"
+#include "UpgradeGUI.h"
 
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
-Scene* GameOverScene(SceneManager* sm);
 
+void GameInitScene(Scene* scene);
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
@@ -53,12 +55,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*----- Set the scene -----*/
     Scene* demoScene = GameScene(sceneManager);
     Scene* shopScene = ShopScene(sceneManager);
-    Scene* gameOverScene = GameOverScene(sceneManager);
+    Scene* gameOverScene = GameOverHandler::GetInstance().CreateScene(sceneManager);
     Scene* mainMenuScene = MainMenuHandler::GetInstance().CreateScene(sceneManager);
 
     sceneManager->SetScene(mainMenuScene);
     sceneManager->SetGameOverScene(gameOverScene);
     GameNetwork gameNetwork;
+
+    /*-------- UpgradeGUI ---------*/
+    UpgradeGUI::GetInstance().Init();
 
     /*------ Network Init -----*/
 
@@ -89,11 +94,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         particleSystem->Update(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
-            logicTimer = 0;
+            if (logicTimer >= 0.5)
+            {
+                logicTimer = 0;
+            }
+            else
+            {
+                logicTimer -= updateRate;
+            }
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
             gameGUI.Update(updateRate, sceneManager->GetActiveScene());
+            UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
 
         /* ---- Network ---- */
@@ -119,6 +132,7 @@ Scene* GameScene(SceneManager* sm)
 {
     Scene* scene = sm->CreateScene("GameScene");
 
+#pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
@@ -141,11 +155,12 @@ Scene* GameScene(SceneManager* sm)
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
 	Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
 	Texture* healthHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthHolder.png");
+	Texture* crosshairTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Crosshair.png");
 	Texture* killedEnemiesHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/KilledEnemies.png");
 
-    /*--------------------- Assets ---------------------*/
+#pragma endregion
 
-    /*--------------------- Component declarations ---------------------*/
+#pragma region component declarations
     Entity* entity = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
     component::Audio3DListenerComponent* alc = nullptr;
@@ -166,9 +181,10 @@ Scene* GameScene(SceneManager* sm)
     component::HealthComponent* hc = nullptr;
     component::UpgradeComponent* uc = nullptr;
     component::GUI2DComponent* gui = nullptr;
-    /*--------------------- Component declarations ---------------------*/
+#pragma endregion
 
-    /*--------------------- Player ---------------------*/
+#pragma region entities
+#pragma region player
     // entity
     std::string playerName = "player";
     entity = scene->AddEntity(playerName);
@@ -218,9 +234,9 @@ Scene* GameScene(SceneManager* sm)
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
     Physics::GetInstance().AddCollisionEntity(entity);;
-    /*--------------------- Player ---------------------*/
+#pragma endregion
 
-    /*--------------------- DirectionalLight ---------------------*/
+#pragma region directional light
     entity = scene->AddEntity("sun");
 
     // components
@@ -232,17 +248,17 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetCameraRight(130.0f);
     dlc->SetCameraLeft(-180.0f);
     dlc->SetCameraNearZ(-1000.0f);
-    /*--------------------- DirectionalLight ---------------------*/
+#pragma endregion
 
-    /*--------------------- Enemy definitions ---------------------*/
+#pragma region enemy definitions
     // melee
 	EnemyComps zombie = {};
 	zombie.model = enemyModel;
-	zombie.hp = 30;
+	zombie.hp = 20;
 	zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
-	zombie.meleeAttackDmg = 5.0f;
+	zombie.meleeAttackDmg = 4.0f;
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
 	zombie.movementSpeed = 15.0f;
@@ -270,9 +286,18 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.rangeVelocity = 50.0f;
     rangedDemon.projectileModel = sphereModel;
 
-    /*--------------------- Enemy definitions ---------------------*/
+#pragma endregion
 
-    /* ---------------------- Teleporter ---------------------- */
+#pragma region Enemyfactory
+    enemyFactory.SetScene(scene);
+    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
+    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
+    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
+    enemyFactory.DefineEnemy("enemyZombie", &zombie);
+    enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
+#pragma endregion
+
+#pragma region teleporter
     entity = scene->AddEntity("teleporter");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -288,10 +313,11 @@ Scene* GameScene(SceneManager* sm)
 
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
-    /*--------------------- Teleporter ---------------------*/
+#pragma endregion
+#pragma endregion
 
-    /* ------------------------- GUI --------------------------- */
-	/* ----------------- healthBackground ---------------------- */
+#pragma region GUI
+#pragma region health background
 	std::string textToRender = "";
 	float2 textPos = { 0.473f, 0.965f };
 	float2 textPadding = { 0.8f, 0.0f };
@@ -338,9 +364,9 @@ Scene* GameScene(SceneManager* sm)
 		0,
 		notBlended,
 		healthBackgroundTexture);
-	/* ---------------------------------------------------------- */
+#pragma endregion
 
-	/* ------------------------- healthHolder --------------------------- */
+#pragma region health holder
 	entity = scene->AddEntity("healthHolder");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	quadPos = { 0.35f, 0.85f };
@@ -352,9 +378,9 @@ Scene* GameScene(SceneManager* sm)
 		1,
 		notBlended,
 		healthHolderTexture);
-	/* ---------------------------------------------------------- */
+#pragma endregion
 
-	/* ------------------------- healthbar --------------------------- */
+#pragma region health bar
 	entity = scene->AddEntity("healthbar");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	quadPos = { 0.365f, 0.892f };
@@ -367,9 +393,9 @@ Scene* GameScene(SceneManager* sm)
 		notBlended,
 		healthbarTexture,
 		float3{ 0.0f, 1.0f, 0.0f });
-	/* ---------------------------------------------------------- */
+#pragma endregion
 
-	/* ------------------------- healthGuardians --------------------------- */
+#pragma region health guardians
 	entity = scene->AddEntity("healthGuardians");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	quadPos = { 0.32f, 0.86f };
@@ -381,9 +407,24 @@ Scene* GameScene(SceneManager* sm)
 		3,
 		blended,
 		healthGuardiansTexture);
-	/* ---------------------------------------------------------- */
+#pragma endregion
 
-	/* ------------------------- money --------------------------- */
+#pragma region crosshair
+	blended = { 1.0, 1.0, 1.0, 0.7 };
+	entity = scene->AddEntity("crosshair");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.497f, 0.495f };
+	quadScale = { 0.006f, 0.01f };
+	gui->GetQuadManager()->CreateQuad(
+		"crosshair",
+		quadPos, quadScale,
+		false, false,
+		3,
+		blended,
+		crosshairTexture);
+#pragma endregion
+
+#pragma region money
     textToRender = "0";
     textPos = { 0.95f, 0.03f };
     textPadding = { 0.5f, 0.0f };
@@ -413,8 +454,9 @@ Scene* GameScene(SceneManager* sm)
         notBlended,
         currencyIcon
     );
+#pragma endregion
 
-	/* ------------------------- killedEnemies --------------------------- */
+#pragma region killed enemies
     textToRender = "0/20";
     textPos = { 0.074f, 0.044f };
     textPadding = { 0.5f, 0.0f };
@@ -444,17 +486,7 @@ Scene* GameScene(SceneManager* sm)
 		notBlended,
 		killedEnemiesHolderTexture
 	);
-
-    /* --------------------------- GUI ------------------------------- */
-
-#pragma region Enemyfactory
-    enemyFactory.SetScene(scene);
-    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
-    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
-    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("enemyZombie", &zombie);
-    enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
-    enemyFactory.SetActive(true);
+#pragma endregion
 #pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
@@ -462,42 +494,8 @@ Scene* GameScene(SceneManager* sm)
 
     scene->SetUpdateScene(&GameUpdateScene);
 
-    return scene;
-}
+    scene->SetOnInit(&GameInitScene);
 
-Scene* GameOverScene(SceneManager* sm)
-{
-    AssetLoader* al = AssetLoader::Get();
-
-    // Create Scene
-    Scene* scene = sm->CreateScene("gameOverScene");
-
-    // Player (Need a camera)
-    Entity* entity = scene->AddEntity("player");
-    entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-
-    // Skybox
-    entity = scene->AddEntity("skybox");
-    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
-    sbc->SetTexture(blackCubeMap);
-
-    // Game over Text
-    Entity* text = scene->AddEntity("gameOverText");
-    component::GUI2DComponent* textComp = text->AddComponent<component::GUI2DComponent>();
-    textComp->GetTextManager()->AddText("GameOverText");
-    textComp->GetTextManager()->SetScale({2, 2}, "GameOverText");
-    textComp->GetTextManager()->SetPos({0.29, 0.41}, "GameOverText");
-    textComp->GetTextManager()->SetText("Game Over", "GameOverText");
-
-    // text2
-    Entity* text2 = scene->AddEntity("youDiedText");
-    component::GUI2DComponent* textComp2 = text2->AddComponent<component::GUI2DComponent>();
-    textComp->GetTextManager()->AddText("youDiedText");
-    textComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "youDiedText");
-    textComp->GetTextManager()->SetPos({ 0.43, 0.56 }, "youDiedText");
-    textComp->GetTextManager()->SetText("(You Died...)", "youDiedText");
-    
     return scene;
 }
 
@@ -538,7 +536,6 @@ Scene* ShopScene(SceneManager* sm)
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
 	Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
 	Texture* healthHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthHolder.png");
-
     Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
@@ -866,11 +863,16 @@ Scene* ShopScene(SceneManager* sm)
     return scene;
 }
 
+void GameInitScene(Scene* scene)
+{
+}
+
 void GameUpdateScene(SceneManager* sm, double dt)
 {
     if (ImGuiHandler::GetInstance().GetBool("reset"))
     {
         ImGuiHandler::GetInstance().SetBool("reset", false);
+        EventBus::GetInstance().Publish(&ResetGame());
     }
 }
 

@@ -12,9 +12,12 @@ class Mesh;
 class Shader;
 class Texture;
 class TextureCubeMap;
+class Texture2DGUI;
 class Material;
 class Window;
 class Scene;
+class ParticleEffect;
+
 struct ID3D12Device5;
 struct Vertex;
 struct Font;
@@ -24,6 +27,7 @@ struct aiMesh;
 struct aiMaterial;
 struct aiNodeAnim;
 struct aiBone;
+struct ParticleEffectSettings;
 
 class AnimatedModel;
 class AnimatedMesh;

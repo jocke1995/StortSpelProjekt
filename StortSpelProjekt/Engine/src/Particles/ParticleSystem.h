@@ -2,6 +2,9 @@
 #define PARTICLESYSTEM_H
 
 class ParticleEffect;
+class DescriptorHeap;
+
+#include <unordered_set>
 
 namespace component
 {
@@ -16,12 +19,15 @@ public:
 
 	void Update(double dt);
 
-	void OnResetScene(); // Kanske
+	void ActivateParticleEffect(ParticleEffect* effect);
+	void DeactivateParticleEffect(ParticleEffect* effect);
 
 private:
 	ParticleSystem();
 
-	ParticleEffect* effect;
+	// Temp code todo: vector of effectComponents. component::init() pushes in.
+	std::unordered_set<ParticleEffect*> m_ActiveParticleEffects;
+
 };
 
 #endif

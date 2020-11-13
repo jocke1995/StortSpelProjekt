@@ -119,6 +119,18 @@ std::map<std::string, int> UpgradeManager::GetAppliedUpgradesLevel()
 	return m_AppliedUpgradeLevel;
 }
 
+void UpgradeManager::RemoveAllUpgrades()
+{
+	m_AllAppliedProjectileUpgrades.clear();
+	m_AppliedUpgradeEnums.clear();
+	m_AppliedUpgradeLevel.clear();
+}
+
+std::map<std::string, int> UpgradeManager::GetAppliedUpgradeEnums()
+{
+	return m_AppliedUpgradeEnums;
+}
+
 void UpgradeManager::fillUpgradeMap()
 {
 	Upgrade* upgrade;
@@ -210,3 +222,4 @@ Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 		break;
 	}
 }
+

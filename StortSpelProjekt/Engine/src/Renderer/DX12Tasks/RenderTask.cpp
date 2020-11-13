@@ -8,6 +8,8 @@
 #include "../SwapChain.h"
 #include "../GPUMemory/DepthStencil.h"
 
+
+
 RenderTask::RenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,

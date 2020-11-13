@@ -41,9 +41,6 @@ protected:
 	D3D12_RESOURCE_DESC m_ResourceDescription = {};
 	Resource* m_pDefaultResource = nullptr;
 	Resource* m_pUploadResource = nullptr;
-
-	// Temp until scene is properly loaded when a change of scene happens
-	bool m_HasBeenUploadedToDefault = false;
 };
 
 #endif

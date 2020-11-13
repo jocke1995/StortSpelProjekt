@@ -13,9 +13,10 @@ public:
 	void IncreaseLevel();
 	void ApplyBoughtUpgrade();
 
+	std::string GetDescription(unsigned int level);
+
 private:
 	int m_DamageChange;
-	int m_StartingDamageChange;
 };
 
 #endif // !UPGRADE_MELEE_DAMAGE_H
