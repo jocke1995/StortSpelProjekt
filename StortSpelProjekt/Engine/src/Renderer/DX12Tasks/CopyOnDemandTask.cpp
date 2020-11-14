@@ -88,6 +88,13 @@ void CopyOnDemandTask::Execute()
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
+	if (m_UploadDefaultData.size() > 0)
+	{
+		static int counter = 0;
+		Log::Print("CopyOnDemand: %d runs with size: %d}\n", counter, m_UploadDefaultData.size());
+		counter++;
+	}
+
 	// record the "small" data, such as constantbuffers..
 	for (auto& tuple : m_UploadDefaultData)
 	{

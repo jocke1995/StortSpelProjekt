@@ -68,7 +68,8 @@ void TextManager::AddText(std::string name)
 		Log::PrintSeverity(Log::Severity::WARNING, "It already exists a text with the name '%s'! Overwriting text data...\n", name.c_str());
 	}
 
-	m_TextDataMap[name] = textData;
+	m_TextDataMap.insert({ name, textData });
+	uploadTextData(name, &Renderer::GetInstance());
 }
 
 void TextManager::SetFont(Font* font)
@@ -245,8 +246,8 @@ void TextManager::submitText(Text* text, std::string name)
 void TextManager::replaceText(Text* text, std::string name)
 {
 	bool found = false;
-	auto it = m_TextDataMap.find(name);
-	if (it != m_TextDataMap.end())
+	auto it = m_TextMap.find(name);
+	if (it != m_TextMap.end())
 	{
 		deleteTextData(name);
 		m_TextMap[name] = text;
@@ -273,8 +274,8 @@ void TextManager::uploadTextData(std::string name, Renderer* renderer)
 
 	// Look if the text exists
 	bool exists = false;
-	auto it = m_TextDataMap.find(name);
-	if (it != m_TextDataMap.end())
+	auto it = m_TextMap.find(name);
+	if (it != m_TextMap.end())
 	{
 		exists = true;
 	}

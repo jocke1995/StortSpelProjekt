@@ -63,11 +63,11 @@ void QuadManager::CreateQuad(
 	float3 color)
 {
 	// We can't create a quad if the quad is already created!
-	/*if (m_pQuad != nullptr)
+	if (m_pQuad != nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "This quad is already created... Could not create a new quad with the name %s!\n", name.c_str());
 		return;
-	}*/
+	}
 
 	if (m_pQuadTexture == nullptr && texture != nullptr)
 	{
@@ -122,7 +122,7 @@ void QuadManager::CreateQuad(
 
 	m_pQuad = new Mesh(
 		&m_Vertices, &indices,
-		to_wstring(std::to_string(m_Id)));
+		to_wstring(m_Name));
 
 	m_pQuad->Init(renderer->m_pDevice5, renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 
