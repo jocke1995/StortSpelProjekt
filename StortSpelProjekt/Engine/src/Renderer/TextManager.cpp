@@ -264,15 +264,14 @@ void TextManager::uploadTextData(std::string name)
 {
 	Renderer* renderer = &Renderer::GetInstance();
 
-	int numOfCharacters = GetNumOfCharacters(name);
 	auto textData = GetTextData(name);
 
 	Text* text = new Text(
 		renderer->m_pDevice5,
 		renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
-		numOfCharacters,
-		m_pFont->GetTexture());
-	text->SetTextData(textData, m_pFont);
+		m_pFont->GetTexture(),
+		textData,
+		m_pFont);
 
 	// Look if the text exists
 	bool exists = false;
