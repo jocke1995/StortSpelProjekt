@@ -136,7 +136,9 @@ private:
 	friend class SceneManager;
 	friend class TextManager;
 	friend class QuadManager;
+
 	Renderer();
+
 	// For control of safe release of DirectX resources
 	void deleteRenderer();
 

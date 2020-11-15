@@ -35,6 +35,7 @@ Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfC
 		m_pDefaultResourceVertices);
 
 	m_pSlotInfo = new SlotInfo();
+
 	m_pSlotInfo->vertexDataIndex = m_pSRV->GetDescriptorHeapIndex();
 	m_pSlotInfo->textureAlbedo = texture->GetDescriptorHeapIndex();
 }

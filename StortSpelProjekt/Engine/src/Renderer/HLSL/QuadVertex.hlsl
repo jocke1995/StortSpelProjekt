@@ -15,7 +15,7 @@ struct vertex
 	float3 tang;
 };
 
-ConstantBuffer<CB_PER_GUI2D_OBJECT_STRUCT> cbPerObject : register(b1, space3);
+ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
 
 StructuredBuffer<vertex> meshes[] : register(t0);
 

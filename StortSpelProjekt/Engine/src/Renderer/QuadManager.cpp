@@ -14,10 +14,12 @@
 #include "../Misc/AssetLoader.h"
 
 #include "../Events/EventBus.h"
+
 void SendButtonEvent(const std::string& name)
 {
 	EventBus::GetInstance().Publish(&ButtonPressed(name));
 }
+
 QuadManager::QuadManager()
 {
 	m_Id = s_Id;
@@ -161,7 +163,7 @@ void QuadManager::CreateQuad(
 		}
 	}
 
-	uploadQuadData(renderer);
+	uploadQuadData();
 }
 
 void QuadManager::UpdateQuad(float2 pos, float2 size, bool clickable, bool markable, float4 blend, float3 color)
@@ -306,8 +308,9 @@ void QuadManager::pressed(MouseClick* evnt)
 	}
 }
 
-void QuadManager::uploadQuadData(Renderer* renderer)
+void QuadManager::uploadQuadData()
 {
+	Renderer* renderer = &Renderer::GetInstance();
 	AssetLoader* al = AssetLoader::Get();
 
 	// Submit to GPU

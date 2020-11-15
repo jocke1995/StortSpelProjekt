@@ -69,7 +69,7 @@ void TextManager::AddText(std::string name)
 	}
 
 	m_TextDataMap.insert({ name, textData });
-	uploadTextData(name, &Renderer::GetInstance());
+	uploadTextData(name);
 }
 
 void TextManager::SetFont(Font* font)
@@ -85,7 +85,7 @@ void TextManager::SetText(std::string text, std::string name)
 	{
 		m_TextDataMap[name].text = to_wstring(text);
 		exists = true;
-		uploadTextData(name, &Renderer::GetInstance());
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -102,7 +102,7 @@ void TextManager::SetPos(float2 textPos, std::string name)
 	{
 		m_TextDataMap[name].pos = textPos;
 		exists = true;
-		uploadTextData(name, &Renderer::GetInstance());
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -138,7 +138,7 @@ void TextManager::SetScale(float2 scale, std::string name)
 		m_TextDataMap[name].scale.y = (scale.y * scale_y * aspect);
 
 		exists = true;
-		uploadTextData(name, renderer);
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -155,7 +155,7 @@ void TextManager::SetPadding(float2 padding, std::string name)
 	{
 		m_TextDataMap[name].padding = padding;
 		exists = true;
-		uploadTextData(name, &Renderer::GetInstance());
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -172,7 +172,7 @@ void TextManager::SetColor(float4 color, std::string name)
 	{
 		m_TextDataMap[name].color = color;
 		exists = true;
-		uploadTextData(name, &Renderer::GetInstance());
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -189,7 +189,7 @@ void TextManager::SetBlend(float4 blend, std::string name)
 	{
 		m_TextDataMap[name].blendFactor = blend;
 		exists = true;
-		uploadTextData(name, &Renderer::GetInstance());
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -260,8 +260,10 @@ void TextManager::replaceText(Text* text, std::string name)
 	}
 }
 
-void TextManager::uploadTextData(std::string name, Renderer* renderer)
+void TextManager::uploadTextData(std::string name)
 {
+	Renderer* renderer = &Renderer::GetInstance();
+
 	int numOfCharacters = GetNumOfCharacters(name);
 	auto textData = GetTextData(name);
 

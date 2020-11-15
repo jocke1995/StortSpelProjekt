@@ -748,7 +748,7 @@ void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 	{
 		for (auto textData : *textDataMap)
 		{
-			component->GetTextManager()->uploadTextData(textData.first, this);
+			component->GetTextManager()->uploadTextData(textData.first);
 		}
 
 		// Finally store the text in m_pRenderer so it will be drawn
@@ -2435,6 +2435,7 @@ void Renderer::submitTextToGPU(Text* text, TextManager* tm)
 	Resource* uploadR = text->m_pUploadResourceVertices;
 	Resource* defaultR = text->m_pDefaultResourceVertices;
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+
 	codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 
 	AssetLoader* al = AssetLoader::Get();
