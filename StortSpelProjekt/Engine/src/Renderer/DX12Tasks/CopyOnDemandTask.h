@@ -15,7 +15,6 @@ public:
 
 	void SubmitTexture(Texture* texture);
 
-	// IDEKWIAMDOING
 	void UnSubmitMesh(Mesh* mesh);
 	void UnSubmitText(Text* text);
 

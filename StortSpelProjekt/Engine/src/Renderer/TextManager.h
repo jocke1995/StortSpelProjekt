@@ -38,7 +38,7 @@ public:
 	std::map<std::string, Text*>* GetTextMap();
 	const int GetNumOfTexts() const;
 	const int GetNumOfCharacters(std::string name) const;
-
+	void uploadTextData(std::string name);
 private:
 	friend class Renderer;
 
@@ -51,7 +51,7 @@ private:
 
 	void submitText(Text* text, std::string name);
 	void replaceText(Text* text, std::string name);
-	void uploadTextData(std::string name);
+
 	void deleteTextData(std::string name);
 };
 #endif

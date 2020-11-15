@@ -757,7 +757,7 @@ void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 
 	if (quad != nullptr)
 	{
-		component->GetQuadManager()->uploadQuadData(this);
+		component->GetQuadManager()->uploadQuadData();
 
 		// Finally store the quad in m_pRenderer so it will be drawn
 		m_QuadComponents.push_back(component);

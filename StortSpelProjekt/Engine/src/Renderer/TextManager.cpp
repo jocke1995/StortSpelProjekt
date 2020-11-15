@@ -250,7 +250,7 @@ void TextManager::replaceText(Text* text, std::string name)
 	if (it != m_TextMap.end())
 	{
 		deleteTextData(name);
-		m_TextMap[name] = text;
+		m_TextMap.insert({ name, text });
 		found = true;
 	}
 
@@ -322,5 +322,6 @@ void TextManager::deleteTextData(std::string name)
 		}
 
 		m_TrashBuffer.push_back(m_TextMap[name]);
+		m_TextMap.erase(name);
 	}
 }
