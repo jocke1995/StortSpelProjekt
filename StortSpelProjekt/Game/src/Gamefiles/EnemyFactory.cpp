@@ -4,6 +4,7 @@
 #include "Components/HealthComponent.h"
 #include "Components/EnemyComponent.h"
 #include "Misc/EngineRand.h"
+#include "Physics/CollisionCategories/EnemyCollisionCategory.h"
 
 EnemyFactory::EnemyFactory()
 {
@@ -245,6 +246,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	{
 		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 		bbc->Init();
+		bbc->AddCollisionCategory<EnemyCollisionCategory>();
 		Physics::GetInstance().AddCollisionEntity(ent);
 	}
 

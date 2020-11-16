@@ -52,5 +52,6 @@ private:
 	void submitText(Text* text, std::string name);
 	void replaceText(Text* text, std::string name);
 	void uploadTextData(std::string name, Renderer* renderer);
+	void deleteTextData(std::string name);
 };
 #endif
