@@ -214,6 +214,11 @@ void component::CollisionComponent::SetGravity(double gravity)
 	}
 }
 
+void component::CollisionComponent::SetCollidesWith(CollisionComponent* other, bool collides)
+{
+	m_pBody->setIgnoreCollisionCheck(other->m_pBody, !collides);
+}
+
 void component::CollisionComponent::SetUserID(int id)
 {
 	m_UserID = id;
