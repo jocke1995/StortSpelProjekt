@@ -491,9 +491,11 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	std::string modelPath;
 	modelPath.reserve(128);
 	std::string texturePath;
-	modelPath.reserve(128);
+	texturePath.reserve(128);
 	std::string toSubmit;
 	toSubmit.reserve(128);
+	std::string particleTexturePath;
+	particleTexturePath.reserve(128);
 	unsigned int flag;
 	unsigned int flagVal;
 	bool drawFlags[FLAG_DRAW::NUM_FLAG_DRAWS] = { 0 };
@@ -524,6 +526,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	HeightMapInfo hmInfo;
 	std::string fullPath;
 	fullPath.reserve(256);
+	std::string fullParticleTexturePath;
+	fullParticleTexturePath.reserve(256);
 	float2 size = { 0.0, 0.0 };
 	int quad1 = 0;
 	int quad2 = 0;
@@ -535,6 +539,9 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	std::string navMeshType;
 	navMeshType.reserve(128);
 
+	ParticleEffectSettings particleSettings = {};
+	bool particlePlayOnInit = false;
+
 	NavMesh* navMesh;
 
 	component::ModelComponent* mc = nullptr;
@@ -545,6 +552,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	component::CollisionComponent* cc = nullptr;
 	component::SkyboxComponent* sbc = nullptr;
 	component::BoundingBoxComponent* bbc = nullptr;
+	component::ParticleEmitterComponent* pe = nullptr;
 	Entity* entity = nullptr;
 	if (file != NULL)
 	{
@@ -677,6 +685,82 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			else if (strcmp(lineHeader.c_str(), "TexturePath") == 0)
 			{
 				fscanf(file, "%s", texturePath.c_str());
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleTexturePath") == 0)
+			{
+				fscanf(file, "%s", particleTexturePath.c_str());
+				fullParticleTexturePath = path;
+				fullParticleTexturePath = fullParticleTexturePath.substr(0, fullParticleTexturePath.find_last_of("/") + 1).c_str();
+				fullParticleTexturePath += particleTexturePath.c_str();
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleCount") == 0)
+			{
+				fscanf(file, "%d", &particleSettings.particleCount);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleSpawnInterval") == 0)
+			{
+				fscanf(file, "%f", &particleSettings.spawnInterval);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleStartPosition") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &particleSettings.startValues.position.x, &particleSettings.startValues.position.y, &particleSettings.startValues.position.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleStartVelocity") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &particleSettings.startValues.velocity.x, &particleSettings.startValues.velocity.y, &particleSettings.startValues.velocity.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleStartAcceleration") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &particleSettings.startValues.acceleration.x, &particleSettings.startValues.acceleration.y, &particleSettings.startValues.acceleration.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleStartSize") == 0)
+			{
+				fscanf(file, "%f", &particleSettings.startValues.size);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleStartRotation") == 0)
+			{
+				fscanf(file, "%f", &particleSettings.startValues.rotation);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleStartRotationSpeed") == 0)
+			{
+				fscanf(file, "%f", &particleSettings.startValues.rotationSpeed);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleStartLifetime") == 0)
+			{
+				fscanf(file, "%f", &particleSettings.startValues.lifetime);
+			}
+			// TODO
+			/*else if (strcmp(lineHeader.c_str(), "ParticleStartColor") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &particleStartValues.color.z, &particleStartValues.color.y, &particleStartValues.color.z);
+			}*/
+			else if (strcmp(lineHeader.c_str(), "ParticleRandPosition") == 0)
+			{
+				fscanf(file, "%f,%f,%f,%f,%f,%f", &particleSettings.randPosition.x.intervalLower, &particleSettings.randPosition.x.intervalUpper, &particleSettings.randPosition.y.intervalLower, &particleSettings.randPosition.y.intervalUpper, &particleSettings.randPosition.z.intervalLower, &particleSettings.randPosition.z.intervalUpper);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleRandVelocity") == 0)
+			{
+				fscanf(file, "%f,%f,%f,%f,%f,%f", &particleSettings.randVelocity.x.intervalLower, &particleSettings.randVelocity.x.intervalUpper, &particleSettings.randVelocity.y.intervalLower, &particleSettings.randVelocity.y.intervalUpper, &particleSettings.randVelocity.z.intervalLower, &particleSettings.randVelocity.z.intervalUpper);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleRandSize") == 0)
+			{
+				fscanf(file, "%f,%f", &particleSettings.randSize.intervalLower, &particleSettings.randSize.intervalUpper);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleRandRotation") == 0)
+			{
+				fscanf(file, "%f,%f", &particleSettings.randRotation.intervalLower, &particleSettings.randRotation.intervalUpper);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleRandRotationSpeed") == 0)
+			{
+				fscanf(file, "%f,%f", &particleSettings.randRotationSpeed.intervalLower, &particleSettings.randRotationSpeed.intervalUpper);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleRandLifetime") == 0)
+			{
+				fscanf(file, "%f,%f", &particleSettings.randLifetime.intervalLower, &particleSettings.randLifetime.intervalUpper);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticlePlayOnInit") == 0)
+			{
+				fscanf(file, "%d", &particlePlayOnInit);
 			}
 			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
 			{
@@ -882,6 +966,11 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					TextureCubeMap* skyboxCubemap = AssetLoader::LoadTextureCubeMap(to_wstring(fullPath));
 					sbc = entity->AddComponent<component::SkyboxComponent>();
 					sbc->SetTexture(skyboxCubemap);
+				}
+				else if (strcmp(toSubmit.c_str(), "ParticleEffect") == 0)
+				{
+					Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(AssetLoader::LoadTexture2D(to_wstring(fullParticleTexturePath)));
+					pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &particleSettings, particlePlayOnInit);
 				}
 			}
 		}

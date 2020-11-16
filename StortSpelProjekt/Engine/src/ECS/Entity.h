@@ -29,6 +29,7 @@
 #include "Components/Lights/DirectionalLightComponent.h"
 #include "Components/Lights/SpotLightComponent.h"
 
+#include "Components/ParticleEmitterComponent.h"
 
 static unsigned int staticID = 0;
 class Entity
