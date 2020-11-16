@@ -17,4 +17,4 @@ private:
 
 };
 
-#endif // !UPGRADE_BLUE_JEWEL_H
+#endif // !UPGRADE_RANGE_BOUNCE_H
