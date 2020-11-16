@@ -9,6 +9,7 @@
 #include "Renderer/Renderer.h"
 #include "Misc/Window.h"
 #include "Misc/GUI2DElements/Font.h"
+#include "Misc/EngineRand.h"
 #include <iomanip>
 #include <sstream>
 
@@ -60,10 +61,15 @@ void MainMenuHandler::createOptionScene()
 
 	Font* arial = al->LoadFontFromFile(L"Arial.fnt");
 
+    AudioBuffer* menuSound = al->LoadAudio(L"../Vendor/Resources/Audio/Menu.wav", L"MenuMusic");
+    menuSound->SetAudioLoop(0);
+
     // Player (Need a camera)
     Entity* entity = m_pOptionScene->AddEntity("player");
     entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    // Add a voice to the player to play some music.
     vc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    vc->AddVoice(L"MenuMusic");
 
     // Skybox
     entity = m_pOptionScene->AddEntity("skybox");
@@ -393,6 +399,9 @@ MainMenuHandler::~MainMenuHandler()
 
 Scene* MainMenuHandler::CreateScene(SceneManager* sm)
 {
+    EngineRand rand;
+    rand.SetSeed(time(0));
+
     AssetLoader* al = AssetLoader::Get();
 
     Scene* scene = sm->CreateScene("MainMenuScene");
@@ -403,8 +412,10 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     Texture* startTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Start.png");
     Texture* optionsTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Options.png");
     Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Exit.png");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");
 
     AudioBuffer* menuSound = al->LoadAudio(L"../Vendor/Resources/Audio/Menu.wav", L"MenuMusic");
+    menuSound->SetAudioLoop(0);
 
     // Player (Need a camera)
     Entity* entity = scene->AddEntity("player");
@@ -412,6 +423,25 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     // Add a voice to the player to play some music.
     vc = entity->AddComponent<component::Audio2DVoiceComponent>();
     vc->AddVoice(L"MenuMusic");
+
+    component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
+    component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
+    mc->SetModel(playerModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    double3 playerDim = mc->GetModelDim();
+    Transform* t = tc->GetTransform();
+    t->SetPosition(0.0f, 0.0f, 10.0f);
+    t->SetScale(2.0 / playerDim.y);
+    t->SetRotationX(0.0);
+    t->SetRotationY(PI);
+    t->SetRotationZ(0.0);
+    tc->SetTransformOriginalState();
+
+
+    double rad = playerDim.z / 2.0;
+    double cylHeight = playerDim.y - (rad * 2.0);
+    component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
+    cc->SetGravity(0.0);
 
     // Skybox
     entity = scene->AddEntity("skybox");
@@ -436,26 +466,32 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.4f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, exitTex);
     guic->GetQuadManager()->SetOnClicked(&onExit);
 
-    Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
-    entity = scene->AddEntity("Zombie");
-    component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
-    component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
-    mc->SetModel(enemyModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    Transform* t = tc->GetTransform();
-    t->SetPosition(0.0, 0.0, 10.0);
-    t->SetScale(0.03);
-    t->SetRotationX(0.0);
-    t->SetRotationY(PI);
-    t->SetRotationZ(0.0);
-    tc->SetTransformOriginalState();
+    std::vector<Model*> enemyModels;
+    enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj"));
+    enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj"));
+    for (int i = 0; i < 20; ++i)
+    {
+        entity = scene->AddEntity("menuEnemy" + std::to_string(i));
+        component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
+        component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
+        int enemyModel = rand.Rand(0, enemyModels.size());
+        mc->SetModel(enemyModels.at(enemyModel));
+        mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+        double3 enemyDim = mc->GetModelDim();
+        Transform* t = tc->GetTransform();
+        t->SetPosition(rand.Randf(0.0, 20.0) - 10.0f, 0.0, rand.Randf(0.0, 20.0));
+        t->SetScale(2.0 / enemyDim.y);
+        t->SetRotationX(0.0);
+        t->SetRotationY(PI);
+        t->SetRotationZ(0.0);
+        tc->SetTransformOriginalState();
 
-    double3 playerDim = mc->GetModelDim();
 
-    double rad = playerDim.z / 2.0;
-    double cylHeight = playerDim.y - (rad * 2.0);
-    component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
-    cc->SetGravity(0.0);
+        double rad = enemyDim.z / 2.0;
+        double cylHeight = enemyDim.y - (rad * 2.0);
+        component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
+        cc->SetGravity(0.0);
+    }
     /* ----------------- Light ------------------- */
 
     entity = scene->AddEntity("SpotLight");
@@ -682,9 +718,18 @@ void onVolumeMinus(const std::string& name)
 void MainMenuUpdateScene(SceneManager* sm, double dt)
 {
     static float rotValue = 0.0f;
-    Transform* trans = sm->GetScene("MainMenuScene")->GetEntity("Zombie")->GetComponent<component::TransformComponent>()->GetTransform();
+
+    Transform* trans = sm->GetScene("MainMenuScene")->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform();
     trans->SetRotationY(rotValue);
-    trans->SetPosition({ 0.0, std::sin(rotValue), 10.0 });
+    trans->SetPosition({ 0.0f, std::sin(rotValue), 10.0f });
+
+    for (int i = 0; i < 20; ++i)
+    {
+        trans = sm->GetScene("MainMenuScene")->GetEntity("menuEnemy" + std::to_string(i))->GetComponent<component::TransformComponent>()->GetTransform();
+        trans->SetRotationY(rotValue + i);
+        float3 pos = trans->GetPositionFloat3();
+        trans->SetPosition({ pos.x, std::sin(rotValue + i), pos.z });
+    }
 
     rotValue += dt;
 }
