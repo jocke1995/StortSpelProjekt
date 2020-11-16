@@ -104,7 +104,7 @@ void Shop::RandomizeInventory()
 		Upgrade* upgrade = m_AllAvailableUpgrades.find(m_InventoryNames.at(i))->second;
 		std::string textToRender = upgrade->GetDescription(upgrade->GetLevel() + 1);
 		textToRender += "\nPrice: " + std::to_string(GetPrice(GetInventoryNames().at(i)));
-		textToRender += "\t Next Level: " + std::to_string(upgrade->GetLevel() + 1);
+		textToRender += "    Next Level: " + std::to_string(upgrade->GetLevel() + 1);
 		float2 textPos = { 0.1f, 0.15f * (i + 1) + 0.1f };
 		float2 textPadding = { 0.5f, 0.0f };
 		float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
