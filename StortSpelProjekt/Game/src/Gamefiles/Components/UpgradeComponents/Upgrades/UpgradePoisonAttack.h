@@ -16,6 +16,8 @@ public:
 	void OnRangedHit(Entity* target);
 	void ApplyBoughtUpgrade();
 
+	std::string GetDescription(unsigned int level);
+
 private:
 	int m_Damage;
 	int m_NrOfTicks;

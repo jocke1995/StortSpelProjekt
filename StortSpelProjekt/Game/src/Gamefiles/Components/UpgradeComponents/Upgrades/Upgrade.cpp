@@ -100,7 +100,6 @@ void Upgrade::IncreaseLevelOnly()
 	m_Level++;
 }
 
-void Upgrade::OnHit()
 void Upgrade::OnHit(Entity* target)
 {
 }
