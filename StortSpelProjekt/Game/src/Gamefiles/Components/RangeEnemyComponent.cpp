@@ -4,6 +4,7 @@
 #include "../ECS/SceneManager.h"
 #include "../ECS/Components/Audio2DVoiceComponent.h"
 #include "ProjectileComponent.h"
+#include "../Physics/CollisionCategories/EnemyProjectileCollisionCategory.h"
 
 
 component::RangeEnemyComponent::RangeEnemyComponent(Entity* parent, SceneManager* sm, Scene* scene, Model* model, float scale, int damage, float velocity) : Component(parent)
@@ -116,6 +117,7 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 		tc->Update(0.02);
 		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 		bbc->Init();
+		bbc->AddCollisionCategory<EnemyProjectileCollisionCategory>();
 		Physics::GetInstance().AddCollisionEntity(ent);
 
 		if (m_AudioPlay)

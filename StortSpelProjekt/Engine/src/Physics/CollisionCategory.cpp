@@ -4,6 +4,8 @@
 #include "../Events/EventBus.h"
 #include "CollisionCategories/PlayerCollisionCategory.h"
 #include "CollisionCategories/PlayerProjectileCollisionCategory.h"
+#include "CollisionCategories/EnemyCollisionCategory.h"
+#include "CollisionCategories/EnemyProjectileCollisionCategory.h"
 
 CollisionCategory::CollisionCategory(Entity* parent) : m_pParent(parent)
 {
@@ -29,6 +31,16 @@ void CollisionCategory::Collide(PlayerCollisionCategory* other)
 }
 
 void CollisionCategory::Collide(PlayerProjectileCollisionCategory* other)
+{
+    EventBus::GetInstance().Publish(&Collision(m_pParent, other->GetParent()));
+}
+
+void CollisionCategory::Collide(EnemyCollisionCategory* other)
+{
+    EventBus::GetInstance().Publish(&Collision(m_pParent, other->GetParent()));
+}
+
+void CollisionCategory::Collide(EnemyProjectileCollisionCategory* other)
 {
     EventBus::GetInstance().Publish(&Collision(m_pParent, other->GetParent()));
 }

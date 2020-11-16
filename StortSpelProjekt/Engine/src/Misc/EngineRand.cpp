@@ -7,7 +7,7 @@ EngineRand::EngineRand(unsigned long seed)
 	// values suggested by http://thompsonsed.co.uk/random-number-generators-for-c-performance-tested 
 	m_Multiplier = 1664525;
 	m_Incrementer = 1013904223;
-	// 2^32 to big! therefore 2^31 was used.
+	// 2^32 too big! therefore 2^31 was used.
 	m_Prime = static_cast<unsigned long>(std::pow(2, 31));
 }
 
@@ -22,7 +22,12 @@ unsigned long EngineRand::Rand()
 	return m_Seed;
 }
 
-unsigned long EngineRand::Rand(unsigned long min, unsigned long max)
+unsigned long EngineRand::Randu(unsigned long min, unsigned long max)
+{
+	return (min + Rand() % (max - min));
+}
+
+unsigned long EngineRand::Rand(long min, long max)
 {
 	return (min + Rand() % (max - min));
 }
@@ -34,7 +39,12 @@ float EngineRand::Randf()
 	return nr + deci;
 }
 
-float EngineRand::Randf(unsigned long min, unsigned long max)
+float EngineRand::Randfu(unsigned long min, unsigned long max)
+{
+	return static_cast<float>(Randu(min, max)) + randDecimals();
+}
+
+float EngineRand::Randf(long min, long max)
 {
 	return static_cast<float>(Rand(min, max)) + randDecimals();
 }
