@@ -2,7 +2,7 @@
 #define PARTICLEEFFECT_H
 
 #define PARTICLE_EFFECT_DEFAULT_SIZE 100
-#define PARTICLESYSTEM_RENDER_DEAD_PARTICLES true;
+#define PARTICLESYSTEM_RENDER_DEAD_PARTICLES false;
 
 #include <vector>
 #include "structs.h"

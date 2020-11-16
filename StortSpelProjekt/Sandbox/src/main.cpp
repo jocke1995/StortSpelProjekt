@@ -58,8 +58,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = timScene;
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* activeScene = jockeScene;
-    Scene* fredrikScene = FredriksTestScene(sceneManager);
-    Scene* activeScene = fredrikScene;
+    //Scene* fredrikScene = FredriksTestScene(sceneManager);
+    //Scene* activeScene = fredrikScene;
     //Scene* williamScene = WilliamsTestScene(sceneManager);
     //Scene* activeScene = williamScene;
     //Scene* bjornScene = BjornsTestScene(sceneManager);
@@ -760,13 +760,12 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.particleCount = 50;
+    settings.particleCount = 500;
     settings.startValues.lifetime = 0.8;
     settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
     settings.startValues.acceleration = {0, -3, 0};
 
     // Need to fix EngineRand.rand() for negative values
-    RandomParameter3 randParam0 = {  };
     RandomParameter3 randParam1 = { -2, 2, -2, 2, -2, 2 };
     randParam1.y = { 2, 6 };
 
@@ -805,20 +804,20 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Create test particleEffect
     settings = {};
-    settings.particleCount = 10;
-    settings.startValues.lifetime = 0.8;
+    settings.particleCount = 1200;
+    settings.startValues.lifetime = 15;
+    settings.startValues.acceleration = {0, 0, 0};
+    settings.startValues.position = {0, 200, 0};
     settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
-    settings.startValues.acceleration = { 0, 3, 0 };
     
     // Need to fix EngineRand.rand() for negative values
-    randParam0 = {};
-    randParam1 = { -2, 2, -2,2, -2, 2 };
-    randParam1.y = { 8, 20 };
+    randParam1 = { -2, 2, -2, 2, -2, 2 };
+    randParam1.y = { -20, -12 };
     
-    settings.randPosition = { 0, 6, 0, 6, 0, 6 };
+    settings.randPosition = { -400, 400, 0, 0, -400, 400 };
     settings.randVelocity = randParam1;
     settings.randSize = { 3, 7 };
-    settings.randRotationSpeed = { 0, 6 };
+    settings.randRotationSpeed = { -3, 3 };
     
     particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/default_particle.png"));
     pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
