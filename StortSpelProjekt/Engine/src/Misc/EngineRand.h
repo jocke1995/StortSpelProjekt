@@ -11,10 +11,12 @@ public:
 	EngineRand(unsigned long seed = 0);
 	void SetSeed(unsigned long seed);
 	unsigned long Rand();
-	unsigned long Rand(unsigned long min, unsigned long max);
+	unsigned long Randu(unsigned long min, unsigned long max);
+	unsigned long Rand(long min, long max);
 
 	float Randf();
-	float Randf(unsigned long min, unsigned long max);
+	float Randfu(unsigned long min, unsigned long max);
+	float Randf(long min, long max);
 private:
 
 	float randDecimals();
