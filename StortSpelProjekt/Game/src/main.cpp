@@ -58,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* gameOverScene = GameOverHandler::GetInstance().CreateScene(sceneManager);
     Scene* mainMenuScene = MainMenuHandler::GetInstance().CreateScene(sceneManager);
 
-    sceneManager->SetScene(mainMenuScene);
+    sceneManager->SetScene(shopScene);
     sceneManager->SetGameOverScene(gameOverScene);
     GameNetwork gameNetwork;
 
@@ -771,6 +771,9 @@ Scene* ShopScene(SceneManager* sm)
 
     double3 shopDim = mc->GetModelDim();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(10000000.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
+
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
+    bbc->Init();
     /* ---------------------- Shop ---------------------- */
 
 #pragma region walls
