@@ -99,6 +99,8 @@ void Shop::RandomizeInventory()
 
 	/* ------------------------- Shop Buttons --------------------------- */
 	component::GUI2DComponent* gui = nullptr;
+	SceneManager& sm = SceneManager::GetInstance();
+	Scene* shopScene = sm.GetScene("ShopScene");
 	for (int i = 0; i < GetInventorySize(); i++)
 	{
 		Upgrade* upgrade = m_AllAvailableUpgrades.find(m_InventoryNames.at(i))->second;
@@ -111,7 +113,7 @@ void Shop::RandomizeInventory()
 		float2 textScale = { 0.3f, 0.3f };
 		float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-		Entity* entity = SceneManager::GetInstance().GetScene("ShopScene")->AddEntity("upgrade" + std::to_string(i));
+		Entity* entity = shopScene->AddEntity("upgrade" + std::to_string(i));
 		gui = entity->AddComponent<component::GUI2DComponent>();
 		gui->GetTextManager()->SetFont(m_pArial);
 		gui->GetTextManager()->AddText("upgrade" + std::to_string(i));
@@ -133,10 +135,14 @@ void Shop::RandomizeInventory()
 			1,
 			blended,
 			nullptr, { 0.0f, 0.0f, 0.0f });
+
+		// add the entity to the sceneManager so it can be spawned in in run time
+		entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
+		sm.AddEntity(entity, shopScene);
 		/* ---------------------------------------------------------- */
 
 		/* ------------------------- head --------------------------- */
-		entity = SceneManager::GetInstance().GetScene("ShopScene")->AddEntity("upgradebutton" + std::to_string(i));
+		entity = shopScene->AddEntity("upgradebutton" + std::to_string(i));
 		gui = entity->AddComponent<component::GUI2DComponent>();
 		quadPos = { 0.01f, 0.15f * (i + 1) + 0.099f };
 		quadScale = { 0.09f, 0.09f };
@@ -149,6 +155,10 @@ void Shop::RandomizeInventory()
 			notBlended,
 			shopImage
 		);
+
+		// add the entity to the sceneManager so it can be spawned in in run time
+		entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
+		sm.AddEntity(entity, shopScene);
 		/* ---------------------------------------------------------- */
 	}
 }
@@ -248,18 +258,27 @@ void Shop::sceneChange(SceneChange* evnt)
 {
 	if (evnt->m_NewSceneName == "ShopScene")
 	{
-		RandomizeInventory();
+		//RandomizeInventory();
 	}
 }
 
 void Shop::clearInventory()
 {
+	SceneManager& sm = SceneManager::GetInstance();
+	Scene* shopScene = sm.GetScene("ShopScene");
+
+	Entity* ent1 = nullptr;
+	Entity* ent2 = nullptr;
+
 	for (int i = 0; i < GetInventorySize(); i++)
 	{
-		if (SceneManager::GetInstance().GetScene("ShopScene")->EntityExists("upgrade" + std::to_string(i)))
+		if (shopScene->EntityExists("upgrade" + std::to_string(i)))
 		{
-			SceneManager::GetInstance().GetScene("ShopScene")->RemoveEntity("upgrade" + std::to_string(i));
-			SceneManager::GetInstance().GetScene("ShopScene")->RemoveEntity("upgradebutton" + std::to_string(i));
+			ent1 = shopScene->GetEntity("upgrade" + std::to_string(i));
+			ent2 = shopScene->GetEntity("upgradebutton" + std::to_string(i));
+
+			SceneManager::GetInstance().RemoveEntity(ent1, shopScene);
+			SceneManager::GetInstance().RemoveEntity(ent2, shopScene);
 		}
 	}
 	m_InventoryNames.clear();

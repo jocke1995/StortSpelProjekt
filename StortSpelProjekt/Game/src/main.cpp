@@ -58,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* gameOverScene = GameOverHandler::GetInstance().CreateScene(sceneManager);
     Scene* mainMenuScene = MainMenuHandler::GetInstance().CreateScene(sceneManager);
 
-    sceneManager->SetScene(shopScene);
+    sceneManager->SetScene(mainMenuScene);
     sceneManager->SetGameOverScene(gameOverScene);
     GameNetwork gameNetwork;
 
@@ -908,13 +908,12 @@ void ShopUpdateScene(SceneManager* sm, double dt)
         {
             if (pickedEntity->GetName() == "shop")
             {
-                // TODO: Choices: depends on fredriks implementation of the text and 2D-quad system.
-                // 1. publish event to "show" 2DGUI (cheaper then adding entites during runtime)
-                // 2. publish event to AddEntites of the 2DGUI (expensive in performance)
-
                 static int test = 0;
                 Log::Print("Entered the shop 2DGUI! %d\n", test);
                 test++;
+
+                // Naiv attempt, will currently change multiple times if key is pressed
+                Player::GetInstance().GetShop()->RandomizeInventory();
             }
         }
     }

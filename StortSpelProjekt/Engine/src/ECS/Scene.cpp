@@ -74,7 +74,9 @@ bool Scene::RemoveEntity(std::string entityName)
         return false;
     }
 
-    PoolAllocator<Entity>::GetInstance().Delete(m_EntitiesToKeep[entityName]);
+    Entity* ent = m_EntitiesToKeep[entityName];
+
+    PoolAllocator<Entity>::GetInstance().Delete(ent);
     m_EntitiesToKeep.erase(entityName);
 
     m_NrOfEntities--;
