@@ -20,7 +20,7 @@
 
 #include <algorithm>
 
-EngineRand ParticleEffect::rand = {};
+EngineRand ParticleEffect::rand = {5};
 
 
 ParticleEffect::ParticleEffect(Entity* parent, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings)
@@ -166,19 +166,19 @@ void ParticleEffect::randomizePosition(Particle& particle)
 	
 	if (!(randParams.x.intervalLower == 0 && randParams.x.intervalUpper == 0))
 	{
-		float x = rand.Randf(randParams.x.intervalLower, randParams.x.intervalUpper);
+		float x = randomizeFloat(randParams.x.intervalLower, randParams.x.intervalUpper);
 		particle.m_Attributes.position.x = x;
 	}
 
 	if (!(randParams.y.intervalLower == 0 && randParams.y.intervalUpper == 0))
 	{
-		float y = rand.Randf(randParams.y.intervalLower, randParams.y.intervalUpper);
+		float y = randomizeFloat(randParams.y.intervalLower, randParams.y.intervalUpper);
 		particle.m_Attributes.position.y = y;
 	}
 
 	if (randParams.z.intervalLower != 0 && randParams.z.intervalUpper != 0)
 	{
-		float z = rand.Randf(randParams.z.intervalLower, randParams.z.intervalUpper);
+		float z = randomizeFloat(randParams.z.intervalLower, randParams.z.intervalUpper);
 		particle.m_Attributes.position.z = z;
 	}
 }
@@ -189,19 +189,19 @@ void ParticleEffect::randomizeVelocity(Particle& particle)
 
 	if (!(randParams.x.intervalLower == 0 && randParams.x.intervalUpper == 0))
 	{
-		float x = rand.Randf(randParams.x.intervalLower, randParams.x.intervalUpper);
+		float x = randomizeFloat(randParams.x.intervalLower, randParams.x.intervalUpper);
 		particle.m_Attributes.velocity.x = x;
 	}
 
 	if (!(randParams.y.intervalLower == 0 && randParams.y.intervalUpper == 0))
 	{
-		float y = rand.Randf(randParams.y.intervalLower, randParams.y.intervalUpper);
+		float y = randomizeFloat(randParams.y.intervalLower, randParams.y.intervalUpper);
 		particle.m_Attributes.velocity.y = y;
 	}
 
 	if (!(randParams.z.intervalLower == 0 && randParams.z.intervalUpper == 0))
 	{
-		float z = rand.Randf(randParams.z.intervalLower, randParams.z.intervalUpper);
+		float z = randomizeFloat(randParams.z.intervalLower, randParams.z.intervalUpper);
 		particle.m_Attributes.velocity.z = z;
 	}
 }
@@ -212,7 +212,7 @@ void ParticleEffect::randomizeSize(Particle& particle)
 
 	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
-		float size = rand.Randf(randParam.intervalLower, randParam.intervalUpper);
+		float size = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
 		particle.m_Attributes.size = size;
 	}
 }
@@ -223,7 +223,7 @@ void ParticleEffect::randomizeRotation(Particle& particle)
 
 	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
-		float rot = rand.Randf(randParam.intervalLower, randParam.intervalUpper);
+		float rot = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
 		particle.m_Attributes.rotation = rot;
 	}
 }
@@ -234,7 +234,7 @@ void ParticleEffect::randomizeRotationSpeed(Particle& particle)
 	
 	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
-		float rotSpeed = rand.Randf(randParam.intervalLower, randParam.intervalUpper);
+		float rotSpeed = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
 		particle.m_Attributes.rotationSpeed = rotSpeed;
 	}
 }
@@ -245,7 +245,7 @@ void ParticleEffect::randomizeLifetime(Particle& particle)
 	
 	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
-		float lifetime = rand.Randf(randParam.intervalLower, randParam.intervalUpper);
+		float lifetime = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
 		particle.m_Attributes.lifetime = lifetime;
 	}
 }
@@ -278,4 +278,10 @@ void ParticleEffect::updateResourceData(float3 cameraPos)
 
 		return distFromCamI > distFromCamJ;
 	});
+}
+
+float ParticleEffect::randomizeFloat(float lower, float upper) const
+{
+	float r = rand.Randf(lower*20, upper*20)/20;
+	return r;
 }

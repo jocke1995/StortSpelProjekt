@@ -103,6 +103,8 @@ private:
 	void randomizeLifetime(Particle& particle);
 
 	void updateResourceData(float3 cameraPos);
+
+	float randomizeFloat(float lower, float upper) const;
 };
 
 #endif

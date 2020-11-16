@@ -762,7 +762,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     ParticleEffectSettings settings = {};
     settings.particleCount = 50;
     settings.startValues.lifetime = 0.8;
-    settings.spawnInterval = 1;
+    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
     settings.startValues.acceleration = {0, -3, 0};
 
     // Need to fix EngineRand.rand() for negative values
@@ -807,7 +807,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     settings = {};
     settings.particleCount = 10;
     settings.startValues.lifetime = 0.8;
-    settings.spawnInterval = 1;
+    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
     settings.startValues.acceleration = { 0, 3, 0 };
     
     // Need to fix EngineRand.rand() for negative values
@@ -824,6 +824,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
 
     /* ---------------------- Floor ---------------------- */
+
 
     
     /* ---------------------- PointLight1 ---------------------- */
