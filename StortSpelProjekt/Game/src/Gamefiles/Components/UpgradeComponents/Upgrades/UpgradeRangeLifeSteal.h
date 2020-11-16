@@ -16,6 +16,8 @@ public:
 	void OnRangedHit();
 	void ApplyBoughtUpgrade();
 
+	std::string GetDescription(unsigned int level);
+
 private:
 	float m_PercentageGain;
 

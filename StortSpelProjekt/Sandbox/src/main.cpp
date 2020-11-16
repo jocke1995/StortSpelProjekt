@@ -69,11 +69,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = antonScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* activeScene = andresScene;
-    //Scene* filipScene = FloppipTestScene(sceneManager);
-    //Scene* activeScene = filipScene;
+    Scene* filipScene = FloppipTestScene(sceneManager);
+    Scene* activeScene = filipScene;
 
     // Set scene
     sceneManager->SetScene(activeScene);
+
 
     GameNetwork gameNetwork;
 
@@ -755,9 +756,28 @@ Scene* FloppipTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
+
     /* ---------------------- Player ---------------------- */
 
-    pe = entity->AddComponent<component::ParticleEmitterComponent>();
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.particleCount = 200;
+    settings.startValues.lifetime = 2;
+    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+
+    // Need to fix EngineRand.rand() for negative values
+    RandomParameter3 randParam0 = { -35, 35, -35, 35, -35, 35 };
+    RandomParameter3 randParam1 = { 0, 20, 0, 20, 0, 20 };
+    randParam1.y = { 20, 100 };
+    RandomParameter randParam2 = { 2, 50 };
+
+    settings.randPosition = randParam0;
+    settings.randVelocity = randParam1;
+    settings.randSize = randParam2;
+
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(nullptr, &settings, true);
+
+    
 
     /* ---------------------- Skybox ---------------------- */
 
@@ -780,7 +800,27 @@ Scene* FloppipTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 30.0f);
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+
+    settings = {};
+    settings.particleCount = 50;
+    settings.startValues.lifetime = 0.7;
+    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+
+    // Need to fix EngineRand.rand() for negative values
+    randParam0 = {  };
+    randParam1 = { -5, 5, -5, 5, -5, 5 };
+    randParam1.y = { 1, 10 };
+    randParam2 = { 0.5, 2 };
+
+    settings.randPosition = randParam0;
+    settings.randVelocity = randParam1;
+    settings.randSize = randParam2;
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/particle0.png"));
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+    
+
     /* ---------------------- Floor ---------------------- */
 
     

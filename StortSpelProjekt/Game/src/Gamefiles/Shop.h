@@ -37,8 +37,6 @@ public:
 	std::map<std::string, std::string> GetUpgradeDescriptions();
 	// Get description for an upgrade in inventory using its name as input.
 	std::string GetUpgradeDescription(std::string name);
-	// Get prices of upgrades in inventory
-	std::map<std::string, int> GetPrices();
 	// Get price of an upgrade using its name as input
 	int GetPrice(std::string name);
 	// Get player currency balance
@@ -69,10 +67,6 @@ private:
 	int m_InvSize;
 	// Used to randomize the inventory
 	EngineRand m_Rand;
-	// Contains the description of all upgrades currently in the inventory
-	std::map<std::string, std::string> m_UpgradeDescriptions;
-	// cost of uppgrades mapped to names
-	std::map<std::string, int> m_Prices;
 
 	// clears the inventory vector as well as the m_UpgradeDescriptions map
 	void clearInventory();

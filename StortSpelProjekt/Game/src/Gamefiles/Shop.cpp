@@ -95,18 +95,16 @@ void Shop::RandomizeInventory()
 		// we add it to the inventory.
 		m_InventoryNames.push_back(name);
 		m_InventoryIsBought.push_back(false);
-		m_Prices[name] = m_AllAvailableUpgrades[name]->GetPrice();
-		m_UpgradeDescriptions[name] = m_AllAvailableUpgrades[name]->GetDescription();
-
 	}
 
 	/* ------------------------- Shop Buttons --------------------------- */
 	component::GUI2DComponent* gui = nullptr;
 	for (int i = 0; i < GetInventorySize(); i++)
 	{
-		std::string textToRender = m_UpgradeDescriptions.find(m_InventoryNames.at(i))->second;
+		Upgrade* upgrade = m_AllAvailableUpgrades.find(m_InventoryNames.at(i))->second;
+		std::string textToRender = upgrade->GetDescription(upgrade->GetLevel() + 1);
 		textToRender += "\nPrice: " + std::to_string(GetPrice(GetInventoryNames().at(i)));
-		textToRender += "    Current Level: " + std::to_string(Player::GetInstance().GetUpgradeManager()->GetAllAvailableUpgrades().find(GetInventoryNames().at(i))->second->GetLevel());
+		textToRender += "\t Next Level: " + std::to_string(upgrade->GetLevel() + 1);
 		float2 textPos = { 0.1f, 0.15f * (i + 1) + 0.1f };
 		float2 textPadding = { 0.5f, 0.0f };
 		float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -165,6 +163,7 @@ void Shop::ApplyUppgrade(std::string name)
 		{
 			m_pPlayer->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(name)->IncreaseLevel();
 		}
+		m_pUpgradeManager->GetAllAvailableUpgrades().find(name)->second->ApplyStat();
 		m_pUpgradeManager->IncreaseLevel(name);
 	}
 	else
@@ -199,24 +198,14 @@ std::vector<std::string> Shop::GetInventoryNames()
 	return m_InventoryNames;
 }
 
-std::map<std::string, std::string> Shop::GetUpgradeDescriptions()
-{
-	return m_UpgradeDescriptions;
-}
-
 std::string Shop::GetUpgradeDescription(std::string name)
 {
-	return m_UpgradeDescriptions[name];
-}
-
-std::map<std::string, int> Shop::GetPrices()
-{
-	return m_Prices;
+	return m_AllAvailableUpgrades.find(name)->second->GetDescription(m_AllAvailableUpgrades.find(name)->second->GetLevel());
 }
 
 int Shop::GetPrice(std::string name)
 {
-	return m_Prices[name];
+	return m_AllAvailableUpgrades.find(name)->second->GetPrice();
 }
 
 int Shop::GetPlayerBalance()
@@ -274,7 +263,6 @@ void Shop::clearInventory()
 		}
 	}
 	m_InventoryNames.clear();
-	m_UpgradeDescriptions.clear();
 	m_InventoryIsBought.clear();
 }
 

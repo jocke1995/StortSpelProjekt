@@ -28,9 +28,9 @@ GraphicsState::GraphicsState(ID3D12Device5* device, RootSignature* rootSignature
 
 	if (FAILED(hr))
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create %S\n", m_PsoName);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create %S\n", psoName);
 	}
-	m_pPSO->SetName(m_PsoName.c_str());
+	m_pPSO->SetName(psoName.c_str());
 }
 
 GraphicsState::~GraphicsState()

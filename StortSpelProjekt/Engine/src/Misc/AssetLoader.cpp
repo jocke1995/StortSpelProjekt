@@ -1,3 +1,4 @@
+
 #include "stdafx.h"
 #include "AssetLoader.h"
 
@@ -26,6 +27,8 @@
 #include "../Renderer/Texture/Texture2D.h"
 #include "../Renderer/Texture/Texture2DGUI.h"
 #include "../Renderer/Texture/TextureCubeMap.h"
+
+#include "../Particles/ParticleEffect.h"
 
 #include "MultiThreading/ThreadPool.h"
 #include "MultiThreading/CalculateHeightmapNormalsTask.h"

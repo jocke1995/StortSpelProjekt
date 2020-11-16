@@ -32,7 +32,7 @@ public:
 	unsigned int GetType() const;
 	void SetID(int id);
 	int GetID();
-	std::string GetDescription();
+	virtual std::string GetDescription(unsigned int level);
 	int GetPrice();
 
 	// If dt is needed for an upgrade
@@ -43,6 +43,7 @@ public:
 	// Below are all functions needed by upgrades. Some will be used by several upgrades and others might be unique.
 	// This way you can call functions that range over several "types" but might be called on in similar situations (such as melee/range OnHit).
 	// Definitions are to be implemented in the separate upgrade classes. Add more as needed.
+	
 
 	// This function is supposed to increase the level of the upgrade, and to make sure that appropriate changes are made in the upgrade to reflect the level of the upgrade.
 	virtual void IncreaseLevel();
@@ -75,8 +76,6 @@ protected:
 	Entity* m_pParentEntity;
 	// Name of the upgrade, for ease of access in shop or upgrade handlers
 	std::string m_Name = "";
-	// Description is used in shop when describing the upgrade.
-	std::string m_Description;
 	// Image associated with the upgrade for shop
 	std::string m_ImageName;
 	// Price is used in shop when buying upgrades

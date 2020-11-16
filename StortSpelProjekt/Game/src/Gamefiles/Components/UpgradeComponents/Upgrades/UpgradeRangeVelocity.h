@@ -15,6 +15,8 @@ public:
 	void IncreaseLevel();
 	void ApplyBoughtUpgrade();
 
+	std::string GetDescription(unsigned int level);
+
 private:
 
 };
