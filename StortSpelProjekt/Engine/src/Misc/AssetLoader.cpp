@@ -540,7 +540,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	navMeshType.reserve(128);
 
 	ParticleEffectSettings particleSettings = {};
-	bool particlePlayOnInit = false;
+	int particlePlayOnInit = 0;
 
 	NavMesh* navMesh;
 
