@@ -181,6 +181,7 @@ Scene* GameScene(SceneManager* sm)
     component::HealthComponent* hc = nullptr;
     component::UpgradeComponent* uc = nullptr;
     component::GUI2DComponent* gui = nullptr;
+    component::ParticleEmitterComponent* pec = nullptr;
 #pragma endregion
 
 #pragma region entities
@@ -521,6 +522,7 @@ Scene* ShopScene(SceneManager* sm)
     component::HealthComponent* hc = nullptr;
     component::GUI2DComponent* gui = nullptr;
     component::CurrencyComponent* cur = nullptr;
+    component::ParticleEmitterComponent* pec = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -823,6 +825,7 @@ Scene* ShopScene(SceneManager* sm)
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
 
 #pragma endregion walls
+
     /* ---------------------- SpotLightDynamic ---------------------- */
     entity = scene->AddEntity("spotLightDynamic");
     mc = entity->AddComponent<component::ModelComponent>();

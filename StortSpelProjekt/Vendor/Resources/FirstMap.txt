@@ -264,6 +264,17 @@ ModelPosition -78.0, 7.0, 75.0
 ModelRestitution 0.5
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
+ParticleTexturePath Textures/Particles/fire_particle0.png
+ParticleCount 7
+ParticleSpawnInterval 0.2
+ParticleStartAcceleration 0.0, -3.0, 0.0
+ParticleStartLifetime 1.4
+ParticleRandPosition -1, 1, 0, 0, -1, 1
+ParticleRandVelocity -1, 1, 5, 9, -1, 1
+ParticleRandSize 0.2, 0.7
+ParticleRandRotationSpeed 0, 3
+ParticlePlayOnInit 1
+Submit ParticleEffect
 Submit Model
 Submit CollisionCapsule 0.0, 0.0
 
@@ -282,6 +293,17 @@ ModelPosition -135.0, 7.0, 23.0
 ModelRestitution 0.5
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
+ParticleTexturePath Textures/Particles/fire_particle0.png
+ParticleCount 7
+ParticleSpawnInterval 0.2
+ParticleStartAcceleration 0.0, -3.0, 0.0
+ParticleStartLifetime 1.4
+ParticleRandPosition -1, 1, 0, 0, -1, 1
+ParticleRandVelocity -1, 1, 5, 9, -1, 1
+ParticleRandSize 0.2, 0.7
+ParticleRandRotationSpeed 0, 3
+ParticlePlayOnInit 1
+Submit ParticleEffect
 Submit Model
 Submit CollisionCapsule 0.0, 0.0
 
@@ -300,6 +322,17 @@ ModelPosition 113.0, 2.0, -8.0
 ModelRestitution 0.5
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
+ParticleTexturePath Textures/Particles/fire_particle0.png
+ParticleCount 7
+ParticleSpawnInterval 0.2
+ParticleStartAcceleration 0.0, -3.0, 0.0
+ParticleStartLifetime 1.4
+ParticleRandPosition -1, 1, 0, 0, -1, 1
+ParticleRandVelocity -1, 1, 5, 9, -1, 1
+ParticleRandSize 0.2, 0.7
+ParticleRandRotationSpeed 0, 3
+ParticlePlayOnInit 1
+Submit ParticleEffect
 Submit Model
 Submit CollisionCapsule 0.0, 0.0
 

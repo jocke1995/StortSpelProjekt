@@ -27,7 +27,7 @@ unsigned long EngineRand::Randu(unsigned long min, unsigned long max)
 	return (min + Rand() % (max - min));
 }
 
-unsigned long EngineRand::Rand(long min, long max)
+long EngineRand::Rand(long min, long max)
 {
 	return (min + Rand() % (max - min));
 }

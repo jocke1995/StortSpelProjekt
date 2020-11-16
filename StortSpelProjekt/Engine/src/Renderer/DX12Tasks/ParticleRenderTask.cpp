@@ -33,8 +33,7 @@ ParticleRenderTask::ParticleRenderTask(ID3D12Device5* device, RootSignature* roo
 	const std::wstring& psoName, unsigned int FLAG_THREAD)
 	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
-	AssetLoader* al = AssetLoader::Get();
-	m_pParticleMesh = al->LoadModel(L"../Vendor/Resources/Models/Quad/NormalizedQuad.obj")->GetMeshAt(0);
+	
 }
 
 ParticleRenderTask::~ParticleRenderTask()
@@ -113,11 +112,11 @@ void ParticleRenderTask::Execute()
 			info.vertexDataIndex = m_pParticleMesh->GetSRV()->GetDescriptorHeapIndex();
 			info.textureAlbedo = texture->GetDescriptorHeapIndex();
 
-			DirectX::XMMATRIX nothing = DirectX::XMMatrixIdentity();
 			DirectX::XMMATRIX VPTransposed = *viewProjMatTrans;
 
 			// Create a CB_PER_OBJECT struct
-			CB_PER_OBJECT_STRUCT perObject = { nothing, VPTransposed, info };
+			// Hack: sending in tcPos specially in this renderTask
+			CB_PER_OBJECT_STRUCT perObject = { {}, VPTransposed, info };
 
 			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
@@ -133,4 +132,9 @@ void ParticleRenderTask::Execute()
 		D3D12_RESOURCE_STATE_PRESENT));
 
 	commandList->Close();
+}
+
+void ParticleRenderTask::SetBillboardMesh(Mesh* quadMesh)
+{
+	m_pParticleMesh = quadMesh;
 }

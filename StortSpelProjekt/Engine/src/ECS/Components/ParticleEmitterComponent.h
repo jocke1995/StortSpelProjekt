@@ -23,7 +23,6 @@ namespace component
         void OnUnInitScene();
 
         // Reset ParticleEffect
-        void Clear();
         void Play();
         void Stop();
         bool IsPlaying() const;

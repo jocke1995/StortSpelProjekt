@@ -13,27 +13,24 @@ void Particle::Update(double dt)
 {
 	changeVelocity(dt);
 
-	m_Position = m_Position + m_Velocity * dt;
+	m_Attributes.position = m_Attributes.position + m_Attributes.velocity * dt;
+
+	m_Attributes.rotation = m_Attributes.rotation + m_Attributes.rotationSpeed * dt;
 	
-	m_Lifetime -= dt;
+	m_Attributes.lifetime -= dt;
 }
 
 bool Particle::IsAlive()
 {
-	return m_Lifetime > 0;
+	return m_Attributes.lifetime > 0;
 }
 
-void Particle::initDefaultValues(ParticleStartValues* defaultValues)
+void Particle::initValues(ParticleAttributes* startValues)
 {
-	m_Position = defaultValues->position;
-	m_Velocity = defaultValues->velocity;
-	m_Acceleration = defaultValues->acceleration;
-	m_Size = defaultValues->size;
-	m_Rotation = defaultValues->rotation;
-	m_Lifetime = defaultValues->lifetime;
+	m_Attributes = *startValues;
 }
 
 void Particle::changeVelocity(float dt)
 {
-	m_Velocity = m_Velocity - m_Acceleration*dt;
+	m_Attributes.velocity = m_Attributes.velocity + m_Attributes.acceleration *dt;
 }

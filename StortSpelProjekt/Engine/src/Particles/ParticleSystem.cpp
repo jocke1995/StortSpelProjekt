@@ -44,12 +44,14 @@ void ParticleSystem::Update(double dt)
 void ParticleSystem::ActivateParticleEffect(ParticleEffect* effect)
 {
 	m_ActiveParticleEffects.insert(effect);
+	effect->resetEffect();
 
 	// Add to COPY_PER_FRAME
 	Renderer& renderer = Renderer::GetInstance();
 	
 	const void* pData = effect->m_ParticlesData.data();
-	renderer.submitToCpft(&std::tuple(effect->m_pUploadResource, effect->m_pDefaultResource, pData));
+	auto tempData = std::tuple(effect->m_pUploadResource, effect->m_pDefaultResource, pData);
+	renderer.submitToCpft(&tempData);
 }
 
 void ParticleSystem::DeactivateParticleEffect(ParticleEffect* effect)
@@ -58,7 +60,5 @@ void ParticleSystem::DeactivateParticleEffect(ParticleEffect* effect)
 
 	// remove from COPY_PER_FRAME
 	Renderer& renderer = Renderer::GetInstance();
-
-	const void* pData = effect->m_ParticlesData.data();
 	renderer.clearSpecificCpft(effect->m_pUploadResource);
 }

@@ -12,7 +12,7 @@ public:
 	void SetSeed(unsigned long seed);
 	unsigned long Rand();
 	unsigned long Randu(unsigned long min, unsigned long max);
-	unsigned long Rand(long min, long max);
+	long Rand(long min, long max);
 
 	float Randf();
 	float Randfu(unsigned long min, unsigned long max);
