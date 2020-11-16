@@ -9,34 +9,14 @@
 #include "../Renderer/Renderer.h"
 #include "Font.h"
 
-Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfCharacters, Texture* texture)
+Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, Texture* texture, TextData* textData, Font* font)
 {
-	// Four vertices (quad) per character 
-	m_NrOfVertices = numOfCharacters;
-	m_SizeOfVertices = m_NrOfVertices * sizeof(TextVertex);
+	m_TextData = *textData;
+	m_pFont = font;
 
-	// Set vertices
-	m_pUploadResourceVertices = new Resource(device, m_SizeOfVertices, RESOURCE_TYPE::UPLOAD, L"Vertex_TEXT_UPLOAD_RESOURCE");
-	m_pDefaultResourceVertices = new Resource(device, m_SizeOfVertices, RESOURCE_TYPE::DEFAULT, L"Vertex_TEXT_DEFAULT_RESOURCE");
+	initVertexData();
 
-	// Create SRV
-	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
-	dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	dsrv.Buffer.FirstElement = 0;
-	dsrv.Format = DXGI_FORMAT_UNKNOWN;
-	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	dsrv.Buffer.NumElements = m_NrOfVertices;
-	dsrv.Buffer.StructureByteStride = sizeof(TextVertex);
-
-	m_pSRV = new ShaderResourceView(
-		device,
-		descriptorHeap_SRV,
-		&dsrv,
-		m_pDefaultResourceVertices);
-
-	m_pSlotInfo = new SlotInfo();
-	m_pSlotInfo->vertexDataIndex = m_pSRV->GetDescriptorHeapIndex();
-	m_pSlotInfo->textureAlbedo = texture->GetDescriptorHeapIndex();
+	initMeshData(device, descriptorHeap_SRV, texture);
 }
 
 Text::~Text()
@@ -97,6 +77,13 @@ void Text::initVertexData()
 			continue;
 		}
 
+		// space
+		if (c == L' ')
+		{
+			x += (fc->xadvance - horrizontalPadding) * scale.x;
+			continue;
+		}
+
 		// don't overflow the buffer
 		if (numCharacters >= s_MaxNumTextCharacters)
 		{
@@ -122,13 +109,44 @@ void Text::initVertexData()
 
 		m_TextVertexVec.push_back(vTmp);
 
-		numCharacters++;
-
 		// remove horrizontal padding and advance to next char position
 		x += (fc->xadvance - horrizontalPadding) * scale.x;
 
+		numCharacters++;
+
 		lastChar = c;
 	}
+
+	m_NrOfCharacters = numCharacters;
+}
+
+void Text::initMeshData(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, Texture* texture)
+{
+	m_SizeOfVertices = m_NrOfCharacters * sizeof(TextVertex);
+
+	// Set vertices
+	m_pUploadResourceVertices = new Resource(device, m_SizeOfVertices, RESOURCE_TYPE::UPLOAD, L"VERTEX_TEXT_UPLOAD_RESOURCE");
+	m_pDefaultResourceVertices = new Resource(device, m_SizeOfVertices, RESOURCE_TYPE::DEFAULT, L"VERTEX_TEXT_DEFAULT_RESOURCE");
+
+	// Create SRV
+	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
+	dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	dsrv.Buffer.FirstElement = 0;
+	dsrv.Format = DXGI_FORMAT_UNKNOWN;
+	dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	dsrv.Buffer.NumElements = m_NrOfCharacters;
+	dsrv.Buffer.StructureByteStride = sizeof(TextVertex);
+
+	m_pSRV = new ShaderResourceView(
+		device,
+		descriptorHeap_SRV,
+		&dsrv,
+		m_pDefaultResourceVertices);
+
+	m_pSlotInfo = new SlotInfo();
+
+	m_pSlotInfo->vertexDataIndex = m_pSRV->GetDescriptorHeapIndex();
+	m_pSlotInfo->textureAlbedo = texture->GetDescriptorHeapIndex();
 }
 
 SlotInfo* const Text::GetSlotInfo() const
@@ -148,18 +166,10 @@ Font* const Text::GetFont() const
 
 int const Text::GetNrOfCharacters() const
 {
-	return m_TextData.text.size();
+	return m_NrOfCharacters;
 }
 
 const float4 Text::GetAmountOfBlend() const
 {
 	return m_TextData.blendFactor;
-}
-
-void Text::SetTextData(TextData* textData, Font* font)
-{
-	m_TextData = *textData;
-	m_pFont = font;
-
-	initVertexData();
 }

@@ -10,6 +10,7 @@
 #include "Events/Events.h"
 
 class Texture;
+class Font;
 
 class Shop
 {
@@ -72,7 +73,7 @@ private:
 	// checks if an upgrade is already bought
 	bool checkExisting(std::string name);
 
-
+	Font* m_pArial = nullptr;
 };
 
 #endif // !SHOP_H

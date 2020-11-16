@@ -55,6 +55,7 @@ void TextManager::AddText(std::string name)
 	// Look if a font is chosen, otherwise, set the default font
 	if (m_pFont == nullptr)
 	{
+		Log::PrintSeverity(Log::Severity::WARNING, "Font not set! Choosing default font...\n", name.c_str());
 		m_pFont = AssetLoader::Get()->LoadFontFromFile(L"Arial.fnt");
 	}
 
@@ -67,7 +68,8 @@ void TextManager::AddText(std::string name)
 		Log::PrintSeverity(Log::Severity::WARNING, "It already exists a text with the name '%s'! Overwriting text data...\n", name.c_str());
 	}
 
-	m_TextDataMap[name] = textData;
+	m_TextDataMap.insert({ name, textData });
+	uploadTextData(name);
 }
 
 void TextManager::SetFont(Font* font)
@@ -83,7 +85,7 @@ void TextManager::SetText(std::string text, std::string name)
 	{
 		m_TextDataMap[name].text = to_wstring(text);
 		exists = true;
-		uploadTextData(name, &Renderer::GetInstance());
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -100,7 +102,7 @@ void TextManager::SetPos(float2 textPos, std::string name)
 	{
 		m_TextDataMap[name].pos = textPos;
 		exists = true;
-		uploadTextData(name, &Renderer::GetInstance());
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -136,7 +138,7 @@ void TextManager::SetScale(float2 scale, std::string name)
 		m_TextDataMap[name].scale.y = (scale.y * scale_y * aspect);
 
 		exists = true;
-		uploadTextData(name, renderer);
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -153,7 +155,7 @@ void TextManager::SetPadding(float2 padding, std::string name)
 	{
 		m_TextDataMap[name].padding = padding;
 		exists = true;
-		uploadTextData(name, &Renderer::GetInstance());
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -170,7 +172,7 @@ void TextManager::SetColor(float4 color, std::string name)
 	{
 		m_TextDataMap[name].color = color;
 		exists = true;
-		uploadTextData(name, &Renderer::GetInstance());
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -187,7 +189,7 @@ void TextManager::SetBlend(float4 blend, std::string name)
 	{
 		m_TextDataMap[name].blendFactor = blend;
 		exists = true;
-		uploadTextData(name, &Renderer::GetInstance());
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -244,11 +246,11 @@ void TextManager::submitText(Text* text, std::string name)
 void TextManager::replaceText(Text* text, std::string name)
 {
 	bool found = false;
-	auto it = m_TextDataMap.find(name);
-	if (it != m_TextDataMap.end())
+	auto it = m_TextMap.find(name);
+	if (it != m_TextMap.end())
 	{
 		deleteTextData(name);
-		m_TextMap[name] = text;
+		m_TextMap.insert({ name, text });
 		found = true;
 	}
 
@@ -258,22 +260,23 @@ void TextManager::replaceText(Text* text, std::string name)
 	}
 }
 
-void TextManager::uploadTextData(std::string name, Renderer* renderer)
+void TextManager::uploadTextData(std::string name)
 {
-	int numOfCharacters = GetNumOfCharacters(name);
+	Renderer* renderer = &Renderer::GetInstance();
+
 	auto textData = GetTextData(name);
 
 	Text* text = new Text(
 		renderer->m_pDevice5,
 		renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
-		numOfCharacters,
-		m_pFont->GetTexture());
-	text->SetTextData(textData, m_pFont);
+		m_pFont->GetTexture(),
+		textData,
+		m_pFont);
 
 	// Look if the text exists
 	bool exists = false;
-	auto it = m_TextDataMap.find(name);
-	if (it != m_TextDataMap.end())
+	auto it = m_TextMap.find(name);
+	if (it != m_TextMap.end())
 	{
 		exists = true;
 	}
@@ -318,5 +321,6 @@ void TextManager::deleteTextData(std::string name)
 		}
 
 		m_TrashBuffer.push_back(m_TextMap[name]);
+		m_TextMap.erase(name);
 	}
 }

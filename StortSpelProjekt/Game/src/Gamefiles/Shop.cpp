@@ -7,6 +7,7 @@
 #include "Renderer/Texture/Texture.h"
 #include "Events/EventBus.h"
 #include "ECS/SceneManager.h"
+#include "Misc/GUI2DElements/Font.h"
 
 Shop::Shop()
 {
@@ -20,6 +21,9 @@ Shop::Shop()
 	m_Rand = EngineRand(time(NULL));
 	// Set the size of shop inventory - how many upgrades the shop will contain.
 	m_InvSize = 3;
+
+	AssetLoader* al = AssetLoader::Get();
+	m_pArial = al->LoadFontFromFile(L"Arial.fnt");
 
 	EventBus::GetInstance().Subscribe(this, &Shop::upgradePressed);
 	EventBus::GetInstance().Subscribe(this, &Shop::sceneChange);
@@ -100,7 +104,7 @@ void Shop::RandomizeInventory()
 		Upgrade* upgrade = m_AllAvailableUpgrades.find(m_InventoryNames.at(i))->second;
 		std::string textToRender = upgrade->GetDescription(upgrade->GetLevel() + 1);
 		textToRender += "\nPrice: " + std::to_string(GetPrice(GetInventoryNames().at(i)));
-		textToRender += "\t Next Level: " + std::to_string(upgrade->GetLevel() + 1);
+		textToRender += "    Next Level: " + std::to_string(upgrade->GetLevel() + 1);
 		float2 textPos = { 0.1f, 0.15f * (i + 1) + 0.1f };
 		float2 textPadding = { 0.5f, 0.0f };
 		float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -109,6 +113,7 @@ void Shop::RandomizeInventory()
 
 		Entity* entity = SceneManager::GetInstance().GetScene("ShopScene")->AddEntity("upgrade" + std::to_string(i));
 		gui = entity->AddComponent<component::GUI2DComponent>();
+		gui->GetTextManager()->SetFont(m_pArial);
 		gui->GetTextManager()->AddText("upgrade" + std::to_string(i));
 		gui->GetTextManager()->SetColor(textColor, "upgrade" + std::to_string(i));
 		gui->GetTextManager()->SetPadding(textPadding, "upgrade" + std::to_string(i));

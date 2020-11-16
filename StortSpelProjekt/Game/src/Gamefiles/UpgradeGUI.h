@@ -10,6 +10,7 @@ class Scene;
 class Event;
 class Texture;
 class SceneManager;
+class Font;
 struct UForUpgrade;
 struct ButtonPressed;
 class UpgradeGUI
@@ -61,12 +62,13 @@ private:
 	void getButtonPress(ButtonPressed* event);
 	void updateDescription(int level);
 
-
+	// Fonts
+	Font* m_pArial = nullptr;
 
 	// Textures:
-	Texture* m_BoardBackgroundTexture;
-	Texture* m_ButtonParchment;
-	Texture* m_DescriptionParchment;
+	Texture* m_pBoardBackgroundTexture;
+	Texture* m_pButtonParchment;
+	Texture* m_pDescriptionParchment;
 };
 
 

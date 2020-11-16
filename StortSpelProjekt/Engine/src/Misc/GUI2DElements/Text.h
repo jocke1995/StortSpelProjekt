@@ -37,7 +37,7 @@ struct TextData
 class Text
 {
 public:
-	Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfCharacters, Texture* texture);
+	Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, Texture* texture, TextData* textData, Font* font);
 	~Text();
 
 	SlotInfo* const GetSlotInfo() const;
@@ -46,8 +46,6 @@ public:
 	const int GetNrOfCharacters() const;
 	const float4 GetAmountOfBlend() const;
 
-	void SetTextData(TextData* textData, Font* font);
-
 private:
 	friend class Renderer;
 	friend class SceneManager;
@@ -55,7 +53,7 @@ private:
 
 	Font* m_pFont = nullptr;
 
-	int m_NrOfVertices = 0;
+	int m_NrOfCharacters = 0;
 	int m_SizeOfVertices = 0;
 
 	// this will store our font information
@@ -70,6 +68,7 @@ private:
 	SlotInfo* m_pSlotInfo = nullptr;
 
 	void initVertexData();
+	void initMeshData(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, Texture* texture);
 };
 
 #endif

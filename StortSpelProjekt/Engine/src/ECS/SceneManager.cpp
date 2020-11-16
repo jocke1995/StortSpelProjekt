@@ -207,7 +207,7 @@ void SceneManager::SetScene(Scene* scene)
 			}
 		}
 	}
-
+	
 	// init the active scenes
 	std::map<std::string, Entity*> entities = *scene->GetEntities();
 	for (auto const& [entityName, entity] : entities)

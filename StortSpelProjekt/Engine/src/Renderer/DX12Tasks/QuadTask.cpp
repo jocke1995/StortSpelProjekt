@@ -91,18 +91,27 @@ void QuadTask::draw(ID3D12GraphicsCommandList5* commandList)
 	{
 		QuadManager* qm = m_QuadComponents.at(i)->GetQuadManager();
 
-		// Create a CB_PER_GUI2D_OBJECT_STRUCT struct
+		// Create a CB_PER_OBJECT_STRUCT struct
 		size_t num_Indices = qm->GetQuad()->GetNumIndices();
 		const SlotInfo* info = qm->GetSlotInfo();
+
+		float4 amountOfBlend = qm->GetAmountOfBlend();
+		amountOfBlend.w *= !m_QuadComponents.at(i)->GetQuadManager()->IsQuadHidden();
 
 		float4 textureInfo = float4{ 0.0 };
 		textureInfo.x = qm->HasTexture();
 		textureInfo.y = qm->GetActiveTexture();
-		float4 amountOfBlend = qm->GetAmountOfBlend();
-		amountOfBlend.w *= !m_QuadComponents.at(i)->GetQuadManager()->IsQuadHidden();
-		CB_PER_GUI2D_OBJECT_STRUCT perObject = { amountOfBlend, textureInfo, *info };
 
-		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_GUI2D_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+		DirectX::XMMATRIX world = DirectX::XMMatrixSet(
+			amountOfBlend.x,	amountOfBlend.y,	amountOfBlend.z,	amountOfBlend.w,
+			textureInfo.x,		textureInfo.y,		0.0f,				0.0f,
+			0.0f,				0.0f,				0.0f,				0.0f,
+			0.0f,				0.0f,				0.0f,				0.0f);
+		DirectX::XMMATRIX id = DirectX::XMMatrixIdentity();
+		
+		CB_PER_OBJECT_STRUCT perObject = { world, id, *info };
+
+		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 		commandList->IASetIndexBuffer(qm->GetQuad()->GetIndexBufferView());
 		commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 	}

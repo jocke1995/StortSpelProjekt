@@ -30,8 +30,8 @@ void AnimatedMesh::Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_h
 {
 	/* ------------------------- Normal vertex data ------------------------- */
 	// create vertices resource
-	m_pUploadResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"AnimatedVertex_UPLOAD_RESOURCE");
-	m_pDefaultResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"AnimatedVertex_DEFAULT_RESOURCE", D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	m_pUploadResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"ANIMATEDVERTEX_UPLOAD_RESOURCE");
+	m_pDefaultResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"ANIMATEDVERTEX_DEFAULT_RESOURCE", D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
 	// Create SRV
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};

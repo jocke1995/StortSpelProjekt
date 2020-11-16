@@ -91,7 +91,7 @@ private:
 	void (*m_pOnClicked)(const std::string &);
 	
 	void pressed(MouseClick* evnt);
-	void uploadQuadData(Renderer* renderer);
+	void uploadQuadData();
 	void deleteQuadData();
 };
 #endif
