@@ -112,7 +112,7 @@ std::map<std::string, Upgrade*> UpgradeManager::GetAllAvailableUpgrades()
 void UpgradeManager::IncreaseLevel(std::string name)
 {
 	m_AppliedUpgradeLevel[name]++;
-	m_AllAvailableUpgrades[name]->IncreaseLevelOnly();
+	m_AllAvailableUpgrades[name]->IncreaseLevel();
 }
 
 std::map<std::string, int> UpgradeManager::GetAppliedUpgradesLevel()

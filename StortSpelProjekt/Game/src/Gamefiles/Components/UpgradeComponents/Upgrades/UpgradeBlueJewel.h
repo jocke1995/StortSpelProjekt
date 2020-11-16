@@ -12,9 +12,12 @@ public:
 	void OnDamage();
 	void IncreaseLevel();
 
+	std::string GetDescription(unsigned int level);
+
 private:
 	float m_DamageReduction;
 	float m_StartDamageReduction;
+	float m_HealthThreshold;
 
 };
 

@@ -78,7 +78,14 @@ struct CB_PER_GUI2D_OBJECT_STRUCT
 struct CB_PER_FRAME_STRUCT
 {
 	float3 camPos;
+	float pad0;
+	float3 camRight;
 	float pad1;
+	float3 camUp;
+	float pad2;
+	float3 camForward;
+	float pad3;
+
 
 	// deltaTime ..
 	// etc ..
@@ -135,6 +142,13 @@ struct SpotLight
 
 	unsigned int textureShadowMap;	// Index to the shadowMap (srv)
 	unsigned int pad1[3];
+};
+
+struct PARTICLE_DATA
+{
+	float3 position;
+	float size;
+	float rotation;
 };
 
 #endif

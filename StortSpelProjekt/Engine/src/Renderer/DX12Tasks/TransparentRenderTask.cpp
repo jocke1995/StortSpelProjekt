@@ -7,6 +7,7 @@
 #include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/DepthStencil.h"
 #include "../GPUMemory/DepthStencilView.h"
+#include "../GPUMemory/ShaderResourceView.h"
 #include "../DescriptorHeap.h"
 #include "../SwapChain.h"
 #include "../GPUMemory/Resource.h"
@@ -14,6 +15,8 @@
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Camera/BaseCamera.h"
+
+
 
 TransparentRenderTask::TransparentRenderTask(	
 	ID3D12Device5* device,
@@ -24,7 +27,6 @@ TransparentRenderTask::TransparentRenderTask(
 	unsigned int FLAG_THREAD)
 	:RenderTask(device, rootSignature, VSName, PSName, gpsds, psoName, FLAG_THREAD)
 {
-	
 }
 
 TransparentRenderTask::~TransparentRenderTask()
@@ -84,31 +86,40 @@ void TransparentRenderTask::Execute()
 		component::ModelComponent* mc = m_RenderComponents.at(i).first;
 		component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
-		// Draw for every m_pMesh the MeshComponent has
-		for (unsigned int j = 0; j < mc->GetNrOfMeshes(); j++)
+		if (mc != nullptr)
 		{
-			Mesh* m = mc->GetMeshAt(j);
-			size_t num_Indices = m->GetNumIndices();
-			const SlotInfo* info = mc->GetSlotInfoAt(j);
-
-			Transform* transform = tc->GetTransform();
-
-			DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-			DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
-
-			// Create a CB_PER_OBJECT struct
-			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed , *info };
-
-			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
-				
-			commandList->IASetIndexBuffer(mc->GetMeshAt(j)->GetIndexBufferView());
-			// Draw each object twice with different PSO 
-			for (int k = 0; k < 2; k++)
+			// Draw for every m_pMesh the MeshComponent has
+			for (unsigned int j = 0; j < mc->GetNrOfMeshes(); j++)
 			{
-				commandList->SetPipelineState(m_PipelineStates[k]->GetPSO());
-				commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+				Mesh* m = mc->GetMeshAt(j);
+				size_t num_Indices = m->GetNumIndices();
+				const SlotInfo* info = mc->GetSlotInfoAt(j);
+
+				Transform* transform = tc->GetTransform();
+
+				DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+				DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+
+				// Create a CB_PER_OBJECT struct
+				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed , *info };
+
+				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+
+				commandList->IASetIndexBuffer(mc->GetMeshAt(j)->GetIndexBufferView());
+				// Draw each object twice with different PSO 
+				for (int k = 0; k < 2; k++)
+				{
+					commandList->SetPipelineState(m_PipelineStates[k]->GetPSO());
+					commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+				}
 			}
-		}	
+		}
+		// It's a particleEffect (This is pretty hardcoded to make stuff work)
+		else
+		{
+			// handeled by ParticleRenderTask
+		}
+			
 	}
 	
 	// Change state on front/backbuffer

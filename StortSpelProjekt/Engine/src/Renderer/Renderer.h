@@ -78,6 +78,7 @@ namespace component
 	class DirectionalLightComponent;
 	class PointLightComponent;
 	class SpotLightComponent;
+	class ParticleEmitterComponent;
 
 }
 
@@ -117,6 +118,7 @@ public:
 	void InitCameraComponent(component::CameraComponent* component);
 	void InitBoundingBoxComponent(component::BoundingBoxComponent* component);
 	void InitGUI2DComponent(component::GUI2DComponent* component);
+	void InitParticleEmitterComponent(component::ParticleEmitterComponent* component);
 
 	void UnInitSkyboxComponent(component::SkyboxComponent* component);
 	void UnInitModelComponent(component::ModelComponent* component);
@@ -126,6 +128,7 @@ public:
 	void UnInitCameraComponent(component::CameraComponent* component);
 	void UnInitBoundingBoxComponent(component::BoundingBoxComponent* component);
 	void UnInitGUI2DComponent(component::GUI2DComponent* component);
+	void UnInitParticleEmitterComponent(component::ParticleEmitterComponent* component);
 
 	void OnResetScene();
 
@@ -133,9 +136,12 @@ private:
 	friend class Engine;
 	friend class component::SkyboxComponent;
 	friend class component::GUI2DComponent;
+	friend class component::ParticleEmitterComponent;
 	friend class SceneManager;
 	friend class TextManager;
 	friend class QuadManager;
+	friend class ParticleSystem;
+	friend class ParticleEffect;
 	Renderer();
 	// For control of safe release of DirectX resources
 	void deleteRenderer();
@@ -145,6 +151,12 @@ private:
 	void submitModelToGPU(Model* model);
 	void submitMeshToCodt(Mesh* mesh);
 	void submitTextureToCodt(Texture* texture);
+
+	//SubmitToCpft functions
+	void submitToCpft(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
+	void clearSpecificCpft(Resource* upload);
+
+	DescriptorHeap* getCBVSRVUAVdHeap() const;
 
 	ThreadPool* m_pThreadPool = nullptr;
 
@@ -189,12 +201,14 @@ private:
 	//OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
 
 	Mesh* m_pFullScreenQuad = nullptr;
+	Mesh* m_pQuadMesh = nullptr;
 
 	// Group of components that's needed for rendering:
 	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::GUI2DComponent*> m_TextComponents;
 	std::vector<component::GUI2DComponent*> m_QuadComponents;
+	std::vector<component::ParticleEmitterComponent*> m_ParticleEmitterComponents;
 	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;

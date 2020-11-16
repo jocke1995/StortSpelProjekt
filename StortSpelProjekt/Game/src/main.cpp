@@ -94,7 +94,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         particleSystem->Update(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
-            logicTimer -= updateRate;
+            if (logicTimer >= 0.5)
+            {
+                logicTimer = 0;
+            }
+            else
+            {
+                logicTimer -= updateRate;
+            }
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
             enemyFactory.Update(updateRate);
@@ -125,6 +132,7 @@ Scene* GameScene(SceneManager* sm)
 {
     Scene* scene = sm->CreateScene("GameScene");
 
+#pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
@@ -150,9 +158,9 @@ Scene* GameScene(SceneManager* sm)
 	Texture* crosshairTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Crosshair.png");
 	Texture* killedEnemiesHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/KilledEnemies.png");
 
-    /*--------------------- Assets ---------------------*/
+#pragma endregion
 
-    /*--------------------- Component declarations ---------------------*/
+#pragma region component declarations
     Entity* entity = nullptr;
     component::Audio2DVoiceComponent* avc = nullptr;
     component::Audio3DListenerComponent* alc = nullptr;
@@ -173,9 +181,11 @@ Scene* GameScene(SceneManager* sm)
     component::HealthComponent* hc = nullptr;
     component::UpgradeComponent* uc = nullptr;
     component::GUI2DComponent* gui = nullptr;
-    /*--------------------- Component declarations ---------------------*/
+    component::ParticleEmitterComponent* pec = nullptr;
+#pragma endregion
 
-    /*--------------------- Player ---------------------*/
+#pragma region entities
+#pragma region player
     // entity
     std::string playerName = "player";
     entity = scene->AddEntity(playerName);
@@ -225,9 +235,9 @@ Scene* GameScene(SceneManager* sm)
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
     Physics::GetInstance().AddCollisionEntity(entity);;
-    /*--------------------- Player ---------------------*/
+#pragma endregion
 
-    /*--------------------- DirectionalLight ---------------------*/
+#pragma region directional light
     entity = scene->AddEntity("sun");
 
     // components
@@ -239,17 +249,17 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetCameraRight(130.0f);
     dlc->SetCameraLeft(-180.0f);
     dlc->SetCameraNearZ(-1000.0f);
-    /*--------------------- DirectionalLight ---------------------*/
+#pragma endregion
 
-    /*--------------------- Enemy definitions ---------------------*/
+#pragma region enemy definitions
     // melee
 	EnemyComps zombie = {};
 	zombie.model = enemyModel;
-	zombie.hp = 30;
+	zombie.hp = 20;
 	zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
-	zombie.meleeAttackDmg = 5.0f;
+	zombie.meleeAttackDmg = 4.0f;
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
 	zombie.movementSpeed = 15.0f;
@@ -279,9 +289,18 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.rangeVelocity = 50.0f;
     rangedDemon.projectileModel = sphereModel;
 
-    /*--------------------- Enemy definitions ---------------------*/
+#pragma endregion
 
-    /* ---------------------- Teleporter ---------------------- */
+#pragma region Enemyfactory
+    enemyFactory.SetScene(scene);
+    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
+    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
+    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
+    enemyFactory.DefineEnemy("enemyZombie", &zombie);
+    enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
+#pragma endregion
+
+#pragma region teleporter
     entity = scene->AddEntity("teleporter");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -297,10 +316,11 @@ Scene* GameScene(SceneManager* sm)
 
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
-    /*--------------------- Teleporter ---------------------*/
+#pragma endregion
+#pragma endregion
 
-    /* ------------------------- GUI --------------------------- */
-	/* ----------------- healthBackground ---------------------- */
+#pragma region GUI
+#pragma region health background
 	std::string textToRender = "";
 	float2 textPos = { 0.473f, 0.965f };
 	float2 textPadding = { 0.8f, 0.0f };
@@ -347,9 +367,9 @@ Scene* GameScene(SceneManager* sm)
 		0,
 		notBlended,
 		healthBackgroundTexture);
-	/* ---------------------------------------------------------- */
+#pragma endregion
 
-	/* ------------------------- healthHolder --------------------------- */
+#pragma region health holder
 	entity = scene->AddEntity("healthHolder");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	quadPos = { 0.35f, 0.85f };
@@ -361,9 +381,9 @@ Scene* GameScene(SceneManager* sm)
 		1,
 		notBlended,
 		healthHolderTexture);
-	/* ---------------------------------------------------------- */
+#pragma endregion
 
-	/* ------------------------- healthbar --------------------------- */
+#pragma region health bar
 	entity = scene->AddEntity("healthbar");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	quadPos = { 0.365f, 0.892f };
@@ -376,9 +396,9 @@ Scene* GameScene(SceneManager* sm)
 		notBlended,
 		healthbarTexture,
 		float3{ 0.0f, 1.0f, 0.0f });
-	/* ---------------------------------------------------------- */
+#pragma endregion
 
-	/* ------------------------- healthGuardians --------------------------- */
+#pragma region health guardians
 	entity = scene->AddEntity("healthGuardians");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	quadPos = { 0.32f, 0.86f };
@@ -390,9 +410,9 @@ Scene* GameScene(SceneManager* sm)
 		3,
 		blended,
 		healthGuardiansTexture);
-	/* ---------------------------------------------------------- */
+#pragma endregion
 
-	/* ------------------------- crosshair --------------------------- */
+#pragma region crosshair
 	blended = { 1.0, 1.0, 1.0, 0.7 };
 	entity = scene->AddEntity("crosshair");
 	gui = entity->AddComponent<component::GUI2DComponent>();
@@ -405,9 +425,9 @@ Scene* GameScene(SceneManager* sm)
 		3,
 		blended,
 		crosshairTexture);
-	/* ---------------------------------------------------------- */
+#pragma endregion
 
-	/* ------------------------- money --------------------------- */
+#pragma region money
     textToRender = "0";
     textPos = { 0.95f, 0.03f };
     textPadding = { 0.5f, 0.0f };
@@ -437,8 +457,9 @@ Scene* GameScene(SceneManager* sm)
         notBlended,
         currencyIcon
     );
+#pragma endregion
 
-	/* ------------------------- killedEnemies --------------------------- */
+#pragma region killed enemies
     textToRender = "0/20";
     textPos = { 0.074f, 0.044f };
     textPadding = { 0.5f, 0.0f };
@@ -468,16 +489,7 @@ Scene* GameScene(SceneManager* sm)
 		notBlended,
 		killedEnemiesHolderTexture
 	);
-
-    /* ------------------------ GUI END ---------------------------- */
-
-#pragma region Enemyfactory
-    enemyFactory.SetScene(scene);
-    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
-    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
-    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("enemyZombie", &zombie);
-    enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
+#pragma endregion
 #pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
@@ -512,6 +524,7 @@ Scene* ShopScene(SceneManager* sm)
     component::HealthComponent* hc = nullptr;
     component::GUI2DComponent* gui = nullptr;
     component::CurrencyComponent* cur = nullptr;
+    component::ParticleEmitterComponent* pec = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -814,6 +827,7 @@ Scene* ShopScene(SceneManager* sm)
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
 
 #pragma endregion walls
+
     /* ---------------------- SpotLightDynamic ---------------------- */
     entity = scene->AddEntity("spotLightDynamic");
     mc = entity->AddComponent<component::ModelComponent>();

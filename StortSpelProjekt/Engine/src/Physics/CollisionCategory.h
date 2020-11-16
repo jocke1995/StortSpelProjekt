@@ -4,6 +4,8 @@ class Entity;
 
 class PlayerCollisionCategory;
 class PlayerProjectileCollisionCategory;
+class EnemyCollisionCategory;
+class EnemyProjectileCollisionCategory;
 
 class CollisionCategory
 {
@@ -21,6 +23,8 @@ public:
 
 	virtual void Collide(PlayerCollisionCategory* other);
 	virtual void Collide(PlayerProjectileCollisionCategory* other);
+	virtual void Collide(EnemyCollisionCategory* other);
+	virtual void Collide(EnemyProjectileCollisionCategory* other);
 protected:
 	Entity* m_pParent;
 };

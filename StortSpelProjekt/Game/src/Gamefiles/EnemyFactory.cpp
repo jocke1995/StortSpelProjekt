@@ -4,6 +4,7 @@
 #include "Components/HealthComponent.h"
 #include "Components/EnemyComponent.h"
 #include "Misc/EngineRand.h"
+#include "Physics/CollisionCategories/EnemyCollisionCategory.h"
 
 EnemyFactory::EnemyFactory()
 {
@@ -11,11 +12,12 @@ EnemyFactory::EnemyFactory()
 	m_MaxEnemies = 30;
 	m_LevelMaxEnemies = 20;
 	m_EnemiesKilled = 0;
+	m_EnemiesToSpawn = 0;
+	m_EnemySlotsLeft = m_LevelMaxEnemies;
 	m_SpawnCooldown = 5;
 	m_MinimumDistanceToPlayer = 100;
 	m_SpawnTimer = 0.0f;
 	m_RandGen.SetSeed(time(NULL));
-	m_RangedSpawnCounter = 0;
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::levelDone);
@@ -30,6 +32,8 @@ EnemyFactory::EnemyFactory(Scene* scene)
 	m_MaxEnemies = 30;
 	m_LevelMaxEnemies = 20;
 	m_EnemiesKilled = 0;
+	m_EnemiesToSpawn = 0;
+	m_EnemySlotsLeft = m_LevelMaxEnemies;
 	m_SpawnCooldown = 5;
 	m_MinimumDistanceToPlayer = 1;
 	m_SpawnTimer = 0.0f;
@@ -242,6 +246,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	{
 		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 		bbc->Init();
+		bbc->AddCollisionCategory<EnemyCollisionCategory>();
 		Physics::GetInstance().AddCollisionEntity(ent);
 	}
 
@@ -366,8 +371,23 @@ void EnemyFactory::Update(double dt)
 {
 	if (m_IsActive)
 	{
-		m_SpawnTimer += dt;
-		if (m_SpawnCooldown <= m_SpawnTimer)
+		//m_EnemiesToSpawn hold how many enemies are left to spawn
+		//This exist to stagger the spawning of enemies by one frame to spread the load over multiple frames
+		if (m_EnemiesToSpawn == 0  && m_EnemySlotsLeft > 0)
+		{
+			m_SpawnTimer += dt;
+			if (m_SpawnCooldown <= m_SpawnTimer)
+			{
+				m_SpawnTimer = 0.0;
+				m_EnemiesToSpawn = (m_MaxEnemies - m_Enemies.size()) / 2;
+
+				if (m_EnemiesToSpawn > m_EnemySlotsLeft)
+				{
+					m_EnemiesToSpawn = m_EnemySlotsLeft;
+				}
+			}
+		} 
+		else if(m_EnemySlotsLeft > 0)
 		{
 			std::vector<int> eligblePoints;
 			float3 playerPos = m_pScene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform()->GetRenderPositionFloat3();
@@ -379,32 +399,19 @@ void EnemyFactory::Update(double dt)
 					eligblePoints.push_back(i);
 				}
 			}
+
 			unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
-
-			int toSpawn = (m_MaxEnemies - m_Enemies.size()) / 2;
-
-			int enemySlotsLeft = m_LevelMaxEnemies - m_EnemiesKilled - GetAllEnemies()->size();
-			if (toSpawn > enemySlotsLeft)
+			int spawnNumber = m_RandGen.Rand(1, 100);
+			if (spawnNumber <= m_EnemyComps.find("enemyDemon")->second->spawnChance)
 			{
-				toSpawn = enemySlotsLeft;
+				SpawnEnemy("enemyDemon", eligblePoints[point]);
 			}
-			if (toSpawn > 0)
+			else
 			{
-				for (unsigned int i = 0; i < toSpawn; ++i)
-				{
-					if (m_RangedSpawnCounter == 5)
-					{
-						SpawnEnemy("enemyDemon", eligblePoints[point]);
-						m_RangedSpawnCounter = 0;
-					}
-					else
-					{
-						SpawnEnemy("enemyZombie", eligblePoints[point]);
-						m_RangedSpawnCounter++;
-					}
-				}
+				SpawnEnemy("enemyZombie", eligblePoints[point]);
 			}
-			m_SpawnTimer = 0.0;
+			m_EnemiesToSpawn--;
+			m_EnemySlotsLeft--;
 		}
 	}
 }
@@ -460,17 +467,24 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 
 
 	//Scaling difficulty
-	m_LevelMaxEnemies = 20 + 2*m_Level;
+	m_LevelMaxEnemies = 20 + 2 * m_Level;
+	m_EnemySlotsLeft = m_LevelMaxEnemies;
 
 	// melee
-	m_EnemyComps.find("enemyZombie")->second->hp = m_EnemyComps.find("enemyZombie")->second->hpBase * pow(1.30, m_Level);
-	m_EnemyComps.find("enemyZombie")->second->meleeAttackDmg = m_EnemyComps.find("enemyZombie")->second->meleeAttackDmgBase + 2*m_Level;
+	m_EnemyComps.find("enemyZombie")->second->hp = m_EnemyComps.find("enemyZombie")->second->hpBase * pow(1.15, m_Level);
+	m_EnemyComps.find("enemyZombie")->second->meleeAttackDmg = m_EnemyComps.find("enemyZombie")->second->meleeAttackDmgBase + 1 * m_Level;
 	m_EnemyComps.find("enemyZombie")->second->movementSpeed = m_EnemyComps.find("enemyZombie")->second->movementSpeedBase + 1 * m_Level;
 
 	// ranged
-	m_EnemyComps.find("enemyDemon")->second->hp = m_EnemyComps.find("enemyDemon")->second->hpBase * pow(1.30, m_Level);
+	m_EnemyComps.find("enemyDemon")->second->hp = m_EnemyComps.find("enemyDemon")->second->hpBase * pow(1.10, m_Level);
 	m_EnemyComps.find("enemyDemon")->second->rangeAttackDmg = m_EnemyComps.find("enemyDemon")->second->rangeAttackDmgBase + 2 * m_Level;
-	m_EnemyComps.find("enemyDemon")->second->movementSpeed = m_EnemyComps.find("enemyDemon")->second->movementSpeedBase + 1 * m_Level;
+	if (m_Level > 0)
+	{
+		if (m_EnemyComps.find("enemyDemon")->second->spawnChance < 40)
+		{
+			m_EnemyComps.find("enemyDemon")->second->spawnChance += 5;
+		}
+	}
 
 
 	Entity* enemyGui = m_pScene->GetEntity("enemyGui");
@@ -484,4 +498,6 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 void EnemyFactory::onResetGame(ResetGame* evnt)
 {
 	m_Level = 0;
+	m_EnemyComps.find("enemyDemon")->second->spawnChance = 0;
+	m_EnemyComps.find("enemyZombie")->second->spawnChance = 0;
 }

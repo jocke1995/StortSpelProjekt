@@ -47,14 +47,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AudioEngine* const audioEngine = engine.GetAudioEngine();
     ParticleSystem* const particleSystem = engine.GetParticleSystem();
 
-
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
     //Scene* jacobScene = JacobsTestScene(sceneManager);
     //Scene* activeScene = jacobScene;
-    Scene* leoScene = LeosTestScene(sceneManager);
-    Scene* activeScene = leoScene;
+    //Scene* leoScene = LeosTestScene(sceneManager);
+    //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
     //Scene* jockeScene = JockesTestScene(sceneManager);
@@ -69,11 +68,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = antonScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* activeScene = andresScene;
-    //Scene* filipScene = FloppipTestScene(sceneManager);
-    //Scene* activeScene = filipScene;
+    Scene* filipScene = FloppipTestScene(sceneManager);
+    Scene* activeScene = filipScene;
 
     // Set scene
     sceneManager->SetScene(activeScene);
+
 
     GameNetwork gameNetwork;
 
@@ -755,9 +755,28 @@ Scene* FloppipTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
+
     /* ---------------------- Player ---------------------- */
 
-    pe = entity->AddComponent<component::ParticleEmitterComponent>();
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.particleCount = 500;
+    settings.startValues.lifetime = 0.8;
+    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+    settings.startValues.acceleration = {0, -3, 0};
+
+    // Need to fix EngineRand.rand() for negative values
+    RandomParameter3 randParam1 = { -2, 2, -2, 2, -2, 2 };
+    randParam1.y = { 2, 6 };
+
+    settings.randPosition = { 0, 1, 0, 1, 0, 1 };
+    settings.randVelocity = randParam1;
+    settings.randSize = { 0.2, 2 };
+    settings.randRotationSpeed = { 0, 3 };
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+
 
     /* ---------------------- Skybox ---------------------- */
 
@@ -780,8 +799,31 @@ Scene* FloppipTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 30.0f);
+    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    
+
+    // Create test particleEffect
+    settings = {};
+    settings.particleCount = 1200;
+    settings.startValues.lifetime = 15;
+    settings.startValues.acceleration = {0, 0, 0};
+    settings.startValues.position = {0, 200, 0};
+    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+    
+    // Need to fix EngineRand.rand() for negative values
+    randParam1 = { -2, 2, -2, 2, -2, 2 };
+    randParam1.y = { -20, -12 };
+    
+    settings.randPosition = { -400, 400, 0, 0, -400, 400 };
+    settings.randVelocity = randParam1;
+    settings.randSize = { 3, 7 };
+    settings.randRotationSpeed = { -3, 3 };
+    
+    particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/default_particle.png"));
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+
     /* ---------------------- Floor ---------------------- */
+
 
     
     /* ---------------------- PointLight1 ---------------------- */

@@ -26,7 +26,7 @@ public:
 	BoundingBoxData* GetBoundingBoxData(std::wstring uniquePath);
 	BoundingBoxData* CreateBoundingBoxData(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::wstring uniquePath);
 
-	Mesh* CreateBoundingBoxMesh(std::wstring uniquePath);
+	std::pair<Mesh*, bool> CreateBoundingBoxMesh(std::wstring uniquePath);
 	
 private:
 	BoundingBoxPool(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr);
