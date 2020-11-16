@@ -893,9 +893,25 @@ void GameUpdateScene(SceneManager* sm, double dt)
 
 void ShopUpdateScene(SceneManager* sm, double dt)
 {
+    // Hidden Stefan & Hans
     static float rotValue = 0.0f;
     Transform* trans = sm->GetScene("ShopScene")->GetEntity("poster")->GetComponent<component::TransformComponent>()->GetTransform();
     trans->SetRotationX(rotValue);
-
     rotValue += 0.005f;
+
+    // TODO: Change button to whatever button the Gamedesign-team wants.
+    // Check if the user pressed a button to enter the shop and if the shop has been picked
+    if (Input::GetInstance().GetKeyState(SCAN_CODES::L) == true)
+    {
+        Entity* pickedEntity = Renderer::GetInstance().GetPickedEntity();
+        if (pickedEntity != nullptr)
+        {
+            if (pickedEntity->GetName() == "shop")
+            {
+                static int test = 0;
+                Log::Print("Entered the shop 2DGUI! %d\n", test);
+                test++;
+            }
+        }
+    }
 }
