@@ -16,8 +16,8 @@ Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfC
 	m_SizeOfVertices = m_NrOfVertices * sizeof(TextVertex);
 
 	// Set vertices
-	m_pUploadResourceVertices = new Resource(device, m_SizeOfVertices, RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
-	m_pDefaultResourceVertices = new Resource(device, m_SizeOfVertices, RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
+	m_pUploadResourceVertices = new Resource(device, m_SizeOfVertices, RESOURCE_TYPE::UPLOAD, L"Vertex_TEXT_UPLOAD_RESOURCE");
+	m_pDefaultResourceVertices = new Resource(device, m_SizeOfVertices, RESOURCE_TYPE::DEFAULT, L"Vertex_TEXT_DEFAULT_RESOURCE");
 
 	// Create SRV
 	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};

@@ -742,16 +742,20 @@ void Renderer::InitBoundingBoxComponent(component::BoundingBoxComponent* compone
 	{
 		for (unsigned int i = 0; i < component->GetNumBoundingBoxes(); i++)
 		{
-			Mesh* m = BoundingBoxPool::Get()->CreateBoundingBoxMesh(component->GetPathOfModel(i));
-			if (m == nullptr)
+			auto[mesh, toBeSubmitted] = BoundingBoxPool::Get()->CreateBoundingBoxMesh(component->GetPathOfModel(i));
+
+			if (mesh == nullptr)
 			{
 				Log::PrintSeverity(Log::Severity::WARNING, "Forgot to initialize BoundingBoxComponent on Entity: %s\n", component->GetParent()->GetName().c_str());
 				return;
 			}
 
-			submitMeshToCodt(m);
+			if (toBeSubmitted == true)
+			{
+				submitMeshToCodt(mesh);
+			}
 
-			component->AddMesh(m);
+			component->AddMesh(mesh);
 		}
 		static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->AddObjectToDraw(component);
 	}
@@ -1054,6 +1058,12 @@ void Renderer::submitMeshToCodt(Mesh* mesh)
 
 void Renderer::submitModelToGPU(Model* model)
 {
+	// Dont submit if already on GPU
+	if (AssetLoader::Get()->IsModelLoadedOnGpu(model) == true)
+	{
+		return;
+	}
+
 	// Check if the model is animated
 	bool isAnimated = false;
 	if (dynamic_cast<AnimatedModel*>(model) != nullptr)
@@ -1121,12 +1131,21 @@ void Renderer::submitModelToGPU(Model* model)
 		texture = model->GetMaterialAt(i)->GetTexture(TEXTURE2D_TYPE::OPACITY);
 		submitTextureToCodt(texture);
 	}
+
+	AssetLoader::Get()->m_LoadedModels.at(model->GetPath()).first = true;
 }
 
 void Renderer::submitTextureToCodt(Texture* texture)
 {
+	if (AssetLoader::Get()->IsTextureLoadedOnGpu(texture) == true)
+	{
+		return;
+	}
+
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 	codt->SubmitTexture(texture);
+
+	AssetLoader::Get()->m_LoadedTextures.at(texture->GetPath()).first = true;
 }
 
 void Renderer::submitToCpft(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
