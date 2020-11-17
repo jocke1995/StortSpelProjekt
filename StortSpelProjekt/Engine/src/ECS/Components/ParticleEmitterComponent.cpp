@@ -35,6 +35,7 @@ void component::ParticleEmitterComponent::OnInitScene()
 	
 	Renderer& renderer = Renderer::GetInstance();
 	renderer.InitParticleEmitterComponent(this);
+	ParticleSystem::GetInstance().ActivateParticleEffect(&m_ParticleEffect);
 }
 
 void component::ParticleEmitterComponent::OnUnInitScene()
@@ -42,6 +43,7 @@ void component::ParticleEmitterComponent::OnUnInitScene()
 	Stop();
 	Renderer& renderer = Renderer::GetInstance();
 	renderer.UnInitParticleEmitterComponent(this);
+	ParticleSystem::GetInstance().DeactivateParticleEffect(&m_ParticleEffect);
 }
 
 void component::ParticleEmitterComponent::Play()
@@ -50,7 +52,9 @@ void component::ParticleEmitterComponent::Play()
 	{
 		return;
 	}
-	ParticleSystem::GetInstance().ActivateParticleEffect(&m_ParticleEffect);
+
+	m_ParticleEffect.SetIsSpawning(true);
+	
 	m_IsPlaying = true;
 }
 
@@ -60,7 +64,9 @@ void component::ParticleEmitterComponent::Stop()
 	{
 		return;
 	}
-	ParticleSystem::GetInstance().DeactivateParticleEffect(&m_ParticleEffect);
+
+	m_ParticleEffect.SetIsSpawning(false);
+
 	m_IsPlaying = false;
 }
 
