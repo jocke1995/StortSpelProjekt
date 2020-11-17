@@ -23,6 +23,8 @@ void AndresUpdateScene(SceneManager* sm, double dt);
 
 EnemyFactory enemyFactory;
 
+static component::ParticleEmitterComponent* partic;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -90,6 +92,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     while (!window->ExitWindow())
     {
+        static int counterrr = 0;
+        if (window->WasSpacePressed())
+        {
+            
+            if (counterrr % 2 == 0)
+            {
+                partic->Stop();
+            }
+            else
+            {
+                partic->Play();
+            }
+            counterrr++;
+        }
+
         /* ------ Update ------ */
         timer->Update();
         logicTimer += timer->GetDeltaTime();
@@ -775,7 +792,8 @@ Scene* FloppipTestScene(SceneManager* sm)
     settings.randRotationSpeed = { 0, 3 };
 
     Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+    //pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+    partic = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
 
 
     /* ---------------------- Skybox ---------------------- */
