@@ -8,14 +8,11 @@
 component::HealthComponent::HealthComponent(Entity* parent, int hp, float removalTime) : Component(parent)
 {
 	m_FlatDamageReduction = 0;
-	m_ProcentileDamageReduction = 1.0f;
+	m_MultiplicativeDamageReduction = 1.0f;
 	m_RemovalTimer = removalTime;
 	m_Health = hp;
 	// set max health to same as hp arg when created
 	m_MaxHealth = m_Health;
-
-	m_FlatDamageReduction = 0;
-	m_ProcentileDamageReduction = 1.0;
 }
 
 component::HealthComponent::~HealthComponent()
@@ -92,11 +89,11 @@ void component::HealthComponent::TakeDamage(int damage)
 	{
 		m_pParent->GetComponent<component::UpgradeComponent>()->OnDamage();
 	}
-
-	ChangeHealth((-damage - m_FlatDamageReduction) * m_ProcentileDamageReduction); //Flat Damage gets applied first followed by multaplicative damage
+	damage = (damage - m_FlatDamageReduction) * m_MultiplicativeDamageReduction; //Flat Damage gets applied first followed by multaplicative damage
+	ChangeHealth(-damage);
 	//Damage reduction stat is reset to allow upgrade to change again
 	m_FlatDamageReduction = 0.0;
-	m_ProcentileDamageReduction = 1.0;
+	m_MultiplicativeDamageReduction = 1.0;
 }
 
 void component::HealthComponent::ChangeFlatDamageReduction(int flatDamageReduction)
@@ -104,9 +101,9 @@ void component::HealthComponent::ChangeFlatDamageReduction(int flatDamageReducti
 	m_FlatDamageReduction += flatDamageReduction;
 }
 
-void component::HealthComponent::ChangeProcentileDamageReduction(float procentileDamageReduction)
+void component::HealthComponent::ChangeMultiplicativeDamageReduction(float multaplicativeDamageReduction)
 {
-	m_ProcentileDamageReduction *= procentileDamageReduction;
+	m_MultiplicativeDamageReduction *= multaplicativeDamageReduction;
 }
 
 int component::HealthComponent::GetHealth() const

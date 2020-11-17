@@ -4,7 +4,6 @@
 
 class Entity;
 
-// Upgrade description: This upgrade gives the player life steal based on ranged attack damage. First level gives 10 percent, next levels increase 5 percent per level.  Price doubles per level.
 class UpgradePoisonAttack : public Upgrade
 {
 public:
