@@ -126,7 +126,11 @@ void Input::SetMouseScroll(SHORT scroll)
 
 void Input::SetMouseMovement(int x, int y)
 {
-	EventBus::GetInstance().Publish(&MouseMovement(x, y));
+	// Disable movement when in Shop2D-GUI state
+	if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == false)
+	{
+		EventBus::GetInstance().Publish(&MouseMovement(x, y));
+	}
 }
 
 bool Input::GetKeyState(SCAN_CODES key)
