@@ -265,6 +265,8 @@ Scene* GameScene(SceneManager* sm)
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
 	zombie.movementSpeed = 15.0f;
+	zombie.attackingDist = 1.5f;
+	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
 	zombie.scale = 0.04;
 	zombie.detectionRad = 500.0f;

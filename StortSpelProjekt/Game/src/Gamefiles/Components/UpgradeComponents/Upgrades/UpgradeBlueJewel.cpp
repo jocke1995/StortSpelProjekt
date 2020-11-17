@@ -28,7 +28,7 @@ void UpgradeBlueJewel::OnDamage()
 {
 	if (m_pParentEntity->GetComponent<component::HealthComponent>()->GetHealth() <= float(m_pParentEntity->GetComponent<component::HealthComponent>()->GetMaxHealth() * 0.3))
 	{
-		m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeProcentileDamageReduction(m_DamageReduction);
+		m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeMultiplicativeDamageReduction(m_DamageReduction);
 	}
 }
 
