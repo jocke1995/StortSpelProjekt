@@ -23,9 +23,11 @@ namespace component
 		void Update(double dt);
 
 	private:
+		void tick();
+
 		int m_Damage;
 		int m_Ticks;
-		double m_TickDuration;
+		double m_TickInterval;
 		double m_TickTimer;
 		float m_Slow;
 	};

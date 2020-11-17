@@ -62,15 +62,20 @@ void component::PoisonDebuff::Update(double dt)
 		m_TickTimer += dt;
 		if (m_TickTimer >= m_TickInterval)
 		{
-			m_TickTimer -= m_TickInterval;
-			m_Ticks--;
-			m_pParent->GetComponent<component::HealthComponent>()->TakeDamage(m_Damage);
-			if (m_Ticks == 0)
-			{
-				Transform* transform = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
-				transform->SetVelocity(transform->GetVelocity() + m_Slow);
-				m_pParent->GetComponent<component::ParticleEmitterComponent>()->Stop();
-			}
+			tick();
 		}
+	}
+}
+
+void component::PoisonDebuff::tick()
+{
+	m_TickTimer -= m_TickInterval;
+	m_Ticks--;
+	m_pParent->GetComponent<component::HealthComponent>()->TakeDamage(m_Damage);
+	if (m_Ticks == 0)
+	{
+		Transform* transform = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
+		transform->SetVelocity(transform->GetVelocity() + m_Slow);
+		m_pParent->GetComponent<component::ParticleEmitterComponent>()->Stop();
 	}
 }
