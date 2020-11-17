@@ -168,6 +168,7 @@ void component::AiComponent::SetRangedAI()
 {
 	m_IsRanged = true;
 	// if range, get the attack interval setting from range component
+	m_TargetCircleRadius = 0.0f;
 	if (m_pParent->HasComponent<RangeEnemyComponent>())
 	{
 		SetAttackInterval(m_pParent->GetComponent<RangeEnemyComponent>()->GetAttackInterval());
