@@ -17,6 +17,7 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	m_TimeSinceLastAttackCheck = 0;
 	m_pMesh = nullptr;
 	m_Damage = 1;
+	m_KnockBack = 10;
 
 	m_HalfSize = { 8.0f, 1.0f, MELEE_RANGE / 2.0 };
 
@@ -163,7 +164,7 @@ void component::MeleeComponent::checkCollision()
 			list.at(i)->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
 			list.at(i)->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
 			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
-			list.at(i)->GetComponent<component::AiComponent>()->KnockBack(m_MeleeTransformModified, 40.0f);
+			list.at(i)->GetComponent<component::AiComponent>()->KnockBack(m_MeleeTransformModified, m_KnockBack/*40.0f*/);
 		}
 	}
 	list.empty();

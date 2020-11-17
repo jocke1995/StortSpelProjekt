@@ -57,6 +57,7 @@ namespace component
 		float m_AttackInterval;
 		float m_TimeSinceLastAttackCheck;
 		int m_Damage;
+		float m_KnockBack;
 
 		float3 m_HalfSize;
 
