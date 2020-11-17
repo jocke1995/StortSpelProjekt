@@ -781,7 +781,7 @@ void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 	{
 		for (auto textData : *textDataMap)
 		{
-			component->GetTextManager()->uploadTextData(textData.first, this);
+			component->GetTextManager()->uploadTextData(textData.first);
 		}
 
 		// Finally store the text in m_pRenderer so it will be drawn
@@ -790,7 +790,7 @@ void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 
 	if (quad != nullptr)
 	{
-		component->GetQuadManager()->uploadQuadData(this);
+		component->GetQuadManager()->uploadQuadData();
 
 		// Finally store the quad in m_pRenderer so it will be drawn
 		m_QuadComponents.push_back(component);
@@ -976,9 +976,6 @@ void Renderer::UnInitBoundingBoxComponent(component::BoundingBoxComponent* compo
 
 void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 {
-	// TODO: maybe put this inside "SceneManager::RemoveEntity"
-	Renderer::GetInstance().waitForGPU();
-
 	// Remove component from textComponents
 	// TODO: change data structure to allow O(1) add and remove
 	for (int i = 0; i < m_TextComponents.size(); i++)
@@ -987,7 +984,9 @@ void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 		component::GUI2DComponent* comp = m_TextComponents.at(i);
 		if (comp == component)
 		{
+			waitForGPU();
 			m_TextComponents.erase(m_TextComponents.begin() + i);
+			break;
 		}
 	}
 
@@ -999,7 +998,9 @@ void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 		component::GUI2DComponent* comp = m_QuadComponents.at(i);
 		if (comp == component)
 		{
+			waitForGPU();
 			m_QuadComponents.erase(m_QuadComponents.begin() + i);
+			break;
 		}
 	}
 
@@ -2588,6 +2589,7 @@ void Renderer::submitTextToGPU(Text* text, TextManager* tm)
 	Resource* uploadR = text->m_pUploadResourceVertices;
 	Resource* defaultR = text->m_pDefaultResourceVertices;
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+
 	codt->Submit(&std::make_tuple(uploadR, defaultR, data));
 
 	AssetLoader* al = AssetLoader::Get();

@@ -76,8 +76,7 @@ void TextTask::Execute()
 
 	for (int i = 0; i < m_TextComponents.size(); i++)
 	{
-		component::GUI2DComponent* tc = m_TextComponents.at(i);
-		draw(commandList, tc);
+		draw(commandList, m_TextComponents.at(i));
 	}
 
 	// Change state on front/backbuffer
@@ -96,12 +95,19 @@ void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::GUI2DCom
 	{
 		Text* text = textMap.second;
 
-		// Create a CB_PER_GUI2D_OBJECT_STRUCT struct
+		// Create a CB_PER_OBJECT_STRUCT struct
 		SlotInfo* info = text->GetSlotInfo();
 		float4 amountOfBlend = text->GetAmountOfBlend();
 		amountOfBlend.w *= !tc->GetTextManager()->IsTextHidden();
-		CB_PER_GUI2D_OBJECT_STRUCT perObject = { amountOfBlend, float4{ 1.0 }, *info };
-		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_GUI2D_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+		DirectX::XMMATRIX world = DirectX::XMMatrixSet(
+			amountOfBlend.x,	amountOfBlend.y,	amountOfBlend.z,	amountOfBlend.w,
+			0.0f,				0.0f,				0.0f,				0.0f,
+			0.0f,				0.0f,				0.0f,				0.0f,
+			0.0f,				0.0f,				0.0f,				0.0f);
+		DirectX::XMMATRIX id = DirectX::XMMatrixIdentity();
+
+		CB_PER_OBJECT_STRUCT perObject = { world, id, *info };
+		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
 		// We are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
 		nrOfCharacters = text->GetNrOfCharacters();

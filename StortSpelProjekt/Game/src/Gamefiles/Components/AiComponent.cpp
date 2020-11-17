@@ -84,6 +84,8 @@ void component::AiComponent::SetScene(Scene* scene)
 		m_pTriangles[i] = new PathTriangle;
 		m_pTriangles[i]->id = i;
 	}
+
+	m_pParentTrans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
 }
 
 void component::AiComponent::Update(double dt)

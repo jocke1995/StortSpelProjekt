@@ -28,6 +28,7 @@ namespace component
 		void SetDamage(int damage);
 		void ChangeDamage(int change);
 		float GetAttackInterval() const;
+		void MakeProjectileBouncy(bool bouncy);
 
 		void Attack();
 		
@@ -38,6 +39,7 @@ namespace component
 		int m_NrOfProjectiles;
 		float m_AttackInterval;
 		double m_TimeAccumulator;
+		float m_ProjectileRestitution;
 
 		bool m_AudioPlay;
 

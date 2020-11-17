@@ -158,6 +158,8 @@ Scene* GameScene(SceneManager* sm)
 	Texture* crosshairTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Crosshair.png");
 	Texture* killedEnemiesHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/KilledEnemies.png");
 
+	Font* arial = al->LoadFontFromFile(L"Arial.fnt");
+
 #pragma endregion
 
 #pragma region component declarations
@@ -201,7 +203,7 @@ Scene* GameScene(SceneManager* sm)
     melc = entity->AddComponent<component::MeleeComponent>();
     // range damage should be at least 10 for ranged life steal upgrade to work
     // range velocity should be 50, otherwise range velocity upgrade does not make sense (may be scrapped later)
-    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 10, 50);
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 10, 150);
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(50);
     uc = entity->AddComponent<component::UpgradeComponent>();
@@ -330,6 +332,7 @@ Scene* GameScene(SceneManager* sm)
 
 	entity = scene->AddEntity("healthBackground");
 	gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->SetFont(arial);
 	gui->GetTextManager()->AddText("currentHealth");
 	gui->GetTextManager()->SetColor(textColor, "currentHealth");
 	gui->GetTextManager()->SetPadding(textPadding, "currentHealth");
@@ -437,6 +440,7 @@ Scene* GameScene(SceneManager* sm)
 
     entity = scene->AddEntity("money");
     gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->SetFont(arial);
     gui->GetTextManager()->AddText("money");
     gui->GetTextManager()->SetColor(textColor, "money");
     gui->GetTextManager()->SetPadding(textPadding, "money");
@@ -469,6 +473,7 @@ Scene* GameScene(SceneManager* sm)
 
     entity = scene->AddEntity("enemyGui");
     gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->SetFont(arial);
     gui->GetTextManager()->AddText("enemyGui");
     gui->GetTextManager()->SetColor(textColor, "enemyGui");
     gui->GetTextManager()->SetPadding(textPadding, "enemyGui");
@@ -543,6 +548,8 @@ Scene* ShopScene(SceneManager* sm)
     Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+
+	Font* arial = al->LoadFontFromFile(L"Arial.fnt");
 
 #pragma region player
     std::string playerName = "player";
@@ -624,6 +631,7 @@ Scene* ShopScene(SceneManager* sm)
 
 	entity = scene->AddEntity("healthBackground");
 	gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->SetFont(arial);
 	gui->GetTextManager()->AddText("currentHealth");
 	gui->GetTextManager()->SetColor(textColor, "currentHealth");
 	gui->GetTextManager()->SetPadding(textPadding, "currentHealth");
@@ -731,6 +739,7 @@ Scene* ShopScene(SceneManager* sm)
 
     entity = scene->AddEntity("money");
     gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetTextManager()->SetFont(arial);
     gui->GetTextManager()->AddText("money");
     gui->GetTextManager()->SetColor(textColor, "money");
     gui->GetTextManager()->SetPadding(textPadding, "money");

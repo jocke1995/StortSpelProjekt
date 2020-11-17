@@ -29,7 +29,7 @@ void UpgradeRangeVelocity::IncreaseLevel()
 		m_Level++;
 		float oldVelocity = m_pParentEntity->GetComponent<component::RangeComponent>()->GetVelocity();
 		// double the velocity of the shots
-		float newVelocity = oldVelocity + 10;
+		float newVelocity = oldVelocity + 30;
 		m_pParentEntity->GetComponent<component::RangeComponent>()->SetVelocity(newVelocity);
 		m_Price = m_StartingPrice * m_Level;
 	}
@@ -41,5 +41,5 @@ void UpgradeRangeVelocity::ApplyBoughtUpgrade()
 
 std::string UpgradeRangeVelocity::GetDescription(unsigned int level)
 {
-	return "Range Velocity: Increases velocity of the range attacks with 10 per level. Max velocity is 100, at upgrade level 5";
+	return "Range Velocity: Increases velocity of the range attacks with 30 per level. Max velocity is 300, at upgrade level 5";
 }

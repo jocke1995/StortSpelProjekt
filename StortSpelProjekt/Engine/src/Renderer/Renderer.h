@@ -143,6 +143,7 @@ private:
 	friend class ParticleSystem;
 	friend class ParticleEffect;
 	Renderer();
+
 	// For control of safe release of DirectX resources
 	void deleteRenderer();
 
