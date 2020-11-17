@@ -151,33 +151,33 @@ void UpgradeManager::fillUpgradeMap()
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	// Adding MeleeDamage Upgrade
-	upgrade = new UpgradeMeleeDamage(m_pParentEntity);
-	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	upgrade->SetID(UPGRADE_MELEE_DAMAGE);
-	// add the upgrade to the list of all upgrades
-	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	//// Adding MeleeDamage Upgrade
+	//upgrade = new UpgradeMeleeDamage(m_pParentEntity);
+	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	//upgrade->SetID(UPGRADE_MELEE_DAMAGE);
+	//// add the upgrade to the list of all upgrades
+	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	// Adding HealthBoost Upgrade
-	upgrade = new UpgradeHealthBoost(m_pParentEntity);
-	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	upgrade->SetID(UPGRADE_HEALTH_BOOST);
-	// add the upgrade to the list of all upgrades
-	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	//// Adding HealthBoost Upgrade
+	//upgrade = new UpgradeHealthBoost(m_pParentEntity);
+	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	//upgrade->SetID(UPGRADE_HEALTH_BOOST);
+	//// add the upgrade to the list of all upgrades
+	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	// Adding BlueJewel Upgrade
-	upgrade = new UpgradeBlueJewel(m_pParentEntity);
-	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	upgrade->SetID(UPGRADE_BLUE_JEWEL);
-	// add the upgrade to the list of all upgrades
-	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	//// Adding BlueJewel Upgrade
+	//upgrade = new UpgradeBlueJewel(m_pParentEntity);
+	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	//upgrade->SetID(UPGRADE_BLUE_JEWEL);
+	//// add the upgrade to the list of all upgrades
+	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	// Adding RangeBounce Upgrade
-	upgrade = new UpgradeRangeBounce(m_pParentEntity);
-	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	upgrade->SetID(UPGRADE_RANGE_BOUNCE);
-	// add the upgrade to the list of all upgrades
-	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	//// Adding RangeBounce Upgrade
+	//upgrade = new UpgradeRangeBounce(m_pParentEntity);
+	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	//upgrade->SetID(UPGRADE_RANGE_BOUNCE);
+	//// add the upgrade to the list of all upgrades
+	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
 	// Adding HealthRegen Upgrade
 	upgrade = new UpgradeHealthRegen(m_pParentEntity);
