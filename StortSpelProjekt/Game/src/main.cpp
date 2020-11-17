@@ -10,6 +10,7 @@
 #include "UpgradeManager.h"
 #include "Shop.h"
 #include "Components/CurrencyComponent.h"
+#include "Components/UpgradeComponents/UpgradeComponent.h"
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
 #include "UpgradeGUI.h"
@@ -900,39 +901,6 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     rotValue += 0.005f;
 
     // TODO:
-    // 1. Stop showing shop 2d gui when F is pressed again
+    // 1. Remove camera look-around when in Shop2D-GUI
     // 2. Lock player movement when in shop2DGUI
-    // 3. ShowCursor when in shop2DGUI
-    // Check if the user pressed a button to enter the shop and if the shop has been picked
-    auto SetShop2DGUI = [](bool lookingAtShop) -> void
-    {
-        Player::GetInstance().GetShop()->SetLookingAtShop(lookingAtShop);
-    };
-
-    if (Input::GetInstance().GetKeyState(SCAN_CODES::F) == true)
-    {
-        Entity* pickedEntity = Renderer::GetInstance().GetPickedEntity();
-        if (pickedEntity != nullptr)
-        {
-            Shop* shop = Player::GetInstance().GetShop();
-            if (pickedEntity->GetName() == "shop")
-            {
-                static int test = 0;
-                Log::Print("Entered the shop 2DGUI! %d\n", test);
-                test++;
-
-                // Naiv attempt, will currently change multiple times if key is pressed
-                shop->Create2DGUI();
-                SetShop2DGUI(true);
-            }
-            else
-            {
-                SetShop2DGUI(false);
-            }
-        }
-        else
-        {
-            SetShop2DGUI(false);
-        }
-    }
 }

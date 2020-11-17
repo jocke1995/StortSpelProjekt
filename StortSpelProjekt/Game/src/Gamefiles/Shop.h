@@ -3,14 +3,16 @@
 
 #include "Player.h"
 #include "UpgradeManager.h"
-#include "Components/UpgradeComponents/UpgradeComponent.h"
-#include "Components/UpgradeComponents/Upgrades/Upgrade.h"
-#include <string>
-#include "Misc/EngineRand.h"
-#include "Events/Events.h"
+class UpgradeComponent;
+class Upgrade;
+
+#include "../Misc/EngineRand.h"
+#include "../Events/Events.h"
 
 class Texture;
 class Font;
+
+struct shopGUIStateChange;
 
 class Shop
 {
@@ -46,12 +48,12 @@ public:
 	// Get upgrade image
 	Texture* GetUpgradeImage(std::string* name);
 	// Get if the user is inside the 2D shop GUI
-	bool IsLookingAtShop();
-	// Sets to true when the player is looking at the shop
-	// Sets to false when the player is NOT looking at the shop
-	void SetLookingAtShop(bool lookingAtShop);
+	bool IsShop2DGUIDisplaying();
 	// Resets the inventory of the shop.
 	void Reset();
+
+	// Event that happens when user presses F
+	void OnShopGUIStateChange(shopGUIStateChange* collisionEvent);
 
 private:
 	void upgradePressed(ButtonPressed* evnt);
@@ -83,7 +85,7 @@ private:
 
 	Font* m_pArial = nullptr;
 
-	bool m_LookingAtShop = false;
+	bool m_DisplayingShopGUI = false;
 };
 
 #endif // !SHOP_H

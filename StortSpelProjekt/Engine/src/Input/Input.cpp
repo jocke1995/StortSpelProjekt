@@ -2,6 +2,10 @@
 #include "..\Events\EventBus.h"
 #include "..\Misc\Timer.h"
 
+// Needed for shopEvent
+#include "../ECS/SceneManager.h"
+#include "../../Game/src/Gamefiles/Shop.h"
+
 Input& Input::GetInstance()
 {
 	static Input instance;
@@ -55,13 +59,18 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 	m_KeyState[key] = pressed;
 	if (key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::Q || key == SCAN_CODES::E || key == SCAN_CODES::SPACE)
 	{
-		if (justPressed)
+		// Disable movement when in Shop2D-GUI state
+		if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == false)
 		{
-			EventBus::GetInstance().Publish(&MovementInput(key, justPressed, doubleTap));
-		}
-		else if (!pressed)
-		{
-			EventBus::GetInstance().Publish(&MovementInput(key, pressed, doubleTap));
+			// Publish movement events
+			if (justPressed)
+			{
+				EventBus::GetInstance().Publish(&MovementInput(key, justPressed, doubleTap));
+			}
+			else if (!pressed)
+			{
+				EventBus::GetInstance().Publish(&MovementInput(key, pressed, doubleTap));
+			}
 		}
 	}
 	else if (key == SCAN_CODES::LEFT_CTRL || key == SCAN_CODES::LEFT_SHIFT ||key == SCAN_CODES::TAB)
@@ -80,6 +89,18 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 		if (justPressed)
 		{
 			EventBus::GetInstance().Publish(&UForUpgrade());
+		}
+	}
+	else if (key == SCAN_CODES::F)
+	{
+		if (justPressed)
+		{
+			// Check if we are in the ShopScene
+			Scene* scene = SceneManager::GetInstance().GetActiveScene();
+			if (scene->GetName() == "ShopScene")
+			{
+				EventBus::GetInstance().Publish(&shopGUIStateChange());
+			}
 		}
 	}
 }

@@ -2,6 +2,8 @@
 #include "EngineMath.h"
 #include "ECS/Entity.h"
 #include "UpgradeManager.h"
+#include "Components/UpgradeComponents/UpgradeComponent.h"
+#include "Components/UpgradeComponents/Upgrades/Upgrade.h"
 #include "Shop.h"
 #include "Events/EventBus.h"
 #include "ECS/SceneManager.h"
