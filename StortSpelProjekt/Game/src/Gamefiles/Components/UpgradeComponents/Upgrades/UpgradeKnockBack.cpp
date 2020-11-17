@@ -1,4 +1,6 @@
 #include "UpgradeKnockBack.h"
+#include "EngineMath.h"
+#include "ECS/Entity.h"
 
 UpgradeKnockBack::UpgradeKnockBack(Entity* parent) : Upgrade(parent)
 {
@@ -11,7 +13,7 @@ UpgradeKnockBack::UpgradeKnockBack(Entity* parent) : Upgrade(parent)
 	m_StartingPrice = m_Price;
 
 	m_ImageName = "default.png";
-	m_KnockBack = 5;
+	m_KnockBackAdder = 5;
 }
 
 UpgradeKnockBack::~UpgradeKnockBack()
@@ -20,12 +22,21 @@ UpgradeKnockBack::~UpgradeKnockBack()
 
 void UpgradeKnockBack::ApplyStat()
 {
+	m_pParentEntity->GetComponent<component::MeleeComponent>()->ChangeKnockBack(m_KnockBackAdder);
 }
 
 void UpgradeKnockBack::ApplyBoughtUpgrade()
 {
+	ApplyStat();
 }
 
 void UpgradeKnockBack::IncreaseLevel()
 {
+	m_Level++;
+	m_Price += 100;
+}
+
+std::string UpgradeKnockBack::GetDescription(unsigned int level)
+{
+	return "Knockback: Increases knockback stat with " + std::to_string(5*level);
 }

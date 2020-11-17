@@ -12,8 +12,10 @@ public:
 	void ApplyBoughtUpgrade();
 	void IncreaseLevel();
 
+	std::string GetDescription(unsigned int level);
+
 private:
-	float m_KnockBack;
+	float m_KnockBackAdder;
 };
 
 #endif

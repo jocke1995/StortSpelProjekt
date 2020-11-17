@@ -46,6 +46,9 @@ namespace component
 		void CreateCornersHitbox();
 		void CreateDrawnHitbox(component::BoundingBoxComponent* bbc);
 
+		void SetKnockBack(float knockBack);
+		void ChangeKnockBack(float change);
+
 	private:
 
 		std::vector<Vertex> m_BoundingBoxVerticesLocal;

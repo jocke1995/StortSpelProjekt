@@ -17,7 +17,7 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	m_TimeSinceLastAttackCheck = 0;
 	m_pMesh = nullptr;
 	m_Damage = 1;
-	m_KnockBack = 10;
+	m_KnockBack = 5;
 
 	m_HalfSize = { 8.0f, 1.0f, MELEE_RANGE / 2.0 };
 
@@ -247,5 +247,15 @@ void component::MeleeComponent::CreateDrawnHitbox(component::BoundingBoxComponen
 	bbd.boundingBoxIndices = m_BoundingBoxIndicesLocal;
 
 	bbc->AddBoundingBox(&bbd, &m_MeleeTransformModified, L"sword");
+}
+
+void component::MeleeComponent::SetKnockBack(float knockBack)
+{
+	m_KnockBack = knockBack;
+}
+
+void component::MeleeComponent::ChangeKnockBack(float change)
+{
+	m_KnockBack += change;
 }
 
