@@ -203,7 +203,7 @@ Scene* GameScene(SceneManager* sm)
     melc = entity->AddComponent<component::MeleeComponent>();
     // range damage should be at least 10 for ranged life steal upgrade to work
     // range velocity should be 50, otherwise range velocity upgrade does not make sense (may be scrapped later)
-    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 10, 50);
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 10, 150);
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(50);
     uc = entity->AddComponent<component::UpgradeComponent>();

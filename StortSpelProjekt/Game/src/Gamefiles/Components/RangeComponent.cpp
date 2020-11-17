@@ -29,6 +29,7 @@ component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scen
 	m_AttackInterval = 0.5;
 	m_TimeAccumulator = 0.0;
 	m_NrOfProjectiles = 0;
+	m_ProjectileRestitution = 0.0f;
 
 	if (parent->GetComponent<component::Audio2DVoiceComponent>())
 	{
@@ -91,6 +92,11 @@ float component::RangeComponent::GetAttackInterval() const
 	return m_AttackInterval;
 }
 
+void component::RangeComponent::MakeProjectileBouncy(bool bouncy)
+{
+	m_ProjectileRestitution = 0.5f * static_cast<float>(bouncy);
+}
+
 void component::RangeComponent::Attack()
 {
 	if (m_TimeAccumulator >= m_AttackInterval)
@@ -131,9 +137,9 @@ void component::RangeComponent::Attack()
 		// so the projectile doesn't spawn inside of us
 		float3 pos;
 		bool t_pose = m_pParent->GetComponent<component::BoundingBoxComponent>()->GetFlagOBB() & F_OBBFlags::T_POSE;
-		pos.x = ParentPos.x + (forward.x / length) * ((static_cast<float>(!t_pose)* dim.x + static_cast<float>(t_pose)* dim.z)* scale.x / 2.0);
+		pos.x = ParentPos.x + (forward.x / length) * ((static_cast<float>(!t_pose)* dim.x + static_cast<float>(t_pose)* dim.z)* scale.x / 2.0) * 1.1f;
 		pos.y = ParentPos.y + (forward.y / length);
-		pos.z = ParentPos.z + (forward.z / length) * (dim.z * scale.z / 2.0);
+		pos.z = ParentPos.z + (forward.z / length) * (dim.z * scale.z / 2.0) * 1.1f;
 
 		// Raytrace from the middle of the screen
 		DirectX::XMVECTOR rayInWorldSpacePos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
@@ -202,7 +208,7 @@ void component::RangeComponent::Attack()
 		component::CollisionComponent* cc = nullptr;
 		double3 projectileDim = mc->GetModelDim();
 
-		cc = ent->AddComponent<component::SphereCollisionComponent>(5000.0, projectileDim.z, 1.0f, 0.0f, false);
+		cc = ent->AddComponent<component::SphereCollisionComponent>(5000.0, projectileDim.z / 2.0f, 1.0f, m_ProjectileRestitution, false);
 		cc->SetGravity(0.0f);
 
 		plc->SetColor({ 3.0f, 0.0f, 0.0f });
@@ -218,6 +224,8 @@ void component::RangeComponent::Attack()
 		hitDir *= m_Velocity;
 
 		cc->SetVelVector(hitDir.x, hitDir.y, hitDir.z);
+		component::CollisionComponent* ccParent = m_pParent->GetComponent<component::CollisionComponent>();
+		cc->SetCollidesWith(ccParent, false);
 
 		// Makes player turn in direction of camera to attack
 		double angle = std::atan2(forward.x, forward.z);
