@@ -152,6 +152,11 @@ void component::MeleeComponent::ChangeDamage(int change)
 	m_Damage += change;
 }
 
+float component::MeleeComponent::GetAttackInterval()
+{
+	return m_AttackInterval;
+}
+
 void component::MeleeComponent::checkCollision()
 {
 	std::vector<Entity*> list = Physics::GetInstance().SpecificCollisionCheck(&m_Hitbox);
