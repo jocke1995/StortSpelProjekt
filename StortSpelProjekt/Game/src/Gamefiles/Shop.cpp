@@ -34,67 +34,12 @@ Shop::~Shop()
 
 }
 
-void Shop::RandomizeInventory()
+void Shop::Create2DGUI()
 {
-	// start with clearing the inventory so we don't get the same upgrades as before.
-	clearInventory();
-	int upgradeNum;
-	std::string name;
-	bool inStock = false;
-
-	// How many upgrades have reached max level
-	int maxLevelUpgrades = 0;
-	for (auto u : m_AllAvailableUpgrades)
+	// The 2DGUI is already active, dont create it again
+	if (m_LookingAtShop == true)
 	{
-		if (u.second->GetLevel() == u.second->GetMaxLevel())
-		{
-			maxLevelUpgrades++;
-		}
-	}
-
-	// If an upgrade is at max level, it will be unavailable for purchase.
-	// So if we have less upgrades available for purchase than inventory size, we must lower inventory size.
-	if (m_AllAvailableUpgrades.size() - maxLevelUpgrades < m_InvSize)
-	{
-		m_InvSize = m_AllAvailableUpgrades.size() - maxLevelUpgrades;
-	}
-
-	// Fill our inventory
-	for (int i = 0; i < m_InvSize; i++)
-	{
-		// Set the seed for randomization of inventory
-		m_Rand.SetSeed(time(NULL));
-		// While loop is neccessary to avoid duplicate upgrades in inventory.
-		do
-		{
-			// need to reset this bool every loop
-			inStock = false;
-			// Get a random number that will be used to get an upgrade to the inventory
-			upgradeNum = m_Rand.Rand(0, m_AllAvailableUpgrades.size());
-			// Take this number to get a name from m_UpgradeNames, which contains all avalible upgrades
-			name = m_UpgradeNames.at(upgradeNum);
-			for (auto names : m_InventoryNames)
-			{
-				if (name == names)
-				{
-					// If this name already exists in our inventory, 
-					// then it is "inStock" so we have to try again.
-					inStock = true;
-					break;
-				}
-			}
-			if (m_AllAvailableUpgrades[name]->GetLevel() == m_AllAvailableUpgrades[name]->GetMaxLevel())
-			{
-				// If an upgrade is at max level, make it unavailable for purchase
-				// So set inStock to true so that it won't be added to the inventory.
-				inStock = true;
-			}
-
-		} while (inStock);
-		// When we get an upgrade that was not already in our inventory or max level,
-		// we add it to the inventory.
-		m_InventoryNames.push_back(name);
-		m_InventoryIsBought.push_back(false);
+		return;
 	}
 
 	/* ------------------------- Shop Buttons --------------------------- */
@@ -163,6 +108,27 @@ void Shop::RandomizeInventory()
 	}
 }
 
+void Shop::Clear2DGUI()
+{
+	SceneManager& sm = SceneManager::GetInstance();
+	Scene* shopScene = sm.GetScene("ShopScene");
+
+	Entity* ent1 = nullptr;
+	Entity* ent2 = nullptr;
+
+	for (int i = 0; i < GetInventorySize(); i++)
+	{
+		if (shopScene->EntityExists("upgrade" + std::to_string(i)))
+		{
+			ent1 = shopScene->GetEntity("upgrade" + std::to_string(i));
+			ent2 = shopScene->GetEntity("upgradebutton" + std::to_string(i));
+
+			sm.RemoveEntity(ent1, shopScene);
+			sm.RemoveEntity(ent2, shopScene);
+		}
+	}
+}
+
 void Shop::ApplyUppgrade(std::string name)
 {
 	if (checkExisting(name))
@@ -228,6 +194,16 @@ Texture* Shop::GetUpgradeImage(std::string* name)
 	return AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Upgrades/" + to_wstring(m_AllAvailableUpgrades[*name]->GetImage()));
 }
 
+bool Shop::IsLookingAtShop()
+{
+	return m_LookingAtShop;
+}
+
+void Shop::SetLookingAtShop(bool lookingAtShop)
+{
+	m_LookingAtShop = lookingAtShop;
+}
+
 void Shop::Reset()
 {
 	for (auto item : m_AllAvailableUpgrades)
@@ -258,29 +234,79 @@ void Shop::sceneChange(SceneChange* evnt)
 {
 	if (evnt->m_NewSceneName == "ShopScene")
 	{
-		//RandomizeInventory();
+		randomizeInventory();
+	}
+}
+
+void Shop::randomizeInventory()
+{
+	// start with clearing the inventory so we don't get the same upgrades as before.
+	clearInventory();
+	int upgradeNum;
+	std::string name;
+	bool inStock = false;
+
+	// How many upgrades have reached max level
+	int maxLevelUpgrades = 0;
+	for (auto u : m_AllAvailableUpgrades)
+	{
+		if (u.second->GetLevel() == u.second->GetMaxLevel())
+		{
+			maxLevelUpgrades++;
+		}
+	}
+
+	// If an upgrade is at max level, it will be unavailable for purchase.
+	// So if we have less upgrades available for purchase than inventory size, we must lower inventory size.
+	if (m_AllAvailableUpgrades.size() - maxLevelUpgrades < m_InvSize)
+	{
+		m_InvSize = m_AllAvailableUpgrades.size() - maxLevelUpgrades;
+	}
+
+	// Fill our inventory
+	for (int i = 0; i < m_InvSize; i++)
+	{
+		// Set the seed for randomization of inventory
+		m_Rand.SetSeed(time(NULL));
+		// While loop is neccessary to avoid duplicate upgrades in inventory.
+		do
+		{
+			// need to reset this bool every loop
+			inStock = false;
+			// Get a random number that will be used to get an upgrade to the inventory
+			upgradeNum = m_Rand.Rand(0, m_AllAvailableUpgrades.size());
+			// Take this number to get a name from m_UpgradeNames, which contains all avalible upgrades
+			name = m_UpgradeNames.at(upgradeNum);
+			for (auto names : m_InventoryNames)
+			{
+				if (name == names)
+				{
+					// If this name already exists in our inventory, 
+					// then it is "inStock" so we have to try again.
+					inStock = true;
+					break;
+				}
+			}
+			if (m_AllAvailableUpgrades[name]->GetLevel() == m_AllAvailableUpgrades[name]->GetMaxLevel())
+			{
+				// If an upgrade is at max level, make it unavailable for purchase
+				// So set inStock to true so that it won't be added to the inventory.
+				inStock = true;
+			}
+
+		} while (inStock);
+		// When we get an upgrade that was not already in our inventory or max level,
+		// we add it to the inventory.
+		m_InventoryNames.push_back(name);
+		m_InventoryIsBought.push_back(false);
 	}
 }
 
 void Shop::clearInventory()
 {
-	SceneManager& sm = SceneManager::GetInstance();
-	Scene* shopScene = sm.GetScene("ShopScene");
+	// Remove quads
+	Clear2DGUI();
 
-	Entity* ent1 = nullptr;
-	Entity* ent2 = nullptr;
-
-	for (int i = 0; i < GetInventorySize(); i++)
-	{
-		if (shopScene->EntityExists("upgrade" + std::to_string(i)))
-		{
-			ent1 = shopScene->GetEntity("upgrade" + std::to_string(i));
-			ent2 = shopScene->GetEntity("upgradebutton" + std::to_string(i));
-
-			SceneManager::GetInstance().RemoveEntity(ent1, shopScene);
-			SceneManager::GetInstance().RemoveEntity(ent2, shopScene);
-		}
-	}
 	m_InventoryNames.clear();
 	m_InventoryIsBought.clear();
 }

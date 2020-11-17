@@ -899,13 +899,22 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     trans->SetRotationX(rotValue);
     rotValue += 0.005f;
 
-    // TODO: Change button to whatever button the Gamedesign-team wants.
+    // TODO:
+    // 1. Stop showing shop 2d gui when F is pressed again
+    // 2. Lock player movement when in shop2DGUI
+    // 3. ShowCursor when in shop2DGUI
     // Check if the user pressed a button to enter the shop and if the shop has been picked
-    if (Input::GetInstance().GetKeyState(SCAN_CODES::L) == true)
+    auto SetShop2DGUI = [](bool lookingAtShop) -> void
+    {
+        Player::GetInstance().GetShop()->SetLookingAtShop(lookingAtShop);
+    };
+
+    if (Input::GetInstance().GetKeyState(SCAN_CODES::F) == true)
     {
         Entity* pickedEntity = Renderer::GetInstance().GetPickedEntity();
         if (pickedEntity != nullptr)
         {
+            Shop* shop = Player::GetInstance().GetShop();
             if (pickedEntity->GetName() == "shop")
             {
                 static int test = 0;
@@ -913,8 +922,17 @@ void ShopUpdateScene(SceneManager* sm, double dt)
                 test++;
 
                 // Naiv attempt, will currently change multiple times if key is pressed
-                Player::GetInstance().GetShop()->RandomizeInventory();
+                shop->Create2DGUI();
+                SetShop2DGUI(true);
             }
+            else
+            {
+                SetShop2DGUI(false);
+            }
+        }
+        else
+        {
+            SetShop2DGUI(false);
         }
     }
 }

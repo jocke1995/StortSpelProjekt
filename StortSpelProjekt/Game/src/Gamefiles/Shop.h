@@ -18,8 +18,10 @@ public:
 	Shop();
 	~Shop();
 
-	// randomize buyable upgrades
-	void RandomizeInventory();
+	// creates the 2d gui for the shop
+	void Create2DGUI();
+	// clear 2D GUI, removes entities
+	void Clear2DGUI();
 	// add uppgrade to player
 	void ApplyUppgrade(std::string name);
 	// Set the size of inventory
@@ -43,7 +45,11 @@ public:
 	int GetPlayerBalance();
 	// Get upgrade image
 	Texture* GetUpgradeImage(std::string* name);
-
+	// Get if the user is inside the 2D shop GUI
+	bool IsLookingAtShop();
+	// Sets to true when the player is looking at the shop
+	// Sets to false when the player is NOT looking at the shop
+	void SetLookingAtShop(bool lookingAtShop);
 	// Resets the inventory of the shop.
 	void Reset();
 
@@ -68,12 +74,16 @@ private:
 	// Used to randomize the inventory
 	EngineRand m_Rand;
 
+	// randomize buyable upgrades
+	void randomizeInventory();
 	// clears the inventory vector as well as the m_UpgradeDescriptions map
 	void clearInventory();
 	// checks if an upgrade is already bought
 	bool checkExisting(std::string name);
 
 	Font* m_pArial = nullptr;
+
+	bool m_LookingAtShop = false;
 };
 
 #endif // !SHOP_H
