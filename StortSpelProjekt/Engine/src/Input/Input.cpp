@@ -41,7 +41,6 @@ void Input::RegisterDevices(const HWND* hWnd)
 
 void Input::SetKeyState(SCAN_CODES key, bool pressed)
 {
-
 	bool justPressed = !m_KeyState[key];
 	bool doubleTap = false;
 	if (justPressed)
@@ -56,6 +55,7 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			doubleTap = true;
 		}
 	}
+
 	m_KeyState[key] = pressed;
 	if (key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::Q || key == SCAN_CODES::E || key == SCAN_CODES::SPACE)
 	{

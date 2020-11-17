@@ -249,9 +249,9 @@ void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
 			{
 				this->Create2DGUI();
 
-				// Reset movement
-				component::CollisionComponent* cc = m_pPlayer->GetComponent<component::CollisionComponent>();
-				cc->SetVelVector(0.0f, 0.0f, 0.0f);
+				// Reset movement, should happen here later. is currently happening in ShopSceneUpdateFunction in main
+				//component::CollisionComponent* cc = Player::GetInstance().GetPlayer()->GetComponent<component::CollisionComponent>();
+				//cc->SetVelVector(0.0f, 0.0f, 0.0f);
 
 				// Show cursor
 				ShowCursor(true);

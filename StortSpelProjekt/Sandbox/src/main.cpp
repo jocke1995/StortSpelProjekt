@@ -4,6 +4,8 @@
 #include "Player.h"
 #include "Shop.h"
 
+#include "../Gamefiles/Components/UpgradeComponents/UpgradeComponent.h"
+
 Scene* JacobsTestScene(SceneManager* sm);
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);

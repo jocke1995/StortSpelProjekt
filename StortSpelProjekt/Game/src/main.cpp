@@ -900,7 +900,13 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     trans->SetRotationX(rotValue);
     rotValue += 0.005f;
 
-    // TODO:
-    // 1. Remove camera look-around when in Shop2D-GUI
-    // 2. Lock player movement when in shop2DGUI
+    // Kod-påkod-påkod-påkod-påkod-lösning
+    // Detta ska egentligen stå i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
+    // spelare i alla scener så kan vi ej nå den aktiva spelaren i den scenen därifrån.
+    // TODO: Flytta in den i den funktionen när vi har samma spelare i alla scener via Player::GetInstance().
+    if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == true)
+    {
+        component::CollisionComponent* cc = sm->GetActiveScene()->GetEntity("player")->GetComponent<component::CollisionComponent>();
+        cc->SetVelVector(0.0f, 0.0f, 0.0f);
+    }
 }

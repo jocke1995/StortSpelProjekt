@@ -75,7 +75,6 @@ void Player::onResetGame(ResetGame* evnt)
 	shopPlayer->GetComponent<component::CurrencyComponent>()->SetBalance(0);
 	shopPlayer->GetComponent<component::UpgradeComponent>()->RemoveAllUpgrades();
 
-
 	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("money")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0", "money");
 	SceneManager::GetInstance().GetScene("ShopScene")->GetEntity("player")->GetComponent<component::CurrencyComponent>()->SetBalance(0);
 	SceneManager::GetInstance().GetScene("ShopScene")->GetEntity("money")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0", "money");
