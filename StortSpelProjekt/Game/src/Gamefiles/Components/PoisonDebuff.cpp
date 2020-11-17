@@ -47,7 +47,7 @@ void component::PoisonDebuff::Reset(int damagePerTick, int ticks, double tickDur
 {
 	m_Damage = damagePerTick;
 	m_Ticks = ticks;
-	m_TickDuration = tickDuration;
+	m_TickInterval = tickDuration;
 	Transform* transform = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
 	m_Slow = transform->GetVelocity() * percentageSlow;
 	transform->SetVelocity(transform->GetVelocity() - m_Slow);
@@ -60,9 +60,9 @@ void component::PoisonDebuff::Update(double dt)
 	if (m_Ticks > 0)
 	{
 		m_TickTimer += dt;
-		if (m_TickTimer >= m_TickDuration)
+		if (m_TickTimer >= m_TickInterval)
 		{
-			m_TickTimer -= m_TickDuration;
+			m_TickTimer -= m_TickInterval;
 			m_Ticks--;
 			m_pParent->GetComponent<component::HealthComponent>()->TakeDamage(m_Damage);
 			if (m_Ticks == 0)
