@@ -28,7 +28,7 @@ namespace component
 		void TakeDamage(int damage);
 
 		void ChangeFlatDamageReduction(int flatDamageReduction);
-		void ChangeMultiplicativeDamageReductionDamageReduction(float multiplicativeDamageReduction);
+		void ChangeMultiplicativeDamageReduction(float multiplicativeDamageReduction);
 
 		int GetHealth() const;
 
