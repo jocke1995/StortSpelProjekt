@@ -2,6 +2,7 @@
 #define UPGRADEKNOCKBACK_H
 #include "Upgrade.h"
 
+// Upgrade description: This upgrade increases the knockback stat with 5 each level. Price increases with 100 per level.
 class UpgradeKnockBack : public Upgrade
 {
 public:
