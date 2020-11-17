@@ -5,9 +5,30 @@
 #include "UpgradeComponents/UpgradeComponent.h"
 #include "Player.h"
 #include "PoisonDebuff.h"
+#include "Misc/AssetLoader.h"
+#include "Particles/ParticleSystem.h"
+#include "Renderer/Texture/Texture2DGUI.h"
 
 component::PoisonDebuff::PoisonDebuff(Entity* parent, int damagePerTick, int ticks, double tickDuration, float percentageSlow) : Component(parent)
 {
+	ParticleEffectSettings settings = {};
+	settings.particleCount = 500;
+	settings.startValues.lifetime = 0.8;
+	settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+	settings.startValues.acceleration = { 0, -3, 0 };
+
+	// Need to fix EngineRand.rand() for negative values
+	RandomParameter3 randParam1 = { -2, 2, -2, 2, -2, 2 };
+	randParam1.y = { 2, 6 };
+
+	settings.randPosition = { 0, 1, 0, 1, 0, 1 };
+	settings.randVelocity = randParam1;
+	settings.randSize = { 0.2, 2 };
+	settings.randRotationSpeed = { 0, 3 };
+
+	Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/poison_particle.png"));
+	parent->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+	parent->GetComponent<component::ParticleEmitterComponent>()->Play();
 	Reset(damagePerTick, ticks, tickDuration, percentageSlow);
 }
 

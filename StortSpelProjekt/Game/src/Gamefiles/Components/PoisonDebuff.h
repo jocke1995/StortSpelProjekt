@@ -5,6 +5,8 @@
 #include "EngineMath.h"
 
 class Entity;
+class ParticleEmitterComponent;
+
 namespace component
 {
 	class PoisonDebuff : public Component
