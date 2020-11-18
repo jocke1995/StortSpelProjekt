@@ -200,6 +200,7 @@ void Shop::Clear2DGUI()
 	Entity* ent1 = nullptr;
 	Entity* ent2 = nullptr;
 
+	//Remove shop button and text
 	for (int i = 0; i < GetInventorySize(); i++)
 	{
 		if (shopScene->EntityExists("upgrade" + std::to_string(i)))
@@ -211,6 +212,12 @@ void Shop::Clear2DGUI()
 			sm.RemoveEntity(ent2, shopScene);
 		}
 	}
+
+	//Removal of text and texture for reroll
+	ent1 = shopScene->GetEntity("reroll");
+	ent2 = shopScene->GetEntity("reroll-button");
+	sm.RemoveEntity(ent1, shopScene);
+	sm.RemoveEntity(ent2, shopScene);
 
 	m_DisplayingShopGUI = false;
 }
