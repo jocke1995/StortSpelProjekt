@@ -164,6 +164,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 		}
+		else if (raw->header.dwType == RIM_TYPEHID)
+		{
+			auto inputData = raw->data.hid;
+		}
 
 		delete[] lpb;
 

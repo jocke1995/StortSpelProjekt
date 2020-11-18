@@ -888,6 +888,7 @@ void GameUpdateScene(SceneManager* sm, double dt)
         ImGuiHandler::GetInstance().SetBool("reset", false);
         EventBus::GetInstance().Publish(&ResetGame());
     }
+    Input::GetInstance().ReadControllerInput();
 }
 
 void ShopUpdateScene(SceneManager* sm, double dt)
@@ -897,4 +898,5 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     trans->SetRotationX(rotValue);
 
     rotValue += 0.005f;
+    Input::GetInstance().ReadControllerInput();
 }

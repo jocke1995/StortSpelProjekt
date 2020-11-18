@@ -502,11 +502,11 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 {
 	// Rotate camera
 	// Mouse movement
-	int x = evnt->x, y = evnt->y;
+	float x = evnt->x, y = evnt->y;
 
 	// Determine how much to rotate in radians
-	float rotateY = -(static_cast<float>(y) / 6.0 - static_cast<float>(y) / 3.0) * PI;
-	float rotateX = -(static_cast<float>(x) / 800.0) * PI;
+	float rotateY = -(y / 6.0 - y / 3.0) * PI;
+	float rotateX = -(x / 800.0) * PI;
 
 	m_Pitch = max(min(m_Pitch + rotateY, 3.0f), -3.0f);
 	m_Yaw = m_Yaw + rotateX;

@@ -35,9 +35,32 @@ void Input::RegisterDevices(const HWND* hWnd)
 	}
 }
 
+void Input::RegisterControllers()
+{
+	if (RawGameController::RawGameControllers().Size() > 0 && m_RawGameControllers.size() < 1)
+	{
+		for (auto const& rawGameController : RawGameController::RawGameControllers())
+		{
+			// Test whether the raw game controller is already in m_RawGameControllers; if it isn't, add it.
+			concurrency::critical_section::scoped_lock lock{ m_ControllerLock };
+			auto it{ std::find(begin(m_RawGameControllers), end(m_RawGameControllers), rawGameController) };
+
+			if (it == end(m_RawGameControllers))
+			{
+				// This code assumes that you're interested in all raw game controllers.
+				m_RawGameControllers.push_back(rawGameController);
+			}
+		}
+
+		m_pMainController = &m_RawGameControllers.at(0);
+		m_ControllerButtonCount = m_pMainController->ButtonCount();
+		m_ControllerAxisCount = m_pMainController->AxisCount();
+		m_ControllerSwitchCount = m_pMainController->SwitchCount();
+	}
+}
+
 void Input::SetKeyState(SCAN_CODES key, bool pressed)
 {
-
 	bool justPressed = !m_KeyState[key];
 	bool doubleTap = false;
 	if (justPressed)
@@ -105,7 +128,7 @@ void Input::SetMouseScroll(SHORT scroll)
 
 void Input::SetMouseMovement(int x, int y)
 {
-	EventBus::GetInstance().Publish(&MouseMovement(x, y));
+	EventBus::GetInstance().Publish(&MouseMovement(static_cast<float>(x), static_cast<float>(y)));
 }
 
 bool Input::GetKeyState(SCAN_CODES key)
@@ -116,6 +139,189 @@ bool Input::GetKeyState(SCAN_CODES key)
 bool Input::GetMouseButtonState(MOUSE_BUTTON button)
 {
 	return m_MouseButtonState[button];
+}
+
+void Input::ReadControllerInput()
+{
+	if (m_RawGameControllers.size() > 0)
+	{
+		std::array<bool, 20> buttonsArray;
+		std::array<double, 10> axisArray;
+		std::array<GameControllerSwitchPosition, 5> switchesArray;
+
+		m_pMainController->GetCurrentReading(buttonsArray, switchesArray, axisArray);
+
+		bool justPressedUp = !m_KeyState[SCAN_CODES::W];
+		bool justPressedLeft = !m_KeyState[SCAN_CODES::A];
+		bool justPressedDown = !m_KeyState[SCAN_CODES::S];
+		bool justPressedRight = !m_KeyState[SCAN_CODES::D];
+		bool justPressedJump = !m_KeyState[SCAN_CODES::SPACE];
+		bool justPressedSprint = !m_KeyState[SCAN_CODES::LEFT_SHIFT];
+		bool justPressedDash = !m_KeyState[SCAN_CODES::Q];
+		bool justPressedAttack = !m_MouseButtonState[MOUSE_BUTTON::LEFT_DOWN];
+		bool justPressedShoot = !m_MouseButtonState[MOUSE_BUTTON::RIGHT_DOWN];
+
+		// Switch 0 is the directional buttons on a DualShock 4
+		switch (switchesArray.at(0))
+		{
+		case GameControllerSwitchPosition::Up:
+			m_KeyState[SCAN_CODES::W] = true;
+			m_KeyState[SCAN_CODES::A] = false;
+			m_KeyState[SCAN_CODES::S] = false;
+			m_KeyState[SCAN_CODES::D] = false;
+			break;
+		case GameControllerSwitchPosition::Left:
+			m_KeyState[SCAN_CODES::W] = false;
+			m_KeyState[SCAN_CODES::A] = true;
+			m_KeyState[SCAN_CODES::S] = false;
+			m_KeyState[SCAN_CODES::D] = false;
+			break;
+		case GameControllerSwitchPosition::Down:
+			m_KeyState[SCAN_CODES::W] = false;
+			m_KeyState[SCAN_CODES::A] = false;
+			m_KeyState[SCAN_CODES::S] = true;
+			m_KeyState[SCAN_CODES::D] = false;
+			break;
+		case GameControllerSwitchPosition::Right:
+			m_KeyState[SCAN_CODES::W] = false;
+			m_KeyState[SCAN_CODES::A] = false;
+			m_KeyState[SCAN_CODES::S] = false;
+			m_KeyState[SCAN_CODES::D] = true;
+			break;
+		case GameControllerSwitchPosition::UpLeft:
+			m_KeyState[SCAN_CODES::W] = true;
+			m_KeyState[SCAN_CODES::A] = true;
+			m_KeyState[SCAN_CODES::S] = false;
+			m_KeyState[SCAN_CODES::D] = false;
+			break;
+		case GameControllerSwitchPosition::UpRight:
+			m_KeyState[SCAN_CODES::W] = true;
+			m_KeyState[SCAN_CODES::A] = false;
+			m_KeyState[SCAN_CODES::S] = false;
+			m_KeyState[SCAN_CODES::D] = true;
+			break;
+		case GameControllerSwitchPosition::DownLeft:
+			m_KeyState[SCAN_CODES::W] = false;
+			m_KeyState[SCAN_CODES::A] = true;
+			m_KeyState[SCAN_CODES::S] = true;
+			m_KeyState[SCAN_CODES::D] = false;
+			break;
+		case GameControllerSwitchPosition::DownRight:
+			m_KeyState[SCAN_CODES::W] = false;
+			m_KeyState[SCAN_CODES::A] = false;
+			m_KeyState[SCAN_CODES::S] = true;
+			m_KeyState[SCAN_CODES::D] = true;
+			break;
+		default:
+			// Axis 0 is horizontal movement of left joystick. Axis 1 is vertical movement of left joystick
+			m_KeyState[SCAN_CODES::W] = (axisArray.at(1) < 0.45 && axisArray.at(0) > 0.05 && axisArray.at(0) < 0.95);
+			m_KeyState[SCAN_CODES::A] = (axisArray.at(0) < 0.45 && axisArray.at(1) > 0.05 && axisArray.at(1) < 0.95);
+			m_KeyState[SCAN_CODES::S] = (axisArray.at(1) > 0.55 && axisArray.at(0) > 0.05 && axisArray.at(0) < 0.95);
+			m_KeyState[SCAN_CODES::D] = (axisArray.at(0) > 0.55 && axisArray.at(1) > 0.05 && axisArray.at(1) < 0.95);
+		}
+		
+		// Button 0 is Square
+		// Button 1 is Cross
+		m_KeyState[SCAN_CODES::SPACE] = buttonsArray.at(1);
+		// Button 2 is Circle
+		// Button 3 is Triangle
+		// Button 4 is Left Bumper
+		m_MouseButtonState[MOUSE_BUTTON::LEFT_DOWN] = buttonsArray.at(4);
+		// Button 5 is Right Bumper
+		m_MouseButtonState[MOUSE_BUTTON::RIGHT_DOWN] = buttonsArray.at(5);
+		// Button 6 is Left Trigger
+		m_KeyState[SCAN_CODES::LEFT_SHIFT] = buttonsArray.at(6);
+		// Button 7 is Right Trigger
+		m_KeyState[SCAN_CODES::Q] = buttonsArray.at(7);
+		// Button 8 is Share
+		// Button 9 is Options
+		// Button 10 is Left Stick
+		// Button 11 is Right Stick
+		// Button 12 is PS Button
+		// Button 13 is Touchpad Click
+
+		if (justPressedUp && m_KeyState[SCAN_CODES::W])
+		{
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::W, true, false));
+		}
+		else if (!justPressedUp && !m_KeyState[SCAN_CODES::W])
+		{
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::W, false, false));
+		}
+		if (justPressedLeft && m_KeyState[SCAN_CODES::A])
+		{
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::A, true, false));
+		}
+		else if (!justPressedLeft && !m_KeyState[SCAN_CODES::A])
+		{
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::A, false, false));
+		}
+		if (justPressedDown && m_KeyState[SCAN_CODES::S])
+		{
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::S, true, false));
+		}
+		else if (!justPressedDown && !m_KeyState[SCAN_CODES::S])
+		{
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::S, false, false));
+		}
+		if (justPressedRight && m_KeyState[SCAN_CODES::D])
+		{
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::D, true, false));
+		}
+		else if (!justPressedRight && !m_KeyState[SCAN_CODES::D])
+		{
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::D, false, false));
+		}
+		if (justPressedJump && m_KeyState[SCAN_CODES::SPACE])
+		{
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::SPACE, true, false));
+		}
+		else if (!justPressedJump && !m_KeyState[SCAN_CODES::SPACE])
+		{
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::SPACE, false, false));
+		}
+		if (justPressedSprint && m_KeyState[SCAN_CODES::LEFT_SHIFT])
+		{
+			EventBus::GetInstance().Publish(&ModifierInput(SCAN_CODES::LEFT_SHIFT, true));
+		}
+		else if (!justPressedSprint && !m_KeyState[SCAN_CODES::LEFT_SHIFT])
+		{
+			EventBus::GetInstance().Publish(&ModifierInput(SCAN_CODES::LEFT_SHIFT, false));
+		}
+		if (justPressedDash && m_KeyState[SCAN_CODES::Q])
+		{
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::Q, true, false));
+		}
+		else if (!justPressedDash && !m_KeyState[SCAN_CODES::Q])
+		{
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::Q, false, false));
+		}
+		if (justPressedAttack && m_MouseButtonState[MOUSE_BUTTON::LEFT_DOWN])
+		{
+			EventBus::GetInstance().Publish(&MouseClick(MOUSE_BUTTON::LEFT_DOWN, true));
+		}
+		else if (!justPressedAttack && !m_MouseButtonState[MOUSE_BUTTON::LEFT_DOWN])
+		{
+			EventBus::GetInstance().Publish(&MouseRelease(MOUSE_BUTTON::LEFT_DOWN, false));
+		}
+		if (justPressedShoot && m_MouseButtonState[MOUSE_BUTTON::RIGHT_DOWN])
+		{
+			EventBus::GetInstance().Publish(&MouseClick(MOUSE_BUTTON::RIGHT_DOWN, true));
+		}
+		else if (!justPressedShoot && !m_MouseButtonState[MOUSE_BUTTON::RIGHT_DOWN])
+		{
+			EventBus::GetInstance().Publish(&MouseRelease(MOUSE_BUTTON::RIGHT_DOWN, false));
+		}
+
+		// Axis 2 is horizontal movement of right joystick. Axis 5 is vertical movement of right joystick
+		float moveX = 5 * (axisArray.at(2) - 0.5);
+		float moveY = 2.5 * (axisArray.at(5) - 0.5);
+
+		if (std::abs(moveX) > 0.2f || std::abs(moveY) > 0.2f)
+		{
+			EventBus::GetInstance().Publish(&MouseMovement(moveX, moveY));
+		}
+	}
 }
 
 Input::Input()

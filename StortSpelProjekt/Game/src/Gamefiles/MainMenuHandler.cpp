@@ -732,4 +732,6 @@ void MainMenuUpdateScene(SceneManager* sm, double dt)
     }
 
     rotValue += dt;
+
+    Input::GetInstance().RegisterControllers();
 }
