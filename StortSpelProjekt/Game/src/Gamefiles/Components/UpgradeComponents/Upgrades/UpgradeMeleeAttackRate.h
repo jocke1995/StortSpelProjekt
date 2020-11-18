@@ -2,6 +2,7 @@
 #define UPGRADE_MELEE_ATTACK_RATE_H
 #include "Upgrade.h"
 
+// Upgrade description: This upgrade increases melee attack speed with 20% of base attack speed per level . Price doubles per level.
 class UpgradeMeleeAttackRate : public Upgrade
 {
 public:
@@ -15,10 +16,9 @@ public:
 	std::string GetDescription(unsigned int level);
 
 private:
-	float m_upgradeFactor;
-
-	float newInterval();
-
+	float m_UpgradeFactor;
+	float m_BaseAttackSpeed;
+	float m_AttackPerSecond;
 };
 
 #endif

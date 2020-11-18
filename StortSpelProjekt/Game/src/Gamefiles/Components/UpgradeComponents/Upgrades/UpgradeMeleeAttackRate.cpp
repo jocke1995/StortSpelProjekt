@@ -13,7 +13,9 @@ UpgradeMeleeAttackRate::UpgradeMeleeAttackRate(Entity* parent) : Upgrade(parent)
 	m_StartingPrice = m_Price;
 
 	m_ImageName = "MeleeDamage.png";
-	m_upgradeFactor = 0.9;
+	m_BaseAttackSpeed = m_pParentEntity->GetComponent<component::MeleeComponent>()->GetAttackInterval();
+	m_AttackPerSecond = 1.0f / m_BaseAttackSpeed;
+	m_UpgradeFactor = m_AttackPerSecond * 0.2f;
 }
 
 UpgradeMeleeAttackRate::~UpgradeMeleeAttackRate()
@@ -22,41 +24,22 @@ UpgradeMeleeAttackRate::~UpgradeMeleeAttackRate()
 
 void UpgradeMeleeAttackRate::ApplyStat()
 {
-	float newCooldown = newInterval();
-	Log::Print("new interval: %f\n", newCooldown);
-	m_pParentEntity->GetComponent<component::MeleeComponent>()->SetAttackInterval(newCooldown);
-	Log::Print("APPLYSTAT\n");
+	m_AttackPerSecond = m_AttackPerSecond + m_UpgradeFactor;
+	m_pParentEntity->GetComponent<component::MeleeComponent>()->SetAttackInterval(1.0f / m_AttackPerSecond);
 }
 
 void UpgradeMeleeAttackRate::ApplyBoughtUpgrade()
 {
 	ApplyStat();
-	Log::Print("APPLYBOUGHTUPGRADE\n");
 }
 
 void UpgradeMeleeAttackRate::IncreaseLevel()
 {
 	m_Level++;
-	m_Price = m_StartingPrice * m_Level;
-	Log::Print("INCREASELEVEL\n");
+	m_Price *= 2;
 }
 
 std::string UpgradeMeleeAttackRate::GetDescription(unsigned int level)
 {
-	if (level == m_Level)
-	{
-		return "Melee Attack Rate: Decreases the cooldown for melee attacks to " + std::to_string(m_pParentEntity->GetComponent<component::MeleeComponent>()->GetAttackInterval());
-	}
-	else
-	{
-		float newVal = newInterval();
-		return "Melee Attack Rate: Decreases the cooldown for melee attacks to " + std::to_string(newVal);
-	}
-}
-
-float UpgradeMeleeAttackRate::newInterval()
-{
-	float oldInterval = m_pParentEntity->GetComponent<component::MeleeComponent>()->GetAttackInterval();
-	float newInterval = oldInterval * m_upgradeFactor;
-	return newInterval;
+	return "Melee Attack Speed: increases attack speed with " + std::to_string(20 * level) + "\% (20\% per level)";
 }

@@ -168,8 +168,8 @@ void Shop::ApplyUppgrade(std::string name)
 		if (m_AllAvailableUpgrades[name]->GetType() & F_UpgradeType::PLAYER)
 		{
 			m_pPlayer->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(name)->IncreaseLevel();
+			m_pPlayer->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(name)->ApplyStat();
 		}
-		m_pUpgradeManager->GetAllAvailableUpgrades().find(name)->second->ApplyStat();
 		m_pUpgradeManager->IncreaseLevel(name);
 	}
 	else
