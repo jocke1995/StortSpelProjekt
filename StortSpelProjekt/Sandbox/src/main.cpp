@@ -632,6 +632,8 @@ Scene* JockesTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
+
+    Player::GetInstance().SetPlayer(entity);
     /* ---------------------- Player ---------------------- */
 
     /* ---------------------- Skybox ---------------------- */
@@ -758,6 +760,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
 
+    Player::GetInstance().SetPlayer(entity);
     /* ---------------------- Player ---------------------- */
 
     // Create test particleEffect
@@ -1189,6 +1192,8 @@ Scene* WilliamsTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>(true);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
+
+    Player::GetInstance().SetPlayer(entity);
 
     mc->SetModel(aniTest);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);

@@ -1,14 +1,12 @@
 #ifndef SHOP_H
 #define SHOP_H
 
-#include "Player.h"
-#include "UpgradeManager.h"
-class UpgradeComponent;
-class Upgrade;
-
 #include "../Misc/EngineRand.h"
 #include "../Events/Events.h"
 
+class UpgradeComponent;
+class UpgradeManager;
+class Upgrade;
 class Texture;
 class Font;
 

@@ -10,6 +10,8 @@
 #include "Shop.h"
 #include "stdafx.h"
 
+#include "Player.h"
+
 
 component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned int camFlags)
 	:InputComponent(parent)

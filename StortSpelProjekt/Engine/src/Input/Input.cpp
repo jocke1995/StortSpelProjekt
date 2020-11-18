@@ -4,6 +4,7 @@
 
 // Needed for shopEvent
 #include "../ECS/SceneManager.h"
+#include "../../Game/src/Gamefiles/Player.h"
 #include "../../Game/src/Gamefiles/Shop.h"
 
 Input& Input::GetInstance()

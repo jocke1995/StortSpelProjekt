@@ -3,13 +3,15 @@
 #include "EngineMath.h"
 #include "ECS/Entity.h"
 #include "Components/UpgradeComponents/UpgradeComponent.h"
-#include "Components/UpgradeComponents/Upgrades/Upgrade.h"
+#include "UpgradeManager.h"
 #include "Components/CurrencyComponent.h"
 #include "Misc/AssetLoader.h"
 #include "Renderer/Texture/Texture.h"
 #include "Events/EventBus.h"
 #include "ECS/SceneManager.h"
 #include "Misc/GUI2DElements/Font.h"
+
+#include "Player.h"
 
 #include "Renderer/Renderer.h"
 
