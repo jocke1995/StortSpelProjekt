@@ -34,13 +34,11 @@ Shop::Shop()
 	EventBus::GetInstance().Subscribe(this, &Shop::upgradePressed);
 	EventBus::GetInstance().Subscribe(this, &Shop::sceneChange);
 
-	// TODO: do this in InitScene BJ�RN
 	EventBus::GetInstance().Subscribe(this, &Shop::OnShopGUIStateChange);
 }
 
 Shop::~Shop()
 {
-	// TODO: do this in UnInitScene BJ�RN
 	EventBus::GetInstance().Unsubscribe(this, &Shop::OnShopGUIStateChange);
 }
 

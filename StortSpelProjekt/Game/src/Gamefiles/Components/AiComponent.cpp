@@ -544,6 +544,7 @@ void component::AiComponent::updateRange(double dt)
 				cc->SetVelVector(0, 0, 0);
 				m_StandStill = true;
 				// set direction
+
 				float3 aimDirection = setAimDirection();
 
 				m_SpeedTimeAccumulator += static_cast<float>(dt);
@@ -553,6 +554,12 @@ void component::AiComponent::updateRange(double dt)
 					m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(aimDirection);
 					m_SpeedTimeAccumulator = 0.0;
 					m_IntervalTimeAccumulator = 0.0;
+				}
+				else if (m_IntervalTimeAccumulator >= m_AttackInterval / 4.0 && m_DistanceToPlayer <= m_AttackingDistance / 2.0f)
+				{
+					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(m_MovementVelocity * 0.75f);
+					vel = -m_pParentTrans->GetVelocity();
+					cc->SetVelVector(vel * m_DirectionPath.x / m_DistancePath, vel * 2 * m_DirectionPath.y / m_DistancePath, vel * m_DirectionPath.z / m_DistancePath);
 				}
 			}
 		}
