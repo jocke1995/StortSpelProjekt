@@ -50,6 +50,7 @@ public:
 
 	unsigned int GetID() const;
 	std::string GetName() const;
+
 	void Update(double dt);
 	void RenderUpdate(double dt);
 

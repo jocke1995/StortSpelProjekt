@@ -28,7 +28,7 @@ namespace component
 		void TakeDamage(int damage);
 
 		void ChangeFlatDamageReduction(int flatDamageReduction);
-		void ChangeProcentileDamageReduction(float procentileDamageReduction);
+		void ChangeMultiplicativeDamageReduction(float multiplicativeDamageReduction);
 
 		int GetHealth() const;
 
@@ -40,7 +40,7 @@ namespace component
 
 	private:
 		int m_FlatDamageReduction;
-		float m_ProcentileDamageReduction;
+		float m_MultiplicativeDamageReduction;
 		int m_Health;
 		int m_MaxHealth;
 		bool m_Dead = false;
