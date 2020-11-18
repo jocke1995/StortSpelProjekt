@@ -20,7 +20,6 @@ public:
 	virtual ~Upgrade();
 	
 	void SetParentEntity(Entity* parentEntity);
-
 	// setters and getters for private member variables
 	void SetName(std::string name);
 	std::string GetName() const;
@@ -52,11 +51,11 @@ public:
 	// So don't use this when you actually want to increase a level. This should not be overwritten!
 	void IncreaseLevelOnly();
 	// upgrades that are triggered on hit (ex: explosive, poison)
-	virtual void OnHit();
+	virtual void OnHit(Entity* target);
 	// specific for ranged hits
-	virtual void OnRangedHit();
+	virtual void OnRangedHit(Entity* target);
 	// specific for melee hits
-	virtual void OnMeleeHit();
+	virtual void OnMeleeHit(Entity* target);
 	// upgrades that are triggered when taking damage
 	virtual void OnDamage();
 	// upgrades that are applied immediately, for example apply stat when bought in shop

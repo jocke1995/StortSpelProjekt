@@ -10,6 +10,8 @@
 #include "Components/UpgradeComponents/Upgrades/UpgradeHealthBoost.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeBlueJewel.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeBounce.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradePoisonAttack.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeKnockBack.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeHealthRegen.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
@@ -144,19 +146,19 @@ void UpgradeManager::fillUpgradeMap()
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	//// Adding Range lifesteal Upgrade
-	//upgrade = new UpgradeRangeLifeSteal(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_RANGE_LIFESTEAL);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding Range lifesteal Upgrade
+	upgrade = new UpgradeRangeLifeSteal(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_LIFESTEAL);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	//// Adding MeleeDamage Upgrade
-	//upgrade = new UpgradeMeleeDamage(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_MELEE_DAMAGE);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding MeleeDamage Upgrade
+	upgrade = new UpgradeMeleeDamage(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_MELEE_DAMAGE);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
 	// Adding HealthBoost Upgrade
 	upgrade = new UpgradeHealthBoost(m_pParentEntity);
@@ -165,24 +167,38 @@ void UpgradeManager::fillUpgradeMap()
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	//// Adding BlueJewel Upgrade
-	//upgrade = new UpgradeBlueJewel(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_BLUE_JEWEL);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding BlueJewel Upgrade
+	upgrade = new UpgradeBlueJewel(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_BLUE_JEWEL);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	//// Adding RangeBounce Upgrade
-	//upgrade = new UpgradeRangeBounce(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_RANGE_BOUNCE);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding RangeBounce Upgrade
+	upgrade = new UpgradeRangeBounce(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_BOUNCE);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
 	// Adding HealthRegen Upgrade
 	upgrade = new UpgradeHealthRegen(m_pParentEntity);
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
 	upgrade->SetID(UPGRADE_HEALTH_REGEN);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding PoisonAttack Upgrade
+	upgrade = new UpgradePoisonAttack(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_POISON_ATTACK);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding KnockBack Upgrade
+	upgrade = new UpgradeKnockBack(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_KNOCKBACK);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 }
@@ -236,6 +252,12 @@ Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 		break;
 	case UPGRADE_RANGE_BOUNCE:
 		return new UpgradeRangeBounce(ent);
+		break;
+	case UPGRADE_POISON_ATTACK:
+		return new UpgradePoisonAttack(ent);
+		break;
+	case UPGRADE_KNOCKBACK:
+		return new UpgradeKnockBack(ent);
 		break;
 	case UPGRADE_HEALTH_REGEN:
 		return new UpgradeHealthRegen(ent);
