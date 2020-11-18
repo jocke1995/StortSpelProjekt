@@ -49,5 +49,5 @@ std::string UpgradeHealthRegen::GetDescription(unsigned int level)
 {
 	std::ostringstream str;
 	str << std::fixed << std::setprecision(2) << (3.0f / level);
-	return "Health Regenration: Passively heals the player 1 health point every " + str.str();
+	return "Health Regeneration: Passively heals the player 1 health point every " + str.str();
 }
