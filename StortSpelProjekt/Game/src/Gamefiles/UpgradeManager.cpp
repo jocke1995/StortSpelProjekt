@@ -13,7 +13,7 @@
 #include "Components/UpgradeComponents/Upgrades/UpgradePoisonAttack.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeKnockBack.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeHealthRegen.h"
-#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeAttackRate.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeAttackSpeed.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
 {
@@ -204,9 +204,9 @@ void UpgradeManager::fillUpgradeMap()
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
 	// Adding MeleeAttackRate Upgrade
-	upgrade = new UpgradeMeleeAttackRate(m_pParentEntity);
+	upgrade = new UpgradeMeleeAttackSpeed(m_pParentEntity);
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	upgrade->SetID(UPGRADE_MELEE_ATTACKRATE);
+	upgrade->SetID(UPGRADE_MELEE_ATTACKSPEED);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 }
@@ -270,8 +270,8 @@ Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 	case UPGRADE_HEALTH_REGEN:
 		return new UpgradeHealthRegen(ent);
 		break;
-	case UPGRADE_MELEE_ATTACKRATE:
-		return new UpgradeMeleeAttackRate(ent);
+	case UPGRADE_MELEE_ATTACKSPEED:
+		return new UpgradeMeleeAttackSpeed(ent);
 		break;
 	default:
 		break;

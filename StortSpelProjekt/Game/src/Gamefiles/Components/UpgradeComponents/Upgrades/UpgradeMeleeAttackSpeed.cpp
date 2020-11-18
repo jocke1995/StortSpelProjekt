@@ -1,11 +1,11 @@
-#include "UpgradeMeleeAttackRate.h"
+#include "UpgradeMeleeAttackSpeed.h"
 #include "EngineMath.h"
 #include "ECS/Entity.h"
 
-UpgradeMeleeAttackRate::UpgradeMeleeAttackRate(Entity* parent) : Upgrade(parent)
+UpgradeMeleeAttackSpeed::UpgradeMeleeAttackSpeed(Entity* parent) : Upgrade(parent)
 {
 	// set the name of the upgrade
-	SetName("UpgradeMeleeAttackRate");
+	SetName("UpgradeMeleeAtkSpeed");
 	// set the type of the upgrade
 	SetType(F_UpgradeType::PLAYER);
 	// set the price of the upgrade
@@ -18,28 +18,28 @@ UpgradeMeleeAttackRate::UpgradeMeleeAttackRate(Entity* parent) : Upgrade(parent)
 	m_UpgradeFactor = m_AttackPerSecond * 0.2f;
 }
 
-UpgradeMeleeAttackRate::~UpgradeMeleeAttackRate()
+UpgradeMeleeAttackSpeed::~UpgradeMeleeAttackSpeed()
 {
 }
 
-void UpgradeMeleeAttackRate::ApplyStat()
+void UpgradeMeleeAttackSpeed::ApplyStat()
 {
-	m_AttackPerSecond = m_AttackPerSecond + m_UpgradeFactor;
+	m_AttackPerSecond += m_UpgradeFactor;
 	m_pParentEntity->GetComponent<component::MeleeComponent>()->SetAttackInterval(1.0f / m_AttackPerSecond);
 }
 
-void UpgradeMeleeAttackRate::ApplyBoughtUpgrade()
+void UpgradeMeleeAttackSpeed::ApplyBoughtUpgrade()
 {
 	ApplyStat();
 }
 
-void UpgradeMeleeAttackRate::IncreaseLevel()
+void UpgradeMeleeAttackSpeed::IncreaseLevel()
 {
 	m_Level++;
 	m_Price *= 2;
 }
 
-std::string UpgradeMeleeAttackRate::GetDescription(unsigned int level)
+std::string UpgradeMeleeAttackSpeed::GetDescription(unsigned int level)
 {
 	return "Melee Attack Speed: increases attack speed with " + std::to_string(20 * level) + "\% (20\% per level)";
 }

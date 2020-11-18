@@ -1,13 +1,13 @@
-#ifndef UPGRADE_MELEE_ATTACK_RATE_H
-#define UPGRADE_MELEE_ATTACK_RATE_H
+#ifndef UPGRADE_MELEE_ATTACK_SPEED_H
+#define UPGRADE_MELEE_ATTACK_SPEED_H
 #include "Upgrade.h"
 
 // Upgrade description: This upgrade increases melee attack speed with 20% of base attack speed per level . Price doubles per level.
-class UpgradeMeleeAttackRate : public Upgrade
+class UpgradeMeleeAttackSpeed : public Upgrade
 {
 public:
-	UpgradeMeleeAttackRate(Entity* parent);
-	~UpgradeMeleeAttackRate();
+	UpgradeMeleeAttackSpeed(Entity* parent);
+	~UpgradeMeleeAttackSpeed();
 
 	void ApplyStat();
 	void ApplyBoughtUpgrade();
