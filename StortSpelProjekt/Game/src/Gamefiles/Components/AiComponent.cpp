@@ -544,6 +544,14 @@ void component::AiComponent::updateRange(double dt)
 				cc->SetVelVector(0, 0, 0);
 				m_StandStill = true;
 				// set direction
+
+				if (m_DistanceToPlayer <= m_DetectionRadius / 3.0f)
+				{
+					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(m_MovementVelocity / 2.0f);
+					vel = -m_pParentTrans->GetVelocity();
+					cc->SetVelVector(vel * m_DirectionPath.x / m_DistancePath, vel * 2 * m_DirectionPath.y / m_DistancePath, vel * m_DirectionPath.z / m_DistancePath);
+				}
+
 				float3 aimDirection = setAimDirection();
 
 				m_SpeedTimeAccumulator += static_cast<float>(dt);
