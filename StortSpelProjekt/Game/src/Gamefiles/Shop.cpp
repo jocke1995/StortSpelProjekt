@@ -2,12 +2,18 @@
 #include <time.h>
 #include "EngineMath.h"
 #include "ECS/Entity.h"
+#include "Components/UpgradeComponents/UpgradeComponent.h"
+#include "UpgradeManager.h"
 #include "Components/CurrencyComponent.h"
 #include "Misc/AssetLoader.h"
 #include "Renderer/Texture/Texture.h"
 #include "Events/EventBus.h"
 #include "ECS/SceneManager.h"
 #include "Misc/GUI2DElements/Font.h"
+
+#include "Player.h"
+
+#include "Renderer/Renderer.h"
 
 Shop::Shop()
 {
@@ -27,18 +33,23 @@ Shop::Shop()
 
 	EventBus::GetInstance().Subscribe(this, &Shop::upgradePressed);
 	EventBus::GetInstance().Subscribe(this, &Shop::sceneChange);
+
+	// TODO: do this in InitScene BJ�RN
+	EventBus::GetInstance().Subscribe(this, &Shop::OnShopGUIStateChange);
 }
 
 Shop::~Shop()
 {
-
+	// TODO: do this in UnInitScene BJ�RN
+	EventBus::GetInstance().Unsubscribe(this, &Shop::OnShopGUIStateChange);
 }
 
 void Shop::Create2DGUI()
 {
 	// The 2DGUI is already active, dont create it again
-	if (m_LookingAtShop == true)
+	if (m_DisplayingShopGUI == true)
 	{
+		//Log::PrintSeverity(Log::Severity::WARNING, "Trying to Create Shop2D-GUI when it already exists!\n");
 		return;
 	}
 
@@ -49,9 +60,17 @@ void Shop::Create2DGUI()
 	for (int i = 0; i < GetInventorySize(); i++)
 	{
 		Upgrade* upgrade = m_AllAvailableUpgrades.find(m_InventoryNames.at(i))->second;
-		std::string textToRender = upgrade->GetDescription(upgrade->GetLevel() + 1);
-		textToRender += "\nPrice: " + std::to_string(GetPrice(GetInventoryNames().at(i)));
-		textToRender += "    Next Level: " + std::to_string(upgrade->GetLevel() + 1);
+
+		// Bought Text on the buttons.
+		std::string textToRender = s_UpgradeBoughtText;
+		if (m_InventoryIsBought.at(i) == false)
+		{
+			// If the upgrade isn't bought, write the description on the button
+			textToRender = upgrade->GetDescription(upgrade->GetLevel() + 1);
+			textToRender += "\nPrice: " + std::to_string(GetPrice(GetInventoryNames().at(i)));
+			textToRender += "    Next Level: " + std::to_string(upgrade->GetLevel() + 1);
+		}
+		
 		float2 textPos = { 0.1f, 0.15f * (i + 1) + 0.1f };
 		float2 textPadding = { 0.5f, 0.0f };
 		float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -162,10 +181,19 @@ void Shop::Create2DGUI()
 	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
 	sm.AddEntity(entity, shopScene);
 	/*---------------------------------------*/
+
+	m_DisplayingShopGUI = true;
 }
 
 void Shop::Clear2DGUI()
 {
+	// If shop isn't active, we dont have anything to remove
+	if (m_DisplayingShopGUI == false)
+	{
+		Log::PrintSeverity(Log::Severity::WARNING, "Trying to clear Shop2D-GUI when it doesn't exist!\n");
+		return;
+	}
+
 	SceneManager& sm = SceneManager::GetInstance();
 	Scene* shopScene = sm.GetScene("ShopScene");
 
@@ -183,6 +211,8 @@ void Shop::Clear2DGUI()
 			sm.RemoveEntity(ent2, shopScene);
 		}
 	}
+
+	m_DisplayingShopGUI = false;
 }
 
 void Shop::ApplyUppgrade(std::string name)
@@ -250,14 +280,9 @@ Texture* Shop::GetUpgradeImage(std::string* name)
 	return AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Upgrades/" + to_wstring(m_AllAvailableUpgrades[*name]->GetImage()));
 }
 
-bool Shop::IsLookingAtShop()
+bool Shop::IsShop2DGUIDisplaying()
 {
-	return m_LookingAtShop;
-}
-
-void Shop::SetLookingAtShop(bool lookingAtShop)
-{
-	m_LookingAtShop = lookingAtShop;
+	return m_DisplayingShopGUI;
 }
 
 void Shop::Reset()
@@ -265,6 +290,39 @@ void Shop::Reset()
 	for (auto item : m_AllAvailableUpgrades)
 	{
 		item.second->SetLevel(0);
+	}
+}
+
+void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
+{
+	// If the shopGUI is open, we close it
+	if (IsShop2DGUIDisplaying() == true)
+	{
+		Clear2DGUI();
+
+		// Remove Cursor
+		ShowCursor(false);
+	}
+
+	// If the shopGUI is closed, we open it..
+	else if(IsShop2DGUIDisplaying() == false)
+	{
+		// Only if the shopEntity is picked
+		Entity* pickedEntity = Renderer::GetInstance().GetPickedEntity();
+		if (pickedEntity != nullptr)
+		{
+			if (pickedEntity->GetName() == "shop")
+			{
+				this->Create2DGUI();
+
+				// Reset movement, should happen here later. is currently happening in ShopSceneUpdateFunction in main
+				//component::CollisionComponent* cc = Player::GetInstance().GetPlayer()->GetComponent<component::CollisionComponent>();
+				//cc->SetVelVector(0.0f, 0.0f, 0.0f);
+
+				// Show cursor
+				ShowCursor(true);
+			}
+		}
 	}
 }
 
@@ -280,7 +338,7 @@ void Shop::upgradePressed(ButtonPressed* evnt)
 				m_InventoryIsBought.at(i) = true;
 				ApplyUppgrade(m_InventoryNames.at(i));
 
-				SceneManager::GetInstance().GetActiveScene()->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("UPGRADE BOUGHT", "upgrade" + std::to_string(i));
+				SceneManager::GetInstance().GetActiveScene()->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(s_UpgradeBoughtText, "upgrade" + std::to_string(i));
 			}
 		}
 	}
