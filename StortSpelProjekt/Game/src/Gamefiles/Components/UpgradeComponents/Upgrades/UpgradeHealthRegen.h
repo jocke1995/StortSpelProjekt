@@ -20,4 +20,4 @@ private:
 
 };
 
-#endif // !UPGRADE_HEALTH_BOOST_H
+#endif
