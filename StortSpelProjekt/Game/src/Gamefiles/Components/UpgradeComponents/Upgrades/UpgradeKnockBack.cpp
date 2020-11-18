@@ -12,8 +12,8 @@ UpgradeKnockBack::UpgradeKnockBack(Entity* parent) : Upgrade(parent)
 	m_Price = 100;
 	m_StartingPrice = m_Price;
 
-	m_ImageName = "default.png";
-	m_KnockBackAdder = 5;
+	m_ImageName = "MeleeDamage.png";
+	m_KnockBackAdder = 10;
 }
 
 UpgradeKnockBack::~UpgradeKnockBack()
@@ -38,5 +38,5 @@ void UpgradeKnockBack::IncreaseLevel()
 
 std::string UpgradeKnockBack::GetDescription(unsigned int level)
 {
-	return "Knockback: Increases knockback stat with " + std::to_string(5*level);
+	return "Knockback: Increases knockback stat with " + std::to_string(static_cast<int>(m_KnockBackAdder*level));
 }
