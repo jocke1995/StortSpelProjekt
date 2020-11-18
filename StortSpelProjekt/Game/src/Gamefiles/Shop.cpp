@@ -34,13 +34,11 @@ Shop::Shop()
 	EventBus::GetInstance().Subscribe(this, &Shop::upgradePressed);
 	EventBus::GetInstance().Subscribe(this, &Shop::sceneChange);
 
-	// TODO: do this in InitScene BJÖRN
 	EventBus::GetInstance().Subscribe(this, &Shop::OnShopGUIStateChange);
 }
 
 Shop::~Shop()
 {
-	// TODO: do this in UnInitScene BJÖRN
 	EventBus::GetInstance().Unsubscribe(this, &Shop::OnShopGUIStateChange);
 }
 
@@ -126,6 +124,62 @@ void Shop::Create2DGUI()
 		/* ---------------------------------------------------------- */
 	}
 
+	// Reroll-button
+	gui = nullptr;
+	Entity* entity = shopScene->AddEntity("reroll");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+
+	/*----------------Text-----------------*/
+	std::string textToRender = "Reroll the inventory in the shop";
+	textToRender += "\nPrice: 50 Coins";
+	float2 textPos = { 0.76f, 0.66f };
+	float2 textPadding = { 0.5f, 0.0f };
+	float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float2 textScale = { 0.3f, 0.3f };
+	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	gui->GetTextManager()->SetFont(m_pArial);
+	gui->GetTextManager()->AddText("reroll");
+	gui->GetTextManager()->SetColor(textColor, "reroll");
+	gui->GetTextManager()->SetPadding(textPadding, "reroll");
+	gui->GetTextManager()->SetPos(textPos, "reroll");
+	gui->GetTextManager()->SetScale(textScale, "reroll");
+	gui->GetTextManager()->SetText(textToRender, "reroll");
+	gui->GetTextManager()->SetBlend(textBlend, "reroll");
+
+	float2 quadPos = { 0.75f, 0.65f };
+	float2 quadScale = { 0.2f, 0.3f };
+	float4 blended = { 1.0, 1.0, 1.0, 0.75 };
+	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	gui->GetQuadManager()->CreateQuad(
+		"reroll",
+		quadPos, quadScale,
+		false, false,
+		1,
+		blended,
+		nullptr, { 0.0f, 0.0f, 0.0f });
+
+	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
+	sm.AddEntity(entity, shopScene);
+	/*---------------------------------------*/
+	/*---------------Texture-----------------*/
+	entity = shopScene->AddEntity("reroll-button");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.7f, 0.7f };
+	quadScale = { 0.3, 0.3f };
+	Texture* rerollImage = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Reroll.png");
+	gui->GetQuadManager()->CreateQuad(
+		"reroll-button",
+		quadPos, quadScale,
+		true, true,
+		2,
+		notBlended,
+		rerollImage
+	);
+	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
+	sm.AddEntity(entity, shopScene);
+	/*---------------------------------------*/
+
 	m_DisplayingShopGUI = true;
 }
 
@@ -144,6 +198,7 @@ void Shop::Clear2DGUI()
 	Entity* ent1 = nullptr;
 	Entity* ent2 = nullptr;
 
+	//Remove shop button and text
 	for (int i = 0; i < GetInventorySize(); i++)
 	{
 		if (shopScene->EntityExists("upgrade" + std::to_string(i)))
@@ -155,6 +210,12 @@ void Shop::Clear2DGUI()
 			sm.RemoveEntity(ent2, shopScene);
 		}
 	}
+
+	//Removal of text and texture for reroll
+	ent1 = shopScene->GetEntity("reroll");
+	ent2 = shopScene->GetEntity("reroll-button");
+	sm.RemoveEntity(ent1, shopScene);
+	sm.RemoveEntity(ent2, shopScene);
 
 	m_DisplayingShopGUI = false;
 }
