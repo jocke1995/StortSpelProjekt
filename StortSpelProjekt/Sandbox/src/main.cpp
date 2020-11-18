@@ -198,7 +198,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
 
     avc->AddVoice(L"Bruh");
-
+    Player::GetInstance().SetPlayer(entity);
     /*--------------------- Box ---------------------*/
     // entity
     entity = scene->AddEntity("Box");
@@ -498,6 +498,9 @@ Scene* TimScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     
     avc->AddVoice(L"Bruh");
+
+    Player::GetInstance().SetPlayer(entity);
+
     /*--------------------- Player ---------------------*/
     //
     /*--------------------- Box1 ---------------------*/
@@ -939,6 +942,8 @@ Scene* FredriksTestScene(SceneManager* sm)
 	// initialize OBB after we have the transform info
 	bbc->Init();
 	Physics::GetInstance().AddCollisionEntity(entity);
+
+    Player::GetInstance().SetPlayer(entity);
 
 	/* ---------------------- Player ---------------------- */
 
@@ -1616,6 +1621,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     // initialize OBB after we have the transform info
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
+    Player::GetInstance().SetPlayer(entity);
 
 
     entity = scene->AddEntity("floor");
