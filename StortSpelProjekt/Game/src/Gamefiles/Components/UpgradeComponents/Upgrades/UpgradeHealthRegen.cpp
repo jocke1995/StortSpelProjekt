@@ -29,7 +29,7 @@ void UpgradeHealthRegen::Update(double dt)
 {
 	//count up the timer until we reach 1 to give one health.
 	//This gives a health regeneration of 0.33hp per second per level or 1hp per 3 seconds per level
-	m_HealthTimer += dt * (1.0f / 3.0f);
+	m_HealthTimer += dt * (m_Level / 3.0f);
 	if (m_HealthTimer >= 1)
 	{
 		m_HealthTimer -= 1;
