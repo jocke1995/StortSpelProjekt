@@ -2,7 +2,7 @@
 #define UPGRADE_MELEE_ATTACK_SPEED_H
 #include "Upgrade.h"
 
-// Upgrade description: This upgrade increases melee attack speed with 20% of base attack speed per level . Price doubles per level.
+// Upgrade description: This upgrade increases melee attack speed with 20% of base attack speed per level. Price doubles per level.
 class UpgradeMeleeAttackSpeed : public Upgrade
 {
 public:
