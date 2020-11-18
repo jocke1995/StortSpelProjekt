@@ -10,6 +10,7 @@
 #include "Components/UpgradeComponents/Upgrades/UpgradeHealthBoost.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeBlueJewel.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeBounce.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradePoisonAttack.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
 {
@@ -177,6 +178,13 @@ void UpgradeManager::fillUpgradeMap()
 	upgrade->SetID(UPGRADE_RANGE_BOUNCE);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding PoisonAttack Upgrade
+	upgrade = new UpgradePoisonAttack(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_POISON_ATTACK);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 }
 
 bool UpgradeManager::checkIfRangeUpgrade(std::string name)
@@ -228,6 +236,9 @@ Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 		break;
 	case UPGRADE_RANGE_BOUNCE:
 		return new UpgradeRangeBounce(ent);
+		break;
+	case UPGRADE_POISON_ATTACK:
+		return new UpgradePoisonAttack(ent);
 		break;
 	default:
 		break;
