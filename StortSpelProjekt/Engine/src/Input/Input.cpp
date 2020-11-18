@@ -154,7 +154,7 @@ void Input::SetMouseMovement(int x, int y)
 	// Disable movement when in Shop2D-GUI state
 	if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == false)
 	{
-		EventBus::GetInstance().Publish(&MouseMovement(x, y));
+		EventBus::GetInstance().Publish(&MouseMovement(static_cast<float>(x), static_cast<float>(y)));
 	}
 }
 
@@ -187,6 +187,7 @@ void Input::ReadControllerInput()
 		bool justPressedDash = !m_KeyState[SCAN_CODES::Q];
 		bool justPressedAttack = !m_MouseButtonState[MOUSE_BUTTON::LEFT_DOWN];
 		bool justPressedShoot = !m_MouseButtonState[MOUSE_BUTTON::RIGHT_DOWN];
+		bool justPressedChoose = !m_KeyState[SCAN_CODES::F];
 
 		// Switch 0 is the directional buttons on a DualShock 4
 		switch (switchesArray.at(0))
@@ -248,6 +249,7 @@ void Input::ReadControllerInput()
 		}
 		
 		// Button 0 is Square
+		m_KeyState[SCAN_CODES::F] = buttonsArray.at(0);
 		// Button 1 is Cross
 		m_KeyState[SCAN_CODES::SPACE] = buttonsArray.at(1);
 		// Button 2 is Circle
@@ -338,6 +340,14 @@ void Input::ReadControllerInput()
 		else if (!justPressedShoot && !m_MouseButtonState[MOUSE_BUTTON::RIGHT_DOWN])
 		{
 			EventBus::GetInstance().Publish(&MouseRelease(MOUSE_BUTTON::RIGHT_DOWN, false));
+		}
+		if (justPressedChoose && m_KeyState[SCAN_CODES::F])
+		{
+			Scene* scene = SceneManager::GetInstance().GetActiveScene();
+			if (scene->GetName() == "ShopScene")
+			{
+				EventBus::GetInstance().Publish(&shopGUIStateChange());
+			}
 		}
 
 		// Axis 2 is horizontal movement of right joystick. Axis 5 is vertical movement of right joystick
