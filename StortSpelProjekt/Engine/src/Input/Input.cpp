@@ -317,7 +317,7 @@ void Input::ReadControllerInput()
 		float moveX = 5 * (axisArray.at(2) - 0.5);
 		float moveY = 2.5 * (axisArray.at(5) - 0.5);
 
-		if (std::abs(moveX) > 0.2f || std::abs(moveY) > 0.2f)
+		if (std::abs(moveX) > 0.3f || std::abs(moveY) > 0.3f)
 		{
 			EventBus::GetInstance().Publish(&MouseMovement(moveX, moveY));
 		}
