@@ -139,3 +139,9 @@ struct ResetGame : public Event
 {
 	ResetGame() {};
 };
+
+struct shopGUIStateChange : public Event
+{
+	shopGUIStateChange()
+	{};
+};

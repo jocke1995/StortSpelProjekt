@@ -2,12 +2,18 @@
 #include <time.h>
 #include "EngineMath.h"
 #include "ECS/Entity.h"
+#include "Components/UpgradeComponents/UpgradeComponent.h"
+#include "UpgradeManager.h"
 #include "Components/CurrencyComponent.h"
 #include "Misc/AssetLoader.h"
 #include "Renderer/Texture/Texture.h"
 #include "Events/EventBus.h"
 #include "ECS/SceneManager.h"
 #include "Misc/GUI2DElements/Font.h"
+
+#include "Player.h"
+
+#include "Renderer/Renderer.h"
 
 Shop::Shop()
 {
@@ -27,91 +33,51 @@ Shop::Shop()
 
 	EventBus::GetInstance().Subscribe(this, &Shop::upgradePressed);
 	EventBus::GetInstance().Subscribe(this, &Shop::sceneChange);
+
+	// TODO: do this in InitScene BJÖRN
+	EventBus::GetInstance().Subscribe(this, &Shop::OnShopGUIStateChange);
 }
 
 Shop::~Shop()
 {
-
+	// TODO: do this in UnInitScene BJÖRN
+	EventBus::GetInstance().Unsubscribe(this, &Shop::OnShopGUIStateChange);
 }
 
-void Shop::RandomizeInventory()
+void Shop::Create2DGUI()
 {
-	// start with clearing the inventory so we don't get the same upgrades as before.
-	clearInventory();
-	int upgradeNum;
-	std::string name;
-	bool inStock = false;
-
-	// How many upgrades have reached max level
-	int maxLevelUpgrades = 0;
-	for (auto u : m_AllAvailableUpgrades)
+	// The 2DGUI is already active, dont create it again
+	if (m_DisplayingShopGUI == true)
 	{
-		if (u.second->GetLevel() == u.second->GetMaxLevel())
-		{
-			maxLevelUpgrades++;
-		}
-	}
-
-	// If an upgrade is at max level, it will be unavailable for purchase.
-	// So if we have less upgrades available for purchase than inventory size, we must lower inventory size.
-	if (m_AllAvailableUpgrades.size() - maxLevelUpgrades < m_InvSize)
-	{
-		m_InvSize = m_AllAvailableUpgrades.size() - maxLevelUpgrades;
-	}
-
-	// Fill our inventory
-	for (int i = 0; i < m_InvSize; i++)
-	{
-		// Set the seed for randomization of inventory
-		m_Rand.SetSeed(time(NULL));
-		// While loop is neccessary to avoid duplicate upgrades in inventory.
-		do
-		{
-			// need to reset this bool every loop
-			inStock = false;
-			// Get a random number that will be used to get an upgrade to the inventory
-			upgradeNum = m_Rand.Rand(0, m_AllAvailableUpgrades.size());
-			// Take this number to get a name from m_UpgradeNames, which contains all avalible upgrades
-			name = m_UpgradeNames.at(upgradeNum);
-			for (auto names : m_InventoryNames)
-			{
-				if (name == names)
-				{
-					// If this name already exists in our inventory, 
-					// then it is "inStock" so we have to try again.
-					inStock = true;
-					break;
-				}
-			}
-			if (m_AllAvailableUpgrades[name]->GetLevel() == m_AllAvailableUpgrades[name]->GetMaxLevel())
-			{
-				// If an upgrade is at max level, make it unavailable for purchase
-				// So set inStock to true so that it won't be added to the inventory.
-				inStock = true;
-			}
-
-		} while (inStock);
-		// When we get an upgrade that was not already in our inventory or max level,
-		// we add it to the inventory.
-		m_InventoryNames.push_back(name);
-		m_InventoryIsBought.push_back(false);
+		//Log::PrintSeverity(Log::Severity::WARNING, "Trying to Create Shop2D-GUI when it already exists!\n");
+		return;
 	}
 
 	/* ------------------------- Shop Buttons --------------------------- */
 	component::GUI2DComponent* gui = nullptr;
+	SceneManager& sm = SceneManager::GetInstance();
+	Scene* shopScene = sm.GetScene("ShopScene");
 	for (int i = 0; i < GetInventorySize(); i++)
 	{
 		Upgrade* upgrade = m_AllAvailableUpgrades.find(m_InventoryNames.at(i))->second;
-		std::string textToRender = upgrade->GetDescription(upgrade->GetLevel() + 1);
-		textToRender += "\nPrice: " + std::to_string(GetPrice(GetInventoryNames().at(i)));
-		textToRender += "    Next Level: " + std::to_string(upgrade->GetLevel() + 1);
+
+		// Bought Text on the buttons.
+		std::string textToRender = s_UpgradeBoughtText;
+		if (m_InventoryIsBought.at(i) == false)
+		{
+			// If the upgrade isn't bought, write the description on the button
+			textToRender = upgrade->GetDescription(upgrade->GetLevel() + 1);
+			textToRender += "\nPrice: " + std::to_string(GetPrice(GetInventoryNames().at(i)));
+			textToRender += "    Next Level: " + std::to_string(upgrade->GetLevel() + 1);
+		}
+		
 		float2 textPos = { 0.1f, 0.15f * (i + 1) + 0.1f };
 		float2 textPadding = { 0.5f, 0.0f };
 		float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		float2 textScale = { 0.3f, 0.3f };
 		float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-		Entity* entity = SceneManager::GetInstance().GetScene("ShopScene")->AddEntity("upgrade" + std::to_string(i));
+		Entity* entity = shopScene->AddEntity("upgrade" + std::to_string(i));
 		gui = entity->AddComponent<component::GUI2DComponent>();
 		gui->GetTextManager()->SetFont(m_pArial);
 		gui->GetTextManager()->AddText("upgrade" + std::to_string(i));
@@ -133,10 +99,14 @@ void Shop::RandomizeInventory()
 			1,
 			blended,
 			nullptr, { 0.0f, 0.0f, 0.0f });
+
+		// add the entity to the sceneManager so it can be spawned in in run time
+		entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
+		sm.AddEntity(entity, shopScene);
 		/* ---------------------------------------------------------- */
 
 		/* ------------------------- head --------------------------- */
-		entity = SceneManager::GetInstance().GetScene("ShopScene")->AddEntity("upgradebutton" + std::to_string(i));
+		entity = shopScene->AddEntity("upgradebutton" + std::to_string(i));
 		gui = entity->AddComponent<component::GUI2DComponent>();
 		quadPos = { 0.01f, 0.15f * (i + 1) + 0.099f };
 		quadScale = { 0.09f, 0.09f };
@@ -149,8 +119,44 @@ void Shop::RandomizeInventory()
 			notBlended,
 			shopImage
 		);
+
+		// add the entity to the sceneManager so it can be spawned in in run time
+		entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
+		sm.AddEntity(entity, shopScene);
 		/* ---------------------------------------------------------- */
 	}
+
+	m_DisplayingShopGUI = true;
+}
+
+void Shop::Clear2DGUI()
+{
+	// If shop isn't active, we dont have anything to remove
+	if (m_DisplayingShopGUI == false)
+	{
+		Log::PrintSeverity(Log::Severity::WARNING, "Trying to clear Shop2D-GUI when it doesn't exist!\n");
+		return;
+	}
+
+	SceneManager& sm = SceneManager::GetInstance();
+	Scene* shopScene = sm.GetScene("ShopScene");
+
+	Entity* ent1 = nullptr;
+	Entity* ent2 = nullptr;
+
+	for (int i = 0; i < GetInventorySize(); i++)
+	{
+		if (shopScene->EntityExists("upgrade" + std::to_string(i)))
+		{
+			ent1 = shopScene->GetEntity("upgrade" + std::to_string(i));
+			ent2 = shopScene->GetEntity("upgradebutton" + std::to_string(i));
+
+			sm.RemoveEntity(ent1, shopScene);
+			sm.RemoveEntity(ent2, shopScene);
+		}
+	}
+
+	m_DisplayingShopGUI = false;
 }
 
 void Shop::ApplyUppgrade(std::string name)
@@ -223,11 +229,49 @@ Texture* Shop::GetUpgradeImage(std::string* name)
 	return AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Upgrades/" + to_wstring(m_AllAvailableUpgrades[*name]->GetImage()));
 }
 
+bool Shop::IsShop2DGUIDisplaying()
+{
+	return m_DisplayingShopGUI;
+}
+
 void Shop::Reset()
 {
 	for (auto item : m_AllAvailableUpgrades)
 	{
 		item.second->SetLevel(0);
+	}
+}
+
+void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
+{
+	// If the shopGUI is open, we close it
+	if (IsShop2DGUIDisplaying() == true)
+	{
+		Clear2DGUI();
+
+		// Remove Cursor
+		ShowCursor(false);
+	}
+
+	// If the shopGUI is closed, we open it..
+	else if(IsShop2DGUIDisplaying() == false)
+	{
+		// Only if the shopEntity is picked
+		Entity* pickedEntity = Renderer::GetInstance().GetPickedEntity();
+		if (pickedEntity != nullptr)
+		{
+			if (pickedEntity->GetName() == "shop")
+			{
+				this->Create2DGUI();
+
+				// Reset movement, should happen here later. is currently happening in ShopSceneUpdateFunction in main
+				//component::CollisionComponent* cc = Player::GetInstance().GetPlayer()->GetComponent<component::CollisionComponent>();
+				//cc->SetVelVector(0.0f, 0.0f, 0.0f);
+
+				// Show cursor
+				ShowCursor(true);
+			}
+		}
 	}
 }
 
@@ -243,7 +287,7 @@ void Shop::upgradePressed(ButtonPressed* evnt)
 				m_InventoryIsBought.at(i) = true;
 				ApplyUppgrade(m_InventoryNames.at(i));
 
-				SceneManager::GetInstance().GetActiveScene()->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("UPGRADE BOUGHT", "upgrade" + std::to_string(i));
+				SceneManager::GetInstance().GetActiveScene()->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(s_UpgradeBoughtText, "upgrade" + std::to_string(i));
 			}
 		}
 	}
@@ -253,20 +297,79 @@ void Shop::sceneChange(SceneChange* evnt)
 {
 	if (evnt->m_NewSceneName == "ShopScene")
 	{
-		RandomizeInventory();
+		randomizeInventory();
+	}
+}
+
+void Shop::randomizeInventory()
+{
+	// start with clearing the inventory so we don't get the same upgrades as before.
+	clearInventory();
+	int upgradeNum;
+	std::string name;
+	bool inStock = false;
+
+	// How many upgrades have reached max level
+	int maxLevelUpgrades = 0;
+	for (auto u : m_AllAvailableUpgrades)
+	{
+		if (u.second->GetLevel() == u.second->GetMaxLevel())
+		{
+			maxLevelUpgrades++;
+		}
+	}
+
+	// If an upgrade is at max level, it will be unavailable for purchase.
+	// So if we have less upgrades available for purchase than inventory size, we must lower inventory size.
+	if (m_AllAvailableUpgrades.size() - maxLevelUpgrades < m_InvSize)
+	{
+		m_InvSize = m_AllAvailableUpgrades.size() - maxLevelUpgrades;
+	}
+
+	// Fill our inventory
+	for (int i = 0; i < m_InvSize; i++)
+	{
+		// Set the seed for randomization of inventory
+		m_Rand.SetSeed(time(NULL));
+		// While loop is neccessary to avoid duplicate upgrades in inventory.
+		do
+		{
+			// need to reset this bool every loop
+			inStock = false;
+			// Get a random number that will be used to get an upgrade to the inventory
+			upgradeNum = m_Rand.Rand(0, m_AllAvailableUpgrades.size());
+			// Take this number to get a name from m_UpgradeNames, which contains all avalible upgrades
+			name = m_UpgradeNames.at(upgradeNum);
+			for (auto names : m_InventoryNames)
+			{
+				if (name == names)
+				{
+					// If this name already exists in our inventory, 
+					// then it is "inStock" so we have to try again.
+					inStock = true;
+					break;
+				}
+			}
+			if (m_AllAvailableUpgrades[name]->GetLevel() == m_AllAvailableUpgrades[name]->GetMaxLevel())
+			{
+				// If an upgrade is at max level, make it unavailable for purchase
+				// So set inStock to true so that it won't be added to the inventory.
+				inStock = true;
+			}
+
+		} while (inStock);
+		// When we get an upgrade that was not already in our inventory or max level,
+		// we add it to the inventory.
+		m_InventoryNames.push_back(name);
+		m_InventoryIsBought.push_back(false);
 	}
 }
 
 void Shop::clearInventory()
 {
-	for (int i = 0; i < GetInventorySize(); i++)
-	{
-		if (SceneManager::GetInstance().GetScene("ShopScene")->EntityExists("upgrade" + std::to_string(i)))
-		{
-			SceneManager::GetInstance().GetScene("ShopScene")->RemoveEntity("upgrade" + std::to_string(i));
-			SceneManager::GetInstance().GetScene("ShopScene")->RemoveEntity("upgradebutton" + std::to_string(i));
-		}
-	}
+	// Remove quads
+	Clear2DGUI();
+
 	m_InventoryNames.clear();
 	m_InventoryIsBought.clear();
 }
