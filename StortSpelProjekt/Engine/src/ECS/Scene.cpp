@@ -41,7 +41,7 @@ Entity* Scene::AddEntityFromOther(Entity* other)
 {
     if (EntityExists(other->GetName()) == true)
     {
-        Log::PrintSeverity(Log::Severity::CRITICAL, "AddEntityFromOther: Trying to add two components with the same name \'%s\' into scene: %s\n", other->GetName(), m_SceneName);
+        Log::PrintSeverity(Log::Severity::CRITICAL, "AddEntityFromOther: Trying to add two components with the same name \'%s\' into scene: %s\n", other->GetName().c_str(), m_SceneName.c_str());
         return nullptr;
     }
 
@@ -56,7 +56,7 @@ Entity* Scene::AddEntity(std::string entityName)
 {
     if (EntityExists(entityName) == true)
     {
-        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to add two components with the same name \'%s\' into scene: %s\n", entityName, m_SceneName);
+        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to add two components with the same name \'%s\' into scene: %s\n", entityName.c_str(), m_SceneName.c_str());
         return nullptr;
     }
 
@@ -70,11 +70,13 @@ bool Scene::RemoveEntity(std::string entityName)
 {
     if (!EntityExists(entityName))
     {
-        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to remove entity \'%s\' that does not exist in scene: %s\n", entityName, m_SceneName);
+        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to remove entity \'%s\' that does not exist in scene: %s\n", entityName.c_str(), m_SceneName.c_str());
         return false;
     }
 
-    PoolAllocator<Entity>::GetInstance().Delete(m_EntitiesToKeep[entityName]);
+    Entity* ent = m_EntitiesToKeep[entityName];
+
+    PoolAllocator<Entity>::GetInstance().Delete(ent);
     m_EntitiesToKeep.erase(entityName);
 
     m_NrOfEntities--;

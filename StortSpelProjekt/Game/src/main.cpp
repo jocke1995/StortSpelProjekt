@@ -10,6 +10,7 @@
 #include "UpgradeManager.h"
 #include "Shop.h"
 #include "Components/CurrencyComponent.h"
+#include "Components/UpgradeComponents/UpgradeComponent.h"
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
 #include "UpgradeGUI.h"
@@ -773,6 +774,9 @@ Scene* ShopScene(SceneManager* sm)
 
     double3 shopDim = mc->GetModelDim();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(10000000.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
+
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
+    bbc->Init();
     /* ---------------------- Shop ---------------------- */
 
 #pragma region walls
@@ -892,9 +896,19 @@ void GameUpdateScene(SceneManager* sm, double dt)
 
 void ShopUpdateScene(SceneManager* sm, double dt)
 {
+    // Hidden Stefan & Hans
     static float rotValue = 0.0f;
     Transform* trans = sm->GetScene("ShopScene")->GetEntity("poster")->GetComponent<component::TransformComponent>()->GetTransform();
     trans->SetRotationX(rotValue);
-
     rotValue += 0.005f;
+
+    // Kod-påkod-påkod-påkod-påkod-lösning
+    // Detta ska egentligen stå i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
+    // spelare i alla scener så kan vi ej nå den aktiva spelaren i den scenen därifrån.
+    // TODO: Flytta in den i den funktionen när vi har samma spelare i alla scener via Player::GetInstance().
+    if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == true)
+    {
+        component::CollisionComponent* cc = sm->GetActiveScene()->GetEntity("player")->GetComponent<component::CollisionComponent>();
+        cc->SetVelVector(0.0f, 0.0f, 0.0f);
+    }
 }
