@@ -61,6 +61,8 @@ public:
 
 	void Update(double dt);
 
+	void SetIsSpawning(bool value);
+
 	Texture2DGUI* GetTexture() const;
 
 private:
@@ -76,6 +78,7 @@ private:
 	std::vector<PARTICLE_DATA> m_ParticlesData;
 	unsigned int m_ParticleIndex = 0;
 	double m_TimeSinceSpawn = 0;
+	bool m_IsSpawnwing = false;
 
 	ParticleEffectSettings m_Settings = {};
 
@@ -89,8 +92,6 @@ private:
 
 	bool isTimeToSpawnParticles() const;
 	bool spawnParticle();
-
-	void resetEffect();
 
 	void init(DescriptorHeap* descriptorHeap);
 	
