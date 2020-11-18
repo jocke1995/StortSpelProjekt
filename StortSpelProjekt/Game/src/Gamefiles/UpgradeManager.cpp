@@ -203,7 +203,7 @@ void UpgradeManager::fillUpgradeMap()
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	// Adding KnockBack Upgrade
+	// Adding Range Damage Upgrade
 	upgrade = new UpgradeRangeDamage(m_pParentEntity);
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
 	upgrade->SetID(UPGRADE_RANGE_DAMAGE);
