@@ -239,6 +239,11 @@ void Shop::ApplyUppgrade(std::string name)
 	{
 		m_pUpgradeManager->ApplyUpgrade(name);
 		m_pUpgradeManager->IncreaseLevel(name);
+
+		if (m_AllAvailableUpgrades[name]->GetType() & F_UpgradeType::PLAYER)
+		{
+			m_pPlayer->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(name)->IncreaseLevel();
+		}
 	}
 }
 
