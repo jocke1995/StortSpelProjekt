@@ -12,8 +12,12 @@ public:
 	void ApplyBoughtUpgrade();
 	void IncreaseLevel();
 
+	std::string GetDescription(unsigned int level);
+
 private:
 	float m_upgradeFactor;
+
+	float newInterval();
 
 };
 
