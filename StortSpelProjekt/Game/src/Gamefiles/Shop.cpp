@@ -354,6 +354,13 @@ void Shop::upgradePressed(ButtonPressed* evnt)
 			}
 		}
 	}
+
+	if (evnt->name == "reroll-button")
+	{
+		Clear2DGUI();
+		randomizeInventory();
+		Create2DGUI();
+	}
 }
 
 void Shop::sceneChange(SceneChange* evnt)
