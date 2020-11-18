@@ -15,7 +15,7 @@ bool Cryptor::Encrypt(int key, const char* source, const char* destination)
 	{
 		while (inStream.get(character))
 		{
-			character = (character + rand.Randu(0, 127)) % 127;
+			character = (character + rand.Rand(0, 127)) % 127;
 			outStream << static_cast<unsigned int>(character) << " ";
 		}
 	}
@@ -35,7 +35,7 @@ bool Cryptor::Encrypt(int key, const char* source)
 		inStream.get(character);
 		while (!inStream.eof())
 		{
-			int randNum = rand.Randu(0, 127);
+			int randNum = rand.Rand(0, 127);
 			character = ((character + randNum) % 127);
 			ss << static_cast<unsigned int>(character) << " ";
 
