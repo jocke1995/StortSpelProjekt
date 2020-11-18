@@ -28,10 +28,10 @@ void component::TeleportComponent::OnUnInitScene()
 
 void component::TeleportComponent::OnCollision(Collision* collisionEvent)
 {
-	if (collisionEvent->ent1 == m_pPlayerInstance && collisionEvent->ent2 == m_pParent)
+	auto func = [](const std::string newSceneName)
 	{
-		EventBus::GetInstance().Publish(&SceneChange(m_NewSceneName));
-		if (m_NewSceneName == "ShopScene")
+		EventBus::GetInstance().Publish(&SceneChange(newSceneName));
+		if (newSceneName == "ShopScene")
 		{
 			Player::GetInstance().IsInShop(true);
 		}
@@ -40,18 +40,14 @@ void component::TeleportComponent::OnCollision(Collision* collisionEvent)
 			Player::GetInstance().IsInShop(false);
 			EventBus::GetInstance().Publish(&RoundStart());
 		}
+	};
+
+	if (collisionEvent->ent1 == m_pPlayerInstance && collisionEvent->ent2 == m_pParent)
+	{
+		func(m_NewSceneName);
 	}
 	else if (collisionEvent->ent2 == m_pPlayerInstance && collisionEvent->ent1 == m_pParent)
 	{
-		EventBus::GetInstance().Publish(&SceneChange(m_NewSceneName));
-		if (m_NewSceneName == "ShopScene")
-		{
-			Player::GetInstance().IsInShop(true);
-		}
-		else
-		{
-			Player::GetInstance().IsInShop(false);
-			EventBus::GetInstance().Publish(&RoundStart());
-		}
+		func(m_NewSceneName);
 	}
 }

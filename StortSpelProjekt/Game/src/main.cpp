@@ -10,6 +10,7 @@
 #include "UpgradeManager.h"
 #include "Shop.h"
 #include "Components/CurrencyComponent.h"
+#include "Components/UpgradeComponents/UpgradeComponent.h"
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
 #include "UpgradeGUI.h"
@@ -901,40 +902,13 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     trans->SetRotationX(rotValue);
     rotValue += 0.005f;
 
-    // TODO:
-    // 1. Stop showing shop 2d gui when F is pressed again
-    // 2. Lock player movement when in shop2DGUI
-    // 3. ShowCursor when in shop2DGUI
-    // Check if the user pressed a button to enter the shop and if the shop has been picked
-    auto SetShop2DGUI = [](bool lookingAtShop) -> void
+    // Kod-påkod-påkod-påkod-påkod-lösning
+    // Detta ska egentligen stå i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
+    // spelare i alla scener så kan vi ej nå den aktiva spelaren i den scenen därifrån.
+    // TODO: Flytta in den i den funktionen när vi har samma spelare i alla scener via Player::GetInstance().
+    if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == true)
     {
-        Player::GetInstance().GetShop()->SetLookingAtShop(lookingAtShop);
-    };
-
-    if (Input::GetInstance().GetKeyState(SCAN_CODES::F) == true)
-    {
-        Entity* pickedEntity = Renderer::GetInstance().GetPickedEntity();
-        if (pickedEntity != nullptr)
-        {
-            Shop* shop = Player::GetInstance().GetShop();
-            if (pickedEntity->GetName() == "shop")
-            {
-                static int test = 0;
-                Log::Print("Entered the shop 2DGUI! %d\n", test);
-                test++;
-
-                // Naiv attempt, will currently change multiple times if key is pressed
-                shop->Create2DGUI();
-                SetShop2DGUI(true);
-            }
-            else
-            {
-                SetShop2DGUI(false);
-            }
-        }
-        else
-        {
-            SetShop2DGUI(false);
-        }
+        component::CollisionComponent* cc = sm->GetActiveScene()->GetEntity("player")->GetComponent<component::CollisionComponent>();
+        cc->SetVelVector(0.0f, 0.0f, 0.0f);
     }
 }
