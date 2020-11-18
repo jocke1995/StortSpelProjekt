@@ -20,6 +20,7 @@
 #include "ECS/Components/GUI2DComponent.h"
 #include "ECS/Components/SkyboxComponent.h"
 #include "ECS/Components/ParticleEmitterComponent.h"
+#include "ECS/Components/ProgressBarComponent.h"
 
 // Sub-engines
 #include "Renderer/Renderer.h"

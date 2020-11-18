@@ -606,6 +606,7 @@ Scene* JockesTestScene(SceneManager* sm)
     component::DirectionalLightComponent* dlc = nullptr;
     component::SpotLightComponent* slc = nullptr;
     component::CollisionComponent* bcc = nullptr;
+    component::ProgressBarComponent* pbc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -717,6 +718,10 @@ Scene* JockesTestScene(SceneManager* sm)
     dlc->SetCameraLeft(-70.0f);
     dlc->SetCameraRight(70.0f);
     /* ---------------------- dirLight ---------------------- */
+
+    entity = scene->AddEntity("progressBarTest");
+    float3 startPosition = { 0.0f, 0.0f, 0.0f };
+    pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 1.0f, 1.0f);
 
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&JockeUpdateScene);
