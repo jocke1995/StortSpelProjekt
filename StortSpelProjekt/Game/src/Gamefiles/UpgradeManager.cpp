@@ -12,6 +12,7 @@
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeBounce.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradePoisonAttack.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeKnockBack.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeHealthRegen.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
 {
@@ -180,6 +181,13 @@ void UpgradeManager::fillUpgradeMap()
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
+	// Adding HealthRegen Upgrade
+	upgrade = new UpgradeHealthRegen(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_HEALTH_REGEN);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
 	// Adding PoisonAttack Upgrade
 	upgrade = new UpgradePoisonAttack(m_pParentEntity);
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
@@ -250,6 +258,9 @@ Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 		break;
 	case UPGRADE_KNOCKBACK:
 		return new UpgradeKnockBack(ent);
+		break;
+	case UPGRADE_HEALTH_REGEN:
+		return new UpgradeHealthRegen(ent);
 		break;
 	default:
 		break;
