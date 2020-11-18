@@ -31,7 +31,7 @@ Shop::Shop()
 	AssetLoader* al = AssetLoader::Get();
 	m_pArial = al->LoadFontFromFile(L"Arial.fnt");
 
-	EventBus::GetInstance().Subscribe(this, &Shop::upgradePressed);
+	EventBus::GetInstance().Subscribe(this, &Shop::shopButtonPressed);
 	EventBus::GetInstance().Subscribe(this, &Shop::sceneChange);
 
 	EventBus::GetInstance().Subscribe(this, &Shop::OnShopGUIStateChange);
@@ -94,7 +94,7 @@ void Shop::Create2DGUI()
 			"upgrade" + std::to_string(i),
 			quadPos, quadScale,
 			false, false,
-			1,
+			2,
 			blended,
 			nullptr, { 0.0f, 0.0f, 0.0f });
 
@@ -162,6 +162,7 @@ void Shop::Create2DGUI()
 	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
 	sm.AddEntity(entity, shopScene);
 	/*---------------------------------------*/
+
 	/*---------------Texture-----------------*/
 	entity = shopScene->AddEntity("reroll-button");
 	gui = entity->AddComponent<component::GUI2DComponent>();
@@ -323,7 +324,7 @@ void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
 		{
 			if (pickedEntity->GetName() == "shop")
 			{
-				this->Create2DGUI();
+				Create2DGUI();
 
 				// Reset movement, should happen here later. is currently happening in ShopSceneUpdateFunction in main
 				//component::CollisionComponent* cc = Player::GetInstance().GetPlayer()->GetComponent<component::CollisionComponent>();
@@ -336,7 +337,7 @@ void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
 	}
 }
 
-void Shop::upgradePressed(ButtonPressed* evnt)
+void Shop::shopButtonPressed(ButtonPressed* evnt)
 {
 	for (int i = 0; i < GetInventorySize(); i++)
 	{
@@ -355,9 +356,12 @@ void Shop::upgradePressed(ButtonPressed* evnt)
 
 	if (evnt->name == "reroll-button")
 	{
-		Clear2DGUI();
-		randomizeInventory();
-		Create2DGUI();
+		//Clears the 2D-GUI, Rerolls the inventory of the shop and Creates the 2D-GUI with the new inventory.
+		if (m_pPlayer->GetComponent<component::CurrencyComponent>()->GetBalace() >= REROLL_COST)
+		{
+			m_pPlayer->GetComponent<component::CurrencyComponent>()->ChangeBalance(-REROLL_COST);
+			updateShop();
+		}
 	}
 }
 
@@ -367,6 +371,12 @@ void Shop::sceneChange(SceneChange* evnt)
 	{
 		randomizeInventory();
 	}
+}
+
+void Shop::updateShop()
+{
+	randomizeInventory();
+	Create2DGUI();
 }
 
 void Shop::randomizeInventory()

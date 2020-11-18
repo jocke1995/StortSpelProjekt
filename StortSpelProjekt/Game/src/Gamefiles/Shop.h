@@ -4,6 +4,8 @@
 #include "../Misc/EngineRand.h"
 #include "../Events/Events.h"
 
+#define REROLL_COST 50
+
 class UpgradeComponent;
 class UpgradeManager;
 class Upgrade;
@@ -54,8 +56,9 @@ public:
 	void OnShopGUIStateChange(shopGUIStateChange* collisionEvent);
 
 private:
-	void upgradePressed(ButtonPressed* evnt);
+	void shopButtonPressed(ButtonPressed* evnt);
 	void sceneChange(SceneChange* evnt);
+	void updateShop();
 
 	// upgradeManager
 	UpgradeManager* m_pUpgradeManager = nullptr;
