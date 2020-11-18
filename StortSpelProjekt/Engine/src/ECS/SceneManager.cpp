@@ -183,7 +183,7 @@ void SceneManager::SetScene(Scene* scene)
 {
 	if (scene == m_pActiveScene)
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "SetScene on same scene %s\n", scene->GetName());
+		Log::PrintSeverity(Log::Severity::WARNING, "SetScene on same scene %s\n", scene->GetName().c_str());
 		return;
 	}
 

@@ -1,10 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <map>
-#include <vector>
-#include <string>
-
 class Entity;
 class Shop;
 class UpgradeManager;
@@ -42,6 +38,5 @@ private:
 
 	void onResetGame(ResetGame* evnt);
 };
-
 
 #endif // !PLAYER_H

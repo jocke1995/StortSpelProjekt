@@ -17,10 +17,18 @@ component::UpgradeComponent::~UpgradeComponent()
 
 void component::UpgradeComponent::Update(double dt)
 {
+	for (auto& upgrade : m_AppliedUpgrades)
+	{
+		upgrade.second->Update(dt);
+	}
 }
 
 void component::UpgradeComponent::RenderUpdate(double dt)
 {
+	for (auto& upgrade : m_AppliedUpgrades)
+	{
+		upgrade.second->RenderUpdate(dt);
+	}
 }
 
 void component::UpgradeComponent::OnInitScene()
