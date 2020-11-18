@@ -3,6 +3,8 @@
 #include <filesystem>
 #include <fstream>
 #include "EngineRand.h"
+#include "Multithreading/ThreadPool.h"
+#include "Multithreading/EncryptTask.h"
 
 bool Cryptor::Encrypt(int key, const char* source, const char* destination)
 {
@@ -54,18 +56,12 @@ bool Cryptor::Encrypt(int key, const char* source)
 	return true;
 }
 
-bool Cryptor::EncryptDirectory(const char* path)
+bool Cryptor::EncryptDirectory(int key, const char* path)
 {
-	std::stringstream keys;
 
-	encryptDirectoryHelper(path, keys);
+	encryptDirectoryHelper(key, path);
 
-	std::ofstream output("Keys.txt");
-	if (output.is_open())
-	{
-		output << keys.rdbuf();
-	}
-
+	ThreadPool::GetInstance().WaitForThreads(FLAG_THREAD::ENCRYPT);
 	return true;
 }
 
@@ -140,23 +136,18 @@ std::stringstream Cryptor::Decrypt(int key, const char* source)
 	return ss;
 }
 
-void Cryptor::encryptDirectoryHelper(const char* path, std::stringstream& keys)
+void Cryptor::encryptDirectoryHelper(int key, const char* path)
 {
-	EngineRand rand(time(NULL));
-	unsigned long key = rand.Rand();
 	for (auto& entry : std::filesystem::directory_iterator(path))
 	{
 		if (entry.is_directory())
 		{
-			encryptDirectoryHelper(entry.path().generic_string().c_str(), keys);
-			std::cout << "Encrypted folder\t" << entry.path().generic_string().c_str() << std::endl;
+			encryptDirectoryHelper(key, entry.path().generic_string().c_str());
 		}
 		else
 		{
-			Encrypt(key, entry.path().generic_string().c_str());
-			std::cout << "Encrypted file\t\t" << entry.path().generic_string().c_str() << " With key: " << key << std::endl;
-			keys << entry.path().generic_string().c_str() << " " << key << "\n";
+			EncryptTask task(key, entry.path().generic_string());
+			task.Execute();
 		}
-		key = rand.Rand();
 	}
 }
