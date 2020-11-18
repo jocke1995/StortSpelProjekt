@@ -60,9 +60,17 @@ void Shop::Create2DGUI()
 	for (int i = 0; i < GetInventorySize(); i++)
 	{
 		Upgrade* upgrade = m_AllAvailableUpgrades.find(m_InventoryNames.at(i))->second;
-		std::string textToRender = upgrade->GetDescription(upgrade->GetLevel() + 1);
-		textToRender += "\nPrice: " + std::to_string(GetPrice(GetInventoryNames().at(i)));
-		textToRender += "    Next Level: " + std::to_string(upgrade->GetLevel() + 1);
+
+		// Bought Text on the buttons.
+		std::string textToRender = s_UpgradeBoughtText;
+		if (m_InventoryIsBought.at(i) == false)
+		{
+			// If the upgrade isn't bought, write the description on the button
+			textToRender = upgrade->GetDescription(upgrade->GetLevel() + 1);
+			textToRender += "\nPrice: " + std::to_string(GetPrice(GetInventoryNames().at(i)));
+			textToRender += "    Next Level: " + std::to_string(upgrade->GetLevel() + 1);
+		}
+		
 		float2 textPos = { 0.1f, 0.15f * (i + 1) + 0.1f };
 		float2 textPadding = { 0.5f, 0.0f };
 		float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -274,7 +282,7 @@ void Shop::upgradePressed(ButtonPressed* evnt)
 				m_InventoryIsBought.at(i) = true;
 				ApplyUppgrade(m_InventoryNames.at(i));
 
-				SceneManager::GetInstance().GetActiveScene()->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("UPGRADE BOUGHT", "upgrade" + std::to_string(i));
+				SceneManager::GetInstance().GetActiveScene()->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(s_UpgradeBoughtText, "upgrade" + std::to_string(i));
 			}
 		}
 	}

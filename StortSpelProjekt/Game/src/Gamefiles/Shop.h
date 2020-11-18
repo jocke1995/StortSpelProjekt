@@ -84,6 +84,8 @@ private:
 	Font* m_pArial = nullptr;
 
 	bool m_DisplayingShopGUI = false;
+
+	static inline std::string s_UpgradeBoughtText = "UPGRADE BOUGHT";
 };
 
 #endif // !SHOP_H
