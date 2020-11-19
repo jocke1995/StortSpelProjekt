@@ -68,7 +68,7 @@ void Player::onResetGame(ResetGame* evnt)
 	mec->SetAttackInterval(0.8);
 	component::RangeComponent* rac = gamePlayer->GetComponent<component::RangeComponent>();
 	rac->SetDamage(10);
-	rac->SetVelocity(50);
+	rac->SetVelocity(150);
 	rac->SetAttackInterval(0.8);
 
 	Entity* shopPlayer = SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player");

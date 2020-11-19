@@ -36,9 +36,9 @@ void component::CurrencyComponent::ChangeBalance(Death* evnt)
 		{
 			m_Balance += 20;
 		}
-		else if (enemyType.find("enemyConan") != std::string::npos)
+		else if (enemyType.find("enemySpider") != std::string::npos)
 		{
-			m_Balance += 30;
+			m_Balance += 10;
 		}
 		else if (enemyType.find("enemyDemon") != std::string::npos)
 		{
