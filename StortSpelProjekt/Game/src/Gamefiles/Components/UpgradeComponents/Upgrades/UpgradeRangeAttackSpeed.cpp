@@ -17,7 +17,7 @@ UpgradeRangeAttackSpeed::UpgradeRangeAttackSpeed(Entity* parent) : Upgrade(paren
 	m_AttackPerSecond = 1.0f / m_BaseAttackSpeed;
 	// how many percent do you want to increase attack speed with?
 	m_Percent = 10;
-	m_UpgradeFactor = m_AttackPerSecond * (static_cast<float>(m_Percent)/100);
+	m_UpgradeFactor = m_AttackPerSecond * (static_cast<float>(m_Percent)/100.0);
 }
 
 UpgradeRangeAttackSpeed::~UpgradeRangeAttackSpeed()
@@ -28,6 +28,7 @@ void UpgradeRangeAttackSpeed::ApplyStat()
 {
 	m_AttackPerSecond += m_UpgradeFactor;
 	m_pParentEntity->GetComponent<component::RangeComponent>()->SetAttackInterval(1.0f / m_AttackPerSecond);
+	Log::Print("RANGE: %f\n", 1.0f / m_AttackPerSecond);
 }
 
 void UpgradeRangeAttackSpeed::ApplyBoughtUpgrade()
