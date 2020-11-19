@@ -211,7 +211,8 @@ private:
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::GUI2DComponent*> m_TextComponents;
 	std::vector<component::GUI2DComponent*> m_QuadComponents;
-	std::vector<component::ParticleEmitterComponent*> m_ParticleEmitterComponents;
+	std::vector<component::ProgressBarComponent*> m_ProgressBarComponents;
+
 	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
@@ -251,7 +252,10 @@ private:
 	void createFences();
 	void waitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
 	void waitForGPU();
+
+	// bad design but its ok since we have focus on getting the game to work
 	void setRenderTasksGUI2DComponents();
+	void setProgressBarComponents();
 
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene
 	//void waitForCopyOnDemand();

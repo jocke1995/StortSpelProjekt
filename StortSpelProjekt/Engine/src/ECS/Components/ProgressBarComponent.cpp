@@ -8,6 +8,8 @@ namespace component
 	ProgressBarComponent::ProgressBarComponent(Entity* parent, float3 startPosition, float width, float height)
 		:Component(parent)
 	{
+		m_Id = s_ProgressBarComponentCounter++;
+
 		for (unsigned int i = 0; i < 2; i++)
 		{
 			m_QuadData[i].position = startPosition;
@@ -15,6 +17,11 @@ namespace component
 			m_QuadData[i].maxWidth = width;
 			m_QuadData[i].maxHeight = height;
 		}
+	}
+
+	bool ProgressBarComponent::operator==(const ProgressBarComponent& other)
+	{
+		return m_Id == other.m_Id;
 	}
 
 	ProgressBarComponent::~ProgressBarComponent()
@@ -49,6 +56,12 @@ namespace component
 		return m_QuadData[0].position;
 	}
 
+	const float ProgressBarComponent::GetCurrentProgressBarPercent() const
+	{
+		// Only [1] will be the one that changes, since [0] is the background and will allways be at its full (1.0)
+		return m_QuadData[1].activePercent;
+	}
+
 	const float ProgressBarComponent::GetMaxHeight() const
 	{
 		// The quads will have the same maxHeight, so it doesn't matter which one is returned
@@ -75,10 +88,12 @@ namespace component
 		if (newProgressBarPercent < 0)
 		{
 			Log::PrintSeverity(Log::Severity::WARNING, "Trying to set progress bar percent below zero\n");
+			newProgressBarPercent = 0.0f;
 		}
 		else if (newProgressBarPercent > 1.0f)
 		{
 			Log::PrintSeverity(Log::Severity::WARNING, "Trying to set progress bar percent above one\n");
+			newProgressBarPercent = 1.0f;
 		}
 
 		// Only [1] will update, since [0] is the background and should allways be at its full

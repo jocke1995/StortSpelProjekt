@@ -818,6 +818,7 @@ void Renderer::InitParticleEmitterComponent(component::ParticleEmitterComponent*
 void Renderer::InitProgressBarComponent(component::ProgressBarComponent* component)
 {
 	// Add to the renderTask
+	m_ProgressBarComponents.push_back(component);
 
 	// Create constant buffers
 	for (unsigned int i = 0; i < 2; i++)
@@ -837,6 +838,9 @@ void Renderer::InitProgressBarComponent(component::ProgressBarComponent* compone
 		Resource* defaultR = component->m_ProgressBars[i]->GetConstantBuffer()->GetDefaultResource();
 		submitToCpft(&std::make_tuple(uploadR, defaultR, data));
 	}
+
+	// Update the vector in the renderTask
+	setProgressBarComponents();
 }
 
 void Renderer::UnInitSkyboxComponent(component::SkyboxComponent* component)
@@ -1064,13 +1068,23 @@ void Renderer::UnInitParticleEmitterComponent(component::ParticleEmitterComponen
 
 void Renderer::UnInitProgressBarComponent(component::ProgressBarComponent* component)
 {
+	// Remove from renderer so it wont be drawn in the renderTask
+	unsigned int counter = 0;
+	for (component::ProgressBarComponent* pbc : m_ProgressBarComponents)
+	{
+		if (pbc == component)
+		{
+			m_ProgressBarComponents.erase(m_ProgressBarComponents.begin() + counter);
+		}
+		counter++;
+	}
+	// Update the vector in the renderTask
+	setProgressBarComponents();
+	
 	// Remove from CopyPerFrame
-	CopyPerFrameTask* cpft = nullptr;
-	cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-
 	for (unsigned int i = 0; i < 2; i++)
 	{
-		cpft->ClearSpecific(component->m_ProgressBars[i]->GetConstantBuffer()->GetUploadResource());
+		clearSpecificCpft(component->m_ProgressBars[i]->GetConstantBuffer()->GetUploadResource());
 	}
 }
 
@@ -2415,6 +2429,11 @@ void Renderer::setRenderTasksGUI2DComponents()
 {
 	static_cast<QuadTask*>(m_RenderTasks[RENDER_TASK_TYPE::QUAD])->SetQuadComponents(&m_QuadComponents);
 	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
+}
+
+void Renderer::setProgressBarComponents()
+{
+	//static_cast<ProgressBarTask*>(m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR])->SetProgressBarComponents(&m_ProgressBarComponents);
 }
 
 void Renderer::waitForFrame(unsigned int framesToBeAhead)

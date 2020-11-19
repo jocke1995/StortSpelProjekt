@@ -7,12 +7,15 @@
 
 class ProgressBar;
 
+static unsigned int s_ProgressBarComponentCounter = 0;
+
 namespace component
 {
 	class ProgressBarComponent : public Component
 	{
 	public:
 		ProgressBarComponent(Entity* parent, float3 startPosition, float width, float height);
+		bool operator==(const ProgressBarComponent& other);
 		virtual ~ProgressBarComponent();
 
 		void Update(double dt);
@@ -21,7 +24,7 @@ namespace component
 
 		// Gets
 		const float3 GetPosition() const;
-
+		const float GetCurrentProgressBarPercent() const;
 		const float GetMaxHeight() const;
 		const float GetMaxWidth() const;
 
@@ -34,12 +37,13 @@ namespace component
 		friend class Renderer;
 		std::array<ProgressBar*, 2> m_ProgressBars;
 
-
 		// 0 will be overlay, 1 will be the actual progressBar
 		std::array<PROGRESS_BAR_DATA, 2> m_QuadData;
 
 		// Should be between 0-1
 		float m_CurrentProgressBarPercent = 1.0f;
+
+		unsigned int m_Id = 0;
 	};
 }
 
