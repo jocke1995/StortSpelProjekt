@@ -30,8 +30,6 @@ VS_OUT VS_main(uint vID : SV_VertexID)
 {
 	VS_OUT output = (VS_OUT)0;
 
-	float halfSize = 4.0f;
-
 	vertex v = meshes[cbPerObject.info.vertexDataIndex][vID];
 
 	float3x3 camSpace = { 
@@ -42,8 +40,16 @@ VS_OUT VS_main(uint vID : SV_VertexID)
 	camSpace = transpose(camSpace);
 
 	// v.pos is from -1 -> 1, always 0 on z
-	float3 vertexPosition = progressBarData.position + mul(v.pos * halfSize, camSpace);
-	//float3 vertexPosition = progressBarData.position + v.pos * halfSize;
+	v.pos.x *= progressBarData.maxWidth;
+	v.pos.y *= progressBarData.maxHeight;
+
+	// Beautiful hack, we only wanna change the 2 vertices on the right
+	if (vID == 0 || vID == 2)
+	{
+		v.pos.x -= progressBarData.maxWidth * 2 * (1.0f - progressBarData.activePercent);
+	}
+
+	float3 vertexPosition = progressBarData.position + mul(v.pos, camSpace);
 
 	//							world 					VP
 	output.pos = mul(float4(vertexPosition, 1), cbPerObject.WVP);

@@ -13,10 +13,13 @@ namespace component
 		for (unsigned int i = 0; i < 2; i++)
 		{
 			m_QuadData[i].position = startPosition;
-			m_QuadData[i].activePercent = 1.0f - (i*0.5f);	// TODO: remove this code
+			m_QuadData[i].activePercent = 1.0f;
 			m_QuadData[i].maxWidth = width;
 			m_QuadData[i].maxHeight = height;
 		}
+
+		m_QuadData[0].pad1 = { 1.0f, 1.0f };
+		m_QuadData[1].pad1 = { 0.0f, 0.0f };
 	}
 
 	bool ProgressBarComponent::operator==(const ProgressBarComponent& other)

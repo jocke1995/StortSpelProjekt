@@ -726,7 +726,7 @@ Scene* JockesTestScene(SceneManager* sm)
 
     entity = scene->AddEntity("progressBarTest2");
     startPosition = { 10.0f, 10.0f, 0.0f };
-    pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 1.0f, 1.0f);
+    pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 5.0f, 1.0f);
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&JockeUpdateScene);
     return scene;
@@ -1773,6 +1773,15 @@ void JockeUpdateScene(SceneManager* sm, double dt)
     //plc->SetColor({ col, col, 0.0f });
     //
     //intensity += 0.005f;
+
+    Entity* ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest2");
+    component::ProgressBarComponent* pbc = ent->GetComponent<component::ProgressBarComponent>();
+
+    static float counter = 0.0f;
+    pbc->SetProgressBarPercent(1.0 - abs(sin(counter)));
+
+    counter += 0.005f;
+
 }
 
 void FredriksUpdateScene(SceneManager* sm, double dt)

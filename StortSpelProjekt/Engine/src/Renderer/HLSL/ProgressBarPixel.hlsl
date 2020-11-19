@@ -9,6 +9,9 @@ struct VS_OUT
 ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
 Texture2D textures[] : register(t0);
 
+// The ProgressBar Specifics is stored in here.
+ConstantBuffer<PROGRESS_BAR_DATA> progressBarData : register(b6, space3);
+
 SamplerState point_Wrap : register (s5);
 
 float4 PS_main(VS_OUT input) : SV_TARGET0
@@ -17,5 +20,9 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 	//float4 texColor	= textures[cbPerObject.info.textureAlbedo].Sample(point_Wrap, input.uv);
 	//return float4(texColor.rgb, texColor.a);
 
-	return float4(0.4f, 0.0f, 0.6f, 1.0f);
+	if (progressBarData.pad1.x == 0.0f)
+	{
+		return float4(0.0f, 1.0f, 0.0f, 1.0f);
+	}
+	return float4(1.0f, 0.0f, 0.0f, 1.0f);
 }

@@ -80,29 +80,33 @@ void ProgressBarRenderTask::Execute()
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
 	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
+	DirectX::XMMATRIX VPTransposed = *viewProjMatTrans;
+
+	SlotInfo info = {};
+	info.vertexDataIndex = m_pQuad->GetSRV()->GetDescriptorHeapIndex();
+
+	// Draw a quad (m_pParticleQuad)
+	size_t num_Indices = m_pQuad->GetNumIndices();
 
 	for (component::ProgressBarComponent* pbc: m_ProgressBarComponents)
 	{
-		// Set the constantBuffer
-		D3D12_GPU_VIRTUAL_ADDRESS gpuVA = pbc->m_ProgressBars[0]->GetConstantBuffer()->GetCBV()->GetResource()->GetGPUVirtualAdress();
-		commandList->SetGraphicsRootConstantBufferView(RS::CBV0, gpuVA);
+		for (unsigned int i = 0; i < 2; i++)
+		{
+			// Set the constantBuffer
+			D3D12_GPU_VIRTUAL_ADDRESS gpuVA = pbc->m_ProgressBars[i]->GetConstantBuffer()->GetCBV()->GetResource()->GetGPUVirtualAdress();
+			commandList->SetGraphicsRootConstantBufferView(RS::CBV0, gpuVA);
+			
+			//info.textureAlbedo = texture->GetDescriptorHeapIndex();
 
-		// Draw a quad (m_pParticleQuad)
-		size_t num_Indices = m_pQuad->GetNumIndices();
-		SlotInfo info = {};
-		info.vertexDataIndex = m_pQuad->GetSRV()->GetDescriptorHeapIndex();
-		//info.textureAlbedo = texture->GetDescriptorHeapIndex();
+			// Create a CB_PER_OBJECT struct
+			// Hack: sending in tcPos specially in this renderTask
+			CB_PER_OBJECT_STRUCT perObject = { {}, VPTransposed, info };
 
-		DirectX::XMMATRIX VPTransposed = *viewProjMatTrans;
+			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-		// Create a CB_PER_OBJECT struct
-		// Hack: sending in tcPos specially in this renderTask
-		CB_PER_OBJECT_STRUCT perObject = { {}, VPTransposed, info };
-
-		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
-
-		commandList->IASetIndexBuffer(m_pQuad->GetIndexBufferView());
-		commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+			commandList->IASetIndexBuffer(m_pQuad->GetIndexBufferView());
+			commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+		}
 	}
 
 	// Change state on front/backbuffer
