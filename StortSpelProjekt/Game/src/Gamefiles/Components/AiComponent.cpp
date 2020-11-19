@@ -195,7 +195,7 @@ float3 component::AiComponent::setAimDirection()
 	float3 parentPos = m_pParent->GetComponent<TransformComponent>()->GetTransform()->GetPositionFloat3();
 	// set direction
 	float3 direction = targetPos - parentPos;
-	double angle = std::atan2(direction.x, direction.z);
+	double angle = std::atan2(m_pParentTrans->GetInvDir() * direction.x, m_pParentTrans->GetInvDir() * direction.z);
 	CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
 	cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 	return direction;
@@ -482,6 +482,8 @@ void component::AiComponent::updateMelee(double dt)
 
 		if (m_DistanceToPlayer <= m_AttackingDistance)
 		{
+			vel = m_pParentTrans->GetVelocity() * 0.1;
+			cc->SetVelVector(vel * m_DirectionPath.x / m_DistancePath, vel * 2 * m_DirectionPath.y / m_DistancePath, vel * m_DirectionPath.z / m_DistancePath);
 			// TODO: fix this when meele attack is implemented
 			HealthComponent* hc = m_pTarget->GetComponent<component::HealthComponent>();
 			if (hc != nullptr)
@@ -644,7 +646,7 @@ void component::AiComponent::pathFinding()
 	{
 		turnToPlayer = true;
 		float3 dirToPlayer = m_pTargetTrans->GetPositionFloat3() - m_pParentTrans->GetPositionFloat3();
-		double angle = std::atan2(dirToPlayer.x, dirToPlayer.z);
+		double angle = std::atan2(m_pParentTrans->GetInvDir() * dirToPlayer.x, m_pParentTrans->GetInvDir() * dirToPlayer.z);
 		cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		m_NextTargetPos = pointOnCircle;
 		if (m_DistanceToPlayer <= m_TargetCircleRadius + 0.5)
@@ -662,7 +664,7 @@ void component::AiComponent::pathFinding()
 
 	if (!(m_Flags & F_AI_FLAGS::CAN_ROLL) && !turnToPlayer)
 	{
-		double angle = std::atan2(m_DirectionPath.x, m_DirectionPath.z);
+		double angle = std::atan2(m_pParentTrans->GetInvDir() * m_DirectionPath.x, m_pParentTrans->GetInvDir() * m_DirectionPath.z);
 		cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 	}
 	m_DistancePath = m_DirectionPath.length();
@@ -681,7 +683,7 @@ void component::AiComponent::randMovement()
 
 	if (!(m_Flags & F_AI_FLAGS::CAN_ROLL))
 	{
-		double angle = std::atan2(moveX, moveZ);
+		double angle = std::atan2(m_pParentTrans->GetInvDir() * moveX, m_pParentTrans->GetInvDir() * moveZ);
 		cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 	}
 	cc->SetVelVector(min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel), 0.0f, min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel));

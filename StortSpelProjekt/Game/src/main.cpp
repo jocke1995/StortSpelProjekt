@@ -138,7 +138,8 @@ Scene* GameScene(SceneManager* sm)
 
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");    
-    Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
+    Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
+    Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
@@ -203,7 +204,6 @@ Scene* GameScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     melc = entity->AddComponent<component::MeleeComponent>();
     // range damage should be at least 10 for ranged life steal upgrade to work
-    // range velocity should be 50, otherwise range velocity upgrade does not make sense (may be scrapped later)
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 10, 150);
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(50);
@@ -257,7 +257,7 @@ Scene* GameScene(SceneManager* sm)
 #pragma region enemy definitions
     // melee
 	EnemyComps zombie = {};
-	zombie.model = enemyModel;
+	zombie.model = enemyZombieModel;
 	zombie.hp = 20;
 	zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
@@ -266,12 +266,31 @@ Scene* GameScene(SceneManager* sm)
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
 	zombie.movementSpeed = 45.0f;
-	zombie.attackingDist = 1.5f;
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
 	zombie.scale = 0.04;
 	zombie.detectionRad = 500.0f;
 	zombie.attackingDist = 1.5f;
+    zombie.mass = 150.0f;
+
+    // quick melee
+    EnemyComps spider = {};
+    spider.model = enemySpiderModel;
+    spider.hp = 5;
+    spider.sound3D = L"Bruh";
+    spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+    spider.aiFlags = 0;
+    spider.meleeAttackDmg = 2.0f;
+    spider.attackInterval = 0.5f;
+    spider.attackSpeed = 0.2f;
+    spider.movementSpeed = 90.0f;
+    spider.rot = { 0.0, 0.0, 0.0 };
+    spider.targetName = "player";
+    spider.scale = 0.01;
+    spider.detectionRad = 500.0f;
+    spider.attackingDist = 1.5f;
+    spider.invertDirection = true;
+    spider.mass = 100.0f;
 
     // ranged
     EnemyComps rangedDemon = {};
@@ -291,6 +310,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.rangeAttackDmg = 10;
     rangedDemon.rangeVelocity = 50.0f;
     rangedDemon.projectileModel = sphereModel;
+    rangedDemon.mass = 300.0f;
 
 #pragma endregion
 
@@ -300,6 +320,7 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
+    enemyFactory.DefineEnemy("enemySpider", &spider);
     enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
 #pragma endregion
 
