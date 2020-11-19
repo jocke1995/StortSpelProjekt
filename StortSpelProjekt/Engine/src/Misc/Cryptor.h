@@ -10,8 +10,8 @@ public:
 	static bool Decrypt(int key, const char* source, const char* destination);
 	static bool Decrypt(int key, const char* source, std::stringstream* ss);
 	static bool Decrypt(int key, const wchar_t* source, std::wstringstream* wss);
+	static constexpr unsigned int GetGlobalKey();
 private:
 	static void encryptDirectoryHelper(int key, const char* path);
 };
-
 #endif

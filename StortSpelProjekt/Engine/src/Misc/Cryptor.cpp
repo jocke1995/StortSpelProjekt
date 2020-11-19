@@ -205,6 +205,11 @@ bool Cryptor::Decrypt(int key, const wchar_t* source, std::wstringstream* wss)
 	return true;
 }
 
+constexpr unsigned int Cryptor::GetGlobalKey()
+{
+	return 11;
+}
+
 void Cryptor::encryptDirectoryHelper(int key, const char* path)
 {
 	for (auto& entry : std::filesystem::directory_iterator(path))
