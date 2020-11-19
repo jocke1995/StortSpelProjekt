@@ -51,10 +51,31 @@ void Shop::Create2DGUI()
 		return;
 	}
 
-	/* ------------------------- Shop Buttons --------------------------- */
+	
 	component::GUI2DComponent* gui = nullptr;
 	SceneManager& sm = SceneManager::GetInstance();
 	Scene* shopScene = sm.GetScene("ShopScene");
+
+	/* ---------------------------Background----------------------------- */
+	Entity* entity = shopScene->AddEntity("background");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	float2 quadPos = { 0.0f, 0.1f };
+	float2 quadScale = { 1.0f, 0.8f };
+	float4 blended = { 1.0, 1.0, 1.0, 0.75 };
+	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	Texture* background = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/board2.png");
+	gui->GetQuadManager()->CreateQuad(
+		"background",
+		quadPos, quadScale,
+		false, false,
+		1,
+		notBlended,
+		background
+	);
+	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
+	sm.AddEntity(entity, shopScene);
+
+	/* ------------------------- Shop Buttons --------------------------- */
 	for (int i = 0; i < GetInventorySize(); i++)
 	{
 		Upgrade* upgrade = m_AllAvailableUpgrades.find(m_InventoryNames.at(i))->second;
@@ -69,9 +90,9 @@ void Shop::Create2DGUI()
 			textToRender += "    Next Level: " + std::to_string(upgrade->GetLevel() + 1);
 		}
 		
-		float2 textPos = { 0.1f, 0.15f * (i + 1) + 0.1f };
+		float2 textPos = { 0.17f, 0.152f * (i + 1) + 0.1f };
 		float2 textPadding = { 0.5f, 0.0f };
-		float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		float4 textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 		float2 textScale = { 0.3f, 0.3f };
 		float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -86,17 +107,19 @@ void Shop::Create2DGUI()
 		gui->GetTextManager()->SetText(textToRender, "upgrade" + std::to_string(i));
 		gui->GetTextManager()->SetBlend(textBlend, "upgrade" + std::to_string(i));
 
-		float2 quadPos = { 0.09f, 0.15f * (i + 1) + 0.099f };
-		float2 quadScale = { 0.75f, 0.1f };
+		float2 quadPos = { 0.1f, 0.15f * (i + 1) + 0.099f };
+		float2 quadScale = { 0.85f, 0.1f };
 		float4 blended = { 1.0, 1.0, 1.0, 0.75 };
 		float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+
+		Texture* shopBackground = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_hor.png");
 		gui->GetQuadManager()->CreateQuad(
 			"upgrade" + std::to_string(i),
 			quadPos, quadScale,
 			false, false,
-			1,
-			blended,
-			nullptr, { 0.0f, 0.0f, 0.0f });
+			2,
+			notBlended,
+			shopBackground);
 
 		// add the entity to the sceneManager so it can be spawned in in run time
 		entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
@@ -113,7 +136,7 @@ void Shop::Create2DGUI()
 			"upgradebutton" + std::to_string(i),
 			quadPos, quadScale,
 			true, true,
-			2,
+			3,
 			notBlended,
 			shopImage
 		);
@@ -126,13 +149,13 @@ void Shop::Create2DGUI()
 
 	// Reroll-button
 	gui = nullptr;
-	Entity* entity = shopScene->AddEntity("reroll");
+	entity = shopScene->AddEntity("reroll");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 
 	/*----------------Text-----------------*/
 	std::string textToRender = "Reroll the inventory in the shop";
 	textToRender += "\nPrice: 50 Coins";
-	float2 textPos = { 0.76f, 0.66f };
+	float2 textPos = { 0.76f, 0.67f };
 	float2 textPadding = { 0.5f, 0.0f };
 	float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	float2 textScale = { 0.3f, 0.3f };
@@ -147,15 +170,15 @@ void Shop::Create2DGUI()
 	gui->GetTextManager()->SetText(textToRender, "reroll");
 	gui->GetTextManager()->SetBlend(textBlend, "reroll");
 
-	float2 quadPos = { 0.75f, 0.65f };
-	float2 quadScale = { 0.2f, 0.3f };
-	float4 blended = { 1.0, 1.0, 1.0, 0.75 };
-	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	quadPos = { 0.75f, 0.66f };
+	quadScale = { 0.2f, 0.3f };
+	blended = { 1.0, 1.0, 1.0, 0.75 };
+	notBlended = { 1.0, 1.0, 1.0, 1.0 };
 	gui->GetQuadManager()->CreateQuad(
 		"reroll",
 		quadPos, quadScale,
 		false, false,
-		1,
+		2,
 		blended,
 		nullptr, { 0.0f, 0.0f, 0.0f });
 
@@ -166,13 +189,13 @@ void Shop::Create2DGUI()
 	entity = shopScene->AddEntity("reroll-button");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	quadPos = { 0.7f, 0.7f };
-	quadScale = { 0.3, 0.3f };
+	quadScale = { 0.2f, 0.2f };
 	Texture* rerollImage = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Reroll.png");
 	gui->GetQuadManager()->CreateQuad(
 		"reroll-button",
 		quadPos, quadScale,
 		true, true,
-		2,
+		3,
 		notBlended,
 		rerollImage
 	);
@@ -210,6 +233,9 @@ void Shop::Clear2DGUI()
 			sm.RemoveEntity(ent2, shopScene);
 		}
 	}
+
+	ent1 = shopScene->GetEntity("background");
+	sm.RemoveEntity(ent1, shopScene);
 
 	//Removal of text and texture for reroll
 	ent1 = shopScene->GetEntity("reroll");
