@@ -509,12 +509,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 	float rotateY = -(static_cast<float>(y) / 6.0 - static_cast<float>(y) / 3.0) * PI;
 	float rotateX = -(static_cast<float>(x) / 800.0) * PI;
 
-
-	
-
 	m_Pitch = max(min(m_Pitch + rotateY, 3.0f), -3.0f);
-
-	
 
 	m_Yaw = m_Yaw + rotateX;
 
@@ -524,7 +519,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 		// Fix spontanious jumping in y-axis, Filip/Leo knows
 		rotateY /= 2;
-		
+
 
 		m_RotateX = rotateX;
 		m_RotateY = rotateY;
@@ -536,7 +531,6 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		{
 			// Get new direction
 			float3 right = m_pCamera->GetRightVectorFloat3();
-			//float3 up = float3(0, 1, 0);
 			float3 up = m_pCamera->GetUpVectorFloat3();
 			float3 forward = right.cross(up);
 			right.normalize();
