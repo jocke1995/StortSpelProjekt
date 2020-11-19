@@ -141,75 +141,75 @@ void UpgradeManager::fillUpgradeMap()
 {
 	Upgrade* upgrade;
 
-	//// Adding RangeVelocity Upgrade - The range velocity is set on rangecomponent which goes on the player
-	//upgrade = new UpgradeRangeVelocity(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_RANGE_VELOCITY);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding RangeVelocity Upgrade - The range velocity is set on rangecomponent which goes on the player
+	upgrade = new UpgradeRangeVelocity(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_VELOCITY);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	//// Adding Range lifesteal Upgrade
-	//upgrade = new UpgradeRangeLifeSteal(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_RANGE_LIFESTEAL);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding Range lifesteal Upgrade
+	upgrade = new UpgradeRangeLifeSteal(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_LIFESTEAL);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	//// Adding MeleeDamage Upgrade
-	//upgrade = new UpgradeMeleeDamage(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_MELEE_DAMAGE);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding MeleeDamage Upgrade
+	upgrade = new UpgradeMeleeDamage(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_MELEE_DAMAGE);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	//// Adding HealthBoost Upgrade
-	//upgrade = new UpgradeHealthBoost(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_HEALTH_BOOST);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding HealthBoost Upgrade
+	upgrade = new UpgradeHealthBoost(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_HEALTH_BOOST);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	//// Adding BlueJewel Upgrade
-	//upgrade = new UpgradeBlueJewel(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_BLUE_JEWEL);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding BlueJewel Upgrade
+	upgrade = new UpgradeBlueJewel(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_BLUE_JEWEL);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	//// Adding RangeBounce Upgrade
-	//upgrade = new UpgradeRangeBounce(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_RANGE_BOUNCE);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding RangeBounce Upgrade
+	upgrade = new UpgradeRangeBounce(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_BOUNCE);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	//// Adding HealthRegen Upgrade
-	//upgrade = new UpgradeHealthRegen(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_HEALTH_REGEN);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding HealthRegen Upgrade
+	upgrade = new UpgradeHealthRegen(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_HEALTH_REGEN);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	//// Adding PoisonAttack Upgrade
-	//upgrade = new UpgradePoisonAttack(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_POISON_ATTACK);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding PoisonAttack Upgrade
+	upgrade = new UpgradePoisonAttack(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_POISON_ATTACK);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	//// Adding KnockBack Upgrade
-	//upgrade = new UpgradeKnockBack(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_KNOCKBACK);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding KnockBack Upgrade
+	upgrade = new UpgradeKnockBack(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_KNOCKBACK);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	//// Adding Range Damage Upgrade
-	//upgrade = new UpgradeRangeDamage(m_pParentEntity);
-	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	//upgrade->SetID(UPGRADE_RANGE_DAMAGE);
-	//// add the upgrade to the list of all upgrades
-	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+	// Adding Range Damage Upgrade
+	upgrade = new UpgradeRangeDamage(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_DAMAGE);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
 	// Adding Range Attack Speed Upgrade
 	upgrade = new UpgradeRangeAttackSpeed(m_pParentEntity);

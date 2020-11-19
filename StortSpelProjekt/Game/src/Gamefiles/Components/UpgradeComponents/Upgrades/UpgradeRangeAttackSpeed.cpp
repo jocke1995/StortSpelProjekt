@@ -15,7 +15,9 @@ UpgradeRangeAttackSpeed::UpgradeRangeAttackSpeed(Entity* parent) : Upgrade(paren
 	m_ImageName = "default.png";
 	m_BaseAttackSpeed = m_pParentEntity->GetComponent<component::RangeComponent>()->GetAttackInterval();
 	m_AttackPerSecond = 1.0f / m_BaseAttackSpeed;
-	m_UpgradeFactor = m_AttackPerSecond * 0.2f;
+	// how many percent do you want to increase attack speed with?
+	m_Percent = 10;
+	m_UpgradeFactor = m_AttackPerSecond * (static_cast<float>(m_Percent)/100);
 }
 
 UpgradeRangeAttackSpeed::~UpgradeRangeAttackSpeed()
@@ -26,7 +28,6 @@ void UpgradeRangeAttackSpeed::ApplyStat()
 {
 	m_AttackPerSecond += m_UpgradeFactor;
 	m_pParentEntity->GetComponent<component::RangeComponent>()->SetAttackInterval(1.0f / m_AttackPerSecond);
-	Log::Print("RANGEATTACKSPEED: %f\n", 1.0f / m_AttackPerSecond);
 }
 
 void UpgradeRangeAttackSpeed::ApplyBoughtUpgrade()
@@ -42,5 +43,5 @@ void UpgradeRangeAttackSpeed::IncreaseLevel()
 
 std::string UpgradeRangeAttackSpeed::GetDescription(unsigned int level)
 {
-	return "Range Attack Speed: increases attack speed with " + std::to_string(20 * level) + "\% (20\% per level";
+	return "Range Attack Speed: increases ranged attack speed with " + std::to_string(m_Percent * level) + "\% (" + std::to_string(m_Percent) + "\% per level)";
 }

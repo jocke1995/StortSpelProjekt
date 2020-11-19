@@ -227,7 +227,7 @@ Scene* GameScene(SceneManager* sm)
 
     melc->SetDamage(10);
     melc->SetAttackInterval(0.8);
-    ranc->SetAttackInterval(0.8);
+    ranc->SetAttackInterval(1.0);
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
@@ -902,10 +902,10 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     trans->SetRotationX(rotValue);
     rotValue += 0.005f;
 
-    // Kod-påkod-påkod-påkod-påkod-lösning
-    // Detta ska egentligen stå i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
-    // spelare i alla scener så kan vi ej nå den aktiva spelaren i den scenen därifrån.
-    // TODO: Flytta in den i den funktionen när vi har samma spelare i alla scener via Player::GetInstance().
+    // Kod-pï¿½kod-pï¿½kod-pï¿½kod-pï¿½kod-lï¿½sning
+    // Detta ska egentligen stï¿½ i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
+    // spelare i alla scener sï¿½ kan vi ej nï¿½ den aktiva spelaren i den scenen dï¿½rifrï¿½n.
+    // TODO: Flytta in den i den funktionen nï¿½r vi har samma spelare i alla scener via Player::GetInstance().
     if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == true)
     {
         component::CollisionComponent* cc = sm->GetActiveScene()->GetEntity("player")->GetComponent<component::CollisionComponent>();
