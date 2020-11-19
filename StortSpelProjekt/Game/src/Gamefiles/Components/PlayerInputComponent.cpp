@@ -130,7 +130,6 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 
 		// Move the camera in y-direction
 		cameraPos.y = min(max(cameraPos.y + m_RotateY * 3.0f * m_CameraDistance * static_cast<float>(dt), -80.0f), 80.0f);
-		m_pCamera->SetPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 
 		m_RotateX *= 100.0f * dt;
 
@@ -510,12 +509,22 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 	float rotateY = -(static_cast<float>(y) / 6.0 - static_cast<float>(y) / 3.0) * PI;
 	float rotateX = -(static_cast<float>(x) / 800.0) * PI;
 
+
+	
+
 	m_Pitch = max(min(m_Pitch + rotateY, 3.0f), -3.0f);
+
+	
+
 	m_Yaw = m_Yaw + rotateX;
 
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
 		rotateX = (static_cast<float>(x)) / 400.0 * PI;
+
+		// Fix spontanious jumping in y-axis, Filip/Leo knows
+		rotateY /= 2;
+		
 
 		m_RotateX = rotateX;
 		m_RotateY = rotateY;
@@ -527,11 +536,12 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		{
 			// Get new direction
 			float3 right = m_pCamera->GetRightVectorFloat3();
+			//float3 up = float3(0, 1, 0);
 			float3 up = m_pCamera->GetUpVectorFloat3();
 			float3 forward = right.cross(up);
 			right.normalize();
 			forward.normalize();
-
+			
 			// Determine if player is currently moving, if yes, update movement direction
 			double isMovingZ = static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::W)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::S));
 			double isMovingX = static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::D)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::A));
