@@ -360,7 +360,7 @@ void Shop::shopButtonPressed(ButtonPressed* evnt)
 		if (m_pPlayer->GetComponent<component::CurrencyComponent>()->GetBalace() >= REROLL_COST)
 		{
 			m_pPlayer->GetComponent<component::CurrencyComponent>()->ChangeBalance(-REROLL_COST);
-			updateShop();
+			rerollShop();
 		}
 	}
 }
@@ -373,7 +373,7 @@ void Shop::sceneChange(SceneChange* evnt)
 	}
 }
 
-void Shop::updateShop()
+void Shop::rerollShop()
 {
 	randomizeInventory();
 	Create2DGUI();

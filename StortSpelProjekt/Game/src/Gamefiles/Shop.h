@@ -58,7 +58,7 @@ public:
 private:
 	void shopButtonPressed(ButtonPressed* evnt);
 	void sceneChange(SceneChange* evnt);
-	void updateShop();
+	void rerollShop();
 
 	// upgradeManager
 	UpgradeManager* m_pUpgradeManager = nullptr;
