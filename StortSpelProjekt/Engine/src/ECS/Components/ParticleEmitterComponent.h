@@ -24,6 +24,7 @@ namespace component
 
         // Reset ParticleEffect
         void Play();
+        void Play(double duration);
         void Stop();
         bool IsPlaying() const;
 
@@ -35,6 +36,7 @@ namespace component
 
         ParticleEffect m_ParticleEffect;
         bool m_PlayOnInit;
+        double m_PlayDuration;
         
         bool m_IsPlaying = false;
     };

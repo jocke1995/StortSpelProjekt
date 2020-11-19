@@ -16,6 +16,7 @@
 component::ParticleEmitterComponent::ParticleEmitterComponent(Entity* parent, Texture2DGUI* texture, ParticleEffectSettings* settings, bool playOnInit)
 	:Component(parent), m_PlayOnInit(playOnInit), m_ParticleEffect(parent, Renderer::GetInstance().getCBVSRVUAVdHeap(), texture, settings)
 {
+	m_PlayDuration = 0;
 }
 
 component::ParticleEmitterComponent::~ParticleEmitterComponent()
@@ -24,6 +25,15 @@ component::ParticleEmitterComponent::~ParticleEmitterComponent()
 
 void component::ParticleEmitterComponent::RenderUpdate(double dt)
 {
+	if (m_PlayDuration != 0)
+	{
+		m_PlayDuration -= dt;
+		if (m_PlayDuration <= 0)
+		{
+			m_PlayDuration = 0;
+			Stop();
+		}
+	}
 }
 
 void component::ParticleEmitterComponent::OnInitScene()
@@ -56,6 +66,12 @@ void component::ParticleEmitterComponent::Play()
 	m_ParticleEffect.SetIsSpawning(true);
 	
 	m_IsPlaying = true;
+}
+
+void component::ParticleEmitterComponent::Play(double duration)
+{
+	Play();
+	m_PlayDuration = duration;
 }
 
 void component::ParticleEmitterComponent::Stop()

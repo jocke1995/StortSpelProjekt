@@ -341,6 +341,7 @@ Scene* LeosTestScene(SceneManager* sm)
 	zombie.scale = 1.0;
 	zombie.detectionRad = 500.0f;
 
+    EnemyFactory enemyFactory = EnemyFactory::GetInstance();
     enemyFactory.SetScene(scene);
 
     enemyFactory.AddSpawnPoint({ -10.0, 10.0, 340.0 });
@@ -1667,7 +1668,8 @@ Scene* BjornsTestScene(SceneManager* sm)
     //Physics::GetInstance().AddCollisionEntity(entity);
 
     // Adding enemy example
-    EnemyFactory enH(scene);
+    EnemyFactory enH = EnemyFactory::GetInstance();
+    enH.SetScene(scene);
     //enH.AddEnemy("rock", stoneModel, 5, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.01, float3{ 1.578, 0, 0 });
     // showing that using the wrong overload will send Warning to Log. 
     // and then automaticly use the correct overloaded function 

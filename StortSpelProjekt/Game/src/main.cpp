@@ -22,7 +22,6 @@ void GameInitScene(Scene* scene);
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
-EnemyFactory enemyFactory;
 GameGUI gameGUI;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -72,7 +71,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     {
         gameNetwork.SetScene(sceneManager->GetActiveScene());
         gameNetwork.SetSceneManager(sceneManager);
-        gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
+        gameNetwork.SetEnemies(EnemyFactory::GetInstance().GetAllEnemies());
     }
     double networkTimer = 0;
     double logicTimer = 0;
@@ -105,7 +104,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             }
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
-            enemyFactory.Update(updateRate);
+            EnemyFactory::GetInstance().Update(updateRate);
             gameGUI.Update(updateRate, sceneManager->GetActiveScene());
             UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
@@ -295,12 +294,13 @@ Scene* GameScene(SceneManager* sm)
 #pragma endregion
 
 #pragma region Enemyfactory
-    enemyFactory.SetScene(scene);
-    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
-    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
-    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("enemyZombie", &zombie);
-    enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
+    EnemyFactory* enemyFactory = &EnemyFactory::GetInstance();
+    enemyFactory->SetScene(scene);
+    enemyFactory->AddSpawnPoint({ 70, 5, 20 });
+    enemyFactory->AddSpawnPoint({ -20, 5, -190 });
+    enemyFactory->AddSpawnPoint({ -120, 10, 75 });
+    enemyFactory->DefineEnemy("enemyZombie", &zombie);
+    enemyFactory->DefineEnemy("enemyDemon", &rangedDemon);
 #pragma endregion
 
 #pragma region teleporter

@@ -63,8 +63,8 @@ struct EnemyComps
 class EnemyFactory
 {
 public:
-	EnemyFactory();
-	EnemyFactory(Scene* scene);
+	static EnemyFactory& GetInstance();
+
 	~EnemyFactory();
 
 	void SetScene(Scene* scene);
@@ -110,6 +110,8 @@ public:
 
 	void Update(double dt);
 private:
+	EnemyFactory();
+
 	void enemyDeath(Death* evnt);
 	void levelDone(LevelDone* evnt);
 	void onSceneSwitch(SceneChange* evnt);
