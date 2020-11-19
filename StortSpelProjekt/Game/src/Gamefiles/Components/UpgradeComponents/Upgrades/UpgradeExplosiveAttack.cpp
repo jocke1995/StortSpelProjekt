@@ -19,8 +19,10 @@ UpgradeExplosiveAttack::UpgradeExplosiveAttack(Entity* parent)
 	m_StartingPrice = m_Price;
 	
 	// percentage of damage done to steal as life
-	m_Radius = 2.0;
+	m_Radius = 3.0;
 	m_PercentageDamage = 0.5;
+
+	m_ImageName = "Explosion.png";
 }
 
 UpgradeExplosiveAttack::~UpgradeExplosiveAttack()
@@ -60,7 +62,7 @@ void UpgradeExplosiveAttack::OnRangedHit(Entity* target)
 		if (!target->HasComponent<component::ParticleEmitterComponent>())
 		{
 			ParticleEffectSettings settings = {};
-			settings.particleCount = 500;
+			settings.particleCount = 100;
 			settings.startValues.lifetime = m_Radius / 10.0f;
 			settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
 			settings.startValues.acceleration = { 0, 0, 0 };
@@ -77,7 +79,7 @@ void UpgradeExplosiveAttack::OnRangedHit(Entity* target)
 			target->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
 			target->GetComponent<component::ParticleEmitterComponent>()->OnInitScene();
 		}
-		target->GetComponent<component::ParticleEmitterComponent>()->Play(0.5f);
+		target->GetComponent<component::ParticleEmitterComponent>()->Play(0.4f);
 	}
 }
 
