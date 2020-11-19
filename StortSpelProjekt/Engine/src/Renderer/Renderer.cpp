@@ -75,6 +75,7 @@
 #include "DX12Tasks/SkyboxRenderTask.h"
 #include "DX12Tasks/QuadTask.h"
 #include "DX12Tasks/ParticleRenderTask.h"
+#include "DX12Tasks/ProgressBarRenderTask.h"
 
 // Copy 
 #include "DX12Tasks/CopyPerFrameTask.h"
@@ -1677,6 +1678,57 @@ void Renderer::initRenderTasks()
 
 #pragma endregion ForwardRendering
 
+#pragma region ProgressBar
+	/* Forward rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdProgressBar = {};
+	gpsdProgressBar.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdProgressBar.NumRenderTargets = 1;
+	gpsdProgressBar.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	// Depthstencil usage
+	gpsdProgressBar.SampleDesc.Count = 1;
+	gpsdProgressBar.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdProgressBar.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdProgressBar.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdProgressBar.RasterizerState.FrontCounterClockwise = false;
+
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdProgressBar.BlendState.RenderTarget[i] = defaultRTdesc;
+
+	// Depth descriptor
+	dsd = {};
+	dsd.DepthEnable = true;
+	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
+	// DepthStencil
+	dsd.StencilEnable = false;
+	gpsdProgressBar.DepthStencilState = dsd;
+	gpsdProgressBar.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdProgressBarVector;
+	gpsdProgressBarVector.push_back(&gpsdProgressBar);
+
+	RenderTask* progressBarRenderTask = new ProgressBarRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"ParticleVertex.hlsl",
+		L"ParticlePixel.hlsl",
+		&gpsdProgressBarVector,
+		L"ProgressBarPSO",
+		FLAG_THREAD::RENDER);
+
+	progressBarRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
+	progressBarRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
+	progressBarRenderTask->SetSwapChain(m_pSwapChain);
+	progressBarRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+	static_cast<ProgressBarRenderTask*>(progressBarRenderTask)->SetBillboardMesh(m_pQuadMesh);
+
+#pragma endregion ProgressBar
+
 #pragma region DownSampleTextureTask
 	/* Forward rendering without stencil testing */
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdDownSampleTexture = {};
@@ -2273,6 +2325,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE] = downSampleTask;
 	m_RenderTasks[RENDER_TASK_TYPE::QUAD] = quadTask;
 	m_RenderTasks[RENDER_TASK_TYPE::PARTICLE] = particleRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR] = progressBarRenderTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -2298,6 +2351,11 @@ void Renderer::initRenderTasks()
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
 		m_DirectCommandLists[i].push_back(shadowRenderTask->GetCommandInterface()->GetCommandList(i));
+	}
+
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(progressBarRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -2433,7 +2491,7 @@ void Renderer::setRenderTasksGUI2DComponents()
 
 void Renderer::setProgressBarComponents()
 {
-	//static_cast<ProgressBarTask*>(m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR])->SetProgressBarComponents(&m_ProgressBarComponents);
+	static_cast<ProgressBarRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR])->SetProgressBarComponents(&m_ProgressBarComponents);
 }
 
 void Renderer::waitForFrame(unsigned int framesToBeAhead)
