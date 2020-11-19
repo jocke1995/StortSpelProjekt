@@ -8,7 +8,8 @@ public:
 	static bool Encrypt(int key, const char* source);
 	static bool EncryptDirectory(int key, const char* path);
 	static bool Decrypt(int key, const char* source, const char* destination);
-	static std::stringstream Decrypt(int key, const char* source);
+	static bool Decrypt(int key, const char* source, std::stringstream* ss);
+	static bool Decrypt(int key, const wchar_t* source, std::wstringstream* wss);
 private:
 	static void encryptDirectoryHelper(int key, const char* path);
 };

@@ -2,6 +2,7 @@
 #include "Cryptor.h"
 #include <filesystem>
 #include <fstream>
+#include <comdef.h>
 #include "EngineRand.h"
 #include "Multithreading/ThreadPool.h"
 #include "Multithreading/EncryptTask.h"
@@ -10,18 +11,35 @@ bool Cryptor::Encrypt(int key, const char* source, const char* destination)
 {
 	EngineRand rand(key);
 	std::ifstream inStream(source);
-	std::ofstream outStream(destination);
+	std::stringstream ss;
 	char character;
 
-	if (inStream.is_open() && outStream.is_open())
+	if (inStream.is_open())
 	{
 		while (inStream.get(character))
 		{
 			character = (character + rand.Rand(0, 127)) % 127;
-			outStream << static_cast<unsigned int>(character) << " ";
+			ss << static_cast<unsigned int>(character) << " ";
 		}
 	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open input file %s with cryptor!", source);
+		return false;
+	}
 	inStream.close();
+
+	std::ofstream outStream(destination);
+	if (outStream.is_open())
+	{
+		outStream << ss.rdbuf();
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open output file %s with cryptor!", source);
+		return false;
+	}
+
 	outStream.close();
 	return true;
 }
@@ -44,12 +62,22 @@ bool Cryptor::Encrypt(int key, const char* source)
 			inStream.get(character);
 		}
 	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open input file %s with cryptor!", source);
+		return false;
+	}
 	inStream.close();
 
 	std::ofstream outStream(source);
 	if (outStream.is_open())
 	{
 		outStream << ss.rdbuf();
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open output file %s with cryptor!", source);
+		return false;
 	}
 
 	outStream.close();
@@ -91,6 +119,10 @@ bool Cryptor::Decrypt(int key, const char* source, const char* destination)
 		}
 		fclose(file);
 	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open input file %s with cryptor!", source);
+	}
 
 	std::ofstream outStream(destination);
 	if (outStream.is_open())
@@ -99,7 +131,7 @@ bool Cryptor::Decrypt(int key, const char* source, const char* destination)
 	}
 	else
 	{
-		outStream.close();
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open output file %s with cryptor!", source);
 		return false;
 	}
 
@@ -107,10 +139,9 @@ bool Cryptor::Decrypt(int key, const char* source, const char* destination)
 	return true;
 }
 
-std::stringstream Cryptor::Decrypt(int key, const char* source)
+bool Cryptor::Decrypt(int key, const char* source, std::stringstream* ss)
 {
 	EngineRand rand(key);
-	std::stringstream ss;
 
 	FILE* file = fopen(source, "r");
 
@@ -129,11 +160,49 @@ std::stringstream Cryptor::Decrypt(int key, const char* source)
 			{
 				break;
 			}
-			ss << actualChar;
+			*ss << actualChar;
 		}
 		fclose(file);
 	}
-	return ss;
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open file %s with cryptor!", source);
+		return false;
+	}
+	return true;
+}
+
+bool Cryptor::Decrypt(int key, const wchar_t* source, std::wstringstream* wss)
+{
+	EngineRand rand(key);
+	_bstr_t src(source);
+	FILE* file = fopen(src, "r");
+
+	unsigned char actualChar = 0;
+	unsigned int result = 0;
+	char res;
+	if (file != NULL)
+	{
+		while (true)
+		{
+			res = fscanf(file, "%d ", &result);
+			actualChar = static_cast<unsigned char>(result);
+			int randNum = rand.Rand(0, 127);
+			actualChar = (actualChar - randNum + 127) % 127;
+			if (res == EOF)
+			{
+				break;
+			}
+			*wss << actualChar;
+		}
+		fclose(file);
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open file %S with cryptor!", source);
+		return false;
+	}
+	return true;
 }
 
 void Cryptor::encryptDirectoryHelper(int key, const char* path)
