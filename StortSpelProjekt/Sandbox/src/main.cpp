@@ -720,9 +720,13 @@ Scene* JockesTestScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
 
     entity = scene->AddEntity("progressBarTest");
-    float3 startPosition = { 0.0f, 0.0f, 0.0f };
+    float3 startPosition = { 0.0f, 10.0f, 0.0f };
     pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 1.0f, 1.0f);
 
+
+    entity = scene->AddEntity("progressBarTest2");
+    startPosition = { 10.0f, 10.0f, 0.0f };
+    pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 1.0f, 1.0f);
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&JockeUpdateScene);
     return scene;

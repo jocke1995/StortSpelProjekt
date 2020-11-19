@@ -421,6 +421,11 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
 
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
 	// DownSample the texture used for bloom
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE];
 	renderTask->SetBackBufferIndex(backBufferIndex);
@@ -1256,6 +1261,7 @@ void Renderer::setRenderTasksPrimaryCamera()
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::PARTICLE]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR]->SetCamera(m_pScenePrimaryCamera);
 
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
@@ -1714,8 +1720,8 @@ void Renderer::initRenderTasks()
 	RenderTask* progressBarRenderTask = new ProgressBarRenderTask(
 		m_pDevice5,
 		m_pRootSignature,
-		L"ParticleVertex.hlsl",
-		L"ParticlePixel.hlsl",
+		L"ProgressBarVertex.hlsl",
+		L"ProgressBarPixel.hlsl",
 		&gpsdProgressBarVector,
 		L"ProgressBarPSO",
 		FLAG_THREAD::RENDER);
@@ -2355,12 +2361,12 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(progressBarRenderTask->GetCommandInterface()->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(forwardRenderTask->GetCommandInterface()->GetCommandList(i));
+		m_DirectCommandLists[i].push_back(progressBarRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)

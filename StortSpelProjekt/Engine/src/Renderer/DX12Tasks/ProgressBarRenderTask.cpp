@@ -1,31 +1,28 @@
 #include "stdafx.h"
 #include "ProgressBarRenderTask.h"
 
+// Misc
 #include "../RenderView.h"
 #include "../RootSignature.h"
 #include "../CommandInterface.h"
+#include "../DescriptorHeap.h"
+#include "../SwapChain.h"
+#include "../PipelineState.h"
+#include "../Renderer/Camera/BaseCamera.h"
+#include "../Renderer/Mesh.h"
+
+// GPU-Memory
 #include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/DepthStencil.h"
 #include "../GPUMemory/DepthStencilView.h"
-#include "../GPUMemory/ConstantBufferView.h"
 #include "../GPUMemory/ShaderResourceView.h"
-#include "../GPUMemory/UnorderedAccessView.h"
-#include "../DescriptorHeap.h"
-#include "../SwapChain.h"
+#include "../GPUMemory/ConstantBuffer.h"
+#include "../GPUMemory/ConstantBufferView.h"
 #include "../GPUMemory/Resource.h"
-#include "../PipelineState.h"
-#include "../Renderer/Transform.h"
-#include "../Renderer/Mesh.h"
-#include "../Renderer/Camera/BaseCamera.h"
 
-// Includes used for particles to work
-#include "../Misc/AssetLoader.h"
-#include "../Renderer/Model.h"
-#include "../ECS/Entity.h"
-#include "../Renderer/Texture/Texture2DGUI.h"
-#include "../ECS/Components/ParticleEmitterComponent.h"
-#include "../Particles/ParticleEffect.h"
-#include "../Renderer/GPUMemory/Resource.h"
+// Progressbar specifics
+#include "../ProgressBar.h"
+#include "../ECS/Components/ProgressBarComponent.h"
 
 ProgressBarRenderTask::ProgressBarRenderTask(ID3D12Device5* device, RootSignature* rootSignature,
 	const std::wstring& VSName, const std::wstring& PSName, 
@@ -84,11 +81,11 @@ void ProgressBarRenderTask::Execute()
 
 	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
 
-	// Draw from opposite order from the sorted array
 	for (component::ProgressBarComponent* pbc: m_ProgressBarComponents)
 	{
 		// Set the constantBuffer
-		//commandList->SetGraphicsRootShaderResourceView(RS::SRV0, effect->m_pSRV->GetResource()->GetGPUVirtualAdress());
+		D3D12_GPU_VIRTUAL_ADDRESS gpuVA = pbc->m_ProgressBars[0]->GetConstantBuffer()->GetCBV()->GetResource()->GetGPUVirtualAdress();
+		commandList->SetGraphicsRootConstantBufferView(RS::CBV0, gpuVA);
 
 		// Draw a quad (m_pParticleQuad)
 		size_t num_Indices = m_pQuad->GetNumIndices();

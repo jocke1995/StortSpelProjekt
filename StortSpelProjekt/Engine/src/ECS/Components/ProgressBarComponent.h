@@ -35,6 +35,7 @@ namespace component
 
 	private:
 		friend class Renderer;
+		friend class ProgressBarRenderTask;
 		std::array<ProgressBar*, 2> m_ProgressBars;
 
 		// 0 will be overlay, 1 will be the actual progressBar
