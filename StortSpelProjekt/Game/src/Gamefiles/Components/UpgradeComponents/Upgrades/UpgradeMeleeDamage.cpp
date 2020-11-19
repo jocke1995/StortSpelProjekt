@@ -38,7 +38,7 @@ void UpgradeMeleeDamage::IncreaseLevel()
 
 void UpgradeMeleeDamage::ApplyBoughtUpgrade()
 {
-	ApplyStat();;
+	ApplyStat();
 }
 
 std::string UpgradeMeleeDamage::GetDescription(unsigned int level)
