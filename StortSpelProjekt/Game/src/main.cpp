@@ -281,7 +281,7 @@ Scene* GameScene(SceneManager* sm)
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     spider.aiFlags = 0;
     spider.meleeAttackDmg = 2.0f;
-    spider.attackInterval = 1.0f;
+    spider.attackInterval = 0.5f;
     spider.attackSpeed = 0.2f;
     spider.movementSpeed = 90.0f;
     spider.rot = { 0.0, 0.0, 0.0 };

@@ -646,7 +646,7 @@ void component::AiComponent::pathFinding()
 	{
 		turnToPlayer = true;
 		float3 dirToPlayer = m_pTargetTrans->GetPositionFloat3() - m_pParentTrans->GetPositionFloat3();
-		double angle = std::atan2(dirToPlayer.x, dirToPlayer.z);
+		double angle = std::atan2(m_pParentTrans->GetInvDir() * dirToPlayer.x, m_pParentTrans->GetInvDir() * dirToPlayer.z);
 		cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		m_NextTargetPos = pointOnCircle;
 		if (m_DistanceToPlayer <= m_TargetCircleRadius + 0.5)
