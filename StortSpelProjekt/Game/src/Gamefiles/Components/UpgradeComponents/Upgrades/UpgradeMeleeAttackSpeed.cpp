@@ -36,7 +36,7 @@ void UpgradeMeleeAttackSpeed::ApplyBoughtUpgrade()
 void UpgradeMeleeAttackSpeed::IncreaseLevel()
 {
 	m_Level++;
-	m_Price *= 2;
+	m_Price = m_StartingPrice * pow(2, m_Level);
 }
 
 std::string UpgradeMeleeAttackSpeed::GetDescription(unsigned int level)
