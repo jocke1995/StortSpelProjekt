@@ -226,7 +226,7 @@ Scene* GameScene(SceneManager* sm)
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
 
     melc->SetDamage(10);
-    melc->SetAttackInterval(0.8);
+    melc->SetAttackInterval(1.0);
     ranc->SetAttackInterval(0.8);
     pic->Init();
     pic->SetJumpTime(0.17);
@@ -265,7 +265,7 @@ Scene* GameScene(SceneManager* sm)
 	zombie.meleeAttackDmg = 4.0f;
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
-	zombie.movementSpeed = 15.0f;
+	zombie.movementSpeed = 45.0f;
 	zombie.attackingDist = 1.5f;
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
@@ -904,10 +904,10 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     rotValue += 0.005f;
 
     Input::GetInstance().ReadControllerInput();
-    // Kod-p�kod-p�kod-p�kod-p�kod-l�sning
-    // Detta ska egentligen st� i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
-    // spelare i alla scener s� kan vi ej n� den aktiva spelaren i den scenen d�rifr�n.
-    // TODO: Flytta in den i den funktionen n�r vi har samma spelare i alla scener via Player::GetInstance().
+    // Kod-påkod-påkod-påkod-påkod-lösning
+    // Detta ska egentligen stå i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
+    // spelare i alla scener så kan vi ej nå den aktiva spelaren i den scenen därifrån.
+    // TODO: Flytta in den i den funktionen när vi har samma spelare i alla scener via Player::GetInstance().
     if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == true)
     {
         component::CollisionComponent* cc = sm->GetActiveScene()->GetEntity("player")->GetComponent<component::CollisionComponent>();
