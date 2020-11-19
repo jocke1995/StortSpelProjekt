@@ -189,7 +189,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	component::RangeEnemyComponent* rangeEnemyComp = nullptr;
 
 	mc = ent->AddComponent<component::ModelComponent>();
-	tc = ent->AddComponent<component::TransformComponent>();
+	tc = ent->AddComponent<component::TransformComponent>(comps->invertDirection);
 	ent->AddComponent<component::HealthComponent>(comps->hp);
 	ec = ent->AddComponent<component::EnemyComponent>(this);
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
@@ -227,15 +227,15 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	tc->SetTransformOriginalState();
 	if (comps->compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
 	{
-		cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, comps->dim.z / 2.0, comps->dim.y - comps->dim.z, 0.01, 0.5, false);
+		cc = ent->AddComponent<component::CapsuleCollisionComponent>(comps->mass, comps->dim.z / 2.0, comps->dim.y - comps->dim.z, 0.01, 0.0, false);
 	}
 	else if (comps->compFlags & F_COMP_FLAGS::SPHERE_COLLISION)
 	{
-		cc = ent->AddComponent<component::SphereCollisionComponent>(1.0, comps->dim.y / 2.0, 1.0, 0.0);
+		cc = ent->AddComponent<component::SphereCollisionComponent>(comps->mass, comps->dim.y / 2.0, 1.0, 0.0);
 	}
 	else if (comps->compFlags & F_COMP_FLAGS::CUBE_COLLISION)
 	{
-		cc = ent->AddComponent<component::CubeCollisionComponent>(1.0, comps->dim.x / 2.0, comps->dim.y / 2.0, comps->dim.z / 2.0, 0.01, 0.5, false);
+		cc = ent->AddComponent<component::CubeCollisionComponent>(comps->mass, comps->dim.x / 2.0, comps->dim.y / 2.0, comps->dim.z / 2.0, 0.01, 0.0, false);
 	}
 	else
 	{
@@ -312,6 +312,7 @@ EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, EnemyComps*
 	enemy->rangeAttackDmg = comps->rangeAttackDmg;
 	enemy->rangeAttackDmgBase = comps->rangeAttackDmg;
 	enemy->rangeVelocity = comps->rangeVelocity;
+	enemy->invertDirection = comps->invertDirection;
 
 	return enemy;
 }
