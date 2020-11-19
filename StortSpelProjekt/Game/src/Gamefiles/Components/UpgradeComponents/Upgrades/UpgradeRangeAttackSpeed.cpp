@@ -28,7 +28,6 @@ void UpgradeRangeAttackSpeed::ApplyStat()
 {
 	m_AttackPerSecond += m_UpgradeFactor;
 	m_pParentEntity->GetComponent<component::RangeComponent>()->SetAttackInterval(1.0f / m_AttackPerSecond);
-	Log::Print("RANGE: %f\n", 1.0f / m_AttackPerSecond);
 }
 
 void UpgradeRangeAttackSpeed::ApplyBoughtUpgrade()
