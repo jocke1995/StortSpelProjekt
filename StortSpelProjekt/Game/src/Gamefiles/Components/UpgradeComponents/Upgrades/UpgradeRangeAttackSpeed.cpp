@@ -12,7 +12,7 @@ UpgradeRangeAttackSpeed::UpgradeRangeAttackSpeed(Entity* parent) : Upgrade(paren
 	m_Price = 100;
 	m_StartingPrice = m_Price;
 
-	m_ImageName = "default.png";
+	m_ImageName = "RangeUpgrade.png";
 	m_BaseAttackSpeed = m_pParentEntity->GetComponent<component::RangeComponent>()->GetAttackInterval();
 	m_AttackPerSecond = 1.0f / m_BaseAttackSpeed;
 	// how many percent do you want to increase attack speed with?
