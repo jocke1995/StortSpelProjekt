@@ -137,7 +137,7 @@ Scene* GameScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");    
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");    
     Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
@@ -536,7 +536,7 @@ Scene* ShopScene(SceneManager* sm)
     // Get the models needed
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
@@ -902,10 +902,10 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     trans->SetRotationX(rotValue);
     rotValue += 0.005f;
 
-    // Kod-påkod-påkod-påkod-påkod-lösning
-    // Detta ska egentligen stå i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
-    // spelare i alla scener så kan vi ej nå den aktiva spelaren i den scenen därifrån.
-    // TODO: Flytta in den i den funktionen när vi har samma spelare i alla scener via Player::GetInstance().
+    // Kod-pï¿½kod-pï¿½kod-pï¿½kod-pï¿½kod-lï¿½sning
+    // Detta ska egentligen stï¿½ i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
+    // spelare i alla scener sï¿½ kan vi ej nï¿½ den aktiva spelaren i den scenen dï¿½rifrï¿½n.
+    // TODO: Flytta in den i den funktionen nï¿½r vi har samma spelare i alla scener via Player::GetInstance().
     if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == true)
     {
         component::CollisionComponent* cc = sm->GetActiveScene()->GetEntity("player")->GetComponent<component::CollisionComponent>();

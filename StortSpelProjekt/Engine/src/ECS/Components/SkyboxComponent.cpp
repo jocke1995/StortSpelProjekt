@@ -15,7 +15,7 @@ component::SkyboxComponent::SkyboxComponent(Entity* parent)
 {
 	// Set default mesh and texture
 	AssetLoader* al = AssetLoader::Get();
-	m_pMesh = al->LoadModel(L"../Vendor/Resources/Models/Cube/cube.obj")->GetMeshAt(0);
+	m_pMesh = al->LoadModel(L"../Vendor/Resources/Models/CubePBR/cube.obj")->GetMeshAt(0);
 	m_pTexture = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 }
 
