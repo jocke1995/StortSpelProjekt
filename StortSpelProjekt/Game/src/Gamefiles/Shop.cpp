@@ -28,6 +28,7 @@ Shop::Shop()
 	// Set the size of shop inventory - how many upgrades the shop will contain.
 	m_InvSize = 3;
 
+
 	AssetLoader* al = AssetLoader::Get();
 	m_pArial = al->LoadFontFromFile(L"Arial.fnt");
 

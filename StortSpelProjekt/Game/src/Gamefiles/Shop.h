@@ -58,7 +58,7 @@ public:
 private:
 	void shopButtonPressed(ButtonPressed* evnt);
 	void sceneChange(SceneChange* evnt);
-	void rerollShop();
+	
 
 	// upgradeManager
 	UpgradeManager* m_pUpgradeManager = nullptr;
@@ -83,6 +83,9 @@ private:
 	void clearInventory();
 	// checks if an upgrade is already bought
 	bool checkExisting(std::string name);
+	// uses the randomizeInventory-functions and re-creates the 2D-GUI
+	void rerollShop();
+	// 
 
 	Font* m_pArial = nullptr;
 
