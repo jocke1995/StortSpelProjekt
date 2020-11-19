@@ -79,7 +79,7 @@ namespace component
 	class PointLightComponent;
 	class SpotLightComponent;
 	class ParticleEmitterComponent;
-
+	class ProgressBarComponent;
 }
 
 // Events
@@ -119,6 +119,7 @@ public:
 	void InitBoundingBoxComponent(component::BoundingBoxComponent* component);
 	void InitGUI2DComponent(component::GUI2DComponent* component);
 	void InitParticleEmitterComponent(component::ParticleEmitterComponent* component);
+	void InitProgressBarComponent(component::ProgressBarComponent* component);
 
 	void UnInitSkyboxComponent(component::SkyboxComponent* component);
 	void UnInitModelComponent(component::ModelComponent* component);
@@ -129,6 +130,7 @@ public:
 	void UnInitBoundingBoxComponent(component::BoundingBoxComponent* component);
 	void UnInitGUI2DComponent(component::GUI2DComponent* component);
 	void UnInitParticleEmitterComponent(component::ParticleEmitterComponent* component);
+	void UnInitProgressBarComponent(component::ProgressBarComponent* component);
 
 	void OnResetScene();
 

@@ -5,6 +5,8 @@
 #include "structs.h"
 #include <array>
 
+class ProgressBar;
+
 namespace component
 {
 	class ProgressBarComponent : public Component
@@ -29,6 +31,10 @@ namespace component
 		void SetProgressBarPercent(const float newProgressBarPercent);
 
 	private:
+		friend class Renderer;
+		std::array<ProgressBar*, 2> m_ProgressBars;
+
+
 		// 0 will be overlay, 1 will be the actual progressBar
 		std::array<PROGRESS_BAR_DATA, 2> m_QuadData;
 

@@ -127,7 +127,8 @@ struct PARTICLE_DATA
 struct PROGRESS_BAR_DATA
 {
 	float3 position;
-	float activePercent;	// Value between 0-1, how much of the progress bar that is shown
+	// Value between 0-1, how much of the progress bar that is shown
+	float activePercent;
 
 	// maximum width and height of quad
 	float maxHeight;
@@ -135,5 +136,4 @@ struct PROGRESS_BAR_DATA
 
 	float2 pad1;
 };
-
 #endif

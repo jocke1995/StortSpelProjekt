@@ -17,6 +17,7 @@
 #include "../ECS/Components/ModelComponent.h"
 #include "../ECS/Components/SkyboxComponent.h"
 #include "../ECS/Components/ParticleEmitterComponent.h"
+#include "../ECS/Components/ProgressBarComponent.h"
 #include "../ECS/Components/BoundingBoxComponent.h"
 #include "../ECS/Components/CameraComponent.h"
 #include "../ECS/Components/Lights/DirectionalLightComponent.h"
@@ -93,6 +94,9 @@
 
 // Particle
 #include "../Particles/ParticleEffect.h"
+
+// ProgressBar
+#include "ProgressBar.h"
 
 Renderer::Renderer()
 {
@@ -811,8 +815,33 @@ void Renderer::InitParticleEmitterComponent(component::ParticleEmitterComponent*
 	}
 }
 
+void Renderer::InitProgressBarComponent(component::ProgressBarComponent* component)
+{
+	// Add to the renderTask
+
+	// Create constant buffers
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		component->m_ProgressBars[i] = new ProgressBar(
+												m_pDevice5,
+												sizeof(PROGRESS_BAR_DATA),
+												L"PROGRESSBAR_CB_",
+												m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	}
+	
+	// Submit to cpft
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		const void* data = static_cast<const void*>(&component->m_QuadData[i]);
+		Resource* uploadR = component->m_ProgressBars[i]->GetConstantBuffer()->GetUploadResource();
+		Resource* defaultR = component->m_ProgressBars[i]->GetConstantBuffer()->GetDefaultResource();
+		submitToCpft(&std::make_tuple(uploadR, defaultR, data));
+	}
+}
+
 void Renderer::UnInitSkyboxComponent(component::SkyboxComponent* component)
 {
+	
 }
 
 void Renderer::UnInitModelComponent(component::ModelComponent* component)
@@ -1030,6 +1059,18 @@ void Renderer::UnInitParticleEmitterComponent(component::ParticleEmitterComponen
 			++it;
 		}
 		
+	}
+}
+
+void Renderer::UnInitProgressBarComponent(component::ProgressBarComponent* component)
+{
+	// Remove from CopyPerFrame
+	CopyPerFrameTask* cpft = nullptr;
+	cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		cpft->ClearSpecific(component->m_ProgressBars[i]->GetConstantBuffer()->GetUploadResource());
 	}
 }
 
