@@ -68,7 +68,7 @@ void Player::onResetGame(ResetGame* evnt)
 	mec->SetAttackInterval(1.0);
 	component::RangeComponent* rac = gamePlayer->GetComponent<component::RangeComponent>();
 	rac->SetDamage(10);
-	rac->SetVelocity(50);
+	rac->SetVelocity(150);
 	rac->SetAttackInterval(1.0);
 
 	Entity* shopPlayer = SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player");
@@ -88,4 +88,6 @@ void Player::onResetGame(ResetGame* evnt)
 	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player")->GetComponent<component::HealthComponent>()->SetMaxHealth(50);
 	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("healthBackground")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("50", "currentHealth");
 	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("healthBackground")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("50", "maxHealth");
+
+	m_pShop->Reset();
 }
