@@ -1178,6 +1178,9 @@ Scene* WilliamsTestScene(SceneManager* sm)
     component::DirectionalLightComponent* dlc = nullptr;
     component::PlayerInputComponent* ic = nullptr;
     component::CollisionComponent* ccc = nullptr;
+    component::UpgradeComponent* upgradeComp = nullptr;
+    component::MeleeComponent* melc = nullptr;
+    component::BoundingBoxComponent* bbc = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1192,11 +1195,22 @@ Scene* WilliamsTestScene(SceneManager* sm)
     Entity* entity = scene->AddEntity("player");
     bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.1);
     mc = entity->AddComponent<component::ModelComponent>();
-    ac = entity->AddComponent<component::AnimationComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     tc = entity->AddComponent<component::TransformComponent>(true);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
+
+    mc = entity->AddComponent<component::ModelComponent>();
+    ac = entity->AddComponent<component::AnimationComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.01);
+    ic->Init();
+    ic->SetMovementSpeed(70);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    melc = entity->AddComponent<component::MeleeComponent>();
+    upgradeComp = entity->AddComponent<component::UpgradeComponent>();
 
     Player::GetInstance().SetPlayer(entity);
 
