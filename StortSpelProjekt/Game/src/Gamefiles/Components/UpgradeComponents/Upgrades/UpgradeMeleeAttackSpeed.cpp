@@ -13,11 +13,20 @@ UpgradeMeleeAttackSpeed::UpgradeMeleeAttackSpeed(Entity* parent) : Upgrade(paren
 	m_StartingPrice = m_Price;
 
 	m_ImageName = "MeleeDamage.png";
-	m_BaseAttackSpeed = m_pParentEntity->GetComponent<component::MeleeComponent>()->GetAttackInterval();
-	m_AttackPerSecond = 1.0f / m_BaseAttackSpeed;
+	if (m_pParentEntity->HasComponent<component::MeleeComponent>())
+	{
+		m_BaseAttackSpeed = m_pParentEntity->GetComponent<component::MeleeComponent>()->GetAttackInterval();
+		m_AttackPerSecond = 1.0f / m_BaseAttackSpeed;
+	}
+	else
+	{
+		m_BaseAttackSpeed = 1.0f;
+		m_AttackPerSecond = 1.0f;
+	}
+
 	// how many percent do you want to increase attack speed with?
 	m_Percent = 20;
-	m_UpgradeFactor = m_AttackPerSecond * (static_cast<float>(m_Percent)/100.0);
+	m_UpgradeFactor = m_AttackPerSecond * (static_cast<float>(m_Percent) / 100.0);
 }
 
 UpgradeMeleeAttackSpeed::~UpgradeMeleeAttackSpeed()
