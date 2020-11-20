@@ -26,7 +26,7 @@ UpgradeMeleeAttackSpeed::~UpgradeMeleeAttackSpeed()
 
 void UpgradeMeleeAttackSpeed::ApplyStat()
 {
-	m_AttackPerSecond += m_UpgradeFactor;
+	m_AttackPerSecond = (1.0f / m_BaseAttackSpeed) + (m_UpgradeFactor * (m_Level + 1));
 	m_pParentEntity->GetComponent<component::MeleeComponent>()->SetAttackInterval(1.0f / m_AttackPerSecond);
 }
 
