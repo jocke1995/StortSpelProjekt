@@ -90,6 +90,12 @@ void ProgressBarRenderTask::Execute()
 
 	for (component::ProgressBarComponent* pbc: m_ProgressBarComponents)
 	{
+		// Dont draw if this is set to false
+		if (pbc->m_DrawState == false)
+		{
+			continue;
+		}
+
 		for (unsigned int i = 0; i < 2; i++)
 		{
 			// Set the constantBuffer

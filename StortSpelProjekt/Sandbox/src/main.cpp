@@ -100,6 +100,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             networkTimer += timer->GetDeltaTime();
         }
 
+        if (window->WasSpacePressed() == true)
+        {
+            Entity* ent = sceneManager->GetScene("jockesScene")->GetEntity("progressBarTest2");
+            component::ProgressBarComponent* pbc = ent->GetComponent<component::ProgressBarComponent>();
+
+            static bool a = true;
+            a = !a;
+            pbc->SetDrawState(a);
+        }
+
         sceneManager->RenderUpdate(timer->GetDeltaTime());
         particleSystem->Update(timer->GetDeltaTime());
         if (logicTimer >= updateRate)

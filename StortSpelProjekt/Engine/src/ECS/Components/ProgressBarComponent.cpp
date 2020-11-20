@@ -116,4 +116,9 @@ namespace component
 	{
 		m_Textures[progressBarType] = texture;
 	}
+
+	void ProgressBarComponent::SetDrawState(bool draw)
+	{
+		m_DrawState = draw;
+	}
 }

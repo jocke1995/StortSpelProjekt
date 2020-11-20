@@ -51,7 +51,7 @@ VS_OUT VS_main(uint vID : SV_VertexID)
 
 	float3 vertexPosition = progressBarData.position + mul(v.pos, camSpace);
 
-	// Hack
+	// Hack to move the back quad further back, to avoid z-fighting
 	if (progressBarData.id.x == 0.0f)
 	{
 		vertexPosition = vertexPosition + cbPerFrame.camForward * 0.03f;
