@@ -4,6 +4,8 @@
 #include "Player.h"
 #include "Shop.h"
 
+#include "../Gamefiles/Components/UpgradeComponents/UpgradeComponent.h"
+
 Scene* JacobsTestScene(SceneManager* sm);
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
@@ -196,7 +198,7 @@ Scene* JacobsTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
 
     avc->AddVoice(L"Bruh");
-
+    Player::GetInstance().SetPlayer(entity);
     /*--------------------- Box ---------------------*/
     // entity
     entity = scene->AddEntity("Box");
@@ -495,6 +497,9 @@ Scene* TimScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
     
     avc->AddVoice(L"Bruh");
+
+    Player::GetInstance().SetPlayer(entity);
+
     /*--------------------- Player ---------------------*/
     //
     /*--------------------- Box1 ---------------------*/
@@ -629,6 +634,8 @@ Scene* JockesTestScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
+
+    Player::GetInstance().SetPlayer(entity);
     /* ---------------------- Player ---------------------- */
 
     /* ---------------------- Skybox ---------------------- */
@@ -755,6 +762,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
 
+    Player::GetInstance().SetPlayer(entity);
     /* ---------------------- Player ---------------------- */
 
     // Create test particleEffect
@@ -933,6 +941,8 @@ Scene* FredriksTestScene(SceneManager* sm)
 	// initialize OBB after we have the transform info
 	bbc->Init();
 	Physics::GetInstance().AddCollisionEntity(entity);
+
+    Player::GetInstance().SetPlayer(entity);
 
 	/* ---------------------- Player ---------------------- */
 
@@ -1187,6 +1197,8 @@ Scene* WilliamsTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>(true);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
+
+    Player::GetInstance().SetPlayer(entity);
 
     mc->SetModel(aniTest);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
@@ -1614,6 +1626,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     // initialize OBB after we have the transform info
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
+    Player::GetInstance().SetPlayer(entity);
 
 
     entity = scene->AddEntity("floor");
