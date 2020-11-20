@@ -89,5 +89,5 @@ void UpgradeExplosiveAttack::ApplyBoughtUpgrade()
 
 std::string UpgradeExplosiveAttack::GetDescription(unsigned int level)
 {
-	return "Explosive Projectile: Projectile cause pieces of shrapnel to explode out from enemies causing " + std::to_string(static_cast<int>((0.4 + (0.1 * level))*100)) + "\% projectile damage over " + std::to_string(5 * m_Level) + " units radius";
+	return "Explosive Projectile: Projectile cause pieces of shrapnel to explode out from enemies causing " + std::to_string(static_cast<int>((0.4 + (0.1 * level))*100)) + "\% projectile damage over " + std::to_string(5 * level) + " units radius";
 }

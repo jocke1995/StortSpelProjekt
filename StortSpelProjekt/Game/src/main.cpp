@@ -316,13 +316,13 @@ Scene* GameScene(SceneManager* sm)
 #pragma endregion
 
 #pragma region Enemyfactory
-    enemyFactory.SetScene(scene);
-    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
-    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
-    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("enemyZombie", &zombie);
-    enemyFactory.DefineEnemy("enemySpider", &spider);
-    enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
+    EnemyFactory::GetInstance().SetScene(scene);
+    EnemyFactory::GetInstance().AddSpawnPoint({ 70, 5, 20 });
+    EnemyFactory::GetInstance().AddSpawnPoint({ -20, 5, -190 });
+    EnemyFactory::GetInstance().AddSpawnPoint({ -120, 10, 75 });
+    EnemyFactory::GetInstance().DefineEnemy("enemyZombie", &zombie);
+    EnemyFactory::GetInstance().DefineEnemy("enemySpider", &spider);
+    EnemyFactory::GetInstance().DefineEnemy("enemyDemon", &rangedDemon);
 #pragma endregion
 
 #pragma region teleporter
