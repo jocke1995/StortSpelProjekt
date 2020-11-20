@@ -1,25 +1,27 @@
 #include "stdafx.h"
 #include "Cryptor.h"
 #include <filesystem>
+#include <sstream>
 #include <fstream>
 #include <comdef.h>
 #include "EngineRand.h"
 #include "Multithreading/ThreadPool.h"
 #include "Multithreading/EncryptTask.h"
 
-bool Cryptor::Encrypt(int key, const char* source, const char* destination)
+bool Cryptor::Encrypt(int key, const char* source, const char* destination, bool binary)
 {
 	EngineRand rand(key);
-	std::ifstream inStream(source);
+	std::ifstream inStream(source, std::ios::in | std::ios::binary);
 	std::stringstream ss;
 	char character;
-
+	unsigned int value;
 	if (inStream.is_open())
 	{
-		while (inStream.get(character))
+		while (inStream.read(&character,1))
 		{
-			character = (character + rand.Rand(0, 127)) % 127;
-			ss << static_cast<unsigned int>(character) << " ";
+			value = static_cast<int>(static_cast<unsigned char>(character));
+			value = (value + rand.Rand(0, 256));
+			ss << value << " ";
 		}
 	}
 	else
@@ -44,20 +46,21 @@ bool Cryptor::Encrypt(int key, const char* source, const char* destination)
 	return true;
 }
 
-bool Cryptor::Encrypt(int key, const char* source)
+bool Cryptor::Encrypt(int key, const char* source, bool binary)
 {
 	EngineRand rand(key);
-	std::ifstream inStream(source);
+	std::ifstream inStream(source, std::ios::in | std::ios::binary * binary);
 	std::stringstream ss;
 	char character;
+	unsigned int value;
 	if (inStream.is_open())
 	{
 		inStream.get(character);
 		while (!inStream.eof())
 		{
-			int randNum = rand.Rand(0, 127);
-			character = ((character + randNum) % 127);
-			ss << static_cast<unsigned int>(character) << " ";
+			value = static_cast<int>(static_cast<unsigned char>(character));
+			value = (value + rand.Rand(0, 256));
+			ss << value << " ";
 
 			inStream.get(character);
 		}
@@ -86,21 +89,21 @@ bool Cryptor::Encrypt(int key, const char* source)
 
 bool Cryptor::EncryptDirectory(int key, const char* path)
 {
-
 	encryptDirectoryHelper(key, path);
 
 	ThreadPool::GetInstance().WaitForThreads(FLAG_THREAD::ENCRYPT);
 	return true;
 }
 
-bool Cryptor::Decrypt(int key, const char* source, const char* destination)
+bool Cryptor::Decrypt(int key, const char* source, const char* destination, bool binary)
 {
 	EngineRand rand(key);
 	std::stringstream ss;
 
 	FILE* file = fopen(source, "r");
 
-	unsigned char actualChar = 0;
+	char actualChar = 0;
+	int value = 0;
 	unsigned int result = 0;
 	char res;
 	if (file != NULL)
@@ -108,9 +111,7 @@ bool Cryptor::Decrypt(int key, const char* source, const char* destination)
 		while (true)
 		{
 			res = fscanf(file, "%d ", &result);
-			actualChar = static_cast<unsigned char>(result);
-			int randNum = rand.Rand(0, 127);
-			actualChar = (actualChar - randNum + 127) % 127;
+			actualChar = (result - rand.Rand(0, 256));
 			if (res == EOF)
 			{
 				break;
@@ -124,10 +125,10 @@ bool Cryptor::Decrypt(int key, const char* source, const char* destination)
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open input file %s with cryptor!", source);
 	}
 
-	std::ofstream outStream(destination);
+	std::ofstream outStream(destination, std::ios::out | std::ios::binary * binary);
 	if (outStream.is_open())
 	{
-		outStream << ss.rdbuf();
+		outStream.write(ss.rdbuf()->str().c_str(), ss.rdbuf()->str().size());
 	}
 	else
 	{
@@ -145,7 +146,7 @@ bool Cryptor::Decrypt(int key, const char* source, std::stringstream* ss)
 
 	FILE* file = fopen(source, "r");
 
-	unsigned char actualChar = 0;
+	char actualChar = 0;
 	unsigned int result = 0;
 	char res;
 	if (file != NULL)
@@ -153,9 +154,7 @@ bool Cryptor::Decrypt(int key, const char* source, std::stringstream* ss)
 		while (true)
 		{
 			res = fscanf(file, "%d ", &result);
-			actualChar = static_cast<unsigned char>(result);
-			int randNum = rand.Rand(0, 127);
-			actualChar = (actualChar - randNum + 127) % 127;
+			actualChar = (result - rand.Rand(0, 256));
 			if (res == EOF)
 			{
 				break;
@@ -178,7 +177,7 @@ bool Cryptor::Decrypt(int key, const wchar_t* source, std::wstringstream* wss)
 	_bstr_t src(source);
 	FILE* file = fopen(src, "r");
 
-	unsigned char actualChar = 0;
+	wchar_t actualChar = 0;
 	unsigned int result = 0;
 	char res;
 	if (file != NULL)
@@ -186,9 +185,7 @@ bool Cryptor::Decrypt(int key, const wchar_t* source, std::wstringstream* wss)
 		while (true)
 		{
 			res = fscanf(file, "%d ", &result);
-			actualChar = static_cast<unsigned char>(result);
-			int randNum = rand.Rand(0, 127);
-			actualChar = (actualChar - randNum + 127) % 127;
+			actualChar = (result - rand.Rand(0, 256));
 			if (res == EOF)
 			{
 				break;
@@ -205,7 +202,7 @@ bool Cryptor::Decrypt(int key, const wchar_t* source, std::wstringstream* wss)
 	return true;
 }
 
-constexpr unsigned int Cryptor::GetGlobalKey()
+unsigned int Cryptor::GetGlobalKey()
 {
 	return 11;
 }
@@ -220,8 +217,17 @@ void Cryptor::encryptDirectoryHelper(int key, const char* path)
 		}
 		else
 		{
-			EncryptTask task(key, entry.path().generic_string());
-			task.Execute();
+			std::string extension = entry.path().extension().generic_string().c_str();
+			if (extension == ".DDS" || extension == ".dds" || extension == ".jpg" || extension == ".png" || extension == ".fbx" || extension == ".FBX")
+			{
+				EncryptTask task(key,true, entry.path().generic_string());
+				task.Execute();
+			}
+			else
+			{
+				EncryptTask task(key,false, entry.path().generic_string());
+				task.Execute();
+			}
 		}
 	}
 }

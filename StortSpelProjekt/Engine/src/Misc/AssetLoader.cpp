@@ -167,11 +167,25 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 	Assimp::Importer importer;
 	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true);
-	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph);
+	std::stringstream ss;
+	std::string fileEnding = filePath.substr(filePath.find_last_of('.'));
+	bool binary = false;
 
+	if (fileEnding == "fbx" || fileEnding == "FBX")
+	{
+		binary = true;
+	}
+
+	Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(path).c_str(), &ss);
+	Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(path).c_str(), "DecryptedFile.fbx", binary);
+
+	const aiScene* assimpScene = importer.ReadFileFromMemory(ss.str().c_str(), ss.str().size(), aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph, fileEnding.c_str());
+	//const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph);
 	if (assimpScene == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to load model with path: \'%S\'\n", path.c_str());
+		Log::Print(importer.GetErrorString());
+		Log::Print("\n");
 		return nullptr;
 	}
 
@@ -369,9 +383,10 @@ TextureCubeMap* AssetLoader::LoadTextureCubeMap(const std::wstring& path)
 
 Material* AssetLoader::LoadMaterialFromMTL(const std::wstring& path)
 {
-	std::wifstream ifstream(path);
+	//std::wifstream ifstream(path);
+	std::wstringstream ifstream;
 	Material* mat = nullptr;
-	if (ifstream.is_open())
+	if (Cryptor::Decrypt(Cryptor::GetGlobalKey(), path.c_str(), &ifstream))
 	{
 		std::wstring relPath = path.substr(0, path.find_last_of('/') + 1);
 		std::wstring currMatName;
@@ -404,7 +419,6 @@ Material* AssetLoader::LoadMaterialFromMTL(const std::wstring& path)
 				currMatName = line.substr(line.find_first_of(L' '));
 				if (m_LoadedMaterials.count(currMatName) > 0)
 				{
-					ifstream.close();
 					return m_LoadedMaterials[currMatName].second;
 				}
 			}
@@ -1363,8 +1377,11 @@ void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, B
 
 Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 {
-	std::wifstream fs;
-	fs.open(filename);
+	//std::wifstream fs;
+	//fs.open(filename);
+
+	std::wstringstream fs;
+	Cryptor::Decrypt(Cryptor::GetGlobalKey(), filename, &fs);
 
 	m_LoadedFonts[filename].second = new Font();
 	std::wstring tmp = L"";
@@ -1532,20 +1549,19 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 
 void AssetLoader::getHeightMapResources(const std::wstring& path, std::wstring& heightMapPath, std::wstring& materialPath)
 {
-	std::wifstream input(path);
-	
-	if (input.is_open())
+	//std::wifstream input(path);
+	std::wstringstream input;
+	if (Cryptor::Decrypt(Cryptor::GetGlobalKey(), path.c_str(), &input))
 	{
 		std::wstring relFolderPath = path.substr(0, path.find_last_of('/') + 1);
 		std::getline(input, heightMapPath);
 		heightMapPath = relFolderPath + heightMapPath;
 		std::getline(input, materialPath);
 		materialPath = relFolderPath + materialPath;
-		input.close();
 	}
 	else
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load heightmap info file with path %S", path.c_str());
+		Log::PrintSeverity(Log::Severity::CRITICAL, "could not load heightmap of path %S\n", path.c_str());
 	}
 }
 

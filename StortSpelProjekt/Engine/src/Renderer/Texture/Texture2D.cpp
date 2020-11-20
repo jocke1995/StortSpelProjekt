@@ -31,7 +31,11 @@ bool Texture2D::Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 	std::unique_ptr<uint8_t[]> m_DdsData;
 
 	// Loads the texture and creates a default resource;
-	hr = DirectX::LoadDDSTextureFromFile(device, m_FilePath.c_str(), reinterpret_cast<ID3D12Resource**>(m_pDefaultResource->GetID3D12Resource1PP()), m_DdsData, m_SubresourceData);
+
+	std::stringstream ss;
+	Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(m_FilePath).c_str(), &ss);
+	hr = DirectX::LoadDDSTextureFromMemory(device, reinterpret_cast<const uint8_t*>(ss.str().c_str()), ss.str().size(), reinterpret_cast<ID3D12Resource**>(m_pDefaultResource->GetID3D12Resource1PP()), m_SubresourceData);
+	//hr = DirectX::LoadDDSTextureFromFile(device, m_FilePath.c_str(), reinterpret_cast<ID3D12Resource**>(m_pDefaultResource->GetID3D12Resource1PP()), m_DdsData, m_SubresourceData);
 	
 	if (FAILED(hr))
 	{
@@ -40,12 +44,11 @@ bool Texture2D::Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 		m_pDefaultResource = nullptr;
 		return false;
 	}
-
 	// Set resource desc created in LoadDDSTextureFromFile
 	m_ResourceDescription = m_pDefaultResource->GetID3D12Resource1()->GetDesc();
 	m_ImageBytesPerRow = m_SubresourceData[0].RowPitch;
 	// copy m_DdsData to our BYTE* format
-	m_pImageData = static_cast<BYTE*>(m_DdsData.get());
+	m_pImageData = reinterpret_cast<BYTE*>((const_cast<char*>(ss.str().c_str())));
 	m_DdsData.release(); // lose the pointer, let m_pImageData delete the data.
 
 	// Footprint

@@ -6,6 +6,8 @@
 
 #include "../Gamefiles/Components/UpgradeComponents/UpgradeComponent.h"
 
+#include "../Misc/Cryptor.h"
+
 Scene* JacobsTestScene(SceneManager* sm);
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
@@ -28,7 +30,8 @@ EnemyFactory enemyFactory;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
+    //Cryptor::Encrypt(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/Quad/NormalizedQuad.obj");
+    //Cryptor::EncryptDirectory(11, "../Vendor/Resources/Textures/Default");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -56,8 +59,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = jacobScene;
     //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* activeScene = leoScene;
-    //Scene* timScene = TimScene(sceneManager);
-    //Scene* activeScene = timScene;
+    Scene* timScene = TimScene(sceneManager);
+    Scene* activeScene = timScene;
     //Scene* jockeScene = JockesTestScene(sceneManager);
     //Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
@@ -70,8 +73,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = antonScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* activeScene = andresScene;
-    Scene* filipScene = FloppipTestScene(sceneManager);
-    Scene* activeScene = filipScene;
+    //Scene* filipScene = FloppipTestScene(sceneManager);
+    //Scene* activeScene = filipScene;
 
     // Set scene
     sceneManager->SetScene(activeScene);
@@ -449,16 +452,10 @@ Scene* TimScene(SceneManager* sm)
     Scene* scene = sm->CreateScene("TimScene");
 
     AssetLoader* al = AssetLoader::Get();
+    //al->LoadMap(scene,"../Vendor/Resources/TestScene.txt" );
 
-    al->LoadMap(scene,"../Vendor/Resources/TestScene.txt" );
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
-    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
-    Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
-    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
-    //HeightmapModel* heightMapModel = al->LoadHeightmap(L"../Vendor/Resources/Textures/HeightMaps/hm.hm");
-    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    
-    AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/IgnoredModels/FemaleTST");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/FemaleTST/Female.fbx");
     
     /*--------------------- Assets ---------------------*/
     
@@ -501,82 +498,6 @@ Scene* TimScene(SceneManager* sm)
 
     Player::GetInstance().SetPlayer(entity);
 
-    /*--------------------- Player ---------------------*/
-    //
-    /*--------------------- Box1 ---------------------*/
-    //// entity
-    //entity = scene->AddEntity("Box1");
-    //
-    //// components
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //
-    //tc->GetTransform()->SetScale(1.0f);
-    //tc->GetTransform()->SetPosition(0.0f, 1.0f, 1.0f);
-    //
-    //mc->SetModel(cubeModel);
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    
-    /*--------------------- Box1 ---------------------*/
-    //
-    ///*--------------------- Box2 ---------------------*/
-    //// entity
-    //entity = scene->AddEntity("Box2");
-    //
-    //// components
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //tc->GetTransform()->SetScale(1.0f);
-    //tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
-    ////ccc = entity->AddComponent<component::CubeCollisionComponent>(1000.0);
-    //
-    //mc->SetModel(cubeModel);
-    //
-    ///*--------------------- Box2 ---------------------*/
-    //
-    /*--------------------- Floor ---------------------*/
-    //// entity
-    //entity = scene->AddEntity("floor");
-    //
-    //// components
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
-    //
-    //mc->SetModel(floorModel);
-    //mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-    //tc->GetTransform()->SetScale(35.f, 1.f, 35.f);
-    //tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-    /*--------------------- Floor ---------------------*/
-    //
-    ///* ---------------------- PointLight1 ---------------------- */
-    //entity = scene->AddEntity("pointLight1");
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-    //
-    //mc->SetModel(cubeModel);
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    //tc->GetTransform()->SetScale(0.5f);
-    //tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
-    ///* ---------------------- PointLight1 ---------------------- */
-    //
-    ///* ---------------------- PointLight ---------------------- */
-    //entity = scene->AddEntity("pointLight");
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-    //
-    //mc->SetModel(sphereModel);
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    //tc->GetTransform()->SetScale(0.3f);
-    //tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
-    //
-    //plc->SetColor({ 2.0f, 0.0f, 2.0f });
-    //plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-    ///* ---------------------- PointLight ---------------------- */
-    //
     /*--------------------- DirectionalLight ---------------------*/
     // entity
     entity = scene->AddEntity("sun");
