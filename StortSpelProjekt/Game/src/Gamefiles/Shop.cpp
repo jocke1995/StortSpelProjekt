@@ -27,11 +27,14 @@ Shop::Shop()
 	m_Rand = EngineRand(time(NULL));
 	// Set the size of shop inventory - how many upgrades the shop will contain.
 	m_InvSize = 3;
+	m_RerollCost = 50;
+	m_RerollIncrease = m_RerollCost / 10; // 1/10 of the base cost is increased each time the player uses the reroll function. 
+
 
 	AssetLoader* al = AssetLoader::Get();
 	m_pArial = al->LoadFontFromFile(L"Arial.fnt");
 
-	EventBus::GetInstance().Subscribe(this, &Shop::upgradePressed);
+	EventBus::GetInstance().Subscribe(this, &Shop::shopButtonPressed);
 	EventBus::GetInstance().Subscribe(this, &Shop::sceneChange);
 
 	EventBus::GetInstance().Subscribe(this, &Shop::OnShopGUIStateChange);
@@ -154,8 +157,10 @@ void Shop::Create2DGUI()
 
 	/*----------------Text-----------------*/
 	std::string textToRender = "Reroll the inventory in the shop";
-	textToRender += "\nPrice: 50 Coins";
-	float2 textPos = { 0.76f, 0.67f };
+	textToRender += "\nPrice: ";
+	textToRender += std::to_string(m_RerollCost);
+	textToRender += " Coins";
+	float2 textPos = { 0.76f, 0.66f };
 	float2 textPadding = { 0.5f, 0.0f };
 	float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	float2 textScale = { 0.3f, 0.3f };
@@ -185,11 +190,12 @@ void Shop::Create2DGUI()
 	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
 	sm.AddEntity(entity, shopScene);
 	/*---------------------------------------*/
+
 	/*---------------Texture-----------------*/
 	entity = shopScene->AddEntity("reroll-button");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	quadPos = { 0.7f, 0.7f };
-	quadScale = { 0.2f, 0.2f };
+	quadPos = { 0.76f, 0.73f };
+	quadScale = { 0.18, 0.18f };
 	Texture* rerollImage = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Reroll.png");
 	gui->GetQuadManager()->CreateQuad(
 		"reroll-button",
@@ -327,6 +333,7 @@ void Shop::Reset()
 	{
 		item.second->SetLevel(0);
 	}
+	m_RerollCost = 50;
 }
 
 void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
@@ -349,7 +356,7 @@ void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
 		{
 			if (pickedEntity->GetName() == "shop")
 			{
-				this->Create2DGUI();
+				Create2DGUI();
 
 				// Reset movement, should happen here later. is currently happening in ShopSceneUpdateFunction in main
 				//component::CollisionComponent* cc = Player::GetInstance().GetPlayer()->GetComponent<component::CollisionComponent>();
@@ -362,7 +369,7 @@ void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
 	}
 }
 
-void Shop::upgradePressed(ButtonPressed* evnt)
+void Shop::shopButtonPressed(ButtonPressed* evnt)
 {
 	for (int i = 0; i < GetInventorySize(); i++)
 	{
@@ -378,6 +385,17 @@ void Shop::upgradePressed(ButtonPressed* evnt)
 			}
 		}
 	}
+
+	if (evnt->name == "reroll-button")
+	{
+		//Clears the 2D-GUI, Rerolls the inventory of the shop and Creates the 2D-GUI with the new inventory.
+		if (m_pPlayer->GetComponent<component::CurrencyComponent>()->GetBalace() >= m_RerollCost)
+		{
+			m_pPlayer->GetComponent<component::CurrencyComponent>()->ChangeBalance(-m_RerollCost);
+			rerollPriceIncrease();
+			rerollShop();
+		}
+	}
 }
 
 void Shop::sceneChange(SceneChange* evnt)
@@ -386,6 +404,17 @@ void Shop::sceneChange(SceneChange* evnt)
 	{
 		randomizeInventory();
 	}
+}
+
+void Shop::rerollShop()
+{
+	randomizeInventory();
+	Create2DGUI();
+}
+
+void Shop::rerollPriceIncrease()
+{
+	m_RerollCost += m_RerollIncrease;
 }
 
 void Shop::randomizeInventory()
