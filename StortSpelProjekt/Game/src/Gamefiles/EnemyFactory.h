@@ -58,6 +58,8 @@ struct EnemyComps
 	float rangeAttackDmg = 10.0f;
 	float rangeAttackDmgBase = 10.0f;
 	float rangeVelocity = 50.0f;
+	bool invertDirection = false;
+	float mass = 1.0f;
 };
 
 class EnemyFactory

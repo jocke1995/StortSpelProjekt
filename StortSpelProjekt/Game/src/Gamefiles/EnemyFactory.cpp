@@ -175,7 +175,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	component::RangeEnemyComponent* rangeEnemyComp = nullptr;
 
 	mc = ent->AddComponent<component::ModelComponent>();
-	tc = ent->AddComponent<component::TransformComponent>();
+	tc = ent->AddComponent<component::TransformComponent>(comps->invertDirection);
 	ent->AddComponent<component::HealthComponent>(comps->hp);
 	ec = ent->AddComponent<component::EnemyComponent>(this);
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
@@ -213,15 +213,15 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	tc->SetTransformOriginalState();
 	if (comps->compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
 	{
-		cc = ent->AddComponent<component::CapsuleCollisionComponent>(1.0, comps->dim.z / 2.0, comps->dim.y - comps->dim.z, 0.01, 0.5, false);
+		cc = ent->AddComponent<component::CapsuleCollisionComponent>(comps->mass, comps->dim.z / 2.0, comps->dim.y - comps->dim.z, 0.01, 0.0, false);
 	}
 	else if (comps->compFlags & F_COMP_FLAGS::SPHERE_COLLISION)
 	{
-		cc = ent->AddComponent<component::SphereCollisionComponent>(1.0, comps->dim.y / 2.0, 1.0, 0.0);
+		cc = ent->AddComponent<component::SphereCollisionComponent>(comps->mass, comps->dim.y / 2.0, 1.0, 0.0);
 	}
 	else if (comps->compFlags & F_COMP_FLAGS::CUBE_COLLISION)
 	{
-		cc = ent->AddComponent<component::CubeCollisionComponent>(1.0, comps->dim.x / 2.0, comps->dim.y / 2.0, comps->dim.z / 2.0, 0.01, 0.5, false);
+		cc = ent->AddComponent<component::CubeCollisionComponent>(comps->mass, comps->dim.x / 2.0, comps->dim.y / 2.0, comps->dim.z / 2.0, 0.01, 0.0, false);
 	}
 	else
 	{
@@ -298,6 +298,7 @@ EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, EnemyComps*
 	enemy->rangeAttackDmg = comps->rangeAttackDmg;
 	enemy->rangeAttackDmgBase = comps->rangeAttackDmg;
 	enemy->rangeVelocity = comps->rangeVelocity;
+	enemy->invertDirection = comps->invertDirection;
 
 	return enemy;
 }
@@ -388,14 +389,26 @@ void EnemyFactory::Update(double dt)
 
 			unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
 			int spawnNumber = m_RandGen.Rand(1, 100);
-			if (spawnNumber <= m_EnemyComps.find("enemyDemon")->second->spawnChance)
+			int spawnChance = 0;
+			bool spawnDefault = true;
+			for (auto enemy : m_EnemyComps)
 			{
-				SpawnEnemy("enemyDemon", eligblePoints[point]);
+				if (enemy.second != nullptr)
+				{
+					spawnChance += enemy.second->spawnChance;
+					if (spawnNumber <= spawnChance)
+					{
+						SpawnEnemy(enemy.first, eligblePoints[point]);
+						spawnDefault = false;
+						break;
+					}
+				}
 			}
-			else
+			if (spawnDefault)
 			{
 				SpawnEnemy("enemyZombie", eligblePoints[point]);
 			}
+
 			m_EnemiesToSpawn--;
 			m_EnemySlotsLeft--;
 		}
@@ -457,18 +470,39 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	m_EnemySlotsLeft = m_LevelMaxEnemies;
 
 	// melee
-	m_EnemyComps.find("enemyZombie")->second->hp = m_EnemyComps.find("enemyZombie")->second->hpBase * pow(1.15, m_Level);
-	m_EnemyComps.find("enemyZombie")->second->meleeAttackDmg = m_EnemyComps.find("enemyZombie")->second->meleeAttackDmgBase + 1 * m_Level;
-	m_EnemyComps.find("enemyZombie")->second->movementSpeed = m_EnemyComps.find("enemyZombie")->second->movementSpeedBase + 1 * m_Level;
+	if (m_EnemyComps["enemyZombie"] != nullptr)
+	{
+		m_EnemyComps["enemyZombie"]->hp = m_EnemyComps["enemyZombie"]->hpBase * pow(1.15, m_Level);
+		m_EnemyComps["enemyZombie"]->meleeAttackDmg = m_EnemyComps["enemyZombie"]->meleeAttackDmgBase + 1 * m_Level;
+		m_EnemyComps["enemyZombie"]->movementSpeed = m_EnemyComps["enemyZombie"]->movementSpeedBase + 1 * m_Level;
+	}
+
+	// meelee quick
+	if (m_EnemyComps["enemySpider"] != nullptr)
+	{
+		m_EnemyComps["enemySpider"]->hp = m_EnemyComps["enemySpider"]->hpBase * pow(1.1, m_Level);
+		m_EnemyComps["enemySpider"]->meleeAttackDmg = m_EnemyComps["enemySpider"]->meleeAttackDmgBase + 1 * m_Level;
+		m_EnemyComps["enemySpider"]->movementSpeed = m_EnemyComps["enemySpider"]->movementSpeedBase + 1 * m_Level;
+		if (m_Level > 0)
+		{
+			if (m_EnemyComps["enemySpider"]->spawnChance < 20)
+			{
+				m_EnemyComps["enemySpider"]->spawnChance += 10;
+			}
+		}
+	}
 
 	// ranged
-	m_EnemyComps.find("enemyDemon")->second->hp = m_EnemyComps.find("enemyDemon")->second->hpBase * pow(1.10, m_Level);
-	m_EnemyComps.find("enemyDemon")->second->rangeAttackDmg = m_EnemyComps.find("enemyDemon")->second->rangeAttackDmgBase + 2 * m_Level;
-	if (m_Level > 0)
+	if (m_EnemyComps["enemyDemon"] != nullptr)
 	{
-		if (m_EnemyComps.find("enemyDemon")->second->spawnChance < 40)
+		m_EnemyComps["enemyDemon"]->hp = m_EnemyComps["enemyDemon"]->hpBase * pow(1.10, m_Level);
+		m_EnemyComps["enemyDemon"]->rangeAttackDmg = m_EnemyComps["enemyDemon"]->rangeAttackDmgBase + 2 * m_Level;
+		if (m_Level > 0)
 		{
-			m_EnemyComps.find("enemyDemon")->second->spawnChance += 5;
+			if (m_EnemyComps["enemyDemon"]->spawnChance < 40)
+			{
+				m_EnemyComps["enemyDemon"]->spawnChance += 5;
+			}
 		}
 	}
 
@@ -484,6 +518,7 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 void EnemyFactory::onResetGame(ResetGame* evnt)
 {
 	m_Level = 0;
-	m_EnemyComps.find("enemyDemon")->second->spawnChance = 0;
-	m_EnemyComps.find("enemyZombie")->second->spawnChance = 0;
+	m_EnemyComps["enemyDemon"]->spawnChance = 0;
+	m_EnemyComps["enemyZombie"]->spawnChance = 0;
+	m_EnemyComps["enemySpider"]->spawnChance = 0;
 }

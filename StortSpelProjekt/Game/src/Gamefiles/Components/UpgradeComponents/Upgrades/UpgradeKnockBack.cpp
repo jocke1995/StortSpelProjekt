@@ -33,7 +33,7 @@ void UpgradeKnockBack::ApplyBoughtUpgrade()
 void UpgradeKnockBack::IncreaseLevel()
 {
 	m_Level++;
-	m_Price += m_StartingPrice;
+	m_Price = m_StartingPrice * (m_Level + 1);
 }
 
 std::string UpgradeKnockBack::GetDescription(unsigned int level)

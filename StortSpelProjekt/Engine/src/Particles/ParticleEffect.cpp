@@ -34,6 +34,9 @@ ParticleEffect::ParticleEffect(Entity* parent, DescriptorHeap* descriptorHeap, T
 
 ParticleEffect::~ParticleEffect()
 {
+	// Might be temporary, might not
+	Renderer::GetInstance().waitForGPU();
+
 	delete m_pUploadResource;
 	delete m_pDefaultResource;
 	delete m_pSRV;

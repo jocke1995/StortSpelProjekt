@@ -65,13 +65,6 @@ void SceneManager::Update(double dt)
 {
 	// Update scene
 	m_pActiveScene->Update(this, dt);
-
-	unsigned int removeSize = m_ToRemove.size() - 1;
-	for (int i = removeSize; i >= 0; --i)
-	{
-		RemoveEntity(m_ToRemove[i].ent, m_ToRemove[i].scene);
-	}
-	m_ToRemove.clear();
 }
 
 void SceneManager::RenderUpdate(double dt)
@@ -165,6 +158,16 @@ void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 void SceneManager::AddEntity(Entity* entity, Scene* scene)
 {
 	entity->OnInitScene();
+}
+
+void SceneManager::RemoveEntities()
+{
+	unsigned int removeSize = m_ToRemove.size() - 1;
+	for (int i = removeSize; i >= 0; --i)
+	{
+		RemoveEntity(m_ToRemove[i].ent, m_ToRemove[i].scene);
+	}
+	m_ToRemove.clear();
 }
 
 void SceneManager::SetGameOverScene(Scene* scene)
