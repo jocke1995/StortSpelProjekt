@@ -92,15 +92,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     while (!window->ExitWindow())
     {
-        /* ------ Update ------ */
-        timer->Update();
-        logicTimer += timer->GetDeltaTime();
-        if (gameNetwork.IsConnected())
+        if (window->WasSpacePressed() == true)
         {
-            networkTimer += timer->GetDeltaTime();
+            Entity* ent = sceneManager->GetScene("jockesScene")->GetEntity("progressBarTest1");
+            component::ProgressBarComponent* pbc = ent->GetComponent<component::ProgressBarComponent>();
+
+            static bool a = true;
+            a = !a;
+            pbc->SetDrawState(a);
         }
 
-        if (window->WasSpacePressed() == true)
+        if (window->WasTabPressed() == true)
         {
             Entity* ent = sceneManager->GetScene("jockesScene")->GetEntity("progressBarTest2");
             component::ProgressBarComponent* pbc = ent->GetComponent<component::ProgressBarComponent>();
@@ -109,6 +111,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             a = !a;
             pbc->SetDrawState(a);
         }
+
+        /* ------ Update ------ */
+        timer->Update();
+        logicTimer += timer->GetDeltaTime();
+        if (gameNetwork.IsConnected())
+        {
+            networkTimer += timer->GetDeltaTime();
+        }
+
+        
 
         sceneManager->RenderUpdate(timer->GetDeltaTime());
         particleSystem->Update(timer->GetDeltaTime());
@@ -729,9 +741,9 @@ Scene* JockesTestScene(SceneManager* sm)
     dlc->SetCameraRight(70.0f);
     /* ---------------------- dirLight ---------------------- */
 
-    entity = scene->AddEntity("progressBarTest");
+    entity = scene->AddEntity("progressBarTest1");
     float3 startPosition = { 0.0f, 10.0f, 0.0f };
-    pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 1.0f, 1.0f);
+    pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 2.0f, 1.0f);
 
 
     entity = scene->AddEntity("progressBarTest2");
@@ -1784,13 +1796,21 @@ void JockeUpdateScene(SceneManager* sm, double dt)
     //
     //intensity += 0.005f;
 
-    Entity* ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest2");
+    // Update first progressBar
+    Entity* ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest1");
     component::ProgressBarComponent* pbc = ent->GetComponent<component::ProgressBarComponent>();
 
-    static float counter = 0.0f;
-    pbc->SetProgressBarPercent(1.0 - abs(sin(counter)));
+    static float counter1 = 0.0f;
+    pbc->SetProgressBarPercent(1.0 - abs(sin(counter1)));
+    counter1 += 0.0008f;
 
-    counter += 0.005f;
+    // Update second progressBar
+    ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest2");
+    pbc = ent->GetComponent<component::ProgressBarComponent>();
+
+    static float counter2 = 0.0f;
+    pbc->SetProgressBarPercent(1.0 - abs(sin(counter2)));
+    counter2 += 0.005f;
 
 }
 
