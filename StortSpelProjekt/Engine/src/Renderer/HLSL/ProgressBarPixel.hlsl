@@ -20,9 +20,12 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 	//float4 texColor	= textures[cbPerObject.info.textureAlbedo].Sample(point_Wrap, input.uv);
 	//return float4(texColor.rgb, texColor.a);
 
-	if (progressBarData.pad1.x == 0.0f)
+	// Modified hp bar (red texture) 
+	if (progressBarData.id == 1.0f)
 	{
-		return float4(0.0f, 1.0f, 0.0f, 1.0f);
+		return float4(0.8f, 0.0f, 0.0f, 1.0f);
 	}
-	return float4(1.0f, 0.0f, 0.0f, 1.0f);
+
+	// Background bar (black texture)
+	return float4(0.0f, 0.0f, 0.0f, 1.0f);
 }

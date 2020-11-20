@@ -21,7 +21,6 @@
 #include "../GPUMemory/Resource.h"
 
 // Progressbar specifics
-#include "../ProgressBar.h"
 #include "../ECS/Components/ProgressBarComponent.h"
 
 ProgressBarRenderTask::ProgressBarRenderTask(ID3D12Device5* device, RootSignature* rootSignature,
@@ -93,7 +92,7 @@ void ProgressBarRenderTask::Execute()
 		for (unsigned int i = 0; i < 2; i++)
 		{
 			// Set the constantBuffer
-			D3D12_GPU_VIRTUAL_ADDRESS gpuVA = pbc->m_ProgressBars[i]->GetConstantBuffer()->GetCBV()->GetResource()->GetGPUVirtualAdress();
+			D3D12_GPU_VIRTUAL_ADDRESS gpuVA = pbc->m_ConstantBuffers[i]->GetCBV()->GetResource()->GetGPUVirtualAdress();
 			commandList->SetGraphicsRootConstantBufferView(RS::CBV0, gpuVA);
 			
 			//info.textureAlbedo = texture->GetDescriptorHeapIndex();

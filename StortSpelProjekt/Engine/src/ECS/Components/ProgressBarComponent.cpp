@@ -1,7 +1,11 @@
 #include "stdafx.h"
 #include "ProgressBarComponent.h"
+
 #include "../Renderer/Renderer.h"
-#include "../Renderer/ProgressBar.h"
+#include "../Renderer/GPUMemory/ConstantBuffer.h"
+#include "../Renderer/Texture/Texture.h"
+
+#include "../Misc/AssetLoader.h"
 
 namespace component
 {
@@ -10,16 +14,15 @@ namespace component
 	{
 		m_Id = s_ProgressBarComponentCounter++;
 
+		
 		for (unsigned int i = 0; i < 2; i++)
 		{
 			m_QuadData[i].position = startPosition;
 			m_QuadData[i].activePercent = 1.0f;
 			m_QuadData[i].maxWidth = width;
 			m_QuadData[i].maxHeight = height;
+			m_QuadData[i].id = i;
 		}
-
-		m_QuadData[0].pad1 = { 1.0f, 1.0f };
-		m_QuadData[1].pad1 = { 0.0f, 0.0f };
 	}
 
 	bool ProgressBarComponent::operator==(const ProgressBarComponent& other)
@@ -31,9 +34,9 @@ namespace component
 	{
 		for (unsigned int i = 0; i < 2; i++)
 		{
-			if (m_ProgressBars[i] != nullptr)
+			if (m_ConstantBuffers[i] != nullptr)
 			{
-				delete m_ProgressBars[i];
+				delete m_ConstantBuffers[i];
 			}
 		}
 	}
@@ -101,5 +104,9 @@ namespace component
 
 		// Only [1] will update, since [0] is the background and should allways be at its full
 		m_QuadData[1].activePercent =  newProgressBarPercent;
+	}
+	void ProgressBarComponent::SetTexture(PROGRESS_BAR_TYPE progressBarType, Texture* texture)
+	{
+		m_Textures[progressBarType] = texture;
 	}
 }

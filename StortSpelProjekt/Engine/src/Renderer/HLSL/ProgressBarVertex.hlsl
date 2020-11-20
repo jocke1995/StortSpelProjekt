@@ -43,13 +43,19 @@ VS_OUT VS_main(uint vID : SV_VertexID)
 	v.pos.x *= progressBarData.maxWidth;
 	v.pos.y *= progressBarData.maxHeight;
 
-	// Beautiful hack, we only wanna change the 2 vertices on the right
+	// Hack, we only wanna change the 2 vertices on the right
 	if (vID == 0 || vID == 2)
 	{
 		v.pos.x -= progressBarData.maxWidth * 2 * (1.0f - progressBarData.activePercent);
 	}
 
 	float3 vertexPosition = progressBarData.position + mul(v.pos, camSpace);
+
+	// Hack
+	if (progressBarData.id.x == 0.0f)
+	{
+		vertexPosition = vertexPosition + cbPerFrame.camForward * 0.03f;
+	}
 
 	//							world 					VP
 	output.pos = mul(float4(vertexPosition, 1), cbPerObject.WVP);

@@ -96,9 +96,6 @@
 // Particle
 #include "../Particles/ParticleEffect.h"
 
-// ProgressBar
-#include "ProgressBar.h"
-
 Renderer::Renderer()
 {
 	EventBus::GetInstance().Subscribe(this, &Renderer::toggleFullscreen);
@@ -829,7 +826,7 @@ void Renderer::InitProgressBarComponent(component::ProgressBarComponent* compone
 	// Create constant buffers
 	for (unsigned int i = 0; i < 2; i++)
 	{
-		component->m_ProgressBars[i] = new ProgressBar(
+		component->m_ConstantBuffers[i] = new ConstantBuffer(
 												m_pDevice5,
 												sizeof(PROGRESS_BAR_DATA),
 												L"PROGRESSBAR_CB_",
@@ -840,8 +837,8 @@ void Renderer::InitProgressBarComponent(component::ProgressBarComponent* compone
 	for (unsigned int i = 0; i < 2; i++)
 	{
 		const void* data = static_cast<const void*>(&component->m_QuadData[i]);
-		Resource* uploadR = component->m_ProgressBars[i]->GetConstantBuffer()->GetUploadResource();
-		Resource* defaultR = component->m_ProgressBars[i]->GetConstantBuffer()->GetDefaultResource();
+		Resource* uploadR = component->m_ConstantBuffers[i]->GetUploadResource();
+		Resource* defaultR = component->m_ConstantBuffers[i]->GetDefaultResource();
 		submitToCpft(&std::make_tuple(uploadR, defaultR, data));
 	}
 
@@ -1090,7 +1087,7 @@ void Renderer::UnInitProgressBarComponent(component::ProgressBarComponent* compo
 	// Remove from CopyPerFrame
 	for (unsigned int i = 0; i < 2; i++)
 	{
-		clearSpecificCpft(component->m_ProgressBars[i]->GetConstantBuffer()->GetUploadResource());
+		clearSpecificCpft(component->m_ConstantBuffers[i]->GetUploadResource());
 	}
 }
 

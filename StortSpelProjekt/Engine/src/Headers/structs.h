@@ -134,6 +134,8 @@ struct PROGRESS_BAR_DATA
 	float maxHeight;
 	float maxWidth;
 
-	float2 pad1;
+	float id;
+
+	float pad1;
 };
 #endif
