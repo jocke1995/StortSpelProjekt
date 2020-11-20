@@ -10,20 +10,20 @@ component::TeleportComponent::TeleportComponent(Entity* parent, Entity* player, 
 {
 	m_NewSceneName = newSceneName;
 	m_pPlayerInstance = player;
-	EventBus::GetInstance().Subscribe(this, &TeleportComponent::OnCollision);
 }
 
 component::TeleportComponent::~TeleportComponent()
 {
-	EventBus::GetInstance().Unsubscribe(this, &TeleportComponent::OnCollision);
 }
 
 void component::TeleportComponent::OnInitScene()
 {
+	EventBus::GetInstance().Subscribe(this, &TeleportComponent::OnCollision);
 }
 
 void component::TeleportComponent::OnUnInitScene()
 {
+	EventBus::GetInstance().Unsubscribe(this, &TeleportComponent::OnCollision);
 }
 
 void component::TeleportComponent::OnCollision(Collision* collisionEvent)
