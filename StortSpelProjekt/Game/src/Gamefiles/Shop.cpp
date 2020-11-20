@@ -27,6 +27,8 @@ Shop::Shop()
 	m_Rand = EngineRand(time(NULL));
 	// Set the size of shop inventory - how many upgrades the shop will contain.
 	m_InvSize = 3;
+	m_RerollCost = 50;
+	m_RerollIncrease = m_RerollCost / 10; // 1/10 of the base cost is increased each time the player uses the reroll function. 
 
 
 	AssetLoader* al = AssetLoader::Get();
@@ -132,7 +134,9 @@ void Shop::Create2DGUI()
 
 	/*----------------Text-----------------*/
 	std::string textToRender = "Reroll the inventory in the shop";
-	textToRender += "\nPrice: 50 Coins";
+	textToRender += "\nPrice: ";
+	textToRender += std::to_string(m_RerollCost);
+	textToRender += " Coins";
 	float2 textPos = { 0.76f, 0.66f };
 	float2 textPadding = { 0.5f, 0.0f };
 	float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -303,6 +307,7 @@ void Shop::Reset()
 	{
 		item.second->SetLevel(0);
 	}
+
 }
 
 void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
@@ -358,9 +363,10 @@ void Shop::shopButtonPressed(ButtonPressed* evnt)
 	if (evnt->name == "reroll-button")
 	{
 		//Clears the 2D-GUI, Rerolls the inventory of the shop and Creates the 2D-GUI with the new inventory.
-		if (m_pPlayer->GetComponent<component::CurrencyComponent>()->GetBalace() >= REROLL_COST)
+		if (m_pPlayer->GetComponent<component::CurrencyComponent>()->GetBalace() >= m_RerollCost)
 		{
-			m_pPlayer->GetComponent<component::CurrencyComponent>()->ChangeBalance(-REROLL_COST);
+			m_pPlayer->GetComponent<component::CurrencyComponent>()->ChangeBalance(-m_RerollCost);
+			rerollPriceIncrease();
 			rerollShop();
 		}
 	}
@@ -378,6 +384,11 @@ void Shop::rerollShop()
 {
 	randomizeInventory();
 	Create2DGUI();
+}
+
+void Shop::rerollPriceIncrease()
+{
+	m_RerollCost += m_RerollIncrease;
 }
 
 void Shop::randomizeInventory()

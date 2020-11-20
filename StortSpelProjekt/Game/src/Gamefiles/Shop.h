@@ -4,8 +4,6 @@
 #include "../Misc/EngineRand.h"
 #include "../Events/Events.h"
 
-#define REROLL_COST 50
-
 class UpgradeComponent;
 class UpgradeManager;
 class Upgrade;
@@ -13,6 +11,7 @@ class Texture;
 class Font;
 
 struct shopGUIStateChange;
+
 
 class Shop
 {
@@ -86,8 +85,12 @@ private:
 	// uses the randomizeInventory-functions and re-creates the 2D-GUI
 	void rerollShop();
 	// 
+	void rerollPriceIncrease();
 
 	Font* m_pArial = nullptr;
+
+	int m_RerollCost;
+	int m_RerollIncrease;
 
 	bool m_DisplayingShopGUI = false;
 
