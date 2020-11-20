@@ -228,8 +228,8 @@ void Shop::ApplyUppgrade(std::string name)
 		// because we want to increase level of RANGE type upgrades as well and this needs to be done in UpgradeManager.
 		if (m_AllAvailableUpgrades[name]->GetType() & F_UpgradeType::PLAYER)
 		{
-			m_pPlayer->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(name)->IncreaseLevel();
 			m_pPlayer->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(name)->ApplyStat();
+			m_pPlayer->GetComponent<component::UpgradeComponent>()->GetUpgradeByName(name)->IncreaseLevel();
 		}
 		m_pUpgradeManager->IncreaseLevel(name);
 	}
