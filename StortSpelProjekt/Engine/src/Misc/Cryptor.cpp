@@ -218,15 +218,20 @@ void Cryptor::encryptDirectoryHelper(int key, const char* path)
 		else
 		{
 			std::string extension = entry.path().extension().generic_string().c_str();
-			if (extension == ".DDS" || extension == ".dds" || extension == ".jpg" || extension == ".png" || extension == ".fbx" || extension == ".FBX")
+			if (extension != ".jpg" && extension != ".png")
 			{
-				EncryptTask task(key,true, entry.path().generic_string());
-				task.Execute();
-			}
-			else
-			{
-				EncryptTask task(key,false, entry.path().generic_string());
-				task.Execute();
+				if (extension == ".DDS" || extension == ".dds" || extension == ".fbx" || extension == ".FBX")
+				{
+					Encrypt(key, entry.path().generic_string().c_str(),true);
+					//EncryptTask task(key, true, entry.path().generic_string());
+					//task.Execute();
+				}
+				else
+				{
+					Encrypt(key, entry.path().generic_string().c_str());
+					//EncryptTask task(key, false, entry.path().generic_string());
+					//task.Execute();
+				}
 			}
 		}
 	}

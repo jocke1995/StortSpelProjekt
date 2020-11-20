@@ -171,7 +171,7 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	std::string fileEnding = filePath.substr(filePath.find_last_of('.'));
 	bool binary = false;
 
-	if (fileEnding == "fbx" || fileEnding == "FBX")
+	if (fileEnding == ".fbx" || fileEnding == ".FBX")
 	{
 		binary = true;
 	}

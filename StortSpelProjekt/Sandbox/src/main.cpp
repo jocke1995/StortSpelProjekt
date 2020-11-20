@@ -31,6 +31,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
     //Cryptor::Encrypt(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/Quad/NormalizedQuad.obj");
+    //Cryptor::Decrypt(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/Quad/NormalizedQuad.obj", "../Vendor/Resources/Models/Quad/NormalizedQuad.obj");
     //Cryptor::EncryptDirectory(11, "../Vendor/Resources/Textures/Default");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
