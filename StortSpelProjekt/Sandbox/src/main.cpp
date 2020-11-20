@@ -92,26 +92,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     while (!window->ExitWindow())
     {
-        if (window->WasSpacePressed() == true)
-        {
-            Entity* ent = sceneManager->GetScene("jockesScene")->GetEntity("progressBarTest1");
-            component::ProgressBarComponent* pbc = ent->GetComponent<component::ProgressBarComponent>();
-
-            static bool a = true;
-            a = !a;
-            pbc->SetDrawState(a);
-        }
-
-        if (window->WasTabPressed() == true)
-        {
-            Entity* ent = sceneManager->GetScene("jockesScene")->GetEntity("progressBarTest2");
-            component::ProgressBarComponent* pbc = ent->GetComponent<component::ProgressBarComponent>();
-
-            static bool a = true;
-            a = !a;
-            pbc->SetDrawState(a);
-        }
-
         /* ------ Update ------ */
         timer->Update();
         logicTimer += timer->GetDeltaTime();
