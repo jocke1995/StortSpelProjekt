@@ -229,7 +229,7 @@ Scene* GameScene(SceneManager* sm)
 
     melc->SetDamage(10);
     melc->SetAttackInterval(1.0);
-    ranc->SetAttackInterval(0.8);
+    ranc->SetAttackInterval(1.0);
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
