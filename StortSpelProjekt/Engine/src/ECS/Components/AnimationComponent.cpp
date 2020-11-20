@@ -21,11 +21,13 @@ void component::AnimationComponent::RenderUpdate(double dt)
 void component::AnimationComponent::OnInitScene()
 {
 	EventBus::GetInstance().Subscribe(this, &AnimationComponent::walkAnimation);
+	EventBus::GetInstance().Subscribe(this, &AnimationComponent::attackAnimation);
 }
 
 void component::AnimationComponent::OnUnInitScene()
 {
 	EventBus::GetInstance().Unsubscribe(this, &AnimationComponent::walkAnimation);
+	EventBus::GetInstance().Unsubscribe(this, &AnimationComponent::attackAnimation);
 }
 
 void component::AnimationComponent::Initialize()
@@ -45,23 +47,35 @@ void component::AnimationComponent::Initialize()
 	}
 }
 
-void component::AnimationComponent::SetActiveAnimation(std::string animationName)
-{
-	m_pAnimatedModel->SetActiveAnimation(animationName);
-}
-
 void component::AnimationComponent::walkAnimation(MovementInput* evnt)
 {
-	if (	Input::GetInstance().GetKeyState(SCAN_CODES::W) || 
-			Input::GetInstance().GetKeyState(SCAN_CODES::A) ||
-			Input::GetInstance().GetKeyState(SCAN_CODES::S) || 
-			Input::GetInstance().GetKeyState(SCAN_CODES::D))
+	if (Input::GetInstance().GetKeyState(SCAN_CODES::W) || 
+		Input::GetInstance().GetKeyState(SCAN_CODES::A) || 
+		Input::GetInstance().GetKeyState(SCAN_CODES::S) || 
+		Input::GetInstance().GetKeyState(SCAN_CODES::D)	)
 	{
-		m_pAnimatedModel->PlayAnimation();	// Play on movement.
+		m_pAnimatedModel->AddActiveAnimation("Walk", true);
+
+		m_pAnimatedModel->EndActiveAnimation("Idle");
+		m_pAnimatedModel->PlayAnimation();
 	}
 	else
 	{
-		m_pAnimatedModel->PauseAnimation();	// Pause on no movement.
-		m_pAnimatedModel->ResetAnimation();
+		m_pAnimatedModel->EndActiveAnimation("Walk");
+	}
+}
+
+void component::AnimationComponent::attackAnimation(MouseClick* evnt)
+{
+	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN)
+	{
+		m_pAnimatedModel->AddActiveAnimation("Claw_attack_left", false);
+
+		m_pAnimatedModel->EndActiveAnimation("Idle");
+		m_pAnimatedModel->PlayAnimation();
+	}
+	else
+	{
+		// Since this animation is set to not loop, it will end itself when finished.
 	}
 }

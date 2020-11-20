@@ -59,15 +59,36 @@ struct SkeletonNode
 struct Animation
 {
 	std::string name;
+	bool loop;
+	bool finished = false;
+	double time = 0;
 	double durationInTicks;
 	double ticksPerSecond;
+	double animationTime = 0;
 	std::map<std::string, TransformKey> currentState;
 	std::map<std::string, std::vector<TranslationKey>> translationKeyframes;
 	std::map<std::string, std::vector<RotationKey>> rotationKeyframes;
 	std::map<std::string, std::vector<ScalingKey>> scalingKeyframes;
 
-	void Update(double animationTime)	// Interpolates the matrices and stores the finished animation as the current state
+	void Update(double dt)	// Interpolates the matrices and stores the finished animation as the current state
 	{
+		time += dt;
+		double timeInTicks = time * ticksPerSecond;
+		if (loop)
+		{
+			animationTime = fmod(timeInTicks, durationInTicks);
+		}
+		else
+		{
+			animationTime = timeInTicks;
+			if (timeInTicks > durationInTicks)
+			{
+				finished = true;
+				time = 0;
+				return;
+			}
+		}
+
 		for (auto& bone : translationKeyframes)
 		{
 			assert(!bone.second.empty());

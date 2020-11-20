@@ -21,7 +21,6 @@ AnimatedModel::AnimatedModel(
 	m_Animations = (*animations);
 	m_UploadMatrices.reserve(MAX_ANIMATION_MATRICES);
 
-	m_Time = 0;
 	DirectX::XMFLOAT4X4 matIdentity;
 	DirectX::XMStoreFloat4x4(&matIdentity, DirectX::XMMatrixIdentity());
 
@@ -34,6 +33,9 @@ AnimatedModel::AnimatedModel(
 	DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
 	globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
 	DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
+
+	// Default animation is 'idle'. This will play the idle animation.
+	ResetAnimation();
 }
 
 AnimatedModel::~AnimatedModel()
@@ -61,39 +63,133 @@ const std::vector<DirectX::XMFLOAT4X4>* AnimatedModel::GetUploadMatrices() const
 	return &m_UploadMatrices;
 }
 
-bool AnimatedModel::SetActiveAnimation(std::string animationName)
+bool AnimatedModel::AddActiveAnimation(std::string animationName, bool loop)
 {
+	for (auto& animation : m_pActiveAnimations)
+	{
+		if (animation->name == animationName)
+		{
+			return false;
+		}
+	}
+
 	for (auto& animation : m_Animations)
 	{
 		if (animation->name == animationName)
 		{
-			m_pActiveAnimation = animation;
-			m_pActiveAnimation->Update(0);
-			initializeAnimation(m_pSkeleton);
+			animation->loop = loop;
+			animation->Update(0);
+			m_pActiveAnimations.push_back(animation);
+			bindSkeleton(m_pSkeleton, animation);
 			return true;
 		}
 	}
 
-	Log::PrintSeverity(Log::Severity::CRITICAL, "Wrong name for the animation!\n");
+	return false;
+}
+
+bool AnimatedModel::EndActiveAnimation(std::string animationName)
+{
+	unsigned int index = 0;
+	for (auto& animation : m_pActiveAnimations)
+	{
+		if (animation->name == animationName)
+		{
+			m_pActiveAnimations.erase(m_pActiveAnimations.begin() + index);
+			// If there are no active animations left, run default animation.
+			if (m_pActiveAnimations.empty())
+			{
+				ResetAnimation();
+			}
+			return true;
+		}
+		index++;
+	}
 
 	return false;
 }
 
 void AnimatedModel::Update(double dt)
 {
-	if (m_pActiveAnimation != nullptr && !m_AnimationIsPaused)
+	if (!m_AnimationIsPaused)
 	{
-		m_Time += dt;
-		double timeInTicks = m_Time * m_pActiveAnimation->ticksPerSecond;
+		unsigned int index = 0;
+		for (auto& animation : m_pActiveAnimations)
+		{
+			// remove all finished animations from the active animations vector
+			if (animation->finished)
+			{
+				m_pActiveAnimations.erase(m_pActiveAnimations.begin() + index);
+				animation->finished = false;
+				if (m_pActiveAnimations.size() == 1)
+				{
+					bindSkeleton(m_pSkeleton, m_pActiveAnimations[0]);
+				}
+			}
+			else
+			{
+				animation->Update(dt);
+			}
+			index++;
+		}
 
-		double animationTime = fmod(timeInTicks, m_pActiveAnimation->durationInTicks);
-		m_pActiveAnimation->Update(animationTime);
+		// If there is no active animation, run the default animation (idle)
+		if (m_pActiveAnimations.empty())
+		{
+			ResetAnimation();
+		}
+
 		updateSkeleton(m_pSkeleton, DirectX::XMMatrixIdentity());
 	}
 }
 
 void AnimatedModel::PlayAnimation()
 {
+	// bool for indicating if the animation is active or not.
+	std::pair<bool, Animation*> idle = { false, nullptr };
+	std::pair<bool, Animation*> walk = { false, nullptr };
+	std::pair<bool, Animation*> attack = { false, nullptr };
+
+	if (m_pActiveAnimations.size() == 1)
+	{
+		Animation* animation = m_pActiveAnimations.front();
+		bindSkeleton(m_pSkeleton, animation);
+	}
+	else
+	{
+		// check for active blending
+		for (auto& animation : m_pActiveAnimations)
+		{
+			if (animation->name == "Idle")
+			{
+				idle.first = true;
+				idle.second = animation;
+			}
+			else if (animation->name == "Walk")
+			{
+				walk.first = true;
+				walk.second = animation;
+			}
+			else if (animation->name == "Claw_attack_left")
+			{
+				attack.first = true;
+				attack.second = animation;
+			}
+		}
+
+		// If the animations are to be blended, bind the skeleton in some hardcoded way.
+		if (walk.first && attack.first)
+		{
+			SkeletonNode* hips = findNode(m_pSkeleton, "Hips");
+			assert(hips != nullptr);
+			bindSkeleton(hips, walk.second);
+
+			SkeletonNode* spine = findNode(m_pSkeleton, "Spine");
+			assert(spine != nullptr);
+			bindSkeleton(spine, attack.second);
+		}
+	}
+
 	m_AnimationIsPaused = false;
 }
 
@@ -104,16 +200,16 @@ void AnimatedModel::PauseAnimation()
 
 void AnimatedModel::ResetAnimation()
 {
-	m_Time = 0.0f;
-	m_pActiveAnimation->Update(0);
-	updateSkeleton(m_pSkeleton, DirectX::XMMatrixIdentity());
+	m_pActiveAnimations.clear();
+	AddActiveAnimation("Idle", true);
+	PlayAnimation();
 }
 
-void AnimatedModel::initializeAnimation(SkeletonNode* node)
+void AnimatedModel::bindSkeleton(SkeletonNode* node, Animation* animation)
 {
-	if (m_pActiveAnimation->currentState.find(node->name) != m_pActiveAnimation->currentState.end())
+	if (animation->currentState.find(node->name) != animation->currentState.end())
 	{
-		node->currentStateTransform = &m_pActiveAnimation->currentState[node->name];
+		node->currentStateTransform = &animation->currentState[node->name];
 	}
 	else
 	{
@@ -123,7 +219,7 @@ void AnimatedModel::initializeAnimation(SkeletonNode* node)
 	// Loop through all nodes in the tree
 	for (auto& child : node->children)
 	{
-		initializeAnimation(child);
+		bindSkeleton(child, animation);
 	}
 }
 
@@ -171,5 +267,27 @@ void AnimatedModel::updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentT
 	for (unsigned int i = 0; i < node->children.size(); i++)
 	{
 		updateSkeleton(node->children[i], finalTransform);
+	}
+}
+
+SkeletonNode* AnimatedModel::findNode(SkeletonNode* root, std::string nodeName)
+{
+	SkeletonNode* node;
+	if (root->name == nodeName)
+	{
+		return root;
+	}
+	else
+	{
+		for (auto& child : root->children)
+		{
+			node = findNode(child, nodeName);
+			if (node != nullptr)
+			{
+				return node;
+			}
+		}
+
+		return nullptr;
 	}
 }

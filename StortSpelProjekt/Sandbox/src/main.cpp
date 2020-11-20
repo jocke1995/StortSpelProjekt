@@ -60,16 +60,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
-    //Scene* williamScene = WilliamsTestScene(sceneManager);
-    //Scene* activeScene = williamScene;
+    Scene* williamScene = WilliamsTestScene(sceneManager);
+    Scene* activeScene = williamScene;
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* activeScene = bjornScene;
     //Scene* antonScene = AntonTestScene(sceneManager);
     //Scene* activeScene = antonScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* activeScene = andresScene;
-    Scene* filipScene = FloppipTestScene(sceneManager);
-    Scene* activeScene = filipScene;
+    //Scene* filipScene = FloppipTestScene(sceneManager);
+    //Scene* activeScene = filipScene;
 
     // Set scene
     sceneManager->SetScene(activeScene);
@@ -304,7 +304,6 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
     ac->Initialize();
-    ac->SetActiveAnimation("Take 001");
     tc->GetTransform()->SetScale(0.1f);
     tc->GetTransform()->SetPosition(-10.0, 20.0, 10.0);
 
@@ -1168,6 +1167,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
     component::PlayerInputComponent* ic = nullptr;
+    component::CollisionComponent* ccc = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1176,7 +1176,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     //Model* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
-    Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/aniTest/Standard_Walk.fbx");
+    Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/ignoredModels/DemonAnimated/demonAnimated.fbx");
     //Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/amongus/AmongUs.fbx");
 
     Entity* entity = scene->AddEntity("player");
@@ -1191,9 +1191,14 @@ Scene* WilliamsTestScene(SceneManager* sm)
     mc->SetModel(aniTest);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
     ac->Initialize();
-    ac->SetActiveAnimation("mixamo.com");
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 10.0f);
     tc->GetTransform()->SetScale(0.1f);
+
+    double3 playerDim = mc->GetModelDim();
+
+    double rad = playerDim.z / 2.0;
+    double cylHeight = playerDim.y - (rad * 2.0);
+    ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
 
     scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();

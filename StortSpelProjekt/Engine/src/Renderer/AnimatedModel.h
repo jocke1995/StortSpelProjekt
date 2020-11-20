@@ -31,19 +31,20 @@ public:
     const ConstantBuffer* GetConstantBuffer() const;
     const std::vector<DirectX::XMFLOAT4X4>* GetUploadMatrices() const;
 
-    bool SetActiveAnimation(std::string animationName);
+    bool AddActiveAnimation(std::string animationName, bool loop);
+    bool EndActiveAnimation(std::string animationName);
     void Update(double dt);
     void PlayAnimation();
     void PauseAnimation();
     void ResetAnimation();
 
 private:
-    void initializeAnimation(SkeletonNode* node);   // Attach the currentStateTransforms of the animation to the skeleton.
+    void bindSkeleton(SkeletonNode* node, Animation* animation);   // Attach the currentStateTransforms of the animation to the skeleton.
     void updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform);
+    SkeletonNode* findNode(SkeletonNode* root, std::string nodeName);
 
-    double m_Time;
-    bool m_AnimationIsPaused = true;
-    Animation* m_pActiveAnimation;
+    bool m_AnimationIsPaused = false;
+    std::vector<Animation*> m_pActiveAnimations;
     SkeletonNode* m_pSkeleton;
     std::vector<Animation*> m_Animations;
     DirectX::XMFLOAT4X4 m_GlobalInverseTransform;

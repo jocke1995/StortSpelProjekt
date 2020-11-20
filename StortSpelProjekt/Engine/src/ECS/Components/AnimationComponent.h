@@ -5,6 +5,7 @@
 class Entity;
 class AnimatedModel;
 struct MovementInput;
+struct MouseClick;
 
 namespace component
 {
@@ -18,12 +19,12 @@ namespace component
         void OnInitScene();
         void OnUnInitScene();
 
+        // Requires that the entity has a model.
         void Initialize();
-
-        void SetActiveAnimation(std::string animationName);
 
     private:
         void walkAnimation(MovementInput* evnt);
+        void attackAnimation(MouseClick* evnt);
         AnimatedModel* m_pAnimatedModel;
     };
 }
