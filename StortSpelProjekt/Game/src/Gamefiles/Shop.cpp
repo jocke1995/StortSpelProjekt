@@ -171,8 +171,8 @@ void Shop::Create2DGUI()
 	/*---------------Texture-----------------*/
 	entity = shopScene->AddEntity("reroll-button");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	quadPos = { 0.7f, 0.7f };
-	quadScale = { 0.3, 0.3f };
+	quadPos = { 0.76f, 0.73f };
+	quadScale = { 0.18, 0.18f };
 	Texture* rerollImage = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Reroll.png");
 	gui->GetQuadManager()->CreateQuad(
 		"reroll-button",
@@ -307,7 +307,7 @@ void Shop::Reset()
 	{
 		item.second->SetLevel(0);
 	}
-
+	m_RerollCost = 50;
 }
 
 void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
