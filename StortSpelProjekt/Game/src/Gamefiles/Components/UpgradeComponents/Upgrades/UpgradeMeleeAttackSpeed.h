@@ -19,6 +19,7 @@ private:
 	float m_UpgradeFactor;
 	float m_BaseAttackSpeed;
 	float m_AttackPerSecond;
+	int m_Percent;
 };
 
 #endif
