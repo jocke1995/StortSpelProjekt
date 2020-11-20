@@ -14,6 +14,8 @@ namespace component
 	{
 		m_Id = s_ProgressBarComponentCounter++;
 
+		// Get default textures
+		Texture* text = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Default/default_albedo.dds");
 		
 		for (unsigned int i = 0; i < 2; i++)
 		{
@@ -22,7 +24,12 @@ namespace component
 			m_QuadData[i].maxWidth = width;
 			m_QuadData[i].maxHeight = height;
 			m_QuadData[i].id = i;
+
+			// Set default textures
+			m_Textures[i] = text;
 		}
+
+		
 	}
 
 	bool ProgressBarComponent::operator==(const ProgressBarComponent& other)

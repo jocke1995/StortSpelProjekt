@@ -833,15 +833,21 @@ void Renderer::InitProgressBarComponent(component::ProgressBarComponent* compone
 												m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 	}
 	
-	// Submit to cpft
+	// Submit to GPU
 	for (unsigned int i = 0; i < 2; i++)
 	{
+		// Submit data to cpft
 		const void* data = static_cast<const void*>(&component->m_QuadData[i]);
 		Resource* uploadR = component->m_ConstantBuffers[i]->GetUploadResource();
 		Resource* defaultR = component->m_ConstantBuffers[i]->GetDefaultResource();
 		submitToCpft(&std::make_tuple(uploadR, defaultR, data));
+
+		// Submit textures to codt
+		submitTextureToCodt(component->m_Textures[i]);
 	}
 
+	
+	
 	// Update the vector in the renderTask
 	setProgressBarComponents();
 }

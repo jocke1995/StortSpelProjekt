@@ -10,6 +10,7 @@
 #include "../PipelineState.h"
 #include "../Renderer/Camera/BaseCamera.h"
 #include "../Renderer/Mesh.h"
+#include "../Texture/Texture.h"
 
 // GPU-Memory
 #include "../GPUMemory/RenderTargetView.h"
@@ -95,7 +96,7 @@ void ProgressBarRenderTask::Execute()
 			D3D12_GPU_VIRTUAL_ADDRESS gpuVA = pbc->m_ConstantBuffers[i]->GetCBV()->GetResource()->GetGPUVirtualAdress();
 			commandList->SetGraphicsRootConstantBufferView(RS::CBV0, gpuVA);
 			
-			//info.textureAlbedo = texture->GetDescriptorHeapIndex();
+			info.textureAlbedo = pbc->m_Textures[i]->GetDescriptorHeapIndex();
 
 			// Create a CB_PER_OBJECT struct
 			// Hack: sending in tcPos specially in this renderTask
