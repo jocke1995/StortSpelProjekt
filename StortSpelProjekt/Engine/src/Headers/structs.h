@@ -40,27 +40,6 @@ struct ANIMATION_MATRICES_STRUCT
 	float4x4 matrices[MAX_ANIMATION_MATRICES];
 };
 
-struct MaterialAttributes
-{
-	// shininess
-	float shininess;
-	float3 pad1;
-
-	// These colors will be used with "addition" in the shaders
-	float4 ambientAdd;
-	float4 diffuseAdd;
-	float4 specularAdd;
-	
-	// These colors will be used with "multiplication" in the shaders.
-	// They can be used to tint the colors in different ways
-	float4 ambientMul;
-	float4 diffuseMul;
-	float4 specularMul;
-
-	float2 uvScale;
-	float2 pad2;
-};
-
 struct CB_PER_OBJECT_STRUCT
 {
 	float4x4 worldMatrix;
@@ -141,7 +120,22 @@ struct PARTICLE_DATA
 {
 	float3 position;
 	float size;
+
 	float rotation;
 };
 
+struct PROGRESS_BAR_DATA
+{
+	float3 position;
+	// Value between 0-1, how much of the progress bar that is shown
+	float activePercent;
+
+	// maximum width and height of quad
+	float maxHeight;
+	float maxWidth;
+
+	float id;
+
+	float pad1;
+};
 #endif

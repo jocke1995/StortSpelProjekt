@@ -10,6 +10,7 @@
 #include "Components/GUI2DComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/SkyboxComponent.h"
+#include "Components/ProgressBarComponent.h"
 
 // Audio
 #include "Components/Audio2DVoiceComponent.h"
