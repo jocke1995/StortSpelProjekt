@@ -7,6 +7,11 @@
 
 #include "../ECS/Components/Audio3DEmitterComponent.h"
 #include "../ECS/Components/Audio2DVoiceComponent.h"
+#include "../Misc/AssetLoader.h"
+#include "../Renderer/Texture/Texture2DGUI.h"
+#include "../ECS/Components/ParticleEmitterComponent.h"
+#include "../ECS/SceneManager.h"
+#include "../Renderer/Transform.h"
 
 
 component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
@@ -19,6 +24,8 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	m_Damage = 1;
 	m_KnockBack = 5;
 
+	m_ParticleEffectCounter = 0;
+	
 	m_HalfSize = { 8.0f, 1.0f, MELEE_RANGE / 2.0 };
 
 	//Create bounding box for collision for melee
@@ -170,9 +177,36 @@ void component::MeleeComponent::checkCollision()
 			list.at(i)->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
 			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 			list.at(i)->GetComponent<component::AiComponent>()->KnockBack(m_MeleeTransformModified, m_KnockBack);
+			particleEffect();
 		}
 	}
 	list.empty();
+}
+
+void component::MeleeComponent::particleEffect()
+{
+	ParticleEffectSettings settings = {};
+	settings.particleCount = 50;
+	settings.startValues.lifetime = 0.5;
+	settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+	settings.startValues.acceleration = { 0, -2, 0 };
+
+	// Need to fix EngineRand.rand() for negative values
+	RandomParameter3 randParam1 = { -2, 2, 1, 4, -2, 2 };
+
+	settings.randPosition = { -1, 1, -1, 1, -1, 1 };
+	settings.randVelocity = randParam1;
+	settings.randSize = { 0.2, 1 };
+	settings.randRotationSpeed = { 0, 3 };
+
+	Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/poison_particle.png"));
+	Entity* entity = SceneManager::GetInstance().GetActiveScene()->AddEntity("meleeParticle" + std::to_string(m_ParticleEffectCounter++));
+	component::TransformComponent* transform = entity->AddComponent<component::TransformComponent>();
+	float3 position = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+	transform->GetTransform()->SetPosition(position);
+	entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+	entity->GetComponent<component::ParticleEmitterComponent>()->OnInitScene();
+	
 }
 
 void component::MeleeComponent::CreateCornersHitbox()

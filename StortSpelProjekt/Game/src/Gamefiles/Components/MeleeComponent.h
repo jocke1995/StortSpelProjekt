@@ -80,6 +80,7 @@ namespace component
 		DirectX::BoundingOrientedBox m_TempHitbox;
 
 		void checkCollision();
+		void particleEffect();
 
 	};
 }
