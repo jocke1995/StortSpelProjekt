@@ -122,7 +122,7 @@ void Shop::Create2DGUI()
 			quadPos, quadScale,
 			false, false,
 			2,
-			notBlended,
+			blended,
 			shopBackground);
 
 		// add the entity to the sceneManager so it can be spawned in in run time

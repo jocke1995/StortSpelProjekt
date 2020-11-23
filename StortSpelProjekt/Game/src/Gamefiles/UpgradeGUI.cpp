@@ -213,8 +213,8 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 		"UpgradeMenuBackground",
 		quadPos, quadScale,
 		false, false,
-		1,
-		blended,
+		4,
+		notBlended,
 		m_pBoardBackgroundTexture, {0.4, 0.4, 0.4});
 	m_pSm->AddEntity(entity, scene);
 	entity->Update(0);
@@ -297,8 +297,8 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 			"NextButton",
 			quadPos, quadScale,
 			true, true,
-			1,
-			blended,
+			4,
+			notBlended,
 			m_pButtonParchment);
 
 		m_pSm->AddEntity(entity, scene);
@@ -397,8 +397,8 @@ void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
 		name,
 		quadPos, quadScale,
 		true, true,
-		1,
-		blended,
+		4,
+		notBlended,
 		m_pButtonParchment);
 
 	m_pSm->AddEntity(entity, m_pCurrentScene);
@@ -503,8 +503,8 @@ void UpgradeGUI::updateDescription(int level)
 		name,
 		quadPos, quadScale,
 		true, false,
-		1,
-		blended,
+		4,
+		notBlended,
 		m_pDescriptionParchment);
 
 	m_pSm->AddEntity(entity, m_pCurrentScene);
