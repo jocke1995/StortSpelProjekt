@@ -22,7 +22,7 @@ class Entity;
 class Audio2DVoiceComponent;
 class Audio3DEmitterComponent;
 
-#define MELEE_RANGE 18.0
+//#define MELEE_RANGE 8.0
 
 namespace component
 {
@@ -51,11 +51,16 @@ namespace component
 		void SetKnockBack(float knockBack);
 		void ChangeKnockBack(float change);
 
+		void ChangeMeleeRadius();
+
 	private:
 
 		std::vector<Vertex> m_BoundingBoxVerticesLocal;
 		std::vector<unsigned int> m_BoundingBoxIndicesLocal;
 
+		int m_RadiusUpgradeCounter;
+		float m_MeleeZRange;
+		float m_MeleeXRange;
 		bool m_Attacking;
 		bool m_Cooldown;
 		bool m_AudioPlay;
@@ -80,6 +85,7 @@ namespace component
 		DirectX::BoundingOrientedBox m_TempHitbox;
 
 		void checkCollision();
+		void newMeleeHitBox();
 
 	};
 }

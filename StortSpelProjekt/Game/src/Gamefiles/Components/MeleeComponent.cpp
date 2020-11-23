@@ -18,8 +18,11 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	m_pMesh = nullptr;
 	m_Damage = 1;
 	m_KnockBack = 5;
+	m_MeleeZRange = 4.5;
+	m_MeleeXRange = 2;
+	m_RadiusUpgradeCounter = 0;
 
-	m_HalfSize = { 8.0f, 1.0f, MELEE_RANGE / 2.0 };
+	m_HalfSize = { m_MeleeXRange, 1.0f, m_MeleeZRange / 2.0f };
 
 	//Create bounding box for collision for melee
 	m_pBbc = parent->GetComponent<component::BoundingBoxComponent>();
@@ -48,6 +51,7 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	{
 		CreateDrawnHitbox(m_pBbc);
 	}
+
 }
 
 component::MeleeComponent::~MeleeComponent()
@@ -77,7 +81,7 @@ void component::MeleeComponent::Update(double dt)
 	obb.Transform(obb, *m_MeleeTransformModified.GetWorldMatrix());
 
 	bool t_pose = m_pBbc->GetFlagOBB() & F_OBBFlags::T_POSE;
-
+	t_pose = true;
 	float positionX = obb.Center.x + (obb.Extents.x + ((static_cast<float>(!t_pose) * m_HalfSize.x + static_cast<float>(t_pose) * m_HalfSize.z) * trans->GetScale().x)) * m_MeleeTransformModified.GetForwardFloat3().x;
 	float positionY = obb.Center.y + (obb.Extents.y + (m_HalfSize.y * trans->GetScale().y)) * m_MeleeTransformModified.GetForwardFloat3().y;
 	float positionZ = obb.Center.z + (obb.Extents.z + (m_HalfSize.z * trans->GetScale().z)) * m_MeleeTransformModified.GetForwardFloat3().z;
@@ -175,6 +179,29 @@ void component::MeleeComponent::checkCollision()
 	list.empty();
 }
 
+void component::MeleeComponent::newMeleeHitBox()
+{
+	m_HalfSize = { m_MeleeXRange, 1.0f, m_MeleeZRange / 2.0f };
+
+	//Create bounding box for collision for melee
+	//m_pBbc = nullptr;
+	m_pBbc = m_pParent->GetComponent<component::BoundingBoxComponent>();
+	CreateCornersHitbox();
+	m_TempHitbox.CreateFromPoints(m_TempHitbox, 8, m_Corners, sizeof(DirectX::XMFLOAT3));
+	m_Hitbox = m_TempHitbox;
+
+	// Fetch the player transform
+	m_pMeleeTransform = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
+
+	//Debugging purpose
+	if (DEVELOPERMODE_DRAWBOUNDINGBOX)
+	{
+		CreateDrawnHitbox(m_pBbc);
+	}
+
+
+}
+
 void component::MeleeComponent::CreateCornersHitbox()
 {
 	//Create position for each corner of the hitbox
@@ -251,7 +278,15 @@ void component::MeleeComponent::CreateDrawnHitbox(component::BoundingBoxComponen
 	bbd.boundingBoxVertices = m_BoundingBoxVerticesLocal;
 	bbd.boundingBoxIndices = m_BoundingBoxIndicesLocal;
 
-	bbc->AddBoundingBox(&bbd, &m_MeleeTransformModified, L"sword");
+	//if (m_RadiusUpgradeCounter == 0)
+	//{
+		bbc->AddBoundingBox(&bbd, &m_MeleeTransformModified, L"sword");
+	//}
+	//else
+	//{
+	//	bbc->AddBoundingBox(&bbd, &m_MeleeTransformModified, L"sword2");
+	//}
+
 }
 
 void component::MeleeComponent::SetKnockBack(float knockBack)
@@ -262,5 +297,14 @@ void component::MeleeComponent::SetKnockBack(float knockBack)
 void component::MeleeComponent::ChangeKnockBack(float change)
 {
 	m_KnockBack += change;
+}
+
+void component::MeleeComponent::ChangeMeleeRadius()
+{
+	m_MeleeZRange = 18.0f * 2.0;
+	m_MeleeXRange = 8.0f * 2.0;
+	m_RadiusUpgradeCounter++;
+	newMeleeHitBox();
+	Log::Print("Z-RANGE: %f\n X-RANGE: %f\n", m_MeleeZRange, m_MeleeXRange);
 }
 
