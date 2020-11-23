@@ -1,6 +1,8 @@
 #ifndef SHOP_H
 #define SHOP_H
 
+#define BASE_COST 50
+
 #include "../Misc/EngineRand.h"
 #include "../Events/Events.h"
 
