@@ -17,6 +17,7 @@ class Material;
 class Window;
 class Scene;
 class ParticleEffect;
+class Edge;
 
 struct ID3D12Device5;
 struct Vertex;
@@ -73,6 +74,8 @@ public:
     bool IsTextureLoadedOnGpu(const std::wstring& name) const;
     bool IsTextureLoadedOnGpu(const Texture* texture) const;
 
+    std::vector<Edge*>& GetEdges();
+
 private:
     // PipelineState loads all shaders
     friend class PipelineState;
@@ -106,6 +109,8 @@ private:
     std::map<std::wstring, Shader*> m_LoadedShaders;
     std::map<std::wstring, std::pair<bool, Font*>> m_LoadedFonts;
     std::map<std::wstring, AudioBuffer> m_LoadedAudios;
+
+    std::vector<Edge*> m_Edges;
 
     // Audio
     // add map for audio (path, AudioObject)

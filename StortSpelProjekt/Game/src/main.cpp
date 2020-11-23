@@ -15,6 +15,8 @@
 #include "GameOverHandler.h"
 #include "UpgradeGUI.h"
 
+#include "Misc/Edge.h"
+
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
@@ -140,9 +142,9 @@ Scene* GameScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     //al->LoadMap(scene, "../Vendor/Resources/FirstMap.map");
-	al->LoadMap(scene, "../Vendor/Resources/ExampleRoom.map");
+	al->LoadMap(scene, "../Vendor/Resources/BaseRoom.map");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");   
-    Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
+    Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");

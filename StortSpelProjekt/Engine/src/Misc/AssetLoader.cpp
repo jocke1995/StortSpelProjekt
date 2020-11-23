@@ -36,6 +36,8 @@
 
 #include "../Misc/NavMesh.h"
 
+#include "../Misc/Edge.h"
+
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
 	m_pDevice = device;
@@ -74,6 +76,11 @@ bool AssetLoader::IsTextureLoadedOnGpu(const std::wstring& name) const
 bool AssetLoader::IsTextureLoadedOnGpu(const Texture* texture) const
 {
 	return m_LoadedTextures.at(texture->GetPath()).first;
+}
+
+std::vector<Edge*>& AssetLoader::GetEdges()
+{
+	return m_Edges;
 }
 
 void AssetLoader::loadDefaultMaterial()
@@ -143,6 +150,11 @@ AssetLoader::~AssetLoader()
 		delete font.second.second->m_pKerningsList;
 		delete font.second.second->m_pCharList;
 		delete font.second.second;
+	}
+
+	for (auto edge : m_Edges)
+	{
+		delete edge;
 	}
 }
 
@@ -539,6 +551,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	std::string navMeshType;
 	navMeshType.reserve(128);
 
+	int edgeId = -1;
+
 	ParticleEffectSettings particleSettings = {};
 	int particlePlayOnInit = 0;
 
@@ -766,6 +780,23 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			{
 				fscanf(file, "%d", &particlePlayOnInit);
 			}
+			else if (strcmp(lineHeader.c_str(), "CreateEdge") == 0)
+			{
+				m_Edges.push_back(new Edge(m_Edges.size()));
+			}
+			else if (strcmp(lineHeader.c_str(), "EdgeId") == 0)
+			{
+				fscanf(file, "%d", &edgeId);
+			}
+			else if (strcmp(lineHeader.c_str(), "AddToEdge") == 0)
+			{
+				fscanf(file, "%d", &edgeId);
+				if (edgeId != -1)
+				{
+					m_Edges.at(edgeId)->AddEntity(entity);
+					edgeId = -1;
+				}
+			}
 			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
 			{
 				fscanf(file, "%s", toSubmit.c_str());
@@ -955,7 +986,11 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 				}
 				else if (strcmp(toSubmit.c_str(), "NavTriangle") == 0)
 				{
-					navMesh->AddNavTriangle(vertex1, vertex2, vertex3);
+					NavTriangle* tri = navMesh->AddNavTriangle(vertex1, vertex2, vertex3);
+					if (edgeId != -1)
+					{
+						m_Edges.at(edgeId)->AddNavTriangle(tri);
+					}
 				}
 				else if (strcmp(toSubmit.c_str(), "NavConnection") == 0)
 				{
@@ -990,6 +1025,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(AssetLoader::LoadTexture2D(to_wstring(fullParticleTexturePath)));
 					pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &particleSettings, particlePlayOnInit);
 				}
+					
 			}
 		}
 		fclose(file);

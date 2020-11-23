@@ -13,6 +13,8 @@ Submit Model
 Submit CollisionCube 1.0, 0.1, 1.0
 
 // WALL1 ----------------------------------------------
+CreateEdge
+
 Name Wall1
 ModelPath Models/StoneWallParts/Wall/stoneWall.obj
 ModelScaling 30.0, 22.0, 50.0
@@ -23,6 +25,7 @@ ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 0
 
 Name Torch1
 ModelPath Models\Torch\torch.obj
@@ -52,6 +55,7 @@ Submit PointLight
 Submit ParticleEffect
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 0
 
 Name Torch2
 ModelPath Models\Torch\torch.obj
@@ -81,6 +85,7 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
+AddToEdge 0
 
 Name Banner1
 ModelPath Models\Banner\banner.obj
@@ -94,6 +99,7 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 0
 
 Name Banner2
 ModelPath Models\Banner\banner.obj
@@ -107,8 +113,11 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 0
 
 // WALL2 ----------------------------------------------
+CreateEdge
+
 Name Wall2
 ModelPath Models/StoneWallParts/Wall/stoneWall.obj
 ModelScaling 30.0, 22.0, 50.0
@@ -119,6 +128,7 @@ ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 1
 
 Name Torch3
 ModelPath Models\Torch\torch.obj
@@ -148,6 +158,7 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
+AddToEdge 1
 
 Name Torch4
 ModelPath Models\Torch\torch.obj
@@ -177,6 +188,7 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
+AddToEdge 1
 
 Name Banner3
 ModelPath Models\Banner\banner.obj
@@ -190,6 +202,7 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 1
 
 Name Banner4
 ModelPath Models\Banner\banner.obj
@@ -203,8 +216,11 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 1
 
 // WALL3 ----------------------------------------------
+CreateEdge
+
 Name Wall3
 ModelPath Models/StoneWallParts/Wall/stoneWall.obj
 ModelScaling 30.0, 22.0, 50.0
@@ -215,6 +231,7 @@ ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 2
 
 Name Torch5
 ModelPath Models\Torch\torch.obj
@@ -244,6 +261,7 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
+AddToEdge 2
 
 Name Torch6
 ModelPath Models\Torch\torch.obj
@@ -273,6 +291,7 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
+AddToEdge 2
 
 Name Banner5
 ModelPath Models\Banner\banner.obj
@@ -286,6 +305,7 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 2
 
 Name Banner6
 ModelPath Models\Banner\banner.obj
@@ -299,8 +319,11 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 2
 
 // WALL4 ----------------------------------------------
+CreateEdge
+
 Name Wall4
 ModelPath Models/StoneWallParts/WallWindow/stoneWallWindow.obj
 ModelScaling 30.0, 22.0, 50.0
@@ -311,6 +334,7 @@ ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 3
 
 Name Torch7
 ModelPath Models\Torch\torch.obj
@@ -340,6 +364,7 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
+AddToEdge 3
 
 Name Torch8
 ModelPath Models\Torch\torch.obj
@@ -369,6 +394,7 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
+AddToEdge 3
 
 Name Banner7
 ModelPath Models\Banner\banner.obj
@@ -382,6 +408,7 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 3
 
 Name Banner8
 ModelPath Models\Banner\banner.obj
@@ -395,8 +422,11 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 3
 
 // WALL5 ----------------------------------------------
+CreateEdge
+
 Name Wall5
 ModelPath Models/StoneWallParts/Wall/stoneWall.obj
 ModelScaling 30.0, 22.0, 50.0
@@ -407,6 +437,7 @@ ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 4
 
 Name Torch9
 ModelPath Models\Torch\torch.obj
@@ -436,6 +467,7 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
+AddToEdge 4
 
 Name Torch10
 ModelPath Models\Torch\torch.obj
@@ -465,6 +497,7 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
+AddToEdge 4
 
 Name Banner9
 ModelPath Models\Banner\banner.obj
@@ -478,6 +511,7 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 4
 
 Name Banner10
 ModelPath Models\Banner\banner.obj
@@ -491,8 +525,11 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 4
 
 // WALL6 ----------------------------------------------
+CreateEdge
+
 Name Wall6
 ModelPath Models/StoneWallParts/WallWindow/stoneWallWindow.obj
 ModelScaling 30.0, 22.0, 50.0
@@ -503,6 +540,7 @@ ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 5
 
 Name Torch11
 ModelPath Models\Torch\torch.obj
@@ -532,6 +570,7 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
+AddToEdge 5
 
 Name Torch12
 ModelPath Models\Torch\torch.obj
@@ -561,6 +600,7 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
+AddToEdge 5
 
 Name Banner11
 ModelPath Models\Banner\banner.obj
@@ -574,6 +614,7 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 5
 
 Name Banner12
 ModelPath Models\Banner\banner.obj
@@ -587,6 +628,7 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 5
 
 // Ceiling ----------------------------------------------
 Name Ceiling
