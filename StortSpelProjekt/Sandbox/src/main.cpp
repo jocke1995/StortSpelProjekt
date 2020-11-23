@@ -58,8 +58,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
-    //Scene* jockeScene = JockesTestScene(sceneManager);
-    //Scene* activeScene = jockeScene;
+    Scene* jockeScene = JockesTestScene(sceneManager);
+    Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
     //Scene* williamScene = WilliamsTestScene(sceneManager);
@@ -70,8 +70,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = antonScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* activeScene = andresScene;
-    Scene* filipScene = FloppipTestScene(sceneManager);
-    Scene* activeScene = filipScene;
+    //Scene* filipScene = FloppipTestScene(sceneManager);
+    //Scene* activeScene = filipScene;
 
     // Set scene
     sceneManager->SetScene(activeScene);
@@ -99,6 +99,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         {
             networkTimer += timer->GetDeltaTime();
         }
+
+        
 
         sceneManager->RenderUpdate(timer->GetDeltaTime());
         particleSystem->Update(timer->GetDeltaTime());
@@ -606,6 +608,7 @@ Scene* JockesTestScene(SceneManager* sm)
     component::DirectionalLightComponent* dlc = nullptr;
     component::SpotLightComponent* slc = nullptr;
     component::CollisionComponent* bcc = nullptr;
+    component::ProgressBarComponent* pbc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -718,6 +721,14 @@ Scene* JockesTestScene(SceneManager* sm)
     dlc->SetCameraRight(70.0f);
     /* ---------------------- dirLight ---------------------- */
 
+    entity = scene->AddEntity("progressBarTest1");
+    float3 startPosition = { 0.0f, 10.0f, 0.0f };
+    pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 2.0f, 1.0f);
+
+
+    entity = scene->AddEntity("progressBarTest2");
+    startPosition = { 10.0f, 10.0f, 0.0f };
+    pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 5.0f, 1.0f);
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&JockeUpdateScene);
     return scene;
@@ -1793,6 +1804,23 @@ void JockeUpdateScene(SceneManager* sm, double dt)
     //plc->SetColor({ col, col, 0.0f });
     //
     //intensity += 0.005f;
+
+    // Update first progressBar
+    Entity* ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest1");
+    component::ProgressBarComponent* pbc = ent->GetComponent<component::ProgressBarComponent>();
+
+    static float counter1 = 0.0f;
+    pbc->SetProgressBarPercent(1.0 - abs(sin(counter1)));
+    counter1 += 0.0008f;
+
+    // Update second progressBar
+    ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest2");
+    pbc = ent->GetComponent<component::ProgressBarComponent>();
+
+    static float counter2 = 0.0f;
+    pbc->SetProgressBarPercent(1.0 - abs(sin(counter2)));
+    counter2 += 0.005f;
+
 }
 
 void FredriksUpdateScene(SceneManager* sm, double dt)

@@ -133,10 +133,10 @@ void RootSignature::createRootSignatureStructure()
 	rootParam[RS::CB_PER_SCENE].Descriptor.RegisterSpace = 3;	// space3
 	rootParam[RS::CB_PER_SCENE].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	rootParam[RS::CB_COMMON].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParam[RS::CB_COMMON].Descriptor.ShaderRegister = 6;	// b6
-	rootParam[RS::CB_COMMON].Descriptor.RegisterSpace = 3;	// space3
-	rootParam[RS::CB_COMMON].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	rootParam[RS::CBV0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParam[RS::CBV0].Descriptor.ShaderRegister = 6;	// b6
+	rootParam[RS::CBV0].Descriptor.RegisterSpace = 3;	// space3
+	rootParam[RS::CBV0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	const unsigned int numStaticSamplers = 6;
 	D3D12_ROOT_SIGNATURE_DESC rsDesc;

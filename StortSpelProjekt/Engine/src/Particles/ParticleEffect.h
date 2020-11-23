@@ -19,7 +19,6 @@ class Mesh;
 
 class Entity;
 
-
 struct RandomParameter
 {
 	float intervalLower = 0.0f;
