@@ -64,7 +64,7 @@ public:
 	std::wstring GetFontPath() const;
 
     // Scene
-    void LoadMap(Scene* scene, const char* path);
+    void LoadMap(Scene* scene, const char* path, unsigned int id = 0, float3 offset = { 0.0, 0.0, 0.0 } );
 
     // IsLoadedFunctions
     bool IsModelLoadedOnGpu(const std::wstring& name) const;

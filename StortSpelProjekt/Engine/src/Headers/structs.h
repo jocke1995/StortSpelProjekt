@@ -3,7 +3,7 @@
 
 // Light defines
 #define MAX_DIR_LIGHTS   15
-#define MAX_POINT_LIGHTS 15
+#define MAX_POINT_LIGHTS 100
 #define MAX_SPOT_LIGHTS  15
 
 // Animation defines

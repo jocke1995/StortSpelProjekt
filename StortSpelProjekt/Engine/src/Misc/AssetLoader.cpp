@@ -491,7 +491,7 @@ Font* AssetLoader::LoadFontFromFile(const std::wstring& fontName)
 	return m_LoadedFonts[path].second;
 }
 
-void AssetLoader::LoadMap(Scene* scene, const char* path)
+void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float3 offset)
 {
 	FILE* file = fopen(path, "r");
 
@@ -575,7 +575,18 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			if (strcmp(lineHeader.c_str(), "Name") == 0)
 			{
 				fscanf(file, "%s", entityName.c_str());
-				entity = scene->AddEntity(entityName.c_str());
+				
+				char idString[4];
+
+				sprintf(idString, "_%d", id);
+
+				char* fullName = new char[std::strlen(entityName.c_str()) + std::strlen(idString) + 1];
+				std::strcpy(fullName, entityName.c_str());
+				std::strcat(fullName, idString);
+
+				entity = scene->AddEntity(fullName);
+
+				delete[] fullName;
 			}
 			else if (strcmp(lineHeader.c_str(), "NavMesh") == 0)
 			{
@@ -791,6 +802,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			else if (strcmp(lineHeader.c_str(), "AddToEdge") == 0)
 			{
 				fscanf(file, "%d", &edgeId);
+				edgeId += 6 * id;
 				if (edgeId != -1)
 				{
 					m_Edges.at(edgeId)->AddEntity(entity);
@@ -810,7 +822,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					tc->GetTransform()->SetRotationX(rot.x * (PI / 180));
 					tc->GetTransform()->SetRotationY(rot.y * (PI / 180));
 					tc->GetTransform()->SetRotationZ(rot.z * (PI / 180));
-					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+					tc->GetTransform()->SetPosition(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
 
 					tc->SetTransformOriginalState();
 
@@ -843,7 +855,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					tc->GetTransform()->SetRotationY(rot.y);
 					tc->GetTransform()->SetRotationZ(rot.z);
 					tc->GetTransform()->SetScale(scaling.x, scaling.y, scaling.z);
-					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+					tc->GetTransform()->SetPosition(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
 
 					tc->SetTransformOriginalState();
 				}
@@ -859,11 +871,11 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					plc->SetAttenuation(lightAttenuation);
 					if (FLAG_LIGHT::USE_TRANSFORM_POSITION & combinedFlag)
 					{
-						plc->SetPosition({ pos.x, pos.y, pos.z });
+						plc->SetPosition({ pos.x + offset.x, pos.y + offset.y, pos.z + offset.z });
 					}
 					else
 					{
-						plc->SetPosition({ lightPos.x, lightPos.y, lightPos.z });
+						plc->SetPosition({ lightPos.x + offset.x, lightPos.y + offset.y, lightPos.z + offset.z });
 					}
 				}
 				else if (strcmp(toSubmit.c_str(), "SpotLight") == 0)
@@ -879,11 +891,11 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					slc->SetDirection(lightDir);
 					if (FLAG_LIGHT::USE_TRANSFORM_POSITION & combinedFlag)
 					{
-						slc->SetPosition({ pos.x, pos.y, pos.z });
+						slc->SetPosition({ pos.x + offset.x, pos.y + offset.y, pos.z + offset.z });
 					}
 					else
 					{
-						slc->SetPosition({ lightPos.x, lightPos.y, lightPos.z });
+						slc->SetPosition({ lightPos.x + offset.x, lightPos.y + offset.y, lightPos.z + offset.z });
 					}
 					slc->SetAspectRatio(lightAspect);
 					slc->SetCutOff(lightCutOff);
@@ -982,14 +994,17 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 				}
 				else if (strcmp(toSubmit.c_str(), "NavQuad") == 0)
 				{
+					pos.x += offset.x;
+					pos.y += offset.z;
 					navMesh->AddNavQuad(pos, size);
 				}
 				else if (strcmp(toSubmit.c_str(), "NavTriangle") == 0)
 				{
-					NavTriangle* tri = navMesh->AddNavTriangle(vertex1, vertex2, vertex3);
+					NavTriangle* tri = navMesh->AddNavTriangle(vertex1 + offset, vertex2 + offset, vertex3 + offset);
 					if (edgeId != -1)
 					{
 						m_Edges.at(edgeId)->AddNavTriangle(tri);
+						edgeId = -1;
 					}
 				}
 				else if (strcmp(toSubmit.c_str(), "NavConnection") == 0)
