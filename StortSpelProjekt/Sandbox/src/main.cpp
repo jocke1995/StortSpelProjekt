@@ -766,6 +766,8 @@ Scene* FloppipTestScene(SceneManager* sm)
     Player::GetInstance().SetPlayer(entity);
     /* ---------------------- Player ---------------------- */
 
+    std::vector<ParticleEffectSettings> vec;
+
     // Create test particleEffect
     ParticleEffectSettings settings = {};
     settings.particleCount = 500;
@@ -783,7 +785,32 @@ Scene* FloppipTestScene(SceneManager* sm)
     settings.randRotationSpeed = { 0, 3 };
 
     Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+    settings.texture = particleTexture;
+
+    vec.push_back(settings);
+    
+
+    particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle.png"));
+
+    // Create test particleEffect
+    settings = {};
+    settings.particleCount = 5;
+    settings.startValues.lifetime = 0.01;
+    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+    settings.startValues.acceleration = { 0, 0, 0 };
+
+    // Need to fix EngineRand.rand() for negative values
+    randParam1 = { };
+
+    settings.randPosition = { 0, 0, 0, 0, 0, 0 };
+    settings.randVelocity = randParam1;
+    settings.randSize = { 7, 7 };
+    settings.randRotationSpeed = { 0, 0 };
+    settings.texture = particleTexture;
+
+    vec.push_back(settings);
+
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
 
 
     /* ---------------------- Skybox ---------------------- */
@@ -828,7 +855,9 @@ Scene* FloppipTestScene(SceneManager* sm)
     settings.randRotationSpeed = { -3, 3 };
     
     particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/default_particle.png"));
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+    settings.texture = particleTexture;
+
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
     /* ---------------------- Floor ---------------------- */
 

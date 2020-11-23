@@ -802,8 +802,13 @@ void Renderer::InitParticleEmitterComponent(component::ParticleEmitterComponent*
 	auto mc = nullptr; // Particles don't have support for meshcomponent
 	auto tc = component->GetParent()->GetComponent<component::TransformComponent>();
 	
-	Texture* texture = static_cast<Texture*>(component->GetParticleEffect()->GetTexture());
-	submitTextureToCodt(texture);
+	// Load all textures
+	const std::vector<ParticleEffect*>* effects = component->GetParticleEffects();
+	for (unsigned int i = 0; i < effects->size(); i++)
+	{
+		Texture* texture = static_cast<Texture*>(effects->at(i)->GetTexture());
+		submitTextureToCodt(texture);
+	}
 
 	if (tc != nullptr)
 	{
