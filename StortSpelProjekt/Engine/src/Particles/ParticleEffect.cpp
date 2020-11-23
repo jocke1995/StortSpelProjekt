@@ -34,6 +34,9 @@ ParticleEffect::ParticleEffect(Entity* parent, DescriptorHeap* descriptorHeap, T
 
 ParticleEffect::~ParticleEffect()
 {
+	// Might be temporary, might not
+	Renderer::GetInstance().waitForGPU();
+
 	delete m_pUploadResource;
 	delete m_pDefaultResource;
 	delete m_pSRV;
@@ -44,7 +47,7 @@ void ParticleEffect::Update(double dt)
 	m_TimeSinceSpawn += dt;
 
 	// If should particle spawn
-	if (isTimeToSpawnParticles())
+	if (isTimeToSpawnParticles() && m_IsSpawnwing)
 	{
 		bool spawned = spawnParticle();
 		m_TimeSinceSpawn = 0;
@@ -59,6 +62,11 @@ void ParticleEffect::Update(double dt)
 			particle.Update(dt);
 		}
 	}
+}
+
+void ParticleEffect::SetIsSpawning(bool value)
+{
+	m_IsSpawnwing = value;
 }
 
 Texture2DGUI* ParticleEffect::GetTexture() const
@@ -89,11 +97,6 @@ bool ParticleEffect::spawnParticle()
 	initParticle(particle);
 
 	return true;
-}
-
-void ParticleEffect::resetEffect()
-{
-	m_TimeSinceSpawn = 0;
 }
 
 void ParticleEffect::init(DescriptorHeap* descriptorHeap)

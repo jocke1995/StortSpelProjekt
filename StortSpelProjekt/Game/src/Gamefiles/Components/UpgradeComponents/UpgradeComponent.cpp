@@ -17,10 +17,18 @@ component::UpgradeComponent::~UpgradeComponent()
 
 void component::UpgradeComponent::Update(double dt)
 {
+	for (auto& upgrade : m_AppliedUpgrades)
+	{
+		upgrade.second->Update(dt);
+	}
 }
 
 void component::UpgradeComponent::RenderUpdate(double dt)
 {
+	for (auto& upgrade : m_AppliedUpgrades)
+	{
+		upgrade.second->RenderUpdate(dt);
+	}
 }
 
 void component::UpgradeComponent::OnInitScene()
@@ -87,27 +95,27 @@ Upgrade* component::UpgradeComponent::GetUpgradeByName(std::string name)
 	return m_AppliedUpgrades[name];
 }
 
-void component::UpgradeComponent::OnHit()
+void component::UpgradeComponent::OnHit(Entity* target)
 {
 	for (auto& upgrade : m_AppliedUpgrades)
 	{
-		upgrade.second->OnHit();
+		upgrade.second->OnHit(target);
 	}
 }
 
-void component::UpgradeComponent::OnRangedHit()
+void component::UpgradeComponent::OnRangedHit(Entity* target)
 {
 	for (auto upgrade : m_AppliedUpgrades)
 	{
-		upgrade.second->OnRangedHit();
+		upgrade.second->OnRangedHit(target);
 	}
 }
 
-void component::UpgradeComponent::OnMeleeHit()
+void component::UpgradeComponent::OnMeleeHit(Entity* target)
 {
 	for (auto upgrade : m_AppliedUpgrades)
 	{
-		upgrade.second->OnMeleeHit();
+		upgrade.second->OnMeleeHit(target);
 	}
 }
 

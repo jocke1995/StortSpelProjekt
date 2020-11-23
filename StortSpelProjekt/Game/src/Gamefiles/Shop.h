@@ -1,16 +1,17 @@
 #ifndef SHOP_H
 #define SHOP_H
 
-#include "Player.h"
-#include "UpgradeManager.h"
-#include "Components/UpgradeComponents/UpgradeComponent.h"
-#include "Components/UpgradeComponents/Upgrades/Upgrade.h"
-#include <string>
-#include "Misc/EngineRand.h"
-#include "Events/Events.h"
+#include "../Misc/EngineRand.h"
+#include "../Events/Events.h"
 
+class UpgradeComponent;
+class UpgradeManager;
+class Upgrade;
 class Texture;
 class Font;
+
+struct shopGUIStateChange;
+
 
 class Shop
 {
@@ -18,8 +19,10 @@ public:
 	Shop();
 	~Shop();
 
-	// randomize buyable upgrades
-	void RandomizeInventory();
+	// creates the 2d gui for the shop
+	void Create2DGUI();
+	// clear 2D GUI, removes entities
+	void Clear2DGUI();
 	// add uppgrade to player
 	void ApplyUppgrade(std::string name);
 	// Set the size of inventory
@@ -43,13 +46,18 @@ public:
 	int GetPlayerBalance();
 	// Get upgrade image
 	Texture* GetUpgradeImage(std::string* name);
-
+	// Get if the user is inside the 2D shop GUI
+	bool IsShop2DGUIDisplaying();
 	// Resets the inventory of the shop.
 	void Reset();
 
+	// Event that happens when user presses F
+	void OnShopGUIStateChange(shopGUIStateChange* collisionEvent);
+
 private:
-	void upgradePressed(ButtonPressed* evnt);
+	void shopButtonPressed(ButtonPressed* evnt);
 	void sceneChange(SceneChange* evnt);
+	
 
 	// upgradeManager
 	UpgradeManager* m_pUpgradeManager = nullptr;
@@ -68,12 +76,25 @@ private:
 	// Used to randomize the inventory
 	EngineRand m_Rand;
 
+	// randomize buyable upgrades
+	void randomizeInventory();
 	// clears the inventory vector as well as the m_UpgradeDescriptions map
 	void clearInventory();
 	// checks if an upgrade is already bought
 	bool checkExisting(std::string name);
+	// uses the randomizeInventory-functions and re-creates the 2D-GUI
+	void rerollShop();
+	// 
+	void rerollPriceIncrease();
 
 	Font* m_pArial = nullptr;
+
+	int m_RerollCost;
+	int m_RerollIncrease;
+
+	bool m_DisplayingShopGUI = false;
+
+	static inline std::string s_UpgradeBoughtText = "UPGRADE BOUGHT";
 };
 
 #endif // !SHOP_H

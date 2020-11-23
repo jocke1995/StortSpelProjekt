@@ -28,7 +28,7 @@ void UpgradeBlueJewel::OnDamage()
 {
 	if (m_pParentEntity->GetComponent<component::HealthComponent>()->GetHealth() <= float(m_pParentEntity->GetComponent<component::HealthComponent>()->GetMaxHealth() * 0.3))
 	{
-		m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeProcentileDamageReduction(m_DamageReduction);
+		m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeMultiplicativeDamageReduction(m_DamageReduction);
 	}
 }
 
@@ -38,7 +38,7 @@ void UpgradeBlueJewel::IncreaseLevel()
 	// increase the boost
 	m_DamageReduction = pow(m_StartDamageReduction, m_Level);
 	// increase the price of the upgrade
-	m_Price = m_StartingPrice * m_Level;
+	m_Price = m_StartingPrice * (m_Level + 1);
 }
 
 std::string UpgradeBlueJewel::GetDescription(unsigned int level)

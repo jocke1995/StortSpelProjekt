@@ -7,8 +7,10 @@
 #include "../ECS/Components/Collision/CollisionComponent.h"
 #include "Physics/Physics.h"
 #include "../Misc/Option.h"
-
+#include "Shop.h"
 #include "stdafx.h"
+
+#include "Player.h"
 
 
 component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned int camFlags)
@@ -520,8 +522,9 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 		m_RotateY = rotateY;
 		m_CameraRotating = true;
 
+		Shop* shop = Player::GetInstance().GetShop();
 		//Check if in air. If not, change movement direction to match up with camera direction
-		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1 && !m_Dashing)
+		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1 && !m_Dashing && shop->IsShop2DGUIDisplaying() == false)
 		{
 			// Get new direction
 			float3 right = m_pCamera->GetRightVectorFloat3();

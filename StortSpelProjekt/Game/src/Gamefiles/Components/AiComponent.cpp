@@ -27,12 +27,15 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_MovementVelocity = 0.0f;
 	m_DistanceToPlayer = 0.0f;
 	m_KnockBackTimer = 0.5f;
+	m_TargetCircleRadius = m_AttackingDistance * 5.0f;
 
 	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 	m_GoalPos = target->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 	m_NextTargetPos = m_StartPos;
 	m_LastPos = m_StartPos;
 	m_DirectionPath = { 0.0f, 0.0f, 0.0f };
+	m_TargetCirclePoint = { -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))), 0.0f, -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))) };
+	m_TargetCirclePoint.normalize();
 
 	m_Targets.push_back(target);
 
@@ -95,7 +98,6 @@ void component::AiComponent::Update(double dt)
 		m_KnockBackTimer += dt;
 		pathFinding();
 
-		m_DistanceToPlayer = (m_pTargetTrans->GetPositionFloat3() - m_pParentTrans->GetPositionFloat3()).length();
 		m_IntervalTimeAccumulator += static_cast<float>(dt);
 
 		if (!m_IsRanged && m_KnockBackTimer >= 0.5f)
@@ -166,6 +168,7 @@ void component::AiComponent::SetRangedAI()
 {
 	m_IsRanged = true;
 	// if range, get the attack interval setting from range component
+	m_TargetCircleRadius = 0.0f;
 	if (m_pParent->HasComponent<RangeEnemyComponent>())
 	{
 		SetAttackInterval(m_pParent->GetComponent<RangeEnemyComponent>()->GetAttackInterval());
@@ -192,7 +195,7 @@ float3 component::AiComponent::setAimDirection()
 	float3 parentPos = m_pParent->GetComponent<TransformComponent>()->GetTransform()->GetPositionFloat3();
 	// set direction
 	float3 direction = targetPos - parentPos;
-	double angle = std::atan2(direction.x, direction.z);
+	double angle = std::atan2(m_pParentTrans->GetInvDir() * direction.x, m_pParentTrans->GetInvDir() * direction.z);
 	CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
 	cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 	return direction;
@@ -214,11 +217,11 @@ void component::AiComponent::selectTarget()
 	m_pTarget = m_Targets.at(index);
 }
 
-void component::AiComponent::findPathToTargetQuad()
+void component::AiComponent::findPathToTargetQuad(float3 offset)
 {
 	m_NextPath.clear();
 	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
-	m_GoalPos = m_pTarget->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+	m_GoalPos = m_pTarget->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3() + offset;
 
 	m_pStartQuad = m_pNavMesh->GetQuad(m_StartPos);
 	m_pCurrentQuad = m_pNavMesh->GetQuad(m_StartPos);
@@ -274,11 +277,11 @@ void component::AiComponent::findPathToTargetQuad()
 	m_PathFound = true;
 }
 
-void component::AiComponent::findPathToTargetTriangle()
+void component::AiComponent::findPathToTargetTriangle(float3 offset)
 {
 	m_NextPath.clear();
 	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
-	m_GoalPos = m_pTarget->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+	m_GoalPos = m_pTarget->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3() + offset;
 
 	m_pStartTriangle = m_pNavMesh->GetTriangle(m_StartPos);
 	m_pCurrentTriangle = m_pNavMesh->GetTriangle(m_StartPos);
@@ -473,16 +476,14 @@ void component::AiComponent::updateMelee(double dt)
 		double vel;
 		if (m_DistancePath <= m_DetectionRadius && m_DistancePath >= (m_AttackingDistance - 0.5f))
 		{
-			vel = m_pParentTrans->GetVelocity() * 3.0;
+			vel = m_pParentTrans->GetVelocity();
 			cc->SetVelVector(vel * m_DirectionPath.x / m_DistancePath, vel * 2 * m_DirectionPath.y / m_DistancePath, vel * m_DirectionPath.z / m_DistancePath);
-		}
-		else
-		{
-			randMovement();
 		}
 
 		if (m_DistanceToPlayer <= m_AttackingDistance)
 		{
+			vel = m_pParentTrans->GetVelocity() * 0.1;
+			cc->SetVelVector(vel * m_DirectionPath.x / m_DistancePath, vel * 2 * m_DirectionPath.y / m_DistancePath, vel * m_DirectionPath.z / m_DistancePath);
 			// TODO: fix this when meele attack is implemented
 			HealthComponent* hc = m_pTarget->GetComponent<component::HealthComponent>();
 			if (hc != nullptr)
@@ -490,7 +491,7 @@ void component::AiComponent::updateMelee(double dt)
 				m_SpeedTimeAccumulator += static_cast<float>(dt);
 				if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
 				{
-					m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(-m_MeleeAttackDmg);
+					m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(m_MeleeAttackDmg);
 					Log::Print("ENEMY ATTACK!\n");
 					m_SpeedTimeAccumulator = 0.0;
 					m_IntervalTimeAccumulator = 0.0;
@@ -544,6 +545,7 @@ void component::AiComponent::updateRange(double dt)
 				cc->SetVelVector(0, 0, 0);
 				m_StandStill = true;
 				// set direction
+
 				float3 aimDirection = setAimDirection();
 
 				m_SpeedTimeAccumulator += static_cast<float>(dt);
@@ -553,6 +555,12 @@ void component::AiComponent::updateRange(double dt)
 					m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(aimDirection);
 					m_SpeedTimeAccumulator = 0.0;
 					m_IntervalTimeAccumulator = 0.0;
+				}
+				else if (m_IntervalTimeAccumulator >= m_AttackInterval / 4.0 && m_DistanceToPlayer <= m_AttackingDistance / 2.0f)
+				{
+					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(m_MovementVelocity * 0.75f);
+					vel = -m_pParentTrans->GetVelocity();
+					cc->SetVelVector(vel * m_DirectionPath.x / m_DistancePath, vel * 2 * m_DirectionPath.y / m_DistancePath, vel * m_DirectionPath.z / m_DistancePath);
 				}
 			}
 		}
@@ -567,15 +575,20 @@ void component::AiComponent::pathFinding()
 	CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
 
 	float3 finalTargetPos = m_pTargetTrans->GetPositionFloat3();
+	float3 pointOnCircle = finalTargetPos + (m_TargetCirclePoint * m_TargetCircleRadius);
 	float3 pos = m_pParentTrans->GetPositionFloat3();
 
 	if (std::strcmp(m_pNavMesh->GetType().c_str(), "Quads") == 0)
 	{
+		NavQuad* targetCircleQuad = m_pNavMesh->GetQuad(pointOnCircle);
 		NavQuad* targetQuad = m_pNavMesh->GetQuad(finalTargetPos);
 
-		if (targetQuad != m_pGoalQuad)
+		if (targetCircleQuad != m_pGoalQuad && targetCircleQuad != targetQuad)
 		{
-			findPathToTargetQuad();
+			m_TargetCirclePoint = { -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))), 0.0f, -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))) };
+			m_TargetCirclePoint.normalize();
+			m_TargetCircleRadius = m_AttackingDistance * 5.0f;
+			findPathToTargetQuad(m_TargetCirclePoint * m_TargetCircleRadius);
 		}
 
 		if (m_PathFound)
@@ -595,11 +608,15 @@ void component::AiComponent::pathFinding()
 	}
 	else if (std::strcmp(m_pNavMesh->GetType().c_str(), "Triangles") == 0)
 	{
+		NavTriangle* targetCircleTriangle = m_pNavMesh->GetTriangle(pointOnCircle);
 		NavTriangle* targetTriangle = m_pNavMesh->GetTriangle(finalTargetPos);
 
-		if (targetTriangle != m_pGoalTriangle)
+		if (targetCircleTriangle != m_pGoalTriangle && targetCircleTriangle != targetTriangle)
 		{
-			findPathToTargetTriangle();
+			m_TargetCirclePoint = { -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))), 0.0f, -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))) };
+			m_TargetCirclePoint.normalize();
+			m_TargetCircleRadius = m_AttackingDistance * 5.0f;
+			findPathToTargetTriangle(m_TargetCirclePoint * m_TargetCircleRadius);
 		}
 
 		if (m_PathFound)
@@ -618,24 +635,39 @@ void component::AiComponent::pathFinding()
 		}
 	}
 
+	bool turnToPlayer = false;
+
+	m_DistanceToPlayer = (m_pTargetTrans->GetPositionFloat3() - m_pParentTrans->GetPositionFloat3()).length();
 	if (!m_Path.empty())
 	{
 		m_NextTargetPos = m_Path.back();
 	}
 	else
 	{
-		m_NextTargetPos = finalTargetPos;
+		turnToPlayer = true;
+		float3 dirToPlayer = m_pTargetTrans->GetPositionFloat3() - m_pParentTrans->GetPositionFloat3();
+		double angle = std::atan2(m_pParentTrans->GetInvDir() * dirToPlayer.x, m_pParentTrans->GetInvDir() * dirToPlayer.z);
+		cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
+		m_NextTargetPos = pointOnCircle;
+		if (m_DistanceToPlayer <= m_TargetCircleRadius + 0.5)
+		{
+			m_TargetCircleRadius -= 1.0f;
+			if (m_TargetCircleRadius <= m_AttackingDistance * 2.0f)
+			{
+				m_NextTargetPos = finalTargetPos;
+			}
+		}
 		m_LastPos = pos;
 	}
 
 	m_DirectionPath = { m_NextTargetPos.x - m_LastPos.x, (m_NextTargetPos.y - m_LastPos.y) * static_cast<float>(m_Flags & F_AI_FLAGS::CAN_JUMP), m_NextTargetPos.z - m_LastPos.z };
 
-	if (!(m_Flags & F_AI_FLAGS::CAN_ROLL))
+	if (!(m_Flags & F_AI_FLAGS::CAN_ROLL) && !turnToPlayer)
 	{
-		double angle = std::atan2(m_DirectionPath.x, m_DirectionPath.z);
+		double angle = std::atan2(m_pParentTrans->GetInvDir() * m_DirectionPath.x, m_pParentTrans->GetInvDir() * m_DirectionPath.z);
 		cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 	}
-	m_DistancePath = sqrt(m_DirectionPath.x * m_DirectionPath.x + m_DirectionPath.y * m_DirectionPath.y + m_DirectionPath.z * m_DirectionPath.z);
+	m_DistancePath = m_DirectionPath.length();
 }
 
 void component::AiComponent::randMovement()
@@ -651,7 +683,7 @@ void component::AiComponent::randMovement()
 
 	if (!(m_Flags & F_AI_FLAGS::CAN_ROLL))
 	{
-		double angle = std::atan2(moveX, moveZ);
+		double angle = std::atan2(m_pParentTrans->GetInvDir() * moveX, m_pParentTrans->GetInvDir() * moveZ);
 		cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 	}
 	cc->SetVelVector(min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel), 0.0f, min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel));
