@@ -140,7 +140,8 @@ Scene* GameScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     //al->LoadMap(scene, "../Vendor/Resources/FirstMap.map");
-	al->LoadMap(scene, "../Vendor/Resources/ExampleRoom.map");
+	//al->LoadMap(scene, "../Vendor/Resources/BaseRoom.map");
+	al->LoadMap(scene, "../Vendor/Resources/StatueRoom.map");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");   
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
@@ -218,7 +219,7 @@ Scene* GameScene(SceneManager* sm)
     Player::GetInstance().SetPlayer(entity);
 
     tc->GetTransform()->SetScale(0.9f);
-    tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
+    tc->GetTransform()->SetPosition(20.0f, 1.0f, 0.0f);
     tc->SetTransformOriginalState();
 
     mc->SetModel(playerModel);
