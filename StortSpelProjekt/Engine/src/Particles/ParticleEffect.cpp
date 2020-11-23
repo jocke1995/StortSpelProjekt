@@ -170,19 +170,19 @@ void ParticleEffect::randomizePosition(Particle& particle)
 	if (!(randParams.x.intervalLower == 0 && randParams.x.intervalUpper == 0))
 	{
 		float x = randomizeFloat(randParams.x.intervalLower, randParams.x.intervalUpper);
-		particle.m_Attributes.position.x = x;
+		particle.m_Attributes.position.x += x;
 	}
 
 	if (!(randParams.y.intervalLower == 0 && randParams.y.intervalUpper == 0))
 	{
 		float y = randomizeFloat(randParams.y.intervalLower, randParams.y.intervalUpper);
-		particle.m_Attributes.position.y = y;
+		particle.m_Attributes.position.y += y;
 	}
 
 	if (randParams.z.intervalLower != 0 && randParams.z.intervalUpper != 0)
 	{
 		float z = randomizeFloat(randParams.z.intervalLower, randParams.z.intervalUpper);
-		particle.m_Attributes.position.z = z;
+		particle.m_Attributes.position.z += z;
 	}
 }
 
@@ -193,19 +193,19 @@ void ParticleEffect::randomizeVelocity(Particle& particle)
 	if (!(randParams.x.intervalLower == 0 && randParams.x.intervalUpper == 0))
 	{
 		float x = randomizeFloat(randParams.x.intervalLower, randParams.x.intervalUpper);
-		particle.m_Attributes.velocity.x = x;
+		particle.m_Attributes.velocity.x += x;
 	}
 
 	if (!(randParams.y.intervalLower == 0 && randParams.y.intervalUpper == 0))
 	{
 		float y = randomizeFloat(randParams.y.intervalLower, randParams.y.intervalUpper);
-		particle.m_Attributes.velocity.y = y;
+		particle.m_Attributes.velocity.y += y;
 	}
 
 	if (!(randParams.z.intervalLower == 0 && randParams.z.intervalUpper == 0))
 	{
 		float z = randomizeFloat(randParams.z.intervalLower, randParams.z.intervalUpper);
-		particle.m_Attributes.velocity.z = z;
+		particle.m_Attributes.velocity.z += z;
 	}
 }
 
@@ -216,7 +216,7 @@ void ParticleEffect::randomizeSize(Particle& particle)
 	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
 		float size = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
-		particle.m_Attributes.size = size;
+		particle.m_Attributes.size += size;
 	}
 }
 
@@ -227,7 +227,7 @@ void ParticleEffect::randomizeRotation(Particle& particle)
 	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
 		float rot = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
-		particle.m_Attributes.rotation = rot;
+		particle.m_Attributes.rotation += rot;
 	}
 }
 
@@ -238,7 +238,7 @@ void ParticleEffect::randomizeRotationSpeed(Particle& particle)
 	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
 		float rotSpeed = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
-		particle.m_Attributes.rotationSpeed = rotSpeed;
+		particle.m_Attributes.rotationSpeed += rotSpeed;
 	}
 }
 
@@ -249,7 +249,7 @@ void ParticleEffect::randomizeLifetime(Particle& particle)
 	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
 		float lifetime = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
-		particle.m_Attributes.lifetime = lifetime;
+		particle.m_Attributes.lifetime += lifetime;
 	}
 }
 
