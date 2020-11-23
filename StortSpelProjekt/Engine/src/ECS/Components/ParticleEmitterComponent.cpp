@@ -70,6 +70,11 @@ void component::ParticleEmitterComponent::Stop()
 	m_IsPlaying = false;
 }
 
+void component::ParticleEmitterComponent::Clear()
+{
+	m_ParticleEffect.Clear();
+}
+
 bool component::ParticleEmitterComponent::IsPlaying() const
 {
 	return m_IsPlaying;

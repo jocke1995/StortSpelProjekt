@@ -69,6 +69,14 @@ void ParticleEffect::SetIsSpawning(bool value)
 	m_IsSpawnwing = value;
 }
 
+void ParticleEffect::Clear()
+{
+	for (Particle& particle : m_Particles)
+	{
+		particle.m_Attributes.lifetime = -1;
+	}
+}
+
 Texture2DGUI* ParticleEffect::GetTexture() const
 {
 	return m_pTexture;

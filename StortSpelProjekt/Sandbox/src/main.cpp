@@ -58,8 +58,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
-    Scene* jockeScene = JockesTestScene(sceneManager);
-    Scene* activeScene = jockeScene;
+    //Scene* jockeScene = JockesTestScene(sceneManager);
+    //Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
     //Scene* williamScene = WilliamsTestScene(sceneManager);
@@ -70,8 +70,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = antonScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* activeScene = andresScene;
-    //Scene* filipScene = FloppipTestScene(sceneManager);
-    //Scene* activeScene = filipScene;
+    Scene* filipScene = FloppipTestScene(sceneManager);
+    Scene* activeScene = filipScene;
 
     // Set scene
     sceneManager->SetScene(activeScene);
@@ -779,21 +779,19 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.particleCount = 500;
+    settings.particleCount = 100;
     settings.startValues.lifetime = 0.8;
     settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
-    settings.startValues.acceleration = {0, -3, 0};
+    settings.startValues.acceleration = {0, 0, 0};
 
     // Need to fix EngineRand.rand() for negative values
-    RandomParameter3 randParam1 = { -2, 2, -2, 2, -2, 2 };
-    randParam1.y = { 2, 6 };
 
-    settings.randPosition = { 0, 1, 0, 1, 0, 1 };
-    settings.randVelocity = randParam1;
-    settings.randSize = { 0.2, 2 };
-    settings.randRotationSpeed = { 0, 3 };
+    settings.randPosition = { -3, 3, 0, 7.5, -3, 3 };
+    settings.randVelocity = { -1, 1, 0, 1, -1, 1 };
+    settings.randSize = { 0.2, 0.7 };
+    settings.randRotationSpeed = { 0, 1 };
 
-    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
     pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
 
 
@@ -830,11 +828,9 @@ Scene* FloppipTestScene(SceneManager* sm)
     settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
     
     // Need to fix EngineRand.rand() for negative values
-    randParam1 = { -2, 2, -2, 2, -2, 2 };
-    randParam1.y = { -20, -12 };
     
     settings.randPosition = { -400, 400, 0, 0, -400, 400 };
-    settings.randVelocity = randParam1;
+    settings.randVelocity = { -2, 2, -20, -12, -2, 2 };
     settings.randSize = { 3, 7 };
     settings.randRotationSpeed = { -3, 3 };
     
