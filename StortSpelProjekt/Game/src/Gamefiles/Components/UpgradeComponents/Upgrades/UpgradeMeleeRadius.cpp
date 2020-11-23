@@ -1,4 +1,6 @@
 #include "UpgradeMeleeRadius.h"
+#include "EngineMath.h"
+#include "ECS/Entity.h"
 
 UpgradeMeleeRadius::UpgradeMeleeRadius(Entity* parent) : Upgrade(parent)
 {
@@ -20,18 +22,21 @@ UpgradeMeleeRadius::~UpgradeMeleeRadius()
 
 void UpgradeMeleeRadius::ApplyBoughtUpgrade()
 {
-
+	ApplyStat();
 }
 
 void UpgradeMeleeRadius::ApplyStat()
 {
+	m_pParentEntity->GetComponent<component::MeleeComponent>()->ChangeMeleeRadius();
+	Log::Print("TEST!\n");
 }
 
 void UpgradeMeleeRadius::IncreaseLevel()
 {
+	m_Level++;
 }
 
 std::string UpgradeMeleeRadius::GetDescription(unsigned int level)
 {
-	return std::string();
+	return "Hello these are some words\n";
 }
