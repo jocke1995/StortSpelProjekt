@@ -55,11 +55,16 @@ void ParticleEffect::Update(double dt)
 {
 	m_TimeSinceSpawn += dt;
 
+
 	// If should particle spawn
-	while (isTimeToSpawnParticles() && m_IsSpawnwing)
+	while (isTimeToSpawnParticles() && m_IsSpawning)
 	{
 		bool spawned = spawnParticle();
-		m_TimeSinceSpawn -= m_Settings.spawnInterval;
+
+		if (!spawned)
+		{
+			break;
+		}
 	}
 
 	// Update all particles
@@ -75,7 +80,7 @@ void ParticleEffect::Update(double dt)
 
 void ParticleEffect::SetIsSpawning(bool value)
 {
-	m_IsSpawnwing = value;
+	m_IsSpawning = value;
 }
 
 void ParticleEffect::Clear()
@@ -121,6 +126,7 @@ bool ParticleEffect::spawnParticle()
 	m_ParticleIndex = ++m_ParticleIndex % m_Settings.maxParticleCount;
 
 	// "Spawn"
+	m_TimeSinceSpawn -= m_Settings.spawnInterval;
 	initParticle(particle);
 
 	return true;

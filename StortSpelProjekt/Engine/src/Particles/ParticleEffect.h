@@ -80,7 +80,7 @@ private:
 	std::vector<PARTICLE_DATA> m_ParticlesData;
 	unsigned int m_ParticleIndex = 0;
 	double m_TimeSinceSpawn = 0;
-	bool m_IsSpawnwing = false;
+	bool m_IsSpawning = false;
 
 	ParticleEffectSettings m_Settings = {};
 
