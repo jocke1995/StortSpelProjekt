@@ -189,26 +189,28 @@ void component::MeleeComponent::particleEffect(Entity* entity)
 	ParticleEffectSettings settings = {};
 	settings.particleCount = 1;
 	settings.startValues.lifetime = 0.5;
-	settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+	settings.spawnInterval = 0.05;
 	settings.startValues.acceleration = { 0, 0, 0 };
+	settings.isLooping = false;
 
 	// Need to fix EngineRand.rand() for negative values
 	RandomParameter3 randParam1 = { 0, 0, 0, 0, 0, 0 };
 
-	settings.randPosition = { -1, 1, -1, 1, -1, 1 };
+	settings.randPosition = { 0, 0, 0, 0, 0, 0 };
 	settings.randVelocity = randParam1;
-	settings.randSize = { 1.2, 1.5 };
+	settings.randSize = { 1.5, 2.0 };
 	settings.randRotationSpeed = { 0, 3 };
+	settings.texture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/melee_hit.png"));
 
-	Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/melee_hit.png"));
+
 	Entity* particleEntity = SceneManager::GetInstance().GetActiveScene()->AddEntity("meleeParticle" + std::to_string(m_ParticleEffectCounter++));
 	component::TransformComponent* transform = particleEntity->AddComponent<component::TransformComponent>();
 	float3 targetPos = entity->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 	float3 playerPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 	transform->GetTransform()->SetPosition((targetPos.x + playerPos.x) / 2.0f, (targetPos.y + playerPos.y) / 2.0f, (targetPos.z + playerPos.z) / 2.0f);
-	particleEntity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+	particleEntity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 	particleEntity->GetComponent<component::ParticleEmitterComponent>()->OnInitScene();
-	particleEntity->AddComponent<component::TemporaryLifeComponent>(1.0);
+	particleEntity->AddComponent<component::TemporaryLifeComponent>(0.5);
 }
 
 void component::MeleeComponent::CreateCornersHitbox()
