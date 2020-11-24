@@ -66,6 +66,7 @@ void UpgradeExplosiveAttack::OnRangedHit(Entity* target)
 			settings.startValues.lifetime = m_Radius / 10.0f;
 			settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
 			settings.startValues.acceleration = { 0, 0, 0 };
+			settings.isLooping = false;
 
 			// Need to fix EngineRand.rand() for negative values
 			RandomParameter3 randParam1 = { -10, 10, -10, 10, -10, 10 };
@@ -75,11 +76,11 @@ void UpgradeExplosiveAttack::OnRangedHit(Entity* target)
 			settings.randSize = { 0.4, 0.8 };
 			settings.randRotationSpeed = { 0, 3 };
 
-			Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/shrapnel_particle.png"));
-			target->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+			settings.texture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/shrapnel_particle.png"));
+			target->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 			target->GetComponent<component::ParticleEmitterComponent>()->OnInitScene();
 		}
-		target->GetComponent<component::ParticleEmitterComponent>()->Play(0.4f);
+		target->GetComponent<component::ParticleEmitterComponent>()->Play();
 	}
 }
 
