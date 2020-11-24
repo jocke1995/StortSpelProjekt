@@ -8,6 +8,7 @@
 
 // For loading textures
 #include "TextureFunctions.h"
+#include "../Misc/Timer.h"
 
 Texture2D::Texture2D(const std::wstring& filePath)
 	: Texture(filePath)
@@ -29,14 +30,17 @@ bool Texture2D::Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 	// DDSLoader uses this data type to load the image data
 	// converts this to m_pImageData when it is used.
 	std::unique_ptr<uint8_t[]> m_DdsData;
-
-	// Loads the texture and creates a default resource;
-
-	std::stringstream ss;
-	Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(m_FilePath).c_str(), &ss);
-	hr = DirectX::LoadDDSTextureFromMemory(device, reinterpret_cast<const uint8_t*>(ss.str().c_str()), ss.str().size(), reinterpret_cast<ID3D12Resource**>(m_pDefaultResource->GetID3D12Resource1PP()), m_SubresourceData);
-	//hr = DirectX::LoadDDSTextureFromFile(device, m_FilePath.c_str(), reinterpret_cast<ID3D12Resource**>(m_pDefaultResource->GetID3D12Resource1PP()), m_DdsData, m_SubresourceData);
+	Timer timer;
+	timer.StartTimer();
 	
+	// Loads the texture and creates a default resource;
+	Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(m_FilePath).c_str(), "DecryptedTexture.dds", true);
+	Log::Print("Decrypted file in %f\n",timer.StopTimer());
+	timer.StartTimer();
+	hr = DirectX::LoadDDSTextureFromFile(device, L"DecryptedTexture.dds", reinterpret_cast<ID3D12Resource**>(m_pDefaultResource->GetID3D12Resource1PP()), m_DdsData, m_SubresourceData);
+
+	Log::Print("Loaded file in %f\n", timer.StopTimer());
+	remove("DecryptedTexture.dds");
 	if (FAILED(hr))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(m_FilePath).c_str());
@@ -48,7 +52,8 @@ bool Texture2D::Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 	m_ResourceDescription = m_pDefaultResource->GetID3D12Resource1()->GetDesc();
 	m_ImageBytesPerRow = m_SubresourceData[0].RowPitch;
 	// copy m_DdsData to our BYTE* format
-	m_pImageData = reinterpret_cast<BYTE*>((const_cast<char*>(ss.str().c_str())));
+
+	m_pImageData = static_cast<BYTE*>(m_DdsData.get());
 	m_DdsData.release(); // lose the pointer, let m_pImageData delete the data.
 
 	// Footprint

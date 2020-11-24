@@ -176,11 +176,15 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 		binary = true;
 	}
 
-	Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(path).c_str(), &ss);
-	Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(path).c_str(), "DecryptedFile.fbx", binary);
+	std::string tmp(to_string(path));
+	tmp = tmp.substr(0,tmp.find_last_of('/') + 1);
+	tmp += "decryptedFile" + fileEnding;
+	//Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(path).c_str(), &ss);
+	Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(path).c_str(), tmp.c_str(), binary);
 
-	const aiScene* assimpScene = importer.ReadFileFromMemory(ss.str().c_str(), ss.str().size(), aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph, fileEnding.c_str());
-	//const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph);
+	//const aiScene* assimpScene = importer.ReadFileFromMemory(ss.str().c_str(), ss.str().size(), aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph, fileEnding.c_str());
+	const aiScene* assimpScene = importer.ReadFile(tmp, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph);
+	remove(tmp.c_str());
 	if (assimpScene == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to load model with path: \'%S\'\n", path.c_str());
@@ -344,7 +348,7 @@ Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
 	// Check if the texture is DDS or of other commonType
 	std::string fileEnding = GetFileExtension(to_string(path));
 	Texture* texture = nullptr;
-	if (fileEnding == "dds")
+	if (fileEnding == "dds" || fileEnding == "DDS")
 	{
 		texture = new Texture2D(path);
 	}

@@ -69,6 +69,5 @@ bool Texture2DGUI::Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 	m_SubresourceData[0].pData = &m_pImageData[0]; // pointer to our image data
 	m_SubresourceData[0].RowPitch = m_ImageBytesPerRow;
 	m_SubresourceData[0].SlicePitch = m_ImageBytesPerRow * m_ResourceDescription.Height;
-	
 	return true;
 }

@@ -218,9 +218,9 @@ void Cryptor::encryptDirectoryHelper(int key, const char* path)
 		else
 		{
 			std::string extension = entry.path().extension().generic_string().c_str();
-			if (extension != ".jpg" && extension != ".png")
+			if (extension != ".mtl")
 			{
-				if (extension == ".DDS" || extension == ".dds" || extension == ".fbx" || extension == ".FBX")
+				if (extension == ".DDS" || extension == ".dds" || extension == ".fbx" || extension == ".FBX" || extension == ".png" || extension == ".jpg" || extension == ".tga")
 				{
 					Encrypt(key, entry.path().generic_string().c_str(),true);
 					//EncryptTask task(key, true, entry.path().generic_string());
