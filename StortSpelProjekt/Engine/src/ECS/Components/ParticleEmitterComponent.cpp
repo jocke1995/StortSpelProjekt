@@ -93,12 +93,6 @@ void component::ParticleEmitterComponent::Play()
 	m_IsPlaying = true;
 }
 
-void component::ParticleEmitterComponent::Play(double duration)
-{
-	Play();
-	m_PlayDuration = duration;
-}
-
 void component::ParticleEmitterComponent::Stop()
 {
 	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
@@ -107,6 +101,14 @@ void component::ParticleEmitterComponent::Stop()
 	}
 
 	m_IsPlaying = false;
+}
+
+void component::ParticleEmitterComponent::Clear()
+{
+	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
+	{
+		m_ParticleEffects.at(i)->Clear();
+	}
 }
 
 bool component::ParticleEmitterComponent::IsPlaying() const
