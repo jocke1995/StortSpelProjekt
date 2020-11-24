@@ -65,6 +65,14 @@ public:
 
     // Scene
     void LoadMap(Scene* scene, const char* path, unsigned int id = 0, float3 offset = { 0.0, 0.0, 0.0 } );
+    /// <summary>
+    /// Generates a map of connected rooms.
+    /// </summary>
+    /// <param name="scene"> The scene in which to create the map</param>
+    /// <param name="folderPath"> The path to the folder with the map files describing the rooms</param>
+    /// <param name="mapSize"> The size of the map in number of rooms. Odd numbers will give the best results</param>
+    /// <param name="roomDimensions"> The dimensions of the individual rooms</param>
+    void GenerateMap(Scene* scene, const char* folderPath, float2 mapSize = { 5.0f, 5.0f }, float2 roomDimensions = { 173.0f, 200.0f });
 
     // IsLoadedFunctions
     bool IsModelLoadedOnGpu(const std::wstring& name) const;
@@ -75,6 +83,7 @@ public:
     bool IsTextureLoadedOnGpu(const Texture* texture) const;
 
     std::vector<Edge*>& GetEdges();
+    void RemoveWalls();
 
 private:
     // PipelineState loads all shaders
@@ -111,6 +120,8 @@ private:
     std::map<std::wstring, AudioBuffer> m_LoadedAudios;
 
     std::vector<Edge*> m_Edges;
+    std::vector<int> m_EdgesToRemove;
+    std::map<std::string, int> m_RoomsAdded;
 
     // Audio
     // add map for audio (path, AudioObject)

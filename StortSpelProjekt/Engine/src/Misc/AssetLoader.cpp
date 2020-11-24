@@ -37,6 +37,9 @@
 #include "../Misc/NavMesh.h"
 
 #include "../Misc/Edge.h"
+#include "../Misc/EngineRand.h"
+
+#include <filesystem>
 
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
@@ -81,6 +84,14 @@ bool AssetLoader::IsTextureLoadedOnGpu(const Texture* texture) const
 std::vector<Edge*>& AssetLoader::GetEdges()
 {
 	return m_Edges;
+}
+
+void AssetLoader::RemoveWalls()
+{
+	for (int edgeId : m_EdgesToRemove)
+	{
+		m_Edges.at(edgeId)->RemoveEntitiesFromWorld();
+	}
 }
 
 void AssetLoader::loadDefaultMaterial()
@@ -1048,6 +1059,105 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 	else
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load mapfile %s", path);
+	}
+}
+
+void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSize, float2 roomDimensions)
+{
+	std::vector<std::string> filePaths;
+	for (const auto& entry : std::filesystem::directory_iterator(folderPath))
+	{
+		filePaths.push_back(entry.path().string());
+	}
+
+	int maxRooms = static_cast<int>(mapSize.x * mapSize.y * 0.8f);
+	int roomCounter = 0;
+	bool removeWall = false;
+	float3 startingOffset = { 0.0f, 0.0f, 0.0f };
+	float3 offset = startingOffset;
+	float xMin = -std::floor(mapSize.x / 2.0f) * roomDimensions.x;
+	float xMax = mapSize.x / 2.0f * roomDimensions.x;
+	float zMin = -std::floor(mapSize.y / 2.0f) * (roomDimensions.y * 0.75f);
+	float zMax = std::floor(mapSize.y / 2.0f) * (roomDimensions.y * 0.75f);
+
+	EngineRand rand(time(0));
+
+	// Load the starting room
+	LoadMap(scene, "../Vendor/Resources/BaseRoom.map", roomCounter, offset);
+	m_RoomsAdded[offset.toString()] = roomCounter++;
+
+	// Load rooms until maxRooms has been reached
+	while (roomCounter < maxRooms)
+	{
+		int mapId = (rand.Randu(0, filePaths.size() * 10 - 1) * 0.1);
+		std::string roomToLoad = filePaths.at(mapId);
+
+		int direction = rand.Randu(0, 6);
+		int opositeDirection = 0;
+		float3 newOffset = offset;
+		switch (direction)
+		{
+		case 0:
+			newOffset.x += 86.5f;
+			newOffset.z += 150.0f;
+			opositeDirection = 3;
+			break;
+		case 1:
+			newOffset.x += 173.0f;
+			opositeDirection = 4;
+			break;
+		case 2:
+			newOffset.x += 86.5f;
+			newOffset.z += -150.0f;
+			opositeDirection = 5;
+			break;
+		case 3:
+			newOffset.x += -86.5f;
+			newOffset.z += -150.0f;
+			opositeDirection = 0;
+			break;
+		case 4:
+			newOffset.x += -173.0f;
+			opositeDirection = 1;
+			break;
+		case 5:
+			newOffset.x += -86.5f;
+			newOffset.z += 150.0f;
+			opositeDirection = 2;
+			break;
+		}
+
+		if (newOffset.x <= xMax && newOffset.x >= xMin && newOffset.z <= zMax && newOffset.z >= zMin)
+		{
+			if (m_RoomsAdded[newOffset.toString()] == 0 && newOffset.toString() != startingOffset.toString())
+			{
+				LoadMap(scene, roomToLoad.c_str(), roomCounter, newOffset);
+				m_RoomsAdded[newOffset.toString()] = roomCounter++;
+				removeWall = true;
+			}
+			else
+			{
+				removeWall = rand.Randu(0, 100) > 75;
+			}
+
+			if (removeWall)
+			{
+				int firstEdgeId = direction + 6 * m_RoomsAdded[offset.toString()];
+				int secondEdgeId = opositeDirection + 6 * m_RoomsAdded[newOffset.toString()];
+
+				Edge* firstEdge = m_Edges.at(firstEdgeId);
+				Edge* secondEdge = m_Edges.at(secondEdgeId);
+				if (!firstEdge->IsConnected())
+				{
+					firstEdge->ConnectToWall(secondEdge);
+					m_EdgesToRemove.push_back(firstEdgeId);
+					m_EdgesToRemove.push_back(secondEdgeId);
+				}
+
+				offset = newOffset;
+			}
+
+		}
 	}
 }
 

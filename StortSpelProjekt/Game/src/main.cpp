@@ -142,7 +142,8 @@ Scene* GameScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     //al->LoadMap(scene, "../Vendor/Resources/FirstMap.map");
-	al->LoadMap(scene, "../Vendor/Resources/BaseRoom.map");
+	//al->LoadMap(scene, "../Vendor/Resources/BaseRoom.map");
+    al->GenerateMap(scene, "../Vendor/Resources/Rooms");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");   
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
@@ -923,6 +924,7 @@ Scene* ShopScene(SceneManager* sm)
 
 void GameInitScene(Scene* scene)
 {
+    AssetLoader::Get()->RemoveWalls();
 }
 
 void GameUpdateScene(SceneManager* sm, double dt)
