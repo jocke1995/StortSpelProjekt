@@ -92,7 +92,7 @@ PS_OUTPUT PS_main(VS_OUT input)
 			baseReflectivity);
 	}
 	
-	float3 ambient = float3(0.1f, 0.1f, 0.1f) * albedo;
+	float3 ambient = float3(0.05f, 0.05f, 0.05f) * albedo;
 	finalColor += ambient;
 
 	// Since hdr will lower the intensity of our emissive textures, our quick solution in this game is to
