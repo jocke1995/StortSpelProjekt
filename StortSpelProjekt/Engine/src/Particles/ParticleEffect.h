@@ -38,6 +38,7 @@ struct RandomParameter3
 
 struct ParticleEffectSettings
 {
+	Texture2DGUI* texture = nullptr;
 	unsigned int particleCount = PARTICLE_EFFECT_DEFAULT_SIZE;
 	float spawnInterval = 0.1;
 
@@ -55,7 +56,7 @@ struct ParticleEffectSettings
 class ParticleEffect
 {
 public:
-	ParticleEffect(Entity* parent, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings);
+	ParticleEffect(Entity* parent, ParticleEffectSettings* settings);
 	~ParticleEffect();
 
 	void Update(double dt);
@@ -92,7 +93,7 @@ private:
 	bool isTimeToSpawnParticles() const;
 	bool spawnParticle();
 
-	void init(DescriptorHeap* descriptorHeap);
+	void init();
 	
 	void initParticle(Particle& particle);
 	void randomizePosition(Particle& particle);
