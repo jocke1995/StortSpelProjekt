@@ -2,6 +2,11 @@
 #define ANIMATION_H
 
 #define MAX_BONES_PER_VERTEX 10
+#define ANIMATION_TRANSITION_TIME 0.4f
+
+DirectX::XMFLOAT3 InterpolateTranslation(DirectX::XMFLOAT3* key0, DirectX::XMFLOAT3* key1, float t);
+DirectX::XMFLOAT4 InterpolateRotation(DirectX::XMFLOAT4* key0, DirectX::XMFLOAT4* key1, float t);
+DirectX::XMFLOAT3 InterpolateScaling(DirectX::XMFLOAT3* key0, DirectX::XMFLOAT3* key1, float t);
 
 struct BoneInfo
 {
@@ -12,11 +17,11 @@ struct BoneInfo
 struct TransformKey
 {
 	DirectX::XMFLOAT3 position = {};
-	DirectX::XMFLOAT3* pPosition = nullptr;
+	DirectX::XMFLOAT3* pPosition = &position;
 	DirectX::XMFLOAT4 rotationQuaternion = {};
-	DirectX::XMFLOAT4* pRotation = nullptr;
+	DirectX::XMFLOAT4* pRotation = &rotationQuaternion;
 	DirectX::XMFLOAT3 scaling = { 1.0f,1.0f,1.0f };
-	DirectX::XMFLOAT3* pScale = nullptr;
+	DirectX::XMFLOAT3* pScale = &scaling;
 };
 
 struct TranslationKey
@@ -81,7 +86,7 @@ struct Animation
 		else
 		{
 			animationTime = timeInTicks;
-			if (timeInTicks > durationInTicks)
+			if (timeInTicks > durationInTicks - ANIMATION_TRANSITION_TIME - 0.1f)	// Extra 0.1 second margin so that the animation doesn't accidentally loop. Ugly solution.
 			{
 				finished = true;
 				time = 0;
@@ -179,52 +184,52 @@ struct Animation
 			}
 		}
 	}
-
-	DirectX::XMFLOAT3 InterpolateTranslation(DirectX::XMFLOAT3* key0, DirectX::XMFLOAT3* key1, float t)
-	{
-		DirectX::XMFLOAT3 result;
-		DirectX::XMVECTOR key0Vec;
-		DirectX::XMVECTOR key1Vec;
-		DirectX::XMVECTOR interpolatedVec;
-
-		key0Vec = DirectX::XMLoadFloat3(key0);
-		key1Vec = DirectX::XMLoadFloat3(key1);
-		interpolatedVec = DirectX::XMVectorLerp(key0Vec, key1Vec, t);
-		DirectX::XMStoreFloat3(&result, interpolatedVec);
-
-		return result;
-	}
-
-	DirectX::XMFLOAT4 InterpolateRotation(DirectX::XMFLOAT4* key0, DirectX::XMFLOAT4* key1, float t)
-	{
-		DirectX::XMFLOAT4 result;
-		DirectX::XMVECTOR key0Vec;
-		DirectX::XMVECTOR key1Vec;
-		DirectX::XMVECTOR interpolatedVec;
-
-		key0Vec = DirectX::XMLoadFloat4(key0);
-		key1Vec = DirectX::XMLoadFloat4(key1);
-		interpolatedVec = DirectX::XMQuaternionSlerp(key0Vec, key1Vec, t);
-		DirectX::XMQuaternionNormalize(interpolatedVec);
-		DirectX::XMStoreFloat4(&result, interpolatedVec);
-
-		return result;
-	}
-
-	DirectX::XMFLOAT3 InterpolateScaling(DirectX::XMFLOAT3* key0, DirectX::XMFLOAT3* key1, float t)
-	{
-		DirectX::XMFLOAT3 result;
-		DirectX::XMVECTOR key0Vec;
-		DirectX::XMVECTOR key1Vec;
-		DirectX::XMVECTOR interpolatedVec;
-
-		key0Vec = DirectX::XMLoadFloat3(key0);
-		key1Vec = DirectX::XMLoadFloat3(key1);
-		interpolatedVec = DirectX::XMVectorLerp(key0Vec, key1Vec, t);
-		DirectX::XMStoreFloat3(&result, interpolatedVec);
-
-		return result;
-	}
 };
+
+inline DirectX::XMFLOAT3 InterpolateTranslation(DirectX::XMFLOAT3* key0, DirectX::XMFLOAT3* key1, float t)
+{
+	DirectX::XMFLOAT3 result;
+	DirectX::XMVECTOR key0Vec;
+	DirectX::XMVECTOR key1Vec;
+	DirectX::XMVECTOR interpolatedVec;
+
+	key0Vec = DirectX::XMLoadFloat3(key0);
+	key1Vec = DirectX::XMLoadFloat3(key1);
+	interpolatedVec = DirectX::XMVectorLerp(key0Vec, key1Vec, t);
+	DirectX::XMStoreFloat3(&result, interpolatedVec);
+
+	return result;
+}
+
+inline DirectX::XMFLOAT4 InterpolateRotation(DirectX::XMFLOAT4* key0, DirectX::XMFLOAT4* key1, float t)
+{
+	DirectX::XMFLOAT4 result;
+	DirectX::XMVECTOR key0Vec;
+	DirectX::XMVECTOR key1Vec;
+	DirectX::XMVECTOR interpolatedVec;
+
+	key0Vec = DirectX::XMLoadFloat4(key0);
+	key1Vec = DirectX::XMLoadFloat4(key1);
+	interpolatedVec = DirectX::XMQuaternionSlerp(key0Vec, key1Vec, t);
+	DirectX::XMQuaternionNormalize(interpolatedVec);
+	DirectX::XMStoreFloat4(&result, interpolatedVec);
+
+	return result;
+}
+
+inline DirectX::XMFLOAT3 InterpolateScaling(DirectX::XMFLOAT3* key0, DirectX::XMFLOAT3* key1, float t)
+{
+	DirectX::XMFLOAT3 result;
+	DirectX::XMVECTOR key0Vec;
+	DirectX::XMVECTOR key1Vec;
+	DirectX::XMVECTOR interpolatedVec;
+
+	key0Vec = DirectX::XMLoadFloat3(key0);
+	key1Vec = DirectX::XMLoadFloat3(key1);
+	interpolatedVec = DirectX::XMVectorLerp(key0Vec, key1Vec, t);
+	DirectX::XMStoreFloat3(&result, interpolatedVec);
+
+	return result;
+}
 
 #endif

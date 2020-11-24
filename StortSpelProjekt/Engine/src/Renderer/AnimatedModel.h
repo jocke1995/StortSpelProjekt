@@ -2,11 +2,13 @@
 #define ANIMATEDMODEL_H
 
 #include "Model.h"
+#include "Animation.h"
 
 // Forward declarations
 struct Animation;
 struct SkeletonNode;
 struct VertexWeight;
+struct TransformKey;
 
 class ConstantBuffer;
 class DescriptorHeap;
@@ -39,12 +41,22 @@ public:
     void ResetAnimation();
 
 private:
-    void bindSkeleton(SkeletonNode* node, Animation* animation);   // Attach the currentStateTransforms of the animation to the skeleton.
+    // Should run for a while after a activeAnimation is added.
+    void blendAnimations(double dt);
+    void bindBlendedAnimation(SkeletonNode* node);
+
+    void bindAnimation(SkeletonNode* node, Animation* animation);   // Attach the currentStateTransforms of the animation to the skeleton.
     void updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform);
     SkeletonNode* findNode(SkeletonNode* root, std::string nodeName);
 
+
     bool m_AnimationIsPaused = false;
+    double blendTransitionTime = ANIMATION_TRANSITION_TIME;
+    double blendTimeElapsed = 0;
+    std::map<std::string, TransformKey> m_BlendAnimationState;
+    std::vector<Animation*> m_pPendingAnimations;
     std::vector<Animation*> m_pActiveAnimations;
+    std::vector<Animation*> m_pEndingAnimations;
     SkeletonNode* m_pSkeleton;
     std::vector<Animation*> m_Animations;
     DirectX::XMFLOAT4X4 m_GlobalInverseTransform;

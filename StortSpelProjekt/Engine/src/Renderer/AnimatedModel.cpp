@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "structs.h"
 #include "AnimatedModel.h"
-#include "Animation.h"
 #include "GPUMemory/ConstantBuffer.h"
 
 #include "DescriptorHeap.h"
@@ -73,14 +72,39 @@ bool AnimatedModel::AddActiveAnimation(std::string animationName, bool loop)
 		}
 	}
 
+	for (auto& animation : m_pPendingAnimations)
+	{
+		if (animation->name == animationName)
+		{
+			return false;
+		}
+	}
+
+	for (auto& animation : m_pEndingAnimations)
+	{
+		if (animation->name == animationName)
+		{
+			return false;
+		}
+	}
+
 	for (auto& animation : m_Animations)
 	{
 		if (animation->name == animationName)
 		{
 			animation->loop = loop;
 			animation->Update(0);
-			m_pActiveAnimations.push_back(animation);
-			bindSkeleton(m_pSkeleton, animation);
+			if (m_pActiveAnimations.empty())
+			{
+				m_pActiveAnimations.push_back(animation);
+				bindAnimation(m_pSkeleton, animation);
+			}
+			else
+			{
+				m_pPendingAnimations.push_back(animation);
+				blendAnimations(0);
+				bindBlendedAnimation(m_pSkeleton);
+			}
 			return true;
 		}
 	}
@@ -96,6 +120,7 @@ bool AnimatedModel::EndActiveAnimation(std::string animationName)
 		if (animation->name == animationName)
 		{
 			m_pActiveAnimations.erase(m_pActiveAnimations.begin() + index);
+			m_pEndingAnimations.push_back(animation);
 			// If there are no active animations left, run default animation.
 			if (m_pActiveAnimations.empty())
 			{
@@ -119,18 +144,34 @@ void AnimatedModel::Update(double dt)
 			// remove all finished animations from the active animations vector
 			if (animation->finished)
 			{
+				//if (m_pActiveAnimations.size() == 1 && m_pPendingAnimations.empty() && m_pEndingAnimations.empty())
+				//{
+				//	bindAnimation(m_pSkeleton, m_pActiveAnimations[0]);
+				//}
+				m_pEndingAnimations.push_back(animation);
 				m_pActiveAnimations.erase(m_pActiveAnimations.begin() + index);
 				animation->finished = false;
-				if (m_pActiveAnimations.size() == 1)
-				{
-					bindSkeleton(m_pSkeleton, m_pActiveAnimations[0]);
-				}
 			}
 			else
 			{
 				animation->Update(dt);
 			}
 			index++;
+		}
+
+		for (auto& animation : m_pPendingAnimations)
+		{
+			animation->Update(dt);
+		}
+
+		for (auto& animation : m_pEndingAnimations)
+		{
+			animation->Update(dt);
+		}
+
+		if (!m_pPendingAnimations.empty() && !m_pEndingAnimations.empty())
+		{
+			blendAnimations(dt);
 		}
 
 		// If there is no active animation, run the default animation (idle)
@@ -153,7 +194,7 @@ void AnimatedModel::PlayAnimation()
 	if (m_pActiveAnimations.size() == 1)
 	{
 		Animation* animation = m_pActiveAnimations.front();
-		bindSkeleton(m_pSkeleton, animation);
+		bindAnimation(m_pSkeleton, animation);
 	}
 	else
 	{
@@ -182,11 +223,11 @@ void AnimatedModel::PlayAnimation()
 		{
 			SkeletonNode* hips = findNode(m_pSkeleton, "Hips");
 			assert(hips != nullptr);
-			bindSkeleton(hips, walk.second);
+			bindAnimation(hips, walk.second);
 
 			SkeletonNode* spine = findNode(m_pSkeleton, "Spine");
 			assert(spine != nullptr);
-			bindSkeleton(spine, attack.second);
+			bindAnimation(spine, attack.second);
 		}
 	}
 
@@ -205,7 +246,60 @@ void AnimatedModel::ResetAnimation()
 	PlayAnimation();
 }
 
-void AnimatedModel::bindSkeleton(SkeletonNode* node, Animation* animation)
+void AnimatedModel::blendAnimations(double dt)
+{
+	// It would be possible to blend combo-animations (walk+attack) into a third animation (sprint) if we save the state pointers in the skeleton and use them as the interpolation startingpoint.
+	if (!m_pPendingAnimations.empty() && !m_pEndingAnimations.empty())
+	{
+		float factor;
+		blendTimeElapsed += dt;
+		if (blendTimeElapsed >= blendTransitionTime)
+		{
+			//if (m_pActiveAnimations.empty())
+			//{
+			//	ResetAnimation();
+			//}
+			blendTimeElapsed = 0.0f;
+			m_pActiveAnimations.push_back(m_pPendingAnimations[0]);	// The blend phase is finished, so the pending animation will be active now.
+			m_pPendingAnimations.pop_back();	// Remove from the pending vector
+			m_pEndingAnimations.pop_back();
+			bindAnimation(m_pSkeleton, m_pActiveAnimations[0]);
+			return;
+		}
+		else
+		{
+			factor = blendTimeElapsed / blendTransitionTime;
+		}
+		assert(factor >= 0.0f && factor <= 1.0f);
+
+		for (auto& key : m_pPendingAnimations[0]->currentState)
+		{
+			m_BlendAnimationState[key.first].position = InterpolateTranslation(&(m_pEndingAnimations[0]->currentState[key.first].position), &key.second.position, factor);
+			m_BlendAnimationState[key.first].rotationQuaternion = InterpolateRotation(&(m_pEndingAnimations[0]->currentState[key.first].rotationQuaternion), &key.second.rotationQuaternion, factor);
+			m_BlendAnimationState[key.first].scaling = InterpolateScaling(&(m_pEndingAnimations[0]->currentState[key.first].scaling), &key.second.scaling, factor);
+		}
+	}
+}
+
+void AnimatedModel::bindBlendedAnimation(SkeletonNode* node)
+{
+	if (m_BlendAnimationState.find(node->name) != m_BlendAnimationState.end())
+	{
+		node->currentStateTransform = &m_BlendAnimationState[node->name];
+	}
+	else
+	{
+		node->currentStateTransform = nullptr;
+	}
+
+	// Loop through all nodes in the tree
+	for (auto& child : node->children)
+	{
+		bindBlendedAnimation(child);
+	}
+}
+
+void AnimatedModel::bindAnimation(SkeletonNode* node, Animation* animation)
 {
 	if (animation->currentState.find(node->name) != animation->currentState.end())
 	{
@@ -219,7 +313,7 @@ void AnimatedModel::bindSkeleton(SkeletonNode* node, Animation* animation)
 	// Loop through all nodes in the tree
 	for (auto& child : node->children)
 	{
-		bindSkeleton(child, animation);
+		bindAnimation(child, animation);
 	}
 }
 
