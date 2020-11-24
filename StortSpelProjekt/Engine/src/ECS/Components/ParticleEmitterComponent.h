@@ -23,9 +23,9 @@ namespace component
         void OnInitScene();
         void OnUnInitScene();
 
-        // Reset ParticleEffect
-        void Play();
-        void Stop();
+        void Play(); // Start emitting
+        void Stop(); // Stop emitting
+        void Clear(); // Kill all particles
         bool IsPlaying() const;
 
         // Gets
