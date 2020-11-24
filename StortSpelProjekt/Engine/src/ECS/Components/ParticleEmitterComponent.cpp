@@ -13,13 +13,32 @@
 
 #include "../ECS/Entity.h"
 
-component::ParticleEmitterComponent::ParticleEmitterComponent(Entity* parent, Texture2DGUI* texture, ParticleEffectSettings* settings, bool playOnInit)
-	:Component(parent), m_PlayOnInit(playOnInit), m_ParticleEffect(parent, Renderer::GetInstance().getCBVSRVUAVdHeap(), texture, settings)
+component::ParticleEmitterComponent::ParticleEmitterComponent(Entity* parent, std::vector<ParticleEffectSettings>* settings, bool playOnInit)
+	:Component(parent), m_PlayOnInit(playOnInit)
 {
+	// Allocate Memory
+	m_ParticleEffects.reserve(settings->size());
+
+	// Create the ParticleEffects
+	for (unsigned int i = 0; i < settings->size(); i++)
+	{
+		m_ParticleEffects.push_back(new ParticleEffect(parent, &settings->at(i)));
+	}
+}
+
+component::ParticleEmitterComponent::ParticleEmitterComponent(Entity* parent, ParticleEffectSettings* settings, bool playOnInit)
+	:Component(parent), m_PlayOnInit(playOnInit)
+{
+	// Create the ParticleEffect
+	m_ParticleEffects.push_back(new ParticleEffect(parent, settings));
 }
 
 component::ParticleEmitterComponent::~ParticleEmitterComponent()
 {
+	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
+	{
+		delete m_ParticleEffects[i];
+	}
 }
 
 void component::ParticleEmitterComponent::RenderUpdate(double dt)
@@ -35,7 +54,11 @@ void component::ParticleEmitterComponent::OnInitScene()
 	
 	Renderer& renderer = Renderer::GetInstance();
 	renderer.InitParticleEmitterComponent(this);
-	ParticleSystem::GetInstance().ActivateParticleEffect(&m_ParticleEffect);
+
+	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
+	{
+		ParticleSystem::GetInstance().ActivateParticleEffect(m_ParticleEffects.at(i));
+	}
 }
 
 void component::ParticleEmitterComponent::OnUnInitScene()
@@ -43,7 +66,11 @@ void component::ParticleEmitterComponent::OnUnInitScene()
 	Stop();
 	Renderer& renderer = Renderer::GetInstance();
 	renderer.UnInitParticleEmitterComponent(this);
-	ParticleSystem::GetInstance().DeactivateParticleEffect(&m_ParticleEffect);
+
+	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
+	{
+		ParticleSystem::GetInstance().DeactivateParticleEffect(m_ParticleEffects.at(i));
+	}
 }
 
 void component::ParticleEmitterComponent::Play()
@@ -53,7 +80,10 @@ void component::ParticleEmitterComponent::Play()
 		return;
 	}
 
-	m_ParticleEffect.SetIsSpawning(true);
+	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
+	{
+		m_ParticleEffects.at(i)->SetIsSpawning(true);
+	}
 	
 	m_IsPlaying = true;
 }
@@ -65,7 +95,10 @@ void component::ParticleEmitterComponent::Stop()
 		return;
 	}
 
-	m_ParticleEffect.SetIsSpawning(false);
+	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
+	{
+		m_ParticleEffects.at(i)->SetIsSpawning(false);
+	}
 
 	m_IsPlaying = false;
 }
@@ -80,7 +113,7 @@ bool component::ParticleEmitterComponent::IsPlaying() const
 	return m_IsPlaying;
 }
 
-const ParticleEffect* component::ParticleEmitterComponent::GetParticleEffect() const
+const std::vector<ParticleEffect*>* component::ParticleEmitterComponent::GetParticleEffects() const
 {
-	return &m_ParticleEffect;
+	return &m_ParticleEffects;
 }

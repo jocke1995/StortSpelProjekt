@@ -23,13 +23,22 @@
 EngineRand ParticleEffect::rand = {5};
 
 
-ParticleEffect::ParticleEffect(Entity* parent, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings)
+ParticleEffect::ParticleEffect(Entity* parent, ParticleEffectSettings* settings)
 {
 	m_pEntity = parent;
-	m_pTexture = texture;
 	m_Settings = *settings;
+	m_pTexture = settings->texture;
 
-	init(descriptorHeap);
+	if (m_pTexture == nullptr)
+	{
+		// Set default texture
+		AssetLoader* al = AssetLoader::Get();
+		m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png"));
+
+		Log::PrintSeverity(Log::Severity::WARNING, "ParticleEffect::Texture was nullptr\n");
+	}
+
+	init();
 }
 
 ParticleEffect::~ParticleEffect()
@@ -107,18 +116,11 @@ bool ParticleEffect::spawnParticle()
 	return true;
 }
 
-void ParticleEffect::init(DescriptorHeap* descriptorHeap)
+void ParticleEffect::init()
 {
-	if (m_pTexture == nullptr)
-	{
-		// Set default texture
-		AssetLoader* al = AssetLoader::Get();
-		m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png"));
-
-		Log::PrintSeverity(Log::Severity::WARNING, "ParticleEffect::Texture was nullptr\n");
-	}
-
 	Renderer& renderer = Renderer::GetInstance();
+
+	DescriptorHeap* descriptorHeap = renderer.getCBVSRVUAVdHeap();
 
 	// Only send position (float3) + size (float) to gpu
 	size_t entrySize = sizeof(PARTICLE_DATA);
@@ -293,6 +295,12 @@ void ParticleEffect::updateResourceData(float3 cameraPos)
 
 float ParticleEffect::randomizeFloat(float lower, float upper) const
 {
+	// rand.Randf can't handle same numbers
+	if (lower == upper)
+	{
+		return lower;
+	}
+
 	float r = rand.Randf(lower*20, upper*20)/20;
 	return r;
 }
