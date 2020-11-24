@@ -25,8 +25,6 @@ void AndresUpdateScene(SceneManager* sm, double dt);
 
 EnemyFactory enemyFactory;
 
-static component::ParticleEmitterComponent* pee = nullptr;
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -101,7 +99,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         {
             networkTimer += timer->GetDeltaTime();
         }
-
         
 
         sceneManager->RenderUpdate(timer->GetDeltaTime());
@@ -801,7 +798,7 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     vec.push_back(settings);
 
-    pee = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
 
 
     /* ---------------------- Skybox ---------------------- */
