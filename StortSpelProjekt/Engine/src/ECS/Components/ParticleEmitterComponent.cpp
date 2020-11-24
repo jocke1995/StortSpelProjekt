@@ -103,6 +103,14 @@ void component::ParticleEmitterComponent::Stop()
 	m_IsPlaying = false;
 }
 
+void component::ParticleEmitterComponent::Clear()
+{
+	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
+	{
+		m_ParticleEffects.at(i)->Clear();
+	}
+}
+
 bool component::ParticleEmitterComponent::IsPlaying() const
 {
 	return m_IsPlaying;
