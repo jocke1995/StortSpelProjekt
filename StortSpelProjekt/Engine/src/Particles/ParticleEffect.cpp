@@ -59,7 +59,6 @@ void ParticleEffect::Update(double dt)
 	if (isTimeToSpawnParticles() && m_IsSpawnwing)
 	{
 		bool spawned = spawnParticle();
-		m_TimeSinceSpawn = 0;
 	}
 
 	// Update all particles
@@ -99,10 +98,19 @@ bool ParticleEffect::spawnParticle()
 		return false;
 	}
 
+	if (!m_Settings.isLooping)
+	{
+		if (m_ParticleIndex + 1 == m_Particles.size())
+		{
+			SetIsSpawning(false);
+		}
+	}
+
 	// Update ParticleIndex
 	m_ParticleIndex = ++m_ParticleIndex % m_Settings.particleCount;
 
 	// "Spawn"
+	m_TimeSinceSpawn = 0;
 	initParticle(particle);
 
 	return true;

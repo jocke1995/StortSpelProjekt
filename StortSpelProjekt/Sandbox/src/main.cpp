@@ -25,6 +25,8 @@ void AndresUpdateScene(SceneManager* sm, double dt);
 
 EnemyFactory enemyFactory;
 
+static component::ParticleEmitterComponent* pee = nullptr;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -92,6 +94,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     while (!window->ExitWindow())
     {
+        if (window->WasSpacePressed())
+        {
+            static bool asd = true;
+            if (asd)
+            {
+                pee->Stop();
+            }
+            else
+            {
+                pee->Play();
+            }
+            asd = !asd;
+        }
+
         /* ------ Update ------ */
         timer->Update();
         logicTimer += timer->GetDeltaTime();
@@ -781,47 +797,27 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.particleCount = 500;
-    settings.startValues.lifetime = 0.8;
-    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
-    settings.startValues.acceleration = {0, -3, 0};
+    settings.particleCount = 30;
+    settings.startValues.lifetime = 3;
+    settings.spawnInterval = 0.000001;
+    settings.startValues.acceleration = {0, -6.5, 0};
+    settings.isLooping = false;
 
     // Need to fix EngineRand.rand() for negative values
     RandomParameter3 randParam1 = { -2, 2, -2, 2, -2, 2 };
     randParam1.y = { 2, 6 };
 
-    settings.randPosition = { 0, 1, 0, 1, 0, 1 };
-    settings.randVelocity = randParam1;
-    settings.randSize = { 0.2, 2 };
-    settings.randRotationSpeed = { 0, 3 };
+    settings.randPosition = { 0, 0, 0, 3, 0, 0};
+    settings.randVelocity = { -10, 10, -5, 10, -10, 10 };
+    settings.randSize = { 0.4, 1.2 };
+    settings.randRotationSpeed = { 0, 1 };
 
     Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
     settings.texture = particleTexture;
 
     vec.push_back(settings);
-    
 
-    particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle.png"));
-
-    // Create test particleEffect
-    settings = {};
-    settings.particleCount = 5;
-    settings.startValues.lifetime = 0.01;
-    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
-    settings.startValues.acceleration = { 0, 0, 0 };
-
-    // Need to fix EngineRand.rand() for negative values
-    randParam1 = { };
-
-    settings.randPosition = { 0, 0, 0, 0, 0, 0 };
-    settings.randVelocity = randParam1;
-    settings.randSize = { 7, 7 };
-    settings.randRotationSpeed = { 0, 0 };
-    settings.texture = particleTexture;
-
-    vec.push_back(settings);
-
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
+    pee = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
 
 
     /* ---------------------- Skybox ---------------------- */
