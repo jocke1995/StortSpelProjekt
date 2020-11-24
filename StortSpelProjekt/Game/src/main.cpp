@@ -335,9 +335,9 @@ Scene* GameScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.particleCount = 100;
+    settings.maxParticleCount = 100;
     settings.startValues.lifetime = 0.8;
-    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
     settings.startValues.acceleration = { 0, 0, 0 };
 
     // Need to fix EngineRand.rand() for negative values
@@ -654,9 +654,9 @@ Scene* ShopScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.particleCount = 100;
+    settings.maxParticleCount = 100;
     settings.startValues.lifetime = 0.8;
-    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
     settings.startValues.acceleration = { 0, 0, 0 };
 
     // Need to fix EngineRand.rand() for negative values

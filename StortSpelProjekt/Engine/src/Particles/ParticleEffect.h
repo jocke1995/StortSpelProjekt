@@ -39,9 +39,9 @@ struct RandomParameter3
 struct ParticleEffectSettings
 {
 	Texture2DGUI* texture = nullptr;
-	unsigned int particleCount = PARTICLE_EFFECT_DEFAULT_SIZE;
-	float spawnInterval = 0.1;
-	bool isLooping = true;
+	unsigned int maxParticleCount = PARTICLE_EFFECT_DEFAULT_SIZE; // Will wait until particle is dead before spawning next
+	float spawnInterval = 0.1; // seconds per spawn
+	bool isLooping = true; // Sets spawning = false after maxParticleCount particles has been created
 
 	// Default Particle Settings
 	ParticleAttributes startValues;
