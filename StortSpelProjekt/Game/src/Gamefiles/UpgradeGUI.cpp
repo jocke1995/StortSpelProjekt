@@ -82,28 +82,6 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 			int iterator = 0;
 			int posIterator = 0;
 
-			//std::map<std::string, int> vec;
-			//vec["TestButton1"] = 1;
-			//vec["TestButton2"] = 2;
-			//vec["TestButton3"] = 3;
-			//vec["TestButton4"] = 4;
-			//vec["TestButton5"] = 5;
-			//vec["TestButton6"] = 6;
-			//vec["TestButton7"] = 7;
-			//vec["TestButton8"] = 8;
-			//vec["TestButton9"] = 9;
-			//vec["TestButton10"] = 10;
-			//vec["TestButton11"] = 11;
-			//vec["TestButton12"] = 12;
-			//vec["TestButton13"] = 13;
-			//vec["TestButton14"] = 14;
-			//vec["TestButton15"] = 15;
-			//vec["TestButton16"] = 16;
-			//vec["TestButton17"] = 17;
-			//vec["TestButton18"] = 18;
-			//vec["TestButton19"] = 19;
-			//vec["TestButton20"] = 20;
-			//vec["TestButton21"] = 21;
 			// Loop through and populate with the next buttons that should be shown.
 			if (m_TimesFilledMenu > m_ButtonsMultipleTen)
 			{
@@ -188,7 +166,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 	/* ------------------------- Upgrade Menu Background --------------------------- */
 
 	textToRender = "Bought Upgrades            Upgrade Description";
-	textPos = { 0.49f, 0.165f };
+	textPos = { 0.55f, 0.095f };
 	textPadding = { 0.5f, 0.0f };
 	textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	textScale = { 0.5f, 0.5f };
@@ -205,7 +183,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 	gui->GetTextManager()->SetText(textToRender, "UpgradeMenuBackground");
 	gui->GetTextManager()->SetBlend(textBlend, "UpgradeMenuBackground");
 
-	quadPos = { 0.45f, 0.15f };
+	quadPos = { 0.51f, 0.08f };
 	quadScale = { 0.5f, 0.6f };
 	blended = { 1.0, 1.0, 1.0, 1.0 };
 	notBlended = { 1.0, 1.0, 1.0, 1.0 };
@@ -224,29 +202,6 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 
 	/* ------------------------- Upgrade Menu Buttons --------------------------- */
 	int iterator = 0;
-
-	//std::map<std::string, int> vec;
-	//vec["TestButton1"] = 1;
-	//vec["TestButton2"] = 2;
-	//vec["TestButton3"] = 3;
-	//vec["TestButton4"] = 4;
-	//vec["TestButton5"] = 5;
-	//vec["TestButton6"] = 6;
-	//vec["TestButton7"] = 7;
-	//vec["TestButton8"] = 8;
-	//vec["TestButton9"] = 9;
-	//vec["TestButton10"] = 10;
-	//vec["TestButton11"] = 11;
-	//vec["TestButton12"] = 12;
-	//vec["TestButton13"] = 13;
-	//vec["TestButton14"] = 14;
-	//vec["TestButton15"] = 15;
-	//vec["TestButton16"] = 16;
-	//vec["TestButton17"] = 17;
-	//vec["TestButton18"] = 18;
-	//vec["TestButton19"] = 19;
-	//vec["TestButton20"] = 20;
-	//vec["TestButton21"] = 21;
 
 	for (auto u : m_AppliedUpgradeEnums)
 	//for (auto u : vec)
@@ -271,7 +226,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 	if (m_ButtonsMultipleTen > 0)
 	{
 		textToRender = "Next";
-		textPos = { 0.538f, m_ButtonPos.y + (m_ButtonYOffset * 10) };
+		textPos = { 0.548f, m_ButtonPos.y + (m_ButtonYOffset * 10) };
 		textPadding = { 0.5f, 0.0f };
 		textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 		textScale = { 0.5f, 0.5f };
@@ -289,7 +244,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 		gui->GetTextManager()->SetBlend(textBlend, "NextButton");
 
 
-		quadPos = { 0.49f, m_ButtonPos.y + (m_ButtonYOffset * 10) };//{ 0.47f, 0.202f };
+		quadPos = { 0.48f, m_ButtonPos.y + (m_ButtonYOffset * 10) };//{ 0.47f, 0.202f };
 		quadScale = { 0.15f, 0.04f };
 		blended = { 1.0, 1.0, 1.0, 1.0 };
 		notBlended = { 1.0, 1.0, 1.0, 1.0 };
@@ -478,7 +433,7 @@ void UpgradeGUI::updateDescription(int level)
 	textToRender += description.substr(0, description.length());
 	textToRender += "\n\nCurrent level: " + std::to_string(level);
 
-	textPos = { 0.7 + 0.0065, m_ButtonPos.y + 0.03f };
+	textPos = { 0.76 + 0.0065, m_ButtonPos.y + 0.03f };
 	textPadding = { 0.5f, 0.0f };
 	textColor = { .0f, .0f, .0f, 1.0f };
 	textScale = { 0.215f, 0.215f };
@@ -495,7 +450,7 @@ void UpgradeGUI::updateDescription(int level)
 	gui->GetTextManager()->SetText(textToRender, name);
 	gui->GetTextManager()->SetBlend(textBlend, name);
 
-	quadPos = { 0.68, m_ButtonPos.y - 0.05f };
+	quadPos = { 0.74, m_ButtonPos.y - 0.05f };
 	quadScale = { 0.27f, 0.57f };
 	blended = { 1.0, 1.0, 1.0, 1.0 };
 	notBlended = { 1.0, 1.0, 1.0, 1.0 };

@@ -94,8 +94,8 @@ void Shop::Create2DGUI()
 			textToRender += "    Next Level: " + std::to_string(upgrade->GetLevel() + 1);
 		}
 		
-		float2 textPos = { 0.17f, 0.152f * (i + 1) + 0.01f };
-		float2 textPadding = { 0.5f, 0.0f };
+		float2 textPos = { 0.132f, 0.152f * (i + 1) + 0.01f };
+		float2 textPadding = { 0.4f, 0.0f };
 		float4 textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 		float2 textScale = { 0.3f, 0.3f };
 		float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -112,7 +112,7 @@ void Shop::Create2DGUI()
 		gui->GetTextManager()->SetBlend(textBlend, "upgrade" + std::to_string(i));
 
 		float2 quadPos = { 0.1f, 0.15f * (i + 1) + 0.01f };
-		float2 quadScale = { 0.85f, 0.1f };
+		float2 quadScale = { 0.40f, 0.1f };
 		float4 blended = { 1.0, 1.0, 1.0, 0.75 };
 		float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
 
@@ -177,7 +177,7 @@ void Shop::Create2DGUI()
 	gui->GetTextManager()->SetBlend(textBlend, "reroll");
 
 	quadPos = { 0.1f, 0.15f * (m_InvSize + 1) + 0.01f };
-	quadScale = { 0.85f, 0.1f };
+	quadScale = { 0.40f, 0.1f };
 	blended = { 1.0, 1.0, 1.0, 0.75 };
 	notBlended = { 1.0, 1.0, 1.0, 1.0 };
 	gui->GetQuadManager()->CreateQuad(
@@ -372,6 +372,17 @@ void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
 
 void Shop::shopButtonPressed(ButtonPressed* evnt)
 {
+	if (evnt->name == "reroll-button")
+	{
+		//Clears the 2D-GUI, Rerolls the inventory of the shop and Creates the 2D-GUI with the new inventory.
+		if (m_pPlayer->GetComponent<component::CurrencyComponent>()->GetBalace() >= m_RerollCost)
+		{
+			rerollShop();
+			m_pPlayer->GetComponent<component::CurrencyComponent>()->ChangeBalance(-m_RerollCost);
+			rerollPriceIncrease();
+		}
+	}
+
 	for (int i = 0; i < GetInventorySize(); i++)
 	{
 		if (evnt->name == "upgradebutton" + std::to_string(i) && m_InventoryIsBought.at(i) == false)
@@ -384,17 +395,6 @@ void Shop::shopButtonPressed(ButtonPressed* evnt)
 
 				SceneManager::GetInstance().GetActiveScene()->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(s_UpgradeBoughtText, "upgrade" + std::to_string(i));
 			}
-		}
-	}
-
-	if (evnt->name == "reroll-button")
-	{
-		//Clears the 2D-GUI, Rerolls the inventory of the shop and Creates the 2D-GUI with the new inventory.
-		if (m_pPlayer->GetComponent<component::CurrencyComponent>()->GetBalace() >= m_RerollCost)
-		{
-			m_pPlayer->GetComponent<component::CurrencyComponent>()->ChangeBalance(-m_RerollCost);
-			rerollPriceIncrease();
-			rerollShop();
 		}
 	}
 }

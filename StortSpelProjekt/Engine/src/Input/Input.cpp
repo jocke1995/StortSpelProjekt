@@ -100,6 +100,7 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			Scene* scene = SceneManager::GetInstance().GetActiveScene();
 			if (scene->GetName() == "ShopScene")
 			{
+				EventBus::GetInstance().Publish(&UForUpgrade());
 				EventBus::GetInstance().Publish(&shopGUIStateChange());
 			}
 		}
