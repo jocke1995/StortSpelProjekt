@@ -5,8 +5,6 @@
 #include <fstream>
 #include <comdef.h>
 #include "EngineRand.h"
-#include "Multithreading/ThreadPool.h"
-#include "Multithreading/EncryptTask.h"
 
 bool Cryptor::Encrypt(int key, const char* source, const char* destination, bool binary)
 {
@@ -67,7 +65,7 @@ bool Cryptor::Encrypt(int key, const char* source, bool binary)
 	}
 	else
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open input file %s with cryptor!", source);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open input file %s with cryptor!\n", source);
 		return false;
 	}
 	inStream.close();
@@ -79,7 +77,7 @@ bool Cryptor::Encrypt(int key, const char* source, bool binary)
 	}
 	else
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open output file %s with cryptor!", source);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open output file %s with cryptor!\n", source);
 		return false;
 	}
 
@@ -87,11 +85,51 @@ bool Cryptor::Encrypt(int key, const char* source, bool binary)
 	return true;
 }
 
+bool Cryptor::EncryptDDS(int key, const char* src, const char* destination)
+{
+	if (destination == nullptr)
+	{
+		destination = src;
+	}
+
+	FILE* pFile;
+	pFile = fopen(src, "rb");
+
+	if (pFile)
+	{
+		fseek(pFile, 0, SEEK_END);
+		long fileSize = ftell(pFile);
+		fseek(pFile, 0, SEEK_SET);
+		unsigned int nrOf = fileSize / sizeof(DWORD);
+		DWORD* words = new DWORD[nrOf];
+		fread(words, sizeof(DWORD), nrOf, pFile);
+		fclose(pFile);
+
+		Encrypt(key, words, nrOf, 0, 10000);
+
+		pFile = fopen(destination, "wb");
+
+		if (!pFile)
+		{
+			Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open output file %s with cryptor!\n", destination);
+			return false;
+		}
+
+		fwrite(words, sizeof(DWORD), nrOf, pFile);
+		delete[] words;
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open file %s with cryptor!\n", src);
+		return false;
+	}
+	fclose(pFile);
+	return true;
+}
+
 bool Cryptor::EncryptDirectory(int key, const char* path)
 {
 	encryptDirectoryHelper(key, path);
-
-	ThreadPool::GetInstance().WaitForThreads(FLAG_THREAD::ENCRYPT);
 	return true;
 }
 
@@ -122,7 +160,7 @@ bool Cryptor::Decrypt(int key, const char* source, const char* destination, bool
 	}
 	else
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open input file %s with cryptor!", source);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open input file %s with cryptor!\n", source);
 	}
 
 	std::ofstream outStream(destination, std::ios::out | std::ios::binary * binary);
@@ -132,7 +170,7 @@ bool Cryptor::Decrypt(int key, const char* source, const char* destination, bool
 	}
 	else
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open output file %s with cryptor!", source);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open output file %s with cryptor!\n", source);
 		return false;
 	}
 
@@ -165,7 +203,7 @@ bool Cryptor::Decrypt(int key, const char* source, std::stringstream* ss)
 	}
 	else
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open file %s with cryptor!", source);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open file %s with cryptor!\n", source);
 		return false;
 	}
 	return true;
@@ -196,7 +234,49 @@ bool Cryptor::Decrypt(int key, const wchar_t* source, std::wstringstream* wss)
 	}
 	else
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open file %S with cryptor!", source);
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open file %S with cryptor!\n", source);
+		return false;
+	}
+	return true;
+}
+
+bool Cryptor::DecryptDDS(int key, const char* src, const char* destination)
+{
+	if (destination == nullptr)
+	{
+		destination = src;
+	}
+
+	FILE* pFile;
+	pFile = fopen(src, "rb");
+
+	if (pFile)
+	{
+		fseek(pFile, 0, SEEK_END);
+		long fileSize = ftell(pFile);
+		fseek(pFile, 0, SEEK_SET);
+		unsigned int nrOf = fileSize / sizeof(DWORD);
+		DWORD* words = new DWORD[nrOf];
+		fread(words, sizeof(DWORD), nrOf, pFile);
+		fclose(pFile);
+
+		Decrypt(key, words, nrOf, 0, 10000);
+
+		pFile = fopen(destination, "wb");
+
+		if (!pFile)
+		{
+			Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open output file %s with cryptor!\n", destination);
+			return false;
+		}
+
+		fwrite(words, sizeof(DWORD), nrOf, pFile);
+		fclose(pFile);
+		delete[] words;
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not open file %s with cryptor!\n", src);
 		return false;
 	}
 	return true;
@@ -218,19 +298,21 @@ void Cryptor::encryptDirectoryHelper(int key, const char* path)
 		else
 		{
 			std::string extension = entry.path().extension().generic_string().c_str();
-			if (extension != ".mtl")
+			if (extension != ".mtl" && extension != ".txt" && extension != ".png" && extension != ".jpg" && extension != ".tga")
 			{
-				if (extension == ".DDS" || extension == ".dds" || extension == ".fbx" || extension == ".FBX" || extension == ".png" || extension == ".jpg" || extension == ".tga")
+				if (extension == ".fbx" || extension == ".FBX")
 				{
 					Encrypt(key, entry.path().generic_string().c_str(),true);
 					//EncryptTask task(key, true, entry.path().generic_string());
 					//task.Execute();
 				}
-				else
+				else if (extension == ".DDS" || extension == ".dds")
+				{
+					EncryptDDS(key, entry.path().generic_string().c_str());
+				}
+				else if(extension == ".obj" || extension == ".OBJ")
 				{
 					Encrypt(key, entry.path().generic_string().c_str());
-					//EncryptTask task(key, false, entry.path().generic_string());
-					//task.Execute();
 				}
 			}
 		}

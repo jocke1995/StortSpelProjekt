@@ -34,13 +34,10 @@ bool Texture2D::Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 	timer.StartTimer();
 	
 	// Loads the texture and creates a default resource;
-	Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(m_FilePath).c_str(), "DecryptedTexture.dds", true);
-	Log::Print("Decrypted file in %f\n",timer.StopTimer());
-	timer.StartTimer();
+	Cryptor::DecryptDDS(Cryptor::GetGlobalKey(), to_string(m_FilePath).c_str(), "DecryptedTexture.dds");
 	hr = DirectX::LoadDDSTextureFromFile(device, L"DecryptedTexture.dds", reinterpret_cast<ID3D12Resource**>(m_pDefaultResource->GetID3D12Resource1PP()), m_DdsData, m_SubresourceData);
-
-	Log::Print("Loaded file in %f\n", timer.StopTimer());
 	remove("DecryptedTexture.dds");
+
 	if (FAILED(hr))
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create texture: \'%s\'.\n", to_string(m_FilePath).c_str());

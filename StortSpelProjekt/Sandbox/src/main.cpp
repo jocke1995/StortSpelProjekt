@@ -30,12 +30,6 @@ EnemyFactory enemyFactory;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //Cryptor::Encrypt(Cryptor::GetGlobalKey(), "../Vendor/Resources/Textures/Default/default_overlay.png",true);
-    //Cryptor::Encrypt(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/Quad/NormalizedQuad.obj");
-    //Cryptor::Decrypt(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/Quad/NormalizedQuad.obj", "../Vendor/Resources/Models/Quad/NormalizedQuad.obj");
-    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/IgnoredModels/FemaleTST");
-    //Cryptor::Decrypt(11, "../Vendor/Resources/Textures/Default/default_albedo.DDS", "Decrypted.dds", true);
-    //Cryptor::Encrypt(11, "../Vendor/Resources/Fonts/Arial.fnt");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
