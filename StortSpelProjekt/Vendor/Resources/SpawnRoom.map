@@ -252,6 +252,7 @@ ModelScaling 50.0, 50.0, 50.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 0.0, 39.0, 0.0
 ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
@@ -305,6 +306,3 @@ ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
-
-
-ModelDrawFlag 5, 1

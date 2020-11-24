@@ -221,7 +221,7 @@ Scene* GameScene(SceneManager* sm)
     Player::GetInstance().SetPlayer(entity);
 
     tc->GetTransform()->SetScale(0.9f);
-    tc->GetTransform()->SetPosition(20.0f, 1.0f, 0.0f);
+    tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
     tc->SetTransformOriginalState();
 
     mc->SetModel(playerModel);
