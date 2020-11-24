@@ -36,6 +36,7 @@ namespace component
 
         std::vector<ParticleEffect*> m_ParticleEffects;
         bool m_PlayOnInit;
+        double m_PlayDuration;
         
         bool m_IsPlaying = false;
     };

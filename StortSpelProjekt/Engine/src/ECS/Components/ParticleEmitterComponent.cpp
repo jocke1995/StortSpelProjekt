@@ -16,6 +16,7 @@
 component::ParticleEmitterComponent::ParticleEmitterComponent(Entity* parent, std::vector<ParticleEffectSettings>* settings, bool playOnInit)
 	:Component(parent), m_PlayOnInit(playOnInit)
 {
+	m_PlayDuration = 0;
 	// Allocate Memory
 	m_ParticleEffects.reserve(settings->size());
 
@@ -43,6 +44,15 @@ component::ParticleEmitterComponent::~ParticleEmitterComponent()
 
 void component::ParticleEmitterComponent::RenderUpdate(double dt)
 {
+	if (m_PlayDuration != 0)
+	{
+		m_PlayDuration -= dt;
+		if (m_PlayDuration <= 0)
+		{
+			m_PlayDuration = 0;
+			Stop();
+		}
+	}
 }
 
 void component::ParticleEmitterComponent::OnInitScene()
