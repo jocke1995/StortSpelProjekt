@@ -79,7 +79,7 @@ namespace component
 	class PointLightComponent;
 	class SpotLightComponent;
 	class ParticleEmitterComponent;
-
+	class ProgressBarComponent;
 }
 
 // Events
@@ -119,6 +119,7 @@ public:
 	void InitBoundingBoxComponent(component::BoundingBoxComponent* component);
 	void InitGUI2DComponent(component::GUI2DComponent* component);
 	void InitParticleEmitterComponent(component::ParticleEmitterComponent* component);
+	void InitProgressBarComponent(component::ProgressBarComponent* component);
 
 	void UnInitSkyboxComponent(component::SkyboxComponent* component);
 	void UnInitModelComponent(component::ModelComponent* component);
@@ -129,6 +130,7 @@ public:
 	void UnInitBoundingBoxComponent(component::BoundingBoxComponent* component);
 	void UnInitGUI2DComponent(component::GUI2DComponent* component);
 	void UnInitParticleEmitterComponent(component::ParticleEmitterComponent* component);
+	void UnInitProgressBarComponent(component::ProgressBarComponent* component);
 
 	void OnResetScene();
 
@@ -209,7 +211,8 @@ private:
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::GUI2DComponent*> m_TextComponents;
 	std::vector<component::GUI2DComponent*> m_QuadComponents;
-	std::vector<component::ParticleEmitterComponent*> m_ParticleEmitterComponents;
+	std::vector<component::ProgressBarComponent*> m_ProgressBarComponents;
+
 	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
@@ -249,7 +252,10 @@ private:
 	void createFences();
 	void waitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
 	void waitForGPU();
+
+	// bad design but its ok since we have focus on getting the game to work
 	void setRenderTasksGUI2DComponents();
+	void setProgressBarComponents();
 
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene
 	//void waitForCopyOnDemand();
