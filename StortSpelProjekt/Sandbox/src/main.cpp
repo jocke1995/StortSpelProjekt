@@ -94,20 +94,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     while (!window->ExitWindow())
     {
-        if (window->WasSpacePressed())
-        {
-            static bool asd = true;
-            if (asd)
-            {
-                pee->Stop();
-            }
-            else
-            {
-                pee->Play();
-            }
-            asd = !asd;
-        }
-
         /* ------ Update ------ */
         timer->Update();
         logicTimer += timer->GetDeltaTime();
