@@ -80,6 +80,8 @@ void ParticleEffect::SetIsSpawning(bool value)
 
 void ParticleEffect::Clear()
 {
+	m_ParticleIndex = 0;
+
 	for (Particle& particle : m_Particles)
 	{
 		particle.m_Attributes.lifetime = -1;
