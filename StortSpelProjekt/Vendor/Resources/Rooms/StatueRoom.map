@@ -5,7 +5,6 @@ ModelScaling 100.0, 1.0, 100.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 0.0, 0.0, 0.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
@@ -13,16 +12,18 @@ Submit Model
 Submit CollisionCube 1.0, 0.1, 1.0
 
 // WALL1 ----------------------------------------------
+CreateEdge
+
 Name Wall1
-ModelPath Models/StoneWallParts/Wall/stoneWall.obj
+ModelPath Models/StoneWallParts/WallWindow/stoneWallWindow.obj
 ModelScaling 30.0, 22.0, 50.0
 ModelRotation 0.0, 120.0, 0.0
 ModelPosition 43.0, 0.0, 75.0
 ModelRestitution 0.5
 ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 0
 
 Name Torch1
 ModelPath Models\Torch\torch.obj
@@ -52,6 +53,7 @@ Submit PointLight
 Submit ParticleEffect
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 0
 
 Name Banner2
 ModelPath Models\Banner\banner.obj
@@ -59,14 +61,16 @@ ModelScaling 2.0, 2.0, 2.0
 ModelRotation 0.0, 120.0, 0.0
 ModelPosition 56.0, 15.0, 64.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 1, 5
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 0
 
 // WALL2 ----------------------------------------------
+CreateEdge
+
 Name Wall2
 ModelPath Models/StoneWallParts/Wall/stoneWall.obj
 ModelScaling 30.0, 22.0, 50.0
@@ -74,9 +78,9 @@ ModelRotation 0.0, 0.0, 0.0
 ModelPosition 86.0, 0.0, 1.0
 ModelRestitution 0.5
 ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 1
 
 Name Torch4
 ModelPath Models\Torch\torch.obj
@@ -106,6 +110,7 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit PointLight
+AddToEdge 1
 
 Name Banner3
 ModelPath Models\Banner\banner.obj
@@ -113,14 +118,16 @@ ModelScaling 2.0, 2.0, 2.0
 ModelRotation 0.0, 180.0, 0.0
 ModelPosition 83.0, 15.0, 22.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 1, 5
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 1
 
 // WALL3 ----------------------------------------------
+CreateEdge
+
 Name Wall3
 ModelPath Models/StoneWallParts/Wall/stoneWall.obj
 ModelScaling 30.0, 22.0, 50.0
@@ -128,9 +135,9 @@ ModelRotation 0.0, 60.0, 0.0
 ModelPosition 43.0, 0.0, -74.0
 ModelRestitution 0.5
 ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 2
 
 Name Torch5
 ModelPath Models\Torch\torch.obj
@@ -160,6 +167,7 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit PointLight
+AddToEdge 2
 
 Name Banner6
 ModelPath Models\Banner\banner.obj
@@ -167,14 +175,16 @@ ModelScaling 2.0, 2.0, 2.0
 ModelRotation 0.0, 240.0, 0.0
 ModelPosition 16.0, 15.0, -86.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 1, 5
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 2
 
 // WALL4 ----------------------------------------------
+CreateEdge
+
 Name Wall4
 ModelPath Models/StoneWallParts/WallWindow/stoneWallWindow.obj
 ModelScaling 30.0, 22.0, 50.0
@@ -182,11 +192,13 @@ ModelRotation 0.0, 120.0, 0.0
 ModelPosition -43.0, 0.0, -74.0
 ModelRestitution 0.5
 ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 3
 
 // WALL5 ----------------------------------------------
+CreateEdge
+
 Name Wall5
 ModelPath Models/StoneWallParts/Wall/stoneWall.obj
 ModelScaling 30.0, 22.0, 50.0
@@ -194,9 +206,9 @@ ModelRotation 0.0, 180.0, 0.0
 ModelPosition -86.0, 0.0, 0.0
 ModelRestitution 0.5
 ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 4
 
 Name Torch9
 ModelPath Models\Torch\torch.obj
@@ -226,18 +238,21 @@ ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit PointLight
+AddToEdge 4
 
 // WALL6 ----------------------------------------------
+CreateEdge
+
 Name Wall6
-ModelPath Models/StoneWallParts/WallWindow/stoneWallWindow.obj
+ModelPath Models/StoneWallParts/Wall/stoneWall.obj
 ModelScaling 30.0, 22.0, 50.0
 ModelRotation 0.0, 240.0, 0.0
 ModelPosition -43.0, 0.0, 75.0
 ModelRestitution 0.5
 ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
 Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 5
 
 // Ceiling ----------------------------------------------
 Name Ceiling
@@ -246,112 +261,143 @@ ModelScaling 100.0, 50.0, 100.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 0.0, 46.5, 0.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 0.1, 1.0
 
-Name ChandelierNoChain
-ModelPath Models\MedievalChandelier\chandelierNoChain.obj
-ModelScaling 50.0, 50.0, 50.0
-ModelRotation 0.0, 0.0, 0.0
-ModelPosition 0.0, 39.0, 0.0
-ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
-ModelMass 0.0
-ModelFriction 1.0
-ModelRestitution 0.0
-ParticleTexturePath Textures/Particles/fire_particle0.png
-ParticleCount 20
-ParticleStartPosition 0.0, 4.0, 0.0
-ParticleSpawnInterval 0.01
-ParticleStartAcceleration 0.0, -1.0, 0.0
-ParticleStartLifetime 0.5
-ParticleRandPosition -7.5, 7.5, 0, 1, -7.5, 7.5
-ParticleRandVelocity -1, 1, 2, 4, -1, 1
-ParticleRandSize 1.0, 1.5
-ParticleRandRotationSpeed 0, 3
-ParticlePlayOnInit 1
-Submit ParticleEffect
-Submit Model
-Submit CollisionCube 0.1, 0.1, 0.1
-ModelLightPosition 0.0, 53.0, 0.0
-ModelLightDirection 0.00001, -1.0, 0.00001
-ModelLightColor 8.86, 3.45, 1.33
-ModelLightFlag 0,0
-ModelLightFlag 1,1
-ModelLightAttenuation 1.0, 0.027, 0.0028
-Submit SpotLight
-
-Name ChandelierChain
-ModelPath Models\MedievalChandelier\Chain\chandelierChain.obj
-ModelScaling 50.0, 50.0, 50.0
-ModelRotation 0.0, 0.0, 0.0
-ModelPosition 0.0, 39.0, 0.0
-ModelDrawFlag 1, 1
-ModelDrawFlag 5, 0
-ModelMass 0.0
-ModelFriction 1.0
-ModelRestitution 0.0
-Submit Model
+#Name ChandelierNoChain
+#ModelPath Models\MedievalChandelier\chandelierNoChain.obj
+#ModelScaling 50.0, 50.0, 50.0
+#ModelRotation 0.0, 0.0, 0.0
+#ModelPosition 0.0, 39.0, 0.0
+#ModelDrawFlag 1, 1
+#ModelDrawFlag 5, 1
+#ModelMass 0.0
+#ModelFriction 1.0
+#ModelRestitution 0.0
+#ParticleTexturePath Textures/Particles/fire_particle0.png
+#ParticleCount 20
+#ParticleStartPosition 0.0, 4.0, 0.0
+#ParticleSpawnInterval 0.01
+#ParticleStartAcceleration 0.0, -1.0, 0.0
+#ParticleStartLifetime 0.5
+#ParticleRandPosition -7.5, 7.5, 0, 1, -7.5, 7.5
+#ParticleRandVelocity -1, 1, 2, 4, -1, 1
+#ParticleRandSize 1.0, 1.5
+#ParticleRandRotationSpeed 0, 3
+#ParticlePlayOnInit 1
+#Submit ParticleEffect
+#Submit Model
+#Submit CollisionCube 0.1, 0.1, 0.1
+#ModelLightPosition 0.0, 53.0, 0.0
+#ModelLightDirection 0.00001, -1.0, 0.00001
+#ModelLightColor 8.86, 3.45, 1.33
+#ModelLightFlag 0,0
+#ModelLightFlag 1,1
+#ModelLightAttenuation 1.0, 0.027, 0.0028
+#Submit SpotLight
+#
+#Name ChandelierChain
+#ModelPath Models\MedievalChandelier\Chain\chandelierChain.obj
+#ModelScaling 50.0, 50.0, 50.0
+#ModelRotation 0.0, 0.0, 0.0
+#ModelPosition 0.0, 39.0, 0.0
+#ModelDrawFlag 1, 1
+#ModelDrawFlag 5, 0
+#ModelMass 0.0
+#ModelFriction 1.0
+#ModelRestitution 0.0
+#Submit Model
 
 // SKYBOX ----------------------------------------------
 Name Skybox
 ModelPath Textures/CubeMaps/skymap.dds
 Submit Skybox
 
-// Tomb ----------------------------------------------
-Name Tomb
-ModelPath Models/Tomb/tomb.obj
-ModelScaling 24.0, 24.0, 24.0
+// Statue ----------------------------------------------
+Name Statue
+ModelPath Models/Statue/ganeshaStatue.obj
+ModelScaling 4.0, 4.0, 4.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 0.0, 1.0, 0.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionCube 0.4, 0.4, 0.7
+Submit CollisionCube 3.0, 4.0, 3.5
 
-// Skulls ----------------------------------------------
-Name Skulls1
-ModelPath Models/Skulls/skulls.obj
-ModelScaling 15.0, 15.0, 15.0
+// Vases
+Name Vase1
+ModelPath Models\Vase\vase.obj
+ModelScaling 14.0, 14.0, 14.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition 30.0, -1.0, 50.0
+ModelPosition 50.0, 4.0, 0.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
-ModelMass 0.0
-ModelFriction 1.0
+ModelMass 100.0
+ModelFriction 10.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionSphere 0.3, 0.15, 0.4
+Submit CollisionCapsule 0.2, 0.4, 0.2
 
-Name Skulls2
-ModelPath Models/Skulls/skulls.obj
-ModelScaling 15.0, 15.0, 15.0
-ModelRotation 0.0, 80.0, 0.0
-ModelPosition -20.0, -1.0, 60.0
+Name Vase2
+ModelPath Models\Vase\vase.obj
+ModelScaling 14.0, 14.0, 14.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -10.0, 4.0, 55.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
-ModelMass 0.0
-ModelFriction 1.0
+ModelMass 100.0
+ModelFriction 10.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionSphere 0.3, 0.15, 0.4
+Submit CollisionCapsule 0.2, 0.4, 0.2
 
-Name Skulls3
-ModelPath Models/Skulls/skulls.obj
-ModelScaling 15.0, 15.0, 15.0
-ModelRotation 0.0, 35.0, 0.0
-ModelPosition -50.0, -1.0, -40.0
+Name Vase3
+ModelPath Models\Vase\vase.obj
+ModelScaling 14.0, 14.0, 14.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 30.0, 4.0, 30.0
 ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
-ModelMass 0.0
-ModelFriction 1.0
+ModelMass 100.0
+ModelFriction 10.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionSphere 0.3, 0.15, 0.4
+Submit CollisionCapsule 0.2, 0.4, 0.2
+
+Name Vase4
+ModelPath Models\Vase\vase.obj
+ModelScaling 14.0, 14.0, 14.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -50.0, 4.0, 0.0
+ModelDrawFlag 1, 1
+ModelMass 100.0
+ModelFriction 10.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCapsule 0.2, 0.4, 0.2
+
+Name Vase5
+ModelPath Models\Vase\vase.obj
+ModelScaling 14.0, 14.0, 14.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 10.0, 4.0, -55.0
+ModelDrawFlag 1, 1
+ModelMass 100.0
+ModelFriction 10.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCapsule 0.2, 0.4, 0.2
+
+Name Vase6
+ModelPath Models\Vase\vase.obj
+ModelScaling 14.0, 14.0, 14.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -30.0, 4.0, -30.0
+ModelDrawFlag 1, 1
+ModelMass 100.0
+ModelFriction 10.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCapsule 0.2, 0.4, 0.2

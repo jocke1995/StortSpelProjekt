@@ -1083,13 +1083,35 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSi
 	EngineRand rand(time(0));
 
 	// Load the starting room
-	LoadMap(scene, "../Vendor/Resources/BaseRoom.map", roomCounter, offset);
+	LoadMap(scene, "../Vendor/Resources/SpawnRoom.map", roomCounter, offset);
 	m_RoomsAdded[offset.toString()] = roomCounter++;
+	std::vector<float> spawnChances;
+	for (int i = 0; i < filePaths.size(); ++i)
+	{
+		spawnChances.push_back(100.0f / filePaths.size());
+	}
 
 	// Load rooms until maxRooms has been reached
 	while (roomCounter < maxRooms)
 	{
-		int mapId = (rand.Randu(0, filePaths.size() * 10 - 1) * 0.1);
+		int mapId;
+		int spawnRand = (rand.Randu(0, 100));
+		float totalSpawnChance = 0.0f;
+		for (int i = 0; i < spawnChances.size(); ++i)
+		{
+			float spawnChance = spawnChances[i];
+			totalSpawnChance += spawnChance;
+			if (spawnRand <= totalSpawnChance)
+			{
+				mapId = i;
+				spawnChances[i] -= 30.0f;
+				for (int i = 0; i < spawnChances.size(); ++i)
+				{
+					spawnChances[i] += 30.0f / spawnChances.size();
+				}
+				break;
+			}
+		}
 		std::string roomToLoad = filePaths.at(mapId);
 
 		int direction = rand.Randu(0, 6);
@@ -1137,7 +1159,8 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSi
 			}
 			else
 			{
-				removeWall = rand.Randu(0, 100) > 75;
+				// 25% chance to remove wall into already existing room
+				removeWall = rand.Randu(0, 100) <= 25;
 			}
 
 			if (removeWall)

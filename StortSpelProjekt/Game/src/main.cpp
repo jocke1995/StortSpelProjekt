@@ -249,17 +249,17 @@ Scene* GameScene(SceneManager* sm)
 #pragma endregion
 
 #pragma region directional light
-    entity = scene->AddEntity("sun");
+    //entity = scene->AddEntity("sun");
 
-    // components
-    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    dlc->SetDirection({ 0.05f, -0.3f, 0.5f });
-    dlc->SetColor({ 252.0f / 256.0f, 156.0f / 256.0f, 84.0f / 256.0f });
-    dlc->SetCameraTop(150.0f);
-    dlc->SetCameraBot(-120.0f);
-    dlc->SetCameraRight(130.0f);
-    dlc->SetCameraLeft(-180.0f);
-    dlc->SetCameraNearZ(-1000.0f);
+    //// components
+    //dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
+    //dlc->SetDirection({ 0.05f, -0.3f, 0.5f });
+    //dlc->SetColor({ 252.0f / 256.0f, 156.0f / 256.0f, 84.0f / 256.0f });
+    //dlc->SetCameraTop(150.0f);
+    //dlc->SetCameraBot(-120.0f);
+    //dlc->SetCameraRight(130.0f);
+    //dlc->SetCameraLeft(-180.0f);
+    //dlc->SetCameraNearZ(-1000.0f);
 	//dlc->SetCameraFarZ(6.0f);
 
 	//tc = entity->AddComponent<component::TransformComponent>();

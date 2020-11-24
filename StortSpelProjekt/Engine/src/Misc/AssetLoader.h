@@ -72,7 +72,7 @@ public:
     /// <param name="folderPath"> The path to the folder with the map files describing the rooms</param>
     /// <param name="mapSize"> The size of the map in number of rooms. Odd numbers will give the best results</param>
     /// <param name="roomDimensions"> The dimensions of the individual rooms</param>
-    void GenerateMap(Scene* scene, const char* folderPath, float2 mapSize = { 5.0f, 5.0f }, float2 roomDimensions = { 173.0f, 200.0f });
+    void GenerateMap(Scene* scene, const char* folderPath, float2 mapSize = { 3.0f, 3.0f }, float2 roomDimensions = { 173.0f, 200.0f });
 
     // IsLoadedFunctions
     bool IsModelLoadedOnGpu(const std::wstring& name) const;
