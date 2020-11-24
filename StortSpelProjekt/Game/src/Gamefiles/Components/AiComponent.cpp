@@ -611,7 +611,11 @@ void component::AiComponent::pathFinding()
 		NavTriangle* targetCircleTriangle = m_pNavMesh->GetTriangle(pointOnCircle);
 		NavTriangle* targetTriangle = m_pNavMesh->GetTriangle(finalTargetPos);
 
-		if (targetCircleTriangle != m_pGoalTriangle && targetCircleTriangle != targetTriangle)
+		if (targetTriangle != m_pGoalTriangle && m_Flags & F_AI_FLAGS::RUSH_PLAYER)
+		{
+			findPathToTargetTriangle();
+		}
+		else if (targetCircleTriangle != m_pGoalTriangle && targetCircleTriangle != targetTriangle && !(m_Flags & F_AI_FLAGS::RUSH_PLAYER))
 		{
 			m_TargetCirclePoint = { -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))), 0.0f, -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))) };
 			m_TargetCirclePoint.normalize();
@@ -648,13 +652,17 @@ void component::AiComponent::pathFinding()
 		float3 dirToPlayer = m_pTargetTrans->GetPositionFloat3() - m_pParentTrans->GetPositionFloat3();
 		double angle = std::atan2(m_pParentTrans->GetInvDir() * dirToPlayer.x, m_pParentTrans->GetInvDir() * dirToPlayer.z);
 		cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
-		m_NextTargetPos = pointOnCircle;
-		if (m_DistanceToPlayer <= m_TargetCircleRadius + 0.5)
+		m_NextTargetPos = finalTargetPos;
+		if (!(m_Flags & F_AI_FLAGS::RUSH_PLAYER))
 		{
-			m_TargetCircleRadius -= 1.0f;
-			if (m_TargetCircleRadius <= m_AttackingDistance * 2.0f)
+			m_NextTargetPos = pointOnCircle;
+			if (m_DistanceToPlayer <= m_TargetCircleRadius + 0.5)
 			{
-				m_NextTargetPos = finalTargetPos;
+				m_TargetCircleRadius -= 1.0f;
+				if (m_TargetCircleRadius <= m_AttackingDistance * 2.0f)
+				{
+					m_NextTargetPos = finalTargetPos;
+				}
 			}
 		}
 		m_LastPos = pos;

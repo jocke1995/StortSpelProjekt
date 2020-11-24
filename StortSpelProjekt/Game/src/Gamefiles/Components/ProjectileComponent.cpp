@@ -79,7 +79,6 @@ void component::ProjectileComponent::hit(Collision* event)
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit(event->ent2);
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit(event->ent2);
 		}
-		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}
 	else if (event->ent2 == m_pParent)
 	{
@@ -106,6 +105,5 @@ void component::ProjectileComponent::hit(Collision* event)
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit(event->ent1);
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit(event->ent1);
 		}
-		EventBus::GetInstance().Unsubscribe(this, &ProjectileComponent::hit);
 	}
 }

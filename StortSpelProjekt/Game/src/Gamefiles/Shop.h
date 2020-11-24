@@ -12,6 +12,7 @@ class Font;
 
 struct shopGUIStateChange;
 
+
 class Shop
 {
 public:
@@ -54,8 +55,9 @@ public:
 	void OnShopGUIStateChange(shopGUIStateChange* collisionEvent);
 
 private:
-	void upgradePressed(ButtonPressed* evnt);
+	void shopButtonPressed(ButtonPressed* evnt);
 	void sceneChange(SceneChange* evnt);
+	
 
 	// upgradeManager
 	UpgradeManager* m_pUpgradeManager = nullptr;
@@ -80,8 +82,15 @@ private:
 	void clearInventory();
 	// checks if an upgrade is already bought
 	bool checkExisting(std::string name);
+	// uses the randomizeInventory-functions and re-creates the 2D-GUI
+	void rerollShop();
+	// 
+	void rerollPriceIncrease();
 
 	Font* m_pArial = nullptr;
+
+	int m_RerollCost;
+	int m_RerollIncrease;
 
 	bool m_DisplayingShopGUI = false;
 

@@ -65,11 +65,11 @@ void Player::onResetGame(ResetGame* evnt)
 	// Values copied from main.
 	component::MeleeComponent* mec = gamePlayer->GetComponent<component::MeleeComponent>();
 	mec->SetDamage(10);
-	mec->SetAttackInterval(0.8);
+	mec->SetAttackInterval(1.0);
 	component::RangeComponent* rac = gamePlayer->GetComponent<component::RangeComponent>();
 	rac->SetDamage(10);
 	rac->SetVelocity(150);
-	rac->SetAttackInterval(0.8);
+	rac->SetAttackInterval(1.0);
 
 	Entity* shopPlayer = SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player");
 	shopPlayer->GetComponent<component::CurrencyComponent>()->SetBalance(0);
@@ -88,4 +88,6 @@ void Player::onResetGame(ResetGame* evnt)
 	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player")->GetComponent<component::HealthComponent>()->SetMaxHealth(50);
 	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("healthBackground")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("50", "currentHealth");
 	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("healthBackground")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("50", "maxHealth");
+
+	m_pShop->Reset();
 }

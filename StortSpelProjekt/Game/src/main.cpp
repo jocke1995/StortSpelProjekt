@@ -125,6 +125,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         /* ------ Draw ------ */
         renderer->Execute();
+
+        sceneManager->RemoveEntities();
     }
     return 0;
 }
@@ -227,7 +229,7 @@ Scene* GameScene(SceneManager* sm)
 
     melc->SetDamage(10);
     melc->SetAttackInterval(1.0);
-    ranc->SetAttackInterval(0.8);
+    ranc->SetAttackInterval(1.0);
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
@@ -279,7 +281,7 @@ Scene* GameScene(SceneManager* sm)
     spider.hp = 5;
     spider.sound3D = L"Bruh";
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
-    spider.aiFlags = 0;
+    spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     spider.meleeAttackDmg = 2.0f;
     spider.attackInterval = 0.5f;
     spider.attackSpeed = 0.2f;
