@@ -26,7 +26,9 @@ component::PoisonDebuff::PoisonDebuff(Entity* parent, int damagePerTick, int tic
 	settings.randRotationSpeed = { 0, 3 };
 
 	Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/poison_particle.png"));
-	parent->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+	settings.texture = particleTexture;
+
+	parent->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 	parent->GetComponent<component::ParticleEmitterComponent>()->OnInitScene();
 	Reset(damagePerTick, ticks, tickDuration, percentageSlow);
 }
