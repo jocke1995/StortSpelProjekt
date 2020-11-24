@@ -63,6 +63,7 @@ public:
 	void Update(double dt);
 
 	void SetIsSpawning(bool value);
+	void Clear();
 
 	Texture2DGUI* GetTexture() const;
 

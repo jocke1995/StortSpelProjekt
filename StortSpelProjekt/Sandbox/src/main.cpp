@@ -804,8 +804,6 @@ Scene* FloppipTestScene(SceneManager* sm)
     settings.isLooping = false;
 
     // Need to fix EngineRand.rand() for negative values
-    RandomParameter3 randParam1 = { -2, 2, -2, 2, -2, 2 };
-    randParam1.y = { 2, 6 };
 
     settings.randPosition = { 0, 0, 0, 3, 0, 0};
     settings.randVelocity = { -10, 10, -5, 10, -10, 10 };
@@ -853,11 +851,9 @@ Scene* FloppipTestScene(SceneManager* sm)
     settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
     
     // Need to fix EngineRand.rand() for negative values
-    randParam1 = { -2, 2, -2, 2, -2, 2 };
-    randParam1.y = { -20, -12 };
     
     settings.randPosition = { -400, 400, 0, 0, -400, 400 };
-    settings.randVelocity = randParam1;
+    settings.randVelocity = { -2, 2, -20, -12, -2, 2 };
     settings.randSize = { 3, 7 };
     settings.randRotationSpeed = { -3, 3 };
     
