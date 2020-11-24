@@ -4,6 +4,7 @@
 #include "GameGUI.h"
 #include "Physics/CollisionCategories/PlayerCollisionCategory.h"
 #include "Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
+#include "../ECS/Components/TemporaryLifeComponent.h"
 
 // Game includes
 #include "Player.h"
