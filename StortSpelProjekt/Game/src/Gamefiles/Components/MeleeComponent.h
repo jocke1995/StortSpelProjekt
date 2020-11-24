@@ -51,7 +51,7 @@ namespace component
 		void SetKnockBack(float knockBack);
 		void ChangeKnockBack(float change);
 
-		void ChangeMeleeRadius();
+		void ChangeMeleeRadius(float xRange, float zRange);
 
 	private:
 
@@ -61,6 +61,9 @@ namespace component
 		int m_RadiusUpgradeCounter;
 		float m_MeleeZRange;
 		float m_MeleeXRange;
+		float m_XScale;
+		float m_ZScale;
+		float m_Scale;
 		bool m_Attacking;
 		bool m_Cooldown;
 		bool m_AudioPlay;

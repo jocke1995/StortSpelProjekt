@@ -220,17 +220,17 @@ void UpgradeManager::fillUpgradeMap()
 	//// add the upgrade to the list of all upgrades
 	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
+	//// Adding Range Attack Speed Upgrade
+	//upgrade = new UpgradeRangeAttackSpeed(m_pParentEntity);
+	//// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	//upgrade->SetID(UPGRADE_RANGE_ATTACKSPEED);
+	//// add the upgrade to the list of all upgrades
+	//m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
 	// Adding Melee Attack Radius Upgrade
 	upgrade = new UpgradeMeleeRadius(m_pParentEntity);
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
 	upgrade->SetID(UPGRADE_MELEE_RADIUS);
-	// add the upgrade to the list of all upgrades
-	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
-
-	// Adding Range Attack Speed Upgrade
-	upgrade = new UpgradeRangeAttackSpeed(m_pParentEntity);
-	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	upgrade->SetID(UPGRADE_RANGE_ATTACKSPEED);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 }
