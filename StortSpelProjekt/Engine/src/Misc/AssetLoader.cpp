@@ -970,7 +970,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 				else if (strcmp(toSubmit.c_str(), "ParticleEffect") == 0)
 				{
 					Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(AssetLoader::LoadTexture2D(to_wstring(fullParticleTexturePath)));
-					pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &particleSettings, particlePlayOnInit);
+					particleSettings.texture = particleTexture;
+					pe = entity->AddComponent<component::ParticleEmitterComponent>(&particleSettings, particlePlayOnInit);
 				}
 			}
 		}

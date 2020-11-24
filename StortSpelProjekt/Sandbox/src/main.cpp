@@ -98,6 +98,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             networkTimer += timer->GetDeltaTime();
         }
 
+        
+
         sceneManager->RenderUpdate(timer->GetDeltaTime());
         particleSystem->Update(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
@@ -604,6 +606,7 @@ Scene* JockesTestScene(SceneManager* sm)
     component::DirectionalLightComponent* dlc = nullptr;
     component::SpotLightComponent* slc = nullptr;
     component::CollisionComponent* bcc = nullptr;
+    component::ProgressBarComponent* pbc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -716,6 +719,14 @@ Scene* JockesTestScene(SceneManager* sm)
     dlc->SetCameraRight(70.0f);
     /* ---------------------- dirLight ---------------------- */
 
+    entity = scene->AddEntity("progressBarTest1");
+    float3 startPosition = { 0.0f, 10.0f, 0.0f };
+    pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 2.0f, 1.0f);
+
+
+    entity = scene->AddEntity("progressBarTest2");
+    startPosition = { 10.0f, 10.0f, 0.0f };
+    pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 5.0f, 1.0f);
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&JockeUpdateScene);
     return scene;
@@ -764,6 +775,8 @@ Scene* FloppipTestScene(SceneManager* sm)
     Player::GetInstance().SetPlayer(entity);
     /* ---------------------- Player ---------------------- */
 
+    std::vector<ParticleEffectSettings> vec;
+
     // Create test particleEffect
     ParticleEffectSettings settings = {};
     settings.particleCount = 500;
@@ -781,7 +794,32 @@ Scene* FloppipTestScene(SceneManager* sm)
     settings.randRotationSpeed = { 0, 3 };
 
     Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+    settings.texture = particleTexture;
+
+    vec.push_back(settings);
+    
+
+    particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle.png"));
+
+    // Create test particleEffect
+    settings = {};
+    settings.particleCount = 5;
+    settings.startValues.lifetime = 0.01;
+    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+    settings.startValues.acceleration = { 0, 0, 0 };
+
+    // Need to fix EngineRand.rand() for negative values
+    randParam1 = { };
+
+    settings.randPosition = { 0, 0, 0, 0, 0, 0 };
+    settings.randVelocity = randParam1;
+    settings.randSize = { 7, 7 };
+    settings.randRotationSpeed = { 0, 0 };
+    settings.texture = particleTexture;
+
+    vec.push_back(settings);
+
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
 
 
     /* ---------------------- Skybox ---------------------- */
@@ -826,7 +864,9 @@ Scene* FloppipTestScene(SceneManager* sm)
     settings.randRotationSpeed = { -3, 3 };
     
     particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/default_particle.png"));
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+    settings.texture = particleTexture;
+
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
     /* ---------------------- Floor ---------------------- */
 
@@ -1762,6 +1802,23 @@ void JockeUpdateScene(SceneManager* sm, double dt)
     //plc->SetColor({ col, col, 0.0f });
     //
     //intensity += 0.005f;
+
+    // Update first progressBar
+    Entity* ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest1");
+    component::ProgressBarComponent* pbc = ent->GetComponent<component::ProgressBarComponent>();
+
+    static float counter1 = 0.0f;
+    pbc->SetProgressBarPercent(1.0 - abs(sin(counter1)));
+    counter1 += 0.0008f;
+
+    // Update second progressBar
+    ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest2");
+    pbc = ent->GetComponent<component::ProgressBarComponent>();
+
+    static float counter2 = 0.0f;
+    pbc->SetProgressBarPercent(1.0 - abs(sin(counter2)));
+    counter2 += 0.005f;
+
 }
 
 void FredriksUpdateScene(SceneManager* sm, double dt)

@@ -15,7 +15,8 @@ namespace component
     class ParticleEmitterComponent : public Component
     {
     public:
-        ParticleEmitterComponent(Entity* parent, Texture2DGUI* texture, ParticleEffectSettings* settings, bool playOnInit = false);
+        ParticleEmitterComponent(Entity* parent, std::vector<ParticleEffectSettings>* settings, bool playOnInit = false);
+        ParticleEmitterComponent(Entity* parent, ParticleEffectSettings* settings, bool playOnInit = false);
         virtual ~ParticleEmitterComponent();
 
         void RenderUpdate(double dt);
@@ -29,12 +30,12 @@ namespace component
         bool IsPlaying() const;
 
         // Gets
-        const ParticleEffect* GetParticleEffect() const;
+        const std::vector<ParticleEffect*>* GetParticleEffects() const;
 
     private:
         friend class ParticleRenderTask;
 
-        ParticleEffect m_ParticleEffect;
+        std::vector<ParticleEffect*> m_ParticleEffects;
         bool m_PlayOnInit;
         double m_PlayDuration;
         

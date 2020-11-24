@@ -280,7 +280,7 @@ Scene* GameScene(SceneManager* sm)
     spider.hp = 5;
     spider.sound3D = L"Bruh";
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
-    spider.aiFlags = 0;
+    spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     spider.meleeAttackDmg = 2.0f;
     spider.attackInterval = 0.5f;
     spider.attackSpeed = 0.2f;
