@@ -809,10 +809,9 @@ Scene* FloppipTestScene(SceneManager* sm)
     settings.startValues.acceleration = { 0, 0, 0 };
 
     // Need to fix EngineRand.rand() for negative values
-    randParam1 = { };
 
     settings.randPosition = { 0, 0, 0, 0, 0, 0 };
-    settings.randVelocity = randParam1;
+    settings.randVelocity = { };
     settings.randSize = { 7, 7 };
     settings.randRotationSpeed = { 0, 0 };
     settings.texture = particleTexture;

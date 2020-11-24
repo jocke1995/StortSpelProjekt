@@ -105,7 +105,10 @@ void component::ParticleEmitterComponent::Stop()
 
 void component::ParticleEmitterComponent::Clear()
 {
-	m_ParticleEffect.Clear();
+	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
+	{
+		m_ParticleEffects.at(i)->Clear();
+	}
 }
 
 bool component::ParticleEmitterComponent::IsPlaying() const

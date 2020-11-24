@@ -348,7 +348,8 @@ Scene* GameScene(SceneManager* sm)
     settings.randRotationSpeed = { 0, 1 };
 
     Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
-    pec = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+    settings.texture = particleTexture;
+    pec = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
 
     mc->SetModel(teleportModel);
@@ -666,7 +667,8 @@ Scene* ShopScene(SceneManager* sm)
     settings.randRotationSpeed = { 0, 1 };
 
     Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
-    pec = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+    settings.texture = particleTexture;
+    pec = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
     
     mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
