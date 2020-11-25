@@ -18,12 +18,11 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	m_pMesh = nullptr;
 	m_Damage = 1;
 	m_KnockBack = 5;
-	m_MeleeXRange = 2;
-	m_MeleeZRange = 4.5;
-	m_RadiusUpgradeCounter = 0;
-	m_XScale = 1;
-	m_ZScale = 1;
-	m_Scale = 1;
+	// Set base sizes of the hitbox 
+	m_MeleeXRange = 2.0f;
+	m_MeleeZRange = 4.5f;
+	m_XScale = 1.0f;
+	m_ZScale = 1.0f;
 
 	m_HalfSize = { m_MeleeXRange, 1.0f, m_MeleeZRange / 2.0f };
 
@@ -48,7 +47,6 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 		m_AudioPlay = false;
 	}
 	
-
 	//Debugging purpose
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX)
 	{
@@ -74,11 +72,9 @@ void component::MeleeComponent::Update(double dt)
 	// Takes the transform of the player cube and moves it forward to act as a hitbox
 	m_MeleeTransformModified = *m_pMeleeTransform;
 	Transform* trans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
-	////m_MeleeTransformModified.IncreaseScaleByPercent(m_Scale);
-	//m_MeleeTransformModified.SetScale(m_XScale, 1, m_ZScale);
-	//m_MeleeTransformModified.UpdateWorldMatrix();
+	m_MeleeTransformModified.SetScale(m_XScale, 1, m_ZScale);
+	m_MeleeTransformModified.UpdateWorldMatrix();
 
-	
 	DirectX::BoundingOrientedBox obb;
 	obb.Center = m_pBbc->GetOriginalOBB()->Center;
 	obb.Extents = m_pBbc->GetOriginalOBB()->Extents;
@@ -86,10 +82,6 @@ void component::MeleeComponent::Update(double dt)
 
 	// then do all the transformations on this temoporary OBB so we don't change the original state
 	obb.Transform(obb, *m_MeleeTransformModified.GetWorldMatrix());
-
-	//m_MeleeTransformModified.IncreaseScaleByPercent(m_Scale);
-	m_MeleeTransformModified.SetScale(m_XScale, 1, m_ZScale);
-	m_MeleeTransformModified.UpdateWorldMatrix();
 
 	bool t_pose = m_pBbc->GetFlagOBB() & F_OBBFlags::T_POSE;
 	//t_pose = true;
@@ -191,30 +183,6 @@ void component::MeleeComponent::checkCollision()
 	list.empty();
 }
 
-void component::MeleeComponent::newMeleeHitBox()
-{
-	m_HalfSize = { m_MeleeXRange, 1.0f, m_MeleeZRange / 2.0f };
-
-	//Create bounding box for collision for melee
-	//m_pBbc = nullptr;
-	//m_pBbc->OnUnInitScene();
-	m_pBbc = m_pParent->GetComponent<component::BoundingBoxComponent>();
-	CreateCornersHitbox();
-	m_TempHitbox.CreateFromPoints(m_TempHitbox, 8, m_Corners, sizeof(DirectX::XMFLOAT3));
-	m_Hitbox = m_TempHitbox;
-
-	// Fetch the player transform
-	m_pMeleeTransform = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
-
-	//Debugging purpose
-	if (DEVELOPERMODE_DRAWBOUNDINGBOX)
-	{
-		//CreateDrawnHitbox(m_pBbc);
-	}
-
-
-}
-
 void component::MeleeComponent::CreateCornersHitbox()
 {
 	//Create position for each corner of the hitbox
@@ -293,14 +261,8 @@ void component::MeleeComponent::CreateDrawnHitbox(component::BoundingBoxComponen
 	bbd.boundingBoxVertices = m_BoundingBoxVerticesLocal;
 	bbd.boundingBoxIndices = m_BoundingBoxIndicesLocal;
 
-	//if (m_RadiusUpgradeCounter == 0)
-	//{
-		bbc->AddBoundingBox(&bbd, &m_MeleeTransformModified, L"sword");
-	//}
-	//else
-	//{
-	//	bbc->AddBoundingBox(&bbd, &m_MeleeTransformModified, L"sword2");
-	//}
+
+	bbc->AddBoundingBox(&bbd, &m_MeleeTransformModified, L"sword");
 
 }
 
@@ -318,13 +280,11 @@ void component::MeleeComponent::ChangeMeleeRadius(float xRange, float zRange)
 {
 	m_XScale = xRange;
 	m_ZScale = zRange;
-	m_Scale = xRange;
-	//m_HalfSize.x = 2 * m_XScale;
-	//m_HalfSize.z = 2 * m_ZScale;
-	//m_MeleeXRange = xRange;
-	//m_MeleeZRange = zRange;
-	//m_RadiusUpgradeCounter++;
-	//newMeleeHitBox();
-	//Log::Print("X-RANGE: %f\n Z-RANGE: %f\n", m_MeleeXRange, m_MeleeZRange);
+}
+
+void component::MeleeComponent::ResetMeleeScaling()
+{
+	m_XScale = 1.0f;
+	m_ZScale = 1.0f;
 }
 

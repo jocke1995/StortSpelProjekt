@@ -28,8 +28,24 @@ void UpgradeMeleeRadius::ApplyBoughtUpgrade()
 
 void UpgradeMeleeRadius::ApplyStat()
 {
-	float x = (m_Level + 1) * 1.0f;
-	float z = (m_Level + 1) * 1.0f;
+	float x = 0.0f;
+	float z = 0.0f;
+	if (m_Level == 0)
+	{
+		x = 1.5f;
+		z = 1.5f;
+	}
+	else if (m_Level == 1)
+	{
+		x = (m_Level) * 1.75f;
+		z = (m_Level) * 1.75f;
+	}
+	else if (m_Level == 2)
+	{
+		x = (m_Level);
+		z = (m_Level);
+	}
+	
 	m_pParentEntity->GetComponent<component::MeleeComponent>()->ChangeMeleeRadius(x, z);
 	Log::Print("x: %f\n z: %f\n", x, z);
 }
@@ -37,7 +53,7 @@ void UpgradeMeleeRadius::ApplyStat()
 void UpgradeMeleeRadius::IncreaseLevel()
 {
 	m_Level++;
-	m_Price = m_Price * (m_Level + 1);
+	m_Price = m_StartingPrice * (m_Level + 1);
 }
 
 std::string UpgradeMeleeRadius::GetDescription(unsigned int level)

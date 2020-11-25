@@ -66,6 +66,7 @@ void Player::onResetGame(ResetGame* evnt)
 	component::MeleeComponent* mec = gamePlayer->GetComponent<component::MeleeComponent>();
 	mec->SetDamage(10);
 	mec->SetAttackInterval(1.0);
+	mec->ResetMeleeScaling();
 	component::RangeComponent* rac = gamePlayer->GetComponent<component::RangeComponent>();
 	rac->SetDamage(10);
 	rac->SetVelocity(150);
