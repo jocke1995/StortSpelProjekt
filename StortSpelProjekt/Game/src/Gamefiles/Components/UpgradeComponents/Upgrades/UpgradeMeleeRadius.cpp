@@ -15,6 +15,8 @@ UpgradeMeleeRadius::UpgradeMeleeRadius(Entity* parent) : Upgrade(parent)
 
 	m_ImageName = "MeleeDamage.png";
 
+	m_Xscale = 1.0f;
+	m_Zscale = 1.0f;
 }
 
 UpgradeMeleeRadius::~UpgradeMeleeRadius()
@@ -28,26 +30,23 @@ void UpgradeMeleeRadius::ApplyBoughtUpgrade()
 
 void UpgradeMeleeRadius::ApplyStat()
 {
-	float x = 0.0f;
-	float z = 0.0f;
 	if (m_Level == 0)
 	{
-		x = 1.5f;
-		z = 1.5f;
+		m_Xscale = 1.5f;
+		m_Zscale = 1.5f;
 	}
 	else if (m_Level == 1)
 	{
-		x = (m_Level) * 1.75f;
-		z = (m_Level) * 1.75f;
+		m_Xscale = (m_Level) * 1.75f;
+		m_Zscale = (m_Level) * 1.75f;
 	}
 	else if (m_Level == 2)
 	{
-		x = (m_Level);
-		z = (m_Level);
+		m_Xscale = (m_Level);
+		m_Zscale = (m_Level);
 	}
 	
-	m_pParentEntity->GetComponent<component::MeleeComponent>()->ChangeMeleeRadius(x, z);
-	Log::Print("x: %f\n z: %f\n", x, z);
+	m_pParentEntity->GetComponent<component::MeleeComponent>()->ChangeMeleeRadius(m_Xscale, m_Zscale);
 }
 
 void UpgradeMeleeRadius::IncreaseLevel()
@@ -58,5 +57,5 @@ void UpgradeMeleeRadius::IncreaseLevel()
 
 std::string UpgradeMeleeRadius::GetDescription(unsigned int level)
 {
-	return "Hello these are some words\n";
+	return "Melee Radius: Increases scale of base melee attack range both forward and to the sides with 50, 75 and 100\% at max level 3.\n";
 }

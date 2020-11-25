@@ -15,7 +15,8 @@ public:
 	std::string GetDescription(unsigned int level);
 
 private:
-
+	float m_Xscale;
+	float m_Zscale;
 
 };
 
