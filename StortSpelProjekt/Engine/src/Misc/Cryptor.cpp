@@ -300,13 +300,7 @@ void Cryptor::encryptDirectoryHelper(int key, const char* path)
 			std::string extension = entry.path().extension().generic_string().c_str();
 			if (extension != ".mtl" && extension != ".txt" && extension != ".png" && extension != ".jpg" && extension != ".tga")
 			{
-				if (extension == ".fbx" || extension == ".FBX")
-				{
-					Encrypt(key, entry.path().generic_string().c_str(),true);
-					//EncryptTask task(key, true, entry.path().generic_string());
-					//task.Execute();
-				}
-				else if (extension == ".DDS" || extension == ".dds")
+				if (extension == ".DDS" || extension == ".dds" || extension == ".fbx" || extension == ".FBX")
 				{
 					EncryptDDS(key, entry.path().generic_string().c_str());
 				}

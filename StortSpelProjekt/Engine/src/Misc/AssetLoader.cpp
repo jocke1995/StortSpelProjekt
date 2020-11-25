@@ -179,8 +179,14 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	std::string tmp(to_string(path));
 	tmp = tmp.substr(0,tmp.find_last_of('/') + 1);
 	tmp += "decryptedFile" + fileEnding;
-	//Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(path).c_str(), &ss);
-	Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(path).c_str(), tmp.c_str(), binary);
+	if (binary)
+	{
+		Cryptor::DecryptDDS(Cryptor::GetGlobalKey(), to_string(path).c_str(),tmp.c_str());
+	}
+	else
+	{
+		Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(path).c_str(), tmp.c_str());
+	}
 
 	//const aiScene* assimpScene = importer.ReadFileFromMemory(ss.str().c_str(), ss.str().size(), aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph, fileEnding.c_str());
 	const aiScene* assimpScene = importer.ReadFile(tmp, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph);
