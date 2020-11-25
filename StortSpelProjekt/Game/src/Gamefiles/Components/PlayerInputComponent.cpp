@@ -124,22 +124,14 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
 		float3 playerPosition = m_pTransform->GetPositionFloat3();
-		float3 cameraDir = m_pCamera->GetDirectionFloat3();
-		float3 cameraPos = m_pCamera->GetPositionFloat3();
 		float height = (m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y * m_pTransform->GetScale().y * 0.5) + 1.0;
 
-		// Move the camera in y-direction
-		cameraPos.y = min(max(cameraPos.y + m_RotateY * 3.0f * m_CameraDistance * static_cast<float>(dt), -80.0f), 80.0f);
-		m_pCamera->SetPosition(cameraPos.x, cameraPos.y, cameraPos.z);
+		float3 cameraDir = m_pCamera->GetPositionFloat3();
 
-		m_RotateX *= 100.0f * dt;
 
-		// Rotate the camera direction vector using a homemade rotation matrix (around y) and calculate the correct y-direction using the camera's position
-		cameraDir = {
-			cameraDir.x * cos(m_RotateX) + cameraDir.z * sin(m_RotateX),
-			playerPosition.y - cameraPos.y + height,
-			-cameraDir.x * sin(m_RotateX) + cameraDir.z * cos(m_RotateX)
-		};
+		//Log::Print("CameraDir (%f, %f, %f)\n", cameraDir.x, cameraDir.y, cameraDir.z);
+		//Log::Print("m_Rotate (%f, %f)\n", m_RotateX, m_RotateY);
+
 
 		double3 vel = m_pCC->GetLinearVelocity();
 
@@ -507,22 +499,21 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 	int x = evnt->x, y = evnt->y;
 
 	// Determine how much to rotate in radians
+	float rotateX = -(static_cast<float>(x) / 1600.0)* PI;
 	float rotateY = (static_cast<float>(y) / 2200.0) * PI;
-	float rotateX = -(static_cast<float>(x) / 1600.0) * PI;
 
-	m_Pitch = max(min(m_Pitch + rotateY, 3.0f), -3.0f);
+	//rotateY = -(static_cast<float>(y) / 6.0 - static_cast<float>(y) / 3.0) * PI;
+	rotateX = (static_cast<float>(x)) / 4000.0 * PI;
+	rotateY = -(static_cast<float>(y)) / 4000.0 * PI;
+	
 	m_Yaw = m_Yaw + rotateX;
+	m_Pitch = max(min(m_Pitch + rotateY, 3.0f), -3.0f);
+
+	Log::Print("RotateXY (%f, %f)\n", rotateX, rotateY);
+	Log::Print("m_Yaw, m_Pitch (%f, %f)\n", m_Yaw, m_Pitch);
 
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
-		//rotateY = -(static_cast<float>(y) / 6.0 - static_cast<float>(y) / 3.0) * PI;
-		rotateY = -(static_cast<float>(y)) / 400.0 * PI;
-		rotateX = (static_cast<float>(x)) / 400.0 * PI;
-
-		Log::Print("RotateXY (%f, %f)\n", rotateX, rotateY);
-
-		m_RotateX = rotateX;
-		m_RotateY = rotateY;
 		m_CameraRotating = true;
 
 		Shop* shop = Player::GetInstance().GetShop();
