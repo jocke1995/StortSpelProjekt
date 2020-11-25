@@ -55,10 +55,16 @@ void ParticleEffect::Update(double dt)
 {
 	m_TimeSinceSpawn += dt;
 
+
 	// If should particle spawn
-	if (isTimeToSpawnParticles() && m_IsSpawnwing)
+	while (isTimeToSpawnParticles() && m_IsSpawning)
 	{
 		bool spawned = spawnParticle();
+
+		if (!spawned)
+		{
+			break;
+		}
 	}
 
 	// Update all particles
@@ -74,7 +80,7 @@ void ParticleEffect::Update(double dt)
 
 void ParticleEffect::SetIsSpawning(bool value)
 {
-	m_IsSpawnwing = value;
+	m_IsSpawning = value;
 }
 
 void ParticleEffect::Clear()
@@ -117,10 +123,10 @@ bool ParticleEffect::spawnParticle()
 	}
 
 	// Update ParticleIndex
-	m_ParticleIndex = ++m_ParticleIndex % m_Settings.particleCount;
+	m_ParticleIndex = ++m_ParticleIndex % m_Settings.maxParticleCount;
 
 	// "Spawn"
-	m_TimeSinceSpawn = 0;
+	m_TimeSinceSpawn -= m_Settings.spawnInterval;
 	initParticle(particle);
 
 	return true;
@@ -134,7 +140,7 @@ void ParticleEffect::init()
 
 	// Only send position (float3) + size (float) to gpu
 	size_t entrySize = sizeof(PARTICLE_DATA);
-	unsigned long long resourceByteSize = entrySize * m_Settings.particleCount;
+	unsigned long long resourceByteSize = entrySize * m_Settings.maxParticleCount;
 
 	// used to format a debug string
 	std::wstring a = L"ParticleEffect_";
@@ -152,14 +158,14 @@ void ParticleEffect::init()
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.Buffer.FirstElement = 0;
-	srvDesc.Buffer.NumElements = m_Settings.particleCount;
+	srvDesc.Buffer.NumElements = m_Settings.maxParticleCount;
 	srvDesc.Buffer.StructureByteStride = entrySize;
 	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
 	m_pSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &srvDesc, m_pDefaultResource);
 
-	m_Particles.resize(m_Settings.particleCount);
-	m_ParticlesData.resize(m_Settings.particleCount);
+	m_Particles.resize(m_Settings.maxParticleCount);
+	m_ParticlesData.resize(m_Settings.maxParticleCount);
 }
 
 void ParticleEffect::initParticle(Particle& particle)
