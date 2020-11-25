@@ -188,7 +188,6 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 		Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(path).c_str(), tmp.c_str());
 	}
 
-	//const aiScene* assimpScene = importer.ReadFileFromMemory(ss.str().c_str(), ss.str().size(), aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph, fileEnding.c_str());
 	const aiScene* assimpScene = importer.ReadFile(tmp, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph);
 	remove(tmp.c_str());
 	if (assimpScene == nullptr)

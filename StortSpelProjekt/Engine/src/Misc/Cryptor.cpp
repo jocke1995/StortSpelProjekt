@@ -282,6 +282,12 @@ bool Cryptor::DecryptDDS(int key, const char* src, const char* destination)
 	return true;
 }
 
+bool Cryptor::DecryptDirectory(int key, const char* path)
+{
+	decryptDirectoryHelper(key, path);
+	return true;
+}
+
 unsigned int Cryptor::GetGlobalKey()
 {
 	return 11;
@@ -307,6 +313,32 @@ void Cryptor::encryptDirectoryHelper(int key, const char* path)
 				else if(extension == ".obj" || extension == ".OBJ")
 				{
 					Encrypt(key, entry.path().generic_string().c_str());
+				}
+			}
+		}
+	}
+}
+
+void Cryptor::decryptDirectoryHelper(int key, const char* path)
+{
+	for (auto& entry : std::filesystem::directory_iterator(path))
+	{
+		if (entry.is_directory())
+		{
+			decryptDirectoryHelper(key, entry.path().generic_string().c_str());
+		}
+		else
+		{
+			std::string extension = entry.path().extension().generic_string().c_str();
+			if (extension != ".mtl" && extension != ".txt" && extension != ".png" && extension != ".jpg" && extension != ".tga")
+			{
+				if (extension == ".DDS" || extension == ".dds" || extension == ".fbx" || extension == ".FBX")
+				{
+					DecryptDDS(key, entry.path().generic_string().c_str());
+				}
+				else if (extension == ".obj" || extension == ".OBJ")
+				{
+					Decrypt(key, entry.path().generic_string().c_str(), entry.path().generic_string().c_str());
 				}
 			}
 		}

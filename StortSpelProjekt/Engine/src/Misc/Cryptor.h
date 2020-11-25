@@ -15,9 +15,11 @@ public:
 	static bool DecryptDDS(int key, const char* src, const char* destination = nullptr);
 	template <typename T>
 	static inline void Decrypt(int key, T* data, unsigned int nrOfElements, int minRand, int maxRand);
+	static bool DecryptDirectory(int key, const char* path);
 	static unsigned int GetGlobalKey();
 private:
 	static void encryptDirectoryHelper(int key, const char* path);
+	static void decryptDirectoryHelper(int key, const char* path);
 };
 #endif
 
