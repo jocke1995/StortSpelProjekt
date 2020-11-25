@@ -352,7 +352,7 @@ Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
 	// Check if the texture is DDS or of other commonType
 	std::string fileEnding = GetFileExtension(to_string(path));
 	Texture* texture = nullptr;
-	if (fileEnding == "dds")
+	if (fileEnding == "dds" || fileEnding == "DDS")
 	{
 		texture = new Texture2D(path);
 	}
@@ -502,7 +502,7 @@ Font* AssetLoader::LoadFontFromFile(const std::wstring& fontName)
 	return m_LoadedFonts[path].second;
 }
 
-void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float3 offset)
+void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* spawnpoints, unsigned int id, float3 offset)
 {
 	FILE* file = fopen(path, "r");
 
@@ -820,6 +820,12 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					edgeId = -1;
 				}
 			}
+			else if (strcmp(lineHeader.c_str(), "AddSpawnPoint") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &pos.x, &pos.y, &pos.z);
+				float3 point = { pos.x + offset.x,pos.y + offset.y,pos.z + offset.z };
+				spawnpoints->emplace_back(point);
+			}
 			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
 			{
 				fscanf(file, "%s", toSubmit.c_str());
@@ -1063,7 +1069,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 	}
 }
 
-void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSize, float2 roomDimensions)
+void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, std::vector<float3>* spawnPoints, float2 mapSize, float2 roomDimensions)
 {
 	std::vector<std::string> filePaths;
 	for (const auto& entry : std::filesystem::directory_iterator(folderPath))
@@ -1084,7 +1090,7 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSi
 	EngineRand rand(time(0));
 
 	// Load the starting room
-	LoadMap(scene, "../Vendor/Resources/SpawnRoom.map", roomCounter, offset);
+	LoadMap(scene, "../Vendor/Resources/SpawnRoom.map", spawnPoints, roomCounter, offset);
 	m_RoomsAdded[offset.toString()] = roomCounter++;
 	std::vector<float> spawnChances;
 	for (int i = 0; i < filePaths.size(); ++i)
@@ -1154,7 +1160,7 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSi
 		{
 			if (m_RoomsAdded[newOffset.toString()] == 0 && newOffset.toString() != startingOffset.toString())
 			{
-				LoadMap(scene, roomToLoad.c_str(), roomCounter, newOffset);
+				LoadMap(scene, roomToLoad.c_str(),spawnPoints, roomCounter, newOffset);
 				m_RoomsAdded[newOffset.toString()] = roomCounter++;
 				removeWall = true;
 			}

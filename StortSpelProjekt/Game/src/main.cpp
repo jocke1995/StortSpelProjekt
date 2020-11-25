@@ -141,9 +141,10 @@ Scene* GameScene(SceneManager* sm)
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
-    al->LoadMap(scene, "../Vendor/Resources/FirstMap.map");
-    //al->GenerateMap(scene, "../Vendor/Resources/Rooms");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");   
+    std::vector<float3> spawnPoints;
+    al->LoadMap(scene, "../Vendor/Resources/FirstMap.map",&spawnPoints);
+    //al->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints);
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");   
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
@@ -335,9 +336,12 @@ Scene* GameScene(SceneManager* sm)
 
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);
-    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
-    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
-    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
+
+    for (auto point : spawnPoints)
+    {
+        enemyFactory.AddSpawnPoint(point);
+    }
+
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
     enemyFactory.DefineEnemy("enemySpider", &spider);
     enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
