@@ -23,8 +23,6 @@ void JockeUpdateScene(SceneManager* sm, double dt);
 void FredriksUpdateScene(SceneManager* sm, double dt);
 void AndresUpdateScene(SceneManager* sm, double dt);
 
-EnemyFactory enemyFactory;
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -83,7 +81,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     {
         gameNetwork.SetScene(sceneManager->GetActiveScene());
         gameNetwork.SetSceneManager(sceneManager);
-        gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
+        gameNetwork.SetEnemies(EnemyFactory::GetInstance().GetAllEnemies());
     }
 
     double networkTimer = 0;
@@ -341,11 +339,11 @@ Scene* LeosTestScene(SceneManager* sm)
 	zombie.scale = 1.0;
 	zombie.detectionRad = 500.0f;
 
-    enemyFactory.SetScene(scene);
+    EnemyFactory::GetInstance().SetScene(scene);
 
-    enemyFactory.AddSpawnPoint({ -10.0, 10.0, 340.0 });
-    enemyFactory.AddSpawnPoint({ -340.0, 10.0, 340.0 });
-    enemyFactory.DefineEnemy("enemyZombie", &zombie);
+    EnemyFactory::GetInstance().AddSpawnPoint({ -10.0, 10.0, 340.0 });
+    EnemyFactory::GetInstance().AddSpawnPoint({ -340.0, 10.0, 340.0 });
+    EnemyFactory::GetInstance().DefineEnemy("enemyZombie", &zombie);
 
     //for (int i = 0; i < 75; i++)
     //{
@@ -1701,7 +1699,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     //Physics::GetInstance().AddCollisionEntity(entity);
 
     // Adding enemy example
-    EnemyFactory enH(scene);
+    EnemyFactory::GetInstance().SetScene(scene);
     //enH.AddEnemy("rock", stoneModel, 5, float3{ 1, 0, 1 }, F_COMP_FLAGS::OBB, 0.01, float3{ 1.578, 0, 0 });
     // showing that using the wrong overload will send Warning to Log. 
     // and then automaticly use the correct overloaded function 
