@@ -141,8 +141,9 @@ Scene* GameScene(SceneManager* sm)
 
     //al->LoadMap(scene, "../Vendor/Resources/FirstMap.map");
 	//al->LoadMap(scene, "../Vendor/Resources/BaseRoom.map");
-	al->LoadMap(scene, "../Vendor/Resources/SpawnRoom.map");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");   
+	al->LoadMap(scene, "../Vendor/Resources/OutdoorRoom.map");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");
+	Model* tree = al->LoadModel(L"../Vendor/Resources/Models/Tree/Tree/tree.obj");
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");

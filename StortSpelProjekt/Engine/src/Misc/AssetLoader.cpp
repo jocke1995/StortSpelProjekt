@@ -506,6 +506,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	float3 lightColor = { 0.0, 0.0, 0.0 };
 	float3 lightDir = { 0.0, 0.0, 0.0 };
 	float3 lightAttenuation = { 0.0, 0.0, 0.0 };
+	float3 bbModifier = { 1.0f, 1.0f, 1.0f };
 	float lightAspect = 16.0f / 9.0f;
 	float lightCutOff = 30.0f;
 	float lightOuterCutOff = 45.0f;
@@ -766,6 +767,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			{
 				fscanf(file, "%d", &particlePlayOnInit);
 			}
+			else if (strcmp(lineHeader.c_str(), "ShrinkBoundingBox") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &bbModifier.x, &bbModifier.y, &bbModifier.z);
+			}
 			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
 			{
 				fscanf(file, "%s", toSubmit.c_str());
@@ -793,6 +798,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					mc->SetDrawFlag(combinedFlag);
 
 					bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+					bbc->SetModifier(bbModifier);
 					bbc->Init();
 					Physics::GetInstance().AddCollisionEntity(entity);
 				}
