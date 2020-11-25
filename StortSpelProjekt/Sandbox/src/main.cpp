@@ -740,15 +740,18 @@ Scene* JockesTestScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.particleCount = 500;
-    settings.startValues.lifetime = 0.8;
-    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+    settings.maxParticleCount = 50;
+    settings.startValues.lifetime = 2.5;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
     settings.isLooping = false;
-    settings.startValues.acceleration = { 0, -3, 0 };
+    settings.startValues.acceleration = { 0, -5, 0 };
+
 
     // Need to fix EngineRand.rand() for negative values
     RandomParameter3 randParam1 = { -2, 2, -2, 2, -2, 2 };
-    randParam1.y = { 2, 6 };
+    randParam1.x = { -20, 20 };
+    randParam1.y = { 1, 20 };
+    randParam1.z = { -20, 20 };
 
     settings.randPosition = { 0, 1, 0, 1, 0, 1 };
     settings.randVelocity = randParam1;
