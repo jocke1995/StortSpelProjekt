@@ -56,7 +56,6 @@ void component::AnimationComponent::walkAnimation(MovementInput* evnt)
 	{
 		m_pAnimatedModel->AddActiveAnimation("Walk", true);
 		m_pAnimatedModel->EndActiveAnimation("Idle");
-		//m_pAnimatedModel->PlayAnimation();
 	}
 	else
 	{
@@ -70,9 +69,8 @@ void component::AnimationComponent::attackAnimation(MouseClick* evnt)
 	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN)
 	{
 		m_pAnimatedModel->AddActiveAnimation("Claw_attack_left", false);
-
-		//m_pAnimatedModel->EndActiveAnimation("Idle");
-		//m_pAnimatedModel->PlayAnimation();
+		m_pAnimatedModel->EndActiveAnimation("Idle");
+		m_pAnimatedModel->EndActiveAnimation("Walk");
 	}
 	else
 	{

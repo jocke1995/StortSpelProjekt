@@ -33,8 +33,17 @@ AnimatedModel::AnimatedModel(
 	globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
 	DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
 
-	// Default animation is 'idle'. This will play the idle animation.
-	ResetAnimation();
+	// Run the default animation.
+	for (auto& animation : m_Animations)
+	{
+		if (animation->name == "Idle")
+		{
+			m_pActiveAnimations.push_back(animation);
+			animation->loop = true;
+			animation->Update(0);
+			bindAnimation(m_pSkeleton, animation);
+		}
+	}
 }
 
 AnimatedModel::~AnimatedModel()
@@ -64,48 +73,46 @@ const std::vector<DirectX::XMFLOAT4X4>* AnimatedModel::GetUploadMatrices() const
 
 bool AnimatedModel::AddActiveAnimation(std::string animationName, bool loop)
 {
-	for (auto& animation : m_pActiveAnimations)
-	{
-		if (animation->name == animationName)
-		{
-			return false;
-		}
-	}
+	//for (auto& animation : m_pActiveAnimations)
+	//{
+	//	if (animation->name == animationName)
+	//	{
+	//		return false;
+	//	}
+	//}
+	//
+	//for (auto& animation : m_pPendingAnimations)
+	//{
+	//	if (animation->name == animationName)
+	//	{
+	//		return false;
+	//	}
+	//}
+	//
+	//for (auto& animation : m_pEndingAnimations)
+	//{
+	//	if (animation->name == animationName)
+	//	{
+	//		return false;
+	//	}
+	//}
 
-	for (auto& animation : m_pPendingAnimations)
+	if (m_pPendingAnimations.empty())
 	{
-		if (animation->name == animationName)
+		for (auto& animation : m_Animations)
 		{
-			return false;
-		}
-	}
-
-	for (auto& animation : m_pEndingAnimations)
-	{
-		if (animation->name == animationName)
-		{
-			return false;
-		}
-	}
-
-	for (auto& animation : m_Animations)
-	{
-		if (animation->name == animationName)
-		{
-			animation->loop = loop;
-			animation->Update(0);
-			if (m_pActiveAnimations.empty())
+			if (animation->name == animationName)
 			{
-				m_pActiveAnimations.push_back(animation);
-				bindAnimation(m_pSkeleton, animation);
-			}
-			else
-			{
+				animation->loop = loop;
+				animation->Update(0);
 				m_pPendingAnimations.push_back(animation);
-				blendAnimations(0);
-				bindBlendedAnimation(m_pSkeleton);
+				if (!m_pEndingAnimations.empty())
+				{
+					blendAnimations(0);
+					bindBlendedAnimation(m_pSkeleton);
+				}
+				return true;
 			}
-			return true;
 		}
 	}
 
@@ -121,11 +128,8 @@ bool AnimatedModel::EndActiveAnimation(std::string animationName)
 		{
 			m_pActiveAnimations.erase(m_pActiveAnimations.begin() + index);
 			m_pEndingAnimations.push_back(animation);
-			// If there are no active animations left, run default animation.
-			if (m_pActiveAnimations.empty())
-			{
-				ResetAnimation();
-			}
+			blendAnimations(0);
+			bindBlendedAnimation(m_pSkeleton);
 			return true;
 		}
 		index++;
@@ -144,13 +148,10 @@ void AnimatedModel::Update(double dt)
 			// remove all finished animations from the active animations vector
 			if (animation->finished)
 			{
-				//if (m_pActiveAnimations.size() == 1 && m_pPendingAnimations.empty() && m_pEndingAnimations.empty())
-				//{
-				//	bindAnimation(m_pSkeleton, m_pActiveAnimations[0]);
-				//}
 				m_pEndingAnimations.push_back(animation);
 				m_pActiveAnimations.erase(m_pActiveAnimations.begin() + index);
 				animation->finished = false;
+				AddActiveAnimation("Idle", true);
 			}
 			else
 			{
@@ -159,25 +160,20 @@ void AnimatedModel::Update(double dt)
 			index++;
 		}
 
-		for (auto& animation : m_pPendingAnimations)
-		{
-			animation->Update(dt);
-		}
-
-		for (auto& animation : m_pEndingAnimations)
-		{
-			animation->Update(dt);
-		}
-
+		// If there should be a transition, run blend.
 		if (!m_pPendingAnimations.empty() && !m_pEndingAnimations.empty())
 		{
-			blendAnimations(dt);
-		}
+			for (auto& animation : m_pPendingAnimations)
+			{
+				animation->Update(dt);
+			}
 
-		// If there is no active animation, run the default animation (idle)
-		if (m_pActiveAnimations.empty())
-		{
-			ResetAnimation();
+			for (auto& animation : m_pEndingAnimations)
+			{
+				animation->Update(dt);
+			}
+
+			blendAnimations(dt);
 		}
 
 		updateSkeleton(m_pSkeleton, DirectX::XMMatrixIdentity());
@@ -255,13 +251,11 @@ void AnimatedModel::blendAnimations(double dt)
 		blendTimeElapsed += dt;
 		if (blendTimeElapsed >= blendTransitionTime)
 		{
-			//if (m_pActiveAnimations.empty())
-			//{
-			//	ResetAnimation();
-			//}
 			blendTimeElapsed = 0.0f;
 			m_pActiveAnimations.push_back(m_pPendingAnimations[0]);	// The blend phase is finished, so the pending animation will be active now.
 			m_pPendingAnimations.pop_back();	// Remove from the pending vector
+			m_pEndingAnimations[0]->time = 0.0f;
+			m_pEndingAnimations[0]->finished = false;
 			m_pEndingAnimations.pop_back();
 			bindAnimation(m_pSkeleton, m_pActiveAnimations[0]);
 			return;

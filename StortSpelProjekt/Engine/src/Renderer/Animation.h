@@ -2,7 +2,7 @@
 #define ANIMATION_H
 
 #define MAX_BONES_PER_VERTEX 10
-#define ANIMATION_TRANSITION_TIME 0.4f
+#define ANIMATION_TRANSITION_TIME 0.2f
 
 DirectX::XMFLOAT3 InterpolateTranslation(DirectX::XMFLOAT3* key0, DirectX::XMFLOAT3* key1, float t);
 DirectX::XMFLOAT4 InterpolateRotation(DirectX::XMFLOAT4* key0, DirectX::XMFLOAT4* key1, float t);
@@ -86,9 +86,13 @@ struct Animation
 		else
 		{
 			animationTime = timeInTicks;
-			if (timeInTicks > durationInTicks - ANIMATION_TRANSITION_TIME - 0.1f)	// Extra 0.1 second margin so that the animation doesn't accidentally loop. Ugly solution.
+			if (timeInTicks > durationInTicks - ANIMATION_TRANSITION_TIME)// - 0.1f)	// Extra 0.1 second margin so that the animation doesn't accidentally loop. Ugly solution.
 			{
 				finished = true;
+			}
+
+			if (timeInTicks > durationInTicks)
+			{
 				time = 0;
 				return;
 			}

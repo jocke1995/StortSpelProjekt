@@ -41,11 +41,14 @@ public:
     void ResetAnimation();
 
 private:
-    // Should run for a while after a activeAnimation is added.
+    // Should run while there is an ongoing animation transition.
     void blendAnimations(double dt);
+    // Will bind the blendAnimationState to the skeleton.
     void bindBlendedAnimation(SkeletonNode* node);
 
-    void bindAnimation(SkeletonNode* node, Animation* animation);   // Attach the currentStateTransforms of the animation to the skeleton.
+    // Will bind the animation to the skeleton.
+    void bindAnimation(SkeletonNode* node, Animation* animation);
+    // Calculates the finished transformations for the animation bound to the skeleton.
     void updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform);
     SkeletonNode* findNode(SkeletonNode* root, std::string nodeName);
 
