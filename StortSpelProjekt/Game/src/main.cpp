@@ -107,7 +107,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             }
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
-            //enemyFactory.Update(updateRate);
+            enemyFactory.Update(updateRate);
             gameGUI.Update(updateRate, sceneManager->GetActiveScene());
             UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
@@ -141,9 +141,8 @@ Scene* GameScene(SceneManager* sm)
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
-    //al->LoadMap(scene, "../Vendor/Resources/FirstMap.map");
-	//al->LoadMap(scene, "../Vendor/Resources/BaseRoom.map");
-    al->GenerateMap(scene, "../Vendor/Resources/Rooms");
+    al->LoadMap(scene, "../Vendor/Resources/FirstMap.map");
+    //al->GenerateMap(scene, "../Vendor/Resources/Rooms");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");   
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
