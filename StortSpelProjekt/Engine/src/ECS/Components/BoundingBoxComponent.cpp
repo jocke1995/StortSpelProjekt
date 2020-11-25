@@ -207,7 +207,7 @@ namespace component
 
 			// Set the position of the OBB
 			m_OrientedBoundingBox.Center.x = maxVertex.x - absHalfLenghtOfRect.x;
-			m_OrientedBoundingBox.Center.y = maxVertex.y - /*(static_cast<float>((m_FlagOBB & F_OBBFlags::T_POSE) > 0.0) + 1.0f) **/ absHalfLenghtOfRect.y;
+			m_OrientedBoundingBox.Center.y = maxVertex.y - absHalfLenghtOfRect.y;
 			m_OrientedBoundingBox.Center.z = maxVertex.z - absHalfLenghtOfRect.z;
 	
 

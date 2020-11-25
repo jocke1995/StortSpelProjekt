@@ -91,7 +91,6 @@ void component::MeleeComponent::Update(double dt)
 	obb.Transform(obb, *m_MeleeTransformModified.GetWorldMatrix());
 
 	bool t_pose = m_pBbc->GetFlagOBB() & F_OBBFlags::T_POSE;
-	//t_pose = true;
 	float positionX = obb.Center.x + (obb.Extents.x + ((static_cast<float>(!t_pose) * m_HalfSize.x + static_cast<float>(t_pose) * m_HalfSize.z) * trans->GetScale().x)) * m_MeleeTransformModified.GetForwardFloat3().x;
 	float positionY = obb.Center.y + (obb.Extents.y + (m_HalfSize.y * trans->GetScale().y)) * m_MeleeTransformModified.GetForwardFloat3().y;
 	float positionZ = obb.Center.z + (obb.Extents.z + (m_HalfSize.z * trans->GetScale().z)) * m_MeleeTransformModified.GetForwardFloat3().z;
