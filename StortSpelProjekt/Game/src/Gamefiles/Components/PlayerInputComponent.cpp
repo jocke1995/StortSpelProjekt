@@ -523,20 +523,25 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 	int x = evnt->x, y = evnt->y;
 
 	// Determine how much to rotate in radians
-	float rotateX = -(static_cast<float>(x) / 1600.0)* PI;
-	float rotateY = (static_cast<float>(y) / 2200.0) * PI;
+	float sensitivityX = stof(Option::GetInstance().GetVariable("f_sensitivityX"));
+	float sensitivityY = stof(Option::GetInstance().GetVariable("f_sensitivityY"));
 
-	//rotateY = -(static_cast<float>(y) / 6.0 - static_cast<float>(y) / 3.0) * PI;
-	rotateX = (static_cast<float>(x)) / 4000.0 * PI;
-	rotateY = -(static_cast<float>(y)) / 4000.0 * PI;
+	// rotateX/Y determines how much yaw/pitch changes
+	const float constScale = 1 / 1300.0;
+	float rotateX = (static_cast<float>(x) * sensitivityX * constScale);
+	float rotateY = -(static_cast<float>(y) * sensitivityY * constScale);
 	
+	// Update Yaw and Pitch
 	m_Yaw = m_Yaw - rotateX;
+	m_Pitch = m_Pitch - rotateY;
 
+	// Constraints so that you can not look directly under the character
 	const float yaw_constraint_offset = 0.01f;
-	m_Pitch = max(min(m_Pitch - rotateY, (PI - yaw_constraint_offset)/2), -(PI - yaw_constraint_offset)/2);
-
-	Log::Print("RotateXY (%f, %f)\n", rotateX, rotateY);
-	Log::Print("m_Yaw, m_Pitch (%f, %f)\n", m_Yaw, m_Pitch);
+	
+	float upper = (PI - yaw_constraint_offset) / 2;
+	float lower = -(PI - yaw_constraint_offset) / 2;
+	// Clamp between upper and lower
+	m_Pitch = max(min(m_Pitch, upper), lower);
 
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{

@@ -28,6 +28,8 @@ void onMedShadowQuality(const std::string& name);
 void onHighShadowQuality(const std::string& name);
 void onVolumePlus(const std::string& name);
 void onVolumeMinus(const std::string& name);
+void onMouseSensitivityPlus(const std::string& name);
+void onMouseSensitivityMinus(const std::string& name);
 void MainMenuUpdateScene(SceneManager* sm, double dt);
 
 MainMenuHandler::MainMenuHandler()
@@ -56,6 +58,7 @@ void MainMenuHandler::createOptionScene()
     Texture* medShadowQuality = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Med.png");
     Texture* highShadowQuality = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/High.png");
     Texture* volume = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Volume.png");
+    Texture* mouseSensitivity = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/MouseSensitivity.png");
     Texture* plus = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Plus.png");
     Texture* minus = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Minus.png");
 
@@ -302,7 +305,7 @@ void MainMenuHandler::createOptionScene()
     entity = m_pOptionScene->AddEntity("volumeText");
     guic = entity->AddComponent<component::GUI2DComponent>();
     guic->GetQuadManager()->CreateQuad("volumeText",
-        { 0.65f, 0.52f },
+        { 0.65f, 0.42f },
         { (float)volume->GetWidth() / 1920.0f, (float)volume->GetHeight() / 1080.0f },
         false,
         false,
@@ -313,7 +316,7 @@ void MainMenuHandler::createOptionScene()
     entity = m_pOptionScene->AddEntity("volumePlus");
     guic = entity->AddComponent<component::GUI2DComponent>();
     guic->GetQuadManager()->CreateQuad("volumePlus",
-        { 0.66f, 0.70f },
+        { 0.66f, 0.60f },
         { (float)plus->GetWidth() / 1920.0f, (float)plus->GetHeight() / 1080.0f },
         true,
         true,
@@ -325,7 +328,7 @@ void MainMenuHandler::createOptionScene()
     entity = m_pOptionScene->AddEntity("volumeMinus");
     guic = entity->AddComponent<component::GUI2DComponent>();
     guic->GetQuadManager()->CreateQuad("volumeMinus",
-        { 0.75f, 0.70f },
+        { 0.75f, 0.60f },
         { (float)minus->GetWidth() / 1920.0f, (float)minus->GetHeight() / 1080.0f },
         true,
         true,
@@ -335,7 +338,7 @@ void MainMenuHandler::createOptionScene()
     guic->GetQuadManager()->SetOnClicked(&onVolumeMinus);
 
     std::string textToRender = Option::GetInstance().GetVariable("f_volume");
-    float2 textPos = { 0.7f, 0.62f };
+    float2 textPos = { 0.7f, 0.52f };
     float2 textPadding = { 0.5f, 0.0f };
     float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
     float2 textScale = { 1.0f, 1.0f };
@@ -360,6 +363,74 @@ void MainMenuHandler::createOptionScene()
         { 1.0, 1.0, 1.0, 0.0 },
         nullptr
     );
+
+
+
+    /*-------------Mouse Sensitivity--------------*/
+    entity = m_pOptionScene->AddEntity("MouseSensitivityText");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("MouseSensitivityText",
+        { 0.65f, 0.72f },
+        { (float)mouseSensitivity->GetWidth() / 1920.0f, (float)mouseSensitivity->GetHeight() / 1080.0f },
+        false,
+        false,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        mouseSensitivity);
+
+    entity = m_pOptionScene->AddEntity("MouseSensitivityPlus");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("MouseSensitivityPlus",
+        { 0.66f, 0.90f },
+        { (float)plus->GetWidth() / 1920.0f, (float)plus->GetHeight() / 1080.0f },
+        true,
+        true,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        plus);
+    guic->GetQuadManager()->SetOnClicked(&onMouseSensitivityPlus);
+
+    entity = m_pOptionScene->AddEntity("MouseSensitivityMinus");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("MouseSensitivityMinus",
+        { 0.75f, 0.90f },
+        { (float)minus->GetWidth() / 1920.0f, (float)minus->GetHeight() / 1080.0f },
+        true,
+        true,
+        1,
+        { 1.0,1.0,1.0,1.0 },
+        minus);
+    guic->GetQuadManager()->SetOnClicked(&onMouseSensitivityMinus);
+
+    textToRender = Option::GetInstance().GetVariable("f_sensitivityX");
+    textPos = { 0.7f, 0.82f };
+    textPadding = { 0.5f, 0.0f };
+    textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    textScale = { 1.0f, 1.0f };
+    textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    entity = m_pOptionScene->AddEntity("MouseSensitivity");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetTextManager()->SetFont(arial);
+    guic->GetTextManager()->AddText("MouseSensitivity");
+    guic->GetTextManager()->SetColor(textColor, "MouseSensitivity");
+    guic->GetTextManager()->SetPadding(textPadding, "MouseSensitivity");
+    guic->GetTextManager()->SetPos(textPos, "MouseSensitivity");
+    guic->GetTextManager()->SetScale(textScale, "MouseSensitivity");
+    guic->GetTextManager()->SetText(textToRender, "MouseSensitivity");
+    guic->GetTextManager()->SetBlend(textBlend, "MouseSensitivity");
+
+    // No idea what this is
+    //guic->GetQuadManager()->CreateQuad(
+    //    "money",
+    //    { 0.7f, 0.65f }, { 0.1f, 0.1f },
+    //    false, false,
+    //    1,
+    //    { 1.0, 1.0, 1.0, 0.0 },
+    //    nullptr
+    //);
+
+
 
     /*-------------Back--------------*/
     entity = m_pOptionScene->AddEntity("restartWarning");
@@ -714,6 +785,31 @@ void onVolumeMinus(const std::string& name)
         Option::GetInstance().WriteFile();
     }
 }
+
+void onMouseSensitivityPlus(const std::string& name)
+{
+    if (std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) < 10)
+    {
+        std::ostringstream str;
+        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) + 0.1f;
+        Option::GetInstance().SetVariable("f_sensitivityX", str.str());
+
+        Option::GetInstance().WriteFile();
+    }
+}
+
+void onMouseSensitivityMinus(const std::string& name)
+{
+    if (std::stof(Option::GetInstance().GetVariable("f_sensitivityY")) > 0)
+    {
+        std::ostringstream str;
+        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityY")) - 0.1f;
+        Option::GetInstance().SetVariable("f_sensitivityY", str.str());
+
+        Option::GetInstance().WriteFile();
+    }
+}
+
 
 void MainMenuUpdateScene(SceneManager* sm, double dt)
 {
