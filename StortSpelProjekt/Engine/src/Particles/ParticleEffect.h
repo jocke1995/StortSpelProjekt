@@ -41,6 +41,7 @@ struct ParticleEffectSettings
 	Texture2DGUI* texture = nullptr;
 	unsigned int particleCount = PARTICLE_EFFECT_DEFAULT_SIZE;
 	float spawnInterval = 0.1;
+	bool isLooping = true;
 
 	// Default Particle Settings
 	ParticleAttributes startValues;
@@ -62,6 +63,7 @@ public:
 	void Update(double dt);
 
 	void SetIsSpawning(bool value);
+	void Clear();
 
 	Texture2DGUI* GetTexture() const;
 
