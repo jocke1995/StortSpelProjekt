@@ -515,8 +515,11 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
-		rotateY = -(static_cast<float>(y) / 6.0 - static_cast<float>(y) / 3.0) * PI;
+		//rotateY = -(static_cast<float>(y) / 6.0 - static_cast<float>(y) / 3.0) * PI;
+		rotateY = -(static_cast<float>(y)) / 400.0 * PI;
 		rotateX = (static_cast<float>(x)) / 400.0 * PI;
+
+		Log::Print("RotateXY (%f, %f)\n", rotateX, rotateY);
 
 		m_RotateX = rotateX;
 		m_RotateY = rotateY;
