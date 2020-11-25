@@ -41,6 +41,8 @@ public:
 	void RemoveEntity(Entity* entity, Scene* scene);
 	void AddEntity(Entity* entity, Scene* scene);
 
+	void RemoveEntities();
+
 private:
 	friend class Engine;
 	SceneManager();

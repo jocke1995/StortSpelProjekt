@@ -42,7 +42,7 @@ void UpgradeHealthRegen::IncreaseLevel()
 	m_Level++;
 
 	// increase the price of the upgrade
-	m_Price += m_StartingPrice;
+	m_Price = m_StartingPrice * (m_Level + 1);
 }
 
 std::string UpgradeHealthRegen::GetDescription(unsigned int level)

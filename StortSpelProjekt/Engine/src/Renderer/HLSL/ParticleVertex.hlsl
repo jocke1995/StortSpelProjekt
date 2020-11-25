@@ -47,6 +47,7 @@ VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
 	// v.pos is from -1 -> 1, always 0 on z
 	float3 vertexPosition = particleData[iID].position + mul(v.pos * halfSize, mul(rotMatrix, camSpace));
 	
+	//							world 					VP
 	output.pos = mul(float4(vertexPosition, 1), cbPerObject.WVP);
 
 	output.uv = float2(v.uv.x, v.uv.y);

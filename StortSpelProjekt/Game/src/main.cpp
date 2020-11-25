@@ -4,6 +4,7 @@
 #include "GameGUI.h"
 #include "Physics/CollisionCategories/PlayerCollisionCategory.h"
 #include "Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
+#include "../ECS/Components/TemporaryLifeComponent.h"
 
 // Game includes
 #include "Player.h"
@@ -125,6 +126,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         /* ------ Draw ------ */
         renderer->Execute();
+
+        sceneManager->RemoveEntities();
     }
     return 0;
 }
@@ -137,8 +140,9 @@ Scene* GameScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");    
-    Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");    
+    Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
+    Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
@@ -203,7 +207,6 @@ Scene* GameScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     melc = entity->AddComponent<component::MeleeComponent>();
     // range damage should be at least 10 for ranged life steal upgrade to work
-    // range velocity should be 50, otherwise range velocity upgrade does not make sense (may be scrapped later)
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 10, 150);
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(50);
@@ -226,8 +229,8 @@ Scene* GameScene(SceneManager* sm)
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
 
     melc->SetDamage(10);
-    melc->SetAttackInterval(0.8);
-    ranc->SetAttackInterval(0.8);
+    melc->SetAttackInterval(1.0);
+    ranc->SetAttackInterval(1.0);
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
@@ -257,7 +260,7 @@ Scene* GameScene(SceneManager* sm)
 #pragma region enemy definitions
     // melee
 	EnemyComps zombie = {};
-	zombie.model = enemyModel;
+	zombie.model = enemyZombieModel;
 	zombie.hp = 20;
 	zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
@@ -265,13 +268,32 @@ Scene* GameScene(SceneManager* sm)
 	zombie.meleeAttackDmg = 4.0f;
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
-	zombie.movementSpeed = 15.0f;
-	zombie.attackingDist = 1.5f;
+	zombie.movementSpeed = 45.0f;
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
 	zombie.scale = 0.04;
 	zombie.detectionRad = 500.0f;
 	zombie.attackingDist = 1.5f;
+    zombie.mass = 150.0f;
+
+    // quick melee
+    EnemyComps spider = {};
+    spider.model = enemySpiderModel;
+    spider.hp = 5;
+    spider.sound3D = L"Bruh";
+    spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+    spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
+    spider.meleeAttackDmg = 2.0f;
+    spider.attackInterval = 0.5f;
+    spider.attackSpeed = 0.2f;
+    spider.movementSpeed = 90.0f;
+    spider.rot = { 0.0, 0.0, 0.0 };
+    spider.targetName = "player";
+    spider.scale = 0.01;
+    spider.detectionRad = 500.0f;
+    spider.attackingDist = 1.5f;
+    spider.invertDirection = true;
+    spider.mass = 100.0f;
 
     // ranged
     EnemyComps rangedDemon = {};
@@ -291,6 +313,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.rangeAttackDmg = 10;
     rangedDemon.rangeVelocity = 50.0f;
     rangedDemon.projectileModel = sphereModel;
+    rangedDemon.mass = 300.0f;
 
 #pragma endregion
 
@@ -300,6 +323,7 @@ Scene* GameScene(SceneManager* sm)
     enemyFactory.AddSpawnPoint({ -20, 5, -190 });
     enemyFactory.AddSpawnPoint({ -120, 10, 75 });
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
+    enemyFactory.DefineEnemy("enemySpider", &spider);
     enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
 #pragma endregion
 
@@ -309,6 +333,24 @@ Scene* GameScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "ShopScene");
+
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.maxParticleCount = 100;
+    settings.startValues.lifetime = 0.8;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
+    settings.startValues.acceleration = { 0, 0, 0 };
+
+    // Need to fix EngineRand.rand() for negative values
+
+    settings.randPosition = { -6, 6, 0, 15, -6, 6 };
+    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
+    settings.randSize = { 0.3, 0.9 };
+    settings.randRotationSpeed = { 0, 1 };
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
+    settings.texture = particleTexture;
+    pec = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
 
     mc->SetModel(teleportModel);
@@ -610,6 +652,24 @@ Scene* ShopScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "GameScene");
+
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.maxParticleCount = 100;
+    settings.startValues.lifetime = 0.8;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
+    settings.startValues.acceleration = { 0, 0, 0 };
+
+    // Need to fix EngineRand.rand() for negative values
+
+    settings.randPosition = { -6, 6, 0, 15, -6, 6};
+    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
+    settings.randSize = { 0.3, 0.9 };
+    settings.randRotationSpeed = { 0, 1 };
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
+    settings.texture = particleTexture;
+    pec = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
     
     mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -902,10 +962,10 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     trans->SetRotationX(rotValue);
     rotValue += 0.005f;
 
-    // Kod-p�kod-p�kod-p�kod-p�kod-l�sning
-    // Detta ska egentligen st� i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
-    // spelare i alla scener s� kan vi ej n� den aktiva spelaren i den scenen d�rifr�n.
-    // TODO: Flytta in den i den funktionen n�r vi har samma spelare i alla scener via Player::GetInstance().
+    // Kod-påkod-påkod-påkod-påkod-lösning
+    // Detta ska egentligen stå i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
+    // spelare i alla scener så kan vi ej nå den aktiva spelaren i den scenen därifrån.
+    // TODO: Flytta in den i den funktionen när vi har samma spelare i alla scener via Player::GetInstance().
     if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == true)
     {
         component::CollisionComponent* cc = sm->GetActiveScene()->GetEntity("player")->GetComponent<component::CollisionComponent>();

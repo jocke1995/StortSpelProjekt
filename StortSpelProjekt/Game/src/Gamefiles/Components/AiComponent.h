@@ -18,6 +18,7 @@ enum F_AI_FLAGS
 {
 	CAN_JUMP = BIT(1),
 	CAN_ROLL = BIT(2),
+	RUSH_PLAYER = BIT(3),
 };
 
 struct PathQuad
@@ -85,12 +86,14 @@ namespace component
 		float m_MovementVelocity;
 		float m_DistanceToPlayer;
 		float m_KnockBackTimer;
+		float m_TargetCircleRadius;
 
 		float3 m_StartPos;
 		float3 m_GoalPos;
 		float3 m_NextTargetPos;
 		float3 m_LastPos;
 		float3 m_DirectionPath;
+		float3 m_TargetCirclePoint;
 
 		std::vector<int> m_OpenList;
 		std::vector<float3> m_Path;
@@ -116,8 +119,8 @@ namespace component
 		float3 setAimDirection();
 
 		void selectTarget();
-		void findPathToTargetQuad();
-		void findPathToTargetTriangle();
+		void findPathToTargetQuad(float3 offset = { 0.0f, 0.0f, 0.0f });
+		void findPathToTargetTriangle(float3 offset = { 0.0f, 0.0f, 0.0f });
 
 		void checkAdjacentQuad();
 		void checkAdjacentTriangle();
