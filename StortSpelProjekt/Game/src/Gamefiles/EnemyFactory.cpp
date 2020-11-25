@@ -6,6 +6,12 @@
 #include "Misc/EngineRand.h"
 #include "Physics/CollisionCategories/EnemyCollisionCategory.h"
 
+EnemyFactory& EnemyFactory::GetInstance()
+{
+	static EnemyFactory instance;
+	return instance;
+}
+
 EnemyFactory::EnemyFactory()
 {
 	m_Level = 0;
@@ -24,26 +30,6 @@ EnemyFactory::EnemyFactory()
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onRoundStart);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onResetGame);
 }
-
-EnemyFactory::EnemyFactory(Scene* scene)
-{
-	m_Level = 0;
-	m_pScene = scene;
-	m_MaxEnemies = 30;
-	m_LevelMaxEnemies = 20;
-	m_EnemiesKilled = 0;
-	m_EnemiesToSpawn = 0;
-	m_EnemySlotsLeft = m_LevelMaxEnemies;
-	m_SpawnCooldown = 5;
-	m_MinimumDistanceToPlayer = 0;
-	m_SpawnTimer = 0.0f;
-	m_RandGen.SetSeed(time(NULL));
-	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
-	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
-	EventBus::GetInstance().Subscribe(this, &EnemyFactory::levelDone);
-	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onRoundStart);
-}
-
 EnemyFactory::~EnemyFactory()
 {
 	EventBus::GetInstance().Unsubscribe(this, &EnemyFactory::onSceneSwitch);
