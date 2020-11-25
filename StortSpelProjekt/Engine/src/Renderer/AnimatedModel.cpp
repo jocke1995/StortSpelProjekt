@@ -19,6 +19,8 @@ AnimatedModel::AnimatedModel(
 	m_pSkeleton = rootNode;
 	m_Animations = (*animations);
 	m_UploadMatrices.reserve(MAX_ANIMATION_MATRICES);
+	queuedAnimation = nullptr;
+	reactivateAnimation = nullptr;
 
 	DirectX::XMFLOAT4X4 matIdentity;
 	DirectX::XMStoreFloat4x4(&matIdentity, DirectX::XMMatrixIdentity());
@@ -81,34 +83,43 @@ bool AnimatedModel::AddActiveAnimation(std::string animationName, bool loop)
 		}
 	}
 
-	if (m_pPendingAnimations.empty())
+	for (auto& animation : m_Animations)
 	{
-		for (auto& animation : m_Animations)
+		if (animation->name == animationName)
 		{
-			if (animation->name == animationName)
+			if (!m_pPendingAnimations.empty())
 			{
 				animation->loop = loop;
 				animation->Update(0);
-				m_pPendingAnimations.push_back(animation);
-				if (!m_pEndingAnimations.empty())
-				{
-					blendAnimations(0);
-					bindBlendedAnimation(m_pSkeleton);
-				}
-
-				// If the animation is looping it should stay active. Else we need to reactivate the previous looping animation.
-				if (animation->loop)
-				{
-					reactivateAnimation = nullptr;
-				}
-				else if (m_pActiveAnimations[0]->loop)
-				{
-					reactivateAnimation = m_pActiveAnimations[0];
-				}
-				EndActiveAnimation("test");
-
+				queuedAnimation = animation;
 				return true;
 			}
+			else
+			{
+				queuedAnimation = nullptr;
+			}
+
+			animation->loop = loop;
+			animation->Update(0);
+			m_pPendingAnimations.push_back(animation);
+			if (!m_pEndingAnimations.empty())
+			{
+				blendAnimations(0);
+				bindBlendedAnimation(m_pSkeleton);
+			}
+
+			// If the animation is looping it should stay active. Else we need to reactivate the previous looping animation.
+			if (animation->loop)
+			{
+				reactivateAnimation = nullptr;
+			}
+			else if (m_pActiveAnimations[0]->loop)
+			{
+				reactivateAnimation = m_pActiveAnimations[0];
+			}
+			EndActiveAnimation("test");
+
+			return true;
 		}
 	}
 
@@ -157,13 +168,14 @@ void AnimatedModel::Update(double dt)
 				{
 					AddActiveAnimation(reactivateAnimation->name, reactivateAnimation->loop);
 				}
-				//m_pEndingAnimations.push_back(animation);
-				//m_pActiveAnimations.erase(m_pActiveAnimations.begin() + index);
 				animation->finished = false;
-				//AddActiveAnimation("Idle", true);
 			}
 			else
 			{
+				if (queuedAnimation)
+				{
+					AddActiveAnimation(queuedAnimation->name, queuedAnimation->loop);
+				}
 				animation->Update(dt);
 			}
 			index++;
