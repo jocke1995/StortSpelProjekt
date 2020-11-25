@@ -619,6 +619,7 @@ Scene* JockesTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::ProgressBarComponent* pbc = nullptr;
     component::ParticleEmitterComponent* pe = nullptr;
+    
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -761,6 +762,7 @@ Scene* JockesTestScene(SceneManager* sm)
 
     pe = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
     entity->AddComponent<component::TransformComponent>();
+    //particleEntity->AddComponent<component::TemporaryLifeComponent>(1.0);
     /* ---------------------- Particle ---------------------- */
 
     entity = scene->AddEntity("progressBarTest1");
@@ -1740,7 +1742,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     for (int i = 0; i < 50; i++)
     {
         zVal += 8;
-        enH.AddExistingEnemy("enemy", float3{ xVal, 0, zVal });
+        EnemyFactory::GetInstance().AddExistingEnemy("enemy", float3{ xVal, 0, zVal });
         if ((i + 1) % 5 == 0)
         {
             xVal += 8;
