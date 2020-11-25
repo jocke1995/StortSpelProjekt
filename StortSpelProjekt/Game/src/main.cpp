@@ -4,6 +4,7 @@
 #include "GameGUI.h"
 #include "Physics/CollisionCategories/PlayerCollisionCategory.h"
 #include "Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
+#include "../ECS/Components/TemporaryLifeComponent.h"
 
 // Game includes
 #include "Player.h"
@@ -125,6 +126,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         /* ------ Draw ------ */
         renderer->Execute();
+
+        sceneManager->RemoveEntities();
     }
     return 0;
 }
@@ -230,7 +233,7 @@ Scene* GameScene(SceneManager* sm)
 
     melc->SetDamage(10);
     melc->SetAttackInterval(1.0);
-    ranc->SetAttackInterval(0.8);
+    ranc->SetAttackInterval(1.0);
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
@@ -282,7 +285,7 @@ Scene* GameScene(SceneManager* sm)
     spider.hp = 5;
     spider.sound3D = L"Bruh";
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
-    spider.aiFlags = 0;
+    spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     spider.meleeAttackDmg = 2.0f;
     spider.attackInterval = 0.5f;
     spider.attackSpeed = 0.2f;
@@ -333,6 +336,24 @@ Scene* GameScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "ShopScene");
+
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.maxParticleCount = 100;
+    settings.startValues.lifetime = 0.8;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
+    settings.startValues.acceleration = { 0, 0, 0 };
+
+    // Need to fix EngineRand.rand() for negative values
+
+    settings.randPosition = { -6, 6, 0, 15, -6, 6 };
+    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
+    settings.randSize = { 0.3, 0.9 };
+    settings.randRotationSpeed = { 0, 1 };
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
+    settings.texture = particleTexture;
+    pec = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
 
     mc->SetModel(teleportModel);
@@ -634,6 +655,24 @@ Scene* ShopScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "GameScene");
+
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.maxParticleCount = 100;
+    settings.startValues.lifetime = 0.8;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
+    settings.startValues.acceleration = { 0, 0, 0 };
+
+    // Need to fix EngineRand.rand() for negative values
+
+    settings.randPosition = { -6, 6, 0, 15, -6, 6};
+    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
+    settings.randSize = { 0.3, 0.9 };
+    settings.randRotationSpeed = { 0, 1 };
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
+    settings.texture = particleTexture;
+    pec = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
     
     mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);

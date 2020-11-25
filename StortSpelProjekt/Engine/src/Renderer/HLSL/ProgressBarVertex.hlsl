@@ -14,19 +14,21 @@ struct vertex
 	float3 tang;
 };
 
+// DH index and VP matrix is stored in here.
 ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
-StructuredBuffer<vertex> meshes[] : register(t0);
-StructuredBuffer<float4x4> WVP : register(t0, space1); // Edited by billboard compute
 
-// Testing with getting pos in here.
-StructuredBuffer<PARTICLE_DATA> particleData : register(t3, space3); // Edited by billboard compute
+// Used to get the base quad.
+StructuredBuffer<vertex> meshes[] : register(t0);
+
+// Camera is stored in here.
 ConstantBuffer<CB_PER_FRAME_STRUCT>  cbPerFrame  : register(b4, space3);
 
-VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
+// The ProgressBar Specifics is stored in here.
+ConstantBuffer<PROGRESS_BAR_DATA> progressBarData : register(b6, space3);
+
+VS_OUT VS_main(uint vID : SV_VertexID)
 {
 	VS_OUT output = (VS_OUT)0;
-
-	float halfSize = (particleData[iID].size)/2;
 
 	vertex v = meshes[cbPerObject.info.vertexDataIndex][vID];
 
@@ -37,16 +39,24 @@ VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
 	};
 	camSpace = transpose(camSpace);
 
-	float3x3 rotMatrix = {
-		cos(particleData[iID].rotation), -sin(particleData[iID].rotation), 0,
-		sin(particleData[iID].rotation), cos(particleData[iID].rotation), 0,
-		0, 0, 1
-	};
-	rotMatrix = transpose(rotMatrix);
-
 	// v.pos is from -1 -> 1, always 0 on z
-	float3 vertexPosition = particleData[iID].position + mul(v.pos * halfSize, mul(rotMatrix, camSpace));
-	
+	v.pos.x *= progressBarData.maxWidth;
+	v.pos.y *= progressBarData.maxHeight;
+
+	// Hack, we only wanna change the 2 vertices on the right
+	if (vID == 0 || vID == 2)
+	{
+		v.pos.x -= progressBarData.maxWidth * 2 * (1.0f - progressBarData.activePercent);
+	}
+
+	float3 vertexPosition = progressBarData.position + mul(v.pos, camSpace);
+
+	// Hack to move the back quad further back, to avoid z-fighting
+	if (progressBarData.id.x == 0.0f)
+	{
+		vertexPosition = vertexPosition + cbPerFrame.camForward * 0.03f;
+	}
+
 	//							world 					VP
 	output.pos = mul(float4(vertexPosition, 1), cbPerObject.WVP);
 

@@ -13,9 +13,20 @@ UpgradeMeleeAttackSpeed::UpgradeMeleeAttackSpeed(Entity* parent) : Upgrade(paren
 	m_StartingPrice = m_Price;
 
 	m_ImageName = "MeleeDamage.png";
-	m_BaseAttackSpeed = m_pParentEntity->GetComponent<component::MeleeComponent>()->GetAttackInterval();
-	m_AttackPerSecond = 1.0f / m_BaseAttackSpeed;
-	m_UpgradeFactor = m_AttackPerSecond * 0.2f;
+	if (m_pParentEntity->HasComponent<component::MeleeComponent>())
+	{
+		m_BaseAttackSpeed = m_pParentEntity->GetComponent<component::MeleeComponent>()->GetAttackInterval();
+		m_AttackPerSecond = 1.0f / m_BaseAttackSpeed;
+	}
+	else
+	{
+		m_BaseAttackSpeed = 1.0f;
+		m_AttackPerSecond = 1.0f;
+	}
+
+	// how many percent do you want to increase attack speed with?
+	m_Percent = 20;
+	m_UpgradeFactor = m_AttackPerSecond * (static_cast<float>(m_Percent) / 100.0);
 }
 
 UpgradeMeleeAttackSpeed::~UpgradeMeleeAttackSpeed()
@@ -24,7 +35,7 @@ UpgradeMeleeAttackSpeed::~UpgradeMeleeAttackSpeed()
 
 void UpgradeMeleeAttackSpeed::ApplyStat()
 {
-	m_AttackPerSecond += m_UpgradeFactor;
+	m_AttackPerSecond = (1.0f / m_BaseAttackSpeed) + (m_UpgradeFactor * (m_Level + 1));
 	m_pParentEntity->GetComponent<component::MeleeComponent>()->SetAttackInterval(1.0f / m_AttackPerSecond);
 }
 
@@ -41,5 +52,5 @@ void UpgradeMeleeAttackSpeed::IncreaseLevel()
 
 std::string UpgradeMeleeAttackSpeed::GetDescription(unsigned int level)
 {
-	return "Melee Attack Speed: increases attack speed with " + std::to_string(20 * level) + "\% (20\% per level)";
+	return "Melee Attack Speed: increases melee attack speed with " + std::to_string(m_Percent * level) + "\% (" + std::to_string(m_Percent) + "\% per level)";
 }

@@ -1,33 +1,30 @@
 #include "stdafx.h"
-#include "ParticleRenderTask.h"
+#include "ProgressBarRenderTask.h"
 
+// Misc
 #include "../RenderView.h"
 #include "../RootSignature.h"
 #include "../CommandInterface.h"
+#include "../DescriptorHeap.h"
+#include "../SwapChain.h"
+#include "../PipelineState.h"
+#include "../Renderer/Camera/BaseCamera.h"
+#include "../Renderer/Mesh.h"
+#include "../Texture/Texture.h"
+
+// GPU-Memory
 #include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/DepthStencil.h"
 #include "../GPUMemory/DepthStencilView.h"
-#include "../GPUMemory/ConstantBufferView.h"
 #include "../GPUMemory/ShaderResourceView.h"
-#include "../GPUMemory/UnorderedAccessView.h"
-#include "../DescriptorHeap.h"
-#include "../SwapChain.h"
+#include "../GPUMemory/ConstantBuffer.h"
+#include "../GPUMemory/ConstantBufferView.h"
 #include "../GPUMemory/Resource.h"
-#include "../PipelineState.h"
-#include "../Renderer/Transform.h"
-#include "../Renderer/Mesh.h"
-#include "../Renderer/Camera/BaseCamera.h"
 
-// Includes used for particles to work
-#include "../Misc/AssetLoader.h"
-#include "../Renderer/Model.h"
-#include "../ECS/Entity.h"
-#include "../Renderer/Texture/Texture2DGUI.h"
-#include "../ECS/Components/ParticleEmitterComponent.h"
-#include "../Particles/ParticleEffect.h"
-#include "../Renderer/GPUMemory/Resource.h"
+// Progressbar specifics
+#include "../ECS/Components/ProgressBarComponent.h"
 
-ParticleRenderTask::ParticleRenderTask(ID3D12Device5* device, RootSignature* rootSignature, 
+ProgressBarRenderTask::ProgressBarRenderTask(ID3D12Device5* device, RootSignature* rootSignature,
 	const std::wstring& VSName, const std::wstring& PSName, 
 	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds, 
 	const std::wstring& psoName, unsigned int FLAG_THREAD)
@@ -36,11 +33,11 @@ ParticleRenderTask::ParticleRenderTask(ID3D12Device5* device, RootSignature* roo
 	
 }
 
-ParticleRenderTask::~ParticleRenderTask()
+ProgressBarRenderTask::~ProgressBarRenderTask()
 {
 }
 
-void ParticleRenderTask::Execute()
+void ProgressBarRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
@@ -83,49 +80,38 @@ void ParticleRenderTask::Execute()
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 
 	const DirectX::XMMATRIX* viewProjMatTrans = m_pCamera->GetViewProjectionTranposed();
+	DirectX::XMMATRIX VPTransposed = *viewProjMatTrans;
 
-	// Draw from opposite order from the sorted array
-	for (int i = m_RenderComponents.size() - 1; i >= 0; i--)
+	SlotInfo info = {};
+	info.vertexDataIndex = m_pQuad->GetSRV()->GetDescriptorHeapIndex();
+
+	// Draw a quad (m_pParticleQuad)
+	size_t num_Indices = m_pQuad->GetNumIndices();
+
+	for (component::ProgressBarComponent* pbc: m_ProgressBarComponents)
 	{
-		component::ModelComponent* mc = m_RenderComponents.at(i).first;
-		component::TransformComponent* tc = m_RenderComponents.at(i).second;
-
-		// It's a particle
-		if (mc == nullptr)
+		// Dont draw if this is set to false
+		if (pbc->m_DrawState == false)
 		{
-			component::ParticleEmitterComponent* pec = tc->GetParent()->GetComponent<component::ParticleEmitterComponent>();
-			if (pec == nullptr)
-			{
-				Log::PrintSeverity(Log::Severity::CRITICAL, "ParticleComponent was nullptr!!, plez fix\n");
-				return;
-			}
-			std::vector<ParticleEffect*>* effects = &pec->m_ParticleEffects;
+			continue;
+		}
 
-			// Draw each effect
-			for (unsigned int i = 0; i < effects->size(); i++)
-			{
-				// Test to multiply in render (Later do it in compute)
-				commandList->SetGraphicsRootShaderResourceView(RS::SRV0, effects->at(i)->m_pSRV->GetResource()->GetGPUVirtualAdress());
+		for (unsigned int i = 0; i < 2; i++)
+		{
+			// Set the constantBuffer
+			D3D12_GPU_VIRTUAL_ADDRESS gpuVA = pbc->m_ConstantBuffers[i]->GetCBV()->GetResource()->GetGPUVirtualAdress();
+			commandList->SetGraphicsRootConstantBufferView(RS::CBV0, gpuVA);
+			
+			info.textureAlbedo = pbc->m_Textures[i]->GetDescriptorHeapIndex();
 
-				Texture2DGUI* texture = effects->at(i)->GetTexture();
+			// Create a CB_PER_OBJECT struct
+			// Hack: sending in tcPos specially in this renderTask
+			CB_PER_OBJECT_STRUCT perObject = { {}, VPTransposed, info };
 
-				// Draw a quad (m_pParticleQuad)
-				size_t num_Indices = m_pParticleMesh->GetNumIndices();
-				SlotInfo info = {};
-				info.vertexDataIndex = m_pParticleMesh->GetSRV()->GetDescriptorHeapIndex();
-				info.textureAlbedo = texture->GetDescriptorHeapIndex();
+			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-				DirectX::XMMATRIX VPTransposed = *viewProjMatTrans;
-
-				// Create a CB_PER_OBJECT struct
-				// Hack: sending in tcPos specially in this renderTask
-				CB_PER_OBJECT_STRUCT perObject = { {}, VPTransposed, info };
-
-				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
-
-				commandList->IASetIndexBuffer(m_pParticleMesh->GetIndexBufferView());
-				commandList->DrawIndexedInstanced(num_Indices, effects->at(i)->m_Settings.maxParticleCount, 0, 0, 0);
-			}
+			commandList->IASetIndexBuffer(m_pQuad->GetIndexBufferView());
+			commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 		}
 	}
 
@@ -138,7 +124,12 @@ void ParticleRenderTask::Execute()
 	commandList->Close();
 }
 
-void ParticleRenderTask::SetBillboardMesh(Mesh* quadMesh)
+void ProgressBarRenderTask::SetBillboardMesh(Mesh* quadMesh)
 {
-	m_pParticleMesh = quadMesh;
+	m_pQuad = quadMesh;
+}
+
+void ProgressBarRenderTask::SetProgressBarComponents(std::vector<component::ProgressBarComponent*>* progressBarComponents)
+{
+	m_ProgressBarComponents = *progressBarComponents;
 }

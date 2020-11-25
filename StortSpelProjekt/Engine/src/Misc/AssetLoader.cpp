@@ -695,7 +695,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			}
 			else if (strcmp(lineHeader.c_str(), "ParticleCount") == 0)
 			{
-				fscanf(file, "%d", &particleSettings.particleCount);
+				fscanf(file, "%d", &particleSettings.maxParticleCount);
 			}
 			else if (strcmp(lineHeader.c_str(), "ParticleSpawnInterval") == 0)
 			{
@@ -970,7 +970,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 				else if (strcmp(toSubmit.c_str(), "ParticleEffect") == 0)
 				{
 					Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(AssetLoader::LoadTexture2D(to_wstring(fullParticleTexturePath)));
-					pe = entity->AddComponent<component::ParticleEmitterComponent>(particleTexture, &particleSettings, particlePlayOnInit);
+					particleSettings.texture = particleTexture;
+					pe = entity->AddComponent<component::ParticleEmitterComponent>(&particleSettings, particlePlayOnInit);
 				}
 			}
 		}

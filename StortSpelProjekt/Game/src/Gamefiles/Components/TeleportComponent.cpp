@@ -5,34 +5,38 @@
 #include "Player.h"
 #include "Shop.h"
 
+#include "ECS/Entity.h"
+
 component::TeleportComponent::TeleportComponent(Entity* parent, Entity* player, std::string newSceneName)
 	:Component(parent)
 {
 	m_NewSceneName = newSceneName;
 	m_pPlayerInstance = player;
-	EventBus::GetInstance().Subscribe(this, &TeleportComponent::OnCollision);
 }
 
 component::TeleportComponent::~TeleportComponent()
 {
-	EventBus::GetInstance().Unsubscribe(this, &TeleportComponent::OnCollision);
 }
 
 void component::TeleportComponent::OnInitScene()
 {
+	EventBus::GetInstance().Subscribe(this, &TeleportComponent::OnCollision);
 }
 
 void component::TeleportComponent::OnUnInitScene()
 {
+	EventBus::GetInstance().Unsubscribe(this, &TeleportComponent::OnCollision);
 }
 
 void component::TeleportComponent::OnCollision(Collision* collisionEvent)
 {
-	auto func = [](const std::string newSceneName)
+	auto func = [&](const std::string newSceneName)
 	{
 		EventBus::GetInstance().Publish(&SceneChange(newSceneName));
 		if (newSceneName == "ShopScene")
 		{
+			// Don't show old particles @(0,0,0) when tp:ing back
+			m_pParent->GetComponent<component::ParticleEmitterComponent>()->Clear();
 			Player::GetInstance().IsInShop(true);
 		}
 		else
