@@ -2,12 +2,12 @@
 
 #include "../ECS/Entity.h"
 #include "../Events/EventBus.h"
+#include "../Misc/NavMesh.h"
 
 Edge::Edge(unsigned int id)
 {
 	m_Id = id;
 	m_pConnectedWall = nullptr;
-	m_pNavTriangle = nullptr;
 }
 
 Edge::~Edge()
@@ -28,12 +28,17 @@ void Edge::RemoveEntitiesFromWorld()
 	m_Entities.clear();
 }
 
-void Edge::ConnectToWall(Edge* wallToConnectTo)
+void Edge::ConnectToWall(Edge* wallToConnectTo, NavMesh* navMesh)
 {
 	m_pConnectedWall = wallToConnectTo;
 	if (!wallToConnectTo->IsConnected())
 	{
-		wallToConnectTo->ConnectToWall(this);
+		int leastTriangles = std::min<int>(m_NavTriangles.size(), wallToConnectTo->GetNumTriangles());
+		for (int i = 0; i < leastTriangles; ++i)
+		{
+			navMesh->ConnectNavTriangles(m_NavTriangles[i], wallToConnectTo->GetNavTriangle(i));
+		}
+		wallToConnectTo->ConnectToWall(this, navMesh);
 	}
 }
 
@@ -54,11 +59,16 @@ unsigned int Edge::GetId()
 
 void Edge::AddNavTriangle(NavTriangle* tri)
 {
-	m_pNavTriangle = tri;
+	m_NavTriangles.push_back(tri);
 }
 
-NavTriangle* Edge::GetNavTriangle()
+NavTriangle* Edge::GetNavTriangle(unsigned int id)
 {
-	return m_pNavTriangle;
+	return m_NavTriangles[id];
+}
+
+int Edge::GetNumTriangles()
+{
+	return m_NavTriangles.size();
 }
 

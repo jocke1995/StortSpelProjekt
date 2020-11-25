@@ -107,7 +107,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             }
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
-            //enemyFactory.Update(updateRate);
+            enemyFactory.Update(updateRate);
             gameGUI.Update(updateRate, sceneManager->GetActiveScene());
             UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
@@ -141,8 +141,7 @@ Scene* GameScene(SceneManager* sm)
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
-    //al->LoadMap(scene, "../Vendor/Resources/FirstMap.map");
-	//al->LoadMap(scene, "../Vendor/Resources/BaseRoom.map");
+	//al->LoadMap(scene, "../Vendor/Resources/Rooms/EmptyRoom.map");
     al->GenerateMap(scene, "../Vendor/Resources/Rooms");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");   
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
@@ -337,8 +336,8 @@ Scene* GameScene(SceneManager* sm)
 #pragma region Enemyfactory
     enemyFactory.SetScene(scene);
     enemyFactory.AddSpawnPoint({ 70, 5, 20 });
-    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
-    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
+    //enemyFactory.AddSpawnPoint({ -20, 5, -190 });
+    //enemyFactory.AddSpawnPoint({ -120, 10, 75 });
     enemyFactory.DefineEnemy("enemyZombie", &zombie);
     enemyFactory.DefineEnemy("enemySpider", &spider);
     enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);

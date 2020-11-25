@@ -72,6 +72,7 @@ namespace component
 		bool m_PathFound;
 		bool m_IsRanged;
 		bool m_StandStill;
+		bool m_NewPath;
 
 		unsigned int m_Flags;
 
@@ -87,6 +88,7 @@ namespace component
 		float m_DistanceToPlayer;
 		float m_KnockBackTimer;
 		float m_TargetCircleRadius;
+		float m_TargetCircleTimer;
 
 		float3 m_StartPos;
 		float3 m_GoalPos;

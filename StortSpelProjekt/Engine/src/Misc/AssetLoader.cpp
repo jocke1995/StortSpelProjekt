@@ -1014,6 +1014,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					NavTriangle* tri = navMesh->AddNavTriangle(vertex1 + offset, vertex2 + offset, vertex3 + offset);
 					if (edgeId != -1)
 					{
+						edgeId += 6 * id;
 						m_Edges.at(edgeId)->AddNavTriangle(tri);
 						edgeId = -1;
 					}
@@ -1026,7 +1027,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					}
 					else if (std::strcmp(navMeshType.c_str(), "Triangles") == 0)
 					{
-						navMesh->ConnectNavTriangles(tri1, tri2);
+						navMesh->ConnectNavTriangles(tri1 + 6 * id, tri2 + 6 * id);
 					}
 				}
 				else if (strcmp(toSubmit.c_str(), "NavMesh") == 0)
@@ -1173,7 +1174,7 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSi
 				Edge* secondEdge = m_Edges.at(secondEdgeId);
 				if (!firstEdge->IsConnected())
 				{
-					firstEdge->ConnectToWall(secondEdge);
+					firstEdge->ConnectToWall(secondEdge, scene->GetNavMesh());
 					m_EdgesToRemove.push_back(firstEdgeId);
 					m_EdgesToRemove.push_back(secondEdgeId);
 				}

@@ -89,8 +89,10 @@ void CopyOnDemandTask::Execute()
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
 	// record the "small" data, such as constantbuffers..
+	int counter = 0;
 	for (auto& tuple : m_UploadDefaultData)
 	{
+		counter++;
 		copyResource(
 			commandList,
 			std::get<0>(tuple),		// UploadHeap
