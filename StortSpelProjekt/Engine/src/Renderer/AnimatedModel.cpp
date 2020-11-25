@@ -73,29 +73,13 @@ const std::vector<DirectX::XMFLOAT4X4>* AnimatedModel::GetUploadMatrices() const
 
 bool AnimatedModel::AddActiveAnimation(std::string animationName, bool loop)
 {
-	//for (auto& animation : m_pActiveAnimations)
-	//{
-	//	if (animation->name == animationName)
-	//	{
-	//		return false;
-	//	}
-	//}
-	//
-	//for (auto& animation : m_pPendingAnimations)
-	//{
-	//	if (animation->name == animationName)
-	//	{
-	//		return false;
-	//	}
-	//}
-	//
-	//for (auto& animation : m_pEndingAnimations)
-	//{
-	//	if (animation->name == animationName)
-	//	{
-	//		return false;
-	//	}
-	//}
+	if (!m_pActiveAnimations.empty())
+	{
+		if (m_pActiveAnimations[0]->name == animationName)
+		{
+			return false;
+		}
+	}
 
 	if (m_pPendingAnimations.empty())
 	{
@@ -111,6 +95,18 @@ bool AnimatedModel::AddActiveAnimation(std::string animationName, bool loop)
 					blendAnimations(0);
 					bindBlendedAnimation(m_pSkeleton);
 				}
+
+				// If the animation is looping it should stay active. Else we need to reactivate the previous looping animation.
+				if (animation->loop)
+				{
+					reactivateAnimation = nullptr;
+				}
+				else if (m_pActiveAnimations[0]->loop)
+				{
+					reactivateAnimation = m_pActiveAnimations[0];
+				}
+				EndActiveAnimation("test");
+
 				return true;
 			}
 		}
@@ -121,19 +117,28 @@ bool AnimatedModel::AddActiveAnimation(std::string animationName, bool loop)
 
 bool AnimatedModel::EndActiveAnimation(std::string animationName)
 {
-	unsigned int index = 0;
-	for (auto& animation : m_pActiveAnimations)
+
+	if (!m_pActiveAnimations.empty() && !m_pPendingAnimations.empty())
 	{
-		if (animation->name == animationName)
-		{
-			m_pActiveAnimations.erase(m_pActiveAnimations.begin() + index);
-			m_pEndingAnimations.push_back(animation);
-			blendAnimations(0);
-			bindBlendedAnimation(m_pSkeleton);
-			return true;
-		}
-		index++;
+		m_pEndingAnimations.push_back(m_pActiveAnimations[0]);
+		m_pActiveAnimations.pop_back();
+		blendAnimations(0);
+		bindBlendedAnimation(m_pSkeleton);
 	}
+
+	//unsigned int index = 0;
+	//for (auto& animation : m_pActiveAnimations)
+	//{
+	//	if (animation->name == animationName)
+	//	{
+	//		m_pActiveAnimations.erase(m_pActiveAnimations.begin() + index);
+	//		m_pEndingAnimations.push_back(animation);
+	//		blendAnimations(0);
+	//		bindBlendedAnimation(m_pSkeleton);
+	//		return true;
+	//	}
+	//	index++;
+	//}
 
 	return false;
 }
@@ -148,10 +153,14 @@ void AnimatedModel::Update(double dt)
 			// remove all finished animations from the active animations vector
 			if (animation->finished)
 			{
-				m_pEndingAnimations.push_back(animation);
-				m_pActiveAnimations.erase(m_pActiveAnimations.begin() + index);
+				if (reactivateAnimation)
+				{
+					AddActiveAnimation(reactivateAnimation->name, reactivateAnimation->loop);
+				}
+				//m_pEndingAnimations.push_back(animation);
+				//m_pActiveAnimations.erase(m_pActiveAnimations.begin() + index);
 				animation->finished = false;
-				AddActiveAnimation("Idle", true);
+				//AddActiveAnimation("Idle", true);
 			}
 			else
 			{

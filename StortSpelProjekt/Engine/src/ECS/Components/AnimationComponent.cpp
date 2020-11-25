@@ -55,12 +55,12 @@ void component::AnimationComponent::walkAnimation(MovementInput* evnt)
 		Input::GetInstance().GetKeyState(SCAN_CODES::D)	)
 	{
 		m_pAnimatedModel->AddActiveAnimation("Walk", true);
-		m_pAnimatedModel->EndActiveAnimation("Idle");
+		//m_pAnimatedModel->EndActiveAnimation("Idle");
 	}
 	else
 	{
 		m_pAnimatedModel->AddActiveAnimation("Idle", true);
-		m_pAnimatedModel->EndActiveAnimation("Walk");
+		//m_pAnimatedModel->EndActiveAnimation("Walk");
 	}
 }
 
@@ -69,8 +69,8 @@ void component::AnimationComponent::attackAnimation(MouseClick* evnt)
 	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN)
 	{
 		m_pAnimatedModel->AddActiveAnimation("Claw_attack_left", false);
-		m_pAnimatedModel->EndActiveAnimation("Idle");
-		m_pAnimatedModel->EndActiveAnimation("Walk");
+		//m_pAnimatedModel->EndActiveAnimation("Idle");
+		//m_pAnimatedModel->EndActiveAnimation("Walk");
 	}
 	else
 	{
