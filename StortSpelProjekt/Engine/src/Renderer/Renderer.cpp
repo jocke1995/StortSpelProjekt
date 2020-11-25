@@ -17,6 +17,7 @@
 #include "../ECS/Components/ModelComponent.h"
 #include "../ECS/Components/SkyboxComponent.h"
 #include "../ECS/Components/ParticleEmitterComponent.h"
+#include "../ECS/Components/ProgressBarComponent.h"
 #include "../ECS/Components/BoundingBoxComponent.h"
 #include "../ECS/Components/CameraComponent.h"
 #include "../ECS/Components/Lights/DirectionalLightComponent.h"
@@ -74,6 +75,7 @@
 #include "DX12Tasks/SkyboxRenderTask.h"
 #include "DX12Tasks/QuadTask.h"
 #include "DX12Tasks/ParticleRenderTask.h"
+#include "DX12Tasks/ProgressBarRenderTask.h"
 
 // Copy 
 #include "DX12Tasks/CopyPerFrameTask.h"
@@ -412,6 +414,11 @@ void Renderer::Execute()
 
 	// Opaque draw
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	m_pThreadPool->AddTask(renderTask);
+
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	m_pThreadPool->AddTask(renderTask);
@@ -802,8 +809,13 @@ void Renderer::InitParticleEmitterComponent(component::ParticleEmitterComponent*
 	auto mc = nullptr; // Particles don't have support for meshcomponent
 	auto tc = component->GetParent()->GetComponent<component::TransformComponent>();
 	
-	Texture* texture = static_cast<Texture*>(component->GetParticleEffect()->GetTexture());
-	submitTextureToCodt(texture);
+	// Load all textures
+	const std::vector<ParticleEffect*>* effects = component->GetParticleEffects();
+	for (unsigned int i = 0; i < effects->size(); i++)
+	{
+		Texture* texture = static_cast<Texture*>(effects->at(i)->GetTexture());
+		submitTextureToCodt(texture);
+	}
 
 	if (tc != nullptr)
 	{
@@ -811,8 +823,43 @@ void Renderer::InitParticleEmitterComponent(component::ParticleEmitterComponent*
 	}
 }
 
+void Renderer::InitProgressBarComponent(component::ProgressBarComponent* component)
+{
+	// Add to the renderTask
+	m_ProgressBarComponents.push_back(component);
+
+	// Create constant buffers
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		component->m_ConstantBuffers[i] = new ConstantBuffer(
+												m_pDevice5,
+												sizeof(PROGRESS_BAR_DATA),
+												L"PROGRESSBAR_CB_",
+												m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	}
+	
+	// Submit to GPU
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		// Submit data to cpft
+		const void* data = static_cast<const void*>(&component->m_QuadData[i]);
+		Resource* uploadR = component->m_ConstantBuffers[i]->GetUploadResource();
+		Resource* defaultR = component->m_ConstantBuffers[i]->GetDefaultResource();
+		submitToCpft(&std::make_tuple(uploadR, defaultR, data));
+
+		// Submit textures to codt
+		submitTextureToCodt(component->m_Textures[i]);
+	}
+
+	
+	
+	// Update the vector in the renderTask
+	setProgressBarComponents();
+}
+
 void Renderer::UnInitSkyboxComponent(component::SkyboxComponent* component)
 {
+	
 }
 
 void Renderer::UnInitModelComponent(component::ModelComponent* component)
@@ -1033,6 +1080,28 @@ void Renderer::UnInitParticleEmitterComponent(component::ParticleEmitterComponen
 	}
 }
 
+void Renderer::UnInitProgressBarComponent(component::ProgressBarComponent* component)
+{
+	// Remove from renderer so it wont be drawn in the renderTask
+	unsigned int counter = 0;
+	for (component::ProgressBarComponent* pbc : m_ProgressBarComponents)
+	{
+		if (pbc == component)
+		{
+			m_ProgressBarComponents.erase(m_ProgressBarComponents.begin() + counter);
+		}
+		counter++;
+	}
+	// Update the vector in the renderTask
+	setProgressBarComponents();
+	
+	// Remove from CopyPerFrame
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		clearSpecificCpft(component->m_ConstantBuffers[i]->GetUploadResource());
+	}
+}
+
 void Renderer::OnResetScene()
 {
 	// Lights will be cleared in respective UninitComponent function
@@ -1200,6 +1269,7 @@ void Renderer::setRenderTasksPrimaryCamera()
 	m_RenderTasks[RENDER_TASK_TYPE::OUTLINE]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::SKYBOX]->SetCamera(m_pScenePrimaryCamera);
 	m_RenderTasks[RENDER_TASK_TYPE::PARTICLE]->SetCamera(m_pScenePrimaryCamera);
+	m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR]->SetCamera(m_pScenePrimaryCamera);
 
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
@@ -1621,6 +1691,57 @@ void Renderer::initRenderTasks()
 	forwardRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
 
 #pragma endregion ForwardRendering
+
+#pragma region ProgressBar
+	/* Forward rendering without stencil testing */
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsdProgressBar = {};
+	gpsdProgressBar.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	// RenderTarget
+	gpsdProgressBar.NumRenderTargets = 1;
+	gpsdProgressBar.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	// Depthstencil usage
+	gpsdProgressBar.SampleDesc.Count = 1;
+	gpsdProgressBar.SampleMask = UINT_MAX;
+	// Rasterizer behaviour
+	gpsdProgressBar.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	gpsdProgressBar.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdProgressBar.RasterizerState.FrontCounterClockwise = false;
+
+	for (unsigned int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		gpsdProgressBar.BlendState.RenderTarget[i] = defaultRTdesc;
+
+	// Depth descriptor
+	dsd = {};
+	dsd.DepthEnable = true;
+	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
+	// DepthStencil
+	dsd.StencilEnable = false;
+	gpsdProgressBar.DepthStencilState = dsd;
+	gpsdProgressBar.DSVFormat = m_pMainDepthStencil->GetDSV()->GetDXGIFormat();
+
+	std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*> gpsdProgressBarVector;
+	gpsdProgressBarVector.push_back(&gpsdProgressBar);
+
+	RenderTask* progressBarRenderTask = new ProgressBarRenderTask(
+		m_pDevice5,
+		m_pRootSignature,
+		L"ProgressBarVertex.hlsl",
+		L"ProgressBarPixel.hlsl",
+		&gpsdProgressBarVector,
+		L"ProgressBarPSO",
+		FLAG_THREAD::RENDER);
+
+	progressBarRenderTask->AddResource("cbPerFrame", m_pCbPerFrame->GetDefaultResource());
+	progressBarRenderTask->SetMainDepthStencil(m_pMainDepthStencil);
+	progressBarRenderTask->SetSwapChain(m_pSwapChain);
+	progressBarRenderTask->SetDescriptorHeaps(m_DescriptorHeaps);
+
+	static_cast<ProgressBarRenderTask*>(progressBarRenderTask)->SetBillboardMesh(m_pQuadMesh);
+
+#pragma endregion ProgressBar
 
 #pragma region DownSampleTextureTask
 	/* Forward rendering without stencil testing */
@@ -2218,6 +2339,7 @@ void Renderer::initRenderTasks()
 	m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE] = downSampleTask;
 	m_RenderTasks[RENDER_TASK_TYPE::QUAD] = quadTask;
 	m_RenderTasks[RENDER_TASK_TYPE::PARTICLE] = particleRenderTask;
+	m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR] = progressBarRenderTask;
 
 	// Pushback in the order of execution
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
@@ -2301,6 +2423,11 @@ void Renderer::initRenderTasks()
 		m_DirectCommandLists[i].push_back(mergeTask->GetCommandInterface()->GetCommandList(i));
 	}
 
+	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
+	{
+		m_DirectCommandLists[i].push_back(progressBarRenderTask->GetCommandInterface()->GetCommandList(i));
+	}
+
 	// GUI
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
@@ -2374,6 +2501,11 @@ void Renderer::setRenderTasksGUI2DComponents()
 {
 	static_cast<QuadTask*>(m_RenderTasks[RENDER_TASK_TYPE::QUAD])->SetQuadComponents(&m_QuadComponents);
 	static_cast<TextTask*>(m_RenderTasks[RENDER_TASK_TYPE::TEXT])->SetTextComponents(&m_TextComponents);
+}
+
+void Renderer::setProgressBarComponents()
+{
+	static_cast<ProgressBarRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR])->SetProgressBarComponents(&m_ProgressBarComponents);
 }
 
 void Renderer::waitForFrame(unsigned int framesToBeAhead)

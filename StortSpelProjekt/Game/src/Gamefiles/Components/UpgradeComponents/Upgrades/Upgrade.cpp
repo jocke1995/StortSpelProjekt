@@ -88,6 +88,10 @@ void Upgrade::RenderUpdate(double dt)
 void Upgrade::SetLevel(unsigned int lvl)
 {
 	m_Level = lvl;
+	if (lvl == 0)
+	{
+		m_Price = m_StartingPrice;
+	}
 }
 
 
@@ -104,7 +108,7 @@ void Upgrade::OnHit(Entity* target)
 {
 }
 
-void Upgrade::OnRangedHit(Entity* target)
+void Upgrade::OnRangedHit(Entity* target, Entity* projectile)
 {
 }
 

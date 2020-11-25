@@ -6,6 +6,12 @@
 #include "Misc/EngineRand.h"
 #include "Physics/CollisionCategories/EnemyCollisionCategory.h"
 
+EnemyFactory& EnemyFactory::GetInstance()
+{
+	static EnemyFactory instance;
+	return instance;
+}
+
 EnemyFactory::EnemyFactory()
 {
 	m_Level = 0;
@@ -24,26 +30,6 @@ EnemyFactory::EnemyFactory()
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onRoundStart);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onResetGame);
 }
-
-EnemyFactory::EnemyFactory(Scene* scene)
-{
-	m_Level = 0;
-	m_pScene = scene;
-	m_MaxEnemies = 30;
-	m_LevelMaxEnemies = 20;
-	m_EnemiesKilled = 0;
-	m_EnemiesToSpawn = 0;
-	m_EnemySlotsLeft = m_LevelMaxEnemies;
-	m_SpawnCooldown = 5;
-	m_MinimumDistanceToPlayer = 1;
-	m_SpawnTimer = 0.0f;
-	m_RandGen.SetSeed(time(NULL));
-	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
-	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
-	EventBus::GetInstance().Subscribe(this, &EnemyFactory::levelDone);
-	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onRoundStart);
-}
-
 EnemyFactory::~EnemyFactory()
 {
 	EventBus::GetInstance().Unsubscribe(this, &EnemyFactory::onSceneSwitch);
@@ -403,14 +389,26 @@ void EnemyFactory::Update(double dt)
 
 			unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
 			int spawnNumber = m_RandGen.Rand(1, 100);
-			if (spawnNumber <= m_EnemyComps.find("enemyDemon")->second->spawnChance)
+			int spawnChance = 0;
+			bool spawnDefault = true;
+			for (auto enemy : m_EnemyComps)
 			{
-				SpawnEnemy("enemyDemon", eligblePoints[point]);
+				if (enemy.second != nullptr)
+				{
+					spawnChance += enemy.second->spawnChance;
+					if (spawnNumber <= spawnChance)
+					{
+						SpawnEnemy(enemy.first, eligblePoints[point]);
+						spawnDefault = false;
+						break;
+					}
+				}
 			}
-			else
+			if (spawnDefault)
 			{
 				SpawnEnemy("enemyZombie", eligblePoints[point]);
 			}
+
 			m_EnemiesToSpawn--;
 			m_EnemySlotsLeft--;
 		}
@@ -472,18 +470,39 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	m_EnemySlotsLeft = m_LevelMaxEnemies;
 
 	// melee
-	m_EnemyComps.find("enemyZombie")->second->hp = m_EnemyComps.find("enemyZombie")->second->hpBase * pow(1.15, m_Level);
-	m_EnemyComps.find("enemyZombie")->second->meleeAttackDmg = m_EnemyComps.find("enemyZombie")->second->meleeAttackDmgBase + 1 * m_Level;
-	m_EnemyComps.find("enemyZombie")->second->movementSpeed = m_EnemyComps.find("enemyZombie")->second->movementSpeedBase + 1 * m_Level;
+	if (m_EnemyComps["enemyZombie"] != nullptr)
+	{
+		m_EnemyComps["enemyZombie"]->hp = m_EnemyComps["enemyZombie"]->hpBase * pow(1.15, m_Level);
+		m_EnemyComps["enemyZombie"]->meleeAttackDmg = m_EnemyComps["enemyZombie"]->meleeAttackDmgBase + 1 * m_Level;
+		m_EnemyComps["enemyZombie"]->movementSpeed = m_EnemyComps["enemyZombie"]->movementSpeedBase + 1 * m_Level;
+	}
+
+	// meelee quick
+	if (m_EnemyComps["enemySpider"] != nullptr)
+	{
+		m_EnemyComps["enemySpider"]->hp = m_EnemyComps["enemySpider"]->hpBase * pow(1.1, m_Level);
+		m_EnemyComps["enemySpider"]->meleeAttackDmg = m_EnemyComps["enemySpider"]->meleeAttackDmgBase + 1 * m_Level;
+		m_EnemyComps["enemySpider"]->movementSpeed = m_EnemyComps["enemySpider"]->movementSpeedBase + 1 * m_Level;
+		if (m_Level > 0)
+		{
+			if (m_EnemyComps["enemySpider"]->spawnChance < 20)
+			{
+				m_EnemyComps["enemySpider"]->spawnChance += 10;
+			}
+		}
+	}
 
 	// ranged
-	m_EnemyComps.find("enemyDemon")->second->hp = m_EnemyComps.find("enemyDemon")->second->hpBase * pow(1.10, m_Level);
-	m_EnemyComps.find("enemyDemon")->second->rangeAttackDmg = m_EnemyComps.find("enemyDemon")->second->rangeAttackDmgBase + 2 * m_Level;
-	if (m_Level > 0)
+	if (m_EnemyComps["enemyDemon"] != nullptr)
 	{
-		if (m_EnemyComps.find("enemyDemon")->second->spawnChance < 40)
+		m_EnemyComps["enemyDemon"]->hp = m_EnemyComps["enemyDemon"]->hpBase * pow(1.10, m_Level);
+		m_EnemyComps["enemyDemon"]->rangeAttackDmg = m_EnemyComps["enemyDemon"]->rangeAttackDmgBase + 2 * m_Level;
+		if (m_Level > 0)
 		{
-			m_EnemyComps.find("enemyDemon")->second->spawnChance += 5;
+			if (m_EnemyComps["enemyDemon"]->spawnChance < 40)
+			{
+				m_EnemyComps["enemyDemon"]->spawnChance += 5;
+			}
 		}
 	}
 
@@ -499,6 +518,7 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 void EnemyFactory::onResetGame(ResetGame* evnt)
 {
 	m_Level = 0;
-	m_EnemyComps.find("enemyDemon")->second->spawnChance = 0;
-	m_EnemyComps.find("enemyZombie")->second->spawnChance = 0;
+	m_EnemyComps["enemyDemon"]->spawnChance = 0;
+	m_EnemyComps["enemyZombie"]->spawnChance = 0;
+	m_EnemyComps["enemySpider"]->spawnChance = 0;
 }

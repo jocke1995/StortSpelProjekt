@@ -15,6 +15,8 @@
 #include "Components/UpgradeComponents/Upgrades/UpgradeHealthRegen.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeDamage.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeMeleeAttackSpeed.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeRangeAttackSpeed.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeExplosiveAttack.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
 {
@@ -217,6 +219,20 @@ void UpgradeManager::fillUpgradeMap()
 	upgrade->SetID(UPGRADE_MELEE_ATTACKSPEED);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding Explosive Attack Upgrade
+	upgrade = new UpgradeExplosiveAttack(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_EXPLOSIVE_ATTACK);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding Range Attack Speed Upgrade
+	upgrade = new UpgradeRangeAttackSpeed(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_ATTACKSPEED);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 }
 
 bool UpgradeManager::checkIfRangeUpgrade(std::string name)
@@ -283,6 +299,12 @@ Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 		break;
 	case UPGRADE_MELEE_ATTACKSPEED:
 		return new UpgradeMeleeAttackSpeed(ent);
+		break;
+	case UPGRADE_RANGE_ATTACKSPEED:
+		return new UpgradeRangeAttackSpeed(ent);
+		break;
+	case UPGRADE_EXPLOSIVE_ATTACK:
+		return new UpgradeExplosiveAttack(ent);
 		break;
 	default:
 		break;

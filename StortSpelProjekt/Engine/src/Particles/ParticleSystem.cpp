@@ -45,7 +45,6 @@ void ParticleSystem::ActivateParticleEffect(ParticleEffect* effect)
 {
 	m_ActiveParticleEffects.insert(effect);
 	effect->m_TimeSinceSpawn = 0;
-	effect->SetIsSpawning(true);
 
 	// Add to COPY_PER_FRAME
 	Renderer& renderer = Renderer::GetInstance();
@@ -58,7 +57,6 @@ void ParticleSystem::ActivateParticleEffect(ParticleEffect* effect)
 void ParticleSystem::DeactivateParticleEffect(ParticleEffect* effect)
 {
 	m_ActiveParticleEffects.erase(effect);
-	effect->SetIsSpawning(false);
 
 	// remove from COPY_PER_FRAME
 	Renderer& renderer = Renderer::GetInstance();

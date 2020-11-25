@@ -99,29 +99,33 @@ void ParticleRenderTask::Execute()
 				Log::PrintSeverity(Log::Severity::CRITICAL, "ParticleComponent was nullptr!!, plez fix\n");
 				return;
 			}
-			ParticleEffect* effect = &pec->m_ParticleEffect;
+			std::vector<ParticleEffect*>* effects = &pec->m_ParticleEffects;
 
-			// Test to multiply in render (Later do it in compute)
-			commandList->SetGraphicsRootShaderResourceView(RS::SRV0, effect->m_pSRV->GetResource()->GetGPUVirtualAdress());
+			// Draw each effect
+			for (unsigned int i = 0; i < effects->size(); i++)
+			{
+				// Test to multiply in render (Later do it in compute)
+				commandList->SetGraphicsRootShaderResourceView(RS::SRV0, effects->at(i)->m_pSRV->GetResource()->GetGPUVirtualAdress());
 
-			Texture2DGUI* texture = pec->GetParticleEffect()->GetTexture();
+				Texture2DGUI* texture = effects->at(i)->GetTexture();
 
-			// Draw a quad (m_pParticleQuad)
-			size_t num_Indices = m_pParticleMesh->GetNumIndices();
-			SlotInfo info = {};
-			info.vertexDataIndex = m_pParticleMesh->GetSRV()->GetDescriptorHeapIndex();
-			info.textureAlbedo = texture->GetDescriptorHeapIndex();
+				// Draw a quad (m_pParticleQuad)
+				size_t num_Indices = m_pParticleMesh->GetNumIndices();
+				SlotInfo info = {};
+				info.vertexDataIndex = m_pParticleMesh->GetSRV()->GetDescriptorHeapIndex();
+				info.textureAlbedo = texture->GetDescriptorHeapIndex();
 
-			DirectX::XMMATRIX VPTransposed = *viewProjMatTrans;
+				DirectX::XMMATRIX VPTransposed = *viewProjMatTrans;
 
-			// Create a CB_PER_OBJECT struct
-			// Hack: sending in tcPos specially in this renderTask
-			CB_PER_OBJECT_STRUCT perObject = { {}, VPTransposed, info };
+				// Create a CB_PER_OBJECT struct
+				// Hack: sending in tcPos specially in this renderTask
+				CB_PER_OBJECT_STRUCT perObject = { {}, VPTransposed, info };
 
-			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-			commandList->IASetIndexBuffer(m_pParticleMesh->GetIndexBufferView());
-			commandList->DrawIndexedInstanced(num_Indices, effect->m_Settings.particleCount, 0, 0, 0);
+				commandList->IASetIndexBuffer(m_pParticleMesh->GetIndexBufferView());
+				commandList->DrawIndexedInstanced(num_Indices, effects->at(i)->m_Settings.maxParticleCount, 0, 0, 0);
+			}
 		}
 	}
 

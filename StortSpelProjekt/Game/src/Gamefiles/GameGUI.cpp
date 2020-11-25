@@ -36,8 +36,13 @@ void GameGUI::Update(double dt, Scene* scene)
 
 	if (scene->GetName() == "OptionScene")
 	{
-		Entity* entity = scene->GetEntity("volume");
+		Entity* entity = nullptr;
+
+		entity = scene->GetEntity("volume");
 		entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(Option::GetInstance().GetVariable("f_volume"), "volume");
+
+		entity = scene->GetEntity("MouseSensitivity");
+		entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(Option::GetInstance().GetVariable("f_sensitivityX"), "MouseSensitivity");
 	}
 
 	if (scene != m_pOldScene)
