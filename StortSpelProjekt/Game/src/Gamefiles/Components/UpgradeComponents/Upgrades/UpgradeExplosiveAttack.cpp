@@ -63,7 +63,7 @@ void UpgradeExplosiveAttack::OnRangedHit(Entity* target)
 		}
 
 		ParticleEffectSettings settings = {};
-		settings.particleCount = 20;
+		settings.maxParticleCount = 20;
 		settings.startValues.lifetime = 1.0;
 		settings.spawnInterval = 0.001;
 		settings.startValues.acceleration = { 0, 0, 0 };
