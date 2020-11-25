@@ -12,9 +12,9 @@
 component::PoisonDebuff::PoisonDebuff(Entity* parent, int damagePerTick, int ticks, double tickDuration, float percentageSlow) : Component(parent)
 {
 	ParticleEffectSettings settings = {};
-	settings.particleCount = 50;
+	settings.maxParticleCount = 50;
 	settings.startValues.lifetime = 0.5;
-	settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+	settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
 	settings.startValues.acceleration = { 0, -2, 0 };
 
 	// Need to fix EngineRand.rand() for negative values
@@ -26,7 +26,9 @@ component::PoisonDebuff::PoisonDebuff(Entity* parent, int damagePerTick, int tic
 	settings.randRotationSpeed = { 0, 3 };
 
 	Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/poison_particle.png"));
-	parent->AddComponent<component::ParticleEmitterComponent>(particleTexture, &settings, true);
+	settings.texture = particleTexture;
+
+	parent->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 	parent->GetComponent<component::ParticleEmitterComponent>()->OnInitScene();
 	Reset(damagePerTick, ticks, tickDuration, percentageSlow);
 }
