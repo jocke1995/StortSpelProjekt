@@ -420,7 +420,6 @@ void MainMenuHandler::createOptionScene()
     guic->GetTextManager()->SetText(textToRender, "MouseSensitivity");
     guic->GetTextManager()->SetBlend(textBlend, "MouseSensitivity");
 
-    // No idea what this is
     //guic->GetQuadManager()->CreateQuad(
     //    "money",
     //    { 0.7f, 0.65f }, { 0.1f, 0.1f },
@@ -791,8 +790,15 @@ void onMouseSensitivityPlus(const std::string& name)
     if (std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) < 10)
     {
         std::ostringstream str;
+
+        // X
         str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) + 0.1f;
         Option::GetInstance().SetVariable("f_sensitivityX", str.str());
+
+        // Y
+        str.str("");
+        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityY")) + 0.1f;
+        Option::GetInstance().SetVariable("f_sensitivityY", str.str());
 
         Option::GetInstance().WriteFile();
     }
@@ -800,9 +806,16 @@ void onMouseSensitivityPlus(const std::string& name)
 
 void onMouseSensitivityMinus(const std::string& name)
 {
-    if (std::stof(Option::GetInstance().GetVariable("f_sensitivityY")) > 0)
+    if (std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) > 0)
     {
         std::ostringstream str;
+
+        // X
+        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) - 0.1f;
+        Option::GetInstance().SetVariable("f_sensitivityX", str.str());
+
+        // Y
+        str.str("");
         str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityY")) - 0.1f;
         Option::GetInstance().SetVariable("f_sensitivityY", str.str());
 
