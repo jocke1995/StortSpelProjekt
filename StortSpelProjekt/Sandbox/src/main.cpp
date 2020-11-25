@@ -734,18 +734,16 @@ Scene* JockesTestScene(SceneManager* sm)
     /* ---------------------- dirLight ---------------------- */
 
     /* ---------------------- Particle ---------------------- */
-
     entity = scene->AddEntity("particleEffect");
     std::vector<ParticleEffectSettings> vec;
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
     settings.maxParticleCount = 50;
-    settings.startValues.lifetime = 2.5;
+    settings.startValues.lifetime = 1.0;
     settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
     settings.isLooping = false;
     settings.startValues.acceleration = { 0, -5, 0 };
-
 
     // Need to fix EngineRand.rand() for negative values
     RandomParameter3 randParam1 = { -2, 2, -2, 2, -2, 2 };
