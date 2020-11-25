@@ -18,6 +18,13 @@ AnimatedModel::AnimatedModel(
 
 	m_pSkeleton = rootNode;
 	m_Animations = (*animations);
+	//for (auto& animation : m_Animations)
+	//{
+	//	if (animation->name == "Spell_One_Handed")
+	//	{
+	//		animation->ticksPerSecond = 60;
+	//	}
+	//}
 	m_UploadMatrices.reserve(MAX_ANIMATION_MATRICES);
 	queuedAnimation = nullptr;
 	reactivateAnimation = nullptr;

@@ -140,7 +140,7 @@ Scene* GameScene(SceneManager* sm)
     AssetLoader* al = AssetLoader::Get();
 
     al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/ignoredModels/DemonAnimated/demonAnimated.fbx");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/ignoredModels/Female/FemaleAnimated.fbx");
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
