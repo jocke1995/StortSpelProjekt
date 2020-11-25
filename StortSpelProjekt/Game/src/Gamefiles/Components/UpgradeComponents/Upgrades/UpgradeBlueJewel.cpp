@@ -9,7 +9,7 @@ UpgradeBlueJewel::UpgradeBlueJewel(Entity* parentEntity) : Upgrade(parentEntity)
 	// set the type of the upgrade
 	SetType(F_UpgradeType::PLAYER);
 	// set the price of the upgrade
-	m_Price = 1000;
+	m_Price = 900;
 	m_StartingPrice = m_Price;
 
 	m_ImageName = "BlueJewel.png";
@@ -38,7 +38,7 @@ void UpgradeBlueJewel::IncreaseLevel()
 	// increase the boost
 	m_DamageReduction = pow(m_StartDamageReduction, m_Level);
 	// increase the price of the upgrade
-	m_Price = m_StartingPrice * (m_Level + 1);
+	m_Price += m_StartingPrice;
 }
 
 std::string UpgradeBlueJewel::GetDescription(unsigned int level)
