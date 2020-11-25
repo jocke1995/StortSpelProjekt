@@ -4,6 +4,7 @@
 #include "GameGUI.h"
 #include "Physics/CollisionCategories/PlayerCollisionCategory.h"
 #include "Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
+#include "../ECS/Components/TemporaryLifeComponent.h"
 
 // Game includes
 #include "Player.h"
@@ -24,7 +25,6 @@ void GameInitScene(Scene* scene);
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
-EnemyFactory enemyFactory;
 GameGUI gameGUI;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -74,7 +74,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     {
         gameNetwork.SetScene(sceneManager->GetActiveScene());
         gameNetwork.SetSceneManager(sceneManager);
-        gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
+        gameNetwork.SetEnemies(EnemyFactory::GetInstance().GetAllEnemies());
     }
     double networkTimer = 0;
     double logicTimer = 0;
@@ -107,7 +107,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             }
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
-            enemyFactory.Update(updateRate);
+            EnemyFactory::GetInstance().Update(updateRate);
             gameGUI.Update(updateRate, sceneManager->GetActiveScene());
             UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
@@ -335,16 +335,16 @@ Scene* GameScene(SceneManager* sm)
 #pragma endregion
 
 #pragma region Enemyfactory
-    enemyFactory.SetScene(scene);
+    EnemyFactory::GetInstance().SetScene(scene);
 
     for (auto point : spawnPoints)
     {
-        enemyFactory.AddSpawnPoint(point);
+        EnemyFactory::GetInstance().AddSpawnPoint(point);
     }
 
-    enemyFactory.DefineEnemy("enemyZombie", &zombie);
-    enemyFactory.DefineEnemy("enemySpider", &spider);
-    enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
+    EnemyFactory::GetInstance().DefineEnemy("enemyZombie", &zombie);
+    EnemyFactory::GetInstance().DefineEnemy("enemySpider", &spider);
+    EnemyFactory::GetInstance().DefineEnemy("enemyDemon", &rangedDemon);
 #pragma endregion
 
 #pragma region teleporter
@@ -353,6 +353,24 @@ Scene* GameScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "ShopScene");
+
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.maxParticleCount = 100;
+    settings.startValues.lifetime = 0.8;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
+    settings.startValues.acceleration = { 0, 0, 0 };
+
+    // Need to fix EngineRand.rand() for negative values
+
+    settings.randPosition = { -6, 6, 0, 15, -6, 6 };
+    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
+    settings.randSize = { 0.3, 0.9 };
+    settings.randRotationSpeed = { 0, 1 };
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
+    settings.texture = particleTexture;
+    pec = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
 
     mc->SetModel(teleportModel);
@@ -654,6 +672,24 @@ Scene* ShopScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "GameScene");
+
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.maxParticleCount = 100;
+    settings.startValues.lifetime = 0.8;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
+    settings.startValues.acceleration = { 0, 0, 0 };
+
+    // Need to fix EngineRand.rand() for negative values
+
+    settings.randPosition = { -6, 6, 0, 15, -6, 6};
+    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
+    settings.randSize = { 0.3, 0.9 };
+    settings.randRotationSpeed = { 0, 1 };
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
+    settings.texture = particleTexture;
+    pec = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
     
     mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);

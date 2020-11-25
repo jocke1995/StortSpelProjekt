@@ -735,7 +735,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 			}
 			else if (strcmp(lineHeader.c_str(), "ParticleCount") == 0)
 			{
-				fscanf(file, "%d", &particleSettings.particleCount);
+				fscanf(file, "%d", &particleSettings.maxParticleCount);
 			}
 			else if (strcmp(lineHeader.c_str(), "ParticleSpawnInterval") == 0)
 			{
