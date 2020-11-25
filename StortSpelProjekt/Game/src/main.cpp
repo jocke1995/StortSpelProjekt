@@ -214,6 +214,8 @@ Scene* GameScene(SceneManager* sm)
 
     Player::GetInstance().SetPlayer(entity);
 
+    currc->SetBalance(10000000000);
+
     tc->GetTransform()->SetScale(0.9f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
     tc->SetTransformOriginalState();

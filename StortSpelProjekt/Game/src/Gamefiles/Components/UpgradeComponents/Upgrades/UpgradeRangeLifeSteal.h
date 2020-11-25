@@ -13,7 +13,7 @@ public:
 
 	// Inherited functions that are needed for this upgrade
 	void IncreaseLevel();
-	void OnRangedHit(Entity* target);
+	void OnRangedHit(Entity* target, Entity* projectile);
 	void ApplyBoughtUpgrade();
 
 	std::string GetDescription(unsigned int level);

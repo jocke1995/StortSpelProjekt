@@ -30,7 +30,7 @@ void UpgradeRangeLifeSteal::IncreaseLevel()
 	m_Price = 300 * pow(m_Level + 1,2);
 }
 
-void UpgradeRangeLifeSteal::OnRangedHit(Entity* target)
+void UpgradeRangeLifeSteal::OnRangedHit(Entity* target, Entity* projectile)
 {
 	// get damage from projectile
 	int damage = m_pParentEntity->GetComponent<component::ProjectileComponent>()->GetDamage();
