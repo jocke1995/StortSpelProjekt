@@ -25,8 +25,6 @@ void AndresUpdateScene(SceneManager* sm, double dt);
 
 EnemyFactory enemyFactory;
 
-static component::ParticleEmitterComponent* pee = nullptr;
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -101,7 +99,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         {
             networkTimer += timer->GetDeltaTime();
         }
-
         
 
         sceneManager->RenderUpdate(timer->GetDeltaTime());
@@ -783,11 +780,11 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.particleCount = 30;
+    settings.maxParticleCount = 3;
     settings.startValues.lifetime = 3;
-    settings.spawnInterval = 0.000001;
+    settings.spawnInterval = 0.5;
     settings.startValues.acceleration = {0, -6.5, 0};
-    settings.isLooping = false;
+    settings.isLooping = true;
 
     // Need to fix EngineRand.rand() for negative values
 
@@ -801,7 +798,7 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     vec.push_back(settings);
 
-    pee = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
 
 
     /* ---------------------- Skybox ---------------------- */
@@ -828,25 +825,25 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     
 
-    // Create test particleEffect
-    settings = {};
-    settings.particleCount = 1200;
-    settings.startValues.lifetime = 15;
-    settings.startValues.acceleration = {0, 0, 0};
-    settings.startValues.position = {0, 200, 0};
-    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
-    
-    // Need to fix EngineRand.rand() for negative values
-    
-    settings.randPosition = { -400, 400, 0, 0, -400, 400 };
-    settings.randVelocity = { -2, 2, -20, -12, -2, 2 };
-    settings.randSize = { 3, 7 };
-    settings.randRotationSpeed = { -3, 3 };
-    
-    particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/default_particle.png"));
-    settings.texture = particleTexture;
-
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+    //// Create test particleEffect
+    //settings = {};
+    //settings.maxParticleCount = 1200;
+    //settings.startValues.lifetime = 15;
+    //settings.startValues.acceleration = {0, 0, 0};
+    //settings.startValues.position = {0, 200, 0};
+    //settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
+    //
+    //// Need to fix EngineRand.rand() for negative values
+    //
+    //settings.randPosition = { -400, 400, 0, 0, -400, 400 };
+    //settings.randVelocity = { -2, 2, -20, -12, -2, 2 };
+    //settings.randSize = { 3, 7 };
+    //settings.randRotationSpeed = { -3, 3 };
+    //
+    //particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/default_particle.png"));
+    //settings.texture = particleTexture;
+    //
+    //pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
     /* ---------------------- Floor ---------------------- */
 

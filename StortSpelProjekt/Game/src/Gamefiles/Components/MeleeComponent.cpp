@@ -187,7 +187,7 @@ void component::MeleeComponent::checkCollision()
 void component::MeleeComponent::particleEffect(Entity* entity)
 {
 	ParticleEffectSettings settings = {};
-	settings.particleCount = 1;
+	settings.maxParticleCount = 1;
 	settings.startValues.lifetime = 0.5;
 	settings.spawnInterval = 0.05;
 	settings.startValues.acceleration = { 0, 0, 0 };
