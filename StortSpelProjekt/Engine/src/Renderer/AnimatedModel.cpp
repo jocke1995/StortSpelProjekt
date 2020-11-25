@@ -18,41 +18,26 @@ AnimatedModel::AnimatedModel(
 
 	m_pSkeleton = rootNode;
 	m_Animations = (*animations);
-	//for (auto& animation : m_Animations)
-	//{
-	//	if (animation->name == "Spell_One_Handed")
-	//	{
-	//		animation->ticksPerSecond = 60;
-	//	}
-	//}
-	m_UploadMatrices.reserve(MAX_ANIMATION_MATRICES);
-	queuedAnimation = nullptr;
-	reactivateAnimation = nullptr;
 
-	DirectX::XMFLOAT4X4 matIdentity;
-	DirectX::XMStoreFloat4x4(&matIdentity, DirectX::XMMatrixIdentity());
-
-	for (unsigned int i = 0; i < MAX_ANIMATION_MATRICES; i++)
+	for (auto& animation : m_Animations)
 	{
-		m_UploadMatrices.push_back(matIdentity);
+		if (animation->name == "Attack_Swing_Left")
+		{
+			animation->ticksPerSecond = 60;
+		}
+		if (animation->name == "Attack_Swing_Right")
+		{
+			animation->ticksPerSecond = 60;
+		}
 	}
 
 	// Store the globalInverse transform.
 	DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
 	globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
 	DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
+	m_UploadMatrices.reserve(MAX_ANIMATION_MATRICES);
 
-	// Run the default animation.
-	for (auto& animation : m_Animations)
-	{
-		if (animation->name == "Idle")
-		{
-			m_pActiveAnimations.push_back(animation);
-			animation->loop = true;
-			animation->Update(0);
-			bindAnimation(m_pSkeleton, animation);
-		}
-	}
+	ResetAnimations();
 }
 
 AnimatedModel::~AnimatedModel()
@@ -80,7 +65,7 @@ const std::vector<DirectX::XMFLOAT4X4>* AnimatedModel::GetUploadMatrices() const
 	return &m_UploadMatrices;
 }
 
-bool AnimatedModel::AddActiveAnimation(std::string animationName, bool loop)
+bool AnimatedModel::PlayAnimation(std::string animationName, bool loop)
 {
 	if (!m_pActiveAnimations.empty())
 	{
@@ -98,12 +83,12 @@ bool AnimatedModel::AddActiveAnimation(std::string animationName, bool loop)
 			{
 				animation->loop = loop;
 				animation->Update(0);
-				queuedAnimation = animation;
+				m_QueuedAnimation = animation;
 				return true;
 			}
 			else
 			{
-				queuedAnimation = nullptr;
+				m_QueuedAnimation = nullptr;
 			}
 
 			animation->loop = loop;
@@ -118,13 +103,13 @@ bool AnimatedModel::AddActiveAnimation(std::string animationName, bool loop)
 			// If the animation is looping it should stay active. Else we need to reactivate the previous looping animation.
 			if (animation->loop)
 			{
-				reactivateAnimation = nullptr;
+				m_ReactivateAnimation = nullptr;
 			}
 			else if (m_pActiveAnimations[0]->loop)
 			{
-				reactivateAnimation = m_pActiveAnimations[0];
+				m_ReactivateAnimation = m_pActiveAnimations[0];
 			}
-			EndActiveAnimation("test");
+			endAnimation();
 
 			return true;
 		}
@@ -133,7 +118,7 @@ bool AnimatedModel::AddActiveAnimation(std::string animationName, bool loop)
 	return false;
 }
 
-bool AnimatedModel::EndActiveAnimation(std::string animationName)
+bool AnimatedModel::endAnimation()
 {
 
 	if (!m_pActiveAnimations.empty() && !m_pPendingAnimations.empty())
@@ -143,20 +128,6 @@ bool AnimatedModel::EndActiveAnimation(std::string animationName)
 		blendAnimations(0);
 		bindBlendedAnimation(m_pSkeleton);
 	}
-
-	//unsigned int index = 0;
-	//for (auto& animation : m_pActiveAnimations)
-	//{
-	//	if (animation->name == animationName)
-	//	{
-	//		m_pActiveAnimations.erase(m_pActiveAnimations.begin() + index);
-	//		m_pEndingAnimations.push_back(animation);
-	//		blendAnimations(0);
-	//		bindBlendedAnimation(m_pSkeleton);
-	//		return true;
-	//	}
-	//	index++;
-	//}
 
 	return false;
 }
@@ -171,17 +142,17 @@ void AnimatedModel::Update(double dt)
 			// remove all finished animations from the active animations vector
 			if (animation->finished)
 			{
-				if (reactivateAnimation)
+				if (m_ReactivateAnimation)
 				{
-					AddActiveAnimation(reactivateAnimation->name, reactivateAnimation->loop);
+					PlayAnimation(m_ReactivateAnimation->name, m_ReactivateAnimation->loop);
 				}
 				animation->finished = false;
 			}
 			else
 			{
-				if (queuedAnimation)
+				if (m_QueuedAnimation)
 				{
-					AddActiveAnimation(queuedAnimation->name, queuedAnimation->loop);
+					PlayAnimation(m_QueuedAnimation->name, m_QueuedAnimation->loop);
 				}
 				animation->Update(dt);
 			}
@@ -208,7 +179,7 @@ void AnimatedModel::Update(double dt)
 	}
 }
 
-void AnimatedModel::PlayAnimation()
+void AnimatedModel::TempPlayAnimation()
 {
 	// bool for indicating if the animation is active or not.
 	std::pair<bool, Animation*> idle = { false, nullptr };
@@ -258,16 +229,47 @@ void AnimatedModel::PlayAnimation()
 	m_AnimationIsPaused = false;
 }
 
-void AnimatedModel::PauseAnimation()
+void AnimatedModel::TempPauseAnimation()
 {
 	m_AnimationIsPaused = true;
 }
 
-void AnimatedModel::ResetAnimation()
+void AnimatedModel::ResetAnimations()
 {
+	// Reset all animations
+	for (auto& animation : m_Animations)
+	{
+		animation->time = 0;
+		animation->finished = false;
+		animation->Update(0);
+	}
+
+	// Clear queues 
+	m_pPendingAnimations.clear();
 	m_pActiveAnimations.clear();
-	AddActiveAnimation("Idle", true);
-	PlayAnimation();
+	m_pEndingAnimations.clear();
+	m_QueuedAnimation = nullptr;
+	m_ReactivateAnimation = nullptr;
+
+	// Initialize the upload matrices
+	DirectX::XMFLOAT4X4 matIdentity;
+	DirectX::XMStoreFloat4x4(&matIdentity, DirectX::XMMatrixIdentity());
+	for (unsigned int i = 0; i < MAX_ANIMATION_MATRICES; i++)
+	{
+		m_UploadMatrices.push_back(matIdentity);
+	}
+
+	// Run the default animation.
+	for (auto& animation : m_Animations)
+	{
+		if (animation->name == "Idle")
+		{
+			m_pActiveAnimations.push_back(animation);
+			animation->loop = true;
+			animation->Update(0);
+			bindAnimation(m_pSkeleton, animation);
+		}
+	}
 }
 
 void AnimatedModel::blendAnimations(double dt)
@@ -276,10 +278,10 @@ void AnimatedModel::blendAnimations(double dt)
 	if (!m_pPendingAnimations.empty() && !m_pEndingAnimations.empty())
 	{
 		float factor;
-		blendTimeElapsed += dt;
-		if (blendTimeElapsed >= blendTransitionTime)
+		m_BlendTimeElapsed += dt;
+		if (m_BlendTimeElapsed >= m_BlendTransitionTime)
 		{
-			blendTimeElapsed = 0.0f;
+			m_BlendTimeElapsed = 0.0f;
 			m_pActiveAnimations.push_back(m_pPendingAnimations[0]);	// The blend phase is finished, so the pending animation will be active now.
 			m_pPendingAnimations.pop_back();	// Remove from the pending vector
 			m_pEndingAnimations[0]->time = 0.0f;
@@ -290,7 +292,7 @@ void AnimatedModel::blendAnimations(double dt)
 		}
 		else
 		{
-			factor = blendTimeElapsed / blendTransitionTime;
+			factor = m_BlendTimeElapsed / m_BlendTransitionTime;
 		}
 		assert(factor >= 0.0f && factor <= 1.0f);
 

@@ -30,6 +30,11 @@ void component::AnimationComponent::OnUnInitScene()
 	EventBus::GetInstance().Unsubscribe(this, &AnimationComponent::attackAnimation);
 }
 
+void component::AnimationComponent::Reset()
+{
+	m_pAnimatedModel->ResetAnimations();
+}
+
 void component::AnimationComponent::Initialize()
 {
 	component::ModelComponent* mc = m_pParent->GetComponent<component::ModelComponent>();
@@ -54,11 +59,11 @@ void component::AnimationComponent::walkAnimation(MovementInput* evnt)
 		Input::GetInstance().GetKeyState(SCAN_CODES::S) || 
 		Input::GetInstance().GetKeyState(SCAN_CODES::D)	)
 	{
-		m_pAnimatedModel->AddActiveAnimation("Run", true);
+		m_pAnimatedModel->PlayAnimation("Run", true);
 	}
 	else
 	{
-		m_pAnimatedModel->AddActiveAnimation("Idle", true);
+		m_pAnimatedModel->PlayAnimation("Idle", true);
 	}
 }
 
@@ -66,7 +71,7 @@ void component::AnimationComponent::attackAnimation(MouseClick* evnt)
 {
 	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN)
 	{
-		m_pAnimatedModel->AddActiveAnimation("Attack_Swing_Right", false);
+		m_pAnimatedModel->PlayAnimation("Attack_Swing_Right", false);
 	}
 	else
 	{
@@ -74,7 +79,7 @@ void component::AnimationComponent::attackAnimation(MouseClick* evnt)
 
 	if (evnt->button == MOUSE_BUTTON::RIGHT_DOWN)
 	{
-		m_pAnimatedModel->AddActiveAnimation("Attack_Swing_Left", false);
+		m_pAnimatedModel->PlayAnimation("Attack_Swing_Left", false);
 	}
 	else
 	{

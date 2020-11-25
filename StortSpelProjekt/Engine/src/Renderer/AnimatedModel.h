@@ -33,14 +33,15 @@ public:
     const ConstantBuffer* GetConstantBuffer() const;
     const std::vector<DirectX::XMFLOAT4X4>* GetUploadMatrices() const;
 
-    bool AddActiveAnimation(std::string animationName, bool loop);
-    bool EndActiveAnimation(std::string animationName);
+    bool PlayAnimation(std::string animationName, bool loop);
     void Update(double dt);
-    void PlayAnimation();
-    void PauseAnimation();
-    void ResetAnimation();
+    void TempPlayAnimation();
+    void TempPauseAnimation();
+    void ResetAnimations();
 
 private:
+    // Will run in PlayAnimation().
+    bool endAnimation();
     // Should run while there is an ongoing animation transition.
     void blendAnimations(double dt);
     // Will bind the blendAnimationState to the skeleton.
@@ -54,11 +55,11 @@ private:
 
 
     bool m_AnimationIsPaused = false;
-    double blendTransitionTime = ANIMATION_TRANSITION_TIME;
-    double blendTimeElapsed = 0;
+    double m_BlendTransitionTime = ANIMATION_TRANSITION_TIME;
+    double m_BlendTimeElapsed = 0;
     std::map<std::string, TransformKey> m_BlendAnimationState;
-    Animation* reactivateAnimation;
-    Animation* queuedAnimation;
+    Animation* m_ReactivateAnimation;
+    Animation* m_QueuedAnimation;
     std::vector<Animation*> m_pPendingAnimations;
     std::vector<Animation*> m_pActiveAnimations;
     std::vector<Animation*> m_pEndingAnimations;

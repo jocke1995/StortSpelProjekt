@@ -18,6 +18,7 @@ namespace component
         void RenderUpdate(double dt);
         void OnInitScene();
         void OnUnInitScene();
+        void Reset();
 
         // Requires that the entity has a model.
         void Initialize();
