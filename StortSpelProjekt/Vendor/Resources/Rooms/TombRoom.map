@@ -367,3 +367,12 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionSphere 0.3, 0.15, 0.4
+
+NavMesh Triangles
+NavTriangle 1,0,1; 5,0,5; 3,0,3;
+Submit NavTriangle
+Submit NavMesh
+
+AddSpawnPoint 30.0, 3.0, 50.0
+AddSpawnPoint -20.0, 3.0, 60.0
+AddSpawnPoint -50.0, 3.0, -40.0
