@@ -198,7 +198,7 @@ Scene* GameScene(SceneManager* sm)
     // components
     mc = entity->AddComponent<component::ModelComponent>();
     ac = entity->AddComponent<component::AnimationComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
+    tc = entity->AddComponent<component::TransformComponent>(true);
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
