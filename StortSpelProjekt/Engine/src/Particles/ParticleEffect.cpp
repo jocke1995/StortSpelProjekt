@@ -22,7 +22,6 @@
 
 EngineRand ParticleEffect::rand = {5};
 
-
 ParticleEffect::ParticleEffect(Entity* parent, ParticleEffectSettings* settings)
 {
 	m_pEntity = parent;
