@@ -38,7 +38,7 @@ namespace component
 		// upgrades that are triggered on hit (ex: explosive, poison)
 		void OnHit(Entity* target);
 		// specific for ranged hits
-		void OnRangedHit(Entity* target);
+		void OnRangedHit(Entity* target, Entity* projectile);
 		// specific for melee hits
 		void OnMeleeHit(Entity* target);
 		// upgrades that are triggered when taking damage

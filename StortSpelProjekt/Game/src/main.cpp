@@ -25,7 +25,6 @@ void GameInitScene(Scene* scene);
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
-EnemyFactory enemyFactory;
 GameGUI gameGUI;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -75,7 +74,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     {
         gameNetwork.SetScene(sceneManager->GetActiveScene());
         gameNetwork.SetSceneManager(sceneManager);
-        gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
+        gameNetwork.SetEnemies(EnemyFactory::GetInstance().GetAllEnemies());
     }
     double networkTimer = 0;
     double logicTimer = 0;
@@ -108,7 +107,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             }
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
-            //enemyFactory.Update(updateRate);
+            EnemyFactory::GetInstance().Update(updateRate);
             gameGUI.Update(updateRate, sceneManager->GetActiveScene());
             UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
@@ -335,13 +334,13 @@ Scene* GameScene(SceneManager* sm)
 #pragma endregion
 
 #pragma region Enemyfactory
-    enemyFactory.SetScene(scene);
-    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
-    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
-    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("enemyZombie", &zombie);
-    enemyFactory.DefineEnemy("enemySpider", &spider);
-    enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
+    EnemyFactory::GetInstance().SetScene(scene);
+    EnemyFactory::GetInstance().AddSpawnPoint({ 70, 5, 20 });
+    EnemyFactory::GetInstance().AddSpawnPoint({ -20, 5, -190 });
+    EnemyFactory::GetInstance().AddSpawnPoint({ -120, 10, 75 });
+    EnemyFactory::GetInstance().DefineEnemy("enemyZombie", &zombie);
+    EnemyFactory::GetInstance().DefineEnemy("enemySpider", &spider);
+    EnemyFactory::GetInstance().DefineEnemy("enemyDemon", &rangedDemon);
 #pragma endregion
 
 #pragma region teleporter
@@ -353,9 +352,9 @@ Scene* GameScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.particleCount = 100;
+    settings.maxParticleCount = 100;
     settings.startValues.lifetime = 0.8;
-    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
     settings.startValues.acceleration = { 0, 0, 0 };
 
     // Need to fix EngineRand.rand() for negative values
@@ -672,9 +671,9 @@ Scene* ShopScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.particleCount = 100;
+    settings.maxParticleCount = 100;
     settings.startValues.lifetime = 0.8;
-    settings.spawnInterval = settings.startValues.lifetime / settings.particleCount;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
     settings.startValues.acceleration = { 0, 0, 0 };
 
     // Need to fix EngineRand.rand() for negative values
