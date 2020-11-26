@@ -254,6 +254,7 @@ void AnimatedModel::ResetAnimations()
 	// Initialize the upload matrices
 	DirectX::XMFLOAT4X4 matIdentity;
 	DirectX::XMStoreFloat4x4(&matIdentity, DirectX::XMMatrixIdentity());
+	m_UploadMatrices.clear();
 	for (unsigned int i = 0; i < MAX_ANIMATION_MATRICES; i++)
 	{
 		m_UploadMatrices.push_back(matIdentity);
