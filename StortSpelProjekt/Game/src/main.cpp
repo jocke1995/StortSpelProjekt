@@ -21,6 +21,8 @@ Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
 void GameInitScene(Scene* scene);
+void ShopInitScene(Scene* scene);
+void ParticleInit();
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
@@ -624,7 +626,7 @@ Scene* ShopScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.9f);
-    tc->GetTransform()->SetPosition(0.0, 20.0, 0.0);
+    tc->GetTransform()->SetPosition(0.0, 1.0, 0.0);
     tc->SetTransformOriginalState();
 
     double3 playerDim = mc->GetModelDim();
@@ -952,11 +954,46 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&ShopUpdateScene);
 
+    scene->SetOnInit(&ShopInitScene);
+
     return scene;
 }
 
 void GameInitScene(Scene* scene)
 {
+    ParticleInit();
+}
+
+void ShopInitScene(Scene* scene)
+{
+    ParticleInit();
+}
+
+void ParticleInit()
+{
+    ParticleEffectSettings settings = {};
+    settings.maxParticleCount = 100;
+    settings.startValues.lifetime = 1.5;
+    settings.spawnInterval = 0.001;
+    settings.startValues.acceleration = { 0, 0, 0 };
+    settings.isLooping = false;
+
+    // Need to fix EngineRand.rand() for negative values
+    RandomParameter3 randParam1 = { -10, 10, -10, 10, -10, 10 };
+
+    settings.randPosition = { -1, 1, -1, 1, -1, 1 };
+    settings.randVelocity = randParam1;
+    settings.randSize = { 0.2f, 0.6f };
+    settings.randRotationSpeed = { 0, 3 };
+
+    settings.texture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
+    Entity* particleEntity = SceneManager::GetInstance().GetActiveScene()->AddEntity("teleportationParticle");
+    component::TransformComponent* transform = particleEntity->AddComponent<component::TransformComponent>();
+    float3 position = Player::GetInstance().GetPlayer()->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+    transform->GetTransform()->SetPosition(position.x, position.y + 1, position.z);
+    particleEntity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+    particleEntity->GetComponent<component::ParticleEmitterComponent>()->OnInitScene();
+    particleEntity->AddComponent<component::TemporaryLifeComponent>(1.5);
 }
 
 void GameUpdateScene(SceneManager* sm, double dt)
