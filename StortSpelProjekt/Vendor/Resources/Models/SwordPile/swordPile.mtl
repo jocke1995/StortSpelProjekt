@@ -10,6 +10,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd wire_135059008_albedo.jpg
-map_Ks wire_135059008_roughness.jpg
-map_Kn wire_135059008_normal.jpg
+map_Kd wire_135059008_albedo.dds
+map_Ks wire_135059008_roughness.dds
+map_Kn wire_135059008_normal.dds

@@ -10,9 +10,9 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd bark1col.jpg
-map_Ks bark1roughness.jpg
-map_Kn bark1norm.jpg
+map_Kd bark1col.dds
+map_Ks bark1roughness.dds
+map_Kn bark1norm.dds
 
 newmtl woodtopmat
 Ns 225.000000
@@ -23,6 +23,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd TreeEnd004_2K_Color.jpg
-map_Ks TreeEnd004_2K_Roughness.jpg
-map_Kn TreeEnd004_2K_Normal.jpg
+map_Kd TreeEnd004_2K_Color.dds
+map_Ks TreeEnd004_2K_Roughness.dds
+map_Kn TreeEnd004_2K_Normal.dds

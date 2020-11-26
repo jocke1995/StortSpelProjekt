@@ -10,6 +10,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 3
-map_Kd leaves_albedo.jpg
-map_d leaves_opacity.jpg
-map_Kn leaves_normal.jpg
+map_Kd leaves_albedo.dds
+map_d leaves_opacity.dds
+map_Kn leaves_normal.dds
