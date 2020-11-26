@@ -21,7 +21,7 @@ EnemyFactory::EnemyFactory()
 	m_EnemiesToSpawn = 0;
 	m_EnemySlotsLeft = m_LevelMaxEnemies;
 	m_SpawnCooldown = 1;
-	m_MinimumDistanceToPlayer = 0;
+	m_MinimumDistanceToPlayer = 10;
 	m_SpawnTimer = 0.0f;
 	m_RandGen.SetSeed(time(NULL));
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
