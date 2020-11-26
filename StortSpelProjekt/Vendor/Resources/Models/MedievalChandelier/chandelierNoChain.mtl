@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd Chandelier_SHD_albedo.jpg
-map_Ka Chandelier_SHD_metallic.jpg
-map_Ks Chandelier_SHD_roughness.jpg
-map_Kn Chandelier_SHD_normal.png
+map_Kd Chandelier_SHD_albedo.DDS
+map_Ka Chandelier_SHD_metallic.DDS
+map_Ks Chandelier_SHD_roughness.DDS
+map_Kn Chandelier_SHD_normal.DDS

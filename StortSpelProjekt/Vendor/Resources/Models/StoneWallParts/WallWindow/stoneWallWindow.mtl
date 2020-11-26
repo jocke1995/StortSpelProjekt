@@ -10,10 +10,10 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Ka Old_iron_01_1K_Metallic.png
-map_Kd Old_iron_01_1K_Base_Color.png
-map_Ks Old_iron_01_1K_Roughness.png
-map_Kn Old_iron_01_1K_Normal.png
+map_Ka Old_iron_01_1K_Metallic.DDS
+map_Kd Old_iron_01_1K_Base_Color.DDS
+map_Ks Old_iron_01_1K_Roughness.DDS
+map_Kn Old_iron_01_1K_Normal.DDS
 
 newmtl stonewallmaterial
 Ns 225.000000
@@ -24,6 +24,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd Stone_Wall_014_basecolor.jpg
-map_Ks Stone_Wall_014_roughness.jpg
-map_Kn Stone_Wall_014_normal.jpg
+map_Kd Stone_Wall_014_basecolor.DDS
+map_Ks Stone_Wall_014_roughness.DDS
+map_Kn Stone_Wall_014_normal.DDS
