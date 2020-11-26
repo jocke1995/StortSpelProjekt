@@ -141,8 +141,6 @@ void component::RangeComponent::Attack()
 		pos.y = ParentPos.y + (forward.y / length);
 		pos.z = ParentPos.z + (forward.z / length) * (dim.z * scale.z / 2.0) * 1.1f;
 
-		Log::Print("Playerpos: %f, %f, %f\n", ParentPos.x, ParentPos.y, ParentPos.z);
-
 		// Raytrace from the middle of the screen
 		DirectX::XMVECTOR rayInWorldSpacePos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 		DirectX::XMVECTOR rayInWorldSpaceDir = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
