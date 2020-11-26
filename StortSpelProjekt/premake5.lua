@@ -124,19 +124,19 @@ project "Sandbox"
         optimize "On"
 
 
-project "Server"
-    location "Server"
-    kind "ConsoleApp"
-    targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
-    objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
-    staticruntime "On"
-    files {"%{prj.location}/src/**.cpp", "src/**.h"}
-    includedirs {"Vendor/Include/", "Engine/src/", "Engine/src/Headers/"}
-    links {"Engine"}
-    filter "configurations:Debug"
-        defines {"_DEBUG", "_CONSOLE" }
-        symbols "On"
-
-    filter "configurations:Release"
-        defines { "NDEBUG", "_CONSOLE" }
-        optimize "On"
+--project "Server"
+--    location "Server"
+--    kind "ConsoleApp"
+--    targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
+--    objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
+--    staticruntime "On"
+--    files {"%{prj.location}/src/**.cpp", "%{prj.location}/src/**.h"}
+--    includedirs {"Vendor/Include/", "Engine/src/", "Engine/src/Headers/"}
+--    links {"Engine"}
+--    filter "configurations:Debug"
+--        defines {"_DEBUG", "_CONSOLE" }
+--        symbols "On"
+--
+--    filter "configurations:Release"
+--        defines { "NDEBUG", "_CONSOLE" }
+--        optimize "On"

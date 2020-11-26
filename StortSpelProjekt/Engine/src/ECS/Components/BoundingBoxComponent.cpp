@@ -146,6 +146,11 @@ namespace component
 		return &m_OriginalBoundingBox;
 	}
 
+	void BoundingBoxComponent::SetModifier(float3 modifier)
+	{
+		m_Modifier = modifier;
+	}
+
 	bool& BoundingBoxComponent::IsPickedThisFrame()
 	{
 		return m_pParent->GetComponent<ModelComponent>()->m_IsPickedThisFrame;
@@ -194,6 +199,7 @@ namespace component
 			float3 absHalfLenghtOfRect = { (abs(minVertex.x) + abs(maxVertex.x)) / 2 ,
 											(abs(minVertex.y) + abs(maxVertex.y)) / 2 ,
 											(abs(minVertex.z) + abs(maxVertex.z)) / 2 };
+
 			if (m_FlagOBB & F_OBBFlags::T_POSE)
 			{
 				m_OrientedBoundingBox.Extents.x = absHalfLenghtOfRect.z;
@@ -205,9 +211,14 @@ namespace component
 			m_OrientedBoundingBox.Extents.y = absHalfLenghtOfRect.y;
 			m_OrientedBoundingBox.Extents.z = absHalfLenghtOfRect.z;
 
+			// Modifiers are there to change the size of the box
+			m_OrientedBoundingBox.Extents.x /= m_Modifier.x;
+			m_OrientedBoundingBox.Extents.y /= m_Modifier.y;
+			m_OrientedBoundingBox.Extents.z /= m_Modifier.z;
+
 			// Set the position of the OBB
 			m_OrientedBoundingBox.Center.x = maxVertex.x - absHalfLenghtOfRect.x;
-			m_OrientedBoundingBox.Center.y = maxVertex.y - (static_cast<float>((m_FlagOBB & F_OBBFlags::T_POSE) > 0.0) + 1.0f) * absHalfLenghtOfRect.y;
+			m_OrientedBoundingBox.Center.y = maxVertex.y - absHalfLenghtOfRect.y;
 			m_OrientedBoundingBox.Center.z = maxVertex.z - absHalfLenghtOfRect.z;
 	
 
@@ -272,7 +283,6 @@ namespace component
 			}
 
 			m_Bbds.push_back(bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, m_Identifier.back()));
-
 
 			return true;
 		}

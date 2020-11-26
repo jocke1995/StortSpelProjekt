@@ -26,7 +26,12 @@ namespace component
 		float m_CurrentDuration;
 		float m_TimeToLive;
 
+
+		static unsigned int m_EffectCounter;
+
 		void hit(Collision* event);
+
+		void createProjectileParticleEffectAt(Entity* target) const;
 	};
 }
 

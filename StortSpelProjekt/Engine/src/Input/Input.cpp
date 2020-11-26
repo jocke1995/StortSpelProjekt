@@ -109,11 +109,16 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			EventBus::GetInstance().Publish(&ModifierInput(key, pressed));
 		}
 	}
+
 	else if (key == SCAN_CODES::U)
 	{
 		if (justPressed)
 		{
-			EventBus::GetInstance().Publish(&UForUpgrade());
+			Scene* scene = SceneManager::GetInstance().GetActiveScene();
+			if (scene->GetName() != "ShopScene")
+			{
+				EventBus::GetInstance().Publish(&UForUpgrade());
+			}
 		}
 	}
 	else if (key == SCAN_CODES::F)

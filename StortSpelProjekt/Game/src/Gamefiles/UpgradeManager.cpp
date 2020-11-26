@@ -17,6 +17,7 @@
 #include "Components/UpgradeComponents/Upgrades/UpgradeMeleeAttackSpeed.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeAttackSpeed.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeExplosiveAttack.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeRadius.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
 {
@@ -233,6 +234,13 @@ void UpgradeManager::fillUpgradeMap()
 	upgrade->SetID(UPGRADE_RANGE_ATTACKSPEED);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding Melee Attack Radius Upgrade
+	upgrade = new UpgradeMeleeRadius(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_MELEE_RADIUS);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 }
 
 bool UpgradeManager::checkIfRangeUpgrade(std::string name)
@@ -305,6 +313,9 @@ Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 		break;
 	case UPGRADE_EXPLOSIVE_ATTACK:
 		return new UpgradeExplosiveAttack(ent);
+		break;
+	case UPGRADE_MELEE_RADIUS:
+		return new UpgradeMeleeRadius(ent);
 		break;
 	default:
 		break;
