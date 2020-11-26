@@ -506,6 +506,9 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 {
 	FILE* file = fopen(path, "r");
 
+	int numNavTriangles = 0;
+	static int totalNumberOfNavTriangles = 0;
+
 	std::string lineHeader;
 	lineHeader.reserve(128);
 	std::string entityName;
@@ -1012,6 +1015,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 				else if (strcmp(toSubmit.c_str(), "NavTriangle") == 0)
 				{
 					NavTriangle* tri = navMesh->AddNavTriangle(vertex1 + offset, vertex2 + offset, vertex3 + offset);
+					++numNavTriangles;
 					if (edgeId != -1)
 					{
 						edgeId += 6 * id;
@@ -1027,7 +1031,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					}
 					else if (std::strcmp(navMeshType.c_str(), "Triangles") == 0)
 					{
-						navMesh->ConnectNavTriangles(tri1 + 6 * id, tri2 + 6 * id);
+						navMesh->ConnectNavTriangles(tri1 + totalNumberOfNavTriangles, tri2 + totalNumberOfNavTriangles);
 					}
 				}
 				else if (strcmp(toSubmit.c_str(), "NavMesh") == 0)
@@ -1038,6 +1042,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					}
 					else if (std::strcmp(navMeshType.c_str(), "Triangles") == 0)
 					{
+						totalNumberOfNavTriangles += numNavTriangles;
 						navMesh->CreateTriangleGrid();
 					}
 				}

@@ -969,6 +969,8 @@ void GameUpdateScene(SceneManager* sm, double dt)
         ImGuiHandler::GetInstance().SetBool("reset", false);
         EventBus::GetInstance().Publish(&ResetGame());
     }
+
+    auto entities = Physics::GetInstance().GetCollisionEntities();
 }
 
 void ShopUpdateScene(SceneManager* sm, double dt)

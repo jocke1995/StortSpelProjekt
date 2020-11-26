@@ -78,6 +78,14 @@ bool Scene::RemoveEntity(std::string entityName)
 
     PoolAllocator<Entity>::GetInstance().Delete(ent);
     m_EntitiesToKeep.erase(entityName);
+    for (int i = 0; i < m_CollisionEntities.size(); ++i)
+    {
+        Entity* entity = m_CollisionEntities[i];
+        if (entity->GetID() == ent->GetID())
+        {
+            m_CollisionEntities.erase(m_CollisionEntities.begin() + i);
+        }
+    }
 
     m_NrOfEntities--;
     return true;
