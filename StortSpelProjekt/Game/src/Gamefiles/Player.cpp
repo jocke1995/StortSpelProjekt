@@ -64,10 +64,11 @@ void Player::onResetGame(ResetGame* evnt)
 	m_pUpgradeManager->RemoveAllUpgrades();
 	// Values copied from main.
 	component::MeleeComponent* mec = gamePlayer->GetComponent<component::MeleeComponent>();
-	mec->SetDamage(10);
+	mec->SetDamage(50);
 	mec->SetAttackInterval(1.0);
+	mec->ResetMeleeScaling();
 	component::RangeComponent* rac = gamePlayer->GetComponent<component::RangeComponent>();
-	rac->SetDamage(10);
+	rac->SetDamage(40);
 	rac->SetVelocity(150);
 	rac->SetAttackInterval(1.0);
 
@@ -84,10 +85,10 @@ void Player::onResetGame(ResetGame* evnt)
 		{ 1.0, 1.0, 1.0, 1.0 },
 		float3{ 0.0f, 1.0f, 0.0f });
 
-	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player")->GetComponent<component::HealthComponent>()->SetHealth(50);
-	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player")->GetComponent<component::HealthComponent>()->SetMaxHealth(50);
-	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("healthBackground")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("50", "currentHealth");
-	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("healthBackground")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("50", "maxHealth");
+	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player")->GetComponent<component::HealthComponent>()->SetHealth(500);
+	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player")->GetComponent<component::HealthComponent>()->SetMaxHealth(500);
+	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("healthBackground")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("500", "currentHealth");
+	SceneManager::GetInstance().GetScene("GameScene")->GetEntity("healthBackground")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("500", "maxHealth");
 
 	m_pShop->Reset();
 }
