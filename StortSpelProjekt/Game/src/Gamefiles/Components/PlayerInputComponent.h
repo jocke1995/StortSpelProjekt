@@ -68,10 +68,9 @@ namespace component
 		float m_Pitch;
 		float m_Yaw;
 		float m_CameraDistance;
+		float m_Height;
 		float m_Elevation;
 		float m_MovementSpeed;
-		float m_RotateX;
-		float m_RotateY;
 
 		PerspectiveCamera* m_pCamera;
 		Transform* m_pTransform;
@@ -101,6 +100,10 @@ namespace component
 		std::vector<void(PlayerInputComponent::*)(double dt)> specificUpdates;
 		void(PlayerInputComponent::*specificUpdate)(double dt);
 
+
+		void updateCameraDirection();
+		void setCameraToPlayerPosition();
+		void limitCameraDistance();
 
 		void alternativeInput(ModifierInput* evnt);
 
