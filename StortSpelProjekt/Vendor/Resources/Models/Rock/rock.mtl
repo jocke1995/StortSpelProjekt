@@ -1,9 +1,0 @@
-# Blender MTL File: 'None'
-# Material Count: 1
-
-newmtl rockmat
-map_Ka rock_ambient.jpg
-map_Kd rock_diffuse.jpg
-map_Ks rock_specular.jpg
-map_Kn rock_normal.jpg
-# map_Ke rock_emissive.png
