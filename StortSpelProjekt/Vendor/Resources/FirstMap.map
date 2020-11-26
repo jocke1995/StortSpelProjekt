@@ -279,7 +279,7 @@ Submit Model
 Submit CollisionCapsule 0.0, 0.0
 
 Name BuildingBraizerLight1
-ModelPosition -78.0, 8.0, 75.0
+ModelLightPosition -78.0, 8.0, 75.0
 ModelLightColor 8.86, 3.45, 1.33
 ModelLightFlag 0,0
 ModelLightAttenuation 0.01, 0.4, 0.01
@@ -308,7 +308,7 @@ Submit Model
 Submit CollisionCapsule 0.0, 0.0
 
 Name BuildingBraizerLight2
-ModelPosition -135.0, 8.0, 23.0
+ModelLightPosition -135.0, 8.0, 23.0
 ModelLightColor 8.86, 3.45, 1.33
 ModelLightFlag 0,0
 ModelLightAttenuation 0.01, 0.4, 0.01
@@ -337,14 +337,14 @@ Submit Model
 Submit CollisionCapsule 0.0, 0.0
 
 Name GateBraizerLight2
-ModelPosition 113.0, 5.0, -8.0
+ModelLightPosition 113.0, 5.0, -8.0
 ModelLightColor 8.86, 3.45, 1.33
 ModelLightFlag 0,0
 ModelLightAttenuation 0.01, 0.4, 0.01
 Submit PointLight
 
 Name BuildingFloor
-ModelPath Models/Floor/floor.obj
+ModelPath Models/FloorPBR/floor.obj
 ModelScaling 40.0, 0.1, 60.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -110.0, 5.0, 80.0

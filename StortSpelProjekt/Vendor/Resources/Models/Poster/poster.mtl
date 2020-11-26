@@ -2,7 +2,7 @@
 # Material Count: 2
 
 newmtl stefanmat
-map_Kd stefan.jpg
+map_Kd stefan.DDS
 
 newmtl hansmat
-map_Kd hans.jpg
+map_Kd hans.DDS
