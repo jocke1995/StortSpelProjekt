@@ -1,5 +1,6 @@
 #include "AnimationComponent.h"
 
+#include "../Renderer/Renderer.h"
 #include "../Renderer/AnimatedModel.h"
 #include "../Events/EventBus.h"
 #include "../ECS/Entity.h"
@@ -20,6 +21,7 @@ void component::AnimationComponent::RenderUpdate(double dt)
 
 void component::AnimationComponent::OnInitScene()
 {
+	Renderer::GetInstance().InitAnimationComponent(this);
 	EventBus::GetInstance().Subscribe(this, &AnimationComponent::walkAnimation);
 	EventBus::GetInstance().Subscribe(this, &AnimationComponent::attackAnimation);
 }
@@ -28,6 +30,7 @@ void component::AnimationComponent::OnUnInitScene()
 {
 	EventBus::GetInstance().Unsubscribe(this, &AnimationComponent::walkAnimation);
 	EventBus::GetInstance().Unsubscribe(this, &AnimationComponent::attackAnimation);
+	Renderer::GetInstance().UnInitAnimationComponent(this);
 }
 
 void component::AnimationComponent::Reset()

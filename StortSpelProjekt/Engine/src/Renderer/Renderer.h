@@ -70,6 +70,7 @@ class Entity;
 namespace component
 {
 	class ModelComponent;
+	class AnimationComponent;
 	class TransformComponent;
 	class CameraComponent;
 	class BoundingBoxComponent;
@@ -112,6 +113,7 @@ public:
 	// Render inits, these functions are called by respective components through SetScene to prepare for drawing
 	void InitSkyboxComponent(component::SkyboxComponent* component);
 	void InitModelComponent(component::ModelComponent* component);
+	void InitAnimationComponent(component::AnimationComponent* component);
 	void InitDirectionalLightComponent(component::DirectionalLightComponent* component);
 	void InitPointLightComponent(component::PointLightComponent* component);
 	void InitSpotLightComponent(component::SpotLightComponent* component);
@@ -123,6 +125,7 @@ public:
 
 	void UnInitSkyboxComponent(component::SkyboxComponent* component);
 	void UnInitModelComponent(component::ModelComponent* component);
+	void UnInitAnimationComponent(component::AnimationComponent* component);
 	void UnInitDirectionalLightComponent(component::DirectionalLightComponent* component);
 	void UnInitPointLightComponent(component::PointLightComponent* component);
 	void UnInitSpotLightComponent(component::SpotLightComponent* component);

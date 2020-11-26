@@ -24,6 +24,7 @@ namespace component
         void Initialize();
 
     private:
+        friend class Renderer;
         void walkAnimation(MovementInput* evnt);
         void attackAnimation(MouseClick* evnt);
         AnimatedModel* m_pAnimatedModel;
