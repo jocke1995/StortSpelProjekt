@@ -3,6 +3,8 @@
 #include "../Misc/Window.h"
 #include "../Renderer/Renderer.h"
 #include "../Events/EventBus.h"
+#include "../../Game/src/Gamefiles/Player.h"
+#include "../ECS/Entity.h"
 
 ImGuiHandler& ImGuiHandler::GetInstance()
 {
@@ -370,6 +372,18 @@ void ImGuiHandler::ExecCommand(const char* command_line)
     {
         EventBus::GetInstance().Publish(&Disconnect());
     }
+    else if (Stricmp(command.c_str(), "HARVEST") == 0)
+    {
+        int currency = std::stoi(arguments.at(0));
+        if (currency != -1)
+        {
+            Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->ChangeBalance(currency);
+        }
+        else
+        {
+            Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->ChangeBalance(500);
+        }
+    }
     else
     {
         AddLog("Unknown command: '%s'\n", command.c_str());
@@ -526,6 +540,7 @@ ImGuiHandler::ImGuiHandler()
     m_Commands.push_back("HISTORY");
     m_Commands.push_back("CLEAR");
     m_Commands.push_back("RESET");
+    m_Commands.push_back("HARVEST");
     if (std::atoi(Option::GetInstance().GetVariable("i_network").c_str()) == 1)
     {
         m_Commands.push_back("CONNECT");
