@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Ka Wall_Torch_1K_AO.png
-map_Kd Wall_Torch_1K_Albedo.png
-map_Ks Wall_Torch_1K_Roughness.png
-map_Kn Wall_Torch_1K_Normal.png
+map_Ka Wall_Torch_1K_AO.DDS
+map_Kd Wall_Torch_1K_Albedo.DDS
+map_Ks Wall_Torch_1K_Roughness.DDS
+map_Kn Wall_Torch_1K_Normal.DDS
