@@ -13,6 +13,7 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_PathFound = false;
 	m_IsRanged = false;		// default melee
 	m_StandStill = false;
+	m_NewPath = false;
 
 	m_Flags = flags;
 
@@ -28,6 +29,7 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_DistanceToPlayer = 0.0f;
 	m_KnockBackTimer = 0.5f;
 	m_TargetCircleRadius = m_AttackingDistance * 5.0f;
+	m_TargetCircleTimer = 0.0f;
 
 	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 	m_GoalPos = target->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
@@ -96,6 +98,7 @@ void component::AiComponent::Update(double dt)
 	if (m_pParent->GetComponent<component::HealthComponent>()->GetHealth() > 0)
 	{
 		m_KnockBackTimer += dt;
+		m_TargetCircleTimer += dt;
 		pathFinding();
 
 		m_IntervalTimeAccumulator += static_cast<float>(dt);
@@ -587,7 +590,7 @@ void component::AiComponent::pathFinding()
 		{
 			m_TargetCirclePoint = { -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))), 0.0f, -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))) };
 			m_TargetCirclePoint.normalize();
-			m_TargetCircleRadius = m_AttackingDistance * 5.0f;
+			m_TargetCircleRadius = (m_AttackingDistance * 5.0f) * static_cast<float>(!m_IsRanged);
 			findPathToTargetQuad(m_TargetCirclePoint * m_TargetCircleRadius);
 		}
 
@@ -611,15 +614,17 @@ void component::AiComponent::pathFinding()
 		NavTriangle* targetCircleTriangle = m_pNavMesh->GetTriangle(pointOnCircle);
 		NavTriangle* targetTriangle = m_pNavMesh->GetTriangle(finalTargetPos);
 
-		if (targetTriangle != m_pGoalTriangle && m_Flags & F_AI_FLAGS::RUSH_PLAYER)
+		if ((targetTriangle != m_pGoalTriangle && m_Flags & F_AI_FLAGS::RUSH_PLAYER) || m_NewPath)
 		{
+			m_NewPath = false;
 			findPathToTargetTriangle();
 		}
-		else if (targetCircleTriangle != m_pGoalTriangle && targetCircleTriangle != targetTriangle && !(m_Flags & F_AI_FLAGS::RUSH_PLAYER))
+		else if ((targetCircleTriangle != m_pGoalTriangle && targetCircleTriangle != targetTriangle && !(m_Flags & F_AI_FLAGS::RUSH_PLAYER)) || m_NewPath)
 		{
+			m_NewPath = false;
 			m_TargetCirclePoint = { -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))), 0.0f, -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))) };
 			m_TargetCirclePoint.normalize();
-			m_TargetCircleRadius = m_AttackingDistance * 5.0f;
+			m_TargetCircleRadius = m_AttackingDistance * 5.0f * static_cast<float>(!m_IsRanged);
 			findPathToTargetTriangle(m_TargetCirclePoint * m_TargetCircleRadius);
 		}
 
@@ -658,11 +663,17 @@ void component::AiComponent::pathFinding()
 			m_NextTargetPos = pointOnCircle;
 			if (m_DistanceToPlayer <= m_TargetCircleRadius + 0.5)
 			{
-				m_TargetCircleRadius -= 1.0f;
+				m_TargetCircleTimer = 0.0f;
+				m_TargetCircleRadius -= m_AttackingDistance;
 				if (m_TargetCircleRadius <= m_AttackingDistance * 2.0f)
 				{
 					m_NextTargetPos = finalTargetPos;
 				}
+			}
+			else if (m_TargetCircleTimer >= 1.0f)
+			{
+				m_TargetCircleTimer = 0.0f;
+				m_NewPath = true;
 			}
 		}
 		m_LastPos = pos;

@@ -4,6 +4,7 @@
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
 #include <algorithm>
+#include <string>
 
 # define PI           3.14159265358979323846  /* pi */
 #define EPSILON		  0.000001
@@ -95,6 +96,11 @@ typedef union float3
 	float angle(const float3& other) const
 	{
 		return acosf(std::min<float>(std::max<float>(dot(other) / (length() * other.length()), -1.0f), 1.0f));
+	}
+
+	std::string toString() const
+	{
+		return std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z);
 	}
 
 } float3;

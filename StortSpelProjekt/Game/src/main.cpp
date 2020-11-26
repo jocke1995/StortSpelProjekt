@@ -17,6 +17,9 @@
 #include "UpgradeGUI.h"
 
 #include "Misc/Edge.h"
+
+//#include "Misc/Cryptor.h"
+
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
@@ -31,7 +34,8 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/MedievalChandelier");
+    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/OutdoorFloor");
+    Log::Print("Done\n");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -142,9 +146,8 @@ Scene* GameScene(SceneManager* sm)
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
-    al->LoadMap(scene, "../Vendor/Resources/FirstMap.map");
-	//al->LoadMap(scene, "../Vendor/Resources/BaseRoom.map");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");   
+    al->GenerateMap(scene, "../Vendor/Resources/Rooms");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
@@ -248,17 +251,17 @@ Scene* GameScene(SceneManager* sm)
 #pragma endregion
 
 #pragma region directional light
-    entity = scene->AddEntity("sun");
+    //entity = scene->AddEntity("sun");
 
-    // components
-    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    dlc->SetDirection({ 0.05f, -0.3f, 0.5f });
-    dlc->SetColor({ 252.0f / 256.0f, 156.0f / 256.0f, 84.0f / 256.0f });
-    dlc->SetCameraTop(150.0f);
-    dlc->SetCameraBot(-120.0f);
-    dlc->SetCameraRight(130.0f);
-    dlc->SetCameraLeft(-180.0f);
-    dlc->SetCameraNearZ(-1000.0f);
+    //// components
+    //dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
+    //dlc->SetDirection({ 0.05f, -0.3f, 0.5f });
+    //dlc->SetColor({ 252.0f / 256.0f, 156.0f / 256.0f, 84.0f / 256.0f });
+    //dlc->SetCameraTop(150.0f);
+    //dlc->SetCameraBot(-120.0f);
+    //dlc->SetCameraRight(130.0f);
+    //dlc->SetCameraLeft(-180.0f);
+    //dlc->SetCameraNearZ(-1000.0f);
 	//dlc->SetCameraFarZ(6.0f);
 
 	//tc = entity->AddComponent<component::TransformComponent>();
@@ -336,8 +339,8 @@ Scene* GameScene(SceneManager* sm)
 #pragma region Enemyfactory
     EnemyFactory::GetInstance().SetScene(scene);
     EnemyFactory::GetInstance().AddSpawnPoint({ 70, 5, 20 });
-    EnemyFactory::GetInstance().AddSpawnPoint({ -20, 5, -190 });
-    EnemyFactory::GetInstance().AddSpawnPoint({ -120, 10, 75 });
+    //enemyFactory.AddSpawnPoint({ -20, 5, -190 });
+    //enemyFactory.AddSpawnPoint({ -120, 10, 75 });
     EnemyFactory::GetInstance().DefineEnemy("enemyZombie", &zombie);
     EnemyFactory::GetInstance().DefineEnemy("enemySpider", &spider);
     EnemyFactory::GetInstance().DefineEnemy("enemyDemon", &rangedDemon);
@@ -962,6 +965,7 @@ Scene* ShopScene(SceneManager* sm)
 void GameInitScene(Scene* scene)
 {
     ParticleInit();
+    AssetLoader::Get()->RemoveWalls();
 }
 
 void ShopInitScene(Scene* scene)
@@ -1003,6 +1007,8 @@ void GameUpdateScene(SceneManager* sm, double dt)
         ImGuiHandler::GetInstance().SetBool("reset", false);
         EventBus::GetInstance().Publish(&ResetGame());
     }
+
+    auto entities = Physics::GetInstance().GetCollisionEntities();
 }
 
 void ShopUpdateScene(SceneManager* sm, double dt)

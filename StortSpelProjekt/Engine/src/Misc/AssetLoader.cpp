@@ -37,6 +37,9 @@
 #include "../Misc/NavMesh.h"
 
 #include "../Misc/Edge.h"
+#include "../Misc/EngineRand.h"
+
+#include <filesystem>
 
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
@@ -81,6 +84,14 @@ bool AssetLoader::IsTextureLoadedOnGpu(const Texture* texture) const
 std::vector<Edge*>& AssetLoader::GetEdges()
 {
 	return m_Edges;
+}
+
+void AssetLoader::RemoveWalls()
+{
+	for (int edgeId : m_EdgesToRemove)
+	{
+		m_Edges.at(edgeId)->RemoveEntitiesFromWorld();
+	}
 }
 
 void AssetLoader::loadDefaultMaterial()
@@ -518,6 +529,9 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 {
 	FILE* file = fopen(path, "r");
 
+	int numNavTriangles = 0;
+	static int totalNumberOfNavTriangles = 0;
+
 	std::string lineHeader;
 	lineHeader.reserve(128);
 	std::string entityName;
@@ -541,6 +555,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 	float3 lightColor = { 0.0, 0.0, 0.0 };
 	float3 lightDir = { 0.0, 0.0, 0.0 };
 	float3 lightAttenuation = { 0.0, 0.0, 0.0 };
+	float3 bbModifier = { 1.0f, 1.0f, 1.0f };
 	float lightAspect = 16.0f / 9.0f;
 	float lightCutOff = 30.0f;
 	float lightOuterCutOff = 45.0f;
@@ -814,6 +829,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 			{
 				fscanf(file, "%d", &particlePlayOnInit);
 			}
+			else if (strcmp(lineHeader.c_str(), "ShrinkBoundingBox") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &bbModifier.x, &bbModifier.y, &bbModifier.z);
+			}
 			else if (strcmp(lineHeader.c_str(), "CreateEdge") == 0)
 			{
 				m_Edges.push_back(new Edge(m_Edges.size()));
@@ -859,6 +878,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					mc->SetDrawFlag(combinedFlag);
 
 					bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+					bbc->SetModifier(bbModifier);
 					bbc->Init();
 					Physics::GetInstance().AddCollisionEntity(entity);
 				}
@@ -941,10 +961,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					dlc = entity->AddComponent<component::DirectionalLightComponent>(combinedFlag);
 					dlc->SetColor(lightColor);
 					dlc->SetDirection(lightDir);
-					dlc->SetCameraLeft(lightLeft);
-					dlc->SetCameraRight(lightRight);
-					dlc->SetCameraTop(lightTop);
-					dlc->SetCameraBot(lightBottom);
+					dlc->SetCameraLeft(lightLeft + offset.x);
+					dlc->SetCameraRight(lightRight + offset.x);
+					dlc->SetCameraTop(lightTop + offset.z);
+					dlc->SetCameraBot(lightBottom + offset.z);
 					dlc->SetCameraFarZ(lightFar);
 					dlc->SetCameraNearZ(lightNear);
 					lightNear = 0.01;
@@ -1024,8 +1044,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 				else if (strcmp(toSubmit.c_str(), "NavTriangle") == 0)
 				{
 					NavTriangle* tri = navMesh->AddNavTriangle(vertex1 + offset, vertex2 + offset, vertex3 + offset);
+					++numNavTriangles;
 					if (edgeId != -1)
 					{
+						edgeId += 6 * id;
 						m_Edges.at(edgeId)->AddNavTriangle(tri);
 						edgeId = -1;
 					}
@@ -1038,7 +1060,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					}
 					else if (std::strcmp(navMeshType.c_str(), "Triangles") == 0)
 					{
-						navMesh->ConnectNavTriangles(tri1, tri2);
+						navMesh->ConnectNavTriangles(tri1 + totalNumberOfNavTriangles, tri2 + totalNumberOfNavTriangles);
 					}
 				}
 				else if (strcmp(toSubmit.c_str(), "NavMesh") == 0)
@@ -1049,6 +1071,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					}
 					else if (std::strcmp(navMeshType.c_str(), "Triangles") == 0)
 					{
+						totalNumberOfNavTriangles += numNavTriangles;
 						navMesh->CreateTriangleGrid();
 					}
 				}
@@ -1072,6 +1095,136 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 	else
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load mapfile %s", path);
+	}
+}
+
+void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSize, float2 roomDimensions)
+{
+	std::vector<std::string> filePaths;
+	for (const auto& entry : std::filesystem::directory_iterator(folderPath))
+	{
+		filePaths.push_back(entry.path().string());
+	}
+
+	int maxRooms = static_cast<int>(mapSize.x * mapSize.y * 0.8f);
+	int roomCounter = 0;
+	bool removeWall = false;
+	float3 startingOffset = { 0.0f, 0.0f, 0.0f };
+	float3 offset = startingOffset;
+	float xMin = -std::floor(mapSize.x / 2.0f) * roomDimensions.x;
+	float xMax = mapSize.x / 2.0f * roomDimensions.x;
+	float zMin = -std::floor(mapSize.y / 2.0f) * (roomDimensions.y * 0.75f);
+	float zMax = std::floor(mapSize.y / 2.0f) * (roomDimensions.y * 0.75f);
+
+	EngineRand rand(time(0));
+
+	// Load the starting room
+	LoadMap(scene, "../Vendor/Resources/SpawnRoom.map", roomCounter, offset);
+	m_RoomsAdded[offset.toString()] = roomCounter++;
+	std::vector<float> spawnChances;
+	for (int i = 0; i < filePaths.size(); ++i)
+	{
+		spawnChances.push_back(100.0f / filePaths.size());
+	}
+
+	// Load rooms until maxRooms has been reached
+	float totalSpawnChance = 100.0f;
+	int spawnRand = 0;
+	while (roomCounter < maxRooms)
+	{
+		int direction = rand.Randu(0, 6);
+		int opositeDirection = 0;
+		float3 newOffset = offset;
+		switch (direction)
+		{
+		case 0:
+			newOffset.x += 86.5f;
+			newOffset.z += 150.0f;
+			opositeDirection = 3;
+			break;
+		case 1:
+			newOffset.x += 173.0f;
+			opositeDirection = 4;
+			break;
+		case 2:
+			newOffset.x += 86.5f;
+			newOffset.z += -150.0f;
+			opositeDirection = 5;
+			break;
+		case 3:
+			newOffset.x += -86.5f;
+			newOffset.z += -150.0f;
+			opositeDirection = 0;
+			break;
+		case 4:
+			newOffset.x += -173.0f;
+			opositeDirection = 1;
+			break;
+		case 5:
+			newOffset.x += -86.5f;
+			newOffset.z += 150.0f;
+			opositeDirection = 2;
+			break;
+		}
+
+		if (newOffset.x <= xMax && newOffset.x >= xMin && newOffset.z <= zMax && newOffset.z >= zMin)
+		{
+			if (m_RoomsAdded[newOffset.toString()] == 0 && newOffset.toString() != startingOffset.toString())
+			{
+				int mapId;
+				int maxRand = static_cast<int>(totalSpawnChance);
+				spawnRand = (rand.Randu(0, maxRand));
+				totalSpawnChance = 0.0f;
+				bool keepChecking = true;
+				for (int i = 0; i < spawnChances.size(); ++i)
+				{
+					totalSpawnChance += spawnChances[i];
+					if (spawnRand <= totalSpawnChance && keepChecking)
+					{
+						mapId = i;
+						if (filePaths.at(i) == "../Vendor/Resources/Rooms\\OutdoorRoom.map")
+						{
+							totalSpawnChance -= spawnChances[i];
+							spawnChances[i] = 0.0f;
+						}
+						else
+						{
+							float newSpawnChance = std::max<float>(spawnChances[i] - 10.0f, 0.0f);
+							totalSpawnChance -= (spawnChances[i] - newSpawnChance);
+							spawnChances[i] = newSpawnChance;
+						}
+						keepChecking = false;
+					}
+				}
+				std::string roomToLoad = filePaths.at(mapId);
+				LoadMap(scene, roomToLoad.c_str(), roomCounter, newOffset);
+				m_RoomsAdded[newOffset.toString()] = roomCounter++;
+				removeWall = true;
+			}
+			else
+			{
+				// 25% chance to remove wall into already existing room
+				removeWall = rand.Randu(0, 100) <= 25;
+			}
+
+			if (removeWall)
+			{
+				int firstEdgeId = direction + 6 * m_RoomsAdded[offset.toString()];
+				int secondEdgeId = opositeDirection + 6 * m_RoomsAdded[newOffset.toString()];
+
+				Edge* firstEdge = m_Edges.at(firstEdgeId);
+				Edge* secondEdge = m_Edges.at(secondEdgeId);
+				if (!firstEdge->IsConnected())
+				{
+					firstEdge->ConnectToWall(secondEdge, scene->GetNavMesh());
+					m_EdgesToRemove.push_back(firstEdgeId);
+					m_EdgesToRemove.push_back(secondEdgeId);
+				}
+
+				offset = newOffset;
+			}
+
+		}
 	}
 }
 
