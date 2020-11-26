@@ -178,11 +178,34 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 	Assimp::Importer importer;
 	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true);
-	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph);
+	std::stringstream ss;
+	std::string fileEnding = filePath.substr(filePath.find_last_of('.'));
+	bool binary = false;
 
+	if (fileEnding == ".fbx" || fileEnding == ".FBX")
+	{
+		binary = true;
+	}
+
+	std::string tmp(to_string(path));
+	tmp = tmp.substr(0,tmp.find_last_of('/') + 1);
+	tmp += "decryptedFile" + fileEnding;
+	if (binary)
+	{
+		Cryptor::DecryptDDS(Cryptor::GetGlobalKey(), to_string(path).c_str(),tmp.c_str());
+	}
+	else
+	{
+		Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(path).c_str(), tmp.c_str());
+	}
+
+	const aiScene* assimpScene = importer.ReadFile(tmp, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph);
+	remove(tmp.c_str());
 	if (assimpScene == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to load model with path: \'%S\'\n", path.c_str());
+		Log::Print(importer.GetErrorString());
+		Log::Print("\n");
 		return nullptr;
 	}
 
@@ -341,7 +364,7 @@ Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
 	// Check if the texture is DDS or of other commonType
 	std::string fileEnding = GetFileExtension(to_string(path));
 	Texture* texture = nullptr;
-	if (fileEnding == "dds")
+	if (fileEnding == "dds" || fileEnding == "DDS")
 	{
 		texture = new Texture2D(path);
 	}
@@ -380,9 +403,10 @@ TextureCubeMap* AssetLoader::LoadTextureCubeMap(const std::wstring& path)
 
 Material* AssetLoader::LoadMaterialFromMTL(const std::wstring& path)
 {
-	std::wifstream ifstream(path);
+	//std::wifstream ifstream(path);
+	std::wstringstream ifstream;
 	Material* mat = nullptr;
-	if (ifstream.is_open())
+	if (Cryptor::Decrypt(Cryptor::GetGlobalKey(), path.c_str(), &ifstream))
 	{
 		std::wstring relPath = path.substr(0, path.find_last_of('/') + 1);
 		std::wstring currMatName;
@@ -415,7 +439,6 @@ Material* AssetLoader::LoadMaterialFromMTL(const std::wstring& path)
 				currMatName = line.substr(line.find_first_of(L' '));
 				if (m_LoadedMaterials.count(currMatName) > 0)
 				{
-					ifstream.close();
 					return m_LoadedMaterials[currMatName].second;
 				}
 			}
@@ -1433,8 +1456,11 @@ void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, B
 
 Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 {
-	std::wifstream fs;
-	fs.open(filename);
+	//std::wifstream fs;
+	//fs.open(filename);
+
+	std::wstringstream fs;
+	Cryptor::Decrypt(Cryptor::GetGlobalKey(), filename, &fs);
 
 	m_LoadedFonts[filename].second = new Font();
 	std::wstring tmp = L"";
@@ -1611,11 +1637,10 @@ void AssetLoader::getHeightMapResources(const std::wstring& path, std::wstring& 
 		heightMapPath = relFolderPath + heightMapPath;
 		std::getline(input, materialPath);
 		materialPath = relFolderPath + materialPath;
-		input.close();
 	}
 	else
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load heightmap info file with path %S", path.c_str());
+		Log::PrintSeverity(Log::Severity::CRITICAL, "could not load heightmap of path %S\n", path.c_str());
 	}
 }
 
