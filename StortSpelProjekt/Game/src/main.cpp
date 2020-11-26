@@ -206,7 +206,6 @@ Scene* GameScene(SceneManager* sm)
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     alc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
-    melc = entity->AddComponent<component::MeleeComponent>();
     // range damage should be at least 10 for ranged life steal upgrade to work
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 10, 150);
     currc = entity->AddComponent<component::CurrencyComponent>();
@@ -219,6 +218,8 @@ Scene* GameScene(SceneManager* sm)
     tc->GetTransform()->SetScale(0.05f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
     tc->SetTransformOriginalState();
+
+    melc = entity->AddComponent<component::MeleeComponent>();   // moved this down to set scale first
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);

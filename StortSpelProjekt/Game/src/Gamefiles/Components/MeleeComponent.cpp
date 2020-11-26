@@ -27,7 +27,11 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 
 	m_ParticleEffectCounter = 0;
 	
-	m_HalfSize = { 8.0f, 1.0f, MELEE_RANGE / 2.0 };
+	// scale factor to get "old" scale back
+	float newScale = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().x;	// x, y, z will have same scale
+	float oldScale = 0.9f;
+	float scaleFactor = oldScale / newScale;
+	m_HalfSize = { 8.0f * scaleFactor, 1.0f * scaleFactor, (static_cast<float>(MELEE_RANGE) * scaleFactor) / 2.0f };
 
 	//Create bounding box for collision for melee
 	m_pBbc = parent->GetComponent<component::BoundingBoxComponent>();
