@@ -34,13 +34,13 @@ void UpgradePoisonAttack::IncreaseLevel()
 {
 	m_Level++;
 	m_NrOfTicks = 9 + m_Level;
-	m_Damage = (float)(2 + m_Level) / 3.0f;
-	m_Slow = 0.05 + (float)m_Level / 20.0f;
+	m_Damage = (float)(4 + m_Level*2);
+	m_Slow = 0.10 + (float)m_Level / 10.0f;
 	m_Price = m_StartingPrice * (m_Level + 1);
 
 }
 
-void UpgradePoisonAttack::OnRangedHit(Entity* target)
+void UpgradePoisonAttack::OnRangedHit(Entity* target, Entity* projectile)
 {
 	if (target->HasComponent<component::HealthComponent>())
 	{
@@ -66,7 +66,7 @@ std::string UpgradePoisonAttack::GetDescription(unsigned int level)
 	std::string str = "Poison Attack: Causes your projectile to apply a poison, that deals ";
 	std::ostringstream damage;
 	damage.precision(2);
-	damage << std::fixed << ((float)(2 + level) / 3.0f) * (9 + level);
+	damage << std::fixed << ((float)(4 + m_Level * 2)) * (9 + level);
 	str += damage.str();
 	str += " damage over ";
 	std::ostringstream duration;
@@ -76,7 +76,7 @@ std::string UpgradePoisonAttack::GetDescription(unsigned int level)
 	str += " seconds and slows the enemy by ";
 	std::ostringstream slow;
 	slow.precision(0);
-	slow << std::fixed << (0.05f + (float)level / 20.0f) * 100;
+	slow << std::fixed << (0.10 + (float)m_Level / 10.0f);
 	str += slow.str();
 	return 	 str + " \%";
 

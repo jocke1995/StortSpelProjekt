@@ -12,7 +12,7 @@ UpgradeMeleeDamage::UpgradeMeleeDamage(Entity* parentEntity) : Upgrade(parentEnt
 	m_Price = 100;
 	m_StartingPrice = m_Price;
 
-	m_DamageChange = 2;
+	m_DamageChange = 25;
 
 	m_ImageName = "MeleeDamage.png";
 }
@@ -43,5 +43,5 @@ void UpgradeMeleeDamage::ApplyBoughtUpgrade()
 
 std::string UpgradeMeleeDamage::GetDescription(unsigned int level)
 {
-	return "Melee Damage: Improves the Melee damage by +2, for a total of: " + std::to_string(2*level);
+	return "Melee Damage: Improves the Melee damage by 50%, for a total of: " + std::to_string(50*level) + "\%";
 }
