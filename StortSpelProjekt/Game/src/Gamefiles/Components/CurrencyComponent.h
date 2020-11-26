@@ -11,7 +11,7 @@ namespace component
 	class CurrencyComponent : public Component
 	{
 	public:
-		CurrencyComponent(Entity* parent, int balance = 0);
+		CurrencyComponent(Entity* parent, int balance = 999999);
 		~CurrencyComponent();
 
 		void OnInitScene();

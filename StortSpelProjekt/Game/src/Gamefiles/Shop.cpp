@@ -10,6 +10,7 @@
 #include "Events/EventBus.h"
 #include "ECS/SceneManager.h"
 #include "Misc/GUI2DElements/Font.h"
+#include "UpgradeGUI.h"
 
 #include "Player.h"
 
@@ -88,13 +89,43 @@ void Shop::Create2DGUI()
 		std::string textToRender = s_UpgradeBoughtText;
 		if (m_InventoryIsBought.at(i) == false)
 		{
+			textToRender = "";
+			std::string name = "Description";
+			int newLinePos = 0;
+			int sizeLeft = upgrade->GetDescription(upgrade->GetLevel() + 1).size();
+			std::string description = upgrade->GetDescription(upgrade->GetLevel() + 1);
+
+			std::string delimiter = " ";
+			size_t pos = 0;
+			std::string token;
+			int newLineAmount = 1;
+
+			while ((pos = description.find(delimiter)) != std::string::npos)
+			{
+				token = description.substr(0, pos);
+				newLinePos += pos;
+				// If we exceed  characters in lenght then we put a newLine before the word that broke the limit.
+				if (newLinePos > (40 * newLineAmount))
+				{
+					newLineAmount++;
+					textToRender += "\n" + token + " ";
+				}
+				// Else we just take the word as is and put back a space
+				else
+				{
+					textToRender += token + " ";
+				}
+				// Get the last word that we didn't get in the loop
+				description.erase(0, pos + delimiter.length());
+			}
+
 			// If the upgrade isn't bought, write the description on the button
-			textToRender = upgrade->GetDescription(upgrade->GetLevel() + 1);
+			textToRender += description.substr(0, description.length());
 			textToRender += "\nPrice: " + std::to_string(GetPrice(GetInventoryNames().at(i)));
 			textToRender += "    Next Level: " + std::to_string(upgrade->GetLevel() + 1);
 		}
 		
-		float2 textPos = { 0.132f, 0.152f * (i + 1) + 0.01f };
+		float2 textPos = { 0.134f, 0.152f * (i + 1) + 0.02f };
 		float2 textPadding = { 0.4f, 0.0f };
 		float4 textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 		float2 textScale = { 0.3f, 0.3f };
@@ -111,8 +142,8 @@ void Shop::Create2DGUI()
 		gui->GetTextManager()->SetText(textToRender, "upgrade" + std::to_string(i));
 		gui->GetTextManager()->SetBlend(textBlend, "upgrade" + std::to_string(i));
 
-		float2 quadPos = { 0.1f, 0.15f * (i + 1) + 0.01f };
-		float2 quadScale = { 0.40f, 0.1f };
+		float2 quadPos = { 0.1f, 0.15f * (i + 1) + 0.012f };
+		float2 quadScale = { 0.40f, 0.12f };
 		float4 blended = { 1.0, 1.0, 1.0, 0.75 };
 		float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
 
@@ -133,7 +164,7 @@ void Shop::Create2DGUI()
 		/* ------------------------- head --------------------------- */
 		entity = shopScene->AddEntity("upgradebutton" + std::to_string(i));
 		gui = entity->AddComponent<component::GUI2DComponent>();
-		quadPos = { 0.02f, 0.15f * (i + 1) + 0.01f };
+		quadPos = { 0.02f, 0.15f * (i + 1) + 0.012f };
 		quadScale = { 0.08f, 0.09f };
 		Texture* shopImage = GetUpgradeImage(&GetInventoryNames().at(i));
 		gui->GetQuadManager()->CreateQuad(
@@ -161,7 +192,7 @@ void Shop::Create2DGUI()
 	textToRender += "\nPrice: ";
 	textToRender += std::to_string(m_RerollCost);
 	textToRender += " Coins";
-	float2 textPos = { 0.17f, 0.152f * (m_InvSize + 1) + 0.01f };
+	float2 textPos = { 0.134f, 0.152f * (m_InvSize + 1) + 0.01f };
 	float2 textPadding = { 0.5f, 0.0f };
 	float4 textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float2 textScale = { 0.3f, 0.3f };
@@ -176,7 +207,7 @@ void Shop::Create2DGUI()
 	gui->GetTextManager()->SetText(textToRender, "reroll");
 	gui->GetTextManager()->SetBlend(textBlend, "reroll");
 
-	quadPos = { 0.1f, 0.15f * (m_InvSize + 1) + 0.01f };
+	quadPos = { 0.1f, 0.15f * (m_InvSize + 1) + 0.012f };
 	quadScale = { 0.40f, 0.1f };
 	blended = { 1.0, 1.0, 1.0, 0.75 };
 	notBlended = { 1.0, 1.0, 1.0, 1.0 };
@@ -195,7 +226,7 @@ void Shop::Create2DGUI()
 	/*---------------Texture-----------------*/
 	entity = shopScene->AddEntity("reroll-button");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	quadPos = { 0.02f, 0.15f * (m_InvSize + 1) + 0.01f };
+	quadPos = { 0.02f, 0.15f * (m_InvSize + 1) + 0.012f };
 	quadScale = { 0.08f, 0.09f };
 	Texture* rerollImage = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Reroll.png");
 	gui->GetQuadManager()->CreateQuad(
@@ -394,6 +425,7 @@ void Shop::shopButtonPressed(ButtonPressed* evnt)
 				ApplyUppgrade(m_InventoryNames.at(i));
 
 				SceneManager::GetInstance().GetActiveScene()->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(s_UpgradeBoughtText, "upgrade" + std::to_string(i));
+				UpgradeGUI::GetInstance().SetCreateUpgradeButtons();
 			}
 		}
 	}

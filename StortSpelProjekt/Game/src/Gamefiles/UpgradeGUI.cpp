@@ -173,100 +173,105 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 	textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	entity = scene->AddEntity("UpgradeMenuBackground");
-	gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(m_pArial);
-	gui->GetTextManager()->AddText("UpgradeMenuBackground");
-	gui->GetTextManager()->SetColor(textColor, "UpgradeMenuBackground");
-	gui->GetTextManager()->SetPadding(textPadding, "UpgradeMenuBackground");
-	gui->GetTextManager()->SetPos(textPos, "UpgradeMenuBackground");
-	gui->GetTextManager()->SetScale(textScale, "UpgradeMenuBackground");
-	gui->GetTextManager()->SetText(textToRender, "UpgradeMenuBackground");
-	gui->GetTextManager()->SetBlend(textBlend, "UpgradeMenuBackground");
-
-	quadPos = { 0.51f, 0.08f };
-	quadScale = { 0.5f, 0.6f };
-	blended = { 1.0, 1.0, 1.0, 1.0 };
-	notBlended = { 1.0, 1.0, 1.0, 1.0 };
-	gui->GetQuadManager()->CreateQuad(
-		"UpgradeMenuBackground",
-		quadPos, quadScale,
-		false, false,
-		4,
-		notBlended,
-		m_pBoardBackgroundTexture, {0.4, 0.4, 0.4});
-	m_pSm->AddEntity(entity, scene);
-	entity->Update(0);
-	entity->SetEntityState(true);
-
-	/* ------------------------- Upgrade Menu Background End --------------------------- */
-
-	/* ------------------------- Upgrade Menu Buttons --------------------------- */
-	int iterator = 0;
-
-	for (auto u : m_AppliedUpgradeEnums)
-	//for (auto u : vec)
+	// This is not a solution that is good... The core issue is not fixed
+	if (entity != nullptr)
 	{
-		if (iterator < 10)
-		{
-			makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + (m_ButtonYOffset * iterator)) }, u.first);
-		}
-
-		if (iterator % 10 == 0 && iterator > 0)
-		{
-			m_ButtonsMultipleTen++;
-		}
-		iterator++;
-	}
-	m_TimesFilledMenu++;
-
-	/* ------------------------- Upgrade Menu Button End --------------------------- */
-
-	/* ------------------------- Upgrade Menu Next Button --------------------------- */
-
-	if (m_ButtonsMultipleTen > 0)
-	{
-		textToRender = "Next";
-		textPos = { 0.548f, m_ButtonPos.y + (m_ButtonYOffset * 10) };
-		textPadding = { 0.5f, 0.0f };
-		textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-		textScale = { 0.5f, 0.5f };
-		textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-		entity = scene->AddEntity("NextButton");
 		gui = entity->AddComponent<component::GUI2DComponent>();
 		gui->GetTextManager()->SetFont(m_pArial);
-		gui->GetTextManager()->AddText("NextButton");
-		gui->GetTextManager()->SetColor(textColor, "NextButton");
-		gui->GetTextManager()->SetPadding(textPadding, "NextButton");
-		gui->GetTextManager()->SetPos(textPos, "NextButton");
-		gui->GetTextManager()->SetScale(textScale, "NextButton");
-		gui->GetTextManager()->SetText(textToRender, "NextButton");
-		gui->GetTextManager()->SetBlend(textBlend, "NextButton");
+		gui->GetTextManager()->AddText("UpgradeMenuBackground");
+		gui->GetTextManager()->SetColor(textColor, "UpgradeMenuBackground");
+		gui->GetTextManager()->SetPadding(textPadding, "UpgradeMenuBackground");
+		gui->GetTextManager()->SetPos(textPos, "UpgradeMenuBackground");
+		gui->GetTextManager()->SetScale(textScale, "UpgradeMenuBackground");
+		gui->GetTextManager()->SetText(textToRender, "UpgradeMenuBackground");
+		gui->GetTextManager()->SetBlend(textBlend, "UpgradeMenuBackground");
 
-
-		quadPos = { 0.48f, m_ButtonPos.y + (m_ButtonYOffset * 10) };//{ 0.47f, 0.202f };
-		quadScale = { 0.15f, 0.04f };
+		quadPos = { 0.51f, 0.08f };
+		quadScale = { 0.5f, 0.6f };
 		blended = { 1.0, 1.0, 1.0, 1.0 };
 		notBlended = { 1.0, 1.0, 1.0, 1.0 };
 		gui->GetQuadManager()->CreateQuad(
-			"NextButton",
+			"UpgradeMenuBackground",
 			quadPos, quadScale,
-			true, true,
+			false, false,
 			4,
 			notBlended,
-			m_pButtonParchment);
-
+			m_pBoardBackgroundTexture, { 0.4, 0.4, 0.4 });
 		m_pSm->AddEntity(entity, scene);
 		entity->Update(0);
 		entity->SetEntityState(true);
+
+		/* ------------------------- Upgrade Menu Background End --------------------------- */
+
+		/* ------------------------- Upgrade Menu Buttons --------------------------- */
+		int iterator = 0;
+
+		for (auto u : m_AppliedUpgradeEnums)
+			//for (auto u : vec)
+		{
+			if (iterator < 10)
+			{
+				makeUpgradeButton({ m_ButtonPos.x, (m_ButtonPos.y + (m_ButtonYOffset * iterator)) }, u.first);
+			}
+
+			if (iterator % 10 == 0 && iterator > 0)
+			{
+				m_ButtonsMultipleTen++;
+			}
+			iterator++;
+		}
+		m_TimesFilledMenu++;
+
+		/* ------------------------- Upgrade Menu Button End --------------------------- */
+
+		/* ------------------------- Upgrade Menu Next Button --------------------------- */
+
+		if (m_ButtonsMultipleTen > 0)
+		{
+			textToRender = "Next";
+			textPos = { 0.548f, m_ButtonPos.y + (m_ButtonYOffset * 10) };
+			textPadding = { 0.5f, 0.0f };
+			textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+			textScale = { 0.5f, 0.5f };
+			textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+			entity = scene->AddEntity("NextButton");
+			gui = entity->AddComponent<component::GUI2DComponent>();
+			gui->GetTextManager()->SetFont(m_pArial);
+			gui->GetTextManager()->AddText("NextButton");
+			gui->GetTextManager()->SetColor(textColor, "NextButton");
+			gui->GetTextManager()->SetPadding(textPadding, "NextButton");
+			gui->GetTextManager()->SetPos(textPos, "NextButton");
+			gui->GetTextManager()->SetScale(textScale, "NextButton");
+			gui->GetTextManager()->SetText(textToRender, "NextButton");
+			gui->GetTextManager()->SetBlend(textBlend, "NextButton");
+
+
+			quadPos = { 0.48f, m_ButtonPos.y + (m_ButtonYOffset * 10) };//{ 0.47f, 0.202f };
+			quadScale = { 0.15f, 0.04f };
+			blended = { 1.0, 1.0, 1.0, 1.0 };
+			notBlended = { 1.0, 1.0, 1.0, 1.0 };
+			gui->GetQuadManager()->CreateQuad(
+				"NextButton",
+				quadPos, quadScale,
+				true, true,
+				4,
+				notBlended,
+				m_pButtonParchment);
+
+			m_pSm->AddEntity(entity, scene);
+			entity->Update(0);
+			entity->SetEntityState(true);
+		}
+
+		/* ------------------------- Upgrade Menu Next Button End --------------------------- */
+
+		/* ----------------------- Upgrade Menu -------------------------- */
+
+		// The menu is not deleted
+		m_Deleted = false;
 	}
 	
-	/* ------------------------- Upgrade Menu Next Button End --------------------------- */
-
-	/* ----------------------- Upgrade Menu -------------------------- */
-
-	// The menu is not deleted
-	m_Deleted = false;
 }
 
 void UpgradeGUI::Init()
@@ -300,9 +305,50 @@ void UpgradeGUI::SetShown(bool shown)
 	m_Shown = shown;
 }
 
+void UpgradeGUI::SetCreateUpgradeButtons()
+{
+	//// Delete the background
+	//m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("UpgradeMenuBackground"), m_pCurrentScene);
+	//// If we have a next button it should be deleted
+	//if (m_ButtonsMultipleTen > 0)
+	//{
+	//	m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("NextButton"), m_pCurrentScene);
+	//}
+	//// If we have a description, that is not empty, it should be deleted
+	//if (m_CurrentDescription != "")
+	//{
+	//	m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("Description"), m_pCurrentScene);
+	//	m_CurrentDescription = "";
+	//}
+	//// Delete the Upgrade Buttons
+	//for (int i = 0; i < m_ButtonNames.size(); i++)
+	//{
+	//	if (m_pCurrentScene->EntityExists(m_ButtonNames[i]))
+	//	{
+	//		m_pSm->RemoveEntity(m_pCurrentScene->GetEntity(m_ButtonNames[i]), m_pCurrentScene);
+	//	}
+	//}
+	//m_ButtonNames.clear();
+	//m_Deleted = true;
+	//m_Drawn = false;
+	//m_ButtonsMultipleTen = 0;
+	//m_TimesFilledMenu = 0;
+
+	//CreateMenu(m_pCurrentScene);
+}
+
 void UpgradeGUI::showMenu(UForUpgrade* keyPress)
 {
-	m_Shown = !m_Shown;
+	// For safety, so that the player cant open the u-window without targeting the shop npc
+	Entity* pickedEntity = Renderer::GetInstance().GetPickedEntity();
+	if (pickedEntity != nullptr)
+	{
+		if (pickedEntity->GetName() == "shop")
+		{
+			m_Shown = !m_Shown;
+		}
+	}
+
 }
 
 void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
