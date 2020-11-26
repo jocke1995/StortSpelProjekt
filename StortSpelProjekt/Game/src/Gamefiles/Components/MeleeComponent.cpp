@@ -25,8 +25,8 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	m_Damage = 1;
 	m_KnockBack = 5;
 	// Set base sizes of the hitbox 
-	m_MeleeXRange = 2.0f;
-	m_MeleeZRange = 4.5f;
+	m_MeleeXRange = 3.0f;
+	m_MeleeZRange = 4.0f;
 	m_XScale = 1.0f;
 	m_ZScale = 1.0f;
 
