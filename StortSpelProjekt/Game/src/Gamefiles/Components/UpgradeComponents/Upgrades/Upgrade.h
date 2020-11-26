@@ -53,7 +53,7 @@ public:
 	// upgrades that are triggered on hit (ex: explosive, poison)
 	virtual void OnHit(Entity* target);
 	// specific for ranged hits
-	virtual void OnRangedHit(Entity* target);
+	virtual void OnRangedHit(Entity* target, Entity* projectile);
 	// specific for melee hits
 	virtual void OnMeleeHit(Entity* target);
 	// upgrades that are triggered when taking damage

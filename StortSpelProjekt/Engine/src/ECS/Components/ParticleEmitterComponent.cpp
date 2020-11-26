@@ -75,11 +75,6 @@ void component::ParticleEmitterComponent::OnUnInitScene()
 
 void component::ParticleEmitterComponent::Play()
 {
-	if (m_IsPlaying)
-	{
-		return;
-	}
-
 	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
 	{
 		m_ParticleEffects.at(i)->SetIsSpawning(true);
@@ -90,17 +85,20 @@ void component::ParticleEmitterComponent::Play()
 
 void component::ParticleEmitterComponent::Stop()
 {
-	if (!m_IsPlaying)
-	{
-		return;
-	}
-
 	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
 	{
 		m_ParticleEffects.at(i)->SetIsSpawning(false);
 	}
 
 	m_IsPlaying = false;
+}
+
+void component::ParticleEmitterComponent::Clear()
+{
+	for (unsigned int i = 0; i < m_ParticleEffects.size(); i++)
+	{
+		m_ParticleEffects.at(i)->Clear();
+	}
 }
 
 bool component::ParticleEmitterComponent::IsPlaying() const

@@ -124,7 +124,7 @@ void ParticleRenderTask::Execute()
 				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
 				commandList->IASetIndexBuffer(m_pParticleMesh->GetIndexBufferView());
-				commandList->DrawIndexedInstanced(num_Indices, effects->at(i)->m_Settings.particleCount, 0, 0, 0);
+				commandList->DrawIndexedInstanced(num_Indices, effects->at(i)->m_Settings.maxParticleCount, 0, 0, 0);
 			}
 		}
 	}

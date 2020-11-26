@@ -103,11 +103,11 @@ void component::UpgradeComponent::OnHit(Entity* target)
 	}
 }
 
-void component::UpgradeComponent::OnRangedHit(Entity* target)
+void component::UpgradeComponent::OnRangedHit(Entity* target, Entity* projectile)
 {
 	for (auto upgrade : m_AppliedUpgrades)
 	{
-		upgrade.second->OnRangedHit(target);
+		upgrade.second->OnRangedHit(target, projectile);
 	}
 }
 

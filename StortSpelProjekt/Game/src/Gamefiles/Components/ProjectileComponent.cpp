@@ -77,7 +77,7 @@ void component::ProjectileComponent::hit(Collision* event)
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit(event->ent2);
-			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit(event->ent2);
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit(event->ent2, m_pParent);
 		}
 	}
 	else if (event->ent2 == m_pParent)
@@ -103,7 +103,7 @@ void component::ProjectileComponent::hit(Collision* event)
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
 			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit(event->ent1);
-			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit(event->ent1);
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit(event->ent1, m_pParent);
 		}
 	}
 }

@@ -108,7 +108,7 @@ void Upgrade::OnHit(Entity* target)
 {
 }
 
-void Upgrade::OnRangedHit(Entity* target)
+void Upgrade::OnRangedHit(Entity* target, Entity* projectile)
 {
 }
 
