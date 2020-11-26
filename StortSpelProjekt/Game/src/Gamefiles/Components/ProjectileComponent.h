@@ -31,7 +31,7 @@ namespace component
 
 		void hit(Collision* event);
 
-		void createProjectileParticleEffect(Entity* target) const;
+		void createProjectileParticleEffectAt(Entity* target) const;
 	};
 }
 

@@ -777,17 +777,18 @@ Scene* FloppipTestScene(SceneManager* sm)
     // Create test particleEffect
     ParticleEffectSettings settings = {};
     settings.maxParticleCount = 1;
-    settings.startValues.lifetime = 2;
-    settings.spawnInterval = 0.00001;
-    settings.startValues.acceleration = {0, 0, 0};
+    settings.startValues.lifetime = 0.2;
+    settings.spawnInterval = 0.2;
+    settings.startValues.acceleration = { 0, 0, 0 };
     settings.isLooping = true;
 
     // Need to fix EngineRand.rand() for negative values
 
-    settings.randPosition = { 0, 0, 0, 0, 0, 0};
+    settings.randPosition = { 0, 0, 0, 0, 0, 0 };
     settings.randVelocity = { 0, 0, 0, 0, 0, 0 };
-    settings.randSize = { 2, 3 };
-    settings.randRotationSpeed = { 0, 0.3 };
+    settings.randSize = { 3.5, 3.5 };
+    settings.randRotation = { 0, 2 * PI };
+    settings.randRotationSpeed = { 0.2, 0.2 };
 
     Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/projParticle.png"));
     settings.texture = particleTexture;

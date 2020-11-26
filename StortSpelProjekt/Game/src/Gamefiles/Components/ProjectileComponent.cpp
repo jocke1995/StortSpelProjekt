@@ -71,7 +71,7 @@ void component::ProjectileComponent::hit(Collision* event)
 
 		if (other->HasComponent<component::HealthComponent>())
 		{
-			createProjectileParticleEffect(m_pParent);
+			createProjectileParticleEffectAt(m_pParent);
 			other->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 			if (other->GetName().find("enemy") != std::string::npos && other->GetComponent<component::Audio3DEmitterComponent>())
 			{
@@ -96,7 +96,7 @@ void component::ProjectileComponent::hit(Collision* event)
 	}
 }
 
-void component::ProjectileComponent::createProjectileParticleEffect(Entity* target) const
+void component::ProjectileComponent::createProjectileParticleEffectAt(Entity* target) const
 {
 	float duration = 0.2;
 
@@ -104,16 +104,18 @@ void component::ProjectileComponent::createProjectileParticleEffect(Entity* targ
 	ParticleEffectSettings settings = {};
 	settings.maxParticleCount = 1;
 	settings.startValues.lifetime = duration;
-	settings.spawnInterval = 0.00001;
+	settings.spawnInterval = 0.00000001;
 	settings.startValues.acceleration = { 0, 0, 0 };
-	settings.isLooping = true;
+	settings.startValues.size = 3.5;
+	settings.isLooping = false;
 
 	// Need to fix EngineRand.rand() for negative values
 
 	settings.randPosition = { 0, 0, 0, 0, 0, 0 };
 	settings.randVelocity = { 0, 0, 0, 0, 0, 0 };
-	settings.randSize = { 3.5, 3.5 };
-	settings.randRotationSpeed = { 0, 0.3 };
+	settings.randSize = { 0, 0 };
+	settings.randRotation = { 0, 2*PI };
+	settings.randRotationSpeed = { 0.0, 0.2 };
 
 	AssetLoader* al = AssetLoader::Get();
 	Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/projParticle.png"));
