@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "AssetLoader.h"
 
@@ -36,6 +35,8 @@
 #include "EngineMath.h"
 
 #include "../Misc/NavMesh.h"
+
+#include "../Misc/Edge.h"
 
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
@@ -75,6 +76,11 @@ bool AssetLoader::IsTextureLoadedOnGpu(const std::wstring& name) const
 bool AssetLoader::IsTextureLoadedOnGpu(const Texture* texture) const
 {
 	return m_LoadedTextures.at(texture->GetPath()).first;
+}
+
+std::vector<Edge*>& AssetLoader::GetEdges()
+{
+	return m_Edges;
 }
 
 void AssetLoader::loadDefaultMaterial()
@@ -144,6 +150,11 @@ AssetLoader::~AssetLoader()
 		delete font.second.second->m_pKerningsList;
 		delete font.second.second->m_pCharList;
 		delete font.second.second;
+	}
+
+	for (auto edge : m_Edges)
+	{
+		delete edge;
 	}
 }
 
@@ -215,7 +226,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	if (m_LoadedModels.count(path) != 0)
 	{
 		model = dynamic_cast<HeightmapModel*>(m_LoadedModels[path].second);
-		
+
 		if (!model)
 		{
 			Log::PrintSeverity(Log::Severity::OTHER, "The model %S is already loaded and attempted to be loaded as a HeightmapModel!", path);
@@ -242,7 +253,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	{
 		Vertex ver;
 		heightData[i] = imgData[i * 4] / 255.0f;
-		
+
 		ver.pos = { static_cast<float>(i % tex->GetHeight()) - tex->GetHeight() / 2.0f, static_cast<float>(heightData[i]), (i / tex->GetHeight()) - tex->GetWidth() / 2.0f };
 		ver.uv = { static_cast<float>(i % tex->GetHeight()) / tex->GetHeight(), static_cast<float>(i / tex->GetHeight()) / tex->GetWidth() };
 		vertices.push_back(ver);
@@ -283,18 +294,18 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 			*-*-*
 		*/
 
-		i+= (((i + 2) % tex->GetHeight()) == 0);
+		i += (((i + 2) % tex->GetHeight()) == 0);
 	}
 
 	unsigned int nrOfThreads = ThreadPool::GetInstance().GetNrOfThreads();
-	CalculateHeightmapNormalsTask** tasks = new CalculateHeightmapNormalsTask*[nrOfThreads];
-	
+	CalculateHeightmapNormalsTask** tasks = new CalculateHeightmapNormalsTask * [nrOfThreads];
+
 	for (int i = 0; i < nrOfThreads; i++)
 	{
 		tasks[i] = new CalculateHeightmapNormalsTask(i, nrOfThreads, vertices, indices, tex->GetHeight(), tex->GetWidth());
 		ThreadPool::GetInstance().AddTask(tasks[i]);
 	}
-	
+
 	ThreadPool::GetInstance().WaitForThreads(tasks[0]->GetThreadFlags());
 
 	for (int i = 0; i < nrOfThreads; i++)
@@ -480,7 +491,7 @@ Font* AssetLoader::LoadFontFromFile(const std::wstring& fontName)
 	return m_LoadedFonts[path].second;
 }
 
-void AssetLoader::LoadMap(Scene* scene, const char* path)
+void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float3 offset)
 {
 	FILE* file = fopen(path, "r");
 
@@ -502,7 +513,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	unsigned int combinedFlag = 0;
 	float3 scaling = { 1.0f,1.0f,1.0f };
 	float3 pos = { 0.0, 0.0, 0.0 };
-	float3 rot = { 0.0, 0.0, 0.0};
+	float3 lightPos = { 0.0, 0.0, 0.0 };
+	float3 rot = { 0.0, 0.0, 0.0 };
 	float3 lightColor = { 0.0, 0.0, 0.0 };
 	float3 lightDir = { 0.0, 0.0, 0.0 };
 	float3 lightAttenuation = { 0.0, 0.0, 0.0 };
@@ -539,6 +551,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	std::string navMeshType;
 	navMeshType.reserve(128);
 
+	int edgeId = -1;
+
 	ParticleEffectSettings particleSettings = {};
 	int particlePlayOnInit = 0;
 
@@ -561,7 +575,18 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			if (strcmp(lineHeader.c_str(), "Name") == 0)
 			{
 				fscanf(file, "%s", entityName.c_str());
-				entity = scene->AddEntity(entityName.c_str());
+				
+				char idString[4];
+
+				sprintf(idString, "_%d", id);
+
+				char* fullName = new char[std::strlen(entityName.c_str()) + std::strlen(idString) + 1];
+				std::strcpy(fullName, entityName.c_str());
+				std::strcat(fullName, idString);
+
+				entity = scene->AddEntity(fullName);
+
+				delete[] fullName;
 			}
 			else if (strcmp(lineHeader.c_str(), "NavMesh") == 0)
 			{
@@ -592,6 +617,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			{
 				fscanf(file, "%d,%d", &flag, &flagVal);
 				drawFlags[flag] = flagVal;
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightPosition") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &lightPos.x, &lightPos.y, &lightPos.z);
 			}
 			else if (strcmp(lineHeader.c_str(), "ModelLightFlag") == 0)
 			{
@@ -762,20 +791,38 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			{
 				fscanf(file, "%d", &particlePlayOnInit);
 			}
+			else if (strcmp(lineHeader.c_str(), "CreateEdge") == 0)
+			{
+				m_Edges.push_back(new Edge(m_Edges.size()));
+			}
+			else if (strcmp(lineHeader.c_str(), "EdgeId") == 0)
+			{
+				fscanf(file, "%d", &edgeId);
+			}
+			else if (strcmp(lineHeader.c_str(), "AddToEdge") == 0)
+			{
+				fscanf(file, "%d", &edgeId);
+				edgeId += 6 * id;
+				if (edgeId != -1)
+				{
+					m_Edges.at(edgeId)->AddEntity(entity);
+					edgeId = -1;
+				}
+			}
 			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
 			{
 				fscanf(file, "%s", toSubmit.c_str());
 
 				if (strcmp(toSubmit.c_str(), "Model") == 0)
-				{	
+				{
 					mc = entity->AddComponent<component::ModelComponent>();
 					tc = entity->AddComponent<component::TransformComponent>();
 					tc->GetTransform()->SetScale(1.0f);
-					tc->GetTransform()->SetScale(scaling.x,scaling.y,scaling.z);
+					tc->GetTransform()->SetScale(scaling.x, scaling.y, scaling.z);
 					tc->GetTransform()->SetRotationX(rot.x * (PI / 180));
 					tc->GetTransform()->SetRotationY(rot.y * (PI / 180));
 					tc->GetTransform()->SetRotationZ(rot.z * (PI / 180));
-					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+					tc->GetTransform()->SetPosition(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
 
 					tc->SetTransformOriginalState();
 
@@ -808,7 +855,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					tc->GetTransform()->SetRotationY(rot.y);
 					tc->GetTransform()->SetRotationZ(rot.z);
 					tc->GetTransform()->SetScale(scaling.x, scaling.y, scaling.z);
-					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+					tc->GetTransform()->SetPosition(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
 
 					tc->SetTransformOriginalState();
 				}
@@ -822,7 +869,14 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					plc = entity->AddComponent<component::PointLightComponent>(combinedFlag);
 					plc->SetColor(lightColor);
 					plc->SetAttenuation(lightAttenuation);
-					plc->SetPosition({ pos.x, pos.y, pos.z });
+					if (FLAG_LIGHT::USE_TRANSFORM_POSITION & combinedFlag)
+					{
+						plc->SetPosition({ pos.x + offset.x, pos.y + offset.y, pos.z + offset.z });
+					}
+					else
+					{
+						plc->SetPosition({ lightPos.x + offset.x, lightPos.y + offset.y, lightPos.z + offset.z });
+					}
 				}
 				else if (strcmp(toSubmit.c_str(), "SpotLight") == 0)
 				{
@@ -835,7 +889,14 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					slc->SetColor(lightColor);
 					slc->SetAttenuation(lightAttenuation);
 					slc->SetDirection(lightDir);
-					slc->SetPosition({ pos.x, pos.y, pos.z });
+					if (FLAG_LIGHT::USE_TRANSFORM_POSITION & combinedFlag)
+					{
+						slc->SetPosition({ pos.x + offset.x, pos.y + offset.y, pos.z + offset.z });
+					}
+					else
+					{
+						slc->SetPosition({ lightPos.x + offset.x, lightPos.y + offset.y, lightPos.z + offset.z });
+					}
 					slc->SetAspectRatio(lightAspect);
 					slc->SetCutOff(lightCutOff);
 					slc->SetOuterCutOff(lightOuterCutOff);
@@ -927,17 +988,24 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					info.maxHeight = 1;
 					info.minHeight = -1;
 					// Implement when feature is merged to develop
-					cc = entity->AddComponent<component::HeightmapCollisionComponent>(info,mass,friction,restitution);
+					cc = entity->AddComponent<component::HeightmapCollisionComponent>(info, mass, friction, restitution);
 					cc->SetUserID(1);
 					mass = 0.0;
 				}
 				else if (strcmp(toSubmit.c_str(), "NavQuad") == 0)
 				{
+					pos.x += offset.x;
+					pos.y += offset.z;
 					navMesh->AddNavQuad(pos, size);
 				}
 				else if (strcmp(toSubmit.c_str(), "NavTriangle") == 0)
 				{
-					navMesh->AddNavTriangle(vertex1, vertex2, vertex3);
+					NavTriangle* tri = navMesh->AddNavTriangle(vertex1 + offset, vertex2 + offset, vertex3 + offset);
+					if (edgeId != -1)
+					{
+						m_Edges.at(edgeId)->AddNavTriangle(tri);
+						edgeId = -1;
+					}
 				}
 				else if (strcmp(toSubmit.c_str(), "NavConnection") == 0)
 				{
@@ -973,6 +1041,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					particleSettings.texture = particleTexture;
 					pe = entity->AddComponent<component::ParticleEmitterComponent>(&particleSettings, particlePlayOnInit);
 				}
+					
 			}
 		}
 		fclose(file);
@@ -1054,7 +1123,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 }
 
 void AssetLoader::processMeshData(const aiScene* assimpScene, const aiMesh* assimpMesh, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices)
-{	
+{
 	// Get data from assimpMesh and store it
 	for (unsigned int i = 0; i < assimpMesh->mNumVertices; i++)
 	{
@@ -1354,7 +1423,7 @@ void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, B
 	{
 		node->boneID = -1;
 	}
-	
+
 	// Loop through all nodes in the tree
 	for (auto& child : node->children)
 	{
@@ -1387,7 +1456,7 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	// get padding
 	fs >> tmp;
 	startpos = tmp.find(L"=") + 1;
-	tmp = tmp.substr(startpos, tmp.size() - startpos); 
+	tmp = tmp.substr(startpos, tmp.size() - startpos);
 
 	// get up padding
 	startpos = tmp.find(L",") + 1;
@@ -1430,7 +1499,7 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	m_LoadedFonts[filename].second->m_TextureHeight = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// get pages, packed, page id
-	fs >> tmp >> tmp; 
+	fs >> tmp >> tmp;
 	fs >> tmp >> tmp;
 
 	// get texture filename
@@ -1534,7 +1603,7 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 void AssetLoader::getHeightMapResources(const std::wstring& path, std::wstring& heightMapPath, std::wstring& materialPath)
 {
 	std::wifstream input(path);
-	
+
 	if (input.is_open())
 	{
 		std::wstring relFolderPath = path.substr(0, path.find_last_of('/') + 1);
@@ -1594,7 +1663,7 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 					assimpNodeAnimation->mRotationKeys[k].mValue.x,
 					assimpNodeAnimation->mRotationKeys[k].mValue.y,
 					assimpNodeAnimation->mRotationKeys[k].mValue.z,
-					assimpNodeAnimation->mRotationKeys[k].mValue.w};
+					assimpNodeAnimation->mRotationKeys[k].mValue.w };
 
 				animation->rotationKeyframes[nodeName].push_back(key);
 			}
