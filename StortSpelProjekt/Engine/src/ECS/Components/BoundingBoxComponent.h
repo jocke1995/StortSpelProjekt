@@ -57,6 +57,8 @@ namespace component
 		unsigned int GetFlagOBB() const;
 		const DirectX::BoundingOrientedBox* GetOriginalOBB() const;
 
+		void SetModifier(float3 modifier);
+
 		// Renderer calls this function when an entity is picked
 		bool& IsPickedThisFrame();
 
@@ -75,6 +77,7 @@ namespace component
 		unsigned int m_FlagOBB = 0;
 		std::vector<std::wstring> m_Identifier;
 		std::vector<Mesh*> m_Meshes;
+		float3 m_Modifier = { 1.0f, 1.0f, 1.0f };
 		std::vector<BoundingBoxData*> m_Bbds;
 		std::vector<SlotInfo*> m_SlotInfos;
 		CollisionCategory* m_pCategory = nullptr;

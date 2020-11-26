@@ -141,9 +141,10 @@ Scene* GameScene(SceneManager* sm)
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
-	//al->LoadMap(scene, "../Vendor/Resources/Rooms/EmptyRoom.map");
+    //al->LoadMap(scene, "../Vendor/Resources/FirstMap.map");
     al->GenerateMap(scene, "../Vendor/Resources/Rooms");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");   
+	Model* tree = al->LoadModel(L"../Vendor/Resources/Models/Tree/Tree/tree.obj");
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
