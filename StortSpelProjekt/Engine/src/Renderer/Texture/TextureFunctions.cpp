@@ -141,7 +141,6 @@ unsigned int LoadImageDataFromFile(BYTE** imageData, D3D12_RESOURCE_DESC* resour
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to \'CreateDecoderFromFilename\' when loading texture from file.\n");
 		return 0;
 	}
-
 	// Get image from decoder (this will decode the "frame")
 	hr = wicDecoder->GetFrame(0, &wicFrame);
 	if (FAILED(hr))

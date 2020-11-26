@@ -3,6 +3,6 @@
 
 newmtl woodenBarrelMat
 
-map_Kd Barrel_Lowpoly_DefaultMaterial_AlbedoTransparency.png
-map_Ks Barrel_Lowpoly_DefaultMaterial_MetallicSmoothness.png
-map_Kn Barrel_Lowpoly_DefaultMaterial_Normal.png
+map_Kd Barrel_Lowpoly_DefaultMaterial_AlbedoTransparency.DDS
+map_Ks Barrel_Lowpoly_DefaultMaterial_MetallicSmoothness.DDS
+map_Kn Barrel_Lowpoly_DefaultMaterial_Normal.DDS
