@@ -2057,8 +2057,8 @@ void Renderer::initRenderTasks()
 	gpsdShadow.SampleMask = UINT_MAX;
 	// Rasterizer behaviour
 	gpsdShadow.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-	gpsdShadow.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-	gpsdShadow.RasterizerState.DepthBias = 100;
+	gpsdShadow.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	gpsdShadow.RasterizerState.DepthBias = 1000;
 	gpsdShadow.RasterizerState.DepthBiasClamp = 0.0f;
 	gpsdShadow.RasterizerState.SlopeScaledDepthBias = 3.0f;
 	gpsdShadow.RasterizerState.FrontCounterClockwise = false;

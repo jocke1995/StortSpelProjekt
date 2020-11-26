@@ -2,9 +2,9 @@
 # Material Count: 2
 
 newmtl fenceMat
-map_Ka fence_metallic.jpg
-map_Kd fence_albedo.jpg
-map_Ks fence_roughness.jpg
-map_Kn fence_normal.jpg
-map_d fence_opacity.jpg
-#map_Ke wood_emissive.jpg
+map_Ka fence_metallic.DDS
+map_Kd fence_albedo.DDS
+map_Ks fence_roughness.DDS
+map_Kn fence_normal.DDS
+map_d fence_opacity.DDS
+#map_Ke wood_emissive.DDS
