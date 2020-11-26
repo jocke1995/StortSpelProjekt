@@ -55,10 +55,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = jacobScene;
     //Scene* leoScene = LeosTestScene(sceneManager);
     //Scene* activeScene = leoScene;
-    Scene* timScene = TimScene(sceneManager);
-    Scene* activeScene = timScene;
-    //Scene* jockeScene = JockesTestScene(sceneManager);
-    //Scene* activeScene = jockeScene;
+    //Scene* timScene = TimScene(sceneManager);
+    //Scene* activeScene = timScene;
+    Scene* jockeScene = JockesTestScene(sceneManager);
+    Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
     //Scene* williamScene = WilliamsTestScene(sceneManager);
@@ -97,6 +97,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         if (gameNetwork.IsConnected())
         {
             networkTimer += timer->GetDeltaTime();
+        }
+
+        if (window->WasSpacePressed() == true)
+        {
+            component::ParticleEmitterComponent* pe = sceneManager->GetScene("jockesScene")->GetEntity("particleEffect")->GetComponent<component::ParticleEmitterComponent>();
+            pe->Play();
+        }
+
+        if (window->WasTabPressed() == true)
+        {
+            component::ParticleEmitterComponent* pe = sceneManager->GetScene("jockesScene")->GetEntity("particleEffect")->GetComponent<component::ParticleEmitterComponent>();
+            pe->Stop();
         }
         
 
@@ -525,6 +537,8 @@ Scene* JockesTestScene(SceneManager* sm)
     component::SpotLightComponent* slc = nullptr;
     component::CollisionComponent* bcc = nullptr;
     component::ProgressBarComponent* pbc = nullptr;
+    component::ParticleEmitterComponent* pe = nullptr;
+    
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -636,6 +650,39 @@ Scene* JockesTestScene(SceneManager* sm)
     dlc->SetCameraLeft(-70.0f);
     dlc->SetCameraRight(70.0f);
     /* ---------------------- dirLight ---------------------- */
+
+    /* ---------------------- Particle ---------------------- */
+    entity = scene->AddEntity("particleEffect");
+    std::vector<ParticleEffectSettings> vec;
+
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.maxParticleCount = 50;
+    settings.startValues.lifetime = 1.0;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
+    settings.isLooping = false;
+    settings.startValues.acceleration = { 0, -5, 0 };
+
+    // Need to fix EngineRand.rand() for negative values
+    RandomParameter3 randParam1 = { -2, 2, -2, 2, -2, 2 };
+    randParam1.x = { -20, 20 };
+    randParam1.y = { 1, 20 };
+    randParam1.z = { -20, 20 };
+
+    settings.randPosition = { 0, 1, 0, 1, 0, 1 };
+    settings.randVelocity = randParam1;
+    settings.randSize = { 0.2, 2 };
+    settings.randRotationSpeed = { 0, 3 };
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
+    settings.texture = particleTexture;
+
+    vec.push_back(settings);
+
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
+    entity->AddComponent<component::TransformComponent>();
+    //particleEntity->AddComponent<component::TemporaryLifeComponent>(1.0);
+    /* ---------------------- Particle ---------------------- */
 
     entity = scene->AddEntity("progressBarTest1");
     float3 startPosition = { 0.0f, 10.0f, 0.0f };
@@ -1614,7 +1661,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     for (int i = 0; i < 50; i++)
     {
         zVal += 8;
-        enH.AddExistingEnemy("enemy", float3{ xVal, 0, zVal });
+        EnemyFactory::GetInstance().AddExistingEnemy("enemy", float3{ xVal, 0, zVal });
         if ((i + 1) % 5 == 0)
         {
             xVal += 8;
@@ -1697,8 +1744,10 @@ void JockeUpdateScene(SceneManager* sm, double dt)
     //
     //intensity += 0.005f;
 
+    Entity* ent = nullptr;
+
     // Update first progressBar
-    Entity* ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest1");
+    ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest1");
     component::ProgressBarComponent* pbc = ent->GetComponent<component::ProgressBarComponent>();
 
     static float counter1 = 0.0f;
