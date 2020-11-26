@@ -313,7 +313,7 @@ Scene* GameScene(SceneManager* sm)
 
     mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    tc->GetTransform()->SetPosition(1000.0f, 1000.0f, 1000.0f);
     tc->GetTransform()->SetScale(7.0f);
     tc->SetTransformOriginalState();
 

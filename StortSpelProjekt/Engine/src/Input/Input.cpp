@@ -85,14 +85,18 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			EventBus::GetInstance().Publish(&ModifierInput(key, pressed));
 		}
 	}
-	// Should this be removed, sinces you can use it during gameplay?
-	/*else if (key == SCAN_CODES::U)
+
+	else if (key == SCAN_CODES::U)
 	{
 		if (justPressed)
 		{
-			EventBus::GetInstance().Publish(&UForUpgrade());
+			Scene* scene = SceneManager::GetInstance().GetActiveScene();
+			if (scene->GetName() != "ShopScene")
+			{
+				EventBus::GetInstance().Publish(&UForUpgrade());
+			}
 		}
-	}*/
+	}
 	else if (key == SCAN_CODES::F)
 	{
 		if (justPressed)
@@ -101,7 +105,6 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			Scene* scene = SceneManager::GetInstance().GetActiveScene();
 			if (scene->GetName() == "ShopScene")
 			{
-				EventBus::GetInstance().Publish(&UForUpgrade());
 				EventBus::GetInstance().Publish(&shopGUIStateChange());
 			}
 		}

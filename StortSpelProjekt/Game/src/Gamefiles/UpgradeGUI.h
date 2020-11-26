@@ -26,8 +26,6 @@ public:
 	void SetCurrentScene(Scene* scene);
 	void SetSceneMan(SceneManager* sceneManager);
 	void SetShown(bool shown);
-
-	void SetCreateUpgradeButtons();
 private:
 	UpgradeGUI();
 

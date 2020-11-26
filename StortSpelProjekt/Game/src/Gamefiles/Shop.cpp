@@ -241,6 +241,46 @@ void Shop::Create2DGUI()
 	sm.AddEntity(entity, shopScene);
 	/*---------------------------------------*/
 
+	/*---------------------------------------*/
+	// Flavour text
+	gui = nullptr;
+	entity = shopScene->AddEntity("flavour");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+
+	/*----------------Text-----------------*/
+	textToRender = "Hello adventurer, having a tough time out there?";
+	textToRender += "\n\n\nTake a look at my goods, Great Quality!";
+	textPos = { 0.515f, 0.152f * (0 + 1) + 0.01f };
+	textPadding = { 0.5f, 0.0f };
+	textColor = { 0.7f, 0.7f, 0.7f, 1.0f };
+	textScale = { 0.5f, 0.5f };
+	textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	gui->GetTextManager()->SetFont(m_pArial);
+	gui->GetTextManager()->AddText("flavour");
+	gui->GetTextManager()->SetColor(textColor, "flavour");
+	gui->GetTextManager()->SetPadding(textPadding, "flavour");
+	gui->GetTextManager()->SetPos(textPos, "flavour");
+	gui->GetTextManager()->SetScale(textScale, "flavour");
+	gui->GetTextManager()->SetText(textToRender, "flavour");
+	gui->GetTextManager()->SetBlend(textBlend, "flavour");
+
+	quadPos = { 0.505f, 0.152f * (0 + 1) + 0.01f };
+	quadScale = { 0.47f, 0.17f };
+	blended = { 1.0, 1.0, 1.0, 0.5 };
+	notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	gui->GetQuadManager()->CreateQuad(
+		"flavour",
+		quadPos, quadScale,
+		false, false,
+		2,
+		blended,
+		nullptr, float3{ 0.05f, 0.05f, 0.05f });
+
+	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
+	sm.AddEntity(entity, shopScene);
+	/*---------------------------------------*/
+
 	m_DisplayingShopGUI = true;
 }
 
@@ -280,6 +320,10 @@ void Shop::Clear2DGUI()
 	ent2 = shopScene->GetEntity("reroll-button");
 	sm.RemoveEntity(ent1, shopScene);
 	sm.RemoveEntity(ent2, shopScene);
+
+	// Removal of flavour text
+	ent1 = shopScene->GetEntity("flavour");
+	sm.RemoveEntity(ent1, shopScene);
 
 	m_DisplayingShopGUI = false;
 }
@@ -408,9 +452,9 @@ void Shop::shopButtonPressed(ButtonPressed* evnt)
 		//Clears the 2D-GUI, Rerolls the inventory of the shop and Creates the 2D-GUI with the new inventory.
 		if (m_pPlayer->GetComponent<component::CurrencyComponent>()->GetBalace() >= m_RerollCost)
 		{
-			rerollShop();
 			m_pPlayer->GetComponent<component::CurrencyComponent>()->ChangeBalance(-m_RerollCost);
 			rerollPriceIncrease();
+			rerollShop();
 		}
 	}
 
@@ -425,7 +469,6 @@ void Shop::shopButtonPressed(ButtonPressed* evnt)
 				ApplyUppgrade(m_InventoryNames.at(i));
 
 				SceneManager::GetInstance().GetActiveScene()->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(s_UpgradeBoughtText, "upgrade" + std::to_string(i));
-				UpgradeGUI::GetInstance().SetCreateUpgradeButtons();
 			}
 		}
 	}

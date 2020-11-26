@@ -305,50 +305,9 @@ void UpgradeGUI::SetShown(bool shown)
 	m_Shown = shown;
 }
 
-void UpgradeGUI::SetCreateUpgradeButtons()
-{
-	// Delete the background
-	m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("UpgradeMenuBackground"), m_pCurrentScene);
-	// If we have a next button it should be deleted
-	if (m_ButtonsMultipleTen > 0)
-	{
-		m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("NextButton"), m_pCurrentScene);
-	}
-	// If we have a description, that is not empty, it should be deleted
-	if (m_CurrentDescription != "")
-	{
-		m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("Description"), m_pCurrentScene);
-		m_CurrentDescription = "";
-	}
-	// Delete the Upgrade Buttons
-	for (int i = 0; i < m_ButtonNames.size(); i++)
-	{
-		if (m_pCurrentScene->EntityExists(m_ButtonNames[i]))
-		{
-			m_pSm->RemoveEntity(m_pCurrentScene->GetEntity(m_ButtonNames[i]), m_pCurrentScene);
-		}
-	}
-	m_ButtonNames.clear();
-	m_Deleted = true;
-	m_Drawn = false;
-	m_ButtonsMultipleTen = 0;
-	m_TimesFilledMenu = 0;
-
-	CreateMenu(m_pCurrentScene);
-}
-
 void UpgradeGUI::showMenu(UForUpgrade* keyPress)
 {
-	// For safety, so that the player cant open the u-window without targeting the shop npc
-	Entity* pickedEntity = Renderer::GetInstance().GetPickedEntity();
-	if (pickedEntity != nullptr)
-	{
-		if (pickedEntity->GetName() == "shop")
-		{
-			m_Shown = !m_Shown;
-		}
-	}
-
+	m_Shown = !m_Shown;
 }
 
 void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
