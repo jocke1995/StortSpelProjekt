@@ -307,34 +307,34 @@ void UpgradeGUI::SetShown(bool shown)
 
 void UpgradeGUI::SetCreateUpgradeButtons()
 {
-	//// Delete the background
-	//m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("UpgradeMenuBackground"), m_pCurrentScene);
-	//// If we have a next button it should be deleted
-	//if (m_ButtonsMultipleTen > 0)
-	//{
-	//	m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("NextButton"), m_pCurrentScene);
-	//}
-	//// If we have a description, that is not empty, it should be deleted
-	//if (m_CurrentDescription != "")
-	//{
-	//	m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("Description"), m_pCurrentScene);
-	//	m_CurrentDescription = "";
-	//}
-	//// Delete the Upgrade Buttons
-	//for (int i = 0; i < m_ButtonNames.size(); i++)
-	//{
-	//	if (m_pCurrentScene->EntityExists(m_ButtonNames[i]))
-	//	{
-	//		m_pSm->RemoveEntity(m_pCurrentScene->GetEntity(m_ButtonNames[i]), m_pCurrentScene);
-	//	}
-	//}
-	//m_ButtonNames.clear();
-	//m_Deleted = true;
-	//m_Drawn = false;
-	//m_ButtonsMultipleTen = 0;
-	//m_TimesFilledMenu = 0;
+	// Delete the background
+	m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("UpgradeMenuBackground"), m_pCurrentScene);
+	// If we have a next button it should be deleted
+	if (m_ButtonsMultipleTen > 0)
+	{
+		m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("NextButton"), m_pCurrentScene);
+	}
+	// If we have a description, that is not empty, it should be deleted
+	if (m_CurrentDescription != "")
+	{
+		m_pSm->RemoveEntity(m_pCurrentScene->GetEntity("Description"), m_pCurrentScene);
+		m_CurrentDescription = "";
+	}
+	// Delete the Upgrade Buttons
+	for (int i = 0; i < m_ButtonNames.size(); i++)
+	{
+		if (m_pCurrentScene->EntityExists(m_ButtonNames[i]))
+		{
+			m_pSm->RemoveEntity(m_pCurrentScene->GetEntity(m_ButtonNames[i]), m_pCurrentScene);
+		}
+	}
+	m_ButtonNames.clear();
+	m_Deleted = true;
+	m_Drawn = false;
+	m_ButtonsMultipleTen = 0;
+	m_TimesFilledMenu = 0;
 
-	//CreateMenu(m_pCurrentScene);
+	CreateMenu(m_pCurrentScene);
 }
 
 void UpgradeGUI::showMenu(UForUpgrade* keyPress)
