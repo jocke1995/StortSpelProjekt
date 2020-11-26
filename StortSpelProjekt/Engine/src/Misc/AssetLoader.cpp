@@ -938,10 +938,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					dlc = entity->AddComponent<component::DirectionalLightComponent>(combinedFlag);
 					dlc->SetColor(lightColor);
 					dlc->SetDirection(lightDir);
-					dlc->SetCameraLeft(lightLeft);
-					dlc->SetCameraRight(lightRight);
-					dlc->SetCameraTop(lightTop);
-					dlc->SetCameraBot(lightBottom);
+					dlc->SetCameraLeft(lightLeft + offset.x);
+					dlc->SetCameraRight(lightRight + offset.x);
+					dlc->SetCameraTop(lightTop + offset.z);
+					dlc->SetCameraBot(lightBottom + offset.z);
 					dlc->SetCameraFarZ(lightFar);
 					dlc->SetCameraNearZ(lightNear);
 					lightNear = 0.01;
@@ -1105,28 +1105,10 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSi
 	}
 
 	// Load rooms until maxRooms has been reached
+	float totalSpawnChance = 100.0f;
+	int spawnRand = 0;
 	while (roomCounter < maxRooms)
 	{
-		int mapId;
-		int spawnRand = (rand.Randu(0, 100));
-		float totalSpawnChance = 0.0f;
-		for (int i = 0; i < spawnChances.size(); ++i)
-		{
-			float spawnChance = spawnChances[i];
-			totalSpawnChance += spawnChance;
-			if (spawnRand <= totalSpawnChance)
-			{
-				mapId = i;
-				spawnChances[i] -= 30.0f;
-				for (int i = 0; i < spawnChances.size(); ++i)
-				{
-					spawnChances[i] += 30.0f / spawnChances.size();
-				}
-				break;
-			}
-		}
-		std::string roomToLoad = filePaths.at(mapId);
-
 		int direction = rand.Randu(0, 6);
 		int opositeDirection = 0;
 		float3 newOffset = offset;
@@ -1166,6 +1148,32 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSi
 		{
 			if (m_RoomsAdded[newOffset.toString()] == 0 && newOffset.toString() != startingOffset.toString())
 			{
+				int mapId;
+				int maxRand = static_cast<int>(totalSpawnChance);
+				spawnRand = (rand.Randu(0, maxRand));
+				totalSpawnChance = 0.0f;
+				bool keepChecking = true;
+				for (int i = 0; i < spawnChances.size(); ++i)
+				{
+					totalSpawnChance += spawnChances[i];
+					if (spawnRand <= totalSpawnChance && keepChecking)
+					{
+						mapId = i;
+						if (filePaths.at(i) == "../Vendor/Resources/Rooms\\OutdoorRoom.map")
+						{
+							totalSpawnChance -= spawnChances[i];
+							spawnChances[i] = 0.0f;
+						}
+						else
+						{
+							float newSpawnChance = std::max<float>(spawnChances[i] - 10.0f, 0.0f);
+							totalSpawnChance -= (spawnChances[i] - newSpawnChance);
+							spawnChances[i] = newSpawnChance;
+						}
+						keepChecking = false;
+					}
+				}
+				std::string roomToLoad = filePaths.at(mapId);
 				LoadMap(scene, roomToLoad.c_str(), roomCounter, newOffset);
 				m_RoomsAdded[newOffset.toString()] = roomCounter++;
 				removeWall = true;

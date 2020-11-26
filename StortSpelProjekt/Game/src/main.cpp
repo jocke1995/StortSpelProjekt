@@ -141,7 +141,7 @@ Scene* GameScene(SceneManager* sm)
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
-    //al->LoadMap(scene, "../Vendor/Resources/FirstMap.map");
+    //al->LoadMap(scene, "../Vendor/Resources/Rooms\\OutdoorRoom.map");
     al->GenerateMap(scene, "../Vendor/Resources/Rooms");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");   
 	Model* tree = al->LoadModel(L"../Vendor/Resources/Models/Tree/Tree/tree.obj");
