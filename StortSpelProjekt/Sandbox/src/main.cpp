@@ -740,29 +740,26 @@ Scene* FloppipTestScene(SceneManager* sm)
     Player::GetInstance().SetPlayer(entity);
     /* ---------------------- Player ---------------------- */
 
-    std::vector<ParticleEffectSettings> vec;
-
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.maxParticleCount = 3;
-    settings.startValues.lifetime = 3;
-    settings.spawnInterval = 0.5;
-    settings.startValues.acceleration = {0, -6.5, 0};
+    settings.maxParticleCount = 1;
+    settings.startValues.lifetime = 0.2;
+    settings.spawnInterval = 0.2;
+    settings.startValues.acceleration = { 0, 0, 0 };
     settings.isLooping = true;
 
     // Need to fix EngineRand.rand() for negative values
 
-    settings.randPosition = { 0, 0, 0, 3, 0, 0};
-    settings.randVelocity = { -10, 10, -5, 10, -10, 10 };
-    settings.randSize = { 0.4, 1.2 };
-    settings.randRotationSpeed = { 0, 1 };
+    settings.randPosition = { 0, 0, 0, 0, 0, 0 };
+    settings.randVelocity = { 0, 0, 0, 0, 0, 0 };
+    settings.randSize = { 3.5, 3.5 };
+    settings.randRotation = { 0, 2 * PI };
+    settings.randRotationSpeed = { 0.2, 0.2 };
 
-    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/projParticle.png"));
     settings.texture = particleTexture;
 
-    vec.push_back(settings);
-
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
 
     /* ---------------------- Skybox ---------------------- */

@@ -12,7 +12,7 @@ UpgradeRangeDamage::UpgradeRangeDamage(Entity* parentEntity) : Upgrade(parentEnt
 	m_Price = 100;
 	m_StartingPrice = m_Price;
 
-	m_DamageChange = 2;
+	m_DamageChange = 25;
 
 	m_ImageName = "Rangedamage.png";
 }
@@ -43,5 +43,5 @@ void UpgradeRangeDamage::ApplyBoughtUpgrade()
 
 std::string UpgradeRangeDamage::GetDescription(unsigned int level)
 {
-	return "Range Damage: Improves the Range damage by +2, for a total of: " + std::to_string(2*level);
+	return "Range Damage: Improves the Range damage by 50%, for a total of: " + std::to_string(50*level) + "\%";
 }
