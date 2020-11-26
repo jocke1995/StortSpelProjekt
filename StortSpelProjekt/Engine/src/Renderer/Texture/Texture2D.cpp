@@ -8,7 +8,6 @@
 
 // For loading textures
 #include "TextureFunctions.h"
-#include "../Misc/Timer.h"
 
 Texture2D::Texture2D(const std::wstring& filePath)
 	: Texture(filePath)
@@ -30,8 +29,6 @@ bool Texture2D::Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 	// DDSLoader uses this data type to load the image data
 	// converts this to m_pImageData when it is used.
 	std::unique_ptr<uint8_t[]> m_DdsData;
-	Timer timer;
-	timer.StartTimer();
 	
 	// Loads the texture and creates a default resource;
 	Cryptor::DecryptDDS(Cryptor::GetGlobalKey(), to_string(m_FilePath).c_str(), "DecryptedTexture.dds");
