@@ -16,6 +16,8 @@
 #include "GameOverHandler.h"
 #include "UpgradeGUI.h"
 
+#include "Misc/Edge.h"
+
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
@@ -113,7 +115,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ---- Network ---- */
         if (gameNetwork.IsConnected())
         {
-            if (networkTimer >= networkUpdateRate) {
+            if (networkTimer >= networkUpdateRate) 
+			{
                 networkTimer = 0;
 
                 gameNetwork.Update(networkUpdateRate);
@@ -138,8 +141,9 @@ Scene* GameScene(SceneManager* sm)
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
-    al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");    
+    al->LoadMap(scene, "../Vendor/Resources/FirstMap.map");
+	//al->LoadMap(scene, "../Vendor/Resources/BaseRoom.map");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");   
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
@@ -175,6 +179,7 @@ Scene* GameScene(SceneManager* sm)
     component::DirectionalLightComponent* dlc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::PointLightComponent* plc = nullptr;
+	component::SpotLightComponent* slc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PlayerInputComponent* pic = nullptr;
     component::GUI2DComponent* txc = nullptr;
@@ -254,6 +259,18 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetCameraRight(130.0f);
     dlc->SetCameraLeft(-180.0f);
     dlc->SetCameraNearZ(-1000.0f);
+	//dlc->SetCameraFarZ(6.0f);
+
+	//tc = entity->AddComponent<component::TransformComponent>();
+	//tc->GetTransform()->SetScale(1.0f);
+	//tc->GetTransform()->SetPosition(0.0f, 20.0f, 0.0f);
+	//tc->SetTransformOriginalState();
+	//mc = entity->AddComponent<component::ModelComponent>();
+	//mc->SetModel(sphereModel);
+	//mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
+	
+	//plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+	//plc->SetColor({ 10.0f, 10.0f, 10.0f });
 #pragma endregion
 
 #pragma region enemy definitions
@@ -577,7 +594,7 @@ Scene* ShopScene(SceneManager* sm)
     // Get the models needed
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");
+	Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
