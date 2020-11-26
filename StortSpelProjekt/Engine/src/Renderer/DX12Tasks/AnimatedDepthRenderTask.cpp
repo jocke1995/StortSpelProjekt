@@ -91,7 +91,7 @@ void AnimatedDepthRenderTask::drawRenderComponent(component::ModelComponent* mc,
 	AnimatedModel* am = static_cast<AnimatedModel*>(mc->GetModel());
 
 	D3D12_GPU_VIRTUAL_ADDRESS gpuVA = am->GetConstantBuffer()->GetDefaultResource()->GetID3D12Resource1()->GetGPUVirtualAddress();
-	cl->SetGraphicsRootConstantBufferView(RS::CB_COMMON, gpuVA);
+	cl->SetGraphicsRootConstantBufferView(RS::CBV0, gpuVA);
 
 	// Draw for every m_pMesh the meshComponent has
 	for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)

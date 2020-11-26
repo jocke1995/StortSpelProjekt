@@ -43,6 +43,8 @@ namespace component
 		void SetDamage(int damage);
 		void ChangeDamage(int change);
 
+		float GetAttackInterval();
+
 		void CreateCornersHitbox();
 		void CreateDrawnHitbox(component::BoundingBoxComponent* bbc);
 
@@ -61,6 +63,7 @@ namespace component
 		float m_TimeSinceLastAttackCheck;
 		int m_Damage;
 		float m_KnockBack;
+		int m_ParticleEffectCounter;
 
 		float3 m_HalfSize;
 
@@ -78,6 +81,7 @@ namespace component
 		DirectX::BoundingOrientedBox m_TempHitbox;
 
 		void checkCollision();
+		void particleEffect(Entity* entity);
 
 	};
 }

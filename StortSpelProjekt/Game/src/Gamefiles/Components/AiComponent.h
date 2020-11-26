@@ -18,6 +18,7 @@ enum F_AI_FLAGS
 {
 	CAN_JUMP = BIT(1),
 	CAN_ROLL = BIT(2),
+	RUSH_PLAYER = BIT(3),
 };
 
 struct PathQuad

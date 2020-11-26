@@ -4,6 +4,7 @@
 #include "GameGUI.h"
 #include "Physics/CollisionCategories/PlayerCollisionCategory.h"
 #include "Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
+#include "../ECS/Components/TemporaryLifeComponent.h"
 
 // Game includes
 #include "Player.h"
@@ -15,6 +16,7 @@
 #include "GameOverHandler.h"
 #include "UpgradeGUI.h"
 
+#include "Misc/Edge.h"
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
@@ -22,13 +24,12 @@ void GameInitScene(Scene* scene);
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
-EnemyFactory enemyFactory;
 GameGUI gameGUI;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
+    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/MedievalChandelier");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -72,7 +73,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     {
         gameNetwork.SetScene(sceneManager->GetActiveScene());
         gameNetwork.SetSceneManager(sceneManager);
-        gameNetwork.SetEnemies(enemyFactory.GetAllEnemies());
+        gameNetwork.SetEnemies(EnemyFactory::GetInstance().GetAllEnemies());
     }
     double networkTimer = 0;
     double logicTimer = 0;
@@ -105,7 +106,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             }
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
-            enemyFactory.Update(updateRate);
+            EnemyFactory::GetInstance().Update(updateRate);
             gameGUI.Update(updateRate, sceneManager->GetActiveScene());
             UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
@@ -113,7 +114,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ---- Network ---- */
         if (gameNetwork.IsConnected())
         {
-            if (networkTimer >= networkUpdateRate) {
+            if (networkTimer >= networkUpdateRate) 
+			{
                 networkTimer = 0;
 
                 gameNetwork.Update(networkUpdateRate);
@@ -125,6 +127,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         /* ------ Draw ------ */
         renderer->Execute();
+
+        sceneManager->RemoveEntities();
     }
     return 0;
 }
@@ -136,13 +140,14 @@ Scene* GameScene(SceneManager* sm)
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
-    al->LoadMap(scene, "../Vendor/Resources/FirstMap.txt");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");    
-    Model* enemyModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
+    al->LoadMap(scene, "../Vendor/Resources/FirstMap.map");
+	//al->LoadMap(scene, "../Vendor/Resources/BaseRoom.map");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");   
+    Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
+    Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
-    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
-    Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
-    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
+    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
+    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/CubePBR/cube.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* teleportModel = al->LoadModel(L"../Vendor/Resources/Models/Teleporter/Teleporter.obj");
 
@@ -172,6 +177,7 @@ Scene* GameScene(SceneManager* sm)
     component::DirectionalLightComponent* dlc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::PointLightComponent* plc = nullptr;
+	component::SpotLightComponent* slc = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PlayerInputComponent* pic = nullptr;
     component::GUI2DComponent* txc = nullptr;
@@ -203,7 +209,6 @@ Scene* GameScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     melc = entity->AddComponent<component::MeleeComponent>();
     // range damage should be at least 10 for ranged life steal upgrade to work
-    // range velocity should be 50, otherwise range velocity upgrade does not make sense (may be scrapped later)
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 10, 150);
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(50);
@@ -226,8 +231,8 @@ Scene* GameScene(SceneManager* sm)
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
 
     melc->SetDamage(10);
-    melc->SetAttackInterval(0.8);
-    ranc->SetAttackInterval(0.8);
+    melc->SetAttackInterval(1.0);
+    ranc->SetAttackInterval(1.0);
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
@@ -252,12 +257,24 @@ Scene* GameScene(SceneManager* sm)
     dlc->SetCameraRight(130.0f);
     dlc->SetCameraLeft(-180.0f);
     dlc->SetCameraNearZ(-1000.0f);
+	//dlc->SetCameraFarZ(6.0f);
+
+	//tc = entity->AddComponent<component::TransformComponent>();
+	//tc->GetTransform()->SetScale(1.0f);
+	//tc->GetTransform()->SetPosition(0.0f, 20.0f, 0.0f);
+	//tc->SetTransformOriginalState();
+	//mc = entity->AddComponent<component::ModelComponent>();
+	//mc->SetModel(sphereModel);
+	//mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
+	
+	//plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+	//plc->SetColor({ 10.0f, 10.0f, 10.0f });
 #pragma endregion
 
 #pragma region enemy definitions
     // melee
 	EnemyComps zombie = {};
-	zombie.model = enemyModel;
+	zombie.model = enemyZombieModel;
 	zombie.hp = 20;
 	zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
@@ -266,12 +283,31 @@ Scene* GameScene(SceneManager* sm)
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
 	zombie.movementSpeed = 45.0f;
-	zombie.attackingDist = 1.5f;
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
 	zombie.scale = 0.04;
 	zombie.detectionRad = 500.0f;
 	zombie.attackingDist = 1.5f;
+    zombie.mass = 150.0f;
+
+    // quick melee
+    EnemyComps spider = {};
+    spider.model = enemySpiderModel;
+    spider.hp = 5;
+    spider.sound3D = L"Bruh";
+    spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+    spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
+    spider.meleeAttackDmg = 2.0f;
+    spider.attackInterval = 0.5f;
+    spider.attackSpeed = 0.2f;
+    spider.movementSpeed = 90.0f;
+    spider.rot = { 0.0, 0.0, 0.0 };
+    spider.targetName = "player";
+    spider.scale = 0.01;
+    spider.detectionRad = 500.0f;
+    spider.attackingDist = 1.5f;
+    spider.invertDirection = true;
+    spider.mass = 100.0f;
 
     // ranged
     EnemyComps rangedDemon = {};
@@ -291,16 +327,18 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.rangeAttackDmg = 10;
     rangedDemon.rangeVelocity = 50.0f;
     rangedDemon.projectileModel = sphereModel;
+    rangedDemon.mass = 300.0f;
 
 #pragma endregion
 
 #pragma region Enemyfactory
-    enemyFactory.SetScene(scene);
-    enemyFactory.AddSpawnPoint({ 70, 5, 20 });
-    enemyFactory.AddSpawnPoint({ -20, 5, -190 });
-    enemyFactory.AddSpawnPoint({ -120, 10, 75 });
-    enemyFactory.DefineEnemy("enemyZombie", &zombie);
-    enemyFactory.DefineEnemy("enemyDemon", &rangedDemon);
+    EnemyFactory::GetInstance().SetScene(scene);
+    EnemyFactory::GetInstance().AddSpawnPoint({ 70, 5, 20 });
+    EnemyFactory::GetInstance().AddSpawnPoint({ -20, 5, -190 });
+    EnemyFactory::GetInstance().AddSpawnPoint({ -120, 10, 75 });
+    EnemyFactory::GetInstance().DefineEnemy("enemyZombie", &zombie);
+    EnemyFactory::GetInstance().DefineEnemy("enemySpider", &spider);
+    EnemyFactory::GetInstance().DefineEnemy("enemyDemon", &rangedDemon);
 #pragma endregion
 
 #pragma region teleporter
@@ -309,6 +347,24 @@ Scene* GameScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "ShopScene");
+
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.maxParticleCount = 100;
+    settings.startValues.lifetime = 0.8;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
+    settings.startValues.acceleration = { 0, 0, 0 };
+
+    // Need to fix EngineRand.rand() for negative values
+
+    settings.randPosition = { -6, 6, 0, 15, -6, 6 };
+    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
+    settings.randSize = { 0.3, 0.9 };
+    settings.randRotationSpeed = { 0, 1 };
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
+    settings.texture = particleTexture;
+    pec = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
 
     mc->SetModel(teleportModel);
@@ -536,7 +592,7 @@ Scene* ShopScene(SceneManager* sm)
     // Get the models needed
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Female/female4armor.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
@@ -610,6 +666,24 @@ Scene* ShopScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "GameScene");
+
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.maxParticleCount = 100;
+    settings.startValues.lifetime = 0.8;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
+    settings.startValues.acceleration = { 0, 0, 0 };
+
+    // Need to fix EngineRand.rand() for negative values
+
+    settings.randPosition = { -6, 6, 0, 15, -6, 6};
+    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
+    settings.randSize = { 0.3, 0.9 };
+    settings.randRotationSpeed = { 0, 1 };
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
+    settings.texture = particleTexture;
+    pec = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
     
     mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -902,10 +976,10 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     trans->SetRotationX(rotValue);
     rotValue += 0.005f;
 
-    // Kod-påkod-påkod-påkod-påkod-lösning
-    // Detta ska egentligen stå i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
-    // spelare i alla scener så kan vi ej nå den aktiva spelaren i den scenen därifrån.
-    // TODO: Flytta in den i den funktionen när vi har samma spelare i alla scener via Player::GetInstance().
+    // Kod-pÃ¥kod-pÃ¥kod-pÃ¥kod-pÃ¥kod-lÃ¶sning
+    // Detta ska egentligen stÃ¥ i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
+    // spelare i alla scener sÃ¥ kan vi ej nÃ¥ den aktiva spelaren i den scenen dÃ¤rifrÃ¥n.
+    // TODO: Flytta in den i den funktionen nÃ¤r vi har samma spelare i alla scener via Player::GetInstance().
     if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == true)
     {
         component::CollisionComponent* cc = sm->GetActiveScene()->GetEntity("player")->GetComponent<component::CollisionComponent>();

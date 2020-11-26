@@ -19,10 +19,12 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_DashTimer = 0;
 	m_CameraFlags = camFlags;
 
-	m_Pitch = 0.15f;
-	m_CameraDistance = ORIGINAL_CAMERA_DISTANCE;
-	m_Yaw = 10.0f;
+	m_Pitch = 0.0f;
+	m_Yaw = 0.0f;
 
+	m_CameraDistance = ORIGINAL_CAMERA_DISTANCE;
+	m_Height = -1;
+	
 	m_JumpHeight = 5.0;
 	m_JumpTime = 0.25;
 	m_Gravity = (-2 * m_JumpHeight) / (m_JumpTime * m_JumpTime);
@@ -49,9 +51,6 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_DegreesToTurnTo = 0;
 	m_RadiansToTurn = 0;
 
-	m_RotateX = 0.0f;
-	m_RotateY = 0.0f;
-
 	m_TurningTimer = 0.0f;
 	m_TurningInterval = 0.0f;
 }
@@ -62,7 +61,6 @@ component::PlayerInputComponent::~PlayerInputComponent()
 
 void component::PlayerInputComponent::Init()
 {
-	
 }
 
 void component::PlayerInputComponent::OnInitScene()
@@ -92,7 +90,6 @@ void component::PlayerInputComponent::OnInitScene()
 		}
 	}
 
-
 	if (!m_pCC)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "PlayerInputComponent needs a collision component!\n");
@@ -120,31 +117,24 @@ void component::PlayerInputComponent::OnUnInitScene()
 
 void component::PlayerInputComponent::RenderUpdate(double dt)
 {
+	// TODO: since it is constant, only calculate this once.
+	// As of writing this, crashes if run on OnInit()
+	m_Height = (m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y * m_pTransform->GetScale().y * 0.5) + 1.0;
+
 	// Lock camera to player
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
-		float3 playerPosition = m_pTransform->GetPositionFloat3();
-		float3 cameraDir = m_pCamera->GetDirectionFloat3();
-		float3 cameraPos = m_pCamera->GetPositionFloat3();
-		float height = (m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y * m_pTransform->GetScale().y * 0.5) + 1.0;
+		updateCameraDirection();
 
-		// Move the camera in y-direction
-		cameraPos.y = min(max(cameraPos.y + m_RotateY * 3.0f * m_CameraDistance * static_cast<float>(dt), -80.0f), 80.0f);
-		m_pCamera->SetPosition(cameraPos.x, cameraPos.y, cameraPos.z);
+		setCameraToPlayerPosition();
 
-		m_RotateX *= 100.0f * dt;
-
-		// Rotate the camera direction vector using a homemade rotation matrix (around y) and calculate the correct y-direction using the camera's position
-		cameraDir = {
-			cameraDir.x * cos(m_RotateX) + cameraDir.z * sin(m_RotateX),
-			playerPosition.y - cameraPos.y + height,
-			-cameraDir.x * sin(m_RotateX) + cameraDir.z * cos(m_RotateX)
-		};
+		limitCameraDistance();
 
 		double3 vel = m_pCC->GetLinearVelocity();
+		float3 camDir = m_pCamera->GetDirectionFloat3();
 
 		// USed to rotate player when rotating camera while moving
-		float angle = std::atan2(m_pTransform->GetInvDir() * cameraDir.x, m_pTransform->GetInvDir() * cameraDir.z);
+		float angle = std::atan2(m_pTransform->GetInvDir() * camDir.x, m_pTransform->GetInvDir() * camDir.z);
 		if (m_Attacking || m_TurnToCamera)
 		{
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
@@ -154,47 +144,10 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 			angle += m_RadiansToTurn;
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
-
-		m_pCamera->SetDirection(cameraDir.x, cameraDir.y, cameraDir.z);
-
-		// Set camera position in relation to player
-		float3 forward = m_pCamera->GetDirectionFloat3();
-		forward.normalize();
-		forward *= m_CameraDistance;
-		float3 cameraPosition = playerPosition - forward;
-		cameraPosition.y += height;
-
-		m_pCamera->SetPosition(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-
-		// Make camera turn towards player (but aiming slightly above)
-		float directionX = playerPosition.x - cameraPosition.x;
-		float directionY = playerPosition.y - cameraPosition.y + height;
-		float directionZ = playerPosition.z - cameraPosition.z;
-		m_pCamera->SetDirection(directionX, directionY, directionZ);
-
-		// Reset rotation, so the camera only rotates when the mouse has been moved
-		m_RotateX = m_RotateY = 0.0;
-
-		if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
-		{
-			double3 negCameraDir = {
-				-directionX,
-				-directionY,
-				-directionZ};
-			double dist = m_pCC->CastRay(1, negCameraDir, ORIGINAL_CAMERA_DISTANCE, { 0, height, 0 });
-			if (dist != -1)
-			{
-				m_CameraDistance = abs(dist - 3);
-			}
-			else
-			{
-				m_CameraDistance = ORIGINAL_CAMERA_DISTANCE;
-			}
-		}
 	}
 	else
 	{
-		m_pCamera->SetDirection(cos(m_Yaw), m_Pitch * -2, sin(m_Yaw));
+		updateCameraDirection();
 	}
 
 	/* ------------------ Increment timers -------------------- */
@@ -229,9 +182,6 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		specificUpdate = specificUpdates.at(i);
 		(this->*specificUpdate)(dt);
 	}
-
-	// Reset rotation, so the camera only rotates when the mouse has been moved
-	m_RotateX = m_RotateY = 0.0;
 
 	if (m_TurningTimer >= m_TurningInterval && m_Attacking)
 	{
@@ -301,6 +251,72 @@ void component::PlayerInputComponent::Reset()
 	if (m_pParent->GetComponent<component::MeleeComponent>() != nullptr)
 	{
 		EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::mouseClick);
+	}
+}
+
+void component::PlayerInputComponent::updateCameraDirection()
+{
+	// yaw/pitch/roll conversion to quaternion
+	// https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+	// Abbreviations for the various angular functions
+	double cy = cos(0 * 0.5);
+	double sy = sin(0 * 0.5);
+	double cp = cos(-m_Yaw * 0.5);
+	double sp = sin(-m_Yaw * 0.5);
+	double cr = cos(m_Pitch * 0.5);
+	double sr = sin(m_Pitch * 0.5);
+
+	DirectX::XMVECTOR rotQuaternion = {
+		sr * cp * cy - cr * sp * sy,
+		cr * sp * cy + sr * cp * sy,
+		cr * cp * sy - sr * sp * cy,
+		cr * cp * cy + sr * sp * sy
+	};
+
+	DirectX::XMVECTOR rotatedDir;
+	// Rotate around quaternion axis
+	rotatedDir = DirectX::XMVector3Rotate({ 0, 0, 1 }, rotQuaternion);
+
+	DirectX::XMFLOAT3 newDir;
+	DirectX::XMStoreFloat3(&newDir, rotatedDir);
+
+	m_pCamera->SetDirection(newDir.x, newDir.y, newDir.z);
+}
+
+void component::PlayerInputComponent::setCameraToPlayerPosition()
+{
+	// Move camera to player with a position offset (determined by forward and height)
+	float3 playerPosition = m_pTransform->GetPositionFloat3();
+
+	float3 forward = m_pCamera->GetDirectionFloat3();
+	forward.normalize();
+	forward *= m_CameraDistance;
+	float3 cameraPosition = playerPosition - forward;
+	cameraPosition.y += m_Height;
+
+	m_pCamera->SetPosition(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+}
+
+void component::PlayerInputComponent::limitCameraDistance()
+{
+	float3 camDir = m_pCamera->GetDirectionFloat3();
+
+	// Move camera closer if there is a wall closer
+	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
+	{
+		double3 negCameraDir = {
+			-camDir.x,
+			-camDir.y,
+			-camDir.z };
+		double dist = m_pCC->CastRay(1, negCameraDir, ORIGINAL_CAMERA_DISTANCE, { 0 , m_Height , 0});
+		if (dist != -1)
+		{
+			m_CameraDistance = abs(dist - 3);
+		}
+		else
+		{
+			m_CameraDistance = ORIGINAL_CAMERA_DISTANCE;
+		}
 	}
 }
 
@@ -507,18 +523,28 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 	int x = evnt->x, y = evnt->y;
 
 	// Determine how much to rotate in radians
-	float rotateY = -(static_cast<float>(y) / 6.0 - static_cast<float>(y) / 3.0) * PI;
-	float rotateX = -(static_cast<float>(x) / 800.0) * PI;
+	float sensitivityX = stof(Option::GetInstance().GetVariable("f_sensitivityX"));
+	float sensitivityY = stof(Option::GetInstance().GetVariable("f_sensitivityY"));
 
-	m_Pitch = max(min(m_Pitch + rotateY, 3.0f), -3.0f);
-	m_Yaw = m_Yaw + rotateX;
+	// rotateX/Y determines how much yaw/pitch changes
+	const float constScale = 1 / 1300.0;
+	float rotateX = (static_cast<float>(x) * sensitivityX * constScale);
+	float rotateY = -(static_cast<float>(y) * sensitivityY * constScale);
+	
+	// Update Yaw and Pitch
+	m_Yaw = m_Yaw - rotateX;
+	m_Pitch = m_Pitch - rotateY;
+
+	// Constraints so that you can not look directly under the character
+	const float yaw_constraint_offset = 0.01f;
+	
+	float upper = (PI - yaw_constraint_offset) / 2;
+	float lower = -(PI - yaw_constraint_offset) / 2;
+	// Clamp between upper and lower
+	m_Pitch = max(min(m_Pitch, upper), lower);
 
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
-		rotateX = (static_cast<float>(x)) / 400.0 * PI;
-
-		m_RotateX = rotateX;
-		m_RotateY = rotateY;
 		m_CameraRotating = true;
 
 		Shop* shop = Player::GetInstance().GetShop();

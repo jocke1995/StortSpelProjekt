@@ -19,7 +19,6 @@ class Mesh;
 
 class Entity;
 
-
 struct RandomParameter
 {
 	float intervalLower = 0.0f;
@@ -39,8 +38,10 @@ struct RandomParameter3
 
 struct ParticleEffectSettings
 {
-	unsigned int particleCount = PARTICLE_EFFECT_DEFAULT_SIZE;
-	float spawnInterval = 0.1;
+	Texture2DGUI* texture = nullptr;
+	unsigned int maxParticleCount = PARTICLE_EFFECT_DEFAULT_SIZE; // Will wait until particle is dead before spawning next
+	float spawnInterval = 0.1; // seconds per spawn
+	bool isLooping = true; // Sets spawning = false after maxParticleCount particles has been created
 
 	// Default Particle Settings
 	ParticleAttributes startValues;
@@ -56,12 +57,13 @@ struct ParticleEffectSettings
 class ParticleEffect
 {
 public:
-	ParticleEffect(Entity* parent, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings);
+	ParticleEffect(Entity* parent, ParticleEffectSettings* settings);
 	~ParticleEffect();
 
 	void Update(double dt);
 
 	void SetIsSpawning(bool value);
+	void Clear();
 
 	Texture2DGUI* GetTexture() const;
 
@@ -78,7 +80,7 @@ private:
 	std::vector<PARTICLE_DATA> m_ParticlesData;
 	unsigned int m_ParticleIndex = 0;
 	double m_TimeSinceSpawn = 0;
-	bool m_IsSpawnwing = false;
+	bool m_IsSpawning = false;
 
 	ParticleEffectSettings m_Settings = {};
 
@@ -93,7 +95,7 @@ private:
 	bool isTimeToSpawnParticles() const;
 	bool spawnParticle();
 
-	void init(DescriptorHeap* descriptorHeap);
+	void init();
 	
 	void initParticle(Particle& particle);
 	void randomizePosition(Particle& particle);

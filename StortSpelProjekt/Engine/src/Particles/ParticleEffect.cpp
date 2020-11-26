@@ -22,18 +22,29 @@
 
 EngineRand ParticleEffect::rand = {5};
 
-
-ParticleEffect::ParticleEffect(Entity* parent, DescriptorHeap* descriptorHeap, Texture2DGUI* texture, ParticleEffectSettings* settings)
+ParticleEffect::ParticleEffect(Entity* parent, ParticleEffectSettings* settings)
 {
 	m_pEntity = parent;
-	m_pTexture = texture;
 	m_Settings = *settings;
+	m_pTexture = settings->texture;
 
-	init(descriptorHeap);
+	if (m_pTexture == nullptr)
+	{
+		// Set default texture
+		AssetLoader* al = AssetLoader::Get();
+		m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png"));
+
+		Log::PrintSeverity(Log::Severity::WARNING, "ParticleEffect::Texture was nullptr\n");
+	}
+
+	init();
 }
 
 ParticleEffect::~ParticleEffect()
 {
+	// Might be temporary, might not
+	Renderer::GetInstance().waitForGPU();
+
 	delete m_pUploadResource;
 	delete m_pDefaultResource;
 	delete m_pSRV;
@@ -43,11 +54,16 @@ void ParticleEffect::Update(double dt)
 {
 	m_TimeSinceSpawn += dt;
 
+
 	// If should particle spawn
-	if (isTimeToSpawnParticles() && m_IsSpawnwing)
+	while (isTimeToSpawnParticles() && m_IsSpawning)
 	{
 		bool spawned = spawnParticle();
-		m_TimeSinceSpawn = 0;
+
+		if (!spawned)
+		{
+			break;
+		}
 	}
 
 	// Update all particles
@@ -63,7 +79,17 @@ void ParticleEffect::Update(double dt)
 
 void ParticleEffect::SetIsSpawning(bool value)
 {
-	m_IsSpawnwing = value;
+	m_IsSpawning = value;
+}
+
+void ParticleEffect::Clear()
+{
+	m_ParticleIndex = 0;
+
+	for (Particle& particle : m_Particles)
+	{
+		particle.m_Attributes.lifetime = -1;
+	}
 }
 
 Texture2DGUI* ParticleEffect::GetTexture() const
@@ -87,31 +113,33 @@ bool ParticleEffect::spawnParticle()
 		return false;
 	}
 
+	if (!m_Settings.isLooping)
+	{
+		if (m_ParticleIndex + 1 == m_Particles.size())
+		{
+			SetIsSpawning(false);
+		}
+	}
+
 	// Update ParticleIndex
-	m_ParticleIndex = ++m_ParticleIndex % m_Settings.particleCount;
+	m_ParticleIndex = ++m_ParticleIndex % m_Settings.maxParticleCount;
 
 	// "Spawn"
+	m_TimeSinceSpawn -= m_Settings.spawnInterval;
 	initParticle(particle);
 
 	return true;
 }
 
-void ParticleEffect::init(DescriptorHeap* descriptorHeap)
+void ParticleEffect::init()
 {
-	if (m_pTexture == nullptr)
-	{
-		// Set default texture
-		AssetLoader* al = AssetLoader::Get();
-		m_pTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/stefanHuvud.png"));
-
-		Log::PrintSeverity(Log::Severity::WARNING, "ParticleEffect::Texture was nullptr\n");
-	}
-
 	Renderer& renderer = Renderer::GetInstance();
+
+	DescriptorHeap* descriptorHeap = renderer.getCBVSRVUAVdHeap();
 
 	// Only send position (float3) + size (float) to gpu
 	size_t entrySize = sizeof(PARTICLE_DATA);
-	unsigned long long resourceByteSize = entrySize * m_Settings.particleCount;
+	unsigned long long resourceByteSize = entrySize * m_Settings.maxParticleCount;
 
 	// used to format a debug string
 	std::wstring a = L"ParticleEffect_";
@@ -129,14 +157,14 @@ void ParticleEffect::init(DescriptorHeap* descriptorHeap)
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.Buffer.FirstElement = 0;
-	srvDesc.Buffer.NumElements = m_Settings.particleCount;
+	srvDesc.Buffer.NumElements = m_Settings.maxParticleCount;
 	srvDesc.Buffer.StructureByteStride = entrySize;
 	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
 	m_pSRV = new ShaderResourceView(renderer.m_pDevice5, descriptorHeap, &srvDesc, m_pDefaultResource);
 
-	m_Particles.resize(m_Settings.particleCount);
-	m_ParticlesData.resize(m_Settings.particleCount);
+	m_Particles.resize(m_Settings.maxParticleCount);
+	m_ParticlesData.resize(m_Settings.maxParticleCount);
 }
 
 void ParticleEffect::initParticle(Particle& particle)
@@ -167,19 +195,19 @@ void ParticleEffect::randomizePosition(Particle& particle)
 	if (!(randParams.x.intervalLower == 0 && randParams.x.intervalUpper == 0))
 	{
 		float x = randomizeFloat(randParams.x.intervalLower, randParams.x.intervalUpper);
-		particle.m_Attributes.position.x = x;
+		particle.m_Attributes.position.x += x;
 	}
 
 	if (!(randParams.y.intervalLower == 0 && randParams.y.intervalUpper == 0))
 	{
 		float y = randomizeFloat(randParams.y.intervalLower, randParams.y.intervalUpper);
-		particle.m_Attributes.position.y = y;
+		particle.m_Attributes.position.y += y;
 	}
 
 	if (randParams.z.intervalLower != 0 && randParams.z.intervalUpper != 0)
 	{
 		float z = randomizeFloat(randParams.z.intervalLower, randParams.z.intervalUpper);
-		particle.m_Attributes.position.z = z;
+		particle.m_Attributes.position.z += z;
 	}
 }
 
@@ -190,19 +218,19 @@ void ParticleEffect::randomizeVelocity(Particle& particle)
 	if (!(randParams.x.intervalLower == 0 && randParams.x.intervalUpper == 0))
 	{
 		float x = randomizeFloat(randParams.x.intervalLower, randParams.x.intervalUpper);
-		particle.m_Attributes.velocity.x = x;
+		particle.m_Attributes.velocity.x += x;
 	}
 
 	if (!(randParams.y.intervalLower == 0 && randParams.y.intervalUpper == 0))
 	{
 		float y = randomizeFloat(randParams.y.intervalLower, randParams.y.intervalUpper);
-		particle.m_Attributes.velocity.y = y;
+		particle.m_Attributes.velocity.y += y;
 	}
 
 	if (!(randParams.z.intervalLower == 0 && randParams.z.intervalUpper == 0))
 	{
 		float z = randomizeFloat(randParams.z.intervalLower, randParams.z.intervalUpper);
-		particle.m_Attributes.velocity.z = z;
+		particle.m_Attributes.velocity.z += z;
 	}
 }
 
@@ -213,7 +241,7 @@ void ParticleEffect::randomizeSize(Particle& particle)
 	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
 		float size = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
-		particle.m_Attributes.size = size;
+		particle.m_Attributes.size += size;
 	}
 }
 
@@ -224,7 +252,7 @@ void ParticleEffect::randomizeRotation(Particle& particle)
 	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
 		float rot = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
-		particle.m_Attributes.rotation = rot;
+		particle.m_Attributes.rotation += rot;
 	}
 }
 
@@ -235,7 +263,7 @@ void ParticleEffect::randomizeRotationSpeed(Particle& particle)
 	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
 		float rotSpeed = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
-		particle.m_Attributes.rotationSpeed = rotSpeed;
+		particle.m_Attributes.rotationSpeed += rotSpeed;
 	}
 }
 
@@ -246,7 +274,7 @@ void ParticleEffect::randomizeLifetime(Particle& particle)
 	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
 	{
 		float lifetime = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
-		particle.m_Attributes.lifetime = lifetime;
+		particle.m_Attributes.lifetime += lifetime;
 	}
 }
 
@@ -282,6 +310,12 @@ void ParticleEffect::updateResourceData(float3 cameraPos)
 
 float ParticleEffect::randomizeFloat(float lower, float upper) const
 {
+	// rand.Randf can't handle same numbers
+	if (lower == upper)
+	{
+		return lower;
+	}
+
 	float r = rand.Randf(lower*20, upper*20)/20;
 	return r;
 }

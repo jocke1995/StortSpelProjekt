@@ -58,13 +58,15 @@ struct EnemyComps
 	float rangeAttackDmg = 10.0f;
 	float rangeAttackDmgBase = 10.0f;
 	float rangeVelocity = 50.0f;
+	bool invertDirection = false;
+	float mass = 1.0f;
 };
 
 class EnemyFactory
 {
 public:
-	EnemyFactory();
-	EnemyFactory(Scene* scene);
+	static EnemyFactory& GetInstance();
+
 	~EnemyFactory();
 
 	void SetScene(Scene* scene);
@@ -110,6 +112,8 @@ public:
 
 	void Update(double dt);
 private:
+	EnemyFactory();
+
 	void enemyDeath(Death* evnt);
 	void levelDone(LevelDone* evnt);
 	void onSceneSwitch(SceneChange* evnt);

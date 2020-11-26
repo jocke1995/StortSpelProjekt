@@ -36,7 +36,7 @@ void UpgradePoisonAttack::IncreaseLevel()
 	m_NrOfTicks = 9 + m_Level;
 	m_Damage = (float)(2 + m_Level) / 3.0f;
 	m_Slow = 0.05 + (float)m_Level / 20.0f;
-	m_Price += m_StartingPrice;
+	m_Price = m_StartingPrice * (m_Level + 1);
 
 }
 
