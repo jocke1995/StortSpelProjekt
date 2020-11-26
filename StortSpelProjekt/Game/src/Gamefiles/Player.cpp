@@ -7,9 +7,6 @@
 #include "Shop.h"
 #include "Events/EventBus.h"
 #include "ECS/SceneManager.h"
-#include "Misc/AssetLoader.h"
-#include "ECS/Components/TemporaryLifeComponent.h"
-#include "Renderer/Texture/Texture2DGUI.h"
 
 Player::Player()
 {
