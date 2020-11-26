@@ -344,7 +344,7 @@ ModelLightAttenuation 0.01, 0.4, 0.01
 Submit PointLight
 
 Name BuildingFloor
-ModelPath Models/Floor/floor.obj
+ModelPath Models/FloorPBR/floor.obj
 ModelScaling 40.0, 0.1, 60.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -110.0, 5.0, 80.0

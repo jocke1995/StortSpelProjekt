@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 3
-map_Kd albedo.png
-map_Ka metallic.png
-map_Ks roughness.png
-map_Kn normal.png
+map_Kd albedo.DDS
+map_Ka metallic.DDS
+map_Ks roughness.DDS
+map_Kn normal.DDS
