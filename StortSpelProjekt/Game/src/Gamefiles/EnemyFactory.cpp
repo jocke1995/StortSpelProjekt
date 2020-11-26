@@ -233,7 +233,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 		bbc->Init();
 		bbc->AddCollisionCategory<EnemyCollisionCategory>();
-		Physics::GetInstance().AddCollisionEntity(ent);
+		//Physics::GetInstance().AddCollisionEntity(ent);
 	}
 
 	SceneManager::GetInstance().AddEntity(ent, m_pScene);
@@ -248,6 +248,11 @@ std::vector<Entity*>* EnemyFactory::GetAllEnemies()
 void EnemyFactory::AddSpawnPoint(const float3& point)
 {
 	m_SpawnPoints.push_back({ point.x, point.y, point.z });
+}
+
+void EnemyFactory::ClearSpawnPoints()
+{
+	m_SpawnPoints.clear();
 }
 
 Entity* EnemyFactory::SpawnEnemy(std::string entityName, unsigned int spawnPoint)
@@ -449,7 +454,8 @@ void EnemyFactory::onSceneSwitch(SceneChange* evnt)
 	if (evnt->m_NewSceneName == "ShopScene" || evnt->m_NewSceneName == "gameOverScene" || evnt->m_NewSceneName == "MainMenuScene")
 	{
 		m_IsActive = false;
-		m_Enemies.clear();
+		//m_Enemies.clear();
+		//Log::Print("All enemies removed!\n");
 	}
 	else
 	{

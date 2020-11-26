@@ -45,6 +45,7 @@ namespace component
 	void BoundingBoxComponent::OnInitScene()
 	{
 		Renderer::GetInstance().InitBoundingBoxComponent(this);
+		Physics::GetInstance().AddCollisionEntity(m_pParent);
 	}
 
 	void BoundingBoxComponent::OnUnInitScene()

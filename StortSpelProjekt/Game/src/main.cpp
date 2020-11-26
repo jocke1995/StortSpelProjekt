@@ -141,9 +141,7 @@ Scene* GameScene(SceneManager* sm)
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
-    std::vector<float3> spawnPoints;
-    al->LoadMap(scene, "../Vendor/Resources/FirstMap.map",&spawnPoints);
-    //al->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints);
+    //al->LoadMap(scene, "../Vendor/Resources/FirstMap.map",&spawnPoints);
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");   
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
@@ -337,11 +335,6 @@ Scene* GameScene(SceneManager* sm)
 #pragma region Enemyfactory
     EnemyFactory::GetInstance().SetScene(scene);
 
-    for (auto point : spawnPoints)
-    {
-        EnemyFactory::GetInstance().AddSpawnPoint(point);
-    }
-
     EnemyFactory::GetInstance().DefineEnemy("enemyZombie", &zombie);
     EnemyFactory::GetInstance().DefineEnemy("enemySpider", &spider);
     EnemyFactory::GetInstance().DefineEnemy("enemyDemon", &rangedDemon);
@@ -380,7 +373,6 @@ Scene* GameScene(SceneManager* sm)
     tc->SetTransformOriginalState();
 
     bbc->Init();
-    Physics::GetInstance().AddCollisionEntity(entity);
 #pragma endregion
 #pragma endregion
 
@@ -963,6 +955,20 @@ Scene* ShopScene(SceneManager* sm)
 
 void GameInitScene(Scene* scene)
 {
+    std::vector<float3> spawnPoints;
+    EnemyFactory* fact = &EnemyFactory::GetInstance();
+    fact->ClearSpawnPoints();
+    for (auto point : spawnPoints)
+    {
+        fact->AddSpawnPoint(point);
+    }
+    AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, true);
+
+    for (int i = 0; i < spawnPoints.size(); i++)
+    {
+        fact->AddSpawnPoint(spawnPoints[i]);
+    }
+
     AssetLoader::Get()->RemoveWalls();
 }
 

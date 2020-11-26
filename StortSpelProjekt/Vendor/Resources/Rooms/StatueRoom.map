@@ -402,11 +402,6 @@ ModelRestitution 0.0
 Submit Model
 Submit CollisionCapsule 0.2, 0.4, 0.2
 
-NavMesh Triangles
-NavTriangle 1,0,1; 5,0,5; 3,0,3;
-Submit NavTriangle
-Submit NavMesh
-
 AddSpawnPoint 40,1,0
 AddSpawnPoint -40,1,0
 AddSpawnPoint 40,1,-40

@@ -38,6 +38,7 @@
 
 #include "../Misc/Edge.h"
 #include "../Misc/EngineRand.h"
+#include "../ECS/SceneManager.h"
 
 #include <filesystem>
 
@@ -502,7 +503,7 @@ Font* AssetLoader::LoadFontFromFile(const std::wstring& fontName)
 	return m_LoadedFonts[path].second;
 }
 
-void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* spawnpoints, unsigned int id, float3 offset)
+void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* spawnpoints, unsigned int id, float3 offset, bool entitiesDynamic)
 {
 	FILE* file = fopen(path, "r");
 
@@ -594,9 +595,14 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 				char* fullName = new char[std::strlen(entityName.c_str()) + std::strlen(idString) + 1];
 				std::strcpy(fullName, entityName.c_str());
 				std::strcat(fullName, idString);
+				
+				if (entitiesDynamic && entity)
+				{
+					SceneManager::GetInstance().AddEntity(entity, scene);
+				}
 
 				entity = scene->AddEntity(fullName);
-
+				entity->SetEntityState(entitiesDynamic);
 				delete[] fullName;
 			}
 			else if (strcmp(lineHeader.c_str(), "NavMesh") == 0)
@@ -1067,11 +1073,21 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load mapfile %s", path);
 	}
+
+	if (entitiesDynamic)
+	{
+		SceneManager::GetInstance().AddEntity(entity, scene);
+	}
 }
 
-void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, std::vector<float3>* spawnPoints, float2 mapSize, float2 roomDimensions)
+void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, std::vector<float3>* spawnPoints, float2 mapSize, float2 roomDimensions, bool entitiesDynamic)
 {
 	std::vector<std::string> filePaths;
+
+	m_RoomsAdded.clear();
+	m_EdgesToRemove.clear();
+	m_Edges.clear();
+
 	for (const auto& entry : std::filesystem::directory_iterator(folderPath))
 	{
 		filePaths.push_back(entry.path().string());
@@ -1090,7 +1106,7 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, std::vector<
 	EngineRand rand(time(0));
 
 	// Load the starting room
-	LoadMap(scene, "../Vendor/Resources/SpawnRoom.map", spawnPoints, roomCounter, offset);
+	LoadMap(scene, "../Vendor/Resources/SpawnRoom.map", spawnPoints, roomCounter, offset, entitiesDynamic);
 	m_RoomsAdded[offset.toString()] = roomCounter++;
 	std::vector<float> spawnChances;
 	for (int i = 0; i < filePaths.size(); ++i)
@@ -1160,7 +1176,7 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, std::vector<
 		{
 			if (m_RoomsAdded[newOffset.toString()] == 0 && newOffset.toString() != startingOffset.toString())
 			{
-				LoadMap(scene, roomToLoad.c_str(),spawnPoints, roomCounter, newOffset);
+				LoadMap(scene, roomToLoad.c_str(),spawnPoints, roomCounter, newOffset, entitiesDynamic);
 				m_RoomsAdded[newOffset.toString()] = roomCounter++;
 				removeWall = true;
 			}

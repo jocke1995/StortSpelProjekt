@@ -80,6 +80,16 @@ bool Scene::RemoveEntity(std::string entityName)
     m_EntitiesToKeep.erase(entityName);
 
     m_NrOfEntities--;
+
+    for (int i = 0; i < m_CollisionEntities.size(); ++i)
+    {
+        Entity* entity = m_CollisionEntities[i];
+        if (entity->GetID() == ent->GetID())
+        {
+            m_CollisionEntities.erase(m_CollisionEntities.begin() + i);
+        }
+    }
+
     return true;
 }
 
