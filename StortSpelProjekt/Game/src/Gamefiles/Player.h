@@ -7,6 +7,7 @@ class UpgradeManager;
 
 struct UForUpgrade;
 struct ResetGame;
+struct SceneChange;
 
 class Player
 {
