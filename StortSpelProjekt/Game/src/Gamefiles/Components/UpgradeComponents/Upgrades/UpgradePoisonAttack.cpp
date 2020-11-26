@@ -63,7 +63,7 @@ void UpgradePoisonAttack::ApplyBoughtUpgrade()
 
 std::string UpgradePoisonAttack::GetDescription(unsigned int level)
 {
-	std::string str = "Poison Attack: Causes your projectile to apply a poison, that deals ";
+	std::string str = "Poison Attack: Causes your projectile to apply a poison. Deals ";
 	std::ostringstream damage;
 	damage.precision(2);
 	damage << std::fixed << ((float)(4 + m_Level * 2)) * (9 + level);
