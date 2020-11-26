@@ -774,29 +774,25 @@ Scene* FloppipTestScene(SceneManager* sm)
     Player::GetInstance().SetPlayer(entity);
     /* ---------------------- Player ---------------------- */
 
-    std::vector<ParticleEffectSettings> vec;
-
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.maxParticleCount = 3;
-    settings.startValues.lifetime = 3;
-    settings.spawnInterval = 0.5;
-    settings.startValues.acceleration = {0, -6.5, 0};
+    settings.maxParticleCount = 1;
+    settings.startValues.lifetime = 2;
+    settings.spawnInterval = 0.00001;
+    settings.startValues.acceleration = {0, 0, 0};
     settings.isLooping = true;
 
     // Need to fix EngineRand.rand() for negative values
 
-    settings.randPosition = { 0, 0, 0, 3, 0, 0};
-    settings.randVelocity = { -10, 10, -5, 10, -10, 10 };
-    settings.randSize = { 0.4, 1.2 };
-    settings.randRotationSpeed = { 0, 1 };
+    settings.randPosition = { 0, 0, 0, 0, 0, 0};
+    settings.randVelocity = { 0, 0, 0, 0, 0, 0 };
+    settings.randSize = { 2, 3 };
+    settings.randRotationSpeed = { 0, 0.3 };
 
-    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/projParticle.png"));
     settings.texture = particleTexture;
 
-    vec.push_back(settings);
-
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
 
     /* ---------------------- Skybox ---------------------- */
@@ -1690,18 +1686,18 @@ Scene* BjornsTestScene(SceneManager* sm)
     //enH.AddExistingEnemyWithChanges("rock", float3{ 20, 0, 4 }, UINT_MAX, 0.005f);
 
     // looping through and adding already existing enemy type with only new position
-    float xVal = 8;
-    float zVal = 0;
-    for (int i = 0; i < 50; i++)
-    {
-        zVal += 8;
-        enH.AddExistingEnemy("enemy", float3{ xVal, 0, zVal });
-        if ((i + 1) % 5 == 0)
-        {
-            xVal += 8;
-            zVal = 0;
-        }
-    }
+    //float xVal = 8;
+    //float zVal = 0;
+    //for (int i = 0; i < 50; i++)
+    //{
+    //    zVal += 8;
+    //    enH.AddExistingEnemy("enemy", float3{ xVal, 0, zVal });
+    //    if ((i + 1) % 5 == 0)
+    //    {
+    //        xVal += 8;
+    //        zVal = 0;
+    //    }
+    //}
 
     /* ---------------------- PointLight ---------------------- */
     entity = scene->AddEntity("pointLight");

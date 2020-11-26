@@ -7,6 +7,9 @@
 #include "../ECS/Entity.h"
 
 #include "../ECS/Components/Audio3DEmitterComponent.h"
+#include "../ECS/Components/TemporaryLifeComponent.h"
+
+unsigned int component::ProjectileComponent::m_EffectCounter = 0;
 
 component::ProjectileComponent::ProjectileComponent(Entity* parent, int damage, float ttl) : Component(parent)
 {
@@ -54,15 +57,26 @@ void component::ProjectileComponent::hit(Collision* event)
 {
 	// if we are the one that collided then make 
 	// the other object lose health (if it has health)
-	if (event->ent1 == m_pParent)
+	if (event->ent1 == m_pParent || event->ent2 == m_pParent)
 	{
-		if (event->ent2->HasComponent<component::HealthComponent>())
+		Entity* other = nullptr;
+		if (event->ent1 == m_pParent)
 		{
-			event->ent2->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
-			if (event->ent2->GetName().find("enemy") != std::string::npos && event->ent2->GetComponent<component::Audio3DEmitterComponent>())
+			other = event->ent2;
+		}
+		else
+		{
+			other = event->ent1;
+		}
+
+		if (other->HasComponent<component::HealthComponent>())
+		{
+			createProjectileParticleEffect(m_pParent);
+			other->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
+			if (other->GetName().find("enemy") != std::string::npos && other->GetComponent<component::Audio3DEmitterComponent>())
 			{
-				event->ent2->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
-				event->ent2->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
+				other->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
+				other->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
 				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
 			}
 		}
@@ -76,34 +90,46 @@ void component::ProjectileComponent::hit(Collision* event)
 		// Call on upgrade on hit functions
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
 		{
-			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit(event->ent2);
-			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit(event->ent2, m_pParent);
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit(other);
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit(other, m_pParent);
 		}
 	}
-	else if (event->ent2 == m_pParent)
-	{
-		if (event->ent1->HasComponent<component::HealthComponent>())
-		{
-			event->ent1->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
-			if (event->ent1->GetName().find("enemy") != std::string::npos && event->ent1->GetComponent<component::Audio3DEmitterComponent>())
-			{
-				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
-				event->ent1->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
-				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
-			}
-		}
-		else if (m_pParent->HasComponent<CollisionComponent>())
-		{
-			if (m_pParent->GetComponent<component::CollisionComponent>()->GetRestitution() <= EPSILON)
-			{
-				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
-			}
-		}
-		// Call on upgrade on hit functions
-		if (m_pParent->HasComponent<component::UpgradeComponent>())
-		{
-			m_pParent->GetComponent<component::UpgradeComponent>()->OnHit(event->ent1);
-			m_pParent->GetComponent<component::UpgradeComponent>()->OnRangedHit(event->ent1, m_pParent);
-		}
-	}
+}
+
+void component::ProjectileComponent::createProjectileParticleEffect(Entity* target) const
+{
+	float duration = 0.2;
+
+	// Create test particleEffect
+	ParticleEffectSettings settings = {};
+	settings.maxParticleCount = 1;
+	settings.startValues.lifetime = duration;
+	settings.spawnInterval = 0.00001;
+	settings.startValues.acceleration = { 0, 0, 0 };
+	settings.isLooping = true;
+
+	// Need to fix EngineRand.rand() for negative values
+
+	settings.randPosition = { 0, 0, 0, 0, 0, 0 };
+	settings.randVelocity = { 0, 0, 0, 0, 0, 0 };
+	settings.randSize = { 3.5, 3.5 };
+	settings.randRotationSpeed = { 0, 0.3 };
+
+	AssetLoader* al = AssetLoader::Get();
+	Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/projParticle.png"));
+	settings.texture = particleTexture;
+
+	SceneManager& sm = SceneManager::GetInstance();
+	
+	Entity* entity = sm.GetActiveScene()->AddEntity("projectileHitEffect_" + std::to_string(m_EffectCounter++));;
+
+	component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
+	DirectX::XMFLOAT3 targetPos = target->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionXMFLOAT3();
+	tc->GetTransform()->SetPosition(targetPos);
+
+	entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+	entity->AddComponent<component::TemporaryLifeComponent>(duration);
+
+	sm.AddEntity(entity, sm.GetActiveScene());
+	
 }
