@@ -106,7 +106,7 @@ void component::ProjectileComponent::createProjectileParticleEffectAt(Entity* ta
 	settings.startValues.lifetime = duration;
 	settings.spawnInterval = 0.00000001;
 	settings.startValues.acceleration = { 0, 0, 0 };
-	settings.startValues.size = 3.5;
+	settings.startValues.size = 2.2;
 	settings.isLooping = false;
 
 	// Need to fix EngineRand.rand() for negative values
