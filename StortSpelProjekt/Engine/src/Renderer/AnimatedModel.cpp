@@ -83,12 +83,12 @@ bool AnimatedModel::PlayAnimation(std::string animationName, bool loop)
 			{
 				animation->loop = loop;
 				animation->Update(0);
-				m_QueuedAnimation = animation;
+				m_pQueuedAnimation = animation;
 				return true;
 			}
 			else
 			{
-				m_QueuedAnimation = nullptr;
+				m_pQueuedAnimation = nullptr;
 			}
 
 			animation->loop = loop;
@@ -103,11 +103,11 @@ bool AnimatedModel::PlayAnimation(std::string animationName, bool loop)
 			// If the animation is looping it should stay active. Else we need to reactivate the previous looping animation.
 			if (animation->loop)
 			{
-				m_ReactivateAnimation = nullptr;
+				m_pReactivateAnimation = nullptr;
 			}
 			else if (m_pActiveAnimations[0]->loop)
 			{
-				m_ReactivateAnimation = m_pActiveAnimations[0];
+				m_pReactivateAnimation = m_pActiveAnimations[0];
 			}
 			endAnimation();
 
@@ -142,17 +142,17 @@ void AnimatedModel::Update(double dt)
 			// remove all finished animations from the active animations vector
 			if (animation->finished)
 			{
-				if (m_ReactivateAnimation)
+				if (m_pReactivateAnimation)
 				{
-					PlayAnimation(m_ReactivateAnimation->name, m_ReactivateAnimation->loop);
+					PlayAnimation(m_pReactivateAnimation->name, m_pReactivateAnimation->loop);
 				}
 				animation->finished = false;
 			}
 			else
 			{
-				if (m_QueuedAnimation)
+				if (m_pQueuedAnimation)
 				{
-					PlayAnimation(m_QueuedAnimation->name, m_QueuedAnimation->loop);
+					PlayAnimation(m_pQueuedAnimation->name, m_pQueuedAnimation->loop);
 				}
 				animation->Update(dt);
 			}
@@ -248,8 +248,8 @@ void AnimatedModel::ResetAnimations()
 	m_pPendingAnimations.clear();
 	m_pActiveAnimations.clear();
 	m_pEndingAnimations.clear();
-	m_QueuedAnimation = nullptr;
-	m_ReactivateAnimation = nullptr;
+	m_pQueuedAnimation = nullptr;
+	m_pReactivateAnimation = nullptr;
 
 	// Initialize the upload matrices
 	DirectX::XMFLOAT4X4 matIdentity;

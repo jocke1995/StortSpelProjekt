@@ -58,8 +58,8 @@ private:
     double m_BlendTransitionTime = ANIMATION_TRANSITION_TIME;
     double m_BlendTimeElapsed = 0;
     std::map<std::string, TransformKey> m_BlendAnimationState;
-    Animation* m_ReactivateAnimation;
-    Animation* m_QueuedAnimation;
+    Animation* m_pReactivateAnimation;
+    Animation* m_pQueuedAnimation;
     std::vector<Animation*> m_pPendingAnimations;
     std::vector<Animation*> m_pActiveAnimations;
     std::vector<Animation*> m_pEndingAnimations;
