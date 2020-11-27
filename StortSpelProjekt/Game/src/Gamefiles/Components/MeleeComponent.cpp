@@ -87,7 +87,6 @@ void component::MeleeComponent::Update(double dt)
 	m_MeleeTransformModified.SetScale(m_XScale, 1, m_ZScale);
 	m_MeleeTransformModified.UpdateWorldMatrix();
 
-
 	Transform* parentTransform = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
 	double3 modelDim = m_pParent->GetComponent<component::ModelComponent>()->GetModelDim();
 
@@ -97,15 +96,8 @@ void component::MeleeComponent::Update(double dt)
 
 	position = position + (forwardVector * distanceFromPlayer);
 
-	//float4 parentRotation = trans->GetRotation();
-	//DirectX::XMVECTOR rotationQuaternion = { parentRotation.x, parentRotation.y, parentRotation.z, parentRotation.w };	// Rotationen är exakt likadan som modellens local space rotation.
-	//DirectX::XMVECTOR temp2 = {};
-	//float angle = 0;
-	//DirectX::XMQuaternionToAxisAngle(&temp2, &angle, rotationQuaternion);
-
 	// Sets the position and updates the matrix to reflect movement of the player
 	m_MeleeTransformModified.SetPosition(position.x, position.y, position.z);
-	//m_MeleeTransformModified.SetRotation(rotationQuaternion);							I can't do this because the melee transform only has rotation with euler angles for some reason...
 	m_MeleeTransformModified.Move(dt);
 
 	m_MeleeTransformModified.UpdateWorldMatrix();
