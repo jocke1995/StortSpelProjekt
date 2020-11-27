@@ -276,9 +276,9 @@ Name Skybox
 ModelPath Textures/CubeMaps/skymap.dds
 Submit Skybox
 
-// SUN -------------------------------------------------
+// MOON -------------------------------------------------
 
-Name sun
+Name moon
 ModelLightColor 0.5, 0.5, 0.7
 ModelLightFlag 1,1
 ModelLightDirection 0.0, -0.75, 1.0

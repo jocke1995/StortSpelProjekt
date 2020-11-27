@@ -940,8 +940,8 @@ Scene* ShopScene(SceneManager* sm)
     slc->SetOuterCutOff(50.0f);
     /* ---------------------- SpotLightDynamic ---------------------- */
 
-    /* ---------------------- dirLight ---------------------- */
-    entity = scene->AddEntity("dirLight");
+    /* ---------------------- moon ---------------------- */
+    entity = scene->AddEntity("moon");
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
     dlc->SetColor({ 0.8f, 0.8f, 0.8f });
     dlc->SetDirection({ 0.0f, -0.75f, 1.0f });
