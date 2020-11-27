@@ -36,8 +36,7 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	float newScale = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().x;	// x, y, z will have same scale
 	float oldScale = 0.9f;
 	float scaleFactor = oldScale / newScale;
-	m_HalfSize = { 8.0f * scaleFactor, 1.0f * scaleFactor, (static_cast<float>(MELEE_RANGE) * scaleFactor) / 2.0f };
-	m_HalfSize = { m_MeleeXRange, 1.0f, m_MeleeZRange / 2.0f };
+	m_HalfSize = { m_MeleeXRange * scaleFactor, 1.0f * scaleFactor, (m_MeleeZRange * scaleFactor) / 2.0f };
 
 	//Create bounding box for collision for melee
 	m_pBbc = parent->GetComponent<component::BoundingBoxComponent>();
