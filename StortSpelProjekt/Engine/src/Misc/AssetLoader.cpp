@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "AssetLoader.h"
 
@@ -36,6 +35,11 @@
 #include "EngineMath.h"
 
 #include "../Misc/NavMesh.h"
+
+#include "../Misc/Edge.h"
+#include "../Misc/EngineRand.h"
+
+#include <filesystem>
 
 AssetLoader::AssetLoader(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
 {
@@ -75,6 +79,19 @@ bool AssetLoader::IsTextureLoadedOnGpu(const std::wstring& name) const
 bool AssetLoader::IsTextureLoadedOnGpu(const Texture* texture) const
 {
 	return m_LoadedTextures.at(texture->GetPath()).first;
+}
+
+std::vector<Edge*>& AssetLoader::GetEdges()
+{
+	return m_Edges;
+}
+
+void AssetLoader::RemoveWalls()
+{
+	for (int edgeId : m_EdgesToRemove)
+	{
+		m_Edges.at(edgeId)->RemoveEntitiesFromWorld();
+	}
 }
 
 void AssetLoader::loadDefaultMaterial()
@@ -145,6 +162,11 @@ AssetLoader::~AssetLoader()
 		delete font.second.second->m_pCharList;
 		delete font.second.second;
 	}
+
+	for (auto edge : m_Edges)
+	{
+		delete edge;
+	}
 }
 
 AssetLoader* AssetLoader::Get(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV_UAV_SRV, const Window* window)
@@ -167,11 +189,34 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 
 	Assimp::Importer importer;
 	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true);
-	const aiScene* assimpScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph);
+	std::stringstream ss;
+	std::string fileEnding = filePath.substr(filePath.find_last_of('.'));
+	bool binary = false;
 
+	if (fileEnding == ".fbx" || fileEnding == ".FBX")
+	{
+		binary = true;
+	}
+
+	std::string tmp(to_string(path));
+	tmp = tmp.substr(0,tmp.find_last_of('/') + 1);
+	tmp += "decryptedFile" + fileEnding;
+	if (binary)
+	{
+		Cryptor::DecryptDDS(Cryptor::GetGlobalKey(), to_string(path).c_str(),tmp.c_str());
+	}
+	else
+	{
+		Cryptor::Decrypt(Cryptor::GetGlobalKey(), to_string(path).c_str(), tmp.c_str());
+	}
+
+	const aiScene* assimpScene = importer.ReadFile(tmp, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph);
+	remove(tmp.c_str());
 	if (assimpScene == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to load model with path: \'%S\'\n", path.c_str());
+		Log::Print(importer.GetErrorString());
+		Log::Print("\n");
 		return nullptr;
 	}
 
@@ -215,7 +260,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	if (m_LoadedModels.count(path) != 0)
 	{
 		model = dynamic_cast<HeightmapModel*>(m_LoadedModels[path].second);
-		
+
 		if (!model)
 		{
 			Log::PrintSeverity(Log::Severity::OTHER, "The model %S is already loaded and attempted to be loaded as a HeightmapModel!", path);
@@ -242,7 +287,7 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 	{
 		Vertex ver;
 		heightData[i] = imgData[i * 4] / 255.0f;
-		
+
 		ver.pos = { static_cast<float>(i % tex->GetHeight()) - tex->GetHeight() / 2.0f, static_cast<float>(heightData[i]), (i / tex->GetHeight()) - tex->GetWidth() / 2.0f };
 		ver.uv = { static_cast<float>(i % tex->GetHeight()) / tex->GetHeight(), static_cast<float>(i / tex->GetHeight()) / tex->GetWidth() };
 		vertices.push_back(ver);
@@ -283,18 +328,18 @@ HeightmapModel* AssetLoader::LoadHeightmap(const std::wstring& path)
 			*-*-*
 		*/
 
-		i+= (((i + 2) % tex->GetHeight()) == 0);
+		i += (((i + 2) % tex->GetHeight()) == 0);
 	}
 
 	unsigned int nrOfThreads = ThreadPool::GetInstance().GetNrOfThreads();
-	CalculateHeightmapNormalsTask** tasks = new CalculateHeightmapNormalsTask*[nrOfThreads];
-	
+	CalculateHeightmapNormalsTask** tasks = new CalculateHeightmapNormalsTask * [nrOfThreads];
+
 	for (int i = 0; i < nrOfThreads; i++)
 	{
 		tasks[i] = new CalculateHeightmapNormalsTask(i, nrOfThreads, vertices, indices, tex->GetHeight(), tex->GetWidth());
 		ThreadPool::GetInstance().AddTask(tasks[i]);
 	}
-	
+
 	ThreadPool::GetInstance().WaitForThreads(tasks[0]->GetThreadFlags());
 
 	for (int i = 0; i < nrOfThreads; i++)
@@ -330,7 +375,7 @@ Texture* AssetLoader::LoadTexture2D(const std::wstring& path)
 	// Check if the texture is DDS or of other commonType
 	std::string fileEnding = GetFileExtension(to_string(path));
 	Texture* texture = nullptr;
-	if (fileEnding == "dds")
+	if (fileEnding == "dds" || fileEnding == "DDS")
 	{
 		texture = new Texture2D(path);
 	}
@@ -369,9 +414,10 @@ TextureCubeMap* AssetLoader::LoadTextureCubeMap(const std::wstring& path)
 
 Material* AssetLoader::LoadMaterialFromMTL(const std::wstring& path)
 {
-	std::wifstream ifstream(path);
+	//std::wifstream ifstream(path);
+	std::wstringstream ifstream;
 	Material* mat = nullptr;
-	if (ifstream.is_open())
+	if (Cryptor::Decrypt(Cryptor::GetGlobalKey(), path.c_str(), &ifstream))
 	{
 		std::wstring relPath = path.substr(0, path.find_last_of('/') + 1);
 		std::wstring currMatName;
@@ -404,7 +450,6 @@ Material* AssetLoader::LoadMaterialFromMTL(const std::wstring& path)
 				currMatName = line.substr(line.find_first_of(L' '));
 				if (m_LoadedMaterials.count(currMatName) > 0)
 				{
-					ifstream.close();
 					return m_LoadedMaterials[currMatName].second;
 				}
 			}
@@ -480,9 +525,12 @@ Font* AssetLoader::LoadFontFromFile(const std::wstring& fontName)
 	return m_LoadedFonts[path].second;
 }
 
-void AssetLoader::LoadMap(Scene* scene, const char* path)
+void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float3 offset)
 {
 	FILE* file = fopen(path, "r");
+
+	int numNavTriangles = 0;
+	static int totalNumberOfNavTriangles = 0;
 
 	std::string lineHeader;
 	lineHeader.reserve(128);
@@ -502,10 +550,12 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	unsigned int combinedFlag = 0;
 	float3 scaling = { 1.0f,1.0f,1.0f };
 	float3 pos = { 0.0, 0.0, 0.0 };
-	float3 rot = { 0.0, 0.0, 0.0};
+	float3 lightPos = { 0.0, 0.0, 0.0 };
+	float3 rot = { 0.0, 0.0, 0.0 };
 	float3 lightColor = { 0.0, 0.0, 0.0 };
 	float3 lightDir = { 0.0, 0.0, 0.0 };
 	float3 lightAttenuation = { 0.0, 0.0, 0.0 };
+	float3 bbModifier = { 1.0f, 1.0f, 1.0f };
 	float lightAspect = 16.0f / 9.0f;
 	float lightCutOff = 30.0f;
 	float lightOuterCutOff = 45.0f;
@@ -539,6 +589,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	std::string navMeshType;
 	navMeshType.reserve(128);
 
+	int edgeId = -1;
+
 	ParticleEffectSettings particleSettings = {};
 	int particlePlayOnInit = 0;
 
@@ -561,7 +613,18 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			if (strcmp(lineHeader.c_str(), "Name") == 0)
 			{
 				fscanf(file, "%s", entityName.c_str());
-				entity = scene->AddEntity(entityName.c_str());
+				
+				char idString[4];
+
+				sprintf(idString, "_%d", id);
+
+				char* fullName = new char[std::strlen(entityName.c_str()) + std::strlen(idString) + 1];
+				std::strcpy(fullName, entityName.c_str());
+				std::strcat(fullName, idString);
+
+				entity = scene->AddEntity(fullName);
+
+				delete[] fullName;
 			}
 			else if (strcmp(lineHeader.c_str(), "NavMesh") == 0)
 			{
@@ -592,6 +655,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			{
 				fscanf(file, "%d,%d", &flag, &flagVal);
 				drawFlags[flag] = flagVal;
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightPosition") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &lightPos.x, &lightPos.y, &lightPos.z);
 			}
 			else if (strcmp(lineHeader.c_str(), "ModelLightFlag") == 0)
 			{
@@ -762,20 +829,42 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 			{
 				fscanf(file, "%d", &particlePlayOnInit);
 			}
+			else if (strcmp(lineHeader.c_str(), "ShrinkBoundingBox") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &bbModifier.x, &bbModifier.y, &bbModifier.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "CreateEdge") == 0)
+			{
+				m_Edges.push_back(new Edge(m_Edges.size()));
+			}
+			else if (strcmp(lineHeader.c_str(), "EdgeId") == 0)
+			{
+				fscanf(file, "%d", &edgeId);
+			}
+			else if (strcmp(lineHeader.c_str(), "AddToEdge") == 0)
+			{
+				fscanf(file, "%d", &edgeId);
+				edgeId += 6 * id;
+				if (edgeId != -1)
+				{
+					m_Edges.at(edgeId)->AddEntity(entity);
+					edgeId = -1;
+				}
+			}
 			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
 			{
 				fscanf(file, "%s", toSubmit.c_str());
 
 				if (strcmp(toSubmit.c_str(), "Model") == 0)
-				{	
+				{
 					mc = entity->AddComponent<component::ModelComponent>();
 					tc = entity->AddComponent<component::TransformComponent>();
 					tc->GetTransform()->SetScale(1.0f);
-					tc->GetTransform()->SetScale(scaling.x,scaling.y,scaling.z);
+					tc->GetTransform()->SetScale(scaling.x, scaling.y, scaling.z);
 					tc->GetTransform()->SetRotationX(rot.x * (PI / 180));
 					tc->GetTransform()->SetRotationY(rot.y * (PI / 180));
 					tc->GetTransform()->SetRotationZ(rot.z * (PI / 180));
-					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+					tc->GetTransform()->SetPosition(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
 
 					tc->SetTransformOriginalState();
 
@@ -789,6 +878,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					mc->SetDrawFlag(combinedFlag);
 
 					bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+					bbc->SetModifier(bbModifier);
 					bbc->Init();
 					Physics::GetInstance().AddCollisionEntity(entity);
 				}
@@ -808,7 +898,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					tc->GetTransform()->SetRotationY(rot.y);
 					tc->GetTransform()->SetRotationZ(rot.z);
 					tc->GetTransform()->SetScale(scaling.x, scaling.y, scaling.z);
-					tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+					tc->GetTransform()->SetPosition(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
 
 					tc->SetTransformOriginalState();
 				}
@@ -822,7 +912,14 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					plc = entity->AddComponent<component::PointLightComponent>(combinedFlag);
 					plc->SetColor(lightColor);
 					plc->SetAttenuation(lightAttenuation);
-					plc->SetPosition({ pos.x, pos.y, pos.z });
+					if (FLAG_LIGHT::USE_TRANSFORM_POSITION & combinedFlag)
+					{
+						plc->SetPosition({ pos.x + offset.x, pos.y + offset.y, pos.z + offset.z });
+					}
+					else
+					{
+						plc->SetPosition({ lightPos.x + offset.x, lightPos.y + offset.y, lightPos.z + offset.z });
+					}
 				}
 				else if (strcmp(toSubmit.c_str(), "SpotLight") == 0)
 				{
@@ -835,7 +932,14 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					slc->SetColor(lightColor);
 					slc->SetAttenuation(lightAttenuation);
 					slc->SetDirection(lightDir);
-					slc->SetPosition({ pos.x, pos.y, pos.z });
+					if (FLAG_LIGHT::USE_TRANSFORM_POSITION & combinedFlag)
+					{
+						slc->SetPosition({ pos.x + offset.x, pos.y + offset.y, pos.z + offset.z });
+					}
+					else
+					{
+						slc->SetPosition({ lightPos.x + offset.x, lightPos.y + offset.y, lightPos.z + offset.z });
+					}
 					slc->SetAspectRatio(lightAspect);
 					slc->SetCutOff(lightCutOff);
 					slc->SetOuterCutOff(lightOuterCutOff);
@@ -857,10 +961,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					dlc = entity->AddComponent<component::DirectionalLightComponent>(combinedFlag);
 					dlc->SetColor(lightColor);
 					dlc->SetDirection(lightDir);
-					dlc->SetCameraLeft(lightLeft);
-					dlc->SetCameraRight(lightRight);
-					dlc->SetCameraTop(lightTop);
-					dlc->SetCameraBot(lightBottom);
+					dlc->SetCameraLeft(lightLeft + offset.x);
+					dlc->SetCameraRight(lightRight + offset.x);
+					dlc->SetCameraTop(lightTop + offset.z);
+					dlc->SetCameraBot(lightBottom + offset.z);
 					dlc->SetCameraFarZ(lightFar);
 					dlc->SetCameraNearZ(lightNear);
 					lightNear = 0.01;
@@ -927,17 +1031,26 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					info.maxHeight = 1;
 					info.minHeight = -1;
 					// Implement when feature is merged to develop
-					cc = entity->AddComponent<component::HeightmapCollisionComponent>(info,mass,friction,restitution);
+					cc = entity->AddComponent<component::HeightmapCollisionComponent>(info, mass, friction, restitution);
 					cc->SetUserID(1);
 					mass = 0.0;
 				}
 				else if (strcmp(toSubmit.c_str(), "NavQuad") == 0)
 				{
+					pos.x += offset.x;
+					pos.y += offset.z;
 					navMesh->AddNavQuad(pos, size);
 				}
 				else if (strcmp(toSubmit.c_str(), "NavTriangle") == 0)
 				{
-					navMesh->AddNavTriangle(vertex1, vertex2, vertex3);
+					NavTriangle* tri = navMesh->AddNavTriangle(vertex1 + offset, vertex2 + offset, vertex3 + offset);
+					++numNavTriangles;
+					if (edgeId != -1)
+					{
+						edgeId += 6 * id;
+						m_Edges.at(edgeId)->AddNavTriangle(tri);
+						edgeId = -1;
+					}
 				}
 				else if (strcmp(toSubmit.c_str(), "NavConnection") == 0)
 				{
@@ -947,7 +1060,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					}
 					else if (std::strcmp(navMeshType.c_str(), "Triangles") == 0)
 					{
-						navMesh->ConnectNavTriangles(tri1, tri2);
+						navMesh->ConnectNavTriangles(tri1 + totalNumberOfNavTriangles, tri2 + totalNumberOfNavTriangles);
 					}
 				}
 				else if (strcmp(toSubmit.c_str(), "NavMesh") == 0)
@@ -958,6 +1071,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					}
 					else if (std::strcmp(navMeshType.c_str(), "Triangles") == 0)
 					{
+						totalNumberOfNavTriangles += numNavTriangles;
 						navMesh->CreateTriangleGrid();
 					}
 				}
@@ -973,6 +1087,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 					particleSettings.texture = particleTexture;
 					pe = entity->AddComponent<component::ParticleEmitterComponent>(&particleSettings, particlePlayOnInit);
 				}
+					
 			}
 		}
 		fclose(file);
@@ -980,6 +1095,136 @@ void AssetLoader::LoadMap(Scene* scene, const char* path)
 	else
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load mapfile %s", path);
+	}
+}
+
+void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSize, float2 roomDimensions)
+{
+	std::vector<std::string> filePaths;
+	for (const auto& entry : std::filesystem::directory_iterator(folderPath))
+	{
+		filePaths.push_back(entry.path().string());
+	}
+
+	int maxRooms = static_cast<int>(mapSize.x * mapSize.y * 0.8f);
+	int roomCounter = 0;
+	bool removeWall = false;
+	float3 startingOffset = { 0.0f, 0.0f, 0.0f };
+	float3 offset = startingOffset;
+	float xMin = -std::floor(mapSize.x / 2.0f) * roomDimensions.x;
+	float xMax = mapSize.x / 2.0f * roomDimensions.x;
+	float zMin = -std::floor(mapSize.y / 2.0f) * (roomDimensions.y * 0.75f);
+	float zMax = std::floor(mapSize.y / 2.0f) * (roomDimensions.y * 0.75f);
+
+	EngineRand rand(time(0));
+
+	// Load the starting room
+	LoadMap(scene, "../Vendor/Resources/SpawnRoom.map", roomCounter, offset);
+	m_RoomsAdded[offset.toString()] = roomCounter++;
+	std::vector<float> spawnChances;
+	for (int i = 0; i < filePaths.size(); ++i)
+	{
+		spawnChances.push_back(100.0f / filePaths.size());
+	}
+
+	// Load rooms until maxRooms has been reached
+	float totalSpawnChance = 100.0f;
+	int spawnRand = 0;
+	while (roomCounter < maxRooms)
+	{
+		int direction = rand.Randu(0, 6);
+		int opositeDirection = 0;
+		float3 newOffset = offset;
+		switch (direction)
+		{
+		case 0:
+			newOffset.x += 86.5f;
+			newOffset.z += 150.0f;
+			opositeDirection = 3;
+			break;
+		case 1:
+			newOffset.x += 173.0f;
+			opositeDirection = 4;
+			break;
+		case 2:
+			newOffset.x += 86.5f;
+			newOffset.z += -150.0f;
+			opositeDirection = 5;
+			break;
+		case 3:
+			newOffset.x += -86.5f;
+			newOffset.z += -150.0f;
+			opositeDirection = 0;
+			break;
+		case 4:
+			newOffset.x += -173.0f;
+			opositeDirection = 1;
+			break;
+		case 5:
+			newOffset.x += -86.5f;
+			newOffset.z += 150.0f;
+			opositeDirection = 2;
+			break;
+		}
+
+		if (newOffset.x <= xMax && newOffset.x >= xMin && newOffset.z <= zMax && newOffset.z >= zMin)
+		{
+			if (m_RoomsAdded[newOffset.toString()] == 0 && newOffset.toString() != startingOffset.toString())
+			{
+				int mapId;
+				int maxRand = static_cast<int>(totalSpawnChance);
+				spawnRand = (rand.Randu(0, maxRand));
+				totalSpawnChance = 0.0f;
+				bool keepChecking = true;
+				for (int i = 0; i < spawnChances.size(); ++i)
+				{
+					totalSpawnChance += spawnChances[i];
+					if (spawnRand <= totalSpawnChance && keepChecking)
+					{
+						mapId = i;
+						if (filePaths.at(i) == "../Vendor/Resources/Rooms\\OutdoorRoom.map")
+						{
+							totalSpawnChance -= spawnChances[i];
+							spawnChances[i] = 0.0f;
+						}
+						else
+						{
+							float newSpawnChance = std::max<float>(spawnChances[i] - 10.0f, 0.0f);
+							totalSpawnChance -= (spawnChances[i] - newSpawnChance);
+							spawnChances[i] = newSpawnChance;
+						}
+						keepChecking = false;
+					}
+				}
+				std::string roomToLoad = filePaths.at(mapId);
+				LoadMap(scene, roomToLoad.c_str(), roomCounter, newOffset);
+				m_RoomsAdded[newOffset.toString()] = roomCounter++;
+				removeWall = true;
+			}
+			else
+			{
+				// 25% chance to remove wall into already existing room
+				removeWall = rand.Randu(0, 100) <= 25;
+			}
+
+			if (removeWall)
+			{
+				int firstEdgeId = direction + 6 * m_RoomsAdded[offset.toString()];
+				int secondEdgeId = opositeDirection + 6 * m_RoomsAdded[newOffset.toString()];
+
+				Edge* firstEdge = m_Edges.at(firstEdgeId);
+				Edge* secondEdge = m_Edges.at(secondEdgeId);
+				if (!firstEdge->IsConnected())
+				{
+					firstEdge->ConnectToWall(secondEdge, scene->GetNavMesh());
+					m_EdgesToRemove.push_back(firstEdgeId);
+					m_EdgesToRemove.push_back(secondEdgeId);
+				}
+
+				offset = newOffset;
+			}
+
+		}
 	}
 }
 
@@ -1054,7 +1299,7 @@ Mesh* AssetLoader::processMesh(aiMesh* assimpMesh, const aiScene* assimpScene, s
 }
 
 void AssetLoader::processMeshData(const aiScene* assimpScene, const aiMesh* assimpMesh, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices)
-{	
+{
 	// Get data from assimpMesh and store it
 	for (unsigned int i = 0; i < assimpMesh->mNumVertices; i++)
 	{
@@ -1354,7 +1599,7 @@ void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, B
 	{
 		node->boneID = -1;
 	}
-	
+
 	// Loop through all nodes in the tree
 	for (auto& child : node->children)
 	{
@@ -1364,8 +1609,11 @@ void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, B
 
 Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 {
-	std::wifstream fs;
-	fs.open(filename);
+	//std::wifstream fs;
+	//fs.open(filename);
+
+	std::wstringstream fs;
+	Cryptor::Decrypt(Cryptor::GetGlobalKey(), filename, &fs);
 
 	m_LoadedFonts[filename].second = new Font();
 	std::wstring tmp = L"";
@@ -1387,7 +1635,7 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	// get padding
 	fs >> tmp;
 	startpos = tmp.find(L"=") + 1;
-	tmp = tmp.substr(startpos, tmp.size() - startpos); 
+	tmp = tmp.substr(startpos, tmp.size() - startpos);
 
 	// get up padding
 	startpos = tmp.find(L",") + 1;
@@ -1430,7 +1678,7 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	m_LoadedFonts[filename].second->m_TextureHeight = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// get pages, packed, page id
-	fs >> tmp >> tmp; 
+	fs >> tmp >> tmp;
 	fs >> tmp >> tmp;
 
 	// get texture filename
@@ -1534,7 +1782,7 @@ Font* AssetLoader::loadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 void AssetLoader::getHeightMapResources(const std::wstring& path, std::wstring& heightMapPath, std::wstring& materialPath)
 {
 	std::wifstream input(path);
-	
+
 	if (input.is_open())
 	{
 		std::wstring relFolderPath = path.substr(0, path.find_last_of('/') + 1);
@@ -1542,11 +1790,10 @@ void AssetLoader::getHeightMapResources(const std::wstring& path, std::wstring& 
 		heightMapPath = relFolderPath + heightMapPath;
 		std::getline(input, materialPath);
 		materialPath = relFolderPath + materialPath;
-		input.close();
 	}
 	else
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load heightmap info file with path %S", path.c_str());
+		Log::PrintSeverity(Log::Severity::CRITICAL, "could not load heightmap of path %S\n", path.c_str());
 	}
 }
 
@@ -1594,7 +1841,7 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 					assimpNodeAnimation->mRotationKeys[k].mValue.x,
 					assimpNodeAnimation->mRotationKeys[k].mValue.y,
 					assimpNodeAnimation->mRotationKeys[k].mValue.z,
-					assimpNodeAnimation->mRotationKeys[k].mValue.w};
+					assimpNodeAnimation->mRotationKeys[k].mValue.w };
 
 				animation->rotationKeyframes[nodeName].push_back(key);
 			}

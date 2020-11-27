@@ -384,6 +384,15 @@ void ImGuiHandler::ExecCommand(const char* command_line)
             Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->ChangeBalance(500);
         }
     }
+    else if (Stricmp(command.c_str(), "GODMODE") == 0)
+    {
+        Player::GetInstance().GetPlayer()->GetComponent<component::MeleeComponent>()->SetDamage(10000);
+        Player::GetInstance().GetPlayer()->GetComponent<component::MeleeComponent>()->SetAttackInterval(0.01);
+        Player::GetInstance().GetPlayer()->GetComponent<component::RangeComponent>()->SetDamage(10000);
+        Player::GetInstance().GetPlayer()->GetComponent<component::RangeComponent>()->SetAttackInterval(0.01);
+        Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetMaxHealth(1000000);
+        Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetHealth(1000000);
+    }
     else
     {
         AddLog("Unknown command: '%s'\n", command.c_str());
@@ -541,6 +550,7 @@ ImGuiHandler::ImGuiHandler()
     m_Commands.push_back("CLEAR");
     m_Commands.push_back("RESET");
     m_Commands.push_back("HARVEST");
+    m_Commands.push_back("GODMODE");
     if (std::atoi(Option::GetInstance().GetVariable("i_network").c_str()) == 1)
     {
         m_Commands.push_back("CONNECT");

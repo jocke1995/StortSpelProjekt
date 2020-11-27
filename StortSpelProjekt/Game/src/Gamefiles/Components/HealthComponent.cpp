@@ -32,6 +32,8 @@ void component::HealthComponent::Update(double dt)
 		else
 		{
 			EventBus::GetInstance().Publish(&SceneChange("gameOverScene"));
+			// reset death timer
+			m_DeathDuration = 0.0f;
 		}
 	}
 }

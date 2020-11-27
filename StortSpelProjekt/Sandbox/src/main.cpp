@@ -6,6 +6,8 @@
 
 #include "../Gamefiles/Components/UpgradeComponents/UpgradeComponent.h"
 
+#include "../Misc/Cryptor.h"
+
 Scene* JacobsTestScene(SceneManager* sm);
 Scene* LeosTestScene(SceneManager* sm);
 Scene* TimScene(SceneManager* sm);
@@ -26,7 +28,6 @@ void AndresUpdateScene(SceneManager* sm, double dt);
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -56,8 +57,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
-    //Scene* jockeScene = JockesTestScene(sceneManager);
-    //Scene* activeScene = jockeScene;
+    Scene* jockeScene = JockesTestScene(sceneManager);
+    Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
     Scene* williamScene = WilliamsTestScene(sceneManager);
@@ -96,6 +97,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         if (gameNetwork.IsConnected())
         {
             networkTimer += timer->GetDeltaTime();
+        }
+
+        if (window->WasSpacePressed() == true)
+        {
+            component::ParticleEmitterComponent* pe = sceneManager->GetScene("jockesScene")->GetEntity("particleEffect")->GetComponent<component::ParticleEmitterComponent>();
+            pe->Play();
+        }
+
+        if (window->WasTabPressed() == true)
+        {
+            component::ParticleEmitterComponent* pe = sceneManager->GetScene("jockesScene")->GetEntity("particleEffect")->GetComponent<component::ParticleEmitterComponent>();
+            pe->Stop();
         }
         
 
@@ -447,16 +460,10 @@ Scene* TimScene(SceneManager* sm)
     Scene* scene = sm->CreateScene("TimScene");
 
     AssetLoader* al = AssetLoader::Get();
+    //al->LoadMap(scene,"../Vendor/Resources/TestScene.txt" );
 
-    al->LoadMap(scene,"../Vendor/Resources/TestScene.txt" );
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/Player/player.obj");
-    Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
-    Model* rockModel = al->LoadModel(L"../Vendor/Resources/Models/Rock/rock.obj");
-    Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
-    //HeightmapModel* heightMapModel = al->LoadHeightmap(L"../Vendor/Resources/Textures/HeightMaps/hm.hm");
-    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    
-    AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/IgnoredModels/FemaleTST");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/FemaleTST/Female4armor.obj");
     
     /*--------------------- Assets ---------------------*/
     
@@ -499,82 +506,6 @@ Scene* TimScene(SceneManager* sm)
 
     Player::GetInstance().SetPlayer(entity);
 
-    /*--------------------- Player ---------------------*/
-    //
-    /*--------------------- Box1 ---------------------*/
-    //// entity
-    //entity = scene->AddEntity("Box1");
-    //
-    //// components
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //
-    //tc->GetTransform()->SetScale(1.0f);
-    //tc->GetTransform()->SetPosition(0.0f, 1.0f, 1.0f);
-    //
-    //mc->SetModel(cubeModel);
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    
-    /*--------------------- Box1 ---------------------*/
-    //
-    ///*--------------------- Box2 ---------------------*/
-    //// entity
-    //entity = scene->AddEntity("Box2");
-    //
-    //// components
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //tc->GetTransform()->SetScale(1.0f);
-    //tc->GetTransform()->SetPosition(1.0f, 1.0f, 10.0f);
-    ////ccc = entity->AddComponent<component::CubeCollisionComponent>(1000.0);
-    //
-    //mc->SetModel(cubeModel);
-    //
-    ///*--------------------- Box2 ---------------------*/
-    //
-    /*--------------------- Floor ---------------------*/
-    //// entity
-    //entity = scene->AddEntity("floor");
-    //
-    //// components
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //ccc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
-    //
-    //mc->SetModel(floorModel);
-    //mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-    //tc->GetTransform()->SetScale(35.f, 1.f, 35.f);
-    //tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-    /*--------------------- Floor ---------------------*/
-    //
-    ///* ---------------------- PointLight1 ---------------------- */
-    //entity = scene->AddEntity("pointLight1");
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-    //
-    //mc->SetModel(cubeModel);
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    //tc->GetTransform()->SetScale(0.5f);
-    //tc->GetTransform()->SetPosition(0, 4.0f, 15.0f);
-    ///* ---------------------- PointLight1 ---------------------- */
-    //
-    ///* ---------------------- PointLight ---------------------- */
-    //entity = scene->AddEntity("pointLight");
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-    //
-    //mc->SetModel(sphereModel);
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    //tc->GetTransform()->SetScale(0.3f);
-    //tc->GetTransform()->SetPosition(0.0f, 4.0f, 0.0f);
-    //
-    //plc->SetColor({ 2.0f, 0.0f, 2.0f });
-    //plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-    ///* ---------------------- PointLight ---------------------- */
-    //
     /*--------------------- DirectionalLight ---------------------*/
     // entity
     entity = scene->AddEntity("sun");
@@ -605,6 +536,8 @@ Scene* JockesTestScene(SceneManager* sm)
     component::SpotLightComponent* slc = nullptr;
     component::CollisionComponent* bcc = nullptr;
     component::ProgressBarComponent* pbc = nullptr;
+    component::ParticleEmitterComponent* pe = nullptr;
+    
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -717,6 +650,39 @@ Scene* JockesTestScene(SceneManager* sm)
     dlc->SetCameraRight(70.0f);
     /* ---------------------- dirLight ---------------------- */
 
+    /* ---------------------- Particle ---------------------- */
+    entity = scene->AddEntity("particleEffect");
+    std::vector<ParticleEffectSettings> vec;
+
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.maxParticleCount = 50;
+    settings.startValues.lifetime = 1.0;
+    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
+    settings.isLooping = false;
+    settings.startValues.acceleration = { 0, -5, 0 };
+
+    // Need to fix EngineRand.rand() for negative values
+    RandomParameter3 randParam1 = { -2, 2, -2, 2, -2, 2 };
+    randParam1.x = { -20, 20 };
+    randParam1.y = { 1, 20 };
+    randParam1.z = { -20, 20 };
+
+    settings.randPosition = { 0, 1, 0, 1, 0, 1 };
+    settings.randVelocity = randParam1;
+    settings.randSize = { 0.2, 2 };
+    settings.randRotationSpeed = { 0, 3 };
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
+    settings.texture = particleTexture;
+
+    vec.push_back(settings);
+
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
+    entity->AddComponent<component::TransformComponent>();
+    //particleEntity->AddComponent<component::TemporaryLifeComponent>(1.0);
+    /* ---------------------- Particle ---------------------- */
+
     entity = scene->AddEntity("progressBarTest1");
     float3 startPosition = { 0.0f, 10.0f, 0.0f };
     pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 2.0f, 1.0f);
@@ -773,29 +739,26 @@ Scene* FloppipTestScene(SceneManager* sm)
     Player::GetInstance().SetPlayer(entity);
     /* ---------------------- Player ---------------------- */
 
-    std::vector<ParticleEffectSettings> vec;
-
     // Create test particleEffect
     ParticleEffectSettings settings = {};
-    settings.maxParticleCount = 3;
-    settings.startValues.lifetime = 3;
-    settings.spawnInterval = 0.5;
-    settings.startValues.acceleration = {0, -6.5, 0};
+    settings.maxParticleCount = 1;
+    settings.startValues.lifetime = 0.2;
+    settings.spawnInterval = 0.2;
+    settings.startValues.acceleration = { 0, 0, 0 };
     settings.isLooping = true;
 
     // Need to fix EngineRand.rand() for negative values
 
-    settings.randPosition = { 0, 0, 0, 3, 0, 0};
-    settings.randVelocity = { -10, 10, -5, 10, -10, 10 };
-    settings.randSize = { 0.4, 1.2 };
-    settings.randRotationSpeed = { 0, 1 };
+    settings.randPosition = { 0, 0, 0, 0, 0, 0 };
+    settings.randVelocity = { 0, 0, 0, 0, 0, 0 };
+    settings.randSize = { 3.5, 3.5 };
+    settings.randRotation = { 0, 2 * PI };
+    settings.randRotationSpeed = { 0.2, 0.2 };
 
-    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/projParticle.png"));
     settings.texture = particleTexture;
 
-    vec.push_back(settings);
-
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
 
     /* ---------------------- Skybox ---------------------- */
@@ -1714,7 +1677,7 @@ Scene* BjornsTestScene(SceneManager* sm)
     for (int i = 0; i < 50; i++)
     {
         zVal += 8;
-        enH.AddExistingEnemy("enemy", float3{ xVal, 0, zVal });
+        EnemyFactory::GetInstance().AddExistingEnemy("enemy", float3{ xVal, 0, zVal });
         if ((i + 1) % 5 == 0)
         {
             xVal += 8;
@@ -1797,8 +1760,10 @@ void JockeUpdateScene(SceneManager* sm, double dt)
     //
     //intensity += 0.005f;
 
+    Entity* ent = nullptr;
+
     // Update first progressBar
-    Entity* ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest1");
+    ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest1");
     component::ProgressBarComponent* pbc = ent->GetComponent<component::ProgressBarComponent>();
 
     static float counter1 = 0.0f;

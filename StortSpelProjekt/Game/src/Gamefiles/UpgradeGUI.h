@@ -40,7 +40,7 @@ private:
 	// Should we cycle through the UpgradeButtons?
 	bool m_LoopButtons = false;
 	// Value for buttons.
-	float2 m_ButtonPos = { 0.47f, 0.211f };
+	float2 m_ButtonPos = { 0.54f, 0.141f };
 	float m_ButtonYOffset = 0.048f;
 	// How many times the menu can be filled with buttons.
 	// Used for keeping track of how many times we need to cycle

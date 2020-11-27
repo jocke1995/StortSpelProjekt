@@ -3,11 +3,12 @@
 
 Texture2D textures[]   : register (t0);
 
-SamplerState Anisotropic2_Wrap	: register (s0);
-SamplerState Anisotropic4_Wrap	: register (s1);
-SamplerState Anisotropic8_Wrap	: register (s2);
-SamplerState Anisotropic16_Wrap	: register (s3);
-SamplerState samplerTypeBorder	: register (s4);
+SamplerState Anisotropic2_Wrap				: register (s0);
+SamplerState Anisotropic4_Wrap				: register (s1);
+SamplerState Anisotropic8_Wrap				: register (s2);
+SamplerState Anisotropic16_Wrap				: register (s3);
+SamplerState samplerTypeBorder_White		: register (s4);
+SamplerState samplerTypeBorder_Black        : register (s6);
 
 ConstantBuffer<CB_PER_SCENE_STRUCT>  cbPerScene  : register(b5, space3);
 
@@ -37,7 +38,7 @@ float CalculateShadow(
 	{
 		for (int y = -1; y <= 1; ++y)
 		{
-			float pcfDepth = textures[shadowMapIndex].Sample(samplerTypeBorder, texCoord + float2(x,y) * texelSize).r;
+			float pcfDepth = textures[shadowMapIndex].Sample(samplerTypeBorder_Black, texCoord + float2(x,y) * texelSize).r;
 			if (depthFromLightToFragPos > pcfDepth)
 			{
 				shadow += 1.0f;

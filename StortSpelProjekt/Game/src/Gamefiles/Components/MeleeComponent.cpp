@@ -24,6 +24,11 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	m_pMesh = nullptr;
 	m_Damage = 1;
 	m_KnockBack = 5;
+	// Set base sizes of the hitbox 
+	m_MeleeXRange = 3.0f;
+	m_MeleeZRange = 4.0f;
+	m_XScale = 1.0f;
+	m_ZScale = 1.0f;
 
 	m_ParticleEffectCounter = 0;
 	
@@ -32,6 +37,7 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	float oldScale = 0.9f;
 	float scaleFactor = oldScale / newScale;
 	m_HalfSize = { 8.0f * scaleFactor, 1.0f * scaleFactor, (static_cast<float>(MELEE_RANGE) * scaleFactor) / 2.0f };
+	m_HalfSize = { m_MeleeXRange, 1.0f, m_MeleeZRange / 2.0f };
 
 	//Create bounding box for collision for melee
 	m_pBbc = parent->GetComponent<component::BoundingBoxComponent>();
@@ -54,12 +60,12 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 		m_AudioPlay = false;
 	}
 	
-
 	//Debugging purpose
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX)
 	{
 		CreateDrawnHitbox(m_pBbc);
 	}
+
 }
 
 component::MeleeComponent::~MeleeComponent()
@@ -79,7 +85,9 @@ void component::MeleeComponent::Update(double dt)
 	// Takes the transform of the player cube and moves it forward to act as a hitbox
 	m_MeleeTransformModified = *m_pMeleeTransform;
 	Transform* trans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
-	
+	m_MeleeTransformModified.SetScale(m_XScale, 1, m_ZScale);
+	m_MeleeTransformModified.UpdateWorldMatrix();
+
 	DirectX::BoundingOrientedBox obb;
 	obb.Center = m_pBbc->GetOriginalOBB()->Center;
 	obb.Extents = m_pBbc->GetOriginalOBB()->Extents;
@@ -89,7 +97,6 @@ void component::MeleeComponent::Update(double dt)
 	obb.Transform(obb, *m_MeleeTransformModified.GetWorldMatrix());
 
 	bool t_pose = m_pBbc->GetFlagOBB() & F_OBBFlags::T_POSE;
-
 	float positionX = obb.Center.x + (obb.Extents.x + ((static_cast<float>(!t_pose) * m_HalfSize.x + static_cast<float>(t_pose) * m_HalfSize.z) * trans->GetScale().x)) * m_MeleeTransformModified.GetForwardFloat3().x;
 	float positionY = obb.Center.y + (obb.Extents.y + (m_HalfSize.y * trans->GetScale().y)) * m_MeleeTransformModified.GetForwardFloat3().y;
 	float positionZ = obb.Center.z + (obb.Extents.z + (m_HalfSize.z * trans->GetScale().z)) * m_MeleeTransformModified.GetForwardFloat3().z;
@@ -97,6 +104,7 @@ void component::MeleeComponent::Update(double dt)
 	// Sets the position and updates the matrix to reflect movement of the player
 	m_MeleeTransformModified.SetPosition(positionX, positionY, positionZ);
 	m_MeleeTransformModified.Move(dt);
+
 	m_MeleeTransformModified.UpdateWorldMatrix();
 
 	DirectX::BoundingOrientedBox temp;
@@ -250,7 +258,8 @@ void component::MeleeComponent::CreateDrawnHitbox(component::BoundingBoxComponen
 	v[6].pos = m_Corners[6];
 	v[7].pos = m_Corners[7];
 
-	//PUshing back the vertices to the vector
+	m_BoundingBoxVerticesLocal.clear();
+	//Pushing back the vertices to the vector
 	for (unsigned int i = 0; i < 8; i++)
 	{
 		m_BoundingBoxVerticesLocal.push_back(v[i]);
@@ -283,6 +292,7 @@ void component::MeleeComponent::CreateDrawnHitbox(component::BoundingBoxComponen
 	indices[30] = 2; indices[31] = 3; indices[32] = 7;
 	indices[33] = 2; indices[34] = 6; indices[35] = 7;
 
+	m_BoundingBoxIndicesLocal.clear();
 	//Pushing back the indices to the vector
 	for (unsigned int i = 0; i < 36; i++)
 	{
@@ -293,7 +303,9 @@ void component::MeleeComponent::CreateDrawnHitbox(component::BoundingBoxComponen
 	bbd.boundingBoxVertices = m_BoundingBoxVerticesLocal;
 	bbd.boundingBoxIndices = m_BoundingBoxIndicesLocal;
 
+
 	bbc->AddBoundingBox(&bbd, &m_MeleeTransformModified, L"sword");
+
 }
 
 void component::MeleeComponent::SetKnockBack(float knockBack)
@@ -304,5 +316,17 @@ void component::MeleeComponent::SetKnockBack(float knockBack)
 void component::MeleeComponent::ChangeKnockBack(float change)
 {
 	m_KnockBack += change;
+}
+
+void component::MeleeComponent::ChangeMeleeRadius(float xRange, float zRange)
+{
+	m_XScale = xRange;
+	m_ZScale = zRange;
+}
+
+void component::MeleeComponent::ResetMeleeScaling()
+{
+	m_XScale = 1.0f;
+	m_ZScale = 1.0f;
 }
 

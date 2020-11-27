@@ -2,6 +2,7 @@
 #define ENEMYCOMPONENT_H
 #include "../ECS/Components/Component.h"
 class EnemyFactory;
+
 namespace component
 {
 	class EnemyComponent : public Component
@@ -14,6 +15,7 @@ namespace component
 
 		void OnInitScene();
 		void OnUnInitScene();
+
 	private:
 		EnemyFactory* m_pFactory;
 	};

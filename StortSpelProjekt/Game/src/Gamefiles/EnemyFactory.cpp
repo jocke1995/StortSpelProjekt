@@ -20,8 +20,8 @@ EnemyFactory::EnemyFactory()
 	m_EnemiesKilled = 0;
 	m_EnemiesToSpawn = 0;
 	m_EnemySlotsLeft = m_LevelMaxEnemies;
-	m_SpawnCooldown = 5;
-	m_MinimumDistanceToPlayer = 100;
+	m_SpawnCooldown = 1;
+	m_MinimumDistanceToPlayer = 10;
 	m_SpawnTimer = 0.0f;
 	m_RandGen.SetSeed(time(NULL));
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
@@ -362,11 +362,11 @@ void EnemyFactory::Update(double dt)
 		//This exist to stagger the spawning of enemies by one frame to spread the load over multiple frames
 		if (m_EnemiesToSpawn == 0  && m_EnemySlotsLeft > 0)
 		{
-			m_SpawnTimer += dt;
+			m_SpawnTimer += dt / m_Enemies.size();
 			if (m_SpawnCooldown <= m_SpawnTimer)
 			{
 				m_SpawnTimer = 0.0;
-				m_EnemiesToSpawn = (m_MaxEnemies - m_Enemies.size()) / 2;
+				m_EnemiesToSpawn = 3 + m_Level / 3.0f;
 
 				if (m_EnemiesToSpawn > m_EnemySlotsLeft)
 				{
@@ -472,16 +472,16 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	// melee
 	if (m_EnemyComps["enemyZombie"] != nullptr)
 	{
-		m_EnemyComps["enemyZombie"]->hp = m_EnemyComps["enemyZombie"]->hpBase * pow(1.15, m_Level);
-		m_EnemyComps["enemyZombie"]->meleeAttackDmg = m_EnemyComps["enemyZombie"]->meleeAttackDmgBase + 1 * m_Level;
+		m_EnemyComps["enemyZombie"]->hp = m_EnemyComps["enemyZombie"]->hpBase + 15 * m_Level;
+		m_EnemyComps["enemyZombie"]->meleeAttackDmg = m_EnemyComps["enemyZombie"]->meleeAttackDmgBase + 5 * m_Level;
 		m_EnemyComps["enemyZombie"]->movementSpeed = m_EnemyComps["enemyZombie"]->movementSpeedBase + 1 * m_Level;
 	}
 
 	// meelee quick
 	if (m_EnemyComps["enemySpider"] != nullptr)
 	{
-		m_EnemyComps["enemySpider"]->hp = m_EnemyComps["enemySpider"]->hpBase * pow(1.1, m_Level);
-		m_EnemyComps["enemySpider"]->meleeAttackDmg = m_EnemyComps["enemySpider"]->meleeAttackDmgBase + 1 * m_Level;
+		m_EnemyComps["enemySpider"]->hp = m_EnemyComps["enemySpider"]->hpBase + 5 * m_Level;
+		m_EnemyComps["enemySpider"]->meleeAttackDmg = m_EnemyComps["enemySpider"]->meleeAttackDmgBase + 2 * m_Level;
 		m_EnemyComps["enemySpider"]->movementSpeed = m_EnemyComps["enemySpider"]->movementSpeedBase + 1 * m_Level;
 		if (m_Level > 0)
 		{
@@ -495,8 +495,8 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	// ranged
 	if (m_EnemyComps["enemyDemon"] != nullptr)
 	{
-		m_EnemyComps["enemyDemon"]->hp = m_EnemyComps["enemyDemon"]->hpBase * pow(1.10, m_Level);
-		m_EnemyComps["enemyDemon"]->rangeAttackDmg = m_EnemyComps["enemyDemon"]->rangeAttackDmgBase + 2 * m_Level;
+		m_EnemyComps["enemyDemon"]->hp = m_EnemyComps["enemyDemon"]->hpBase + 10 * m_Level;
+		m_EnemyComps["enemyDemon"]->rangeAttackDmg = m_EnemyComps["enemyDemon"]->rangeAttackDmgBase + 5 * m_Level;
 		if (m_Level > 0)
 		{
 			if (m_EnemyComps["enemyDemon"]->spawnChance < 40)
