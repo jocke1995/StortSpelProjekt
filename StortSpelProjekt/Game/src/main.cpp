@@ -944,7 +944,7 @@ Scene* ShopScene(SceneManager* sm)
     entity = scene->AddEntity("dirLight");
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
     dlc->SetColor({ 0.8f, 0.8f, 0.8f });
-    dlc->SetDirection({ -2.0f, -1.0f, -1.0f });
+    dlc->SetDirection({ 0.0f, -0.75f, 1.0f });
     dlc->SetCameraTop(50.0f);
     dlc->SetCameraBot(-30.0f);
     dlc->SetCameraLeft(-70.0f);
