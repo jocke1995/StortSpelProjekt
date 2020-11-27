@@ -28,9 +28,9 @@ UpgradeHealthRegen::~UpgradeHealthRegen()
 void UpgradeHealthRegen::Update(double dt)
 {
 	//count up the timer until we reach 1 to give one health.
-	//This gives a health regeneration of 0.33hp per second per level or 1hp per 3 seconds per level
-	m_HealthTimer += dt * (m_Level / 3.0f);
-	if (m_HealthTimer >= 1)
+	//This gives a health regeneration of 4hp per second per level or 1hp every 0.25 seconds per level
+	m_HealthTimer += dt * (m_Level * 4);
+	while (m_HealthTimer >= 1)
 	{
 		m_HealthTimer -= 1;
 		m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeHealth(1);
@@ -47,7 +47,5 @@ void UpgradeHealthRegen::IncreaseLevel()
 
 std::string UpgradeHealthRegen::GetDescription(unsigned int level)
 {
-	std::ostringstream str;
-	str << std::fixed << std::setprecision(2) << (3.0f / level);
-	return "Health Regeneration: Passively heals the player 1 health point every " + str.str();
+	return "Health Regeneration: Passively heals the player " + std::to_string(level * 4) + " health point every second";
 }

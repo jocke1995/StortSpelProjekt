@@ -60,9 +60,9 @@ private:
     std::map<std::string, TransformKey> m_BlendAnimationState;
     Animation* m_pReactivateAnimation;
     Animation* m_pQueuedAnimation;
-    std::vector<Animation*> m_pPendingAnimations;
-    std::vector<Animation*> m_pActiveAnimations;
-    std::vector<Animation*> m_pEndingAnimations;
+    std::vector<Animation*> m_PendingAnimations;
+    std::vector<Animation*> m_ActiveAnimations;
+    std::vector<Animation*> m_EndingAnimations;
     SkeletonNode* m_pSkeleton;
     std::vector<Animation*> m_Animations;
     DirectX::XMFLOAT4X4 m_GlobalInverseTransform;
