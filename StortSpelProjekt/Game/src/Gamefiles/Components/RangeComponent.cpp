@@ -199,7 +199,6 @@ void component::RangeComponent::Attack()
 		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 		bbc->Init();
 		bbc->AddCollisionCategory<PlayerProjectileCollisionCategory>();
-		Physics::GetInstance().AddCollisionEntity(ent);
 		if (m_AudioPlay)
 		{
 			m_pVoiceComponent->Play(L"Fireball");

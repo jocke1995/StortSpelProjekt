@@ -47,6 +47,7 @@ public:
 	// Init function to be called after all components have been initialized.
 	void OnInit();
 	void SetOnInit(void (*OnInit)(Scene*));
+	void ResetNavMesh();
 private:
 	friend class SceneManager;
 

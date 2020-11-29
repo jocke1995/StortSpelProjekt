@@ -10,10 +10,10 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Ka 02 - Default_metallic.jpg
-map_Kd 02 - Default_albedo.jpg
-map_Ks 02 - Default_roughness.jpg
-map_Kn 02 - Default_normal.jpg
+map_Ka 02 - Default_metallic.dds
+map_Kd 02 - Default_albedo.dds
+map_Ks 02 - Default_roughness.dds
+map_Kn 02 - Default_normal.dds
 
 newmtl tombmat
 Ns 225.000000
@@ -24,7 +24,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Ka 01 - Default_metallic.jpg
-map_Kd 01 - Default_albedo.jpg
-map_Ks 01 - Default_roughness.jpg
-map_Kn 01 - Default_normal.jpg
+map_Ka 01 - Default_metallic.dds
+map_Kd 01 - Default_albedo.dds
+map_Ks 01 - Default_roughness.dds
+map_Kn 01 - Default_normal.dds

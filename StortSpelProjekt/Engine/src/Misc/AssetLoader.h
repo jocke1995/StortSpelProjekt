@@ -122,6 +122,7 @@ private:
     std::vector<Edge*> m_Edges;
     std::vector<int> m_EdgesToRemove;
     std::map<std::string, int> m_RoomsAdded;
+    unsigned int m_NrOfNavTris;
 
     // Audio
     // add map for audio (path, AudioObject)

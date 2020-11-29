@@ -17,10 +17,15 @@
 #include "UpgradeGUI.h"
 
 #include "Misc/Edge.h"
+
+//#include "Misc/Cryptor.h"
+
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
 void GameInitScene(Scene* scene);
+void ShopInitScene(Scene* scene);
+void ParticleInit();
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
@@ -29,7 +34,8 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/MedievalChandelier");
+    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/OutdoorFloor");
+    Log::Print("Done\n");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -139,9 +145,8 @@ Scene* GameScene(SceneManager* sm)
 
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
-
-    //al->LoadMap(scene, "../Vendor/Resources/FirstMap.map",&spawnPoints);
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");   
+    //al->GenerateMap(scene, "../Vendor/Resources/Rooms");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
@@ -205,12 +210,12 @@ Scene* GameScene(SceneManager* sm)
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     alc = entity->AddComponent<component::Audio3DListenerComponent>();
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::T_POSE);
     melc = entity->AddComponent<component::MeleeComponent>();
     // range damage should be at least 10 for ranged life steal upgrade to work
-    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 10, 150);
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 50, 150);
     currc = entity->AddComponent<component::CurrencyComponent>();
-    hc = entity->AddComponent<component::HealthComponent>(50);
+    hc = entity->AddComponent<component::HealthComponent>(500);
     uc = entity->AddComponent<component::UpgradeComponent>();
     alc = entity->AddComponent<component::Audio3DListenerComponent>();
 
@@ -229,7 +234,7 @@ Scene* GameScene(SceneManager* sm)
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
 
-    melc->SetDamage(10);
+    melc->SetDamage(50);
     melc->SetAttackInterval(1.0);
     ranc->SetAttackInterval(1.0);
     pic->Init();
@@ -241,7 +246,7 @@ Scene* GameScene(SceneManager* sm)
 
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
-    Physics::GetInstance().AddCollisionEntity(entity);;
+    Physics::GetInstance().AddCollisionEntity(entity);
 #pragma endregion
 
 #pragma region directional light
@@ -274,11 +279,11 @@ Scene* GameScene(SceneManager* sm)
     // melee
 	EnemyComps zombie = {};
 	zombie.model = enemyZombieModel;
-	zombie.hp = 20;
+	zombie.hp = 120;
 	zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
-	zombie.meleeAttackDmg = 4.0f;
+	zombie.meleeAttackDmg = 35.0f;
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
 	zombie.movementSpeed = 45.0f;
@@ -292,11 +297,11 @@ Scene* GameScene(SceneManager* sm)
     // quick melee
     EnemyComps spider = {};
     spider.model = enemySpiderModel;
-    spider.hp = 5;
+    spider.hp = 40;
     spider.sound3D = L"Bruh";
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
-    spider.meleeAttackDmg = 2.0f;
+    spider.meleeAttackDmg = 15.0f;
     spider.attackInterval = 0.5f;
     spider.attackSpeed = 0.2f;
     spider.movementSpeed = 90.0f;
@@ -311,11 +316,11 @@ Scene* GameScene(SceneManager* sm)
     // ranged
     EnemyComps rangedDemon = {};
     rangedDemon.model = enemyDemonModel;
-    rangedDemon.hp = 30;
+    rangedDemon.hp = 200;
     rangedDemon.sound3D = L"Bruh";
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = 0;
-    rangedDemon.attackInterval = 1.5f;
+    rangedDemon.attackInterval = 2.5f;
     rangedDemon.attackSpeed = 1.0f;
     rangedDemon.movementSpeed = 30.0f;
     rangedDemon.targetName = "player";
@@ -323,8 +328,8 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.isRanged = true;
     rangedDemon.detectionRad = 500.0f;
     rangedDemon.attackingDist = 100.0f;
-    rangedDemon.rangeAttackDmg = 10;
-    rangedDemon.rangeVelocity = 50.0f;
+    rangedDemon.rangeAttackDmg = 75;
+    rangedDemon.rangeVelocity = 40.0f;
     rangedDemon.projectileModel = sphereModel;
     rangedDemon.mass = 300.0f;
 
@@ -371,6 +376,7 @@ Scene* GameScene(SceneManager* sm)
     tc->SetTransformOriginalState();
 
     bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
 #pragma endregion
 #pragma endregion
 
@@ -620,7 +626,7 @@ Scene* ShopScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.9f);
-    tc->GetTransform()->SetPosition(0.0, 20.0, 0.0);
+    tc->GetTransform()->SetPosition(0.0, 1.0, 0.0);
     tc->SetTransformOriginalState();
 
     double3 playerDim = mc->GetModelDim();
@@ -948,18 +954,20 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&ShopUpdateScene);
 
+    scene->SetOnInit(&ShopInitScene);
+
     return scene;
 }
 
 void GameInitScene(Scene* scene)
 {
+    ParticleInit();
+
+    scene->ResetNavMesh();
+
     std::vector<float3> spawnPoints;
     EnemyFactory* fact = &EnemyFactory::GetInstance();
     fact->ClearSpawnPoints();
-    for (auto point : spawnPoints)
-    {
-        fact->AddSpawnPoint(point);
-    }
     AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, true);
 
     for (int i = 0; i < spawnPoints.size(); i++)
@@ -970,6 +978,38 @@ void GameInitScene(Scene* scene)
     AssetLoader::Get()->RemoveWalls();
 }
 
+void ShopInitScene(Scene* scene)
+{
+    ParticleInit();
+}
+
+void ParticleInit()
+{
+    ParticleEffectSettings settings = {};
+    settings.maxParticleCount = 100;
+    settings.startValues.lifetime = 1.5;
+    settings.spawnInterval = 0.001;
+    settings.startValues.acceleration = { 0, 0, 0 };
+    settings.isLooping = false;
+
+    // Need to fix EngineRand.rand() for negative values
+    RandomParameter3 randParam1 = { -10, 10, -10, 10, -10, 10 };
+
+    settings.randPosition = { -1, 1, -1, 1, -1, 1 };
+    settings.randVelocity = randParam1;
+    settings.randSize = { 0.2f, 0.6f };
+    settings.randRotationSpeed = { 0, 3 };
+
+    settings.texture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
+    Entity* particleEntity = SceneManager::GetInstance().GetActiveScene()->AddEntity("teleportationParticle");
+    component::TransformComponent* transform = particleEntity->AddComponent<component::TransformComponent>();
+    float3 position = Player::GetInstance().GetPlayer()->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+    transform->GetTransform()->SetPosition(position.x, position.y + 1, position.z);
+    particleEntity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+    particleEntity->GetComponent<component::ParticleEmitterComponent>()->OnInitScene();
+    particleEntity->AddComponent<component::TemporaryLifeComponent>(1.5);
+}
+
 void GameUpdateScene(SceneManager* sm, double dt)
 {
     if (ImGuiHandler::GetInstance().GetBool("reset"))
@@ -977,6 +1017,8 @@ void GameUpdateScene(SceneManager* sm, double dt)
         ImGuiHandler::GetInstance().SetBool("reset", false);
         EventBus::GetInstance().Publish(&ResetGame());
     }
+
+    auto entities = Physics::GetInstance().GetCollisionEntities();
 }
 
 void ShopUpdateScene(SceneManager* sm, double dt)

@@ -315,7 +315,7 @@ float ParticleEffect::randomizeFloat(float lower, float upper) const
 	{
 		return lower;
 	}
-
-	float r = rand.Randf(lower*20, upper*20)/20;
+	const float increaseRandomness = 100;
+	float r = rand.Randf(floor(lower* increaseRandomness), ceil(upper* increaseRandomness))/ increaseRandomness;
 	return r;
 }

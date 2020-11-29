@@ -26,7 +26,7 @@ Submit CollisionCube 0.1, 1.0, 1.0
 AddToEdge 0
 
 Name Torch1
-ModelPath Models\Torch\torch.obj
+ModelPath Models/Torch/torch.obj
 ModelScaling 1.0, 1.0, 1.0
 ModelRotation 0.0, 120.0, 0.0
 ModelPosition 23.0, 15.0, 81.0
@@ -56,7 +56,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 AddToEdge 0
 
 Name Banner2
-ModelPath Models\Banner\banner.obj
+ModelPath Models/Banner/banner.obj
 ModelScaling 2.0, 2.0, 2.0
 ModelRotation 0.0, 120.0, 0.0
 ModelPosition 56.0, 15.0, 64.0
@@ -83,7 +83,7 @@ Submit CollisionCube 0.1, 1.0, 1.0
 AddToEdge 1
 
 Name Torch4
-ModelPath Models\Torch\torch.obj
+ModelPath Models/Torch/torch.obj
 ModelScaling 1.0, 1.0, 1.0
 ModelRotation 0.0, 180.0, 0.0
 ModelPosition 81.0, 15.0, -25.0
@@ -113,7 +113,7 @@ Submit PointLight
 AddToEdge 1
 
 Name Banner3
-ModelPath Models\Banner\banner.obj
+ModelPath Models/Banner/banner.obj
 ModelScaling 2.0, 2.0, 2.0
 ModelRotation 0.0, 180.0, 0.0
 ModelPosition 83.0, 15.0, 22.0
@@ -140,7 +140,7 @@ Submit CollisionCube 0.1, 1.0, 1.0
 AddToEdge 2
 
 Name Torch5
-ModelPath Models\Torch\torch.obj
+ModelPath Models/Torch/torch.obj
 ModelScaling 1.0, 1.0, 1.0
 ModelRotation 0.0, 240.0, 0.0
 ModelPosition 59.0, 15.0, -59.0
@@ -170,7 +170,7 @@ Submit PointLight
 AddToEdge 2
 
 Name Banner6
-ModelPath Models\Banner\banner.obj
+ModelPath Models/Banner/banner.obj
 ModelScaling 2.0, 2.0, 2.0
 ModelRotation 0.0, 240.0, 0.0
 ModelPosition 16.0, 15.0, -86.0
@@ -211,7 +211,7 @@ Submit CollisionCube 0.1, 1.0, 1.0
 AddToEdge 4
 
 Name Torch9
-ModelPath Models\Torch\torch.obj
+ModelPath Models/Torch/torch.obj
 ModelScaling 1.0, 1.0, 1.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -81.0, 15.0, -20.0
@@ -256,7 +256,7 @@ AddToEdge 5
 
 // Ceiling ----------------------------------------------
 Name Ceiling
-ModelPath Models\CastleCeiling\castleceiling.obj
+ModelPath Models/CastleCeiling/castleceiling.obj
 ModelScaling 100.0, 50.0, 100.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 0.0, 46.5, 0.0
@@ -265,10 +265,10 @@ ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionCube 1.0, 0.1, 1.0
+Submit CollisionCube 0.0, 0.0, 0.0
 
 #Name ChandelierNoChain
-#ModelPath Models\MedievalChandelier\chandelierNoChain.obj
+#ModelPath Models/MedievalChandelier/chandelierNoChain.obj
 #ModelScaling 50.0, 50.0, 50.0
 #ModelRotation 0.0, 0.0, 0.0
 #ModelPosition 0.0, 39.0, 0.0
@@ -300,7 +300,7 @@ Submit CollisionCube 1.0, 0.1, 1.0
 #Submit SpotLight
 #
 #Name ChandelierChain
-#ModelPath Models\MedievalChandelier\Chain\chandelierChain.obj
+#ModelPath Models/MedievalChandelier/Chain/chandelierChain.obj
 #ModelScaling 50.0, 50.0, 50.0
 #ModelRotation 0.0, 0.0, 0.0
 #ModelPosition 0.0, 39.0, 0.0
@@ -331,7 +331,7 @@ Submit CollisionCube 3.0, 4.0, 3.5
 
 // Vases
 Name Vase1
-ModelPath Models\Vase\vase.obj
+ModelPath Models/Vase/vase.obj
 ModelScaling 14.0, 14.0, 14.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 50.0, 4.0, 0.0
@@ -343,7 +343,7 @@ Submit Model
 Submit CollisionCapsule 0.2, 0.4, 0.2
 
 Name Vase2
-ModelPath Models\Vase\vase.obj
+ModelPath Models/Vase/vase.obj
 ModelScaling 14.0, 14.0, 14.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -10.0, 4.0, 55.0
@@ -355,7 +355,7 @@ Submit Model
 Submit CollisionCapsule 0.2, 0.4, 0.2
 
 Name Vase3
-ModelPath Models\Vase\vase.obj
+ModelPath Models/Vase/vase.obj
 ModelScaling 14.0, 14.0, 14.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 30.0, 4.0, 30.0
@@ -367,7 +367,7 @@ Submit Model
 Submit CollisionCapsule 0.2, 0.4, 0.2
 
 Name Vase4
-ModelPath Models\Vase\vase.obj
+ModelPath Models/Vase/vase.obj
 ModelScaling 14.0, 14.0, 14.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -50.0, 4.0, 0.0
@@ -379,7 +379,7 @@ Submit Model
 Submit CollisionCapsule 0.2, 0.4, 0.2
 
 Name Vase5
-ModelPath Models\Vase\vase.obj
+ModelPath Models/Vase/vase.obj
 ModelScaling 14.0, 14.0, 14.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 10.0, 4.0, -55.0
@@ -391,7 +391,7 @@ Submit Model
 Submit CollisionCapsule 0.2, 0.4, 0.2
 
 Name Vase6
-ModelPath Models\Vase\vase.obj
+ModelPath Models/Vase/vase.obj
 ModelScaling 14.0, 14.0, 14.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -30.0, 4.0, -30.0
@@ -401,6 +401,366 @@ ModelFriction 10.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCapsule 0.2, 0.4, 0.2
+
+// NAVMESH ---------------------------------------------
+
+NavMesh Triangles
+
+NavTriangle 0.0, 0.0, 100.0; 0.0, 0.0, 73.0; 22.0, 0.0, 87.0
+EdgeId 0
+Submit NavTriangle
+NavTriangle 22.0, 0.0, 61.0; 0.0, 0.0, 73.0; 22.0, 0.0, 87.0
+Submit NavTriangle
+NavTriangle 22.0, 0.0, 61.0; 44.0, 0.0, 74.0; 22.0, 0.0, 87.0
+EdgeId 0
+Submit NavTriangle
+NavTriangle 22.0, 0.0, 61.0; 44.0, 0.0, 74.0; 43.0, 0.0, 49.0
+Submit NavTriangle
+NavTriangle 65.0, 0.0, 62.0; 44.0, 0.0, 74.0; 43.0, 0.0, 49.0
+EdgeId 0
+Submit NavTriangle
+NavTriangle 65.0, 0.0, 62.0; 60.0, 0.0, 38.0; 43.0, 0.0, 49.0
+Submit NavTriangle
+NavTriangle 65.0, 0.0, 62.0; 60.0, 0.0, 38.0; 85.0, 0.0, 50.0
+EdgeId 0
+Submit NavTriangle
+NavTriangle 85.0, 0.0, 25.0; 60.0, 0.0, 38.0; 85.0, 0.0, 50.0
+EdgeId 1
+Submit NavTriangle
+NavTriangle 85.0, 0.0, 25.0; 60.0, 0.0, 13.0; 60.0, 0.0, 38.0
+Submit NavTriangle
+NavTriangle 85.0, 0.0, 25.0; 60.0, 0.0, 13.0; 85.0, 0.0, 1.0
+EdgeId 1
+Submit NavTriangle
+NavTriangle 60.0, 0.0, -13.0; 60.0, 0.0, 13.0; 85.0, 0.0, 1.0
+Submit NavTriangle
+NavTriangle 60.0, 0.0, -13.0; 85.0, 0.0, -25.0; 85.0, 0.0, 1.0
+EdgeId 1
+Submit NavTriangle
+NavTriangle 60.0, 0.0, -13.0; 85.0, 0.0, -25.0; 60.0, 0.0, -38.0
+Submit NavTriangle
+NavTriangle 85.0, 0.0, -50.0; 85.0, 0.0, -25.0; 60.0, 0.0, -38.0
+EdgeId 1
+Submit NavTriangle
+NavTriangle 85.0, 0.0, -50.0; 65.0, 0.0, -62.0; 60.0, 0.0, -38.0
+EdgeId 2
+Submit NavTriangle
+NavTriangle 60.0, 0.0, -38.0; 65.0, 0.0, -62.0; 43.0, 0.0, -49.0
+Submit NavTriangle
+NavTriangle 44.0, 0.0, -74.0; 65.0, 0.0, -62.0; 43.0, 0.0, -49.0
+EdgeId 2
+Submit NavTriangle
+NavTriangle 44.0, 0.0, -74.0; 22.0, 0.0, -61.0; 43.0, 0.0, -49.0
+Submit NavTriangle
+NavTriangle 44.0, 0.0, -74.0; 22.0, 0.0, -61.0; 22.0, 0.0, -87.0
+EdgeId 2
+Submit NavTriangle
+NavTriangle 0.0, 0.0, -73.0; 22.0, 0.0, -61.0; 22.0, 0.0, -87.0
+Submit NavTriangle
+NavTriangle 0.0, 0.0, -73.0; 0.0, 0.0, -100.0; 22.0, 0.0, -87.0
+EdgeId 2
+Submit NavTriangle
+NavTriangle -0.0, 0.0, 100.0; -0.0, 0.0, 73.0; -22.0, 0.0, 87.0
+EdgeId 5
+Submit NavTriangle
+NavTriangle -22.0, 0.0, 61.0; -0.0, 0.0, 73.0; -22.0, 0.0, 87.0
+Submit NavTriangle
+NavTriangle -22.0, 0.0, 61.0; -44.0, 0.0, 74.0; -22.0, 0.0, 87.0
+EdgeId 5
+Submit NavTriangle
+NavTriangle -22.0, 0.0, 61.0; -44.0, 0.0, 74.0; -43.0, 0.0, 49.0
+Submit NavTriangle
+NavTriangle -65.0, 0.0, 62.0; -44.0, 0.0, 74.0; -43.0, 0.0, 49.0
+EdgeId 5
+Submit NavTriangle
+NavTriangle -65.0, 0.0, 62.0; -60.0, 0.0, 38.0; -43.0, 0.0, 49.0
+Submit NavTriangle
+NavTriangle -65.0, 0.0, 62.0; -60.0, 0.0, 38.0; -85.0, 0.0, 50.0
+EdgeId 5
+Submit NavTriangle
+NavTriangle -85.0, 0.0, 25.0; -60.0, 0.0, 38.0; -85.0, 0.0, 50.0
+EdgeId 4
+Submit NavTriangle
+NavTriangle -85.0, 0.0, 25.0; -60.0, 0.0, 13.0; -60.0, 0.0, 38.0
+Submit NavTriangle
+NavTriangle -85.0, 0.0, 25.0; -60.0, 0.0, 13.0; -85.0, 0.0, 1.0
+EdgeId 4
+Submit NavTriangle
+NavTriangle -60.0, 0.0, -13.0; -60.0, 0.0, 13.0; -85.0, 0.0, 1.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, -13.0; -85.0, 0.0, -25.0; -85.0, 0.0, 1.0
+EdgeId 4
+Submit NavTriangle
+NavTriangle -60.0, 0.0, -13.0; -85.0, 0.0, -25.0; -60.0, 0.0, -38.0
+Submit NavTriangle
+NavTriangle -85.0, 0.0, -50.0; -85.0, 0.0, -25.0; -60.0, 0.0, -38.0
+EdgeId 4
+Submit NavTriangle
+NavTriangle -85.0, 0.0, -50.0; -65.0, 0.0, -62.0; -60.0, 0.0, -38.0
+EdgeId 3
+Submit NavTriangle
+NavTriangle -60.0, 0.0, -38.0; -65.0, 0.0, -62.0; -43.0, 0.0, -49.0
+Submit NavTriangle
+NavTriangle -44.0, 0.0, -74.0; -65.0, 0.0, -62.0; -43.0, 0.0, -49.0
+EdgeId 3
+Submit NavTriangle
+NavTriangle -44.0, 0.0, -74.0; -22.0, 0.0, -61.0; -43.0, 0.0, -49.0
+Submit NavTriangle
+NavTriangle -44.0, 0.0, -74.0; -22.0, 0.0, -61.0; -22.0, 0.0, -87.0
+EdgeId 3
+Submit NavTriangle
+NavTriangle -0.0, 0.0, -73.0; -22.0, 0.0, -61.0; -22.0, 0.0, -87.0
+Submit NavTriangle
+NavTriangle -0.0, 0.0, -73.0; -0.0, 0.0, -100.0; -22.0, 0.0, -87.0
+EdgeId 3
+Submit NavTriangle
+NavTriangle 43.0, 0.0, 49.0; 60.0, 0.0, 38.0; 60.0, 0.0, 13.0
+Submit NavTriangle
+NavTriangle 43.0, 0.0, -49.0; 60.0, 0.0, -38.0; 60.0, 0.0, -13.0
+Submit NavTriangle
+NavTriangle -43.0, 0.0, 49.0; -60.0, 0.0, 38.0; -60.0, 0.0, 13.0
+Submit NavTriangle
+NavTriangle -43.0, 0.0, -49.0; -60.0, 0.0, -38.0; -60.0, 0.0, -13.0
+Submit NavTriangle
+NavTriangle 22.0, 0.0, 61.0; 0.0, 0.0, 30.0; 12.0, 0.0, 14.0
+Submit NavTriangle
+NavTriangle 22.0, 0.0, 61.0; 43.0, 0.0, 49.0; 12.0, 0.0, 14.0
+Submit NavTriangle
+NavTriangle 60.0, 0.0, 13.0; 43.0, 0.0, 49.0; 12.0, 0.0, 14.0
+Submit NavTriangle
+NavTriangle 60.0, 0.0, 13.0; 37.0, 0.0, 0.0; 12.0, 0.0, 14.0
+Submit NavTriangle
+NavTriangle 12.0, 0.0, -14.0; 37.0, 0.0, 0.0; 12.0, 0.0, 14.0
+Submit NavTriangle
+NavTriangle 60.0, 0.0, -13.0; 37.0, 0.0, 0.0; 60.0, 0.0, 13.0
+Submit NavTriangle
+NavTriangle 60.0, 0.0, -13.0; 37.0, 0.0, 0.0; 12.0, 0.0, -14.0
+Submit NavTriangle
+NavTriangle 60.0, 0.0, -13.0; 43.0, 0.0, -49.0; 12.0, 0.0, -14.0
+Submit NavTriangle
+NavTriangle 22.0, 0.0, -61.0; 43.0, 0.0, -49.0; 12.0, 0.0, -14.0
+Submit NavTriangle
+NavTriangle 22.0, 0.0, -61.0; 0.0, 0.0, -30.0; 12.0, 0.0, -14.0
+Submit NavTriangle
+NavTriangle -22.0, 0.0, 61.0; -0.0, 0.0, 30.0; -12.0, 0.0, 14.0
+Submit NavTriangle
+NavTriangle -22.0, 0.0, 61.0; -43.0, 0.0, 49.0; -12.0, 0.0, 14.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, 13.0; -43.0, 0.0, 49.0; -12.0, 0.0, 14.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, 13.0; -37.0, 0.0, 0.0; -12.0, 0.0, 14.0
+Submit NavTriangle
+NavTriangle -12.0, 0.0, -14.0; -37.0, 0.0, 0.0; -12.0, 0.0, 14.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, -13.0; -37.0, 0.0, 0.0; -60.0, 0.0, 13.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, -13.0; -37.0, 0.0, 0.0; -12.0, 0.0, -14.0
+Submit NavTriangle
+NavTriangle -60.0, 0.0, -13.0; -43.0, 0.0, -49.0; -12.0, 0.0, -14.0
+Submit NavTriangle
+NavTriangle -22.0, 0.0, -61.0; -43.0, 0.0, -49.0; -12.0, 0.0, -14.0
+Submit NavTriangle
+NavTriangle -22.0, 0.0, -61.0; -0.0, 0.0, -30.0; -12.0, 0.0, -14.0
+Submit NavTriangle
+NavTriangle 0.0, 0.0, 73.0; 22.0, 0.0, 61.0; -22.0, 0.0, 61.0
+Submit NavTriangle
+NavTriangle 0.0, 0.0, 30.0; 22.0, 0.0, 61.0; -22.0, 0.0, 61.0
+Submit NavTriangle
+NavTriangle 0.0, 0.0, 30.0; 12.0, 0.0, 14.0; -12.0, 0.0, 14.0
+Submit NavTriangle
+NavTriangle 0.0, 0.0, -73.0; 22.0, 0.0, -61.0; -22.0, 0.0, -61.0
+Submit NavTriangle
+NavTriangle 0.0, 0.0, -30.0; 22.0, 0.0, -61.0; -22.0, 0.0, -61.0
+Submit NavTriangle
+NavTriangle 0.0, 0.0, -30.0; 12.0, 0.0, -14.0; -12.0, 0.0, -14.0
+Submit NavTriangle
+
+ConnectNavTriangles 0, 1
+Submit NavConnection
+ConnectNavTriangles 0, 21
+Submit NavConnection
+ConnectNavTriangles 1, 2
+Submit NavConnection
+ConnectNavTriangles 1, 66
+Submit NavConnection
+ConnectNavTriangles 2, 3
+Submit NavConnection
+ConnectNavTriangles 3, 4
+Submit NavConnection
+ConnectNavTriangles 3, 47
+Submit NavConnection
+ConnectNavTriangles 4, 5
+Submit NavConnection
+ConnectNavTriangles 5, 6
+Submit NavConnection
+ConnectNavTriangles 5, 42
+Submit NavConnection
+ConnectNavTriangles 6, 7
+Submit NavConnection
+ConnectNavTriangles 7, 8
+Submit NavConnection
+ConnectNavTriangles 8, 9
+Submit NavConnection
+ConnectNavTriangles 8, 42
+Submit NavConnection
+ConnectNavTriangles 9, 10
+Submit NavConnection
+ConnectNavTriangles 10, 11
+Submit NavConnection
+ConnectNavTriangles 10, 51
+Submit NavConnection
+ConnectNavTriangles 11, 12
+Submit NavConnection
+ConnectNavTriangles 12, 13
+Submit NavConnection
+ConnectNavTriangles 12, 43
+Submit NavConnection
+ConnectNavTriangles 13, 14
+Submit NavConnection
+ConnectNavTriangles 14, 15
+Submit NavConnection
+ConnectNavTriangles 15, 16
+Submit NavConnection
+ConnectNavTriangles 15, 43
+Submit NavConnection
+ConnectNavTriangles 16, 17
+Submit NavConnection
+ConnectNavTriangles 17, 18
+Submit NavConnection
+ConnectNavTriangles 17, 54
+Submit NavConnection
+ConnectNavTriangles 18, 19
+Submit NavConnection
+ConnectNavTriangles 19, 20
+Submit NavConnection
+ConnectNavTriangles 19, 69
+Submit NavConnection
+ConnectNavTriangles 20, 41
+Submit NavConnection
+ConnectNavTriangles 21, 22
+Submit NavConnection
+ConnectNavTriangles 22, 23
+Submit NavConnection
+ConnectNavTriangles 22, 66
+Submit NavConnection
+ConnectNavTriangles 23, 24
+Submit NavConnection
+ConnectNavTriangles 24, 25
+Submit NavConnection
+ConnectNavTriangles 24, 57
+Submit NavConnection
+ConnectNavTriangles 25, 26
+Submit NavConnection
+ConnectNavTriangles 26, 27
+Submit NavConnection
+ConnectNavTriangles 26, 44
+Submit NavConnection
+ConnectNavTriangles 27, 28
+Submit NavConnection
+ConnectNavTriangles 28, 29
+Submit NavConnection
+ConnectNavTriangles 29, 30
+Submit NavConnection
+ConnectNavTriangles 29, 44
+Submit NavConnection
+ConnectNavTriangles 30, 31
+Submit NavConnection
+ConnectNavTriangles 31, 32
+Submit NavConnection
+ConnectNavTriangles 31, 61
+Submit NavConnection
+ConnectNavTriangles 32, 33
+Submit NavConnection
+ConnectNavTriangles 33, 34
+Submit NavConnection
+ConnectNavTriangles 33, 45
+Submit NavConnection
+ConnectNavTriangles 34, 35
+Submit NavConnection
+ConnectNavTriangles 35, 36
+Submit NavConnection
+ConnectNavTriangles 36, 37
+Submit NavConnection
+ConnectNavTriangles 36, 45
+Submit NavConnection
+ConnectNavTriangles 37, 38
+Submit NavConnection
+ConnectNavTriangles 38, 39
+Submit NavConnection
+ConnectNavTriangles 38, 64
+Submit NavConnection
+ConnectNavTriangles 39, 40
+Submit NavConnection
+ConnectNavTriangles 40, 41
+Submit NavConnection
+ConnectNavTriangles 40, 69
+Submit NavConnection
+ConnectNavTriangles 42, 48
+Submit NavConnection
+ConnectNavTriangles 43, 53
+Submit NavConnection
+ConnectNavTriangles 44, 58
+Submit NavConnection
+ConnectNavTriangles 45, 63
+Submit NavConnection
+ConnectNavTriangles 46, 47
+Submit NavConnection
+ConnectNavTriangles 46, 67
+Submit NavConnection
+ConnectNavTriangles 46, 68
+Submit NavConnection
+ConnectNavTriangles 47, 48
+Submit NavConnection
+ConnectNavTriangles 48, 49
+Submit NavConnection
+ConnectNavTriangles 49, 50
+Submit NavConnection
+ConnectNavTriangles 49, 51
+Submit NavConnection
+ConnectNavTriangles 50, 52
+Submit NavConnection
+ConnectNavTriangles 51, 52
+Submit NavConnection
+ConnectNavTriangles 52, 53
+Submit NavConnection
+ConnectNavTriangles 53, 54
+Submit NavConnection
+ConnectNavTriangles 54, 55
+Submit NavConnection
+ConnectNavTriangles 55, 70
+Submit NavConnection
+ConnectNavTriangles 55, 71
+Submit NavConnection
+ConnectNavTriangles 56, 57
+Submit NavConnection
+ConnectNavTriangles 56, 67
+Submit NavConnection
+ConnectNavTriangles 56, 68
+Submit NavConnection
+ConnectNavTriangles 57, 58
+Submit NavConnection
+ConnectNavTriangles 58, 59
+Submit NavConnection
+ConnectNavTriangles 59, 60
+Submit NavConnection
+ConnectNavTriangles 59, 61
+Submit NavConnection
+ConnectNavTriangles 60, 62
+Submit NavConnection
+ConnectNavTriangles 61, 62
+Submit NavConnection
+ConnectNavTriangles 62, 63
+Submit NavConnection
+ConnectNavTriangles 63, 64
+Submit NavConnection
+ConnectNavTriangles 64, 65
+Submit NavConnection
+ConnectNavTriangles 65, 70
+Submit NavConnection
+ConnectNavTriangles 65, 71
+Submit NavConnection
+
+Submit NavMesh
 
 AddSpawnPoint 40,1,0
 AddSpawnPoint -40,1,0
