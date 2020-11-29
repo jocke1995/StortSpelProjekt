@@ -320,7 +320,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.hp = 200;
     rangedDemon.sound3D = L"Bruh";
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
-    rangedDemon.aiFlags = 0;
+    rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     rangedDemon.attackInterval = 2.5f;
     rangedDemon.attackSpeed = 1.0f;
     rangedDemon.movementSpeed = 30.0f;
@@ -339,8 +339,8 @@ Scene* GameScene(SceneManager* sm)
 #pragma region Enemyfactory
     EnemyFactory::GetInstance().SetScene(scene);
     EnemyFactory::GetInstance().AddSpawnPoint({ 70, 5, 20 });
-    //enemyFactory.AddSpawnPoint({ -20, 5, -190 });
-    //enemyFactory.AddSpawnPoint({ -120, 10, 75 });
+    EnemyFactory::GetInstance().AddSpawnPoint({ -20, 5, -190 });
+    EnemyFactory::GetInstance().AddSpawnPoint({ -120, 10, 75 });
     EnemyFactory::GetInstance().DefineEnemy("enemyZombie", &zombie);
     EnemyFactory::GetInstance().DefineEnemy("enemySpider", &spider);
     EnemyFactory::GetInstance().DefineEnemy("enemyDemon", &rangedDemon);
