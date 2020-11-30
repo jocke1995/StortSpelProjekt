@@ -35,7 +35,6 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -146,6 +145,7 @@ Scene* LoadScene(SceneManager* sm)
     Scene* scene = sm->CreateScene("LoadScene");
     std::vector<float3> spawnPoints;
     AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, false);
+    return scene;
 }
 
 Scene* GameScene(SceneManager* sm)

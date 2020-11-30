@@ -109,7 +109,7 @@ HRESULT AudioBuffer::readChunkData(HANDLE hFile, void* buffer, DWORD buffersize,
     return hr;
 }
 
-void AudioBuffer::OpenFile(IXAudio2* pXAudio2, std::wstring path)
+void AudioBuffer::OpenFile(IXAudio2* pXAudio2, const std::wstring& path)
 {
     Cryptor::DecryptBinary(Cryptor::GetGlobalKey(), to_string(path).c_str(), "DecryptedWav.wav");
     // Open the file
