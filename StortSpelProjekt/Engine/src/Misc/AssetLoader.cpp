@@ -972,8 +972,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 					dlc->SetDirection(lightDir);
 					dlc->SetCameraLeft(lightLeft + offset.x);
 					dlc->SetCameraRight(lightRight + offset.x);
-					dlc->SetCameraTop(lightTop + offset.z);
-					dlc->SetCameraBot(lightBottom + offset.z);
+					dlc->SetCameraTop(lightTop + (offset.z * 0.6));
+					dlc->SetCameraBot(lightBottom + (offset.z * 0.6));
 					dlc->SetCameraFarZ(lightFar);
 					dlc->SetCameraNearZ(lightNear);
 					lightNear = 0.01;

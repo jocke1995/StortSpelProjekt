@@ -257,32 +257,6 @@ Scene* GameScene(SceneManager* sm)
     Physics::GetInstance().AddCollisionEntity(entity);
 #pragma endregion
 
-#pragma region directional light
-    //entity = scene->AddEntity("sun");
-
-    //// components
-    //dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    //dlc->SetDirection({ 0.05f, -0.3f, 0.5f });
-    //dlc->SetColor({ 252.0f / 256.0f, 156.0f / 256.0f, 84.0f / 256.0f });
-    //dlc->SetCameraTop(150.0f);
-    //dlc->SetCameraBot(-120.0f);
-    //dlc->SetCameraRight(130.0f);
-    //dlc->SetCameraLeft(-180.0f);
-    //dlc->SetCameraNearZ(-1000.0f);
-	//dlc->SetCameraFarZ(6.0f);
-
-	//tc = entity->AddComponent<component::TransformComponent>();
-	//tc->GetTransform()->SetScale(1.0f);
-	//tc->GetTransform()->SetPosition(0.0f, 20.0f, 0.0f);
-	//tc->SetTransformOriginalState();
-	//mc = entity->AddComponent<component::ModelComponent>();
-	//mc->SetModel(sphereModel);
-	//mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-	
-	//plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-	//plc->SetColor({ 10.0f, 10.0f, 10.0f });
-#pragma endregion
-
 #pragma region enemy definitions
     // melee
 	EnemyComps zombie = {};
@@ -327,7 +301,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.hp = 200;
     rangedDemon.sound3D = L"Bruh";
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
-    rangedDemon.aiFlags = 0;
+    rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     rangedDemon.attackInterval = 2.5f;
     rangedDemon.attackSpeed = 1.0f;
     rangedDemon.movementSpeed = 30.0f;
@@ -945,11 +919,11 @@ Scene* ShopScene(SceneManager* sm)
     slc->SetOuterCutOff(50.0f);
     /* ---------------------- SpotLightDynamic ---------------------- */
 
-    /* ---------------------- dirLight ---------------------- */
-    entity = scene->AddEntity("dirLight");
+    /* ---------------------- moon ---------------------- */
+    entity = scene->AddEntity("moon");
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
     dlc->SetColor({ 0.8f, 0.8f, 0.8f });
-    dlc->SetDirection({ -2.0f, -1.0f, -1.0f });
+    dlc->SetDirection({ 0.0f, -0.75f, 1.0f });
     dlc->SetCameraTop(50.0f);
     dlc->SetCameraBot(-30.0f);
     dlc->SetCameraLeft(-70.0f);
