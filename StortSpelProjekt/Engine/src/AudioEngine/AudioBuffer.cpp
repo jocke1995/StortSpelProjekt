@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "AudioBuffer.h"
 #include "../Misc/Option.h"
+#include "../Misc/Cryptor.h"
 
 AudioBuffer::AudioBuffer()
 {
@@ -110,11 +111,10 @@ HRESULT AudioBuffer::readChunkData(HANDLE hFile, void* buffer, DWORD buffersize,
 
 void AudioBuffer::OpenFile(IXAudio2* pXAudio2, std::wstring path)
 {
-    //std::wstring strFileName = to_wstring(path);
-
+    Cryptor::DecryptBinary(Cryptor::GetGlobalKey(), to_string(path).c_str(), "DecryptedWav.wav");
     // Open the file
     HANDLE hFile = CreateFile(
-        path.c_str(),
+        L"DecryptedWav.wav",
         GENERIC_READ,
         FILE_SHARE_READ,
         NULL,
@@ -181,6 +181,10 @@ void AudioBuffer::OpenFile(IXAudio2* pXAudio2, std::wstring path)
     m_pSourceVoice->SubmitSourceBuffer(&m_Buffer);
 
     m_pSourceVoice->SetVolume(std::atof(Option::GetInstance().GetVariable("f_volume").c_str()));
+
+    CloseHandle(hFile);
+
+    remove("DecryptedWav.wav");
 }
 
 void AudioBuffer::SetAudioLoop(int loopCount)
