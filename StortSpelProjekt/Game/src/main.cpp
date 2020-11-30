@@ -66,8 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverHandler::GetInstance().CreateScene(sceneManager);
     Scene* mainMenuScene = MainMenuHandler::GetInstance().CreateScene(sceneManager);
-
-    sceneManager->SetScene(mainMenuScene);
+    sceneManager->SetScene(demoScene);
     sceneManager->SetGameOverScene(gameOverScene);
     GameNetwork gameNetwork;
 
@@ -146,6 +145,7 @@ Scene* LoadScene(SceneManager* sm)
     Scene* scene = sm->CreateScene("LoadScene");
     std::vector<float3> spawnPoints;
     AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, false);
+    return scene;
 }
 
 Scene* GameScene(SceneManager* sm)
@@ -975,7 +975,9 @@ void GameInitScene(Scene* scene)
 
     std::vector<float3> spawnPoints;
     EnemyFactory* fact = &EnemyFactory::GetInstance();
+    fact->SetActive(false);
     fact->ClearSpawnPoints();
+    fact->AddSpawnPoint({ 100, 100, 100 });
     AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, true);
 
     for (int i = 0; i < spawnPoints.size(); i++)
@@ -983,7 +985,7 @@ void GameInitScene(Scene* scene)
         fact->AddSpawnPoint(spawnPoints[i]);
     }
 
-    AssetLoader::Get()->RemoveWalls();
+    //AssetLoader::Get()->RemoveWalls();
 }
 
 void ShopInitScene(Scene* scene)
