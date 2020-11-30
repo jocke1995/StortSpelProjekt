@@ -114,6 +114,9 @@ public:
 private:
 	EnemyFactory();
 
+	void timeRound(double dt);
+	void killRound(double dt);
+
 	void enemyDeath(Death* evnt);
 	void levelDone(LevelDone* evnt);
 	void onSceneSwitch(SceneChange* evnt);
@@ -126,6 +129,9 @@ private:
 	EngineRand m_RandGen;
 
 	int m_MaxEnemies;
+	int m_LevelTime;
+	double m_LevelTimer;
+	bool m_TimeRound;
 	int m_EnemiesToSpawn;
 	int m_LevelMaxEnemies;
 	int m_EnemySlotsLeft;
