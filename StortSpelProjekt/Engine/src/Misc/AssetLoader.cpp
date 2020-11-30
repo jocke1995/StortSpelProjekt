@@ -38,6 +38,7 @@
 
 #include "../Misc/Edge.h"
 #include "../Misc/EngineRand.h"
+#include "../ECS/SceneManager.h"
 
 #include <filesystem>
 
@@ -525,12 +526,11 @@ Font* AssetLoader::LoadFontFromFile(const std::wstring& fontName)
 	return m_LoadedFonts[path].second;
 }
 
-void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float3 offset)
+void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* spawnPoints, unsigned int id, float3 offset, bool entitiesDynamic)
 {
 	FILE* file = fopen(path, "r");
 
 	int numNavTriangles = 0;
-	static int totalNumberOfNavTriangles = 0;
 
 	std::string lineHeader;
 	lineHeader.reserve(128);
@@ -621,9 +621,13 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 				char* fullName = new char[std::strlen(entityName.c_str()) + std::strlen(idString) + 1];
 				std::strcpy(fullName, entityName.c_str());
 				std::strcat(fullName, idString);
+				
+				if (entitiesDynamic && entity)
+				{
+					scene->InitDynamicEntity(entity);
+				}
 
 				entity = scene->AddEntity(fullName);
-
 				delete[] fullName;
 			}
 			else if (strcmp(lineHeader.c_str(), "NavMesh") == 0)
@@ -851,6 +855,12 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					edgeId = -1;
 				}
 			}
+			else if (strcmp(lineHeader.c_str(), "AddSpawnPoint") == 0 && spawnPoints)
+			{
+				fscanf(file, "%f,%f,%f", &pos.x, &pos.y, &pos.z);
+				float3 point = { pos.x + offset.x,pos.y + offset.y,pos.z + offset.z };
+				spawnPoints->emplace_back(point);
+			}
 			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
 			{
 				fscanf(file, "%s", toSubmit.c_str());
@@ -880,7 +890,6 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 					bbc->SetModifier(bbModifier);
 					bbc->Init();
-					Physics::GetInstance().AddCollisionEntity(entity);
 				}
 				else if (strcmp(toSubmit.c_str(), "Heightmap") == 0)
 				{
@@ -1060,7 +1069,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					}
 					else if (std::strcmp(navMeshType.c_str(), "Triangles") == 0)
 					{
-						navMesh->ConnectNavTriangles(tri1 + totalNumberOfNavTriangles, tri2 + totalNumberOfNavTriangles);
+						navMesh->ConnectNavTriangles(tri1 + m_NrOfNavTris, tri2 + m_NrOfNavTris);
 					}
 				}
 				else if (strcmp(toSubmit.c_str(), "NavMesh") == 0)
@@ -1071,7 +1080,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					}
 					else if (std::strcmp(navMeshType.c_str(), "Triangles") == 0)
 					{
-						totalNumberOfNavTriangles += numNavTriangles;
+						m_NrOfNavTris += numNavTriangles;
 						navMesh->CreateTriangleGrid();
 					}
 				}
@@ -1096,11 +1105,21 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load mapfile %s", path);
 	}
+
+	if (entitiesDynamic)
+	{
+		scene->InitDynamicEntity(entity);
+	}
 }
 
-void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSize, float2 roomDimensions)
+void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, std::vector<float3>* spawnPoints, float2 mapSize, float2 roomDimensions, bool entitiesDynamic)
 {
 	std::vector<std::string> filePaths;
+
+	m_RoomsAdded.clear();
+	m_EdgesToRemove.clear();
+	m_Edges.clear();
+	m_NrOfNavTris = 0;
 	for (const auto& entry : std::filesystem::directory_iterator(folderPath))
 	{
 		filePaths.push_back(entry.path().string());
@@ -1119,7 +1138,7 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSi
 	EngineRand rand(time(0));
 
 	// Load the starting room
-	LoadMap(scene, "../Vendor/Resources/SpawnRoom.map", roomCounter, offset);
+	LoadMap(scene, "../Vendor/Resources/SpawnRoom.map", spawnPoints, roomCounter, offset, entitiesDynamic);
 	m_RoomsAdded[offset.toString()] = roomCounter++;
 	std::vector<float> spawnChances;
 	for (int i = 0; i < filePaths.size(); ++i)
@@ -1197,7 +1216,7 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSi
 					}
 				}
 				std::string roomToLoad = filePaths.at(mapId);
-				LoadMap(scene, roomToLoad.c_str(), roomCounter, newOffset);
+				LoadMap(scene, roomToLoad.c_str(), spawnPoints, roomCounter, newOffset, entitiesDynamic);
 				m_RoomsAdded[newOffset.toString()] = roomCounter++;
 				removeWall = true;
 			}

@@ -20,6 +20,7 @@
 
 //#include "Misc/Cryptor.h"
 
+Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
@@ -34,8 +35,7 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/OutdoorFloor");
-    //Log::Print("Done\n");
+
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -61,6 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AssetLoader* al = AssetLoader::Get();
 
     /*----- Set the scene -----*/
+    LoadScene(sceneManager);
     Scene* demoScene = GameScene(sceneManager);
     Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverHandler::GetInstance().CreateScene(sceneManager);
@@ -139,14 +140,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     return 0;
 }
 
+//This scene is only used to load assets!
+Scene* LoadScene(SceneManager* sm)
+{
+    Scene* scene = sm->CreateScene("LoadScene");
+    std::vector<float3> spawnPoints;
+    AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, false);
+}
+
 Scene* GameScene(SceneManager* sm)
 {
     Scene* scene = sm->CreateScene("GameScene");
 
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
-
-    al->GenerateMap(scene, "../Vendor/Resources/Rooms");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
@@ -312,7 +319,7 @@ Scene* GameScene(SceneManager* sm)
 
 #pragma region Enemyfactory
     EnemyFactory::GetInstance().SetScene(scene);
-    EnemyFactory::GetInstance().AddSpawnPoint({ 0, 15, 0 });
+
     EnemyFactory::GetInstance().DefineEnemy("enemyZombie", &zombie);
     EnemyFactory::GetInstance().DefineEnemy("enemySpider", &spider);
     EnemyFactory::GetInstance().DefineEnemy("enemyDemon", &rangedDemon);
@@ -569,7 +576,7 @@ Scene* ShopScene(SceneManager* sm)
     // Get the models needed
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
+	Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
@@ -937,6 +944,19 @@ Scene* ShopScene(SceneManager* sm)
 void GameInitScene(Scene* scene)
 {
     ParticleInit();
+
+    scene->ResetNavMesh();
+
+    std::vector<float3> spawnPoints;
+    EnemyFactory* fact = &EnemyFactory::GetInstance();
+    fact->ClearSpawnPoints();
+    AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, true);
+
+    for (int i = 0; i < spawnPoints.size(); i++)
+    {
+        fact->AddSpawnPoint(spawnPoints[i]);
+    }
+
     AssetLoader::Get()->RemoveWalls();
 }
 
