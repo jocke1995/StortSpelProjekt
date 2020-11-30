@@ -19,6 +19,7 @@ public:
 
 	Entity* AddEntityFromOther(Entity* other);
 	Entity* AddEntity(std::string entityName);
+	void InitDynamicEntity(Entity* ent);
 
 	bool RemoveEntity(std::string entityName);
 

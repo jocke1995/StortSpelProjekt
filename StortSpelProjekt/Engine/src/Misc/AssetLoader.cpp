@@ -624,7 +624,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 				
 				if (entitiesDynamic && entity)
 				{
-					SceneManager::GetInstance().AddEntity(entity, scene);
+					scene->InitDynamicEntity(entity);
 				}
 
 				entity = scene->AddEntity(fullName);
@@ -1109,7 +1109,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 
 	if (entitiesDynamic)
 	{
-		SceneManager::GetInstance().AddEntity(entity, scene);
+		scene->InitDynamicEntity(entity);
 	}
 }
 
