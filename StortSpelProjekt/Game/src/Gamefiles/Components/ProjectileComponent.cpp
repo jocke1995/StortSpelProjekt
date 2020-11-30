@@ -132,6 +132,6 @@ void component::ProjectileComponent::createProjectileParticleEffectAt(Entity* ta
 	entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 	entity->AddComponent<component::TemporaryLifeComponent>(duration);
 
-	sm.AddEntity(entity, sm.GetActiveScene());
+	sm.GetActiveScene()->InitDynamicEntity(entity);
 	
 }

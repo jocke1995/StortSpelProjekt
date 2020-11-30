@@ -39,7 +39,6 @@ public:
 
 	// Entity
 	void RemoveEntity(Entity* entity, Scene* scene);
-	void AddEntity(Entity* entity, Scene* scene);
 
 	void RemoveEntities();
 

@@ -153,9 +153,8 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 		ent->Update(0);	// Init, so that the light doesn't spawn in origo first frame;
 		tc->RenderUpdate(0);
 
-		// add the entity to the sceneManager so it can be spawned in in run time
-		ent->SetEntityState(true);
-		m_pSceneMan->AddEntity(ent, m_pScene);
+		// add the entity to the scene so it can be spawned in in run time
+		m_pScene->InitDynamicEntity(ent);
 
 		m_TimeAccumulator = 0.0;
 	}
