@@ -72,7 +72,7 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
         tc->GetTransform()->SetScale(1.0f);
         tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
-        m_pSceneManager->AddEntity(entity, activeScene);
+        activeScene->InitDynamicEntity(entity);
     }
     else
     {

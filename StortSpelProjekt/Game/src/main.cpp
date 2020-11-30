@@ -20,6 +20,7 @@
 
 #include "Misc/Cryptor.h"
 
+Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
@@ -34,8 +35,7 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Audio");
-    //Log::Print("Done\n");
+
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -61,6 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AssetLoader* al = AssetLoader::Get();
 
     /*----- Set the scene -----*/
+    LoadScene(sceneManager);
     Scene* demoScene = GameScene(sceneManager);
     Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverHandler::GetInstance().CreateScene(sceneManager);
@@ -139,14 +140,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     return 0;
 }
 
+//This scene is only used to load assets!
+Scene* LoadScene(SceneManager* sm)
+{
+    Scene* scene = sm->CreateScene("LoadScene");
+    std::vector<float3> spawnPoints;
+    AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, false);
+}
+
 Scene* GameScene(SceneManager* sm)
 {
     Scene* scene = sm->CreateScene("GameScene");
 
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
-
-    al->GenerateMap(scene, "../Vendor/Resources/Rooms");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
@@ -250,32 +257,6 @@ Scene* GameScene(SceneManager* sm)
     Physics::GetInstance().AddCollisionEntity(entity);
 #pragma endregion
 
-#pragma region directional light
-    //entity = scene->AddEntity("sun");
-
-    //// components
-    //dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    //dlc->SetDirection({ 0.05f, -0.3f, 0.5f });
-    //dlc->SetColor({ 252.0f / 256.0f, 156.0f / 256.0f, 84.0f / 256.0f });
-    //dlc->SetCameraTop(150.0f);
-    //dlc->SetCameraBot(-120.0f);
-    //dlc->SetCameraRight(130.0f);
-    //dlc->SetCameraLeft(-180.0f);
-    //dlc->SetCameraNearZ(-1000.0f);
-	//dlc->SetCameraFarZ(6.0f);
-
-	//tc = entity->AddComponent<component::TransformComponent>();
-	//tc->GetTransform()->SetScale(1.0f);
-	//tc->GetTransform()->SetPosition(0.0f, 20.0f, 0.0f);
-	//tc->SetTransformOriginalState();
-	//mc = entity->AddComponent<component::ModelComponent>();
-	//mc->SetModel(sphereModel);
-	//mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-	
-	//plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-	//plc->SetColor({ 10.0f, 10.0f, 10.0f });
-#pragma endregion
-
 #pragma region enemy definitions
     // melee
 	EnemyComps zombie = {};
@@ -320,7 +301,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.hp = 200;
     rangedDemon.sound3D = L"Bruh";
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
-    rangedDemon.aiFlags = 0;
+    rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     rangedDemon.attackInterval = 2.5f;
     rangedDemon.attackSpeed = 1.0f;
     rangedDemon.movementSpeed = 30.0f;
@@ -338,9 +319,7 @@ Scene* GameScene(SceneManager* sm)
 
 #pragma region Enemyfactory
     EnemyFactory::GetInstance().SetScene(scene);
-    EnemyFactory::GetInstance().AddSpawnPoint({ 70, 5, 20 });
-    //enemyFactory.AddSpawnPoint({ -20, 5, -190 });
-    //enemyFactory.AddSpawnPoint({ -120, 10, 75 });
+
     EnemyFactory::GetInstance().DefineEnemy("enemyZombie", &zombie);
     EnemyFactory::GetInstance().DefineEnemy("enemySpider", &spider);
     EnemyFactory::GetInstance().DefineEnemy("enemyDemon", &rangedDemon);
@@ -597,7 +576,7 @@ Scene* ShopScene(SceneManager* sm)
     // Get the models needed
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
+	Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
@@ -940,11 +919,11 @@ Scene* ShopScene(SceneManager* sm)
     slc->SetOuterCutOff(50.0f);
     /* ---------------------- SpotLightDynamic ---------------------- */
 
-    /* ---------------------- dirLight ---------------------- */
-    entity = scene->AddEntity("dirLight");
+    /* ---------------------- moon ---------------------- */
+    entity = scene->AddEntity("moon");
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
     dlc->SetColor({ 0.8f, 0.8f, 0.8f });
-    dlc->SetDirection({ -2.0f, -1.0f, -1.0f });
+    dlc->SetDirection({ 0.0f, -0.75f, 1.0f });
     dlc->SetCameraTop(50.0f);
     dlc->SetCameraBot(-30.0f);
     dlc->SetCameraLeft(-70.0f);
@@ -965,6 +944,19 @@ Scene* ShopScene(SceneManager* sm)
 void GameInitScene(Scene* scene)
 {
     ParticleInit();
+
+    scene->ResetNavMesh();
+
+    std::vector<float3> spawnPoints;
+    EnemyFactory* fact = &EnemyFactory::GetInstance();
+    fact->ClearSpawnPoints();
+    AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, true);
+
+    for (int i = 0; i < spawnPoints.size(); i++)
+    {
+        fact->AddSpawnPoint(spawnPoints[i]);
+    }
+
     AssetLoader::Get()->RemoveWalls();
 }
 

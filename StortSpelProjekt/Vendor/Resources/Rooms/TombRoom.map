@@ -297,6 +297,8 @@ ModelLightColor 8.86, 3.45, 1.33
 ModelLightFlag 0,0
 ModelLightFlag 1,1
 ModelLightAttenuation 1.0, 0.027, 0.0028
+ModelLightNear 10.0
+ModelLightFar 1000.0
 Submit SpotLight
 
 Name ChandelierChain
@@ -727,3 +729,8 @@ ConnectNavTriangles 65, 71
 Submit NavConnection
 
 Submit NavMesh
+
+
+AddSpawnPoint 30.0, 3.0, 50.0
+AddSpawnPoint -20.0, 3.0, 60.0
+AddSpawnPoint -50.0, 3.0, -40.0

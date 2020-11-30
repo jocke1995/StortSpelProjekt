@@ -19,6 +19,7 @@ public:
 
 	Entity* AddEntityFromOther(Entity* other);
 	Entity* AddEntity(std::string entityName);
+	void InitDynamicEntity(Entity* ent);
 
 	bool RemoveEntity(std::string entityName);
 
@@ -47,6 +48,7 @@ public:
 	// Init function to be called after all components have been initialized.
 	void OnInit();
 	void SetOnInit(void (*OnInit)(Scene*));
+	void ResetNavMesh();
 private:
 	friend class SceneManager;
 
