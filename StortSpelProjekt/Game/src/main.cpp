@@ -975,7 +975,6 @@ void GameInitScene(Scene* scene)
 
     std::vector<float3> spawnPoints;
     EnemyFactory* fact = &EnemyFactory::GetInstance();
-    fact->SetActive(false);
     fact->ClearSpawnPoints();
     fact->AddSpawnPoint({ 100, 100, 100 });
     AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, true);
