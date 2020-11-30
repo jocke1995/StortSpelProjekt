@@ -197,7 +197,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 			4,
 			notBlended,
 			m_pBoardBackgroundTexture, { 0.4, 0.4, 0.4 });
-		m_pSm->AddEntity(entity, scene);
+		scene->InitDynamicEntity(entity);
 		entity->Update(0);
 		entity->SetEntityState(true);
 
@@ -259,7 +259,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 				notBlended,
 				m_pButtonParchment);
 
-			m_pSm->AddEntity(entity, scene);
+			scene->InitDynamicEntity(entity);
 			entity->Update(0);
 			entity->SetEntityState(true);
 		}
@@ -361,7 +361,7 @@ void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
 		notBlended,
 		m_pButtonParchment);
 
-	m_pSm->AddEntity(entity, m_pCurrentScene);
+	m_pCurrentScene->InitDynamicEntity(entity);
 	entity->Update(0);
 	entity->SetEntityState(true);
 
@@ -467,7 +467,7 @@ void UpgradeGUI::updateDescription(int level)
 		notBlended,
 		m_pDescriptionParchment);
 
-	m_pSm->AddEntity(entity, m_pCurrentScene);
+	m_pCurrentScene->InitDynamicEntity(entity);
 	entity->Update(0);
 	entity->SetEntityState(true);
 }

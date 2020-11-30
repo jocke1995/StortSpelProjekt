@@ -1518,7 +1518,7 @@ Scene* AndresTestScene(SceneManager* sm)
     bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(ent);
-    SceneManager::GetInstance().AddEntity(ent, scene);
+    scene->InitDynamicEntity(entity);
  
 #pragma endregion
     /* ---------------------- Enemy -------------------------------- */

@@ -130,7 +130,7 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 
 		// add the entity to the sceneManager so it can be spawned in in run time
 		ent->SetEntityState(true);
-		m_pSceneMan->AddEntity(ent, m_pScene);
+		m_pScene->InitDynamicEntity(ent);
 
 		m_TimeAccumulator = 0.0;
 	}

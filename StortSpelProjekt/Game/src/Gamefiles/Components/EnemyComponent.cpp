@@ -66,7 +66,7 @@ void component::EnemyComponent::OnUnInitScene()
     tc->GetTransform()->SetPosition(parentPos.x, parentPos.y, parentPos.z);
 
     entity->SetEntityState(true);
-    sm.AddEntity(entity, scene);
+    scene->InitDynamicEntity(entity);
     /* ---------------------- Particle ---------------------- */
 
     // Remove the enemy

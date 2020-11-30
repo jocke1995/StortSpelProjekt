@@ -214,7 +214,7 @@ void component::RangeComponent::Attack()
 
 		// add the entity to the sceneManager so it can be spawned in in run time
 		ent->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-		m_pSceneMan->AddEntity(ent, m_pScene);
+		m_pScene->InitDynamicEntity(ent);
 		ent->Update(0);	// Init, so that the light doesn't spawn in origo first frame;
 		tc->RenderUpdate(0);
 		m_TimeAccumulator = 0.0;

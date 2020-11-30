@@ -78,7 +78,7 @@ void Shop::Create2DGUI()
 		background
 	);
 	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-	sm.AddEntity(entity, shopScene);
+	shopScene->InitDynamicEntity(entity);
 
 	/* ------------------------- Shop Buttons --------------------------- */
 	for (int i = 0; i < GetInventorySize(); i++)
@@ -158,7 +158,7 @@ void Shop::Create2DGUI()
 
 		// add the entity to the sceneManager so it can be spawned in in run time
 		entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-		sm.AddEntity(entity, shopScene);
+		shopScene->InitDynamicEntity(entity);
 		/* ---------------------------------------------------------- */
 
 		/* ------------------------- head --------------------------- */
@@ -178,7 +178,7 @@ void Shop::Create2DGUI()
 
 		// add the entity to the sceneManager so it can be spawned in in run time
 		entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-		sm.AddEntity(entity, shopScene);
+		shopScene->InitDynamicEntity(entity);
 		/* ---------------------------------------------------------- */
 	}
 
@@ -220,7 +220,7 @@ void Shop::Create2DGUI()
 		shopBackground);
 
 	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-	sm.AddEntity(entity, shopScene);
+	shopScene->InitDynamicEntity(entity);
 	/*---------------------------------------*/
 
 	/*---------------Texture-----------------*/
@@ -238,7 +238,7 @@ void Shop::Create2DGUI()
 		rerollImage
 	);
 	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-	sm.AddEntity(entity, shopScene);
+	shopScene->InitDynamicEntity(entity);
 	/*---------------------------------------*/
 
 	/*---------------------------------------*/
@@ -278,7 +278,7 @@ void Shop::Create2DGUI()
 		nullptr, float3{ 0.05f, 0.05f, 0.05f });
 
 	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-	sm.AddEntity(entity, shopScene);
+	shopScene->InitDynamicEntity(entity);
 	/*---------------------------------------*/
 
 	m_DisplayingShopGUI = true;
