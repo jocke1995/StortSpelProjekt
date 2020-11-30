@@ -20,6 +20,7 @@
 
 //#include "Misc/Cryptor.h"
 
+Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
 Scene* ShopScene(SceneManager* sm);
 
@@ -34,8 +35,7 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/OutdoorFloor");
-    Log::Print("Done\n");
+
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -61,6 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AssetLoader* al = AssetLoader::Get();
 
     /*----- Set the scene -----*/
+    LoadScene(sceneManager);
     Scene* demoScene = GameScene(sceneManager);
     Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverHandler::GetInstance().CreateScene(sceneManager);
@@ -137,6 +138,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         sceneManager->RemoveEntities();
     }
     return 0;
+}
+
+//This scene is only used to load assets!
+Scene* LoadScene(SceneManager* sm)
+{
+    Scene* scene = sm->CreateScene("LoadScene");
+    std::vector<float3> spawnPoints;
+    AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, false);
 }
 
 Scene* GameScene(SceneManager* sm)
