@@ -62,7 +62,7 @@ ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 ParticleTexturePath Textures/Particles/fire_particle0.png
-ParticleCount 5
+ParticleCount 11
 ParticleStartPosition -2.0, 3.0, 0.0
 ParticleSpawnInterval 0.1
 ParticleStartAcceleration 0.0, -3.0, 0.0
@@ -160,7 +160,7 @@ ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 ParticleTexturePath Textures/Particles/fire_particle0.png
-ParticleCount 5
+ParticleCount 11
 ParticleStartPosition 2.0, 3.0, 0.0
 ParticleSpawnInterval 0.1
 ParticleStartAcceleration 0.0, -3.0, 0.0
