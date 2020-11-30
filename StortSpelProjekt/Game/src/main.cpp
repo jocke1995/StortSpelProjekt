@@ -86,14 +86,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
+    
+
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
         timer->Update();
-
-        sceneManager->ChangeScene();
-
         logicTimer += timer->GetDeltaTime();
+
+        bool changedScene = sceneManager->ChangeScene();
+        if(changedScene)
+        {
+            // if change scene, reset dt
+            timer->StartTimer();
+            timer->Update();
+        }
+
+        
         if (gameNetwork.IsConnected())
         {
             networkTimer += timer->GetDeltaTime();
@@ -156,7 +165,6 @@ Scene* GameScene(SceneManager* sm)
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
-    al->GenerateMap(scene, "../Vendor/Resources/Rooms");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/FemaleAnimated/FemaleAnimated.fbx");
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
