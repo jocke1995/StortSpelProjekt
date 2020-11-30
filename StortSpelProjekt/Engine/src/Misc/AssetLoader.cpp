@@ -628,7 +628,6 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 				}
 
 				entity = scene->AddEntity(fullName);
-				entity->SetEntityState(entitiesDynamic);
 				delete[] fullName;
 			}
 			else if (strcmp(lineHeader.c_str(), "NavMesh") == 0)

@@ -77,7 +77,6 @@ void Shop::Create2DGUI()
 		notBlended,
 		background
 	);
-	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
 	shopScene->InitDynamicEntity(entity);
 
 	/* ------------------------- Shop Buttons --------------------------- */
@@ -156,8 +155,7 @@ void Shop::Create2DGUI()
 			blended,
 			shopBackground);
 
-		// add the entity to the sceneManager so it can be spawned in in run time
-		entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
+		// add the entity to the scene so it can be spawned in in run time
 		shopScene->InitDynamicEntity(entity);
 		/* ---------------------------------------------------------- */
 
@@ -177,7 +175,6 @@ void Shop::Create2DGUI()
 		);
 
 		// add the entity to the sceneManager so it can be spawned in in run time
-		entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
 		shopScene->InitDynamicEntity(entity);
 		/* ---------------------------------------------------------- */
 	}
@@ -219,7 +216,6 @@ void Shop::Create2DGUI()
 		notBlended,
 		shopBackground);
 
-	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
 	shopScene->InitDynamicEntity(entity);
 	/*---------------------------------------*/
 
@@ -237,7 +233,6 @@ void Shop::Create2DGUI()
 		notBlended,
 		rerollImage
 	);
-	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
 	shopScene->InitDynamicEntity(entity);
 	/*---------------------------------------*/
 
