@@ -31,6 +31,9 @@ component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scen
 	m_NrOfProjectiles = 0;
 	m_ProjectileRestitution = 0.0f;
 
+	AssetLoader* al = AssetLoader::Get();
+	m_pParticleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/player_magic.png"));
+
 	if (parent->GetComponent<component::Audio2DVoiceComponent>())
 	{
 		m_AudioPlay = true;
@@ -101,6 +104,21 @@ void component::RangeComponent::Attack()
 {
 	if (m_TimeAccumulator >= m_AttackInterval)
 	{
+		// Create particle effect
+		ParticleEffectSettings settings = {};
+		settings.maxParticleCount = 50;
+		settings.startValues.lifetime = 0.01;
+		settings.spawnInterval = 0.001;
+		settings.startValues.acceleration = { 0, 0, 0 };
+		settings.isLooping = true;
+
+		settings.randPosition = { 0, 0, 0, 0, 0, 0 };
+		settings.randVelocity = { 0, 0, 0, 0, 0, 0 };
+		settings.randSize = { 2.0f, 2.0f };
+		settings.randRotation = { 0, 2 * PI };
+		settings.randRotationSpeed = { 0.2f, 0.2f };
+		settings.texture = m_pParticleTexture;
+
 		Entity* ent = m_pScene->AddEntity("RangeAttack" + std::to_string(++m_NrOfProjectiles));
 		component::ModelComponent* mc = nullptr;
 		component::TransformComponent* tc = nullptr;
@@ -108,12 +126,15 @@ void component::RangeComponent::Attack()
 		component::ProjectileComponent* pc = nullptr;
 		component::UpgradeComponent* uc = nullptr;
 		component::PointLightComponent* plc = nullptr;
+		component::ParticleEmitterComponent* pec = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
 		uc = ent->AddComponent<component::UpgradeComponent>();
 		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+		pec = ent->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+		//tlc = ent->AddComponent<component::TemporaryLifeComponent>(duration);
 
 		// Applying all range uppgrades to the new projectile entity "RangeAttack"
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
@@ -191,7 +212,7 @@ void component::RangeComponent::Attack()
 
 		// initialize the components
 		mc->SetModel(m_pModel);
-		mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+		mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW); // hidden because we just want to see the particle effect
 		tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
 		tc->GetTransform()->SetScale(m_Scale);
 		tc->GetTransform()->SetVelocity(m_Velocity);
@@ -207,11 +228,11 @@ void component::RangeComponent::Attack()
 
 		component::CollisionComponent* cc = nullptr;
 		double3 projectileDim = mc->GetModelDim();
-
 		cc = ent->AddComponent<component::SphereCollisionComponent>(500.0f, projectileDim.z / 2.0f, 1.0f, m_ProjectileRestitution, false);
 		cc->SetGravity(0.0f);
 
-		plc->SetColor({ 3.0f, 0.0f, 0.0f });
+		// Light color
+		plc->SetColor({ (75.0f * 3.0f) / 255.0f, 0.0f, (130.0f * 3.0f) /255.0f });
 
 		// add the entity to the sceneManager so it can be spawned in in run time
 		ent->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
@@ -222,7 +243,7 @@ void component::RangeComponent::Attack()
 
 		hitDir.normalize();
 		hitDir *= m_Velocity;
-
+		
 		cc->SetVelVector(hitDir.x, hitDir.y, hitDir.z);
 		component::CollisionComponent* ccParent = m_pParent->GetComponent<component::CollisionComponent>();
 		cc->SetCollidesWith(ccParent, false);
