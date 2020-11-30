@@ -15,6 +15,7 @@
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
 #include "UpgradeGUI.h"
+//#include "Misc/Cryptor.h"
 
 #include "Misc/Edge.h"
 
@@ -154,7 +155,9 @@ Scene* GameScene(SceneManager* sm)
 
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
+
+    al->GenerateMap(scene, "../Vendor/Resources/Rooms");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/FemaleAnimated/FemaleAnimated.fbx");
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
@@ -188,6 +191,7 @@ Scene* GameScene(SceneManager* sm)
     component::CameraComponent* cc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
     component::ModelComponent* mc = nullptr;
+    component::AnimationComponent* ac = nullptr;
     component::PointLightComponent* plc = nullptr;
 	component::SpotLightComponent* slc = nullptr;
     component::TransformComponent* tc = nullptr;
@@ -213,13 +217,13 @@ Scene* GameScene(SceneManager* sm)
 
     // components
     mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
+    ac = entity->AddComponent<component::AnimationComponent>();
+    tc = entity->AddComponent<component::TransformComponent>(true);
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     alc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::T_POSE);
-    melc = entity->AddComponent<component::MeleeComponent>();
     // range damage should be at least 10 for ranged life steal upgrade to work
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 50, 150);
     currc = entity->AddComponent<component::CurrencyComponent>();
@@ -229,13 +233,16 @@ Scene* GameScene(SceneManager* sm)
 
     Player::GetInstance().SetPlayer(entity);
 
-    tc->GetTransform()->SetScale(0.9f);
+    tc->GetTransform()->SetScale(0.05f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
     tc->SetTransformOriginalState();
 
+    melc = entity->AddComponent<component::MeleeComponent>();   // moved this down to set scale first
+
     mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-    
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
+    ac->Initialize();
+
     double3 playerDim = mc->GetModelDim();
 
     double rad = playerDim.z / 2.0;

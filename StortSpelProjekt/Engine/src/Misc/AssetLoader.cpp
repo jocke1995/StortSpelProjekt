@@ -1609,7 +1609,7 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo>* boneCoun
 void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter)
 {
 	// Attach the bone ID and the offset matrix to its corresponding SkeletonNode
-	if (node->name.find("_$", 0) == std::string::npos)
+	if (node->name.find("_$", 0) == std::string::npos && boneCounter->find(node->name) != boneCounter->end())
 	{
 		node->boneID = (*boneCounter)[node->name].boneID;
 		node->inverseBindPose = (*boneCounter)[node->name].boneOffset;
