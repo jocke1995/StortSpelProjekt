@@ -7,7 +7,6 @@
 
 #define DASH_MOD 3.0
 #define SPRINT_MOD 1.5
-#define TURN_RATE 20.0
 #define ORIGINAL_CAMERA_DISTANCE 35.0
 // Lower value means more slowdown when moving backwards
 #define SLOWDOWN_FACTOR 0.5
@@ -94,8 +93,6 @@ namespace component
 
 		int m_UpdateShootId;
 		int m_UpdateDashId;
-		int m_DegreesToTurnTo;
-		float m_RadiansToTurn;
 
 		std::vector<void(PlayerInputComponent::*)(double dt)> specificUpdates;
 		void(PlayerInputComponent::*specificUpdate)(double dt);

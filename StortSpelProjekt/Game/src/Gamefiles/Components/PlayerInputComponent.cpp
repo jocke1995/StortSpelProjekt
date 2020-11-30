@@ -48,9 +48,6 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_UpdateShootId = -1;
 	m_UpdateDashId = -1;
 
-	m_DegreesToTurnTo = 0;
-	m_RadiansToTurn = 0;
-
 	m_TurningTimer = 0.0f;
 	m_TurningInterval = 0.0f;
 }
@@ -134,14 +131,14 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		float3 camDir = m_pCamera->GetDirectionFloat3();
 
 		// USed to rotate player when rotating camera while moving
-		float angle = std::atan2(m_pTransform->GetInvDir() * camDir.x, m_pTransform->GetInvDir() * camDir.z);
 		if (m_Attacking || m_TurnToCamera)
 		{
+			float angle = std::atan2(m_pTransform->GetInvDir() * camDir.x, m_pTransform->GetInvDir() * camDir.z);
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
 		else if ((std::abs(vel.x) > EPSILON || std::abs(vel.y) > EPSILON) && m_CameraRotating)
 		{
-			angle += m_RadiansToTurn;
+			float angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
 	}
@@ -155,26 +152,6 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	m_TurningTimer += dt;
 	m_DashTimer += dt;
 	m_DashReady = m_DashTimer > 1.5;
-
-	/* ---------------- Update model rotation ----------------- */
-	// Get the current rotation of the player
-	double3 rot = m_pCC->GetRotationEuler();
-	// Calculate the angle around y in whole degrees
-	int angle = EngineMath::convertToWholeDegrees(rot.y);
-	// Check the rotation around x (around z would work to) which shows if the rotation is backwards (over 90 or under -90 degrees). Convert this to a usable modifier
-	int mod = EngineMath::convertToWholeDegrees(rot.x) / 180;
-
-	// Convert the angle to go between 0 and 360 instead of -180 to 180 (and make sure it doesn't go over 360)
-	angle = (mod * 360 + (mod * -2 + 1) * ((angle + 360) % 360) + mod * 180) % 360;
-
-	// Check which direction is closest, clockwise (1) or counter clockwise (-1)
-	int direction = static_cast<int>(((m_DegreesToTurnTo - angle + 180) % 360 + 360) % 360 - 180 >= 0) * 2 - 1;
-
-	// If player is not facing the correct direction, turn towards it
-	if (std::abs(angle - m_DegreesToTurnTo) > 0 && !m_CameraRotating)
-	{
-		m_pCC->Rotate({ 0.0, 1.0, 0.0 }, direction * TURN_RATE * dt);
-	}
 	
 	// Call the specific update functions
 	for (unsigned int i = 0; i < specificUpdates.size(); ++i)
@@ -206,11 +183,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON)
 		{
 			double angle = std::atan2(m_pTransform->GetInvDir() * move.x, m_pTransform->GetInvDir() * move.z);
-			double forwardAngle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
-			m_RadiansToTurn = angle - forwardAngle;
-			int angleDegrees = EngineMath::convertToWholeDegrees(angle);
-			angleDegrees = (angleDegrees + 360) % 360;
-			m_DegreesToTurnTo = angleDegrees;
+			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
 	}
 }
@@ -234,7 +207,7 @@ void component::PlayerInputComponent::SetMovementSpeed(float speed)
 
 void component::PlayerInputComponent::SetAngleToTurnTo(int angle)
 {
-	m_DegreesToTurnTo = angle;
+	m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 }
 
 void component::PlayerInputComponent::SetAttacking()
@@ -420,18 +393,12 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 				// If the player is in attacking position, turn in the camera direction
 				angle = forwardAngle;
 			}
-			m_RadiansToTurn = angle - forwardAngle;
-			int angleDegrees = EngineMath::convertToWholeDegrees(angle);
-			angleDegrees = (angleDegrees + 360) % 360;
-			m_DegreesToTurnTo = angleDegrees;
+			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
 		else
 		{
 			double angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
-			m_RadiansToTurn = angle;
-			int angleDegrees = EngineMath::convertToWholeDegrees(angle);
-			angleDegrees = (angleDegrees + 360) % 360;
-			m_DegreesToTurnTo = angleDegrees;
+			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
 
 		// Check if the player is moving in the direction she is turned. If not, lower the movement speed
@@ -487,11 +454,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 			}
 
 			double angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
-			double forwardAngle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
-			m_RadiansToTurn = angle - forwardAngle;
-			int angleDegrees = EngineMath::convertToWholeDegrees(angle);
-			angleDegrees = (angleDegrees + 360) % 360;
-			m_DegreesToTurnTo = angleDegrees;
+			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
 		else
 		{
