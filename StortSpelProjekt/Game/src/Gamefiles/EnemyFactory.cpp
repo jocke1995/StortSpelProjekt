@@ -377,9 +377,9 @@ void EnemyFactory::timeRound(double dt)
 	if (m_LevelTime > 0)
 	{
 		m_LevelTimer += dt;
-		if (m_LevelTimer >= 1)
+		if (m_LevelTimer >= 1.0)
 		{
-			m_LevelTimer -= 1;
+			m_LevelTimer -= 1.0;
 			m_LevelTime -= 1;
 
 			Entity* enemyGui = m_pScene->GetEntity("enemyGui");
@@ -558,7 +558,7 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	{
 		m_TimeRound = true;
 		m_LevelTime = 30 + 5 * m_Level;
-		m_LevelTimer = 0;
+		m_LevelTimer = 0.0;
 
 		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
 		if (enemyGui != nullptr)
