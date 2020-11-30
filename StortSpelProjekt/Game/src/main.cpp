@@ -263,7 +263,7 @@ Scene* GameScene(SceneManager* sm)
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
-	pic->SetMovementSpeed(70.0);
+	pic->SetMovementSpeed(75.0);
 
     avc->AddVoice(L"Bruh");
 
@@ -632,7 +632,7 @@ Scene* ShopScene(SceneManager* sm)
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(50);
-    ic->SetMovementSpeed(70.0);
+    ic->SetMovementSpeed(75.0);
     ic->Init();
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
