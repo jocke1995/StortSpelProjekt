@@ -6,6 +6,7 @@ class SceneManager;
 class Scene;
 class Model;
 class Audio2DVoiceComponent;
+class Texture2DGUI;
 
 namespace component
 {
@@ -38,6 +39,7 @@ namespace component
 		bool m_AudioPlay;
 
 		Model* m_pModel = nullptr;
+		Texture2DGUI* m_pParticleTexture = nullptr;
 		SceneManager* m_pSceneMan = nullptr;
 		Scene* m_pScene = nullptr;
 
