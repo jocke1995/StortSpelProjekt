@@ -474,7 +474,6 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	{
 		m_EnemyComps["enemyZombie"]->hp = m_EnemyComps["enemyZombie"]->hpBase + 15 * m_Level;
 		m_EnemyComps["enemyZombie"]->meleeAttackDmg = m_EnemyComps["enemyZombie"]->meleeAttackDmgBase + 5 * m_Level;
-		m_EnemyComps["enemyZombie"]->movementSpeed = m_EnemyComps["enemyZombie"]->movementSpeedBase + 1 * m_Level;
 	}
 
 	// meelee quick
@@ -482,7 +481,6 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	{
 		m_EnemyComps["enemySpider"]->hp = m_EnemyComps["enemySpider"]->hpBase + 5 * m_Level;
 		m_EnemyComps["enemySpider"]->meleeAttackDmg = m_EnemyComps["enemySpider"]->meleeAttackDmgBase + 2 * m_Level;
-		m_EnemyComps["enemySpider"]->movementSpeed = m_EnemyComps["enemySpider"]->movementSpeedBase + 1 * m_Level;
 		if (m_Level > 0)
 		{
 			if (m_EnemyComps["enemySpider"]->spawnChance < 20)
