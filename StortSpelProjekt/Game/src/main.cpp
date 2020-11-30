@@ -250,32 +250,6 @@ Scene* GameScene(SceneManager* sm)
     Physics::GetInstance().AddCollisionEntity(entity);
 #pragma endregion
 
-#pragma region directional light
-    //entity = scene->AddEntity("sun");
-
-    //// components
-    //dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    //dlc->SetDirection({ 0.05f, -0.3f, 0.5f });
-    //dlc->SetColor({ 252.0f / 256.0f, 156.0f / 256.0f, 84.0f / 256.0f });
-    //dlc->SetCameraTop(150.0f);
-    //dlc->SetCameraBot(-120.0f);
-    //dlc->SetCameraRight(130.0f);
-    //dlc->SetCameraLeft(-180.0f);
-    //dlc->SetCameraNearZ(-1000.0f);
-	//dlc->SetCameraFarZ(6.0f);
-
-	//tc = entity->AddComponent<component::TransformComponent>();
-	//tc->GetTransform()->SetScale(1.0f);
-	//tc->GetTransform()->SetPosition(0.0f, 20.0f, 0.0f);
-	//tc->SetTransformOriginalState();
-	//mc = entity->AddComponent<component::ModelComponent>();
-	//mc->SetModel(sphereModel);
-	//mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-	
-	//plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-	//plc->SetColor({ 10.0f, 10.0f, 10.0f });
-#pragma endregion
-
 #pragma region enemy definitions
     // melee
 	EnemyComps zombie = {};
@@ -338,9 +312,7 @@ Scene* GameScene(SceneManager* sm)
 
 #pragma region Enemyfactory
     EnemyFactory::GetInstance().SetScene(scene);
-    EnemyFactory::GetInstance().AddSpawnPoint({ 70, 5, 20 });
-    EnemyFactory::GetInstance().AddSpawnPoint({ -20, 5, -190 });
-    EnemyFactory::GetInstance().AddSpawnPoint({ -120, 10, 75 });
+    EnemyFactory::GetInstance().AddSpawnPoint({ 0, 15, 0 });
     EnemyFactory::GetInstance().DefineEnemy("enemyZombie", &zombie);
     EnemyFactory::GetInstance().DefineEnemy("enemySpider", &spider);
     EnemyFactory::GetInstance().DefineEnemy("enemyDemon", &rangedDemon);
