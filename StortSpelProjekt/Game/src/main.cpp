@@ -604,6 +604,7 @@ Scene* ShopScene(SceneManager* sm)
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
 	Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
+    Model* pressfModel = al->LoadModel(L"../Vendor/Resources/Models/Pressf/pressf.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
     Model* teleportModel = al->LoadModel(L"../Vendor/Resources/Models/Teleporter/Teleporter.obj");
@@ -631,7 +632,7 @@ Scene* ShopScene(SceneManager* sm)
     uc = entity->AddComponent<component::UpgradeComponent>();
     cur = entity->AddComponent<component::CurrencyComponent>();
 
-    mc->SetModel(playerModel);
+    mc->SetModel(pressfModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.9f);
     tc->GetTransform()->SetPosition(0.0, 1.0, 0.0);
