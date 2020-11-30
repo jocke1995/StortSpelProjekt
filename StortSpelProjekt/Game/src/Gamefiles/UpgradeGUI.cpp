@@ -469,5 +469,4 @@ void UpgradeGUI::updateDescription(int level)
 
 	m_pCurrentScene->InitDynamicEntity(entity);
 	entity->Update(0);
-	entity->SetEntityState(true);
 }

@@ -277,7 +277,6 @@ void Shop::Create2DGUI()
 		blended,
 		nullptr, float3{ 0.05f, 0.05f, 0.05f });
 
-	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
 	shopScene->InitDynamicEntity(entity);
 	/*---------------------------------------*/
 

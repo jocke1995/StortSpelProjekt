@@ -65,7 +65,6 @@ void component::EnemyComponent::OnUnInitScene()
     float3 parentPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
     tc->GetTransform()->SetPosition(parentPos.x, parentPos.y, parentPos.z);
 
-    entity->SetEntityState(true);
     scene->InitDynamicEntity(entity);
     /* ---------------------- Particle ---------------------- */
 
