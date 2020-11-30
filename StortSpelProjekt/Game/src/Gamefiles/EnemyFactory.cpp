@@ -385,7 +385,7 @@ void EnemyFactory::timeRound(double dt)
 			Entity* enemyGui = m_pScene->GetEntity("enemyGui");
 			if (enemyGui != nullptr)
 			{
-				enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(std::to_string(m_LevelTime), "enemyGui");
+				enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(" Survive: " + std::to_string(m_LevelTime), "enemyGui");
 			}
 
 
@@ -563,7 +563,13 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
 		if (enemyGui != nullptr)
 		{
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(std::to_string(m_LevelTime), "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(" Survive: " + std::to_string(m_LevelTime), "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
+				{ 0.015f, 0.021f },
+				{ 0.20f, 0.08f },
+				false, false,
+				{ 1.0, 1.0, 1.0, 1.0 }
+			);
 		}
 	}
 	else //Normal kill round
@@ -577,6 +583,12 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 		if (enemyGui != nullptr)
 		{
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
+				{ 0.015f, 0.021f },
+				{ 0.15f, 0.08f },
+				false, false,
+				{ 1.0, 1.0, 1.0, 1.0 }
+			);
 		}
 	}
 
