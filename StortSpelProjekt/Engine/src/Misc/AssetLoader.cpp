@@ -1118,7 +1118,14 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, std::vector<
 
 	m_RoomsAdded.clear();
 	m_EdgesToRemove.clear();
+
+	for (int i = 0; i < m_Edges.size(); i++)
+	{
+		delete m_Edges[i];
+	}
+
 	m_Edges.clear();
+
 	m_NrOfNavTris = 0;
 	for (const auto& entry : std::filesystem::directory_iterator(folderPath))
 	{

@@ -67,7 +67,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverHandler::GetInstance().CreateScene(sceneManager);
     Scene* mainMenuScene = MainMenuHandler::GetInstance().CreateScene(sceneManager);
-
     sceneManager->SetScene(mainMenuScene);
     sceneManager->SetGameOverScene(gameOverScene);
     GameNetwork gameNetwork;
@@ -147,6 +146,7 @@ Scene* LoadScene(SceneManager* sm)
     Scene* scene = sm->CreateScene("LoadScene");
     std::vector<float3> spawnPoints;
     AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, false);
+    return scene;
 }
 
 Scene* GameScene(SceneManager* sm)
