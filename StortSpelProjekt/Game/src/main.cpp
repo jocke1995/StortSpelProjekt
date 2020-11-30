@@ -15,6 +15,7 @@
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
 #include "UpgradeGUI.h"
+#include "Components/SpeedModifierComponent.h"
 
 #include "Misc/Edge.h"
 
@@ -196,6 +197,7 @@ Scene* GameScene(SceneManager* sm)
     component::UpgradeComponent* uc = nullptr;
     component::GUI2DComponent* gui = nullptr;
     component::ParticleEmitterComponent* pec = nullptr;
+    component::SpeedModifier* spm = nullptr;
 #pragma endregion
 
 #pragma region entities
@@ -219,6 +221,7 @@ Scene* GameScene(SceneManager* sm)
     hc = entity->AddComponent<component::HealthComponent>(500);
     uc = entity->AddComponent<component::UpgradeComponent>();
     alc = entity->AddComponent<component::Audio3DListenerComponent>();
+    spm = entity->AddComponent<component::SpeedModifier>();
 
     Player::GetInstance().SetPlayer(entity);
 
@@ -242,6 +245,7 @@ Scene* GameScene(SceneManager* sm)
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
 	pic->SetMovementSpeed(70.0);
+    spm->UpdateBaseVelocity();
 
     avc->AddVoice(L"Bruh");
 
@@ -294,6 +298,7 @@ Scene* GameScene(SceneManager* sm)
 	zombie.detectionRad = 500.0f;
 	zombie.attackingDist = 1.5f;
     zombie.mass = 150.0f;
+    zombie.slowAttack = 0.5f;
 
     // quick melee
     EnemyComps spider = {};

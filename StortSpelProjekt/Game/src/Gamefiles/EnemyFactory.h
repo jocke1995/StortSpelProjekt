@@ -51,6 +51,7 @@ struct EnemyComps
 	float attackSpeed = 0.2f;
 	float meleeAttackDmg = 10.0f;
 	float meleeAttackDmgBase = 10.0f;
+	float slowAttack = 0.0f;
 	float movementSpeed = 30.0f;
 	float movementSpeedBase = 30.0f;
 	bool isRanged = false;
