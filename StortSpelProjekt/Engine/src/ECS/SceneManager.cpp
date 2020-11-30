@@ -155,11 +155,6 @@ void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 	scene->RemoveEntity(entity->GetName());
 }
 
-void SceneManager::AddEntity(Entity* entity, Scene* scene)
-{
-	entity->OnInitScene();
-}
-
 void SceneManager::RemoveEntities()
 {
 	unsigned int removeSize = m_ToRemove.size() - 1;

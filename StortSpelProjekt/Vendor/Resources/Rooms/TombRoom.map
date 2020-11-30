@@ -727,3 +727,8 @@ ConnectNavTriangles 65, 71
 Submit NavConnection
 
 Submit NavMesh
+
+
+AddSpawnPoint 30.0, 3.0, 50.0
+AddSpawnPoint -20.0, 3.0, 60.0
+AddSpawnPoint -50.0, 3.0, -40.0
