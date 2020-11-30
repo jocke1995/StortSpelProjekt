@@ -985,7 +985,7 @@ void GameInitScene(Scene* scene)
         fact->AddSpawnPoint(spawnPoints[i]);
     }
 
-    //AssetLoader::Get()->RemoveWalls();
+    AssetLoader::Get()->RemoveWalls();
 }
 
 void ShopInitScene(Scene* scene)
