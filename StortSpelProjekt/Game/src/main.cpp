@@ -86,14 +86,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
+    
+
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
         timer->Update();
-
-        sceneManager->ChangeScene();
-
         logicTimer += timer->GetDeltaTime();
+
+        bool changedScene = sceneManager->ChangeScene();
+        if(changedScene)
+        {
+            // if change scene, reset dt
+            timer->StartTimer();
+            timer->Update();
+        }
+
+        
         if (gameNetwork.IsConnected())
         {
             networkTimer += timer->GetDeltaTime();

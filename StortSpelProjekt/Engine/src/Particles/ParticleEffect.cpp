@@ -54,7 +54,6 @@ void ParticleEffect::Update(double dt)
 {
 	m_TimeSinceSpawn += dt;
 
-
 	// If should particle spawn
 	while (isTimeToSpawnParticles() && m_IsSpawning)
 	{
@@ -62,6 +61,7 @@ void ParticleEffect::Update(double dt)
 
 		if (!spawned)
 		{
+			m_TimeSinceSpawn = 0;
 			break;
 		}
 	}
