@@ -57,5 +57,5 @@ void UpgradeMeleeRadius::IncreaseLevel()
 
 std::string UpgradeMeleeRadius::GetDescription(unsigned int level)
 {
-	return "Melee Radius: Increases scale of base melee attack range both forward and to the sides with 50, 75 and 100\% at max level 3.\n";
+	return "Melee Radius: Increases scale of base melee attack range both forward and to the sides with 50, 75 and 100\% at max level 3.";
 }
