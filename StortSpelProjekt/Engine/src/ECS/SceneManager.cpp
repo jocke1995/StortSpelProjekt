@@ -105,8 +105,10 @@ Scene* SceneManager::GetScene(std::string sceneName) const
     return nullptr;
 }
 
-void SceneManager::ChangeScene()
+bool SceneManager::ChangeScene()
 {
+	bool changedScene = false;
+
 	if (m_ChangeSceneNextFrame)
 	{
 		// Reset old scene
@@ -144,7 +146,10 @@ void SceneManager::ChangeScene()
 		// Change the player back to its original position
 		SetScene(scene);
 		m_ChangeSceneNextFrame = false;
+		changedScene = true;
 	}
+
+	return changedScene;
 }
 
 void SceneManager::RemoveEntity(Entity* entity, Scene* scene)

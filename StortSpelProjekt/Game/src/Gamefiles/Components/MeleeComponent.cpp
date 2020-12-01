@@ -27,11 +27,17 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	// Set base sizes of the hitbox 
 	m_MeleeXRange = 3.0f;
 	m_MeleeZRange = 4.0f;
-	m_XScale = 1.0f;
-	m_ZScale = 1.0f;
+	m_XScale = 1.5f;
+	m_ZScale = 1.5f;
 
 	m_ParticleEffectCounter = 0;
-	m_HalfSize = { m_MeleeXRange, 1.0f, m_MeleeZRange / 2.0f };
+	
+	// scale factor to get "old" scale back
+	float newScale = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().x;	// x, y, z will have same scale
+	float oldScale = 0.9f;
+	float scaleFactor = 1.0f;
+	m_HalfSize = { m_MeleeXRange * scaleFactor, (1.0f * scaleFactor) + 2.0f, (m_MeleeZRange * scaleFactor) / 2.0f };
+	//m_HalfSize = { 8.0f, 1.0f, 9.0f };
 
 	//Create bounding box for collision for melee
 	m_pBbc = parent->GetComponent<component::BoundingBoxComponent>();
@@ -78,25 +84,20 @@ void component::MeleeComponent::Update(double dt)
 {
 	// Takes the transform of the player cube and moves it forward to act as a hitbox
 	m_MeleeTransformModified = *m_pMeleeTransform;
-	Transform* trans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
 	m_MeleeTransformModified.SetScale(m_XScale, 1, m_ZScale);
 	m_MeleeTransformModified.UpdateWorldMatrix();
 
-	DirectX::BoundingOrientedBox obb;
-	obb.Center = m_pBbc->GetOriginalOBB()->Center;
-	obb.Extents = m_pBbc->GetOriginalOBB()->Extents;
-	obb.Orientation = m_pBbc->GetOriginalOBB()->Orientation;
+	Transform* parentTransform = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
+	double3 modelDim = m_pParent->GetComponent<component::ModelComponent>()->GetModelDim();
 
-	// then do all the transformations on this temoporary OBB so we don't change the original state
-	obb.Transform(obb, *m_MeleeTransformModified.GetWorldMatrix());
+	float3 position = parentTransform->GetPositionFloat3();
+	float3 forwardVector = parentTransform->GetForwardFloat3();
+	float distanceFromPlayer = m_HalfSize.z + (modelDim.z * parentTransform->GetScale().z / 2.0f);
 
-	bool t_pose = m_pBbc->GetFlagOBB() & F_OBBFlags::T_POSE;
-	float positionX = obb.Center.x + (obb.Extents.x + ((static_cast<float>(!t_pose) * m_HalfSize.x + static_cast<float>(t_pose) * m_HalfSize.z) * trans->GetScale().x)) * m_MeleeTransformModified.GetForwardFloat3().x;
-	float positionY = obb.Center.y + (obb.Extents.y + (m_HalfSize.y * trans->GetScale().y)) * m_MeleeTransformModified.GetForwardFloat3().y;
-	float positionZ = obb.Center.z + (obb.Extents.z + (m_HalfSize.z * trans->GetScale().z)) * m_MeleeTransformModified.GetForwardFloat3().z;
+	position = position + (forwardVector * distanceFromPlayer);
 
 	// Sets the position and updates the matrix to reflect movement of the player
-	m_MeleeTransformModified.SetPosition(positionX, positionY, positionZ);
+	m_MeleeTransformModified.SetPosition(position.x, position.y, position.z);
 	m_MeleeTransformModified.Move(dt);
 
 	m_MeleeTransformModified.UpdateWorldMatrix();
@@ -320,7 +321,7 @@ void component::MeleeComponent::ChangeMeleeRadius(float xRange, float zRange)
 
 void component::MeleeComponent::ResetMeleeScaling()
 {
-	m_XScale = 1.0f;
-	m_ZScale = 1.0f;
+	m_XScale = 1.5f;
+	m_ZScale = 1.5f;
 }
 

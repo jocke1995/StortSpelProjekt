@@ -30,7 +30,7 @@ public:
 	void SetScene(Scene* scene);
 	Scene* GetActiveScene();
 	Scene* GetScene(std::string sceneName) const;
-	void ChangeScene();
+	bool ChangeScene();
 
 	void ResetScene();
 
