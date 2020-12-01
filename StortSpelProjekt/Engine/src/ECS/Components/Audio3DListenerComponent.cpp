@@ -36,6 +36,10 @@ void component::Audio3DListenerComponent::UpdateListener()
 	DirectX::XMMATRIX rotMat = m_pTransform->GetRotMatrix();
 	DirectX::XMFLOAT3 forward, up, position;
 	DirectX::XMStoreFloat3(&forward, rotMat.r[2]);
+
+	forward.x *= m_pTransform->GetInvDir();
+	forward.z *= m_pTransform->GetInvDir();
+
 	DirectX::XMStoreFloat3(&up, rotMat.r[1]);
 	position = m_pTransform->GetPositionXMFLOAT3();
 	SetListener(forward, up, position);
