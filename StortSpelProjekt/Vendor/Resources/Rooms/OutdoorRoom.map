@@ -169,7 +169,7 @@ ModelRestitution 0.0
 Submit Model
 Submit CollisionCapsule 0.2, 0.2, 0.2
 ParticleTexturePath Textures/Particles/fire_particle0.png
-ParticleCount 5
+ParticleCount 11
 ParticleStartPosition 0.0, 2.0, 0.0
 ParticleSpawnInterval 0.1
 ParticleStartAcceleration 0.0, -3.0, 0.0
@@ -201,7 +201,7 @@ ModelRestitution 0.0
 Submit Model
 Submit CollisionCapsule 0.2, 0.2, 0.2
 ParticleTexturePath Textures/Particles/fire_particle0.png
-ParticleCount 5
+ParticleCount 11
 ParticleStartPosition 0.0, 2.0, 0.0
 ParticleSpawnInterval 0.1
 ParticleStartAcceleration 0.0, -3.0, 0.0
@@ -276,16 +276,16 @@ Name Skybox
 ModelPath Textures/CubeMaps/skymap.dds
 Submit Skybox
 
-// SUN -------------------------------------------------
+// MOON -------------------------------------------------
 
-Name sun
-ModelLightColor 0.5, 0.5, 0.5
+Name moon
+ModelLightColor 0.5, 0.5, 0.7
 ModelLightFlag 1,1
-ModelLightDirection 0.0, -1.0, 0.0000000001
-ModelLightLeft -173.0
-ModelLightRight 173.0
-ModelLightTop 200.0
-ModelLightBottom -200.0
+ModelLightDirection 0.0, -0.75, 1.0
+ModelLightLeft -175.0
+ModelLightRight 175.0
+ModelLightTop 100.0
+ModelLightBottom -50.0
 ModelLightFar 1000.0
 ModelLightNear -1000.0
 Submit DirectionalLight

@@ -15,10 +15,11 @@
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
 #include "UpgradeGUI.h"
+//#include "Misc/Cryptor.h"
 
 #include "Misc/Edge.h"
 
-//#include "Misc/Cryptor.h"
+#include "Misc/Cryptor.h"
 
 Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
@@ -35,7 +36,6 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -66,7 +66,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* shopScene = ShopScene(sceneManager);
     Scene* gameOverScene = GameOverHandler::GetInstance().CreateScene(sceneManager);
     Scene* mainMenuScene = MainMenuHandler::GetInstance().CreateScene(sceneManager);
-
     sceneManager->SetScene(mainMenuScene);
     sceneManager->SetGameOverScene(gameOverScene);
     GameNetwork gameNetwork;
@@ -86,14 +85,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
+    
+
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
         timer->Update();
-
-        sceneManager->ChangeScene();
-
         logicTimer += timer->GetDeltaTime();
+
+        bool changedScene = sceneManager->ChangeScene();
+        if(changedScene)
+        {
+            // if change scene, reset dt
+            timer->StartTimer();
+            timer->Update();
+        }
+
+        
         if (gameNetwork.IsConnected())
         {
             networkTimer += timer->GetDeltaTime();
@@ -146,7 +154,6 @@ Scene* LoadScene(SceneManager* sm)
     Scene* scene = sm->CreateScene("LoadScene");
     std::vector<float3> spawnPoints;
     AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, false);
-
     return scene;
 }
 
@@ -156,7 +163,8 @@ Scene* GameScene(SceneManager* sm)
 
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
+
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/FemaleAnimated/FemaleAnimated.fbx");
     Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
     Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
     Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
@@ -190,6 +198,7 @@ Scene* GameScene(SceneManager* sm)
     component::CameraComponent* cc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
     component::ModelComponent* mc = nullptr;
+    component::AnimationComponent* ac = nullptr;
     component::PointLightComponent* plc = nullptr;
 	component::SpotLightComponent* slc = nullptr;
     component::TransformComponent* tc = nullptr;
@@ -215,13 +224,13 @@ Scene* GameScene(SceneManager* sm)
 
     // components
     mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
+    ac = entity->AddComponent<component::AnimationComponent>();
+    tc = entity->AddComponent<component::TransformComponent>(true);
     pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     alc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::T_POSE);
-    melc = entity->AddComponent<component::MeleeComponent>();
     // range damage should be at least 10 for ranged life steal upgrade to work
     ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 50, 150);
     currc = entity->AddComponent<component::CurrencyComponent>();
@@ -231,13 +240,16 @@ Scene* GameScene(SceneManager* sm)
 
     Player::GetInstance().SetPlayer(entity);
 
-    tc->GetTransform()->SetScale(0.9f);
+    tc->GetTransform()->SetScale(0.05f);
     tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
     tc->SetTransformOriginalState();
 
+    melc = entity->AddComponent<component::MeleeComponent>();   // moved this down to set scale first
+
     mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-    
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
+    ac->Initialize();
+
     double3 playerDim = mc->GetModelDim();
 
     double rad = playerDim.z / 2.0;
@@ -257,32 +269,6 @@ Scene* GameScene(SceneManager* sm)
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
     Physics::GetInstance().AddCollisionEntity(entity);
-#pragma endregion
-
-#pragma region directional light
-    //entity = scene->AddEntity("sun");
-
-    //// components
-    //dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    //dlc->SetDirection({ 0.05f, -0.3f, 0.5f });
-    //dlc->SetColor({ 252.0f / 256.0f, 156.0f / 256.0f, 84.0f / 256.0f });
-    //dlc->SetCameraTop(150.0f);
-    //dlc->SetCameraBot(-120.0f);
-    //dlc->SetCameraRight(130.0f);
-    //dlc->SetCameraLeft(-180.0f);
-    //dlc->SetCameraNearZ(-1000.0f);
-	//dlc->SetCameraFarZ(6.0f);
-
-	//tc = entity->AddComponent<component::TransformComponent>();
-	//tc->GetTransform()->SetScale(1.0f);
-	//tc->GetTransform()->SetPosition(0.0f, 20.0f, 0.0f);
-	//tc->SetTransformOriginalState();
-	//mc = entity->AddComponent<component::ModelComponent>();
-	//mc->SetModel(sphereModel);
-	//mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::DRAW_OPAQUE);
-	
-	//plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-	//plc->SetColor({ 10.0f, 10.0f, 10.0f });
 #pragma endregion
 
 #pragma region enemy definitions
@@ -329,7 +315,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.hp = 200;
     rangedDemon.sound3D = L"Bruh";
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
-    rangedDemon.aiFlags = 0;
+    rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     rangedDemon.attackInterval = 2.5f;
     rangedDemon.attackSpeed = 1.0f;
     rangedDemon.movementSpeed = 30.0f;
@@ -963,11 +949,11 @@ Scene* ShopScene(SceneManager* sm)
     slc->SetOuterCutOff(50.0f);
     /* ---------------------- SpotLightDynamic ---------------------- */
 
-    /* ---------------------- dirLight ---------------------- */
-    entity = scene->AddEntity("dirLight");
+    /* ---------------------- moon ---------------------- */
+    entity = scene->AddEntity("moon");
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
     dlc->SetColor({ 0.8f, 0.8f, 0.8f });
-    dlc->SetDirection({ -2.0f, -1.0f, -1.0f });
+    dlc->SetDirection({ 0.0f, -0.75f, 1.0f });
     dlc->SetCameraTop(50.0f);
     dlc->SetCameraBot(-30.0f);
     dlc->SetCameraLeft(-70.0f);

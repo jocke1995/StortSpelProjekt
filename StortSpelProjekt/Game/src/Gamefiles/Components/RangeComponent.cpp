@@ -104,21 +104,6 @@ void component::RangeComponent::Attack()
 {
 	if (m_TimeAccumulator >= m_AttackInterval)
 	{
-		// Create particle effect
-		ParticleEffectSettings settings = {};
-		settings.maxParticleCount = 50;
-		settings.startValues.lifetime = 0.01;
-		settings.spawnInterval = 0.001;
-		settings.startValues.acceleration = { 0, 0, 0 };
-		settings.isLooping = true;
-
-		settings.randPosition = { 0, 0, 0, 0, 0, 0 };
-		settings.randVelocity = { 0, 0, 0, 0, 0, 0 };
-		settings.randSize = { 2.0f, 2.0f };
-		settings.randRotation = { 0, 2 * PI };
-		settings.randRotationSpeed = { 0.2f, 0.2f };
-		settings.texture = m_pParticleTexture;
-
 		Entity* ent = m_pScene->AddEntity("RangeAttack" + std::to_string(++m_NrOfProjectiles));
 		component::ModelComponent* mc = nullptr;
 		component::TransformComponent* tc = nullptr;
@@ -133,7 +118,7 @@ void component::RangeComponent::Attack()
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
 		uc = ent->AddComponent<component::UpgradeComponent>();
 		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-		pec = ent->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+		
 		//tlc = ent->AddComponent<component::TemporaryLifeComponent>(duration);
 
 		// Applying all range uppgrades to the new projectile entity "RangeAttack"
@@ -210,6 +195,11 @@ void component::RangeComponent::Attack()
 			hitDir.y += 3.0f;
 		}
 
+		hitDir.normalize();
+		hitDir *= m_Velocity;
+
+		createParticleEffect(ent, hitDir);
+
 		// initialize the components
 		mc->SetModel(m_pModel);
 		mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW); // hidden because we just want to see the particle effect
@@ -238,9 +228,6 @@ void component::RangeComponent::Attack()
 		ent->Update(0);	// Init, so that the light doesn't spawn in origo first frame;
 		tc->RenderUpdate(0);
 		m_TimeAccumulator = 0.0;
-
-		hitDir.normalize();
-		hitDir *= m_Velocity;
 		
 		cc->SetVelVector(hitDir.x, hitDir.y, hitDir.z);
 		component::CollisionComponent* ccParent = m_pParent->GetComponent<component::CollisionComponent>();
@@ -253,4 +240,25 @@ void component::RangeComponent::Attack()
 		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAngleToTurnTo(angleDegrees);
 		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAttacking();
 	}
+}
+
+void component::RangeComponent::createParticleEffect(Entity* entity, float3 velocityDir) const
+{
+	// Create particle effect
+	ParticleEffectSettings settings = {};
+	settings.maxParticleCount = 50;
+	settings.startValues.lifetime = 0.09;
+	settings.spawnInterval = 0.007;
+	settings.startValues.acceleration = { 0, 0, 0 };
+
+	settings.isLooping = true;
+
+	settings.randPosition = { -0.5, 0.5, -0.5, 0.5, -0.5, 0.5 };
+	settings.randVelocity = { -5, 5, -5, 5, -5, 5 };
+	settings.randSize = { 2.0f, 2.0f };
+	settings.randRotation = { 0, 2 * PI };
+	settings.randRotationSpeed = { 0.2f, 0.2f };
+	settings.texture = m_pParticleTexture;
+
+	entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 }

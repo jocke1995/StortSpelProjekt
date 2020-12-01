@@ -204,7 +204,7 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	tmp += "decryptedFile" + fileEnding;
 	if (binary)
 	{
-		Cryptor::DecryptDDS(Cryptor::GetGlobalKey(), to_string(path).c_str(),tmp.c_str());
+		Cryptor::DecryptBinary(Cryptor::GetGlobalKey(), to_string(path).c_str(),tmp.c_str());
 	}
 	else
 	{
@@ -972,8 +972,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 					dlc->SetDirection(lightDir);
 					dlc->SetCameraLeft(lightLeft + offset.x);
 					dlc->SetCameraRight(lightRight + offset.x);
-					dlc->SetCameraTop(lightTop + offset.z);
-					dlc->SetCameraBot(lightBottom + offset.z);
+					dlc->SetCameraTop(lightTop + (offset.z * 0.6));
+					dlc->SetCameraBot(lightBottom + (offset.z * 0.6));
 					dlc->SetCameraFarZ(lightFar);
 					dlc->SetCameraNearZ(lightNear);
 					lightNear = 0.01;
@@ -1118,7 +1118,14 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, std::vector<
 
 	m_RoomsAdded.clear();
 	m_EdgesToRemove.clear();
+
+	for (int i = 0; i < m_Edges.size(); i++)
+	{
+		delete m_Edges[i];
+	}
+
 	m_Edges.clear();
+
 	m_NrOfNavTris = 0;
 	for (const auto& entry : std::filesystem::directory_iterator(folderPath))
 	{
@@ -1609,7 +1616,7 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo>* boneCoun
 void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter)
 {
 	// Attach the bone ID and the offset matrix to its corresponding SkeletonNode
-	if (node->name.find("_$", 0) == std::string::npos)
+	if (node->name.find("_$", 0) == std::string::npos && boneCounter->find(node->name) != boneCounter->end())
 	{
 		node->boneID = (*boneCounter)[node->name].boneID;
 		node->inverseBindPose = (*boneCounter)[node->name].boneOffset;

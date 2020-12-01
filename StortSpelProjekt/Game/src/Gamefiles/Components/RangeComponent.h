@@ -51,6 +51,9 @@ namespace component
 
 		Audio2DVoiceComponent* m_pVoiceComponent;
 
+
+		void createParticleEffect(Entity* entity, float3 velocityDir) const;
+
 		
 	};
 }

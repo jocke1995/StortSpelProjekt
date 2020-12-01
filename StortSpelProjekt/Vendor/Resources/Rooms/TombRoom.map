@@ -35,7 +35,7 @@ ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 ParticleTexturePath Textures/Particles/fire_particle0.png
-ParticleCount 5
+ParticleCount 11
 ParticleStartPosition -1.0, 3.0, -2.0
 ParticleSpawnInterval 0.1
 ParticleStartAcceleration 0.0, -3.0, 0.0
@@ -92,7 +92,7 @@ ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 ParticleTexturePath Textures/Particles/fire_particle0.png
-ParticleCount 5
+ParticleCount 11
 ParticleStartPosition -2.0, 3.0, 0.0
 ParticleSpawnInterval 0.1
 ParticleStartAcceleration 0.0, -3.0, 0.0
@@ -149,7 +149,7 @@ ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 ParticleTexturePath Textures/Particles/fire_particle0.png
-ParticleCount 5
+ParticleCount 11
 ParticleStartPosition -1.5, 3.0, 2.0
 ParticleSpawnInterval 0.1
 ParticleStartAcceleration 0.0, -3.0, 0.0
@@ -220,7 +220,7 @@ ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 ParticleTexturePath Textures/Particles/fire_particle0.png
-ParticleCount 5
+ParticleCount 11
 ParticleStartPosition 2.0, 3.0, 0.0
 ParticleSpawnInterval 0.1
 ParticleStartAcceleration 0.0, -3.0, 0.0
@@ -278,9 +278,9 @@ ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 ParticleTexturePath Textures/Particles/fire_particle0.png
-ParticleCount 20
+ParticleCount 70
 ParticleStartPosition 0.0, 4.0, 0.0
-ParticleSpawnInterval 0.01
+ParticleSpawnInterval 0.025
 ParticleStartAcceleration 0.0, -1.0, 0.0
 ParticleStartLifetime 0.5
 ParticleRandPosition -7.5, 7.5, 0, 1, -7.5, 7.5
@@ -297,6 +297,8 @@ ModelLightColor 8.86, 3.45, 1.33
 ModelLightFlag 0,0
 ModelLightFlag 1,1
 ModelLightAttenuation 1.0, 0.027, 0.0028
+ModelLightNear 10.0
+ModelLightFar 1000.0
 Submit SpotLight
 
 Name ChandelierChain
