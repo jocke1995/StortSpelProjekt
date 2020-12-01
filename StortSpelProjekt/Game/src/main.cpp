@@ -19,7 +19,7 @@
 
 #include "Misc/Edge.h"
 
-//#include "Misc/Cryptor.h"
+#include "Misc/Cryptor.h"
 
 Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
@@ -36,7 +36,6 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
