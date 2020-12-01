@@ -40,6 +40,8 @@ public:
     void ResetAnimations();
 
 private:
+    friend class CopyPerFrameTask;
+
     // Will run in PlayAnimation().
     bool endAnimation();
     // Should run while there is an ongoing animation transition.
