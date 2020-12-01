@@ -61,8 +61,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
-    //Scene* williamScene = WilliamsTestScene(sceneManager);
-    //Scene* activeScene = williamScene;
+    Scene* williamScene = WilliamsTestScene(sceneManager);
+    Scene* activeScene = williamScene;
     //Scene* bjornScene = BjornsTestScene(sceneManager);
     //Scene* activeScene = bjornScene;
     //Scene* antonScene = AntonTestScene(sceneManager);
@@ -318,7 +318,6 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
     ac->Initialize();
-    ac->SetActiveAnimation("Take 001");
     tc->GetTransform()->SetScale(0.1f);
     tc->GetTransform()->SetPosition(-10.0, 20.0, 10.0);
 
@@ -1154,6 +1153,10 @@ Scene* WilliamsTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
     component::PlayerInputComponent* ic = nullptr;
+    component::CollisionComponent* ccc = nullptr;
+    component::UpgradeComponent* upgradeComp = nullptr;
+    component::MeleeComponent* melc = nullptr;
+    component::BoundingBoxComponent* bbc = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1162,26 +1165,42 @@ Scene* WilliamsTestScene(SceneManager* sm)
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     //Model* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
-    Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/aniTest/Standard_Walk.fbx");
+    Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/ignoredModels/DemonAnimated/demonAnimated.fbx");
     //Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/amongus/AmongUs.fbx");
 
     Entity* entity = scene->AddEntity("player");
     bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.1);
     mc = entity->AddComponent<component::ModelComponent>();
-    ac = entity->AddComponent<component::AnimationComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     tc = entity->AddComponent<component::TransformComponent>(true);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
+
+    mc = entity->AddComponent<component::ModelComponent>();
+    ac = entity->AddComponent<component::AnimationComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.01);
+    ic->Init();
+    ic->SetMovementSpeed(70);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    melc = entity->AddComponent<component::MeleeComponent>();
+    upgradeComp = entity->AddComponent<component::UpgradeComponent>();
 
     Player::GetInstance().SetPlayer(entity);
 
     mc->SetModel(aniTest);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
     ac->Initialize();
-    ac->SetActiveAnimation("mixamo.com");
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 10.0f);
     tc->GetTransform()->SetScale(0.1f);
+
+    double3 playerDim = mc->GetModelDim();
+
+    double rad = playerDim.z / 2.0;
+    double cylHeight = playerDim.y - (rad * 2.0);
+    ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
 
     scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
@@ -1518,7 +1537,7 @@ Scene* AndresTestScene(SceneManager* sm)
     bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(ent);
-    SceneManager::GetInstance().AddEntity(ent, scene);
+    scene->InitDynamicEntity(entity);
  
 #pragma endregion
     /* ---------------------- Enemy -------------------------------- */

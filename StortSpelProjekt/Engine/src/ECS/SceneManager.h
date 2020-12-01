@@ -30,7 +30,7 @@ public:
 	void SetScene(Scene* scene);
 	Scene* GetActiveScene();
 	Scene* GetScene(std::string sceneName) const;
-	void ChangeScene();
+	bool ChangeScene();
 
 	void ResetScene();
 
@@ -39,7 +39,6 @@ public:
 
 	// Entity
 	void RemoveEntity(Entity* entity, Scene* scene);
-	void AddEntity(Entity* entity, Scene* scene);
 
 	void RemoveEntities();
 

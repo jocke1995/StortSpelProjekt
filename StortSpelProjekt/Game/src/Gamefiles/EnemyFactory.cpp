@@ -236,10 +236,9 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 		bbc->Init();
 		bbc->AddCollisionCategory<EnemyCollisionCategory>();
-		Physics::GetInstance().AddCollisionEntity(ent);
 	}
 
-	SceneManager::GetInstance().AddEntity(ent, m_pScene);
+	m_pScene->InitDynamicEntity(ent);
 	return ent;
 }
 
@@ -251,6 +250,11 @@ std::vector<Entity*>* EnemyFactory::GetAllEnemies()
 void EnemyFactory::AddSpawnPoint(const float3& point)
 {
 	m_SpawnPoints.push_back({ point.x, point.y, point.z });
+}
+
+void EnemyFactory::ClearSpawnPoints()
+{
+	m_SpawnPoints.clear();
 }
 
 Entity* EnemyFactory::SpawnEnemy(std::string entityName, unsigned int spawnPoint)
@@ -538,7 +542,6 @@ void EnemyFactory::onSceneSwitch(SceneChange* evnt)
 	if (evnt->m_NewSceneName == "ShopScene" || evnt->m_NewSceneName == "gameOverScene" || evnt->m_NewSceneName == "MainMenuScene")
 	{
 		m_IsActive = false;
-		m_Enemies.clear();
 	}
 	else
 	{
@@ -597,7 +600,6 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	{
 		m_EnemyComps["enemyZombie"]->hp = m_EnemyComps["enemyZombie"]->hpBase + 15 * m_Level;
 		m_EnemyComps["enemyZombie"]->meleeAttackDmg = m_EnemyComps["enemyZombie"]->meleeAttackDmgBase + 5 * m_Level;
-		m_EnemyComps["enemyZombie"]->movementSpeed = m_EnemyComps["enemyZombie"]->movementSpeedBase + 1 * m_Level;
 	}
 
 	// meelee quick
@@ -605,7 +607,6 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	{
 		m_EnemyComps["enemySpider"]->hp = m_EnemyComps["enemySpider"]->hpBase + 5 * m_Level;
 		m_EnemyComps["enemySpider"]->meleeAttackDmg = m_EnemyComps["enemySpider"]->meleeAttackDmgBase + 2 * m_Level;
-		m_EnemyComps["enemySpider"]->movementSpeed = m_EnemyComps["enemySpider"]->movementSpeedBase + 1 * m_Level;
 		if (m_Level > 0)
 		{
 			if (m_EnemyComps["enemySpider"]->spawnChance < 20)
