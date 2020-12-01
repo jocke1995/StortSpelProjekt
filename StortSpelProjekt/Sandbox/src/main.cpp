@@ -104,20 +104,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         {
             networkTimer += timer->GetDeltaTime();
         }
-
-        if (window->WasSpacePressed() == true)
-        {
-            component::ParticleEmitterComponent* pe = sceneManager->GetScene("jockesScene")->GetEntity("particleEffect")->GetComponent<component::ParticleEmitterComponent>();
-            pe->Play();
-        }
-
-        if (window->WasTabPressed() == true)
-        {
-            component::ParticleEmitterComponent* pe = sceneManager->GetScene("jockesScene")->GetEntity("particleEffect")->GetComponent<component::ParticleEmitterComponent>();
-            pe->Stop();
-        }
         
-
         sceneManager->RenderUpdate(timer->GetDeltaTime());
         particleSystem->Update(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
@@ -797,48 +784,16 @@ Scene* FloppipTestScene(SceneManager* sm)
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(50, 1, 50);
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-    tc->SetTransformOriginalState();
     /* ---------------------- Floor ---------------------- */
 
-
-
-    /* ---------------------- Shop ---------------------- */
-    entity = scene->AddEntity("shopss");
-    mc = entity->AddComponent<component::ModelComponent>();
-    mc->SetModel(shopModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-
-    tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(30.0f, 10.0f, 30.0f);
-    tc->GetTransform()->SetRotationY(PI + PI / 4);
-    tc->SetTransformOriginalState();
-
-    double3 shopDim = mc->GetModelDim();
-
-
-    /* ---------------------- Pressf ---------------------- */
-
-    entity = scene->AddEntity("pressf");
-    mc = entity->AddComponent<component::ModelComponent>();
-    mc->SetModel(pressfModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-
-    tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(32.0f, 9.7f, 24.0f);
-    tc->GetTransform()->SetRotationY(PI + PI / 4 + PI/8);
-    tc->SetTransformOriginalState();
-
-    /* ---------------------- Pressf ---------------------- */
-
-    
 
     /* ---------------------- The Sun ---------------------- */
     entity = scene->AddEntity("sun");
