@@ -44,6 +44,7 @@ struct EnemyComps
 	std::string targetName = "player";
 	int enemiesOfThisType = 0;
 	std::wstring sound3D = L"Bruh";
+	std::wstring crawl = L"SpiderCrawl";
 	double3 dim = double3({ 0.0, 0.0, 0.0 });
 	float detectionRad = 25.0f;
 	float attackingDist = 0.5f;

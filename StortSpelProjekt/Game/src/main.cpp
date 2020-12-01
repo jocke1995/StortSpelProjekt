@@ -36,6 +36,8 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    //Cryptor::EncryptBinary(Cryptor::GetGlobalKey(), "../Vendor/Resources/Audio/Test/spiderCrawl.wav");
+    //Cryptor::DecryptBinary(Cryptor::GetGlobalKey(), "../Vendor/Resources/Audio/spidertest.wav");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -178,6 +180,9 @@ Scene* GameScene(SceneManager* sm)
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
+    //AudioBuffer* spiderCrawl = al->LoadAudio(L"../Vendor/Resources/Audio/spiderCrawlEditedEncrypted.wav", L"SpiderCrawl");
+    AudioBuffer* spiderCrawl = al->LoadAudio(L"../Vendor/Resources/Audio/spiderCrawl.wav", L"SpiderCrawl");
+    spiderCrawl->SetAudioLoop(0);
 
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
