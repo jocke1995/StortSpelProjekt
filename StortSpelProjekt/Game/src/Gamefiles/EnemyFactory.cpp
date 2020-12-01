@@ -304,6 +304,7 @@ EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, EnemyComps*
 	enemy->rangeAttackDmgBase = comps->rangeAttackDmg;
 	enemy->rangeVelocity = comps->rangeVelocity;
 	enemy->invertDirection = comps->invertDirection;
+	enemy->slowAttack = comps->slowAttack;
 
 	return enemy;
 }

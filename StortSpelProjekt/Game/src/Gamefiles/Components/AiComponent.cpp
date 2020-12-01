@@ -6,7 +6,6 @@
 #include "Components/HealthComponent.h"
 #include "Misc/NavMesh.h"
 #include "RangeEnemyComponent.h"
-#include "SpeedModifierComponent.h"
 
 component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int flags, float detectionRadius, float attackingDistance) : Component(parent)
 {
@@ -501,7 +500,7 @@ void component::AiComponent::updateMelee(double dt)
 				m_SpeedTimeAccumulator += static_cast<float>(dt);
 				if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
 				{
-					m_pTarget->GetComponent<component::SpeedModifier>()->SetTemporayModifier(1.0f - m_SlowingAttack);
+					m_pTarget->GetComponent<component::PlayerInputComponent>()->SetSlow(1.0f - m_SlowingAttack);
 					m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(m_MeleeAttackDmg);
 					Log::Print("ENEMY ATTACK!\n");
 					m_SpeedTimeAccumulator = 0.0;

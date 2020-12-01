@@ -15,7 +15,6 @@
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
 #include "UpgradeGUI.h"
-#include "Components/SpeedModifierComponent.h"
 //#include "Misc/Cryptor.h"
 
 #include "Misc/Edge.h"
@@ -215,7 +214,6 @@ Scene* GameScene(SceneManager* sm)
     component::UpgradeComponent* uc = nullptr;
     component::GUI2DComponent* gui = nullptr;
     component::ParticleEmitterComponent* pec = nullptr;
-    component::SpeedModifier* spm = nullptr;
 #pragma endregion
 
 #pragma region entities
@@ -239,7 +237,6 @@ Scene* GameScene(SceneManager* sm)
     hc = entity->AddComponent<component::HealthComponent>(500);
     uc = entity->AddComponent<component::UpgradeComponent>();
     alc = entity->AddComponent<component::Audio3DListenerComponent>();
-    spm = entity->AddComponent<component::SpeedModifier>();
 
     Player::GetInstance().SetPlayer(entity);
 
@@ -266,8 +263,6 @@ Scene* GameScene(SceneManager* sm)
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
 	pic->SetMovementSpeed(75.0);
-	pic->SetMovementSpeed(70.0);
-    spm->UpdateBaseVelocity();
 
     avc->AddVoice(L"Bruh");
 
@@ -280,11 +275,11 @@ Scene* GameScene(SceneManager* sm)
     // melee
 	EnemyComps zombie = {};
 	zombie.model = enemyZombieModel;
-	zombie.hp = 120;
+	zombie.hp = 70;
 	zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
-	zombie.meleeAttackDmg = 35.0f;
+	zombie.meleeAttackDmg = 30.0f;
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
 	zombie.movementSpeed = 45.0f;
@@ -299,13 +294,13 @@ Scene* GameScene(SceneManager* sm)
     // quick melee
     EnemyComps spider = {};
     spider.model = enemySpiderModel;
-    spider.hp = 40;
+    spider.hp = 35;
     spider.sound3D = L"Bruh";
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     spider.meleeAttackDmg = 15.0f;
-    spider.attackInterval = 0.5f;
-    spider.attackSpeed = 0.2f;
+    spider.attackInterval = 0.75f;
+    spider.attackSpeed = 0.05f;
     spider.movementSpeed = 90.0f;
     spider.rot = { 0.0, 0.0, 0.0 };
     spider.targetName = "player";
@@ -318,7 +313,7 @@ Scene* GameScene(SceneManager* sm)
     // ranged
     EnemyComps rangedDemon = {};
     rangedDemon.model = enemyDemonModel;
-    rangedDemon.hp = 200;
+    rangedDemon.hp = 120;
     rangedDemon.sound3D = L"Bruh";
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
@@ -330,8 +325,8 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.isRanged = true;
     rangedDemon.detectionRad = 500.0f;
     rangedDemon.attackingDist = 100.0f;
-    rangedDemon.rangeAttackDmg = 75;
-    rangedDemon.rangeVelocity = 40.0f;
+    rangedDemon.rangeAttackDmg = 70;
+    rangedDemon.rangeVelocity = 50.0f;
     rangedDemon.projectileModel = sphereModel;
     rangedDemon.mass = 300.0f;
 
