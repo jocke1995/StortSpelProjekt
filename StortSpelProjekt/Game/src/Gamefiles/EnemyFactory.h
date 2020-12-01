@@ -135,6 +135,7 @@ private:
 	float m_SpawnCooldown;
 	float m_SpawnTimer;
 	float m_MinimumDistanceToPlayer;
+	double m_TotalTime;
 
 	bool m_IsActive = false;
 };
