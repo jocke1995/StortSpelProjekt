@@ -2,10 +2,16 @@
 #define ANIMATIONCOMPONENT_H
 
 #include "Component.h"
+#include "../Renderer/Animation.h"
+#include "../Renderer/DescriptorHeap.h"
+#include "../Renderer/GPUMemory/ConstantBuffer.h"
 class Entity;
+class ConstantBuffer;
 class AnimatedModel;
 struct MovementInput;
 struct MouseClick;
+struct Animation;
+
 
 namespace component
 {
@@ -18,16 +24,45 @@ namespace component
         void RenderUpdate(double dt);
         void OnInitScene();
         void OnUnInitScene();
+        // Will reset the component. No need to re-initialize.
         void Reset();
 
         // Requires that the entity has a model.
         void Initialize();
 
+        // Plays an animation
+        bool PlayAnimation(std::string animationName, bool loop);
+
+        void InitConstantBuffer(ID3D12Device5* device5, DescriptorHeap* CBV_UAV_SRV_heap);
+        const ConstantBuffer* GetConstantBuffer() const;
+        const std::vector<DirectX::XMFLOAT4X4>* GetUploadMatrices() const;
+
     private:
         friend class Renderer;
-        void walkAnimation(MovementInput* evnt);
-        void attackAnimation(MouseClick* evnt);
+
+        // Will bind the AnimationState to the skeleton.
+        void bindAnimation(SkeletonNode* node);
+        // Calculates the finished transformations for the animation bound to the skeleton.
+        void updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform);
+
         AnimatedModel* m_pAnimatedModel;
+
+        SkeletonNode* m_pSkeleton;
+        DirectX::XMFLOAT4X4 m_GlobalInverseTransform;
+        
+        std::map<std::string, TransformKey> m_AnimationState;
+
+        std::vector<Animation*> m_Animations;
+        std::pair<Animation*, AnimationInfo> m_pPendingAnimation;
+        std::pair<Animation*, AnimationInfo> m_pActiveAnimation;
+        std::pair<Animation*, AnimationInfo> m_pEndingAnimation;
+        Animation* m_pReactivateAnimation;
+        Animation* m_pQueuedAnimation;
+
+        double m_BlendTimeElapsed = 0;
+
+        std::vector<DirectX::XMFLOAT4X4> m_UploadMatrices;
+        ConstantBuffer* m_pCB = nullptr;
     };
 }
 #endif

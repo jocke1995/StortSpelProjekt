@@ -28,47 +28,13 @@ public:
         unsigned int numBones);
     virtual ~AnimatedModel();
 
-    void InitConstantBuffer(ID3D12Device5* device5, DescriptorHeap* CBV_UAV_SRV_heap);
-
-    const ConstantBuffer* GetConstantBuffer() const;
-    const std::vector<DirectX::XMFLOAT4X4>* GetUploadMatrices() const;
-
-    bool PlayAnimation(std::string animationName, bool loop);
-    void Update(double dt);
-    void TempPlayAnimation();
-    void TempPauseAnimation();
-    void ResetAnimations();
+    // Uses dynamic allocation. Don't forget to delete the clone.
+    SkeletonNode* CloneSkeleton();
+    std::vector<Animation*> GetAnimations();
 
 private:
-    // Will run in PlayAnimation().
-    bool endAnimation();
-    // Should run while there is an ongoing animation transition.
-    void blendAnimations(double dt);
-    // Will bind the blendAnimationState to the skeleton.
-    void bindBlendedAnimation(SkeletonNode* node);
-
-    // Will bind the animation to the skeleton.
-    void bindAnimation(SkeletonNode* node, Animation* animation);
-    // Calculates the finished transformations for the animation bound to the skeleton.
-    void updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform);
-    SkeletonNode* findNode(SkeletonNode* root, std::string nodeName);
-
-
-    bool m_AnimationIsPaused = false;
-    double m_BlendTransitionTime = ANIMATION_TRANSITION_TIME;
-    double m_BlendTimeElapsed = 0;
-    std::map<std::string, TransformKey> m_BlendAnimationState;
-    Animation* m_pReactivateAnimation;
-    Animation* m_pQueuedAnimation;
-    std::vector<Animation*> m_PendingAnimations;
-    std::vector<Animation*> m_ActiveAnimations;
-    std::vector<Animation*> m_EndingAnimations;
     SkeletonNode* m_pSkeleton;
     std::vector<Animation*> m_Animations;
-    DirectX::XMFLOAT4X4 m_GlobalInverseTransform;
-    std::vector<DirectX::XMFLOAT4X4> m_UploadMatrices;
-
-    ConstantBuffer* m_pCB = nullptr;
 
     unsigned int m_Id = 0;
 };

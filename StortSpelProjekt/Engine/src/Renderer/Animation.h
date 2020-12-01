@@ -18,8 +18,8 @@ struct TransformKey
 {
 	DirectX::XMFLOAT3 position = {};
 	DirectX::XMFLOAT3* pPosition = &position;
-	DirectX::XMFLOAT4 rotationQuaternion = {};
-	DirectX::XMFLOAT4* pRotation = &rotationQuaternion;
+	DirectX::XMFLOAT4 rotation = {};
+	DirectX::XMFLOAT4* pRotation = &rotation;
 	DirectX::XMFLOAT3 scaling = { 1.0f,1.0f,1.0f };
 	DirectX::XMFLOAT3* pScale = &scaling;
 };
@@ -51,6 +51,10 @@ struct SkeletonNode
 	DirectX::XMFLOAT4X4 inverseBindPose;	// Bone offset
 	TransformKey* currentStateTransform;
 
+	SkeletonNode()
+	{
+	}
+	
 	~SkeletonNode()
 	{
 		for (auto& child : children)
@@ -59,44 +63,68 @@ struct SkeletonNode
 		}
 		children.clear();
 	}
+
+	SkeletonNode(const SkeletonNode& other)
+	{
+		name = other.name;
+		boneID = other.boneID;
+		bones = other.bones;
+		defaultTransform = other.defaultTransform;
+		inverseBindPose = other.inverseBindPose;
+	}
+
+	// Clones the skeleton. Uses dynamic memory allocation so make sure to delete the clone.
+	SkeletonNode* Clone()
+	{
+		SkeletonNode* nodeCopy(this);
+		for (auto& child : children)
+		{
+			nodeCopy->children.push_back(child->Clone());
+		}
+		return nodeCopy;
+	}
+};
+
+struct AnimationInfo
+{
+	bool loop = true;
+	bool finished = false;
+	double animationTime = 0.0f;
+
+	void Reset()
+	{
+		loop = true;
+		finished = false;
+		animationTime = 0.0f;
+	}
 };
 
 struct Animation
 {
 	std::string name;
-	bool loop;
-	bool finished = false;
-	double time = 0;
 	double durationInTicks;
 	double ticksPerSecond;
-	double animationTime = 0;
-	std::map<std::string, TransformKey> currentState;
 	std::map<std::string, std::vector<TranslationKey>> translationKeyframes;
 	std::map<std::string, std::vector<RotationKey>> rotationKeyframes;
 	std::map<std::string, std::vector<ScalingKey>> scalingKeyframes;
 
-	void Update(double dt)	// Interpolates the matrices and stores the finished animation as the current state
+	bool isFinished(double animationTime)
 	{
-		time += dt;
-		double timeInTicks = time * ticksPerSecond;
-		if (loop)
+		if (animationTime * ticksPerSecond > durationInTicks - (ANIMATION_TRANSITION_TIME * ticksPerSecond))
 		{
-			animationTime = fmod(timeInTicks, durationInTicks);
+			return true;
 		}
 		else
 		{
-			animationTime = timeInTicks;
-			if (timeInTicks > durationInTicks - ANIMATION_TRANSITION_TIME)// - 0.1f)	// Extra 0.1 second margin so that the animation doesn't accidentally loop. Ugly solution.
-			{
-				finished = true;
-			}
-
-			if (timeInTicks > durationInTicks)
-			{
-				time = 0;
-				return;
-			}
+			return false;
 		}
+	}
+
+	std::map<std::string, TransformKey> Update(double animationTime)	// Interpolates the matrices and stores the finished animation as the current state
+	{
+		std::map<std::string, TransformKey> state;
+
+		double animationTimeInTicks = animationTime * ticksPerSecond;
 
 		for (auto& bone : translationKeyframes)
 		{
@@ -108,7 +136,7 @@ struct Animation
 				unsigned int keyIndex = 0;
 				for (unsigned int i = 0; i < bone.second.size() - 1; i++)
 				{
-					if (animationTime < bone.second[i + 1].time)
+					if (animationTimeInTicks < bone.second[i + 1].time)
 					{
 						keyIndex = i;
 						break;
@@ -120,11 +148,11 @@ struct Animation
 
 				// Calculate interpolation factor
 				float dt = bone.second[nextKeyIndex].time - bone.second[keyIndex].time;
-				float factor = (animationTime - bone.second[keyIndex].time) / dt;
+				float factor = (animationTimeInTicks - bone.second[keyIndex].time) / dt;
 				assert(factor >= 0.0f && factor <= 1.0f);
 
-				currentState[bone.first].position = InterpolateTranslation(&bone.second[keyIndex].position, &bone.second[nextKeyIndex].position, factor);
-				currentState[bone.first].pPosition = &currentState[bone.first].position;
+				state[bone.first].position = InterpolateTranslation(&bone.second[keyIndex].position, &bone.second[nextKeyIndex].position, factor);
+				state[bone.first].pPosition = &state[bone.first].position;
 			}
 		}
 
@@ -150,11 +178,11 @@ struct Animation
 
 				// Calculate interpolation factor
 				float dt = bone.second[nextKeyIndex].time - bone.second[keyIndex].time;
-				float factor = (animationTime - bone.second[keyIndex].time) / dt;
+				float factor = (animationTimeInTicks - bone.second[keyIndex].time) / dt;
 				assert(factor >= 0.0f && factor <= 1.0f);
 
-				currentState[bone.first].rotationQuaternion = InterpolateRotation(&bone.second[keyIndex].rotationQuaternion, &bone.second[nextKeyIndex].rotationQuaternion, factor);
-				currentState[bone.first].pRotation = &currentState[bone.first].rotationQuaternion;
+				state[bone.first].rotation = InterpolateRotation(&bone.second[keyIndex].rotationQuaternion, &bone.second[nextKeyIndex].rotationQuaternion, factor);
+				state[bone.first].pRotation = &state[bone.first].rotation;
 			}
 		}
 
@@ -168,7 +196,7 @@ struct Animation
 				unsigned int keyIndex = 0;
 				for (unsigned int i = 0; i < bone.second.size() - 1; i++)
 				{
-					if (animationTime < bone.second[i + 1].time)
+					if (animationTimeInTicks < bone.second[i + 1].time)
 					{
 						keyIndex = i;
 						break;
@@ -180,13 +208,15 @@ struct Animation
 
 				// Calculate interpolation factor
 				float dt = bone.second[nextKeyIndex].time - bone.second[keyIndex].time;
-				float factor = (animationTime - bone.second[keyIndex].time) / dt;
+				float factor = (animationTimeInTicks - bone.second[keyIndex].time) / dt;
 				assert(factor >= 0.0f && factor <= 1.0f);
 
-				currentState[bone.first].scaling = InterpolateScaling(&bone.second[keyIndex].scaling, &bone.second[nextKeyIndex].scaling, factor);
-				currentState[bone.first].pScale = &currentState[bone.first].scaling;
+				state[bone.first].scaling = InterpolateScaling(&bone.second[keyIndex].scaling, &bone.second[nextKeyIndex].scaling, factor);
+				state[bone.first].pScale = &state[bone.first].scaling;
 			}
 		}
+
+		return state;
 	}
 };
 
