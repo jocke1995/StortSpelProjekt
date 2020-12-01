@@ -31,7 +31,7 @@ bool Texture2D::Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap)
 	std::unique_ptr<uint8_t[]> m_DdsData;
 	
 	// Loads the texture and creates a default resource;
-	Cryptor::DecryptDDS(Cryptor::GetGlobalKey(), to_string(m_FilePath).c_str(), "DecryptedTexture.dds");
+	Cryptor::DecryptBinary(Cryptor::GetGlobalKey(), to_string(m_FilePath).c_str(), "DecryptedTexture.dds");
 	hr = DirectX::LoadDDSTextureFromFile(device, L"DecryptedTexture.dds", reinterpret_cast<ID3D12Resource**>(m_pDefaultResource->GetID3D12Resource1PP()), m_DdsData, m_SubresourceData);
 	remove("DecryptedTexture.dds");
 

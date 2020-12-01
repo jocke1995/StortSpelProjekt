@@ -5,14 +5,14 @@ class Cryptor
 public:
 	static bool Encrypt(int key, const char* source, const char* destination, bool binary = false);
 	static bool Encrypt(int key, const char* source, bool binary = false);
-	static bool EncryptDDS(int key, const char* src, const char* destination = nullptr);
+	static bool EncryptBinary(int key, const char* src, const char* destination = nullptr);
 	template <typename T>
 	static inline void Encrypt(int key, T* data, unsigned int nrOfElements, int minRand, int maxRand);
 	static bool EncryptDirectory(int key, const char* path);
 	static bool Decrypt(int key, const char* source, const char* destination, bool binary = false);
 	static bool Decrypt(int key, const char* source, std::stringstream* ss);
 	static bool Decrypt(int key, const wchar_t* source, std::wstringstream* wss);
-	static bool DecryptDDS(int key, const char* src, const char* destination = nullptr);
+	static bool DecryptBinary(int key, const char* src, const char* destination = nullptr);
 	template <typename T>
 	static inline void Decrypt(int key, T* data, unsigned int nrOfElements, int minRand, int maxRand);
 	static bool DecryptDirectory(int key, const char* path);

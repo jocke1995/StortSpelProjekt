@@ -79,21 +79,6 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 {
 	if (m_TimeAccumulator >= m_AttackInterval)
 	{
-		// Create particle effect
-		ParticleEffectSettings settings = {};
-		settings.maxParticleCount = 50;
-		settings.startValues.lifetime = 0.01;
-		settings.spawnInterval = 0.001;
-		settings.startValues.acceleration = { 0, 0, 0 };
-		settings.isLooping = true;
-
-		settings.randPosition = { 0, 0, 0, 0, 0, 0 };
-		settings.randVelocity = { 0, 0, 0, 0, 0, 0 };
-		settings.randSize = { 2.0f, 2.0f };
-		settings.randRotation = { 0, 2 * PI };
-		settings.randRotationSpeed = { 0.2f, 0.2f };
-		settings.texture = m_pParticleTexture;
-
 		Entity* ent = m_pScene->AddEntity(m_ParentName + "RangeAttack" + std::to_string(++m_NrOfProjectiles));
 		component::ModelComponent* mc = nullptr;
 		component::TransformComponent* tc = nullptr;
@@ -101,13 +86,12 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 		component::ProjectileComponent* pc = nullptr;
 		component::AccelerationComponent* ac = nullptr;
 		component::PointLightComponent* plc = nullptr;
-		component::ParticleEmitterComponent* pec = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
+
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
 		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-		pec = ent->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 		//ac = ent->AddComponent<component::AccelerationComponent>(98.2);	// no drop
 
 		// get the position of parent entity
@@ -142,6 +126,8 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 		bbc->AddCollisionCategory<EnemyProjectileCollisionCategory>();
 		Physics::GetInstance().AddCollisionEntity(ent);
 
+		createParticleEffect(ent, direction);
+
 		if (m_AudioPlay)
 		{
 			m_pVoiceComponent->Play(L"Fireball");
@@ -158,4 +144,25 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 
 		m_TimeAccumulator = 0.0;
 	}
+}
+
+void component::RangeEnemyComponent::createParticleEffect(Entity* entity, float3 velocityDir) const
+{
+	// Create particle effect
+	ParticleEffectSettings settings = {};
+	settings.maxParticleCount = 50;
+	settings.startValues.lifetime = 0.09;
+	settings.spawnInterval = 0.007;
+	settings.startValues.acceleration = { 0, 0, 0 };
+
+	settings.isLooping = true;
+
+	settings.randPosition = { -0.5, 0.5, -0.5, 0.5, -0.5, 0.5 };
+	settings.randVelocity = { -5, 5, -5, 5, -5, 5 };
+	settings.randSize = { 2.0f, 2.0f };
+	settings.randRotation = { 0, 2 * PI };
+	settings.randRotationSpeed = { 0.2f, 0.2f };
+	settings.texture = m_pParticleTexture;
+
+	entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 }

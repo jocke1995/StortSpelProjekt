@@ -304,34 +304,6 @@ void component::PlayerInputComponent::alternativeInput(ModifierInput* evnt)
 		m_Yaw = sqrt(2);
 		m_Pitch = 0.0f;
 	}
-	// If shift is pressed and held, increase velocity (Number not set in stone)
-	else if (evnt->key == SCAN_CODES::LEFT_SHIFT && evnt->pressed)
-	{
-		m_pTransform->SetVelocity(SPRINT_MOD * m_MovementSpeed);
-		// Check if the player is in the air. If not, allow sprint
-		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1)
-		{
-			// Get the current linear velocity of the player
-			double3 vel = m_pCC->GetLinearVelocity();
-			vel *= SPRINT_MOD;
-			m_pCC->SetVelVector(vel.x, vel.y, vel.z);
-
-			m_TurningTimer = m_TurningInterval;
-		}
-	}
-	// If shift is released, decrease velocity to "normal" values
-	else if (evnt->key == SCAN_CODES::LEFT_SHIFT && !evnt->pressed)
-	{
-		m_pTransform->SetVelocity(m_MovementSpeed);
-		// Check if the player is in the air. If not, allow sprint
-		if (m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75) != -1)
-		{
-			// Get the current linear velocity of the player
-			double3 vel = m_pCC->GetLinearVelocity();
-			vel /= SPRINT_MOD;
-			m_pCC->SetVelVector(vel.x, vel.y, vel.z);
-		}
-	}
 	// If press tab, toggle between free direction or direction locked to camera
 	else if (evnt->key == SCAN_CODES::TAB && evnt->pressed)
 	{
@@ -363,7 +335,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	{
 		double moveRight = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::D)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::A)));
 		double moveForward = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::W)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::S)));
-		bool dash = (evnt->key == SCAN_CODES::E || evnt->key == SCAN_CODES::Q) && evnt->pressed;
+		bool dash = (evnt->key == SCAN_CODES::LEFT_SHIFT || evnt->key == SCAN_CODES::RIGHT_SHIFT) && evnt->pressed;
 
 		double jump = static_cast<double>(evnt->key == SCAN_CODES::SPACE) * static_cast<double>(evnt->pressed);
 
