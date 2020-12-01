@@ -29,7 +29,6 @@ void component::EnemyComponent::Update(double dt)
         m_TimeSinceLastGrunt = 0.0;
         m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnGrunt");
         m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnGrunt");
-        Log::Print("Grunt!\n");
     }
 }
 
