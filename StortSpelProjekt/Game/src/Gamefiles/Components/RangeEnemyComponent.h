@@ -44,6 +44,8 @@ namespace component
 		Scene* m_pScene = nullptr;
 
 		Audio2DVoiceComponent* m_pVoiceComponent;
+
+		void createParticleEffect(Entity* entity, float3 velocityDir) const;
 	};
 }
 
