@@ -73,7 +73,7 @@ Entity* EnemyFactory::AddEnemy(const std::string& entityName, EnemyComps* comps)
 	enemy->targetName = comps->targetName;
 	enemy->hp = comps->hp;
 	enemy->hpBase = comps->hp;
-	enemy->sound3D = comps->sound3D;
+	enemy->OnHitSounds = comps->OnHitSounds;
 	enemy->detectionRad = comps->detectionRad;
 	enemy->attackingDist = comps->attackingDist;
 	enemy->attackInterval = comps->attackInterval;
@@ -179,8 +179,25 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	ent->AddComponent<component::HealthComponent>(comps->hp);
 	ec = ent->AddComponent<component::EnemyComponent>(this);
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
-	ae->AddVoice(comps->sound3D, L"OnHit");
-	ae->AddVoice(L"DemonGnarl7", L"OnGrunt");
+	unsigned int size = comps->OnHitSounds.size();
+	if (size > 1)
+	{
+		ae->AddVoice(comps->OnHitSounds[m_RandGen.Rand(0, size)], L"OnHit");
+	}
+	else if (size == 1)
+	{
+		ae->AddVoice(comps->OnHitSounds[0], L"OnHit");
+	}
+
+	size = comps->OnGruntSounds.size();
+	if (size > 1)
+	{
+		ae->AddVoice(comps->OnGruntSounds[m_RandGen.Rand(0, size)], L"OnGrunt");
+	}
+	else if (size == 1)
+	{
+		ae->AddVoice(comps->OnGruntSounds[0], L"OnGrunt");
+	}
 
 	mc->SetModel(comps->model);
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -282,30 +299,12 @@ EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, EnemyComps*
 	EnemyComps* enemy = new EnemyComps;
 	m_EnemyComps[entityName] = enemy;
 
+	*enemy = *comps;
+
 	enemy->enemiesOfThisType = 0;
-	enemy->compFlags = comps->compFlags;
-	enemy->aiFlags = comps->aiFlags;
-	enemy->scale = comps->scale;
-	enemy->rot = comps->rot;
-	enemy->model = comps->model;
-	enemy->targetName = comps->targetName;
-	enemy->hp = comps->hp;
-	enemy->hpBase = comps->hp;
-	enemy->sound3D = comps->sound3D;
-	enemy->detectionRad = comps->detectionRad;
-	enemy->attackingDist = comps->attackingDist;
-	enemy->attackInterval = comps->attackInterval;
-	enemy->meleeAttackDmg = comps->meleeAttackDmg;
-	enemy->meleeAttackDmgBase = comps->meleeAttackDmg;
-	enemy->movementSpeed = comps->movementSpeed;
-	enemy->movementSpeedBase = comps->movementSpeed;
-	enemy->dim = comps->model->GetModelDim();
-	enemy->isRanged = comps->isRanged;
-	enemy->projectileModel = comps->projectileModel;
-	enemy->rangeAttackDmg = comps->rangeAttackDmg;
-	enemy->rangeAttackDmgBase = comps->rangeAttackDmg;
-	enemy->rangeVelocity = comps->rangeVelocity;
-	enemy->invertDirection = comps->invertDirection;
+	
+	enemy->dim = enemy->model->GetModelDim();
+
 
 	return enemy;
 }
