@@ -179,7 +179,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	ent->AddComponent<component::HealthComponent>(comps->hp);
 	ec = ent->AddComponent<component::EnemyComponent>(this);
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
-	ae->AddVoice(comps->sound3D);
+	ae->AddVoice(comps->sound3D, L"OnHit");
 
 	mc->SetModel(comps->model);
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);

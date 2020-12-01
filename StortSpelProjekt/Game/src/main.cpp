@@ -178,6 +178,14 @@ Scene* GameScene(SceneManager* sm)
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
+    AudioBuffer* demonGnarl1 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_1.wav", L"DemonGnarl1");
+    AudioBuffer* demonGnarl2 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_2.wav", L"DemonGnarl2");
+    AudioBuffer* demonGnarl3 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_3.wav", L"DemonGnarl3");
+    AudioBuffer* demonGnarl4 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_4.wav", L"DemonGnarl4");
+    AudioBuffer* demonGnarl5 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_5.wav", L"DemonGnarl5");
+    AudioBuffer* demonGnarl6 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_6.wav", L"DemonGnarl6");
+    AudioBuffer* demonGnarl7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_7.wav", L"DemonGnarl7");
+    AudioBuffer* demonHit7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_GotHit_7.wav", L"DemonHit7");
 
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
@@ -276,7 +284,7 @@ Scene* GameScene(SceneManager* sm)
 	EnemyComps zombie = {};
 	zombie.model = enemyZombieModel;
 	zombie.hp = 120;
-	zombie.sound3D = L"Bruh";
+	zombie.sound3D = L"DemonHit7";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
 	zombie.meleeAttackDmg = 35.0f;

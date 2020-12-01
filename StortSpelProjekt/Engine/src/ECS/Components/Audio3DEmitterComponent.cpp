@@ -97,6 +97,38 @@ void component::Audio3DEmitterComponent::AddVoice(const std::wstring& name)
 	}
 }
 
+void component::Audio3DEmitterComponent::AddVoice(const std::wstring& globalName, const std::wstring& localName)
+{
+	if (m_VoiceEmitterData.count(localName) == 0)
+	{
+		EmitterData emitterData;
+		// add new sound and get details
+		emitterData.voice = AssetLoader::Get()->GetAudio(globalName)->CloneVoice();
+		if (emitterData.voice.GetSourceVoice() != nullptr)
+		{
+			emitterData.voice.GetSourceVoice()->GetVoiceDetails(&emitterData.voiceDetails);
+			// set emitter settings for 3d audio calculations
+			emitterData.emitter = { 0 };
+			emitterData.emitter.ChannelCount = emitterData.voiceDetails.InputChannels;
+			emitterData.emitter.CurveDistanceScaler = 1.0f;
+			emitterData.emitter.OrientFront = DirectX::XMFLOAT3(0.0, 0.0, 0.0); // direction the sound will be facing, this is later updated to parent entity direction
+			emitterData.emitter.OrientTop = DirectX::XMFLOAT3(0.0, 1.0, 0.0); // up vector, this is later updated to change with the parent entitys up vector
+			emitterData.emitter.ChannelRadius = 0.0f;
+			emitterData.emitter.pChannelAzimuths = new FLOAT32[emitterData.voiceDetails.InputChannels];
+			emitterData.emitter.pChannelAzimuths[0] = X3DAUDIO_PI / 4;
+			emitterData.emitter.pChannelAzimuths[1] = 7 * X3DAUDIO_PI / 4;
+			// prepare DSPSettings according to the voice details
+			emitterData.DSPSettings.SrcChannelCount = emitterData.voiceDetails.InputChannels;
+			emitterData.DSPSettings.DstChannelCount = AudioEngine::GetInstance().GetDeviceDetails()->InputChannels;
+			int coefficients = emitterData.DSPSettings.SrcChannelCount * emitterData.DSPSettings.DstChannelCount;
+			emitterData.DSPSettings.pMatrixCoefficients = new FLOAT32[coefficients];
+
+			// put emitterData struct in the map with key
+			m_VoiceEmitterData.emplace(std::make_pair(localName, emitterData));
+		}
+	}
+}
+
 void component::Audio3DEmitterComponent::Play(const std::wstring& name)
 {
 #ifdef _DEBUG

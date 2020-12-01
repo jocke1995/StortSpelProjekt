@@ -181,8 +181,8 @@ void component::MeleeComponent::checkCollision()
 		// Checks if the collision occurs on something with a healthcomponent and is not the player themselves
 		if (list.at(i)->GetName() != "player" && list.at(i)->GetComponent<component::HealthComponent>() != nullptr)
 		{
-			list.at(i)->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Bruh");
-			list.at(i)->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Bruh");
+			list.at(i)->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnHit");
+			list.at(i)->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnHit");
 			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 			list.at(i)->GetComponent<component::AiComponent>()->KnockBack(m_MeleeTransformModified, m_KnockBack);
 			particleEffect(list.at(i));
