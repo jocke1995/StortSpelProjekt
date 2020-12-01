@@ -42,7 +42,6 @@ namespace component
 		// Playback options of audio
 		// Play audio
 		void Play(const std::wstring& name);
-		void PlayDontReset(const std::wstring& name);
 		// Stop audio
 		void Stop(const std::wstring& name);
 

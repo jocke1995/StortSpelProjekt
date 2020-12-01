@@ -10,6 +10,8 @@
 #include "Renderer/Texture/Texture2DGUI.h"
 #include "ECS/Components/ParticleEmitterComponent.h"
 #include "ECS/Components/TemporaryLifeComponent.h"
+#include "../Events/EventBus.h"
+
 
 constexpr float g_timeToLive = 1.0f;
 
@@ -44,6 +46,7 @@ void component::EnemyComponent::OnInitScene()
     {
         m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"SpiderCrawl");
     }
+    EventBus::GetInstance().Subscribe(this, &EnemyComponent::death);
 }
 
 void component::EnemyComponent::OnUnInitScene()
@@ -95,4 +98,12 @@ void component::EnemyComponent::OnUnInitScene()
 void component::EnemyComponent::SetRandSeed(unsigned long seed)
 {
     m_Rand.SetSeed(seed);
+}
+
+void component::EnemyComponent::death(Death* evnt)
+{
+    if (strcmp(evnt->ent->GetName().substr(0, 11).c_str(), "enemySpider") == 0)
+    {
+        evnt->ent->GetComponent<component::Audio3DEmitterComponent>()->Stop(L"SpiderCrawl");
+    }
 }

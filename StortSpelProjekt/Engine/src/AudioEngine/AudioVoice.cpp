@@ -79,12 +79,3 @@ void AudioVoice::Stop()
         m_pSourceVoice->SubmitSourceBuffer(m_pBuffer);
     }
 }
-
-void AudioVoice::PlayDontReset()
-{
-    // play the sound
-    if (FAILED(m_pSourceVoice->Start(0)))
-    {
-        Log::Print("Error playing audio\n");
-    }
-}

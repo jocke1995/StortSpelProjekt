@@ -144,11 +144,6 @@ void component::Audio3DEmitterComponent::Play(const std::wstring& name)
 	}
 }
 
-void component::Audio3DEmitterComponent::PlayDontReset(const std::wstring& name)
-{
-	m_VoiceEmitterData[name].voice.PlayDontReset();
-}
-
 void component::Audio3DEmitterComponent::Stop(const std::wstring& name)
 {
 #ifdef _DEBUG

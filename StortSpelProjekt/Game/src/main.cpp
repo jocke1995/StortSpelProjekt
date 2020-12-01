@@ -15,10 +15,9 @@
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
 #include "UpgradeGUI.h"
+//#include "Misc/Cryptor.h"
 
 #include "Misc/Edge.h"
-
-//#include "Misc/Cryptor.h"
 
 Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
@@ -188,6 +187,7 @@ Scene* GameScene(SceneManager* sm)
     AudioBuffer* spiderCrawl = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/spiderCrawl.wav", L"SpiderCrawl");
     spiderCrawl->SetAudioLoop(0);
     AudioBuffer* spiderScream = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Spider_DeathScream_2.wav", L"SpiderHit");
+    AudioBuffer* spiderSound = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/spiderSound.wav", L"SpiderSound");
 
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
@@ -313,6 +313,7 @@ Scene* GameScene(SceneManager* sm)
     spider.model = enemySpiderModel;
     spider.hp = 40;
     spider.OnHitSounds.emplace_back(L"SpiderHit");
+    spider.OnGruntSounds.emplace_back(L"SpiderSound");
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     spider.meleeAttackDmg = 15.0f;
