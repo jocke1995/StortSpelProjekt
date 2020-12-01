@@ -61,6 +61,9 @@ void Shop::Create2DGUI()
 	Scene* shopScene = sm.GetScene("ShopScene");
 	Texture* shopBackground = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_hor.png");
 
+	component::CollisionComponent* cc = sm.GetActiveScene()->GetEntity("player")->GetComponent<component::CollisionComponent>();
+	cc->SetVelVector(0.0f, 0.0f, 0.0f);
+
 	/* ---------------------------Background----------------------------- */
 	Entity* entity = shopScene->AddEntity("background");
 	gui = entity->AddComponent<component::GUI2DComponent>();
@@ -427,10 +430,10 @@ void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
 			if (pickedEntity->GetName() == "shop")
 			{
 				Create2DGUI();
-
+				pickedEntity->GetComponent<component::Audio2DVoiceComponent>()->Play(L"HelloThere");
 				// Reset movement, should happen here later. is currently happening in ShopSceneUpdateFunction in main
 				//component::CollisionComponent* cc = Player::GetInstance().GetPlayer()->GetComponent<component::CollisionComponent>();
-				//cc->SetVelVector(0.0f, 0.0f, 0.0f);
+				//cc->SetVelVector(0.0f, 0.0f, 0.0f
 
 				// Show cursor
 				ShowCursor(true);

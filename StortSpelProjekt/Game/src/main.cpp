@@ -568,6 +568,7 @@ Scene* ShopScene(SceneManager* sm)
     // Create Scene
     Scene* scene = sm->CreateScene("ShopScene");
 
+#pragma region component declarations
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
     component::TransformComponent* tc = nullptr;
@@ -586,6 +587,10 @@ Scene* ShopScene(SceneManager* sm)
     component::GUI2DComponent* gui = nullptr;
     component::CurrencyComponent* cur = nullptr;
     component::ParticleEmitterComponent* pec = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
+#pragma endregion
+
+#pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -605,7 +610,10 @@ Scene* ShopScene(SceneManager* sm)
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
+    AudioBuffer* helloThere = al->LoadAudio(L"../Vendor/Resources/Audio/HelloThere.wav", L"HelloThere");
+
 	Font* arial = al->LoadFontFromFile(L"Arial.fnt");
+#pragma endregion
 
 #pragma region player
     std::string playerName = "player";
@@ -638,13 +646,14 @@ Scene* ShopScene(SceneManager* sm)
     Physics::GetInstance().AddCollisionEntity(entity);
 
 #pragma endregion player
-    /* ---------------------- Skybox ---------------------- */
+
+#pragma region skybox
     entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
     sbc->SetTexture(skyboxCubemap);
-    /* ---------------------- Skybox ---------------------- */
+#pragma endregion
 
-    /* ---------------------- Floor ---------------------- */
+#pragma region floor
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -657,9 +666,9 @@ Scene* ShopScene(SceneManager* sm)
     tc->GetTransform()->SetScale(50, 1, 50);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     tc->SetTransformOriginalState();
-    /* ---------------------- Floor ---------------------- */
+#pragma endregion
 
-    /* ---------------------- Teleporter ---------------------- */
+#pragma region teleporter
     entity = scene->AddEntity("teleporter");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -692,10 +701,10 @@ Scene* ShopScene(SceneManager* sm)
     
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
-    /* ---------------------- Teleporter ---------------------- */
+#pragma endregion
 
-	/* ------------------------- GUI --------------------------- */
-	/* ----------------- healthBackground ---------------------- */
+#pragma region GUI
+#pragma region healthBackground
 	std::string textToRender = "";
 	float2 textPos = { 0.473f, 0.965f };
 	float2 textPadding = { 0.8f, 0.0f };
@@ -743,9 +752,9 @@ Scene* ShopScene(SceneManager* sm)
 		0,
 		notBlended,
 		healthBackgroundTexture);
-	/* ---------------------------------------------------------- */
+#pragma endregion
 
-	/* ------------------------- healthHolder --------------------------- */
+#pragma region healthHolder
 	entity = scene->AddEntity("healthHolder");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	quadPos = { 0.35f, 0.85f };
@@ -757,9 +766,9 @@ Scene* ShopScene(SceneManager* sm)
 		1,
 		notBlended,
 		healthHolderTexture);
-	/* ---------------------------------------------------------- */
+#pragma endregion
 
-	/* ------------------------- healthbar --------------------------- */
+#pragma region healthbar
 	entity = scene->AddEntity("healthbar");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	quadPos = { 0.365f, 0.892f };
@@ -772,9 +781,9 @@ Scene* ShopScene(SceneManager* sm)
 		notBlended,
 		healthbarTexture,
 		float3{ 0.0f, 1.0f, 0.0f });
-	/* ---------------------------------------------------------- */
+#pragma endregion
 
-	/* ------------------------- healthGuardians --------------------------- */
+#pragma region healthGuardians
 	entity = scene->AddEntity("healthGuardians");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	quadPos = { 0.32f, 0.86f };
@@ -786,24 +795,9 @@ Scene* ShopScene(SceneManager* sm)
 		3,
 		blended,
 		healthGuardiansTexture);
-	/* ---------------------------------------------------------- */
+#pragma endregion
 
-    /* ---------------------- Poster ---------------------- */
-    entity = scene->AddEntity("poster");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-
-    mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(posterModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(1, 1, 1);
-    tc->GetTransform()->SetRotationZ(-PI / 2);
-    tc->GetTransform()->SetPosition(27.8f, 1.0f, 34.0f);
-    tc->SetTransformOriginalState();
-    /* ---------------------- Poster ---------------------- */
-
-    /*---------------- GUI Coin -----------------*/
+#pragma region coin
     textToRender = "0";
     textPos = { 0.95f, 0.03f };
     textPadding = { 0.5f, 0.0f };
@@ -833,8 +827,25 @@ Scene* ShopScene(SceneManager* sm)
         notBlended,
         currencyIcon
     );
-    /*---------------- GUI -----------------*/
-    /* ---------------------- Shop ---------------------- */
+#pragma endregion
+#pragma endregion
+
+#pragma region poster
+    entity = scene->AddEntity("poster");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(posterModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(1, 1, 1);
+    tc->GetTransform()->SetRotationZ(-PI / 2);
+    tc->GetTransform()->SetPosition(27.8f, 1.0f, 34.0f);
+    tc->SetTransformOriginalState();
+#pragma endregion
+
+#pragma region shop
     entity = scene->AddEntity("shop");
     mc = entity->AddComponent<component::ModelComponent>();
     mc->SetModel(shopModel);
@@ -850,7 +861,11 @@ Scene* ShopScene(SceneManager* sm)
 
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
     bbc->Init();
-    /* ---------------------- Shop ---------------------- */
+
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    avc->AddVoice(L"HelloThere");
+
+#pragma endregion
 
 #pragma region walls
     // Left wall
@@ -914,7 +929,7 @@ Scene* ShopScene(SceneManager* sm)
 
 #pragma endregion walls
 
-    /* ---------------------- SpotLightDynamic ---------------------- */
+#pragma region spotlight
     entity = scene->AddEntity("spotLightDynamic");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
@@ -932,9 +947,9 @@ Scene* ShopScene(SceneManager* sm)
     slc->SetPosition(pos);
     slc->SetDirection({ 1.0f, -1.0f, 1.0f });
     slc->SetOuterCutOff(50.0f);
-    /* ---------------------- SpotLightDynamic ---------------------- */
+#pragma endregion
 
-    /* ---------------------- moon ---------------------- */
+#pragma region moon
     entity = scene->AddEntity("moon");
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
     dlc->SetColor({ 0.8f, 0.8f, 0.8f });
@@ -943,7 +958,7 @@ Scene* ShopScene(SceneManager* sm)
     dlc->SetCameraBot(-30.0f);
     dlc->SetCameraLeft(-70.0f);
     dlc->SetCameraRight(70.0f);
-    /* ---------------------- dirLight ---------------------- */
+#pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();
@@ -1030,9 +1045,9 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     // Detta ska egentligen stå i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
     // spelare i alla scener så kan vi ej nå den aktiva spelaren i den scenen därifrån.
     // TODO: Flytta in den i den funktionen när vi har samma spelare i alla scener via Player::GetInstance().
-    if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == true)
+    /*if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == true)
     {
         component::CollisionComponent* cc = sm->GetActiveScene()->GetEntity("player")->GetComponent<component::CollisionComponent>();
         cc->SetVelVector(0.0f, 0.0f, 0.0f);
-    }
+    }*/
 }
