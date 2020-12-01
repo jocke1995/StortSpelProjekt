@@ -18,6 +18,7 @@ Scene* WilliamsTestScene(SceneManager* sm);
 Scene* AndresTestScene(SceneManager* sm);
 Scene* AntonTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
+Scene* ShopScene(SceneManager* sm);
 
 void LeoUpdateScene(SceneManager* sm, double dt);
 void TimUpdateScene(SceneManager* sm, double dt);
@@ -25,9 +26,12 @@ void JockeUpdateScene(SceneManager* sm, double dt);
 void FredriksUpdateScene(SceneManager* sm, double dt);
 void AndresUpdateScene(SceneManager* sm, double dt);
 
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    
+    
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -57,8 +61,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
-    Scene* jockeScene = JockesTestScene(sceneManager);
-    Scene* activeScene = jockeScene;
+    //Scene* jockeScene = JockesTestScene(sceneManager);
+    //Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
     //Scene* williamScene = WilliamsTestScene(sceneManager);
@@ -69,8 +73,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = antonScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* activeScene = andresScene;
-    //Scene* filipScene = FloppipTestScene(sceneManager);
-    //Scene* activeScene = filipScene;
+    Scene* filipScene = FloppipTestScene(sceneManager);
+    Scene* activeScene = filipScene;
+    
+    
 
     // Set scene
     sceneManager->SetScene(activeScene);
@@ -710,13 +716,32 @@ Scene* FloppipTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::ParticleEmitterComponent* pe = nullptr;
 
+
     Entity* entity = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
+
     // Get the models needed
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
-    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/Quad/NormalizedQuad.obj");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
+    Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
+    Model* pressfModel = al->LoadModel(L"../Vendor/Resources/Models/Pressf/pressf.obj");
+    Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
+    Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
+    Model* teleportModel = al->LoadModel(L"../Vendor/Resources/Models/Teleporter/Teleporter.obj");
+
+    Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
+    Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
+    Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
+    Texture* healthHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthHolder.png");
+    Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
+
+    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+
+    Font* arial = al->LoadFontFromFile(L"Arial.fnt");
+
 
     scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
@@ -763,71 +788,55 @@ Scene* FloppipTestScene(SceneManager* sm)
 
 
     /* ---------------------- Skybox ---------------------- */
-
-    // Skybox
-    //TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/cubemap.dds");
     entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    //sbc->SetTexture(skyboxCubemap);
-
+    sbc->SetTexture(skyboxCubemap);
     /* ---------------------- Skybox ---------------------- */
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(35, 1, 35);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(50, 1, 50);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-    
-
-    //// Create test particleEffect
-    //settings = {};
-    //settings.maxParticleCount = 1200;
-    //settings.startValues.lifetime = 15;
-    //settings.startValues.acceleration = {0, 0, 0};
-    //settings.startValues.position = {0, 200, 0};
-    //settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
-    //
-    //// Need to fix EngineRand.rand() for negative values
-    //
-    //settings.randPosition = { -400, 400, 0, 0, -400, 400 };
-    //settings.randVelocity = { -2, 2, -20, -12, -2, 2 };
-    //settings.randSize = { 3, 7 };
-    //settings.randRotationSpeed = { -3, 3 };
-    //
-    //particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/default_particle.png"));
-    //settings.texture = particleTexture;
-    //
-    //pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
-
+    tc->SetTransformOriginalState();
     /* ---------------------- Floor ---------------------- */
 
 
-    
-    /* ---------------------- PointLight1 ---------------------- */
-    entity = scene->AddEntity("pointLight1");
+
+    /* ---------------------- Shop ---------------------- */
+    entity = scene->AddEntity("shopss");
     mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetModel(shopModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
     tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    tc->GetTransform()->SetPosition(30.0f, 10.0f, 30.0f);
+    tc->GetTransform()->SetRotationY(PI + PI / 4);
+    tc->SetTransformOriginalState();
 
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0, 4, 10);
+    double3 shopDim = mc->GetModelDim();
 
-    plc->SetColor({ 2.0f, 0.0f, 2.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
 
-    component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>();
-    bbc->Init();
+    /* ---------------------- Pressf ---------------------- */
 
-    /* ---------------------- PointLight1 ---------------------- */
+    entity = scene->AddEntity("pressf");
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetModel(pressfModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(32.0f, 9.7f, 24.0f);
+    tc->GetTransform()->SetRotationY(PI + PI / 4 + PI/8);
+    tc->SetTransformOriginalState();
+
+    /* ---------------------- Pressf ---------------------- */
 
     /* ---------------------- The Sun ---------------------- */
     entity = scene->AddEntity("sun");

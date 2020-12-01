@@ -1,5 +1,5 @@
 # Blender MTL File: 'pressf.blend'
-# Material Count: 2
+# Material Count: 1
 
 newmtl pressfMat
 Ns 323.999994
@@ -11,11 +11,4 @@ Ni 1.450000
 d 1.000000
 illum 2
 map_Kd Albedo.dds
-
-newmtl None
-Ns 500
-Ka 0.8 0.8 0.8
-Kd 0.8 0.8 0.8
-Ks 0.8 0.8 0.8
-d 1
-illum 2
+map_Ke Emissive.dds

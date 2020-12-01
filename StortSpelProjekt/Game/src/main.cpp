@@ -146,6 +146,8 @@ Scene* LoadScene(SceneManager* sm)
     Scene* scene = sm->CreateScene("LoadScene");
     std::vector<float3> spawnPoints;
     AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, false);
+
+    return scene;
 }
 
 Scene* GameScene(SceneManager* sm)
@@ -632,7 +634,7 @@ Scene* ShopScene(SceneManager* sm)
     uc = entity->AddComponent<component::UpgradeComponent>();
     cur = entity->AddComponent<component::CurrencyComponent>();
 
-    mc->SetModel(pressfModel);
+    mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.9f);
     tc->GetTransform()->SetPosition(0.0, 1.0, 0.0);
@@ -863,6 +865,20 @@ Scene* ShopScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
     bbc->Init();
     /* ---------------------- Shop ---------------------- */
+
+    /* ---------------------- Pressf ---------------------- */
+
+    entity = scene->AddEntity("pressf");
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetModel(pressfModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(32.0f, 10.2f, 24.0f);
+    tc->GetTransform()->SetRotationY(PI + PI / 4 + PI / 8);
+    tc->SetTransformOriginalState();
+
+    /* ---------------------- Pressf ---------------------- */
 
 #pragma region walls
     // Left wall
