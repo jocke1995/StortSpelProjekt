@@ -91,6 +91,7 @@ public:
 	
 	// Adds a spawnpoint.
 	void AddSpawnPoint(const float3& point);
+	void ClearSpawnPoints();
 	// Adds an enemy at the indicated spawnpoint.
 	Entity* SpawnEnemy(std::string entityName, unsigned int spawnPoint);
 	// Spawns an enemy at random spawnpoint. Assumes that there are atleast two spawnpoints!

@@ -585,6 +585,22 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 	}
 }
 
+void Renderer::InitAnimationComponent(component::AnimationComponent* component)
+{
+	// Submit the matrices to be uploaded everyframe
+	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+
+	const ConstantBuffer* cb = component->m_pAnimatedModel->GetConstantBuffer();
+
+	const void* data = component->m_pAnimatedModel->GetUploadMatrices()->data();
+	std::tuple<Resource*, Resource*, const void*> matrices(
+		cb->GetUploadResource(),
+		cb->GetDefaultResource(),
+		data);
+
+	cpft->Submit(&matrices);
+}
+
 void Renderer::InitDirectionalLightComponent(component::DirectionalLightComponent* component)
 {
 	// Assign CBV from the lightPool
@@ -884,6 +900,14 @@ void Renderer::UnInitModelComponent(component::ModelComponent* component)
 	setRenderTasksRenderComponents();
 }
 
+void Renderer::UnInitAnimationComponent(component::AnimationComponent* component)
+{
+	// Submit the matrices to be uploaded every frame
+	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+	const ConstantBuffer* cb = component->m_pAnimatedModel->GetConstantBuffer();
+	cpft->ClearSpecific(cb->GetUploadResource());
+}
+
 void Renderer::UnInitDirectionalLightComponent(component::DirectionalLightComponent* component)
 {
 	LIGHT_TYPE type = LIGHT_TYPE::DIRECTIONAL_LIGHT;
@@ -1142,33 +1166,14 @@ void Renderer::submitModelToGPU(Model* model)
 		return;
 	}
 
-	// Check if the model is animated
-	bool isAnimated = false;
-	if (dynamic_cast<AnimatedModel*>(model) != nullptr)
-	{
-		isAnimated = true;
-
-		// Submit the matrices to be uploaded everyframe
-		CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-
-		AnimatedModel* aModel = static_cast<AnimatedModel*>(model);
-		const ConstantBuffer* cb = aModel->GetConstantBuffer();
-
-		const void* data = aModel->GetUploadMatrices()->data();
-		std::tuple<Resource*, Resource*, const void*> matrices(
-			cb->GetUploadResource(),
-			cb->GetDefaultResource(),
-			data);
-
-		cpft->Submit(&matrices);
-	}
-
 	for (unsigned int i = 0; i < model->GetSize(); i++)
 	{
 		Mesh* mesh = model->GetMeshAt(i);
 
 		// Submit more data if the model is animated
-		if (isAnimated == true)
+		AnimatedModel* am = nullptr;
+		am = dynamic_cast<AnimatedModel*>(model);
+		if (am!=nullptr)
 		{
 			AnimatedMesh* am = static_cast<AnimatedMesh*>(mesh);
 
@@ -2553,12 +2558,12 @@ void Renderer::prepareScene(Scene* activeScene)
 
 	// -------------------- DEBUG STUFF --------------------
 	// Test to change m_pCamera to the shadow casting m_lights cameras
-	//if (activeScene->GetName() == "GameScene")
-	//{
-	//	auto& tuple = m_Lights[LIGHT_TYPE::SPOT_LIGHT].at(0);
-	//	BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
-	//	m_pScenePrimaryCamera = tempCam;
-	//}
+	/*if (activeScene->GetName() == "GameScene")
+	{
+		auto& tuple = m_Lights[LIGHT_TYPE::DIRECTIONAL_LIGHT].at(0);
+		BaseCamera* tempCam = std::get<0>(tuple)->GetCamera();
+		m_pScenePrimaryCamera = tempCam;
+	}*/
 	if (m_pScenePrimaryCamera == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "No primary camera was set in scenes\n");

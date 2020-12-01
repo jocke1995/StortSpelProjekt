@@ -32,12 +32,16 @@ void UpgradeRangeLifeSteal::IncreaseLevel()
 
 void UpgradeRangeLifeSteal::OnRangedHit(Entity* target, Entity* projectile)
 {
-	// get damage from projectile
-	int damage = m_pParentEntity->GetComponent<component::ProjectileComponent>()->GetDamage();
-	// calculate amount of health to add
-	int hpChange = static_cast<int>(damage * m_PercentageGain);
-	// add a bit of health
-	Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->ChangeHealth(hpChange);
+	//Only Lifesteal of enemies
+	if (strcmp(target->GetName().substr(0, 5).c_str(), "enemy") == 0)
+	{
+		// get damage from projectile
+		int damage = m_pParentEntity->GetComponent<component::ProjectileComponent>()->GetDamage();
+		// calculate amount of health to add
+		int hpChange = static_cast<int>(damage * m_PercentageGain);
+		// add a bit of health
+		Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->ChangeHealth(hpChange);
+	}
 }
 
 void UpgradeRangeLifeSteal::ApplyBoughtUpgrade()

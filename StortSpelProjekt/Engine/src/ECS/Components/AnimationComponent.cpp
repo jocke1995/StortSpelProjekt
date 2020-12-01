@@ -1,5 +1,6 @@
 #include "AnimationComponent.h"
 
+#include "../Renderer/Renderer.h"
 #include "../Renderer/AnimatedModel.h"
 #include "../Events/EventBus.h"
 #include "../ECS/Entity.h"
@@ -20,12 +21,21 @@ void component::AnimationComponent::RenderUpdate(double dt)
 
 void component::AnimationComponent::OnInitScene()
 {
+	Renderer::GetInstance().InitAnimationComponent(this);
 	EventBus::GetInstance().Subscribe(this, &AnimationComponent::walkAnimation);
+	EventBus::GetInstance().Subscribe(this, &AnimationComponent::attackAnimation);
 }
 
 void component::AnimationComponent::OnUnInitScene()
 {
 	EventBus::GetInstance().Unsubscribe(this, &AnimationComponent::walkAnimation);
+	EventBus::GetInstance().Unsubscribe(this, &AnimationComponent::attackAnimation);
+	Renderer::GetInstance().UnInitAnimationComponent(this);
+}
+
+void component::AnimationComponent::Reset()
+{
+	m_pAnimatedModel->ResetAnimations();
 }
 
 void component::AnimationComponent::Initialize()
@@ -45,23 +55,36 @@ void component::AnimationComponent::Initialize()
 	}
 }
 
-void component::AnimationComponent::SetActiveAnimation(std::string animationName)
-{
-	m_pAnimatedModel->SetActiveAnimation(animationName);
-}
-
 void component::AnimationComponent::walkAnimation(MovementInput* evnt)
 {
-	if (	Input::GetInstance().GetKeyState(SCAN_CODES::W) || 
-			Input::GetInstance().GetKeyState(SCAN_CODES::A) ||
-			Input::GetInstance().GetKeyState(SCAN_CODES::S) || 
-			Input::GetInstance().GetKeyState(SCAN_CODES::D))
+	if (Input::GetInstance().GetKeyState(SCAN_CODES::W) || 
+		Input::GetInstance().GetKeyState(SCAN_CODES::A) || 
+		Input::GetInstance().GetKeyState(SCAN_CODES::S) || 
+		Input::GetInstance().GetKeyState(SCAN_CODES::D)	)
 	{
-		m_pAnimatedModel->PlayAnimation();	// Play on movement.
+		m_pAnimatedModel->PlayAnimation("Run", true);
 	}
 	else
 	{
-		m_pAnimatedModel->PauseAnimation();	// Pause on no movement.
-		m_pAnimatedModel->ResetAnimation();
+		m_pAnimatedModel->PlayAnimation("Idle", true);
+	}
+}
+
+void component::AnimationComponent::attackAnimation(MouseClick* evnt)
+{
+	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN)
+	{
+		m_pAnimatedModel->PlayAnimation("Attack_Swing_Right", false);
+	}
+	else
+	{
+	}
+
+	if (evnt->button == MOUSE_BUTTON::RIGHT_DOWN)
+	{
+		m_pAnimatedModel->PlayAnimation("Attack_Swing_Left", false);
+	}
+	else
+	{
 	}
 }

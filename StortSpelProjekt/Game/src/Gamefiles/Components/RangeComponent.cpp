@@ -31,6 +31,9 @@ component::RangeComponent::RangeComponent(Entity* parent, SceneManager* sm, Scen
 	m_NrOfProjectiles = 0;
 	m_ProjectileRestitution = 0.0f;
 
+	AssetLoader* al = AssetLoader::Get();
+	m_pParticleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/player_magic.png"));
+
 	if (parent->GetComponent<component::Audio2DVoiceComponent>())
 	{
 		m_AudioPlay = true;
@@ -108,12 +111,15 @@ void component::RangeComponent::Attack()
 		component::ProjectileComponent* pc = nullptr;
 		component::UpgradeComponent* uc = nullptr;
 		component::PointLightComponent* plc = nullptr;
+		component::ParticleEmitterComponent* pec = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
 		uc = ent->AddComponent<component::UpgradeComponent>();
 		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+		
+		//tlc = ent->AddComponent<component::TemporaryLifeComponent>(duration);
 
 		// Applying all range uppgrades to the new projectile entity "RangeAttack"
 		if (m_pParent->HasComponent<component::UpgradeComponent>())
@@ -189,9 +195,14 @@ void component::RangeComponent::Attack()
 			hitDir.y += 3.0f;
 		}
 
+		hitDir.normalize();
+		hitDir *= m_Velocity;
+
+		createParticleEffect(ent, hitDir);
+
 		// initialize the components
 		mc->SetModel(m_pModel);
-		mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+		mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW); // hidden because we just want to see the particle effect
 		tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
 		tc->GetTransform()->SetScale(m_Scale);
 		tc->GetTransform()->SetVelocity(m_Velocity);
@@ -199,7 +210,6 @@ void component::RangeComponent::Attack()
 		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 		bbc->Init();
 		bbc->AddCollisionCategory<PlayerProjectileCollisionCategory>();
-		Physics::GetInstance().AddCollisionEntity(ent);
 		if (m_AudioPlay)
 		{
 			m_pVoiceComponent->Play(L"Fireball");
@@ -207,22 +217,18 @@ void component::RangeComponent::Attack()
 
 		component::CollisionComponent* cc = nullptr;
 		double3 projectileDim = mc->GetModelDim();
-
 		cc = ent->AddComponent<component::SphereCollisionComponent>(500.0f, projectileDim.z / 2.0f, 1.0f, m_ProjectileRestitution, false);
 		cc->SetGravity(0.0f);
 
-		plc->SetColor({ 3.0f, 0.0f, 0.0f });
+		// Light color
+		plc->SetColor({ (75.0f * 3.0f) / 255.0f, 0.0f, (130.0f * 3.0f) /255.0f });
 
 		// add the entity to the sceneManager so it can be spawned in in run time
-		ent->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-		m_pSceneMan->AddEntity(ent, m_pScene);
+		m_pScene->InitDynamicEntity(ent);
 		ent->Update(0);	// Init, so that the light doesn't spawn in origo first frame;
 		tc->RenderUpdate(0);
 		m_TimeAccumulator = 0.0;
-
-		hitDir.normalize();
-		hitDir *= m_Velocity;
-
+		
 		cc->SetVelVector(hitDir.x, hitDir.y, hitDir.z);
 		component::CollisionComponent* ccParent = m_pParent->GetComponent<component::CollisionComponent>();
 		cc->SetCollidesWith(ccParent, false);
@@ -234,4 +240,25 @@ void component::RangeComponent::Attack()
 		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAngleToTurnTo(angleDegrees);
 		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAttacking();
 	}
+}
+
+void component::RangeComponent::createParticleEffect(Entity* entity, float3 velocityDir) const
+{
+	// Create particle effect
+	ParticleEffectSettings settings = {};
+	settings.maxParticleCount = 50;
+	settings.startValues.lifetime = 0.09;
+	settings.spawnInterval = 0.007;
+	settings.startValues.acceleration = { 0, 0, 0 };
+
+	settings.isLooping = true;
+
+	settings.randPosition = { -0.5, 0.5, -0.5, 0.5, -0.5, 0.5 };
+	settings.randVelocity = { -5, 5, -5, 5, -5, 5 };
+	settings.randSize = { 2.0f, 2.0f };
+	settings.randRotation = { 0, 2 * PI };
+	settings.randRotationSpeed = { 0.2f, 0.2f };
+	settings.texture = m_pParticleTexture;
+
+	entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 }

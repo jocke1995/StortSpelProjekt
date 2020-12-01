@@ -2,11 +2,13 @@
 #define ANIMATEDMODEL_H
 
 #include "Model.h"
+#include "Animation.h"
 
 // Forward declarations
 struct Animation;
 struct SkeletonNode;
 struct VertexWeight;
+struct TransformKey;
 
 class ConstantBuffer;
 class DescriptorHeap;
@@ -31,19 +33,36 @@ public:
     const ConstantBuffer* GetConstantBuffer() const;
     const std::vector<DirectX::XMFLOAT4X4>* GetUploadMatrices() const;
 
-    bool SetActiveAnimation(std::string animationName);
+    bool PlayAnimation(std::string animationName, bool loop);
     void Update(double dt);
-    void PlayAnimation();
-    void PauseAnimation();
-    void ResetAnimation();
+    void TempPlayAnimation();
+    void TempPauseAnimation();
+    void ResetAnimations();
 
 private:
-    void initializeAnimation(SkeletonNode* node);   // Attach the currentStateTransforms of the animation to the skeleton.
-    void updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform);
+    // Will run in PlayAnimation().
+    bool endAnimation();
+    // Should run while there is an ongoing animation transition.
+    void blendAnimations(double dt);
+    // Will bind the blendAnimationState to the skeleton.
+    void bindBlendedAnimation(SkeletonNode* node);
 
-    double m_Time;
-    bool m_AnimationIsPaused = true;
-    Animation* m_pActiveAnimation;
+    // Will bind the animation to the skeleton.
+    void bindAnimation(SkeletonNode* node, Animation* animation);
+    // Calculates the finished transformations for the animation bound to the skeleton.
+    void updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform);
+    SkeletonNode* findNode(SkeletonNode* root, std::string nodeName);
+
+
+    bool m_AnimationIsPaused = false;
+    double m_BlendTransitionTime = ANIMATION_TRANSITION_TIME;
+    double m_BlendTimeElapsed = 0;
+    std::map<std::string, TransformKey> m_BlendAnimationState;
+    Animation* m_pReactivateAnimation;
+    Animation* m_pQueuedAnimation;
+    std::vector<Animation*> m_PendingAnimations;
+    std::vector<Animation*> m_ActiveAnimations;
+    std::vector<Animation*> m_EndingAnimations;
     SkeletonNode* m_pSkeleton;
     std::vector<Animation*> m_Animations;
     DirectX::XMFLOAT4X4 m_GlobalInverseTransform;
