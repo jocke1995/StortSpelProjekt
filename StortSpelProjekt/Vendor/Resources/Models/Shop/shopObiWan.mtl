@@ -1,0 +1,236 @@
+# Blender MTL File: 'None'
+# Material Count: 17
+
+newmtl 24_+robe.robe_0.3_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.453715 0.647303 0.619702
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Bump t_obiwan_02_robe_n.dds
+map_Kd t_obiwan_02_robe_c.dds
+map_Ks t_obiwan_02_robe_s.dds
+map_d t_obiwan_02_robe_c.dds
+
+newmtl 24_+sleeves1.sleeves1_0.1_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.793889 0.436018 0.692356
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Bump t_obiwan_01_n.dds
+map_Kd t_obiwan_01_c.dds
+map_Ks t_obiwan_01_s.dds
+map_d t_obiwan_01_c.dds
+
+newmtl 24_-sleeves2.sleeves2_0.1_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.529333 0.501080 0.463443
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Bump t_obiwan_01_n.dds
+map_Kd t_obiwan_01_c.dds
+map_Ks t_obiwan_01_s.dds
+map_d t_obiwan_01_c.dds
+
+newmtl 24_Head_0.1_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.723229 0.500974 0.557655
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Bump t_heads_obiwan_01_n.dds
+map_Kd t_heads_obiwan_01_c.dds
+map_Ks t_heads_obiwan_01_s.dds
+map_d t_heads_obiwan_01_c.dds
+
+newmtl 24_belt_0.1_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.696347 0.663138 0.651581
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Bump t_obiwan_01_n.dds
+map_Kd t_obiwan_01_c.dds
+map_Ks t_obiwan_01_s.dds
+map_d t_obiwan_01_c.dds
+
+newmtl 24_cloths_0.1_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.675333 0.628429 0.656242
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Bump t_obiwan_01_n.dds
+map_Kd t_obiwan_01_c.dds
+map_Ks t_obiwan_01_s.dds
+map_d t_obiwan_01_c.dds
+
+newmtl 24_pants_0.1_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.412710 0.422072 0.788346
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Bump t_obiwan_01_n.dds
+map_Kd t_obiwan_02_c.dds
+map_Ks t_obiwan_01_s.dds
+map_d t_obiwan_02_c.dds
+
+newmtl 24_skirt_0.1_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.788943 0.532348 0.666758
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Bump t_obiwan_01_n.dds
+map_Kd t_obiwan_01_c.dds
+map_Ks t_obiwan_01_s.dds
+map_d t_obiwan_01_c.dds
+
+newmtl 24_teeth_0.1_0_0
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.661679 0.693847 0.612178
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Bump t_mp_teeth_n.dds
+map_Kd t_mp_teeth_c.dds
+map_Ks t_mp_teeth_s.dds
+map_d t_mp_teeth_c.dds
+
+newmtl 24_torso_0.1_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.527441 0.613288 0.436311
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Bump t_obiwan_01_n.dds
+map_Kd t_obiwan_01_c.dds
+map_Ks t_obiwan_01_s.dds
+map_d t_obiwan_01_c.dds
+
+newmtl 40_hands_0.1_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.553912 0.503419 0.754353
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Bump t_obiwan_hands_01_n.dds
+map_Kd t_obiwan_hands_01_c.dds
+map_Ks t_obiwan_hands_01_s.dds
+map_d t_obiwan_hands_01_c.dds
+
+newmtl 41_BeardCap_0.1_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.616148 0.695843 0.776589
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 1
+map_Bump t_obiwan_01_beardcap_n.dds
+map_Kd t_obiwan_01_beardcap_ca.dds
+map_Ks t_obiwan_01_beardcap_s.dds
+map_d t_obiwan_01_beardcap_ca.dds
+
+newmtl 41_BeardCards_0.1_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.564039 0.423334 0.623062
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 1
+map_Bump t_obiwan_01_beardcards_n.dds
+map_Kd t_obiwan_01_beardcards_ca.dds
+map_Ks t_obiwan_01_beardcards_s.dds
+map_d t_obiwan_01_beardcards_ca.dds
+
+newmtl 41_HairCap_0.1_0_0
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.459080 0.690375 0.442215
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 1
+map_Bump t_obiwan_01_haircap_n.dds
+map_Kd t_obiwan_01_haircap_ca.dds
+map_Ks t_obiwan_01_haircap_s.dds
+map_d t_obiwan_01_haircap_ca.dds
+
+newmtl 41_HairCards_0.1_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.502107 0.748820 0.760566
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 1
+map_Bump t_obiwan_01_haircards_n.dds
+map_Kd t_obiwan_01_haircards_ca.dds
+map_Ks t_obiwan_01_haircards_s.dds
+map_d t_obiwan_01_haircards_ca.dds
+
+newmtl 6_eyes_0.3_16_16
+Ns 96.078443
+Ka 1.000000 1.000000 1.000000
+Kd 0.553530 0.552244 0.551871
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 1
+map_Bump t_eyes_cine_01_outer_n.dds
+map_Kd t_eyes_cine_blue_c.dds
+map_d t_eyes_cine_blue_c.dds
+
+newmtl ShopMaterial
+Ns 10.000002
+Ka 1.000000 1.000000 1.000000
+Kd 0.500000 0.500000 0.500000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd Shop_dff.DDS
