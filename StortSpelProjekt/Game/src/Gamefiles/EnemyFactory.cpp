@@ -423,9 +423,9 @@ void EnemyFactory::Update(double dt)
 
 		// After a certain time, check if enemies are outside the map
 		// If they are, remove them
-		if (static_cast<int>(m_TotalTime) % 10 == 0)
+		if (m_TotalTime > 10.0f)
 		{
-			m_TotalTime += 1.0f;
+			m_TotalTime = 0.0f;
 			for (auto enemy : m_Enemies)
 			{
 				if (enemy != nullptr)
