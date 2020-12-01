@@ -880,6 +880,7 @@ Scene* ShopScene(SceneManager* sm)
 
     /* ---------------------- Pressf ---------------------- */
 
+
 #pragma region walls
     // Left wall
     entity = scene->AddEntity("wallLeft");
@@ -943,7 +944,7 @@ Scene* ShopScene(SceneManager* sm)
 #pragma endregion walls
 
     /* ---------------------- SpotLightDynamic ---------------------- */
-    entity = scene->AddEntity("spotLightDynamic");
+    entity = scene->AddEntity("spotLightDynamicPressf");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW | FLAG_LIGHT::STATIC);
@@ -955,7 +956,7 @@ Scene* ShopScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
     tc->SetTransformOriginalState();
 
-    slc->SetColor({ 5.0f, 0.0f, 0.0f });
+    slc->SetColor({ 11.0f, 10.0f, 10.0f });
     slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
     slc->SetPosition(pos);
     slc->SetDirection({ 1.0f, -1.0f, 1.0f });
