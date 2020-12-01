@@ -277,7 +277,7 @@ Scene* GameScene(SceneManager* sm)
 	zombie.movementSpeed = 45.0f;
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
-	zombie.scale = 0.02;
+	zombie.scale = 0.014;
 	zombie.detectionRad = 500.0f;
 	zombie.attackingDist = 1.5f;
     zombie.invertDirection = true;
@@ -296,7 +296,7 @@ Scene* GameScene(SceneManager* sm)
     spider.movementSpeed = 90.0f;
     spider.rot = { 0.0, 0.0, 0.0 };
     spider.targetName = "player";
-    spider.scale = 0.015;
+    spider.scale = 0.013;
     spider.detectionRad = 500.0f;
     spider.attackingDist = 1.5f;
     spider.invertDirection = true;
@@ -313,7 +313,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.attackSpeed = 1.0f;
     rangedDemon.movementSpeed = 30.0f;
     rangedDemon.targetName = "player";
-    rangedDemon.scale = 0.1f;
+    rangedDemon.scale = 0.08f;
     rangedDemon.isRanged = true;
     rangedDemon.detectionRad = 500.0f;
     rangedDemon.attackingDist = 100.0f;
