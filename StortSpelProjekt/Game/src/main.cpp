@@ -633,6 +633,7 @@ Scene* ShopScene(SceneManager* sm)
     hc = entity->AddComponent<component::HealthComponent>(50);
     ic->SetMovementSpeed(75.0);
     ic->Init();
+    bbc->AddCollisionCategory<PlayerCollisionCategory>();
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
 
