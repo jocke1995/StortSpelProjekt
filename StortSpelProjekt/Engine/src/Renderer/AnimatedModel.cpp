@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "structs.h"
 #include "AnimatedModel.h"
-#include "Animation.h"
 #include "GPUMemory/ConstantBuffer.h"
 
 #include "DescriptorHeap.h"
@@ -19,21 +18,26 @@ AnimatedModel::AnimatedModel(
 
 	m_pSkeleton = rootNode;
 	m_Animations = (*animations);
-	m_UploadMatrices.reserve(MAX_ANIMATION_MATRICES);
 
-	m_Time = 0;
-	DirectX::XMFLOAT4X4 matIdentity;
-	DirectX::XMStoreFloat4x4(&matIdentity, DirectX::XMMatrixIdentity());
-
-	for (unsigned int i = 0; i < MAX_ANIMATION_MATRICES; i++)
+	for (auto& animation : m_Animations)
 	{
-		m_UploadMatrices.push_back(matIdentity);
+		if (animation->name == "Attack_Swing_Left")
+		{
+			animation->ticksPerSecond = 60;
+		}
+		if (animation->name == "Attack_Swing_Right")
+		{
+			animation->ticksPerSecond = 60;
+		}
 	}
 
 	// Store the globalInverse transform.
 	DirectX::XMMATRIX globalInverse = DirectX::XMLoadFloat4x4(&rootNode->defaultTransform);
 	globalInverse = DirectX::XMMatrixInverse(nullptr, globalInverse);
 	DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, globalInverse);
+	m_UploadMatrices.reserve(MAX_ANIMATION_MATRICES);
+
+	ResetAnimations();
 }
 
 AnimatedModel::~AnimatedModel()
@@ -61,59 +65,252 @@ const std::vector<DirectX::XMFLOAT4X4>* AnimatedModel::GetUploadMatrices() const
 	return &m_UploadMatrices;
 }
 
-bool AnimatedModel::SetActiveAnimation(std::string animationName)
+bool AnimatedModel::PlayAnimation(std::string animationName, bool loop)
 {
+	if (!m_ActiveAnimations.empty())
+	{
+		if (m_ActiveAnimations[0]->name == animationName)
+		{
+			return false;
+		}
+	}
+
 	for (auto& animation : m_Animations)
 	{
 		if (animation->name == animationName)
 		{
-			m_pActiveAnimation = animation;
-			m_pActiveAnimation->Update(0);
-			initializeAnimation(m_pSkeleton);
+			if (!m_PendingAnimations.empty())
+			{
+				animation->loop = loop;
+				animation->Update(0);
+				m_pQueuedAnimation = animation;
+				return true;
+			}
+			else
+			{
+				m_pQueuedAnimation = nullptr;
+			}
+
+			animation->loop = loop;
+			animation->Update(0);
+			m_PendingAnimations.push_back(animation);
+			if (!m_EndingAnimations.empty())
+			{
+				blendAnimations(0);
+				bindBlendedAnimation(m_pSkeleton);
+			}
+
+			// If the animation is looping it should stay active. Else we need to reactivate the previous looping animation.
+			if (animation->loop)
+			{
+				m_pReactivateAnimation = nullptr;
+			}
+			else if (m_ActiveAnimations[0]->loop)
+			{
+				m_pReactivateAnimation = m_ActiveAnimations[0];
+			}
+			endAnimation();
+
 			return true;
 		}
 	}
 
-	Log::PrintSeverity(Log::Severity::CRITICAL, "Wrong name for the animation!\n");
+	return false;
+}
+
+bool AnimatedModel::endAnimation()
+{
+
+	if (!m_ActiveAnimations.empty() && !m_PendingAnimations.empty())
+	{
+		m_EndingAnimations.push_back(m_ActiveAnimations[0]);
+		m_ActiveAnimations.pop_back();
+		blendAnimations(0);
+		bindBlendedAnimation(m_pSkeleton);
+	}
 
 	return false;
 }
 
 void AnimatedModel::Update(double dt)
 {
-	if (m_pActiveAnimation != nullptr && !m_AnimationIsPaused)
+	if (!m_AnimationIsPaused)
 	{
-		m_Time += dt;
-		double timeInTicks = m_Time * m_pActiveAnimation->ticksPerSecond;
+		unsigned int index = 0;
+		for (auto& animation : m_ActiveAnimations)
+		{
+			// remove all finished animations from the active animations vector
+			if (animation->finished)
+			{
+				if (m_pReactivateAnimation)
+				{
+					PlayAnimation(m_pReactivateAnimation->name, m_pReactivateAnimation->loop);
+				}
+				animation->finished = false;
+			}
+			else
+			{
+				if (m_pQueuedAnimation)
+				{
+					PlayAnimation(m_pQueuedAnimation->name, m_pQueuedAnimation->loop);
+				}
+				animation->Update(dt);
+			}
+			index++;
+		}
 
-		double animationTime = fmod(timeInTicks, m_pActiveAnimation->durationInTicks);
-		m_pActiveAnimation->Update(animationTime);
+		// If there should be a transition, run blend.
+		if (!m_PendingAnimations.empty() && !m_EndingAnimations.empty())
+		{
+			for (auto& animation : m_PendingAnimations)
+			{
+				animation->Update(dt);
+			}
+
+			for (auto& animation : m_EndingAnimations)
+			{
+				animation->Update(dt);
+			}
+
+			blendAnimations(dt);
+		}
+
 		updateSkeleton(m_pSkeleton, DirectX::XMMatrixIdentity());
 	}
 }
 
-void AnimatedModel::PlayAnimation()
+void AnimatedModel::TempPlayAnimation()
 {
+	// bool for indicating if the animation is active or not.
+	std::pair<bool, Animation*> idle = { false, nullptr };
+	std::pair<bool, Animation*> walk = { false, nullptr };
+	std::pair<bool, Animation*> attack = { false, nullptr };
+
+	if (m_ActiveAnimations.size() == 1)
+	{
+		Animation* animation = m_ActiveAnimations.front();
+		bindAnimation(m_pSkeleton, animation);
+	}
+	else
+	{
+		// check for active blending
+		for (auto& animation : m_ActiveAnimations)
+		{
+			if (animation->name == "Idle")
+			{
+				idle.first = true;
+				idle.second = animation;
+			}
+			else if (animation->name == "Walk")
+			{
+				walk.first = true;
+				walk.second = animation;
+			}
+			else if (animation->name == "Claw_attack_left")
+			{
+				attack.first = true;
+				attack.second = animation;
+			}
+		}
+
+		// If the animations are to be blended, bind the skeleton in some hardcoded way.
+		if (walk.first && attack.first)
+		{
+			SkeletonNode* hips = findNode(m_pSkeleton, "Hips");
+			assert(hips != nullptr);
+			bindAnimation(hips, walk.second);
+
+			SkeletonNode* spine = findNode(m_pSkeleton, "Spine");
+			assert(spine != nullptr);
+			bindAnimation(spine, attack.second);
+		}
+	}
+
 	m_AnimationIsPaused = false;
 }
 
-void AnimatedModel::PauseAnimation()
+void AnimatedModel::TempPauseAnimation()
 {
 	m_AnimationIsPaused = true;
 }
 
-void AnimatedModel::ResetAnimation()
+void AnimatedModel::ResetAnimations()
 {
-	m_Time = 0.0f;
-	m_pActiveAnimation->Update(0);
-	updateSkeleton(m_pSkeleton, DirectX::XMMatrixIdentity());
+	// Reset all animations
+	for (auto& animation : m_Animations)
+	{
+		animation->time = 0;
+		animation->finished = false;
+		animation->Update(0);
+	}
+
+	// Clear queues 
+	m_PendingAnimations.clear();
+	m_ActiveAnimations.clear();
+	m_EndingAnimations.clear();
+	m_pQueuedAnimation = nullptr;
+	m_pReactivateAnimation = nullptr;
+
+	// Initialize the upload matrices
+	DirectX::XMFLOAT4X4 matIdentity;
+	DirectX::XMStoreFloat4x4(&matIdentity, DirectX::XMMatrixIdentity());
+	m_UploadMatrices.clear();
+	for (unsigned int i = 0; i < MAX_ANIMATION_MATRICES; i++)
+	{
+		m_UploadMatrices.push_back(matIdentity);
+	}
+
+	// Run the default animation.
+	for (auto& animation : m_Animations)
+	{
+		if (animation->name == "Idle")
+		{
+			m_ActiveAnimations.push_back(animation);
+			animation->loop = true;
+			animation->Update(0);
+			bindAnimation(m_pSkeleton, animation);
+		}
+	}
 }
 
-void AnimatedModel::initializeAnimation(SkeletonNode* node)
+void AnimatedModel::blendAnimations(double dt)
 {
-	if (m_pActiveAnimation->currentState.find(node->name) != m_pActiveAnimation->currentState.end())
+	// It would be possible to blend combo-animations (walk+attack) into a third animation (sprint) if we save the state pointers in the skeleton and use them as the interpolation startingpoint.
+	if (!m_PendingAnimations.empty() && !m_EndingAnimations.empty())
 	{
-		node->currentStateTransform = &m_pActiveAnimation->currentState[node->name];
+		float factor;
+		m_BlendTimeElapsed += dt;
+		if (m_BlendTimeElapsed >= m_BlendTransitionTime)
+		{
+			m_BlendTimeElapsed = 0.0f;
+			m_ActiveAnimations.push_back(m_PendingAnimations[0]);	// The blend phase is finished, so the pending animation will be active now.
+			m_PendingAnimations.pop_back();	// Remove from the pending vector
+			m_EndingAnimations[0]->time = 0.0f;
+			m_EndingAnimations[0]->finished = false;
+			m_EndingAnimations.pop_back();
+			bindAnimation(m_pSkeleton, m_ActiveAnimations[0]);
+			return;
+		}
+		else
+		{
+			factor = m_BlendTimeElapsed / m_BlendTransitionTime;
+		}
+		assert(factor >= 0.0f && factor <= 1.0f);
+
+		for (auto& key : m_PendingAnimations[0]->currentState)
+		{
+			m_BlendAnimationState[key.first].position = InterpolateTranslation(&(m_EndingAnimations[0]->currentState[key.first].position), &key.second.position, factor);
+			m_BlendAnimationState[key.first].rotationQuaternion = InterpolateRotation(&(m_EndingAnimations[0]->currentState[key.first].rotationQuaternion), &key.second.rotationQuaternion, factor);
+			m_BlendAnimationState[key.first].scaling = InterpolateScaling(&(m_EndingAnimations[0]->currentState[key.first].scaling), &key.second.scaling, factor);
+		}
+	}
+}
+
+void AnimatedModel::bindBlendedAnimation(SkeletonNode* node)
+{
+	if (m_BlendAnimationState.find(node->name) != m_BlendAnimationState.end())
+	{
+		node->currentStateTransform = &m_BlendAnimationState[node->name];
 	}
 	else
 	{
@@ -123,7 +320,25 @@ void AnimatedModel::initializeAnimation(SkeletonNode* node)
 	// Loop through all nodes in the tree
 	for (auto& child : node->children)
 	{
-		initializeAnimation(child);
+		bindBlendedAnimation(child);
+	}
+}
+
+void AnimatedModel::bindAnimation(SkeletonNode* node, Animation* animation)
+{
+	if (animation->currentState.find(node->name) != animation->currentState.end())
+	{
+		node->currentStateTransform = &animation->currentState[node->name];
+	}
+	else
+	{
+		node->currentStateTransform = nullptr;
+	}
+
+	// Loop through all nodes in the tree
+	for (auto& child : node->children)
+	{
+		bindAnimation(child, animation);
 	}
 }
 
@@ -171,5 +386,27 @@ void AnimatedModel::updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentT
 	for (unsigned int i = 0; i < node->children.size(); i++)
 	{
 		updateSkeleton(node->children[i], finalTransform);
+	}
+}
+
+SkeletonNode* AnimatedModel::findNode(SkeletonNode* root, std::string nodeName)
+{
+	SkeletonNode* node;
+	if (root->name == nodeName)
+	{
+		return root;
+	}
+	else
+	{
+		for (auto& child : root->children)
+		{
+			node = findNode(child, nodeName);
+			if (node != nullptr)
+			{
+				return node;
+			}
+		}
+
+		return nullptr;
 	}
 }
