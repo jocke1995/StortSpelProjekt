@@ -74,7 +74,6 @@ Entity* EnemyFactory::AddEnemy(const std::string& entityName, EnemyComps* comps)
 	enemy->hp = comps->hp;
 	enemy->hpBase = comps->hp;
 	enemy->OnHitSounds = comps->OnHitSounds;
-	enemy->crawl = comps->crawl;
 	enemy->detectionRad = comps->detectionRad;
 	enemy->attackingDist = comps->attackingDist;
 	enemy->attackInterval = comps->attackInterval;
@@ -88,6 +87,7 @@ Entity* EnemyFactory::AddEnemy(const std::string& entityName, EnemyComps* comps)
 	enemy->rangeAttackDmg = comps->rangeAttackDmg;
 	enemy->rangeAttackDmgBase = comps->rangeAttackDmg;
 	enemy->rangeVelocity = comps->rangeVelocity;
+	enemy->isSpider = comps->isSpider;
 
 	return Add(entityName, enemy);
 }
@@ -189,7 +189,6 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	{
 		ae->AddVoice(comps->OnHitSounds[0], L"OnHit");
 	}
-	ae->AddVoice(comps->crawl);
 
 	size = comps->OnGruntSounds.size();
 	if (size > 1)
@@ -199,6 +198,11 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	else if (size == 1)
 	{
 		ae->AddVoice(comps->OnGruntSounds[0], L"OnGrunt");
+	}
+
+	if (comps->isSpider)
+	{
+		ae->AddVoice(L"SpiderCrawl");
 	}
 
 	mc->SetModel(comps->model);
@@ -414,20 +418,11 @@ void EnemyFactory::Update(double dt)
 			}
 			if (spawnDefault)
 			{
-				SpawnEnemy("enemySpider", eligblePoints[point]);// change this back!
+				SpawnEnemy("enemyZombie", eligblePoints[point]);
 			}
 
 			m_EnemiesToSpawn--;
 			m_EnemySlotsLeft--;
-		}
-
-		for (auto enemy : m_Enemies)
-		{
-			if (strcmp(enemy->GetName().substr(0, 11).c_str(), "enemySpider") == 0)
-			{
-				enemy->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"SpiderCrawl");
-				enemy->GetComponent<component::Audio3DEmitterComponent>()->PlayDontReset(L"SpiderCrawl");
-			}
 		}
 	}
 }

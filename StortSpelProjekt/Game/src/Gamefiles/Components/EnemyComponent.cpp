@@ -30,11 +30,20 @@ void component::EnemyComponent::Update(double dt)
         m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnGrunt");
         m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnGrunt");
     }
+
+    if (strcmp(m_pParent->GetName().substr(0, 11).c_str(), "enemySpider") == 0)
+    {
+        m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"SpiderCrawl");
+    }
 }
 
 void component::EnemyComponent::OnInitScene()
 {
 	m_pFactory->AddEnemyToList(m_pParent);
+    if (strcmp(m_pParent->GetName().substr(0, 11).c_str(), "enemySpider") == 0)
+    {
+        m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"SpiderCrawl");
+    }
 }
 
 void component::EnemyComponent::OnUnInitScene()
