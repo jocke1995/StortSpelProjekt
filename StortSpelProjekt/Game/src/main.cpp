@@ -19,7 +19,7 @@
 
 #include "Misc/Edge.h"
 
-//#include "Misc/Cryptor.h"
+#include "Misc/Cryptor.h"
 
 Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
@@ -36,7 +36,6 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -86,14 +85,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
+    
+
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
         timer->Update();
-
-        sceneManager->ChangeScene();
-
         logicTimer += timer->GetDeltaTime();
+
+        bool changedScene = sceneManager->ChangeScene();
+        if(changedScene)
+        {
+            // if change scene, reset dt
+            timer->StartTimer();
+            timer->Update();
+        }
+
+        
         if (gameNetwork.IsConnected())
         {
             networkTimer += timer->GetDeltaTime();
@@ -254,7 +262,7 @@ Scene* GameScene(SceneManager* sm)
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
-	pic->SetMovementSpeed(70.0);
+	pic->SetMovementSpeed(75.0);
 
     avc->AddVoice(L"Bruh");
 
@@ -629,7 +637,7 @@ Scene* ShopScene(SceneManager* sm)
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(50);
-    ic->SetMovementSpeed(70.0);
+    ic->SetMovementSpeed(75.0);
     ic->Init();
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);

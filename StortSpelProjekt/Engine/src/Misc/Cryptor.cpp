@@ -85,7 +85,7 @@ bool Cryptor::Encrypt(int key, const char* source, bool binary)
 	return true;
 }
 
-bool Cryptor::EncryptDDS(int key, const char* src, const char* destination)
+bool Cryptor::EncryptBinary(int key, const char* src, const char* destination)
 {
 	if (destination == nullptr)
 	{
@@ -240,7 +240,7 @@ bool Cryptor::Decrypt(int key, const wchar_t* source, std::wstringstream* wss)
 	return true;
 }
 
-bool Cryptor::DecryptDDS(int key, const char* src, const char* destination)
+bool Cryptor::DecryptBinary(int key, const char* src, const char* destination)
 {
 	if (destination == nullptr)
 	{
@@ -306,9 +306,9 @@ void Cryptor::encryptDirectoryHelper(int key, const char* path)
 			std::string extension = entry.path().extension().generic_string().c_str();
 			if (extension != ".mtl" && extension != ".txt" && extension != ".png" && extension != ".jpg" && extension != ".tga")
 			{
-				if (extension == ".DDS" || extension == ".dds" || extension == ".fbx" || extension == ".FBX")
+				if (extension == ".DDS" || extension == ".dds" || extension == ".fbx" || extension == ".FBX" || extension == ".wav")
 				{
-					EncryptDDS(key, entry.path().generic_string().c_str());
+					EncryptBinary(key, entry.path().generic_string().c_str());
 				}
 				else if(extension == ".obj" || extension == ".OBJ")
 				{
@@ -332,9 +332,9 @@ void Cryptor::decryptDirectoryHelper(int key, const char* path)
 			std::string extension = entry.path().extension().generic_string().c_str();
 			if (extension != ".mtl" && extension != ".txt" && extension != ".png" && extension != ".jpg" && extension != ".tga")
 			{
-				if (extension == ".DDS" || extension == ".dds" || extension == ".fbx" || extension == ".FBX")
+				if (extension == ".DDS" || extension == ".dds" || extension == ".fbx" || extension == ".FBX" || extension == ".wav")
 				{
-					DecryptDDS(key, entry.path().generic_string().c_str());
+					DecryptBinary(key, entry.path().generic_string().c_str());
 				}
 				else if (extension == ".obj" || extension == ".OBJ")
 				{
