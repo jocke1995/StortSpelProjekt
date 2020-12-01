@@ -180,6 +180,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	ec = ent->AddComponent<component::EnemyComponent>(this);
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
 	ae->AddVoice(comps->sound3D, L"OnHit");
+	ae->AddVoice(L"DemonGnarl7", L"OnGrunt");
 
 	mc->SetModel(comps->model);
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -234,6 +235,8 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 		bbc->Init();
 		bbc->AddCollisionCategory<EnemyCollisionCategory>();
 	}
+
+	ec->SetRandSeed(m_RandGen.Rand() % 1000);
 
 	m_pScene->InitDynamicEntity(ent);
 	return ent;

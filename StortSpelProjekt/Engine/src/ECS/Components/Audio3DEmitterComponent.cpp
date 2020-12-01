@@ -131,7 +131,6 @@ void component::Audio3DEmitterComponent::AddVoice(const std::wstring& globalName
 
 void component::Audio3DEmitterComponent::Play(const std::wstring& name)
 {
-#ifdef _DEBUG
 	if (m_VoiceEmitterData.count(name) != 0)
 	{
 		m_VoiceEmitterData[name].voice.Play();
@@ -140,9 +139,6 @@ void component::Audio3DEmitterComponent::Play(const std::wstring& name)
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "Tried to play Audio that has not been loaded: %S \n", name.c_str());
 	}
-#else
-	m_VoiceEmitterData[name].voice.Play();
-#endif
 }
 
 void component::Audio3DEmitterComponent::Stop(const std::wstring& name)
