@@ -523,7 +523,7 @@ Scene* GameScene(SceneManager* sm)
 
 #pragma region money
     textToRender = "0";
-    textPos = { 0.95f, 0.03f };
+    textPos = { 0.945f, 0.03f };
     textPadding = { 0.5f, 0.0f };
     textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
     textScale = { 0.4f, 0.4f };
@@ -540,8 +540,11 @@ Scene* GameScene(SceneManager* sm)
     gui->GetTextManager()->SetText(textToRender, "money");
     gui->GetTextManager()->SetBlend(textBlend, "money");
 
-    quadPos = { 0.91f, 0.03f };
-    quadScale = { 0.03f, 0.03f };
+    quadPos = { 0.92f, 0.03f };
+    int height = Renderer::GetInstance().GetWindow()->GetScreenHeight();
+    int width = Renderer::GetInstance().GetWindow()->GetScreenWidth();
+    float ratio = static_cast<float>(height) / static_cast<float>(width);
+    quadScale = { 0.03f * ratio, 0.03f };
     blended = { 1.0, 1.0, 1.0, 0.99 };
     notBlended = { 1.0, 1.0, 1.0, 1.0 };
     gui->GetQuadManager()->CreateQuad(
@@ -858,7 +861,7 @@ Scene* ShopScene(SceneManager* sm)
 
     /*---------------- GUI Coin -----------------*/
     textToRender = "0";
-    textPos = { 0.95f, 0.03f };
+    textPos = { 0.945f, 0.03f };
     textPadding = { 0.5f, 0.0f };
     textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
     textScale = { 0.4f, 0.4f };
@@ -875,8 +878,11 @@ Scene* ShopScene(SceneManager* sm)
     gui->GetTextManager()->SetText(textToRender, "money");
     gui->GetTextManager()->SetBlend(textBlend, "money");
 
-    quadPos = { 0.91f, 0.03f };
-    quadScale = { 0.03f, 0.03f };
+    quadPos = { 0.92f, 0.03f };
+    int height = Renderer::GetInstance().GetWindow()->GetScreenHeight();
+    int width = Renderer::GetInstance().GetWindow()->GetScreenWidth();
+    float ratio = static_cast<float>(height) / static_cast<float>(width);
+    quadScale = { 0.03f * ratio, 0.03f };
     notBlended = { 1.0, 1.0, 1.0, 1.0 };
     gui->GetQuadManager()->CreateQuad(
         "money",
