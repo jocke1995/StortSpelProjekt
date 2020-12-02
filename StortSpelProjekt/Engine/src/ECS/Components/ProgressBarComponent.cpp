@@ -50,7 +50,17 @@ namespace component
 
 	void ProgressBarComponent::Update(double dt)
 	{
-		// TODO: Update
+		// Only show the progressBar for a limit amount of time
+		if (m_DrawState == true)
+		{
+			m_TimeElapsedSinceDrawedFirstTime += dt;
+
+			if (m_TimeElapsedSinceDrawedFirstTime > PROGRESSBAR_TIME)
+			{
+				m_DrawState = false;
+				m_TimeElapsedSinceDrawedFirstTime = 0.0;
+			}
+		}
 	}
 
 	void ProgressBarComponent::OnInitScene()
@@ -117,8 +127,17 @@ namespace component
 		m_Textures[progressBarType] = texture;
 	}
 
-	void ProgressBarComponent::SetDrawState(bool draw)
+	void ProgressBarComponent::EnableProgressBar()
 	{
-		m_DrawState = draw;
+		// Reset timer
+		m_TimeElapsedSinceDrawedFirstTime = 0.0f;
+
+		// Enable drawing
+		m_DrawState = true;
+	}
+
+	void ProgressBarComponent::DisableProgressBar()
+	{
+		m_DrawState = false;
 	}
 }
