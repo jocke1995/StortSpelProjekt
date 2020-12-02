@@ -518,10 +518,10 @@ void Renderer::Execute()
 	/* --------------------------------------------------------------- */
 
 	// Wait if the CPU is to far ahead of the gpu
-	m_FenceFrameValue++;
-
+	
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
 	waitForFrame(0);
+	m_FenceFrameValue++;
 
 	/*------------------- Post draw stuff -------------------*/
 	// Clear copy on demand
@@ -2512,10 +2512,23 @@ void Renderer::createFences()
 	m_EventHandle = CreateEvent(0, false, false, 0);
 }
 
+void Renderer::waitForFrame(unsigned int framesToBeAhead)
+{
+	static constexpr unsigned int nrOfFenceChangesPerFrame = 1;
+	unsigned int fenceValuesToBeAhead = framesToBeAhead * nrOfFenceChangesPerFrame;
+
+	//Wait if the CPU is "framesToBeAhead" number of frames ahead of the GPU
+	if (m_pFenceFrame->GetCompletedValue() < m_FenceFrameValue - fenceValuesToBeAhead)
+	{
+		m_pFenceFrame->SetEventOnCompletion(m_FenceFrameValue - fenceValuesToBeAhead, m_EventHandle);
+		WaitForSingleObject(m_EventHandle, INFINITE);
+	}
+}
+
 void Renderer::waitForGPU()
 {
 	//Signal and increment the fence value.
-	const UINT64 oldFenceValue = m_FenceFrameValue;
+	const UINT64 oldFenceValue = m_FenceFrameValue;	
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, oldFenceValue);
 	m_FenceFrameValue++;
 
@@ -2536,19 +2549,6 @@ void Renderer::setRenderTasksGUI2DComponents()
 void Renderer::setProgressBarComponents()
 {
 	static_cast<ProgressBarRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR])->SetProgressBarComponents(&m_ProgressBarComponents);
-}
-
-void Renderer::waitForFrame(unsigned int framesToBeAhead)
-{
-	static constexpr unsigned int nrOfFenceChangesPerFrame = 1;
-	unsigned int fenceValuesToBeAhead = framesToBeAhead * nrOfFenceChangesPerFrame;
-
-	//Wait if the CPU is "framesToBeAhead" number of frames ahead of the GPU
-	if (m_pFenceFrame->GetCompletedValue() < m_FenceFrameValue - fenceValuesToBeAhead)
-	{
-		m_pFenceFrame->SetEventOnCompletion(m_FenceFrameValue - fenceValuesToBeAhead, m_EventHandle);
-		WaitForSingleObject(m_EventHandle, INFINITE);
-	}
 }
 
 // Saving these incase we for some reason want to go back
