@@ -22,6 +22,18 @@ struct TransformKey
 	DirectX::XMFLOAT4* pRotation = &rotation;
 	DirectX::XMFLOAT3 scaling = { 1.0f,1.0f,1.0f };
 	DirectX::XMFLOAT3* pScale = &scaling;
+
+	TransformKey& operator= (const TransformKey& other)
+	{
+		position = other.position;
+		rotation = other.rotation;
+		scaling = other.scaling;
+		pPosition = &position;
+		pRotation = &rotation;
+		pScale = &scaling;
+
+		return *this;
+	}
 };
 
 struct TranslationKey
@@ -53,6 +65,10 @@ struct SkeletonNode
 
 	SkeletonNode()
 	{
+		boneID = -1;
+		DirectX::XMStoreFloat4x4(&defaultTransform, DirectX::XMMatrixIdentity());
+		DirectX::XMStoreFloat4x4(&inverseBindPose, DirectX::XMMatrixIdentity());
+		currentStateTransform = nullptr;
 	}
 	
 	~SkeletonNode()
@@ -76,7 +92,7 @@ struct SkeletonNode
 	// Clones the skeleton. Uses dynamic memory allocation so make sure to delete the clone.
 	SkeletonNode* Clone()
 	{
-		SkeletonNode* nodeCopy(this);
+		SkeletonNode* nodeCopy = new SkeletonNode(*this);
 		for (auto& child : children)
 		{
 			nodeCopy->children.push_back(child->Clone());
@@ -124,7 +140,7 @@ struct Animation
 	{
 		std::map<std::string, TransformKey> state;
 
-		double animationTimeInTicks = animationTime * ticksPerSecond;
+		double animationTimeInTicks = fmod(animationTime * ticksPerSecond, durationInTicks);
 
 		for (auto& bone : translationKeyframes)
 		{
@@ -166,7 +182,7 @@ struct Animation
 				unsigned int keyIndex = 0;
 				for (unsigned int i = 0; i < bone.second.size() - 1; i++)
 				{
-					if (animationTime < bone.second[i + 1].time)
+					if (animationTimeInTicks < bone.second[i + 1].time)
 					{
 						keyIndex = i;
 						break;

@@ -46,7 +46,7 @@ void component::AnimationComponent::RenderUpdate(double dt)
 			m_pActiveAnimation.second.Reset();
 			return;
 		}
-		m_AnimationState = m_pActiveAnimation.first->Update(dt);
+		m_AnimationState = m_pActiveAnimation.first->Update(m_pActiveAnimation.second.animationTime);
 	}
 	else if (m_pPendingAnimation.first && m_pEndingAnimation.first)
 	{
@@ -72,8 +72,8 @@ void component::AnimationComponent::RenderUpdate(double dt)
 
 		m_pPendingAnimation.second.animationTime += dt;
 		m_pEndingAnimation.second.animationTime += dt;
-		std::map<std::string, TransformKey> startState = m_pPendingAnimation.first->Update(dt);
-		std::map<std::string, TransformKey> endState = m_pEndingAnimation.first->Update(dt);
+		std::map<std::string, TransformKey> startState = m_pPendingAnimation.first->Update(m_pPendingAnimation.second.animationTime);
+		std::map<std::string, TransformKey> endState = m_pEndingAnimation.first->Update(m_pEndingAnimation.second.animationTime);
 
 		for (auto& key : startState)
 		{
@@ -89,10 +89,12 @@ void component::AnimationComponent::RenderUpdate(double dt)
 void component::AnimationComponent::OnInitScene()
 {
 	Renderer::GetInstance().InitAnimationComponent(this);
+	Reset();
 }
 
 void component::AnimationComponent::OnUnInitScene()
 {
+	Reset();
 	Renderer::GetInstance().UnInitAnimationComponent(this);
 }
 
@@ -125,8 +127,8 @@ void component::AnimationComponent::Reset()
 		if (animation->name == "Idle")
 		{
 			m_pActiveAnimation.first = animation;
-			m_pActiveAnimation.second.loop = true;
-			m_AnimationState = m_pActiveAnimation.first->Update(0);
+			m_AnimationState = m_pActiveAnimation.first->Update(m_pActiveAnimation.second.animationTime);
+			break;
 		}
 	}
 }
