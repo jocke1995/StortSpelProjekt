@@ -44,7 +44,8 @@ namespace component
 		void SetTexture(PROGRESS_BAR_TYPE, Texture* texture);
 
 		// Enable / Disable the drawing of the progressBar
-		void SetDrawState(bool draw);
+		void EnableProgressBar();
+		void DisableProgressBar();
 
 	private:
 		friend class Renderer;
@@ -61,6 +62,8 @@ namespace component
 		std::array<ConstantBuffer*, 2> m_ConstantBuffers;
 		std::array<Texture*, 2> m_Textures;
 		bool m_DrawState = true;
+
+		double m_TimeElapsedSinceDrawedFirstTime = 0.0f;
 	};
 }
 

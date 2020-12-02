@@ -23,6 +23,7 @@ component::EnemyComponent::~EnemyComponent()
 
 void component::EnemyComponent::Update(double dt)
 {
+    // Sound
     m_TimeSinceLastGrunt += dt;
     if (static_cast<double>(m_Rand.Randu(10,100)) < m_TimeSinceLastGrunt)
     {
@@ -30,6 +31,18 @@ void component::EnemyComponent::Update(double dt)
         m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnGrunt");
         m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnGrunt");
     }
+
+    // Move ProgressBar with the enemy
+    component::ProgressBarComponent* pc = m_pParent->GetComponent<component::ProgressBarComponent>();
+    component::TransformComponent* tc = m_pParent->GetComponent<component::TransformComponent>();
+
+    // Todo: fix this
+    float3 positionAboveHead = {};
+    positionAboveHead = tc->GetTransform()->GetPositionFloat3();
+
+    positionAboveHead.y = positionAboveHead.y * 2 + 1.0f;
+
+    pc->SetPosition(positionAboveHead);
 }
 
 void component::EnemyComponent::OnInitScene()

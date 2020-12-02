@@ -173,12 +173,14 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	component::Audio3DEmitterComponent* ae = nullptr;
 	component::EnemyComponent* ec = nullptr;
 	component::RangeEnemyComponent* rangeEnemyComp = nullptr;
+	component::ProgressBarComponent* pc = nullptr;
 
 	mc = ent->AddComponent<component::ModelComponent>();
 	tc = ent->AddComponent<component::TransformComponent>(comps->invertDirection);
 	ent->AddComponent<component::HealthComponent>(comps->hp);
 	ec = ent->AddComponent<component::EnemyComponent>(this);
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
+
 	unsigned int size = comps->OnHitSounds.size();
 	if (size > 1)
 	{
@@ -229,6 +231,15 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	}
 
 	tc->SetTransformOriginalState();
+
+	// ProgressBar
+	// Todo: gör mindre
+	pc = ent->AddComponent<component::ProgressBarComponent>(t->GetPositionFloat3(), 5.0f, 1.0f);
+
+	// todo: ta bort
+	pc->EnableProgressBar();
+
+
 	if (comps->compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
 	{
 		cc = ent->AddComponent<component::CapsuleCollisionComponent>(comps->mass, comps->dim.z / 2.0, comps->dim.y - comps->dim.z, 0.01, 0.0, false);
