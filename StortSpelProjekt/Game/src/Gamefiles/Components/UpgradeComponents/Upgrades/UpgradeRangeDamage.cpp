@@ -14,7 +14,7 @@ UpgradeRangeDamage::UpgradeRangeDamage(Entity* parentEntity) : Upgrade(parentEnt
 
 	m_DamageChange = 25;
 
-	m_ImageName = "Rangedamage.png";
+	m_ImageName = "RangeUpgrade.png";
 }
 
 UpgradeRangeDamage::~UpgradeRangeDamage()

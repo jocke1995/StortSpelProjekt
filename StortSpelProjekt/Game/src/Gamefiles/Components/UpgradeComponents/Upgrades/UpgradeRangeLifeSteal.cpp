@@ -17,6 +17,8 @@ UpgradeRangeLifeSteal::UpgradeRangeLifeSteal(Entity* parent)
 	
 	// percentage of damage done to steal as life
 	m_PercentageGain = 0.10;
+
+	m_ImageName = "RangeUpgrade.png";
 }
 
 UpgradeRangeLifeSteal::~UpgradeRangeLifeSteal()

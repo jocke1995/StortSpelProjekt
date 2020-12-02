@@ -16,6 +16,8 @@ UpgradeRangeVelocity::UpgradeRangeVelocity(Entity* parent)
 
 	// this upgrade will have a max level
 	m_MaxLevel = 5;
+
+	m_ImageName = "RangeUpgrade.png";
 }
 
 UpgradeRangeVelocity::~UpgradeRangeVelocity()
