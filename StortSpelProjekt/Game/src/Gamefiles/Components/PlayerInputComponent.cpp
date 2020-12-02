@@ -28,7 +28,9 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_JumpHeight = 5.0;
 	m_JumpTime = 0.25;
 	m_Gravity = (-2 * m_JumpHeight) / (m_JumpTime * m_JumpTime);
+	m_BaseMovementSpeed = 10.0f;
 	m_MovementSpeed = 10.0f;
+	m_Slow = 1.0f;
 
 	m_pCamera = nullptr;
 	m_pTransform = nullptr;
@@ -110,6 +112,32 @@ void component::PlayerInputComponent::OnInitScene()
 
 void component::PlayerInputComponent::OnUnInitScene()
 {
+}
+
+void component::PlayerInputComponent::Update(double dt)
+{
+	if (m_Slow < 1.0f)
+	{
+		m_Slow += 0.2 * dt; //Recover 20% movementspeed every second
+		if (m_Slow > 1.0f)
+		{
+			m_Slow = 1.0f;
+		}
+		m_MovementSpeed = m_BaseMovementSpeed * m_Slow;
+		m_pTransform->SetVelocity(m_MovementSpeed);
+		double3 vel = m_pCC->GetLinearVelocity();
+		float speed = m_pTransform->GetVelocity();
+		double3 move = {
+			vel.x,
+			0.0,
+			vel.z
+		};
+		move.normalize();
+		if (!m_Dashing)
+		{
+			m_pCC->SetVelVector(move.x * speed, vel.y, move.z * speed);
+		}
+	}
 }
 
 void component::PlayerInputComponent::RenderUpdate(double dt)
@@ -202,7 +230,15 @@ void component::PlayerInputComponent::SetJumpTime(double time)
 
 void component::PlayerInputComponent::SetMovementSpeed(float speed)
 {
-	m_MovementSpeed = speed;
+	m_BaseMovementSpeed = speed;
+	m_MovementSpeed = m_BaseMovementSpeed;
+}
+
+void component::PlayerInputComponent::SetSlow(float slow)
+{
+	m_Slow = slow;
+	m_MovementSpeed = m_BaseMovementSpeed * m_Slow;
+	m_pTransform->SetVelocity(m_MovementSpeed);
 }
 
 void component::PlayerInputComponent::SetAngleToTurnTo(int angle)

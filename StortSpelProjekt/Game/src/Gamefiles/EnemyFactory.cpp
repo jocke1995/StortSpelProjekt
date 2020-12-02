@@ -19,6 +19,9 @@ EnemyFactory::EnemyFactory()
 	m_LevelMaxEnemies = 20;
 	m_EnemiesKilled = 0;
 	m_EnemiesToSpawn = 0;
+	m_LevelTime = 30;
+	m_LevelTimer = 0;
+	m_TimeRound = false;
 	m_EnemySlotsLeft = m_LevelMaxEnemies;
 	m_SpawnCooldown = 1;
 	m_MinimumDistanceToPlayer = 10;
@@ -227,6 +230,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 		ai->SetAttackInterval(comps->attackInterval);
 		ai->SetAttackSpeed(comps->attackSpeed);
 		ai->SetMeleeAttackDmg(comps->meleeAttackDmg);
+		ai->SetSlowingAttack(comps->slowAttack);
 		ai->SetScene(m_pScene);
 		if (comps->isRanged)
 		{
@@ -262,7 +266,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 
 	if (F_COMP_FLAGS::OBB & comps->compFlags)
 	{
-		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
 		bbc->Init();
 		bbc->AddCollisionCategory<EnemyCollisionCategory>();
 	}
@@ -378,82 +382,145 @@ void EnemyFactory::Update(double dt)
 {
 	if (m_IsActive)
 	{
+		if (m_TimeRound)
+		{
+			timeRound(dt);
+		}
+		else
+		{
+			killRound(dt);
+		}
+	}
+}
+
+void EnemyFactory::timeRound(double dt)
+{
+	if (m_LevelTime > 0)
+	{
+		m_LevelTimer += dt;
+		if (m_LevelTimer >= 1.0)
+		{
+			m_LevelTimer -= 1.0;
+			m_LevelTime -= 1;
+
+			Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+			if (enemyGui != nullptr)
+			{
+				enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(" Survive: " + std::to_string(m_LevelTime), "enemyGui");
+			}
+
+
+			if (m_LevelTime == 0)
+			{
+				EventBus::GetInstance().Publish(&LevelDone());
+			}
+		}
+
 		//m_EnemiesToSpawn hold how many enemies are left to spawn
 		//This exist to stagger the spawning of enemies by one frame to spread the load over multiple frames
-		if (m_EnemiesToSpawn == 0  && m_EnemySlotsLeft > 0)
+		if (m_EnemiesToSpawn == 0)
 		{
 			m_SpawnTimer += dt / m_Enemies.size();
 			if (m_SpawnCooldown <= m_SpawnTimer)
 			{
 				m_SpawnTimer = 0.0;
 				m_EnemiesToSpawn = 3 + m_Level / 3.0f;
-
-				if (m_EnemiesToSpawn > m_EnemySlotsLeft)
-				{
-					m_EnemiesToSpawn = m_EnemySlotsLeft;
-				}
 			}
-		} 
-		else if(m_EnemySlotsLeft > 0)
+		}
+	}
+	if (m_EnemiesToSpawn > 0)
+	{
+		std::vector<int> eligblePoints;
+		float3 playerPos = m_pScene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform()->GetRenderPositionFloat3();
+		for (int i = 0; i < m_SpawnPoints.size(); i++)
 		{
-			std::vector<int> eligblePoints;
-			float3 playerPos = m_pScene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform()->GetRenderPositionFloat3();
-			for (int i = 0; i < m_SpawnPoints.size(); i++)
+			float distToPlayer = (m_SpawnPoints[i] - playerPos).length();
+			if (distToPlayer > m_MinimumDistanceToPlayer)
 			{
-				float distToPlayer = (m_SpawnPoints[i] - playerPos).length();
-				if (distToPlayer > m_MinimumDistanceToPlayer)
-				{
-					eligblePoints.push_back(i);
-				}
+				eligblePoints.push_back(i);
 			}
-
-			unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
-			int spawnNumber = m_RandGen.Rand(1, 100);
-			int spawnChance = 0;
-			bool spawnDefault = true;
-			for (auto enemy : m_EnemyComps)
-			{
-				if (enemy.second != nullptr)
-				{
-					spawnChance += enemy.second->spawnChance;
-					if (spawnNumber <= spawnChance)
-					{
-						SpawnEnemy(enemy.first, eligblePoints[point]);
-						spawnDefault = false;
-						break;
-					}
-				}
-			}
-
-			if (spawnDefault)
-			{
-				SpawnEnemy("enemyZombie", eligblePoints[point]);
-			}
-
-			m_EnemiesToSpawn--;
-			m_EnemySlotsLeft--;
 		}
 
-		// After a certain time, check if enemies are outside the map
-		// If they are, remove them
-		if (m_TotalTime > 10.0f)
+		unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
+		int spawnNumber = m_RandGen.Rand(1, 100);
+		int spawnChance = 0;
+		bool spawnDefault = true;
+		for (auto enemy : m_EnemyComps)
 		{
-			m_TotalTime = 0.0f;
-			for (auto enemy : m_Enemies)
+			if (enemy.second != nullptr)
 			{
-				if (enemy != nullptr)
+				spawnChance += enemy.second->spawnChance;
+				if (spawnNumber <= spawnChance)
 				{
-					component::TransformComponent* tc = enemy->GetComponent<component::TransformComponent>();
-					if (tc->GetTransform()->GetPositionFloat3().y < -20.0f)
-					{
-						Entity* ent = m_pScene->GetEntity(enemy->GetName());
-						EventBus::GetInstance().Publish(&Death(ent));
-						EventBus::GetInstance().Publish(&RemoveMe(ent));
-						Log::PrintSeverity(Log::Severity::WARNING, "Removed an enemy which was outside the map!\n");
-					}
+					SpawnEnemy(enemy.first, eligblePoints[point]);
+					spawnDefault = false;
+					break;
 				}
 			}
 		}
+		if (spawnDefault)
+		{
+			SpawnEnemy("enemyZombie", eligblePoints[point]);
+		}
+
+		m_EnemiesToSpawn--;
+	}
+}
+void EnemyFactory::killRound(double dt)
+{
+	//m_EnemiesToSpawn hold how many enemies are left to spawn
+		//This exist to stagger the spawning of enemies by one frame to spread the load over multiple frames
+	if (m_EnemiesToSpawn == 0 && m_EnemySlotsLeft > 0)
+	{
+		m_SpawnTimer += dt / m_Enemies.size();
+		if (m_SpawnCooldown <= m_SpawnTimer)
+		{
+			m_SpawnTimer = 0.0;
+			m_EnemiesToSpawn = 3 + m_Level / 3.0f;
+
+			if (m_EnemiesToSpawn > m_EnemySlotsLeft)
+			{
+				m_EnemiesToSpawn = m_EnemySlotsLeft;
+			}
+		}
+	}
+	else if (m_EnemySlotsLeft > 0)
+	{
+		std::vector<int> eligblePoints;
+		float3 playerPos = m_pScene->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform()->GetRenderPositionFloat3();
+		for (int i = 0; i < m_SpawnPoints.size(); i++)
+		{
+			float distToPlayer = (m_SpawnPoints[i] - playerPos).length();
+			if (distToPlayer > m_MinimumDistanceToPlayer)
+			{
+				eligblePoints.push_back(i);
+			}
+		}
+
+		unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
+		int spawnNumber = m_RandGen.Rand(1, 100);
+		int spawnChance = 0;
+		bool spawnDefault = true;
+		for (auto enemy : m_EnemyComps)
+		{
+			if (enemy.second != nullptr)
+			{
+				spawnChance += enemy.second->spawnChance;
+				if (spawnNumber <= spawnChance)
+				{
+					SpawnEnemy(enemy.first, eligblePoints[point]);
+					spawnDefault = false;
+					break;
+				}
+			}
+		}
+		if (spawnDefault)
+		{
+			SpawnEnemy("enemyZombie", eligblePoints[point]);
+		}
+
+		m_EnemiesToSpawn--;
+		m_EnemySlotsLeft--;
 	}
 
 	m_TotalTime += dt;
@@ -461,7 +528,8 @@ void EnemyFactory::Update(double dt)
 
 void EnemyFactory::enemyDeath(Death* evnt)
 {
-	if (strcmp(evnt->ent->GetName().substr(0, 5).c_str(), "enemy") == 0)
+	//We don't care about kills on time rounds
+	if (strcmp(evnt->ent->GetName().substr(0, 5).c_str(), "enemy") == 0 && !m_TimeRound)
 	{
 		m_EnemiesKilled++;
 
@@ -516,10 +584,50 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	m_SpawnTimer = 0.0f;
 	m_EnemiesKilled = 0;
 
+	//First round is level 0 at this point and we want a time round every third level
+	if (m_Level % 3 == 2)
+	{
+		m_TimeRound = true;
+		m_LevelTime = 30 + 5 * m_Level;
+		m_LevelTimer = 0.0;
 
-	//Scaling difficulty
-	m_LevelMaxEnemies = 20 + 2 * m_Level;
-	m_EnemySlotsLeft = m_LevelMaxEnemies;
+		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+		if (enemyGui != nullptr)
+		{
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(" Survive: " + std::to_string(m_LevelTime), "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.074f, 0.044f }, "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetScale({ 0.5f, 0.5f }, "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetBlend({ 1.0f, 1.0f, 1.0f, 0.8f }, "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
+				{ 0.015f, 0.021f },
+				{ 0.20f, 0.08f },
+				false, false,
+				{ 1.0, 1.0, 1.0, 1.0 }
+			);
+		}
+	}
+	else //Normal kill round
+	{
+		m_TimeRound = false;
+		//Scaling difficulty
+		m_LevelMaxEnemies = 20 + 2 * m_Level;
+		m_EnemySlotsLeft = m_LevelMaxEnemies;
+
+		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+		if (enemyGui != nullptr)
+		{
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.074f, 0.044f }, "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetScale({ 0.5f, 0.5f }, "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetBlend({ 1.0f, 1.0f, 1.0f, 0.8f }, "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
+				{ 0.015f, 0.021f },
+				{ 0.15f, 0.08f },
+				false, false,
+				{ 1.0, 1.0, 1.0, 1.0 }
+			);
+		}
+	}
 
 	// melee
 	if (m_EnemyComps["enemyZombie"] != nullptr)
@@ -556,15 +664,6 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 		}
 	}
 
-
-	Entity* enemyGui = m_pScene->GetEntity("enemyGui");
-	if (enemyGui != nullptr)
-	{
-		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
-		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.074f, 0.044f }, "enemyGui");
-		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetScale({ 0.5f, 0.5f }, "enemyGui");
-		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetBlend({ 1.0f, 1.0f, 1.0f, 0.8f }, "enemyGui");
-	}
 	++m_Level;
 }
 
