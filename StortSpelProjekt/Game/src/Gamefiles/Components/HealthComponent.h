@@ -6,6 +6,7 @@
 
 struct Death;
 class Entity;
+class Texture;
 namespace component
 {
 	class HealthComponent : public Component
@@ -46,6 +47,12 @@ namespace component
 		bool m_Dead = false;
 		float m_DeathDuration = 0.0f;
 		float m_RemovalTimer;
+
+		Texture* m_100;
+		Texture* m_80;
+		Texture* m_60;
+		Texture* m_40;
+		Texture* m_20;
 	};
 
 
