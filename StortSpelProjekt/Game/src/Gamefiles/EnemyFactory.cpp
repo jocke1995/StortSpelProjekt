@@ -227,6 +227,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 		ai->SetAttackInterval(comps->attackInterval);
 		ai->SetAttackSpeed(comps->attackSpeed);
 		ai->SetMeleeAttackDmg(comps->meleeAttackDmg);
+		ai->SetSlowingAttack(comps->slowAttack);
 		ai->SetScene(m_pScene);
 		if (comps->isRanged)
 		{

@@ -287,8 +287,8 @@ Scene* GameScene(SceneManager* sm)
     // melee
 	EnemyComps zombie = {};
 	zombie.model = enemyZombieModel;
-	zombie.hp = 120;
-	zombie.hpBase = 120;
+	zombie.hp = 70;
+	zombie.hpBase = 70;
 	zombie.OnHitSounds.emplace_back(L"DemonHit7");
     zombie.OnGruntSounds.emplace_back(L"DemonGnarl1");
     zombie.OnGruntSounds.emplace_back(L"DemonGnarl2");
@@ -299,8 +299,8 @@ Scene* GameScene(SceneManager* sm)
     zombie.OnGruntSounds.emplace_back(L"DemonGnarl7");
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
-	zombie.meleeAttackDmg = 35.0f;
-	zombie.meleeAttackDmgBase = 35.0f;
+	zombie.meleeAttackDmg = 30.0f;
+	zombie.meleeAttackDmgBase = 30.0f;
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
 	zombie.movementSpeed = 45.0f;
@@ -311,20 +311,21 @@ Scene* GameScene(SceneManager* sm)
 	zombie.attackingDist = 1.5f;
     zombie.invertDirection = true;
     zombie.mass = 150.0f;
+    zombie.slowAttack = 0.5f;
 
     // quick melee
     EnemyComps spider = {};
     spider.model = enemySpiderModel;
-    spider.hp = 40;
-    spider.hpBase = 40;
+    spider.hp = 35;
+    spider.hpBase = 35;
     spider.OnHitSounds.emplace_back(L"SpiderHit");
     spider.OnGruntSounds.emplace_back(L"SpiderSound");
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     spider.meleeAttackDmg = 15.0f;
     spider.meleeAttackDmgBase = 15.0f;
-    spider.attackInterval = 0.5f;
-    spider.attackSpeed = 0.2f;
+    spider.attackInterval = 0.70f;
+    spider.attackSpeed = 0.05f;
     spider.movementSpeed = 90.0f;
     spider.rot = { 0.0, 0.0, 0.0 };
     spider.targetName = "player";
@@ -338,8 +339,8 @@ Scene* GameScene(SceneManager* sm)
     // ranged
     EnemyComps rangedDemon = {};
     rangedDemon.model = enemyDemonModel;
-    rangedDemon.hp = 200;
-    rangedDemon.hpBase = 200;
+    rangedDemon.hp = 120;
+    rangedDemon.hpBase = 120;
     rangedDemon.OnHitSounds.emplace_back(L"Bruh");
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
@@ -351,8 +352,8 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.isRanged = true;
     rangedDemon.detectionRad = 500.0f;
     rangedDemon.attackingDist = 100.0f;
-    rangedDemon.rangeAttackDmg = 75;
-    rangedDemon.rangeVelocity = 40.0f;
+    rangedDemon.rangeAttackDmg = 70;
+    rangedDemon.rangeVelocity = 50.0f;
     rangedDemon.projectileModel = sphereModel;
     rangedDemon.invertDirection = true;
     rangedDemon.mass = 300.0f;
