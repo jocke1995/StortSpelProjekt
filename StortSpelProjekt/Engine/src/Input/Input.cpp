@@ -74,17 +74,6 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			}
 		}
 	}
-	else if (key == SCAN_CODES::LEFT_CTRL ||key == SCAN_CODES::TAB)
-	{
-		if (justPressed)
-		{
-			EventBus::GetInstance().Publish(&ModifierInput(key, justPressed));
-		}
-		else if (!pressed)
-		{
-			EventBus::GetInstance().Publish(&ModifierInput(key, pressed));
-		}
-	}
 
 	else if (key == SCAN_CODES::U)
 	{
