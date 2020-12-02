@@ -18,7 +18,7 @@
 
 #include "Misc/Edge.h"
 
-#include "Misc/Cryptor.h"
+//#include "Misc/Cryptor.h"
 
 Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
@@ -175,6 +175,7 @@ Scene* GameScene(SceneManager* sm)
     Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    AudioBuffer* playerHit1 = al->LoadAudio(L"../Vendor/Resources/Audio/Femalegrunt.wav", L"PlayerHit1");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
     AudioBuffer* demonGnarl1 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_1.wav", L"DemonGnarl1");
@@ -271,7 +272,7 @@ Scene* GameScene(SceneManager* sm)
     pic->SetJumpHeight(6.0);
 	pic->SetMovementSpeed(75.0);
 
-    avc->AddVoice(L"Bruh");
+    avc->AddVoice(L"PlayerHit1");
 
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
@@ -283,6 +284,8 @@ Scene* GameScene(SceneManager* sm)
 	EnemyComps zombie = {};
 	zombie.model = enemyZombieModel;
 	zombie.hp = 70;
+	zombie.hp = 120;
+	zombie.hpBase = 120;
 	zombie.OnHitSounds.emplace_back(L"DemonHit7");
     zombie.OnGruntSounds.emplace_back(L"DemonGnarl1");
     zombie.OnGruntSounds.emplace_back(L"DemonGnarl2");
@@ -294,6 +297,8 @@ Scene* GameScene(SceneManager* sm)
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
 	zombie.meleeAttackDmg = 30.0f;
+	zombie.meleeAttackDmg = 35.0f;
+	zombie.meleeAttackDmgBase = 35.0f;
 	zombie.attackInterval = 1.5f;
 	zombie.attackSpeed = 0.1f;
 	zombie.movementSpeed = 45.0f;
@@ -310,10 +315,15 @@ Scene* GameScene(SceneManager* sm)
     EnemyComps spider = {};
     spider.model = enemySpiderModel;
     spider.hp = 35;
+    spider.hp = 40;
+    spider.hpBase = 40;
     spider.OnHitSounds.emplace_back(L"Bruh");
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     spider.meleeAttackDmg = 15.0f;
+    spider.meleeAttackDmgBase = 15.0f;
+    spider.attackInterval = 0.5f;
+    spider.attackSpeed = 0.2f;
     spider.attackInterval = 0.75f;
     spider.attackSpeed = 0.05f;
     spider.movementSpeed = 90.0f;
@@ -329,6 +339,8 @@ Scene* GameScene(SceneManager* sm)
     EnemyComps rangedDemon = {};
     rangedDemon.model = enemyDemonModel;
     rangedDemon.hp = 120;
+    rangedDemon.hp = 200;
+    rangedDemon.hpBase = 200;
     rangedDemon.OnHitSounds.emplace_back(L"Bruh");
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;

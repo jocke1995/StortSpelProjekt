@@ -502,6 +502,7 @@ void component::AiComponent::updateMelee(double dt)
 				{
 					m_pTarget->GetComponent<component::PlayerInputComponent>()->SetSlow(1.0f - m_SlowingAttack);
 					m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(m_MeleeAttackDmg);
+					m_pTarget->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerHit1");
 					Log::Print("ENEMY ATTACK!\n");
 					m_SpeedTimeAccumulator = 0.0;
 					m_IntervalTimeAccumulator = 0.0;
