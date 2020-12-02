@@ -262,7 +262,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 
 	if (F_COMP_FLAGS::OBB & comps->compFlags)
 	{
-		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+		bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING);
 		bbc->Init();
 		bbc->AddCollisionCategory<EnemyCollisionCategory>();
 	}
