@@ -374,6 +374,10 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		bool dash = (evnt->key == SCAN_CODES::LEFT_SHIFT || evnt->key == SCAN_CODES::RIGHT_SHIFT) && evnt->pressed;
 
 		double jump = static_cast<double>(evnt->key == SCAN_CODES::SPACE) * static_cast<double>(evnt->pressed);
+		if (jump == 1.0)
+		{
+			m_Jump = true;
+		}
 
 		// Get the forward and right vectors to determine in which direction to move
 		/*float3 forward = m_pTransform->GetForwardFloat3();
@@ -594,6 +598,11 @@ void component::PlayerInputComponent::updateDefault(double dt)
 	else
 	{
 		m_pCC->SetGravity(m_Gravity);
+		if (m_Jump)
+		{
+			m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerJump");
+			m_Jump = false;
+		}
 	}
 }
 

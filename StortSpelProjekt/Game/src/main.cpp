@@ -193,6 +193,7 @@ Scene* GameScene(SceneManager* sm)
     spiderCrawl->SetAudioLoop(0);
     AudioBuffer* spiderScream = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Spider_DeathScream_2.wav", L"SpiderHit");
     AudioBuffer* spiderSound = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/spiderSound.wav", L"SpiderSound");
+    AudioBuffer* playerJump = al->LoadAudio(L"../Vendor/Resources/Audio/femaleJump.wav", L"PlayerJump");
 
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
@@ -280,6 +281,7 @@ Scene* GameScene(SceneManager* sm)
 	pic->SetMovementSpeed(75.0);
 
     avc->AddVoice(L"PlayerHit1");
+    avc->AddVoice(L"PlayerJump");
 
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
