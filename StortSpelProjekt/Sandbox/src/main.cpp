@@ -340,7 +340,7 @@ Scene* LeosTestScene(SceneManager* sm)
 	EnemyComps zombie = {};
 	zombie.model = zombieModel;
 	zombie.hp = 10;
-	zombie.sound3D = L"Bruh";
+	//zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
 	zombie.meleeAttackDmg = 10.0f;
