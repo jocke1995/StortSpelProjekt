@@ -622,6 +622,7 @@ Scene* ShopScene(SceneManager* sm)
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Player/AnimatedPlayer.fbx");
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
+    Model* pressfModel = al->LoadModel(L"../Vendor/Resources/Models/Pressf/pressf.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
     Model* teleportModel = al->LoadModel(L"../Vendor/Resources/Models/Teleporter/Teleporter.obj");
@@ -884,6 +885,22 @@ Scene* ShopScene(SceneManager* sm)
     bbc->Init();
     /* ---------------------- Shop ---------------------- */
 
+    /* ---------------------- Pressf ---------------------- */
+
+    entity = scene->AddEntity("pressf");
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetModel(pressfModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetPosition(32.0f, 10.2f, 24.0f);
+    tc->GetTransform()->SetRotationY(PI + PI / 4 + PI / 8);
+    tc->GetTransform()->SetScale(1.4);
+    tc->SetTransformOriginalState();
+
+    /* ---------------------- Pressf ---------------------- */
+
+
 #pragma region walls
     // Left wall
     entity = scene->AddEntity("wallLeft");
@@ -947,7 +964,7 @@ Scene* ShopScene(SceneManager* sm)
 #pragma endregion walls
 
     /* ---------------------- SpotLightDynamic ---------------------- */
-    entity = scene->AddEntity("spotLightDynamic");
+    entity = scene->AddEntity("spotLightDynamicPressf");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
     slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW | FLAG_LIGHT::STATIC);
@@ -959,7 +976,7 @@ Scene* ShopScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
     tc->SetTransformOriginalState();
 
-    slc->SetColor({ 5.0f, 0.0f, 0.0f });
+    slc->SetColor({ 11.0f, 10.0f, 10.0f });
     slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
     slc->SetPosition(pos);
     slc->SetDirection({ 1.0f, -1.0f, 1.0f });
