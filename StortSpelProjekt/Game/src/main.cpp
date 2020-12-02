@@ -291,6 +291,7 @@ Scene* GameScene(SceneManager* sm)
 	EnemyComps zombie = {};
 	zombie.model = enemyZombieModel;
 	zombie.hp = 120;
+    zombie.hpBase = 120;
 	zombie.OnHitSounds.emplace_back(L"ZombieHit7");
     zombie.OnGruntSounds.emplace_back(L"ZombieGnarl1");
     zombie.OnGruntSounds.emplace_back(L"ZombieGnarl2");
