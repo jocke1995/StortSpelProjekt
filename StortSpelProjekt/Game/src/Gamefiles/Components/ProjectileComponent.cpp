@@ -77,7 +77,7 @@ void component::ProjectileComponent::hit(Collision* event)
 			{
 				other->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnHit");
 				other->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnHit");
-				//EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
+				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
 			}
 			else if (other->GetComponent<component::Audio2DVoiceComponent>())
 			{
