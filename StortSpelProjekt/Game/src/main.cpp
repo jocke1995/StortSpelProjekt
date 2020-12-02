@@ -186,6 +186,10 @@ Scene* GameScene(SceneManager* sm)
     AudioBuffer* demonGnarl6 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_6.wav", L"DemonGnarl6");
     AudioBuffer* demonGnarl7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_7.wav", L"DemonGnarl7");
     AudioBuffer* demonHit7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_GotHit_7.wav", L"DemonHit7");
+    AudioBuffer* spiderCrawl = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/spiderCrawl.wav", L"SpiderCrawl");
+    spiderCrawl->SetAudioLoop(0);
+    AudioBuffer* spiderScream = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Spider_DeathScream_2.wav", L"SpiderHit");
+    AudioBuffer* spiderSound = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/spiderSound.wav", L"SpiderSound");
 
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
@@ -312,9 +316,10 @@ Scene* GameScene(SceneManager* sm)
     // quick melee
     EnemyComps spider = {};
     spider.model = enemySpiderModel;
-    spider.hp = 35;
-    spider.hpBase = 35;
-    spider.OnHitSounds.emplace_back(L"Bruh");
+    spider.hp = 40;
+    spider.hpBase = 40;
+    spider.OnHitSounds.emplace_back(L"SpiderHit");
+    spider.OnGruntSounds.emplace_back(L"SpiderSound");
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     spider.meleeAttackDmg = 15.0f;
@@ -329,6 +334,7 @@ Scene* GameScene(SceneManager* sm)
     spider.attackingDist = 1.5f;
     spider.invertDirection = true;
     spider.mass = 100.0f;
+    spider.walkSound = L"SpiderCrawl";
 
     // ranged
     EnemyComps rangedDemon = {};
