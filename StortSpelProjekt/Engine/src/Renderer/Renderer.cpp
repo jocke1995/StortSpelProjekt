@@ -518,10 +518,10 @@ void Renderer::Execute()
 	/* --------------------------------------------------------------- */
 
 	// Wait if the CPU is to far ahead of the gpu
-	
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
-	waitForFrame(0);
-	m_FenceFrameValue++;
+	//m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+	//waitForFrame(0);
+	//m_FenceFrameValue++;
+	waitForGPU();
 
 	/*------------------- Post draw stuff -------------------*/
 	// Clear copy on demand
@@ -2668,7 +2668,7 @@ void Renderer::toggleFullscreen(WindowChange* evnt)
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
 
 	// Wait for all frames
-	waitForFrame(0);
+	waitForGPU();
 
 	// Wait for the threads which records the commandlists to complete
 	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER);
