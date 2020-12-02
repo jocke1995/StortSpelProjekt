@@ -18,7 +18,7 @@
 
 #include "Misc/Edge.h"
 
-//#include "Misc/Cryptor.h"
+#include "Misc/Cryptor.h"
 
 Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);

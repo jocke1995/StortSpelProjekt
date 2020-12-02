@@ -274,6 +274,17 @@ ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
+ParticleTexturePath Textures/Particles/fire_particle2.png
+ParticleCount 70
+ParticleStartPosition 0.0, 4.0, 0.0
+ParticleSpawnInterval 0.025
+ParticleStartLifetime 0.5
+ParticleRandPosition -7.5, 7.5, 0, 1, -7.5, 7.5
+ParticleRandVelocity -1,1,2,4,-1,1
+ParticleRandSize 1.0, 1.5
+ParticleRandRotationSpeed 0, 3
+ParticlePlayOnInit 1
+Submit ParticleEffect
 Submit Model
 Submit CollisionCube 0.1, 0.1, 0.1
 ModelLightPosition 0.0, 53.0, 0.0
