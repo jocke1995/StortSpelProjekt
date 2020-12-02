@@ -25,7 +25,7 @@ public:
 	~AudioBuffer();
 
 	//void OpenFile(IXAudio2* pXAudio2, const TCHAR* path);
-	void OpenFile(IXAudio2* pXAudio2, std::wstring path);
+	void OpenFile(IXAudio2* pXAudio2, const std::wstring& path);
 
 	//Set how many times audio should loop. 0 = "infinte"; 1 = "play once"; 1> = "play multiple"
 	void SetAudioLoop(int loopCount);

@@ -19,7 +19,7 @@
 
 #include "Misc/Edge.h"
 
-//#include "Misc/Cryptor.h"
+#include "Misc/Cryptor.h"
 
 Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
@@ -36,7 +36,6 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -165,10 +164,10 @@ Scene* GameScene(SceneManager* sm)
 #pragma region assets
     AssetLoader* al = AssetLoader::Get();
 
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/FemaleAnimated/FemaleAnimated.fbx");
-    Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj");
-    Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/SpiderGreen.fbx");
-    Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Player/AnimatedPlayer.fbx");
+    Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/AnimatedZombie.fbx");
+    Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/AnimatedSpider.fbx");
+    Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/AnimatedDemon.fbx");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/CubePBR/cube.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
@@ -179,6 +178,14 @@ Scene* GameScene(SceneManager* sm)
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
+    AudioBuffer* demonGnarl1 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_1.wav", L"DemonGnarl1");
+    AudioBuffer* demonGnarl2 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_2.wav", L"DemonGnarl2");
+    AudioBuffer* demonGnarl3 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_3.wav", L"DemonGnarl3");
+    AudioBuffer* demonGnarl4 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_4.wav", L"DemonGnarl4");
+    AudioBuffer* demonGnarl5 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_5.wav", L"DemonGnarl5");
+    AudioBuffer* demonGnarl6 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_6.wav", L"DemonGnarl6");
+    AudioBuffer* demonGnarl7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_7.wav", L"DemonGnarl7");
+    AudioBuffer* demonHit7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_GotHit_7.wav", L"DemonHit7");
 
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
@@ -263,7 +270,7 @@ Scene* GameScene(SceneManager* sm)
     pic->Init();
     pic->SetJumpTime(0.17);
     pic->SetJumpHeight(6.0);
-	pic->SetMovementSpeed(70.0);
+	pic->SetMovementSpeed(75.0);
 
     avc->AddVoice(L"Bruh");
 
@@ -277,7 +284,14 @@ Scene* GameScene(SceneManager* sm)
 	EnemyComps zombie = {};
 	zombie.model = enemyZombieModel;
 	zombie.hp = 120;
-	zombie.sound3D = L"Bruh";
+	zombie.OnHitSounds.emplace_back(L"DemonHit7");
+    zombie.OnGruntSounds.emplace_back(L"DemonGnarl1");
+    zombie.OnGruntSounds.emplace_back(L"DemonGnarl2");
+    zombie.OnGruntSounds.emplace_back(L"DemonGnarl3");
+    zombie.OnGruntSounds.emplace_back(L"DemonGnarl4");
+    zombie.OnGruntSounds.emplace_back(L"DemonGnarl5");
+    zombie.OnGruntSounds.emplace_back(L"DemonGnarl6");
+    zombie.OnGruntSounds.emplace_back(L"DemonGnarl7");
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
 	zombie.meleeAttackDmg = 35.0f;
@@ -286,16 +300,17 @@ Scene* GameScene(SceneManager* sm)
 	zombie.movementSpeed = 45.0f;
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
-	zombie.scale = 0.04;
+	zombie.scale = 0.014;
 	zombie.detectionRad = 500.0f;
 	zombie.attackingDist = 1.5f;
+    zombie.invertDirection = true;
     zombie.mass = 150.0f;
 
     // quick melee
     EnemyComps spider = {};
     spider.model = enemySpiderModel;
     spider.hp = 40;
-    spider.sound3D = L"Bruh";
+    spider.OnHitSounds.emplace_back(L"Bruh");
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     spider.meleeAttackDmg = 15.0f;
@@ -304,7 +319,7 @@ Scene* GameScene(SceneManager* sm)
     spider.movementSpeed = 90.0f;
     spider.rot = { 0.0, 0.0, 0.0 };
     spider.targetName = "player";
-    spider.scale = 0.01;
+    spider.scale = 0.013;
     spider.detectionRad = 500.0f;
     spider.attackingDist = 1.5f;
     spider.invertDirection = true;
@@ -314,20 +329,21 @@ Scene* GameScene(SceneManager* sm)
     EnemyComps rangedDemon = {};
     rangedDemon.model = enemyDemonModel;
     rangedDemon.hp = 200;
-    rangedDemon.sound3D = L"Bruh";
+    rangedDemon.OnHitSounds.emplace_back(L"Bruh");
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     rangedDemon.attackInterval = 2.5f;
     rangedDemon.attackSpeed = 1.0f;
     rangedDemon.movementSpeed = 30.0f;
     rangedDemon.targetName = "player";
-    rangedDemon.scale = 8.0f;
+    rangedDemon.scale = 0.08f;
     rangedDemon.isRanged = true;
     rangedDemon.detectionRad = 500.0f;
     rangedDemon.attackingDist = 100.0f;
     rangedDemon.rangeAttackDmg = 75;
     rangedDemon.rangeVelocity = 40.0f;
     rangedDemon.projectileModel = sphereModel;
+    rangedDemon.invertDirection = true;
     rangedDemon.mass = 300.0f;
 
 #pragma endregion
@@ -570,6 +586,7 @@ Scene* ShopScene(SceneManager* sm)
 
     component::CameraComponent* cc = nullptr;
     component::ModelComponent* mc = nullptr;
+    component::AnimationComponent* ac = nullptr;
     component::TransformComponent* tc = nullptr;
     component::PlayerInputComponent* ic = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
@@ -591,7 +608,7 @@ Scene* ShopScene(SceneManager* sm)
     // Get the models needed
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-	Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Player/AnimatedPlayer.fbx");
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
@@ -611,7 +628,8 @@ Scene* ShopScene(SceneManager* sm)
     std::string playerName = "player";
     Entity* entity = scene->AddEntity(playerName);
     mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
+    ac = entity->AddComponent<component::AnimationComponent>();
+    tc = entity->AddComponent<component::TransformComponent>(true);
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
@@ -621,8 +639,10 @@ Scene* ShopScene(SceneManager* sm)
     cur = entity->AddComponent<component::CurrencyComponent>();
 
     mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(0.9f);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
+    ac->Initialize();
+
+    tc->GetTransform()->SetScale(0.05f);
     tc->GetTransform()->SetPosition(0.0, 1.0, 0.0);
     tc->SetTransformOriginalState();
 
@@ -632,7 +652,7 @@ Scene* ShopScene(SceneManager* sm)
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
     hc = entity->AddComponent<component::HealthComponent>(50);
-    ic->SetMovementSpeed(70.0);
+    ic->SetMovementSpeed(75.0);
     ic->Init();
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);

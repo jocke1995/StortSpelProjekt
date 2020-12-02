@@ -204,7 +204,7 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	tmp += "decryptedFile" + fileEnding;
 	if (binary)
 	{
-		Cryptor::DecryptDDS(Cryptor::GetGlobalKey(), to_string(path).c_str(),tmp.c_str());
+		Cryptor::DecryptBinary(Cryptor::GetGlobalKey(), to_string(path).c_str(),tmp.c_str());
 	}
 	else
 	{
