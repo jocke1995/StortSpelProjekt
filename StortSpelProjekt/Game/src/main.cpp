@@ -118,9 +118,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             {
                 logicTimer -= updateRate;
             }
+            EnemyFactory::GetInstance().Update(updateRate);
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
-            EnemyFactory::GetInstance().Update(updateRate);
             gameGUI.Update(updateRate, sceneManager->GetActiveScene());
             UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
