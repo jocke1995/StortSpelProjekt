@@ -64,6 +64,7 @@ namespace component
 		void SetAttackSpeed(float speed);
 		void SetMeleeAttackDmg(float dmg);
 		void SetRangedAI();
+		void SetSlowingAttack(float slow);
 
 		void KnockBack(const Transform& attackTransform, float knockback);
 
@@ -89,6 +90,7 @@ namespace component
 		float m_KnockBackTimer;
 		float m_TargetCircleRadius;
 		float m_TargetCircleTimer;
+		float m_SlowingAttack;
 
 		float3 m_StartPos;
 		float3 m_GoalPos;
