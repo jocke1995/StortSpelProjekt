@@ -240,8 +240,6 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 		initializeSkeleton(rootNode, &boneCounter);
 
 		m_LoadedModels[path].second = new AnimatedModel(&path, rootNode, &meshes, &animations, &materials, boneCounter.size());
-
-		static_cast<AnimatedModel*>(m_LoadedModels[path].second)->InitConstantBuffer(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 	}
 	else
 	{

@@ -16,6 +16,8 @@ component::AnimationComponent::~AnimationComponent()
 	{
 		delete m_pSkeleton;
 	}
+
+	deleteCBMatrices();
 }
 
 void component::AnimationComponent::RenderUpdate(double dt)
@@ -198,25 +200,6 @@ bool component::AnimationComponent::PlayAnimation(std::string animationName, boo
 	return false;
 }
 
-void component::AnimationComponent::InitConstantBuffer(ID3D12Device5* device5, DescriptorHeap* CBV_UAV_SRV_heap)
-{
-	std::string temp = "brodrost";
-	temp = temp.substr(temp.find_last_of("/\\") + 1);
-	std::wstring resourceName = L"CB_Matrices_" + to_wstring(temp);
-
-	m_pCB = new ConstantBuffer(device5, sizeof(ANIMATION_MATRICES_STRUCT), resourceName, CBV_UAV_SRV_heap);
-}
-
-const ConstantBuffer* component::AnimationComponent::GetConstantBuffer() const
-{
-	return m_pCB;
-}
-
-const std::vector<DirectX::XMFLOAT4X4>* component::AnimationComponent::GetUploadMatrices() const
-{
-	return &m_UploadMatrices;
-}
-
 void component::AnimationComponent::updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform)
 {
 	DirectX::XMMATRIX localTransform = DirectX::XMMatrixIdentity();
@@ -279,5 +262,23 @@ void component::AnimationComponent::bindAnimation(SkeletonNode* node)
 	for (auto& child : node->children)
 	{
 		bindAnimation(child);
+	}
+}
+
+void component::AnimationComponent::createCBMatrices(ID3D12Device5* device, DescriptorHeap* dh_CBV_UAV_SRV)
+{
+	// Create the ConstantBuffer
+	std::string temp = m_pParent->GetName();
+	temp = temp.substr(temp.find_last_of("/\\") + 1);
+	std::wstring resourceName = L"_ANIMATED_CB_Matrices_" + to_wstring(temp);
+
+	m_pCB = new ConstantBuffer(device, sizeof(ANIMATION_MATRICES_STRUCT), resourceName, dh_CBV_UAV_SRV);
+}
+
+void component::AnimationComponent::deleteCBMatrices()
+{
+	if (m_pCB != nullptr)
+	{
+		delete m_pCB;
 	}
 }

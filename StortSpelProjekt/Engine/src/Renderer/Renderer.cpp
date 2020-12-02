@@ -587,15 +587,15 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 
 void Renderer::InitAnimationComponent(component::AnimationComponent* component)
 {
+	component->createCBMatrices(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+
 	// Submit the matrices to be uploaded everyframe
 	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
 
-	const ConstantBuffer* cb = component->m_pAnimatedModel->GetConstantBuffer();
-
-	const void* data = component->m_pAnimatedModel->GetUploadMatrices()->data();
+	const void* data = static_cast<const void*>(component->m_UploadMatrices.data());
 	std::tuple<Resource*, Resource*, const void*> matrices(
-		cb->GetUploadResource(),
-		cb->GetDefaultResource(),
+		component->m_pCB->GetUploadResource(),
+		component->m_pCB->GetDefaultResource(),
 		data);
 
 	cpft->Submit(&matrices);
@@ -904,8 +904,10 @@ void Renderer::UnInitAnimationComponent(component::AnimationComponent* component
 {
 	// Submit the matrices to be uploaded every frame
 	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-	const ConstantBuffer* cb = component->m_pAnimatedModel->GetConstantBuffer();
+	const ConstantBuffer* cb = component->m_pCB;
 	cpft->ClearSpecific(cb->GetUploadResource());
+
+	component->deleteCBMatrices();
 }
 
 void Renderer::UnInitDirectionalLightComponent(component::DirectionalLightComponent* component)

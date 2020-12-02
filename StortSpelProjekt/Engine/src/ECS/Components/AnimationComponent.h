@@ -33,17 +33,9 @@ namespace component
         // Plays an animation
         bool PlayAnimation(std::string animationName, bool loop);
 
-        void InitConstantBuffer(ID3D12Device5* device5, DescriptorHeap* CBV_UAV_SRV_heap);
-        const ConstantBuffer* GetConstantBuffer() const;
-        const std::vector<DirectX::XMFLOAT4X4>* GetUploadMatrices() const;
-
     private:
         friend class Renderer;
-
-        // Will bind the AnimationState to the skeleton.
-        void bindAnimation(SkeletonNode* node);
-        // Calculates the finished transformations for the animation bound to the skeleton.
-        void updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform);
+        friend class AnimatedDepthRenderTask;
 
         AnimatedModel* m_pAnimatedModel;
 
@@ -63,6 +55,14 @@ namespace component
 
         std::vector<DirectX::XMFLOAT4X4> m_UploadMatrices;
         ConstantBuffer* m_pCB = nullptr;
+
+        // Will bind the AnimationState to the skeleton.
+        void bindAnimation(SkeletonNode* node);
+        // Calculates the finished transformations for the animation bound to the skeleton.
+        void updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform);
+
+        void createCBMatrices(ID3D12Device5* device, DescriptorHeap* dh_CBV_UAV_SRV);
+        void deleteCBMatrices();
     };
 }
 #endif
