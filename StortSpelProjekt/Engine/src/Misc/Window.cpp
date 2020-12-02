@@ -42,14 +42,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_KEYDOWN:
-		if (wParam == VK_ESCAPE)
-		{
-			//if (MessageBox(0, L"Are you sure you want to exit?", L"Exit", MB_YESNO | MB_ICONQUESTION) == IDYES)
-			//{
-			programRunning = false;
-			DestroyWindow(hWnd);
-			//}
-		}
+		// Removed since we don't want people to randomly press escape and shut the program down.
+		// Todo: implement menu where you can exit.
+		//if (wParam == VK_ESCAPE)
+		//{
+		//	//if (MessageBox(0, L"Are you sure you want to exit?", L"Exit", MB_YESNO | MB_ICONQUESTION) == IDYES)
+		//	//{
+		//	programRunning = false;
+		//	DestroyWindow(hWnd);
+		//	//}
+		//}
 		// Temp to create objects during runtime
 		if (wParam == VK_SPACE)
 		{
