@@ -1513,7 +1513,14 @@ void Renderer::updateMousePicker()
 		component::ModelComponent*		mc = parentOfPickedObject->GetComponent<component::ModelComponent>();
 		component::TransformComponent*	tc = parentOfPickedObject->GetComponent<component::TransformComponent>();
 
-		static_cast<OutliningRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE])->SetObjectToOutline(&std::make_pair(mc, tc));
+		if (parentOfPickedObject->GetName().find("enemy") != std::string::npos)
+		{
+			parentOfPickedObject->GetComponent<component::ProgressBarComponent>()->EnableProgressBar();
+		}
+		else
+		{
+			static_cast<OutliningRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE])->SetObjectToOutline(&std::make_pair(mc, tc));
+		}
 
 		m_pPickedEntity = parentOfPickedObject;
 	}
@@ -1521,6 +1528,13 @@ void Renderer::updateMousePicker()
 	{
 		// No object was picked, reset the outlingRenderTask
 		static_cast<OutliningRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE])->Clear();
+		if (m_pPickedEntity != nullptr)
+		{
+			if (m_pPickedEntity->GetName().find("enemy") != std::string::npos)
+			{
+				m_pPickedEntity->GetComponent<component::ProgressBarComponent>()->DisableProgressBar();
+			}
+		}
 		m_pPickedEntity = nullptr;
 	}
 }
