@@ -23,6 +23,7 @@ EnemyFactory::EnemyFactory()
 	m_SpawnCooldown = 1;
 	m_MinimumDistanceToPlayer = 10;
 	m_SpawnTimer = 0.0f;
+	m_TotalTime = 0.0f;
 	m_RandGen.SetSeed(time(NULL));
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
@@ -173,12 +174,14 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	component::Audio3DEmitterComponent* ae = nullptr;
 	component::EnemyComponent* ec = nullptr;
 	component::RangeEnemyComponent* rangeEnemyComp = nullptr;
+	component::ProgressBarComponent* pc = nullptr;
 
 	mc = ent->AddComponent<component::ModelComponent>();
 	tc = ent->AddComponent<component::TransformComponent>(comps->invertDirection);
 	ent->AddComponent<component::HealthComponent>(comps->hp);
 	ec = ent->AddComponent<component::EnemyComponent>(this);
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
+
 	unsigned int size = comps->OnHitSounds.size();
 	if (size > 1)
 	{
@@ -197,6 +200,11 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	else if (size == 1)
 	{
 		ae->AddVoice(comps->OnGruntSounds[0], L"OnGrunt");
+	}
+
+	if (comps->walkSound.size() > 0)
+	{
+		ae->AddVoice(comps->walkSound, L"Walk");
 	}
 
 	mc->SetModel(comps->model);
@@ -229,6 +237,12 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	}
 
 	tc->SetTransformOriginalState();
+
+	// ProgressBar
+	pc = ent->AddComponent<component::ProgressBarComponent>(t->GetPositionFloat3(), 3.0f, 0.3f);
+	pc->SetTexture(PROGRESS_BAR_TYPE::PROGRESS_BAR_TYPE_BACK, AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/EnemyNoHealth.png"));
+	pc->SetTexture(PROGRESS_BAR_TYPE::PROGRESS_BAR_TYPE_FRONT, AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/EnemyHealth100.png"));
+
 	if (comps->compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
 	{
 		cc = ent->AddComponent<component::CapsuleCollisionComponent>(comps->mass, comps->dim.z / 2.0, comps->dim.y - comps->dim.z, 0.01, 0.0, false);
@@ -410,6 +424,7 @@ void EnemyFactory::Update(double dt)
 					}
 				}
 			}
+
 			if (spawnDefault)
 			{
 				SpawnEnemy("enemyZombie", eligblePoints[point]);
@@ -418,7 +433,30 @@ void EnemyFactory::Update(double dt)
 			m_EnemiesToSpawn--;
 			m_EnemySlotsLeft--;
 		}
+
+		// After a certain time, check if enemies are outside the map
+		// If they are, remove them
+		if (m_TotalTime > 10.0f)
+		{
+			m_TotalTime = 0.0f;
+			for (auto enemy : m_Enemies)
+			{
+				if (enemy != nullptr)
+				{
+					component::TransformComponent* tc = enemy->GetComponent<component::TransformComponent>();
+					if (tc->GetTransform()->GetPositionFloat3().y < -20.0f)
+					{
+						Entity* ent = m_pScene->GetEntity(enemy->GetName());
+						EventBus::GetInstance().Publish(&Death(ent));
+						EventBus::GetInstance().Publish(&RemoveMe(ent));
+						Log::PrintSeverity(Log::Severity::WARNING, "Removed an enemy which was outside the map!\n");
+					}
+				}
+			}
+		}
 	}
+
+	m_TotalTime += dt;
 }
 
 void EnemyFactory::enemyDeath(Death* evnt)
@@ -447,6 +485,15 @@ void EnemyFactory::levelDone(LevelDone* evnt)
 	if (teleport != nullptr)
 	{
 		teleport->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
+	}
+
+	Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+	if (enemyGui != nullptr)
+	{
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Level Completed!\n   Find the portal", "enemyGui");
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetScale({ 0.25f, 0.27f }, "enemyGui");
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetBlend({ 1.0f, 1.0f, 1.0f, 0.9f }, "enemyGui");
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.069f, 0.044f }, "enemyGui");
 	}
 }
 
@@ -514,6 +561,9 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	if (enemyGui != nullptr)
 	{
 		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.074f, 0.044f }, "enemyGui");
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetScale({ 0.5f, 0.5f }, "enemyGui");
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetBlend({ 1.0f, 1.0f, 1.0f, 0.8f }, "enemyGui");
 	}
 	++m_Level;
 }

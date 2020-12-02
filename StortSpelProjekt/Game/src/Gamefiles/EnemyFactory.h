@@ -45,6 +45,7 @@ struct EnemyComps
 	int enemiesOfThisType = 0;
 	std::vector<std::wstring> OnHitSounds;
 	std::vector<std::wstring> OnGruntSounds;
+	std::wstring walkSound;
 	double3 dim = double3({ 0.0, 0.0, 0.0 });
 	float detectionRad = 25.0f;
 	float attackingDist = 0.5f;
@@ -136,6 +137,7 @@ private:
 	float m_SpawnCooldown;
 	float m_SpawnTimer;
 	float m_MinimumDistanceToPlayer;
+	double m_TotalTime;
 
 	bool m_IsActive = false;
 };
