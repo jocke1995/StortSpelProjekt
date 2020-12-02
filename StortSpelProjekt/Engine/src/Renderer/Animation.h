@@ -23,17 +23,17 @@ struct TransformKey
 	DirectX::XMFLOAT3 scaling = { 1.0f,1.0f,1.0f };
 	DirectX::XMFLOAT3* pScale = &scaling;
 
-	TransformKey& operator= (const TransformKey& other)
-	{
-		position = other.position;
-		rotation = other.rotation;
-		scaling = other.scaling;
-		pPosition = &position;
-		pRotation = &rotation;
-		pScale = &scaling;
-
-		return *this;
-	}
+	//TransformKey& operator= (const TransformKey& other)
+	//{
+	//	position = other.position;
+	//	rotation = other.rotation;
+	//	scaling = other.scaling;
+	//	pPosition = &position;
+	//	pRotation = &rotation;
+	//	pScale = &scaling;
+	//
+	//	return *this;
+	//}
 };
 
 struct TranslationKey
@@ -87,6 +87,7 @@ struct SkeletonNode
 		bones = other.bones;
 		defaultTransform = other.defaultTransform;
 		inverseBindPose = other.inverseBindPose;
+		currentStateTransform = nullptr;
 	}
 
 	// Clones the skeleton. Uses dynamic memory allocation so make sure to delete the clone.
@@ -136,10 +137,8 @@ struct Animation
 		}
 	}
 
-	std::map<std::string, TransformKey> Update(double animationTime)	// Interpolates the matrices and stores the finished animation as the current state
+	void Update(double animationTime, std::map<std::string, TransformKey>& state)	// Interpolates the matrices and stores the finished animation as the current state
 	{
-		std::map<std::string, TransformKey> state;
-
 		double animationTimeInTicks = fmod(animationTime * ticksPerSecond, durationInTicks);
 
 		for (auto& bone : translationKeyframes)
@@ -231,8 +230,6 @@ struct Animation
 				state[bone.first].pScale = &state[bone.first].scaling;
 			}
 		}
-
-		return state;
 	}
 };
 

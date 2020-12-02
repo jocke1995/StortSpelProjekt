@@ -24,7 +24,6 @@ void component::AnimationComponent::RenderUpdate(double dt)
 {
 	if (m_pActiveAnimation.first)
 	{
-
 		m_pActiveAnimation.second.animationTime += dt;
 		if (m_pQueuedAnimation)
 		{
@@ -36,7 +35,7 @@ void component::AnimationComponent::RenderUpdate(double dt)
 			m_pActiveAnimation.second.Reset();
 			return;
 		}
-		else if (m_pActiveAnimation.first->isFinished(m_pActiveAnimation.second.animationTime))
+		else if (m_pActiveAnimation.first->isFinished(m_pActiveAnimation.second.animationTime) && !m_pActiveAnimation.second.loop)
 		{
 			// If the active animation has finished looping, play the last looping animation.
 			m_pPendingAnimation.first = m_pReactivateAnimation;
@@ -46,7 +45,7 @@ void component::AnimationComponent::RenderUpdate(double dt)
 			m_pActiveAnimation.second.Reset();
 			return;
 		}
-		m_AnimationState = m_pActiveAnimation.first->Update(m_pActiveAnimation.second.animationTime);
+		m_pActiveAnimation.first->Update(m_pActiveAnimation.second.animationTime, m_AnimationState);
 	}
 	else if (m_pPendingAnimation.first && m_pEndingAnimation.first)
 	{
@@ -72,8 +71,10 @@ void component::AnimationComponent::RenderUpdate(double dt)
 
 		m_pPendingAnimation.second.animationTime += dt;
 		m_pEndingAnimation.second.animationTime += dt;
-		std::map<std::string, TransformKey> startState = m_pPendingAnimation.first->Update(m_pPendingAnimation.second.animationTime);
-		std::map<std::string, TransformKey> endState = m_pEndingAnimation.first->Update(m_pEndingAnimation.second.animationTime);
+		std::map<std::string, TransformKey> startState;
+		m_pPendingAnimation.first->Update(m_pPendingAnimation.second.animationTime, startState);
+		std::map<std::string, TransformKey> endState;
+		m_pEndingAnimation.first->Update(m_pEndingAnimation.second.animationTime, endState);
 
 		for (auto& key : startState)
 		{
@@ -127,7 +128,7 @@ void component::AnimationComponent::Reset()
 		if (animation->name == "Idle")
 		{
 			m_pActiveAnimation.first = animation;
-			m_AnimationState = m_pActiveAnimation.first->Update(m_pActiveAnimation.second.animationTime);
+			m_pActiveAnimation.first->Update(m_pActiveAnimation.second.animationTime, m_AnimationState);
 			break;
 		}
 	}
@@ -251,7 +252,7 @@ void component::AnimationComponent::updateSkeleton(SkeletonNode* node, DirectX::
 
 void component::AnimationComponent::bindAnimation(SkeletonNode* node)
 {
-	if (m_AnimationState.find(node->name) != m_AnimationState.end())
+	if (m_AnimationState.find(node->name) != m_AnimationState.end() && node->name!="BoneRoot")
 	{
 		node->currentStateTransform = &m_AnimationState[node->name];
 	}
