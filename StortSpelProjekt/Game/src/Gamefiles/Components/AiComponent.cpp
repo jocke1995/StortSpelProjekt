@@ -559,6 +559,9 @@ void component::AiComponent::updateRange(double dt)
 					m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(aimDirection);
 					m_SpeedTimeAccumulator = 0.0;
 					m_IntervalTimeAccumulator = 0.0;
+					m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Attack");
+					m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Attack");
+
 				}
 				else if (m_IntervalTimeAccumulator >= m_AttackInterval / 4.0 && m_DistanceToPlayer <= m_AttackingDistance / 2.0f)
 				{

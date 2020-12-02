@@ -207,6 +207,11 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 		ae->AddVoice(comps->walkSound, L"Walk");
 	}
 
+	if (comps->attackSound.size() > 0);
+	{
+		ae->AddVoice(comps->attackSound, L"Attack");
+	}
+
 	mc->SetModel(comps->model);
 	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 	Transform* t = tc->GetTransform();
