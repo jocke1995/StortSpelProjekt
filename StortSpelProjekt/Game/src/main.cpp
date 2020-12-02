@@ -35,6 +35,7 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    //Cryptor::EncryptBinary(11, "../Vendor/Resources/Audio/IgnoredAudio/demon_onhit.wav");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -178,14 +179,16 @@ Scene* GameScene(SceneManager* sm)
     AudioBuffer* playerHit1 = al->LoadAudio(L"../Vendor/Resources/Audio/Femalegrunt.wav", L"PlayerHit1");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
-    AudioBuffer* demonGnarl1 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_1.wav", L"DemonGnarl1");
-    AudioBuffer* demonGnarl2 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_2.wav", L"DemonGnarl2");
-    AudioBuffer* demonGnarl3 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_3.wav", L"DemonGnarl3");
-    AudioBuffer* demonGnarl4 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_4.wav", L"DemonGnarl4");
-    AudioBuffer* demonGnarl5 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_5.wav", L"DemonGnarl5");
-    AudioBuffer* demonGnarl6 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_6.wav", L"DemonGnarl6");
-    AudioBuffer* demonGnarl7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_7.wav", L"DemonGnarl7");
-    AudioBuffer* demonHit7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_GotHit_7.wav", L"DemonHit7");
+    AudioBuffer* zombieGnarl1 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_1.wav", L"ZombieGnarl1");
+    AudioBuffer* zombieGnarl2 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_2.wav", L"ZombieGnarl2");
+    AudioBuffer* zombieGnarl3 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_3.wav", L"ZombieGnarl3");
+    AudioBuffer* zombieGnarl4 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_4.wav", L"ZombieGnarl4");
+    AudioBuffer* zombieGnarl5 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_5.wav", L"ZombieGnarl5");
+    AudioBuffer* zombieGnarl6 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_6.wav", L"ZombieGnarl6");
+    AudioBuffer* zombieGnarl7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_7.wav", L"ZombieGnarl7");
+    AudioBuffer* zombieHit7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_GotHit_7.wav", L"ZombieHit7");
+    AudioBuffer* demonGrunt = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/monstergrowl.wav", L"DemonGrunt");
+    AudioBuffer* demonHit = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/demon_onhit.wav", L"DemonHit");
     AudioBuffer* spiderCrawl = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/spiderCrawl.wav", L"SpiderCrawl");
     spiderCrawl->SetAudioLoop(0);
     AudioBuffer* spiderScream = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Spider_DeathScream_2.wav", L"SpiderHit");
@@ -289,14 +292,14 @@ Scene* GameScene(SceneManager* sm)
 	zombie.model = enemyZombieModel;
 	zombie.hp = 70;
 	zombie.hpBase = 70;
-	zombie.OnHitSounds.emplace_back(L"DemonHit7");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl1");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl2");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl3");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl4");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl5");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl6");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl7");
+	zombie.OnHitSounds.emplace_back(L"ZombieHit7");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl1");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl2");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl3");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl4");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl5");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl6");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl7");
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
 	zombie.meleeAttackDmg = 30.0f;
@@ -341,7 +344,8 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.model = enemyDemonModel;
     rangedDemon.hp = 120;
     rangedDemon.hpBase = 120;
-    rangedDemon.OnHitSounds.emplace_back(L"Bruh");
+    rangedDemon.OnGruntSounds.emplace_back(L"DemonGrunt");
+    rangedDemon.OnHitSounds.emplace_back(L"DemonHit");
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     rangedDemon.attackInterval = 2.5f;
