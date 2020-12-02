@@ -894,6 +894,7 @@ Scene* ShopScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetPosition(32.0f, 10.2f, 24.0f);
     tc->GetTransform()->SetRotationY(PI + PI / 4 + PI / 8);
+    tc->GetTransform()->SetScale(1.4);
     tc->SetTransformOriginalState();
 
     /* ---------------------- Pressf ---------------------- */
