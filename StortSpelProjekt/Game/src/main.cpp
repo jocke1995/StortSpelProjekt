@@ -15,7 +15,6 @@
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
 #include "UpgradeGUI.h"
-#include "Misc/Cryptor.h"
 
 #include "Misc/Edge.h"
 
