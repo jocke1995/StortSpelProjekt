@@ -538,7 +538,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
 
     std::vector<Model*> enemyModels;
     enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj"));
-    enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj"));
+    enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/AnimatedDemon.fbx"));
     for (int i = 0; i < 20; ++i)
     {
         entity = scene->AddEntity("menuEnemy" + std::to_string(i));
