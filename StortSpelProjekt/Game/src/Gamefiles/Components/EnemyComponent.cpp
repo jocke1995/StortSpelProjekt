@@ -111,5 +111,8 @@ void component::EnemyComponent::SetRandSeed(unsigned long seed)
 
 void component::EnemyComponent::death(Death* evnt)
 {
-    evnt->ent->GetComponent<component::Audio3DEmitterComponent>()->Stop(L"Walk");
+    if (evnt->ent->GetComponent<component::Audio3DEmitterComponent>())
+    {
+        evnt->ent->GetComponent<component::Audio3DEmitterComponent>()->Stop(L"Walk");
+    }
 }
