@@ -45,6 +45,7 @@ struct EnemyComps
 	int enemiesOfThisType = 0;
 	std::vector<std::wstring> OnHitSounds;
 	std::vector<std::wstring> OnGruntSounds;
+	std::wstring walkSound;
 	double3 dim = double3({ 0.0, 0.0, 0.0 });
 	float detectionRad = 25.0f;
 	float attackingDist = 0.5f;
@@ -52,6 +53,7 @@ struct EnemyComps
 	float attackSpeed = 0.2f;
 	float meleeAttackDmg = 10.0f;
 	float meleeAttackDmgBase = 10.0f;
+	float slowAttack = 0.0f;
 	float movementSpeed = 30.0f;
 	float movementSpeedBase = 30.0f;
 	bool isRanged = false;
@@ -116,6 +118,9 @@ public:
 private:
 	EnemyFactory();
 
+	void timeRound(double dt);
+	void killRound(double dt);
+
 	void enemyDeath(Death* evnt);
 	void levelDone(LevelDone* evnt);
 	void onSceneSwitch(SceneChange* evnt);
@@ -128,6 +133,9 @@ private:
 	EngineRand m_RandGen;
 
 	int m_MaxEnemies;
+	int m_LevelTime;
+	double m_LevelTimer;
+	bool m_TimeRound;
 	int m_EnemiesToSpawn;
 	int m_LevelMaxEnemies;
 	int m_EnemySlotsLeft;
@@ -136,6 +144,7 @@ private:
 	float m_SpawnCooldown;
 	float m_SpawnTimer;
 	float m_MinimumDistanceToPlayer;
+	double m_TotalTime;
 
 	bool m_IsActive = false;
 };

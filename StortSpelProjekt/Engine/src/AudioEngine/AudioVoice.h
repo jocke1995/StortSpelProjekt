@@ -35,6 +35,7 @@ public:
 	/// Stops playing audio.
 	/// </summary>
 	void Stop();
+	
 private:
 	bool m_Initialized = true;
 	IXAudio2SourceVoice* m_pSourceVoice = nullptr;

@@ -31,6 +31,7 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_TargetCircleRadius = m_AttackingDistance * 5.0f;
 	m_TargetCircleTimer = 0.0f;
 	m_RandMovementTimer = 0.0f;
+	m_SlowingAttack = 0.0f;
 
 	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 	m_GoalPos = target->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
@@ -181,6 +182,11 @@ void component::AiComponent::SetRangedAI()
 		SetAttackSpeed(m_AttackSpeed);
 	}
 	m_MovementVelocity = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetVelocity();
+}
+
+void component::AiComponent::SetSlowingAttack(float slow)
+{
+	m_SlowingAttack = slow;
 }
 
 void component::AiComponent::KnockBack(const Transform& attackTransform, float knockback)
@@ -501,7 +507,9 @@ void component::AiComponent::updateMelee(double dt)
 				m_SpeedTimeAccumulator += static_cast<float>(dt);
 				if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
 				{
+					m_pTarget->GetComponent<component::PlayerInputComponent>()->SetSlow(1.0f - m_SlowingAttack);
 					m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(m_MeleeAttackDmg);
+					m_pTarget->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerHit1");
 					Log::Print("ENEMY ATTACK!\n");
 					m_SpeedTimeAccumulator = 0.0;
 					m_IntervalTimeAccumulator = 0.0;
