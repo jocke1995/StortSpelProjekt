@@ -26,6 +26,7 @@ EnemyFactory::EnemyFactory()
 	m_SpawnCooldown = 1;
 	m_MinimumDistanceToPlayer = 10;
 	m_SpawnTimer = 0.0f;
+	m_TotalTime = 0.0f;
 	m_RandGen.SetSeed(time(NULL));
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
@@ -507,6 +508,8 @@ void EnemyFactory::killRound(double dt)
 		m_EnemiesToSpawn--;
 		m_EnemySlotsLeft--;
 	}
+
+	m_TotalTime += dt;
 }
 
 void EnemyFactory::enemyDeath(Death* evnt)
@@ -536,6 +539,15 @@ void EnemyFactory::levelDone(LevelDone* evnt)
 	if (teleport != nullptr)
 	{
 		teleport->GetComponent<component::TransformComponent>()->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
+	}
+
+	Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+	if (enemyGui != nullptr)
+	{
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Level Completed!\n   Find the portal", "enemyGui");
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetScale({ 0.25f, 0.27f }, "enemyGui");
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetBlend({ 1.0f, 1.0f, 1.0f, 0.9f }, "enemyGui");
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.069f, 0.044f }, "enemyGui");
 	}
 }
 
@@ -632,6 +644,15 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 		}
 	}
 
+
+	Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+	if (enemyGui != nullptr)
+	{
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("0/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.074f, 0.044f }, "enemyGui");
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetScale({ 0.5f, 0.5f }, "enemyGui");
+		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetBlend({ 1.0f, 1.0f, 1.0f, 0.8f }, "enemyGui");
+	}
 	++m_Level;
 }
 
