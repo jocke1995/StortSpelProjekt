@@ -1308,8 +1308,9 @@ bool Renderer::createDevice()
 #endif
 #endif
 
-	IDXGIFactory6* factory = nullptr;
+	
 	IDXGIAdapter1* adapter = nullptr;
+	IDXGIFactory6* factory = nullptr;
 
 	CreateDXGIFactory(IID_PPV_ARGS(&factory));
 

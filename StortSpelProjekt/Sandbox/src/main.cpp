@@ -57,8 +57,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
-    Scene* jockeScene = JockesTestScene(sceneManager);
-    Scene* activeScene = jockeScene;
+    //Scene* jockeScene = JockesTestScene(sceneManager);
+    //Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
     //Scene* williamScene = WilliamsTestScene(sceneManager);
@@ -69,8 +69,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = antonScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* activeScene = andresScene;
-    //Scene* filipScene = FloppipTestScene(sceneManager);
-    //Scene* activeScene = filipScene;
+    Scene* filipScene = FloppipTestScene(sceneManager);
+    Scene* activeScene = filipScene;
 
     // Set scene
     sceneManager->SetScene(activeScene);
@@ -340,7 +340,7 @@ Scene* LeosTestScene(SceneManager* sm)
 	EnemyComps zombie = {};
 	zombie.model = zombieModel;
 	zombie.hp = 10;
-	zombie.sound3D = L"Bruh";
+	//zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
 	zombie.meleeAttackDmg = 10.0f;

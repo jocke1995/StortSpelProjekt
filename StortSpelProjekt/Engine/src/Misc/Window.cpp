@@ -27,10 +27,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 	case WM_SYSKEYDOWN: // alt+enter
-		if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000)
-		{
-			EventBus::GetInstance().Publish(&WindowChange());
-		}
+		// Removed since it causes crashes.
+		//if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000)
+		//{
+		//	EventBus::GetInstance().Publish(&WindowChange());
+		//}
 		return 0;
 	case WM_ACTIVATEAPP: // alt+tab, windows key and more
 		if (!wParam && programRunning
