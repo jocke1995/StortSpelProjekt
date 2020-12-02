@@ -23,6 +23,7 @@ EnemyFactory::EnemyFactory()
 	m_SpawnCooldown = 1;
 	m_MinimumDistanceToPlayer = 10;
 	m_SpawnTimer = 0.0f;
+	m_TotalTime = 0.0f;
 	m_RandGen.SetSeed(time(NULL));
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
@@ -410,6 +411,7 @@ void EnemyFactory::Update(double dt)
 					}
 				}
 			}
+
 			if (spawnDefault)
 			{
 				SpawnEnemy("enemyZombie", eligblePoints[point]);
@@ -418,7 +420,30 @@ void EnemyFactory::Update(double dt)
 			m_EnemiesToSpawn--;
 			m_EnemySlotsLeft--;
 		}
+
+		// After a certain time, check if enemies are outside the map
+		// If they are, remove them
+		if (m_TotalTime > 10.0f)
+		{
+			m_TotalTime = 0.0f;
+			for (auto enemy : m_Enemies)
+			{
+				if (enemy != nullptr)
+				{
+					component::TransformComponent* tc = enemy->GetComponent<component::TransformComponent>();
+					if (tc->GetTransform()->GetPositionFloat3().y < -20.0f)
+					{
+						Entity* ent = m_pScene->GetEntity(enemy->GetName());
+						EventBus::GetInstance().Publish(&Death(ent));
+						EventBus::GetInstance().Publish(&RemoveMe(ent));
+						Log::PrintSeverity(Log::Severity::WARNING, "Removed an enemy which was outside the map!\n");
+					}
+				}
+			}
+		}
 	}
+
+	m_TotalTime += dt;
 }
 
 void EnemyFactory::enemyDeath(Death* evnt)
