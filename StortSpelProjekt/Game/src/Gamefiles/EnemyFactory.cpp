@@ -233,12 +233,9 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	tc->SetTransformOriginalState();
 
 	// ProgressBar
-	// Todo: gör mindre
-	pc = ent->AddComponent<component::ProgressBarComponent>(t->GetPositionFloat3(), 5.0f, 1.0f);
-
-	// todo: ta bort
-	pc->EnableProgressBar();
-
+	pc = ent->AddComponent<component::ProgressBarComponent>(t->GetPositionFloat3(), 3.0f, 0.3f);
+	pc->SetTexture(PROGRESS_BAR_TYPE::PROGRESS_BAR_TYPE_BACK, AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/EnemyNoHealth.png"));
+	pc->SetTexture(PROGRESS_BAR_TYPE::PROGRESS_BAR_TYPE_FRONT, AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/EnemyHealth100.png"));
 
 	if (comps->compFlags & F_COMP_FLAGS::CAPSULE_COLLISION)
 	{

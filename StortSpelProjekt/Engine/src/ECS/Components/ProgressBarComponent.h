@@ -5,6 +5,8 @@
 #include "structs.h"
 #include <array>
 
+#define PROGRESSBAR_TIME 3.0
+
 class ConstantBuffer;
 class Texture;
 

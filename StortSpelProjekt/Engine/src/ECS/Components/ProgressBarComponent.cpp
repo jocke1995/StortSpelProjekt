@@ -55,10 +55,10 @@ namespace component
 		{
 			m_TimeElapsedSinceDrawedFirstTime += dt;
 
-			if (m_TimeElapsedSinceDrawedFirstTime > 7.0f)
+			if (m_TimeElapsedSinceDrawedFirstTime > PROGRESSBAR_TIME)
 			{
 				m_DrawState = false;
-				m_TimeElapsedSinceDrawedFirstTime = 0.0f;
+				m_TimeElapsedSinceDrawedFirstTime = 0.0;
 			}
 		}
 	}
