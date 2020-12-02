@@ -551,24 +551,28 @@ void component::AiComponent::updateRange(double dt)
 			}
 			else
 			{
-				// stand still to shoot
-				m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(0);
-				cc->SetVelVector(0, 0, 0);
-				m_StandStill = true;
-				// set direction
-
-				float3 aimDirection = setAimDirection();
-
-				m_SpeedTimeAccumulator += static_cast<float>(dt);
-				if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
+				if (m_IntervalTimeAccumulator >= m_AttackInterval && m_DistanceToPlayer >= m_AttackingDistance / 8.0f)
 				{
-					// shoot
-					m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(aimDirection);
-					m_SpeedTimeAccumulator = 0.0;
-					m_IntervalTimeAccumulator = 0.0;
+					// stand still to shoot
+					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(0);
+					cc->SetVelVector(0, 0, 0);
+					m_StandStill = true;
+					// set direction
+
+					float3 aimDirection = setAimDirection();
+
+					m_SpeedTimeAccumulator += static_cast<float>(dt);
+					if (m_SpeedTimeAccumulator >= m_AttackSpeed)
+					{
+						// shoot
+						m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(aimDirection);
+						m_SpeedTimeAccumulator = 0.0;
+						m_IntervalTimeAccumulator = 0.0;
+					}
 				}
-				else if (m_IntervalTimeAccumulator >= m_AttackInterval / 4.0 && m_DistanceToPlayer <= m_AttackingDistance / 2.0f)
+				else if (m_DistanceToPlayer <= m_AttackingDistance / 2.0f)
 				{
+					m_SpeedTimeAccumulator = 0;
 					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(m_MovementVelocity * 0.75f);
 					vel = -m_pParentTrans->GetVelocity();
 					cc->SetVelVector(vel * m_DirectionPath.x / m_DistancePath, vel * 2 * m_DirectionPath.y / m_DistancePath, vel * m_DirectionPath.z / m_DistancePath);
