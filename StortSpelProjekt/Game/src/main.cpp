@@ -248,7 +248,7 @@ Scene* GameScene(SceneManager* sm)
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
-    ac->Initialize();
+    //ac->Initialize();
 
     double3 playerDim = mc->GetModelDim();
 
@@ -625,7 +625,7 @@ Scene* ShopScene(SceneManager* sm)
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
-    ac->Initialize();
+    //ac->Initialize();
 
     tc->GetTransform()->SetScale(0.05f);
     tc->GetTransform()->SetPosition(0.0, 1.0, 0.0);

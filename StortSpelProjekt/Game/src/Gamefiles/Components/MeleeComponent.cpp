@@ -128,9 +128,10 @@ void component::MeleeComponent::Update(double dt)
 
 void component::MeleeComponent::Attack()
 {
-	
 	if (!m_Cooldown)
 	{
+		m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Attack_Swing_Right", false);
+
 		if (m_AudioPlay)
 		{
 			m_pVoiceComponent->Play(L"SwordSwing");

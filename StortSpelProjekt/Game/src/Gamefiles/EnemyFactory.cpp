@@ -166,6 +166,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	Entity* ent = m_pScene->AddEntity(entityName);
 
 	component::ModelComponent* mc = nullptr;
+	component::AnimationComponent* ac = nullptr;
 	component::TransformComponent* tc = nullptr;
 	component::BoundingBoxComponent* bbc = nullptr;
 	component::CollisionComponent* cc = nullptr;
@@ -175,6 +176,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	component::RangeEnemyComponent* rangeEnemyComp = nullptr;
 
 	mc = ent->AddComponent<component::ModelComponent>();
+	ac = ent->AddComponent<component::AnimationComponent>();
 	tc = ent->AddComponent<component::TransformComponent>(comps->invertDirection);
 	ent->AddComponent<component::HealthComponent>(comps->hp);
 	ec = ent->AddComponent<component::EnemyComponent>(this);

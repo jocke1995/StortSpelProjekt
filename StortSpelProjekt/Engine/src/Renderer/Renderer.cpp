@@ -510,7 +510,7 @@ void Renderer::Execute()
 	m_FenceFrameValue++;
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
-	waitForFrame();
+	waitForFrame(0);
 
 	/*------------------- Post draw stuff -------------------*/
 	// Clear copy on demand

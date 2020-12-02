@@ -79,6 +79,8 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 {
 	if (m_TimeAccumulator >= m_AttackInterval)
 	{
+		m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Claw_attack_left", false);
+
 		Entity* ent = m_pScene->AddEntity(m_ParentName + "RangeAttack" + std::to_string(++m_NrOfProjectiles));
 		component::ModelComponent* mc = nullptr;
 		component::TransformComponent* tc = nullptr;

@@ -10,8 +10,6 @@ class ConstantBuffer;
 class AnimatedModel;
 struct MovementInput;
 struct MouseClick;
-struct Animation;
-
 
 namespace component
 {
@@ -37,19 +35,18 @@ namespace component
         friend class Renderer;
         friend class AnimatedDepthRenderTask;
 
-        AnimatedModel* m_pAnimatedModel;
+        AnimatedModel* m_pAnimatedModel = nullptr;
+        SkeletonNode* m_pSkeleton = nullptr;
 
-        SkeletonNode* m_pSkeleton;
         DirectX::XMFLOAT4X4 m_GlobalInverseTransform;
-        
         std::map<std::string, TransformKey> m_AnimationState;
 
         std::vector<Animation*> m_Animations;
         std::pair<Animation*, AnimationInfo> m_pPendingAnimation;
         std::pair<Animation*, AnimationInfo> m_pActiveAnimation;
         std::pair<Animation*, AnimationInfo> m_pEndingAnimation;
-        Animation* m_pReactivateAnimation;
-        Animation* m_pQueuedAnimation;
+        std::pair<Animation*, AnimationInfo> m_pReactivateAnimation;
+        std::pair<Animation*, AnimationInfo> m_pQueuedAnimation;
 
         double m_BlendTimeElapsed = 0;
 

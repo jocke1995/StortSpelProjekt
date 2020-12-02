@@ -104,6 +104,8 @@ void component::RangeComponent::Attack()
 {
 	if (m_TimeAccumulator >= m_AttackInterval)
 	{
+		m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Attack_Swing_Left", false);
+
 		Entity* ent = m_pScene->AddEntity("RangeAttack" + std::to_string(++m_NrOfProjectiles));
 		component::ModelComponent* mc = nullptr;
 		component::TransformComponent* tc = nullptr;

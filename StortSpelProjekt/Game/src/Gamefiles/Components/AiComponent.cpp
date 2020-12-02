@@ -568,6 +568,15 @@ void component::AiComponent::updateRange(double dt)
 			}
 		}
 	}
+
+	if (m_StandStill)
+	{
+		m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Idle", true);
+	}
+	else
+	{
+		m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Walk", true);
+	}
 }
 
 void component::AiComponent::pathFinding()

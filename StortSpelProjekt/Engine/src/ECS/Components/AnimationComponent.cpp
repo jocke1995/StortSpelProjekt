@@ -22,81 +22,92 @@ component::AnimationComponent::~AnimationComponent()
 
 void component::AnimationComponent::RenderUpdate(double dt)
 {
-	if (m_pActiveAnimation.first)
+	if (m_pAnimatedModel)
 	{
-		m_pActiveAnimation.second.animationTime += dt;
-		if (m_pQueuedAnimation)
+		if (m_pActiveAnimation.first)
 		{
-			// If there is a animation waiting in queue it should be played.
-			m_pPendingAnimation.first = m_pQueuedAnimation;
-			m_pEndingAnimation.first = m_pActiveAnimation.first;
-			m_pEndingAnimation.second = m_pActiveAnimation.second;
-			m_pActiveAnimation.first = nullptr;
-			m_pActiveAnimation.second.Reset();
-			return;
+			m_pActiveAnimation.second.animationTime += dt;
+			if (m_pQueuedAnimation.first)
+			{
+				// Play "QueuedAnimation"
+				// If there is a animation waiting in queue it should be played.
+				m_pPendingAnimation.first = m_pQueuedAnimation.first;
+				m_pPendingAnimation.second = m_pQueuedAnimation.second;
+				m_pEndingAnimation.first = m_pActiveAnimation.first;
+				m_pEndingAnimation.second = m_pActiveAnimation.second;
+				m_pActiveAnimation.first = nullptr;
+				m_pActiveAnimation.second.Reset();
+				m_pQueuedAnimation.first = nullptr;
+				m_pQueuedAnimation.second.Reset();
+				return;
+			}
+			else if (m_pActiveAnimation.first->isFinished(m_pActiveAnimation.second.animationTime) && !m_pActiveAnimation.second.loop)
+			{
+				// Play "ReactivateAnimation"
+				// If the active animation has finished looping, play the last looping animation.
+				m_pPendingAnimation.first = m_pReactivateAnimation.first;
+				m_pPendingAnimation.second = m_pReactivateAnimation.second;
+				m_pEndingAnimation.first = m_pActiveAnimation.first;
+				m_pEndingAnimation.second = m_pActiveAnimation.second;
+				m_pActiveAnimation.first = nullptr;
+				m_pActiveAnimation.second.Reset();
+				m_pReactivateAnimation.first = nullptr;
+				m_pReactivateAnimation.second.Reset();
+				return;
+			}
+			m_pActiveAnimation.first->Update(m_pActiveAnimation.second.animationTime, m_AnimationState);
 		}
-		else if (m_pActiveAnimation.first->isFinished(m_pActiveAnimation.second.animationTime) && !m_pActiveAnimation.second.loop)
+		else if (m_pPendingAnimation.first && m_pEndingAnimation.first)
 		{
-			// If the active animation has finished looping, play the last looping animation.
-			m_pPendingAnimation.first = m_pReactivateAnimation;
-			m_pEndingAnimation.first = m_pActiveAnimation.first;
-			m_pEndingAnimation.second = m_pActiveAnimation.second;
-			m_pActiveAnimation.first = nullptr;
-			m_pActiveAnimation.second.Reset();
-			return;
+			float factor;
+			m_BlendTimeElapsed += dt;
+			if (m_BlendTimeElapsed >= ANIMATION_TRANSITION_TIME)
+			{
+				m_BlendTimeElapsed = 0.0f;
+				// The blend phase is finished, so the pending animation will be active now.
+				m_pActiveAnimation.first = m_pPendingAnimation.first;
+				m_pActiveAnimation.second = m_pPendingAnimation.second;
+				m_pPendingAnimation.second.Reset();
+				m_pPendingAnimation.first = nullptr;
+				m_pEndingAnimation.second.Reset();
+				m_pEndingAnimation.first = nullptr;
+				return;
+			}
+			else
+			{
+				factor = m_BlendTimeElapsed / ANIMATION_TRANSITION_TIME;
+			}
+			assert(factor >= 0.0f && factor <= 1.0f);
+
+			m_pPendingAnimation.second.animationTime += dt;
+			m_pEndingAnimation.second.animationTime += dt;
+			std::map<std::string, TransformKey> startState;
+			m_pPendingAnimation.first->Update(m_pPendingAnimation.second.animationTime, startState);
+			std::map<std::string, TransformKey> endState;
+			m_pEndingAnimation.first->Update(m_pEndingAnimation.second.animationTime, endState);
+
+			for (auto& key : startState)
+			{
+				m_AnimationState[key.first].position = InterpolateTranslation(&endState[key.first].position, &key.second.position, factor);
+				m_AnimationState[key.first].rotation = InterpolateRotation(&endState[key.first].rotation, &key.second.rotation, factor);
+				m_AnimationState[key.first].scaling	= InterpolateScaling(&endState[key.first].scaling, &key.second.scaling, factor);
+			}
 		}
-		m_pActiveAnimation.first->Update(m_pActiveAnimation.second.animationTime, m_AnimationState);
+
+		updateSkeleton(m_pSkeleton, DirectX::XMMatrixIdentity());
 	}
-	else if (m_pPendingAnimation.first && m_pEndingAnimation.first)
-	{
-		float factor;
-		m_BlendTimeElapsed += dt;
-		if (m_BlendTimeElapsed >= ANIMATION_TRANSITION_TIME)
-		{
-			m_BlendTimeElapsed = 0.0f;
-			// The blend phase is finished, so the pending animation will be active now.
-			m_pActiveAnimation.first = m_pPendingAnimation.first;
-			m_pActiveAnimation.second = m_pPendingAnimation.second;
-			m_pPendingAnimation.second.Reset();
-			m_pPendingAnimation.first = nullptr;
-			m_pEndingAnimation.second.Reset();
-			m_pEndingAnimation.first = nullptr;
-			return;
-		}
-		else
-		{
-			factor = m_BlendTimeElapsed / ANIMATION_TRANSITION_TIME;
-		}
-		assert(factor >= 0.0f && factor <= 1.0f);
-
-		m_pPendingAnimation.second.animationTime += dt;
-		m_pEndingAnimation.second.animationTime += dt;
-		std::map<std::string, TransformKey> startState;
-		m_pPendingAnimation.first->Update(m_pPendingAnimation.second.animationTime, startState);
-		std::map<std::string, TransformKey> endState;
-		m_pEndingAnimation.first->Update(m_pEndingAnimation.second.animationTime, endState);
-
-		for (auto& key : startState)
-		{
-			m_AnimationState[key.first].position = InterpolateTranslation(&endState[key.first].position, &key.second.position, factor);
-			m_AnimationState[key.first].rotation = InterpolateRotation(&endState[key.first].rotation, &key.second.rotation, factor);
-			m_AnimationState[key.first].scaling	= InterpolateScaling(&endState[key.first].scaling, &key.second.scaling, factor);
-		}
-	}
-
-	updateSkeleton(m_pSkeleton, DirectX::XMMatrixIdentity());
 }
 
 void component::AnimationComponent::OnInitScene()
 {
-	Renderer::GetInstance().InitAnimationComponent(this);
-	Reset();
+	Initialize();
+	Renderer::GetInstance().InitAnimationComponent(this); 
 }
 
 void component::AnimationComponent::OnUnInitScene()
 {
-	Reset();
 	Renderer::GetInstance().UnInitAnimationComponent(this);
+	Reset();
 }
 
 void component::AnimationComponent::Reset()
@@ -105,13 +116,14 @@ void component::AnimationComponent::Reset()
 	m_pPendingAnimation.first = nullptr;
 	m_pActiveAnimation.first = nullptr;
 	m_pEndingAnimation.first = nullptr;
+	m_pReactivateAnimation.first = nullptr;
+	m_pQueuedAnimation.first = nullptr;
 
 	m_pPendingAnimation.second.Reset();
 	m_pActiveAnimation.second.Reset();
 	m_pEndingAnimation.second.Reset();
-
-	m_pQueuedAnimation = nullptr;
-	m_pReactivateAnimation = nullptr;
+	m_pReactivateAnimation.second.Reset();
+	m_pQueuedAnimation.second.Reset();
 
 	// Initialize the upload matrices
 	DirectX::XMFLOAT4X4 matIdentity;
@@ -172,28 +184,34 @@ bool component::AnimationComponent::PlayAnimation(std::string animationName, boo
 		if (animation->name == animationName)
 		{
 			// If there is no pending animation we add the new animation.
-			if(!m_pPendingAnimation.first)
+			if(!m_pPendingAnimation.first && m_pActiveAnimation.first)
 			{
-				// First, put the new animation as pending, so it can be blended with the currently active animation.
-				m_pPendingAnimation.first = animation;
-				m_pPendingAnimation.second.loop = loop;
-				if (loop) // If this animation will be looping we don't need to reactivate the old one.
+				if (m_pActiveAnimation.first->name != animation->name)
 				{
-					m_pReactivateAnimation = nullptr;
+					// First, put the new animation as pending, so it can be blended with the currently active animation.
+					m_pPendingAnimation.first = animation;
+					m_pPendingAnimation.second.loop = loop;
+					if (loop) // If this animation will be looping we don't need to reactivate the old one.
+					{
+						m_pReactivateAnimation.first = nullptr;
+						m_pReactivateAnimation.second.Reset();
+					}
+					else if (m_pActiveAnimation.second.loop) // If it's not looping however, we have to reactivate the currently active animation later.
+					{
+						m_pReactivateAnimation.first = m_pActiveAnimation.first;
+						m_pReactivateAnimation.second = m_pActiveAnimation.second;
+					}
+					// Next, we tell the currently active animation to end, so we can blend to the new animation.
+					m_pEndingAnimation.first = m_pActiveAnimation.first;
+					m_pEndingAnimation.second = m_pActiveAnimation.second;
+					m_pActiveAnimation.first = nullptr;
+					m_pActiveAnimation.second.Reset();
 				}
-				else if (m_pActiveAnimation.second.loop) // If it's not looping however, we have to reactivate the currently active animation later.
-				{
-					m_pReactivateAnimation = m_pActiveAnimation.first;
-				}
-				// Next, we tell the currently active animation to end, so we can blend to the new animation.
-				m_pEndingAnimation.first = m_pActiveAnimation.first;
-				m_pEndingAnimation.second = m_pActiveAnimation.second;
-				m_pActiveAnimation.first = nullptr;
-				m_pActiveAnimation.second.Reset();
 			}
 			else // If there is already a pending animation we put the new animation in a queue
 			{
-				m_pQueuedAnimation = animation;
+				m_pQueuedAnimation.first = animation;
+				m_pQueuedAnimation.second.loop = loop;
 			}
 
 			return true;
@@ -283,5 +301,6 @@ void component::AnimationComponent::deleteCBMatrices()
 	if (m_pCB != nullptr)
 	{
 		delete m_pCB;
+		m_pCB = nullptr;
 	}
 }

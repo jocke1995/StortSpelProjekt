@@ -358,6 +358,8 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		// If player is moving, turn in the direction of movement
 		if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON)
 		{
+			m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Run", true);
+
 			double angle = std::atan2(m_pTransform->GetInvDir() * move.x, m_pTransform->GetInvDir() * move.z);
 			double forwardAngle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
 			if (m_Attacking || m_TurnToCamera)
@@ -369,6 +371,8 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		}
 		else
 		{
+			m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Idle", true);
+
 			double angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
