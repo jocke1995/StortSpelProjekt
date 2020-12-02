@@ -66,7 +66,7 @@ std::string UpgradePoisonAttack::GetDescription(unsigned int level)
 	std::string str = "Poison Attack: Causes your projectile to apply a poison. Deals ";
 	std::ostringstream damage;
 	damage.precision(2);
-	damage << std::fixed << ((float)(4 + m_Level * 2)) * (9 + level);
+	damage << std::fixed << ((float)(4 + level * 2)) * (9 + level);
 	str += damage.str();
 	str += " damage over ";
 	std::ostringstream duration;
@@ -76,7 +76,7 @@ std::string UpgradePoisonAttack::GetDescription(unsigned int level)
 	str += " seconds and slows the enemy by ";
 	std::ostringstream slow;
 	slow.precision(0);
-	slow << std::fixed << (0.10 + (float)m_Level / 10.0f);
+	slow << std::fixed << ((0.10 + (float)level / 10.0f)*100);
 	str += slow.str();
 	return 	 str + " \%";
 

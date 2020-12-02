@@ -9,14 +9,14 @@ UpgradeBlueJewel::UpgradeBlueJewel(Entity* parentEntity) : Upgrade(parentEntity)
 	// set the type of the upgrade
 	SetType(F_UpgradeType::PLAYER);
 	// set the price of the upgrade
-	m_Price = 900;
+	m_Price = 200;
 	m_StartingPrice = m_Price;
 
 	m_ImageName = "BlueJewel.png";
 	
-	m_StartDamageReduction = 0.4; // 40%
+	m_StartDamageReduction = 0.25; // 25%
 	m_DamageReduction = m_StartDamageReduction;
-	m_HealthThreshold = 0.3; // 30%
+	m_HealthThreshold = 0.5; // 50%
 }
 
 UpgradeBlueJewel::~UpgradeBlueJewel()
@@ -26,7 +26,7 @@ UpgradeBlueJewel::~UpgradeBlueJewel()
 
 void UpgradeBlueJewel::OnDamage()
 {
-	if (m_pParentEntity->GetComponent<component::HealthComponent>()->GetHealth() <= float(m_pParentEntity->GetComponent<component::HealthComponent>()->GetMaxHealth() * 0.3))
+	if (m_pParentEntity->GetComponent<component::HealthComponent>()->GetHealth() <= float(m_pParentEntity->GetComponent<component::HealthComponent>()->GetMaxHealth() * m_HealthThreshold))
 	{
 		m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeMultiplicativeDamageReduction(m_DamageReduction);
 	}

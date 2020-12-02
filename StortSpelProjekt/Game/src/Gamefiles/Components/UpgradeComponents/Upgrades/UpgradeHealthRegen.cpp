@@ -29,7 +29,7 @@ void UpgradeHealthRegen::Update(double dt)
 {
 	//count up the timer until we reach 1 to give one health.
 	//This gives a health regeneration of 4hp per second per level or 1hp every 0.25 seconds per level
-	m_HealthTimer += dt * (m_Level * 4);
+	m_HealthTimer += dt * (m_Level * 2);
 	while (m_HealthTimer >= 1)
 	{
 		m_HealthTimer -= 1;
@@ -47,5 +47,5 @@ void UpgradeHealthRegen::IncreaseLevel()
 
 std::string UpgradeHealthRegen::GetDescription(unsigned int level)
 {
-	return "Health Regeneration: Passively heals the player " + std::to_string(level * 4) + " health point every second";
+	return "Health Regeneration: Passively heals the player " + std::to_string(level * 2) + " health point every second";
 }
