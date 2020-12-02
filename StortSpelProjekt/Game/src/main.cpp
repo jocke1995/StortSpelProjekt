@@ -193,6 +193,7 @@ Scene* GameScene(SceneManager* sm)
     spiderCrawl->SetAudioLoop(0);
     AudioBuffer* spiderScream = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Spider_DeathScream_2.wav", L"SpiderHit");
     AudioBuffer* spiderSound = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/spiderSound.wav", L"SpiderSound");
+    AudioBuffer* demonAttack = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Swoosh_1.wav", L"DemonAttack");
 
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
@@ -361,6 +362,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.projectileModel = sphereModel;
     rangedDemon.invertDirection = true;
     rangedDemon.mass = 300.0f;
+    rangedDemon.attackSound = L"DemonAttack";
 
 #pragma endregion
 
