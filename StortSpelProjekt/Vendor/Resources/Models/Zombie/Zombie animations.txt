@@ -1,0 +1,5 @@
+Name of zombie animations:
+Walk
+Run
+Idle
+Attack

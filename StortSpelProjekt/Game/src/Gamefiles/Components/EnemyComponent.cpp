@@ -21,6 +21,17 @@ component::EnemyComponent::~EnemyComponent()
 {
 }
 
+void component::EnemyComponent::Update(double dt)
+{
+    m_TimeSinceLastGrunt += dt;
+    if (static_cast<double>(m_Rand.Randu(10,100)) < m_TimeSinceLastGrunt)
+    {
+        m_TimeSinceLastGrunt = 0.0;
+        m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnGrunt");
+        m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnGrunt");
+    }
+}
+
 void component::EnemyComponent::OnInitScene()
 {
 	m_pFactory->AddEnemyToList(m_pParent);
@@ -70,4 +81,9 @@ void component::EnemyComponent::OnUnInitScene()
 
     // Remove the enemy
 	m_pFactory->RemoveEnemyFromList(m_pParent);
+}
+
+void component::EnemyComponent::SetRandSeed(unsigned long seed)
+{
+    m_Rand.SetSeed(seed);
 }

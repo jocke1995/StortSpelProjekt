@@ -70,7 +70,20 @@ void Physics::AddCollisionEntity(Entity *ent)
 {
 	if (ent->GetComponent<component::BoundingBoxComponent>()->GetFlagOBB() & F_OBBFlags::COLLISION)
 	{
-		m_CollisionEntities.push_back(ent);
+		// TODO: Ugly solution to a bug
+		bool entityAlreadyExists = false;
+		for (auto& entity : m_CollisionEntities)
+		{
+			if (entity == ent)
+			{
+				entityAlreadyExists = true;
+			}
+		}
+
+		if (!entityAlreadyExists)
+		{
+			m_CollisionEntities.push_back(ent);
+		}
 	}
 	else
 	{

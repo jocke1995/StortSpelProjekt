@@ -37,6 +37,8 @@ namespace component
 		// Clones an audiobuffer to create a voice to the component
 		void AddVoice(const std::wstring& name);
 
+		void AddVoice(const std::wstring& globalName, const std::wstring& localName);
+
 		// Playback options of audio
 		// Play audio
 		void Play(const std::wstring& name);

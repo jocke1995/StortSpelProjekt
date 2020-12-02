@@ -20,8 +20,8 @@ public:
 		bool windowedFullScreen = false,
 		int screenWidth = 800,
 		int screenHeight = 600,
-		LPCTSTR windowName = L"windowName",
-		LPCTSTR windowTitle = L"windowTitle");
+		LPCTSTR windowName = L"Hell Loop",
+		LPCTSTR windowTitle = L"Hell Loop");
 
 	~Window();
 
