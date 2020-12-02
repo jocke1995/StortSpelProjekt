@@ -156,18 +156,15 @@ ModelRestitution 0.0
 Submit Model
 Submit CollisionCapsule 0.2, 0.8, 0.2
 
-// Braizer --------------------------------------------
-Name Braizer1
+// Brazier ----------------------------------------------
+Name Brazier1
 ModelPath Models/MedievalBraizer/medievalBraizer.obj
 ModelScaling 4.0, 4.0, 4.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 20.0, 2.0, 23.0
-ModelRestitution 0.5
+ModelRestitution 0.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
-ModelRestitution 0.0
-Submit Model
-Submit CollisionCapsule 0.2, 0.2, 0.2
 ParticleTexturePath Textures/Particles/fire_particle0.png
 ParticleCount 11
 ParticleStartPosition 0.0, 2.0, 0.0
@@ -189,17 +186,15 @@ Submit ParticleEffect
 Submit Model
 Submit CollisionCube 0.2, 0.2, 0.2
 
-Name Braizer2
+// Brazier2 ----------------------------------------------
+Name Brazier2
 ModelPath Models/MedievalBraizer/medievalBraizer.obj
 ModelScaling 4.0, 4.0, 4.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -20.0, 2.0, -23.0
-ModelRestitution 0.5
+ModelRestitution 0.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
-ModelRestitution 0.0
-Submit Model
-Submit CollisionCapsule 0.2, 0.2, 0.2
 ParticleTexturePath Textures/Particles/fire_particle0.png
 ParticleCount 11
 ParticleStartPosition 0.0, 2.0, 0.0
@@ -258,18 +253,18 @@ ShrinkBoundingBox 20.0, 1.0, 15.0
 Submit Model
 Submit CollisionCapsule 0.4, 10.0, 0.4
 
-Name Leaves
-ModelPath Models/Tree/Tree/leaves.obj
-ModelScaling 20.0, 20.0, 20.0
-ModelRotation 0.0, 0.0, 0.0
-ModelPosition 0.0, -2.0, 0.0
-ModelRestitution 0.5
-ModelDrawFlag 1, 0
-ModelDrawFlag 4, 1
-ModelDrawFlag 5, 1
-ShrinkBoundingBox 20.0, 1.0, 15.0
-Submit Model
-Submit CollisionCapsule 0.4, 10.0, 0.4
+//Name Leaves
+//ModelPath Models/Tree/Tree/leaves.obj
+//ModelScaling 20.0, 20.0, 20.0
+//ModelRotation 0.0, 0.0, 0.0
+//ModelPosition 0.0, -2.0, 0.0
+//ModelRestitution 0.5
+//ModelDrawFlag 1, 0
+//ModelDrawFlag 4, 1
+//ModelDrawFlag 5, 1
+//ShrinkBoundingBox 20.0, 1.0, 15.0
+//Submit Model
+//Submit CollisionCapsule 0.4, 10.0, 0.4
 
 // SKYBOX ----------------------------------------------
 Name Skybox

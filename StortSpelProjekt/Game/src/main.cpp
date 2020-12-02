@@ -18,7 +18,7 @@
 
 #include "Misc/Edge.h"
 
-//#include "Misc/Cryptor.h"
+#include "Misc/Cryptor.h"
 
 Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
@@ -667,6 +667,7 @@ Scene* ShopScene(SceneManager* sm)
     hc = entity->AddComponent<component::HealthComponent>(50);
     ic->SetMovementSpeed(75.0);
     ic->Init();
+    bbc->AddCollisionCategory<PlayerCollisionCategory>();
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
 
