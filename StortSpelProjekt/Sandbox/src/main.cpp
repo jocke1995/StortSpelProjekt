@@ -99,19 +99,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             networkTimer += timer->GetDeltaTime();
         }
 
-        if (window->WasSpacePressed() == true)
-        {
-            component::ParticleEmitterComponent* pe = sceneManager->GetScene("jockesScene")->GetEntity("particleEffect")->GetComponent<component::ParticleEmitterComponent>();
-            pe->Play();
-        }
-
-        if (window->WasTabPressed() == true)
-        {
-            component::ParticleEmitterComponent* pe = sceneManager->GetScene("jockesScene")->GetEntity("particleEffect")->GetComponent<component::ParticleEmitterComponent>();
-            pe->Stop();
-        }
-        
-
         sceneManager->RenderUpdate(timer->GetDeltaTime());
         particleSystem->Update(timer->GetDeltaTime());
         if (logicTimer >= updateRate)

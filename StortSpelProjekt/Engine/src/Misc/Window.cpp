@@ -64,6 +64,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		
 		return 0;
 
+	// On close and alt+f4, alt+f4 don't work apparently, is coded in WM_KEYDOWN
+	case WM_CLOSE:
+		programRunning = false;
+		DestroyWindow(hWnd);
+		return 0;
+		
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
@@ -91,6 +97,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			int modifier = (inputData.Flags / 2 + 1) * 0x100;
 			SCAN_CODES key = static_cast<SCAN_CODES>(inputData.MakeCode + modifier);
+
+			if ( key == SCAN_CODES::UP_ARROW || (key == SCAN_CODES::F4 && Input::GetInstance().GetKeyState(SCAN_CODES::ALT)))
+			{
+				// Check if not pressed up (case where HOLD f4 -> HOLD alt -> RELEASE f4)
+				if (inputData.Flags == RI_KEY_BREAK)
+				{
+					return 0;
+				}
+
+				// UnSet alt
+				Input::GetInstance().SetKeyState(SCAN_CODES::ALT, false);
+
+				// Quit
+				programRunning = false;
+				DestroyWindow(hWnd);
+
+				return 0;
+			}
 
 			if (DEVELOPERMODE_DEVINTERFACE == true)
 			{
@@ -308,7 +332,7 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 
 	WNDCLASSEX wc;
 	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = CS_HREDRAW | CS_VREDRAW;	// Device Context
+	wc.style = CS_HREDRAW | CS_VREDRAW ;	// Device Context
 	wc.lpfnWndProc = WndProc;	// Callback, Event catcher
 	wc.cbClsExtra = NULL;
 	wc.cbWndExtra = NULL;
@@ -316,7 +340,7 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 2);
-	wc.lpszMenuName = NULL;
+	wc.lpszMenuName = L"WindowSomethingMenuName";
 	wc.lpszClassName = m_WindowName;
 	wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
@@ -330,7 +354,7 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 	m_Hwnd = CreateWindowEx(NULL,
 		m_WindowName,
 		m_WindowTitle,
-		WS_OVERLAPPEDWINDOW,
+		WS_OVERLAPPED,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		m_ScreenWidth, m_ScreenHeight,
 		NULL,
