@@ -316,8 +316,8 @@ Scene* GameScene(SceneManager* sm)
     // quick melee
     EnemyComps spider = {};
     spider.model = enemySpiderModel;
-    spider.hp = 40;
-    spider.hpBase = 40;
+    spider.hp = 35;
+    spider.hpBase = 35;
     spider.OnHitSounds.emplace_back(L"SpiderHit");
     spider.OnGruntSounds.emplace_back(L"SpiderSound");
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
