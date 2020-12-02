@@ -21,6 +21,15 @@ component::Audio3DEmitterComponent::~Audio3DEmitterComponent()
 
 void component::Audio3DEmitterComponent::Update(double dt)
 {
+	for (auto entry : m_VoiceEmitterData)
+	{
+		XAUDIO2_VOICE_STATE test;
+		entry.second.voice.GetSourceVoice()->GetState(&test);
+		if (test.BuffersQueued >= 0)
+		{
+			UpdateEmitter(entry.first);
+		}
+	}
 }
 
 void component::Audio3DEmitterComponent::OnInitScene()
@@ -138,24 +147,12 @@ void component::Audio3DEmitterComponent::Play(const std::wstring& name)
 	{
 		m_VoiceEmitterData[name].voice.Play();
 	}
-	else
-	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Tried to play Audio that has not been loaded: %S \n", name.c_str());
-	}
 }
 
 void component::Audio3DEmitterComponent::Stop(const std::wstring& name)
 {
-#ifdef _DEBUG
 	if (m_VoiceEmitterData.count(name) != 0)
 	{
 		m_VoiceEmitterData[name].voice.Stop();
 	}
-	else
-	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Tried to stop Audio that has not been loaded: %S \n", name.c_str());
-	}
-#else
-	m_VoiceEmitterData[name].voice.Stop();
-#endif
 }
