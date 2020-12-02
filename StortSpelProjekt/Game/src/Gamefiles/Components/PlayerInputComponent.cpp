@@ -125,6 +125,18 @@ void component::PlayerInputComponent::Update(double dt)
 		}
 		m_MovementSpeed = m_BaseMovementSpeed * m_Slow;
 		m_pTransform->SetVelocity(m_MovementSpeed);
+		double3 vel = m_pCC->GetLinearVelocity();
+		float speed = m_pTransform->GetVelocity();
+		double3 move = {
+			vel.x,
+			0.0,
+			vel.z
+		};
+		move.normalize();
+		if (!m_Dashing)
+		{
+			m_pCC->SetVelVector(move.x * speed, vel.y, move.z * speed);
+		}
 	}
 }
 
