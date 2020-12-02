@@ -46,7 +46,7 @@ ParticleRandSize 0.7, 1.3
 ParticleRandRotationSpeed 0, 3
 ParticlePlayOnInit 1
 ModelLightPosition 21.0, 18.0, 79.0
-ModelLightColor 20.0, 5.4, 10.0
+ModelLightColor 10.0, 2.4, 8.0
 ModelLightFlag 0,0
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit PointLight
@@ -106,7 +106,7 @@ Submit ParticleEffect
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition 79.0, 18.0, -28.0
-ModelLightColor 20.0, 5.4, 10.0
+ModelLightColor 10.0, 2.4, 8.0
 ModelLightFlag 0,0
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit PointLight
@@ -163,7 +163,7 @@ Submit ParticleEffect
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition 57.0, 18.0, -56.0
-ModelLightColor 20.0, 5.4, 10.0
+ModelLightColor 10.0, 2.4, 8.0
 ModelLightFlag 0,0
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit PointLight
@@ -234,7 +234,7 @@ Submit ParticleEffect
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition -79.0, 18.0, -20.0
-ModelLightColor 20.0, 5.4, 10.0
+ModelLightColor 10.0, 2.4, 8.0
 ModelLightFlag 0,0
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit PointLight
@@ -282,7 +282,7 @@ Submit Model
 Submit CollisionCube 0.1, 0.1, 0.1
 ModelLightPosition 0.0, 53.0, 0.0
 ModelLightDirection 0.00001, -1.0, 0.00001
-ModelLightColor 8.86, 3.45, 5.33
+ModelLightColor 6.86, 1.45, 5.33
 ModelLightFlag 0,0
 ModelLightFlag 1,1
 ModelLightAttenuation 1.0, 0.027, 0.0028

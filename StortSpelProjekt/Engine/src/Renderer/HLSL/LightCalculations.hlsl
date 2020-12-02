@@ -163,7 +163,7 @@ float3 CalcSpotLight(
 {
 	float distance1 = distance(spotLight.position_cutOff, fragPos.xyz);
 
-	if (distance1 > 100.0f)
+	if (distance1 > 90.0f)
 	{
 		return float3(0.0f, 0.0f, 0.0f);
 	}
