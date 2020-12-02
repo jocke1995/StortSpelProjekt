@@ -1156,7 +1156,7 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, std::vector<
 	// Load rooms until maxRooms has been reached
 	float totalSpawnChance = 100.0f;
 	int spawnRand = 0;
-	while (roomCounter < maxRooms - 2)
+	while (roomCounter < maxRooms)
 	{
 		int direction = rand.Randu(0, 6);
 		int opositeDirection = 0;
