@@ -87,7 +87,6 @@ Entity* EnemyFactory::AddEnemy(const std::string& entityName, EnemyComps* comps)
 	enemy->rangeAttackDmg = comps->rangeAttackDmg;
 	enemy->rangeAttackDmgBase = comps->rangeAttackDmg;
 	enemy->rangeVelocity = comps->rangeVelocity;
-	enemy->isSpider = comps->isSpider;
 
 	return Add(entityName, enemy);
 }
@@ -200,9 +199,9 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 		ae->AddVoice(comps->OnGruntSounds[0], L"OnGrunt");
 	}
 
-	if (comps->isSpider)
+	if (comps->walkSound.size() > 0)
 	{
-		ae->AddVoice(L"SpiderCrawl");
+		ae->AddVoice(comps->walkSound, L"Walk");
 	}
 
 	mc->SetModel(comps->model);

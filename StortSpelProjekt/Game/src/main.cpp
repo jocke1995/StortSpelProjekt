@@ -327,7 +327,7 @@ Scene* GameScene(SceneManager* sm)
     spider.attackingDist = 1.5f;
     spider.invertDirection = true;
     spider.mass = 100.0f;
-    spider.isSpider = true;
+    spider.walkSound = L"SpiderCrawl";
 
     // ranged
     EnemyComps rangedDemon = {};

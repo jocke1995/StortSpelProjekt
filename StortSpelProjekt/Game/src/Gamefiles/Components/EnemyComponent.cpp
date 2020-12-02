@@ -33,19 +33,15 @@ void component::EnemyComponent::Update(double dt)
         m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnGrunt");
     }
 
-    if (strcmp(m_pParent->GetName().substr(0, 11).c_str(), "enemySpider") == 0)
-    {
-        m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"SpiderCrawl");
-    }
+    m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Walk");
 }
 
 void component::EnemyComponent::OnInitScene()
 {
 	m_pFactory->AddEnemyToList(m_pParent);
-    if (strcmp(m_pParent->GetName().substr(0, 11).c_str(), "enemySpider") == 0)
-    {
-        m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"SpiderCrawl");
-    }
+    
+    m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Walk");
+    m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Walk");    
     EventBus::GetInstance().Subscribe(this, &EnemyComponent::death);
 }
 
@@ -102,8 +98,5 @@ void component::EnemyComponent::SetRandSeed(unsigned long seed)
 
 void component::EnemyComponent::death(Death* evnt)
 {
-    if (strcmp(evnt->ent->GetName().substr(0, 11).c_str(), "enemySpider") == 0)
-    {
-        evnt->ent->GetComponent<component::Audio3DEmitterComponent>()->Stop(L"SpiderCrawl");
-    }
+    evnt->ent->GetComponent<component::Audio3DEmitterComponent>()->Stop(L"Walk");
 }
