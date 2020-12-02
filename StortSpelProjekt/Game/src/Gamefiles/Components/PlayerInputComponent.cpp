@@ -467,6 +467,11 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 
 			double angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
+
+			if (m_pParent->GetComponent<component::Audio2DVoiceComponent>())
+			{
+				m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerDash");
+			}
 		}
 		else
 		{

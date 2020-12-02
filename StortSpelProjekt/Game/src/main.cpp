@@ -35,7 +35,6 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //Cryptor::EncryptBinary(11, "../Vendor/Resources/Audio/IgnoredAudio/demon_onhit.wav");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -193,6 +192,8 @@ Scene* GameScene(SceneManager* sm)
     spiderCrawl->SetAudioLoop(0);
     AudioBuffer* spiderScream = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Spider_DeathScream_2.wav", L"SpiderHit");
     AudioBuffer* spiderSound = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/spiderSound.wav", L"SpiderSound");
+    AudioBuffer* demonAttack = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Swoosh_1.wav", L"DemonAttack");
+    AudioBuffer* playerDash = al->LoadAudio(L"../Vendor/Resources/Audio/femaleDash.wav", L"PlayerDash");
     AudioBuffer* playerJump = al->LoadAudio(L"../Vendor/Resources/Audio/femaleJump.wav", L"PlayerJump");
 
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
@@ -281,6 +282,7 @@ Scene* GameScene(SceneManager* sm)
 	pic->SetMovementSpeed(75.0);
 
     avc->AddVoice(L"PlayerHit1");
+    avc->AddVoice(L"PlayerDash");
     avc->AddVoice(L"PlayerJump");
 
     bbc->Init();
@@ -363,6 +365,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.projectileModel = sphereModel;
     rangedDemon.invertDirection = true;
     rangedDemon.mass = 300.0f;
+    rangedDemon.attackSound = L"DemonAttack";
 
 #pragma endregion
 
@@ -522,7 +525,7 @@ Scene* GameScene(SceneManager* sm)
 
 #pragma region money
     textToRender = "0";
-    textPos = { 0.95f, 0.03f };
+    textPos = { 0.945f, 0.03f };
     textPadding = { 0.5f, 0.0f };
     textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
     textScale = { 0.4f, 0.4f };
@@ -539,8 +542,11 @@ Scene* GameScene(SceneManager* sm)
     gui->GetTextManager()->SetText(textToRender, "money");
     gui->GetTextManager()->SetBlend(textBlend, "money");
 
-    quadPos = { 0.91f, 0.03f };
-    quadScale = { 0.03f, 0.03f };
+    quadPos = { 0.92f, 0.03f };
+    int height = Renderer::GetInstance().GetWindow()->GetScreenHeight();
+    int width = Renderer::GetInstance().GetWindow()->GetScreenWidth();
+    float ratio = static_cast<float>(height) / static_cast<float>(width);
+    quadScale = { 0.03f * ratio, 0.03f };
     blended = { 1.0, 1.0, 1.0, 0.99 };
     notBlended = { 1.0, 1.0, 1.0, 1.0 };
     gui->GetQuadManager()->CreateQuad(
@@ -621,6 +627,7 @@ Scene* ShopScene(SceneManager* sm)
     component::GUI2DComponent* gui = nullptr;
     component::CurrencyComponent* cur = nullptr;
     component::ParticleEmitterComponent* pec = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -652,10 +659,14 @@ Scene* ShopScene(SceneManager* sm)
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     mac = entity->AddComponent<component::MeleeComponent>();
-    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 50, 150);
     uc = entity->AddComponent<component::UpgradeComponent>();
     cur = entity->AddComponent<component::CurrencyComponent>();
+
+    avc->AddVoice(L"PlayerHit1");
+    avc->AddVoice(L"PlayerDash");
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
@@ -667,10 +678,17 @@ Scene* ShopScene(SceneManager* sm)
 
     double3 playerDim = mc->GetModelDim();
 
+    mac = entity->AddComponent<component::MeleeComponent>();
+    mac->SetDamage(50);
+    mac->SetAttackInterval(1.0);
+
     double rad = playerDim.z / 2.0;
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
-    hc = entity->AddComponent<component::HealthComponent>(50);
+    hc = entity->AddComponent<component::HealthComponent>(500);
+    rc->SetAttackInterval(1.0);
+    ic->SetJumpTime(0.17);
+    ic->SetJumpHeight(6.0);
     ic->SetMovementSpeed(75.0);
     ic->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
@@ -845,7 +863,7 @@ Scene* ShopScene(SceneManager* sm)
 
     /*---------------- GUI Coin -----------------*/
     textToRender = "0";
-    textPos = { 0.95f, 0.03f };
+    textPos = { 0.945f, 0.03f };
     textPadding = { 0.5f, 0.0f };
     textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
     textScale = { 0.4f, 0.4f };
@@ -862,8 +880,11 @@ Scene* ShopScene(SceneManager* sm)
     gui->GetTextManager()->SetText(textToRender, "money");
     gui->GetTextManager()->SetBlend(textBlend, "money");
 
-    quadPos = { 0.91f, 0.03f };
-    quadScale = { 0.03f, 0.03f };
+    quadPos = { 0.92f, 0.03f };
+    int height = Renderer::GetInstance().GetWindow()->GetScreenHeight();
+    int width = Renderer::GetInstance().GetWindow()->GetScreenWidth();
+    float ratio = static_cast<float>(height) / static_cast<float>(width);
+    quadScale = { 0.03f * ratio, 0.03f };
     notBlended = { 1.0, 1.0, 1.0, 1.0 };
     gui->GetQuadManager()->CreateQuad(
         "money",
