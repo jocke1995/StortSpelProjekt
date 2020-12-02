@@ -14,7 +14,7 @@ UpgradeBlueJewel::UpgradeBlueJewel(Entity* parentEntity) : Upgrade(parentEntity)
 
 	m_ImageName = "BlueJewel.png";
 	
-	m_StartDamageReduction = 0.25; // 25%
+	m_StartDamageReduction = 0.75; // 25% damage reduction
 	m_DamageReduction = m_StartDamageReduction;
 	m_HealthThreshold = 0.5; // 50%
 }
@@ -28,7 +28,7 @@ void UpgradeBlueJewel::OnDamage()
 {
 	if (m_pParentEntity->GetComponent<component::HealthComponent>()->GetHealth() <= float(m_pParentEntity->GetComponent<component::HealthComponent>()->GetMaxHealth() * m_HealthThreshold))
 	{
-		m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeMultiplicativeDamageReduction(1.0f - m_DamageReduction);
+		m_pParentEntity->GetComponent<component::HealthComponent>()->ChangeMultiplicativeDamageReduction(m_DamageReduction);
 	}
 }
 
@@ -43,5 +43,5 @@ void UpgradeBlueJewel::IncreaseLevel()
 
 std::string UpgradeBlueJewel::GetDescription(unsigned int level)
 {
-	return "Blue Jewel: An iridecent blue jewel that reduces damage taken by " + std::to_string(static_cast<int>(pow(m_StartDamageReduction, level) * 100)) + "\% while under " + std::to_string(static_cast<int>(m_HealthThreshold*100)) + "\% max health";
+	return "Blue Jewel: An iridecent blue jewel that reduces damage taken by " + std::to_string(static_cast<int>(pow(1.0f - m_StartDamageReduction, level) * 100)) + "\% while under " + std::to_string(static_cast<int>(m_HealthThreshold*100)) + "\% max health";
 }
