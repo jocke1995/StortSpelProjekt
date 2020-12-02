@@ -15,11 +15,11 @@
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
 #include "UpgradeGUI.h"
-//#include "Misc/Cryptor.h"
+#include "Misc/Cryptor.h"
 
 #include "Misc/Edge.h"
 
-#include "Misc/Cryptor.h"
+//#include "Misc/Cryptor.h"
 
 Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
@@ -176,6 +176,7 @@ Scene* GameScene(SceneManager* sm)
     Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
+    AudioBuffer* playerHit1 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/GotHit_Skin1.wav", L"PlayerHit1");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
     AudioBuffer* demonGnarl1 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_1.wav", L"DemonGnarl1");
@@ -272,7 +273,7 @@ Scene* GameScene(SceneManager* sm)
     pic->SetJumpHeight(6.0);
 	pic->SetMovementSpeed(75.0);
 
-    avc->AddVoice(L"Bruh");
+    avc->AddVoice(L"PlayerHit1");
 
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();

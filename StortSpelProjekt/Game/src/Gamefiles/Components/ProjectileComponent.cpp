@@ -73,11 +73,15 @@ void component::ProjectileComponent::hit(Collision* event)
 		{
 			createProjectileParticleEffectAt(m_pParent);
 			other->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
-			if (other->GetName().find("enemy") != std::string::npos && other->GetComponent<component::Audio3DEmitterComponent>())
+			if (other->GetComponent<component::Audio3DEmitterComponent>())
 			{
 				other->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnHit");
 				other->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnHit");
-				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
+				//EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
+			}
+			else if (other->GetComponent<component::Audio2DVoiceComponent>())
+			{
+				other->GetComponent<Audio2DVoiceComponent>()->Play(L"PlayerHit1");
 			}
 		}
 		else if (m_pParent->HasComponent<CollisionComponent>())
