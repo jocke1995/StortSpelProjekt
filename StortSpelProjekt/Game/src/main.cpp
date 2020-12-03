@@ -18,7 +18,7 @@
 
 #include "Misc/Edge.h"
 
-//#include "Misc/Cryptor.h"
+#include "Misc/Cryptor.h"
 
 Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);
@@ -178,18 +178,22 @@ Scene* GameScene(SceneManager* sm)
     AudioBuffer* playerHit1 = al->LoadAudio(L"../Vendor/Resources/Audio/Femalegrunt.wav", L"PlayerHit1");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
-    AudioBuffer* demonGnarl1 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_1.wav", L"DemonGnarl1");
-    AudioBuffer* demonGnarl2 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_2.wav", L"DemonGnarl2");
-    AudioBuffer* demonGnarl3 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_3.wav", L"DemonGnarl3");
-    AudioBuffer* demonGnarl4 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_4.wav", L"DemonGnarl4");
-    AudioBuffer* demonGnarl5 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_5.wav", L"DemonGnarl5");
-    AudioBuffer* demonGnarl6 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_6.wav", L"DemonGnarl6");
-    AudioBuffer* demonGnarl7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_7.wav", L"DemonGnarl7");
-    AudioBuffer* demonHit7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_GotHit_7.wav", L"DemonHit7");
+    AudioBuffer* zombieGnarl1 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_1.wav", L"ZombieGnarl1");
+    AudioBuffer* zombieGnarl2 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_2.wav", L"ZombieGnarl2");
+    AudioBuffer* zombieGnarl3 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_3.wav", L"ZombieGnarl3");
+    AudioBuffer* zombieGnarl4 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_4.wav", L"ZombieGnarl4");
+    AudioBuffer* zombieGnarl5 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_5.wav", L"ZombieGnarl5");
+    AudioBuffer* zombieGnarl6 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_6.wav", L"ZombieGnarl6");
+    AudioBuffer* zombieGnarl7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_7.wav", L"ZombieGnarl7");
+    AudioBuffer* zombieHit7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_GotHit_7.wav", L"ZombieHit7");
+    AudioBuffer* demonGrunt = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/monstergrowl.wav", L"DemonGrunt");
+    AudioBuffer* demonHit = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/demon_onhit.wav", L"DemonHit");
     AudioBuffer* spiderCrawl = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/spiderCrawl.wav", L"SpiderCrawl");
     spiderCrawl->SetAudioLoop(0);
     AudioBuffer* spiderScream = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Spider_DeathScream_2.wav", L"SpiderHit");
     AudioBuffer* spiderSound = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/spiderSound.wav", L"SpiderSound");
+    AudioBuffer* demonAttack = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Swoosh_1.wav", L"DemonAttack");
+    AudioBuffer* playerDash = al->LoadAudio(L"../Vendor/Resources/Audio/femaleDash.wav", L"PlayerDash");
 
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
@@ -277,6 +281,7 @@ Scene* GameScene(SceneManager* sm)
 	pic->SetMovementSpeed(75.0);
 
     avc->AddVoice(L"PlayerHit1");
+    avc->AddVoice(L"PlayerDash");
 
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
@@ -289,14 +294,14 @@ Scene* GameScene(SceneManager* sm)
 	zombie.model = enemyZombieModel;
 	zombie.hp = 70;
 	zombie.hpBase = 70;
-	zombie.OnHitSounds.emplace_back(L"DemonHit7");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl1");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl2");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl3");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl4");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl5");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl6");
-    zombie.OnGruntSounds.emplace_back(L"DemonGnarl7");
+	zombie.OnHitSounds.emplace_back(L"ZombieHit7");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl1");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl2");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl3");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl4");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl5");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl6");
+    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl7");
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
 	zombie.meleeAttackDmg = 30.0f;
@@ -341,7 +346,8 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.model = enemyDemonModel;
     rangedDemon.hp = 120;
     rangedDemon.hpBase = 120;
-    rangedDemon.OnHitSounds.emplace_back(L"Bruh");
+    rangedDemon.OnGruntSounds.emplace_back(L"DemonGrunt");
+    rangedDemon.OnHitSounds.emplace_back(L"DemonHit");
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     rangedDemon.attackInterval = 2.5f;
@@ -357,6 +363,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.projectileModel = sphereModel;
     rangedDemon.invertDirection = true;
     rangedDemon.mass = 300.0f;
+    rangedDemon.attackSound = L"DemonAttack";
 
 #pragma endregion
 
@@ -516,7 +523,7 @@ Scene* GameScene(SceneManager* sm)
 
 #pragma region money
     textToRender = "0";
-    textPos = { 0.95f, 0.03f };
+    textPos = { 0.945f, 0.03f };
     textPadding = { 0.5f, 0.0f };
     textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
     textScale = { 0.4f, 0.4f };
@@ -533,8 +540,11 @@ Scene* GameScene(SceneManager* sm)
     gui->GetTextManager()->SetText(textToRender, "money");
     gui->GetTextManager()->SetBlend(textBlend, "money");
 
-    quadPos = { 0.91f, 0.03f };
-    quadScale = { 0.03f, 0.03f };
+    quadPos = { 0.92f, 0.03f };
+    int height = Renderer::GetInstance().GetWindow()->GetScreenHeight();
+    int width = Renderer::GetInstance().GetWindow()->GetScreenWidth();
+    float ratio = static_cast<float>(height) / static_cast<float>(width);
+    quadScale = { 0.03f * ratio, 0.03f };
     blended = { 1.0, 1.0, 1.0, 0.99 };
     notBlended = { 1.0, 1.0, 1.0, 1.0 };
     gui->GetQuadManager()->CreateQuad(
@@ -615,6 +625,7 @@ Scene* ShopScene(SceneManager* sm)
     component::GUI2DComponent* gui = nullptr;
     component::CurrencyComponent* cur = nullptr;
     component::ParticleEmitterComponent* pec = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
     AssetLoader* al = AssetLoader::Get();
 
     // Get the models needed
@@ -646,10 +657,14 @@ Scene* ShopScene(SceneManager* sm)
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
     mac = entity->AddComponent<component::MeleeComponent>();
-    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.3, 1, 20);
+    rc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 50, 150);
     uc = entity->AddComponent<component::UpgradeComponent>();
     cur = entity->AddComponent<component::CurrencyComponent>();
+
+    avc->AddVoice(L"PlayerHit1");
+    avc->AddVoice(L"PlayerDash");
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
@@ -661,12 +676,20 @@ Scene* ShopScene(SceneManager* sm)
 
     double3 playerDim = mc->GetModelDim();
 
+    mac = entity->AddComponent<component::MeleeComponent>();
+    mac->SetDamage(50);
+    mac->SetAttackInterval(1.0);
+
     double rad = playerDim.z / 2.0;
     double cylHeight = playerDim.y - (rad * 2.0);
     ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
-    hc = entity->AddComponent<component::HealthComponent>(50);
+    hc = entity->AddComponent<component::HealthComponent>(500);
+    rc->SetAttackInterval(1.0);
+    ic->SetJumpTime(0.17);
+    ic->SetJumpHeight(6.0);
     ic->SetMovementSpeed(75.0);
     ic->Init();
+    bbc->AddCollisionCategory<PlayerCollisionCategory>();
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(entity);
 
@@ -838,7 +861,7 @@ Scene* ShopScene(SceneManager* sm)
 
     /*---------------- GUI Coin -----------------*/
     textToRender = "0";
-    textPos = { 0.95f, 0.03f };
+    textPos = { 0.945f, 0.03f };
     textPadding = { 0.5f, 0.0f };
     textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
     textScale = { 0.4f, 0.4f };
@@ -855,8 +878,11 @@ Scene* ShopScene(SceneManager* sm)
     gui->GetTextManager()->SetText(textToRender, "money");
     gui->GetTextManager()->SetBlend(textBlend, "money");
 
-    quadPos = { 0.91f, 0.03f };
-    quadScale = { 0.03f, 0.03f };
+    quadPos = { 0.92f, 0.03f };
+    int height = Renderer::GetInstance().GetWindow()->GetScreenHeight();
+    int width = Renderer::GetInstance().GetWindow()->GetScreenWidth();
+    float ratio = static_cast<float>(height) / static_cast<float>(width);
+    quadScale = { 0.03f * ratio, 0.03f };
     notBlended = { 1.0, 1.0, 1.0, 1.0 };
     gui->GetQuadManager()->CreateQuad(
         "money",

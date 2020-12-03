@@ -108,6 +108,14 @@ float3 CalcPointLight(
 	in float3 normal,
 	in float3 baseReflectivity)
 {
+
+	float distance1 = distance(pointLight.position, fragPos.xyz);
+	
+	if(distance1 > 70.0f)
+	{
+	    return float3(0.0f, 0.0f, 0.0f);
+	}
+
 	float3 pointLightContribution = float3(0.0f, 0.0f, 0.0f);
 
 	float3 lightDir = normalize(pointLight.position - fragPos.xyz);
@@ -153,6 +161,13 @@ float3 CalcSpotLight(
 	in float3 normal,
 	in float3 baseReflectivity)
 {
+	float distance1 = distance(spotLight.position_cutOff, fragPos.xyz);
+
+	if (distance1 > 90.0f)
+	{
+		return float3(0.0f, 0.0f, 0.0f);
+	}
+
 	float3 spotLightContribution = float3(0.0f, 0.0f, 0.0f);
 	
 	float3 lightDir = normalize(spotLight.position_cutOff.xyz - fragPos.xyz);
