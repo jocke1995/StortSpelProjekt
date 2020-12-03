@@ -9,7 +9,7 @@ UpgradeMeleeRadius::UpgradeMeleeRadius(Entity* parent) : Upgrade(parent)
 	// set the type of the upgrade
 	SetType(F_UpgradeType::PLAYER);
 	// set the price of the upgrade
-	m_Price = 400;
+	m_Price = 250;
 	m_StartingPrice = m_Price;
 	m_MaxLevel = 3;
 
