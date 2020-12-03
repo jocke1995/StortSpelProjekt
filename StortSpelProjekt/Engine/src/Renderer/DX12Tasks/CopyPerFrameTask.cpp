@@ -46,6 +46,12 @@ void CopyPerFrameTask::Execute()
 	volatile unsigned int i = 0;	// FOR SOLVING A BIG, REMOVE LATER. TODO
 	for (auto& tuple : m_UploadDefaultData)
 	{
+		if (std::get<2>(tuple) == nullptr)
+		{
+			Log::PrintSeverity(Log::Severity::CRITICAL, "Data is nullptr\n");
+			continue;
+		}
+
 		volatile std::vector<DirectX::XMFLOAT4X4>* temp = ((std::vector<DirectX::XMFLOAT4X4>*)(std::get<2>(tuple)));
 		volatile std::vector<DirectX::XMFLOAT4X4>* matrices = (reinterpret_cast<std::vector<DirectX::XMFLOAT4X4>*>(const_cast<void*>(std::get<2>(tuple))));
 		volatile PointLight* kebab = (PointLight*)(std::get<2>(tuple));

@@ -191,30 +191,31 @@ bool component::AnimationComponent::PlayAnimation(std::string animationName, boo
 					// First, put the new animation as pending, so it can be blended with the currently active animation.
 					m_pPendingAnimation.first = animation;
 					m_pPendingAnimation.second.loop = loop;
-					if (loop) // If this animation will be looping we don't need to reactivate the old one.
-					{
-						m_pReactivateAnimation.first = nullptr;
-						m_pReactivateAnimation.second.Reset();
-					}
-					else if (m_pActiveAnimation.second.loop) // If it's not looping however, we have to reactivate the currently active animation later.
+					if (m_pActiveAnimation.second.loop) // If it's not looping however, we have to reactivate the currently active animation later.
 					{
 						m_pReactivateAnimation.first = m_pActiveAnimation.first;
 						m_pReactivateAnimation.second = m_pActiveAnimation.second;
+					}
+					else if (loop) // If this animation will be looping we don't need to reactivate the old one.
+					{
+						m_pReactivateAnimation.first = nullptr;
+						m_pReactivateAnimation.second.Reset();
 					}
 					// Next, we tell the currently active animation to end, so we can blend to the new animation.
 					m_pEndingAnimation.first = m_pActiveAnimation.first;
 					m_pEndingAnimation.second = m_pActiveAnimation.second;
 					m_pActiveAnimation.first = nullptr;
 					m_pActiveAnimation.second.Reset();
+
+					return true;
 				}
 			}
-			else // If there is already a pending animation we put the new animation in a queue
+			else if (m_pActiveAnimation.first) // If there is already a pending animation we put the new animation in a queue
 			{
 				m_pQueuedAnimation.first = animation;
 				m_pQueuedAnimation.second.loop = loop;
+				return true;
 			}
-
-			return true;
 		}
 	}
 

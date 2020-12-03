@@ -114,6 +114,19 @@ void component::PlayerInputComponent::OnUnInitScene()
 
 void component::PlayerInputComponent::RenderUpdate(double dt)
 {
+	// This code is for running the correct animation (Movement animation or Idle animation) 
+	if (m_MovementStateChanged)
+	{
+		if (m_IsMoving)
+		{
+			m_MovementStateChanged = !m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Run", true);
+		}
+		else
+		{
+			m_MovementStateChanged = !m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Idle", true);
+		}
+	}
+	
 	// TODO: since it is constant, only calculate this once.
 	// As of writing this, crashes if run on OnInit()
 	m_Height = (m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y * m_pTransform->GetScale().y * 0.5) + 1.0;
@@ -337,6 +350,17 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		double moveForward = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::W)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::S)));
 		bool dash = (evnt->key == SCAN_CODES::LEFT_SHIFT || evnt->key == SCAN_CODES::RIGHT_SHIFT) && evnt->pressed;
 
+		// This code is used to know if the animation should be changed to the move animation or the idle animation
+		unsigned char isCurrentlyMoving =	Input::GetInstance().GetKeyState(SCAN_CODES::W) +
+											Input::GetInstance().GetKeyState(SCAN_CODES::A) +
+											Input::GetInstance().GetKeyState(SCAN_CODES::S) +
+											Input::GetInstance().GetKeyState(SCAN_CODES::D);
+		if ((!isCurrentlyMoving && m_IsMoving) || (!m_IsMoving && isCurrentlyMoving))
+		{
+			m_IsMoving = isCurrentlyMoving;
+			m_MovementStateChanged = true;
+		}
+
 		double jump = static_cast<double>(evnt->key == SCAN_CODES::SPACE) * static_cast<double>(evnt->pressed);
 
 		// Get the forward and right vectors to determine in which direction to move
@@ -358,7 +382,6 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		// If player is moving, turn in the direction of movement
 		if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON)
 		{
-			m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Run", true);
 
 			double angle = std::atan2(m_pTransform->GetInvDir() * move.x, m_pTransform->GetInvDir() * move.z);
 			double forwardAngle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
@@ -371,8 +394,6 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		}
 		else
 		{
-			m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Idle", true);
-
 			double angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
