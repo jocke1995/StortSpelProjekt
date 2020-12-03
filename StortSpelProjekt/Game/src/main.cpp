@@ -990,6 +990,26 @@ Scene* ShopScene(SceneManager* sm)
     tc->SetTransformOriginalState();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
 
+    /* ---------------------- SpotLightDynamic ---------------------- */
+    entity = scene->AddEntity("spotLightDynamicPressf");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW | FLAG_LIGHT::STATIC);
+
+    float3 pos = { 5.0f, 20.0f, 5.0f };
+    mc->SetModel(sphereModel);
+    //mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW);
+    tc->GetTransform()->SetScale(0.3f);
+    tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
+    tc->SetTransformOriginalState();
+
+    slc->SetColor({ 11.0f, 10.0f, 10.0f });
+    slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
+    slc->SetPosition(pos);
+    slc->SetDirection({ 1.0f, -1.0f, 1.0f });
+    slc->SetOuterCutOff(50.0f);
+    /* ---------------------- SpotLightDynamic ---------------------- */
+
 #pragma endregion walls
 
     /* ---------------------- moon ---------------------- */
