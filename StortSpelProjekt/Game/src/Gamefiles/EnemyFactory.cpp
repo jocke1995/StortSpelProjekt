@@ -14,7 +14,7 @@ EnemyFactory& EnemyFactory::GetInstance()
 
 EnemyFactory::EnemyFactory()
 {
-	m_Level = 0;
+	m_Level = 3;	// FOR TESTING ANIMATIONS, SHOULD BE 0!!!!!!!!!!!! TODO
 	m_MaxEnemies = 30;
 	m_LevelMaxEnemies = 20;
 	m_EnemiesKilled = 0;
@@ -184,7 +184,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	ae->AddVoice(comps->sound3D);
 
 	mc->SetModel(comps->model);
-	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+	mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
 	Transform* t = tc->GetTransform();
 	t->SetPosition(comps->pos.x, comps->pos.y, comps->pos.z);
 	t->SetScale(comps->scale);

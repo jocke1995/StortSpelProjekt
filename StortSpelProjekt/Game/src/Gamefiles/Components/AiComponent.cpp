@@ -56,6 +56,10 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_pTriangles = nullptr;
 	m_pTargetTrans = nullptr;
 	m_pParentTrans = nullptr;
+
+
+
+
 }
 
 component::AiComponent::~AiComponent()
@@ -125,6 +129,14 @@ void component::AiComponent::RenderUpdate(double dt)
 
 void component::AiComponent::OnInitScene()
 {
+	if (m_pParent->GetName().find("Spider", 0) != std::string::npos)
+	{
+		m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Walk", true);
+	}
+	else if (m_pParent->GetName().find("Zombie", 0) != std::string::npos)
+	{
+		m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Run", true);
+	}
 }
 
 void component::AiComponent::OnUnInitScene()
@@ -494,6 +506,16 @@ void component::AiComponent::updateMelee(double dt)
 				m_SpeedTimeAccumulator += static_cast<float>(dt);
 				if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
 				{
+					// Should possibly be moved outside of the if statement(s)?
+					if (m_pParent->GetName().find("Spider", 0) != std::string::npos)
+					{
+						m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Bite", false);
+					}
+					else if (m_pParent->GetName().find("Zombie", 0) != std::string::npos)
+					{
+						m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Attack", false);
+					}
+
 					m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(m_MeleeAttackDmg);
 					//Log::Print("ENEMY ATTACK!\n");
 					m_SpeedTimeAccumulator = 0.0;
@@ -510,6 +532,23 @@ void component::AiComponent::updateMelee(double dt)
 
 void component::AiComponent::updateRange(double dt)
 {
+	// Check if we need to update the animations
+	static double currentMovement = 0.0f;
+	double newMovement = m_pParentTrans->GetVelocity();
+	if (abs(currentMovement - newMovement) > 0.1f)
+	{
+		currentMovement = newMovement;
+		if (currentMovement < 0.3f)
+		{
+			m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Idle", true);
+		}
+		else
+		{
+			m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Walk", true);
+		}
+	}
+	
+
 	CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
 	if (cc->CastRay({ 0.0, -1.0, 0.0 }, cc->GetDistanceToBottom() + 0.5) != -1)
 	{
@@ -567,15 +606,6 @@ void component::AiComponent::updateRange(double dt)
 				}
 			}
 		}
-	}
-
-	if (m_StandStill)
-	{
-		m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Idle", true);
-	}
-	else
-	{
-		m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Walk", true);
 	}
 }
 

@@ -1173,11 +1173,11 @@ void Renderer::submitModelToGPU(Model* model)
 		Mesh* mesh = model->GetMeshAt(i);
 
 		// Submit more data if the model is animated
-		AnimatedModel* am = nullptr;
-		am = dynamic_cast<AnimatedModel*>(model);
-		if (am!=nullptr)
+		AnimatedModel* animatedModel = nullptr;
+		animatedModel = dynamic_cast<AnimatedModel*>(model);
+		if (animatedModel!=nullptr)
 		{
-			AnimatedMesh* am = static_cast<AnimatedMesh*>(mesh);
+			AnimatedMesh* animatedMesh = static_cast<AnimatedMesh*>(mesh);
 
 			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 
@@ -1185,14 +1185,14 @@ void Renderer::submitModelToGPU(Model* model)
 			// while the other resource will contain the modified vertex data. But as the initial state, both resources
 			// will contain the same data.
 			std::tuple<Resource*, Resource*, const void*> defaultResourceOrigVertices(
-				am->GetUploadResourceOrigVertices(),
-				am->GetDefaultResourceOrigVertices(),
+				animatedMesh->GetUploadResourceOrigVertices(),
+				animatedMesh->GetDefaultResourceOrigVertices(),
 				mesh->m_Vertices.data());
 
 			std::tuple<Resource*, Resource*, const void*> defaultResourceVertexWeights(
-				am->GetUploadResourceVertexWeights(),
-				am->GetDefaultResourceVertexWeights(),
-				am->GetVertexWeights()->data());
+				animatedMesh->GetUploadResourceVertexWeights(),
+				animatedMesh->GetDefaultResourceVertexWeights(),
+				animatedMesh->GetVertexWeights()->data());
 
 			codt->Submit(&defaultResourceOrigVertices);
 			codt->Submit(&defaultResourceVertexWeights);

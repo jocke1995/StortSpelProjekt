@@ -167,7 +167,6 @@ struct Animation
 				assert(factor >= 0.0f && factor <= 1.0f);
 
 				state[bone.first].position = InterpolateTranslation(&bone.second[keyIndex].position, &bone.second[nextKeyIndex].position, factor);
-				state[bone.first].pPosition = &state[bone.first].position;
 			}
 		}
 
@@ -197,7 +196,6 @@ struct Animation
 				assert(factor >= 0.0f && factor <= 1.0f);
 
 				state[bone.first].rotation = InterpolateRotation(&bone.second[keyIndex].rotationQuaternion, &bone.second[nextKeyIndex].rotationQuaternion, factor);
-				state[bone.first].pRotation = &state[bone.first].rotation;
 			}
 		}
 
@@ -227,7 +225,6 @@ struct Animation
 				assert(factor >= 0.0f && factor <= 1.0f);
 
 				state[bone.first].scaling = InterpolateScaling(&bone.second[keyIndex].scaling, &bone.second[nextKeyIndex].scaling, factor);
-				state[bone.first].pScale = &state[bone.first].scaling;
 			}
 		}
 	}
