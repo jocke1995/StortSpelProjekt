@@ -194,6 +194,7 @@ Scene* GameScene(SceneManager* sm)
     AudioBuffer* spiderSound = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/spiderSound.wav", L"SpiderSound");
     AudioBuffer* demonAttack = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Swoosh_1.wav", L"DemonAttack");
     AudioBuffer* playerDash = al->LoadAudio(L"../Vendor/Resources/Audio/femaleDash.wav", L"PlayerDash");
+    AudioBuffer* playerJump = al->LoadAudio(L"../Vendor/Resources/Audio/femaleJump.wav", L"PlayerJump");
 
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
@@ -282,6 +283,7 @@ Scene* GameScene(SceneManager* sm)
 
     avc->AddVoice(L"PlayerHit1");
     avc->AddVoice(L"PlayerDash");
+    avc->AddVoice(L"PlayerJump");
 
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
@@ -665,6 +667,7 @@ Scene* ShopScene(SceneManager* sm)
 
     avc->AddVoice(L"PlayerHit1");
     avc->AddVoice(L"PlayerDash");
+    avc->AddVoice(L"PlayerJump");
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
@@ -987,8 +990,6 @@ Scene* ShopScene(SceneManager* sm)
     tc->SetTransformOriginalState();
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
 
-#pragma endregion walls
-
     /* ---------------------- SpotLightDynamic ---------------------- */
     entity = scene->AddEntity("spotLightDynamicPressf");
     mc = entity->AddComponent<component::ModelComponent>();
@@ -997,7 +998,7 @@ Scene* ShopScene(SceneManager* sm)
 
     float3 pos = { 5.0f, 20.0f, 5.0f };
     mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    //mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW);
     tc->GetTransform()->SetScale(0.3f);
     tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
     tc->SetTransformOriginalState();
@@ -1008,6 +1009,8 @@ Scene* ShopScene(SceneManager* sm)
     slc->SetDirection({ 1.0f, -1.0f, 1.0f });
     slc->SetOuterCutOff(50.0f);
     /* ---------------------- SpotLightDynamic ---------------------- */
+
+#pragma endregion walls
 
     /* ---------------------- moon ---------------------- */
     entity = scene->AddEntity("moon");
