@@ -314,7 +314,7 @@ Scene* GameScene(SceneManager* sm)
 	zombie.rot = { 0.0, 0.0, 0.0 };
 	zombie.targetName = "player";
 	zombie.scale = 0.014;
-	zombie.detectionRad = 500.0f;
+	zombie.detectionRad = 100.0f;
 	zombie.attackingDist = 1.5f;
     zombie.invertDirection = true;
     zombie.mass = 150.0f;
@@ -358,8 +358,8 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.targetName = "player";
     rangedDemon.scale = 0.08f;
     rangedDemon.isRanged = true;
-    rangedDemon.detectionRad = 500.0f;
-    rangedDemon.attackingDist = 100.0f;
+    rangedDemon.detectionRad = 100.0f;
+    rangedDemon.attackingDist = 90.0f;
     rangedDemon.rangeAttackDmg = 70;
     rangedDemon.rangeVelocity = 50.0f;
     rangedDemon.projectileModel = sphereModel;

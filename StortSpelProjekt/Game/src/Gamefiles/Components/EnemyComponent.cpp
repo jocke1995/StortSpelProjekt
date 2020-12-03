@@ -39,12 +39,12 @@ void component::EnemyComponent::Update(double dt)
     // Move ProgressBar with the enemy
     component::ProgressBarComponent* pc = m_pParent->GetComponent<component::ProgressBarComponent>();
     component::TransformComponent* tc = m_pParent->GetComponent<component::TransformComponent>();
+    Transform* trans = tc->GetTransform();
+    component::ModelComponent* mc = m_pParent->GetComponent<component::ModelComponent>();
 
-    // Todo: fix this
-    float3 positionAboveHead = {};
-    positionAboveHead = tc->GetTransform()->GetPositionFloat3();
+    float3 positionAboveHead = trans->GetPositionFloat3();
 
-    positionAboveHead.y = positionAboveHead.y * 2 + 1.0f;
+    positionAboveHead.y = positionAboveHead.y + mc->GetModelDim().y * trans->GetScale().y / 2.0f + 1.0f;
 
     pc->SetPosition(positionAboveHead);
 }

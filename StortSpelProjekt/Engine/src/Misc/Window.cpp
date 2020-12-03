@@ -116,7 +116,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				return 0;
 			}
 
-			if (DEVELOPERMODE_DEVINTERFACE == true)
+			//if (DEVELOPERMODE_DEVINTERFACE == true)
 			{
 				if (key == SCAN_CODES::ALT && !Input::GetInstance().GetKeyState(SCAN_CODES::ALT) && !(inputData.Flags % 2))
 				{
@@ -129,14 +129,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
 				}
 			}
-			if (DEVELOPERMODE_DEVINTERFACE == false || !Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
+			if (/*DEVELOPERMODE_DEVINTERFACE == false || */!Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
 			{
 				Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
 			}
 		}
 		else if (raw->header.dwType == RIM_TYPEMOUSE)
 		{
-			if (DEVELOPERMODE_DEVINTERFACE == false || !Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
+			if (/*DEVELOPERMODE_DEVINTERFACE == false || */!Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
 			{
 				auto inputData = raw->data.mouse;
 				MOUSE_BUTTON button = static_cast<MOUSE_BUTTON>(inputData.usButtonFlags);
@@ -173,7 +173,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 
 			// This is temporarly to make sure that a mouse click works even though the 'alt' key is pressed
-			if (DEVELOPERMODE_DEVINTERFACE == false || Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
+			if (/*DEVELOPERMODE_DEVINTERFACE == false || */Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
 			{
 				auto inputData = raw->data.mouse;
 				MOUSE_BUTTON button = static_cast<MOUSE_BUTTON>(inputData.usButtonFlags);
