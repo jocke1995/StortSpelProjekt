@@ -72,7 +72,7 @@ Scene* GameOverHandler::CreateScene(SceneManager* sm)
     guiComp->GetTextManager()->SetFont(arial);
     guiComp->GetTextManager()->AddText("levelPlayed");
     guiComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "levelPlayed");
-    guiComp->GetTextManager()->SetPos({ 0.35, 0.35 }, "levelPlayed");
+    guiComp->GetTextManager()->SetPos({ 0.405, 0.36 }, "levelPlayed");
     guiComp->GetTextManager()->SetText("Level Reached: ", "levelPlayed");
 
     // KilledEnemies
@@ -81,7 +81,7 @@ Scene* GameOverHandler::CreateScene(SceneManager* sm)
 	guiComp->GetTextManager()->SetFont(arial);
     guiComp->GetTextManager()->AddText("killedEnemies");
     guiComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "killedEnemies");
-    guiComp->GetTextManager()->SetPos({ 0.35, 0.45 }, "killedEnemies");
+    guiComp->GetTextManager()->SetPos({ 0.405, 0.46 }, "killedEnemies");
     guiComp->GetTextManager()->SetText("Enemies Killed: ", "killedEnemies");
 
     // KilledEnemies
@@ -90,7 +90,7 @@ Scene* GameOverHandler::CreateScene(SceneManager* sm)
     guiComp->GetTextManager()->SetFont(arial);
     guiComp->GetTextManager()->AddText("timePlayed");
     guiComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "timePlayed");
-    guiComp->GetTextManager()->SetPos({ 0.35, 0.55 }, "timePlayed");
+    guiComp->GetTextManager()->SetPos({ 0.405, 0.56 }, "timePlayed");
     guiComp->GetTextManager()->SetText("Time Played: ", "timePlayed");
 
 
