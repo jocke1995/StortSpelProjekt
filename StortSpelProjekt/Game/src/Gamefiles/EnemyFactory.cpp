@@ -77,7 +77,10 @@ Entity* EnemyFactory::AddEnemy(const std::string& entityName, EnemyComps* comps)
 	enemy->targetName = comps->targetName;
 	enemy->hp = comps->hp;
 	enemy->hpBase = comps->hp;
-	enemy->OnHitSounds = comps->OnHitSounds;
+	enemy->onHitSounds = comps->onHitSounds;
+	enemy->onGruntSounds = comps->onGruntSounds;
+	enemy->onAttackSounds = comps->onAttackSounds;
+	enemy->walkSound = comps->walkSound;
 	enemy->detectionRad = comps->detectionRad;
 	enemy->attackingDist = comps->attackingDist;
 	enemy->attackInterval = comps->attackInterval;
@@ -185,34 +188,39 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	ec = ent->AddComponent<component::EnemyComponent>(this);
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
 
-	unsigned int size = comps->OnHitSounds.size();
+	unsigned int size = comps->onHitSounds.size();
 	if (size > 1)
 	{
-		ae->AddVoice(comps->OnHitSounds[m_RandGen.Rand(0, size)], L"OnHit");
+		ae->AddVoice(comps->onHitSounds[m_RandGen.Rand(0, size)], L"OnHit");
 	}
 	else if (size == 1)
 	{
-		ae->AddVoice(comps->OnHitSounds[0], L"OnHit");
+		ae->AddVoice(comps->onHitSounds[0], L"OnHit");
 	}
 
-	size = comps->OnGruntSounds.size();
+	size = comps->onGruntSounds.size();
 	if (size > 1)
 	{
-		ae->AddVoice(comps->OnGruntSounds[m_RandGen.Rand(0, size)], L"OnGrunt");
+		ae->AddVoice(comps->onGruntSounds[m_RandGen.Rand(0, size)], L"OnGrunt");
 	}
 	else if (size == 1)
 	{
-		ae->AddVoice(comps->OnGruntSounds[0], L"OnGrunt");
+		ae->AddVoice(comps->onGruntSounds[0], L"OnGrunt");
+	}
+
+	size = comps->onAttackSounds.size();
+	if (size > 1)
+	{
+		ae->AddVoice(comps->onAttackSounds[m_RandGen.Rand(0, size)], L"OnAttack");
+	}
+	else if (size == 1)
+	{
+		ae->AddVoice(comps->onAttackSounds[0], L"OnAttack");
 	}
 
 	if (comps->walkSound.size() > 0)
 	{
 		ae->AddVoice(comps->walkSound, L"Walk");
-	}
-
-	if (comps->attackSound.size() > 0);
-	{
-		ae->AddVoice(comps->attackSound, L"Attack");
 	}
 
 	mc->SetModel(comps->model);
