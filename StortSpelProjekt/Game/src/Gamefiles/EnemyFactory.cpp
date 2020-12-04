@@ -18,6 +18,7 @@ EnemyFactory::EnemyFactory()
 	m_MaxEnemies = 30;
 	m_LevelMaxEnemies = 20;
 	m_EnemiesKilled = 0;
+	m_TotalEnemiesKilled = 0;
 	m_EnemiesToSpawn = 0;
 	m_LevelTime = 30;
 	m_LevelTimer = 0;
@@ -287,6 +288,16 @@ std::vector<Entity*>* EnemyFactory::GetAllEnemies()
 	return &m_Enemies;
 }
 
+int EnemyFactory::GetTotalKilled()
+{
+	return m_TotalEnemiesKilled;
+}
+
+int EnemyFactory::GetLevel()
+{
+	return m_Level;
+}
+
 void EnemyFactory::AddSpawnPoint(const float3& point)
 {
 	m_SpawnPoints.push_back({ point.x, point.y, point.z });
@@ -534,20 +545,24 @@ void EnemyFactory::killRound(double dt)
 void EnemyFactory::enemyDeath(Death* evnt)
 {
 	//We don't care about kills on time rounds
-	if (strcmp(evnt->ent->GetName().substr(0, 5).c_str(), "enemy") == 0 && !m_TimeRound)
+	if (strcmp(evnt->ent->GetName().substr(0, 5).c_str(), "enemy") == 0)
 	{
-		m_EnemiesKilled++;
-
-		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
-		if (enemyGui != nullptr)
+		m_TotalEnemiesKilled++;
+		if (!m_TimeRound)
 		{
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(std::to_string(m_EnemiesKilled) + "/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
-		}
+			m_EnemiesKilled++;
 
-		//If we have reached the kill goal we are done with the level and should do anything coming from that
-		if (m_EnemiesKilled >= m_LevelMaxEnemies)
-		{
-			EventBus::GetInstance().Publish(&LevelDone());
+			Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+			if (enemyGui != nullptr)
+			{
+				enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(std::to_string(m_EnemiesKilled) + "/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+			}
+
+			//If we have reached the kill goal we are done with the level and should do anything coming from that
+			if (m_EnemiesKilled >= m_LevelMaxEnemies)
+			{
+				EventBus::GetInstance().Publish(&LevelDone());
+			}
 		}
 	}
 }
@@ -675,6 +690,7 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 void EnemyFactory::onResetGame(ResetGame* evnt)
 {
 	m_Level = 0;
+	m_TotalEnemiesKilled = 0;
 	m_EnemyComps["enemyDemon"]->spawnChance = 0;
 	m_EnemyComps["enemyZombie"]->spawnChance = 0;
 	m_EnemyComps["enemySpider"]->spawnChance = 0;

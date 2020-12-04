@@ -7,6 +7,8 @@
 #include "Misc/Option.h"
 #include "Events/EventBus.h"
 #include "Misc/GUI2DElements/Font.h"
+#include "EnemyFactory.h"
+#include "GameGUI.h"
 
 void onGameOverSceneInit(Scene*);
 void onMainMenu(const std::string& name);
@@ -52,17 +54,45 @@ Scene* GameOverHandler::CreateScene(SceneManager* sm)
 	guiComp->GetTextManager()->SetFont(arial);
     guiComp->GetTextManager()->AddText("GameOverText");
     guiComp->GetTextManager()->SetScale({ 2, 2 }, "GameOverText");
-    guiComp->GetTextManager()->SetPos({ 0.29, 0.41 }, "GameOverText");
+    guiComp->GetTextManager()->SetPos({ 0.29, 0.10 }, "GameOverText");
     guiComp->GetTextManager()->SetText("Game Over", "GameOverText");
 
-    // text2
+    // "You Died"
     entity = scene->AddEntity("youDiedText");
     guiComp = entity->AddComponent<component::GUI2DComponent>();
-	guiComp->GetTextManager()->SetFont(arial);
+    guiComp->GetTextManager()->SetFont(arial);
     guiComp->GetTextManager()->AddText("youDiedText");
     guiComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "youDiedText");
-    guiComp->GetTextManager()->SetPos({ 0.43, 0.56 }, "youDiedText");
+    guiComp->GetTextManager()->SetPos({ 0.43, 0.25 }, "youDiedText");
     guiComp->GetTextManager()->SetText("(You Died...)", "youDiedText");
+
+    // Rounds Played
+    entity = scene->AddEntity("levelPlayed");
+    guiComp = entity->AddComponent<component::GUI2DComponent>();
+    guiComp->GetTextManager()->SetFont(arial);
+    guiComp->GetTextManager()->AddText("levelPlayed");
+    guiComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "levelPlayed");
+    guiComp->GetTextManager()->SetPos({ 0.35, 0.35 }, "levelPlayed");
+    guiComp->GetTextManager()->SetText("Level Reached: ", "levelPlayed");
+
+    // KilledEnemies
+    entity = scene->AddEntity("killedEnemies");
+    guiComp = entity->AddComponent<component::GUI2DComponent>();
+	guiComp->GetTextManager()->SetFont(arial);
+    guiComp->GetTextManager()->AddText("killedEnemies");
+    guiComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "killedEnemies");
+    guiComp->GetTextManager()->SetPos({ 0.35, 0.45 }, "killedEnemies");
+    guiComp->GetTextManager()->SetText("Enemies Killed: ", "killedEnemies");
+
+    // KilledEnemies
+    entity = scene->AddEntity("timePlayed");
+    guiComp = entity->AddComponent<component::GUI2DComponent>();
+    guiComp->GetTextManager()->SetFont(arial);
+    guiComp->GetTextManager()->AddText("timePlayed");
+    guiComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "timePlayed");
+    guiComp->GetTextManager()->SetPos({ 0.35, 0.55 }, "timePlayed");
+    guiComp->GetTextManager()->SetText("Time Played: ", "timePlayed");
+
 
 #pragma region ReturnQuad
     entity = scene->AddEntity("MainMenuQuad");
@@ -97,6 +127,12 @@ GameOverHandler::GameOverHandler()
 void onGameOverSceneInit(Scene* scene)
 {
     ShowCursor(true);
+    scene->GetEntity("levelPlayed")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Level Reached: " + std::to_string(EnemyFactory::GetInstance().GetLevel()), "levelPlayed");
+    scene->GetEntity("killedEnemies")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Enemies Killed: " + std::to_string(EnemyFactory::GetInstance().GetTotalKilled()), "killedEnemies");
+    int seconds = GameGUI::GetInstance().GetTimePlayed();
+    int minute = seconds / 60;
+    seconds = seconds % 60;
+    scene->GetEntity("timePlayed")->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Time Played: " + std::to_string(minute) + ":" + std::to_string(seconds), "timePlayed");
 }
 
 void onMainMenu(const std::string& name)
