@@ -88,11 +88,12 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 	}
 	else if (key == SCAN_CODES::ESCAPE && justPressed)
 	{
-		m_IsPaused = !m_IsPaused;
 		Scene* scene = SceneManager::GetInstance().GetActiveScene();
 		if (scene->GetName() != "ShopScene" || !Player::GetInstance().GetShop()->IsShop2DGUIDisplaying())
 		{
+			m_IsPaused = !m_IsPaused;
 			EventBus::GetInstance().Publish(&UForUpgrade());
+			ShowCursor(m_IsPaused);
 		}
 	}
 }
@@ -102,7 +103,10 @@ void Input::SetMouseButtonState(MOUSE_BUTTON button, bool pressed)
 	m_MouseButtonState[button] = pressed;
 	switch (pressed) {
 	case true:
-		EventBus::GetInstance().Publish(&MouseClick(button, pressed));
+		if (!m_IsPaused)
+		{
+			EventBus::GetInstance().Publish(&MouseClick(button, pressed));
+		}
 		break;
 	case false:
 		EventBus::GetInstance().Publish(&MouseRelease(button, pressed));
@@ -119,7 +123,7 @@ void Input::SetMouseScroll(SHORT scroll)
 void Input::SetMouseMovement(int x, int y)
 {
 	// Disable movement when in Shop2D-GUI state
-	if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == false)
+	if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == false && !m_IsPaused)
 	{
 		EventBus::GetInstance().Publish(&MouseMovement(x, y));
 	}

@@ -246,7 +246,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 			gui->GetTextManager()->SetBlend(textBlend, "NextButton");
 
 
-			quadPos = { 0.48f, m_ButtonPos.y + (m_ButtonYOffset * 10) };//{ 0.47f, 0.202f };
+			quadPos = { m_ButtonPos.x, m_ButtonPos.y + (m_ButtonYOffset * 10) };//{ 0.47f, 0.202f };
 			quadScale = { 0.15f, 0.04f };
 			blended = { 1.0, 1.0, 1.0, 1.0 };
 			notBlended = { 1.0, 1.0, 1.0, 1.0 };

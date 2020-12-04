@@ -127,6 +127,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                 UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
             }
         }
+        else
+        {
+            gameGUI.Update(timer->GetDeltaTime(), sceneManager->GetActiveScene());
+            UpgradeGUI::GetInstance().Update(timer->GetDeltaTime(), sceneManager->GetActiveScene());
+        }
 
         /* ---- Network ---- */
         if (gameNetwork.IsConnected())
