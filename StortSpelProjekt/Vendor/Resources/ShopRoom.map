@@ -1,0 +1,442 @@
+// FLOOR ----------------------------------------------
+Name Floor
+ModelPath Models/CastleFloor/castlefloor.obj
+ModelScaling 100.0, 1.0, 100.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 0.0, 0.0, 0.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 0.1, 1.0
+
+// WALL1 ----------------------------------------------
+CreateEdge
+
+Name Wall1
+ModelPath Models/StoneWallParts/WallWindow/stoneWallWindow.obj
+ModelScaling 30.0, 22.0, 50.0
+ModelRotation 0.0, 120.0, 0.0
+ModelPosition 43.0, 0.0, 75.0
+ModelRestitution 0.5
+ModelDrawFlag 1, 1
+Submit Model
+Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 0
+
+Name Banner1
+ModelPath Models/Banner/banner.obj
+ModelScaling 2.0, 2.0, 2.0
+ModelRotation 0.0, 120.0, 0.0
+ModelPosition 23.0, 15.0, 83.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 0
+
+Name Banner2
+ModelPath Models/Banner/banner.obj
+ModelScaling 2.0, 2.0, 2.0
+ModelRotation 0.0, 120.0, 0.0
+ModelPosition 56.0, 15.0, 64.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 0
+
+// WALL2 ----------------------------------------------
+CreateEdge
+
+Name Wall2
+ModelPath Models/StoneWallParts/Wall/stoneWall.obj
+ModelScaling 30.0, 22.0, 50.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 86.0, 0.0, 1.0
+ModelRestitution 0.5
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 1
+
+Name Banner3
+ModelPath Models/Banner/banner.obj
+ModelScaling 2.0, 2.0, 2.0
+ModelRotation 0.0, 180.0, 0.0
+ModelPosition 83.0, 15.0, 22.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 1
+
+Name Banner4
+ModelPath Models/Banner/banner.obj
+ModelScaling 2.0, 2.0, 2.0
+ModelRotation 0.0, 180.0, 0.0
+ModelPosition 83.0, 15.0, -25.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 1
+
+// WALL3 ----------------------------------------------
+CreateEdge
+
+Name Wall3
+ModelPath Models/StoneWallParts/Wall/stoneWall.obj
+ModelScaling 30.0, 22.0, 50.0
+ModelRotation 0.0, 60.0, 0.0
+ModelPosition 43.0, 0.0, -74.0
+ModelRestitution 0.5
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 2
+
+Name Banner5
+ModelPath Models/Banner/banner.obj
+ModelScaling 2.0, 2.0, 2.0
+ModelRotation 0.0, 240.0, 0.0
+ModelPosition 59.0, 15.0, -61.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 2
+
+Name Banner6
+ModelPath Models/Banner/banner.obj
+ModelScaling 2.0, 2.0, 2.0
+ModelRotation 0.0, 240.0, 0.0
+ModelPosition 16.0, 15.0, -86.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 2
+
+// WALL4 ----------------------------------------------
+CreateEdge
+
+Name Wall4
+ModelPath Models/StoneWallParts/WallWindow/stoneWallWindow.obj
+ModelScaling 30.0, 22.0, 50.0
+ModelRotation 0.0, 120.0, 0.0
+ModelPosition -43.0, 0.0, -74.0
+ModelRestitution 0.5
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 3
+
+Name Banner7
+ModelPath Models/Banner/banner.obj
+ModelScaling 2.0, 2.0, 2.0
+ModelRotation 0.0, 300.0, 0.0
+ModelPosition -16.0, 15.0, -86.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 3
+
+Name Banner8
+ModelPath Models/Banner/banner.obj
+ModelScaling 2.0, 2.0, 2.0
+ModelRotation 0.0, 300.0, 0.0
+ModelPosition -58.0, 15.0, -61.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 3
+
+// WALL5 ----------------------------------------------
+CreateEdge
+
+Name Wall5
+ModelPath Models/StoneWallParts/Wall/stoneWall.obj
+ModelScaling 30.0, 22.0, 50.0
+ModelRotation 0.0, 180.0, 0.0
+ModelPosition -86.0, 0.0, 0.0
+ModelRestitution 0.5
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 4
+
+Name Banner9
+ModelPath Models/Banner/banner.obj
+ModelScaling 2.0, 2.0, 2.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -83.0, 15.0, -20.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 4
+
+Name Banner10
+ModelPath Models/Banner/banner.obj
+ModelScaling 2.0, 2.0, 2.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -83.0, 15.0, 20.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 4
+
+// WALL6 ----------------------------------------------
+CreateEdge
+
+Name Wall6
+ModelPath Models/StoneWallParts/Wall/stoneWall.obj
+ModelScaling 30.0, 22.0, 50.0
+ModelRotation 0.0, 240.0, 0.0
+ModelPosition -43.0, 0.0, 75.0
+ModelRestitution 0.5
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+Submit CollisionCube 0.1, 1.0, 1.0
+AddToEdge 5
+
+Name Banner11
+ModelPath Models/Banner/banner.obj
+ModelScaling 2.0, 2.0, 2.0
+ModelRotation 0.0, 60.0, 0.0
+ModelPosition -59.5, 15.0, 61.7
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 5
+
+Name Banner12
+ModelPath Models/Banner/banner.obj
+ModelScaling 2.0, 2.0, 2.0
+ModelRotation 0.0, 60.0, 0.0
+ModelPosition -14.0, 15.0, 88.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 5
+
+// Ceiling ----------------------------------------------
+Name Ceiling
+ModelPath Models/CastleCeiling/castleceiling.obj
+ModelScaling 100.0, 50.0, 100.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 0.0, 46.5, 0.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 0.0, 0.0, 0.0
+
+Name ChandelierNoChain
+ModelPath Models/MedievalChandelier/chandelierNoChain.obj
+ModelScaling 50.0, 50.0, 50.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 0.0, 39.0, 0.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+ParticleTexturePath Textures/Particles/fire_particle0.png
+ParticleCount 70
+ParticleStartPosition 0.0, 4.0, 0.0
+ParticleSpawnInterval 0.025
+ParticleStartLifetime 0.5
+ParticleRandPosition -7.5, 7.5, 0, 1, -7.5, 7.5
+ParticleRandVelocity -1,1,2,4,-1,1
+ParticleRandSize 1.0, 1.5
+ParticleRandRotationSpeed 0, 3
+ParticlePlayOnInit 1
+Submit ParticleEffect
+Submit Model
+Submit CollisionCube 0.1, 0.1, 0.1
+ModelLightPosition 0.0, 53.0, 0.0
+ModelLightDirection 0.00001, -1.0, 0.00001
+ModelLightColor 8.86, 6.45, 0.33
+ModelLightFlag 0,0
+ModelLightFlag 1,1
+ModelLightAttenuation 1.0, 0.027, 0.0028
+ModelLightNear 10.0
+ModelLightFar 1000.0
+Submit SpotLight
+
+Name ChandelierChain
+ModelPath Models/MedievalChandelier/Chain/chandelierChain.obj
+ModelScaling 50.0, 50.0, 50.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 0.0, 39.0, 0.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 0
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+
+// Skulls ----------------------------------------------
+Name Skulls1
+ModelPath Models/Skulls/skulls.obj
+ModelScaling 15.0, 15.0, 15.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 25.0, -1.0, 55.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 0
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionSphere 0.3, 0.15, 0.4
+
+Name Skulls2
+ModelPath Models/Skulls/skulls.obj
+ModelScaling 15.0, 15.0, 15.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 30.0, -1.0, 45.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 0
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionSphere 0.3, 0.15, 0.4
+
+Name Skulls3
+ModelPath Models/Skulls/skulls.obj
+ModelScaling 15.0, 15.0, 15.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 25.0, -1.0, 55.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 0
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionSphere 0.3, 0.15, 0.4
+
+Name Skulls4
+ModelPath Models/Skulls/skulls.obj
+ModelScaling 15.0, 15.0, 15.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 27.0, 1.0, 50.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 0
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionSphere 0.3, 0.15, 0.4
+
+// Tomb ----------------------------------------------
+Name Tomb
+ModelPath Models/Tomb/tomb.obj
+ModelScaling 20.0, 20.0, 20.0
+ModelRotation 0.0, -45.0, 0.0
+ModelPosition -50.0, 1.0, -50.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 0.4, 0.4, 0.7
+
+// Statue ----------------------------------------------
+Name Statue
+ModelPath Models/Statue/ganeshaStatue.obj
+ModelScaling 2.0, 2.0, 2.0
+ModelRotation 0.0, 45.0, 0.0
+ModelPosition 0.0, 1.0, -75.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCube 3.0, 4.0, 3.5
+
+// TREE ----------------------------------------------
+Name DirtBase
+ModelPath Models/Tree/DirtBase/dirtBase.obj
+ModelScaling 5.0, 1.0, 5.0
+ModelRotation 0.0, -0.1, 0.0
+ModelPosition 50.0, 0, -40.0
+ModelRestitution 0.5
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
+Name Treetrunk
+ModelPath Models/Tree/Tree/treeTrunk.obj
+ModelScaling 4.0, 4.0, 4.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 50.0, -2.0, -40.0
+ModelRestitution 0.5
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+ShrinkBoundingBox 20.0, 1.0, 15.0
+Submit Model
+Submit CollisionCapsule 0.4, 10.0, 0.4
+
+// SKYBOX ----------------------------------------------
+Name Skybox
+ModelPath Textures/CubeMaps/skymap.dds
+Submit Skybox
+
+// MOON -------------------------------------------------
+Name moon
+ModelLightColor 0.5, 0.5, 0.7
+ModelLightFlag 1,1
+ModelLightDirection 0.0, -0.75, 1.0
+ModelLightLeft -175.0
+ModelLightRight 175.0
+ModelLightTop 100.0
+ModelLightBottom -50.0
+ModelLightFar 1000.0
+ModelLightNear -1000.0
+Submit DirectionalLight
