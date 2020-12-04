@@ -36,6 +36,8 @@ public:
 
 	void SetColor(float3 color);
 
+	void SetFlickerRate(float rate);
+
 	// Gets
 	unsigned int GetLightFlags() const;
 	virtual void* GetLightData() const = 0;
@@ -68,6 +70,11 @@ protected:
 		float farZ = 1000.0f);
 
 	virtual void UpdateLightColor() = 0;
+
+	// f(time) function that calculates an intensity for a light 
+	inline float flickerIntensityFunction(float x) { return 1 + (1.0f / 5.0f) * sinf(x); }
+	// used to scale up dt in update
+	float m_flickerRate = 1;
 
 };
 

@@ -37,6 +37,11 @@ void Light::SetColor(float3 color)
 	UpdateLightColor();
 }
 
+void Light::SetFlickerRate(float rate)
+{
+	m_flickerRate = rate;
+}
+
 unsigned int Light::GetLightFlags() const
 {
 	return m_LightFlags;

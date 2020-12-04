@@ -41,11 +41,13 @@ namespace component
 			m_pPointLight->position.z = position.z;
 		}
 
+		// Would use a global time counter if we had one, do not want to create a timer for each light
 		static float dtCounter = 0;
+		static float baseIntensity = 3.0f;
 		if (m_LightFlags & FLAG_LIGHT::FLICKER)
 		{
-			dtCounter += dt * 2 * PI;
-			float intensity = 1 + (1.0f/2.0f)*sinf(dtCounter);
+			dtCounter += dt * 2 * PI * m_flickerRate;
+			float intensity = baseIntensity * flickerIntensityFunction(dtCounter);
 			static float3 color = m_pBaseLight->color;
 			float3 newColor = color * intensity;
 			SetColor(newColor);
