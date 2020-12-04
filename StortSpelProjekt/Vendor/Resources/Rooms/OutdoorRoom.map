@@ -208,7 +208,8 @@ ParticleRandRotationSpeed 0, 3
 ParticlePlayOnInit 1
 ModelLightPosition -20.0, 10.0, -23.0
 ModelLightDirection 0.0001, -1.0, 0.0001
-ModelLightColor 20.0, 5.4, 0.0
+ModelLightColor 1.0, 0.27, 0.0
+ModelLightIntensity 20
 ModelLightFlag 0,0
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit SpotLight

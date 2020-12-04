@@ -30,7 +30,7 @@ namespace component
 		void* GetLightData() const;
 	
 	protected:
-		void UpdateLightColor();
+		void UpdateLightColorIntensity();
 
 	private:
 		SpotLight* m_pSpotLight = nullptr;

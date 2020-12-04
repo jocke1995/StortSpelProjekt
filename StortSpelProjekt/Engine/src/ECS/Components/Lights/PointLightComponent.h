@@ -22,7 +22,7 @@ namespace component
 		void* GetLightData() const;
 
 	protected:
-		void UpdateLightColor();
+		void UpdateLightColorIntensity();
 
 	private:
 		PointLight* m_pPointLight = nullptr;
