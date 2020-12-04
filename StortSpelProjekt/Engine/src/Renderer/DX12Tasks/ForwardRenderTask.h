@@ -3,16 +3,16 @@
 
 #include "RenderTask.h"
 
-class FowardRenderTask : public RenderTask
+class ForwardRenderTask : public RenderTask
 {
 public:
-	FowardRenderTask(ID3D12Device5* device, 
+	ForwardRenderTask(ID3D12Device5* device, 
 		RootSignature* rootSignature, 
 		const std::wstring& VSName, const std::wstring& PSName,
 		std::vector<D3D12_GRAPHICS_PIPELINE_STATE_DESC*>* gpsds, 
 		const std::wstring& psoName,
 		unsigned int FLAG_THREAD);
-	~FowardRenderTask();
+	~ForwardRenderTask();
 
 	void Execute();
 

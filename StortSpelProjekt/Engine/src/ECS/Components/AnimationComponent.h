@@ -7,6 +7,9 @@
 #include "../Renderer/GPUMemory/ConstantBuffer.h"
 class Entity;
 class ConstantBuffer;
+class ShaderResourceView;
+class UnorderedAccessView;
+class Resource;
 class AnimatedModel;
 struct MovementInput;
 struct MouseClick;
@@ -25,16 +28,14 @@ namespace component
         // Will reset the component. No need to re-initialize.
         void Reset();
 
-        // Requires that the entity has a model.
-        void Initialize();
-
         // Plays an animation
         bool PlayAnimation(std::string animationName, bool loop);
 
     private:
         friend class Renderer;
         friend class AnimatedDepthRenderTask;
-
+        friend class ForwardRenderTask;
+        
         AnimatedModel* m_pAnimatedModel = nullptr;
         SkeletonNode* m_pSkeleton = nullptr;
 
@@ -52,6 +53,14 @@ namespace component
 
         std::vector<DirectX::XMFLOAT4X4> m_UploadMatrices;
         ConstantBuffer* m_pCB = nullptr;
+
+        // Hack to kringå systemet
+        std::vector<Resource*> m_DefaultResourceVertices;
+        std::vector<ShaderResourceView*> m_SRVs;
+        std::vector<UnorderedAccessView*> m_pUAVs;
+
+        // Requires that the entity has a model.
+        void initialize(ID3D12Device5* device5, DescriptorHeap* dh_CBV_UAV_SRV);
 
         // Will bind the AnimationState to the skeleton.
         void bindAnimation(SkeletonNode* node);

@@ -587,6 +587,8 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 
 void Renderer::InitAnimationComponent(component::AnimationComponent* component)
 {
+	component->initialize(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+
 	component->createCBMatrices(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 
 	// Submit the matrices to be uploaded everyframe
@@ -1682,7 +1684,7 @@ void Renderer::initRenderTasks()
 	gpsdForwardRenderVector.push_back(&gpsdForwardRender);
 	gpsdForwardRenderVector.push_back(&gpsdForwardRenderStencilTest);
 
-	RenderTask* forwardRenderTask = new FowardRenderTask(
+	RenderTask* forwardRenderTask = new ForwardRenderTask(
 		m_pDevice5,
 		m_pRootSignature,
 		L"ForwardVertex.hlsl", L"ForwardPixel.hlsl",

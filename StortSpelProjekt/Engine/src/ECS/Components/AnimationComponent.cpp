@@ -5,6 +5,12 @@
 #include "../Events/EventBus.h"
 #include "../ECS/Entity.h"
 
+// DX12
+#include "../Renderer/GPUMemory/ShaderResourceView.h"
+#include "../Renderer/GPUMemory/UnorderedAccessView.h"
+#include "../Renderer/GPUMemory/Resource.h"
+#include "../Renderer/DescriptorHeap.h"
+
 component::AnimationComponent::AnimationComponent(Entity* parent)
 	:Component(parent)
 {
@@ -18,6 +24,13 @@ component::AnimationComponent::~AnimationComponent()
 	}
 
 	deleteCBMatrices();
+
+	for (unsigned int i = 0; i < m_DefaultResourceVertices.size(); i++)
+	{
+		delete m_DefaultResourceVertices[i];
+		delete m_SRVs[i];
+		delete m_pUAVs[i];
+	}
 }
 
 void component::AnimationComponent::RenderUpdate(double dt)
@@ -100,7 +113,6 @@ void component::AnimationComponent::RenderUpdate(double dt)
 
 void component::AnimationComponent::OnInitScene()
 {
-	Initialize();
 	Renderer::GetInstance().InitAnimationComponent(this); 
 }
 
@@ -108,6 +120,18 @@ void component::AnimationComponent::OnUnInitScene()
 {
 	Renderer::GetInstance().UnInitAnimationComponent(this);
 	Reset();
+
+	// Maybe wrong place
+	for (unsigned int i = 0; i < m_DefaultResourceVertices.size(); i++)
+	{
+		delete m_DefaultResourceVertices[i];
+		delete m_SRVs[i];
+		delete m_pUAVs[i];
+
+		m_DefaultResourceVertices[i] = nullptr;
+		m_SRVs[i] = nullptr;
+		m_pUAVs[i] = nullptr;
+	}
 }
 
 void component::AnimationComponent::Reset()
@@ -143,37 +167,6 @@ void component::AnimationComponent::Reset()
 			m_pActiveAnimation.first->Update(m_pActiveAnimation.second.animationTime, m_AnimationState);
 			break;
 		}
-	}
-}
-
-void component::AnimationComponent::Initialize()
-{
-	component::ModelComponent* mc = m_pParent->GetComponent<component::ModelComponent>();
-	if (mc != nullptr)
-	{
-		m_pAnimatedModel = dynamic_cast<AnimatedModel*>(mc->GetModel());
-		if (m_pAnimatedModel)
-		{
-			m_pSkeleton = m_pAnimatedModel->CloneSkeleton();
-			m_Animations = m_pAnimatedModel->GetAnimations();
-
-			// Store the globalInverse transform.
-			DirectX::XMMATRIX globalTransform = DirectX::XMLoadFloat4x4(&m_pSkeleton->defaultTransform);
-			DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, DirectX::XMMatrixInverse(nullptr, globalTransform));
-
-			m_UploadMatrices.reserve(MAX_ANIMATION_MATRICES);
-
-			Reset();
-			bindAnimation(m_pSkeleton);
-		}
-		else
-		{
-			Log::PrintSeverity(Log::Severity::CRITICAL, "AnimationComponent initialized when there's no animated model! Make sure the model used actually has animations.\n");
-		}
-	}
-	else
-	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "AnimationComponent initialized when there's no ModelComponent! Make sure the AnimationComponent is initialized AFTER the modelComponent.\n");
 	}
 }
 
@@ -220,6 +213,77 @@ bool component::AnimationComponent::PlayAnimation(std::string animationName, boo
 	}
 
 	return false;
+}
+
+void component::AnimationComponent::initialize(ID3D12Device5* device5, DescriptorHeap* dh_CBV_UAV_SRV)
+{
+	component::ModelComponent* mc = m_pParent->GetComponent<component::ModelComponent>();
+	if (mc != nullptr)
+	{
+		m_pAnimatedModel = dynamic_cast<AnimatedModel*>(mc->GetModel());
+		if (m_pAnimatedModel)
+		{
+			m_pSkeleton = m_pAnimatedModel->CloneSkeleton();
+			m_Animations = m_pAnimatedModel->GetAnimations();
+
+			// Store the globalInverse transform.
+			DirectX::XMMATRIX globalTransform = DirectX::XMLoadFloat4x4(&m_pSkeleton->defaultTransform);
+			DirectX::XMStoreFloat4x4(&m_GlobalInverseTransform, DirectX::XMMatrixInverse(nullptr, globalTransform));
+
+			m_UploadMatrices.reserve(MAX_ANIMATION_MATRICES);
+
+			Reset();
+			bindAnimation(m_pSkeleton);
+
+			// Create the hackMeshes
+			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+			{
+				std::string meshName = m_pParent->GetName();
+
+				// create vertices resource
+				m_DefaultResourceVertices.push_back(new Resource(device5, mc->GetMeshAt(i)->GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"VERTEX_DEFAULT_RESOURCE_" + to_wstring(meshName), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS));
+
+				// Create SRV
+				D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
+				dsrv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+				dsrv.Buffer.FirstElement = 0;
+				dsrv.Format = DXGI_FORMAT_UNKNOWN;
+				dsrv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+				dsrv.Buffer.NumElements = mc->GetMeshAt(i)->GetNumVertices();
+				dsrv.Buffer.StructureByteStride = sizeof(Vertex);
+
+				// Set view to mesh
+				m_SRVs.push_back(new ShaderResourceView(
+					device5,
+					dh_CBV_UAV_SRV,
+					&dsrv,
+					m_DefaultResourceVertices[i]));
+
+
+				// Create uavs
+
+				D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+				uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+				uavDesc.Buffer.FirstElement = 0;
+				uavDesc.Buffer.NumElements = mc->GetMeshAt(i)->GetNumVertices();
+				uavDesc.Buffer.StructureByteStride = sizeof(Vertex);
+
+				m_pUAVs.push_back(new UnorderedAccessView(
+					device5,
+					dh_CBV_UAV_SRV,
+					&uavDesc,
+					m_DefaultResourceVertices[i]));
+			}
+		}
+		else
+		{
+			Log::PrintSeverity(Log::Severity::CRITICAL, "AnimationComponent initialized when there's no animated model! Make sure the model used actually has animations.\n");
+		}
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "AnimationComponent initialized when there's no ModelComponent! Make sure the AnimationComponent is initialized AFTER the modelComponent.\n");
+	}
 }
 
 void component::AnimationComponent::updateSkeleton(SkeletonNode* node, DirectX::XMMATRIX parentTransform)
