@@ -35,8 +35,6 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //Cryptor::EncryptBinary(Cryptor::GetGlobalKey(), "../Vendor/Resources/Audio/toBeEncrypted/FemalegruntDelayed2.wav");
-    //Cryptor::DecryptBinary(Cryptor::GetGlobalKey(), "../Vendor/Resources/Audio/Femalegrunt.wav");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -177,7 +175,7 @@ Scene* GameScene(SceneManager* sm)
     Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
-    //AudioBuffer* playerHit1 = al->LoadAudio(L"../Vendor/Resources/Audio/Femalegrunt.wav", L"PlayerHit1");
+    //AudioBuffer* playerHit1 = al->LoadAudio(L"../Vendor/Resources/Audio/Femalegrunt.wav", L"PlayerHit1"); // this sound starts immediately, while the delayed starts after around 0.25 seconds
     AudioBuffer* playerHit1 = al->LoadAudio(L"../Vendor/Resources/Audio/FemalegruntDelayed.wav", L"PlayerHit1");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
