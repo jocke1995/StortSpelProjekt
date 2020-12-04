@@ -74,18 +74,6 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			}
 		}
 	}
-
-	else if (key == SCAN_CODES::U)
-	{
-		if (justPressed)
-		{
-			Scene* scene = SceneManager::GetInstance().GetActiveScene();
-			if (scene->GetName() != "ShopScene")
-			{
-				EventBus::GetInstance().Publish(&UForUpgrade());
-			}
-		}
-	}
 	else if (key == SCAN_CODES::F)
 	{
 		if (justPressed)
@@ -96,6 +84,15 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			{
 				EventBus::GetInstance().Publish(&shopGUIStateChange());
 			}
+		}
+	}
+	else if (key == SCAN_CODES::ESCAPE && justPressed)
+	{
+		m_IsPaused = !m_IsPaused;
+		Scene* scene = SceneManager::GetInstance().GetActiveScene();
+		if (scene->GetName() != "ShopScene" || !Player::GetInstance().GetShop()->IsShop2DGUIDisplaying())
+		{
+			EventBus::GetInstance().Publish(&UForUpgrade());
 		}
 	}
 }
@@ -138,7 +135,13 @@ bool Input::GetMouseButtonState(MOUSE_BUTTON button)
 	return m_MouseButtonState[button];
 }
 
+bool Input::IsPaused()
+{
+	return m_IsPaused;
+}
+
 Input::Input()
 {
 	m_KeyTimer[SCAN_CODES::W] = m_KeyTimer[SCAN_CODES::A] = m_KeyTimer[SCAN_CODES::S] = m_KeyTimer[SCAN_CODES::D] = m_KeyTimer[SCAN_CODES::SPACE] = std::chrono::system_clock::now();
+	m_IsPaused = false;
 }

@@ -106,23 +106,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             networkTimer += timer->GetDeltaTime();
         }
 
-        sceneManager->RenderUpdate(timer->GetDeltaTime());
-        particleSystem->Update(timer->GetDeltaTime());
-        if (logicTimer >= updateRate)
+        if (!Input::GetInstance().IsPaused())
         {
-            if (logicTimer >= 0.5)
+            sceneManager->RenderUpdate(timer->GetDeltaTime());
+            particleSystem->Update(timer->GetDeltaTime());
+            if (logicTimer >= updateRate)
             {
-                logicTimer = 0;
+                if (logicTimer >= 0.5)
+                {
+                    logicTimer = 0;
+                }
+                else
+                {
+                    logicTimer -= updateRate;
+                }
+                EnemyFactory::GetInstance().Update(updateRate);
+                sceneManager->Update(updateRate);
+                physics->Update(updateRate);
+                gameGUI.Update(updateRate, sceneManager->GetActiveScene());
+                UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
             }
-            else
-            {
-                logicTimer -= updateRate;
-            }
-            EnemyFactory::GetInstance().Update(updateRate);
-            sceneManager->Update(updateRate);
-            physics->Update(updateRate);
-            gameGUI.Update(updateRate, sceneManager->GetActiveScene());
-            UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
 
         /* ---- Network ---- */
