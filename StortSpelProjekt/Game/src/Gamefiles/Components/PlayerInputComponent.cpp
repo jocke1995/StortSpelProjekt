@@ -574,18 +574,21 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 {
-	switch (evnt->button) {
-	case MOUSE_BUTTON::LEFT_DOWN:
-		m_pParent->GetComponent<component::MeleeComponent>()->Attack();
-		break;
-	case MOUSE_BUTTON::RIGHT_DOWN:
-		m_pParent->GetComponent<component::RangeComponent>()->Attack();
-		if (m_UpdateShootId == -1)
-		{
-			m_UpdateShootId = specificUpdates.size();
-			specificUpdates.push_back(&PlayerInputComponent::updateShoot);
+	if (!Input::GetInstance().IsPaused())
+	{
+		switch (evnt->button) {
+		case MOUSE_BUTTON::LEFT_DOWN:
+			m_pParent->GetComponent<component::MeleeComponent>()->Attack();
+			break;
+		case MOUSE_BUTTON::RIGHT_DOWN:
+			m_pParent->GetComponent<component::RangeComponent>()->Attack();
+			if (m_UpdateShootId == -1)
+			{
+				m_UpdateShootId = specificUpdates.size();
+				specificUpdates.push_back(&PlayerInputComponent::updateShoot);
+			}
+			break;
 		}
-		break;
 	}
 }
 

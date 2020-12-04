@@ -125,6 +125,8 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 			m_pSm->RemoveEntity(scene->GetEntity("Description"), scene);
 			m_CurrentDescription = "";
 		}
+
+		m_pSm->RemoveEntity(scene->GetEntity("PauseOverlay"), scene);
 		// Delete the Upgrade Buttons
 		for (int i = 0; i < m_ButtonNames.size(); i++)
 		{
@@ -162,6 +164,25 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 	float4 blended;
 	float4 notBlended;
 	/* ------------------------- Upgrade Menu --------------------------- */
+
+	entity = scene->AddEntity("PauseOverlay");
+	if (entity != nullptr)
+	{
+		gui = entity->AddComponent<component::GUI2DComponent>();
+		quadPos = { 0.0f, 0.0f };
+		quadScale = { 120.0f, 67.5f };
+		blended = { 1.0, 1.0, 1.0, 1.0 };
+		notBlended = { 1.0, 1.0, 1.0, 1.0 };
+		gui->GetQuadManager()->CreateQuad(
+			"PauseOverlay",
+			quadPos, quadScale,
+			false, false,
+			3,
+			notBlended,
+			m_pPauseOverlayTexture, { 0.4, 0.4, 0.4 });
+		scene->InitDynamicEntity(entity);
+		entity->Update(0);
+	}
 
 	/* ------------------------- Upgrade Menu Background --------------------------- */
 
@@ -228,7 +249,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 		if (m_ButtonsMultipleTen > 0)
 		{
 			textToRender = "Next";
-			textPos = { 0.548f, m_ButtonPos.y + (m_ButtonYOffset * 10) };
+			textPos = { m_ButtonPos.x + 0.025f, m_ButtonPos.y + (m_ButtonYOffset * 10) };
 			textPadding = { 0.5f, 0.0f };
 			textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 			textScale = { 0.5f, 0.5f };
@@ -280,6 +301,7 @@ void UpgradeGUI::Init()
 	m_pBoardBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/board2.png");
 	m_pButtonParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_hor.png");
 	m_pDescriptionParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_vert.png");
+	m_pPauseOverlayTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/PauseOverlay.png");
 
 	m_pArial = al->LoadFontFromFile(L"Arial.fnt");
 

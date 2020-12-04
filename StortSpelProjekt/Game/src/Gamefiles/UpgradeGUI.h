@@ -69,6 +69,7 @@ private:
 	Texture* m_pBoardBackgroundTexture;
 	Texture* m_pButtonParchment;
 	Texture* m_pDescriptionParchment;
+	Texture* m_pPauseOverlayTexture;
 };
 
 

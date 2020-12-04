@@ -125,14 +125,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                 EnemyFactory::GetInstance().Update(updateRate);
                 sceneManager->Update(updateRate);
                 physics->Update(updateRate);
-                gameGUI.Update(updateRate, sceneManager->GetActiveScene());
+                GameGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
                 UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
             }
         }
         else
         {
-            gameGUI.Update(timer->GetDeltaTime(), sceneManager->GetActiveScene());
+            GameGUI::GetInstance().Update(timer->GetDeltaTime(), sceneManager->GetActiveScene());
             UpgradeGUI::GetInstance().Update(timer->GetDeltaTime(), sceneManager->GetActiveScene());
+
+            /* ------ ImGui ------*/
+            if (DEVELOPERMODE_DEVINTERFACE == true)
+            {
+                ImGuiHandler::GetInstance().NewFrame();
+                ImGuiHandler::GetInstance().UpdateFrame();
+            }
         }
 
         /* ---- Network ---- */

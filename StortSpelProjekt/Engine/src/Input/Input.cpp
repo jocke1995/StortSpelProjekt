@@ -103,10 +103,7 @@ void Input::SetMouseButtonState(MOUSE_BUTTON button, bool pressed)
 	m_MouseButtonState[button] = pressed;
 	switch (pressed) {
 	case true:
-		if (!m_IsPaused)
-		{
-			EventBus::GetInstance().Publish(&MouseClick(button, pressed));
-		}
+		EventBus::GetInstance().Publish(&MouseClick(button, pressed));
 		break;
 	case false:
 		EventBus::GetInstance().Publish(&MouseRelease(button, pressed));
