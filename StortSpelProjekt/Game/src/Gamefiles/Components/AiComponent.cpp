@@ -529,8 +529,9 @@ void component::AiComponent::updateRange(double dt)
 	if (cc->CastRay({ 0.0, -1.0, 0.0 }, cc->GetDistanceToBottom() + 0.5) != -1)
 	{
 		double vel;
-		if (m_DistanceToPlayer > m_DetectionRadius)
+		if (m_DistanceToPlayer > m_DetectionRadius && m_RandMovementTimer > 2.0f)
 		{
+			m_RandMovementTimer = 0.0f;
 			randMovement();
 		}
 		else if (m_DistanceToPlayer <= m_DetectionRadius && m_DistanceToPlayer > m_AttackingDistance)
