@@ -46,7 +46,7 @@ namespace component
 		static float baseIntensity = 3.0f;
 		if (m_LightFlags & FLAG_LIGHT::FLICKER)
 		{
-			timeTimer += dt * 2 * PI * m_flickerRate;
+			timeTimer += dt * 2 * PI * m_flickerRate * 0.05;
 			float intensity = baseIntensity * flickerIntensityFunction(timeTimer);
 			static float3 color = m_pBaseLight->color;
 			float3 newColor = color * intensity;

@@ -71,10 +71,13 @@ protected:
 
 	virtual void UpdateLightColor() = 0;
 
-	// f(time) function that calculates an intensity for a light 
-	inline float flickerIntensityFunction(float x) { return 1 + (1.0f / 5.0f) * sinf(x); }
+	// Amplitude used in flickerIntensityFunction
+	const float m_flickerAmplitude = 0.39;
 	// used to scale up dt in update
-	float m_flickerRate = 1;
+	float m_flickerRate = 0.05;
+	// f(time) function that calculates an intensity for a light 
+	inline float flickerIntensityFunction(float x) { return 1 + m_flickerAmplitude * (sinf(x) + sinf(2*x) + sinf(4*x) + sinf(8*x)); }
+	
 
 };
 
