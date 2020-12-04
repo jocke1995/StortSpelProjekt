@@ -11,5 +11,6 @@ Ni 1.450000
 d 1.000000
 illum 2
 map_Ka Rock_Floor_Moss_metallic.DDS
+map_Ks Rock_Floor_Moss_roughness.DDS
 map_Kd Rock_Floor_Moss_albedo.DDS
 map_Kn Rock_Floor_Moss_normal.DDS
