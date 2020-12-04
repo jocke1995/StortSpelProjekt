@@ -529,8 +529,9 @@ void component::AiComponent::updateRange(double dt)
 	if (cc->CastRay({ 0.0, -1.0, 0.0 }, cc->GetDistanceToBottom() + 0.5) != -1)
 	{
 		double vel;
-		if (m_DistanceToPlayer > m_DetectionRadius)
+		if (m_DistanceToPlayer > m_DetectionRadius && m_RandMovementTimer > 2.0f)
 		{
+			m_RandMovementTimer = 0.0f;
 			randMovement();
 		}
 		else if (m_DistanceToPlayer <= m_DetectionRadius && m_DistanceToPlayer > m_AttackingDistance)
@@ -544,7 +545,7 @@ void component::AiComponent::updateRange(double dt)
 			vel = m_pParentTrans->GetVelocity();
 			cc->SetVelVector(vel * m_DirectionPath.x / m_DistancePath, vel * 2 * m_DirectionPath.y / m_DistancePath, vel * m_DirectionPath.z / m_DistancePath);
 		}
-		else //if (playerDistance <= m_AttackingDistance)
+		else if (m_DistanceToPlayer <= m_AttackingDistance)
 		{
 			// if something is in the way, keep moving, else shoot
 			double rayDist = cc->CastRay({ m_pTargetTrans->GetPositionFloat3().x, m_pTargetTrans->GetPositionFloat3().y, m_pTargetTrans->GetPositionFloat3().z });
