@@ -30,8 +30,6 @@ void ParticleInit();
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
-GameGUI gameGUI;
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -125,7 +123,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             EnemyFactory::GetInstance().Update(updateRate);
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
-            gameGUI.Update(updateRate, sceneManager->GetActiveScene());
+            GameGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
             UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
 

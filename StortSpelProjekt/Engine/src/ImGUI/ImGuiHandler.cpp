@@ -393,6 +393,14 @@ void ImGuiHandler::ExecCommand(const char* command_line)
         Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetMaxHealth(1000000);
         Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetHealth(1000000);
     }
+    else if (Stricmp(command.c_str(), "KILLPLAYER") == 0)
+    {
+        Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetHealth(0);
+    }
+    else if (Stricmp(command.c_str(), "SKIPLEVEL") == 0)
+    {  
+        EventBus::GetInstance().Publish(&LevelDone());
+    }
     else
     {
         AddLog("Unknown command: '%s'\n", command.c_str());
@@ -551,6 +559,8 @@ ImGuiHandler::ImGuiHandler()
     m_Commands.push_back("RESET");
     m_Commands.push_back("HARVEST");
     m_Commands.push_back("GODMODE");
+    m_Commands.push_back("KILLPLAYER");
+    m_Commands.push_back("SKIPLEVEL");
     if (std::atoi(Option::GetInstance().GetVariable("i_network").c_str()) == 1)
     {
         m_Commands.push_back("CONNECT");
