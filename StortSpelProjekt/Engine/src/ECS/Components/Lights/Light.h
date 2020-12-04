@@ -16,8 +16,10 @@ enum FLAG_LIGHT
 	// 2. Lights are interpreted as "DYNAMIC" as default
 	STATIC = BIT(3),
 
+	FLICKER = BIT(4),
+
 	// etc..
-	NUM_FLAGS_LIGHT = 3
+	NUM_FLAGS_LIGHT = 4
 };
 
 static unsigned int s_LightIdCounter = 0;

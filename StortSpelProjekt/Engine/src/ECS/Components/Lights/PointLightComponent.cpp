@@ -40,6 +40,16 @@ namespace component
 			m_pPointLight->position.y = position.y;
 			m_pPointLight->position.z = position.z;
 		}
+
+		static float dtCounter = 0;
+		if (m_LightFlags & FLAG_LIGHT::FLICKER)
+		{
+			dtCounter += dt * 2 * PI;
+			float intensity = 1 + (1.0f/2.0f)*sinf(dtCounter);
+			static float3 color = m_pBaseLight->color;
+			float3 newColor = color * intensity;
+			SetColor(newColor);
+		}
 	}
 
 	void PointLightComponent::OnInitScene()
