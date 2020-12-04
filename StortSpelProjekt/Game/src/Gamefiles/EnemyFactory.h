@@ -92,6 +92,11 @@ public:
 
 	std::vector<Entity*>* GetAllEnemies();
 	
+	//Gets the total amount of killed enemies during the game
+	int GetTotalKilled();
+	//Gets what level the player is currently on
+	int GetLevel();
+
 	// Adds a spawnpoint.
 	void AddSpawnPoint(const float3& point);
 	void ClearSpawnPoints();
@@ -141,6 +146,7 @@ private:
 	int m_LevelMaxEnemies;
 	int m_EnemySlotsLeft;
 	int m_EnemiesKilled;
+	int m_TotalEnemiesKilled;
 	unsigned int m_Level;
 	float m_SpawnCooldown;
 	float m_SpawnTimer;
