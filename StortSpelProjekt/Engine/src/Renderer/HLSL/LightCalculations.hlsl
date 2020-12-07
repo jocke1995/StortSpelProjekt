@@ -93,7 +93,7 @@ float3 CalcDirLight(
 		shadow = CalculateShadow(fragPosLightSpace, dirLight.textureShadowMap);
 	}
 
-	DirLightContribution = (kD * albedo / PI + specular) * radiance * NdotL;
+	DirLightContribution = (kD * albedo / PI + specular) * radiance * NdotL * dirLight.baseLight.intensity;
 	return DirLightContribution * (1.0f - shadow);
 }
 
@@ -146,7 +146,7 @@ float3 CalcPointLight(
 	float3 kD = float3(1.0f, 1.0f, 1.0f) - F;
 	kD *= 1.0f - metallic;
 
-	pointLightContribution = (kD * albedo / PI + specular) * radiance * NdotL;
+	pointLightContribution = (kD * albedo / PI + specular) * radiance * NdotL * pointLight.baseLight.intensity;
 	return pointLightContribution;
 }
 
@@ -213,7 +213,7 @@ float3 CalcSpotLight(
 		shadow = CalculateShadow(fragPosLightSpace, spotLight.textureShadowMap);
 	}
 
-	spotLightContribution = ((kD * albedo / PI + specular) * radiance * NdotL) * edgeIntensity;
+	spotLightContribution = ((kD * albedo / PI + specular) * radiance * NdotL) * edgeIntensity * spotLight.baseLight.intensity;
 	spotLightContribution = spotLightContribution * (1.0f - shadow);
 	return spotLightContribution;
 }
