@@ -60,6 +60,7 @@ void Transform::Move(float dt)
 	float moveY = m_Position.y + (m_Movement.y * m_Velocity * dt);
 	float moveZ = m_Position.z + (m_Movement.z * m_Velocity * dt);
 
+	m_OldPosition = m_Position;
 	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
 	m_TimeBetweenFrame = 0;
 }
@@ -67,9 +68,9 @@ void Transform::Move(float dt)
 void Transform::MoveRender(float dt)
 {
 	m_TimeBetweenFrame += dt * m_UpdateRate;
-	float moveX = (1 - m_TimeBetweenFrame) * m_RenderPosition.x + m_TimeBetweenFrame * m_Position.x;
-	float moveY = (1 - m_TimeBetweenFrame) * m_RenderPosition.y + m_TimeBetweenFrame * m_Position.y;
-	float moveZ = (1 - m_TimeBetweenFrame) * m_RenderPosition.z + m_TimeBetweenFrame * m_Position.z;
+	float moveX = (1 - m_TimeBetweenFrame) * m_OldPosition.x + m_TimeBetweenFrame * m_Position.x;
+	float moveY = (1 - m_TimeBetweenFrame) * m_OldPosition.y + m_TimeBetweenFrame * m_Position.y;
+	float moveZ = (1 - m_TimeBetweenFrame) * m_OldPosition.z + m_TimeBetweenFrame * m_Position.z;
 
 	m_RenderPosition = DirectX::XMFLOAT3(moveX, moveY, moveZ);
 }
@@ -85,6 +86,7 @@ void Transform::NormalizedMove(float dt)
 	float moveY = m_Position.y + (normalizedMovement.y * m_Velocity * dt);
 	float moveZ = m_Position.z + (normalizedMovement.z * m_Velocity * dt);
 
+	m_OldPosition = m_Position;
 	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
 	m_TimeBetweenFrame = 0;
 }
