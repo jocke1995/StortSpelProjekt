@@ -25,7 +25,7 @@ namespace component
 
 	void TransformComponent::RenderUpdate(double dt)
 	{
-		m_pTransform->NormalizedMoveRender(dt);
+		m_pTransform->MoveRender(dt);
 		m_pTransform->UpdateWorldMatrix();
 	}
 

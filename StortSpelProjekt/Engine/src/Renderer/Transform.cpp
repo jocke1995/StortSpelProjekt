@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Transform.h"
+#include "../Misc/Option.h"
 
 Transform::Transform(bool invertDirection)
 {
@@ -17,6 +18,9 @@ Transform::Transform(bool invertDirection)
 	m_Velocity = BASE_VEL;
 
 	m_InvDir = static_cast<int>(invertDirection) * -2 + 1;
+
+	m_TimeBetweenFrame = 0;
+	m_UpdateRate = 1.0 / std::stof(Option::GetInstance().GetVariable("f_updateRate"));
 }
 
 Transform::~Transform()
@@ -57,14 +61,15 @@ void Transform::Move(float dt)
 	float moveZ = m_Position.z + (m_Movement.z * m_Velocity * dt);
 
 	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
-	m_RenderPosition = m_Position;
+	m_TimeBetweenFrame = 0;
 }
 
 void Transform::MoveRender(float dt)
 {
-	float moveX = m_RenderPosition.x + (m_Movement.x * m_Velocity * dt);
-	float moveY = m_RenderPosition.y + (m_Movement.y * m_Velocity * dt);
-	float moveZ = m_RenderPosition.z + (m_Movement.z * m_Velocity * dt);
+	m_TimeBetweenFrame += dt * m_UpdateRate;
+	float moveX = (1 - m_TimeBetweenFrame) * m_RenderPosition.x + m_TimeBetweenFrame * m_Position.x;
+	float moveY = (1 - m_TimeBetweenFrame) * m_RenderPosition.y + m_TimeBetweenFrame * m_Position.y;
+	float moveZ = (1 - m_TimeBetweenFrame) * m_RenderPosition.z + m_TimeBetweenFrame * m_Position.z;
 
 	m_RenderPosition = DirectX::XMFLOAT3(moveX, moveY, moveZ);
 }
@@ -81,21 +86,7 @@ void Transform::NormalizedMove(float dt)
 	float moveZ = m_Position.z + (normalizedMovement.z * m_Velocity * dt);
 
 	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
-	m_RenderPosition = m_Position;
-}
-
-void Transform::NormalizedMoveRender(float dt)
-{
-	DirectX::XMFLOAT3 normalizedMovement;
-	// Normalize movement
-	DirectX::XMVECTOR movementVector = DirectX::XMLoadFloat3(&m_Movement);
-	movementVector = DirectX::XMVector3Normalize(movementVector);
-	DirectX::XMStoreFloat3(&normalizedMovement, movementVector);
-	float moveX = m_RenderPosition.x + (normalizedMovement.x * m_Velocity * dt);
-	float moveY = m_RenderPosition.y + (normalizedMovement.y * m_Velocity * dt);
-	float moveZ = m_RenderPosition.z + (normalizedMovement.z * m_Velocity * dt);
-
-	m_RenderPosition = DirectX::XMFLOAT3(moveX, moveY, moveZ);
+	m_TimeBetweenFrame = 0;
 }
 
 void Transform::SetRotationX(float radians)

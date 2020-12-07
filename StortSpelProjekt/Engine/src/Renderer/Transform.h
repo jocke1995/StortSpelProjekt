@@ -112,6 +112,9 @@ private:
 
 	float m_Velocity;
 
+	double m_TimeBetweenFrame;
+	double m_UpdateRate;
+
 	int m_InvDir;
 };
 
