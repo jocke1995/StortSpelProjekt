@@ -35,7 +35,6 @@ void ParticleSystem::Update(double dt)
 	Renderer& renderer = Renderer::GetInstance();
 	for(ParticleEffect* effect : m_ActiveParticleEffects)
 	{
-		//for(ParticleEffect& particleEffect : )
 		effect->Update(dt);
 		effect->updateResourceData(renderer.m_pScenePrimaryCamera->GetPositionFloat3());
 	}

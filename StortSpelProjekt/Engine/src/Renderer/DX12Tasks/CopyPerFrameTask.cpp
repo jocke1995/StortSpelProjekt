@@ -41,19 +41,13 @@ void CopyPerFrameTask::Execute()
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
-
-
-	volatile unsigned int i = 0;	// FOR SOLVING A BIG, REMOVE LATER. TODO
 	for (auto& tuple : m_UploadDefault)
 	{
-
 		copyResource(
 			commandList,
 			std::get<0>(tuple),		// UploadHeap
 			std::get<1>(tuple)		// DefaultHeap
 		);
-
-		i++;						//TODO
 	}
 
 	commandList->Close();
