@@ -30,11 +30,13 @@ void ParticleInit();
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
 
-GameGUI gameGUI;
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    //Cryptor::DecryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/CastleFloor");
+    //Cryptor::DecryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/StoneWallParts/Wall");
+    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/CastleFloor");
+    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/StoneWallParts/Wall");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -121,7 +123,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             EnemyFactory::GetInstance().Update(updateRate);
             sceneManager->Update(updateRate);
             physics->Update(updateRate);
-            gameGUI.Update(updateRate, sceneManager->GetActiveScene());
+            GameGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
             UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
 
@@ -295,6 +297,11 @@ Scene* GameScene(SceneManager* sm)
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
     Physics::GetInstance().AddCollisionEntity(entity);
+
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    plc->SetColor({ 40.0f, 4.8f, 12.0f });
+    plc->SetAttenuation({10.0f, 2.2f, 2.00f});
+
 #pragma endregion
 
 #pragma region enemy definitions
@@ -1015,7 +1022,8 @@ Scene* ShopScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
     tc->SetTransformOriginalState();
 
-    slc->SetColor({ 11.0f, 10.0f, 10.0f });
+    slc->SetColor({ 1.0f, 1.0f, 1.0f });
+    slc->SetIntensity(10);
     slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
     slc->SetPosition(pos);
     slc->SetDirection({ 1.0f, -1.0f, 1.0f });
@@ -1027,7 +1035,8 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- moon ---------------------- */
     entity = scene->AddEntity("moon");
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
-    dlc->SetColor({ 0.8f, 0.8f, 0.8f });
+    dlc->SetColor({ 1.0f, 1.0f, 1.0f });
+    dlc->SetIntensity(0.8f);
     dlc->SetDirection({ 0.0f, -0.75f, 1.0f });
     dlc->SetCameraTop(50.0f);
     dlc->SetCameraBot(-30.0f);

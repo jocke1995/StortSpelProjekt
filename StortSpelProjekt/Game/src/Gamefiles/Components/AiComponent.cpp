@@ -504,18 +504,21 @@ void component::AiComponent::updateMelee(double dt)
 			HealthComponent* hc = m_pTarget->GetComponent<component::HealthComponent>();
 			if (hc != nullptr)
 			{
-				m_SpeedTimeAccumulator += static_cast<float>(dt);
-				if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
+				if (m_IntervalTimeAccumulator >= m_AttackInterval)
 				{
-					m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnAttack");
-					m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnAttack");
+					m_SpeedTimeAccumulator += static_cast<float>(dt);
+					if (m_SpeedTimeAccumulator >= m_AttackSpeed)
+					{
+						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnAttack");
+						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnAttack");
 
-					m_pTarget->GetComponent<component::PlayerInputComponent>()->SetSlow(1.0f - m_SlowingAttack);
-					m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(m_MeleeAttackDmg);
-					m_pTarget->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerHit1");
-					Log::Print("ENEMY ATTACK!\n");
-					m_SpeedTimeAccumulator = 0.0;
-					m_IntervalTimeAccumulator = 0.0;
+						m_pTarget->GetComponent<component::PlayerInputComponent>()->SetSlow(1.0f - m_SlowingAttack);
+						m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(m_MeleeAttackDmg);
+						m_pTarget->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerHit1");
+						Log::Print("ENEMY ATTACK!\n");
+						m_SpeedTimeAccumulator = 0.0;
+						m_IntervalTimeAccumulator = 0.0;
+					}
 				}
 			}
 		}

@@ -553,6 +553,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 	float3 lightPos = { 0.0, 0.0, 0.0 };
 	float3 rot = { 0.0, 0.0, 0.0 };
 	float3 lightColor = { 0.0, 0.0, 0.0 };
+	float lightIntensity = 1.0f;
 	float3 lightDir = { 0.0, 0.0, 0.0 };
 	float3 lightAttenuation = { 0.0, 0.0, 0.0 };
 	float3 bbModifier = { 1.0f, 1.0f, 1.0f };
@@ -672,6 +673,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 			else if (strcmp(lineHeader.c_str(), "ModelLightColor") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &lightColor.x, &lightColor.y, &lightColor.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightIntensity") == 0)
+			{
+				fscanf(file, "%f", &lightIntensity);
 			}
 			else if (strcmp(lineHeader.c_str(), "ModelLightDirection") == 0)
 			{
@@ -920,6 +925,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 					}
 					plc = entity->AddComponent<component::PointLightComponent>(combinedFlag);
 					plc->SetColor(lightColor);
+					plc->SetIntensity(lightIntensity);
 					plc->SetAttenuation(lightAttenuation);
 					if (FLAG_LIGHT::USE_TRANSFORM_POSITION & combinedFlag)
 					{
@@ -939,6 +945,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 					}
 					slc = entity->AddComponent<component::SpotLightComponent>(combinedFlag);
 					slc->SetColor(lightColor);
+					slc->SetIntensity(lightIntensity);
 					slc->SetAttenuation(lightAttenuation);
 					slc->SetDirection(lightDir);
 					if (FLAG_LIGHT::USE_TRANSFORM_POSITION & combinedFlag)
@@ -969,6 +976,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 					}
 					dlc = entity->AddComponent<component::DirectionalLightComponent>(combinedFlag);
 					dlc->SetColor(lightColor);
+					dlc->SetIntensity(lightIntensity);
 					dlc->SetDirection(lightDir);
 					dlc->SetCameraLeft(lightLeft + offset.x);
 					dlc->SetCameraRight(lightRight + offset.x);
@@ -1004,6 +1012,21 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 					{
 						shapeInfo.x = entity->GetComponent<component::ModelComponent>()->GetModelDim().z / 2.0;
 						shapeInfo.y = entity->GetComponent<component::ModelComponent>()->GetModelDim().y - (shapeInfo.x * 2.0);
+					}
+					cc = entity->AddComponent<component::CapsuleCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, friction, restitution);
+					cc->SetGravity(gravity);
+					cc->SetUserID(1);
+					shapeInfo = { 0.0f, 0.0f, 0.0f };
+					mass = 0.0;
+					gravity = -98.2;
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionCylinder") == 0)
+				{
+					fscanf(file, "%f,%f", &shapeInfo.x, &shapeInfo.y);
+					if (shapeInfo == float3({ 0.0, 0.0, 0.0 }))
+					{
+						shapeInfo.x = entity->GetComponent<component::ModelComponent>()->GetModelDim().z / 2.0;
+						shapeInfo.y = entity->GetComponent<component::ModelComponent>()->GetModelDim().y;
 					}
 					cc = entity->AddComponent<component::CapsuleCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, friction, restitution);
 					cc->SetGravity(gravity);
