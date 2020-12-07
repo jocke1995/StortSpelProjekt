@@ -72,19 +72,22 @@ void component::AnimationComponent::walkAnimation(MovementInput* evnt)
 
 void component::AnimationComponent::attackAnimation(MouseClick* evnt)
 {
-	if (evnt->button == MOUSE_BUTTON::LEFT_DOWN)
+	if (!Input::GetInstance().IsPaused())
 	{
-		m_pAnimatedModel->PlayAnimation("Attack_Swing_Right", false);
-	}
-	else
-	{
-	}
+		if (evnt->button == MOUSE_BUTTON::LEFT_DOWN)
+		{
+			m_pAnimatedModel->PlayAnimation("Attack_Swing_Right", false);
+		}
+		else
+		{
+		}
 
-	if (evnt->button == MOUSE_BUTTON::RIGHT_DOWN)
-	{
-		m_pAnimatedModel->PlayAnimation("Attack_Swing_Left", false);
-	}
-	else
-	{
+		if (evnt->button == MOUSE_BUTTON::RIGHT_DOWN)
+		{
+			m_pAnimatedModel->PlayAnimation("Attack_Swing_Left", false);
+		}
+		else
+		{
+		}
 	}
 }

@@ -89,15 +89,22 @@ void CopyOnDemandTask::Execute()
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
 	// record the "small" data, such as constantbuffers..
-	int counter = 0;
+	volatile int counter = 0;
 	for (auto& tuple : m_UploadDefaultData)
 	{
+		if (std::get<2>(tuple) != nullptr)
+		{
+			copyResource(
+				commandList,
+				std::get<0>(tuple),		// UploadHeap
+				std::get<1>(tuple),		// DefaultHeap
+				std::get<2>(tuple));	// Data
+		}
+		else
+		{
+			Log::Print("Tried to copy nullptr\n");
+		}
 		counter++;
-		copyResource(
-			commandList,
-			std::get<0>(tuple),		// UploadHeap
-			std::get<1>(tuple),		// DefaultHeap
-			std::get<2>(tuple));	// Data
 	}
 
 	// record texturedata

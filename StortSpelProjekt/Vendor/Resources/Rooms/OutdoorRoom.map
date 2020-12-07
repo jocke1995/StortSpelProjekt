@@ -268,7 +268,7 @@ Submit CollisionCapsule 0.4, 10.0, 0.4
 
 // SKYBOX ----------------------------------------------
 Name Skybox
-ModelPath Textures/CubeMaps/skymap.dds
+ModelPath Textures/CubeMaps/skymap_outside.dds
 Submit Skybox
 
 // MOON -------------------------------------------------

@@ -1254,6 +1254,35 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, std::vector<
 	}
 }
 
+void AssetLoader::LoadAllMaps(Scene* scene, const char* folderPath)
+{
+	std::vector<std::string> filePaths;
+
+	m_RoomsAdded.clear();
+	m_EdgesToRemove.clear();
+
+	for (int i = 0; i < m_Edges.size(); i++)
+	{
+		delete m_Edges[i];
+	}
+
+	m_Edges.clear();
+
+	m_NrOfNavTris = 0;
+	for (const auto& entry : std::filesystem::directory_iterator(folderPath))
+	{
+		filePaths.push_back(entry.path().string());
+	}
+
+	std::vector<float3> spawnPoints;
+	// Load the starting room
+	LoadMap(scene, "../Vendor/Resources/SpawnRoom.map", &spawnPoints, 0, { 0.0f, 0.0f, 0.0f }, false);
+	for (int i = 0; i < filePaths.size(); ++i)
+	{
+		LoadMap(scene, filePaths[i].c_str(), &spawnPoints, i + 1, {0.0f, 0.0f, 0.0f}, false);
+	}
+}
+
 std::wstring AssetLoader::GetFontPath() const
 {
 	return m_FilePathFonts;

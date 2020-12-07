@@ -10,7 +10,7 @@
 #include "Events/EventBus.h"
 #include "ECS/SceneManager.h"
 #include "Misc/GUI2DElements/Font.h"
-#include "UpgradeGUI.h"
+#include "PauseGUI.h"
 
 #include "Player.h"
 

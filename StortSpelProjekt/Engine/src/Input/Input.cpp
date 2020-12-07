@@ -76,7 +76,7 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 	}
 	else if (key == SCAN_CODES::F)
 	{
-		if (justPressed)
+		if (justPressed && !m_IsPaused)
 		{
 			// Check if we are in the ShopScene
 			Scene* scene = SceneManager::GetInstance().GetActiveScene();
@@ -89,10 +89,10 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 	else if (key == SCAN_CODES::ESCAPE && justPressed)
 	{
 		Scene* scene = SceneManager::GetInstance().GetActiveScene();
-		if (scene->GetName() != "ShopScene" || !Player::GetInstance().GetShop()->IsShop2DGUIDisplaying())
+		if ((scene->GetName() == "ShopScene" && !Player::GetInstance().GetShop()->IsShop2DGUIDisplaying()) || scene->GetName() == "GameScene")
 		{
 			m_IsPaused = !m_IsPaused;
-			EventBus::GetInstance().Publish(&UForUpgrade());
+			EventBus::GetInstance().Publish(&PauseGame(m_IsPaused));
 			ShowCursor(m_IsPaused);
 		}
 	}
