@@ -176,12 +176,12 @@ ParticleRandVelocity -1, 1, 5, 9, -1, 1
 ParticleRandSize 0.7, 1.3
 ParticleRandRotationSpeed 0, 3
 ParticlePlayOnInit 1
-ModelLightPosition 20.0, 10.0, 23.0
-ModelLightDirection 0.0001, -1.0, 0.0001
-ModelLightColor 20.0, 5.4, 0.0
+ModelLightPosition 20.0, 6.0, 23.0
+ModelLightColor 1.0, 0.27, 0.0
+ModelLightIntensity 20
 ModelLightFlag 0,0
 ModelLightAttenuation 1.0, 0.22, 0.20
-Submit SpotLight
+Submit PointLight
 Submit ParticleEffect
 Submit Model
 Submit CollisionCube 0.2, 0.2, 0.2
@@ -206,12 +206,12 @@ ParticleRandVelocity -1, 1, 5, 9, -1, 1
 ParticleRandSize 0.7, 1.3
 ParticleRandRotationSpeed 0, 3
 ParticlePlayOnInit 1
-ModelLightPosition -20.0, 10.0, -23.0
-ModelLightDirection 0.0001, -1.0, 0.0001
-ModelLightColor 20.0, 5.4, 0.0
+ModelLightPosition -20.0, 6.0, -23.0
+ModelLightColor 1.0, 0.27, 0.0
+ModelLightIntensity 20
 ModelLightFlag 0,0
 ModelLightAttenuation 1.0, 0.22, 0.20
-Submit SpotLight
+Submit PointLight
 Submit ParticleEffect
 Submit Model
 Submit CollisionCube 0.2, 0.2, 0.2
@@ -351,6 +351,7 @@ Submit Skybox
 
 Name moon
 ModelLightColor 0.5, 0.5, 0.7
+ModelLightIntensity 1.0
 ModelLightFlag 1,1
 ModelLightDirection 0.0, -0.75, 1.0
 ModelLightLeft -174.0
