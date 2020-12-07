@@ -13,6 +13,7 @@
 #include "../ECS/SceneManager.h"
 #include "../Renderer/Transform.h"
 #include "../ECS//Components/TemporaryLifeComponent.h"
+#include "../Player.h"
 
 
 component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
@@ -129,7 +130,7 @@ void component::MeleeComponent::Update(double dt)
 void component::MeleeComponent::Attack()
 {
 	
-	if (!m_Cooldown)
+	if (!m_Cooldown && Player::GetInstance().IsPlayerAlive())
 	{
 		if (m_AudioPlay)
 		{
