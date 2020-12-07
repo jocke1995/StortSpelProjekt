@@ -52,6 +52,7 @@ Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 AddToEdge 0
 
+
 // WALL2 ----------------------------------------------
 CreateEdge
 
@@ -67,19 +68,6 @@ Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
 AddToEdge 1
 
-Name Banner3
-ModelPath Models/Banner/banner.obj
-ModelScaling 2.0, 2.0, 2.0
-ModelRotation 0.0, 180.0, 0.0
-ModelPosition 83.0, 15.0, 22.0
-ModelDrawFlag 1, 1
-ModelMass 0.0
-ModelFriction 1.0
-ModelRestitution 0.0
-Submit Model
-Submit CollisionCube 1.0, 1.0, 1.0
-AddToEdge 1
-
 Name Banner4
 ModelPath Models/Banner/banner.obj
 ModelScaling 2.0, 2.0, 2.0
@@ -93,6 +81,36 @@ ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 AddToEdge 1
+
+Name Torch2
+ModelPath Models/Torch/torch.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 180.0, 0.0
+ModelPosition 81.0, 15.0, 22.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+ParticleTexturePath Textures/Particles/fire_particle3.png
+ParticleCount 11
+ParticleStartPosition -2.0, 3.0, 0.0
+ParticleSpawnInterval 0.1
+ParticleStartAcceleration 0.0, -3.0, 0.0
+ParticleStartLifetime 0.5
+ParticleRandPosition -1, 1, 0, 0, -1, 1
+ParticleRandVelocity -1, 1, 5, 9, -1, 1
+ParticleRandSize 0.7, 1.3
+ParticleRandRotationSpeed 0, 3
+ParticlePlayOnInit 1
+Submit ParticleEffect
+Submit Model
+ModelLightPosition 79.0, 18.0, 25.0
+ModelLightColor 8.86, 6.45, 0.33
+ModelLightFlag 0,0
+ModelLightAttenuation 1.0, 0.22, 0.20
+Submit PointLight
+AddToEdge 1
+
 
 // WALL3 ----------------------------------------------
 CreateEdge
@@ -135,6 +153,36 @@ ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
+AddToEdge 2
+
+Name Torch3
+ModelPath Models/Torch/torch.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 240.0, 0.0
+ModelPosition 37.5, 15.0, -71.5
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+ParticleTexturePath Textures/Particles/fire_particle3.png
+ParticleCount 11
+ParticleStartPosition -1.5, 3.0, 2.0
+ParticleSpawnInterval 0.1
+ParticleStartAcceleration 0.0, -3.0, 0.0
+ParticleStartLifetime 0.5
+ParticleRandPosition -1, 1, 0, 0, -1, 1
+ParticleRandVelocity -1, 1, 5, 9, -1, 1
+ParticleRandSize 0.7, 1.3
+ParticleRandRotationSpeed 0, 3
+ParticlePlayOnInit 1
+Submit ParticleEffect
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+ModelLightPosition 37.5, 15.0, -71.5
+ModelLightColor 8.86, 6.45, 0.33
+ModelLightFlag 0,0
+ModelLightAttenuation 1.0, 0.22, 0.20
+Submit PointLight
 AddToEdge 2
 
 // WALL4 ----------------------------------------------
@@ -194,30 +242,34 @@ Submit Model
 Submit CollisionCube 0.1, 1.0, 1.0
 AddToEdge 4
 
-Name Banner9
-ModelPath Models/Banner/banner.obj
-ModelScaling 2.0, 2.0, 2.0
+Name Torch5
+ModelPath Models/Torch/torch.obj
+ModelScaling 1.0, 1.0, 1.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition -83.0, 15.0, -20.0
+ModelPosition -81.0, 15.0, -20.0
 ModelDrawFlag 1, 1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
+ParticleTexturePath Textures/Particles/fire_particle3.png
+ParticleCount 11
+ParticleStartPosition 2.0, 3.0, 0.0
+ParticleSpawnInterval 0.1
+ParticleStartAcceleration 0.0, -3.0, 0.0
+ParticleStartLifetime 0.5
+ParticleRandPosition -1, 1, 0, 0, -1, 1
+ParticleRandVelocity -1, 1, 5, 9, -1, 1
+ParticleRandSize 0.7, 1.3
+ParticleRandRotationSpeed 0, 3
+ParticlePlayOnInit 1
+Submit ParticleEffect
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
-AddToEdge 4
-
-Name Banner10
-ModelPath Models/Banner/banner.obj
-ModelScaling 2.0, 2.0, 2.0
-ModelRotation 0.0, 0.0, 0.0
-ModelPosition -83.0, 15.0, 20.0
-ModelDrawFlag 1, 1
-ModelMass 0.0
-ModelFriction 1.0
-ModelRestitution 0.0
-Submit Model
-Submit CollisionCube 1.0, 1.0, 1.0
+ModelLightPosition -79.0, 18.0, -20.0
+ModelLightColor 8.86, 6.45, 0.33
+ModelLightFlag 0,0
+ModelLightAttenuation 1.0, 0.22, 0.20
+Submit PointLight
 AddToEdge 4
 
 // WALL6 ----------------------------------------------
@@ -247,6 +299,36 @@ ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 1.0, 1.0, 1.0
 AddToEdge 5
+
+Name Torch6
+ModelPath Models/Torch/torch.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 55.0, 0.0
+ModelPosition -36.0, 18.0, 73.5
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+ParticleTexturePath Textures/Particles/fire_particle3.png
+ParticleCount 11
+ParticleStartPosition 0.1, 3.0, -0.8
+ParticleSpawnInterval 0.1
+ParticleStartAcceleration 0.0, -3.0, 0.0
+ParticleStartLifetime 0.5
+ParticleRandPosition -1, 1, 0, 0, -1, 1
+ParticleRandVelocity -1, 1, 5, 9, -1, 1
+ParticleRandSize 0.7, 1.3
+ParticleRandRotationSpeed 0, 3
+ParticlePlayOnInit 1
+Submit ParticleEffect
+Submit Model
+Submit CollisionCube 1.0, 1.0, 1.0
+ModelLightPosition -36.0, 18.0, 73.5
+ModelLightColor 8.86, 6.45, 0.33
+ModelLightFlag 0,0
+ModelLightAttenuation 1.0, 0.22, 0.20
+Submit PointLight
+AddToEdge 4
 
 Name Banner12
 ModelPath Models/Banner/banner.obj
@@ -285,9 +367,9 @@ ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
-ParticleTexturePath Textures/Particles/fire_particle0.png
+ParticleTexturePath Textures/Particles/fire_particle3.png
 ParticleCount 70
-ParticleStartPosition 0.0, 4.0, 0.0
+ParticleStartPosition -1.0, 4.0, 1.0
 ParticleSpawnInterval 0.025
 ParticleStartLifetime 0.5
 ParticleRandPosition -7.5, 7.5, 0, 1, -7.5, 7.5
@@ -423,6 +505,36 @@ ShrinkBoundingBox 20.0, 1.0, 15.0
 Submit Model
 Submit CollisionCapsule 0.4, 10.0, 0.4
 
+// Brazier ----------------------------------------------
+Name Brazier1
+ModelPath Models/MedievalBraizer/medievalBraizer.obj
+ModelScaling 4.0, 4.0, 4.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -25.0, 2.0, 35.0
+ModelRestitution 0.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+ParticleTexturePath Textures/Particles/fire_particle0.png
+ParticleCount 11
+ParticleStartPosition 0.0, 2.0, 0.0
+ParticleSpawnInterval 0.1
+ParticleStartAcceleration 0.0, -3.0, 0.0
+ParticleStartLifetime 0.5
+ParticleRandPosition -1, 1, 0, 0, -1, 1
+ParticleRandVelocity -1, 1, 5, 9, -1, 1
+ParticleRandSize 0.7, 1.3
+ParticleRandRotationSpeed 0, 3
+ParticlePlayOnInit 1
+ModelLightPosition -25.0, 10.0, 35.0
+ModelLightDirection 0.0001, -1.0, 0.0001
+ModelLightColor 20.0, 5.4, 0.0
+ModelLightFlag 0,0
+ModelLightAttenuation 1.0, 0.22, 0.20
+Submit SpotLight
+Submit ParticleEffect
+Submit Model
+Submit CollisionCube 0.2, 0.2, 0.2
+
 // SKYBOX ----------------------------------------------
 Name Skybox
 ModelPath Textures/CubeMaps/skymap.dds
@@ -432,7 +544,7 @@ Submit Skybox
 Name moon
 ModelLightColor 0.5, 0.5, 0.7
 ModelLightFlag 1,1
-ModelLightDirection 0.0, -0.75, 1.0
+ModelLightDirection 3.0, -3.0, 10.0
 ModelLightLeft -175.0
 ModelLightRight 175.0
 ModelLightTop 100.0

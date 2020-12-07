@@ -634,7 +634,7 @@ Scene* ShopScene(SceneManager* sm)
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Player/AnimatedPlayer.fbx");
-    Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
+    Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.fbx");
     Model* pressfModel = al->LoadModel(L"../Vendor/Resources/Models/Pressf/pressf.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
@@ -727,7 +727,7 @@ Scene* ShopScene(SceneManager* sm)
     
     mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetPosition(-10.0f, 1.0f, -25.0f);
+    tc->GetTransform()->SetPosition(50.0f, 1.0f, 40.0f);
     tc->GetTransform()->SetScale(7.0f);
     tc->SetTransformOriginalState();
     
@@ -881,16 +881,19 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- Shop ---------------------- */
     entity = scene->AddEntity("shop");
     mc = entity->AddComponent<component::ModelComponent>();
+
     mc->SetModel(shopModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 
     tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(30.0f, 0.0f, 30.0f);
-    tc->GetTransform()->SetRotationY(PI + PI / 4);
+    tc->GetTransform()->SetScale(0.08f);
+    tc->GetTransform()->SetPosition(-30.0f, 0.0f, 30.0f);
+    tc->GetTransform()->SetRotationX(PI/2);
+    tc->GetTransform()->SetRotationY(PI/4);
     tc->SetTransformOriginalState();
-
     double3 shopDim = mc->GetModelDim();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(10000000.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
+
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
 
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
     bbc->Init();
@@ -904,8 +907,8 @@ Scene* ShopScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 
     tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(32.0f, 10.2f, 24.0f);
-    tc->GetTransform()->SetRotationY(PI + PI / 4 + PI / 8);
+    tc->GetTransform()->SetPosition(-30.0f, 0.0f, 20.0f);
+    tc->GetTransform()->SetRotationY(PI - PI / 4);
     tc->GetTransform()->SetScale(1.4);
     tc->SetTransformOriginalState();
 
