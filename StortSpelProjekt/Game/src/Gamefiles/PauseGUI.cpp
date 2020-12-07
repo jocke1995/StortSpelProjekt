@@ -198,7 +198,7 @@ void PauseGUI::CreateMenu(Scene* scene)
 	if (entity != nullptr)
 	{
 		gui = entity->AddComponent<component::GUI2DComponent>();
-		gui->GetTextManager()->SetFont(m_pArial);
+		gui->GetTextManager()->SetFont(m_pFont);
 		gui->GetTextManager()->AddText("UpgradeMenuBackground");
 		gui->GetTextManager()->SetColor(textColor, "UpgradeMenuBackground");
 		gui->GetTextManager()->SetPadding(textPadding, "UpgradeMenuBackground");
@@ -257,7 +257,7 @@ void PauseGUI::CreateMenu(Scene* scene)
 
 			entity = scene->AddEntity("NextButton");
 			gui = entity->AddComponent<component::GUI2DComponent>();
-			gui->GetTextManager()->SetFont(m_pArial);
+			gui->GetTextManager()->SetFont(m_pFont);
 			gui->GetTextManager()->AddText("NextButton");
 			gui->GetTextManager()->SetColor(textColor, "NextButton");
 			gui->GetTextManager()->SetPadding(textPadding, "NextButton");
@@ -303,7 +303,7 @@ void PauseGUI::Init()
 	m_pDescriptionParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_vert.png");
 	m_pPauseOverlayTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/PauseOverlay.png");
 
-	m_pArial = al->LoadFontFromFile(L"Arial.fnt");
+	m_pFont = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
 	// Subscribe to events
 	EventBus::GetInstance().Subscribe(this, &PauseGUI::showMenu);
@@ -360,7 +360,7 @@ void PauseGUI::makeUpgradeButton(float2 pos, std::string name)
 
 	entity = m_pCurrentScene->AddEntity(name);
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(m_pArial);
+	gui->GetTextManager()->SetFont(m_pFont);
 	gui->GetTextManager()->AddText(name);
 	gui->GetTextManager()->SetColor(textColor, name);
 	gui->GetTextManager()->SetPadding(textPadding, name);
@@ -465,7 +465,7 @@ void PauseGUI::updateDescription(int level)
 
 	entity = m_pCurrentScene->AddEntity(name);
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(m_pArial);
+	gui->GetTextManager()->SetFont(m_pFont);
 	gui->GetTextManager()->AddText(name);
 	gui->GetTextManager()->SetColor(textColor, name);
 	gui->GetTextManager()->SetPadding(textPadding, name);

@@ -63,7 +63,7 @@ private:
 	void updateDescription(int level);
 
 	// Fonts
-	Font* m_pArial = nullptr;
+	Font* m_pFont = nullptr;
 
 	// Textures:
 	Texture* m_pBoardBackgroundTexture;
