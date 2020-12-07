@@ -46,7 +46,7 @@ struct EnemyComps
 	std::vector<std::wstring> onHitSounds;
 	std::vector<std::wstring> onGruntSounds;
 	std::vector<std::wstring> onAttackSounds;
-	std::wstring walkSound;
+	std::vector<std::wstring> walkSounds;
 	double3 dim = double3({ 0.0, 0.0, 0.0 });
 	float detectionRad = 25.0f;
 	float attackingDist = 0.5f;

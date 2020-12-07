@@ -34,7 +34,7 @@ void component::EnemyComponent::Update(double dt)
         m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnGrunt");
     }
 
-    m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Walk");
+    //m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Walk");
 
     // Move ProgressBar with the enemy
     component::ProgressBarComponent* pc = m_pParent->GetComponent<component::ProgressBarComponent>();

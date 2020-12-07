@@ -175,7 +175,6 @@ Scene* GameScene(SceneManager* sm)
     Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
-    //AudioBuffer* playerHit1 = al->LoadAudio(L"../Vendor/Resources/Audio/Femalegrunt.wav", L"PlayerHit1"); // this sound starts immediately, while the delayed starts after around 0.25 seconds
     AudioBuffer* playerHit1 = al->LoadAudio(L"../Vendor/Resources/Audio/FemalegruntDelayed.wav", L"PlayerHit1");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
@@ -300,11 +299,11 @@ Scene* GameScene(SceneManager* sm)
 
 #pragma region enemy definitions
     // melee
-	EnemyComps zombie = {};
-	zombie.model = enemyZombieModel;
-	zombie.hp = 70;
-	zombie.hpBase = 70;
-	zombie.onHitSounds.emplace_back(L"ZombieHit7");
+    EnemyComps zombie = {};
+    zombie.model = enemyZombieModel;
+    zombie.hp = 70;
+    zombie.hpBase = 70;
+    zombie.onHitSounds.emplace_back(L"ZombieHit7");
     zombie.onGruntSounds.emplace_back(L"ZombieGnarl1");
     zombie.onGruntSounds.emplace_back(L"ZombieGnarl2");
     zombie.onGruntSounds.emplace_back(L"ZombieGnarl3");
@@ -317,18 +316,18 @@ Scene* GameScene(SceneManager* sm)
     zombie.onAttackSounds.emplace_back(L"ZombieAttack3");
     zombie.onAttackSounds.emplace_back(L"ZombieAttack4");
     zombie.onAttackSounds.emplace_back(L"ZombieAttack5");
-	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
-	zombie.aiFlags = 0;
-	zombie.meleeAttackDmg = 30.0f;
-	zombie.meleeAttackDmgBase = 30.0f;
-	zombie.attackInterval = 1.5f;
-	zombie.attackSpeed = 0.1f;
-	zombie.movementSpeed = 45.0f;
-	zombie.rot = { 0.0, 0.0, 0.0 };
-	zombie.targetName = "player";
-	zombie.scale = 0.014;
-	zombie.detectionRad = 150.0f;
-	zombie.attackingDist = 1.5f;
+    zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+    zombie.aiFlags = 0;
+    zombie.meleeAttackDmg = 30.0f;
+    zombie.meleeAttackDmgBase = 30.0f;
+    zombie.attackInterval = 1.5f;
+    zombie.attackSpeed = 0.1f;
+    zombie.movementSpeed = 45.0f;
+    zombie.rot = { 0.0, 0.0, 0.0 };
+    zombie.targetName = "player";
+    zombie.scale = 0.014;
+    zombie.detectionRad = 150.0f;
+    zombie.attackingDist = 1.5f;
     zombie.invertDirection = true;
     zombie.mass = 150.0f;
     zombie.slowAttack = 0.5f;
@@ -354,7 +353,7 @@ Scene* GameScene(SceneManager* sm)
     spider.attackingDist = 1.5f;
     spider.invertDirection = true;
     spider.mass = 100.0f;
-    spider.walkSound = L"SpiderCrawl";
+    spider.walkSounds.emplace_back(L"SpiderCrawl");
 
     // ranged
     EnemyComps rangedDemon = {};

@@ -80,7 +80,7 @@ Entity* EnemyFactory::AddEnemy(const std::string& entityName, EnemyComps* comps)
 	enemy->onHitSounds = comps->onHitSounds;
 	enemy->onGruntSounds = comps->onGruntSounds;
 	enemy->onAttackSounds = comps->onAttackSounds;
-	enemy->walkSound = comps->walkSound;
+	enemy->walkSounds = comps->walkSounds;
 	enemy->detectionRad = comps->detectionRad;
 	enemy->attackingDist = comps->attackingDist;
 	enemy->attackInterval = comps->attackInterval;
@@ -218,9 +218,14 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 		ae->AddVoice(comps->onAttackSounds[0], L"OnAttack");
 	}
 
-	if (comps->walkSound.size() > 0)
+	size = comps->walkSounds.size();
+	if (size > 1)
 	{
-		ae->AddVoice(comps->walkSound, L"Walk");
+		ae->AddVoice(comps->walkSounds[m_RandGen.Rand(0, size)], L"Walk");
+	}
+	else if (size == 1)
+	{
+		ae->AddVoice(comps->walkSounds[0], L"Walk");
 	}
 
 	mc->SetModel(comps->model);
