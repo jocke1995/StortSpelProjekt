@@ -25,6 +25,8 @@ public:
 		unsigned int FLAG_THREAD);
 	~QuadTask();
 
+	const std::vector<component::GUI2DComponent*>* GetQuadComponents() const;
+
 	void SetQuadComponents(std::vector<component::GUI2DComponent*>* quadComponents);
 
 	void Execute();

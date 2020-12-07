@@ -124,6 +124,11 @@ void ProgressBarRenderTask::Execute()
 	commandList->Close();
 }
 
+const std::vector<component::ProgressBarComponent*>* ProgressBarRenderTask::GetProgressBarComponents() const
+{
+	return &m_ProgressBarComponents;
+}
+
 void ProgressBarRenderTask::SetBillboardMesh(Mesh* quadMesh)
 {
 	m_pQuad = quadMesh;

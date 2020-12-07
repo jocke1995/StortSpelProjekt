@@ -39,7 +39,7 @@ public:
 	virtual ~RenderTask();
 
 	PipelineState* GetPipelineState(unsigned int index);
-
+	const std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>* GetRenderComponents() const;
 	
 	void AddRenderTargetView(std::string, const RenderTargetView* renderTargetView);
 	

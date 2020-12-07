@@ -41,6 +41,11 @@ PipelineState* RenderTask::GetPipelineState(unsigned int index)
 	return m_PipelineStates[index];
 }
 
+const std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>* RenderTask::GetRenderComponents() const
+{
+	return &m_RenderComponents;
+}
+
 void RenderTask::AddRenderTargetView(std::string name, const RenderTargetView* renderTargetView)
 {
 	m_RenderTargetViews[name] = renderTargetView;

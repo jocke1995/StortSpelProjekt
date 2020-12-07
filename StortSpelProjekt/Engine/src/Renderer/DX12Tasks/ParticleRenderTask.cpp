@@ -97,8 +97,8 @@ void ParticleRenderTask::Execute()
 			if (pec == nullptr)
 			{
 				Log::PrintSeverity(Log::Severity::CRITICAL, "ParticleComponent was nullptr!!, plez fix\n");
-				return;
 			}
+
 			std::vector<ParticleEffect*>* effects = &pec->m_ParticleEffects;
 
 			// Draw each effect

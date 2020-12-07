@@ -306,6 +306,10 @@ void ParticleEffect::updateResourceData(float3 cameraPos)
 
 		return distFromCamI > distFromCamJ;
 	});
+
+	// Update the data
+	const void* data = m_ParticlesData.data();
+	m_pUploadResource->SetData(data);
 }
 
 float ParticleEffect::randomizeFloat(float lower, float upper) const

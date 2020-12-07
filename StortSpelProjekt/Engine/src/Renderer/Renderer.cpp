@@ -376,6 +376,36 @@ void Renderer::SortObjects()
 
 void Renderer::Execute()
 {
+	// Update lights data
+	for (auto light_map : m_Lights)
+	{
+		for (auto light : light_map.second)
+		{
+			Light* l = std::get<0>(light);
+			const void* data = static_cast<const void*>(l->GetLightData());
+			ConstantBuffer* cb = std::get<1>(light);
+			
+			cb->GetUploadResource()->SetData(data);
+		}
+	}
+
+	// Update progress bars
+	auto progressBarComponents = static_cast<ProgressBarRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR])->GetProgressBarComponents();
+	for (auto progressBarComponent : *progressBarComponents)
+	{
+		// Loop all progress bar parts
+		for (unsigned int i = 0; i < static_cast<unsigned int>(PROGRESS_BAR_TYPE::NUM_PROGRESS_BAR_TYPES); i++)
+		{
+			// Submit data to cpft
+			const void* data = static_cast<const void*>(&progressBarComponent->m_QuadData[i]);
+			progressBarComponent->m_ConstantBuffers[i]->GetUploadResource()->SetData(data);
+		}
+	}
+
+	// Update cbPerFrameData
+	const void* data = static_cast<void*>(m_pCbPerFrameData);
+	m_pCbPerFrame->GetUploadResource()->SetData(data);
+
 	IDXGISwapChain4* dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
 	int commandInterfaceIndex = m_FrameCounter++ % 2;
@@ -507,10 +537,11 @@ void Renderer::Execute()
 	/* --------------------------------------------------------------- */
 
 	// Wait if the CPU is to far ahead of the gpu
-	m_FenceFrameValue++;
+	//m_FenceFrameValue++;
 
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
-	waitForFrame(0);
+	//m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+	//waitForFrame(0);
+	waitForGPU();
 
 	/*------------------- Post draw stuff -------------------*/
 	// Clear copy on demand
@@ -594,11 +625,9 @@ void Renderer::InitAnimationComponent(component::AnimationComponent* component)
 	// Submit the matrices to be uploaded everyframe
 	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
 
-	const void* data = static_cast<const void*>(component->m_UploadMatrices.data());
-	std::tuple<Resource*, Resource*, const void*> matrices(
+	std::tuple<Resource*, Resource*> matrices(
 		component->m_pCB->GetUploadResource(),
-		component->m_pCB->GetDefaultResource(),
-		data);
+		component->m_pCB->GetDefaultResource());
 
 	cpft->Submit(&matrices);
 }
@@ -658,8 +687,7 @@ void Renderer::InitDirectionalLightComponent(component::DirectionalLightComponen
 		copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
 	}
 
-	const void* data = static_cast<const void*>(component->GetLightData());
-	copyTask->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+	copyTask->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource()));
 	
 	// We also need to update the indexBuffer with lights if a light is added.
 	// The buffer with indices is inside cbPerSceneData, which is updated in the following function:
@@ -689,8 +717,7 @@ void Renderer::InitPointLightComponent(component::PointLightComponent* component
 		copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
 	}
 
-	const void* data = static_cast<const void*>(component->GetLightData());
-	copyTask->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+	copyTask->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource()));
 
 	// We also need to update the indexBuffer with lights if a light is added.
 	// The buffer with indices is inside cbPerSceneData, which is updated in the following function:
@@ -749,8 +776,7 @@ void Renderer::InitSpotLightComponent(component::SpotLightComponent* component)
 		copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
 	}
 
-	const void* data = static_cast<const void*>(component->GetLightData());
-	copyTask->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource(), data));
+	copyTask->Submit(&std::make_tuple(cb->GetUploadResource(), cb->GetDefaultResource()));
 
 	// We also need to update the indexBuffer with lights if a light is added.
 	// The buffer with indices is inside cbPerSceneData, which is updated in the following function:
@@ -859,11 +885,9 @@ void Renderer::InitProgressBarComponent(component::ProgressBarComponent* compone
 	// Submit to GPU
 	for (unsigned int i = 0; i < 2; i++)
 	{
-		// Submit data to cpft
-		const void* data = static_cast<const void*>(&component->m_QuadData[i]);
 		Resource* uploadR = component->m_ConstantBuffers[i]->GetUploadResource();
 		Resource* defaultR = component->m_ConstantBuffers[i]->GetDefaultResource();
-		submitToCpft(&std::make_tuple(uploadR, defaultR, data));
+		submitToCpft(&std::make_tuple(uploadR, defaultR));
 
 		// Submit textures to codt
 		submitTextureToCodt(component->m_Textures[i]);
@@ -1090,21 +1114,14 @@ void Renderer::UnInitParticleEmitterComponent(component::ParticleEmitterComponen
 	// TODO: change data structure to allow O(1) add and remove
 	auto& renderComponents = m_RenderComponents[FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE];
 
-	auto it = renderComponents.begin();
-	while (it != renderComponents.end())
+	for (int i = 0; i < renderComponents.size(); i++)
 	{
-		// Remove from all renderComponent-vectors if they are there
-		component::TransformComponent* tcComp = nullptr;
-		tcComp = (*it).second;
-		if (tcComp == tc)
+		if (tc == renderComponents.at(i).second)
 		{
-			it = renderComponents.erase(it);
+			waitForGPU();
+			renderComponents.erase(renderComponents.begin() + i);
+			break;
 		}
-		else
-		{
-			++it;
-		}
-		
 	}
 }
 
@@ -1145,21 +1162,25 @@ void Renderer::OnResetScene()
 	m_TextComponents.clear();
 }
 
-void Renderer::submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
+void Renderer::submitToCodt(std::tuple<Resource*, Resource*>* Upload_Default)
 {
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-	codt->Submit(Upload_Default_Data);
+	codt->Submit(Upload_Default);
 }
 
 void Renderer::submitMeshToCodt(Mesh* mesh)
 {
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 
-	std::tuple<Resource*, Resource*, const void*> Vert_Upload_Default_Data(mesh->m_pUploadResourceVertices, mesh->m_pDefaultResourceVertices, mesh->m_Vertices.data());
-	std::tuple<Resource*, Resource*, const void*> Indi_Upload_Default_Data(mesh->m_pUploadResourceIndices, mesh->m_pDefaultResourceIndices, mesh->m_Indices.data());
+	std::tuple<Resource*, Resource*> Vert_Upload_Default(mesh->m_pUploadResourceVertices, mesh->m_pDefaultResourceVertices);
+	std::tuple<Resource*, Resource*> Indi_Upload_Default(mesh->m_pUploadResourceIndices, mesh->m_pDefaultResourceIndices);
 
-	codt->Submit(&Vert_Upload_Default_Data);
-	codt->Submit(&Indi_Upload_Default_Data);
+	// Set the data
+	mesh->m_pUploadResourceVertices->SetData(mesh->m_Vertices.data());
+	mesh->m_pUploadResourceIndices->SetData(mesh->m_Indices.data());
+
+	codt->Submit(&Vert_Upload_Default);
+	codt->Submit(&Indi_Upload_Default);
 }
 
 void Renderer::submitModelToGPU(Model* model)
@@ -1186,15 +1207,18 @@ void Renderer::submitModelToGPU(Model* model)
 			// Submit the basic vertex data again. These vertex data will remain unchange during animations,
 			// while the other resource will contain the modified vertex data. But as the initial state, both resources
 			// will contain the same data.
-			std::tuple<Resource*, Resource*, const void*> defaultResourceOrigVertices(
+			std::tuple<Resource*, Resource*> defaultResourceOrigVertices(
 				animatedMesh->GetUploadResourceOrigVertices(),
-				animatedMesh->GetDefaultResourceOrigVertices(),
-				mesh->m_Vertices.data());
+				animatedMesh->GetDefaultResourceOrigVertices()
+				);
 
-			std::tuple<Resource*, Resource*, const void*> defaultResourceVertexWeights(
+			std::tuple<Resource*, Resource*> defaultResourceVertexWeights(
 				animatedMesh->GetUploadResourceVertexWeights(),
-				animatedMesh->GetDefaultResourceVertexWeights(),
-				animatedMesh->GetVertexWeights()->data());
+				animatedMesh->GetDefaultResourceVertexWeights()
+				);
+
+			animatedMesh->GetUploadResourceOrigVertices()->SetData(mesh->m_Vertices.data());
+			animatedMesh->GetUploadResourceVertexWeights()->SetData(animatedMesh->GetVertexWeights()->data());
 
 			codt->Submit(&defaultResourceOrigVertices);
 			codt->Submit(&defaultResourceVertexWeights);
@@ -1235,10 +1259,10 @@ void Renderer::submitTextureToCodt(Texture* texture)
 	AssetLoader::Get()->m_LoadedTextures.at(texture->GetPath()).first = true;
 }
 
-void Renderer::submitToCpft(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
+void Renderer::submitToCpft(std::tuple<Resource*, Resource*>* Upload_Default)
 {
 	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-	cpft->Submit(Upload_Default_Data);
+	cpft->Submit(Upload_Default);
 }
 
 void Renderer::clearSpecificCpft(Resource* upload)
@@ -2479,7 +2503,7 @@ void Renderer::createDescriptorHeaps()
 
 void Renderer::createFences()
 {
-	HRESULT hr = m_pDevice5->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFenceFrame));
+	HRESULT hr = m_pDevice5->CreateFence(1, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFenceFrame));
 
 	if (FAILED(hr))
 	{
@@ -2493,15 +2517,16 @@ void Renderer::createFences()
 
 void Renderer::waitForGPU()
 {
-	//Signal and increment the fence value.
-	const UINT64 oldFenceValue = m_FenceFrameValue;
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, oldFenceValue);
+	// Signal and increment the fence value.
 	m_FenceFrameValue++;
+	
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+	
 
 	//Wait until command queue is done.
-	if (m_pFenceFrame->GetCompletedValue() < oldFenceValue)
+	if (m_pFenceFrame->GetCompletedValue() < m_FenceFrameValue)
 	{
-		m_pFenceFrame->SetEventOnCompletion(oldFenceValue, m_EventHandle);
+		m_pFenceFrame->SetEventOnCompletion(m_FenceFrameValue, m_EventHandle);
 		WaitForSingleObject(m_EventHandle, INFINITE);
 	}
 }
@@ -2624,8 +2649,13 @@ void Renderer::submitUploadPerSceneData()
 	
 	// Submit CB_PER_SCENE to be uploaded to VRAM
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+	
+	// Set adata
 	const void* data = static_cast<const void*>(m_pCbPerSceneData);
-	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetDefaultResource(), data));
+
+	m_pCbPerScene->GetUploadResource()->SetData(data);
+
+	codt->Submit(&std::make_tuple(m_pCbPerScene->GetUploadResource(), m_pCbPerScene->GetDefaultResource()));
 }
 
 void Renderer::submitUploadPerFrameData()
@@ -2636,8 +2666,7 @@ void Renderer::submitUploadPerFrameData()
 	// CB_PER_FRAME_STRUCT
 	if (cpft != nullptr)
 	{
-		const void* data = static_cast<void*>(m_pCbPerFrameData);
-		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetDefaultResource(), data));
+		cpft->Submit(&std::tuple(m_pCbPerFrame->GetUploadResource(), m_pCbPerFrame->GetDefaultResource()));
 	}
 }
 
@@ -2650,7 +2679,7 @@ void Renderer::toggleFullscreen(WindowChange* evnt)
 	waitForFrame(0);
 
 	// Wait for the threads which records the commandlists to complete
-	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER);
+	m_pThreadPool->WaitForThreads(FLAG_THREAD::ALL);
 
 	for (auto task : m_RenderTasks)
 	{
@@ -2726,15 +2755,16 @@ SwapChain* Renderer::getSwapChain() const
 
 void Renderer::submitTextToGPU(Text* text, TextManager* tm)
 {
-	// Submit to GPU
-	const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
-
 	// Vertices
 	Resource* uploadR = text->m_pUploadResourceVertices;
 	Resource* defaultR = text->m_pDefaultResourceVertices;
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 
-	codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+	// Submit to GPU
+	const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
+	uploadR->SetData(data);
+
+	codt->Submit(&std::make_tuple(uploadR, defaultR));
 
 	AssetLoader* al = AssetLoader::Get();
 	bool isTextureOnGpu = al->IsFontTextureLoadedOnGPU(text->GetFont());

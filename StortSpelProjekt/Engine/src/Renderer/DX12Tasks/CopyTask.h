@@ -12,16 +12,15 @@ public:
 	virtual ~CopyTask();
 
 	// tuple(Upload, Default, Data)
-	void Submit(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
+	void Submit(std::tuple<Resource*, Resource*>* Upload_Default);
 
 	virtual void Clear() = 0;
 
 protected:
-	std::vector<std::tuple<Resource*, Resource*, const void*>> m_UploadDefaultData;
+	std::vector<std::tuple<Resource*, Resource*>> m_UploadDefault;
 
 	void copyResource(
 		ID3D12GraphicsCommandList5* commandList,
-		Resource* uploadResource, Resource* defaultResource,
-		const void* data);
+		Resource* uploadResource, Resource* defaultResource);
 };
 #endif

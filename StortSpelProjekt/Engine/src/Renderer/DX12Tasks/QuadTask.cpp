@@ -30,6 +30,11 @@ QuadTask::~QuadTask()
 {
 }
 
+const std::vector<component::GUI2DComponent*>* QuadTask::GetQuadComponents() const
+{
+	return &m_QuadComponents;
+}
+
 void QuadTask::SetQuadComponents(std::vector<component::GUI2DComponent*>* quadComponents)
 {
 	m_QuadComponents = *quadComponents;

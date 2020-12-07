@@ -15,19 +15,15 @@ CopyTask::~CopyTask()
 
 }
 
-void CopyTask::Submit(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
+void CopyTask::Submit(std::tuple<Resource*, Resource*>* Upload_Default)
 {
-	m_UploadDefaultData.push_back(*Upload_Default_Data);
+	m_UploadDefault.push_back(*Upload_Default);
 }
 
 void CopyTask::copyResource(
 	ID3D12GraphicsCommandList5* commandList,
-	Resource* uploadResource, Resource* defaultResource,
-	const void* data)
+	Resource* uploadResource, Resource* defaultResource)
 {
-	// Set the data into the upload heap
-	uploadResource->SetData(data);
-
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 		defaultResource->GetID3D12Resource1(),
 		D3D12_RESOURCE_STATE_COMMON,

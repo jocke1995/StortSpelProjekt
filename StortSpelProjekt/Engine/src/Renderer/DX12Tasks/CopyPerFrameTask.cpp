@@ -18,12 +18,12 @@ void CopyPerFrameTask::ClearSpecific(const Resource* uploadResource)
 {
 	unsigned int i = 0;
 	// Loop through all copyPerFrame tasks
-	for (auto& tuple : m_UploadDefaultData)
+	for (auto& tuple : m_UploadDefault)
 	{
 		if (std::get<0>(tuple) == uploadResource)
 		{
 			// Remove
-			m_UploadDefaultData.erase(m_UploadDefaultData.begin() + i);
+			m_UploadDefault.erase(m_UploadDefault.begin() + i);
 		}
 		i++;
 	}
@@ -31,7 +31,7 @@ void CopyPerFrameTask::ClearSpecific(const Resource* uploadResource)
 
 void CopyPerFrameTask::Clear()
 {
-	m_UploadDefaultData.clear();
+	m_UploadDefault.clear();
 }
 
 void CopyPerFrameTask::Execute()
@@ -44,23 +44,14 @@ void CopyPerFrameTask::Execute()
 
 
 	volatile unsigned int i = 0;	// FOR SOLVING A BIG, REMOVE LATER. TODO
-	for (auto& tuple : m_UploadDefaultData)
+	for (auto& tuple : m_UploadDefault)
 	{
-		if (std::get<2>(tuple) == nullptr)
-		{
-			Log::PrintSeverity(Log::Severity::CRITICAL, "Data is nullptr\n");
-			continue;
-		}
-
-		volatile std::vector<DirectX::XMFLOAT4X4>* temp = ((std::vector<DirectX::XMFLOAT4X4>*)(std::get<2>(tuple)));
-		volatile std::vector<DirectX::XMFLOAT4X4>* matrices = (reinterpret_cast<std::vector<DirectX::XMFLOAT4X4>*>(const_cast<void*>(std::get<2>(tuple))));
-		volatile PointLight* kebab = (PointLight*)(std::get<2>(tuple));
 
 		copyResource(
 			commandList,
 			std::get<0>(tuple),		// UploadHeap
-			std::get<1>(tuple),		// DefaultHeap
-			std::get<2>(tuple));	// Data
+			std::get<1>(tuple)		// DefaultHeap
+		);
 
 		i++;						//TODO
 	}

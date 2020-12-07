@@ -26,6 +26,8 @@ public:
 
 	void Execute();
 
+	const std::vector<component::ProgressBarComponent*>* GetProgressBarComponents() const;
+
 	void SetBillboardMesh(Mesh* quadMesh);
 	void SetProgressBarComponents(std::vector<component::ProgressBarComponent*>* progressBarComponents);
 

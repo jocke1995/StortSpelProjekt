@@ -22,7 +22,7 @@ CopyOnDemandTask::~CopyOnDemandTask()
 
 void CopyOnDemandTask::Clear()
 {
-	m_UploadDefaultData.clear();
+	m_UploadDefault.clear();
 	m_Textures.clear();
 }
 
@@ -36,26 +36,26 @@ void CopyOnDemandTask::UnSubmitMesh(Mesh* mesh)
 	// Erase uploaded data
 	Resource* uploadResourceVertices = mesh->m_pUploadResourceVertices;
 	Resource* uploadResourceIndices = mesh->m_pDefaultResourceIndices;
-	auto it = m_UploadDefaultData.begin();
+	auto it = m_UploadDefault.begin();
 
 	// Remove vertexThings
-	while (it != m_UploadDefaultData.end())
+	while (it != m_UploadDefault.end())
 	{
 		if (std::get<0>(*it) == uploadResourceVertices)
 		{
-			it = m_UploadDefaultData.erase(it);
+			it = m_UploadDefault.erase(it);
 			break;
 		}
 		it++;
 	}
 
 	// Remove indexThings
-	it = m_UploadDefaultData.begin();
-	while (it != m_UploadDefaultData.end())
+	it = m_UploadDefault.begin();
+	while (it != m_UploadDefault.end())
 	{
 		if (std::get<1>(*it) == uploadResourceIndices)
 		{
-			it = m_UploadDefaultData.erase(it);
+			it = m_UploadDefault.erase(it);
 			break;
 		}
 		it++;
@@ -66,12 +66,12 @@ void CopyOnDemandTask::UnSubmitText(Text* text)
 {
 	// Erase uploaded data
 	Resource* uploadResource = text->m_pUploadResourceVertices;
-	auto it = m_UploadDefaultData.begin();
-	while (it != m_UploadDefaultData.end())
+	auto it = m_UploadDefault.begin();
+	while (it != m_UploadDefault.end())
 	{
 		if (std::get<0>(*it) == uploadResource)
 		{
-			it = m_UploadDefaultData.erase(it);
+			it = m_UploadDefault.erase(it);
 			break;
 		}
 		else
@@ -90,14 +90,13 @@ void CopyOnDemandTask::Execute()
 
 	// record the "small" data, such as constantbuffers..
 	int counter = 0;
-	for (auto& tuple : m_UploadDefaultData)
+	for (auto& tuple : m_UploadDefault)
 	{
 		counter++;
 		copyResource(
 			commandList,
 			std::get<0>(tuple),		// UploadHeap
-			std::get<1>(tuple),		// DefaultHeap
-			std::get<2>(tuple));	// Data
+			std::get<1>(tuple));	// DefaultHeap
 	}
 
 	// record texturedata

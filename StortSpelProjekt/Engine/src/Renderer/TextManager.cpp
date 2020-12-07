@@ -292,6 +292,8 @@ void TextManager::uploadTextData(std::string name)
 		submitText(text, name);
 	}
 
+
+
 	// Uploading the text data to the gpu
 	renderer->submitTextToGPU(text, this);
 }

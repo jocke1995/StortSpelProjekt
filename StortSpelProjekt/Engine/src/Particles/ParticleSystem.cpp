@@ -49,8 +49,7 @@ void ParticleSystem::ActivateParticleEffect(ParticleEffect* effect)
 	// Add to COPY_PER_FRAME
 	Renderer& renderer = Renderer::GetInstance();
 	
-	const void* pData = effect->m_ParticlesData.data();
-	auto tempData = std::tuple(effect->m_pUploadResource, effect->m_pDefaultResource, pData);
+	auto tempData = std::tuple(effect->m_pUploadResource, effect->m_pDefaultResource);
 	renderer.submitToCpft(&tempData);
 }
 

@@ -107,7 +107,12 @@ void component::AnimationComponent::RenderUpdate(double dt)
 			}
 		}
 
+		// Update Data
 		updateSkeleton(m_pSkeleton, DirectX::XMMatrixIdentity());
+
+		// Set Data
+		const void* data = static_cast<const void*>(m_UploadMatrices.data());
+		m_pCB->GetUploadResource()->SetData(data);
 	}
 }
 

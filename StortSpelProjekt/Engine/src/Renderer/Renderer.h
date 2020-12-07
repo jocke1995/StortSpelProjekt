@@ -153,13 +153,13 @@ private:
 	void deleteRenderer();
 
 	// SubmitToCodt functions
-	void submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
+	void submitToCodt(std::tuple<Resource*, Resource*>* Upload_Default);
 	void submitModelToGPU(Model* model);
 	void submitMeshToCodt(Mesh* mesh);
 	void submitTextureToCodt(Texture* texture);
 
 	//SubmitToCpft functions
-	void submitToCpft(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
+	void submitToCpft(std::tuple<Resource*, Resource*>* Upload_Default);
 	void clearSpecificCpft(Resource* upload);
 
 	DescriptorHeap* getCBVSRVUAVdHeap() const;
