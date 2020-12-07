@@ -469,6 +469,62 @@ ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 0.4, 0.4, 0.7
 
+// Candles ---------------------------------------------
+
+Name Candle1
+ModelPath Models/Candle/candle.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -55.0, 6.5, -55.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
+Name Candle2
+ModelPath Models/Candle/candle.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -45.0, 6.5, -45.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
+Name Candle3
+ModelPath Models/Candle/candle.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -47.0, 6.5, -63.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
+Name Candle4
+ModelPath Models/Candle/candle.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -53.0, 6.5, -37.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
+Name Candle5
+ModelPath Models/Candle/candle.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -63.0, 6.5, -47.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
+Name Candle6
+ModelPath Models/Candle/candle.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -37.0, 6.5, -53.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
 // Statue ----------------------------------------------
 Name Statue
 ModelPath Models/Statue/ganeshaStatue.obj
