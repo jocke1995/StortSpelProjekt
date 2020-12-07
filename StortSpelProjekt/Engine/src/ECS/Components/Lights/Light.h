@@ -33,6 +33,7 @@ public:
 	virtual void Update(double dt) = 0;
 
 	void SetColor(float3 color);
+	void SetIntensity(float intensity);
 
 	// Gets
 	unsigned int GetLightFlags() const;
@@ -65,7 +66,7 @@ protected:
 		float nearZ = 0.1f,
 		float farZ = 1000.0f);
 
-	virtual void UpdateLightColor() = 0;
+	virtual void UpdateLightColorIntensity() = 0;
 
 };
 
