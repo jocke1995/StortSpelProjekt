@@ -34,6 +34,7 @@ bool Light::operator==(const Light& other)
 void Light::SetColor(float3 color)
 {
 	m_pBaseLight->color = color;
+	m_pBaseLight->color.normalize();
 	UpdateLightColorIntensity();
 }
 
