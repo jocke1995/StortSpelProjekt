@@ -35,6 +35,8 @@ GameGUI gameGUI;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+    Cryptor::EncryptBinary(Cryptor::GetGlobalKey(), "../Vendor/Resources/Audio/IgnoredAudio/Spider_Attack_1.wav");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -161,6 +163,7 @@ Scene* GameScene(SceneManager* sm)
     Scene* scene = sm->CreateScene("GameScene");
 
 #pragma region assets
+
     AssetLoader* al = AssetLoader::Get();
 
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Player/AnimatedPlayer.fbx");
@@ -195,10 +198,12 @@ Scene* GameScene(SceneManager* sm)
     AudioBuffer* zombieHit7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_GotHit_7.wav", L"ZombieHit7");
     AudioBuffer* demonGrunt = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/monstergrowl.wav", L"DemonGrunt");
     AudioBuffer* demonHit = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/demon_onhit.wav", L"DemonHit");
+
     AudioBuffer* spiderCrawl = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/spiderCrawl.wav", L"SpiderCrawl");
     spiderCrawl->SetAudioLoop(0);
     AudioBuffer* spiderScream = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Spider_DeathScream_2.wav", L"SpiderHit");
     AudioBuffer* spiderSound = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/spiderSound.wav", L"SpiderSound");
+    AudioBuffer* spiderAttack = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Spider_Attack_1.wav", L"SpiderAttack");
     AudioBuffer* demonAttack = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Swoosh_1.wav", L"DemonAttack");
     AudioBuffer* playerDash = al->LoadAudio(L"../Vendor/Resources/Audio/femaleDash.wav", L"PlayerDash");
     AudioBuffer* playerJump = al->LoadAudio(L"../Vendor/Resources/Audio/femaleJump.wav", L"PlayerJump");
@@ -303,19 +308,6 @@ Scene* GameScene(SceneManager* sm)
     zombie.model = enemyZombieModel;
     zombie.hp = 70;
     zombie.hpBase = 70;
-    zombie.onHitSounds.emplace_back(L"ZombieHit7");
-    zombie.onGruntSounds.emplace_back(L"ZombieGnarl1");
-    zombie.onGruntSounds.emplace_back(L"ZombieGnarl2");
-    zombie.onGruntSounds.emplace_back(L"ZombieGnarl3");
-    zombie.onGruntSounds.emplace_back(L"ZombieGnarl4");
-    zombie.onGruntSounds.emplace_back(L"ZombieGnarl5");
-    zombie.onGruntSounds.emplace_back(L"ZombieGnarl6");
-    zombie.onGruntSounds.emplace_back(L"ZombieGnarl7");
-    zombie.onAttackSounds.emplace_back(L"ZombieAttack1");
-    zombie.onAttackSounds.emplace_back(L"ZombieAttack2");
-    zombie.onAttackSounds.emplace_back(L"ZombieAttack3");
-    zombie.onAttackSounds.emplace_back(L"ZombieAttack4");
-    zombie.onAttackSounds.emplace_back(L"ZombieAttack5");
     zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     zombie.aiFlags = 0;
     zombie.meleeAttackDmg = 30.0f;
@@ -331,14 +323,25 @@ Scene* GameScene(SceneManager* sm)
     zombie.invertDirection = true;
     zombie.mass = 150.0f;
     zombie.slowAttack = 0.5f;
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl1");
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl2");
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl3");
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl4");
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl5");
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl6");
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl7");
+    zombie.onHitSounds.emplace_back(L"ZombieHit7");
+    zombie.onAttackSounds.emplace_back(L"ZombieAttack1");
+    zombie.onAttackSounds.emplace_back(L"ZombieAttack2");
+    zombie.onAttackSounds.emplace_back(L"ZombieAttack3");
+    zombie.onAttackSounds.emplace_back(L"ZombieAttack4");
+    zombie.onAttackSounds.emplace_back(L"ZombieAttack5");
 
     // quick melee
     EnemyComps spider = {};
     spider.model = enemySpiderModel;
     spider.hp = 35;
     spider.hpBase = 35;
-    spider.onHitSounds.emplace_back(L"SpiderHit");
-    spider.onGruntSounds.emplace_back(L"SpiderSound");
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     spider.meleeAttackDmg = 15.0f;
@@ -354,14 +357,15 @@ Scene* GameScene(SceneManager* sm)
     spider.invertDirection = true;
     spider.mass = 100.0f;
     spider.walkSounds.emplace_back(L"SpiderCrawl");
+    spider.onGruntSounds.emplace_back(L"SpiderSound");
+    spider.onHitSounds.emplace_back(L"SpiderHit");
+    spider.onAttackSounds.emplace_back(L"SpiderAttack");
 
     // ranged
     EnemyComps rangedDemon = {};
     rangedDemon.model = enemyDemonModel;
     rangedDemon.hp = 120;
     rangedDemon.hpBase = 120;
-    rangedDemon.onGruntSounds.emplace_back(L"DemonGrunt");
-    rangedDemon.onHitSounds.emplace_back(L"DemonHit");
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     rangedDemon.attackInterval = 2.5f;
@@ -377,6 +381,8 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.projectileModel = sphereModel;
     rangedDemon.invertDirection = true;
     rangedDemon.mass = 300.0f;
+    rangedDemon.onGruntSounds.emplace_back(L"DemonGrunt");
+    rangedDemon.onHitSounds.emplace_back(L"DemonHit");
     rangedDemon.onAttackSounds.emplace_back(L"DemonAttack");
 
 #pragma endregion
