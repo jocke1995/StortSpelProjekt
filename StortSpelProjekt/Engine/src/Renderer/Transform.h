@@ -101,6 +101,7 @@ private:
 	DirectX::XMMATRIX m_WorldMatTransposed;
 
 	DirectX::XMFLOAT3 m_Position;
+	DirectX::XMFLOAT3 m_OldPosition;
 	DirectX::XMFLOAT3 m_RenderPosition;
 	DirectX::XMFLOAT3 m_Movement;
 	DirectX::XMFLOAT3 m_Scale;
@@ -111,6 +112,9 @@ private:
 	DirectX::XMMATRIX m_RotationMat;
 
 	float m_Velocity;
+
+	double m_TimeBetweenFrame;
+	double m_UpdateRate;
 
 	int m_InvDir;
 };
