@@ -376,6 +376,8 @@ void Renderer::SortObjects()
 
 void Renderer::Execute()
 {
+	waitForGPU();
+
 	// Update lights data
 	for (auto light_map : m_Lights)
 	{
@@ -388,6 +390,8 @@ void Renderer::Execute()
 			cb->GetUploadResource()->SetData(data);
 		}
 	}
+
+	waitForGPU();
 
 	// Update progress bars
 	auto progressBarComponents = static_cast<ProgressBarRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR])->GetProgressBarComponents();
@@ -402,9 +406,13 @@ void Renderer::Execute()
 		}
 	}
 
+	waitForGPU();
+
 	// Update cbPerFrameData
 	const void* data = static_cast<void*>(m_pCbPerFrameData);
 	m_pCbPerFrame->GetUploadResource()->SetData(data);
+
+	waitForGPU();
 
 	IDXGISwapChain4* dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
@@ -415,99 +423,152 @@ void Renderer::Execute()
 	RenderTask* renderTask = nullptr;
 	/* --------------------- Record command lists --------------------- */
 
+	waitForGPU();
+
 	// Copy on demand
 	copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
 	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(copyTask);
+	//m_pThreadPool->AddTask(copyTask);
+	copyTask->Execute();
+
+	waitForGPU();
 
 	// Copy per frame
 	copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
 	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(copyTask);
+	//m_pThreadPool->AddTask(copyTask);
+	copyTask->Execute();
+
+	waitForGPU();
 
 	// Depth pre-pass
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS];
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	// Animation Depth pre-pass
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::ANIMATION_DEPTH_PRE_PASS];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	// Recording shadowmaps
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SHADOW];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	// Opaque draw
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	// DownSample the texture used for bloom
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	// Skybox
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SKYBOX];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	// Blending with constant value
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	// Blending with opacity texture
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	// Blending with opacity texture
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::PARTICLE];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	// Blurring for bloom
 	computeTask = m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR];
 	computeTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(computeTask);
+	//m_pThreadPool->AddTask(computeTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	// Outlining, if an object is picked
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::OUTLINE];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::QUAD];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TEXT];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::MERGE];
 	renderTask->SetBackBufferIndex(backBufferIndex);
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	m_pThreadPool->AddTask(renderTask);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
 	
 	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
@@ -515,7 +576,10 @@ void Renderer::Execute()
 		renderTask = m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME];
 		renderTask->SetBackBufferIndex(backBufferIndex);
 		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		m_pThreadPool->AddTask(renderTask);
+		//m_pThreadPool->AddTask(renderTask);
+		renderTask->Execute();
+
+		waitForGPU();
 	}
 
 	if (DEVELOPERMODE_DEVINTERFACE == true)
@@ -523,12 +587,17 @@ void Renderer::Execute()
 		renderTask = m_RenderTasks[RENDER_TASK_TYPE::IMGUI];
 		renderTask->SetBackBufferIndex(backBufferIndex);
 		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-		m_pThreadPool->AddTask(renderTask);
+		//m_pThreadPool->AddTask(renderTask);
+		renderTask->Execute();
+
+		waitForGPU();
 	}
 	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
 
 	// Wait for the threads which records the commandlists to complete
-	m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER);
+	//m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER);
+
+	waitForGPU();
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
 		m_DirectCommandLists[commandInterfaceIndex].size(), 
@@ -549,6 +618,8 @@ void Renderer::Execute()
 
 	/*------------------- Present -------------------*/
 	HRESULT hr = dx12SwapChain->Present(0, 0);
+
+	waitForGPU();
 	
 #ifdef _DEBUG
 	if (FAILED(hr))
