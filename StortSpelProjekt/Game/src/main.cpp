@@ -128,6 +128,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         }
         else
         {
+            sceneManager->Update(timer->GetDeltaTime());
             PauseGUI::GetInstance().Update(timer->GetDeltaTime(), sceneManager->GetActiveScene());
 
             /* ------ ImGui ------*/
