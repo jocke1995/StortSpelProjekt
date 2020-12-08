@@ -38,6 +38,8 @@ void Input::RegisterDevices(const HWND* hWnd)
 	{
 		Log::Print("Input devices registered!\n");
 	}
+
+	EventBus::GetInstance().Subscribe(this, &Input::onReset);
 }
 
 void Input::SetKeyState(SCAN_CODES key, bool pressed)
@@ -145,4 +147,13 @@ Input::Input()
 {
 	m_KeyTimer[SCAN_CODES::W] = m_KeyTimer[SCAN_CODES::A] = m_KeyTimer[SCAN_CODES::S] = m_KeyTimer[SCAN_CODES::D] = m_KeyTimer[SCAN_CODES::SPACE] = std::chrono::system_clock::now();
 	m_IsPaused = false;
+}
+
+void Input::onReset(ResetGame* evnt)
+{
+	if (m_IsPaused)
+	{
+		m_IsPaused = !m_IsPaused;
+		EventBus::GetInstance().Publish(&PauseGame(m_IsPaused));
+	}
 }

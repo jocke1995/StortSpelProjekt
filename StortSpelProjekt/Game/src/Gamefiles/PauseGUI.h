@@ -40,7 +40,7 @@ private:
 	// Should we cycle through the UpgradeButtons?
 	bool m_LoopButtons = false;
 	// Value for buttons.
-	float2 m_ButtonPos = { 0.54f, 0.141f };
+	float2 m_ButtonPos = { 0.54f, 0.301f };
 	float m_ButtonYOffset = 0.048f;
 	// How many times the menu can be filled with buttons.
 	// Used for keeping track of how many times we need to cycle
@@ -70,6 +70,9 @@ private:
 	Texture* m_pButtonParchment;
 	Texture* m_pDescriptionParchment;
 	Texture* m_pPauseOverlayTexture;
+	Texture* m_pReturnToGameTex;
+	Texture* m_pMainMenuTex;
+	Texture* m_pExitTex;
 };
 
 
