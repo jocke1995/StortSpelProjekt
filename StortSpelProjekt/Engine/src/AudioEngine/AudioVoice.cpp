@@ -88,9 +88,9 @@ void AudioVoice::Resume()
     if (m_Initialized)
     {
         // reset the buffer if sound has ended
-        XAUDIO2_VOICE_STATE test;
-        m_pSourceVoice->GetState(&test);
-        if (test.BuffersQueued == 0)
+        XAUDIO2_VOICE_STATE voiceState;
+        m_pSourceVoice->GetState(&voiceState);
+        if (voiceState.BuffersQueued == 0)
         {
             // reset the buffer so the sound starts from the beginning at next playback
             m_pSourceVoice->FlushSourceBuffers();
@@ -100,7 +100,7 @@ void AudioVoice::Resume()
         // play the sound
         if (FAILED(m_pSourceVoice->Start(0)))
         {
-            Log::Print("Error playing audio\n");
+            Log::PrintSeverity(Log::Severity::WARNING,"Error playing audio\n");
         }
     }
 }
@@ -112,7 +112,7 @@ void AudioVoice::Pause()
         // stop playback
         if (FAILED(m_pSourceVoice->Stop(0)))
         {
-            Log::Print("Error stopping audio\n");
+            Log::PrintSeverity(Log::Severity::WARNING, "Error stopping audio\n");
         }
     }
 }

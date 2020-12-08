@@ -90,9 +90,9 @@ void component::Audio2DVoiceComponent::pauseToggleAudio(PauseGame* evnt)
 	{
 		for (auto voice : m_Voices)
 		{
-			XAUDIO2_VOICE_STATE test;
-			voice.second.GetSourceVoice()->GetState(&test);
-			if (test.BuffersQueued > 0 && test.SamplesPlayed > 0)
+			XAUDIO2_VOICE_STATE voiceState;
+			voice.second.GetSourceVoice()->GetState(&voiceState);
+			if (voiceState.BuffersQueued > 0 && voiceState.SamplesPlayed > 0)
 			{
 				m_WasPlaying[voice.first] = true;
 				voice.second.Pause();

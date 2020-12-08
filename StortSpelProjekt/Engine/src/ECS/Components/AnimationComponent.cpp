@@ -78,16 +78,10 @@ void component::AnimationComponent::attackAnimation(MouseClick* evnt)
 		{
 			m_pAnimatedModel->PlayAnimation("Attack_Swing_Right", false);
 		}
-		else
-		{
-		}
 
 		if (evnt->button == MOUSE_BUTTON::RIGHT_DOWN)
 		{
 			m_pAnimatedModel->PlayAnimation("Attack_Swing_Left", false);
-		}
-		else
-		{
 		}
 	}
 }
