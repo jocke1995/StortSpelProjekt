@@ -450,11 +450,11 @@ void Renderer::Execute()
 	waitForGPU();
 
 	// Animation Depth pre-pass
-	renderTask = m_RenderTasks[RENDER_TASK_TYPE::ANIMATION_DEPTH_PRE_PASS];
-	renderTask->SetBackBufferIndex(backBufferIndex);
-	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
-	//m_pThreadPool->AddTask(renderTask);
-	renderTask->Execute();
+	//renderTask = m_RenderTasks[RENDER_TASK_TYPE::ANIMATION_DEPTH_PRE_PASS];
+	//renderTask->SetBackBufferIndex(backBufferIndex);
+	//renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	////m_pThreadPool->AddTask(renderTask);
+	//renderTask->Execute();
 
 	waitForGPU();
 
@@ -689,18 +689,18 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 
 void Renderer::InitAnimationComponent(component::AnimationComponent* component)
 {
-	component->initialize(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
-
-	component->createCBMatrices(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
-
-	// Submit the matrices to be uploaded everyframe
-	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-
-	std::tuple<Resource*, Resource*> matrices(
-		component->m_pCB->GetUploadResource(),
-		component->m_pCB->GetDefaultResource());
-
-	cpft->Submit(&matrices);
+	//component->initialize(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	//
+	//component->createCBMatrices(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	//
+	//// Submit the matrices to be uploaded everyframe
+	//CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+	//
+	//std::tuple<Resource*, Resource*> matrices(
+	//	component->m_pCB->GetUploadResource(),
+	//	component->m_pCB->GetDefaultResource());
+	//
+	//cpft->Submit(&matrices);
 }
 
 void Renderer::InitDirectionalLightComponent(component::DirectionalLightComponent* component)
@@ -999,12 +999,12 @@ void Renderer::UnInitModelComponent(component::ModelComponent* component)
 
 void Renderer::UnInitAnimationComponent(component::AnimationComponent* component)
 {
-	// Submit the matrices to be uploaded every frame
-	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-	const ConstantBuffer* cb = component->m_pCB;
-	cpft->ClearSpecific(cb->GetUploadResource());
-
-	component->deleteCBMatrices();
+	//// Submit the matrices to be uploaded every frame
+	//CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+	//const ConstantBuffer* cb = component->m_pCB;
+	//cpft->ClearSpecific(cb->GetUploadResource());
+	//
+	//component->deleteCBMatrices();
 }
 
 void Renderer::UnInitDirectionalLightComponent(component::DirectionalLightComponent* component)
