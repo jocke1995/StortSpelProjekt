@@ -22,18 +22,24 @@ component::HealthComponent::~HealthComponent()
 
 void component::HealthComponent::Update(double dt)
 {
-	m_DeathDuration += static_cast<double>(m_Dead * dt);
-	if (m_RemovalTimer <= m_DeathDuration && m_Dead)
+	if (m_Dead)
 	{
-		if (m_pParent->GetName() != "player")
+		m_DeathDuration += dt;
+		m_DeathDuration = 100;
+
+		if (m_RemovalTimer <= m_DeathDuration)
 		{
-			EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
-		}
-		else
-		{
-			EventBus::GetInstance().Publish(&SceneChange("gameOverScene"));
-			// reset death timer
-			m_DeathDuration = 0.0f;
+			if (m_pParent->GetName() != "player")
+			{
+				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
+				m_DeathDuration = 0.0f;
+			}
+			else
+			{
+				EventBus::GetInstance().Publish(&SceneChange("gameOverScene"));
+				// reset death timer
+				m_DeathDuration = 0.0f;
+			}
 		}
 	}
 }

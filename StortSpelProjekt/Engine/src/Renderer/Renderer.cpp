@@ -2962,11 +2962,11 @@ void Renderer::createFences()
 
 void Renderer::waitForGPU()
 {
-	HRESULT hr = m_pDevice5->GetDeviceRemovedReason();
+	volatile HRESULT hr = m_pDevice5->GetDeviceRemovedReason();
 
 	if (FAILED(hr))
 	{
-		int a = 0;
+		volatile int a = 0;
 	}
 	// Signal and increment the fence value.
 	m_FenceFrameValue++;
