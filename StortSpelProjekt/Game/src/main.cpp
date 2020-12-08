@@ -733,7 +733,7 @@ Scene* ShopScene(SceneManager* sm)
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(50, 1, 50);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+    tc->GetTransform()->SetPosition(10.0f, 0.0f, 0.0f);
     tc->SetTransformOriginalState();
     /* ---------------------- Floor ---------------------- */
 
