@@ -419,6 +419,263 @@ void Renderer::Execute()
 	IDXGISwapChain4* dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
 	int commandInterfaceIndex = m_FrameCounter++ % 2;
+
+	CopyTask* copyTask = nullptr;
+	ComputeTask* computeTask = nullptr;
+	RenderTask* renderTask = nullptr;
+	/* --------------------- Record command lists --------------------- */
+
+	waitForGPU();
+
+	// Copy on demand
+	copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(copyTask);
+	copyTask->Execute();
+
+	waitForGPU();
+
+	// Copy per frame
+	copyTask = m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME];
+	copyTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(copyTask);
+	copyTask->Execute();
+	
+	waitForGPU();
+
+	// Depth pre-pass
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS];
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+
+	// Animation Depth pre-pass
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::ANIMATION_DEPTH_PRE_PASS];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+
+	// Recording shadowmaps
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SHADOW];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+
+	// Opaque draw
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::FORWARD_RENDER];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+
+	// DownSample the texture used for bloom
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::DOWNSAMPLE];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+
+	// Skybox
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::SKYBOX];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+
+	// Blending with constant value
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+
+	// Blending with opacity texture
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+
+	// Blending with opacity texture
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::PARTICLE];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+
+	// Blurring for bloom
+	computeTask = m_ComputeTasks[COMPUTE_TASK_TYPE::BLUR];
+	computeTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(computeTask);
+	computeTask->Execute();
+
+	waitForGPU();
+
+	// Outlining, if an object is picked
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::OUTLINE];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::QUAD];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::TEXT];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+
+	renderTask = m_RenderTasks[RENDER_TASK_TYPE::MERGE];
+	renderTask->SetBackBufferIndex(backBufferIndex);
+	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+	//m_pThreadPool->AddTask(renderTask);
+	renderTask->Execute();
+
+	waitForGPU();
+	
+	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
+	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
+	{
+		renderTask = m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME];
+		renderTask->SetBackBufferIndex(backBufferIndex);
+		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+		//m_pThreadPool->AddTask(renderTask);
+		renderTask->Execute();
+
+		waitForGPU();
+	}
+
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
+		renderTask = m_RenderTasks[RENDER_TASK_TYPE::IMGUI];
+		renderTask->SetBackBufferIndex(backBufferIndex);
+		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
+		//m_pThreadPool->AddTask(renderTask);
+		renderTask->Execute();
+
+		waitForGPU();
+	}
+	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
+
+	// Wait for the threads which records the commandlists to complete
+	//m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER);
+
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(), 
+		m_DirectCommandLists[commandInterfaceIndex].data());
+
+	/* --------------------------------------------------------------- */
+
+	// Wait if the CPU is to far ahead of the gpu
+	//m_FenceFrameValue++;
+
+	//m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
+	//waitForFrame(0);
+	waitForGPU();
+
+	/*------------------- Post draw stuff -------------------*/
+	// Clear copy on demand
+	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
+
+	/*------------------- Present -------------------*/
+	hr = dx12SwapChain->Present(0, 0);
+
+	
+
+	waitForGPU();
+	
+#ifdef _DEBUG
+	if (FAILED(hr))
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Swapchain Failed to present\n");
+	}
+#endif
+}
+
+void Renderer::DebugExecute()
+{
+	HRESULT hr;
+
+	waitForGPU();
+
+	// Update lights data
+	for (auto light_map : m_Lights)
+	{
+		for (auto light : light_map.second)
+		{
+			Light* l = std::get<0>(light);
+			const void* data = static_cast<const void*>(l->GetLightData());
+			ConstantBuffer* cb = std::get<1>(light);
+
+			cb->GetUploadResource()->SetData(data);
+		}
+	}
+
+	waitForGPU();
+
+	// Update progress bars
+	auto progressBarComponents = static_cast<ProgressBarRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR])->GetProgressBarComponents();
+	for (auto progressBarComponent : *progressBarComponents)
+	{
+		// Loop all progress bar parts
+		for (unsigned int i = 0; i < static_cast<unsigned int>(PROGRESS_BAR_TYPE::NUM_PROGRESS_BAR_TYPES); i++)
+		{
+			// Submit data to cpft
+			const void* data = static_cast<const void*>(&progressBarComponent->m_QuadData[i]);
+			progressBarComponent->m_ConstantBuffers[i]->GetUploadResource()->SetData(data);
+		}
+	}
+
+	waitForGPU();
+
+	// Update cbPerFrameData
+	const void* data = static_cast<void*>(m_pCbPerFrameData);
+	m_pCbPerFrame->GetUploadResource()->SetData(data);
+
+	waitForGPU();
+
+	IDXGISwapChain4* dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
+	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
+	int commandInterfaceIndex = m_FrameCounter++ % 2;
 	commandInterfaceIndex = 0;
 
 	CopyTask* copyTask = nullptr;
@@ -453,7 +710,7 @@ void Renderer::Execute()
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
 		m_DirectCommandLists[commandInterfaceIndex].size(),
 		m_DirectCommandLists[commandInterfaceIndex].data());
-	
+
 	waitForGPU();
 
 	// Depth pre-pass
@@ -674,7 +931,7 @@ void Renderer::Execute()
 		m_DirectCommandLists[commandInterfaceIndex].data());
 
 	waitForGPU();
-	
+
 	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
 	if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
 	{
@@ -734,10 +991,10 @@ void Renderer::Execute()
 	/*------------------- Present -------------------*/
 	hr = dx12SwapChain->Present(0, 0);
 
-	
+
 
 	waitForGPU();
-	
+
 #ifdef _DEBUG
 	if (FAILED(hr))
 	{

@@ -109,6 +109,7 @@ public:
 	void RenderUpdate(double dt); //Please rename if logic update is removed
 	void SortObjects();
 	void Execute();
+	void DebugExecute();
 
 	// Render inits, these functions are called by respective components through SetScene to prepare for drawing
 	void InitSkyboxComponent(component::SkyboxComponent* component);
