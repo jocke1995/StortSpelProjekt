@@ -21,6 +21,7 @@ namespace component
 	void TransformComponent::Update(double dt)
 	{
 		m_pTransform->NormalizedMove(dt);
+		m_pTransform->UpdateLogicWorldMatrix();
 	}
 
 	void TransformComponent::RenderUpdate(double dt)
