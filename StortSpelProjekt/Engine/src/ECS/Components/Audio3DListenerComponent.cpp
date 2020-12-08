@@ -3,6 +3,7 @@
 #include "../AudioEngine/AudioEngine.h"
 #include "../Renderer/Transform.h"
 #include "../Entity.h"
+#include "../Renderer/Camera/BaseCamera.h"
 
 component::Audio3DListenerComponent::Audio3DListenerComponent(Entity* parent) : Component(parent)
 {
@@ -31,17 +32,16 @@ void component::Audio3DListenerComponent::OnUnInitScene()
 
 void component::Audio3DListenerComponent::UpdateListener()
 {
-	// get parent entity and look for transform component and get the forward, up and position vectors to update m_Listener
 	m_pTransform = m_pParent->GetComponent<TransformComponent>()->GetTransform();
-	DirectX::XMMATRIX rotMat = m_pTransform->GetRotMatrix();
+	BaseCamera* cam = m_pParent->GetComponent<component::CameraComponent>()->GetCamera();
+
 	DirectX::XMFLOAT3 forward, up, position;
-	DirectX::XMStoreFloat3(&forward, rotMat.r[2]);
-
-	forward.x *= m_pTransform->GetInvDir();
-	forward.z *= m_pTransform->GetInvDir();
-
-	DirectX::XMStoreFloat3(&up, rotMat.r[1]);
+	// get forward and up from camera
+	forward = cam->GetDirection();
+	up = cam->GetUpVector();
+	// get position from player
 	position = m_pTransform->GetPositionXMFLOAT3();
+
 	SetListener(forward, up, position);
 }
 
