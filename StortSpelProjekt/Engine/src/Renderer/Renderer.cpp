@@ -417,6 +417,9 @@ void Renderer::Execute()
 	IDXGISwapChain4* dx12SwapChain = m_pSwapChain->GetDX12SwapChain();
 	int backBufferIndex = dx12SwapChain->GetCurrentBackBufferIndex();
 	int commandInterfaceIndex = m_FrameCounter++ % 2;
+	commandInterfaceIndex = 0;
+
+	m_DirectCommandLists[commandInterfaceIndex].clear();
 
 	CopyTask* copyTask = nullptr;
 	ComputeTask* computeTask = nullptr;
@@ -431,6 +434,12 @@ void Renderer::Execute()
 	//m_pThreadPool->AddTask(copyTask);
 	copyTask->Execute();
 
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
+
 	waitForGPU();
 
 	// Copy per frame
@@ -439,6 +448,12 @@ void Renderer::Execute()
 	//m_pThreadPool->AddTask(copyTask);
 	copyTask->Execute();
 
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
+
 	waitForGPU();
 
 	// Depth pre-pass
@@ -446,6 +461,12 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
+
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::DEPTH_PRE_PASS]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
 
 	waitForGPU();
 
@@ -456,6 +477,12 @@ void Renderer::Execute()
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
 
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::ANIMATION_DEPTH_PRE_PASS]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
+
 	waitForGPU();
 
 	// Recording shadowmaps
@@ -464,6 +491,12 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
+
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::SHADOW]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
 
 	waitForGPU();
 
@@ -474,6 +507,12 @@ void Renderer::Execute()
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
 
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::FORWARD_RENDER]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
+
 	waitForGPU();
 
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::PROGRESS_BAR];
@@ -481,6 +520,12 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
+
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::PROGRESS_BAR]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
 
 	waitForGPU();
 
@@ -491,6 +536,12 @@ void Renderer::Execute()
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
 
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::DOWNSAMPLE]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
+
 	waitForGPU();
 
 	// Skybox
@@ -499,6 +550,12 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
+
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::SKYBOX]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
 
 	waitForGPU();
 
@@ -509,6 +566,12 @@ void Renderer::Execute()
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
 
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::TRANSPARENT_CONSTANT]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
+
 	waitForGPU();
 
 	// Blending with opacity texture
@@ -517,6 +580,12 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
+
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::TRANSPARENT_TEXTURE]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
 
 	waitForGPU();
 
@@ -527,6 +596,12 @@ void Renderer::Execute()
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
 
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::PARTICLE]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
+
 	waitForGPU();
 
 	// Blurring for bloom
@@ -534,6 +609,12 @@ void Renderer::Execute()
 	computeTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	//m_pThreadPool->AddTask(computeTask);
 	renderTask->Execute();
+
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[COMPUTE_TASK_TYPE::BLUR]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
 
 	waitForGPU();
 
@@ -544,6 +625,12 @@ void Renderer::Execute()
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
 
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::OUTLINE]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
+
 	waitForGPU();
 
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::QUAD];
@@ -551,6 +638,12 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
+
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::QUAD]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
 
 	waitForGPU();
 
@@ -560,6 +653,12 @@ void Renderer::Execute()
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
 
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::TEXT]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
+
 	waitForGPU();
 
 	renderTask = m_RenderTasks[RENDER_TASK_TYPE::MERGE];
@@ -567,6 +666,12 @@ void Renderer::Execute()
 	renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 	//m_pThreadPool->AddTask(renderTask);
 	renderTask->Execute();
+
+	m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::MERGE]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+		m_DirectCommandLists[commandInterfaceIndex].size(),
+		m_DirectCommandLists[commandInterfaceIndex].data());
+	m_DirectCommandLists[commandInterfaceIndex].clear();
 
 	waitForGPU();
 	
@@ -579,6 +684,12 @@ void Renderer::Execute()
 		//m_pThreadPool->AddTask(renderTask);
 		renderTask->Execute();
 
+		m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::WIREFRAME]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+			m_DirectCommandLists[commandInterfaceIndex].size(),
+			m_DirectCommandLists[commandInterfaceIndex].data());
+		m_DirectCommandLists[commandInterfaceIndex].clear();
+
 		waitForGPU();
 	}
 
@@ -590,14 +701,18 @@ void Renderer::Execute()
 		//m_pThreadPool->AddTask(renderTask);
 		renderTask->Execute();
 
+		m_DirectCommandLists[commandInterfaceIndex].push_back(m_CopyTasks[RENDER_TASK_TYPE::IMGUI]->GetCommandInterface()->GetCommandList(commandInterfaceIndex));
+		m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
+			m_DirectCommandLists[commandInterfaceIndex].size(),
+			m_DirectCommandLists[commandInterfaceIndex].data());
+		m_DirectCommandLists[commandInterfaceIndex].clear();
+
 		waitForGPU();
 	}
 	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
 
 	// Wait for the threads which records the commandlists to complete
 	//m_pThreadPool->WaitForThreads(FLAG_THREAD::RENDER);
-
-	waitForGPU();
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->ExecuteCommandLists(
 		m_DirectCommandLists[commandInterfaceIndex].size(), 
