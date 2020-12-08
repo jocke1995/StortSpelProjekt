@@ -130,7 +130,7 @@ void component::MeleeComponent::Update(double dt)
 void component::MeleeComponent::Attack()
 {
 	
-	if (!m_Cooldown && Player::GetInstance().IsPlayerAlive())
+	if (!m_Cooldown)
 	{
 		if (m_AudioPlay)
 		{
