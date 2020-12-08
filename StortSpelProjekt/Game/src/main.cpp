@@ -37,6 +37,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Cryptor::DecryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/StoneWallParts/Wall");
     //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/CastleFloor");
     //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/StoneWallParts/Wall");
+	//Cryptor::EncryptBinary(Cryptor::GetGlobalKey(), "../Vendor/Resources/Audio/shopMusic.wav");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -197,6 +198,10 @@ Scene* GameScene(SceneManager* sm)
     AudioBuffer* demonAttack = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Swoosh_1.wav", L"DemonAttack");
     AudioBuffer* playerDash = al->LoadAudio(L"../Vendor/Resources/Audio/femaleDash.wav", L"PlayerDash");
     AudioBuffer* playerJump = al->LoadAudio(L"../Vendor/Resources/Audio/femaleJump.wav", L"PlayerJump");
+	AudioBuffer* ambientSound = al->LoadAudio(L"../Vendor/Resources/Audio/dungeon.wav", L"Ambient");
+	ambientSound->SetAudioLoop(0);
+	AudioBuffer* music = al->LoadAudio(L"../Vendor/Resources/Audio/backgroundMusic.wav", L"Music");
+	music->SetAudioLoop(0);
 
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
@@ -255,7 +260,6 @@ Scene* GameScene(SceneManager* sm)
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(500);
     uc = entity->AddComponent<component::UpgradeComponent>();
-    alc = entity->AddComponent<component::Audio3DListenerComponent>();
 
     Player::GetInstance().SetPlayer(entity);
 
@@ -598,6 +602,17 @@ Scene* GameScene(SceneManager* sm)
 		killedEnemiesHolderTexture
 	);
 #pragma endregion
+
+#pragma region backgroundSounds
+	/* ---------------------- Ambient Sound ---------------------- */
+	entity = scene->AddEntity("ambientSound");
+	avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+	avc->AddVoice(L"Ambient");
+
+	/* ---------------------- Background Music ---------------------- */
+	entity = scene->AddEntity("music");
+	avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+	avc->AddVoice(L"Music");
 #pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
@@ -654,6 +669,9 @@ Scene* ShopScene(SceneManager* sm)
     Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+
+	AudioBuffer* music = al->LoadAudio(L"../Vendor/Resources/Audio/shopMusic.wav", L"ShopMusic");
+	music->SetAudioLoop(0);
 
 	Font* arial = al->LoadFontFromFile(L"Arial.fnt");
 
@@ -1035,6 +1053,13 @@ Scene* ShopScene(SceneManager* sm)
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();
 
+#pragma region music
+	/* ---------------------- Music ---------------------- */
+	entity = scene->AddEntity("shopMusic");
+	avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+	avc->AddVoice(L"ShopMusic");
+#pragma endregion
+
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&ShopUpdateScene);
 
@@ -1059,11 +1084,22 @@ void GameInitScene(Scene* scene)
         fact->AddSpawnPoint(spawnPoints[i]);
     }
 
+	Entity* entity = scene->GetEntity("ambientSound");
+	component::Audio2DVoiceComponent* avc = entity->GetComponent<component::Audio2DVoiceComponent>();
+	avc->Play(L"Ambient");
+	entity = scene->GetEntity("music");
+	avc = entity->GetComponent<component::Audio2DVoiceComponent>();
+	avc->Play(L"Music");
+
     AssetLoader::Get()->RemoveWalls();
 }
 
 void ShopInitScene(Scene* scene)
 {
+	Entity* entity = scene->GetEntity("shopMusic");
+	component::Audio2DVoiceComponent* avc = entity->GetComponent<component::Audio2DVoiceComponent>();
+	avc->Play(L"ShopMusic");
+
     ParticleInit();
 }
 
