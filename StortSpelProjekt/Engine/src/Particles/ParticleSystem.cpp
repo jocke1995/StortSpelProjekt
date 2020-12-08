@@ -30,12 +30,12 @@ ParticleSystem::~ParticleSystem()
 {
 }
 
-void ParticleSystem::Update(double dt)
+void ParticleSystem::RenderUpdate(double dt)
 {
 	Renderer& renderer = Renderer::GetInstance();
 	for(ParticleEffect* effect : m_ActiveParticleEffects)
 	{
-		effect->Update(dt);
+		effect->RenderUpdate(dt);
 		effect->updateResourceData(renderer.m_pScenePrimaryCamera->GetPositionFloat3());
 	}
 }

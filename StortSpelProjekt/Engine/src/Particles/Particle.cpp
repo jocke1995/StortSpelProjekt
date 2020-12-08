@@ -9,7 +9,7 @@ Particle::~Particle()
 {
 }
 
-void Particle::Update(double dt)
+void Particle::RenderUpdate(double dt)
 {
 	changeVelocity(dt);
 

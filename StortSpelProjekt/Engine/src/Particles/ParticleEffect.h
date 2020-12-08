@@ -60,7 +60,7 @@ public:
 	ParticleEffect(Entity* parent, ParticleEffectSettings* settings);
 	~ParticleEffect();
 
-	void Update(double dt);
+	void RenderUpdate(double dt);
 
 	void SetIsSpawning(bool value);
 	void Clear();

@@ -113,7 +113,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         
 
         sceneManager->RenderUpdate(timer->GetDeltaTime());
-        particleSystem->Update(timer->GetDeltaTime());
+        particleSystem->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             logicTimer = 0;

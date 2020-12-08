@@ -2743,11 +2743,10 @@ void Renderer::submitUploadPerFrameData()
 
 void Renderer::toggleFullscreen(WindowChange* evnt)
 {
-	m_FenceFrameValue++;
-	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
-
 	// Wait for all frames
-	waitForFrame(0);
+	//waitForFrame(0);
+
+	waitForGPU();
 
 	// Wait for the threads which records the commandlists to complete
 	m_pThreadPool->WaitForThreads(FLAG_THREAD::ALL);

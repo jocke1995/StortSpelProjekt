@@ -19,7 +19,7 @@ public:
 	Particle();
 	~Particle();
 
-	void Update(double dt);
+	void RenderUpdate(double dt);
 
 	bool IsAlive();
 

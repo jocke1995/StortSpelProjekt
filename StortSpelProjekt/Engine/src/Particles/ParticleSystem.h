@@ -17,7 +17,7 @@ public:
 	static ParticleSystem& GetInstance();
 	~ParticleSystem();
 
-	void Update(double dt);
+	void RenderUpdate(double dt);
 
 	void ActivateParticleEffect(ParticleEffect* effect);
 	void DeactivateParticleEffect(ParticleEffect* effect);

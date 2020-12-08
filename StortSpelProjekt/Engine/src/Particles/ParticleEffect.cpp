@@ -50,7 +50,7 @@ ParticleEffect::~ParticleEffect()
 	delete m_pSRV;
 }
 
-void ParticleEffect::Update(double dt)
+void ParticleEffect::RenderUpdate(double dt)
 {
 	m_TimeSinceSpawn += dt;
 
@@ -72,7 +72,7 @@ void ParticleEffect::Update(double dt)
 		// Only update if alive
 		if (particle.IsAlive())
 		{
-			particle.Update(dt);
+			particle.RenderUpdate(dt);
 		}
 	}
 }

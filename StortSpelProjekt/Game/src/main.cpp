@@ -68,20 +68,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     Scene* mainMenuScene = MainMenuHandler::GetInstance().CreateScene(sceneManager);
     sceneManager->SetScene(mainMenuScene);
     sceneManager->SetGameOverScene(gameOverScene);
-    GameNetwork gameNetwork;
 
     /*-------- UpgradeGUI ---------*/
     UpgradeGUI::GetInstance().Init();
 
-    /*------ Network Init -----*/
 
-    if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
-    {
-        gameNetwork.SetScene(sceneManager->GetActiveScene());
-        gameNetwork.SetSceneManager(sceneManager);
-        gameNetwork.SetEnemies(EnemyFactory::GetInstance().GetAllEnemies());
-    }
-    double networkTimer = 0;
+
     double logicTimer = 0;
     int count = 0;
 
@@ -93,6 +85,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         timer->Update();
         logicTimer += timer->GetDeltaTime();
 
+        /* ------ Events ------ */
+        sceneManager->RemoveEntities();
+
         bool changedScene = sceneManager->ChangeScene();
         if(changedScene)
         {
@@ -101,14 +96,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             timer->Update();
         }
 
-        
-        if (gameNetwork.IsConnected())
-        {
-            networkTimer += timer->GetDeltaTime();
-        }
+        /* --------------------- */
 
         sceneManager->RenderUpdate(timer->GetDeltaTime());
-        particleSystem->Update(timer->GetDeltaTime());
+        particleSystem->RenderUpdate(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
         {
             if (logicTimer >= 0.5)
@@ -126,16 +117,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
 
-        /* ---- Network ---- */
-        if (gameNetwork.IsConnected())
-        {
-            if (networkTimer >= networkUpdateRate) 
-			{
-                networkTimer = 0;
-
-                gameNetwork.Update(networkUpdateRate);
-            }
-        }
 
         /* ------ Sort ------ */
         renderer->SortObjects();
@@ -143,7 +124,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         /* ------ Draw ------ */
         renderer->Execute();
 
-        sceneManager->RemoveEntities();
+        
     }
     return 0;
 }
