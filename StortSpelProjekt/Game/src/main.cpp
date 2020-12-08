@@ -33,7 +33,6 @@ void ShopUpdateScene(SceneManager* sm, double dt);
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	//Cryptor::EncryptBinary(Cryptor::GetGlobalKey(), "../Vendor/Resources/Audio/shopMusic.wav");
     //Cryptor::Encrypt(Cryptor::GetGlobalKey(), "../Vendor/Resources/Fonts/MedievalSharp.fnt");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
