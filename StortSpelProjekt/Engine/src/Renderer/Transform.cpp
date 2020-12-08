@@ -36,6 +36,7 @@ void Transform::SetPosition(float x, float y, float z)
 void Transform::SetPosition(DirectX::XMFLOAT3 pos)
 {
 	m_Position = pos;
+	m_OldPosition = m_Position;
 	m_RenderPosition = pos;
 }
 
@@ -126,6 +127,15 @@ void Transform::IncreaseScaleByPercent(float scale)
 	m_Scale.z += m_Scale.z * scale;
 }
 
+void Transform::UpdateLogicWorldMatrix()
+{
+	DirectX::XMMATRIX posMat = DirectX::XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+	DirectX::XMMATRIX sclMat = DirectX::XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
+	DirectX::XMMATRIX rotMat = m_RotationMat;
+
+	m_LogicWorldMat = sclMat * rotMat * posMat;
+}
+
 void Transform::UpdateWorldMatrix()
 {
 	DirectX::XMMATRIX posMat = DirectX::XMMatrixTranslation(m_RenderPosition.x, m_RenderPosition.y, m_RenderPosition.z);
@@ -136,6 +146,11 @@ void Transform::UpdateWorldMatrix()
 
 	// Update transposed world matrix
 	m_WorldMatTransposed = DirectX::XMMatrixTranspose(m_WorldMat);
+}
+
+DirectX::XMMATRIX* Transform::GetLogicWorldMatrix()
+{
+	return &m_LogicWorldMat;
 }
 
 DirectX::XMMATRIX* Transform::GetWorldMatrix()
