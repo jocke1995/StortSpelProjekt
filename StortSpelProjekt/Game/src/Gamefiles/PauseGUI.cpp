@@ -13,6 +13,12 @@
 #include "Components/UpgradeComponents/UpgradeComponent.h"
 #include "Misc/GUI2DElements/Font.h"
 
+void onReturnToGame(const std::string& name);
+// Declared in "GameOverHandler.cpp"
+void onMainMenu(const std::string& name);
+// Declared in "MainMenuHandler.cpp"
+void onExit(const std::string& name);
+
 PauseGUI::PauseGUI()
 {
 
@@ -126,7 +132,12 @@ void PauseGUI::Update(double dt, Scene* scene)
 			m_CurrentDescription = "";
 		}
 
+		// Remove pause menu
 		m_pSm->RemoveEntity(scene->GetEntity("PauseOverlay"), scene);
+		m_pSm->RemoveEntity(scene->GetEntity("ReturnToGameQuad"), scene);
+		m_pSm->RemoveEntity(scene->GetEntity("MainMenuQuad"), scene);
+		m_pSm->RemoveEntity(scene->GetEntity("ExitQuad"), scene);
+
 		// Delete the Upgrade Buttons
 		for (int i = 0; i < m_ButtonNames.size(); i++)
 		{
@@ -163,7 +174,8 @@ void PauseGUI::CreateMenu(Scene* scene)
 	float2 quadScale;
 	float4 blended;
 	float4 notBlended;
-	/* ------------------------- Upgrade Menu --------------------------- */
+
+	/* ------------------------- Pause Menu ----------------------------- */
 
 	entity = scene->AddEntity("PauseOverlay");
 	if (entity != nullptr)
@@ -184,10 +196,51 @@ void PauseGUI::CreateMenu(Scene* scene)
 		entity->Update(0);
 	}
 
+	entity = scene->AddEntity("ReturnToGameQuad");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetQuadManager()->CreateQuad(
+		"ReturnToGameOption",
+		{ 0.1f, 0.1f }, { m_pReturnToGameTex->GetWidth() / 1920.0f, m_pReturnToGameTex->GetHeight() / 1080.0f },
+		true, true,
+		3,
+		notBlended,
+		m_pReturnToGameTex);
+	gui->GetQuadManager()->SetOnClicked(&onReturnToGame);
+	scene->InitDynamicEntity(entity);
+	entity->Update(0);
+
+	entity = scene->AddEntity("MainMenuQuad");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetQuadManager()->CreateQuad(
+		"MainMenuOption",
+		{ 0.1f, 0.3f }, { m_pMainMenuTex->GetWidth() / 1920.0f, m_pMainMenuTex->GetHeight() / 1080.0f },
+		true, true,
+		3,
+		notBlended,
+		m_pMainMenuTex);
+	gui->GetQuadManager()->SetOnClicked(&onMainMenu);
+	scene->InitDynamicEntity(entity);
+	entity->Update(0);
+
+	entity = scene->AddEntity("ExitQuad");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetQuadManager()->CreateQuad(
+		"ExitOption",
+		{ 0.1f, 0.5f }, { m_pExitTex->GetWidth() / 1920.0f, m_pExitTex->GetHeight() / 1080.0f },
+		true, true,
+		3,
+		notBlended,
+		m_pExitTex);
+	gui->GetQuadManager()->SetOnClicked(&onExit);
+	scene->InitDynamicEntity(entity);
+	entity->Update(0);
+
+	/* ------------------------- Upgrade Menu --------------------------- */
+
 	/* ------------------------- Upgrade Menu Background --------------------------- */
 
 	textToRender = "Bought Upgrades            Upgrade Description";
-	textPos = { 0.55f, 0.095f };
+	textPos = { 0.55f, 0.265f };
 	textPadding = { 0.5f, 0.0f };
 	textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	textScale = { 0.5f, 0.5f };
@@ -207,7 +260,7 @@ void PauseGUI::CreateMenu(Scene* scene)
 		gui->GetTextManager()->SetText(textToRender, "UpgradeMenuBackground");
 		gui->GetTextManager()->SetBlend(textBlend, "UpgradeMenuBackground");
 
-		quadPos = { 0.51f, 0.08f };
+		quadPos = { 0.51f, 0.24f };
 		quadScale = { 0.5f, 0.6f };
 		blended = { 1.0, 1.0, 1.0, 1.0 };
 		notBlended = { 1.0, 1.0, 1.0, 1.0 };
@@ -302,6 +355,9 @@ void PauseGUI::Init()
 	m_pButtonParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_hor.png");
 	m_pDescriptionParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_vert.png");
 	m_pPauseOverlayTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/PauseOverlay.png");
+	m_pReturnToGameTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/ReturnToGame.png");
+	m_pMainMenuTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/MainMenu.png");
+	m_pExitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Exit.png");
 
 	m_pFont = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
@@ -488,4 +544,10 @@ void PauseGUI::updateDescription(int level)
 
 	m_pCurrentScene->InitDynamicEntity(entity);
 	entity->Update(0);
+}
+
+void onReturnToGame(const std::string& name)
+{
+	Input::GetInstance().SetKeyState(SCAN_CODES::ESCAPE, true);
+	Input::GetInstance().SetKeyState(SCAN_CODES::ESCAPE, false);
 }
