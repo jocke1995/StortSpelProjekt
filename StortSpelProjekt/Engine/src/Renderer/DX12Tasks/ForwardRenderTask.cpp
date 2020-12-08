@@ -147,7 +147,7 @@ void ForwardRenderTask::drawRenderComponent(
 {
 	// Bad solution, but need to get it working fast
 	component::AnimationComponent* ac = mc->GetParent()->GetComponent<component::AnimationComponent>();
-	if (ac != nullptr)	// Its to be animated! 
+	if (false)	// Its to be animated! 
 	{
 		// Draw for every m_pMesh the meshComponent has
 		for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
