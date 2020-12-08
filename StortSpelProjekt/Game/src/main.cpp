@@ -14,7 +14,7 @@
 #include "Components/UpgradeComponents/UpgradeComponent.h"
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
-#include "UpgradeGUI.h"
+#include "PauseGUI.h"
 
 #include "Misc/Edge.h"
 
@@ -33,10 +33,7 @@ void ShopUpdateScene(SceneManager* sm, double dt);
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //Cryptor::DecryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/CastleFloor");
-    //Cryptor::DecryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/StoneWallParts/Wall");
-    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/CastleFloor");
-    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/StoneWallParts/Wall");
+    //Cryptor::Encrypt(Cryptor::GetGlobalKey(), "../Vendor/Resources/Fonts/MedievalSharp.fnt");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -72,7 +69,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     GameNetwork gameNetwork;
 
     /*-------- UpgradeGUI ---------*/
-    UpgradeGUI::GetInstance().Init();
+    PauseGUI::GetInstance().Init();
 
     /*------ Network Init -----*/
 
@@ -92,7 +89,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     {
         /* ------ Update ------ */
         timer->Update();
-        logicTimer += timer->GetDeltaTime();
 
         bool changedScene = sceneManager->ChangeScene();
         if(changedScene)
@@ -108,23 +104,38 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             networkTimer += timer->GetDeltaTime();
         }
 
-        sceneManager->RenderUpdate(timer->GetDeltaTime());
-        particleSystem->Update(timer->GetDeltaTime());
-        if (logicTimer >= updateRate)
+        if (!Input::GetInstance().IsPaused())
         {
-            if (logicTimer >= 0.5)
+            logicTimer += timer->GetDeltaTime();
+            sceneManager->RenderUpdate(timer->GetDeltaTime());
+            particleSystem->Update(timer->GetDeltaTime());
+            if (logicTimer >= updateRate)
             {
-                logicTimer = 0;
+                if (logicTimer >= 0.5)
+                {
+                    logicTimer = 0;
+                }
+                else
+                {
+                    logicTimer -= updateRate;
+                }
+                EnemyFactory::GetInstance().Update(updateRate);
+                sceneManager->Update(updateRate);
+                physics->Update(updateRate);
+                GameGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
+                PauseGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
             }
-            else
+        }
+        else
+        {
+            PauseGUI::GetInstance().Update(timer->GetDeltaTime(), sceneManager->GetActiveScene());
+
+            /* ------ ImGui ------*/
+            if (DEVELOPERMODE_DEVINTERFACE == true)
             {
-                logicTimer -= updateRate;
+                ImGuiHandler::GetInstance().NewFrame();
+                ImGuiHandler::GetInstance().UpdateFrame();
             }
-            EnemyFactory::GetInstance().Update(updateRate);
-            sceneManager->Update(updateRate);
-            physics->Update(updateRate);
-            GameGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
-            UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
 
         /* ---- Network ---- */
@@ -153,8 +164,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 Scene* LoadScene(SceneManager* sm)
 {
     Scene* scene = sm->CreateScene("LoadScene");
-    std::vector<float3> spawnPoints;
-    AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, false);
+    AssetLoader::Get()->LoadAllMaps(scene, "../Vendor/Resources/Rooms");
     return scene;
 }
 
@@ -212,7 +222,7 @@ Scene* GameScene(SceneManager* sm)
 	Texture* crosshairTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Crosshair.png");
 	Texture* killedEnemiesHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/KilledEnemies.png");
 
-	Font* arial = al->LoadFontFromFile(L"Arial.fnt");
+	Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
 #pragma endregion
 
@@ -444,7 +454,7 @@ Scene* GameScene(SceneManager* sm)
 
 	entity = scene->AddEntity("healthBackground");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(arial);
+	gui->GetTextManager()->SetFont(font);
 	gui->GetTextManager()->AddText("currentHealth");
 	gui->GetTextManager()->SetColor(textColor, "currentHealth");
 	gui->GetTextManager()->SetPadding(textPadding, "currentHealth");
@@ -552,7 +562,7 @@ Scene* GameScene(SceneManager* sm)
 
     entity = scene->AddEntity("money");
     gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(arial);
+	gui->GetTextManager()->SetFont(font);
     gui->GetTextManager()->AddText("money");
     gui->GetTextManager()->SetColor(textColor, "money");
     gui->GetTextManager()->SetPadding(textPadding, "money");
@@ -588,7 +598,7 @@ Scene* GameScene(SceneManager* sm)
 
     entity = scene->AddEntity("enemyGui");
     gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(arial);
+	gui->GetTextManager()->SetFont(font);
     gui->GetTextManager()->AddText("enemyGui");
     gui->GetTextManager()->SetColor(textColor, "enemyGui");
     gui->GetTextManager()->SetPadding(textPadding, "enemyGui");
@@ -667,7 +677,7 @@ Scene* ShopScene(SceneManager* sm)
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
-	Font* arial = al->LoadFontFromFile(L"Arial.fnt");
+	Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
 #pragma region player
     std::string playerName = "player";
@@ -783,7 +793,7 @@ Scene* ShopScene(SceneManager* sm)
 
 	entity = scene->AddEntity("healthBackground");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(arial);
+	gui->GetTextManager()->SetFont(font);
 	gui->GetTextManager()->AddText("currentHealth");
 	gui->GetTextManager()->SetColor(textColor, "currentHealth");
 	gui->GetTextManager()->SetPadding(textPadding, "currentHealth");
@@ -891,7 +901,7 @@ Scene* ShopScene(SceneManager* sm)
 
     entity = scene->AddEntity("money");
     gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(arial);
+	gui->GetTextManager()->SetFont(font);
     gui->GetTextManager()->AddText("money");
     gui->GetTextManager()->SetColor(textColor, "money");
     gui->GetTextManager()->SetPadding(textPadding, "money");

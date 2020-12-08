@@ -1,4 +1,4 @@
-#include "UpgradeGUI.h"
+#include "PauseGUI.h"
 #include "EngineMath.h"
 #include "ECS/Entity.h"
 #include "ECS/Components/GUI2DComponent.h"
@@ -13,24 +13,24 @@
 #include "Components/UpgradeComponents/UpgradeComponent.h"
 #include "Misc/GUI2DElements/Font.h"
 
-UpgradeGUI::UpgradeGUI()
+PauseGUI::PauseGUI()
 {
 
 }
 
-UpgradeGUI& UpgradeGUI::GetInstance()
+PauseGUI& PauseGUI::GetInstance()
 {
-	static UpgradeGUI instance;
+	static PauseGUI instance;
 	return instance;
 }
 
-UpgradeGUI::~UpgradeGUI()
+PauseGUI::~PauseGUI()
 {
-	EventBus::GetInstance().Unsubscribe(this, &UpgradeGUI::showMenu);
-	EventBus::GetInstance().Unsubscribe(this, &UpgradeGUI::getButtonPress);
+	EventBus::GetInstance().Unsubscribe(this, &PauseGUI::showMenu);
+	EventBus::GetInstance().Unsubscribe(this, &PauseGUI::getButtonPress);
 }
 
-void UpgradeGUI::Update(double dt, Scene* scene)
+void PauseGUI::Update(double dt, Scene* scene)
 {
 	// If we are not in game or shop scene then we should not show this menu. 
 	// Thinking this might change depending on if this will be shown in the pause menu later.
@@ -125,6 +125,8 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 			m_pSm->RemoveEntity(scene->GetEntity("Description"), scene);
 			m_CurrentDescription = "";
 		}
+
+		m_pSm->RemoveEntity(scene->GetEntity("PauseOverlay"), scene);
 		// Delete the Upgrade Buttons
 		for (int i = 0; i < m_ButtonNames.size(); i++)
 		{
@@ -142,7 +144,7 @@ void UpgradeGUI::Update(double dt, Scene* scene)
 
 }
 
-void UpgradeGUI::CreateMenu(Scene* scene)
+void PauseGUI::CreateMenu(Scene* scene)
 {
 	m_pCurrentScene = scene;
 	// Get this so we know which upgrades the player has.
@@ -163,6 +165,25 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 	float4 notBlended;
 	/* ------------------------- Upgrade Menu --------------------------- */
 
+	entity = scene->AddEntity("PauseOverlay");
+	if (entity != nullptr)
+	{
+		gui = entity->AddComponent<component::GUI2DComponent>();
+		quadPos = { 0.0f, 0.0f };
+		quadScale = { 120.0f, 67.5f };
+		blended = { 1.0, 1.0, 1.0, 1.0 };
+		notBlended = { 1.0, 1.0, 1.0, 1.0 };
+		gui->GetQuadManager()->CreateQuad(
+			"PauseOverlay",
+			quadPos, quadScale,
+			false, false,
+			3,
+			notBlended,
+			m_pPauseOverlayTexture, { 0.4, 0.4, 0.4 });
+		scene->InitDynamicEntity(entity);
+		entity->Update(0);
+	}
+
 	/* ------------------------- Upgrade Menu Background --------------------------- */
 
 	textToRender = "Bought Upgrades            Upgrade Description";
@@ -177,7 +198,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 	if (entity != nullptr)
 	{
 		gui = entity->AddComponent<component::GUI2DComponent>();
-		gui->GetTextManager()->SetFont(m_pArial);
+		gui->GetTextManager()->SetFont(m_pFont);
 		gui->GetTextManager()->AddText("UpgradeMenuBackground");
 		gui->GetTextManager()->SetColor(textColor, "UpgradeMenuBackground");
 		gui->GetTextManager()->SetPadding(textPadding, "UpgradeMenuBackground");
@@ -228,7 +249,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 		if (m_ButtonsMultipleTen > 0)
 		{
 			textToRender = "Next";
-			textPos = { 0.548f, m_ButtonPos.y + (m_ButtonYOffset * 10) };
+			textPos = { m_ButtonPos.x + 0.025f, m_ButtonPos.y + (m_ButtonYOffset * 10) };
 			textPadding = { 0.5f, 0.0f };
 			textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 			textScale = { 0.5f, 0.5f };
@@ -236,7 +257,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 
 			entity = scene->AddEntity("NextButton");
 			gui = entity->AddComponent<component::GUI2DComponent>();
-			gui->GetTextManager()->SetFont(m_pArial);
+			gui->GetTextManager()->SetFont(m_pFont);
 			gui->GetTextManager()->AddText("NextButton");
 			gui->GetTextManager()->SetColor(textColor, "NextButton");
 			gui->GetTextManager()->SetPadding(textPadding, "NextButton");
@@ -246,7 +267,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 			gui->GetTextManager()->SetBlend(textBlend, "NextButton");
 
 
-			quadPos = { 0.48f, m_ButtonPos.y + (m_ButtonYOffset * 10) };//{ 0.47f, 0.202f };
+			quadPos = { m_ButtonPos.x, m_ButtonPos.y + (m_ButtonYOffset * 10) };//{ 0.47f, 0.202f };
 			quadScale = { 0.15f, 0.04f };
 			blended = { 1.0, 1.0, 1.0, 1.0 };
 			notBlended = { 1.0, 1.0, 1.0, 1.0 };
@@ -272,7 +293,7 @@ void UpgradeGUI::CreateMenu(Scene* scene)
 	
 }
 
-void UpgradeGUI::Init()
+void PauseGUI::Init()
 {
 	AssetLoader* al = AssetLoader::Get();
 
@@ -280,35 +301,36 @@ void UpgradeGUI::Init()
 	m_pBoardBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/board2.png");
 	m_pButtonParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_hor.png");
 	m_pDescriptionParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_vert.png");
+	m_pPauseOverlayTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/PauseOverlay.png");
 
-	m_pArial = al->LoadFontFromFile(L"Arial.fnt");
+	m_pFont = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
 	// Subscribe to events
-	EventBus::GetInstance().Subscribe(this, &UpgradeGUI::showMenu);
-	EventBus::GetInstance().Subscribe(this, &UpgradeGUI::getButtonPress);
+	EventBus::GetInstance().Subscribe(this, &PauseGUI::showMenu);
+	EventBus::GetInstance().Subscribe(this, &PauseGUI::getButtonPress);
 }
 
-void UpgradeGUI::SetCurrentScene(Scene* scene)
+void PauseGUI::SetCurrentScene(Scene* scene)
 {
 	m_pCurrentScene = scene;
 }
 
-void UpgradeGUI::SetSceneMan(SceneManager* sceneManager)
+void PauseGUI::SetSceneMan(SceneManager* sceneManager)
 {
 	m_pSm = sceneManager;
 }
 
-void UpgradeGUI::SetShown(bool shown)
+void PauseGUI::SetShown(bool shown)
 {
 	m_Shown = shown;
 }
 
-void UpgradeGUI::showMenu(UForUpgrade* keyPress)
+void PauseGUI::showMenu(PauseGame* keyPress)
 {
 	m_Shown = !m_Shown;
 }
 
-void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
+void PauseGUI::makeUpgradeButton(float2 pos, std::string name)
 {
 	Entity* entity = nullptr;
 	component::GUI2DComponent* gui = nullptr;
@@ -338,7 +360,7 @@ void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
 
 	entity = m_pCurrentScene->AddEntity(name);
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(m_pArial);
+	gui->GetTextManager()->SetFont(m_pFont);
 	gui->GetTextManager()->AddText(name);
 	gui->GetTextManager()->SetColor(textColor, name);
 	gui->GetTextManager()->SetPadding(textPadding, name);
@@ -364,7 +386,7 @@ void UpgradeGUI::makeUpgradeButton(float2 pos, std::string name)
 
 }
 
-void UpgradeGUI::getButtonPress(ButtonPressed* event)
+void PauseGUI::getButtonPress(ButtonPressed* event)
 {
 	std::string upgradePartOfName = event->name.substr(0, 7);
 	// Checking if the button that was pressed is an upgrade.
@@ -387,7 +409,7 @@ void UpgradeGUI::getButtonPress(ButtonPressed* event)
 	}
 }
 
-void UpgradeGUI::updateDescription(int level)
+void PauseGUI::updateDescription(int level)
 {
 	Entity* entity = nullptr;
 	component::GUI2DComponent* gui = nullptr;
@@ -443,7 +465,7 @@ void UpgradeGUI::updateDescription(int level)
 
 	entity = m_pCurrentScene->AddEntity(name);
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(m_pArial);
+	gui->GetTextManager()->SetFont(m_pFont);
 	gui->GetTextManager()->AddText(name);
 	gui->GetTextManager()->SetColor(textColor, name);
 	gui->GetTextManager()->SetPadding(textPadding, name);

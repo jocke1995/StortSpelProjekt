@@ -1,0 +1,16 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl Hans_Banners
+Ns 179.999996
+Ka 1.000000 1.000000 1.000000
+Kd 0.215861 0.215861 0.215861
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd albedo.DDS
+map_Ka metallic.DDS
+map_Ks roughness.DDS
+map_Kn normal.DDS

@@ -143,9 +143,6 @@ bool SceneManager::ChangeScene()
 
 		m_ChangeSceneNextFrame = false;
 
-		// Change the player back to its original position
-		SetScene(scene);
-		m_ChangeSceneNextFrame = false;
 		changedScene = true;
 	}
 

@@ -418,7 +418,7 @@ Submit Model
 
 // SKYBOX ----------------------------------------------
 Name Skybox
-ModelPath Textures/CubeMaps/skymap.dds
+ModelPath Textures/CubeMaps/skymap_outside.dds
 Submit Skybox
 
 // WoodenRamp ----------------------------------------------
