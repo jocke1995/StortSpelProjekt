@@ -79,7 +79,7 @@ namespace component
 		double m_DashTimer;
 		bool m_DashReady;
 		bool m_Dashing;
-		unsigned char m_IsMoving = false;
+		unsigned char m_WasMoving = false;
 		bool m_MovementStateChanged = false;
 
 		// Is used to determine if the player is attacking, and should be turned in the camera direction, or if she should turn in the direction she is moving
