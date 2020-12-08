@@ -117,7 +117,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	// This code is for running the correct animation (Movement animation or Idle animation) 
 	if (m_MovementStateChanged)
 	{
-		if (m_IsMoving)
+		if (m_WasMoving)
 		{
 			m_MovementStateChanged = !m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Run", true);
 		}
@@ -351,13 +351,14 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		bool dash = (evnt->key == SCAN_CODES::LEFT_SHIFT || evnt->key == SCAN_CODES::RIGHT_SHIFT) && evnt->pressed;
 
 		// This code is used to know if the animation should be changed to the move animation or the idle animation
-		unsigned char isCurrentlyMoving =	Input::GetInstance().GetKeyState(SCAN_CODES::W) +
-											Input::GetInstance().GetKeyState(SCAN_CODES::A) +
-											Input::GetInstance().GetKeyState(SCAN_CODES::S) +
-											Input::GetInstance().GetKeyState(SCAN_CODES::D);
-		if ((!isCurrentlyMoving && m_IsMoving) || (!m_IsMoving && isCurrentlyMoving))
+		unsigned char isMoving = 
+										abs(	Input::GetInstance().GetKeyState(SCAN_CODES::W) -
+												Input::GetInstance().GetKeyState(SCAN_CODES::S)) +
+										abs(	Input::GetInstance().GetKeyState(SCAN_CODES::A) -
+												Input::GetInstance().GetKeyState(SCAN_CODES::D));
+		if ((!isMoving && m_WasMoving) || (!m_WasMoving && isMoving))
 		{
-			m_IsMoving = isCurrentlyMoving;
+			m_WasMoving = isMoving;
 			m_MovementStateChanged = true;
 		}
 
