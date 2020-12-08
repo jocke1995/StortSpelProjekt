@@ -52,6 +52,8 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 
 	m_TurningTimer = 0.0f;
 	m_TurningInterval = 0.0f;
+
+	m_Jump = false;
 }
 
 component::PlayerInputComponent::~PlayerInputComponent()
