@@ -240,6 +240,12 @@ void component::AnimationComponent::initialize(ID3D12Device5* device5, Descripto
 			Reset();
 			bindAnimation(m_pSkeleton);
 
+
+
+			m_DefaultResourceVertices.clear();
+			m_SRVs.clear();
+			m_pUAVs.clear();
+
 			// Create the hackMeshes
 			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
 			{
