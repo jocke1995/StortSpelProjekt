@@ -13,7 +13,6 @@
 #include "../ECS/SceneManager.h"
 #include "../Renderer/Transform.h"
 #include "../ECS//Components/TemporaryLifeComponent.h"
-#include "../Player.h"
 
 
 component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
