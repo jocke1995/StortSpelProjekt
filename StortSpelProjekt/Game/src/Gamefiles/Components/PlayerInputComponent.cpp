@@ -41,6 +41,8 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_Attacking = false;
 	m_TurnToCamera = false;
 	m_CameraRotating = false;
+	m_Attack = false;
+	m_AttackNext = false;
 
 	m_Elevation = std::stof(Option::GetInstance().GetVariable("f_playerElevation"));
 
@@ -140,6 +142,20 @@ void component::PlayerInputComponent::Update(double dt)
 	}
 
 	updateCameraDirection();
+
+	if (m_Attacking)
+	{
+		if (m_AttackNext)
+		{
+			m_pParent->GetComponent<component::MeleeComponent>()->Attack();
+			m_AttackNext = false;
+		}
+		if (m_Attack)
+		{
+			m_Attack = false;
+			m_AttackNext = true;
+		}
+	}
 }
 
 void component::PlayerInputComponent::RenderUpdate(double dt)
@@ -245,6 +261,7 @@ void component::PlayerInputComponent::SetAngleToTurnTo(int angle)
 void component::PlayerInputComponent::SetAttacking()
 {
 	m_Attacking = true;
+	m_Attack = true;
 	m_TurningTimer = 0.0f;
 }
 
@@ -574,7 +591,7 @@ void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 	{
 		switch (evnt->button) {
 		case MOUSE_BUTTON::LEFT_DOWN:
-			m_pParent->GetComponent<component::MeleeComponent>()->Attack();
+			SetAttacking();
 			break;
 		case MOUSE_BUTTON::RIGHT_DOWN:
 			m_pParent->GetComponent<component::RangeComponent>()->Attack();
