@@ -120,18 +120,6 @@ void component::AnimationComponent::OnUnInitScene()
 {
 	Renderer::GetInstance().UnInitAnimationComponent(this);
 	Reset();
-
-	// Maybe wrong place
-	for (unsigned int i = 0; i < m_DefaultResourceVertices.size(); i++)
-	{
-		delete m_DefaultResourceVertices[i];
-		delete m_SRVs[i];
-		delete m_pUAVs[i];
-
-		m_DefaultResourceVertices[i] = nullptr;
-		m_SRVs[i] = nullptr;
-		m_pUAVs[i] = nullptr;
-	}
 }
 
 void component::AnimationComponent::Reset()
@@ -157,6 +145,16 @@ void component::AnimationComponent::Reset()
 	{
 		m_UploadMatrices.push_back(matIdentity);
 	}
+
+	for (unsigned int i = 0; i < m_DefaultResourceVertices.size(); i++)
+	{
+		delete m_DefaultResourceVertices[i];
+		delete m_SRVs[i];
+		delete m_pUAVs[i];
+	}
+	m_DefaultResourceVertices.clear();
+	m_SRVs.clear();
+	m_pUAVs.clear();
 
 	// Run the default animation.
 	for (auto& animation : m_Animations)
@@ -261,7 +259,6 @@ void component::AnimationComponent::initialize(ID3D12Device5* device5, Descripto
 
 
 				// Create uavs
-
 				D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 				uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 				uavDesc.Buffer.FirstElement = 0;

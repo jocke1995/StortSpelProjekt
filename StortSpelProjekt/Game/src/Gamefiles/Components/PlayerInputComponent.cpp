@@ -351,10 +351,11 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		bool dash = (evnt->key == SCAN_CODES::LEFT_SHIFT || evnt->key == SCAN_CODES::RIGHT_SHIFT) && evnt->pressed;
 
 		// This code is used to know if the animation should be changed to the move animation or the idle animation
-		unsigned char isCurrentlyMoving =	Input::GetInstance().GetKeyState(SCAN_CODES::W) +
-											Input::GetInstance().GetKeyState(SCAN_CODES::A) +
-											Input::GetInstance().GetKeyState(SCAN_CODES::S) +
-											Input::GetInstance().GetKeyState(SCAN_CODES::D);
+		unsigned char isCurrentlyMoving = 
+										abs(	Input::GetInstance().GetKeyState(SCAN_CODES::W) -
+												Input::GetInstance().GetKeyState(SCAN_CODES::S)) +
+										abs(	Input::GetInstance().GetKeyState(SCAN_CODES::A) -
+												Input::GetInstance().GetKeyState(SCAN_CODES::D));
 		if ((!isCurrentlyMoving && m_IsMoving) || (!m_IsMoving && isCurrentlyMoving))
 		{
 			m_IsMoving = isCurrentlyMoving;
