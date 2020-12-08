@@ -10,6 +10,8 @@
 class AudioVoice;
 class Transform;
 
+struct PauseGame;
+
 // struct that holds all data needed for separate sounds
 struct EmitterData
 {
@@ -48,6 +50,9 @@ namespace component
 	private:
 		std::map<std::wstring, EmitterData> m_VoiceEmitterData;
 		Transform* m_pTransform = nullptr;
+
+		std::map<std::wstring, bool> m_WasPlaying;
+		void pauseToggleAudio(PauseGame* evnt);
 	};
 }
 

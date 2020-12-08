@@ -74,21 +74,9 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			}
 		}
 	}
-
-	else if (key == SCAN_CODES::U)
-	{
-		if (justPressed)
-		{
-			Scene* scene = SceneManager::GetInstance().GetActiveScene();
-			if (scene->GetName() != "ShopScene")
-			{
-				EventBus::GetInstance().Publish(&UForUpgrade());
-			}
-		}
-	}
 	else if (key == SCAN_CODES::F)
 	{
-		if (justPressed)
+		if (justPressed && !m_IsPaused)
 		{
 			// Check if we are in the ShopScene
 			Scene* scene = SceneManager::GetInstance().GetActiveScene();
@@ -96,6 +84,16 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			{
 				EventBus::GetInstance().Publish(&shopGUIStateChange());
 			}
+		}
+	}
+	else if (key == SCAN_CODES::ESCAPE && justPressed)
+	{
+		Scene* scene = SceneManager::GetInstance().GetActiveScene();
+		if ((scene->GetName() == "ShopScene" && !Player::GetInstance().GetShop()->IsShop2DGUIDisplaying()) || scene->GetName() == "GameScene")
+		{
+			m_IsPaused = !m_IsPaused;
+			EventBus::GetInstance().Publish(&PauseGame(m_IsPaused));
+			ShowCursor(m_IsPaused);
 		}
 	}
 }
@@ -122,7 +120,7 @@ void Input::SetMouseScroll(SHORT scroll)
 void Input::SetMouseMovement(int x, int y)
 {
 	// Disable movement when in Shop2D-GUI state
-	if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == false)
+	if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == false && !m_IsPaused)
 	{
 		EventBus::GetInstance().Publish(&MouseMovement(x, y));
 	}
@@ -138,7 +136,13 @@ bool Input::GetMouseButtonState(MOUSE_BUTTON button)
 	return m_MouseButtonState[button];
 }
 
+bool Input::IsPaused()
+{
+	return m_IsPaused;
+}
+
 Input::Input()
 {
 	m_KeyTimer[SCAN_CODES::W] = m_KeyTimer[SCAN_CODES::A] = m_KeyTimer[SCAN_CODES::S] = m_KeyTimer[SCAN_CODES::D] = m_KeyTimer[SCAN_CODES::SPACE] = std::chrono::system_clock::now();
+	m_IsPaused = false;
 }
