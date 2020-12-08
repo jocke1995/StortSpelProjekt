@@ -138,6 +138,8 @@ void component::PlayerInputComponent::Update(double dt)
 			m_pCC->SetVelVector(move.x * speed, vel.y, move.z * speed);
 		}
 	}
+
+	updateCameraDirection();
 }
 
 void component::PlayerInputComponent::RenderUpdate(double dt)
@@ -149,8 +151,6 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	// Lock camera to player
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
-		updateCameraDirection();
-
 		setCameraToPlayerPosition();
 
 		limitCameraDistance();
@@ -169,10 +169,6 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 			float angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
-	}
-	else
-	{
-		updateCameraDirection();
 	}
 
 	/* ------------------ Increment timers -------------------- */
@@ -574,18 +570,21 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 {
-	switch (evnt->button) {
-	case MOUSE_BUTTON::LEFT_DOWN:
-		m_pParent->GetComponent<component::MeleeComponent>()->Attack();
-		break;
-	case MOUSE_BUTTON::RIGHT_DOWN:
-		m_pParent->GetComponent<component::RangeComponent>()->Attack();
-		if (m_UpdateShootId == -1)
-		{
-			m_UpdateShootId = specificUpdates.size();
-			specificUpdates.push_back(&PlayerInputComponent::updateShoot);
+	if (!Input::GetInstance().IsPaused())
+	{
+		switch (evnt->button) {
+		case MOUSE_BUTTON::LEFT_DOWN:
+			m_pParent->GetComponent<component::MeleeComponent>()->Attack();
+			break;
+		case MOUSE_BUTTON::RIGHT_DOWN:
+			m_pParent->GetComponent<component::RangeComponent>()->Attack();
+			if (m_UpdateShootId == -1)
+			{
+				m_UpdateShootId = specificUpdates.size();
+				specificUpdates.push_back(&PlayerInputComponent::updateShoot);
+			}
+			break;
 		}
-		break;
 	}
 }
 

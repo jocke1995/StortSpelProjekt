@@ -31,7 +31,7 @@ Scene* GameOverHandler::CreateScene(SceneManager* sm)
     TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
     Texture* mainMenuTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/MainMenu.png");
     Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Exit.png");
-	Font* arial = al->LoadFontFromFile(L"Arial.fnt");
+	Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
     component::SkyboxComponent* sbc = nullptr;
     component::GUI2DComponent* guiComp = nullptr;
@@ -51,7 +51,7 @@ Scene* GameOverHandler::CreateScene(SceneManager* sm)
     // Game over Text
     entity = scene->AddEntity("gameOverText");
     guiComp = entity->AddComponent<component::GUI2DComponent>();
-	guiComp->GetTextManager()->SetFont(arial);
+	guiComp->GetTextManager()->SetFont(font);
     guiComp->GetTextManager()->AddText("GameOverText");
     guiComp->GetTextManager()->SetScale({ 2, 2 }, "GameOverText");
     guiComp->GetTextManager()->SetPos({ 0.29, 0.10 }, "GameOverText");
@@ -60,7 +60,7 @@ Scene* GameOverHandler::CreateScene(SceneManager* sm)
     // "You Died"
     entity = scene->AddEntity("youDiedText");
     guiComp = entity->AddComponent<component::GUI2DComponent>();
-    guiComp->GetTextManager()->SetFont(arial);
+    guiComp->GetTextManager()->SetFont(font);
     guiComp->GetTextManager()->AddText("youDiedText");
     guiComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "youDiedText");
     guiComp->GetTextManager()->SetPos({ 0.43, 0.25 }, "youDiedText");
@@ -69,7 +69,7 @@ Scene* GameOverHandler::CreateScene(SceneManager* sm)
     // Rounds Played
     entity = scene->AddEntity("levelPlayed");
     guiComp = entity->AddComponent<component::GUI2DComponent>();
-    guiComp->GetTextManager()->SetFont(arial);
+    guiComp->GetTextManager()->SetFont(font);
     guiComp->GetTextManager()->AddText("levelPlayed");
     guiComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "levelPlayed");
     guiComp->GetTextManager()->SetPos({ 0.405, 0.36 }, "levelPlayed");
@@ -78,7 +78,7 @@ Scene* GameOverHandler::CreateScene(SceneManager* sm)
     // KilledEnemies
     entity = scene->AddEntity("killedEnemies");
     guiComp = entity->AddComponent<component::GUI2DComponent>();
-	guiComp->GetTextManager()->SetFont(arial);
+	guiComp->GetTextManager()->SetFont(font);
     guiComp->GetTextManager()->AddText("killedEnemies");
     guiComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "killedEnemies");
     guiComp->GetTextManager()->SetPos({ 0.405, 0.46 }, "killedEnemies");
@@ -87,7 +87,7 @@ Scene* GameOverHandler::CreateScene(SceneManager* sm)
     // KilledEnemies
     entity = scene->AddEntity("timePlayed");
     guiComp = entity->AddComponent<component::GUI2DComponent>();
-    guiComp->GetTextManager()->SetFont(arial);
+    guiComp->GetTextManager()->SetFont(font);
     guiComp->GetTextManager()->AddText("timePlayed");
     guiComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "timePlayed");
     guiComp->GetTextManager()->SetPos({ 0.405, 0.56 }, "timePlayed");

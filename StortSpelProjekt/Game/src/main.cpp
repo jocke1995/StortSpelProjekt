@@ -14,7 +14,7 @@
 #include "Components/UpgradeComponents/UpgradeComponent.h"
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
-#include "UpgradeGUI.h"
+#include "PauseGUI.h"
 
 #include "Misc/Edge.h"
 
@@ -33,10 +33,7 @@ void ShopUpdateScene(SceneManager* sm, double dt);
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //Cryptor::DecryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/CastleFloor");
-    //Cryptor::DecryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/StoneWallParts/Wall");
-    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/CastleFloor");
-    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/StoneWallParts/Wall");
+    //Cryptor::Encrypt(Cryptor::GetGlobalKey(), "../Vendor/Resources/Fonts/MedievalSharp.fnt");
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -72,7 +69,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     GameNetwork gameNetwork;
 
     /*-------- UpgradeGUI ---------*/
-    UpgradeGUI::GetInstance().Init();
+    PauseGUI::GetInstance().Init();
 
     /*------ Network Init -----*/
 
@@ -92,7 +89,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     {
         /* ------ Update ------ */
         timer->Update();
-        logicTimer += timer->GetDeltaTime();
 
         bool changedScene = sceneManager->ChangeScene();
         if(changedScene)
@@ -108,23 +104,38 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             networkTimer += timer->GetDeltaTime();
         }
 
-        sceneManager->RenderUpdate(timer->GetDeltaTime());
-        particleSystem->Update(timer->GetDeltaTime());
-        if (logicTimer >= updateRate)
+        if (!Input::GetInstance().IsPaused())
         {
-            if (logicTimer >= 0.5)
+            logicTimer += timer->GetDeltaTime();
+            sceneManager->RenderUpdate(timer->GetDeltaTime());
+            particleSystem->Update(timer->GetDeltaTime());
+            if (logicTimer >= updateRate)
             {
-                logicTimer = 0;
+                if (logicTimer >= 0.5)
+                {
+                    logicTimer = 0;
+                }
+                else
+                {
+                    logicTimer -= updateRate;
+                }
+                EnemyFactory::GetInstance().Update(updateRate);
+                sceneManager->Update(updateRate);
+                physics->Update(updateRate);
+                GameGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
+                PauseGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
             }
-            else
+        }
+        else
+        {
+            PauseGUI::GetInstance().Update(timer->GetDeltaTime(), sceneManager->GetActiveScene());
+
+            /* ------ ImGui ------*/
+            if (DEVELOPERMODE_DEVINTERFACE == true)
             {
-                logicTimer -= updateRate;
+                ImGuiHandler::GetInstance().NewFrame();
+                ImGuiHandler::GetInstance().UpdateFrame();
             }
-            EnemyFactory::GetInstance().Update(updateRate);
-            sceneManager->Update(updateRate);
-            physics->Update(updateRate);
-            GameGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
-            UpgradeGUI::GetInstance().Update(updateRate, sceneManager->GetActiveScene());
         }
 
         /* ---- Network ---- */
@@ -153,8 +164,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 Scene* LoadScene(SceneManager* sm)
 {
     Scene* scene = sm->CreateScene("LoadScene");
-    std::vector<float3> spawnPoints;
-    AssetLoader::Get()->GenerateMap(scene, "../Vendor/Resources/Rooms", &spawnPoints, { 3.0f,3.0f }, { 173.0f,200.0f }, false);
+    AssetLoader::Get()->LoadAllMaps(scene, "../Vendor/Resources/Rooms");
     return scene;
 }
 
@@ -177,16 +187,23 @@ Scene* GameScene(SceneManager* sm)
     Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
 
     AudioBuffer* bruhVoice = al->LoadAudio(L"../Vendor/Resources/Audio/bruh.wav", L"Bruh");
-    AudioBuffer* playerHit1 = al->LoadAudio(L"../Vendor/Resources/Audio/Femalegrunt.wav", L"PlayerHit1");
+    AudioBuffer* playerHit1 = al->LoadAudio(L"../Vendor/Resources/Audio/FemalegruntDelayed.wav", L"PlayerHit1");
     AudioBuffer* projectileSound = al->LoadAudio(L"../Vendor/Resources/Audio/fireball.wav", L"Fireball");
     AudioBuffer* swordSwing = al->LoadAudio(L"../Vendor/Resources/Audio/swing_sword.wav", L"SwordSwing");
-    AudioBuffer* zombieGnarl1 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_1.wav", L"ZombieGnarl1");
-    AudioBuffer* zombieGnarl2 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_2.wav", L"ZombieGnarl2");
-    AudioBuffer* zombieGnarl3 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_3.wav", L"ZombieGnarl3");
-    AudioBuffer* zombieGnarl4 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_4.wav", L"ZombieGnarl4");
-    AudioBuffer* zombieGnarl5 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_5.wav", L"ZombieGnarl5");
+
+    AudioBuffer* zombieGnarl1 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_Taunt_1.wav", L"ZombieGnarl1");
+    AudioBuffer* zombieGnarl2 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_Taunt_2.wav", L"ZombieGnarl2");
+    AudioBuffer* zombieGnarl3 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_Taunt_3.wav", L"ZombieGnarl3");
+    AudioBuffer* zombieGnarl4 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_Taunt_4.wav", L"ZombieGnarl4");
+    AudioBuffer* zombieGnarl5 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_Taunt_5.wav", L"ZombieGnarl5");
     AudioBuffer* zombieGnarl6 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_6.wav", L"ZombieGnarl6");
     AudioBuffer* zombieGnarl7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_7.wav", L"ZombieGnarl7");
+    AudioBuffer* zombieAttack1 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_1.wav", L"ZombieAttack1");
+    AudioBuffer* zombieAttack2 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_2.wav", L"ZombieAttack2");
+    AudioBuffer* zombieAttack3 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_3.wav", L"ZombieAttack3");
+    AudioBuffer* zombieAttack4 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_4.wav", L"ZombieAttack4");
+    AudioBuffer* zombieAttack5 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_5.wav", L"ZombieAttack5");
+
     AudioBuffer* zombieHit7 = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Vocalisation_GotHit_7.wav", L"ZombieHit7");
     AudioBuffer* demonGrunt = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/monstergrowl.wav", L"DemonGrunt");
     AudioBuffer* demonHit = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/demon_onhit.wav", L"DemonHit");
@@ -197,6 +214,10 @@ Scene* GameScene(SceneManager* sm)
     AudioBuffer* demonAttack = al->LoadAudio(L"../Vendor/Resources/Audio/IgnoredAudio/Demon_Swoosh_1.wav", L"DemonAttack");
     AudioBuffer* playerDash = al->LoadAudio(L"../Vendor/Resources/Audio/femaleDash.wav", L"PlayerDash");
     AudioBuffer* playerJump = al->LoadAudio(L"../Vendor/Resources/Audio/femaleJump.wav", L"PlayerJump");
+	AudioBuffer* ambientSound = al->LoadAudio(L"../Vendor/Resources/Audio/dungeon.wav", L"Ambient");
+	ambientSound->SetAudioLoop(0);
+	AudioBuffer* music = al->LoadAudio(L"../Vendor/Resources/Audio/backgroundMusic.wav", L"Music");
+	music->SetAudioLoop(0);
 
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
@@ -205,7 +226,7 @@ Scene* GameScene(SceneManager* sm)
 	Texture* crosshairTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Crosshair.png");
 	Texture* killedEnemiesHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/KilledEnemies.png");
 
-	Font* arial = al->LoadFontFromFile(L"Arial.fnt");
+	Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
 #pragma endregion
 
@@ -255,7 +276,6 @@ Scene* GameScene(SceneManager* sm)
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(500);
     uc = entity->AddComponent<component::UpgradeComponent>();
-    alc = entity->AddComponent<component::Audio3DListenerComponent>();
 
     Player::GetInstance().SetPlayer(entity);
 
@@ -299,30 +319,35 @@ Scene* GameScene(SceneManager* sm)
 
 #pragma region enemy definitions
     // melee
-	EnemyComps zombie = {};
-	zombie.model = enemyZombieModel;
-	zombie.hp = 70;
-	zombie.hpBase = 70;
-	zombie.OnHitSounds.emplace_back(L"ZombieHit7");
-    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl1");
-    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl2");
-    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl3");
-    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl4");
-    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl5");
-    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl6");
-    zombie.OnGruntSounds.emplace_back(L"ZombieGnarl7");
-	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
-	zombie.aiFlags = 0;
-	zombie.meleeAttackDmg = 30.0f;
-	zombie.meleeAttackDmgBase = 30.0f;
-	zombie.attackInterval = 1.5f;
-	zombie.attackSpeed = 0.1f;
-	zombie.movementSpeed = 45.0f;
-	zombie.rot = { 0.0, 0.0, 0.0 };
-	zombie.targetName = "player";
-	zombie.scale = 0.014;
-	zombie.detectionRad = 150.0f;
-	zombie.attackingDist = 1.5f;
+    EnemyComps zombie = {};
+    zombie.model = enemyZombieModel;
+    zombie.hp = 70;
+    zombie.hpBase = 70;
+    zombie.onHitSounds.emplace_back(L"ZombieHit7");
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl1");
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl2");
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl3");
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl4");
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl5");
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl6");
+    zombie.onGruntSounds.emplace_back(L"ZombieGnarl7");
+    zombie.onAttackSounds.emplace_back(L"ZombieAttack1");
+    zombie.onAttackSounds.emplace_back(L"ZombieAttack2");
+    zombie.onAttackSounds.emplace_back(L"ZombieAttack3");
+    zombie.onAttackSounds.emplace_back(L"ZombieAttack4");
+    zombie.onAttackSounds.emplace_back(L"ZombieAttack5");
+    zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
+    zombie.aiFlags = 0;
+    zombie.meleeAttackDmg = 30.0f;
+    zombie.meleeAttackDmgBase = 30.0f;
+    zombie.attackInterval = 1.5f;
+    zombie.attackSpeed = 0.1f;
+    zombie.movementSpeed = 45.0f;
+    zombie.rot = { 0.0, 0.0, 0.0 };
+    zombie.targetName = "player";
+    zombie.scale = 0.014;
+    zombie.detectionRad = 150.0f;
+    zombie.attackingDist = 1.5f;
     zombie.invertDirection = true;
     zombie.mass = 150.0f;
     zombie.slowAttack = 0.5f;
@@ -332,8 +357,8 @@ Scene* GameScene(SceneManager* sm)
     spider.model = enemySpiderModel;
     spider.hp = 35;
     spider.hpBase = 35;
-    spider.OnHitSounds.emplace_back(L"SpiderHit");
-    spider.OnGruntSounds.emplace_back(L"SpiderSound");
+    spider.onHitSounds.emplace_back(L"SpiderHit");
+    spider.onGruntSounds.emplace_back(L"SpiderSound");
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     spider.meleeAttackDmg = 15.0f;
@@ -348,15 +373,15 @@ Scene* GameScene(SceneManager* sm)
     spider.attackingDist = 1.5f;
     spider.invertDirection = true;
     spider.mass = 100.0f;
-    spider.walkSound = L"SpiderCrawl";
+    spider.walkSounds.emplace_back(L"SpiderCrawl");
 
     // ranged
     EnemyComps rangedDemon = {};
     rangedDemon.model = enemyDemonModel;
     rangedDemon.hp = 120;
     rangedDemon.hpBase = 120;
-    rangedDemon.OnGruntSounds.emplace_back(L"DemonGrunt");
-    rangedDemon.OnHitSounds.emplace_back(L"DemonHit");
+    rangedDemon.onGruntSounds.emplace_back(L"DemonGrunt");
+    rangedDemon.onHitSounds.emplace_back(L"DemonHit");
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     rangedDemon.attackInterval = 2.5f;
@@ -372,7 +397,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.projectileModel = sphereModel;
     rangedDemon.invertDirection = true;
     rangedDemon.mass = 300.0f;
-    rangedDemon.attackSound = L"DemonAttack";
+    rangedDemon.onAttackSounds.emplace_back(L"DemonAttack");
 
 #pragma endregion
 
@@ -432,7 +457,7 @@ Scene* GameScene(SceneManager* sm)
 
 	entity = scene->AddEntity("healthBackground");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(arial);
+	gui->GetTextManager()->SetFont(font);
 	gui->GetTextManager()->AddText("currentHealth");
 	gui->GetTextManager()->SetColor(textColor, "currentHealth");
 	gui->GetTextManager()->SetPadding(textPadding, "currentHealth");
@@ -540,7 +565,7 @@ Scene* GameScene(SceneManager* sm)
 
     entity = scene->AddEntity("money");
     gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(arial);
+	gui->GetTextManager()->SetFont(font);
     gui->GetTextManager()->AddText("money");
     gui->GetTextManager()->SetColor(textColor, "money");
     gui->GetTextManager()->SetPadding(textPadding, "money");
@@ -576,7 +601,7 @@ Scene* GameScene(SceneManager* sm)
 
     entity = scene->AddEntity("enemyGui");
     gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(arial);
+	gui->GetTextManager()->SetFont(font);
     gui->GetTextManager()->AddText("enemyGui");
     gui->GetTextManager()->SetColor(textColor, "enemyGui");
     gui->GetTextManager()->SetPadding(textPadding, "enemyGui");
@@ -598,6 +623,17 @@ Scene* GameScene(SceneManager* sm)
 		killedEnemiesHolderTexture
 	);
 #pragma endregion
+
+#pragma region backgroundSounds
+	/* ---------------------- Ambient Sound ---------------------- */
+	entity = scene->AddEntity("ambientSound");
+	avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+	avc->AddVoice(L"Ambient");
+
+	/* ---------------------- Background Music ---------------------- */
+	entity = scene->AddEntity("music");
+	avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+	avc->AddVoice(L"Music");
 #pragma endregion
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
@@ -655,7 +691,10 @@ Scene* ShopScene(SceneManager* sm)
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
-	Font* arial = al->LoadFontFromFile(L"Arial.fnt");
+	AudioBuffer* music = al->LoadAudio(L"../Vendor/Resources/Audio/shopMusic.wav", L"ShopMusic");
+	music->SetAudioLoop(0);
+
+	Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
 #pragma region player
     std::string playerName = "player";
@@ -771,7 +810,7 @@ Scene* ShopScene(SceneManager* sm)
 
 	entity = scene->AddEntity("healthBackground");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(arial);
+	gui->GetTextManager()->SetFont(font);
 	gui->GetTextManager()->AddText("currentHealth");
 	gui->GetTextManager()->SetColor(textColor, "currentHealth");
 	gui->GetTextManager()->SetPadding(textPadding, "currentHealth");
@@ -879,7 +918,7 @@ Scene* ShopScene(SceneManager* sm)
 
     entity = scene->AddEntity("money");
     gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetTextManager()->SetFont(arial);
+	gui->GetTextManager()->SetFont(font);
     gui->GetTextManager()->AddText("money");
     gui->GetTextManager()->SetColor(textColor, "money");
     gui->GetTextManager()->SetPadding(textPadding, "money");
@@ -1035,6 +1074,13 @@ Scene* ShopScene(SceneManager* sm)
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();
 
+#pragma region music
+	/* ---------------------- Music ---------------------- */
+	entity = scene->AddEntity("shopMusic");
+	avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+	avc->AddVoice(L"ShopMusic");
+#pragma endregion
+
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&ShopUpdateScene);
 
@@ -1059,11 +1105,22 @@ void GameInitScene(Scene* scene)
         fact->AddSpawnPoint(spawnPoints[i]);
     }
 
+	Entity* entity = scene->GetEntity("ambientSound");
+	component::Audio2DVoiceComponent* avc = entity->GetComponent<component::Audio2DVoiceComponent>();
+	avc->Play(L"Ambient");
+	entity = scene->GetEntity("music");
+	avc = entity->GetComponent<component::Audio2DVoiceComponent>();
+	avc->Play(L"Music");
+
     AssetLoader::Get()->RemoveWalls();
 }
 
 void ShopInitScene(Scene* scene)
 {
+	Entity* entity = scene->GetEntity("shopMusic");
+	component::Audio2DVoiceComponent* avc = entity->GetComponent<component::Audio2DVoiceComponent>();
+	avc->Play(L"ShopMusic");
+
     ParticleInit();
 }
 
