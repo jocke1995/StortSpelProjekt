@@ -11,13 +11,13 @@ class Event;
 class Texture;
 class SceneManager;
 class Font;
-struct UForUpgrade;
+struct PauseGame;
 struct ButtonPressed;
-class UpgradeGUI
+class PauseGUI
 {
 public:
-	static UpgradeGUI& GetInstance();
-	~UpgradeGUI();
+	static PauseGUI& GetInstance();
+	~PauseGUI();
 
 	void Update(double dt, Scene* scene);
 	void CreateMenu(Scene* scene);
@@ -27,7 +27,7 @@ public:
 	void SetSceneMan(SceneManager* sceneManager);
 	void SetShown(bool shown);
 private:
-	UpgradeGUI();
+	PauseGUI();
 
 	// are we supposed to show the menu?
 	bool m_Shown = false;
@@ -56,19 +56,20 @@ private:
 	std::map<std::string, int> m_AppliedUpgradeEnums;
 	std::vector<std::string> m_ButtonNames;
 
-	void showMenu(UForUpgrade* keyPress);
+	void showMenu(PauseGame* keyPress);
 	//void get
 	void makeUpgradeButton(float2 pos, std::string name);
 	void getButtonPress(ButtonPressed* event);
 	void updateDescription(int level);
 
 	// Fonts
-	Font* m_pArial = nullptr;
+	Font* m_pFont = nullptr;
 
 	// Textures:
 	Texture* m_pBoardBackgroundTexture;
 	Texture* m_pButtonParchment;
 	Texture* m_pDescriptionParchment;
+	Texture* m_pPauseOverlayTexture;
 };
 
 

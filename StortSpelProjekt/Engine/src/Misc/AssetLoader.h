@@ -73,6 +73,7 @@ public:
     /// <param name="mapSize"> The size of the map in number of rooms. Odd numbers will give the best results</param>
     /// <param name="roomDimensions"> The dimensions of the individual rooms</param>
     void GenerateMap(Scene* scene, const char* folderPath, std::vector<float3>* spawnPoints = nullptr, float2 mapSize = { 3.0f, 3.0f }, float2 roomDimensions = { 173.0f, 200.0f }, bool entitiesDynamic = false);
+    void LoadAllMaps(Scene* scene, const char* folderPath);
 
     // IsLoadedFunctions
     bool IsModelLoadedOnGpu(const std::wstring& name) const;
