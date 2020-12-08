@@ -126,6 +126,8 @@ enum class MOUSE_BUTTON
 	WHEEL = 0x400,
 };
 
+struct ResetGame;
+
 class Input {
 public:
 	/// <summary>
@@ -180,6 +182,7 @@ public:
 
 private:
 	Input();
+	void onReset(ResetGame* evnt);
 
 	std::unordered_map<SCAN_CODES, bool> m_KeyState;
 	std::unordered_map<MOUSE_BUTTON, bool> m_MouseButtonState;
