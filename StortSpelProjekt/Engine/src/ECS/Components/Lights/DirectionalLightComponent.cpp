@@ -102,9 +102,10 @@ namespace component
 		return m_pDirectionalLight;
 	}
 
-	void DirectionalLightComponent::UpdateLightColor()
+	void DirectionalLightComponent::UpdateLightColorIntensity()
 	{
 		m_pDirectionalLight->baseLight.color = m_pBaseLight->color;
+		m_pDirectionalLight->baseLight.intensity = m_pBaseLight->intensity;
 	}
 
 	void DirectionalLightComponent::initFlagUsages()

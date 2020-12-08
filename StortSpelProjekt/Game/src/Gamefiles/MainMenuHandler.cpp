@@ -62,7 +62,7 @@ void MainMenuHandler::createOptionScene()
     Texture* plus = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Plus.png");
     Texture* minus = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Minus.png");
 
-	Font* arial = al->LoadFontFromFile(L"Arial.fnt");
+	Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
     AudioBuffer* menuSound = al->LoadAudio(L"../Vendor/Resources/Audio/Menu.wav", L"MenuMusic");
     menuSound->SetAudioLoop(0);
@@ -346,7 +346,7 @@ void MainMenuHandler::createOptionScene()
 
     entity = m_pOptionScene->AddEntity("volume");
     guic = entity->AddComponent<component::GUI2DComponent>();
-	guic->GetTextManager()->SetFont(arial);
+	guic->GetTextManager()->SetFont(font);
     guic->GetTextManager()->AddText("volume");
     guic->GetTextManager()->SetColor(textColor, "volume");
     guic->GetTextManager()->SetPadding(textPadding, "volume");
@@ -411,7 +411,7 @@ void MainMenuHandler::createOptionScene()
 
     entity = m_pOptionScene->AddEntity("MouseSensitivity");
     guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetTextManager()->SetFont(arial);
+    guic->GetTextManager()->SetFont(font);
     guic->GetTextManager()->AddText("MouseSensitivity");
     guic->GetTextManager()->SetColor(textColor, "MouseSensitivity");
     guic->GetTextManager()->SetPadding(textPadding, "MouseSensitivity");
@@ -538,7 +538,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
 
     std::vector<Model*> enemyModels;
     enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj"));
-    enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/demon.obj"));
+    enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/AnimatedDemon.fbx"));
     for (int i = 0; i < 20; ++i)
     {
         entity = scene->AddEntity("menuEnemy" + std::to_string(i));

@@ -403,8 +403,16 @@ void ImGuiHandler::ExecCommand(const char* command_line)
         for (auto enemy : *enemies)
         {
             auto hc = enemy->GetComponent<component::HealthComponent>();
-            hc->TakeDamage(2147483647);
+            hc->SetHealth(-1);
         }
+    }
+    else if (Stricmp(command.c_str(), "KILLPLAYER") == 0)
+    {
+        Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetHealth(0);
+    }
+    else if (Stricmp(command.c_str(), "SKIPLEVEL") == 0)
+    {  
+        EventBus::GetInstance().Publish(&LevelDone());
     }
     else
     {
@@ -564,6 +572,8 @@ ImGuiHandler::ImGuiHandler()
     m_Commands.push_back("RESET");
     m_Commands.push_back("HARVEST");
     m_Commands.push_back("GODMODE");
+    m_Commands.push_back("KILLPLAYER");
+    m_Commands.push_back("SKIPLEVEL");
     if (std::atoi(Option::GetInstance().GetVariable("i_network").c_str()) == 1)
     {
         m_Commands.push_back("CONNECT");

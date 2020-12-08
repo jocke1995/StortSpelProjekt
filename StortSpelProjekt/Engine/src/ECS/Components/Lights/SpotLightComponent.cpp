@@ -191,8 +191,9 @@ namespace component
         }
     }
 
-    void SpotLightComponent::UpdateLightColor()
+    void SpotLightComponent::UpdateLightColorIntensity()
     {
         m_pSpotLight->baseLight.color = m_pBaseLight->color;
+        m_pSpotLight->baseLight.intensity = m_pBaseLight->intensity;
     }
 }

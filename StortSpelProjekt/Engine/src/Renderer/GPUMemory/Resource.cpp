@@ -111,7 +111,11 @@ void Resource::SetData(const void* data, unsigned int subResourceIndex) const
 	// Set up the heap data
 	D3D12_RANGE range = { 0, 0 }; // We do not intend to read this resource on the CPU.
 
-	m_pResource->Map(subResourceIndex, &range, &dataBegin); // Get a dataBegin pointer where we can copy data to
+	volatile HRESULT hr = m_pResource->Map(subResourceIndex, &range, &dataBegin); // Get a dataBegin pointer where we can copy data to
+	if (FAILED(hr))
+	{
+		volatile int a = 0;
+	}
 	memcpy(dataBegin, data, m_EntrySize);
 	m_pResource->Unmap(subResourceIndex, nullptr);
 }

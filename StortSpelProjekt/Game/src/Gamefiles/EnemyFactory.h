@@ -42,7 +42,10 @@ struct EnemyComps
 	int hpBase = 10;
 	std::string targetName = "player";
 	int enemiesOfThisType = 0;
-	std::wstring sound3D = L"Bruh";
+	std::vector<std::wstring> onHitSounds;
+	std::vector<std::wstring> onGruntSounds;
+	std::vector<std::wstring> onAttackSounds;
+	std::vector<std::wstring> walkSounds;
 	double3 dim = double3({ 0.0, 0.0, 0.0 });
 	float detectionRad = 25.0f;
 	float attackingDist = 0.5f;
@@ -50,6 +53,7 @@ struct EnemyComps
 	float attackSpeed = 0.2f;
 	float meleeAttackDmg = 10.0f;
 	float meleeAttackDmgBase = 10.0f;
+	float slowAttack = 0.0f;
 	float movementSpeed = 30.0f;
 	float movementSpeedBase = 30.0f;
 	bool isRanged = false;
@@ -87,6 +91,11 @@ public:
 
 	std::vector<Entity*>* GetAllEnemies();
 	
+	//Gets the total amount of killed enemies during the game
+	int GetTotalKilled();
+	//Gets what level the player is currently on
+	int GetLevel();
+
 	// Adds a spawnpoint.
 	void AddSpawnPoint(const float3& point);
 	void ClearSpawnPoints();
@@ -114,6 +123,9 @@ public:
 private:
 	EnemyFactory();
 
+	void timeRound(double dt);
+	void killRound(double dt);
+
 	void enemyDeath(Death* evnt);
 	void levelDone(LevelDone* evnt);
 	void onSceneSwitch(SceneChange* evnt);
@@ -126,14 +138,19 @@ private:
 	EngineRand m_RandGen;
 
 	int m_MaxEnemies;
+	int m_LevelTime;
+	double m_LevelTimer;
+	bool m_TimeRound;
 	int m_EnemiesToSpawn;
 	int m_LevelMaxEnemies;
 	int m_EnemySlotsLeft;
 	int m_EnemiesKilled;
+	int m_TotalEnemiesKilled;
 	unsigned int m_Level;
 	float m_SpawnCooldown;
 	float m_SpawnTimer;
 	float m_MinimumDistanceToPlayer;
+	double m_TotalTime;
 
 	bool m_IsActive = false;
 };
