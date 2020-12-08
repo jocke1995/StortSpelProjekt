@@ -21,7 +21,7 @@ project "Engine"
     
     filter "configurations:*"
         cppdialect "C++17"
-        includedirs {"Vendor/Include/", "%{prj.location}/src/Headers/", "Vendor/Include/Bullet/"}
+        includedirs {"Vendor/Include/", "%{prj.location}/src/Headers/", "%{prj.location}/src/", "Vendor/Include/Bullet/"}
         libdirs { "Vendor/Lib/**" }
 
     links {

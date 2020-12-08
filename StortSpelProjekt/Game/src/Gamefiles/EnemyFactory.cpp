@@ -369,6 +369,7 @@ void EnemyFactory::Update(double dt)
 		if (m_EnemiesToSpawn == 0  && m_EnemySlotsLeft > 0)
 		{
 			m_SpawnTimer += dt / m_Enemies.size();
+			m_SpawnTimer *= 5;
 			if (m_SpawnCooldown <= m_SpawnTimer)
 			{
 				m_SpawnTimer = 0.0;
@@ -469,7 +470,7 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	m_SpawnTimer = 0.0f;
 	m_EnemiesKilled = 0;
 
-	m_Level = 100;
+	m_Level = 300;
 
 
 	//Scaling difficulty

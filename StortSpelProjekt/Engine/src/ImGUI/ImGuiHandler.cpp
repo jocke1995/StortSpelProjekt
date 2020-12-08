@@ -1,10 +1,13 @@
 #include "ImGuiHandler.h"
+
 #include "../Misc/Option.h"
 #include "../Misc/Window.h"
 #include "../Renderer/Renderer.h"
 #include "../Events/EventBus.h"
 #include "../../Game/src/Gamefiles/Player.h"
+#include "../../Game/src/Gamefiles/EnemyFactory.h"
 #include "../ECS/Entity.h"
+
 
 ImGuiHandler& ImGuiHandler::GetInstance()
 {
@@ -386,12 +389,22 @@ void ImGuiHandler::ExecCommand(const char* command_line)
     }
     else if (Stricmp(command.c_str(), "GODMODE") == 0)
     {
-        Player::GetInstance().GetPlayer()->GetComponent<component::MeleeComponent>()->SetDamage(10000);
+        Player::GetInstance().GetPlayer()->GetComponent<component::MeleeComponent>()->SetDamage(2147483647);
         Player::GetInstance().GetPlayer()->GetComponent<component::MeleeComponent>()->SetAttackInterval(0.01);
-        Player::GetInstance().GetPlayer()->GetComponent<component::RangeComponent>()->SetDamage(10000);
+        Player::GetInstance().GetPlayer()->GetComponent<component::RangeComponent>()->SetDamage(2147483647);
         Player::GetInstance().GetPlayer()->GetComponent<component::RangeComponent>()->SetAttackInterval(0.01);
-        Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetMaxHealth(1000000);
-        Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetHealth(1000000);
+        Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetMaxHealth(2147483647);
+        Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetHealth(2147483647);
+    }
+    else if (Stricmp(command.c_str(), "KILLALL") == 0)
+    {
+        auto enemies = EnemyFactory::GetInstance().GetAllEnemies();
+        
+        for (auto enemy : *enemies)
+        {
+            auto hc = enemy->GetComponent<component::HealthComponent>();
+            hc->TakeDamage(2147483647);
+        }
     }
     else
     {
