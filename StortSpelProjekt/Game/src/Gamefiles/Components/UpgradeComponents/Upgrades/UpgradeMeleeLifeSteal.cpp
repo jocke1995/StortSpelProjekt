@@ -29,7 +29,7 @@ void UpgradeMeleeLifeSteal::IncreaseLevel()
 {
 	m_Level++;
 	m_PercentageGain = 0.05f + 0.05f * m_Level; // Starts at 10% and increases by 5% per level
-	m_Price = 300 * pow(m_Level + 1, 2);
+	m_Price += m_Level * 200;
 }
 
 void UpgradeMeleeLifeSteal::OnMeleeHit(Entity* target)
@@ -52,5 +52,5 @@ void UpgradeMeleeLifeSteal::ApplyBoughtUpgrade()
 
 std::string UpgradeMeleeLifeSteal::GetDescription(unsigned int level)
 {
-	return "Melee Lifesteal: Converts a " + std::to_string(static_cast<int>((0.05f + 0.05f * level) * 100)) + "\% of melee damage done into own health.";
+	return "Melee Lifesteal: Converts " + std::to_string(static_cast<int>((0.05f + 0.05f * level) * 100)) + "\% of melee damage done into own health.";
 }
