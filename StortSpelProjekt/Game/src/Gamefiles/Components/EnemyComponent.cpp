@@ -28,45 +28,45 @@ void component::EnemyComponent::OnInitScene()
 
 void component::EnemyComponent::OnUnInitScene()
 {
-	// Create particle effect
-    SceneManager& sm = SceneManager::GetInstance();
-    Scene* scene = sm.GetActiveScene();
-    Entity* entity = nullptr;
-
-    static int counter = 0;
-    counter++;
-    std::string entityName = "onDeathParticleEffect" + std::to_string(counter);
-    entity = scene->AddEntity(entityName);
-
-    std::vector<ParticleEffectSettings> vec;
-
-    static ParticleEffectSettings particleEffectSettings =
-    {
-        static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png")),
-        35,         // Max particles
-        0.000001f,  // spawnInterval
-        false,      // IsLooping
-        {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, -5.0f, 0.0f}, 1.0f, 0.0f, 0.0f, g_timeToLive}, // ParticleAttributes
-        {-1, 1, -1, 1, -1, 1},          // RandPosition
-        {-20, 20, -20, 20, -20, 20},    // RandVelocity
-        {0.2f, 0.8f },                  // RandSize
-        {0.0f, 0.0f},                   // RandRotation
-        {0.0f, 3.0f},                   // RandRotationSpeed
-        {0.0f, 0.0f}                    // RandLifetime
-    };
-
-    vec.push_back(particleEffectSettings);
-
-    entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
-    component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
-    entity->AddComponent<component::TemporaryLifeComponent>(g_timeToLive);
-
-    // Use the enemies current position as a start position for the partile effect
-    float3 parentPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
-    tc->GetTransform()->SetPosition(parentPos.x, parentPos.y, parentPos.z);
-
-    scene->InitDynamicEntity(entity);
-    /* ---------------------- Particle ---------------------- */
+	//// Create particle effect
+    //SceneManager& sm = SceneManager::GetInstance();
+    //Scene* scene = sm.GetActiveScene();
+    //Entity* entity = nullptr;
+    //
+    //static int counter = 0;
+    //counter++;
+    //std::string entityName = "onDeathParticleEffect" + std::to_string(counter);
+    //entity = scene->AddEntity(entityName);
+    //
+    //std::vector<ParticleEffectSettings> vec;
+    //
+    //static ParticleEffectSettings particleEffectSettings =
+    //{
+    //    static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png")),
+    //    35,         // Max particles
+    //    0.000001f,  // spawnInterval
+    //    false,      // IsLooping
+    //    {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, -5.0f, 0.0f}, 1.0f, 0.0f, 0.0f, g_timeToLive}, // ParticleAttributes
+    //    {-1, 1, -1, 1, -1, 1},          // RandPosition
+    //    {-20, 20, -20, 20, -20, 20},    // RandVelocity
+    //    {0.2f, 0.8f },                  // RandSize
+    //    {0.0f, 0.0f},                   // RandRotation
+    //    {0.0f, 3.0f},                   // RandRotationSpeed
+    //    {0.0f, 0.0f}                    // RandLifetime
+    //};
+    //
+    //vec.push_back(particleEffectSettings);
+    //
+    //entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
+    //component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
+    //entity->AddComponent<component::TemporaryLifeComponent>(g_timeToLive);
+    //
+    //// Use the enemies current position as a start position for the partile effect
+    //float3 parentPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+    //tc->GetTransform()->SetPosition(parentPos.x, parentPos.y, parentPos.z);
+    //
+    //scene->InitDynamicEntity(entity);
+    ///* ---------------------- Particle ---------------------- */
 
     // Remove the enemy
 	m_pFactory->RemoveEnemyFromList(m_pParent);

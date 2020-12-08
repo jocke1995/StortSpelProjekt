@@ -2463,7 +2463,7 @@ void Renderer::initRenderTasks()
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 	{
-		m_DirectCommandLists[i].push_back(animationDepthPreRenderTask->GetCommandInterface()->GetCommandList(i));
+		//m_DirectCommandLists[i].push_back(animationDepthPreRenderTask->GetCommandInterface()->GetCommandList(i));
 	}
 
 	for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
