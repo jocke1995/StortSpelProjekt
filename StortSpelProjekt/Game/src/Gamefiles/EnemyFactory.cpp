@@ -469,6 +469,8 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	m_SpawnTimer = 0.0f;
 	m_EnemiesKilled = 0;
 
+	m_Level = 100;
+
 
 	//Scaling difficulty
 	m_LevelMaxEnemies = 20 + 2 * m_Level;
