@@ -68,6 +68,8 @@ void Player::SetPlayerAlive(bool state)
 
 void Player::onResetGame(ResetGame* evnt)
 {
+	m_IsAlive = true;
+
 	Entity* gamePlayer = SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player");
 	gamePlayer->GetComponent<component::CurrencyComponent>()->SetBalance(0);
 	gamePlayer->GetComponent<component::UpgradeComponent>()->RemoveAllUpgrades();

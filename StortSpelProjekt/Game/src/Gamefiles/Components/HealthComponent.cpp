@@ -71,7 +71,7 @@ void component::HealthComponent::SetHealth(int hp)
 			comp->SetAngularFactor({ 1,1,1 });
 			comp->SetAngularVelocity(5, 0, 0);
 		}
-		if (m_pParent->GetName() == "Player")
+		if (m_pParent->GetName() == "player")
 		{
 			Player::GetInstance().SetPlayerAlive(false);
 		}
@@ -91,6 +91,10 @@ void component::HealthComponent::ChangeHealth(int hpChange)
 		{
 			comp->SetAngularFactor({ 1,1,1 });
 			comp->SetAngularVelocity(5,0,0);
+		}
+		if (m_pParent->GetName() == "player")
+		{
+			Player::GetInstance().SetPlayerAlive(false);
 		}
 		EventBus::GetInstance().Publish(&Death(m_pParent));
 	}

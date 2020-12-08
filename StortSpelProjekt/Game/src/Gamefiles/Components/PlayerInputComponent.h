@@ -23,6 +23,7 @@ struct MovementInput;
 struct MouseMovement;
 struct MouseClick;
 struct ModifierInput;
+struct Death;
 
 enum CAMERA_FLAGS
 {
@@ -103,6 +104,7 @@ namespace component
 		std::vector<void(PlayerInputComponent::*)(double dt)> specificUpdates;
 		void(PlayerInputComponent::*specificUpdate)(double dt);
 
+		void playerDeath(Death* evnt);
 
 		void updateCameraDirection();
 		void setCameraToPlayerPosition();
