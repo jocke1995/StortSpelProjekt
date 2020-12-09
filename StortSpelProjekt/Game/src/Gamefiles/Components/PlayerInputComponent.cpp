@@ -601,9 +601,8 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 {
 	Scene* scene = SceneManager::GetInstance().GetActiveScene();
-	bool inShopScene = scene->GetName() == "ShopScene";
 
-	if (!Input::GetInstance().IsPaused() && inShopScene == false)
+	if (!Input::GetInstance().IsPaused() && scene->GetName() != "ShopScene")
 	{
 		switch (evnt->button) {
 		case MOUSE_BUTTON::LEFT_DOWN:
