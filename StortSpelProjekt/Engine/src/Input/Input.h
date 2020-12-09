@@ -190,7 +190,7 @@ public:
 
 	bool IsPaused();
 
-	void ReadControllerInput();
+	void ReadControllerInput(double dt);
 
 private:
 	Input();

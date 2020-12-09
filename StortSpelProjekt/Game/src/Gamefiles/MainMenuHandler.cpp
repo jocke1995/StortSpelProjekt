@@ -31,6 +31,7 @@ void onVolumeMinus(const std::string& name);
 void onMouseSensitivityPlus(const std::string& name);
 void onMouseSensitivityMinus(const std::string& name);
 void MainMenuUpdateScene(SceneManager* sm, double dt);
+void MenuUpdateScene(SceneManager* sm, double dt);
 
 MainMenuHandler::MainMenuHandler()
 {
@@ -455,6 +456,8 @@ void MainMenuHandler::createOptionScene()
         { 1.0,1.0,1.0,1.0 },
         exitTex);
     guic->GetQuadManager()->SetOnClicked(&onOptionBack);
+
+    m_pOptionScene->SetUpdateScene(&MenuUpdateScene);
 }
 
 MainMenuHandler& MainMenuHandler::GetInstance()
@@ -843,4 +846,11 @@ void MainMenuUpdateScene(SceneManager* sm, double dt)
     rotValue += dt;
 
     Input::GetInstance().RegisterControllers();
+
+    Input::GetInstance().ReadControllerInput(dt);
+}
+
+void MenuUpdateScene(SceneManager* sm, double dt)
+{
+    Input::GetInstance().ReadControllerInput(dt);
 }

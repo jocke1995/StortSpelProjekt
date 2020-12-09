@@ -121,6 +121,13 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			EventBus::GetInstance().Publish(&PauseGame(m_IsPaused));
 			ShowCursor(m_IsPaused);
 		}
+		else if (scene->GetName() == "ShopScene")
+		{
+			EventBus::GetInstance().Publish(&shopGUIStateChange());
+			m_IsPaused = !m_IsPaused;
+			EventBus::GetInstance().Publish(&PauseGame(m_IsPaused));
+			ShowCursor(m_IsPaused);
+		}
 	}
 }
 
@@ -167,10 +174,12 @@ bool Input::IsPaused()
 	return m_IsPaused;
 }
 
-void Input::ReadControllerInput()
+void Input::ReadControllerInput(double dt)
 {
 	if (m_RawGameControllers.size() > 0)
 	{
+		Scene* scene = SceneManager::GetInstance().GetActiveScene();
+		bool useMouse = m_IsPaused || scene->GetName() == "MainMenuScene" || scene->GetName() == "gameOverScene" || scene->GetName() == "OptionScene" || (scene->GetName() == "ShopScene" && Player::GetInstance().GetShop()->IsShop2DGUIDisplaying());
 		std::array<bool, 20> buttonsArray;
 		std::array<double, 10> axisArray;
 		std::array<GameControllerSwitchPosition, 5> switchesArray;
@@ -182,11 +191,13 @@ void Input::ReadControllerInput()
 		bool justPressedDown = !m_KeyState[SCAN_CODES::S];
 		bool justPressedRight = !m_KeyState[SCAN_CODES::D];
 		bool justPressedJump = !m_KeyState[SCAN_CODES::SPACE];
-		bool justPressedSprint = !m_KeyState[SCAN_CODES::LEFT_SHIFT];
-		bool justPressedDash = !m_KeyState[SCAN_CODES::Q];
+		bool justPressedDashLeft = !m_KeyState[SCAN_CODES::LEFT_SHIFT];
+		bool justPressedDashRight = !m_KeyState[SCAN_CODES::RIGHT_SHIFT];
 		bool justPressedAttack = !m_MouseButtonState[MOUSE_BUTTON::LEFT_DOWN];
 		bool justPressedShoot = !m_MouseButtonState[MOUSE_BUTTON::RIGHT_DOWN];
 		bool justPressedChoose = !m_KeyState[SCAN_CODES::F];
+		bool justPressedBack = !m_KeyState[SCAN_CODES::U];
+		bool justPressedPause = !m_KeyState[SCAN_CODES::ESCAPE];
 
 		// Switch 0 is the directional buttons on a DualShock 4
 		switch (switchesArray.at(0))
@@ -252,6 +263,7 @@ void Input::ReadControllerInput()
 		// Button 1 is Cross
 		m_KeyState[SCAN_CODES::SPACE] = buttonsArray.at(1);
 		// Button 2 is Circle
+		m_KeyState[SCAN_CODES::U] = buttonsArray.at(2);
 		// Button 3 is Triangle
 		// Button 4 is Left Bumper
 		m_MouseButtonState[MOUSE_BUTTON::LEFT_DOWN] = buttonsArray.at(4);
@@ -260,102 +272,150 @@ void Input::ReadControllerInput()
 		// Button 6 is Left Trigger
 		m_KeyState[SCAN_CODES::LEFT_SHIFT] = buttonsArray.at(6);
 		// Button 7 is Right Trigger
-		m_KeyState[SCAN_CODES::Q] = buttonsArray.at(7);
+		m_KeyState[SCAN_CODES::RIGHT_SHIFT] = buttonsArray.at(7);
 		// Button 8 is Share
 		// Button 9 is Options
+		m_KeyState[SCAN_CODES::ESCAPE] = buttonsArray.at(9);
 		// Button 10 is Left Stick
 		// Button 11 is Right Stick
 		// Button 12 is PS Button
 		// Button 13 is Touchpad Click
 
-		if (justPressedUp && m_KeyState[SCAN_CODES::W])
+		bool shopIsClosed = (scene->GetName() == "ShopScene" && !Player::GetInstance().GetShop()->IsShop2DGUIDisplaying()) || scene->GetName() == "GameScene";
+
+		if (justPressedUp && m_KeyState[SCAN_CODES::W] && shopIsClosed)
 		{
 			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::W, true, false));
 		}
-		else if (!justPressedUp && !m_KeyState[SCAN_CODES::W])
+		else if (!justPressedUp && !m_KeyState[SCAN_CODES::W] && shopIsClosed)
 		{
 			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::W, false, false));
 		}
-		if (justPressedLeft && m_KeyState[SCAN_CODES::A])
+		if (justPressedLeft && m_KeyState[SCAN_CODES::A] && shopIsClosed)
 		{
 			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::A, true, false));
 		}
-		else if (!justPressedLeft && !m_KeyState[SCAN_CODES::A])
+		else if (!justPressedLeft && !m_KeyState[SCAN_CODES::A] && shopIsClosed)
 		{
 			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::A, false, false));
 		}
-		if (justPressedDown && m_KeyState[SCAN_CODES::S])
+		if (justPressedDown && m_KeyState[SCAN_CODES::S] && shopIsClosed)
 		{
 			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::S, true, false));
 		}
-		else if (!justPressedDown && !m_KeyState[SCAN_CODES::S])
+		else if (!justPressedDown && !m_KeyState[SCAN_CODES::S] && shopIsClosed)
 		{
 			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::S, false, false));
 		}
-		if (justPressedRight && m_KeyState[SCAN_CODES::D])
+		if (justPressedRight && m_KeyState[SCAN_CODES::D] && shopIsClosed)
 		{
 			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::D, true, false));
 		}
-		else if (!justPressedRight && !m_KeyState[SCAN_CODES::D])
+		else if (!justPressedRight && !m_KeyState[SCAN_CODES::D] && shopIsClosed)
 		{
 			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::D, false, false));
 		}
-		if (justPressedJump && m_KeyState[SCAN_CODES::SPACE])
+		if (justPressedJump && m_KeyState[SCAN_CODES::SPACE] && shopIsClosed)
 		{
 			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::SPACE, true, false));
 		}
-		else if (!justPressedJump && !m_KeyState[SCAN_CODES::SPACE])
+		else if (!justPressedJump && !m_KeyState[SCAN_CODES::SPACE] && shopIsClosed)
 		{
 			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::SPACE, false, false));
 		}
-		if (justPressedSprint && m_KeyState[SCAN_CODES::LEFT_SHIFT])
+		if (justPressedDashLeft && m_KeyState[SCAN_CODES::LEFT_SHIFT] && shopIsClosed)
 		{
-			EventBus::GetInstance().Publish(&ModifierInput(SCAN_CODES::LEFT_SHIFT, true));
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::LEFT_SHIFT, true, false));
 		}
-		else if (!justPressedSprint && !m_KeyState[SCAN_CODES::LEFT_SHIFT])
+		else if (!justPressedDashLeft && !m_KeyState[SCAN_CODES::LEFT_SHIFT] && shopIsClosed)
 		{
-			EventBus::GetInstance().Publish(&ModifierInput(SCAN_CODES::LEFT_SHIFT, false));
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::LEFT_SHIFT, false, false));
 		}
-		if (justPressedDash && m_KeyState[SCAN_CODES::Q])
+		if (justPressedDashRight && m_KeyState[SCAN_CODES::RIGHT_SHIFT] && shopIsClosed)
 		{
-			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::Q, true, false));
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::RIGHT_SHIFT, true, false));
 		}
-		else if (!justPressedDash && !m_KeyState[SCAN_CODES::Q])
+		else if (!justPressedDashRight && !m_KeyState[SCAN_CODES::RIGHT_SHIFT] && shopIsClosed)
 		{
-			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::Q, false, false));
+			EventBus::GetInstance().Publish(&MovementInput(SCAN_CODES::RIGHT_SHIFT, false, false));
 		}
-		if (justPressedAttack && m_MouseButtonState[MOUSE_BUTTON::LEFT_DOWN])
+		if ((justPressedAttack && m_MouseButtonState[MOUSE_BUTTON::LEFT_DOWN] && !m_IsPaused && shopIsClosed) || (justPressedChoose && m_KeyState[SCAN_CODES::F] && useMouse) )
 		{
 			EventBus::GetInstance().Publish(&MouseClick(MOUSE_BUTTON::LEFT_DOWN, true));
 		}
-		else if (!justPressedAttack && !m_MouseButtonState[MOUSE_BUTTON::LEFT_DOWN])
+		else if ((!justPressedAttack && !m_MouseButtonState[MOUSE_BUTTON::LEFT_DOWN] && !m_IsPaused && shopIsClosed) || (!justPressedChoose && !m_KeyState[SCAN_CODES::F] && useMouse))
 		{
 			EventBus::GetInstance().Publish(&MouseRelease(MOUSE_BUTTON::LEFT_DOWN, false));
 		}
-		if (justPressedShoot && m_MouseButtonState[MOUSE_BUTTON::RIGHT_DOWN])
+		if (justPressedShoot && m_MouseButtonState[MOUSE_BUTTON::RIGHT_DOWN] && shopIsClosed)
 		{
 			EventBus::GetInstance().Publish(&MouseClick(MOUSE_BUTTON::RIGHT_DOWN, true));
 		}
-		else if (!justPressedShoot && !m_MouseButtonState[MOUSE_BUTTON::RIGHT_DOWN])
+		else if (!justPressedShoot && !m_MouseButtonState[MOUSE_BUTTON::RIGHT_DOWN] && shopIsClosed)
 		{
 			EventBus::GetInstance().Publish(&MouseRelease(MOUSE_BUTTON::RIGHT_DOWN, false));
 		}
 		if (justPressedChoose && m_KeyState[SCAN_CODES::F])
 		{
 			Scene* scene = SceneManager::GetInstance().GetActiveScene();
-			if (scene->GetName() == "ShopScene")
+			if (scene->GetName() == "ShopScene" && shopIsClosed && !m_IsPaused)
 			{
 				EventBus::GetInstance().Publish(&shopGUIStateChange());
 			}
 		}
+		if (justPressedBack && m_KeyState[SCAN_CODES::U])
+		{
+			if (scene->GetName() == "ShopScene" && !shopIsClosed)
+			{
+				EventBus::GetInstance().Publish(&shopGUIStateChange());
+			}
+			else if (m_IsPaused)
+			{
+				m_IsPaused = !m_IsPaused;
+				EventBus::GetInstance().Publish(&PauseGame(m_IsPaused));
+				ShowCursor(m_IsPaused);
+			}
+		}
+		if (justPressedPause && m_KeyState[SCAN_CODES::ESCAPE])
+		{
+			if (shopIsClosed)
+			{
+				m_IsPaused = !m_IsPaused;
+				EventBus::GetInstance().Publish(&PauseGame(m_IsPaused));
+				ShowCursor(m_IsPaused);
+			}
+			else if (scene->GetName() == "ShopScene")
+			{
+				EventBus::GetInstance().Publish(&shopGUIStateChange());
+				m_IsPaused = !m_IsPaused;
+				EventBus::GetInstance().Publish(&PauseGame(m_IsPaused));
+				ShowCursor(m_IsPaused);
+			}
+		}
 
 		// Axis 2 is horizontal movement of right joystick. Axis 5 is vertical movement of right joystick
-		float moveX = 5 * (axisArray.at(2) - 0.5);
-		float moveY = 2.5 * (axisArray.at(5) - 0.5);
+		float3 move = { 5 * (axisArray.at(2) - 0.5), 2.5 * (axisArray.at(5) - 0.5), 0.0f };
 
-		if (std::abs(moveX) > 0.3f || std::abs(moveY) > 0.3f)
+		if (std::abs(move.x) > 0.3f || std::abs(move.y) > 0.3f)
 		{
-			EventBus::GetInstance().Publish(&MouseMovement(moveX, moveY));
+			EventBus::GetInstance().Publish(&MouseMovement(move.x, move.y));
+		}
+
+		if (useMouse)
+		{
+			move.x = (axisArray.at(0) - 0.5);
+			move.y = (axisArray.at(1) - 0.5);
+
+			if (std::abs(move.x) > 0.2f || std::abs(move.y) > 0.2f)
+			{
+				POINT cursorPos;
+				GetCursorPos(&cursorPos);
+
+				cursorPos.x += move.x * 1000.0 * dt;
+				cursorPos.y += move.y * 1000.0 * dt;
+
+				SetCursorPos(cursorPos.x, cursorPos.y);
+			}
 		}
 	}
 }
