@@ -26,7 +26,7 @@ Submit CollisionCube 0.1, 1.0, 1.0
 AddToEdge 0
 
 Name Banner1
-ModelPath Models/BannerHans/banner.obj
+ModelPath Models/Banner/banner.obj
 ModelScaling 2.0, 2.0, 2.0
 ModelRotation 0.0, 120.0, 0.0
 ModelPosition 23.0, 15.0, 83.0
@@ -40,7 +40,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 AddToEdge 0
 
 Name Banner2
-ModelPath Models/BannerStefan/banner.obj
+ModelPath Models/Banner/banner.obj
 ModelScaling 2.0, 2.0, 2.0
 ModelRotation 0.0, 120.0, 0.0
 ModelPosition 56.0, 15.0, 64.0
@@ -69,7 +69,7 @@ Submit CollisionCube 0.1, 1.0, 1.0
 AddToEdge 1
 
 Name Banner4
-ModelPath Models/BannerHans/banner.obj
+ModelPath Models/Banner/banner.obj
 ModelScaling 2.0, 2.0, 2.0
 ModelRotation 0.0, 180.0, 0.0
 ModelPosition 83.0, 15.0, -25.0
@@ -128,7 +128,7 @@ Submit CollisionCube 0.1, 1.0, 1.0
 AddToEdge 2
 
 Name Banner5
-ModelPath Models/BannerStefan/banner.obj
+ModelPath Models/Banner/banner.obj
 ModelScaling 2.0, 2.0, 2.0
 ModelRotation 0.0, 240.0, 0.0
 ModelPosition 59.0, 15.0, -61.0
@@ -142,7 +142,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 AddToEdge 2
 
 Name Banner6
-ModelPath Models/BannerHans/banner.obj
+ModelPath Models/Banner/banner.obj
 ModelScaling 2.0, 2.0, 2.0
 ModelRotation 0.0, 240.0, 0.0
 ModelPosition 16.0, 15.0, -86.0
@@ -201,7 +201,7 @@ Submit CollisionCube 0.1, 1.0, 1.0
 AddToEdge 3
 
 Name Banner7
-ModelPath Models/BannerHans/banner.obj
+ModelPath Models/Banner/banner.obj
 ModelScaling 2.0, 2.0, 2.0
 ModelRotation 0.0, 300.0, 0.0
 ModelPosition -16.0, 15.0, -86.0
@@ -214,7 +214,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 AddToEdge 3
 
 Name Banner8
-ModelPath Models/BannerStefan/banner.obj
+ModelPath Models/Banner/banner.obj
 ModelScaling 2.0, 2.0, 2.0
 ModelRotation 0.0, 300.0, 0.0
 ModelPosition -58.0, 15.0, -61.0
@@ -539,29 +539,6 @@ ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 3.0, 4.0, 3.5
 
-// TREE ----------------------------------------------
-Name DirtBase
-ModelPath Models/Tree/DirtBase/dirtBase.obj
-ModelScaling 5.0, 1.0, 5.0
-ModelRotation 0.0, -0.1, 0.0
-ModelPosition 50.0, 0, -40.0
-ModelRestitution 0.5
-ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
-Submit Model
-
-Name Treetrunk
-ModelPath Models/Tree/Tree/treeTrunk.obj
-ModelScaling 4.0, 4.0, 4.0
-ModelRotation 0.0, 0.0, 0.0
-ModelPosition 50.0, -2.0, -40.0
-ModelRestitution 0.5
-ModelDrawFlag 1, 1
-ModelDrawFlag 5, 1
-ShrinkBoundingBox 20.0, 1.0, 15.0
-Submit Model
-Submit CollisionCapsule 0.4, 10.0, 0.4
-
 // Brazier ----------------------------------------------
 Name Brazier1
 ModelPath Models/MedievalBraizer/medievalBraizer.obj
@@ -626,6 +603,7 @@ ModelPath Models/Gawblin/Gawblin.obj
 ModelPosition -20.0, 3.3, 16.0
 ModelRotation 0.0, -45.0, 0.0
 ModelScaling 2.5, 2.5, 2.5
+ModelPicking 1
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
 ModelLightPosition -16.0, 3.0, 9.0
@@ -635,3 +613,26 @@ ModelLightFlag 0,0
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit SpotLight
 Submit Model
+
+// TREE ----------------------------------------------
+Name DirtBase
+ModelPath Models/Tree/DirtBase/dirtBase.obj
+ModelScaling 5.0, 1.0, 5.0
+ModelRotation 0.0, -0.1, 0.0
+ModelPosition 50.0, 0, -40.0
+ModelRestitution 0.5
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
+Name Treetrunk
+ModelPath Models/Tree/Tree/treeTrunk.obj
+ModelScaling 4.0, 4.0, 4.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 50.0, -2.0, -40.0
+ModelRestitution 0.5
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+ShrinkBoundingBox 20.0, 1.0, 15.0
+Submit Model
+Submit CollisionCapsule 0.4, 10.0, 0.4
