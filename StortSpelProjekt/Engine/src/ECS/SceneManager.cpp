@@ -268,17 +268,17 @@ bool SceneManager::sceneExists(std::string sceneName) const
 void SceneManager::onEntityRemove(RemoveMe* evnt)
 {
 	// TODO: Ugly solution to a bug
-	bool entityWillBeRemoved = false;
+	bool entityIsAlreadyInTheVectorm_ToRemoveAndWillThereforeBeRemovedSoWeDoNotNeedToPushIt = false;
 	for (auto& entity : m_ToRemove)
 	{
 		if (entity.ent == evnt->ent)
 		{
-			entityWillBeRemoved = true;
+			entityIsAlreadyInTheVectorm_ToRemoveAndWillThereforeBeRemovedSoWeDoNotNeedToPushIt = true;
 			break;
 		}
 	}
 
-	if (!entityWillBeRemoved)
+	if (!entityIsAlreadyInTheVectorm_ToRemoveAndWillThereforeBeRemovedSoWeDoNotNeedToPushIt)
 	{
 		m_ToRemove.push_back({ evnt->ent, m_pActiveScene });
 	}
