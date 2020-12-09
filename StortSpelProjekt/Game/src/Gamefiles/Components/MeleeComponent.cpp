@@ -129,14 +129,13 @@ void component::MeleeComponent::Update(double dt)
 
 void component::MeleeComponent::Attack()
 {
-	
 	if (!m_Cooldown)
 	{
 		if (m_AudioPlay)
 		{
 			m_pVoiceComponent->Play(L"SwordSwing");
 		}
-		//Log::Print("Attacking now \n");
+
 		m_Attacking = true;
 		//Checks collision of entities
 		checkCollision();

@@ -5,6 +5,7 @@
 #include "../Renderer/Camera/PerspectiveCamera.h"
 #include "../Renderer/Transform.h"
 #include "../ECS/Components/Collision/CollisionComponent.h"
+#include "../ECS/SceneManager.h"
 #include "Physics/Physics.h"
 #include "../Misc/Option.h"
 #include "Shop.h"
@@ -602,7 +603,9 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 {
-	if (!Input::GetInstance().IsPaused())
+	Scene* scene = SceneManager::GetInstance().GetActiveScene();
+
+	if (!Input::GetInstance().IsPaused() && scene->GetName() != "ShopScene")
 	{
 		switch (evnt->button) {
 		case MOUSE_BUTTON::LEFT_DOWN:
