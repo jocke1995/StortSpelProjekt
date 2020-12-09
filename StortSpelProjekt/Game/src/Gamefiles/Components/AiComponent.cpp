@@ -30,6 +30,8 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_KnockBackTimer = 0.5f;
 	m_TargetCircleRadius = m_AttackingDistance * 5.0f;
 	m_TargetCircleTimer = 0.0f;
+	m_RandMovementTimer = 0.0f;
+	m_SlowingAttack = 0.0f;
 
 	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 	m_GoalPos = target->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
@@ -38,6 +40,7 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_DirectionPath = { 0.0f, 0.0f, 0.0f };
 	m_TargetCirclePoint = { -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))), 0.0f, -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))) };
 	m_TargetCirclePoint.normalize();
+	m_RandTarget = m_StartPos;
 
 	m_Targets.push_back(target);
 
@@ -103,6 +106,7 @@ void component::AiComponent::Update(double dt)
 	{
 		m_KnockBackTimer += dt;
 		m_TargetCircleTimer += dt;
+		m_RandMovementTimer += dt;
 		pathFinding();
 
 		m_IntervalTimeAccumulator += static_cast<float>(dt);
@@ -190,6 +194,11 @@ void component::AiComponent::SetRangedAI()
 		SetAttackSpeed(m_AttackSpeed);
 	}
 	m_MovementVelocity = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetVelocity();
+}
+
+void component::AiComponent::SetSlowingAttack(float slow)
+{
+	m_SlowingAttack = slow;
 }
 
 void component::AiComponent::KnockBack(const Transform& attackTransform, float knockback)
@@ -488,11 +497,15 @@ void component::AiComponent::updateMelee(double dt)
 	CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
 	if (cc->CastRay({ 0.0, -1.0, 0.0 }, cc->GetDistanceToBottom() + 0.5) != -1)
 	{
-		double vel;
-		if (m_DistancePath <= m_DetectionRadius && m_DistancePath >= (m_AttackingDistance - 0.5f))
+		double vel = m_pParentTrans->GetVelocity();
+		if (m_DistanceToPlayer <= m_DetectionRadius && m_DistanceToPlayer >= (m_AttackingDistance - 0.5f))
 		{
-			vel = m_pParentTrans->GetVelocity();
 			cc->SetVelVector(vel * m_DirectionPath.x / m_DistancePath, vel * 2 * m_DirectionPath.y / m_DistancePath, vel * m_DirectionPath.z / m_DistancePath);
+		}
+		else if (m_DistanceToPlayer > m_DetectionRadius && m_RandMovementTimer > 2.0f)
+		{
+			m_RandMovementTimer = 0.0f;
+			randMovement();
 		}
 
 		if (m_DistanceToPlayer <= m_AttackingDistance)
@@ -503,23 +516,29 @@ void component::AiComponent::updateMelee(double dt)
 			HealthComponent* hc = m_pTarget->GetComponent<component::HealthComponent>();
 			if (hc != nullptr)
 			{
-				m_SpeedTimeAccumulator += static_cast<float>(dt);
-				if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
+				if (m_IntervalTimeAccumulator >= m_AttackInterval)
 				{
-					// Should possibly be moved outside of the if statement(s)?
-					if (m_pParent->GetName().find("Spider", 0) != std::string::npos)
+					m_SpeedTimeAccumulator += static_cast<float>(dt);
+					if (m_SpeedTimeAccumulator >= m_AttackSpeed)
 					{
-						m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Bite", false);
-					}
-					else if (m_pParent->GetName().find("Zombie", 0) != std::string::npos)
-					{
-						m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Attack", false);
-					}
+						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnAttack");
+						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnAttack");
+						if (m_pParent->GetName().find("Spider", 0) != std::string::npos)
+						{
+							m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Bite", false);
+						}
+						else if (m_pParent->GetName().find("Zombie", 0) != std::string::npos)
+						{
+							m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Attack", false);
+						}
+						m_pTarget->GetComponent<component::PlayerInputComponent>()->SetSlow(1.0f - m_SlowingAttack);
+						m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(m_MeleeAttackDmg);
+						m_pTarget->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerHit1");
 
-					m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(m_MeleeAttackDmg);
-					//Log::Print("ENEMY ATTACK!\n");
-					m_SpeedTimeAccumulator = 0.0;
-					m_IntervalTimeAccumulator = 0.0;
+						m_SpeedTimeAccumulator = 0.0;
+						m_IntervalTimeAccumulator = 0.0;
+
+					}
 				}
 			}
 		}
@@ -553,8 +572,9 @@ void component::AiComponent::updateRange(double dt)
 	if (cc->CastRay({ 0.0, -1.0, 0.0 }, cc->GetDistanceToBottom() + 0.5) != -1)
 	{
 		double vel;
-		if (m_DistanceToPlayer > m_DetectionRadius)
+		if (m_DistanceToPlayer > m_DetectionRadius && m_RandMovementTimer > 2.0f)
 		{
+			m_RandMovementTimer = 0.0f;
 			randMovement();
 		}
 		else if (m_DistanceToPlayer <= m_DetectionRadius && m_DistanceToPlayer > m_AttackingDistance)
@@ -568,7 +588,7 @@ void component::AiComponent::updateRange(double dt)
 			vel = m_pParentTrans->GetVelocity();
 			cc->SetVelVector(vel * m_DirectionPath.x / m_DistancePath, vel * 2 * m_DirectionPath.y / m_DistancePath, vel * m_DirectionPath.z / m_DistancePath);
 		}
-		else //if (playerDistance <= m_AttackingDistance)
+		else if (m_DistanceToPlayer <= m_AttackingDistance)
 		{
 			// if something is in the way, keep moving, else shoot
 			double rayDist = cc->CastRay({ m_pTargetTrans->GetPositionFloat3().x, m_pTargetTrans->GetPositionFloat3().y, m_pTargetTrans->GetPositionFloat3().z });
@@ -582,24 +602,30 @@ void component::AiComponent::updateRange(double dt)
 			}
 			else
 			{
-				// stand still to shoot
-				m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(0);
-				cc->SetVelVector(0, 0, 0);
-				m_StandStill = true;
-				// set direction
-
-				float3 aimDirection = setAimDirection();
-
-				m_SpeedTimeAccumulator += static_cast<float>(dt);
-				if (m_SpeedTimeAccumulator >= m_AttackSpeed && m_IntervalTimeAccumulator >= m_AttackInterval)
+				if (m_IntervalTimeAccumulator >= m_AttackInterval && m_DistanceToPlayer >= m_AttackingDistance / 8.0f)
 				{
-					// shoot
-					m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(aimDirection);
-					m_SpeedTimeAccumulator = 0.0;
-					m_IntervalTimeAccumulator = 0.0;
+					// stand still to shoot
+					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(0);
+					cc->SetVelVector(0, 0, 0);
+					m_StandStill = true;
+					// set direction
+
+					float3 aimDirection = setAimDirection();
+
+					m_SpeedTimeAccumulator += static_cast<float>(dt);
+					if (m_SpeedTimeAccumulator >= m_AttackSpeed)
+					{
+						// shoot
+						m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(aimDirection);
+						m_SpeedTimeAccumulator = 0.0;
+						m_IntervalTimeAccumulator = 0.0;
+						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnAttack");
+						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnAttack");
+					}
 				}
-				else if (m_IntervalTimeAccumulator >= m_AttackInterval / 4.0 && m_DistanceToPlayer <= m_AttackingDistance / 2.0f)
+				else if (m_DistanceToPlayer <= m_AttackingDistance / 2.0f)
 				{
+					m_SpeedTimeAccumulator = 0;
 					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(m_MovementVelocity * 0.75f);
 					vel = -m_pParentTrans->GetVelocity();
 					cc->SetVelVector(vel * m_DirectionPath.x / m_DistancePath, vel * 2 * m_DirectionPath.y / m_DistancePath, vel * m_DirectionPath.z / m_DistancePath);
@@ -730,19 +756,18 @@ void component::AiComponent::pathFinding()
 
 void component::AiComponent::randMovement()
 {
-	Transform* parentTrans = m_pParent->GetComponent<component::TransformComponent>()->GetTransform();
 	CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
 
-	double vel = parentTrans->GetVelocity();
-	float randX = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
-	float randZ = -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f))));
-	double moveX = min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel);
-	double moveZ = min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel);
+	double vel = m_pParentTrans->GetVelocity() / 2.0f;
+	float3 randTarget = { -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))), 0.0f, -1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (-1.0f)))) };
+	randTarget.normalize();
+	float randDistance = static_cast <float> (rand() % static_cast<int>(m_DetectionRadius / 2.0f));
+	m_RandTarget = m_pParentTrans->GetPositionFloat3() + randTarget * randDistance;
+	cc->SetVelVector(vel * randTarget.x, 0.0, vel * randTarget.z);
 
 	if (!(m_Flags & F_AI_FLAGS::CAN_ROLL))
 	{
-		double angle = std::atan2(m_pParentTrans->GetInvDir() * moveX, m_pParentTrans->GetInvDir() * moveZ);
+		double angle = std::atan2(m_pParentTrans->GetInvDir() * randTarget.x, m_pParentTrans->GetInvDir() * randTarget.z);
 		cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 	}
-	cc->SetVelVector(min(max(cc->GetLinearVelocity().x + vel * randX, -5.0f * vel), 5.0f * vel), 0.0f, min(max(cc->GetLinearVelocity().z + vel * randZ, -5.0f * vel), 5.0f * vel));
 }

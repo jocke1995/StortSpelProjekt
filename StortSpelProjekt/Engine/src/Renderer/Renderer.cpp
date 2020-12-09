@@ -175,6 +175,15 @@ void Renderer::InitD3D12(Window *window, HINSTANCE hInstance, ThreadPool* thread
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to Create Device\n");
 	}
 
+	// Create handle to process
+	DWORD currentProcessID = GetCurrentProcessId();
+	m_ProcessHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, currentProcessID);
+
+	if (m_ProcessHandle == nullptr)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create handle to process\n");
+	}
+
 	// Create CommandQueues (copy, compute and direct)
 	createCommandQueues();
 
@@ -260,7 +269,18 @@ void Renderer::InitD3D12(Window *window, HINSTANCE hInstance, ThreadPool* thread
 
 	initRenderTasks();
 
-	
+	Texture* percent100 = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/EnemyHealth100.png");
+	Texture* percent80 = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/EnemyHealth80.png");
+	Texture* percent60 = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/EnemyHealth60.png");
+	Texture* percent40 = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/EnemyHealth40.png");
+	Texture* percent20 = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/EnemyHealth20.png");
+
+	submitTextureToCodt(percent100);
+	submitTextureToCodt(percent80);
+	submitTextureToCodt(percent60);
+	submitTextureToCodt(percent40);
+	submitTextureToCodt(percent20);
+
 	submitMeshToCodt(m_pFullScreenQuad);
 	submitMeshToCodt(m_pQuadMesh);
 }
@@ -1312,8 +1332,9 @@ bool Renderer::createDevice()
 #endif
 #endif
 
-	IDXGIFactory6* factory = nullptr;
+	
 	IDXGIAdapter1* adapter = nullptr;
+	IDXGIFactory6* factory = nullptr;
 
 	CreateDXGIFactory(IID_PPV_ARGS(&factory));
 
@@ -1332,6 +1353,11 @@ bool Renderer::createDevice()
 		}
 	
 		SAFE_RELEASE(&adapter);
+	}
+
+	if (FAILED(adapter->QueryInterface(__uuidof(IDXGIAdapter4), reinterpret_cast<void**>(&m_pAdapter4))))
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to queryInterface for adapter4\n");
 	}
 	
 	if (adapter)
@@ -1506,7 +1532,14 @@ void Renderer::updateMousePicker()
 		component::ModelComponent*		mc = parentOfPickedObject->GetComponent<component::ModelComponent>();
 		component::TransformComponent*	tc = parentOfPickedObject->GetComponent<component::TransformComponent>();
 
-		static_cast<OutliningRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE])->SetObjectToOutline(&std::make_pair(mc, tc));
+		if (parentOfPickedObject->GetName().find("enemy") != std::string::npos)
+		{
+			parentOfPickedObject->GetComponent<component::ProgressBarComponent>()->EnableProgressBar();
+		}
+		else
+		{
+			static_cast<OutliningRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE])->SetObjectToOutline(&std::make_pair(mc, tc));
+		}
 
 		m_pPickedEntity = parentOfPickedObject;
 	}
@@ -1514,6 +1547,13 @@ void Renderer::updateMousePicker()
 	{
 		// No object was picked, reset the outlingRenderTask
 		static_cast<OutliningRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::OUTLINE])->Clear();
+		if (m_pPickedEntity != nullptr)
+		{
+			if (m_pPickedEntity->GetName().find("enemy") != std::string::npos)
+			{
+				m_pPickedEntity->GetComponent<component::ProgressBarComponent>()->DisableProgressBar();
+			}
+		}
 		m_pPickedEntity = nullptr;
 	}
 }

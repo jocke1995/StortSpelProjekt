@@ -10,6 +10,8 @@
 #include "Renderer/Texture/Texture2DGUI.h"
 #include "ECS/Components/ParticleEmitterComponent.h"
 #include "ECS/Components/TemporaryLifeComponent.h"
+#include "../Events/EventBus.h"
+
 
 constexpr float g_timeToLive = 1.0f;
 
@@ -21,9 +23,37 @@ component::EnemyComponent::~EnemyComponent()
 {
 }
 
+void component::EnemyComponent::Update(double dt)
+{
+    // Sound
+    m_TimeSinceLastGrunt += dt;
+    if (static_cast<double>(m_Rand.Randu(10,100)) < m_TimeSinceLastGrunt)
+    {
+        m_TimeSinceLastGrunt = 0.0;
+        m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnGrunt");
+        m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnGrunt");
+    }
+
+    // Move ProgressBar with the enemy
+    component::ProgressBarComponent* pc = m_pParent->GetComponent<component::ProgressBarComponent>();
+    component::TransformComponent* tc = m_pParent->GetComponent<component::TransformComponent>();
+    Transform* trans = tc->GetTransform();
+    component::ModelComponent* mc = m_pParent->GetComponent<component::ModelComponent>();
+
+    float3 positionAboveHead = trans->GetPositionFloat3();
+
+    positionAboveHead.y = positionAboveHead.y + mc->GetModelDim().y * trans->GetScale().y / 2.0f + 1.0f;
+
+    pc->SetPosition(positionAboveHead);
+}
+
 void component::EnemyComponent::OnInitScene()
 {
 	m_pFactory->AddEnemyToList(m_pParent);
+    
+    m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"Walk");
+    m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"Walk");    
+    EventBus::GetInstance().Subscribe(this, &EnemyComponent::death);
 }
 
 void component::EnemyComponent::OnUnInitScene()
@@ -70,4 +100,17 @@ void component::EnemyComponent::OnUnInitScene()
 
     // Remove the enemy
 	m_pFactory->RemoveEnemyFromList(m_pParent);
+}
+
+void component::EnemyComponent::SetRandSeed(unsigned long seed)
+{
+    m_Rand.SetSeed(seed);
+}
+
+void component::EnemyComponent::death(Death* evnt)
+{
+    if (evnt->ent->GetComponent<component::Audio3DEmitterComponent>())
+    {
+        evnt->ent->GetComponent<component::Audio3DEmitterComponent>()->Stop(L"Walk");
+    }
 }

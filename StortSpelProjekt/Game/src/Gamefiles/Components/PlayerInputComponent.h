@@ -47,6 +47,7 @@ namespace component
 		void OnInitScene();
 		void OnUnInitScene();
 
+		void Update(double dt);
 		void RenderUpdate(double dt);
 
 		//Sets the maximum height of a jump
@@ -55,6 +56,8 @@ namespace component
 		void SetJumpTime(double time);
 		//Sets the movement speed
 		void SetMovementSpeed(float speed);
+		//Sets slow
+		void SetSlow(float slow);
 
 		void SetAngleToTurnTo(int angle);
 
@@ -70,6 +73,8 @@ namespace component
 		float m_Height;
 		float m_Elevation;
 		float m_MovementSpeed;
+		float m_BaseMovementSpeed;
+		float m_Slow;
 
 		PerspectiveCamera* m_pCamera;
 		Transform* m_pTransform;
@@ -79,6 +84,9 @@ namespace component
 		double m_DashTimer;
 		bool m_DashReady;
 		bool m_Dashing;
+		bool m_Jump;
+		bool m_Attack;
+		bool m_AttackNext;
 		unsigned char m_WasMoving = false;
 		bool m_MovementStateChanged = false;
 

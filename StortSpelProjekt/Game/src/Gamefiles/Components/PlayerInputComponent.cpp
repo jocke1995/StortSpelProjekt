@@ -28,7 +28,9 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_JumpHeight = 5.0;
 	m_JumpTime = 0.25;
 	m_Gravity = (-2 * m_JumpHeight) / (m_JumpTime * m_JumpTime);
+	m_BaseMovementSpeed = 10.0f;
 	m_MovementSpeed = 10.0f;
+	m_Slow = 1.0f;
 
 	m_pCamera = nullptr;
 	m_pTransform = nullptr;
@@ -39,6 +41,8 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_Attacking = false;
 	m_TurnToCamera = false;
 	m_CameraRotating = false;
+	m_Attack = false;
+	m_AttackNext = false;
 
 	m_Elevation = std::stof(Option::GetInstance().GetVariable("f_playerElevation"));
 
@@ -50,6 +54,8 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 
 	m_TurningTimer = 0.0f;
 	m_TurningInterval = 0.0f;
+
+	m_Jump = false;
 }
 
 component::PlayerInputComponent::~PlayerInputComponent()
@@ -112,6 +118,48 @@ void component::PlayerInputComponent::OnUnInitScene()
 {
 }
 
+void component::PlayerInputComponent::Update(double dt)
+{
+	if (m_Slow < 1.0f)
+	{
+		m_Slow += 0.2 * dt; //Recover 20% movementspeed every second
+		if (m_Slow > 1.0f)
+		{
+			m_Slow = 1.0f;
+		}
+		m_MovementSpeed = m_BaseMovementSpeed * m_Slow;
+		m_pTransform->SetVelocity(m_MovementSpeed);
+		double3 vel = m_pCC->GetLinearVelocity();
+		float speed = m_pTransform->GetVelocity();
+		double3 move = {
+			vel.x,
+			0.0,
+			vel.z
+		};
+		move.normalize();
+		if (!m_Dashing)
+		{
+			m_pCC->SetVelVector(move.x * speed, vel.y, move.z * speed);
+		}
+	}
+
+	updateCameraDirection();
+
+	if (m_Attacking)
+	{
+		if (m_AttackNext)
+		{
+			m_pParent->GetComponent<component::MeleeComponent>()->Attack();
+			m_AttackNext = false;
+		}
+		if (m_Attack)
+		{
+			m_Attack = false;
+			m_AttackNext = true;
+		}
+	}
+}
+
 void component::PlayerInputComponent::RenderUpdate(double dt)
 {
 	// This code is for running the correct animation (Movement animation or Idle animation) 
@@ -134,8 +182,6 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	// Lock camera to player
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
-		updateCameraDirection();
-
 		setCameraToPlayerPosition();
 
 		limitCameraDistance();
@@ -154,10 +200,6 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 			float angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
-	}
-	else
-	{
-		updateCameraDirection();
 	}
 
 	/* ------------------ Increment timers -------------------- */
@@ -215,7 +257,15 @@ void component::PlayerInputComponent::SetJumpTime(double time)
 
 void component::PlayerInputComponent::SetMovementSpeed(float speed)
 {
-	m_MovementSpeed = speed;
+	m_BaseMovementSpeed = speed;
+	m_MovementSpeed = m_BaseMovementSpeed;
+}
+
+void component::PlayerInputComponent::SetSlow(float slow)
+{
+	m_Slow = slow;
+	m_MovementSpeed = m_BaseMovementSpeed * m_Slow;
+	m_pTransform->SetVelocity(m_MovementSpeed);
 }
 
 void component::PlayerInputComponent::SetAngleToTurnTo(int angle)
@@ -226,6 +276,7 @@ void component::PlayerInputComponent::SetAngleToTurnTo(int angle)
 void component::PlayerInputComponent::SetAttacking()
 {
 	m_Attacking = true;
+	m_Attack = true;
 	m_TurningTimer = 0.0f;
 }
 
@@ -363,6 +414,10 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		}
 
 		double jump = static_cast<double>(evnt->key == SCAN_CODES::SPACE) * static_cast<double>(evnt->pressed);
+		if (jump == 1.0)
+		{
+			m_Jump = true;
+		}
 
 		// Get the forward and right vectors to determine in which direction to move
 		/*float3 forward = m_pTransform->GetForwardFloat3();
@@ -453,6 +508,11 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 
 			double angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
+
+			if (m_pParent->GetComponent<component::Audio2DVoiceComponent>())
+			{
+				m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerDash");
+			}
 		}
 		else
 		{
@@ -555,18 +615,21 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 {
-	switch (evnt->button) {
-	case MOUSE_BUTTON::LEFT_DOWN:
-		m_pParent->GetComponent<component::MeleeComponent>()->Attack();
-		break;
-	case MOUSE_BUTTON::RIGHT_DOWN:
-		m_pParent->GetComponent<component::RangeComponent>()->Attack();
-		if (m_UpdateShootId == -1)
-		{
-			m_UpdateShootId = specificUpdates.size();
-			specificUpdates.push_back(&PlayerInputComponent::updateShoot);
+	if (!Input::GetInstance().IsPaused())
+	{
+		switch (evnt->button) {
+		case MOUSE_BUTTON::LEFT_DOWN:
+			SetAttacking();
+			break;
+		case MOUSE_BUTTON::RIGHT_DOWN:
+			m_pParent->GetComponent<component::RangeComponent>()->Attack();
+			if (m_UpdateShootId == -1)
+			{
+				m_UpdateShootId = specificUpdates.size();
+				specificUpdates.push_back(&PlayerInputComponent::updateShoot);
+			}
+			break;
 		}
-		break;
 	}
 }
 
@@ -584,6 +647,11 @@ void component::PlayerInputComponent::updateDefault(double dt)
 	else
 	{
 		m_pCC->SetGravity(m_Gravity);
+		if (m_Jump)
+		{
+			m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerJump");
+			m_Jump = false;
+		}
 	}
 }
 

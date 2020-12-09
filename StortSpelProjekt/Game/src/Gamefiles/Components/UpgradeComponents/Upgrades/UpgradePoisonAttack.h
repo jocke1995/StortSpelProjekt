@@ -18,7 +18,7 @@ public:
 	std::string GetDescription(unsigned int level);
 
 private:
-	int m_Damage;
+	float m_Damage;
 	int m_NrOfTicks;
 	float m_Slow;
 	double m_TickDuration;

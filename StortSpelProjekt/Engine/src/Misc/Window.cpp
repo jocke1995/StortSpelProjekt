@@ -27,10 +27,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 	case WM_SYSKEYDOWN: // alt+enter
-		if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000)
-		{
-			EventBus::GetInstance().Publish(&WindowChange());
-		}
+		// Removed since it causes crashes.
+		//if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000)
+		//{
+		//	EventBus::GetInstance().Publish(&WindowChange());
+		//}
 		return 0;
 	case WM_ACTIVATEAPP: // alt+tab, windows key and more
 		if (!wParam && programRunning
@@ -41,14 +42,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_KEYDOWN:
-		if (wParam == VK_ESCAPE)
-		{
-			//if (MessageBox(0, L"Are you sure you want to exit?", L"Exit", MB_YESNO | MB_ICONQUESTION) == IDYES)
-			//{
-			programRunning = false;
-			DestroyWindow(hWnd);
-			//}
-		}
+		// Removed since we don't want people to randomly press escape and shut the program down.
+		// Todo: implement menu where you can exit.
+		//if (wParam == VK_ESCAPE)
+		//{
+		//	//if (MessageBox(0, L"Are you sure you want to exit?", L"Exit", MB_YESNO | MB_ICONQUESTION) == IDYES)
+		//	//{
+		//	programRunning = false;
+		//	DestroyWindow(hWnd);
+		//	//}
+		//}
 		// Temp to create objects during runtime
 		if (wParam == VK_SPACE)
 		{
@@ -61,6 +64,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		
 		return 0;
 
+	// On close and alt+f4, alt+f4 don't work apparently, is coded in WM_KEYDOWN
+	case WM_CLOSE:
+		programRunning = false;
+		DestroyWindow(hWnd);
+		return 0;
+		
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
@@ -89,80 +98,60 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			int modifier = (inputData.Flags / 2 + 1) * 0x100;
 			SCAN_CODES key = static_cast<SCAN_CODES>(inputData.MakeCode + modifier);
 
-			if (DEVELOPERMODE_DEVINTERFACE == true)
+			if ( key == SCAN_CODES::END || (key == SCAN_CODES::F4 && Input::GetInstance().GetKeyState(SCAN_CODES::ALT)))
 			{
-				if (key == SCAN_CODES::ALT && !Input::GetInstance().GetKeyState(SCAN_CODES::ALT) && !(inputData.Flags % 2))
+				// Check if not pressed up (case where HOLD f4 -> HOLD alt -> RELEASE f4)
+				if (inputData.Flags == RI_KEY_BREAK)
 				{
-					ShowCursor(true);
-					Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
+					return 0;
 				}
-				else if (key == SCAN_CODES::ALT && (inputData.Flags % 2))
-				{
-					ShowCursor(false);
-					Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
-				}
+
+				// UnSet alt
+				Input::GetInstance().SetKeyState(SCAN_CODES::ALT, false);
+
+				// Quit
+				programRunning = false;
+				DestroyWindow(hWnd);
+
+				return 0;
 			}
-			if (DEVELOPERMODE_DEVINTERFACE == false || !Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
-			{
-				Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
-			}
+
+			Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
 		}
 		else if (raw->header.dwType == RIM_TYPEMOUSE)
 		{
-			if (DEVELOPERMODE_DEVINTERFACE == false || !Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
+			auto inputData = raw->data.mouse;
+			MOUSE_BUTTON button = static_cast<MOUSE_BUTTON>(inputData.usButtonFlags);
+
+			switch (button)
 			{
-				auto inputData = raw->data.mouse;
-				MOUSE_BUTTON button = static_cast<MOUSE_BUTTON>(inputData.usButtonFlags);
-
-				switch (button)
-				{
-					case MOUSE_BUTTON::WHEEL:
-						Input::GetInstance().SetMouseScroll(inputData.usButtonData);
-						break;
-					case MOUSE_BUTTON::LEFT_DOWN:
-						Input::GetInstance().SetMouseButtonState(button, true);
-						break;
-					case MOUSE_BUTTON::MIDDLE_DOWN:
-					case MOUSE_BUTTON::RIGHT_DOWN:
-						Input::GetInstance().SetMouseButtonState(button, true);
-						break;
-					case MOUSE_BUTTON::LEFT_UP:
-						button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
-						Input::GetInstance().SetMouseButtonState(button, false);
-						break;
-					case MOUSE_BUTTON::MIDDLE_UP:
-					case MOUSE_BUTTON::RIGHT_UP:
-						button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
-						Input::GetInstance().SetMouseButtonState(button, false);
-						break;
-					default:
-						break;
-				}
-
-				Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
-				RECT win;
-				GetWindowRect(hWnd, &win);
-				ClipCursor(&win);
-			}
-
-			// This is temporarly to make sure that a mouse click works even though the 'alt' key is pressed
-			if (DEVELOPERMODE_DEVINTERFACE == false || Input::GetInstance().GetKeyState(SCAN_CODES::ALT))
-			{
-				auto inputData = raw->data.mouse;
-				MOUSE_BUTTON button = static_cast<MOUSE_BUTTON>(inputData.usButtonFlags);
-
-				switch (button)
-				{
+				case MOUSE_BUTTON::WHEEL:
+					Input::GetInstance().SetMouseScroll(inputData.usButtonData);
+					break;
 				case MOUSE_BUTTON::LEFT_DOWN:
+					Input::GetInstance().SetMouseButtonState(button, true);
+					break;
+				case MOUSE_BUTTON::MIDDLE_DOWN:
+				case MOUSE_BUTTON::RIGHT_DOWN:
 					Input::GetInstance().SetMouseButtonState(button, true);
 					break;
 				case MOUSE_BUTTON::LEFT_UP:
 					button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
 					Input::GetInstance().SetMouseButtonState(button, false);
+					break;
+				case MOUSE_BUTTON::MIDDLE_UP:
+				case MOUSE_BUTTON::RIGHT_UP:
+					button = static_cast<MOUSE_BUTTON>(static_cast<int>(button) / 2);
+					Input::GetInstance().SetMouseButtonState(button, false);
+					break;
 				default:
 					break;
-				}
 			}
+
+			Input::GetInstance().SetMouseMovement(inputData.lLastX, inputData.lLastY);
+			RECT win;
+			GetWindowRect(hWnd, &win);
+			ClipCursor(&win);
 		}
 
 		delete[] lpb;
@@ -305,7 +294,7 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 
 	WNDCLASSEX wc;
 	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = CS_HREDRAW | CS_VREDRAW;	// Device Context
+	wc.style = CS_HREDRAW | CS_VREDRAW ;	// Device Context
 	wc.lpfnWndProc = WndProc;	// Callback, Event catcher
 	wc.cbClsExtra = NULL;
 	wc.cbWndExtra = NULL;
@@ -313,7 +302,7 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 2);
-	wc.lpszMenuName = NULL;
+	wc.lpszMenuName = L"WindowSomethingMenuName";
 	wc.lpszClassName = m_WindowName;
 	wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
@@ -327,7 +316,7 @@ bool Window::initWindow(HINSTANCE hInstance, int nCmdShow)
 	m_Hwnd = CreateWindowEx(NULL,
 		m_WindowName,
 		m_WindowTitle,
-		WS_OVERLAPPEDWINDOW,
+		WS_OVERLAPPED,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		m_ScreenWidth, m_ScreenHeight,
 		NULL,

@@ -24,13 +24,7 @@ component::AnimationComponent::~AnimationComponent()
 	}
 
 	deleteCBMatrices();
-
-	for (unsigned int i = 0; i < m_DefaultResourceVertices.size(); i++)
-	{
-		delete m_DefaultResourceVertices[i];
-		delete m_SRVs[i];
-		delete m_pUAVs[i];
-	}
+	Reset();
 }
 
 void component::AnimationComponent::RenderUpdate(double dt)
