@@ -274,6 +274,7 @@ void SceneManager::onEntityRemove(RemoveMe* evnt)
 		if (entity.ent == evnt->ent)
 		{
 			entityWillBeRemoved = true;
+			break;
 		}
 	}
 
