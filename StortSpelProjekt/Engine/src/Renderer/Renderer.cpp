@@ -175,6 +175,15 @@ void Renderer::InitD3D12(Window *window, HINSTANCE hInstance, ThreadPool* thread
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to Create Device\n");
 	}
 
+	// Create handle to process
+	DWORD currentProcessID = GetCurrentProcessId();
+	m_ProcessHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, currentProcessID);
+
+	if (m_ProcessHandle == nullptr)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create handle to process\n");
+	}
+
 	// Create CommandQueues (copy, compute and direct)
 	createCommandQueues();
 
@@ -1340,6 +1349,11 @@ bool Renderer::createDevice()
 		}
 	
 		SAFE_RELEASE(&adapter);
+	}
+
+	if (FAILED(adapter->QueryInterface(__uuidof(IDXGIAdapter4), reinterpret_cast<void**>(&m_pAdapter4))))
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to queryInterface for adapter4\n");
 	}
 	
 	if (adapter)

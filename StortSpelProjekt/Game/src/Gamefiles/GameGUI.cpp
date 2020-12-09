@@ -4,6 +4,8 @@
 #include "ECS/Scene.h"
 #include "Player.h"
 #include "Misc/Option.h"
+#include "Events/EventBus.h"
+#include "ECS/SceneManager.h"
 
 GameGUI::GameGUI()
 {
@@ -14,6 +16,8 @@ GameGUI::GameGUI()
 	m_pOldScene = nullptr;
 	m_TimePlayed = 0;
 	m_TimePlayedTimer = 0;
+
+	EventBus::GetInstance().Subscribe(this, &GameGUI::sceneChange);
 }
 
 GameGUI& GameGUI::GetInstance()
@@ -176,6 +180,14 @@ void GameGUI::reset(Scene* scene)
 	m_OldMaxHealth = 0;
 	m_OldMoney = 0;
 	m_OldHealthLength = 0;
-	m_TimePlayed = 0;
-	m_TimePlayedTimer = 0;
+}
+
+void GameGUI::sceneChange(SceneChange* evnt)
+{
+	//If the player enters Main Menu Scene then they have either just started the game or ended a game.
+	if (evnt->m_NewSceneName == "MainMenuScene")
+	{
+		m_TimePlayed = 0;
+		m_TimePlayedTimer = 0;
+	}
 }

@@ -56,8 +56,20 @@ void Player::IsInShop(bool value)
 	m_IsInShop = value;
 }
 
+bool Player::IsPlayerAlive()
+{
+	return m_IsAlive;
+}
+
+void Player::SetPlayerAlive(bool state)
+{
+	m_IsAlive = state;
+}
+
 void Player::onResetGame(ResetGame* evnt)
 {
+	m_IsAlive = true;
+
 	Entity* gamePlayer = SceneManager::GetInstance().GetScene("GameScene")->GetEntity("player");
 	gamePlayer->GetComponent<component::CurrencyComponent>()->SetBalance(0);
 	gamePlayer->GetComponent<component::UpgradeComponent>()->RemoveAllUpgrades();

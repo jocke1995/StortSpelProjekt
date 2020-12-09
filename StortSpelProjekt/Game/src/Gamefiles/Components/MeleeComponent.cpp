@@ -13,6 +13,7 @@
 #include "../ECS/SceneManager.h"
 #include "../Renderer/Transform.h"
 #include "../ECS//Components/TemporaryLifeComponent.h"
+#include "UpgradeComponents/UpgradeComponent.h"
 
 
 component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
@@ -163,6 +164,11 @@ float component::MeleeComponent::GetAttackInterval()
 	return m_AttackInterval;
 }
 
+int component::MeleeComponent::GetDamage()
+{
+	return m_Damage;
+}
+
 void component::MeleeComponent::checkCollision()
 {
 	std::vector<Entity*> list = Physics::GetInstance().SpecificCollisionCheck(&m_Hitbox);
@@ -176,6 +182,7 @@ void component::MeleeComponent::checkCollision()
 			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 			list.at(i)->GetComponent<component::AiComponent>()->KnockBack(m_MeleeTransformModified, m_KnockBack);
 			particleEffect(list.at(i));
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnMeleeHit(list.at(i));
 		}
 	}
 	list.empty();

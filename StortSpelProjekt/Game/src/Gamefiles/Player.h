@@ -24,11 +24,14 @@ public:
 	UpgradeManager* GetUpgradeManager();
 	Shop* GetShop();
 	void IsInShop(bool value);
+	bool IsPlayerAlive();
+	void SetPlayerAlive(bool alive);
 
 private:
 	Player();
 	Entity* m_pPlayer;
 	bool m_IsInShop = false;
+	bool m_IsAlive = true;
 
 	// Player entitys upgrade manager
 	UpgradeManager* m_pUpgradeManager = nullptr;
