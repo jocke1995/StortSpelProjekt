@@ -35,6 +35,7 @@ namespace component
         friend class Renderer;
         friend class AnimatedDepthRenderTask;
         friend class ForwardRenderTask;
+        friend class ShadowRenderTask;
         
         AnimatedModel* m_pAnimatedModel = nullptr;
         SkeletonNode* m_pSkeleton = nullptr;

@@ -494,24 +494,24 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     vc = entity->AddComponent<component::Audio2DVoiceComponent>();
     vc->AddVoice(L"MenuMusic");
 
-    //component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
-    //component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
-    //mc->SetModel(playerModel);
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    //double3 playerDim = mc->GetModelDim();
-    //Transform* t = tc->GetTransform();
-    //t->SetPosition(0.0f, 0.0f, 10.0f);
-    //t->SetScale(2.0 / playerDim.y);
-    //t->SetRotationX(0.0);
-    //t->SetRotationY(PI);
-    //t->SetRotationZ(0.0);
-    //tc->SetTransformOriginalState();
-    //
-    //
-    //double rad = playerDim.z / 2.0;
-    //double cylHeight = playerDim.y - (rad * 2.0);
-    //component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
-    //cc->SetGravity(0.0);
+    component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
+    component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
+    mc->SetModel(playerModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    double3 playerDim = mc->GetModelDim();
+    Transform* t = tc->GetTransform();
+    t->SetPosition(0.0f, 0.0f, 10.0f);
+    t->SetScale(2.0 / playerDim.y);
+    t->SetRotationX(0.0);
+    t->SetRotationY(PI);
+    t->SetRotationZ(0.0);
+    tc->SetTransformOriginalState();
+    
+    
+    double rad = playerDim.z / 2.0;
+    double cylHeight = playerDim.y - (rad * 2.0);
+    component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
+    cc->SetGravity(0.0);
 
     // Skybox
     entity = scene->AddEntity("skybox");
@@ -536,32 +536,32 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.4f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, exitTex);
     guic->GetQuadManager()->SetOnClicked(&onExit);
 
-    //std::vector<Model*> enemyModels;
-    //enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj"));
-    //enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/AnimatedDemon.fbx"));
-    //for (int i = 0; i < 20; ++i)
-    //{
-    //    entity = scene->AddEntity("menuEnemy" + std::to_string(i));
-    //    component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
-    //    component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
-    //    int enemyModel = rand.Rand(0, enemyModels.size());
-    //    mc->SetModel(enemyModels.at(enemyModel));
-    //    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    //    double3 enemyDim = mc->GetModelDim();
-    //    Transform* t = tc->GetTransform();
-    //    t->SetPosition(rand.Randf(0.0, 20.0) - 10.0f, 0.0, rand.Randf(0.0, 20.0));
-    //    t->SetScale(2.0 / enemyDim.y);
-    //    t->SetRotationX(0.0);
-    //    t->SetRotationY(PI);
-    //    t->SetRotationZ(0.0);
-    //    tc->SetTransformOriginalState();
-    //
-    //
-    //    double rad = enemyDim.z / 2.0;
-    //    double cylHeight = enemyDim.y - (rad * 2.0);
-    //    component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
-    //    cc->SetGravity(0.0);
-    //}
+    std::vector<Model*> enemyModels;
+    enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj"));
+    enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/AnimatedDemon.fbx"));
+    for (int i = 0; i < 20; ++i)
+    {
+        entity = scene->AddEntity("menuEnemy" + std::to_string(i));
+        component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
+        component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
+        int enemyModel = rand.Rand(0, enemyModels.size());
+        mc->SetModel(enemyModels.at(enemyModel));
+        mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+        double3 enemyDim = mc->GetModelDim();
+        Transform* t = tc->GetTransform();
+        t->SetPosition(rand.Randf(0.0, 20.0) - 10.0f, 0.0, rand.Randf(0.0, 20.0));
+        t->SetScale(2.0 / enemyDim.y);
+        t->SetRotationX(0.0);
+        t->SetRotationY(PI);
+        t->SetRotationZ(0.0);
+        tc->SetTransformOriginalState();
+    
+    
+        double rad = enemyDim.z / 2.0;
+        double cylHeight = enemyDim.y - (rad * 2.0);
+        component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
+        cc->SetGravity(0.0);
+    }
     /* ----------------- Light ------------------- */
 
     entity = scene->AddEntity("SpotLight");
@@ -828,17 +828,17 @@ void MainMenuUpdateScene(SceneManager* sm, double dt)
 {
     static float rotValue = 0.0f;
 
-    //Transform* trans = sm->GetScene("MainMenuScene")->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform();
-    //trans->SetRotationY(rotValue);
-    //trans->SetPosition({ 0.0f, std::sin(rotValue), 10.0f });
+    Transform* trans = sm->GetScene("MainMenuScene")->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform();
+    trans->SetRotationY(rotValue);
+    trans->SetPosition({ 0.0f, std::sin(rotValue), 10.0f });
 
-    //for (int i = 0; i < 20; ++i)
-    //{
-    //    trans = sm->GetScene("MainMenuScene")->GetEntity("menuEnemy" + std::to_string(i))->GetComponent<component::TransformComponent>()->GetTransform();
-    //    trans->SetRotationY(rotValue + i);
-    //    float3 pos = trans->GetPositionFloat3();
-    //    trans->SetPosition({ pos.x, std::sin(rotValue + i), pos.z });
-    //}
+    for (int i = 0; i < 20; ++i)
+    {
+        trans = sm->GetScene("MainMenuScene")->GetEntity("menuEnemy" + std::to_string(i))->GetComponent<component::TransformComponent>()->GetTransform();
+        trans->SetRotationY(rotValue + i);
+        float3 pos = trans->GetPositionFloat3();
+        trans->SetPosition({ pos.x, std::sin(rotValue + i), pos.z });
+    }
     
     rotValue += dt;
 }
