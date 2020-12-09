@@ -1,0 +1,71 @@
+# Blender MTL File: 'None'
+# Material Count: 12
+
+newmtl Arrow
+map_Kd Arrow_Base_Color.DDS
+map_Ka Arrow_Metallic.DDS
+map_Ks Arrow_Roughness.DDS
+map_Kn Arrow_Normal_OpenGL.DDS
+
+newmtl Body
+map_Kd Body_Base_Color.DDS
+map_Ka Body_Metallic.DDS
+map_Ks Body_Roughness.DDS
+map_Kn Body_Normal_OpenGL.DDS
+
+newmtl ChainArmor
+map_Kd ChainArmor_Base_Color.DDS
+map_Ka ChainArmor_Metallic.DDS
+map_Ks ChainArmor_Roughness.DDS
+map_Kn ChainArmor_Normal_OpenGL.DDS
+
+newmtl Glass
+map_Kd Glass_Base_Color.DDS
+map_Ka Glass_Metallic.DDS
+map_Ks Glass_Roughness.DDS
+map_Kn Glass_Normal_OpenGL.DDS
+map_d Glass_Mixed_AO.DDS
+
+newmtl GoblinHead
+map_Kd GoblinHead_Base_Color.DDS
+map_Ka GoblinHead_Metallic.DDS
+map_Ks GoblinHead_Roughness.DDS
+map_Kn GoblinHead_Normal_OpenGL.DDS
+
+newmtl Hand.003
+map_Kn Hand_Normal_OpenGL.DDS
+map_Kd Hand_Base_Color.DDS
+map_Ka Hand_Metallic.DDS
+map_Ks Hand_Roughness.DDS
+
+newmtl Helmet
+map_Kd DefaultMaterial_Base_Color.DDS
+map_Ka DefaultMaterial_Metallic.DDS
+map_Ks DefaultMaterial_Roughness.DDS
+map_Kn DefaultMaterial_Normal_OpenGL.DDS
+
+newmtl Liquid
+
+newmtl Mace
+map_Kd Mace_Base_Color.DDS
+map_Ka Mace_Metallic.DDS
+map_Ks Mace_Roughness.DDS
+map_Kn Mace_Normal_OpenGL.DDS
+
+newmtl Shield
+map_Kd PM3D_Circle3D1.002_Base_Color.DDS
+map_Ka PM3D_Circle3D1.002_Metallic.DDS
+map_Ks PM3D_Circle3D1.002_Roughness.DDS
+map_Kn PM3D_Circle3D1.002_Normal_OpenGL.DDS
+
+newmtl Shoe
+map_Kd Shoe_Base_Color.DDS
+map_Ka Shoe_Metallic.DDS
+map_Ks Shoe_Roughness.DDS
+map_Kn Shoe_Normal_OpenGL.DDS
+
+newmtl Solid
+map_Kd Solid_Base_Color.DDS
+map_Ka Solid_Metallic.DDS
+map_Ks Solid_Roughness.DDS
+map_Kn Solid_Normal_OpenGL.DDS
