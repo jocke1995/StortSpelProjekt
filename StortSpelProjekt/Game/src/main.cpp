@@ -953,21 +953,6 @@ Scene* ShopScene(SceneManager* sm)
     bbc->Init();
     /* ---------------------- Shop ---------------------- */
 
-    /* ---------------------- Pressf ---------------------- */
-
-    //entity = scene->AddEntity("pressf");
-    //mc = entity->AddComponent<component::ModelComponent>();
-    //mc->SetModel(pressfModel);
-    //mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    //
-    //tc = entity->AddComponent<component::TransformComponent>();
-    //tc->GetTransform()->SetPosition(-25.0f, 0.0f, 18.0f);
-    //tc->GetTransform()->SetRotationY(PI - PI / 4);
-    //tc->GetTransform()->SetScale(1.4);
-    //tc->SetTransformOriginalState();
-
-    /* ---------------------- Pressf ---------------------- */
-
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();
 
