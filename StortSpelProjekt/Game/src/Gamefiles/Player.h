@@ -5,7 +5,7 @@ class Entity;
 class Shop;
 class UpgradeManager;
 
-struct UForUpgrade;
+struct PauseGame;
 struct ResetGame;
 
 class Player

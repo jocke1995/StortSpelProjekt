@@ -23,7 +23,9 @@ void ImGuiHandler::NewFrame()
 
 void ImGuiHandler::UpdateFrame()
 {
-	const Window* window = Renderer::GetInstance().GetWindow();
+    Renderer& r = Renderer::GetInstance();
+    const Window* window = r.GetWindow();
+    
 
     // Set the size and position of the debug info window and set it to start not collapsed. m_NumberOfDebuggingLines is set in constructor
     ImGui::SetNextWindowSize(ImVec2(window->GetScreenWidth() / 2, ImGui::GetTextLineHeightWithSpacing() * (2 + m_NumberOfDebuggingLines)));
@@ -39,6 +41,30 @@ void ImGuiHandler::UpdateFrame()
     {
         ImGui::Text("Bounding boxes are turned %s", m_BoolMap["boundingBoxToggle"] ? "on" : "off");
     }
+    // Vram usage
+    DXGI_QUERY_VIDEO_MEMORY_INFO info;
+    if (SUCCEEDED(r.m_pAdapter4->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info)))
+    {
+        float memoryUsage = float(info.CurrentUsage / 1024.0 / 1024.0); //MiB
+        ImGui::Text("VRAM usage: %.02f MiB", memoryUsage);
+    };
+
+    // Ram usage
+    PROCESS_MEMORY_COUNTERS pmc{};
+    if (GetProcessMemoryInfo(r.m_ProcessHandle, &pmc, sizeof(pmc)))
+    {
+        //PagefileUsage is the:
+            //The Commit Charge value in bytes for this process.
+            //Commit Charge is the total amount of memory that the memory manager has committed for a running process.
+        float memoryUsage = float(pmc.PagefileUsage / 1024.0 / 1024.0); //MiB
+        ImGui::Text("RAM usage: %.02f MiB", memoryUsage);
+    }
+
+    // Adapter
+    DXGI_ADAPTER_DESC3 desc = {};
+    r.m_pAdapter4->GetDesc3(&desc);
+    ImGui::Text("Adapter: %S", desc.Description);
+
 #pragma endregion debugInfo
     ImGui::End();
 
@@ -542,7 +568,7 @@ int ImGuiHandler::TextEditCallback(ImGuiInputTextCallbackData* data)
 
 ImGuiHandler::ImGuiHandler()
 {
-    m_NumberOfDebuggingLines = 1;
+    m_NumberOfDebuggingLines = 4;
     if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
     {
         ++m_NumberOfDebuggingLines;

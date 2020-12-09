@@ -64,6 +64,7 @@ struct ID3D12CommandQueue;
 struct ID3D12CommandList;
 struct ID3D12Fence1;
 struct ID3D12Device5;
+struct IDXGIAdapter4;
 
 // ECS
 class Entity;
@@ -147,6 +148,7 @@ private:
 	friend class QuadManager;
 	friend class ParticleSystem;
 	friend class ParticleEffect;
+	friend class ImGuiHandler;
 	Renderer();
 
 	// For control of safe release of DirectX resources
@@ -176,6 +178,10 @@ private:
 
 	// Device
 	ID3D12Device5* m_pDevice5 = nullptr;
+
+	// Adapters used for getting VRAM and RAM
+	IDXGIAdapter4* m_pAdapter4 = nullptr;
+	HANDLE m_ProcessHandle = nullptr;
 
 	// CommandQueues
 	std::map<COMMAND_INTERFACE_TYPE, ID3D12CommandQueue*> m_CommandQueues;
