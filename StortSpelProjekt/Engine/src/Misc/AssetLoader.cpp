@@ -587,7 +587,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 	float3 vertex1;
 	float3 vertex2;
 	float3 vertex3;
-	bool isPickable = false;
+	int isPickable = false;
 	std::string navMeshType;
 	navMeshType.reserve(128);
 
