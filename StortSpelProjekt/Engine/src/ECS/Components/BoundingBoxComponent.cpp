@@ -45,6 +45,7 @@ namespace component
 	void BoundingBoxComponent::OnInitScene()
 	{
 		Renderer::GetInstance().InitBoundingBoxComponent(this);
+		Physics::GetInstance().AddCollisionEntity(m_pParent);
 	}
 
 	void BoundingBoxComponent::OnUnInitScene()
@@ -68,7 +69,7 @@ namespace component
 				obb.Orientation = m_OriginalBoundingBox.Orientation;
 
 				// then do all the transformations on this temoporary OBB so we don't change the original state
-				obb.Transform(obb, *m_Transforms[i]->GetWorldMatrix());
+				obb.Transform(obb, *m_Transforms[i]->GetLogicWorldMatrix());
 
 				// now save the transformations to the OBB that is used in collision detection
 				m_OrientedBoundingBox.Center = obb.Center;

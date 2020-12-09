@@ -18,6 +18,7 @@ Scene* WilliamsTestScene(SceneManager* sm);
 Scene* AndresTestScene(SceneManager* sm);
 Scene* AntonTestScene(SceneManager* sm);
 Scene* BjornsTestScene(SceneManager* sm);
+Scene* ShopScene(SceneManager* sm);
 
 void LeoUpdateScene(SceneManager* sm, double dt);
 void TimUpdateScene(SceneManager* sm, double dt);
@@ -25,9 +26,12 @@ void JockeUpdateScene(SceneManager* sm, double dt);
 void FredriksUpdateScene(SceneManager* sm, double dt);
 void AndresUpdateScene(SceneManager* sm, double dt);
 
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    
+    
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
     option->ReadFile();
@@ -57,8 +61,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
-    Scene* jockeScene = JockesTestScene(sceneManager);
-    Scene* activeScene = jockeScene;
+    //Scene* jockeScene = JockesTestScene(sceneManager);
+    //Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
     //Scene* williamScene = WilliamsTestScene(sceneManager);
@@ -69,8 +73,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = antonScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* activeScene = andresScene;
-    //Scene* filipScene = FloppipTestScene(sceneManager);
-    //Scene* activeScene = filipScene;
+    Scene* filipScene = FloppipTestScene(sceneManager);
+    Scene* activeScene = filipScene;
 
     // Set scene
     sceneManager->SetScene(activeScene);
@@ -98,20 +102,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         {
             networkTimer += timer->GetDeltaTime();
         }
-
-        if (window->WasSpacePressed() == true)
-        {
-            component::ParticleEmitterComponent* pe = sceneManager->GetScene("jockesScene")->GetEntity("particleEffect")->GetComponent<component::ParticleEmitterComponent>();
-            pe->Play();
-        }
-
-        if (window->WasTabPressed() == true)
-        {
-            component::ParticleEmitterComponent* pe = sceneManager->GetScene("jockesScene")->GetEntity("particleEffect")->GetComponent<component::ParticleEmitterComponent>();
-            pe->Stop();
-        }
         
-
         sceneManager->RenderUpdate(timer->GetDeltaTime());
         particleSystem->Update(timer->GetDeltaTime());
         if (logicTimer >= updateRate)
@@ -318,7 +309,6 @@ Scene* LeosTestScene(SceneManager* sm)
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
     ac->Initialize();
-    ac->SetActiveAnimation("Take 001");
     tc->GetTransform()->SetScale(0.1f);
     tc->GetTransform()->SetPosition(-10.0, 20.0, 10.0);
 
@@ -341,7 +331,7 @@ Scene* LeosTestScene(SceneManager* sm)
 	EnemyComps zombie = {};
 	zombie.model = zombieModel;
 	zombie.hp = 10;
-	zombie.sound3D = L"Bruh";
+	//zombie.sound3D = L"Bruh";
 	zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
 	zombie.aiFlags = 0;
 	zombie.meleeAttackDmg = 10.0f;
@@ -710,13 +700,32 @@ Scene* FloppipTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::ParticleEmitterComponent* pe = nullptr;
 
+
     Entity* entity = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
+
     // Get the models needed
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
-    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/Quad/NormalizedQuad.obj");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
+    Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
+    Model* pressfModel = al->LoadModel(L"../Vendor/Resources/Models/Pressf/pressf.obj");
+    Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
+    Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
+    Model* teleportModel = al->LoadModel(L"../Vendor/Resources/Models/Teleporter/Teleporter.obj");
+
+    Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
+    Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
+    Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
+    Texture* healthHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthHolder.png");
+    Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
+
+    TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
+
+    Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
+
 
     scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
@@ -763,13 +772,9 @@ Scene* FloppipTestScene(SceneManager* sm)
 
 
     /* ---------------------- Skybox ---------------------- */
-
-    // Skybox
-    //TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/cubemap.dds");
     entity = scene->AddEntity("skybox");
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    //sbc->SetTexture(skyboxCubemap);
-
+    sbc->SetTexture(skyboxCubemap);
     /* ---------------------- Skybox ---------------------- */
 
     /* ---------------------- Floor ---------------------- */
@@ -784,50 +789,8 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-    
-
-    //// Create test particleEffect
-    //settings = {};
-    //settings.maxParticleCount = 1200;
-    //settings.startValues.lifetime = 15;
-    //settings.startValues.acceleration = {0, 0, 0};
-    //settings.startValues.position = {0, 200, 0};
-    //settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
-    //
-    //// Need to fix EngineRand.rand() for negative values
-    //
-    //settings.randPosition = { -400, 400, 0, 0, -400, 400 };
-    //settings.randVelocity = { -2, 2, -20, -12, -2, 2 };
-    //settings.randSize = { 3, 7 };
-    //settings.randRotationSpeed = { -3, 3 };
-    //
-    //particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/default_particle.png"));
-    //settings.texture = particleTexture;
-    //
-    //pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
-
     /* ---------------------- Floor ---------------------- */
 
-
-    
-    /* ---------------------- PointLight1 ---------------------- */
-    entity = scene->AddEntity("pointLight1");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
-
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    tc->GetTransform()->SetScale(0.5f);
-    tc->GetTransform()->SetPosition(0, 4, 10);
-
-    plc->SetColor({ 2.0f, 0.0f, 2.0f });
-    plc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-
-    component::BoundingBoxComponent* bbc = entity->AddComponent<component::BoundingBoxComponent>();
-    bbc->Init();
-
-    /* ---------------------- PointLight1 ---------------------- */
 
     /* ---------------------- The Sun ---------------------- */
     entity = scene->AddEntity("sun");
@@ -1154,6 +1117,10 @@ Scene* WilliamsTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
     component::PlayerInputComponent* ic = nullptr;
+    component::CollisionComponent* ccc = nullptr;
+    component::UpgradeComponent* upgradeComp = nullptr;
+    component::MeleeComponent* melc = nullptr;
+    component::BoundingBoxComponent* bbc = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
 
@@ -1162,26 +1129,42 @@ Scene* WilliamsTestScene(SceneManager* sm)
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/Floor/floor.obj");
     //Model* dragonModel = al->LoadModel(L"../Vendor/Resources/Models/Dragon/Dragon 2.5_fbx.fbx");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
-    Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/aniTest/Standard_Walk.fbx");
+    Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/ignoredModels/DemonAnimated/demonAnimated.fbx");
     //Model* aniTest = al->LoadModel(L"../Vendor/Resources/Models/amongus/AmongUs.fbx");
 
     Entity* entity = scene->AddEntity("player");
     bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.1);
     mc = entity->AddComponent<component::ModelComponent>();
-    ac = entity->AddComponent<component::AnimationComponent>();
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
     tc = entity->AddComponent<component::TransformComponent>(true);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
+
+    mc = entity->AddComponent<component::ModelComponent>();
+    ac = entity->AddComponent<component::AnimationComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(1, 1, 1, 1, 0.01);
+    ic->Init();
+    ic->SetMovementSpeed(70);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+    melc = entity->AddComponent<component::MeleeComponent>();
+    upgradeComp = entity->AddComponent<component::UpgradeComponent>();
 
     Player::GetInstance().SetPlayer(entity);
 
     mc->SetModel(aniTest);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
     ac->Initialize();
-    ac->SetActiveAnimation("mixamo.com");
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 10.0f);
     tc->GetTransform()->SetScale(0.1f);
+
+    double3 playerDim = mc->GetModelDim();
+
+    double rad = playerDim.z / 2.0;
+    double cylHeight = playerDim.y - (rad * 2.0);
+    ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
 
     scene->CreateNavMesh("Quads");
     NavMesh* nav = scene->GetNavMesh();
@@ -1518,7 +1501,7 @@ Scene* AndresTestScene(SceneManager* sm)
     bbc = ent->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     bbc->Init();
     Physics::GetInstance().AddCollisionEntity(ent);
-    SceneManager::GetInstance().AddEntity(ent, scene);
+    scene->InitDynamicEntity(entity);
  
 #pragma endregion
     /* ---------------------- Enemy -------------------------------- */

@@ -70,7 +70,20 @@ void Physics::AddCollisionEntity(Entity *ent)
 {
 	if (ent->GetComponent<component::BoundingBoxComponent>()->GetFlagOBB() & F_OBBFlags::COLLISION)
 	{
-		m_CollisionEntities.push_back(ent);
+		// TODO: Ugly solution to a bug
+		bool entityAlreadyExists = false;
+		for (auto& entity : m_CollisionEntities)
+		{
+			if (entity == ent)
+			{
+				entityAlreadyExists = true;
+			}
+		}
+
+		if (!entityAlreadyExists)
+		{
+			m_CollisionEntities.push_back(ent);
+		}
 	}
 	else
 	{
@@ -150,6 +163,7 @@ void Physics::removeAllCollisionEntities()
 
 void Physics::collisionChecks(double dt)
 {
+	std::set<unsigned int> toRemove;
 	m_TimeSinceLastColCheck += dt;
 
 	if (m_TimeSinceLastColCheck > m_CollisionUpdateInterval)
@@ -162,21 +176,36 @@ void Physics::collisionChecks(double dt)
 			for (int i = 0; i < m_CollisionEntities.size(); i++)
 			{
 				first = m_CollisionEntities.at(i)->GetComponent<component::BoundingBoxComponent>();
-				for (int j = i + 1; j < m_CollisionEntities.size(); j++)
+				if (!first)
 				{
-					second = m_CollisionEntities.at(j)->GetComponent<component::BoundingBoxComponent>();
-					if (std::isnan(first->GetOBB()->Center.x) && std::isnan(second->GetOBB()->Center.x))
+					toRemove.insert(i);
+					break;
+				}
+				else
+				{
+					for (int j = i + 1; j < m_CollisionEntities.size(); j++)
 					{
-						Log::Print("One of the collision entities has nan values\n");
-					}
-					else
-					{
-						if (CheckOBBCollision(
-							first->GetOBB(),
-							second->GetOBB()))
+						second = m_CollisionEntities.at(j)->GetComponent<component::BoundingBoxComponent>();
+						if (!second)
 						{
-							first->Collide(*second);
-							//EventBus::GetInstance().Publish(&Collision(m_CollisionEntities.at(i), m_CollisionEntities.at(j)));
+							toRemove.insert(j);
+						}
+						else
+						{
+							if (std::isnan(first->GetOBB()->Center.x) && std::isnan(second->GetOBB()->Center.x))
+							{
+								Log::Print("One of the collision entities has nan values\n");
+							}
+							else
+							{
+								if (CheckOBBCollision(
+									first->GetOBB(),
+									second->GetOBB()))
+								{
+									first->Collide(*second);
+									//EventBus::GetInstance().Publish(&Collision(m_CollisionEntities.at(i), m_CollisionEntities.at(j)));
+								}
+							}
 						}
 					}
 				}
@@ -184,6 +213,12 @@ void Physics::collisionChecks(double dt)
 		}
 		m_TimeSinceLastColCheck = 0;
 		m_pWorld->stepSimulation(dt);
+	}
+
+	std::set<unsigned int>::iterator it = toRemove.end();
+	for (int i = 0; i < toRemove.size(); i++)
+	{
+		m_CollisionEntities.erase(m_CollisionEntities.begin() + *(--it));
 	}
 }
 

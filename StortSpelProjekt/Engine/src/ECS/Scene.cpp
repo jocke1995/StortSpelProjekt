@@ -41,7 +41,7 @@ Entity* Scene::AddEntityFromOther(Entity* other)
 {
     if (EntityExists(other->GetName()) == true)
     {
-        Log::PrintSeverity(Log::Severity::CRITICAL, "AddEntityFromOther: Trying to add two components with the same name \'%s\' into scene: %s\n", other->GetName().c_str(), m_SceneName.c_str());
+        Log::PrintSeverity(Log::Severity::CRITICAL, "AddEntityFromOther: Trying to add two Entities with the same name \'%s\' into scene: %s\n", other->GetName().c_str(), m_SceneName.c_str());
         return nullptr;
     }
 
@@ -56,7 +56,7 @@ Entity* Scene::AddEntity(std::string entityName)
 {
     if (EntityExists(entityName) == true)
     {
-        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to add two components with the same name \'%s\' into scene: %s\n", entityName.c_str(), m_SceneName.c_str());
+        Log::PrintSeverity(Log::Severity::CRITICAL, "Trying to add two Entities with the same name \'%s\' into scene: %s\n", entityName.c_str(), m_SceneName.c_str());
         return nullptr;
     }
 
@@ -64,6 +64,12 @@ Entity* Scene::AddEntity(std::string entityName)
     m_NrOfEntities++;
 
     return m_EntitiesToKeep[entityName];
+}
+
+void Scene::InitDynamicEntity(Entity* ent)
+{
+    ent->SetEntityState(true);
+    ent->OnInitScene();
 }
 
 bool Scene::RemoveEntity(std::string entityName)
@@ -88,6 +94,16 @@ bool Scene::RemoveEntity(std::string entityName)
     }
 
     m_NrOfEntities--;
+
+    for (int i = 0; i < m_CollisionEntities.size(); ++i)
+    {
+        Entity* entity = m_CollisionEntities[i];
+        if (entity->GetID() == ent->GetID())
+        {
+            m_CollisionEntities.erase(m_CollisionEntities.begin() + i);
+        }
+    }
+
     return true;
 }
 
@@ -96,10 +112,6 @@ NavMesh* Scene::CreateNavMesh(const std::string& type)
     if (m_pNavMesh == nullptr)
     {
         m_pNavMesh = new NavMesh(this, type);
-    }
-    else
-    {
-        Log::Print("Scene already has NavMesh\n");
     }
     return m_pNavMesh;
 }
@@ -201,4 +213,13 @@ bool Scene::EntityExists(std::string entityName) const
     }
 
     return false;
+}
+
+void Scene::ResetNavMesh()
+{
+    if (m_pNavMesh != nullptr)
+    {
+        delete m_pNavMesh;
+        m_pNavMesh = nullptr;
+    }
 }

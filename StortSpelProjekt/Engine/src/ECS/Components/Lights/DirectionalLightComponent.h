@@ -29,7 +29,7 @@ namespace component
 		void* GetLightData() const;
 	
 	protected:
-		void UpdateLightColor();
+		void UpdateLightColorIntensity();
 
 	private:
 		float m_Distance = 30.0f;

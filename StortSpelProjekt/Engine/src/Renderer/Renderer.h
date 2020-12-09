@@ -64,12 +64,14 @@ struct ID3D12CommandQueue;
 struct ID3D12CommandList;
 struct ID3D12Fence1;
 struct ID3D12Device5;
+struct IDXGIAdapter4;
 
 // ECS
 class Entity;
 namespace component
 {
 	class ModelComponent;
+	class AnimationComponent;
 	class TransformComponent;
 	class CameraComponent;
 	class BoundingBoxComponent;
@@ -112,6 +114,7 @@ public:
 	// Render inits, these functions are called by respective components through SetScene to prepare for drawing
 	void InitSkyboxComponent(component::SkyboxComponent* component);
 	void InitModelComponent(component::ModelComponent* component);
+	void InitAnimationComponent(component::AnimationComponent* component);
 	void InitDirectionalLightComponent(component::DirectionalLightComponent* component);
 	void InitPointLightComponent(component::PointLightComponent* component);
 	void InitSpotLightComponent(component::SpotLightComponent* component);
@@ -123,6 +126,7 @@ public:
 
 	void UnInitSkyboxComponent(component::SkyboxComponent* component);
 	void UnInitModelComponent(component::ModelComponent* component);
+	void UnInitAnimationComponent(component::AnimationComponent* component);
 	void UnInitDirectionalLightComponent(component::DirectionalLightComponent* component);
 	void UnInitPointLightComponent(component::PointLightComponent* component);
 	void UnInitSpotLightComponent(component::SpotLightComponent* component);
@@ -144,6 +148,7 @@ private:
 	friend class QuadManager;
 	friend class ParticleSystem;
 	friend class ParticleEffect;
+	friend class ImGuiHandler;
 	Renderer();
 
 	// For control of safe release of DirectX resources
@@ -173,6 +178,10 @@ private:
 
 	// Device
 	ID3D12Device5* m_pDevice5 = nullptr;
+
+	// Adapters used for getting VRAM and RAM
+	IDXGIAdapter4* m_pAdapter4 = nullptr;
+	HANDLE m_ProcessHandle = nullptr;
 
 	// CommandQueues
 	std::map<COMMAND_INTERFACE_TYPE, ID3D12CommandQueue*> m_CommandQueues;

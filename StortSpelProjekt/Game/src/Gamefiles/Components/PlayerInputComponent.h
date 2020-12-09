@@ -7,7 +7,6 @@
 
 #define DASH_MOD 3.0
 #define SPRINT_MOD 1.5
-#define TURN_RATE 20.0
 #define ORIGINAL_CAMERA_DISTANCE 35.0
 // Lower value means more slowdown when moving backwards
 #define SLOWDOWN_FACTOR 0.5
@@ -24,6 +23,7 @@ struct MovementInput;
 struct MouseMovement;
 struct MouseClick;
 struct ModifierInput;
+struct Death;
 
 enum CAMERA_FLAGS
 {
@@ -48,6 +48,7 @@ namespace component
 		void OnInitScene();
 		void OnUnInitScene();
 
+		void Update(double dt);
 		void RenderUpdate(double dt);
 
 		//Sets the maximum height of a jump
@@ -56,6 +57,8 @@ namespace component
 		void SetJumpTime(double time);
 		//Sets the movement speed
 		void SetMovementSpeed(float speed);
+		//Sets slow
+		void SetSlow(float slow);
 
 		void SetAngleToTurnTo(int angle);
 
@@ -71,6 +74,8 @@ namespace component
 		float m_Height;
 		float m_Elevation;
 		float m_MovementSpeed;
+		float m_BaseMovementSpeed;
+		float m_Slow;
 
 		PerspectiveCamera* m_pCamera;
 		Transform* m_pTransform;
@@ -80,6 +85,9 @@ namespace component
 		double m_DashTimer;
 		bool m_DashReady;
 		bool m_Dashing;
+		bool m_Jump;
+		bool m_Attack;
+		bool m_AttackNext;
 
 		// Is used to determine if the player is attacking, and should be turned in the camera direction, or if she should turn in the direction she is moving
 		double m_TurningTimer;
@@ -94,12 +102,11 @@ namespace component
 
 		int m_UpdateShootId;
 		int m_UpdateDashId;
-		int m_DegreesToTurnTo;
-		float m_RadiansToTurn;
 
 		std::vector<void(PlayerInputComponent::*)(double dt)> specificUpdates;
 		void(PlayerInputComponent::*specificUpdate)(double dt);
 
+		void playerDeath(Death* evnt);
 
 		void updateCameraDirection();
 		void setCameraToPlayerPosition();

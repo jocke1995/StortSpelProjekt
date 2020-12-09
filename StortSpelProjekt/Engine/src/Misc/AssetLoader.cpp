@@ -38,6 +38,7 @@
 
 #include "../Misc/Edge.h"
 #include "../Misc/EngineRand.h"
+#include "../ECS/SceneManager.h"
 
 #include <filesystem>
 
@@ -203,7 +204,7 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 	tmp += "decryptedFile" + fileEnding;
 	if (binary)
 	{
-		Cryptor::DecryptDDS(Cryptor::GetGlobalKey(), to_string(path).c_str(),tmp.c_str());
+		Cryptor::DecryptBinary(Cryptor::GetGlobalKey(), to_string(path).c_str(),tmp.c_str());
 	}
 	else
 	{
@@ -525,12 +526,11 @@ Font* AssetLoader::LoadFontFromFile(const std::wstring& fontName)
 	return m_LoadedFonts[path].second;
 }
 
-void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float3 offset)
+void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* spawnPoints, unsigned int id, float3 offset, bool entitiesDynamic)
 {
 	FILE* file = fopen(path, "r");
 
 	int numNavTriangles = 0;
-	static int totalNumberOfNavTriangles = 0;
 
 	std::string lineHeader;
 	lineHeader.reserve(128);
@@ -553,6 +553,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 	float3 lightPos = { 0.0, 0.0, 0.0 };
 	float3 rot = { 0.0, 0.0, 0.0 };
 	float3 lightColor = { 0.0, 0.0, 0.0 };
+	float lightIntensity = 1.0f;
 	float3 lightDir = { 0.0, 0.0, 0.0 };
 	float3 lightAttenuation = { 0.0, 0.0, 0.0 };
 	float3 bbModifier = { 1.0f, 1.0f, 1.0f };
@@ -621,9 +622,13 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 				char* fullName = new char[std::strlen(entityName.c_str()) + std::strlen(idString) + 1];
 				std::strcpy(fullName, entityName.c_str());
 				std::strcat(fullName, idString);
+				
+				if (entitiesDynamic && entity)
+				{
+					scene->InitDynamicEntity(entity);
+				}
 
 				entity = scene->AddEntity(fullName);
-
 				delete[] fullName;
 			}
 			else if (strcmp(lineHeader.c_str(), "NavMesh") == 0)
@@ -668,6 +673,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 			else if (strcmp(lineHeader.c_str(), "ModelLightColor") == 0)
 			{
 				fscanf(file, "%f,%f,%f", &lightColor.x, &lightColor.y, &lightColor.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightIntensity") == 0)
+			{
+				fscanf(file, "%f", &lightIntensity);
 			}
 			else if (strcmp(lineHeader.c_str(), "ModelLightDirection") == 0)
 			{
@@ -851,6 +860,12 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					edgeId = -1;
 				}
 			}
+			else if (strcmp(lineHeader.c_str(), "AddSpawnPoint") == 0 && spawnPoints)
+			{
+				fscanf(file, "%f,%f,%f", &pos.x, &pos.y, &pos.z);
+				float3 point = { pos.x + offset.x,pos.y + offset.y,pos.z + offset.z };
+				spawnPoints->emplace_back(point);
+			}
 			else if (strcmp(lineHeader.c_str(), "Submit") == 0)
 			{
 				fscanf(file, "%s", toSubmit.c_str());
@@ -880,7 +895,6 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
 					bbc->SetModifier(bbModifier);
 					bbc->Init();
-					Physics::GetInstance().AddCollisionEntity(entity);
 				}
 				else if (strcmp(toSubmit.c_str(), "Heightmap") == 0)
 				{
@@ -911,6 +925,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					}
 					plc = entity->AddComponent<component::PointLightComponent>(combinedFlag);
 					plc->SetColor(lightColor);
+					plc->SetIntensity(lightIntensity);
 					plc->SetAttenuation(lightAttenuation);
 					if (FLAG_LIGHT::USE_TRANSFORM_POSITION & combinedFlag)
 					{
@@ -930,6 +945,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					}
 					slc = entity->AddComponent<component::SpotLightComponent>(combinedFlag);
 					slc->SetColor(lightColor);
+					slc->SetIntensity(lightIntensity);
 					slc->SetAttenuation(lightAttenuation);
 					slc->SetDirection(lightDir);
 					if (FLAG_LIGHT::USE_TRANSFORM_POSITION & combinedFlag)
@@ -960,11 +976,12 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					}
 					dlc = entity->AddComponent<component::DirectionalLightComponent>(combinedFlag);
 					dlc->SetColor(lightColor);
+					dlc->SetIntensity(lightIntensity);
 					dlc->SetDirection(lightDir);
 					dlc->SetCameraLeft(lightLeft + offset.x);
 					dlc->SetCameraRight(lightRight + offset.x);
-					dlc->SetCameraTop(lightTop + offset.z);
-					dlc->SetCameraBot(lightBottom + offset.z);
+					dlc->SetCameraTop(lightTop + (offset.z * 0.6));
+					dlc->SetCameraBot(lightBottom + (offset.z * 0.6));
 					dlc->SetCameraFarZ(lightFar);
 					dlc->SetCameraNearZ(lightNear);
 					lightNear = 0.01;
@@ -995,6 +1012,21 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					{
 						shapeInfo.x = entity->GetComponent<component::ModelComponent>()->GetModelDim().z / 2.0;
 						shapeInfo.y = entity->GetComponent<component::ModelComponent>()->GetModelDim().y - (shapeInfo.x * 2.0);
+					}
+					cc = entity->AddComponent<component::CapsuleCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, friction, restitution);
+					cc->SetGravity(gravity);
+					cc->SetUserID(1);
+					shapeInfo = { 0.0f, 0.0f, 0.0f };
+					mass = 0.0;
+					gravity = -98.2;
+				}
+				else if (strcmp(toSubmit.c_str(), "CollisionCylinder") == 0)
+				{
+					fscanf(file, "%f,%f", &shapeInfo.x, &shapeInfo.y);
+					if (shapeInfo == float3({ 0.0, 0.0, 0.0 }))
+					{
+						shapeInfo.x = entity->GetComponent<component::ModelComponent>()->GetModelDim().z / 2.0;
+						shapeInfo.y = entity->GetComponent<component::ModelComponent>()->GetModelDim().y;
 					}
 					cc = entity->AddComponent<component::CapsuleCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, friction, restitution);
 					cc->SetGravity(gravity);
@@ -1060,7 +1092,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					}
 					else if (std::strcmp(navMeshType.c_str(), "Triangles") == 0)
 					{
-						navMesh->ConnectNavTriangles(tri1 + totalNumberOfNavTriangles, tri2 + totalNumberOfNavTriangles);
+						navMesh->ConnectNavTriangles(tri1 + m_NrOfNavTris, tri2 + m_NrOfNavTris);
 					}
 				}
 				else if (strcmp(toSubmit.c_str(), "NavMesh") == 0)
@@ -1071,7 +1103,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 					}
 					else if (std::strcmp(navMeshType.c_str(), "Triangles") == 0)
 					{
-						totalNumberOfNavTriangles += numNavTriangles;
+						m_NrOfNavTris += numNavTriangles;
 						navMesh->CreateTriangleGrid();
 					}
 				}
@@ -1096,11 +1128,28 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, unsigned int id, float
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Could not load mapfile %s", path);
 	}
+
+	if (entitiesDynamic)
+	{
+		scene->InitDynamicEntity(entity);
+	}
 }
 
-void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSize, float2 roomDimensions)
+void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, std::vector<float3>* spawnPoints, float2 mapSize, float2 roomDimensions, bool entitiesDynamic)
 {
 	std::vector<std::string> filePaths;
+
+	m_RoomsAdded.clear();
+	m_EdgesToRemove.clear();
+
+	for (int i = 0; i < m_Edges.size(); i++)
+	{
+		delete m_Edges[i];
+	}
+
+	m_Edges.clear();
+
+	m_NrOfNavTris = 0;
 	for (const auto& entry : std::filesystem::directory_iterator(folderPath))
 	{
 		filePaths.push_back(entry.path().string());
@@ -1119,7 +1168,7 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSi
 	EngineRand rand(time(0));
 
 	// Load the starting room
-	LoadMap(scene, "../Vendor/Resources/SpawnRoom.map", roomCounter, offset);
+	LoadMap(scene, "../Vendor/Resources/SpawnRoom.map", spawnPoints, roomCounter, offset, entitiesDynamic);
 	m_RoomsAdded[offset.toString()] = roomCounter++;
 	std::vector<float> spawnChances;
 	for (int i = 0; i < filePaths.size(); ++i)
@@ -1197,7 +1246,7 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSi
 					}
 				}
 				std::string roomToLoad = filePaths.at(mapId);
-				LoadMap(scene, roomToLoad.c_str(), roomCounter, newOffset);
+				LoadMap(scene, roomToLoad.c_str(), spawnPoints, roomCounter, newOffset, entitiesDynamic);
 				m_RoomsAdded[newOffset.toString()] = roomCounter++;
 				removeWall = true;
 			}
@@ -1225,6 +1274,35 @@ void AssetLoader::GenerateMap(Scene* scene, const char* folderPath, float2 mapSi
 			}
 
 		}
+	}
+}
+
+void AssetLoader::LoadAllMaps(Scene* scene, const char* folderPath)
+{
+	std::vector<std::string> filePaths;
+
+	m_RoomsAdded.clear();
+	m_EdgesToRemove.clear();
+
+	for (int i = 0; i < m_Edges.size(); i++)
+	{
+		delete m_Edges[i];
+	}
+
+	m_Edges.clear();
+
+	m_NrOfNavTris = 0;
+	for (const auto& entry : std::filesystem::directory_iterator(folderPath))
+	{
+		filePaths.push_back(entry.path().string());
+	}
+
+	std::vector<float3> spawnPoints;
+	// Load the starting room
+	LoadMap(scene, "../Vendor/Resources/SpawnRoom.map", &spawnPoints, 0, { 0.0f, 0.0f, 0.0f }, false);
+	for (int i = 0; i < filePaths.size(); ++i)
+	{
+		LoadMap(scene, filePaths[i].c_str(), &spawnPoints, i + 1, {0.0f, 0.0f, 0.0f}, false);
 	}
 }
 
@@ -1590,7 +1668,7 @@ Mesh* AssetLoader::processAnimatedMesh(std::map<std::string, BoneInfo>* boneCoun
 void AssetLoader::initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter)
 {
 	// Attach the bone ID and the offset matrix to its corresponding SkeletonNode
-	if (node->name.find("_$", 0) == std::string::npos)
+	if (node->name.find("_$", 0) == std::string::npos && boneCounter->find(node->name) != boneCounter->end())
 	{
 		node->boneID = (*boneCounter)[node->name].boneID;
 		node->inverseBindPose = (*boneCounter)[node->name].boneOffset;

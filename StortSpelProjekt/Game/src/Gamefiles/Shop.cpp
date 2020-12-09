@@ -10,7 +10,7 @@
 #include "Events/EventBus.h"
 #include "ECS/SceneManager.h"
 #include "Misc/GUI2DElements/Font.h"
-#include "UpgradeGUI.h"
+#include "PauseGUI.h"
 
 #include "Player.h"
 
@@ -33,7 +33,7 @@ Shop::Shop()
 
 
 	AssetLoader* al = AssetLoader::Get();
-	m_pArial = al->LoadFontFromFile(L"Arial.fnt");
+	m_pFont = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
 	EventBus::GetInstance().Subscribe(this, &Shop::shopButtonPressed);
 	EventBus::GetInstance().Subscribe(this, &Shop::sceneChange);
@@ -77,8 +77,7 @@ void Shop::Create2DGUI()
 		notBlended,
 		background
 	);
-	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-	sm.AddEntity(entity, shopScene);
+	shopScene->InitDynamicEntity(entity);
 
 	/* ------------------------- Shop Buttons --------------------------- */
 	for (int i = 0; i < GetInventorySize(); i++)
@@ -133,7 +132,7 @@ void Shop::Create2DGUI()
 
 		Entity* entity = shopScene->AddEntity("upgrade" + std::to_string(i));
 		gui = entity->AddComponent<component::GUI2DComponent>();
-		gui->GetTextManager()->SetFont(m_pArial);
+		gui->GetTextManager()->SetFont(m_pFont);
 		gui->GetTextManager()->AddText("upgrade" + std::to_string(i));
 		gui->GetTextManager()->SetColor(textColor, "upgrade" + std::to_string(i));
 		gui->GetTextManager()->SetPadding(textPadding, "upgrade" + std::to_string(i));
@@ -156,9 +155,8 @@ void Shop::Create2DGUI()
 			blended,
 			shopBackground);
 
-		// add the entity to the sceneManager so it can be spawned in in run time
-		entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-		sm.AddEntity(entity, shopScene);
+		// add the entity to the scene so it can be spawned in in run time
+		shopScene->InitDynamicEntity(entity);
 		/* ---------------------------------------------------------- */
 
 		/* ------------------------- head --------------------------- */
@@ -177,8 +175,7 @@ void Shop::Create2DGUI()
 		);
 
 		// add the entity to the sceneManager so it can be spawned in in run time
-		entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-		sm.AddEntity(entity, shopScene);
+		shopScene->InitDynamicEntity(entity);
 		/* ---------------------------------------------------------- */
 	}
 
@@ -198,7 +195,7 @@ void Shop::Create2DGUI()
 	float2 textScale = { 0.3f, 0.3f };
 	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	gui->GetTextManager()->SetFont(m_pArial);
+	gui->GetTextManager()->SetFont(m_pFont);
 	gui->GetTextManager()->AddText("reroll");
 	gui->GetTextManager()->SetColor(textColor, "reroll");
 	gui->GetTextManager()->SetPadding(textPadding, "reroll");
@@ -219,8 +216,7 @@ void Shop::Create2DGUI()
 		notBlended,
 		shopBackground);
 
-	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-	sm.AddEntity(entity, shopScene);
+	shopScene->InitDynamicEntity(entity);
 	/*---------------------------------------*/
 
 	/*---------------Texture-----------------*/
@@ -237,8 +233,7 @@ void Shop::Create2DGUI()
 		notBlended,
 		rerollImage
 	);
-	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-	sm.AddEntity(entity, shopScene);
+	shopScene->InitDynamicEntity(entity);
 	/*---------------------------------------*/
 
 	/*---------------------------------------*/
@@ -256,7 +251,7 @@ void Shop::Create2DGUI()
 	textScale = { 0.5f, 0.5f };
 	textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	gui->GetTextManager()->SetFont(m_pArial);
+	gui->GetTextManager()->SetFont(m_pFont);
 	gui->GetTextManager()->AddText("flavour");
 	gui->GetTextManager()->SetColor(textColor, "flavour");
 	gui->GetTextManager()->SetPadding(textPadding, "flavour");
@@ -277,8 +272,7 @@ void Shop::Create2DGUI()
 		blended,
 		nullptr, float3{ 0.05f, 0.05f, 0.05f });
 
-	entity->SetEntityState(true);	// true == dynamic, which means it will be removed when a new scene is set
-	sm.AddEntity(entity, shopScene);
+	shopScene->InitDynamicEntity(entity);
 	/*---------------------------------------*/
 
 	m_DisplayingShopGUI = true;

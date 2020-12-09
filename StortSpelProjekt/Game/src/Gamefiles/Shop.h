@@ -89,7 +89,7 @@ private:
 	// 
 	void rerollPriceIncrease();
 
-	Font* m_pArial = nullptr;
+	Font* m_pFont = nullptr;
 
 	int m_RerollCost;
 	int m_RerollIncrease;

@@ -21,6 +21,9 @@ component::RangeEnemyComponent::RangeEnemyComponent(Entity* parent, SceneManager
 	m_ParentName = m_pParent->GetName();
 	m_NrOfProjectiles = 0;
 
+	AssetLoader* al = AssetLoader::Get();
+	m_pParticleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/enemy_magic.png"));
+
 	// this component will not have a 2d voice, but probably a 3dvoice so i'll leave this here for now as a "template"
 	if (parent->GetComponent<component::Audio2DVoiceComponent>())
 	{
@@ -82,10 +85,13 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 		component::BoundingBoxComponent* bbc = nullptr;
 		component::ProjectileComponent* pc = nullptr;
 		component::AccelerationComponent* ac = nullptr;
+		component::PointLightComponent* plc = nullptr;
 
 		mc = ent->AddComponent<component::ModelComponent>();
+
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
+		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
 		//ac = ent->AddComponent<component::AccelerationComponent>(98.2);	// no drop
 
 		// get the position of parent entity
@@ -109,7 +115,7 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 
 		// initialize the components
 		mc->SetModel(m_pModel);
-		mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+		mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW); // hidden because we just want to see the particle effect
 		tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
 		tc->GetTransform()->SetMovement(direction.x * m_Velocity, direction.y * m_Velocity, direction.z * m_Velocity);
 		tc->GetTransform()->SetScale(m_Scale);
@@ -120,18 +126,43 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 		bbc->AddCollisionCategory<EnemyProjectileCollisionCategory>();
 		Physics::GetInstance().AddCollisionEntity(ent);
 
+		createParticleEffect(ent, direction);
+
 		if (m_AudioPlay)
 		{
 			m_pVoiceComponent->Play(L"Fireball");
 		}
 
+		// Light color
+		plc->SetColor({ 3.0f, 0.0f, 0.0f });
+
 		ent->Update(0);	// Init, so that the light doesn't spawn in origo first frame;
 		tc->RenderUpdate(0);
 
-		// add the entity to the sceneManager so it can be spawned in in run time
-		ent->SetEntityState(true);
-		m_pSceneMan->AddEntity(ent, m_pScene);
+		// add the entity to the scene so it can be spawned in in run time
+		m_pScene->InitDynamicEntity(ent);
 
 		m_TimeAccumulator = 0.0;
 	}
+}
+
+void component::RangeEnemyComponent::createParticleEffect(Entity* entity, float3 velocityDir) const
+{
+	// Create particle effect
+	ParticleEffectSettings settings = {};
+	settings.maxParticleCount = 50;
+	settings.startValues.lifetime = 0.09;
+	settings.spawnInterval = 0.007;
+	settings.startValues.acceleration = { 0, 0, 0 };
+
+	settings.isLooping = true;
+
+	settings.randPosition = { -0.5, 0.5, -0.5, 0.5, -0.5, 0.5 };
+	settings.randVelocity = { -5, 5, -5, 5, -5, 5 };
+	settings.randSize = { 2.0f, 2.0f };
+	settings.randRotation = { 0, 2 * PI };
+	settings.randRotationSpeed = { 0.2f, 0.2f };
+	settings.texture = m_pParticleTexture;
+
+	entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 }

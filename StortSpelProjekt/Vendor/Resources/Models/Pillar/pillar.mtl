@@ -1,0 +1,13 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl pillarMat
+Ns 500
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd wooden_pillar.dds
+map_Ks wooden_pillar_rmp.dds
+map_Kn wooden_pillar_nmp.dds
