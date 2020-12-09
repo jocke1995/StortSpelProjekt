@@ -1,8 +1,0 @@
-# Blender MTL File: 'None'
-# Material Count: 1
-
-newmtl pebbleMat
-
-map_Kd Pebbles_albedo.dds
-map_Kn Pebbles_normal.dds
-map_Ks Pebbles_roughness.dds
