@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+struct SceneChange;
+
 class GameGUI
 {
 public:
@@ -29,6 +31,7 @@ private:
 
 	void updateHealth(Scene* scene);
 	void reset(Scene* scene);
+	void sceneChange(SceneChange* evnt);
 };
 
 
