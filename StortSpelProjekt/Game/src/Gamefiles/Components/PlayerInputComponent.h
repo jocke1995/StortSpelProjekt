@@ -62,7 +62,7 @@ namespace component
 
 		void SetAngleToTurnTo(int angle);
 
-		void SetAttacking();
+		void SetAttacking(bool melee);
 
 		void Reset();
 
