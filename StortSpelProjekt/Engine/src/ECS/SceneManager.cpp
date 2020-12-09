@@ -267,7 +267,20 @@ bool SceneManager::sceneExists(std::string sceneName) const
 
 void SceneManager::onEntityRemove(RemoveMe* evnt)
 {
-	m_ToRemove.push_back({ evnt->ent, m_pActiveScene });
+	// TODO: Ugly solution to a bug
+	bool entityWillBeRemoved = false;
+	for (auto& entity : m_ToRemove)
+	{
+		if (entity.ent == evnt->ent)
+		{
+			entityWillBeRemoved = true;
+		}
+	}
+
+	if (!entityWillBeRemoved)
+	{
+		m_ToRemove.push_back({ evnt->ent, m_pActiveScene });
+	}
 }
 
 void SceneManager::changeSceneNextFrame(SceneChange* sceneChangeEvent)
