@@ -35,6 +35,15 @@ public:
 	/// Stops playing audio.
 	/// </summary>
 	void Stop();
+
+	/// <summary>
+	/// Resumes playing paused audio.
+	/// </summary>
+	void Resume();
+	/// <summary>
+	/// Pauses audio.
+	/// </summary>
+	void Pause();
 	
 private:
 	bool m_Initialized = true;

@@ -126,6 +126,8 @@ enum class MOUSE_BUTTON
 	WHEEL = 0x400,
 };
 
+struct ResetGame;
+
 class Input {
 public:
 	/// <summary>
@@ -176,12 +178,17 @@ public:
 	/// <returns>true if button is pressed, false if button is not pressed</returns>
 	bool GetMouseButtonState(MOUSE_BUTTON button);
 
+	bool IsPaused();
+
 private:
 	Input();
+	void onReset(ResetGame* evnt);
 
 	std::unordered_map<SCAN_CODES, bool> m_KeyState;
 	std::unordered_map<MOUSE_BUTTON, bool> m_MouseButtonState;
 	std::unordered_map<SCAN_CODES, std::chrono::system_clock::time_point> m_KeyTimer;
+
+	bool m_IsPaused;
 };
 
 #endif // !INPUT_H

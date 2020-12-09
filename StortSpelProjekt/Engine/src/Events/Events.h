@@ -96,9 +96,10 @@ struct WindowChange : public Event
 	WindowChange() {};
 };
 
-struct UForUpgrade : public Event
+struct PauseGame : public Event
 {
-	UForUpgrade() {};
+	PauseGame(bool isPaused) : isPaused{ isPaused } {};
+	bool isPaused;
 };
 
 struct ButtonPressed : public Event

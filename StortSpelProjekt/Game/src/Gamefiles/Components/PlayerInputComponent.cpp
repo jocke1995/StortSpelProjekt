@@ -41,6 +41,8 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_Attacking = false;
 	m_TurnToCamera = false;
 	m_CameraRotating = false;
+	m_Attack = false;
+	m_AttackNext = false;
 
 	m_Elevation = std::stof(Option::GetInstance().GetVariable("f_playerElevation"));
 
@@ -52,6 +54,8 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 
 	m_TurningTimer = 0.0f;
 	m_TurningInterval = 0.0f;
+
+	m_Jump = false;
 }
 
 component::PlayerInputComponent::~PlayerInputComponent()
@@ -138,6 +142,22 @@ void component::PlayerInputComponent::Update(double dt)
 			m_pCC->SetVelVector(move.x * speed, vel.y, move.z * speed);
 		}
 	}
+
+	updateCameraDirection();
+
+	if (m_Attacking)
+	{
+		if (m_AttackNext)
+		{
+			m_pParent->GetComponent<component::MeleeComponent>()->Attack();
+			m_AttackNext = false;
+		}
+		if (m_Attack)
+		{
+			m_Attack = false;
+			m_AttackNext = true;
+		}
+	}
 }
 
 void component::PlayerInputComponent::RenderUpdate(double dt)
@@ -149,8 +169,6 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	// Lock camera to player
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
-		updateCameraDirection();
-
 		setCameraToPlayerPosition();
 
 		limitCameraDistance();
@@ -169,10 +187,6 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 			float angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
-	}
-	else
-	{
-		updateCameraDirection();
 	}
 
 	/* ------------------ Increment timers -------------------- */
@@ -249,6 +263,7 @@ void component::PlayerInputComponent::SetAngleToTurnTo(int angle)
 void component::PlayerInputComponent::SetAttacking()
 {
 	m_Attacking = true;
+	m_Attack = true;
 	m_TurningTimer = 0.0f;
 }
 
@@ -574,18 +589,21 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 {
-	switch (evnt->button) {
-	case MOUSE_BUTTON::LEFT_DOWN:
-		m_pParent->GetComponent<component::MeleeComponent>()->Attack();
-		break;
-	case MOUSE_BUTTON::RIGHT_DOWN:
-		m_pParent->GetComponent<component::RangeComponent>()->Attack();
-		if (m_UpdateShootId == -1)
-		{
-			m_UpdateShootId = specificUpdates.size();
-			specificUpdates.push_back(&PlayerInputComponent::updateShoot);
+	if (!Input::GetInstance().IsPaused())
+	{
+		switch (evnt->button) {
+		case MOUSE_BUTTON::LEFT_DOWN:
+			SetAttacking();
+			break;
+		case MOUSE_BUTTON::RIGHT_DOWN:
+			m_pParent->GetComponent<component::RangeComponent>()->Attack();
+			if (m_UpdateShootId == -1)
+			{
+				m_UpdateShootId = specificUpdates.size();
+				specificUpdates.push_back(&PlayerInputComponent::updateShoot);
+			}
+			break;
 		}
-		break;
 	}
 }
 

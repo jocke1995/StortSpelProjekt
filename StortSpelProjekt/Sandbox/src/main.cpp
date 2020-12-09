@@ -724,7 +724,7 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
-    Font* arial = al->LoadFontFromFile(L"Arial.fnt");
+    Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
 
     scene->CreateNavMesh("Quads");
