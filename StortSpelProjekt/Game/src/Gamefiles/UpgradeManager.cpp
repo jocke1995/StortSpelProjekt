@@ -6,7 +6,7 @@
 #include "Components/UpgradeComponents/Upgrades/UpgradeMeleeDamage.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeVelocity.h"
-#include "Components/UpgradeComponents/Upgrades/UpgradeRangeLifeSteal.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeLifeSteal.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeHealthBoost.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeBlueJewel.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeBounce.h"
@@ -151,10 +151,10 @@ void UpgradeManager::fillUpgradeMap()
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
-	// Adding Range lifesteal Upgrade
-	upgrade = new UpgradeRangeLifeSteal(m_pParentEntity);
+	// Adding Melee lifesteal Upgrade
+	upgrade = new UpgradeMeleeLifeSteal(m_pParentEntity);
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	upgrade->SetID(UPGRADE_RANGE_LIFESTEAL);
+	upgrade->SetID(UPGRADE_MELEE_LIFESTEAL);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 
@@ -284,8 +284,8 @@ Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 	case UPGRADE_RANGE_VELOCITY:
 		return new UpgradeRangeVelocity(ent);
 		break;
-	case UPGRADE_RANGE_LIFESTEAL:
-		return new UpgradeRangeLifeSteal(ent);
+	case UPGRADE_MELEE_LIFESTEAL:
+		return new UpgradeMeleeLifeSteal(ent);
 		break;
 	case UPGRADE_BLUE_JEWEL:
 		return new UpgradeBlueJewel(ent);
