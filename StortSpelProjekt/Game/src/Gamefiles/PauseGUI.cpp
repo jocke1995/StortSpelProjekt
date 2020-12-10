@@ -16,12 +16,9 @@
 void onReturnToGame(const std::string& name);
 // Declared in "GameOverHandler.cpp"
 void onMainMenu(const std::string& name);
-// Declared in "MainMenuHandler.cpp"
-void onExit(const std::string& name);
 
 PauseGUI::PauseGUI()
 {
-
 }
 
 PauseGUI& PauseGUI::GetInstance()
@@ -62,7 +59,6 @@ void PauseGUI::Update(double dt, Scene* scene)
 	// if shown is true we should draw the menu
 	if (m_Shown == true)
 	{
-
 		// if current scene is the same as the saved scene then we don't have do out anything. 
 		// Since it should be done already.
 		if (m_Drawn == false)
@@ -70,6 +66,11 @@ void PauseGUI::Update(double dt, Scene* scene)
 			// Will draw the menu and set current scene and set deleted to false.
 			CreateMenu(scene);
 			m_Drawn = true;
+		}
+		else
+		{
+			scene->GetEntity("ResumeGame")->Update(dt);
+			scene->GetEntity("Abandon")->Update(dt);
 		}
 
 		// Here we change the Upgrade buttons if we have pressed the next button.
@@ -134,9 +135,8 @@ void PauseGUI::Update(double dt, Scene* scene)
 
 		// Remove pause menu
 		m_pSm->RemoveEntity(scene->GetEntity("PauseOverlay"), scene);
-		m_pSm->RemoveEntity(scene->GetEntity("ReturnToGameQuad"), scene);
-		m_pSm->RemoveEntity(scene->GetEntity("MainMenuQuad"), scene);
-		m_pSm->RemoveEntity(scene->GetEntity("ExitQuad"), scene);
+		m_pSm->RemoveEntity(scene->GetEntity("ResumeGame"), scene);
+		m_pSm->RemoveEntity(scene->GetEntity("Abandon"), scene);
 
 		// Delete the Upgrade Buttons
 		for (int i = 0; i < m_ButtonNames.size(); i++)
@@ -196,42 +196,29 @@ void PauseGUI::CreateMenu(Scene* scene)
 		entity->Update(0);
 	}
 
-	entity = scene->AddEntity("ReturnToGameQuad");
+	entity = scene->AddEntity("ResumeGame");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	gui->GetQuadManager()->CreateQuad(
-		"ReturnToGameOption",
-		{ 0.1f, 0.1f }, { m_pReturnToGameTex->GetWidth() / 1920.0f, m_pReturnToGameTex->GetHeight() / 1080.0f },
+		"ResumeGame",
+		{ 0.08f, 0.2f }, { m_pResumeGameTex->GetWidth() / 1920.0f, m_pResumeGameTex->GetHeight() / 1080.0f },
 		true, true,
 		3,
 		notBlended,
-		m_pReturnToGameTex);
+		m_pResumeGameTex);
 	gui->GetQuadManager()->SetOnClicked(&onReturnToGame);
 	scene->InitDynamicEntity(entity);
 	entity->Update(0);
 
-	entity = scene->AddEntity("MainMenuQuad");
+	entity = scene->AddEntity("Abandon");
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	gui->GetQuadManager()->CreateQuad(
-		"MainMenuOption",
-		{ 0.1f, 0.3f }, { m_pMainMenuTex->GetWidth() / 1920.0f, m_pMainMenuTex->GetHeight() / 1080.0f },
+		"Abandon",
+		{ 0.08f, 0.35f }, { m_pAbandonTex->GetWidth() / 1920.0f, m_pAbandonTex->GetHeight() / 1080.0f },
 		true, true,
 		3,
 		notBlended,
-		m_pMainMenuTex);
+		m_pAbandonTex);
 	gui->GetQuadManager()->SetOnClicked(&onMainMenu);
-	scene->InitDynamicEntity(entity);
-	entity->Update(0);
-
-	entity = scene->AddEntity("ExitQuad");
-	gui = entity->AddComponent<component::GUI2DComponent>();
-	gui->GetQuadManager()->CreateQuad(
-		"ExitOption",
-		{ 0.1f, 0.5f }, { m_pExitTex->GetWidth() / 1920.0f, m_pExitTex->GetHeight() / 1080.0f },
-		true, true,
-		3,
-		notBlended,
-		m_pExitTex);
-	gui->GetQuadManager()->SetOnClicked(&onExit);
 	scene->InitDynamicEntity(entity);
 	entity->Update(0);
 
@@ -240,7 +227,7 @@ void PauseGUI::CreateMenu(Scene* scene)
 	/* ------------------------- Upgrade Menu Background --------------------------- */
 
 	textToRender = "Bought Upgrades            Upgrade Description";
-	textPos = { 0.55f, 0.265f };
+	textPos = { m_UpgradeWindowOrigo.x + 0.04f, m_UpgradeWindowOrigo.y + 0.035f};
 	textPadding = { 0.5f, 0.0f };
 	textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	textScale = { 0.5f, 0.5f };
@@ -260,7 +247,7 @@ void PauseGUI::CreateMenu(Scene* scene)
 		gui->GetTextManager()->SetText(textToRender, "UpgradeMenuBackground");
 		gui->GetTextManager()->SetBlend(textBlend, "UpgradeMenuBackground");
 
-		quadPos = { 0.51f, 0.24f };
+		quadPos = m_UpgradeWindowOrigo;
 		quadScale = { 0.5f, 0.6f };
 		blended = { 1.0, 1.0, 1.0, 1.0 };
 		notBlended = { 1.0, 1.0, 1.0, 1.0 };
@@ -355,9 +342,8 @@ void PauseGUI::Init()
 	m_pButtonParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_hor.png");
 	m_pDescriptionParchment = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Upgrades/parchment_vert.png");
 	m_pPauseOverlayTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/PauseOverlay.png");
-	m_pReturnToGameTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/ReturnToGame.png");
-	m_pMainMenuTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/MainMenu.png");
-	m_pExitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Exit.png");
+	m_pResumeGameTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/ResumeGame.png");
+	m_pAbandonTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Abandon.png");
 
 	m_pFont = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
@@ -513,7 +499,7 @@ void PauseGUI::updateDescription(int level)
 	textToRender += description.substr(0, description.length());
 	textToRender += "\n\nCurrent level: " + std::to_string(level);
 
-	textPos = { 0.76 + 0.0065, m_ButtonPos.y + 0.03f };
+	textPos = { m_UpgradeWindowOrigo.x + 0.24f + 0.0065f, m_ButtonPos.y + 0.03f };
 	textPadding = { 0.5f, 0.0f };
 	textColor = { .0f, .0f, .0f, 1.0f };
 	textScale = { 0.215f, 0.215f };
@@ -530,7 +516,7 @@ void PauseGUI::updateDescription(int level)
 	gui->GetTextManager()->SetText(textToRender, name);
 	gui->GetTextManager()->SetBlend(textBlend, name);
 
-	quadPos = { 0.74, m_ButtonPos.y - 0.05f };
+	quadPos = { m_UpgradeWindowOrigo.x + 0.22f, m_ButtonPos.y - 0.05f };
 	quadScale = { 0.27f, 0.57f };
 	blended = { 1.0, 1.0, 1.0, 1.0 };
 	notBlended = { 1.0, 1.0, 1.0, 1.0 };

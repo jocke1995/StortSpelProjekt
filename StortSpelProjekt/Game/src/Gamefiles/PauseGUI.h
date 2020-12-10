@@ -39,8 +39,10 @@ private:
 	bool m_DescriptionDeleted = true;
 	// Should we cycle through the UpgradeButtons?
 	bool m_LoopButtons = false;
+	//GUI position
+	float2 m_UpgradeWindowOrigo = { 0.49, 0.18 };
 	// Value for buttons.
-	float2 m_ButtonPos = { 0.54f, 0.301f };
+	float2 m_ButtonPos = { m_UpgradeWindowOrigo.x + 0.03f, m_UpgradeWindowOrigo.y + 0.081f};
 	float m_ButtonYOffset = 0.048f;
 	// How many times the menu can be filled with buttons.
 	// Used for keeping track of how many times we need to cycle
@@ -62,6 +64,7 @@ private:
 	void getButtonPress(ButtonPressed* event);
 	void updateDescription(int level);
 
+
 	// Fonts
 	Font* m_pFont = nullptr;
 
@@ -70,9 +73,8 @@ private:
 	Texture* m_pButtonParchment;
 	Texture* m_pDescriptionParchment;
 	Texture* m_pPauseOverlayTexture;
-	Texture* m_pReturnToGameTex;
-	Texture* m_pMainMenuTex;
-	Texture* m_pExitTex;
+	Texture* m_pResumeGameTex;
+	Texture* m_pAbandonTex;
 };
 
 
