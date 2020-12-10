@@ -33,9 +33,6 @@ void ShopUpdateScene(SceneManager* sm, double dt);
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/Skulls/");
-    ////Cryptor::DecryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/Skulls/");
-    //return 0;
 
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
@@ -221,6 +218,8 @@ Scene* GameScene(SceneManager* sm)
 
     AudioBuffer* playerDash = al->LoadAudio(L"../Vendor/Resources/Audio/femaleDash.wav", L"PlayerDash");
     AudioBuffer* playerJump = al->LoadAudio(L"../Vendor/Resources/Audio/femaleJump.wav", L"PlayerJump");
+    AudioBuffer* playerWalk = al->LoadAudio(L"../Vendor/Resources/Audio/PlayerWalk.wav", L"PlayerWalk");
+    playerWalk->SetAudioLoop(0);
 	AudioBuffer* ambientSound = al->LoadAudio(L"../Vendor/Resources/Audio/dungeon.wav", L"Ambient");
 	ambientSound->SetAudioLoop(0);
 	AudioBuffer* music = al->LoadAudio(L"../Vendor/Resources/Audio/backgroundMusic.wav", L"Music");
@@ -279,7 +278,7 @@ Scene* GameScene(SceneManager* sm)
     alc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::T_POSE);
     // range damage should be at least 10 for ranged life steal upgrade to work
-    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 50, 150);
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 50, 200);
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(500);
     uc = entity->AddComponent<component::UpgradeComponent>();
@@ -313,6 +312,7 @@ Scene* GameScene(SceneManager* sm)
     avc->AddVoice(L"PlayerHit1");
     avc->AddVoice(L"PlayerDash");
     avc->AddVoice(L"PlayerJump");
+    avc->AddVoice(L"PlayerWalk");
 
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
@@ -390,7 +390,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.hpBase = 120;
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
-    rangedDemon.attackInterval = 2.5f;
+    rangedDemon.attackInterval = 0.5f;
     rangedDemon.attackSpeed = 1.0f;
     rangedDemon.movementSpeed = 30.0f;
     rangedDemon.targetName = "player";
@@ -399,7 +399,8 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.detectionRad = 150.0f;
     rangedDemon.attackingDist = 100.0f;
     rangedDemon.rangeAttackDmg = 70;
-    rangedDemon.rangeVelocity = 50.0f;
+    rangedDemon.rangeAttackDmgBase = 70;
+    rangedDemon.rangeVelocity = 100.0f;
     rangedDemon.projectileModel = sphereModel;
     rangedDemon.invertDirection = true;
     rangedDemon.mass = 300.0f;
@@ -643,7 +644,7 @@ Scene* GameScene(SceneManager* sm)
 	avc = entity->AddComponent<component::Audio2DVoiceComponent>();
 	avc->AddVoice(L"Music");
 #pragma endregion
-
+#pragma endregion
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();
 
@@ -700,6 +701,12 @@ Scene* ShopScene(SceneManager* sm)
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
 	AudioBuffer* music = al->LoadAudio(L"../Vendor/Resources/Audio/shopMusic.wav", L"ShopMusic");
+    AudioBuffer* gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/HelloThere.wav",L"HelloThere");
+    gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/WhatDoYouNeed.wav", L"WhatDoYouNeed");
+    gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/AhYouAgain.wav", L"AhYouAgain");
+    gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/WhatWillItBe.wav", L"WhatWillItBe");
+    gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/IGotAllTheGoods.wav", L"IGotAllTheGoods");
+
 	music->SetAudioLoop(0);
 
 	Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
@@ -722,6 +729,7 @@ Scene* ShopScene(SceneManager* sm)
     avc->AddVoice(L"PlayerHit1");
     avc->AddVoice(L"PlayerDash");
     avc->AddVoice(L"PlayerJump");
+    avc->AddVoice(L"PlayerWalk");
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
@@ -935,7 +943,12 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- Shop ---------------------- */
     entity = scene->AddEntity("shop");
     mc = entity->AddComponent<component::ModelComponent>();
-
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    avc->AddVoice(L"HelloThere");
+    avc->AddVoice(L"WhatDoYouNeed");
+    avc->AddVoice(L"AhYouAgain");
+    avc->AddVoice(L"WhatWillItBe");
+    avc->AddVoice(L"IGotAllTheGoods");
     mc->SetModel(shopModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 
@@ -951,6 +964,14 @@ Scene* ShopScene(SceneManager* sm)
 
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
     bbc->Init();
+
+    entity = scene->GetEntity("Gawblin_0");
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    avc->AddVoice(L"HelloThere");
+    avc->AddVoice(L"WhatDoYouNeed");
+    avc->AddVoice(L"AhYouAgain");
+    avc->AddVoice(L"WhatWillItBe");
+    avc->AddVoice(L"IGotAllTheGoods");
     /* ---------------------- Shop ---------------------- */
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
@@ -990,18 +1011,25 @@ void GameInitScene(Scene* scene)
 	Entity* entity = scene->GetEntity("ambientSound");
 	component::Audio2DVoiceComponent* avc = entity->GetComponent<component::Audio2DVoiceComponent>();
 	avc->Play(L"Ambient");
-	entity = scene->GetEntity("music");
-	avc = entity->GetComponent<component::Audio2DVoiceComponent>();
-	avc->Play(L"Music");
+
+	if (std::atof(Option::GetInstance().GetVariable("i_music").c_str()))
+	{
+		entity = scene->GetEntity("music");
+		avc = entity->GetComponent<component::Audio2DVoiceComponent>();
+		avc->Play(L"Music");
+	}
 
     AssetLoader::Get()->RemoveWalls();
 }
 
 void ShopInitScene(Scene* scene)
 {
-	Entity* entity = scene->GetEntity("shopMusic");
-	component::Audio2DVoiceComponent* avc = entity->GetComponent<component::Audio2DVoiceComponent>();
-	avc->Play(L"ShopMusic");
+	if (std::atof(Option::GetInstance().GetVariable("i_music").c_str()))
+	{
+		Entity* entity = scene->GetEntity("shopMusic");
+		component::Audio2DVoiceComponent* avc = entity->GetComponent<component::Audio2DVoiceComponent>();
+		avc->Play(L"ShopMusic");
+	}
 
     ParticleInit();
 }
