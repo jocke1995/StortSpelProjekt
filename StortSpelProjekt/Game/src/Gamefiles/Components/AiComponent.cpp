@@ -15,6 +15,7 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_StandStill = false;
 	m_NewPath = false;
 	m_ShouldPlayAttackAnimation = true;
+	m_ExecuteAttack = true;
 
 	m_Flags = flags;
 
@@ -614,7 +615,7 @@ void component::AiComponent::updateRange(double dt)
 				{
 					if (m_ShouldPlayAttackAnimation)
 					{
-						m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Claw_attack_left", false);
+						m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Claw_Attack_Left", false);
 						m_ShouldPlayAttackAnimation = false;
 					}
 
@@ -629,13 +630,18 @@ void component::AiComponent::updateRange(double dt)
 					m_SpeedTimeAccumulator += static_cast<float>(dt);
 					if (m_SpeedTimeAccumulator >= m_AttackSpeed)
 					{
-						// shoot
-						m_ShouldPlayAttackAnimation = true;
-						m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(aimDirection);
 						m_SpeedTimeAccumulator = 0.0;
 						m_IntervalTimeAccumulator = 0.0;
+						m_ShouldPlayAttackAnimation = true;
+						m_ExecuteAttack = true;
+					}
+					else if (m_SpeedTimeAccumulator >= (m_AttackSpeed / 2.0) && m_ExecuteAttack)
+					{
+						// shoot
+						m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(aimDirection);
 						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnAttack");
 						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnAttack");
+						m_ExecuteAttack = false;
 					}
 				}
 				else if (m_DistanceToPlayer <= m_AttackingDistance / 2.0f)

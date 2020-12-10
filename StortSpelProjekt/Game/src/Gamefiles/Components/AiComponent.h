@@ -75,6 +75,7 @@ namespace component
 		bool m_StandStill;
 		bool m_NewPath;
 		bool m_ShouldPlayAttackAnimation;
+		bool m_ExecuteAttack;
 
 		unsigned int m_Flags;
 
