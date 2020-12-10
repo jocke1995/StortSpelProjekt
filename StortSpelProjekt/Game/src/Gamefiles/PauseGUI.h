@@ -42,7 +42,7 @@ private:
 	//GUI position
 	float2 m_UpgradeWindowOrigo = { 0.49, 0.18 };
 	// Value for buttons.
-	float2 m_ButtonPos = { m_UpgradeWindowOrigo.x + 0.03f, m_UpgradeWindowOrigo.y + 0.081f};
+	float2 m_ButtonPos = { m_UpgradeWindowOrigo.x + 0.03f, m_UpgradeWindowOrigo.y + 0.071f};
 	float m_ButtonYOffset = 0.048f;
 	// How many times the menu can be filled with buttons.
 	// Used for keeping track of how many times we need to cycle

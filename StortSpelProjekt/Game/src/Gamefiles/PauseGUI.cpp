@@ -71,6 +71,14 @@ void PauseGUI::Update(double dt, Scene* scene)
 		{
 			scene->GetEntity("ResumeGame")->Update(dt);
 			scene->GetEntity("Abandon")->Update(dt);
+			for (int i = (m_TimesFilledMenu - 1) * 10; i < min(m_AppliedUpgradeEnums.size(), m_TimesFilledMenu * 10); i++)
+			{
+				scene->GetEntity(m_ButtonNames.at(i))->Update(dt);
+			}
+			if (m_ButtonsMultipleTen > 0)
+			{
+				scene->GetEntity("NextButton")->Update(dt);
+			}
 		}
 
 		// Here we change the Upgrade buttons if we have pressed the next button.
@@ -213,7 +221,7 @@ void PauseGUI::CreateMenu(Scene* scene)
 	gui = entity->AddComponent<component::GUI2DComponent>();
 	gui->GetQuadManager()->CreateQuad(
 		"Abandon",
-		{ 0.08f, 0.35f }, { m_pAbandonTex->GetWidth() / 1920.0f, m_pAbandonTex->GetHeight() / 1080.0f },
+		{ 0.06f, 0.35f }, { m_pAbandonTex->GetWidth() / 1920.0f, m_pAbandonTex->GetHeight() / 1080.0f },
 		true, true,
 		3,
 		notBlended,
@@ -227,7 +235,7 @@ void PauseGUI::CreateMenu(Scene* scene)
 	/* ------------------------- Upgrade Menu Background --------------------------- */
 
 	textToRender = "Bought Upgrades            Upgrade Description";
-	textPos = { m_UpgradeWindowOrigo.x + 0.04f, m_UpgradeWindowOrigo.y + 0.035f};
+	textPos = { m_UpgradeWindowOrigo.x + 0.04f, m_UpgradeWindowOrigo.y + 0.025f};
 	textPadding = { 0.5f, 0.0f };
 	textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	textScale = { 0.5f, 0.5f };
@@ -248,7 +256,7 @@ void PauseGUI::CreateMenu(Scene* scene)
 		gui->GetTextManager()->SetBlend(textBlend, "UpgradeMenuBackground");
 
 		quadPos = m_UpgradeWindowOrigo;
-		quadScale = { 0.5f, 0.6f };
+		quadScale = { 0.5f, 0.635f };
 		blended = { 1.0, 1.0, 1.0, 1.0 };
 		notBlended = { 1.0, 1.0, 1.0, 1.0 };
 		gui->GetQuadManager()->CreateQuad(
