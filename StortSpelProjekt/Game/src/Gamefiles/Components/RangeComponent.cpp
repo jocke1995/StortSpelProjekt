@@ -118,8 +118,8 @@ void component::RangeComponent::Attack()
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
 		uc = ent->AddComponent<component::UpgradeComponent>();
 		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::FLICKER);
-		plc->SetFlickerRate(0.25);
-		plc->SetFlickerAmplitude(0.18);
+		plc->SetFlickerRate(3);
+		plc->SetFlickerAmplitude(0.16);
 		
 		//tlc = ent->AddComponent<component::TemporaryLifeComponent>(duration);
 
