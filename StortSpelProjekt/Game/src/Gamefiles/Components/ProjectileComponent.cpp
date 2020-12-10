@@ -82,6 +82,7 @@ void component::ProjectileComponent::hit(Collision* event)
 			else if (other->GetComponent<component::Audio2DVoiceComponent>())
 			{
 				other->GetComponent<Audio2DVoiceComponent>()->Play(L"PlayerHit1");
+				EventBus::GetInstance().Publish(&RemoveMe(m_pParent));
 			}
 		}
 		else if (m_pParent->HasComponent<CollisionComponent>())

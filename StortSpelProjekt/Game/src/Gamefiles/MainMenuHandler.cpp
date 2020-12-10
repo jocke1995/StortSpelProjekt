@@ -28,6 +28,7 @@ void onMedShadowQuality(const std::string& name);
 void onHighShadowQuality(const std::string& name);
 void onVolumePlus(const std::string& name);
 void onVolumeMinus(const std::string& name);
+void onBox(const std::string& name);
 void onMouseSensitivityPlus(const std::string& name);
 void onMouseSensitivityMinus(const std::string& name);
 void MainMenuUpdateScene(SceneManager* sm, double dt);
@@ -62,6 +63,9 @@ void MainMenuHandler::createOptionScene()
     Texture* mouseSensitivity = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/MouseSensitivity.png");
     Texture* plus = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Plus.png");
     Texture* minus = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Minus.png");
+	Texture* music = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/music.png");
+	Texture* emptyBox = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/emptybox.png");
+	Texture* cross = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/cross.png");
 
 	Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
@@ -365,7 +369,45 @@ void MainMenuHandler::createOptionScene()
         nullptr
     );
 
+	entity = m_pOptionScene->AddEntity("musicText");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("musicText",
+		{ 0.82f, 0.42f },
+		{ (float)music->GetWidth() / 1920.0f / 1.8f, (float)music->GetHeight() / 1080.0f / 1.8f},
+		false,
+		false,
+		1,
+		{ 1.0,1.0,1.0,1.0 },
+		music);
 
+	entity = m_pOptionScene->AddEntity("box");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("emptyBox",
+		{ 0.88f, 0.53f },
+		{ (float)emptyBox->GetWidth() / 1920.0f / 3.0f, (float)emptyBox->GetHeight() / 1080.0f / 3.0f },
+		true,
+		true,
+		1,
+		{ 1.0,1.0,1.0,1.0 },
+		emptyBox);
+	guic->GetQuadManager()->SetOnClicked(&onBox);
+
+	bool active = std::atof(Option::GetInstance().GetVariable("i_music").c_str());
+	float4 blended = { 1.0, 1.0, 1.0, 1.0 };
+	if (!active)
+	{
+		blended.w = 0.0;
+	}
+	entity = m_pOptionScene->AddEntity("check");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("check",
+		{ 0.88f, 0.53f },
+		{ (float)emptyBox->GetWidth() / 1920.0f / 3.0f, (float)emptyBox->GetHeight() / 1080.0f / 3.0f },
+		false,
+		false,
+		1,
+		blended,
+		cross);
 
     /*-------------Mouse Sensitivity--------------*/
     entity = m_pOptionScene->AddEntity("MouseSensitivityText");
@@ -786,6 +828,29 @@ void onVolumeMinus(const std::string& name)
 
         Option::GetInstance().WriteFile();
     }
+}
+
+void onBox(const std::string& name)
+{	
+	bool active = std::atof(Option::GetInstance().GetVariable("i_music").c_str());
+	Option::GetInstance().SetVariable("i_music", std::to_string(!active));
+	Option::GetInstance().WriteFile();
+
+	float4 blended = { 1.0, 1.0, 1.0, 1.0 };
+	if (active)
+	{
+		blended.w = 0.0;
+	}
+
+	Texture* emptyBox = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/emptybox.png");
+	MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("check")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad
+	(
+		{ 0.88f, 0.53f },
+		{ (float)emptyBox->GetWidth() / 1920.0f / 3.0f, (float)emptyBox->GetHeight() / 1080.0f / 3.0f },
+		false,
+		false,
+		blended
+	);
 }
 
 void onMouseSensitivityPlus(const std::string& name)
