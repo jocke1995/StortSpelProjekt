@@ -218,6 +218,8 @@ Scene* GameScene(SceneManager* sm)
 
     AudioBuffer* playerDash = al->LoadAudio(L"../Vendor/Resources/Audio/femaleDash.wav", L"PlayerDash");
     AudioBuffer* playerJump = al->LoadAudio(L"../Vendor/Resources/Audio/femaleJump.wav", L"PlayerJump");
+    AudioBuffer* playerWalk = al->LoadAudio(L"../Vendor/Resources/Audio/PlayerWalk.wav", L"PlayerWalk");
+    playerWalk->SetAudioLoop(0);
 	AudioBuffer* ambientSound = al->LoadAudio(L"../Vendor/Resources/Audio/dungeon.wav", L"Ambient");
 	ambientSound->SetAudioLoop(0);
 	AudioBuffer* music = al->LoadAudio(L"../Vendor/Resources/Audio/backgroundMusic.wav", L"Music");
@@ -310,6 +312,7 @@ Scene* GameScene(SceneManager* sm)
     avc->AddVoice(L"PlayerHit1");
     avc->AddVoice(L"PlayerDash");
     avc->AddVoice(L"PlayerJump");
+    avc->AddVoice(L"PlayerWalk");
 
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
@@ -698,6 +701,12 @@ Scene* ShopScene(SceneManager* sm)
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
 	AudioBuffer* music = al->LoadAudio(L"../Vendor/Resources/Audio/shopMusic.wav", L"ShopMusic");
+    AudioBuffer* gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/HelloThere.wav",L"HelloThere");
+    gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/WhatDoYouNeed.wav", L"WhatDoYouNeed");
+    gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/AhYouAgain.wav", L"AhYouAgain");
+    gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/WhatWillItBe.wav", L"WhatWillItBe");
+    gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/IGotAllTheGoods.wav", L"IGotAllTheGoods");
+
 	music->SetAudioLoop(0);
 
 	Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
@@ -720,6 +729,7 @@ Scene* ShopScene(SceneManager* sm)
     avc->AddVoice(L"PlayerHit1");
     avc->AddVoice(L"PlayerDash");
     avc->AddVoice(L"PlayerJump");
+    avc->AddVoice(L"PlayerWalk");
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
@@ -933,7 +943,12 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- Shop ---------------------- */
     entity = scene->AddEntity("shop");
     mc = entity->AddComponent<component::ModelComponent>();
-
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    avc->AddVoice(L"HelloThere");
+    avc->AddVoice(L"WhatDoYouNeed");
+    avc->AddVoice(L"AhYouAgain");
+    avc->AddVoice(L"WhatWillItBe");
+    avc->AddVoice(L"IGotAllTheGoods");
     mc->SetModel(shopModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 
@@ -949,6 +964,14 @@ Scene* ShopScene(SceneManager* sm)
 
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
     bbc->Init();
+
+    entity = scene->GetEntity("Gawblin_0");
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    avc->AddVoice(L"HelloThere");
+    avc->AddVoice(L"WhatDoYouNeed");
+    avc->AddVoice(L"AhYouAgain");
+    avc->AddVoice(L"WhatWillItBe");
+    avc->AddVoice(L"IGotAllTheGoods");
     /* ---------------------- Shop ---------------------- */
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
