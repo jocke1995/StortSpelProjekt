@@ -29,7 +29,7 @@ component::AnimationComponent::~AnimationComponent()
 
 void component::AnimationComponent::RenderUpdate(double dt)
 {
-	if (m_pAnimatedModel)
+	if (m_pAnimatedModel && !m_Paused)
 	{
 		if (m_ActiveAnimation.first)
 		{
@@ -160,6 +160,11 @@ void component::AnimationComponent::Reset()
 			break;
 		}
 	}
+}
+
+void component::AnimationComponent::PauseAnimation(bool pause)
+{
+	m_Paused = pause;
 }
 
 bool component::AnimationComponent::PlayAnimation(std::string animationName, bool loop)

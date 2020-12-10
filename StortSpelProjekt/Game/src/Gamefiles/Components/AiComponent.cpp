@@ -124,8 +124,8 @@ void component::AiComponent::Update(double dt)
 	else
 	{
 		m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetMovement(0, 0, 0);
+		m_pParent->GetComponent<component::AnimationComponent>()->PauseAnimation(true);
 	}
-
 }
 
 void component::AiComponent::RenderUpdate(double dt)

@@ -28,6 +28,8 @@ namespace component
         // Will reset the component. No need to re-initialize.
         void Reset();
 
+		void PauseAnimation(bool pause);
+
         // Plays an animation
         bool PlayAnimation(std::string animationName, bool loop);
 
@@ -51,6 +53,7 @@ namespace component
         std::pair<Animation*, AnimationInfo> m_QueuedAnimation;
 
         double m_BlendTimeElapsed = 0;
+		bool m_Paused = false;
 
         std::vector<DirectX::XMFLOAT4X4> m_UploadMatrices;
         ConstantBuffer* m_pCB = nullptr;
