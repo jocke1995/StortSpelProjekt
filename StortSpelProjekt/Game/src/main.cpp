@@ -276,7 +276,7 @@ Scene* GameScene(SceneManager* sm)
     alc = entity->AddComponent<component::Audio3DListenerComponent>();
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::T_POSE);
     // range damage should be at least 10 for ranged life steal upgrade to work
-    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 50, 150);
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 50, 200);
     currc = entity->AddComponent<component::CurrencyComponent>();
     hc = entity->AddComponent<component::HealthComponent>(500);
     uc = entity->AddComponent<component::UpgradeComponent>();
@@ -387,7 +387,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.hpBase = 120;
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
-    rangedDemon.attackInterval = 2.5f;
+    rangedDemon.attackInterval = 0.5f;
     rangedDemon.attackSpeed = 1.0f;
     rangedDemon.movementSpeed = 30.0f;
     rangedDemon.targetName = "player";
@@ -396,7 +396,8 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.detectionRad = 150.0f;
     rangedDemon.attackingDist = 100.0f;
     rangedDemon.rangeAttackDmg = 70;
-    rangedDemon.rangeVelocity = 50.0f;
+    rangedDemon.rangeAttackDmgBase = 70;
+    rangedDemon.rangeVelocity = 100.0f;
     rangedDemon.projectileModel = sphereModel;
     rangedDemon.invertDirection = true;
     rangedDemon.mass = 300.0f;
@@ -640,7 +641,7 @@ Scene* GameScene(SceneManager* sm)
 	avc = entity->AddComponent<component::Audio2DVoiceComponent>();
 	avc->AddVoice(L"Music");
 #pragma endregion
-
+#pragma endregion
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();
 
