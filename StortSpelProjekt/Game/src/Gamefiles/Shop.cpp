@@ -426,6 +426,28 @@ void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
 		{
 			if (pickedEntity->GetName() == "shop" || pickedEntity->GetName() == "Gawblin_0")
 			{
+
+				switch (m_Rand.Rand(0, 5))
+				{
+				case 0:
+					pickedEntity->GetComponent<component::Audio2DVoiceComponent>()->Play(L"HelloThere");
+					break;
+				case 1:
+					pickedEntity->GetComponent<component::Audio2DVoiceComponent>()->Play(L"WhatDoYouNeed");
+					break;
+				case 2:
+					pickedEntity->GetComponent<component::Audio2DVoiceComponent>()->Play(L"AhYouAgain");
+					break;
+				case 3:
+					pickedEntity->GetComponent<component::Audio2DVoiceComponent>()->Play(L"WhatWillItBe");
+					break;
+				case 4:
+					pickedEntity->GetComponent<component::Audio2DVoiceComponent>()->Play(L"IGotAllTheGoods");
+					break;
+				default:
+					break;
+				}
+				
 				Create2DGUI();
 
 				// Reset movement, should happen here later. is currently happening in ShopSceneUpdateFunction in main
