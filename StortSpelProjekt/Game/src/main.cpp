@@ -333,8 +333,8 @@ Scene* GameScene(SceneManager* sm)
     zombie.aiFlags = 0;
     zombie.meleeAttackDmg = 30.0f;
     zombie.meleeAttackDmgBase = 30.0f;
-    zombie.attackInterval = 1.5f;
-    zombie.attackSpeed = 0.1f;
+    zombie.attackInterval = 0.5f;
+    zombie.attackSpeed = 1.0f;
     zombie.movementSpeed = 45.0f;
     zombie.rot = { 0.0, 0.0, 0.0 };
     zombie.targetName = "player";

@@ -74,6 +74,7 @@ namespace component
 		bool m_IsRanged;
 		bool m_StandStill;
 		bool m_NewPath;
+		bool m_ShouldPlayAttackAnimation;
 
 		unsigned int m_Flags;
 

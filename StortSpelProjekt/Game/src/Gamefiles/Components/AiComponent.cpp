@@ -14,6 +14,7 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_IsRanged = false;		// default melee
 	m_StandStill = false;
 	m_NewPath = false;
+	m_ShouldPlayAttackAnimation = true;
 
 	m_Flags = flags;
 
@@ -518,11 +519,8 @@ void component::AiComponent::updateMelee(double dt)
 			{
 				if (m_IntervalTimeAccumulator >= m_AttackInterval)
 				{
-					m_SpeedTimeAccumulator += static_cast<float>(dt);
-					if (m_SpeedTimeAccumulator >= m_AttackSpeed)
+					if (m_ShouldPlayAttackAnimation)
 					{
-						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnAttack");
-						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnAttack");
 						if (m_pParent->GetName().find("Spider", 0) != std::string::npos)
 						{
 							m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Bite", false);
@@ -531,6 +529,16 @@ void component::AiComponent::updateMelee(double dt)
 						{
 							m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Attack", false);
 						}
+						m_ShouldPlayAttackAnimation = false;
+					}
+					
+
+					m_SpeedTimeAccumulator += static_cast<float>(dt);
+					if (m_SpeedTimeAccumulator >= m_AttackSpeed)
+					{
+						m_ShouldPlayAttackAnimation = true;
+						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnAttack");
+						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnAttack");
 						m_pTarget->GetComponent<component::PlayerInputComponent>()->SetSlow(1.0f - m_SlowingAttack);
 						m_pTarget->GetComponent<component::HealthComponent>()->TakeDamage(m_MeleeAttackDmg);
 						m_pTarget->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerHit1");
@@ -544,6 +552,7 @@ void component::AiComponent::updateMelee(double dt)
 		}
 		else
 		{
+			m_ShouldPlayAttackAnimation = true;
 			m_SpeedTimeAccumulator = 0.0;
 		}
 	}
@@ -551,9 +560,10 @@ void component::AiComponent::updateMelee(double dt)
 
 void component::AiComponent::updateRange(double dt)
 {
+	CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
 	// Check if we need to update the animations
 	static double currentMovement = 0.0f;
-	double newMovement = m_pParentTrans->GetVelocity();
+	double newMovement = cc->GetLinearVelocity().length();
 	if (abs(currentMovement - newMovement) > 0.1f)
 	{
 		currentMovement = newMovement;
@@ -567,8 +577,6 @@ void component::AiComponent::updateRange(double dt)
 		}
 	}
 	
-
-	CollisionComponent* cc = m_pParent->GetComponent<component::CollisionComponent>();
 	if (cc->CastRay({ 0.0, -1.0, 0.0 }, cc->GetDistanceToBottom() + 0.5) != -1)
 	{
 		double vel;
@@ -604,6 +612,12 @@ void component::AiComponent::updateRange(double dt)
 			{
 				if (m_IntervalTimeAccumulator >= m_AttackInterval && m_DistanceToPlayer >= m_AttackingDistance / 8.0f)
 				{
+					if (m_ShouldPlayAttackAnimation)
+					{
+						m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Claw_attack_left", false);
+						m_ShouldPlayAttackAnimation = false;
+					}
+
 					// stand still to shoot
 					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(0);
 					cc->SetVelVector(0, 0, 0);
@@ -616,6 +630,7 @@ void component::AiComponent::updateRange(double dt)
 					if (m_SpeedTimeAccumulator >= m_AttackSpeed)
 					{
 						// shoot
+						m_ShouldPlayAttackAnimation = true;
 						m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(aimDirection);
 						m_SpeedTimeAccumulator = 0.0;
 						m_IntervalTimeAccumulator = 0.0;
@@ -625,6 +640,7 @@ void component::AiComponent::updateRange(double dt)
 				}
 				else if (m_DistanceToPlayer <= m_AttackingDistance / 2.0f)
 				{
+					m_ShouldPlayAttackAnimation = true;
 					m_SpeedTimeAccumulator = 0;
 					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(m_MovementVelocity * 0.75f);
 					vel = -m_pParentTrans->GetVelocity();
