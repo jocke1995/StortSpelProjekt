@@ -14,8 +14,9 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_IsRanged = false;		// default melee
 	m_StandStill = false;
 	m_NewPath = false;
-	m_ShouldPlayAttackAnimation = true;
+	m_CanChangeAnimation = true;
 	m_ExecuteAttack = true;
+	m_TurnToPlayer = false;
 
 	m_Flags = flags;
 
@@ -217,8 +218,8 @@ void component::AiComponent::KnockBack(const Transform& attackTransform, float k
 float3 component::AiComponent::setAimDirection()
 {
 	// get target position
-	float3 targetPos = m_pTarget->GetComponent<TransformComponent>()->GetTransform()->GetPositionFloat3();
-	float3 parentPos = m_pParent->GetComponent<TransformComponent>()->GetTransform()->GetPositionFloat3();
+	float3 targetPos = m_pTargetTrans->GetPositionFloat3();
+	float3 parentPos = m_pParentTrans->GetPositionFloat3();
 	// set direction
 	float3 direction = targetPos - parentPos;
 	double angle = std::atan2(m_pParentTrans->GetInvDir() * direction.x, m_pParentTrans->GetInvDir() * direction.z);
@@ -520,7 +521,7 @@ void component::AiComponent::updateMelee(double dt)
 			{
 				if (m_IntervalTimeAccumulator >= m_AttackInterval)
 				{
-					if (m_ShouldPlayAttackAnimation)
+					if (m_CanChangeAnimation)
 					{
 						if (m_pParent->GetName().find("Spider", 0) != std::string::npos)
 						{
@@ -530,14 +531,14 @@ void component::AiComponent::updateMelee(double dt)
 						{
 							m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Attack", false);
 						}
-						m_ShouldPlayAttackAnimation = false;
+						m_CanChangeAnimation = false;
 					}
 					
 
 					m_SpeedTimeAccumulator += static_cast<float>(dt);
 					if (m_SpeedTimeAccumulator >= m_AttackSpeed)
 					{
-						m_ShouldPlayAttackAnimation = true;
+						m_CanChangeAnimation = true;
 						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->UpdateEmitter(L"OnAttack");
 						m_pParent->GetComponent<component::Audio3DEmitterComponent>()->Play(L"OnAttack");
 						m_pTarget->GetComponent<component::PlayerInputComponent>()->SetSlow(1.0f - m_SlowingAttack);
@@ -553,7 +554,7 @@ void component::AiComponent::updateMelee(double dt)
 		}
 		else
 		{
-			m_ShouldPlayAttackAnimation = true;
+			m_CanChangeAnimation = true;
 			m_SpeedTimeAccumulator = 0.0;
 		}
 	}
@@ -568,13 +569,9 @@ void component::AiComponent::updateRange(double dt)
 	if (abs(currentMovement - newMovement) > 0.1f)
 	{
 		currentMovement = newMovement;
-		if (currentMovement < 0.3f)
+		if (currentMovement < 0.3f && m_CanChangeAnimation)
 		{
 			m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Idle", true);
-		}
-		else
-		{
-			m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Walk", true);
 		}
 	}
 	
@@ -585,6 +582,10 @@ void component::AiComponent::updateRange(double dt)
 		{
 			m_RandMovementTimer = 0.0f;
 			randMovement();
+			if (m_CanChangeAnimation)
+			{
+				m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Walk", true);
+			}
 		}
 		else if (m_DistanceToPlayer <= m_DetectionRadius && m_DistanceToPlayer > m_AttackingDistance)
 		{
@@ -593,12 +594,22 @@ void component::AiComponent::updateRange(double dt)
 				m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(m_MovementVelocity);
 				m_StandStill = false;
 				m_SpeedTimeAccumulator = 0.0;
+				if (m_CanChangeAnimation)
+				{
+					m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Idle", true);
+				}
+			}
+			else if (m_CanChangeAnimation)
+			{
+				m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Walk", true);
 			}
 			vel = m_pParentTrans->GetVelocity();
 			cc->SetVelVector(vel * m_DirectionPath.x / m_DistancePath, vel * 2 * m_DirectionPath.y / m_DistancePath, vel * m_DirectionPath.z / m_DistancePath);
+			
 		}
 		else if (m_DistanceToPlayer <= m_AttackingDistance)
 		{
+			m_TurnToPlayer = true;
 			// if something is in the way, keep moving, else shoot
 			double rayDist = cc->CastRay({ m_pTargetTrans->GetPositionFloat3().x, m_pTargetTrans->GetPositionFloat3().y, m_pTargetTrans->GetPositionFloat3().z });
 			double targetDist = (m_pTargetTrans->GetPositionFloat3() - m_pParentTrans->GetPositionFloat3()).length();
@@ -613,10 +624,10 @@ void component::AiComponent::updateRange(double dt)
 			{
 				if (m_IntervalTimeAccumulator >= m_AttackInterval && m_DistanceToPlayer >= m_AttackingDistance / 8.0f)
 				{
-					if (m_ShouldPlayAttackAnimation)
+					if (m_CanChangeAnimation)
 					{
 						m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Claw_Attack_Left", false);
-						m_ShouldPlayAttackAnimation = false;
+						m_CanChangeAnimation = false;
 					}
 
 					// stand still to shoot
@@ -632,10 +643,10 @@ void component::AiComponent::updateRange(double dt)
 					{
 						m_SpeedTimeAccumulator = 0.0;
 						m_IntervalTimeAccumulator = 0.0;
-						m_ShouldPlayAttackAnimation = true;
+						m_CanChangeAnimation = true;
 						m_ExecuteAttack = true;
 					}
-					else if (m_SpeedTimeAccumulator >= (m_AttackSpeed / 2.0) && m_ExecuteAttack)
+					else if (m_SpeedTimeAccumulator >= (m_AttackSpeed / 3.0) && m_ExecuteAttack)
 					{
 						// shoot
 						m_pParent->GetComponent<component::RangeEnemyComponent>()->Attack(aimDirection);
@@ -646,10 +657,11 @@ void component::AiComponent::updateRange(double dt)
 				}
 				else if (m_DistanceToPlayer <= m_AttackingDistance / 2.0f)
 				{
-					m_ShouldPlayAttackAnimation = true;
+					m_CanChangeAnimation = true;
 					m_SpeedTimeAccumulator = 0;
 					m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->SetVelocity(m_MovementVelocity * 0.75f);
 					vel = -m_pParentTrans->GetVelocity();
+					m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Walk_Backwards", false);
 					cc->SetVelVector(vel * m_DirectionPath.x / m_DistancePath, vel * 2 * m_DirectionPath.y / m_DistancePath, vel * m_DirectionPath.z / m_DistancePath);
 				}
 			}
@@ -731,8 +743,6 @@ void component::AiComponent::pathFinding()
 		}
 	}
 
-	bool turnToPlayer = false;
-
 	m_DistanceToPlayer = (m_pTargetTrans->GetPositionFloat3() - m_pParentTrans->GetPositionFloat3()).length();
 	if (!m_Path.empty())
 	{
@@ -740,7 +750,7 @@ void component::AiComponent::pathFinding()
 	}
 	else
 	{
-		turnToPlayer = true;
+		m_TurnToPlayer = true;
 		float3 dirToPlayer = m_pTargetTrans->GetPositionFloat3() - m_pParentTrans->GetPositionFloat3();
 		double angle = std::atan2(m_pParentTrans->GetInvDir() * dirToPlayer.x, m_pParentTrans->GetInvDir() * dirToPlayer.z);
 		cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
@@ -768,12 +778,14 @@ void component::AiComponent::pathFinding()
 
 	m_DirectionPath = { m_NextTargetPos.x - m_LastPos.x, (m_NextTargetPos.y - m_LastPos.y) * static_cast<float>(m_Flags & F_AI_FLAGS::CAN_JUMP), m_NextTargetPos.z - m_LastPos.z };
 
-	if (!(m_Flags & F_AI_FLAGS::CAN_ROLL) && !turnToPlayer)
+	if (!(m_Flags & F_AI_FLAGS::CAN_ROLL) && !m_TurnToPlayer)
 	{
 		double angle = std::atan2(m_pParentTrans->GetInvDir() * m_DirectionPath.x, m_pParentTrans->GetInvDir() * m_DirectionPath.z);
 		cc->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 	}
 	m_DistancePath = m_DirectionPath.length();
+
+	m_TurnToPlayer = false;
 }
 
 void component::AiComponent::randMovement()

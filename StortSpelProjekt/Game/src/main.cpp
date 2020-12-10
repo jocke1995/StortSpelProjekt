@@ -390,7 +390,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     rangedDemon.attackInterval = 0.5f;
-    rangedDemon.attackSpeed = 1.0f;
+    rangedDemon.attackSpeed = 1.5f;
     rangedDemon.movementSpeed = 30.0f;
     rangedDemon.targetName = "player";
     rangedDemon.scale = 0.08f;
