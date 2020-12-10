@@ -38,7 +38,7 @@ void UpgradeExplosiveAttack::IncreaseLevel()
 	m_Level++;
 	m_Radius = (5 * m_Level);
 	m_PercentageDamage = 0.4 + (0.1 * m_Level);
-	m_Price += m_StartingPrice;
+	m_Price += m_StartingPrice * (m_Level + 1);
 }
 
 void UpgradeExplosiveAttack::OnRangedHit(Entity* target, Entity* projectile)
