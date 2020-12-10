@@ -806,8 +806,11 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0.0f, 2.0f, 0.0f);
 
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::FLICKER);
-    plc->SetColor({ 10.0, 2.4, 8.0 });
+    plc->SetColor({ 0.0, 1.0, 0.0 });
+    plc->SetIntensity(10);
     plc->SetAttenuation({ 1.0, 0.22, 0.20 });
+    float flickerRate = 0.2;
+    plc->SetFlickerRate(flickerRate);
 
     // Create brazier particleEffect
     settings = {};
@@ -845,28 +848,10 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(10.0f, 2.0f, 0.0f);
 
     plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::FLICKER);
-    plc->SetColor({ 0.0, 0.4, 10.0 });
+    plc->SetColor({ 0.0, 0.4, 1.0 });
+    plc->SetIntensity(10);
     plc->SetAttenuation({ 1.0, 0.22, 0.20 });
-
-    // Create brazier particleEffect
-    settings = {};
-    settings.maxParticleCount = 11;
-    settings.spawnInterval = 0.1;
-    settings.startValues.position = { 0, 2.0, 0 };
-    settings.startValues.acceleration = { 0.0, -3.0, 0.0 };
-    settings.startValues.lifetime = 0.5;
-    settings.isLooping = true;
-
-    // Need to fix EngineRand.rand() for negative values
-
-    settings.randPosition = { -1, 1, 0, 0, -1, 1 };
-    settings.randVelocity = { -1, 1, 5, 9, -1, 1 };
-    settings.randSize = { 0.7, 1.3 };
-    settings.randRotation = { 0, 2 * PI };
-    settings.randRotationSpeed = { 0, 3 };
-
-    particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
-    settings.texture = particleTexture;
+    plc->SetFlickerRate(flickerRate);
 
     pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
@@ -877,7 +862,8 @@ Scene* FloppipTestScene(SceneManager* sm)
     component::DirectionalLightComponent* dlc;
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
 
-    dlc->SetColor({ 2.0f, 2.0f, 2.0f });
+    dlc->SetColor({ 1.0f, 1.0f, 1.0f });
+    dlc->SetIntensity(3);
 
     dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
     /* ---------------------- The Sun ---------------------- */

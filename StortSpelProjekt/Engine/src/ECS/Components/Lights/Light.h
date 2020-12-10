@@ -73,12 +73,17 @@ protected:
 	virtual void UpdateLightColorIntensity() = 0;
 
 	// Amplitude used in flickerIntensityFunction
-	const float m_flickerAmplitude = 0.39;
+	const float m_flickerAmplitude = 0.18;
 	// used to scale up dt in update
-	float m_flickerRate = 0.05;
+	float m_FlickerRate = 1.0;
+	float m_FlickerTimer = 0.0;
+	float m_UnflickeredIntensity = 1.0;
+
+
 	// f(time) function that calculates an intensity for a light 
 	inline float flickerIntensityFunction(float x) { return 1 + m_flickerAmplitude * (sinf(x) + sinf(2*x) + sinf(4*x) + sinf(8*x)); }
 	
+	void flicker(double dt);
 
 };
 
