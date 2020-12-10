@@ -14,7 +14,7 @@ EnemyFactory& EnemyFactory::GetInstance()
 
 EnemyFactory::EnemyFactory()
 {
-	m_Level = 3;	// FOR TESTING ANIMATIONS, SHOULD BE 0!!!!!!!!!!!! TODO
+	m_Level = 0;
 	m_MaxEnemies = 30;
 	m_LevelMaxEnemies = 20;
 	m_EnemiesKilled = 0;
