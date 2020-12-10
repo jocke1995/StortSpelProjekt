@@ -22,8 +22,6 @@ AnimatedMesh::~AnimatedMesh()
 
 	delete m_pSRVOrigVertices;
 	delete m_pSRVVertexWeights;
-	
-	delete m_pUAV;
 }
 
 void AnimatedMesh::Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_heap)
@@ -47,18 +45,6 @@ void AnimatedMesh::Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_h
 		m_pDevice5,
 		CBV_UAV_SRV_heap,
 		&srvDesc,
-		m_pDefaultResourceVertices);
-
-	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
-	uavDesc.Buffer.FirstElement = 0;
-	uavDesc.Buffer.NumElements = GetNumVertices();
-	uavDesc.Buffer.StructureByteStride = sizeof(Vertex);
-
-	m_pUAV = new UnorderedAccessView(
-		m_pDevice5,
-		CBV_UAV_SRV_heap,
-		&uavDesc,
 		m_pDefaultResourceVertices);
 
 	// Set indices resource
@@ -141,10 +127,4 @@ ShaderResourceView* AnimatedMesh::GetOrigVerticesSRV() const
 ShaderResourceView* AnimatedMesh::GetVertexWeightSRV() const
 {
 	return m_pSRVVertexWeights;
-}
-
-
-UnorderedAccessView* AnimatedMesh::GetUAV() const
-{
-	return m_pUAV;
 }

@@ -240,8 +240,6 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 		initializeSkeleton(rootNode, &boneCounter);
 
 		m_LoadedModels[path].second = new AnimatedModel(&path, rootNode, &meshes, &animations, &materials, boneCounter.size());
-
-		static_cast<AnimatedModel*>(m_LoadedModels[path].second)->InitConstantBuffer(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 	}
 	else
 	{
@@ -1893,6 +1891,19 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 		animation->durationInTicks = assimpAnimation->mDuration;
 		animation->ticksPerSecond = assimpAnimation->mTicksPerSecond != 0 ?
 			assimpAnimation->mTicksPerSecond : 25.0f;
+
+		if (animation->name == "Attack_Swing_Left")
+		{
+			animation->ticksPerSecond = 80.0f;
+		}
+		else if (animation->name == "Attack_Swing_Right")
+		{
+			animation->ticksPerSecond = 80.0f;
+		}
+		else if (animation->name == "Claw_attack_left")
+		{
+			animation->ticksPerSecond = 40.0f;
+		}
 
 		// Store the keyframes (transform data) for each nodeAnimation (bone)
 		for (unsigned int j = 0; j < assimpAnimation->mNumChannels; j++)

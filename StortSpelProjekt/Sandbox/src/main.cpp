@@ -308,7 +308,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
-    ac->Initialize();
+    ac->initialize();
     tc->GetTransform()->SetScale(0.1f);
     tc->GetTransform()->SetPosition(-10.0, 20.0, 10.0);
 
@@ -1156,7 +1156,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
 
     mc->SetModel(aniTest);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
-    ac->Initialize();
+    ac->initialize();
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 10.0f);
     tc->GetTransform()->SetScale(0.1f);
 

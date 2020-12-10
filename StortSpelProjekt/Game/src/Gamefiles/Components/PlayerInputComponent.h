@@ -88,6 +88,8 @@ namespace component
 		bool m_Jump;
 		bool m_Attack;
 		bool m_AttackNext;
+		unsigned char m_WasMoving = false;
+		bool m_MovementStateChanged = false;
 
 		// Is used to determine if the player is attacking, and should be turned in the camera direction, or if she should turn in the direction she is moving
 		double m_TurningTimer;
