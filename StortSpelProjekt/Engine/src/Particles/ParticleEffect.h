@@ -34,6 +34,7 @@ struct RandomParameter3
 		struct { RandomParameter x; RandomParameter y; RandomParameter z; };
 		struct { RandomParameter r; RandomParameter g; RandomParameter b; };
 	};
+	// TODO: add distribution choice
 };
 
 struct ParticleEffectSettings
@@ -45,6 +46,8 @@ struct ParticleEffectSettings
 
 	// Default Particle Settings
 	ParticleAttributes startValues;
+
+	ByLifetimeParameter sizeByLifetime;
 
 	RandomParameter3 randPosition;
 	RandomParameter3 randVelocity;
@@ -84,11 +87,8 @@ private:
 
 	ParticleEffectSettings m_Settings = {};
 
-	// Dx12
-
-	// float3, float (pos3, size)
+	// DX12
 	Resource* m_pUploadResource = nullptr;
-	// float3, float (pos3, size)
 	Resource* m_pDefaultResource = nullptr;
 	ShaderResourceView* m_pSRV = nullptr;
 

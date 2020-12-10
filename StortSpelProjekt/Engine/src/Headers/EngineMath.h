@@ -12,10 +12,90 @@
 typedef DirectX::XMMATRIX float4x4;
 typedef DirectX::XMFLOAT3X3 float3x3;
 
-typedef union
+typedef union float4
 {
 	struct { float x; float y; float z; float w; };
 	struct { float r; float g; float b; float a; };
+
+	float length() const
+	{
+		return sqrt(x * x + y * y + z * z + w * w);
+	};
+
+	void normalize()
+	{
+		float length = this->length();
+		if (length > EPSILON)
+		{
+			x /= length;
+			y /= length;
+			z /= length;
+			w /= length;
+		}
+	};
+
+	void operator /= (float denom)
+	{
+		x /= denom;
+		y /= denom;
+		z /= denom;
+		w /= denom;
+	};
+
+	void operator *= (float factor)
+	{
+		x *= factor;
+		y *= factor;
+		z *= factor;
+		w *= factor;
+	};
+
+	float4 operator + (const float4& other) const
+	{
+		return { x + other.x, y + other.y, z + other.z, w + other.w };
+	};
+
+	float4 operator - (const float4& other) const
+	{
+		return { x - other.x, y - other.y, z - other.z, w - other.w };
+	};
+
+	float4 operator * (float factor)
+	{
+		return { x * factor, y * factor, z * factor, w * factor };
+	};
+
+	float4 operator / (float factor)
+	{
+		return { x / factor, y / factor, z / factor, w / factor };
+	};
+
+	bool operator == (float4 other)
+	{
+		return (x == other.x && y == other.y && z == other.z && w == other.w);
+	}
+
+	bool operator != (float4 other) const
+	{
+		return (x != other.x || y != other.y || z != other.z || w != other.w);
+	}
+
+	// TODO, CROSS
+
+	float dot(const float4& other) const
+	{
+		return x * other.x + y * other.y + z * other.z + w * other.w;
+	}
+
+	float angle(const float4& other) const
+	{
+		return acosf(std::min<float>(std::max<float>(dot(other) / (length() * other.length()), -1.0f), 1.0f));
+	}
+
+	std::string toString() const
+	{
+		return std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + ", " + std::to_string(w);
+	}
 } float4;
 
 typedef union float3
@@ -66,6 +146,11 @@ typedef union float3
 	float3 operator * (float factor)
 	{
 		return { x * factor, y * factor, z * factor };
+	};
+
+	float3 operator / (float factor)
+	{
+		return { x / factor, y / factor, z / factor };
 	};
 
 	bool operator == (float3 other)

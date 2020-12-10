@@ -737,6 +737,8 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    auto avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    auto alc = entity->AddComponent<component::Audio3DListenerComponent>();
     ic->SetMovementSpeed(50);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
@@ -748,28 +750,6 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     Player::GetInstance().SetPlayer(entity);
     /* ---------------------- Player ---------------------- */
-
-    // Create test particleEffect
-    ParticleEffectSettings settings = {};
-    settings.maxParticleCount = 1;
-    settings.startValues.lifetime = 0.2;
-    settings.spawnInterval = 0.2;
-    settings.startValues.acceleration = { 0, 0, 0 };
-    settings.isLooping = true;
-
-    // Need to fix EngineRand.rand() for negative values
-
-    settings.randPosition = { 0, 0, 0, 0, 0, 0 };
-    settings.randVelocity = { 0, 0, 0, 0, 0, 0 };
-    settings.randSize = { 3.5, 3.5 };
-    settings.randRotation = { 0, 2 * PI };
-    settings.randRotationSpeed = { 0.2, 0.2 };
-
-    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/projParticle.png"));
-    settings.texture = particleTexture;
-
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
-
 
     /* ---------------------- Skybox ---------------------- */
     entity = scene->AddEntity("skybox");
@@ -789,6 +769,34 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+
+
+    // Create test particleEffect
+    ParticleEffectSettings settings = {};
+    settings.maxParticleCount = 200;
+    settings.startValues.lifetime = 1;
+    settings.spawnInterval = 0.2;
+    settings.startValues.position = { 0, 4, 0 };
+    settings.startValues.velocity = { 0, 3, 0 };
+    settings.startValues.acceleration = { 0, 0, 0 };
+    settings.isLooping = true;
+
+    settings.sizeByLifetime.start.x = 2.5;
+    settings.sizeByLifetime.end.x = 0.75;
+
+    // Need to fix EngineRand.rand() for negative values
+
+    settings.randPosition = { 0, 0, 0, 0, 0, 0 };
+    settings.randVelocity = { -2, 2, -2, 2, -2, 2 };
+    settings.randSize = { 2.5, 3.5 };
+    settings.randRotation = { 0, 2 * PI };
+    settings.randRotationSpeed = { 0.2, 0.2 };
+
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
+    settings.texture = particleTexture;
+
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+
     /* ---------------------- Floor ---------------------- */
 
 

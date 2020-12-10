@@ -170,7 +170,7 @@ void ParticleEffect::init()
 void ParticleEffect::initParticle(Particle& particle)
 {
 	// Set start values
-	particle.initValues(&m_Settings.startValues);
+	particle.initValues(&m_Settings.startValues, &m_Settings.sizeByLifetime);
 
 	randomizePosition(particle);
 	randomizeVelocity(particle);
