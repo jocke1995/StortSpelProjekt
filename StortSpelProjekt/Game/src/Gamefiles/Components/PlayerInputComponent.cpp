@@ -523,6 +523,15 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	{
 		m_CameraRotating = false;
 	}
+
+	if (!m_Dashing && !m_Jump && moveCam.length() > 0.0f && pressed == 1)
+	{
+		m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerWalk");
+	}
+	else if (moveCam.length() > 0.0f && pressed == -1)
+	{
+		m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Stop(L"PlayerWalk");
+	}
 }
 
 void component::PlayerInputComponent::rotate(MouseMovement* evnt)
