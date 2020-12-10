@@ -19,7 +19,7 @@ void Particle::Update(double dt)
 
 	m_Attributes.lifetime -= dt;
 
-	m_Attributes.size -= m_SizeByLifetime.changePerFrame.x * dt;
+	m_Attributes.size += m_SizeByLifetime.changePerFrame.x * dt;
 }
 
 bool Particle::IsAlive()
@@ -32,5 +32,5 @@ void Particle::initValues(ParticleAttributes* startValues, ByLifetimeParameter* 
 	m_Attributes = *startValues;
 	m_SizeByLifetime = *sizeByLifetime;
 	// Setup interpolation values for byLifetime
-	m_SizeByLifetime.changePerFrame.x = (m_SizeByLifetime.start.x - m_SizeByLifetime.end.x) / m_Attributes.lifetime;
+	m_SizeByLifetime.changePerFrame.x = (m_SizeByLifetime.end.x - m_SizeByLifetime.start.x) / m_Attributes.lifetime;
 }

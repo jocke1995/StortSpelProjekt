@@ -781,14 +781,14 @@ Scene* FloppipTestScene(SceneManager* sm)
     settings.startValues.acceleration = { 0, 0, 0 };
     settings.isLooping = true;
 
-    settings.sizeByLifetime.start.x = 2.5;
+    settings.sizeByLifetime.start.x = 2.0;
     settings.sizeByLifetime.end.x = 0.75;
 
     // Need to fix EngineRand.rand() for negative values
 
     settings.randPosition = { 0, 0, 0, 0, 0, 0 };
     settings.randVelocity = { -2, 2, -2, 2, -2, 2 };
-    settings.randSize = { 2.5, 3.5 };
+    settings.randSize = { -0.5, 0.5 };
     settings.randRotation = { 0, 2 * PI };
     settings.randRotationSpeed = { 0.2, 0.2 };
 

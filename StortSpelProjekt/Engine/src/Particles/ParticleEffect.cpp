@@ -172,6 +172,12 @@ void ParticleEffect::initParticle(Particle& particle)
 	// Set start values
 	particle.initValues(&m_Settings.startValues, &m_Settings.sizeByLifetime);
 
+	// Check if sizeByLifetime
+	if (particle.m_SizeByLifetime.start.x != particle.m_SizeByLifetime.end.x)
+	{
+		particle.m_Attributes.size = particle.m_SizeByLifetime.start.x;
+	}
+
 	randomizePosition(particle);
 	randomizeVelocity(particle);
 	randomizeSize(particle);
@@ -291,6 +297,11 @@ void ParticleEffect::updateResourceData(float3 cameraPos)
 			p.m_Attributes.size = 0;
 		}
 #endif // PARTICLESYSTEM_RENDER_DEAD_PARTICLES
+
+		if (p.m_Attributes.size < 0)
+		{
+			p.m_Attributes.size = 0;
+		}
 
 		tempData = { p.m_Attributes.position.x, p.m_Attributes.position.y, p.m_Attributes.position.z, p.m_Attributes.size, p.m_Attributes.rotation };
 		
