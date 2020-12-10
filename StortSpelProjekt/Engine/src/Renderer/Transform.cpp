@@ -5,6 +5,7 @@
 Transform::Transform(bool invertDirection)
 {
 	m_Position = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+	m_OldPosition = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 	m_RenderPosition = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 	m_RotationMat = DirectX::XMMatrixIdentity();
 	m_Scale = DirectX::XMFLOAT3(1.0, 1.0, 1.0);
@@ -30,13 +31,14 @@ Transform::~Transform()
 void Transform::SetPosition(float x, float y, float z)
 {
 	m_Position = DirectX::XMFLOAT3(x, y, z);
+	m_OldPosition = DirectX::XMFLOAT3(x, y, z);
 	m_RenderPosition = DirectX::XMFLOAT3(x, y, z);
 }
 
 void Transform::SetPosition(DirectX::XMFLOAT3 pos)
 {
 	m_Position = pos;
-	m_OldPosition = m_Position;
+	m_OldPosition = pos;
 	m_RenderPosition = pos;
 }
 

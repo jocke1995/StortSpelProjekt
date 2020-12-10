@@ -424,7 +424,7 @@ void Shop::OnShopGUIStateChange(shopGUIStateChange* event)
 		Entity* pickedEntity = Renderer::GetInstance().GetPickedEntity();
 		if (pickedEntity != nullptr)
 		{
-			if (pickedEntity->GetName() == "shop")
+			if (pickedEntity->GetName() == "shop" || pickedEntity->GetName() == "Gawblin_0")
 			{
 				Create2DGUI();
 

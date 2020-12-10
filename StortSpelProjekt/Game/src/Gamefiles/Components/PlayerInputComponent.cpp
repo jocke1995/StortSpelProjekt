@@ -5,6 +5,7 @@
 #include "../Renderer/Camera/PerspectiveCamera.h"
 #include "../Renderer/Transform.h"
 #include "../ECS/Components/Collision/CollisionComponent.h"
+#include "../ECS/SceneManager.h"
 #include "Physics/Physics.h"
 #include "../Misc/Option.h"
 #include "Shop.h"
@@ -83,6 +84,7 @@ void component::PlayerInputComponent::OnInitScene()
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::alternativeInput);
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::rotate);
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::move);
+		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::playerDeath);
 		if (m_pParent->GetComponent<component::MeleeComponent>() != nullptr)
 		{
 			EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::mouseClick);
@@ -273,10 +275,13 @@ void component::PlayerInputComponent::SetAngleToTurnTo(int angle)
 	m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 }
 
-void component::PlayerInputComponent::SetAttacking()
+void component::PlayerInputComponent::SetAttacking(bool melee)
 {
 	m_Attacking = true;
-	m_Attack = true;
+	if (melee)
+	{
+		m_Attack = true;
+	}
 	m_TurningTimer = 0.0f;
 }
 
@@ -285,9 +290,18 @@ void component::PlayerInputComponent::Reset()
 	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::alternativeInput);
 	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::rotate);
 	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::move);
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::playerDeath);
 	if (m_pParent->GetComponent<component::MeleeComponent>() != nullptr)
 	{
 		EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::mouseClick);
+	}
+}
+
+void component::PlayerInputComponent::playerDeath(Death* evnt)
+{
+	if (evnt->ent->GetName() == "player")
+	{
+		Reset();
 	}
 }
 
@@ -433,7 +447,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 			0.0,
 			forward.z * moveForward + right.z * moveRight
 		};
- 		move.normalize();
+		move.normalize();
 
 		// If player is moving, turn in the direction of movement
 		if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON)
@@ -479,7 +493,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		{
 			move.x * speed,
 			//Constant value to compensate for sprint velocity
-			jump * ((2*m_JumpHeight) / (m_JumpTime)),
+			jump * ((2 * m_JumpHeight) / (m_JumpTime)),
 			move.z * speed
 		};
 
@@ -522,7 +536,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	}
 	else if (evnt->key == SCAN_CODES::SPACE && !evnt->pressed)
 	{
- 		specificUpdates.at(0) = &PlayerInputComponent::updateJump;
+		specificUpdates.at(0) = &PlayerInputComponent::updateJump;
 		m_pCC->SetGravity(m_Gravity);
 	}
 
@@ -615,11 +629,13 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 {
-	if (!Input::GetInstance().IsPaused())
+	Scene* scene = SceneManager::GetInstance().GetActiveScene();
+
+	if (!Input::GetInstance().IsPaused() && scene->GetName() != "ShopScene")
 	{
 		switch (evnt->button) {
 		case MOUSE_BUTTON::LEFT_DOWN:
-			SetAttacking();
+			SetAttacking(true);
 			break;
 		case MOUSE_BUTTON::RIGHT_DOWN:
 			m_pParent->GetComponent<component::RangeComponent>()->Attack();
