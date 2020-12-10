@@ -996,6 +996,11 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 					lightRight = 30.0;
 					lightTop = 30.0;
 					lightBottom = -30.0;
+
+					if (entity->GetName() == "moon_2" || entity->GetName() == "moon_1")
+					{
+						volatile int i = 0;
+					}
 				}
 				else if (strcmp(toSubmit.c_str(), "CollisionSphere") == 0)
 				{

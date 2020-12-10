@@ -57,6 +57,11 @@ void Light::SetFlickerRate(float rate)
 	m_FlickerRate = rate;
 }
 
+void Light::SetFlickerAmplitude(float amplitude)
+{
+	m_FlickerAmplitude = amplitude;
+}
+
 unsigned int Light::GetLightFlags() const
 {
 	return m_LightFlags;

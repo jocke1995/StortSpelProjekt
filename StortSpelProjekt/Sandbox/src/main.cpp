@@ -855,7 +855,29 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
-    /* ---------------------- Point light ---------------------- */
+    /* ---------------------- Point light 2---------------------- */
+
+    /* ---------------------- SpotLight ---------------------- */
+    entity = scene->AddEntity("sl");
+
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetModel(lightModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(4.0, 4.0, 4.0);
+    tc->GetTransform()->SetPosition(10.0f, 15.0f, 0.0f);
+
+    auto slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::FLICKER);
+    slc->SetColor({ 1.0, 0.0, 0.0 });
+    slc->SetIntensity(50);
+    slc->SetAttenuation({ 1.0, 0.22, 0.20 });
+    slc->SetFlickerRate(flickerRate);
+    slc->SetDirection({ -1.0f, -1.000000001f, -1.0f });
+
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+
+    /* ---------------------- SpotLight ---------------------- */
 
     /* ---------------------- The Sun ---------------------- */
     entity = scene->AddEntity("sun");

@@ -365,6 +365,7 @@ ModelLightColor 1.0, 0.39, 0.71
 ModelLightIntensity 8.86
 ModelLightFlag 0,0
 ModelLightFlag 1,1
+ModelLightFlag 3,1
 ModelLightAttenuation 1.0, 0.027, 0.0028
 ModelLightNear 10.0
 ModelLightFar 1000.0
