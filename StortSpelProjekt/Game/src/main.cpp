@@ -686,7 +686,7 @@ Scene* ShopScene(SceneManager* sm)
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
     Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Player/AnimatedPlayer.fbx");
-    Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
+    Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.fbx");
     Model* pressfModel = al->LoadModel(L"../Vendor/Resources/Models/Pressf/pressf.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
     Model* fenceModel = al->LoadModel(L"../Vendor/Resources/Models/FencePBR/fence.obj");
@@ -752,26 +752,8 @@ Scene* ShopScene(SceneManager* sm)
     Physics::GetInstance().AddCollisionEntity(entity);
 
 #pragma endregion player
-    /* ---------------------- Skybox ---------------------- */
-    entity = scene->AddEntity("skybox");
-    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    sbc->SetTexture(skyboxCubemap);
-    /* ---------------------- Skybox ---------------------- */
 
-    /* ---------------------- Floor ---------------------- */
-    entity = scene->AddEntity("floor");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
-
-    mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(floorModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(50, 1, 50);
-    tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-    tc->SetTransformOriginalState();
-    /* ---------------------- Floor ---------------------- */
+    al->LoadMap(scene, "../Vendor/Resources/ShopRoom.map");
 
     /* ---------------------- Teleporter ---------------------- */
     entity = scene->AddEntity("teleporter");
@@ -800,7 +782,7 @@ Scene* ShopScene(SceneManager* sm)
     
     mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetPosition(-10.0f, 1.0f, -25.0f);
+    tc->GetTransform()->SetPosition(50.0f, 1.0f, 40.0f);
     tc->GetTransform()->SetScale(7.0f);
     tc->SetTransformOriginalState();
     
@@ -913,7 +895,7 @@ Scene* ShopScene(SceneManager* sm)
     tc = entity->GetComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(1, 1, 1);
     tc->GetTransform()->SetRotationZ(-PI / 2);
-    tc->GetTransform()->SetPosition(27.8f, 1.0f, 34.0f);
+    tc->GetTransform()->SetPosition(27.0f, 9.0f, 50.0f);
     tc->SetTransformOriginalState();
     /* ---------------------- Poster ---------------------- */
 
@@ -954,131 +936,23 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- Shop ---------------------- */
     entity = scene->AddEntity("shop");
     mc = entity->AddComponent<component::ModelComponent>();
+
     mc->SetModel(shopModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 
     tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(30.0f, 0.0f, 30.0f);
-    tc->GetTransform()->SetRotationY(PI + PI / 4);
+    tc->GetTransform()->SetScale(0.08f);
+    tc->GetTransform()->SetPosition(-30.0f, 0.0f, 20.0f);
+    tc->GetTransform()->SetRotationX(PI/2);
+    tc->GetTransform()->SetRotationY(PI/6);
     tc->SetTransformOriginalState();
-
     double3 shopDim = mc->GetModelDim();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(10000000.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
+
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
 
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
     bbc->Init();
     /* ---------------------- Shop ---------------------- */
-
-    /* ---------------------- Pressf ---------------------- */
-
-    entity = scene->AddEntity("pressf");
-    mc = entity->AddComponent<component::ModelComponent>();
-    mc->SetModel(pressfModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-
-    tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(32.0f, 10.2f, 24.0f);
-    tc->GetTransform()->SetRotationY(PI + PI / 4 + PI / 8);
-    tc->GetTransform()->SetScale(1.4);
-    tc->SetTransformOriginalState();
-
-    /* ---------------------- Pressf ---------------------- */
-
-
-#pragma region walls
-    // Left wall
-    entity = scene->AddEntity("wallLeft");
-    mc = entity->AddComponent<component::ModelComponent>();
-    mc->SetModel(fenceModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
-
-    tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(-50.0f, 10.0f, 0.0f);
-    tc->GetTransform()->SetScale(10, 1, 50);
-    tc->GetTransform()->SetRotationZ(-PI / 2);
-    tc->GetTransform()->SetRotationY(PI);
-    tc->SetTransformOriginalState();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
-
-    // Right wall
-    entity = scene->AddEntity("wallRight");
-    mc = entity->AddComponent<component::ModelComponent>();
-    mc->SetModel(fenceModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE | FLAG_DRAW::NO_DEPTH);
-
-
-    tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(50.0f, 10.0f, 0.0f);
-    tc->GetTransform()->SetScale(10, 1, 50);
-    tc->GetTransform()->SetRotationZ(-PI / 2);
-    tc->GetTransform()->SetRotationY(PI);
-    tc->SetTransformOriginalState();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
-
-    // Top Wall
-    entity = scene->AddEntity("wallTop");
-    mc = entity->AddComponent<component::ModelComponent>();
-    mc->SetModel(fenceModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE | FLAG_DRAW::NO_DEPTH);
-
-
-    tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(0.0f, 10.0f, 50.0f);
-    tc->GetTransform()->SetScale(10, 1, 50);
-    tc->GetTransform()->SetRotationZ(PI / 2);
-    tc->GetTransform()->SetRotationX(PI / 2);
-    tc->SetTransformOriginalState();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
-
-    // Bot Wall
-    entity = scene->AddEntity("wallBot");
-    mc = entity->AddComponent<component::ModelComponent>();
-    mc->SetModel(fenceModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_TRANSPARENT_TEXTURE | FLAG_DRAW::NO_DEPTH | FLAG_DRAW::GIVE_SHADOW);
-
-
-    tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(0.0f, 10.0f, -50.0f);
-    tc->GetTransform()->SetScale(10, 1, 50);
-    tc->GetTransform()->SetRotationZ(PI / 2);
-    tc->GetTransform()->SetRotationX(PI / 2);
-    tc->SetTransformOriginalState();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0f, 0.0f, 1.0f);
-
-    /* ---------------------- SpotLightDynamic ---------------------- */
-    entity = scene->AddEntity("spotLightDynamicPressf");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW | FLAG_LIGHT::STATIC);
-
-    float3 pos = { 5.0f, 20.0f, 5.0f };
-    mc->SetModel(sphereModel);
-    //mc->SetDrawFlag(FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(0.3f);
-    tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
-    tc->SetTransformOriginalState();
-
-    slc->SetColor({ 1.0f, 1.0f, 1.0f });
-    slc->SetIntensity(10);
-    slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-    slc->SetPosition(pos);
-    slc->SetDirection({ 1.0f, -1.0f, 1.0f });
-    slc->SetOuterCutOff(50.0f);
-    /* ---------------------- SpotLightDynamic ---------------------- */
-
-#pragma endregion walls
-
-    /* ---------------------- moon ---------------------- */
-    entity = scene->AddEntity("moon");
-    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
-    dlc->SetColor({ 1.0f, 1.0f, 1.0f });
-    dlc->SetIntensity(0.8f);
-    dlc->SetDirection({ 0.0f, -0.75f, 1.0f });
-    dlc->SetCameraTop(50.0f);
-    dlc->SetCameraBot(-30.0f);
-    dlc->SetCameraLeft(-70.0f);
-    dlc->SetCameraRight(70.0f);
-    /* ---------------------- dirLight ---------------------- */
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());
     Physics::GetInstance().OnResetScene();
@@ -1179,6 +1053,10 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     Transform* trans = sm->GetScene("ShopScene")->GetEntity("poster")->GetComponent<component::TransformComponent>()->GetTransform();
     trans->SetRotationX(rotValue);
     rotValue += 0.005f;
+    float3 pos = trans->GetPositionFloat3();
+
+    pos.y = sinf(rotValue) + 7;
+    trans->SetPosition(pos.x, pos.y, pos.z);
 
     Input::GetInstance().ReadControllerInput(dt);
     // Kod-påkod-påkod-påkod-påkod-lösning

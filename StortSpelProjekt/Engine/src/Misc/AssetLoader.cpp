@@ -587,6 +587,7 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 	float3 vertex1;
 	float3 vertex2;
 	float3 vertex3;
+	int isPickable = false;
 	std::string navMeshType;
 	navMeshType.reserve(128);
 
@@ -660,6 +661,10 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 			{
 				fscanf(file, "%d,%d", &flag, &flagVal);
 				drawFlags[flag] = flagVal;
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelPicking") == 0)
+			{
+				fscanf(file, "%d", &isPickable);
 			}
 			else if (strcmp(lineHeader.c_str(), "ModelLightPosition") == 0)
 			{
@@ -892,7 +897,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 
 					mc->SetDrawFlag(combinedFlag);
 
-					bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
+					bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::PICKING * isPickable);
+					isPickable = false;
 					bbc->SetModifier(bbModifier);
 					bbc->Init();
 				}

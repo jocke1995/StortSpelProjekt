@@ -5,6 +5,7 @@
 #include "../Renderer/Camera/PerspectiveCamera.h"
 #include "../Renderer/Transform.h"
 #include "../ECS/Components/Collision/CollisionComponent.h"
+#include "../ECS/SceneManager.h"
 #include "Physics/Physics.h"
 #include "../Misc/Option.h"
 #include "Shop.h"
@@ -261,10 +262,13 @@ void component::PlayerInputComponent::SetAngleToTurnTo(int angle)
 	m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 }
 
-void component::PlayerInputComponent::SetAttacking()
+void component::PlayerInputComponent::SetAttacking(bool melee)
 {
 	m_Attacking = true;
-	m_Attack = true;
+	if (melee)
+	{
+		m_Attack = true;
+	}
 	m_TurningTimer = 0.0f;
 }
 
@@ -599,11 +603,13 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 {
-	if (!Input::GetInstance().IsPaused())
+	Scene* scene = SceneManager::GetInstance().GetActiveScene();
+
+	if (!Input::GetInstance().IsPaused() && scene->GetName() != "ShopScene")
 	{
 		switch (evnt->button) {
 		case MOUSE_BUTTON::LEFT_DOWN:
-			SetAttacking();
+			SetAttacking(true);
 			break;
 		case MOUSE_BUTTON::RIGHT_DOWN:
 			m_pParent->GetComponent<component::RangeComponent>()->Attack();

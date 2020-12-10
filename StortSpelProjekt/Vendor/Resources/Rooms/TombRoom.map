@@ -485,6 +485,62 @@ ModelRestitution 0.0
 Submit Model
 Submit CollisionCube 0.4, 0.4, 0.7
 
+// Candles ---------------------------------------------
+
+Name Candle1
+ModelPath Models/Candle/candle.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -8.5, 8.0, 0.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
+Name Candle2
+ModelPath Models/Candle/candle.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 8.5, 8.0, 0.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
+Name Candle3
+ModelPath Models/Candle/candle.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -8.5, 8.0, 13.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
+Name Candle4
+ModelPath Models/Candle/candle.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 8.5, 8.0, 13.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
+Name Candle5
+ModelPath Models/Candle/candle.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition -8.5, 8.0, -13.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
+Name Candle6
+ModelPath Models/Candle/candle.obj
+ModelScaling 1.0, 1.0, 1.0
+ModelRotation 0.0, 0.0, 0.0
+ModelPosition 8.5, 8.0, -13.0
+ModelDrawFlag 1, 1
+ModelDrawFlag 5, 1
+Submit Model
+
 // Skulls ----------------------------------------------
 Name Skulls1
 ModelPath Models/Skulls/skulls.obj
