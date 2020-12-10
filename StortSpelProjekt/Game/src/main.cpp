@@ -33,9 +33,6 @@ void ShopUpdateScene(SceneManager* sm, double dt);
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //Cryptor::EncryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/Skulls/");
-    ////Cryptor::DecryptDirectory(Cryptor::GetGlobalKey(), "../Vendor/Resources/Models/Skulls/");
-    //return 0;
 
     /*------ Load Option Variables ------*/
     Option* option = &Option::GetInstance();
@@ -990,18 +987,25 @@ void GameInitScene(Scene* scene)
 	Entity* entity = scene->GetEntity("ambientSound");
 	component::Audio2DVoiceComponent* avc = entity->GetComponent<component::Audio2DVoiceComponent>();
 	avc->Play(L"Ambient");
-	entity = scene->GetEntity("music");
-	avc = entity->GetComponent<component::Audio2DVoiceComponent>();
-	avc->Play(L"Music");
+
+	if (std::atof(Option::GetInstance().GetVariable("i_music").c_str()))
+	{
+		entity = scene->GetEntity("music");
+		avc = entity->GetComponent<component::Audio2DVoiceComponent>();
+		avc->Play(L"Music");
+	}
 
     AssetLoader::Get()->RemoveWalls();
 }
 
 void ShopInitScene(Scene* scene)
 {
-	Entity* entity = scene->GetEntity("shopMusic");
-	component::Audio2DVoiceComponent* avc = entity->GetComponent<component::Audio2DVoiceComponent>();
-	avc->Play(L"ShopMusic");
+	if (std::atof(Option::GetInstance().GetVariable("i_music").c_str()))
+	{
+		Entity* entity = scene->GetEntity("shopMusic");
+		component::Audio2DVoiceComponent* avc = entity->GetComponent<component::Audio2DVoiceComponent>();
+		avc->Play(L"ShopMusic");
+	}
 
     ParticleInit();
 }
