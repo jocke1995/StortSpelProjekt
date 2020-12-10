@@ -4,6 +4,8 @@
 #include "ECS/Scene.h"
 #include "Player.h"
 #include "Misc/Option.h"
+#include "Events/EventBus.h"
+#include "ECS/SceneManager.h"
 
 GameGUI::GameGUI()
 {
@@ -12,24 +14,47 @@ GameGUI::GameGUI()
 	m_OldMoney = 0;
 	m_OldHealthLength = 0.0f;
 	m_pOldScene = nullptr;
+	m_TimePlayed = 0;
+	m_TimePlayedTimer = 0;
+
+	EventBus::GetInstance().Subscribe(this, &GameGUI::sceneChange);
 }
+
+GameGUI& GameGUI::GetInstance()
+{
+	static GameGUI instance;
+	return instance;
+}
+
 
 void GameGUI::Update(double dt, Scene* scene)
 {
 	updateHealth(scene);
 
-	if (scene->EntityExists("money"))
+	if (scene->GetName() == "GameScene" || scene->GetName() == "ShopScene")
 	{
-		Entity* entity = scene->GetEntity("money");
-		if (entity->HasComponent<component::GUI2DComponent>())
+		//Count up for how long the player has played
+		m_TimePlayedTimer += dt;
+		if (m_TimePlayedTimer >= 1.0)
 		{
-			int money = Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->GetBalace();
-			if (money != m_OldMoney)
+			m_TimePlayedTimer -= 1.0;
+			m_TimePlayed++;
+		}
+
+		//Update Currency
+		if (scene->EntityExists("money"))
+		{
+			Entity* entity = scene->GetEntity("money");
+			if (entity->HasComponent<component::GUI2DComponent>())
 			{
-				entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(
-					std::to_string(money),
-					"money");
-				m_OldMoney = money;
+				int money = Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->GetBalace();
+				if (money != m_OldMoney)
+				{
+					entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(
+						std::to_string(money),
+						"money");
+					m_OldMoney = money;
+				}
 			}
 		}
 	}
@@ -51,6 +76,11 @@ void GameGUI::Update(double dt, Scene* scene)
 	}
 
 	m_pOldScene = scene;
+}
+
+int GameGUI::GetTimePlayed()
+{
+	return m_TimePlayed;
 }
 
 void GameGUI::updateHealth(Scene* scene)
@@ -150,4 +180,14 @@ void GameGUI::reset(Scene* scene)
 	m_OldMaxHealth = 0;
 	m_OldMoney = 0;
 	m_OldHealthLength = 0;
+}
+
+void GameGUI::sceneChange(SceneChange* evnt)
+{
+	//If the player enters Main Menu Scene then they have either just started the game or ended a game.
+	if (evnt->m_NewSceneName == "MainMenuScene")
+	{
+		m_TimePlayed = 0;
+		m_TimePlayedTimer = 0;
+	}
 }

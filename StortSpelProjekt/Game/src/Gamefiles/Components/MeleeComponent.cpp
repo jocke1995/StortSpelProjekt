@@ -13,6 +13,7 @@
 #include "../ECS/SceneManager.h"
 #include "../Renderer/Transform.h"
 #include "../ECS//Components/TemporaryLifeComponent.h"
+#include "UpgradeComponents/UpgradeComponent.h"
 
 
 component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
@@ -128,28 +129,18 @@ void component::MeleeComponent::Update(double dt)
 
 void component::MeleeComponent::Attack()
 {
-	
 	if (!m_Cooldown)
 	{
 		if (m_AudioPlay)
 		{
 			m_pVoiceComponent->Play(L"SwordSwing");
 		}
-		//Log::Print("Attacking now \n");
+
 		m_Attacking = true;
 		//Checks collision of entities
 		checkCollision();
 		m_Cooldown = true;
 		m_TimeSinceLastAttackCheck = 0;
-
-		float3 forward = m_pParent->GetComponent<component::CameraComponent>()->GetCamera()->GetDirectionFloat3();
-
-		// Makes player turn in direction of camera to attack
-		double angle = std::atan2(forward.x, forward.z);
-		int angleDegrees = EngineMath::convertToWholeDegrees(angle);
-		angleDegrees = (angleDegrees + 360) % 360;
-		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAngleToTurnTo(angleDegrees);
-		m_pParent->GetComponent<component::PlayerInputComponent>()->SetAttacking();
 	}
 }
 
@@ -173,6 +164,11 @@ float component::MeleeComponent::GetAttackInterval()
 	return m_AttackInterval;
 }
 
+int component::MeleeComponent::GetDamage()
+{
+	return m_Damage;
+}
+
 void component::MeleeComponent::checkCollision()
 {
 	std::vector<Entity*> list = Physics::GetInstance().SpecificCollisionCheck(&m_Hitbox);
@@ -186,6 +182,7 @@ void component::MeleeComponent::checkCollision()
 			list.at(i)->GetComponent<component::HealthComponent>()->ChangeHealth(-m_Damage);
 			list.at(i)->GetComponent<component::AiComponent>()->KnockBack(m_MeleeTransformModified, m_KnockBack);
 			particleEffect(list.at(i));
+			m_pParent->GetComponent<component::UpgradeComponent>()->OnMeleeHit(list.at(i));
 		}
 	}
 	list.empty();

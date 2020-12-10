@@ -23,6 +23,7 @@ struct MovementInput;
 struct MouseMovement;
 struct MouseClick;
 struct ModifierInput;
+struct Death;
 
 enum CAMERA_FLAGS
 {
@@ -61,7 +62,7 @@ namespace component
 
 		void SetAngleToTurnTo(int angle);
 
-		void SetAttacking();
+		void SetAttacking(bool melee);
 
 		void Reset();
 
@@ -85,6 +86,8 @@ namespace component
 		bool m_DashReady;
 		bool m_Dashing;
 		bool m_Jump;
+		bool m_Attack;
+		bool m_AttackNext;
 
 		// Is used to determine if the player is attacking, and should be turned in the camera direction, or if she should turn in the direction she is moving
 		double m_TurningTimer;
@@ -103,6 +106,7 @@ namespace component
 		std::vector<void(PlayerInputComponent::*)(double dt)> specificUpdates;
 		void(PlayerInputComponent::*specificUpdate)(double dt);
 
+		void playerDeath(Death* evnt);
 
 		void updateCameraDirection();
 		void setCameraToPlayerPosition();

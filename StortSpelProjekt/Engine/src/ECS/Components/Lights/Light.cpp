@@ -14,6 +14,7 @@ Light::Light(CAMERA_TYPE camType, unsigned int lightFlags)
 
 	m_pBaseLight = new BaseLight();
 	m_pBaseLight->color= { 1.0f, 1.0f, 1.0f };
+	m_pBaseLight->intensity = 1.0f;
 	m_pBaseLight->castShadow = false;
 	m_CameraType = camType;
 }
@@ -33,8 +34,14 @@ bool Light::operator==(const Light& other)
 void Light::SetColor(float3 color)
 {
 	m_pBaseLight->color = color;
+	m_pBaseLight->color.normalize();
+	UpdateLightColorIntensity();
+}
 
-	UpdateLightColor();
+void Light::SetIntensity(float intensity)
+{
+	m_pBaseLight->intensity = intensity;
+	UpdateLightColorIntensity();
 }
 
 void Light::SetFlickerRate(float rate)

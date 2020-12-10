@@ -5,6 +5,7 @@
 #include "../Renderer/Camera/PerspectiveCamera.h"
 #include "../Renderer/Transform.h"
 #include "../ECS/Components/Collision/CollisionComponent.h"
+#include "../ECS/SceneManager.h"
 #include "Physics/Physics.h"
 #include "../Misc/Option.h"
 #include "Shop.h"
@@ -41,6 +42,8 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 	m_Attacking = false;
 	m_TurnToCamera = false;
 	m_CameraRotating = false;
+	m_Attack = false;
+	m_AttackNext = false;
 
 	m_Elevation = std::stof(Option::GetInstance().GetVariable("f_playerElevation"));
 
@@ -52,6 +55,8 @@ component::PlayerInputComponent::PlayerInputComponent(Entity* parent, unsigned i
 
 	m_TurningTimer = 0.0f;
 	m_TurningInterval = 0.0f;
+
+	m_Jump = false;
 }
 
 component::PlayerInputComponent::~PlayerInputComponent()
@@ -79,6 +84,7 @@ void component::PlayerInputComponent::OnInitScene()
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::alternativeInput);
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::rotate);
 		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::move);
+		EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::playerDeath);
 		if (m_pParent->GetComponent<component::MeleeComponent>() != nullptr)
 		{
 			EventBus::GetInstance().Subscribe(this, &PlayerInputComponent::mouseClick);
@@ -138,6 +144,22 @@ void component::PlayerInputComponent::Update(double dt)
 			m_pCC->SetVelVector(move.x * speed, vel.y, move.z * speed);
 		}
 	}
+
+	updateCameraDirection();
+
+	if (m_Attacking)
+	{
+		if (m_AttackNext)
+		{
+			m_pParent->GetComponent<component::MeleeComponent>()->Attack();
+			m_AttackNext = false;
+		}
+		if (m_Attack)
+		{
+			m_Attack = false;
+			m_AttackNext = true;
+		}
+	}
 }
 
 void component::PlayerInputComponent::RenderUpdate(double dt)
@@ -149,8 +171,6 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 	// Lock camera to player
 	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
-		updateCameraDirection();
-
 		setCameraToPlayerPosition();
 
 		limitCameraDistance();
@@ -169,10 +189,6 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 			float angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
-	}
-	else
-	{
-		updateCameraDirection();
 	}
 
 	/* ------------------ Increment timers -------------------- */
@@ -246,9 +262,13 @@ void component::PlayerInputComponent::SetAngleToTurnTo(int angle)
 	m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 }
 
-void component::PlayerInputComponent::SetAttacking()
+void component::PlayerInputComponent::SetAttacking(bool melee)
 {
 	m_Attacking = true;
+	if (melee)
+	{
+		m_Attack = true;
+	}
 	m_TurningTimer = 0.0f;
 }
 
@@ -257,9 +277,18 @@ void component::PlayerInputComponent::Reset()
 	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::alternativeInput);
 	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::rotate);
 	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::move);
+	EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::playerDeath);
 	if (m_pParent->GetComponent<component::MeleeComponent>() != nullptr)
 	{
 		EventBus::GetInstance().Unsubscribe(this, &PlayerInputComponent::mouseClick);
+	}
+}
+
+void component::PlayerInputComponent::playerDeath(Death* evnt)
+{
+	if (evnt->ent->GetName() == "player")
+	{
+		Reset();
 	}
 }
 
@@ -393,7 +422,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 			0.0,
 			forward.z * moveForward + right.z * moveRight
 		};
- 		move.normalize();
+		move.normalize();
 
 		// If player is moving, turn in the direction of movement
 		if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON)
@@ -438,7 +467,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		{
 			move.x * speed,
 			//Constant value to compensate for sprint velocity
-			jump * ((2*m_JumpHeight) / (m_JumpTime)),
+			jump * ((2 * m_JumpHeight) / (m_JumpTime)),
 			move.z * speed
 		};
 
@@ -481,7 +510,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 	}
 	else if (evnt->key == SCAN_CODES::SPACE && !evnt->pressed)
 	{
- 		specificUpdates.at(0) = &PlayerInputComponent::updateJump;
+		specificUpdates.at(0) = &PlayerInputComponent::updateJump;
 		m_pCC->SetGravity(m_Gravity);
 	}
 
@@ -574,18 +603,23 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 
 void component::PlayerInputComponent::mouseClick(MouseClick* evnt)
 {
-	switch (evnt->button) {
-	case MOUSE_BUTTON::LEFT_DOWN:
-		m_pParent->GetComponent<component::MeleeComponent>()->Attack();
-		break;
-	case MOUSE_BUTTON::RIGHT_DOWN:
-		m_pParent->GetComponent<component::RangeComponent>()->Attack();
-		if (m_UpdateShootId == -1)
-		{
-			m_UpdateShootId = specificUpdates.size();
-			specificUpdates.push_back(&PlayerInputComponent::updateShoot);
+	Scene* scene = SceneManager::GetInstance().GetActiveScene();
+
+	if (!Input::GetInstance().IsPaused() && scene->GetName() != "ShopScene")
+	{
+		switch (evnt->button) {
+		case MOUSE_BUTTON::LEFT_DOWN:
+			SetAttacking(true);
+			break;
+		case MOUSE_BUTTON::RIGHT_DOWN:
+			m_pParent->GetComponent<component::RangeComponent>()->Attack();
+			if (m_UpdateShootId == -1)
+			{
+				m_UpdateShootId = specificUpdates.size();
+				specificUpdates.push_back(&PlayerInputComponent::updateShoot);
+			}
+			break;
 		}
-		break;
 	}
 }
 

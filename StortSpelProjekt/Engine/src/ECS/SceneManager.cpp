@@ -143,9 +143,6 @@ bool SceneManager::ChangeScene()
 
 		m_ChangeSceneNextFrame = false;
 
-		// Change the player back to its original position
-		SetScene(scene);
-		m_ChangeSceneNextFrame = false;
 		changedScene = true;
 	}
 
@@ -270,7 +267,21 @@ bool SceneManager::sceneExists(std::string sceneName) const
 
 void SceneManager::onEntityRemove(RemoveMe* evnt)
 {
-	m_ToRemove.push_back({ evnt->ent, m_pActiveScene });
+	// TODO: Ugly solution to a bug
+	bool entityIsAlreadyInTheVectorm_ToRemoveAndWillThereforeBeRemovedSoWeDoNotNeedToPushIt = false;
+	for (auto& entity : m_ToRemove)
+	{
+		if (entity.ent == evnt->ent)
+		{
+			entityIsAlreadyInTheVectorm_ToRemoveAndWillThereforeBeRemovedSoWeDoNotNeedToPushIt = true;
+			break;
+		}
+	}
+
+	if (!entityIsAlreadyInTheVectorm_ToRemoveAndWillThereforeBeRemovedSoWeDoNotNeedToPushIt)
+	{
+		m_ToRemove.push_back({ evnt->ent, m_pActiveScene });
+	}
 }
 
 void SceneManager::changeSceneNextFrame(SceneChange* sceneChangeEvent)

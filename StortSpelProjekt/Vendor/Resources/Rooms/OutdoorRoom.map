@@ -176,12 +176,12 @@ ParticleRandVelocity -1, 1, 5, 9, -1, 1
 ParticleRandSize 0.7, 1.3
 ParticleRandRotationSpeed 0, 3
 ParticlePlayOnInit 1
-ModelLightPosition 20.0, 10.0, 23.0
-ModelLightDirection 0.0001, -1.0, 0.0001
-ModelLightColor 20.0, 5.4, 0.0
+ModelLightPosition 20.0, 6.0, 23.0
+ModelLightColor 1.0, 0.27, 0.0
+ModelLightIntensity 20
 ModelLightFlag 0,0
 ModelLightAttenuation 1.0, 0.22, 0.20
-Submit SpotLight
+Submit PointLight
 Submit ParticleEffect
 Submit Model
 Submit CollisionCube 0.2, 0.2, 0.2
@@ -206,12 +206,12 @@ ParticleRandVelocity -1, 1, 5, 9, -1, 1
 ParticleRandSize 0.7, 1.3
 ParticleRandRotationSpeed 0, 3
 ParticlePlayOnInit 1
-ModelLightPosition -20.0, 10.0, -23.0
-ModelLightDirection 0.0001, -1.0, 0.0001
-ModelLightColor 20.0, 5.4, 0.0
+ModelLightPosition -20.0, 6.0, -23.0
+ModelLightColor 1.0, 0.27, 0.0
+ModelLightIntensity 20
 ModelLightFlag 0,0
 ModelLightAttenuation 1.0, 0.22, 0.20
-Submit SpotLight
+Submit PointLight
 Submit ParticleEffect
 Submit Model
 Submit CollisionCube 0.2, 0.2, 0.2
@@ -266,21 +266,98 @@ Submit CollisionCapsule 0.4, 10.0, 0.4
 //Submit Model
 //Submit CollisionCapsule 0.4, 10.0, 0.4
 
+// Ceiling beams ----------------------------------------
+Name Beam1
+ModelPath Models/Pillar/pillar.obj
+ModelScaling 2.0, 100.0, 2.0
+ModelRotation 90.0, 120.0, 0.0
+ModelPosition 43.25, 30.0, 75.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCylinder 0.0, 0.0, 0.0
+
+Name Beam2
+ModelPath Models/Pillar/pillar.obj
+ModelScaling 2.0, 100.0, 2.0
+ModelRotation 90.0, 0.0, 0.0
+ModelPosition 86.5, 30.0, 0.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCylinder 0.0, 0.0, 0.0
+
+Name Beam3
+ModelPath Models/Pillar/pillar.obj
+ModelScaling 2.0, 100.0, 2.0
+ModelRotation 90.0, 60.0, 0.0
+ModelPosition 43.25, 30.0, -75.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCylinder 0.0, 0.0, 0.0
+
+Name Beam4
+ModelPath Models/Pillar/pillar.obj
+ModelScaling 2.0, 100.0, 2.0
+ModelRotation 90.0, 300.0, 0.0
+ModelPosition -43.25, 30.0, -75.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCylinder 0.0, 0.0, 0.0
+AddToEdge 3
+
+Name Beam5
+ModelPath Models/Pillar/pillar.obj
+ModelScaling 2.0, 100.0, 2.0
+ModelRotation 90.0, 180.0, 0.0
+ModelPosition -86.5, 30.0, 0.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCylinder 0.0, 0.0, 0.0
+AddToEdge 4
+
+Name Beam6
+ModelPath Models/Pillar/pillar.obj
+ModelScaling 2.0, 100.0, 2.0
+ModelRotation 90.0, 240.0, 0.0
+ModelPosition -43.25, 30.0, 75.0
+ModelDrawFlag 1, 1
+ModelMass 0.0
+ModelFriction 1.0
+ModelRestitution 0.0
+Submit Model
+Submit CollisionCylinder 0.0, 0.0, 0.0
+AddToEdge 5
+
 // SKYBOX ----------------------------------------------
 Name Skybox
-ModelPath Textures/CubeMaps/skymap.dds
+ModelPath Textures/CubeMaps/skymap_outside.dds
 Submit Skybox
 
 // MOON -------------------------------------------------
 
 Name moon
 ModelLightColor 0.5, 0.5, 0.7
+ModelLightIntensity 1.0
 ModelLightFlag 1,1
 ModelLightDirection 0.0, -0.75, 1.0
-ModelLightLeft -175.0
-ModelLightRight 175.0
-ModelLightTop 100.0
-ModelLightBottom -50.0
+ModelLightLeft -174.0
+ModelLightRight 174.0
+ModelLightTop 99.0
+ModelLightBottom -49.0
 ModelLightFar 1000.0
 ModelLightNear -1000.0
 Submit DirectionalLight
@@ -289,7 +366,7 @@ Submit DirectionalLight
 
 Name Ceiling1
 ModelPath Models/CastleCeiling/castleceiling.obj
-ModelScaling 100.0, 50.0, 100.0
+ModelScaling 99.0, 50.0, 99.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 86.5, 46.5, 150.0
 ModelDrawFlag 1, 1
@@ -302,7 +379,7 @@ Submit CollisionCube 0.0, 0.0, 0.0
 
 Name Ceiling2
 ModelPath Models/CastleCeiling/castleceiling.obj
-ModelScaling 100.0, 50.0, 100.0
+ModelScaling 99.0, 50.0, 99.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 173.0, 46.5, 0.0
 ModelDrawFlag 1, 1
@@ -315,7 +392,7 @@ Submit CollisionCube 0.0, 0.0, 0.0
 
 Name Ceiling3
 ModelPath Models/CastleCeiling/castleceiling.obj
-ModelScaling 100.0, 50.0, 100.0
+ModelScaling 99.0, 50.0, 99.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 86.5, 46.5, -150.0
 ModelDrawFlag 1, 1
@@ -328,7 +405,7 @@ Submit CollisionCube 0.0, 0.0, 0.0
 
 Name Ceiling4
 ModelPath Models/CastleCeiling/castleceiling.obj
-ModelScaling 100.0, 50.0, 100.0
+ModelScaling 99.0, 50.0, 99.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -86.5, 46.5, -150.0
 ModelDrawFlag 1, 1
@@ -341,7 +418,7 @@ Submit CollisionCube 0.0, 0.0, 0.0
 
 Name Ceiling5
 ModelPath Models/CastleCeiling/castleceiling.obj
-ModelScaling 100.0, 50.0, 100.0
+ModelScaling 99.0, 50.0, 99.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -173.0, 46.5, 0.0
 ModelDrawFlag 1, 1
@@ -354,7 +431,7 @@ Submit CollisionCube 0.0, 0.0, 0.0
 
 Name Ceiling6
 ModelPath Models/CastleCeiling/castleceiling.obj
-ModelScaling 100.0, 50.0, 100.0
+ModelScaling 99.0, 50.0, 99.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -86.5, 46.5, 150.0
 ModelDrawFlag 1, 1

@@ -18,6 +18,7 @@ EnemyFactory::EnemyFactory()
 	m_MaxEnemies = 30;
 	m_LevelMaxEnemies = 20;
 	m_EnemiesKilled = 0;
+	m_TotalEnemiesKilled = 0;
 	m_EnemiesToSpawn = 0;
 	m_LevelTime = 30;
 	m_LevelTimer = 0;
@@ -77,7 +78,10 @@ Entity* EnemyFactory::AddEnemy(const std::string& entityName, EnemyComps* comps)
 	enemy->targetName = comps->targetName;
 	enemy->hp = comps->hp;
 	enemy->hpBase = comps->hp;
-	enemy->OnHitSounds = comps->OnHitSounds;
+	enemy->onHitSounds = comps->onHitSounds;
+	enemy->onGruntSounds = comps->onGruntSounds;
+	enemy->onAttackSounds = comps->onAttackSounds;
+	enemy->walkSounds = comps->walkSounds;
 	enemy->detectionRad = comps->detectionRad;
 	enemy->attackingDist = comps->attackingDist;
 	enemy->attackInterval = comps->attackInterval;
@@ -185,34 +189,44 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	ec = ent->AddComponent<component::EnemyComponent>(this);
 	ae = ent->AddComponent<component::Audio3DEmitterComponent>();
 
-	unsigned int size = comps->OnHitSounds.size();
+	unsigned int size = comps->onHitSounds.size();
 	if (size > 1)
 	{
-		ae->AddVoice(comps->OnHitSounds[m_RandGen.Rand(0, size)], L"OnHit");
+		ae->AddVoice(comps->onHitSounds[m_RandGen.Rand(0, size)], L"OnHit");
 	}
 	else if (size == 1)
 	{
-		ae->AddVoice(comps->OnHitSounds[0], L"OnHit");
+		ae->AddVoice(comps->onHitSounds[0], L"OnHit");
 	}
 
-	size = comps->OnGruntSounds.size();
+	size = comps->onGruntSounds.size();
 	if (size > 1)
 	{
-		ae->AddVoice(comps->OnGruntSounds[m_RandGen.Rand(0, size)], L"OnGrunt");
+		ae->AddVoice(comps->onGruntSounds[m_RandGen.Rand(0, size)], L"OnGrunt");
 	}
 	else if (size == 1)
 	{
-		ae->AddVoice(comps->OnGruntSounds[0], L"OnGrunt");
+		ae->AddVoice(comps->onGruntSounds[0], L"OnGrunt");
 	}
 
-	if (comps->walkSound.size() > 0)
+	size = comps->onAttackSounds.size();
+	if (size > 1)
 	{
-		ae->AddVoice(comps->walkSound, L"Walk");
+		ae->AddVoice(comps->onAttackSounds[m_RandGen.Rand(0, size)], L"OnAttack");
+	}
+	else if (size == 1)
+	{
+		ae->AddVoice(comps->onAttackSounds[0], L"OnAttack");
 	}
 
-	if (comps->attackSound.size() > 0);
+	size = comps->walkSounds.size();
+	if (size > 1)
 	{
-		ae->AddVoice(comps->attackSound, L"Attack");
+		ae->AddVoice(comps->walkSounds[m_RandGen.Rand(0, size)], L"Walk");
+	}
+	else if (size == 1)
+	{
+		ae->AddVoice(comps->walkSounds[0], L"Walk");
 	}
 
 	mc->SetModel(comps->model);
@@ -285,6 +299,16 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 std::vector<Entity*>* EnemyFactory::GetAllEnemies()
 {
 	return &m_Enemies;
+}
+
+int EnemyFactory::GetTotalKilled()
+{
+	return m_TotalEnemiesKilled;
+}
+
+int EnemyFactory::GetLevel()
+{
+	return m_Level;
 }
 
 void EnemyFactory::AddSpawnPoint(const float3& point)
@@ -411,6 +435,7 @@ void EnemyFactory::timeRound(double dt)
 			Entity* enemyGui = m_pScene->GetEntity("enemyGui");
 			if (enemyGui != nullptr)
 			{
+				enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.075f, 0.044f }, "enemyGui");
 				enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(" Survive: " + std::to_string(m_LevelTime), "enemyGui");
 			}
 
@@ -534,20 +559,24 @@ void EnemyFactory::killRound(double dt)
 void EnemyFactory::enemyDeath(Death* evnt)
 {
 	//We don't care about kills on time rounds
-	if (strcmp(evnt->ent->GetName().substr(0, 5).c_str(), "enemy") == 0 && !m_TimeRound)
+	if (strcmp(evnt->ent->GetName().substr(0, 5).c_str(), "enemy") == 0)
 	{
-		m_EnemiesKilled++;
-
-		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
-		if (enemyGui != nullptr)
+		m_TotalEnemiesKilled++;
+		if (!m_TimeRound)
 		{
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(std::to_string(m_EnemiesKilled) + "/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
-		}
+			m_EnemiesKilled++;
 
-		//If we have reached the kill goal we are done with the level and should do anything coming from that
-		if (m_EnemiesKilled >= m_LevelMaxEnemies)
-		{
-			EventBus::GetInstance().Publish(&LevelDone());
+			Entity* enemyGui = m_pScene->GetEntity("enemyGui");
+			if (enemyGui != nullptr)
+			{
+				enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(std::to_string(m_EnemiesKilled) + "/" + std::to_string(m_LevelMaxEnemies), "enemyGui");
+			}
+
+			//If we have reached the kill goal we are done with the level and should do anything coming from that
+			if (m_EnemiesKilled >= m_LevelMaxEnemies)
+			{
+				EventBus::GetInstance().Publish(&LevelDone());
+			}
 		}
 	}
 }
@@ -563,6 +592,15 @@ void EnemyFactory::levelDone(LevelDone* evnt)
 	Entity* enemyGui = m_pScene->GetEntity("enemyGui");
 	if (enemyGui != nullptr)
 	{
+		if (m_TimeRound)
+		{
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
+				{ 0.015f, 0.021f },
+				{ 0.15f, 0.08f },
+				false, false,
+				{ 1.0, 1.0, 1.0, 1.0 }
+			);
+		}
 		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Level Completed!\n   Find the portal", "enemyGui");
 		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetScale({ 0.25f, 0.27f }, "enemyGui");
 		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetBlend({ 1.0f, 1.0f, 1.0f, 0.9f }, "enemyGui");
@@ -600,7 +638,7 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 		if (enemyGui != nullptr)
 		{
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(" Survive: " + std::to_string(m_LevelTime), "enemyGui");
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.074f, 0.044f }, "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.075f, 0.044f }, "enemyGui");
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetScale({ 0.5f, 0.5f }, "enemyGui");
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetBlend({ 1.0f, 1.0f, 1.0f, 0.8f }, "enemyGui");
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
@@ -675,6 +713,7 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 void EnemyFactory::onResetGame(ResetGame* evnt)
 {
 	m_Level = 0;
+	m_TotalEnemiesKilled = 0;
 	m_EnemyComps["enemyDemon"]->spawnChance = 0;
 	m_EnemyComps["enemyZombie"]->spawnChance = 0;
 	m_EnemyComps["enemySpider"]->spawnChance = 0;

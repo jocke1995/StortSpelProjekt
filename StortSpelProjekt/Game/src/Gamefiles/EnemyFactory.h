@@ -43,10 +43,10 @@ struct EnemyComps
 	int hpBase = 10;
 	std::string targetName = "player";
 	int enemiesOfThisType = 0;
-	std::vector<std::wstring> OnHitSounds;
-	std::vector<std::wstring> OnGruntSounds;
-	std::wstring walkSound;
-	std::wstring attackSound;
+	std::vector<std::wstring> onHitSounds;
+	std::vector<std::wstring> onGruntSounds;
+	std::vector<std::wstring> onAttackSounds;
+	std::vector<std::wstring> walkSounds;
 	double3 dim = double3({ 0.0, 0.0, 0.0 });
 	float detectionRad = 25.0f;
 	float attackingDist = 0.5f;
@@ -92,6 +92,11 @@ public:
 
 	std::vector<Entity*>* GetAllEnemies();
 	
+	//Gets the total amount of killed enemies during the game
+	int GetTotalKilled();
+	//Gets what level the player is currently on
+	int GetLevel();
+
 	// Adds a spawnpoint.
 	void AddSpawnPoint(const float3& point);
 	void ClearSpawnPoints();
@@ -141,6 +146,7 @@ private:
 	int m_LevelMaxEnemies;
 	int m_EnemySlotsLeft;
 	int m_EnemiesKilled;
+	int m_TotalEnemiesKilled;
 	unsigned int m_Level;
 	float m_SpawnCooldown;
 	float m_SpawnTimer;

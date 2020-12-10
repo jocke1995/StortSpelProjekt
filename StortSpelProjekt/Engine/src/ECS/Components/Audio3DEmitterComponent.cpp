@@ -4,6 +4,7 @@
 #include "../Misc/AssetLoader.h"
 #include "../Renderer/Transform.h"
 #include "../Entity.h"
+#include "../Events/EventBus.h"
 
 component::Audio3DEmitterComponent::Audio3DEmitterComponent(Entity* parent) : Component(parent)
 {
@@ -34,10 +35,12 @@ void component::Audio3DEmitterComponent::Update(double dt)
 
 void component::Audio3DEmitterComponent::OnInitScene()
 {
+	EventBus::GetInstance().Subscribe(this, &Audio3DEmitterComponent::pauseToggleAudio);
 }
 
 void component::Audio3DEmitterComponent::OnUnInitScene()
 {
+	EventBus::GetInstance().Unsubscribe(this, &Audio3DEmitterComponent::pauseToggleAudio);
 }
 
 void component::Audio3DEmitterComponent::UpdateEmitter(const std::wstring& name)
@@ -154,5 +157,33 @@ void component::Audio3DEmitterComponent::Stop(const std::wstring& name)
 	if (m_VoiceEmitterData.count(name) != 0)
 	{
 		m_VoiceEmitterData[name].voice.Stop();
+	}
+}
+
+void component::Audio3DEmitterComponent::pauseToggleAudio(PauseGame* evnt)
+{
+	if (evnt->isPaused)
+	{
+		for (auto voice : m_VoiceEmitterData)
+		{
+			XAUDIO2_VOICE_STATE voiceState;
+			voice.second.voice.GetSourceVoice()->GetState(&voiceState);
+			if (voiceState.BuffersQueued > 0 && voiceState.SamplesPlayed > 0)
+			{
+				m_WasPlaying[voice.first] = true;
+				voice.second.voice.Pause();
+			}
+		}
+	}
+	else
+	{
+		for (auto voice : m_VoiceEmitterData)
+		{
+			if (m_WasPlaying[voice.first])
+			{
+				voice.second.voice.Resume();
+				m_WasPlaying[voice.first] = false;
+			}
+		}
 	}
 }

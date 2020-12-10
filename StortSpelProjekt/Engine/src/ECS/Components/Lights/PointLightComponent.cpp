@@ -81,8 +81,9 @@ namespace component
 		return m_pPointLight;
 	}
 
-	void PointLightComponent::UpdateLightColor()
+	void PointLightComponent::UpdateLightColorIntensity()
 	{
 		m_pPointLight->baseLight.color = m_pBaseLight->color;
+		m_pPointLight->baseLight.intensity = m_pBaseLight->intensity;
 	}
 }

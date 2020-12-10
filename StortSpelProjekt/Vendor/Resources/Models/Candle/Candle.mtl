@@ -1,0 +1,9 @@
+# Blender MTL File: 'None'
+# Material Count: 2
+
+newmtl Light
+map_Kd Emissive.dds
+map_Ke Emissive.dds
+
+newmtl Wax
+map_Kd Wax.dds

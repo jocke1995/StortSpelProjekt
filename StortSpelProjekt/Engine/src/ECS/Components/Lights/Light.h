@@ -35,6 +35,7 @@ public:
 	virtual void Update(double dt) = 0;
 
 	void SetColor(float3 color);
+	void SetIntensity(float intensity);
 
 	void SetFlickerRate(float rate);
 
@@ -69,7 +70,7 @@ protected:
 		float nearZ = 0.1f,
 		float farZ = 1000.0f);
 
-	virtual void UpdateLightColor() = 0;
+	virtual void UpdateLightColorIntensity() = 0;
 
 	// Amplitude used in flickerIntensityFunction
 	const float m_flickerAmplitude = 0.39;
