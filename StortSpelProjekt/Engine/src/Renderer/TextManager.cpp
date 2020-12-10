@@ -317,6 +317,7 @@ void TextManager::deleteTextData(std::string name)
 			{
 				delete m_TrashBuffer.at(i);
 			}
+			Log::Print("Deleting Trash buffer in TextManager\n");
 			m_TrashBuffer.clear();
 		}
 
