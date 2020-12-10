@@ -524,6 +524,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     Texture* startTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Start.png");
     Texture* optionsTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Options.png");
     Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Exit.png");
+	Texture* background = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Background.png");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Player/AnimatedPlayer.fbx");
 
     AudioBuffer* menuSound = al->LoadAudio(L"../Vendor/Resources/Audio/Menu.wav", L"MenuMusic");
@@ -555,32 +556,46 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
     cc->SetGravity(0.0);
 
-    // Skybox
-    entity = scene->AddEntity("skybox");
-    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
-    sbc->SetTexture(blackCubeMap);
+	// Background
+	entity = scene->AddEntity("background");
+	float2 quadPos = { 0.0f, 0.0f };
+	float2 quadScale = { 1.0f, 1.0f };
+	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	component::GUI2DComponent* gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetQuadManager()->CreateQuad(
+		"background",
+		quadPos, quadScale,
+		false, false,
+		0,
+		notBlended,
+		background);
 
-    // Since the target platform uses 1920 : 1080 ratio we use this same ratio for our texture sizes.
+	// Skybox
+	entity = scene->AddEntity("skybox");
+	component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+	TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
+	sbc->SetTexture(blackCubeMap);
 
-    entity = scene->AddEntity("StartOption");
-    guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("StartOption", { 0.1f, 0.1f }, { startTex->GetWidth() / 1920.0f, startTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, startTex);
-    guic->GetQuadManager()->SetOnClicked(&onStart);
+	// Since the target platform uses 1920 : 1080 ratio we use this same ratio for our texture sizes.
 
-    entity = scene->AddEntity("OptionsOption");
-    guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("OptionsOption", { 0.1f, 0.25f }, { optionsTex->GetWidth() / 1920.0f, optionsTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, optionsTex);
-    guic->GetQuadManager()->SetOnClicked(&onOptions);
+	entity = scene->AddEntity("StartOption");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("StartOption", { 0.1f, 0.1f }, { startTex->GetWidth() / 1920.0f, startTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, startTex);
+	guic->GetQuadManager()->SetOnClicked(&onStart);
 
-    entity = scene->AddEntity("ExitOption");
-    guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.4f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, exitTex);
-    guic->GetQuadManager()->SetOnClicked(&onExit);
+	entity = scene->AddEntity("OptionsOption");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("OptionsOption", { 0.1f, 0.25f }, { optionsTex->GetWidth() / 1920.0f, optionsTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, optionsTex);
+	guic->GetQuadManager()->SetOnClicked(&onOptions);
 
-    std::vector<Model*> enemyModels;
-    enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj"));
-    enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/AnimatedDemon.fbx"));
+	entity = scene->AddEntity("ExitOption");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.4f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, exitTex);
+	guic->GetQuadManager()->SetOnClicked(&onExit);
+
+	std::vector<Model*> enemyModels;
+	enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj"));
+	enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/AnimatedDemon.fbx"));
     for (int i = 0; i < 20; ++i)
     {
         entity = scene->AddEntity("menuEnemy" + std::to_string(i));
