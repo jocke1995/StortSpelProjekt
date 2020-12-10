@@ -116,7 +116,7 @@ void AnimatedDepthRenderTask::drawRenderComponent(component::ModelComponent* mc,
 		{ 
 			m->GetOrigVerticesSRV()->GetDescriptorHeapIndex(), 
 			m->GetVertexWeightSRV()->GetDescriptorHeapIndex(),
-			ac->m_pUAVs[i]->GetDescriptorHeapIndex(),
+			ac->m_UAVs[i]->GetDescriptorHeapIndex(),
 			0
 		};
 		size = sizeof(DescriptorHeapIndices) / sizeof(UINT);

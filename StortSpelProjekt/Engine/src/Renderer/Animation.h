@@ -22,18 +22,6 @@ struct TransformKey
 	DirectX::XMFLOAT4* pRotation = &rotation;
 	DirectX::XMFLOAT3 scaling = { 1.0f,1.0f,1.0f };
 	DirectX::XMFLOAT3* pScale = &scaling;
-
-	//TransformKey& operator= (const TransformKey& other)
-	//{
-	//	position = other.position;
-	//	rotation = other.rotation;
-	//	scaling = other.scaling;
-	//	pPosition = &position;
-	//	pRotation = &rotation;
-	//	pScale = &scaling;
-	//
-	//	return *this;
-	//}
 };
 
 struct TranslationKey
@@ -60,7 +48,7 @@ struct SkeletonNode
 	std::vector<SkeletonNode*> children;
 
 	DirectX::XMFLOAT4X4 defaultTransform;
-	DirectX::XMFLOAT4X4 inverseBindPose;	// Bone offset
+	DirectX::XMFLOAT4X4 inverseBindPose;	// Bone offset (might be wrong)
 	TransformKey* currentStateTransform;
 
 	SkeletonNode()

@@ -44,11 +44,11 @@ namespace component
         std::map<std::string, TransformKey> m_AnimationState;
 
         std::vector<Animation*> m_Animations;
-        std::pair<Animation*, AnimationInfo> m_pPendingAnimation;
-        std::pair<Animation*, AnimationInfo> m_pActiveAnimation;
-        std::pair<Animation*, AnimationInfo> m_pEndingAnimation;
-        std::pair<Animation*, AnimationInfo> m_pReactivateAnimation;
-        std::pair<Animation*, AnimationInfo> m_pQueuedAnimation;
+        std::pair<Animation*, AnimationInfo> m_PendingAnimation;
+        std::pair<Animation*, AnimationInfo> m_ActiveAnimation;
+        std::pair<Animation*, AnimationInfo> m_EndingAnimation;
+        std::pair<Animation*, AnimationInfo> m_ReactivateAnimation;
+        std::pair<Animation*, AnimationInfo> m_QueuedAnimation;
 
         double m_BlendTimeElapsed = 0;
 
@@ -58,7 +58,7 @@ namespace component
         // Hack to kringå systemet
         std::vector<Resource*> m_DefaultResourceVertices;
         std::vector<ShaderResourceView*> m_SRVs;
-        std::vector<UnorderedAccessView*> m_pUAVs;
+        std::vector<UnorderedAccessView*> m_UAVs;
 
         // Requires that the entity has a model.
         void initialize(ID3D12Device5* device5, DescriptorHeap* dh_CBV_UAV_SRV);
