@@ -415,7 +415,7 @@ Scene* GameScene(SceneManager* sm)
 
     EnemyFactory::GetInstance().DefineEnemy("enemyZombie", &zombie);
     EnemyFactory::GetInstance().DefineEnemy("enemySpider", &spider);
-    EnemyFactory::GetInstance().DefineEnemy("enemyZombie", &rangedDemon);
+    EnemyFactory::GetInstance().DefineEnemy("enemyDemon", &rangedDemon);
 #pragma endregion
 
 #pragma region teleporter
