@@ -53,7 +53,9 @@ namespace component
         {
             m_pCamera->Update(dt);
             m_pSpotLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
-        }  
+        }
+
+        flicker(dt);
     }
 
     void SpotLightComponent::OnInitScene()
