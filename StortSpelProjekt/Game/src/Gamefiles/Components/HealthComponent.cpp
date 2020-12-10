@@ -32,7 +32,6 @@ void component::HealthComponent::Update(double dt)
 	if (m_Dead)
 	{
 		m_DeathDuration += dt;
-		m_DeathDuration = 100;
 
 		if (m_RemovalTimer <= m_DeathDuration)
 		{

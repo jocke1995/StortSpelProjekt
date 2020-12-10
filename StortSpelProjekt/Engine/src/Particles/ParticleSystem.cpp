@@ -49,7 +49,7 @@ void ParticleSystem::ActivateParticleEffect(ParticleEffect* effect)
 	Renderer& renderer = Renderer::GetInstance();
 	
 	auto tempData = std::tuple(effect->m_pUploadResource, effect->m_pDefaultResource);
-	renderer.submitToCpft(&tempData);
+	//renderer.submitToCpft(&tempData);
 }
 
 void ParticleSystem::DeactivateParticleEffect(ParticleEffect* effect)
@@ -58,5 +58,5 @@ void ParticleSystem::DeactivateParticleEffect(ParticleEffect* effect)
 
 	// remove from COPY_PER_FRAME
 	Renderer& renderer = Renderer::GetInstance();
-	renderer.clearSpecificCpft(effect->m_pUploadResource);
+	//renderer.clearSpecificCpft(effect->m_pUploadResource);
 }

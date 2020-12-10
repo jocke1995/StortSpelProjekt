@@ -93,6 +93,13 @@ void ParticleRenderTask::Execute()
 		// It's a particle
 		if (mc == nullptr)
 		{
+			if (tc->GetParent()->GetName().c_str()[0] == 'o')
+			{
+				float3 pos = tc->GetTransform()->GetPositionFloat3();
+				Log::Print("------ particle tc : %f, %f, %f ------\n", pos.x, pos.y, pos.z);
+			}
+			
+
 			component::ParticleEmitterComponent* pec = tc->GetParent()->GetComponent<component::ParticleEmitterComponent>();
 			if (pec == nullptr)
 			{

@@ -68,8 +68,6 @@ void component::EnemyComponent::OnUnInitScene()
     std::string entityName = "onDeathParticleEffect" + std::to_string(counter);
     entity = scene->AddEntity(entityName);
 
-    std::vector<ParticleEffectSettings> vec;
-
     static ParticleEffectSettings particleEffectSettings =
     {
         static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png")),
@@ -85,21 +83,25 @@ void component::EnemyComponent::OnUnInitScene()
         {0.0f, 0.0f}                    // RandLifetime
     };
 
-    vec.push_back(particleEffectSettings);
+    particleEffectSettings;
 
-    entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
+    entity->AddComponent<component::ParticleEmitterComponent>(&particleEffectSettings, true);
     component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
     entity->AddComponent<component::TemporaryLifeComponent>(g_timeToLive);
 
     // Use the enemies current position as a start position for the partile effect
     float3 parentPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+
     tc->GetTransform()->SetPosition(parentPos.x, parentPos.y, parentPos.z);
 
     scene->InitDynamicEntity(entity);
     /* ---------------------- Particle ---------------------- */
 
+    EventBus::GetInstance().Unsubscribe(this, &EnemyComponent::death);
+    
     // Remove the enemy
 	m_pFactory->RemoveEnemyFromList(m_pParent);
+
 }
 
 void component::EnemyComponent::SetRandSeed(unsigned long seed)

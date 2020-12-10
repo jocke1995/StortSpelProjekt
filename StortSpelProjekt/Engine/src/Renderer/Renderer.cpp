@@ -646,6 +646,8 @@ void Renderer::DebugExecute()
 {
 	HRESULT hr;
 
+	setRenderTasksRenderComponents();
+
 	waitForGPU();
 
 	// Update lights data
@@ -1574,9 +1576,7 @@ void Renderer::UnInitParticleEmitterComponent(component::ParticleEmitterComponen
 	{
 		if (tc == renderComponents.at(i).second)
 		{
-			waitForGPU();
 			renderComponents.erase(renderComponents.begin() + i);
-			break;
 		}
 	}
 }

@@ -30,7 +30,8 @@ Scene::~Scene()
     {
         if (pair.second != nullptr)
         {
-            PoolAllocator<Entity>::GetInstance().Delete(pair.second);
+            //PoolAllocator<Entity>::GetInstance().Delete(pair.second);
+            delete pair.second;
         }
     }
 
@@ -60,7 +61,14 @@ Entity* Scene::AddEntity(std::string entityName)
         return nullptr;
     }
 
-    m_EntitiesToKeep[entityName] = PoolAllocator<Entity>::GetInstance().Allocate(entityName);
+    if (entityName == "")
+    {
+        volatile int a = 0;
+    }
+
+    Entity* ent = new Entity(entityName);
+
+    m_EntitiesToKeep[entityName] = ent; //PoolAllocator<Entity>::GetInstance().Allocate(entityName);
     m_NrOfEntities++;
 
     return m_EntitiesToKeep[entityName];
@@ -82,7 +90,9 @@ bool Scene::RemoveEntity(std::string entityName)
 
     Entity* ent = m_EntitiesToKeep[entityName];
 
-    PoolAllocator<Entity>::GetInstance().Delete(ent);
+    //PoolAllocator<Entity>::GetInstance().Delete(ent);
+
+    delete m_EntitiesToKeep[entityName];
     m_EntitiesToKeep.erase(entityName);
     for (int i = 0; i < m_CollisionEntities.size(); ++i)
     {
@@ -94,15 +104,6 @@ bool Scene::RemoveEntity(std::string entityName)
     }
 
     m_NrOfEntities--;
-
-    for (int i = 0; i < m_CollisionEntities.size(); ++i)
-    {
-        Entity* entity = m_CollisionEntities[i];
-        if (entity->GetID() == ent->GetID())
-        {
-            m_CollisionEntities.erase(m_CollisionEntities.begin() + i);
-        }
-    }
 
     return true;
 }

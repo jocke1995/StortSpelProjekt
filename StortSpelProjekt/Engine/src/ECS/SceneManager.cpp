@@ -160,10 +160,20 @@ void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 void SceneManager::RemoveEntities()
 {
 	unsigned int removeSize = m_ToRemove.size() - 1;
-	for (int i = removeSize; i >= 0; --i)
+	for (int i = removeSize; i >= 0; i--)
 	{
-		RemoveEntity(m_ToRemove[i].ent, m_ToRemove[i].scene);
+		if (m_ToRemove[i].ent->GetName() == "")
+		{
+			volatile int a = 0;
+			continue;
+		}
+
+		if (m_ToRemove[i].scene->EntityExists(m_ToRemove[i].ent->GetName()))
+		{
+			RemoveEntity(m_ToRemove[i].ent, m_ToRemove[i].scene);
+		}
 	}
+
 	m_ToRemove.clear();
 }
 
@@ -267,6 +277,10 @@ bool SceneManager::sceneExists(std::string sceneName) const
 
 void SceneManager::onEntityRemove(RemoveMe* evnt)
 {
+	if (evnt->ent->GetName() == "")
+	{
+		volatile int a = 0;
+	}
 	m_ToRemove.push_back({ evnt->ent, m_pActiveScene });
 }
 

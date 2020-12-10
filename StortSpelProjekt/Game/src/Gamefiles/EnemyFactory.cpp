@@ -620,7 +620,7 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	m_SpawnTimer = 0.0f;
 	m_EnemiesKilled = 0;
 
-	m_Level = 200;
+	m_Level = 60;
 
 	//First round is level 0 at this point and we want a time round every third level
 	if (m_Level % 3 == 2)
