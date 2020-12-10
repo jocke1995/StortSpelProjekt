@@ -5,6 +5,7 @@
 
 class EnemyFactory;
 struct Death;
+struct SceneChange;
 
 namespace component
 {
@@ -23,8 +24,10 @@ namespace component
 		EnemyFactory* m_pFactory;
 		double m_TimeSinceLastGrunt = 0.0;
 		EngineRand m_Rand;
+		bool m_Alive;
 
 		void death(Death* evnt);
+		void sceneChange(SceneChange* evnt);
 	};
 }
 #endif
