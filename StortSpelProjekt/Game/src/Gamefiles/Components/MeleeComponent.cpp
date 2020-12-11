@@ -191,19 +191,27 @@ void component::MeleeComponent::checkCollision()
 void component::MeleeComponent::particleEffect(Entity* entity)
 {
 	ParticleEffectSettings settings = {};
+
 	settings.maxParticleCount = 1;
+	settings.spawnInterval = 0.000001;
+	settings.isLooping = true;
+
+	// Start values
+	settings.startValues.position = { 0, 0.0, 0 };
 	settings.startValues.lifetime = 0.5;
-	settings.spawnInterval = 0.05;
-	settings.startValues.acceleration = { 0, 0, 0 };
-	settings.isLooping = false;
+	settings.startValues.size = 2.5;
 
-	// Need to fix EngineRand.rand() for negative values
-	RandomParameter3 randParam1 = { 0, 0, 0, 0, 0, 0 };
+	// End values
+	settings.endValues.size = 3;
+	settings.endValues.color.a = 1;
 
+	// Randomize values
 	settings.randPosition = { 0, 0, 0, 0, 0, 0 };
-	settings.randVelocity = randParam1;
-	settings.randSize = { 1.5, 2.0 };
-	settings.randRotationSpeed = { 0, 3 };
+	settings.randVelocity = { -2, 2, 5, 9, -2, 2 };
+	settings.randSize = { -0.5, 0.5 };
+	settings.randRotation = { 0, 2 * PI };
+	settings.randRotationSpeed = { -PI / 2, PI / 2 };
+
 	settings.texture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/melee_hit.png"));
 
 
