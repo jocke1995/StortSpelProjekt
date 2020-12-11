@@ -80,7 +80,7 @@ void MainMenuHandler::createOptionScene()
     vc->AddVoice(L"MenuMusic");
 
     // Background
-    entity = m_pScene->AddEntity("OptionsBackground");
+    entity = m_pOptionScene->AddEntity("OptionsBackground");
     float2 quadPos = { 0.0f, 0.0f };
     float2 quadScale = { 1.0f, 1.0f };
     float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
@@ -107,7 +107,7 @@ void MainMenuHandler::createOptionScene()
         { (float)resolution->GetWidth() / 1920.0f, (float)resolution->GetHeight() / 1080.0f },
         false,
         false,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         resolution);
     entity = m_pOptionScene->AddEntity("1444p");
@@ -117,7 +117,7 @@ void MainMenuHandler::createOptionScene()
         { (float)res1440p->GetWidth() / 1920.0f, (float)res1440p->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         res1440p);
     guic->GetQuadManager()->SetOnClicked(&on2560x1440);
@@ -128,7 +128,7 @@ void MainMenuHandler::createOptionScene()
         { (float)res1080p->GetWidth() / 1920.0f, (float)res1080p->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         res1080p);
     guic->GetQuadManager()->SetOnClicked(&on1920x1080);
@@ -139,7 +139,7 @@ void MainMenuHandler::createOptionScene()
         { (float)res720p->GetWidth() / 1920.0f, (float)res720p->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         res720p);
     guic->GetQuadManager()->SetOnClicked(&on1280x720);
@@ -154,7 +154,7 @@ void MainMenuHandler::createOptionScene()
             { (float)res720p->GetWidth() / 1920.0f, (float)res720p->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
             { 0.30f, 0.20f, 0.25f });
@@ -165,18 +165,18 @@ void MainMenuHandler::createOptionScene()
             { (float)res1080p->GetWidth() / 1920.0f, (float)res1080p->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
             { 0.30f, 0.20f, 0.25f });
         break;
     case 1440:
-        guic->GetQuadManager()->CreateQuad("1444p",
+        guic->GetQuadManager()->CreateQuad("activeResolution",
             { 0.35f, 0.15f },
             { (float)res1440p->GetWidth() / 1920.0f, (float)res1440p->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
             { 0.30f, 0.20f, 0.25f });
@@ -191,7 +191,7 @@ void MainMenuHandler::createOptionScene()
         { (float)fullscreen->GetWidth() / 1920.0f, (float)fullscreen->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         fullscreen);
     guic->GetQuadManager()->SetOnClicked(&onFullscreen);
@@ -203,7 +203,7 @@ void MainMenuHandler::createOptionScene()
         { (float)windowed->GetWidth() / 1920.0f, (float)windowed->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         windowed);
     guic->GetQuadManager()->SetOnClicked(&onWindowed);
@@ -218,7 +218,7 @@ void MainMenuHandler::createOptionScene()
             { (float)fullscreen->GetWidth() / 1920.0f, (float)fullscreen->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
             { 0.30f, 0.20f, 0.25f });
@@ -229,7 +229,7 @@ void MainMenuHandler::createOptionScene()
             { (float)windowed->GetWidth() / 1920.0f, (float)windowed->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
             { 0.30f, 0.20f, 0.25f });
@@ -244,7 +244,7 @@ void MainMenuHandler::createOptionScene()
         { (float)shadowQuality->GetWidth() / 1920.0f, (float)shadowQuality->GetHeight() / 1080.0f },
         false,
         false,
-        0,
+        2,
         { 1.0,1.0,1.0,1.0 },
         shadowQuality);
 
@@ -255,7 +255,7 @@ void MainMenuHandler::createOptionScene()
         { (float)lowShadowQuality->GetWidth() / 1920.0f, (float)lowShadowQuality->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         lowShadowQuality);
     guic->GetQuadManager()->SetOnClicked(&onLowShadowQuality);
@@ -266,7 +266,7 @@ void MainMenuHandler::createOptionScene()
         { (float)medShadowQuality->GetWidth() / 1920.0f, (float)medShadowQuality->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         medShadowQuality);
     guic->GetQuadManager()->SetOnClicked(&onMedShadowQuality);
@@ -277,7 +277,7 @@ void MainMenuHandler::createOptionScene()
         { (float)highShadowQuality->GetWidth() / 1920.0f, (float)highShadowQuality->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         highShadowQuality);
     guic->GetQuadManager()->SetOnClicked(&onHighShadowQuality);
@@ -292,7 +292,7 @@ void MainMenuHandler::createOptionScene()
             { (float)lowShadowQuality->GetWidth() / 1920.0f, (float)lowShadowQuality->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
             { 0.30f, 0.20f, 0.25f });
@@ -303,7 +303,7 @@ void MainMenuHandler::createOptionScene()
             { (float)medShadowQuality->GetWidth() / 1920.0f, (float)medShadowQuality->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
             { 0.30f, 0.20f, 0.25f });
@@ -314,7 +314,7 @@ void MainMenuHandler::createOptionScene()
             { (float)highShadowQuality->GetWidth() / 1920.0f, (float)highShadowQuality->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
             { 0.30f, 0.20f, 0.25f });
@@ -328,7 +328,7 @@ void MainMenuHandler::createOptionScene()
         { (float)volume->GetWidth() / 1920.0f, (float)volume->GetHeight() / 1080.0f },
         false,
         false,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         volume);
 
@@ -339,7 +339,7 @@ void MainMenuHandler::createOptionScene()
         { (float)plus->GetWidth() / 1920.0f, (float)plus->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         plus);
     guic->GetQuadManager()->SetOnClicked(&onVolumePlus);
@@ -351,7 +351,7 @@ void MainMenuHandler::createOptionScene()
         { (float)minus->GetWidth() / 1920.0f, (float)minus->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         minus);
     guic->GetQuadManager()->SetOnClicked(&onVolumeMinus);
@@ -378,7 +378,7 @@ void MainMenuHandler::createOptionScene()
         "money",
         { 0.7f, 0.65f }, { 0.1f, 0.1f },
         false, false,
-        1,
+        2,
         { 1.0, 1.0, 1.0, 0.0 },
         nullptr
     );
@@ -390,7 +390,7 @@ void MainMenuHandler::createOptionScene()
 		{ (float)music->GetWidth() / 1920.0f / 1.8f, (float)music->GetHeight() / 1080.0f / 1.8f},
 		false,
 		false,
-		1,
+		2,
 		{ 1.0,1.0,1.0,1.0 },
 		music);
 
@@ -401,7 +401,7 @@ void MainMenuHandler::createOptionScene()
 		{ (float)emptyBox->GetWidth() / 1920.0f / 3.0f, (float)emptyBox->GetHeight() / 1080.0f / 3.0f },
 		true,
 		true,
-		1,
+		2,
 		{ 1.0,1.0,1.0,1.0 },
 		emptyBox);
 	guic->GetQuadManager()->SetOnClicked(&onBox);
@@ -419,7 +419,7 @@ void MainMenuHandler::createOptionScene()
 		{ (float)emptyBox->GetWidth() / 1920.0f / 3.0f, (float)emptyBox->GetHeight() / 1080.0f / 3.0f },
 		false,
 		false,
-		1,
+		2,
 		blended,
 		cross);
 
@@ -431,7 +431,7 @@ void MainMenuHandler::createOptionScene()
         { (float)mouseSensitivity->GetWidth() / 1920.0f, (float)mouseSensitivity->GetHeight() / 1080.0f },
         false,
         false,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         mouseSensitivity);
 
@@ -442,7 +442,7 @@ void MainMenuHandler::createOptionScene()
         { (float)plus->GetWidth() / 1920.0f, (float)plus->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         plus);
     guic->GetQuadManager()->SetOnClicked(&onMouseSensitivityPlus);
@@ -454,7 +454,7 @@ void MainMenuHandler::createOptionScene()
         { (float)minus->GetWidth() / 1920.0f, (float)minus->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         minus);
     guic->GetQuadManager()->SetOnClicked(&onMouseSensitivityMinus);
@@ -496,7 +496,7 @@ void MainMenuHandler::createOptionScene()
         { (float)restart->GetWidth() / 1920.0f, (float)restart->GetHeight() / 1080.0f },
         false,
         false,
-        0,
+        2,
         { 1.0,1.0,1.0,1.0 },
         restart);
 
@@ -508,7 +508,7 @@ void MainMenuHandler::createOptionScene()
         { (float)exitTex->GetWidth() / 1920.0f, (float)exitTex->GetHeight() / 1080.0f },
         true,
         true,
-        0,
+        2,
         { 1.0,1.0,1.0,1.0 },
         exitTex);
     guic->GetQuadManager()->SetOnClicked(&onOptionBack);
