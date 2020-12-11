@@ -50,14 +50,24 @@ typedef union float4
 		w *= factor;
 	};
 
-	float4 operator + (const float4& other) const
+	float4 operator+ (const float4& other) const
 	{
 		return { x + other.x, y + other.y, z + other.z, w + other.w };
+	};
+
+	void operator+= (const float4& other)
+	{
+		*this = *this + other;
 	};
 
 	float4 operator - (const float4& other) const
 	{
 		return { x - other.x, y - other.y, z - other.z, w - other.w };
+	};
+
+	void operator-= (const float4& other)
+	{
+		*this = *this - other;
 	};
 
 	float4 operator * (float factor)
@@ -69,6 +79,8 @@ typedef union float4
 	{
 		return { x / factor, y / factor, z / factor, w / factor };
 	};
+
+
 
 	bool operator == (float4 other)
 	{
@@ -119,18 +131,34 @@ typedef union float3
 		}
 	};
 
-	void operator /= (float denom)
+	void operator += (float term)
 	{
-		x /= denom;
-		y /= denom;
-		z /= denom;
+		*this = *this + term;
+	};
+
+	void operator -= (float term)
+	{
+		*this = *this - term;
 	};
 
 	void operator *= (float factor)
 	{
-		x *= factor;
-		y *= factor;
-		z *= factor;
+		*this = *this * factor;
+	};
+
+	void operator /= (float denom)
+	{
+		*this = *this / denom;
+	};
+
+	void operator += (const float3& other)
+	{
+		*this = *this + other;
+	};
+
+	void operator -= (const float3& other)
+	{
+		*this = *this - other;
 	};
 
 	float3 operator + (const float3& other) const
@@ -141,6 +169,16 @@ typedef union float3
 	float3 operator - (const float3& other) const
 	{
 		return { x - other.x, y - other.y, z - other.z };
+	};
+
+	float3 operator + (float term)
+	{
+		return { x + term, y + term, z + term };
+	};
+
+	float3 operator - (float term)
+	{
+		return { x - term, y - term, z - term };
 	};
 
 	float3 operator * (float factor)

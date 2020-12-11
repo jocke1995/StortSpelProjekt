@@ -48,6 +48,7 @@ struct ParticleEffectSettings
 	ParticleAttributes startValues;
 
 	ByLifetimeParameter sizeByLifetime;
+	ByLifetimeParameter colorByLifetime;
 
 	RandomParameter3 randPosition;
 	RandomParameter3 randVelocity;
@@ -98,16 +99,13 @@ private:
 	void init();
 	
 	void initParticle(Particle& particle);
-	void randomizePosition(Particle& particle);
-	void randomizeVelocity(Particle& particle);
-	void randomizeSize(Particle& particle);
-	void randomizeRotation(Particle& particle);
-	void randomizeRotationSpeed(Particle& particle);
-	void randomizeLifetime(Particle& particle);
 
-	void updateResourceData(float3 cameraPos);
+	float3 randomizeParameter(RandomParameter3& param);
+	float randomizeParameter(RandomParameter& param);
 
 	float randomizeFloat(float lower, float upper) const;
+
+	void updateResourceData(float3 cameraPos);
 };
 
 #endif

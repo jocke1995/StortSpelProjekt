@@ -11,14 +11,14 @@ struct ParticleAttributes
 	float rotation = 0;
 	float rotationSpeed = 0;
 	float lifetime = 0.0f;
-	// Todo color
+	float4 color = { 1, 1, 1, 1 };
 };
 
 struct ByLifetimeParameter
 {
 	float4 start = {0, 0, 0, 0};
 	float4 end = { 0, 0, 0, 0 };
-	float4 changePerFrame = { 0, 0, 0, 0 };
+	float4 changePerFrame = { 0, 0, 0, 0 }; // Set when particle is inited
 };
 
 class Particle
@@ -37,8 +37,9 @@ private:
 	ParticleAttributes m_Attributes;
 	// ByLifetime interpolation values
 	ByLifetimeParameter m_SizeByLifetime;
+	ByLifetimeParameter m_ColorByLifetime;
 
-	void initValues(ParticleAttributes* startValues, ByLifetimeParameter* sizeByLifetime);
+	void initValues(ParticleAttributes* startValues, ByLifetimeParameter* sizeByLifetime, ByLifetimeParameter* colorByLifetime);
 };
 
 #endif

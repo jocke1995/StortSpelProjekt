@@ -775,14 +775,18 @@ Scene* FloppipTestScene(SceneManager* sm)
     ParticleEffectSettings settings = {};
     settings.maxParticleCount = 200;
     settings.startValues.lifetime = 1;
-    settings.spawnInterval = 0.2;
+    settings.spawnInterval = 0.05;
     settings.startValues.position = { 0, 4, 0 };
     settings.startValues.velocity = { 0, 3, 0 };
     settings.startValues.acceleration = { 0, 0, 0 };
+    settings.startValues.color = { 1, 0, 1, 1 };
     settings.isLooping = true;
 
     settings.sizeByLifetime.start.x = 2.0;
     settings.sizeByLifetime.end.x = 0.75;
+
+    settings.colorByLifetime.start = {1, 0, 1, 1};
+    settings.colorByLifetime.end = { 0.01, 0.01, 0.01, 0};
 
     // Need to fix EngineRand.rand() for negative values
 
