@@ -20,14 +20,13 @@ EnemyFactory::EnemyFactory()
 	m_EnemiesKilled = 0;
 	m_TotalEnemiesKilled = 0;
 	m_EnemiesToSpawn = 0;
-	m_LevelTime = 30;
+	m_SurvivalLevelTimer = 30;
 	m_LevelTimer = 0;
 	m_TimeRound = false;
 	m_EnemySlotsLeft = m_LevelMaxEnemies;
 	m_SpawnCooldown = 1;
 	m_MinimumDistanceToPlayer = 10;
 	m_SpawnTimer = 0.0f;
-	m_TotalTime = 0.0f;
 	m_RandGen.SetSeed(time(NULL));
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
@@ -174,6 +173,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	Entity* ent = m_pScene->AddEntity(entityName);
 
 	component::ModelComponent* mc = nullptr;
+	component::AnimationComponent* ac = nullptr;
 	component::TransformComponent* tc = nullptr;
 	component::BoundingBoxComponent* bbc = nullptr;
 	component::CollisionComponent* cc = nullptr;
@@ -184,6 +184,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	component::ProgressBarComponent* pc = nullptr;
 
 	mc = ent->AddComponent<component::ModelComponent>();
+	ac = ent->AddComponent<component::AnimationComponent>();
 	tc = ent->AddComponent<component::TransformComponent>(comps->invertDirection);
 	ent->AddComponent<component::HealthComponent>(comps->hp);
 	ec = ent->AddComponent<component::EnemyComponent>(this);
@@ -230,7 +231,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	}
 
 	mc->SetModel(comps->model);
-	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+	mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
 	Transform* t = tc->GetTransform();
 	t->SetPosition(comps->pos.x, comps->pos.y, comps->pos.z);
 	t->SetScale(comps->scale);
@@ -309,6 +310,11 @@ int EnemyFactory::GetTotalKilled()
 int EnemyFactory::GetLevel()
 {
 	return m_Level;
+}
+
+int EnemyFactory::GetLevelTime()
+{
+	return m_LevelTime;
 }
 
 void EnemyFactory::AddSpawnPoint(const float3& point)
@@ -411,6 +417,7 @@ void EnemyFactory::Update(double dt)
 {
 	if (m_IsActive)
 	{
+		m_LevelTimer += dt;
 		if (m_TimeRound)
 		{
 			timeRound(dt);
@@ -419,28 +426,31 @@ void EnemyFactory::Update(double dt)
 		{
 			killRound(dt);
 		}
+		if (m_LevelTimer >= 1.0)
+		{
+			m_LevelTimer -= 1.0;
+			m_LevelTime++;
+		}
 	}
 }
 
 void EnemyFactory::timeRound(double dt)
 {
-	if (m_LevelTime > 0)
+	if (m_SurvivalLevelTimer > 0)
 	{
-		m_LevelTimer += dt;
 		if (m_LevelTimer >= 1.0)
 		{
-			m_LevelTimer -= 1.0;
-			m_LevelTime -= 1;
+			m_SurvivalLevelTimer -= 1;
 
 			Entity* enemyGui = m_pScene->GetEntity("enemyGui");
 			if (enemyGui != nullptr)
 			{
 				enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.075f, 0.044f }, "enemyGui");
-				enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(" Survive: " + std::to_string(m_LevelTime), "enemyGui");
+				enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(" Survive: " + std::to_string(m_SurvivalLevelTimer), "enemyGui");
 			}
 
 
-			if (m_LevelTime == 0)
+			if (m_SurvivalLevelTimer == 0)
 			{
 				EventBus::GetInstance().Publish(&LevelDone());
 			}
@@ -553,7 +563,6 @@ void EnemyFactory::killRound(double dt)
 		m_EnemySlotsLeft--;
 	}
 
-	m_TotalTime += dt;
 }
 
 void EnemyFactory::enemyDeath(Death* evnt)
@@ -626,18 +635,19 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	m_IsActive = true;
 	m_SpawnTimer = 0.0f;
 	m_EnemiesKilled = 0;
+	m_LevelTime = 0;
 
 	//First round is level 0 at this point and we want a time round every third level
 	if (m_Level % 3 == 2)
 	{
 		m_TimeRound = true;
-		m_LevelTime = 30 + 5 * m_Level;
+		m_SurvivalLevelTimer = 30 + 5 * m_Level;
 		m_LevelTimer = 0.0;
 
 		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
 		if (enemyGui != nullptr)
 		{
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(" Survive: " + std::to_string(m_LevelTime), "enemyGui");
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(" Survive: " + std::to_string(m_SurvivalLevelTimer), "enemyGui");
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.075f, 0.044f }, "enemyGui");
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetScale({ 0.5f, 0.5f }, "enemyGui");
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetBlend({ 1.0f, 1.0f, 1.0f, 0.8f }, "enemyGui");

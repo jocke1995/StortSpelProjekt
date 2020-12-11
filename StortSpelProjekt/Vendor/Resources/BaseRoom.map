@@ -50,6 +50,8 @@ ParticlePlayOnInit 1
 ModelLightPosition 21.0, 18.0, 79.0
 ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
+ModelLightFlag 3,1
+
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
 Submit ParticleEffect
@@ -83,6 +85,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition 55.0, 18.0, 57.0
 ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
 AddToEdge 0
@@ -156,6 +159,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition 79.0, 18.0, 25.0
 ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
 AddToEdge 1
@@ -186,6 +190,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition 79.0, 18.0, -28.0
 ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
 AddToEdge 1
@@ -259,6 +264,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition 57.0, 18.0, -56.0
 ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
 AddToEdge 2
@@ -289,6 +295,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition 14.0, 18.0, -82.0
 ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
 AddToEdge 2
@@ -362,6 +369,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition -12.0, 18.0, -82.0
 ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
 AddToEdge 3
@@ -392,6 +400,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition -54.0, 18.0, -54.0
 ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
 AddToEdge 3
@@ -465,6 +474,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition -79.0, 18.0, -20.0
 ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
 AddToEdge 4
@@ -495,6 +505,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition -80.0, 18.0, 20.0
 ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
 AddToEdge 4
@@ -568,6 +579,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition -58.0, 18.0, 59.0
 ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
 AddToEdge 5
@@ -598,6 +610,7 @@ Submit CollisionCube 1.0, 1.0, 1.0
 ModelLightPosition -13.0, 18.0, 86.0
 ModelLightColor 20.0, 5.4, 0.0
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.1, 0.1, 0.1
 Submit PointLight
 AddToEdge 5
@@ -671,8 +684,11 @@ Submit CollisionCube 0.1, 0.1, 0.1
 ModelLightPosition 0.0, 53.0, 0.0
 ModelLightDirection 0.00001, -1.0, 0.00001
 ModelLightColor 8.86, 3.45, 1.33
+ModelLightFlickerRate 0.1
+ModelLightFlickerAmplitude 0.1
 ModelLightFlag 0,0
 ModelLightFlag 1,1
+ModelLightFlag 3,1
 ModelLightAttenuation 0.001, 0.01, 0.001
 Submit SpotLight
 
@@ -687,6 +703,10 @@ ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
+
+// Reset --------
+ModelLightFlickerRate 0.15
+ModelLightFlickerAmplitude 0.18
 
 // SKYBOX ----------------------------------------------
 Name Skybox

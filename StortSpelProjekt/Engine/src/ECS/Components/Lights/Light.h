@@ -16,8 +16,10 @@ enum FLAG_LIGHT
 	// 2. Lights are interpreted as "DYNAMIC" as default
 	STATIC = BIT(3),
 
+	FLICKER = BIT(4),
+
 	// etc..
-	NUM_FLAGS_LIGHT = 3
+	NUM_FLAGS_LIGHT = 4
 };
 
 static unsigned int s_LightIdCounter = 0;
@@ -34,6 +36,9 @@ public:
 
 	void SetColor(float3 color);
 	void SetIntensity(float intensity);
+
+	void SetFlickerRate(float rate);
+	void SetFlickerAmplitude(float amplitude);
 
 	// Gets
 	unsigned int GetLightFlags() const;
@@ -67,6 +72,19 @@ protected:
 		float farZ = 1000.0f);
 
 	virtual void UpdateLightColorIntensity() = 0;
+
+	// Amplitude used in flickerIntensityFunction
+	float m_FlickerAmplitude = 0.12;
+	// used to scale up dt in update
+	float m_FlickerRate = 0.2;
+	float m_FlickerTimer = 0.0;
+	float m_UnflickeredIntensity = 1.0;
+
+
+	// f(time) function that calculates an intensity for a light 
+	inline float flickerIntensityFunction(float x) { return 1 + m_FlickerAmplitude * (sinf(x) + sinf(2*x) + sinf(4*x) + sinf(8*x)); }
+	
+	void flicker(double dt);
 
 };
 

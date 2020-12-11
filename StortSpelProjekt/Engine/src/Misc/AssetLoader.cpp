@@ -240,8 +240,6 @@ Model* AssetLoader::LoadModel(const std::wstring& path)
 		initializeSkeleton(rootNode, &boneCounter);
 
 		m_LoadedModels[path].second = new AnimatedModel(&path, rootNode, &meshes, &animations, &materials, boneCounter.size());
-
-		static_cast<AnimatedModel*>(m_LoadedModels[path].second)->InitConstantBuffer(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
 	}
 	else
 	{
@@ -554,6 +552,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 	float3 rot = { 0.0, 0.0, 0.0 };
 	float3 lightColor = { 0.0, 0.0, 0.0 };
 	float lightIntensity = 1.0f;
+	float lightFlickerRate = 0.2f;
+	float lightFlickerAmplitude = 0.15f;
 	float3 lightDir = { 0.0, 0.0, 0.0 };
 	float3 lightAttenuation = { 0.0, 0.0, 0.0 };
 	float3 bbModifier = { 1.0f, 1.0f, 1.0f };
@@ -682,6 +682,14 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 			else if (strcmp(lineHeader.c_str(), "ModelLightIntensity") == 0)
 			{
 				fscanf(file, "%f", &lightIntensity);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightFlickerRate") == 0)
+			{
+				fscanf(file, "%f", &lightFlickerRate);
+			}
+			else if (strcmp(lineHeader.c_str(), "ModelLightFlickerAmplitude") == 0)
+			{
+				fscanf(file, "%f", &lightFlickerAmplitude);
 			}
 			else if (strcmp(lineHeader.c_str(), "ModelLightDirection") == 0)
 			{
@@ -932,6 +940,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 					plc = entity->AddComponent<component::PointLightComponent>(combinedFlag);
 					plc->SetColor(lightColor);
 					plc->SetIntensity(lightIntensity);
+					plc->SetFlickerRate(lightFlickerRate);
+					plc->SetFlickerAmplitude(lightFlickerAmplitude);
 					plc->SetAttenuation(lightAttenuation);
 					if (FLAG_LIGHT::USE_TRANSFORM_POSITION & combinedFlag)
 					{
@@ -952,6 +962,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 					slc = entity->AddComponent<component::SpotLightComponent>(combinedFlag);
 					slc->SetColor(lightColor);
 					slc->SetIntensity(lightIntensity);
+					slc->SetFlickerRate(lightFlickerRate);
+					slc->SetFlickerAmplitude(lightFlickerAmplitude);
 					slc->SetAttenuation(lightAttenuation);
 					slc->SetDirection(lightDir);
 					if (FLAG_LIGHT::USE_TRANSFORM_POSITION & combinedFlag)
@@ -983,6 +995,8 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 					dlc = entity->AddComponent<component::DirectionalLightComponent>(combinedFlag);
 					dlc->SetColor(lightColor);
 					dlc->SetIntensity(lightIntensity);
+					dlc->SetFlickerRate(lightFlickerRate);
+					dlc->SetFlickerAmplitude(lightFlickerAmplitude);
 					dlc->SetDirection(lightDir);
 					dlc->SetCameraLeft(lightLeft + offset.x);
 					dlc->SetCameraRight(lightRight + offset.x);
@@ -1893,6 +1907,19 @@ void AssetLoader::processAnimations(const aiScene* assimpScene, std::vector<Anim
 		animation->durationInTicks = assimpAnimation->mDuration;
 		animation->ticksPerSecond = assimpAnimation->mTicksPerSecond != 0 ?
 			assimpAnimation->mTicksPerSecond : 25.0f;
+
+		if (animation->name == "Attack_Swing_Left")
+		{
+			animation->ticksPerSecond = 80.0f;
+		}
+		else if (animation->name == "Attack_Swing_Right")
+		{
+			animation->ticksPerSecond = 80.0f;
+		}
+		else if (animation->name == "Claw_attack_left")
+		{
+			animation->ticksPerSecond = 40.0f;
+		}
 
 		// Store the keyframes (transform data) for each nodeAnimation (bone)
 		for (unsigned int j = 0; j < assimpAnimation->mNumChannels; j++)

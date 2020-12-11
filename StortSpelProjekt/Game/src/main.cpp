@@ -15,6 +15,7 @@
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
 #include "PauseGUI.h"
+#include "GameTracker.h"
 
 #include "Misc/Edge.h"
 
@@ -29,6 +30,8 @@ void ShopInitScene(Scene* scene);
 void ParticleInit();
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
+
+GameTracker gametracker;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -71,8 +74,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*-------- UpgradeGUI ---------*/
     PauseGUI::GetInstance().Init();
 
-    /*------ Network Init -----*/
+    /*------- Game Tracker -------*/
+    if (std::stoi(Option::GetInstance().GetVariable("i_trackGame")) == 1)
+    {
+        gametracker.Init();
+    }
 
+    /*------ Network Init -----*/
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
         gameNetwork.SetScene(sceneManager->GetActiveScene());
@@ -292,8 +300,7 @@ Scene* GameScene(SceneManager* sm)
     melc = entity->AddComponent<component::MeleeComponent>();   // moved this down to set scale first
 
     mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
-    ac->Initialize();
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
 
     double3 playerDim = mc->GetModelDim();
 
@@ -334,8 +341,8 @@ Scene* GameScene(SceneManager* sm)
     zombie.aiFlags = 0;
     zombie.meleeAttackDmg = 30.0f;
     zombie.meleeAttackDmgBase = 30.0f;
-    zombie.attackInterval = 1.5f;
-    zombie.attackSpeed = 0.1f;
+    zombie.attackInterval = 0.5f;
+    zombie.attackSpeed = 1.0f;
     zombie.movementSpeed = 45.0f;
     zombie.rot = { 0.0, 0.0, 0.0 };
     zombie.targetName = "player";
@@ -391,7 +398,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     rangedDemon.attackInterval = 0.5f;
-    rangedDemon.attackSpeed = 1.0f;
+    rangedDemon.attackSpeed = 1.5f;
     rangedDemon.movementSpeed = 30.0f;
     rangedDemon.targetName = "player";
     rangedDemon.scale = 0.08f;
@@ -732,8 +739,7 @@ Scene* ShopScene(SceneManager* sm)
     avc->AddVoice(L"PlayerWalk");
 
     mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
-    ac->Initialize();
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
 
     tc->GetTransform()->SetScale(0.05f);
     tc->GetTransform()->SetPosition(0.0, 1.0, 0.0);
