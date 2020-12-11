@@ -90,7 +90,7 @@ void component::MeleeComponent::Update(double dt)
 
 	float3 position = parentTransform->GetPositionFloat3();
 	float3 forwardVector = parentTransform->GetForwardFloat3();
-	float distanceFromPlayer = m_HalfSize.z + (modelDim.z * parentTransform->GetScale().z);
+	float distanceFromPlayer = (m_HalfSize.z * m_ZScale) + (modelDim.z * parentTransform->GetScale().z / 2.0f);
 
 	position = position + (forwardVector * distanceFromPlayer);
 
