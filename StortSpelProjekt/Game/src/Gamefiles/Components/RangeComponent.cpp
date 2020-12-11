@@ -240,21 +240,32 @@ void component::RangeComponent::Attack()
 
 void component::RangeComponent::createParticleEffect(Entity* entity, float3 velocityDir) const
 {
-	// Create particle effect
+	// Create particleEffect
 	ParticleEffectSettings settings = {};
-	settings.maxParticleCount = 50;
-	settings.startValues.lifetime = 0.09;
+	// Important settings
+	settings.texture = m_pParticleTexture;
+	settings.maxParticleCount = 38;
 	settings.spawnInterval = 0.007;
-	settings.startValues.acceleration = { 0, 0, 0 };
-
 	settings.isLooping = true;
 
-	settings.randPosition = { -0.5, 0.5, -0.5, 0.5, -0.5, 0.5 };
-	settings.randVelocity = { -5, 5, -5, 5, -5, 5 };
-	settings.randSize = { 2.0f, 2.0f };
-	settings.randRotation = { 0, 2 * PI };
-	settings.randRotationSpeed = { 0.2f, 0.2f };
-	settings.texture = m_pParticleTexture;
+	// Start values
+	settings.startValues.position = { 0, 0, 0 };
+	settings.startValues.acceleration = { 0, 0, 0 };
+	settings.startValues.color = { 1, 1, 1, 1 };
+	settings.startValues.lifetime = 0.12;
+	settings.startValues.size = 2.5;
 
+	// End values
+	settings.endValues.size = 1.4;
+	settings.endValues.color = { 1, 1, 1, 0 };
+
+	// Randomize values
+	settings.randPosition = { -0.5, 0.5, -0.5, 0.5, -0.5, 0.5 };
+	settings.randVelocity = { -6, 6, -6, 6, -6, 6 };
+	settings.randSize = { 0, 0 };
+	settings.randRotation = { 0, 2 * PI };
+	settings.randRotationSpeed = { -PI * 2, PI * 2 };
+
+	// Create the component
 	entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 }

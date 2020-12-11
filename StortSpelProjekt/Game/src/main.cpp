@@ -83,8 +83,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
-    
-
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
@@ -259,7 +257,7 @@ Scene* GameScene(SceneManager* sm)
     component::HealthComponent* hc = nullptr;
     component::UpgradeComponent* uc = nullptr;
     component::GUI2DComponent* gui = nullptr;
-    component::ParticleEmitterComponent* pec = nullptr;
+    component::ParticleEmitterComponent* pe = nullptr;
 #pragma endregion
 
 #pragma region entities
@@ -425,23 +423,37 @@ Scene* GameScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "ShopScene");
 
-    // Create test particleEffect
+    // Create particleEffect
     ParticleEffectSettings settings = {};
-    settings.maxParticleCount = 100;
-    settings.startValues.lifetime = 0.8;
-    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
-    settings.startValues.acceleration = { 0, 0, 0 };
-
-    // Need to fix EngineRand.rand() for negative values
-
-    settings.randPosition = { -6, 6, 0, 15, -6, 6 };
-    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
-    settings.randSize = { 0.3, 0.9 };
-    settings.randRotationSpeed = { 0, 1 };
-
+    // Important settings
     Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
     settings.texture = particleTexture;
-    pec = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+    settings.maxParticleCount = 100;
+    settings.spawnInterval = 0.02;
+    settings.isLooping = true;
+
+    // Start values
+    settings.startValues.position = { 0, 0, 0 };
+    settings.startValues.velocity = { 0, 0, 0 };
+    settings.startValues.acceleration = { 0, 0, 0 };
+    settings.startValues.color = { 1, 1, 1, 1 };
+    settings.startValues.lifetime = 1.65;
+    settings.startValues.size = 1.5;
+
+    // End values
+    settings.endValues.size = 0.5;
+    settings.endValues.color = { 1, 0.9, 1, 0.4 };
+
+    // Randomize values
+    settings.randPosition = { -6, 6, 0, 17, -6, 6 };
+    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
+    settings.randSize = { 0, 0.5 };
+    settings.randRotation = { 0, 2 * PI };
+    settings.randRotationSpeed = { 0, 1 };
+
+    // Create the component
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+    
 
 
     mc->SetModel(teleportModel);

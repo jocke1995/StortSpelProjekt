@@ -6,7 +6,7 @@ struct ParticleAttributes
 	float3 position = { 0, 0, 0 };
 	float3 velocity = { 0, 0, 0 };
 	float3 acceleration = { 0, 0, 0 };
-	float4 color = { 1, 1, 1, 1 }; // Texture gets multiplied by this float4
+	float4 color = { 1, 1, 1, 1 }; // Texture gets multiplied by this float4, this get's normalized
 	float size = 1; // Total width/height of a particle
 	float rotation = 0; // Start rotation of a particle
 	float rotationSpeed = 0; // Update adds this to rotation each frame // TODO, make this to rotation by lifetime

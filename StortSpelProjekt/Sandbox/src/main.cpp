@@ -748,6 +748,44 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1.0f);
     tc->GetTransform()->SetPosition(0, 1, -30);
 
+    // Create particleEffect
+    ParticleEffectSettings settings = {};
+    // Important settings
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle2.png"));
+    settings.texture = particleTexture;
+    settings.maxParticleCount = 16;
+    settings.spawnInterval = 0.08;
+    settings.isLooping = true;
+
+    // Start values
+    settings.startValues.position = { 0, 3.0, 0 };
+    settings.startValues.acceleration = { 0.0, -3.0, 0.0 };
+    settings.startValues.color = { 1, 1, 1, 0.2 };
+    settings.startValues.lifetime = 0.6;
+    settings.startValues.size = 2.0;
+
+    // End values
+    settings.endValues.size = 2.5;
+    settings.endValues.color = { 0, 0, 0, 0 };
+
+    // Randomize values
+    settings.randPosition = { -1, 1, 0, 0, -1, 1 };
+    settings.randVelocity = { -2, 2, 5, 9, -2, 2 };
+    settings.randSize = { -0.3, 0.3 };
+    settings.randRotation = { 0, 2 * PI };
+    settings.randRotationSpeed = { -PI, PI };
+
+
+    settings.maxParticleCount = 16;
+    settings.spawnInterval = 0.08;
+    settings.startValues.lifetime = 0.6;
+    settings.randVelocity = { -2, 2, 5, 9, -2, 2 };
+    settings.randSize = { -0.3, 0.3 };
+
+
+    // Create the component
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+
     Player::GetInstance().SetPlayer(entity);
     /* ---------------------- Player ---------------------- */
 
@@ -769,38 +807,6 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
-
-
-    // Create test particleEffect
-    ParticleEffectSettings settings = {};
-    // Important settingss
-    settings.maxParticleCount = 200;
-    settings.spawnInterval = 0.05;
-    settings.isLooping = true;
-
-    // Start values
-    settings.startValues.position = { 0, 4, 0 };
-    settings.startValues.velocity = { 0, 3, 0 };
-    settings.startValues.acceleration = { 0, 0, 0 };
-    settings.startValues.color = { 1, 0, 1, 1 };
-    settings.startValues.lifetime = 1;
-    settings.startValues.size = 2.5;
-
-    // End values
-    settings.endValues.size = 3.5;
-    settings.endValues.color = { 0, 0, 0, 0 };
-
-    // Randomize values
-    settings.randPosition = { 0, 0, 0, 0, 0, 0 };
-    settings.randVelocity = { -2, 2, -2, 2, -2, 2 };
-    settings.randSize = { -0.5, 0.5 };
-    settings.randRotation = { 0, 2 * PI };
-    settings.randRotationSpeed = { 0.2, 0.2 };
-
-    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
-    settings.texture = particleTexture;
-
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 
     /* ---------------------- Floor ---------------------- */
 

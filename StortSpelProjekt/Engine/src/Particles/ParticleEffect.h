@@ -128,6 +128,7 @@ private:
 	float randomizeParameter(RandomParameter& param);
 
 	float randomizeFloat(float lower, float upper) const;
+	void clampFloat(float* floatToClamp, float upper, float lower) const;
 
 	void updateResourceData(float3 cameraPos);
 };

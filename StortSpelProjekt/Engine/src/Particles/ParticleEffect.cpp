@@ -26,7 +26,6 @@ ParticleEffect::ParticleEffect(Entity* parent, ParticleEffectSettings* settings)
 {
 	m_pEntity = parent;
 	m_Settings = *settings;
-	m_Settings.startValues.color.normalize();
 
 	m_pTexture = settings->texture;
 
@@ -38,6 +37,10 @@ ParticleEffect::ParticleEffect(Entity* parent, ParticleEffectSettings* settings)
 
 		Log::PrintSeverity(Log::Severity::WARNING, "ParticleEffect::Texture was nullptr\n");
 	}
+
+	// Setup interpolation values for byLifetime
+	m_SizeChangePerFrame = (m_Settings.startValues.size - m_Settings.endValues.size) / m_Settings.startValues.lifetime;
+	m_ColorChangePerFrame = (m_Settings.startValues.color - m_Settings.endValues.color) / m_Settings.startValues.lifetime;
 
 	init();
 }
@@ -171,10 +174,6 @@ void ParticleEffect::init()
 
 void ParticleEffect::initParticle(Particle& particle)
 {
-	// Setup interpolation values for byLifetime
-	m_SizeChangePerFrame = (m_Settings.startValues.size - m_Settings.endValues.size) / m_Settings.startValues.lifetime;
-	m_ColorChangePerFrame = (m_Settings.startValues.color - m_Settings.endValues.color) / m_Settings.startValues.lifetime;
-
 	// Set start values
 	particle.initValues(&m_Settings.startValues);
 
@@ -237,6 +236,18 @@ float ParticleEffect::randomizeFloat(float lower, float upper) const
 	const float increaseRandomness = 100;
 	float r = rand.Randf(floor(lower * increaseRandomness), ceil(upper * increaseRandomness)) / increaseRandomness;
 	return r;
+}
+
+void ParticleEffect::clampFloat(float* floatToClamp, float upper, float lower) const
+{
+	if (*floatToClamp > upper)
+	{
+		*floatToClamp = 1;
+	}
+	else if (*floatToClamp < lower)
+	{
+		*floatToClamp = 0;
+	}
 }
 
 void ParticleEffect::updateResourceData(float3 cameraPos)
