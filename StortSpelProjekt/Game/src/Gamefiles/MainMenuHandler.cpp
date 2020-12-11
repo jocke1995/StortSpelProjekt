@@ -851,7 +851,7 @@ void onVolumePlus(const std::string& name)
     if (std::stof(Option::GetInstance().GetVariable("f_volume")) < 10)
     {
         std::ostringstream str;
-        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_volume")) + 0.1f;
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_volume")) + 0.1f;
         Option::GetInstance().SetVariable("f_volume", str.str());
 
         Option::GetInstance().WriteFile();
@@ -863,7 +863,7 @@ void onVolumeMinus(const std::string& name)
     if (std::stof(Option::GetInstance().GetVariable("f_volume")) > 0)
     {
         std::ostringstream str;
-        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_volume")) - 0.1f;
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_volume")) - 0.1f;
         Option::GetInstance().SetVariable("f_volume", str.str());
 
         Option::GetInstance().WriteFile();
@@ -900,12 +900,12 @@ void onMouseSensitivityPlus(const std::string& name)
         std::ostringstream str;
 
         // X
-        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) + 0.1f;
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) + 0.1f;
         Option::GetInstance().SetVariable("f_sensitivityX", str.str());
 
         // Y
         str.str("");
-        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityY")) + 0.1f;
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_sensitivityY")) + 0.1f;
         Option::GetInstance().SetVariable("f_sensitivityY", str.str());
 
         Option::GetInstance().WriteFile();
@@ -919,12 +919,12 @@ void onMouseSensitivityMinus(const std::string& name)
         std::ostringstream str;
 
         // X
-        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) - 0.1f;
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) - 0.1f;
         Option::GetInstance().SetVariable("f_sensitivityX", str.str());
 
         // Y
         str.str("");
-        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityY")) - 0.1f;
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_sensitivityY")) - 0.1f;
         Option::GetInstance().SetVariable("f_sensitivityY", str.str());
 
         Option::GetInstance().WriteFile();
