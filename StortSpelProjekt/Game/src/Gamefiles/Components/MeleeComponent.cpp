@@ -28,17 +28,14 @@ component::MeleeComponent::MeleeComponent(Entity* parent) : Component(parent)
 	// Set base sizes of the hitbox 
 	m_MeleeXRange = 3.0f;
 	m_MeleeZRange = 4.0f;
-	m_XScale = 1.5f;
-	m_ZScale = 1.5f;
+	m_XBaseScale = 1.75;
+	m_ZBaseScale = 2.0f;
+	m_XScale = m_XBaseScale;
+	m_ZScale = m_ZBaseScale;
 
 	m_ParticleEffectCounter = 0;
 	
-	// scale factor to get "old" scale back
-	float newScale = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetScale().x;	// x, y, z will have same scale
-	float oldScale = 0.9f;
-	float scaleFactor = 1.0f;
-	m_HalfSize = { m_MeleeXRange * scaleFactor, (1.0f * scaleFactor) + 2.0f, (m_MeleeZRange * scaleFactor) / 2.0f };
-	//m_HalfSize = { 8.0f, 1.0f, 9.0f };
+	m_HalfSize = { m_MeleeXRange, 1.0f + 2.0f, m_MeleeZRange / 2.0f };
 
 	//Create bounding box for collision for melee
 	m_pBbc = parent->GetComponent<component::BoundingBoxComponent>();
@@ -93,7 +90,7 @@ void component::MeleeComponent::Update(double dt)
 
 	float3 position = parentTransform->GetPositionFloat3();
 	float3 forwardVector = parentTransform->GetForwardFloat3();
-	float distanceFromPlayer = m_HalfSize.z + (modelDim.z * parentTransform->GetScale().z / 2.0f);
+	float distanceFromPlayer = (m_HalfSize.z * m_ZScale) + (modelDim.z * parentTransform->GetScale().z / 2.0f);
 
 	position = position + (forwardVector * distanceFromPlayer);
 
@@ -320,7 +317,7 @@ void component::MeleeComponent::ChangeMeleeRadius(float xRange, float zRange)
 
 void component::MeleeComponent::ResetMeleeScaling()
 {
-	m_XScale = 1.5f;
-	m_ZScale = 1.5f;
+	m_XScale = m_XBaseScale;
+	m_ZScale = m_ZBaseScale;
 }
 
