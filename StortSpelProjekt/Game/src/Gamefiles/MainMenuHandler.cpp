@@ -65,6 +65,7 @@ void MainMenuHandler::createOptionScene()
 	Texture* music = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/music.png");
 	Texture* emptyBox = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/emptybox.png");
 	Texture* cross = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/cross.png");
+    Texture* background = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Background.png");
 
 	Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
@@ -77,6 +78,20 @@ void MainMenuHandler::createOptionScene()
     // Add a voice to the player to play some music.
     vc = entity->AddComponent<component::Audio2DVoiceComponent>();
     vc->AddVoice(L"MenuMusic");
+
+    // Background
+    entity = m_pScene->AddEntity("OptionsBackground");
+    float2 quadPos = { 0.0f, 0.0f };
+    float2 quadScale = { 1.0f, 1.0f };
+    float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad(
+        "OptionsBackground",
+        quadPos, quadScale,
+        false, false,
+        0,
+        notBlended,
+        background);
 
     // Skybox
     entity = m_pOptionScene->AddEntity("skybox");
@@ -142,7 +157,7 @@ void MainMenuHandler::createOptionScene()
             0,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     case 1080:
         guic->GetQuadManager()->CreateQuad("activeResolution",
@@ -153,7 +168,7 @@ void MainMenuHandler::createOptionScene()
             0,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     case 1440:
         guic->GetQuadManager()->CreateQuad("1444p",
@@ -164,7 +179,7 @@ void MainMenuHandler::createOptionScene()
             0,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     }
 
@@ -206,7 +221,7 @@ void MainMenuHandler::createOptionScene()
             0,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     case 0:
         guic->GetQuadManager()->CreateQuad("activeWindowmode",
@@ -217,7 +232,7 @@ void MainMenuHandler::createOptionScene()
             0,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     }
 
@@ -280,7 +295,7 @@ void MainMenuHandler::createOptionScene()
             0,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     case 1:
         guic->GetQuadManager()->CreateQuad("activeShadowQuality",
@@ -291,7 +306,7 @@ void MainMenuHandler::createOptionScene()
             0,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     case 2:
         guic->GetQuadManager()->CreateQuad("activeShadowQuality",
@@ -302,7 +317,7 @@ void MainMenuHandler::createOptionScene()
             0,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     }
     /*-------------Volume--------------*/
@@ -695,7 +710,7 @@ void on2560x1440(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void on1920x1080(const std::string& name)
@@ -715,7 +730,7 @@ void on1920x1080(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void on1280x720(const std::string& name)
@@ -735,7 +750,7 @@ void on1280x720(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void onFullscreen(const std::string& name)
@@ -751,7 +766,7 @@ void onFullscreen(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void onWindowed(const std::string& name)
@@ -767,7 +782,7 @@ void onWindowed(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void onLowShadowQuality(const std::string& name)
@@ -783,7 +798,7 @@ void onLowShadowQuality(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void onMedShadowQuality(const std::string& name)
@@ -799,7 +814,7 @@ void onMedShadowQuality(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void onHighShadowQuality(const std::string& name)
@@ -815,7 +830,7 @@ void onHighShadowQuality(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void onVolumePlus(const std::string& name)
