@@ -96,6 +96,8 @@ public:
 	int GetTotalKilled();
 	//Gets what level the player is currently on
 	int GetLevel();
+	//Gets how long the long the level has lasted
+	int GetLevelTime();
 
 	// Adds a spawnpoint.
 	void AddSpawnPoint(const float3& point);
@@ -139,8 +141,9 @@ private:
 	EngineRand m_RandGen;
 
 	int m_MaxEnemies;
-	int m_LevelTime;
-	double m_LevelTimer;
+	int m_LevelTime; //Duration for how long the level has lasted
+	int m_SurvivalLevelTimer; //Timer for survival levels
+	double m_LevelTimer; //Timer increasing from delta time
 	bool m_TimeRound;
 	int m_EnemiesToSpawn;
 	int m_LevelMaxEnemies;
@@ -151,7 +154,6 @@ private:
 	float m_SpawnCooldown;
 	float m_SpawnTimer;
 	float m_MinimumDistanceToPlayer;
-	double m_TotalTime;
 
 	bool m_IsActive = false;
 };

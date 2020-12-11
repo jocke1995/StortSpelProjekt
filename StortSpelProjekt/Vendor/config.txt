@@ -15,3 +15,4 @@ f_playerElevation 1
 f_sensitivityX 1
 f_sensitivityY 1
 i_music 1
+i_trackGame 1

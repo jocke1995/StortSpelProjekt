@@ -146,3 +146,9 @@ struct shopGUIStateChange : public Event
 	shopGUIStateChange()
 	{};
 };
+
+struct UpgradeBought : public Event
+{
+	UpgradeBought(std::string name) : name{ name } {};
+	std::string name;
+};

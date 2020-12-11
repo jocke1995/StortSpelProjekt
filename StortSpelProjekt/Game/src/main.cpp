@@ -15,6 +15,7 @@
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
 #include "PauseGUI.h"
+#include "GameTracker.h"
 
 #include "Misc/Edge.h"
 
@@ -29,6 +30,8 @@ void ShopInitScene(Scene* scene);
 void ParticleInit();
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
+
+GameTracker gametracker;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -71,8 +74,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*-------- UpgradeGUI ---------*/
     PauseGUI::GetInstance().Init();
 
-    /*------ Network Init -----*/
+    /*------- Game Tracker -------*/
+    if (std::stoi(Option::GetInstance().GetVariable("i_trackGame")) == 1)
+    {
+        gametracker.Init();
+    }
 
+    /*------ Network Init -----*/
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
         gameNetwork.SetScene(sceneManager->GetActiveScene());
