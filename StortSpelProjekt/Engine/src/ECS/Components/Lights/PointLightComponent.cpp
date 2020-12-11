@@ -40,6 +40,8 @@ namespace component
 			m_pPointLight->position.y = position.y;
 			m_pPointLight->position.z = position.z;
 		}
+
+		flicker(dt);
 	}
 
 	void PointLightComponent::OnInitScene()

@@ -23,6 +23,8 @@
 #include "../AnimatedMesh.h"
 #include "../AnimatedModel.h"
 
+#include "../ECS/Entity.h"
+
 AnimatedDepthRenderTask::AnimatedDepthRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
@@ -88,9 +90,9 @@ void AnimatedDepthRenderTask::Execute()
 
 void AnimatedDepthRenderTask::drawRenderComponent(component::ModelComponent* mc, component::TransformComponent* tc, const DirectX::XMMATRIX* viewProjTransposed, ID3D12GraphicsCommandList5* cl)
 {
-	AnimatedModel* am = static_cast<AnimatedModel*>(mc->GetModel());
+	component::AnimationComponent* ac = mc->GetParent()->GetComponent<component::AnimationComponent>();
 
-	D3D12_GPU_VIRTUAL_ADDRESS gpuVA = am->GetConstantBuffer()->GetDefaultResource()->GetID3D12Resource1()->GetGPUVirtualAddress();
+	D3D12_GPU_VIRTUAL_ADDRESS gpuVA = ac->m_pCB->GetDefaultResource()->GetID3D12Resource1()->GetGPUVirtualAddress();
 	cl->SetGraphicsRootConstantBufferView(RS::CBV0, gpuVA);
 
 	// Draw for every m_pMesh the meshComponent has
@@ -114,7 +116,7 @@ void AnimatedDepthRenderTask::drawRenderComponent(component::ModelComponent* mc,
 		{ 
 			m->GetOrigVerticesSRV()->GetDescriptorHeapIndex(), 
 			m->GetVertexWeightSRV()->GetDescriptorHeapIndex(),
-			m->GetUAV()->GetDescriptorHeapIndex(),
+			ac->m_UAVs[i]->GetDescriptorHeapIndex(),
 			0
 		};
 		size = sizeof(DescriptorHeapIndices) / sizeof(UINT);

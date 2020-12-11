@@ -49,9 +49,6 @@ public:
     ShaderResourceView* GetOrigVerticesSRV() const;
     ShaderResourceView* GetVertexWeightSRV() const;
 
-    // AnimatedMeshData
-    UnorderedAccessView* GetUAV() const;
-
 private:
     std::vector<VertexWeight> m_VertexWeights;
 
@@ -62,9 +59,6 @@ private:
 
     ShaderResourceView* m_pSRVOrigVertices = nullptr;
     ShaderResourceView* m_pSRVVertexWeights = nullptr;
-
-    // AnimatedMeshData, pointer to "mesh" base class data
-    UnorderedAccessView* m_pUAV = nullptr;
 };
 
 #endif

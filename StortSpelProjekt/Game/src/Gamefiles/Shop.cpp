@@ -8,6 +8,7 @@
 #include "Misc/AssetLoader.h"
 #include "Renderer/Texture/Texture.h"
 #include "Events/EventBus.h"
+#include "Events/Events.h"
 #include "ECS/SceneManager.h"
 #include "Misc/GUI2DElements/Font.h"
 #include "PauseGUI.h"
@@ -484,6 +485,7 @@ void Shop::shopButtonPressed(ButtonPressed* evnt)
 				m_InventoryIsBought.at(i) = true;
 				ApplyUppgrade(m_InventoryNames.at(i));
 
+				EventBus::GetInstance().Publish(&UpgradeBought(m_InventoryNames.at(i)));
 				SceneManager::GetInstance().GetActiveScene()->GetEntity("upgrade" + std::to_string(i))->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(s_UpgradeBoughtText, "upgrade" + std::to_string(i));
 			}
 		}
