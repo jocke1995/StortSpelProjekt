@@ -773,23 +773,24 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Create test particleEffect
     ParticleEffectSettings settings = {};
+    // Important settingss
     settings.maxParticleCount = 200;
-    settings.startValues.lifetime = 1;
     settings.spawnInterval = 0.05;
+    settings.isLooping = true;
+
+    // Start values
     settings.startValues.position = { 0, 4, 0 };
     settings.startValues.velocity = { 0, 3, 0 };
     settings.startValues.acceleration = { 0, 0, 0 };
     settings.startValues.color = { 1, 0, 1, 1 };
-    settings.isLooping = true;
+    settings.startValues.lifetime = 1;
+    settings.startValues.size = 2.5;
 
-    settings.sizeByLifetime.start.x = 2.0;
-    settings.sizeByLifetime.end.x = 0.75;
+    // End values
+    settings.endValues.size = 3.5;
+    settings.endValues.color = { 0, 0, 0, 0 };
 
-    settings.colorByLifetime.start = {1, 0, 1, 1};
-    settings.colorByLifetime.end = { 0.01, 0.01, 0.01, 0};
-
-    // Need to fix EngineRand.rand() for negative values
-
+    // Randomize values
     settings.randPosition = { 0, 0, 0, 0, 0, 0 };
     settings.randVelocity = { -2, 2, -2, 2, -2, 2 };
     settings.randSize = { -0.5, 0.5 };

@@ -74,7 +74,7 @@ void ParticleEffect::Update(double dt)
 		// Only update if alive
 		if (particle.IsAlive())
 		{
-			particle.Update(dt);
+			particle.Update(dt, m_SizeChangePerFrame, m_ColorChangePerFrame);
 		}
 	}
 }
@@ -171,21 +171,14 @@ void ParticleEffect::init()
 
 void ParticleEffect::initParticle(Particle& particle)
 {
+	// Setup interpolation values for byLifetime
+	m_SizeChangePerFrame = (m_Settings.startValues.size - m_Settings.endValues.size) / m_Settings.startValues.lifetime;
+	m_ColorChangePerFrame = (m_Settings.startValues.color - m_Settings.endValues.color) / m_Settings.startValues.lifetime;
+
 	// Set start values
-	particle.initValues(&m_Settings.startValues, &m_Settings.sizeByLifetime, &m_Settings.colorByLifetime);
+	particle.initValues(&m_Settings.startValues);
 
-	// Check if sizeByLifetime
-	if (particle.m_SizeByLifetime.start.x != particle.m_SizeByLifetime.end.x)
-	{
-		particle.m_Attributes.size = particle.m_SizeByLifetime.start.x;
-	}
-
-	// Check if colorByLifetime
-	if (particle.m_ColorByLifetime.start != particle.m_ColorByLifetime.end)
-	{
-		particle.m_Attributes.color = particle.m_ColorByLifetime.start;
-	}
-
+	// Add the random parameters
 	particle.m_Attributes.position += randomizeParameter(m_Settings.randPosition);
 	particle.m_Attributes.velocity += randomizeParameter(m_Settings.randVelocity);
 	particle.m_Attributes.size += randomizeParameter(m_Settings.randSize);

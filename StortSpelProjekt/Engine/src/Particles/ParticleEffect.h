@@ -37,19 +37,38 @@ struct RandomParameter3
 	// TODO: add distribution choice
 };
 
+struct ByLifetimeParameter4
+{
+	float4 end = { 0, 0, 0, 0 };	// Value the particle dies with
+};
+
+struct ByLifetimeParameter3
+{
+	float3 end = { 0, 0, 0 };		// Value the particle dies with
+};
+
+struct ByLifetimeParameter2
+{
+	float2 end = { 0, 0 };			// Value the particle dies with
+};
+
+struct ByLifetimeParameter
+{
+	float end = 0;					// Value the particle dies with
+};
+
 struct ParticleEffectSettings
 {
-	Texture2DGUI* texture = nullptr;
+	Texture2DGUI* texture = nullptr; // Particles texture.
 	unsigned int maxParticleCount = PARTICLE_EFFECT_DEFAULT_SIZE; // Will wait until particle is dead before spawning next
 	float spawnInterval = 0.1; // seconds per spawn
 	bool isLooping = true; // Sets spawning = false after maxParticleCount particles has been created
 
-	// Default Particle Settings
-	ParticleAttributes startValues;
+	ParticleAttributes startValues; // Start values when particles spawn
+	ParticleAttributes endValues; // End values when particles die
 
-	ByLifetimeParameter sizeByLifetime;
-	ByLifetimeParameter colorByLifetime;
-
+	// These get added to the start values when spawning
+	// Note that these do not change the interpolation of the start -> end values.
 	RandomParameter3 randPosition;
 	RandomParameter3 randVelocity;
 	RandomParameter randSize;
@@ -82,11 +101,16 @@ private:
 	Texture2DGUI* m_pTexture = nullptr;
 	std::vector<Particle> m_Particles;
 	std::vector<PARTICLE_DATA> m_ParticlesData;
+	
+	// Particle effect data
+	ParticleEffectSettings m_Settings = {};
+	float m_SizeChangePerFrame = 0;
+	float4 m_ColorChangePerFrame = { 0,0,0,0 };
+
+	// Behavior data
 	unsigned int m_ParticleIndex = 0;
 	double m_TimeSinceSpawn = 0;
 	bool m_IsSpawning = false;
-
-	ParticleEffectSettings m_Settings = {};
 
 	// DX12
 	Resource* m_pUploadResource = nullptr;
