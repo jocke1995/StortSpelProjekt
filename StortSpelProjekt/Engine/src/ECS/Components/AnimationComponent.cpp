@@ -220,7 +220,10 @@ void component::AnimationComponent::initialize(ID3D12Device5* device5, Descripto
 		m_pAnimatedModel = dynamic_cast<AnimatedModel*>(mc->GetModel());
 		if (m_pAnimatedModel)
 		{
-			m_pSkeleton = m_pAnimatedModel->CloneSkeleton();
+			if (!m_pSkeleton)
+			{
+				m_pSkeleton = m_pAnimatedModel->CloneSkeleton();
+			}
 			m_Animations = m_pAnimatedModel->GetAnimations();
 
 			// Store the globalInverse transform.
