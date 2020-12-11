@@ -1,4 +1,4 @@
-f_volume 0.9
+f_volume 0.6
 f_backgroundVolume 0.2
 f_updateRate 30
 f_networkUpdateRate 15
@@ -15,3 +15,4 @@ f_playerElevation 1
 f_sensitivityX 5
 f_sensitivityY 5
 i_music 1
+i_trackGame 1

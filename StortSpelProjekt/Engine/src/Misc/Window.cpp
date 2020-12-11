@@ -79,10 +79,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
 		LPBYTE lpb = new BYTE[dwSize];
-		if (lpb == NULL)
-		{
-			return 0;
-		}
 
 		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
 		{
@@ -101,19 +97,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if ( key == SCAN_CODES::END || (key == SCAN_CODES::F4 && Input::GetInstance().GetKeyState(SCAN_CODES::ALT)))
 			{
 				// Check if not pressed up (case where HOLD f4 -> HOLD alt -> RELEASE f4)
-				if (inputData.Flags == RI_KEY_BREAK)
+				if (inputData.Flags != RI_KEY_BREAK)
 				{
-					return 0;
+					// UnSet alt
+					Input::GetInstance().SetKeyState(SCAN_CODES::ALT, false);
+
+					// Quit
+					programRunning = false;
+					DestroyWindow(hWnd);
 				}
-
-				// UnSet alt
-				Input::GetInstance().SetKeyState(SCAN_CODES::ALT, false);
-
-				// Quit
-				programRunning = false;
-				DestroyWindow(hWnd);
-
-				return 0;
 			}
 
 			Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));

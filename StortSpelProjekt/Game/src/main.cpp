@@ -15,6 +15,7 @@
 #include "MainMenuHandler.h"
 #include "GameOverHandler.h"
 #include "PauseGUI.h"
+#include "GameTracker.h"
 
 #include "Misc/Edge.h"
 
@@ -29,6 +30,8 @@ void ShopInitScene(Scene* scene);
 void ParticleInit();
 void GameUpdateScene(SceneManager* sm, double dt);
 void ShopUpdateScene(SceneManager* sm, double dt);
+
+GameTracker gametracker;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -71,8 +74,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     /*-------- UpgradeGUI ---------*/
     PauseGUI::GetInstance().Init();
 
-    /*------ Network Init -----*/
+    /*------- Game Tracker -------*/
+    if (std::stoi(Option::GetInstance().GetVariable("i_trackGame")) == 1)
+    {
+        gametracker.Init();
+    }
 
+    /*------ Network Init -----*/
     if (std::atoi(option->GetVariable("i_network").c_str()) == 1)
     {
         gameNetwork.SetScene(sceneManager->GetActiveScene());
@@ -219,6 +227,8 @@ Scene* GameScene(SceneManager* sm)
 
     AudioBuffer* playerDash = al->LoadAudio(L"../Vendor/Resources/Audio/femaleDash.wav", L"PlayerDash");
     AudioBuffer* playerJump = al->LoadAudio(L"../Vendor/Resources/Audio/femaleJump.wav", L"PlayerJump");
+    AudioBuffer* playerWalk = al->LoadAudio(L"../Vendor/Resources/Audio/PlayerWalk.wav", L"PlayerWalk");
+    playerWalk->SetAudioLoop(0);
 	AudioBuffer* ambientSound = al->LoadAudio(L"../Vendor/Resources/Audio/dungeon.wav", L"Ambient");
 	ambientSound->SetAudioLoop(0);
 	AudioBuffer* music = al->LoadAudio(L"../Vendor/Resources/Audio/backgroundMusic.wav", L"Music");
@@ -291,8 +301,7 @@ Scene* GameScene(SceneManager* sm)
     melc = entity->AddComponent<component::MeleeComponent>();   // moved this down to set scale first
 
     mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
-    ac->Initialize();
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
 
     double3 playerDim = mc->GetModelDim();
 
@@ -311,6 +320,7 @@ Scene* GameScene(SceneManager* sm)
     avc->AddVoice(L"PlayerHit1");
     avc->AddVoice(L"PlayerDash");
     avc->AddVoice(L"PlayerJump");
+    avc->AddVoice(L"PlayerWalk");
 
     bbc->Init();
     bbc->AddCollisionCategory<PlayerCollisionCategory>();
@@ -332,8 +342,8 @@ Scene* GameScene(SceneManager* sm)
     zombie.aiFlags = 0;
     zombie.meleeAttackDmg = 30.0f;
     zombie.meleeAttackDmgBase = 30.0f;
-    zombie.attackInterval = 1.5f;
-    zombie.attackSpeed = 0.1f;
+    zombie.attackInterval = 0.5f;
+    zombie.attackSpeed = 1.0f;
     zombie.movementSpeed = 45.0f;
     zombie.rot = { 0.0, 0.0, 0.0 };
     zombie.targetName = "player";
@@ -389,7 +399,7 @@ Scene* GameScene(SceneManager* sm)
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
     rangedDemon.attackInterval = 0.5f;
-    rangedDemon.attackSpeed = 1.0f;
+    rangedDemon.attackSpeed = 1.5f;
     rangedDemon.movementSpeed = 30.0f;
     rangedDemon.targetName = "player";
     rangedDemon.scale = 0.08f;
@@ -699,6 +709,12 @@ Scene* ShopScene(SceneManager* sm)
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
 	AudioBuffer* music = al->LoadAudio(L"../Vendor/Resources/Audio/shopMusic.wav", L"ShopMusic");
+    AudioBuffer* gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/HelloThere.wav",L"HelloThere");
+    gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/WhatDoYouNeed.wav", L"WhatDoYouNeed");
+    gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/AhYouAgain.wav", L"AhYouAgain");
+    gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/WhatWillItBe.wav", L"WhatWillItBe");
+    gawblinSound = al->LoadAudio(L"../Vendor/Resources/Audio/Gawblin/IGotAllTheGoods.wav", L"IGotAllTheGoods");
+
 	music->SetAudioLoop(0);
 
 	Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
@@ -721,10 +737,10 @@ Scene* ShopScene(SceneManager* sm)
     avc->AddVoice(L"PlayerHit1");
     avc->AddVoice(L"PlayerDash");
     avc->AddVoice(L"PlayerJump");
+    avc->AddVoice(L"PlayerWalk");
 
     mc->SetModel(playerModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
-    ac->Initialize();
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
 
     tc->GetTransform()->SetScale(0.05f);
     tc->GetTransform()->SetPosition(0.0, 1.0, 0.0);
@@ -934,7 +950,12 @@ Scene* ShopScene(SceneManager* sm)
     /* ---------------------- Shop ---------------------- */
     entity = scene->AddEntity("shop");
     mc = entity->AddComponent<component::ModelComponent>();
-
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    avc->AddVoice(L"HelloThere");
+    avc->AddVoice(L"WhatDoYouNeed");
+    avc->AddVoice(L"AhYouAgain");
+    avc->AddVoice(L"WhatWillItBe");
+    avc->AddVoice(L"IGotAllTheGoods");
     mc->SetModel(shopModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
 
@@ -950,6 +971,14 @@ Scene* ShopScene(SceneManager* sm)
 
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
     bbc->Init();
+
+    entity = scene->GetEntity("Gawblin_0");
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    avc->AddVoice(L"HelloThere");
+    avc->AddVoice(L"WhatDoYouNeed");
+    avc->AddVoice(L"AhYouAgain");
+    avc->AddVoice(L"WhatWillItBe");
+    avc->AddVoice(L"IGotAllTheGoods");
     /* ---------------------- Shop ---------------------- */
 
     scene->SetCollisionEntities(Physics::GetInstance().GetCollisionEntities());

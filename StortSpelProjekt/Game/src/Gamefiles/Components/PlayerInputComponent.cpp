@@ -164,6 +164,19 @@ void component::PlayerInputComponent::Update(double dt)
 
 void component::PlayerInputComponent::RenderUpdate(double dt)
 {
+	// This code is for running the correct animation (Movement animation or Idle animation) 
+	if (m_MovementStateChanged)
+	{
+		if (m_WasMoving)
+		{
+			m_MovementStateChanged = !m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Run", true);
+		}
+		else
+		{
+			m_MovementStateChanged = !m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Idle", true);
+		}
+	}
+	
 	// TODO: since it is constant, only calculate this once.
 	// As of writing this, crashes if run on OnInit()
 	m_Height = (m_pParent->GetComponent<component::ModelComponent>()->GetModelDim().y * m_pTransform->GetScale().y * 0.5) + 1.0;
@@ -402,6 +415,23 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		double moveForward = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::W)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::S)));
 		bool dash = (evnt->key == SCAN_CODES::LEFT_SHIFT || evnt->key == SCAN_CODES::RIGHT_SHIFT) && evnt->pressed;
 
+		if (!m_Dashing && !m_Jump)
+		{
+			m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerWalk");
+		}
+
+		// This code is used to know if the animation should be changed to the move animation or the idle animation
+		unsigned char isMoving = 
+										abs(	Input::GetInstance().GetKeyState(SCAN_CODES::W) -
+												Input::GetInstance().GetKeyState(SCAN_CODES::S)) +
+										abs(	Input::GetInstance().GetKeyState(SCAN_CODES::A) -
+												Input::GetInstance().GetKeyState(SCAN_CODES::D));
+		if ((!isMoving && m_WasMoving) || (!m_WasMoving && isMoving))
+		{
+			m_WasMoving = isMoving;
+			m_MovementStateChanged = true;
+		}
+
 		double jump = static_cast<double>(evnt->key == SCAN_CODES::SPACE) * static_cast<double>(evnt->pressed);
 		if (jump == 1.0)
 		{
@@ -427,6 +457,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		// If player is moving, turn in the direction of movement
 		if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON)
 		{
+
 			double angle = std::atan2(m_pTransform->GetInvDir() * move.x, m_pTransform->GetInvDir() * move.z);
 			double forwardAngle = std::atan2(m_pTransform->GetInvDir() * forward.x, m_pTransform->GetInvDir() * forward.z);
 			if (m_Attacking || m_TurnToCamera)
@@ -438,8 +469,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		}
 		else
 		{
-			double angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
-			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
+			m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Stop(L"PlayerWalk");
 		}
 
 		// Check if the player is moving in the direction she is turned. If not, lower the movement speed
@@ -499,6 +529,7 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 
 			if (m_pParent->GetComponent<component::Audio2DVoiceComponent>())
 			{
+				m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Stop(L"PlayerWalk");
 				m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerDash");
 			}
 		}
@@ -639,6 +670,7 @@ void component::PlayerInputComponent::updateDefault(double dt)
 		m_pCC->SetGravity(m_Gravity);
 		if (m_Jump)
 		{
+			m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Stop(L"PlayerWalk");
 			m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerJump");
 			m_Jump = false;
 		}
@@ -674,17 +706,21 @@ void component::PlayerInputComponent::updateDash(double dt)
 		move.normalize();
 
 		float speed = m_pTransform->GetVelocity();
-		if ((std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON) && (m_Attacking || m_TurnToCamera))
+		if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON)
 		{
-			// Check if the player is moving in the direction she is turned. If not, lower the movement speed
-			float3 playerDir = m_pTransform->GetForwardFloat3();
-			float3 moveDir = { move.x, 0.0, move.z };
-			moveDir.normalize();
-			playerDir.normalize();
+			if (m_Attacking || m_TurnToCamera)
+			{
+				// Check if the player is moving in the direction she is turned. If not, lower the movement speed
+				float3 playerDir = m_pTransform->GetForwardFloat3();
+				float3 moveDir = { move.x, 0.0, move.z };
+				moveDir.normalize();
+				playerDir.normalize();
 
-			float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
+				float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
 
-			speed *= (1.0f - (moveDif / (180.0f / SLOWDOWN_FACTOR)));
+				speed *= (1.0f - (moveDif / (180.0f / SLOWDOWN_FACTOR)));
+			}
+			m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerWalk");
 		}
 
 		vel = {
@@ -730,17 +766,21 @@ void component::PlayerInputComponent::updateJump(double dt)
 		move.normalize();
 
 		float speed = m_pTransform->GetVelocity();
-		if ((std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON) && (m_Attacking || m_TurnToCamera))
+		if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON)
 		{
-			// Check if the player is moving in the direction she is turned. If not, lower the movement speed
-			float3 playerDir = m_pTransform->GetForwardFloat3();
-			float3 moveDir = { move.x, 0.0, move.z };
-			moveDir.normalize();
-			playerDir.normalize();
+			if (m_Attacking || m_TurnToCamera)
+			{
+				// Check if the player is moving in the direction she is turned. If not, lower the movement speed
+				float3 playerDir = m_pTransform->GetForwardFloat3();
+				float3 moveDir = { move.x, 0.0, move.z };
+				moveDir.normalize();
+				playerDir.normalize();
 
-			float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
+				float moveDif = EngineMath::convertToDegrees(moveDir.angle(playerDir));
 
-			speed *= (1.0f - (moveDif / (180.0f / SLOWDOWN_FACTOR)));
+				speed *= (1.0f - (moveDif / (180.0f / SLOWDOWN_FACTOR)));
+			}
+			m_pParent->GetComponent<component::Audio2DVoiceComponent>()->Play(L"PlayerWalk");
 		}
 
 		double3 vel = {

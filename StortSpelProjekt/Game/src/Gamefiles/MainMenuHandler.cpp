@@ -551,8 +551,8 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     t->SetRotationY(PI);
     t->SetRotationZ(0.0);
     tc->SetTransformOriginalState();
-
-
+    
+    
     double rad = playerDim.z / 2.0;
     double cylHeight = playerDim.y - (rad * 2.0);
     component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
@@ -600,8 +600,8 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
         t->SetRotationY(PI);
         t->SetRotationZ(0.0);
         tc->SetTransformOriginalState();
-
-
+    
+    
         double rad = enemyDim.z / 2.0;
         double cylHeight = enemyDim.y - (rad * 2.0);
         component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
@@ -907,7 +907,7 @@ void MainMenuUpdateScene(SceneManager* sm, double dt)
         float3 pos = trans->GetPositionFloat3();
         trans->SetPosition({ pos.x, std::sin(rotValue + i), pos.z });
     }
-
+    
     rotValue += dt;
 
     Input::GetInstance().RegisterControllers();

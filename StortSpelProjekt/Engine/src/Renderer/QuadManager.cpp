@@ -348,6 +348,7 @@ void QuadManager::deleteQuadData()
 			{
 				delete m_TrashBuffer.at(i);
 			}
+			Log::Print("Deleting Trash buffer in QuadManager\n");
 			m_TrashBuffer.clear();
 		}
 
