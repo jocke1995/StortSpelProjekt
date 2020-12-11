@@ -15,8 +15,14 @@
 #include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/DepthStencil.h"
 #include "../GPUMemory/DepthStencilView.h"
+#include "../GPUMemory/ShaderResourceView.h"
 
-FowardRenderTask::FowardRenderTask(
+
+// ECS
+#include "../ECS/Entity.h"
+#include "../ECS//Components/AnimationComponent.h"
+
+ForwardRenderTask::ForwardRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
 	const std::wstring& VSName, const std::wstring& PSName,
@@ -28,11 +34,11 @@ FowardRenderTask::FowardRenderTask(
 	
 }
 
-FowardRenderTask::~FowardRenderTask()
+ForwardRenderTask::~ForwardRenderTask()
 {
 }
 
-void FowardRenderTask::Execute()
+void ForwardRenderTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
 	ID3D12GraphicsCommandList5* commandList = m_pCommandInterface->GetCommandList(m_CommandInterfaceIndex);
@@ -101,7 +107,6 @@ void FowardRenderTask::Execute()
 	commandList->SetPipelineState(m_PipelineStates[0]->GetPSO());
 	for (int i = 0; i < m_RenderComponents.size(); i++)
 	{
-		
 		component::ModelComponent* mc = m_RenderComponents.at(i).first;
 		component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
@@ -133,29 +138,60 @@ void FowardRenderTask::Execute()
 	commandList->Close();
 }
 
-void FowardRenderTask::drawRenderComponent(
+void ForwardRenderTask::drawRenderComponent(
 	component::ModelComponent* mc,
 	component::TransformComponent* tc,
 	const DirectX::XMMATRIX* viewProjTransposed,
 	ID3D12GraphicsCommandList5* cl)
 {
-	// Draw for every m_pMesh the meshComponent has
-	for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+	// Bad solution, but need to get it working fast
+	component::AnimationComponent* ac = mc->GetParent()->GetComponent<component::AnimationComponent>();
+	if (ac != nullptr)	// Its to be animated! 
 	{
-		Mesh* m = mc->GetMeshAt(i);
-		size_t num_Indices = m->GetNumIndices();
-		const SlotInfo* info = mc->GetSlotInfoAt(i);
+		// Draw for every m_pMesh the meshComponent has
+		for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+		{
+			Mesh* m = mc->GetMeshAt(i);
+			size_t num_Indices = m->GetNumIndices();
+			const SlotInfo* info = mc->GetSlotInfoAt(i);
+			SlotInfo tempInfo = *info;
 
-		Transform* transform = tc->GetTransform();
-		DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-		DirectX::XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
+			tempInfo.vertexDataIndex = ac->m_SRVs[i]->GetDescriptorHeapIndex();
 
-		// Create a CB_PER_OBJECT struct
-		CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
+			Transform* transform = tc->GetTransform();
+			DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+			DirectX::XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
 
-		cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+			// Create a CB_PER_OBJECT struct
+			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, tempInfo };
 
-		cl->IASetIndexBuffer(m->GetIndexBufferView());
-		cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+			cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+
+			cl->IASetIndexBuffer(m->GetIndexBufferView());
+			cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+		}
+	}
+	// Not animated drawing
+	else
+	{
+		// Draw for every m_pMesh the meshComponent has
+		for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+		{
+			Mesh* m = mc->GetMeshAt(i);
+			size_t num_Indices = m->GetNumIndices();
+			const SlotInfo* info = mc->GetSlotInfoAt(i);
+
+			Transform* transform = tc->GetTransform();
+			DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+			DirectX::XMMATRIX WVPTransposed = (*viewProjTransposed) * (*WTransposed);
+
+			// Create a CB_PER_OBJECT struct
+			CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
+
+			cl->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+
+			cl->IASetIndexBuffer(m->GetIndexBufferView());
+			cl->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+		}
 	}
 }

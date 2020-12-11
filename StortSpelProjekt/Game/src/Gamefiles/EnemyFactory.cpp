@@ -174,6 +174,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	Entity* ent = m_pScene->AddEntity(entityName);
 
 	component::ModelComponent* mc = nullptr;
+	component::AnimationComponent* ac = nullptr;
 	component::TransformComponent* tc = nullptr;
 	component::BoundingBoxComponent* bbc = nullptr;
 	component::CollisionComponent* cc = nullptr;
@@ -184,6 +185,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	component::ProgressBarComponent* pc = nullptr;
 
 	mc = ent->AddComponent<component::ModelComponent>();
+	ac = ent->AddComponent<component::AnimationComponent>();
 	tc = ent->AddComponent<component::TransformComponent>(comps->invertDirection);
 	ent->AddComponent<component::HealthComponent>(comps->hp);
 	ec = ent->AddComponent<component::EnemyComponent>(this);
@@ -230,7 +232,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	}
 
 	mc->SetModel(comps->model);
-	mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+	mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
 	Transform* t = tc->GetTransform();
 	t->SetPosition(comps->pos.x, comps->pos.y, comps->pos.z);
 	t->SetScale(comps->scale);

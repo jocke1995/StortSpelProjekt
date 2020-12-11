@@ -549,8 +549,8 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     t->SetRotationY(PI);
     t->SetRotationZ(0.0);
     tc->SetTransformOriginalState();
-
-
+    
+    
     double rad = playerDim.z / 2.0;
     double cylHeight = playerDim.y - (rad * 2.0);
     component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);

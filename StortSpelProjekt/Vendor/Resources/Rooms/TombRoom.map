@@ -49,6 +49,7 @@ ModelLightPosition 21.0, 18.0, 79.0
 ModelLightColor 1.0, 0.24, 0.8
 ModelLightIntensity 10
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit PointLight
 Submit ParticleEffect
@@ -110,6 +111,7 @@ ModelLightPosition 79.0, 18.0, -28.0
 ModelLightColor 1.0, 0.24, 0.8
 ModelLightIntensity 10
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit PointLight
 AddToEdge 1
@@ -168,6 +170,7 @@ ModelLightPosition 57.0, 18.0, -56.0
 ModelLightColor 1.0, 0.24, 0.8
 ModelLightIntensity 10
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit PointLight
 AddToEdge 2
@@ -240,6 +243,7 @@ ModelLightPosition -79.0, 18.0, -20.0
 ModelLightColor 1.0, 0.24, 0.8
 ModelLightIntensity 10
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit PointLight
 AddToEdge 4
@@ -447,8 +451,11 @@ ModelLightPosition 0.0, 53.0, 0.0
 ModelLightDirection 0.00001, -1.0, 0.00001
 ModelLightColor 1.0, 0.21, 0.78
 ModelLightIntensity 6.86
+ModelLightFlickerRate 0.1
+ModelLightFlickerAmplitude 0.1
 ModelLightFlag 0,0
 ModelLightFlag 1,1
+ModelLightFlag 3,1
 ModelLightAttenuation 1.0, 0.027, 0.0028
 ModelLightNear 10.0
 ModelLightFar 1000.0
@@ -465,6 +472,10 @@ ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
+
+// ------ Reset
+ModelLightFlickerRate 0.15
+ModelLightFlickerAmplitude 0.12
 
 // SKYBOX ----------------------------------------------
 Name Skybox

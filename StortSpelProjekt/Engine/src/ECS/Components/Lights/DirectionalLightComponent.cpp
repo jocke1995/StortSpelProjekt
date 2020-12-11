@@ -30,6 +30,8 @@ namespace component
 			m_pCamera->Update(dt);
 			m_pDirectionalLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
 		}
+
+		flicker(dt);
 	}
 
 	void DirectionalLightComponent::OnInitScene()

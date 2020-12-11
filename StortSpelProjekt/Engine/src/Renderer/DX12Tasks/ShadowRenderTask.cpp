@@ -12,6 +12,9 @@
 #include "../Renderer/Transform.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Camera/BaseCamera.h"
+#include "../ECS/Components/AnimationComponent.h"
+#include "../ECS/Entity.h"
+#include "../Renderer/GPUMemory/ShaderResourceView.h"
 
 ShadowRenderTask::ShadowRenderTask(
 	ID3D12Device5* device,
@@ -98,23 +101,49 @@ void ShadowRenderTask::Execute()
 			component::ModelComponent* mc = m_RenderComponents.at(i).first;
 			component::TransformComponent* tc = m_RenderComponents.at(i).second;
 
-			// Draw for every m_pMesh the meshComponent has
-			for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+			// Bad solution, but need to get it working fast
+			component::AnimationComponent* ac = mc->GetParent()->GetComponent<component::AnimationComponent>();
+			if (ac != nullptr)	// Its to be animated! 
 			{
-				size_t num_Indices = mc->GetMeshAt(i)->GetNumIndices();
-				const SlotInfo* info = mc->GetSlotInfoAt(i);
+				for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+				{
+					size_t num_Indices = mc->GetMeshAt(i)->GetNumIndices();
+					const SlotInfo* info = mc->GetSlotInfoAt(i);
+					SlotInfo tempInfo = *info;
+					tempInfo.vertexDataIndex = ac->m_SRVs[i]->GetDescriptorHeapIndex();
 
-				Transform* transform = tc->GetTransform();
-				DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
-				DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+					Transform* transform = tc->GetTransform();
+					DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+					DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
 
-				// Create a CB_PER_OBJECT struct
-				CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
+					// Create a CB_PER_OBJECT struct
+					CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, tempInfo };
 
-				commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+					commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-				commandList->IASetIndexBuffer(mc->GetMeshAt(i)->GetIndexBufferView());
-				commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+					commandList->IASetIndexBuffer(mc->GetMeshAt(i)->GetIndexBufferView());
+					commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+				}
+			}
+			else
+			{
+				for (unsigned int i = 0; i < mc->GetNrOfMeshes(); i++)
+				{
+					size_t num_Indices = mc->GetMeshAt(i)->GetNumIndices();
+					const SlotInfo* info = mc->GetSlotInfoAt(i);
+
+					Transform* transform = tc->GetTransform();
+					DirectX::XMMATRIX* WTransposed = transform->GetWorldMatrixTransposed();
+					DirectX::XMMATRIX WVPTransposed = (*viewProjMatTrans) * (*WTransposed);
+
+					// Create a CB_PER_OBJECT struct
+					CB_PER_OBJECT_STRUCT perObject = { *WTransposed, WVPTransposed, *info };
+
+					commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+
+					commandList->IASetIndexBuffer(mc->GetMeshAt(i)->GetIndexBufferView());
+					commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+				}
 			}
 		}
 

@@ -282,6 +282,7 @@ Name BuildingBraizerLight1
 ModelLightPosition -78.0, 8.0, 75.0
 ModelLightColor 8.86, 3.45, 1.33
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.01, 0.4, 0.01
 Submit PointLight
 
@@ -311,6 +312,7 @@ Name BuildingBraizerLight2
 ModelLightPosition -135.0, 8.0, 23.0
 ModelLightColor 8.86, 3.45, 1.33
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.01, 0.4, 0.01
 Submit PointLight
 
@@ -340,6 +342,7 @@ Name GateBraizerLight2
 ModelLightPosition 113.0, 5.0, -8.0
 ModelLightColor 8.86, 3.45, 1.33
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 0.01, 0.4, 0.01
 Submit PointLight
 
