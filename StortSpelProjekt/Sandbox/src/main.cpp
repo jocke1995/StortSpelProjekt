@@ -751,25 +751,28 @@ Scene* FloppipTestScene(SceneManager* sm)
     // Create particleEffect
     ParticleEffectSettings settings = {};
     // Important settings
-    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/melee_hit.png"));
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/shrapnel_particle.png"));
     settings.texture = particleTexture;
-    settings.maxParticleCount = 1;
-    settings.spawnInterval = 0.000001;
+    settings.maxParticleCount = 50;
+    settings.spawnInterval = 0.001;
     settings.isLooping = true;
+
+    float m_Radius = 20;
 
     // Start values
     settings.startValues.position = { 0, 3.0, 0 };
-    settings.startValues.lifetime = 0.5;
-    settings.startValues.size = 1;
+    settings.endValues.acceleration = { 0, 0, 0 };
+    settings.startValues.lifetime = 1.0;
+    settings.startValues.size = 0.4f * m_Radius / 10.0f;
 
     // End values
-    settings.endValues.size = 2;
+    settings.endValues.size = 0;
     settings.endValues.color.a = 1;
 
     // Randomize values
-    settings.randPosition = { 0, 0, 0, 0, 0, 0 };
-    settings.randVelocity = { -1, 1, 5, 9, -1, 1 };
-    settings.randSize = { 1.5, 2.0 };
+    settings.randPosition = { 0,0,0,0,0,0 };
+    settings.randVelocity = { -m_Radius, m_Radius, -m_Radius, m_Radius, -m_Radius, m_Radius };
+    settings.randSize = { -0.2f * m_Radius / 10.0f, 0 };
     settings.randRotation = { 0, 2 * PI };
     settings.randRotationSpeed = { -PI/2, PI/2 };
 
