@@ -1165,6 +1165,12 @@ void Renderer::OnResetScene()
 	m_TextComponents.clear();
 }
 
+// tempHideGUI
+bool Renderer::IsGUIHidden()
+{
+	return m_HideGUI;
+}
+
 void Renderer::submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
 {
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
@@ -1285,6 +1291,11 @@ Scene* const Renderer::GetActiveScene() const
 Window* const Renderer::GetWindow() const
 {
 	return m_pWindow;
+}
+
+void Renderer::hideGUI(bool hide)
+{
+	m_HideGUI = hide;
 }
 
 void Renderer::setRenderTasksPrimaryCamera()

@@ -16,6 +16,9 @@
 #include "../../ECS/Components/GUI2DComponent.h"
 #include "../../Renderer/QuadManager.h"
 
+// tempHideGUI
+#include "../../Renderer/Renderer.h"
+
 QuadTask::QuadTask(ID3D12Device5* device,
 	RootSignature* rootSignature,
 	const std::wstring& VSName, const std::wstring& PSName,
@@ -74,7 +77,11 @@ void QuadTask::Execute()
 	commandList->RSSetViewports(1, swapChainRenderTarget->GetRenderView()->GetViewPort());
 	commandList->RSSetScissorRects(1, swapChainRenderTarget->GetRenderView()->GetScissorRect());
 
-	draw(commandList);
+	// tempHideGUI
+	if (!Renderer::GetInstance().IsGUIHidden())
+	{
+		draw(commandList);
+	}
 
 	// Change state on front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
@@ -112,7 +119,7 @@ void QuadTask::draw(ID3D12GraphicsCommandList5* commandList)
 		CB_PER_OBJECT_STRUCT perObject = { world, id, *info };
 
 		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
-		commandList->IASetIndexBuffer(qm->GetQuad()->GetIndexBufferView());
+		commandList->IASetIndexBuffer(qm->GetQuad()->GetIndexBufferView());	
 		commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
 	}
 }

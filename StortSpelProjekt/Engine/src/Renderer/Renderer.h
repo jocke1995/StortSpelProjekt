@@ -138,6 +138,9 @@ public:
 
 	void OnResetScene();
 
+	// tempHideGUI
+	bool IsGUIHidden();
+
 private:
 	friend class Engine;
 	friend class component::SkyboxComponent;
@@ -149,6 +152,7 @@ private:
 	friend class ParticleSystem;
 	friend class ParticleEffect;
 	friend class ImGuiHandler;
+
 	Renderer();
 
 	// For control of safe release of DirectX resources
@@ -246,6 +250,10 @@ private:
 	HANDLE m_EventHandle = nullptr;
 	ID3D12Fence1* m_pFenceFrame = nullptr;
 	UINT64 m_FenceFrameValue = 0;
+
+	// tempHideGUI
+	bool m_HideGUI = false;
+	void hideGUI(bool hide);
 
 	void setRenderTasksPrimaryCamera();
 	bool createDevice();

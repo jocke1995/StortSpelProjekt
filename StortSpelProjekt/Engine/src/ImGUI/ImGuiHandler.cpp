@@ -419,6 +419,15 @@ void ImGuiHandler::ExecCommand(const char* command_line)
         Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetMaxHealth(1000000);
         Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetHealth(1000000);
     }
+	// tempHideGUI
+	else if (Stricmp(command.c_str(), "GUION") == 0)
+	{
+		Renderer::GetInstance().hideGUI(false);
+	}
+	else if (Stricmp(command.c_str(), "GUIOFF") == 0)
+	{
+		Renderer::GetInstance().hideGUI(true);
+	}
     else if (Stricmp(command.c_str(), "KILLPLAYER") == 0)
     {
         Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetHealth(0);
