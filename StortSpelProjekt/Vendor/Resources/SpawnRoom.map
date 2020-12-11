@@ -345,16 +345,20 @@ ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
-ParticleTexturePath Textures/Particles/fire_particle0.png
-ParticleCount 70
-ParticleStartPosition 0.0, 4.0, 0.0
-ParticleSpawnInterval 0.025
-ParticleStartAcceleration 0.0, -1.0, 0.0
-ParticleStartLifetime 0.5
-ParticleRandPosition -7.5, 7.5, 0, 1, -7.5, 7.5
-ParticleRandVelocity -1, 1, 2, 4, -1, 1
-ParticleRandSize 1.0, 1.5
+ParticleTexturePath Textures/Particles/fire_particle2.png
+ParticleCount 23
+ParticleStartPosition 0.0, 2.0, 0.0
+ParticleSpawnInterval 0.06
+ParticleStartAcceleration 0.0, -3.0, 0.0
+ParticleStartLifetime 0.7
+ParticleRandPosition -1, 1, 0, 0, -1, 1
+ParticleRandVelocity -1, 1, 5, 9, -1, 1
+ParticleRandSize -0.5, 0.5
 ParticleRandRotationSpeed 0, 3
+ParticleStartColor 1,1,1,0.8
+ParticleStartSize 3
+ParticleEndColor 0,0,0,0.3
+ParticleEndSize 3.5
 ParticlePlayOnInit 1
 Submit ParticleEffect
 Submit Model

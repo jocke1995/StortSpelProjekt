@@ -810,11 +810,26 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 			{
 				fscanf(file, "%f", &particleSettings.startValues.lifetime);
 			}
-			// TODO
-			/*else if (strcmp(lineHeader.c_str(), "ParticleStartColor") == 0)
+			else if (strcmp(lineHeader.c_str(), "ParticleStartColor") == 0)
 			{
-				fscanf(file, "%f,%f,%f", &particleStartValues.color.z, &particleStartValues.color.y, &particleStartValues.color.z);
-			}*/
+				fscanf(file, "%f,%f,%f,%f", &particleSettings.startValues.color.x, &particleSettings.startValues.color.y, &particleSettings.startValues.color.z, &particleSettings.startValues.color.w);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleEndPosition") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &particleSettings.endValues.position.x, &particleSettings.endValues.position.y, &particleSettings.endValues.position.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleEndVelocity") == 0)
+			{
+				fscanf(file, "%f,%f,%f", &particleSettings.endValues.velocity.x, &particleSettings.endValues.velocity.y, &particleSettings.endValues.velocity.z);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleEndSize") == 0)
+			{
+				fscanf(file, "%f", &particleSettings.endValues.size);
+			}
+			else if (strcmp(lineHeader.c_str(), "ParticleEndColor") == 0)
+			{
+				fscanf(file, "%f,%f,%f,%f", &particleSettings.endValues.color.x, &particleSettings.endValues.color.y, &particleSettings.endValues.color.z, &particleSettings.endValues.color.w);
+			}
 			else if (strcmp(lineHeader.c_str(), "ParticleRandPosition") == 0)
 			{
 				fscanf(file, "%f,%f,%f,%f,%f,%f", &particleSettings.randPosition.x.intervalLower, &particleSettings.randPosition.x.intervalUpper, &particleSettings.randPosition.y.intervalLower, &particleSettings.randPosition.y.intervalUpper, &particleSettings.randPosition.z.intervalLower, &particleSettings.randPosition.z.intervalUpper);

@@ -71,6 +71,8 @@ ParticleRandPosition -1, 1, 0, 0, -1, 1
 ParticleRandVelocity -2, 2, 5, 9, -2, 2 
 ParticleRandSize -0.3, 0.3
 ParticleRandRotationSpeed 0, 3
+ParticleEndColor 0, 0, 0, 0
+ParticleEndSize 2.5
 ParticlePlayOnInit 1
 Submit ParticleEffect
 Submit Model
@@ -170,6 +172,8 @@ ParticleRandPosition -1, 1, 0, 0, -1, 1
 ParticleRandVelocity -2, 2, 5, 9, -2, 2
 ParticleRandSize -0.3, 0.3
 ParticleRandRotationSpeed 0, 3
+ParticleEndColor 0, 0, 0, 0
+ParticleEndSize 2.5
 ParticlePlayOnInit 1
 Submit ParticleEffect
 Submit Model
@@ -388,7 +392,7 @@ ParticleStartPosition 0.0, 4.0, 0.0
 ParticleSpawnInterval 0.025
 ParticleStartLifetime 0.5
 ParticleRandPosition -7.5, 7.5, 0, 1, -7.5, 7.5
-ParticleRandVelocity -1,1,2,4,-1,1
+ParticleRandVelocity -1,1,4,6,-1,1
 ParticleRandSize 1.0, 1.5
 ParticleRandRotationSpeed 0, 3
 ParticlePlayOnInit 1
