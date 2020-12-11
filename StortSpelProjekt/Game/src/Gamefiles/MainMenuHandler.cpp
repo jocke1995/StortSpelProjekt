@@ -540,6 +540,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     Texture* optionsTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Options.png");
     Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Exit.png");
 	Texture* background = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Background.png");
+	Texture* title = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/title.png");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Player/AnimatedPlayer.fbx");
 
     AudioBuffer* menuSound = al->LoadAudio(L"../Vendor/Resources/Audio/Menu.wav", L"MenuMusic");
@@ -585,6 +586,18 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
 		notBlended,
 		background);
 
+	// Title
+	entity = scene->AddEntity("Title");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("title",
+		{ 0.08f, 0.05f },
+		{ (float)title->GetWidth() / 1920.0f / 1.15f, (float)title->GetHeight() / 1080.0f / 1.2f},
+		false,
+		false,
+		1,
+		{ 1.0,1.0,1.0,1.0 },
+		title);
+
 	// Skybox
 	entity = scene->AddEntity("skybox");
 	component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
@@ -595,17 +608,17 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
 
 	entity = scene->AddEntity("StartOption");
 	guic = entity->AddComponent<component::GUI2DComponent>();
-	guic->GetQuadManager()->CreateQuad("StartOption", { 0.1f, 0.1f }, { startTex->GetWidth() / 1920.0f, startTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, startTex);
+	guic->GetQuadManager()->CreateQuad("StartOption", { 0.1f, 0.35f }, { startTex->GetWidth() / 1920.0f, startTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, startTex);
 	guic->GetQuadManager()->SetOnClicked(&onStart);
 
 	entity = scene->AddEntity("OptionsOption");
 	guic = entity->AddComponent<component::GUI2DComponent>();
-	guic->GetQuadManager()->CreateQuad("OptionsOption", { 0.1f, 0.25f }, { optionsTex->GetWidth() / 1920.0f, optionsTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, optionsTex);
+	guic->GetQuadManager()->CreateQuad("OptionsOption", { 0.1f, 0.5f }, { optionsTex->GetWidth() / 1920.0f, optionsTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, optionsTex);
 	guic->GetQuadManager()->SetOnClicked(&onOptions);
 
 	entity = scene->AddEntity("ExitOption");
 	guic = entity->AddComponent<component::GUI2DComponent>();
-	guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.4f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, exitTex);
+	guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.65f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, exitTex);
 	guic->GetQuadManager()->SetOnClicked(&onExit);
 
 	//std::vector<Model*> enemyModels;
