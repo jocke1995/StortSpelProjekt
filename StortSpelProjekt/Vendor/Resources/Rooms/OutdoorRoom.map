@@ -184,6 +184,7 @@ ModelLightPosition 20.0, 6.0, 23.0
 ModelLightColor 1.0, 0.27, 0.0
 ModelLightIntensity 20
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit PointLight
 Submit ParticleEffect
@@ -218,6 +219,7 @@ ModelLightPosition -20.0, 6.0, -23.0
 ModelLightColor 1.0, 0.27, 0.0
 ModelLightIntensity 20
 ModelLightFlag 0,0
+ModelLightFlag 3,1
 ModelLightAttenuation 1.0, 0.22, 0.20
 Submit PointLight
 Submit ParticleEffect
@@ -361,6 +363,7 @@ Name moon
 ModelLightColor 0.5, 0.5, 0.7
 ModelLightIntensity 1.0
 ModelLightFlag 1,1
+ModelLightFlag 3,0
 ModelLightDirection 0.0, -0.75, 1.0
 ModelLightLeft -174.0
 ModelLightRight 174.0

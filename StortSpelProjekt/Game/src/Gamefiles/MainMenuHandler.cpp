@@ -65,6 +65,7 @@ void MainMenuHandler::createOptionScene()
 	Texture* music = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/music.png");
 	Texture* emptyBox = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/emptybox.png");
 	Texture* cross = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/cross.png");
+    Texture* background = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Background.png");
 
 	Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
@@ -77,6 +78,20 @@ void MainMenuHandler::createOptionScene()
     // Add a voice to the player to play some music.
     vc = entity->AddComponent<component::Audio2DVoiceComponent>();
     vc->AddVoice(L"MenuMusic");
+
+    // Background
+    entity = m_pOptionScene->AddEntity("OptionsBackground");
+    float2 quadPos = { 0.0f, 0.0f };
+    float2 quadScale = { 1.0f, 1.0f };
+    float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad(
+        "OptionsBackground",
+        quadPos, quadScale,
+        false, false,
+        0,
+        notBlended,
+        background);
 
     // Skybox
     entity = m_pOptionScene->AddEntity("skybox");
@@ -92,7 +107,7 @@ void MainMenuHandler::createOptionScene()
         { (float)resolution->GetWidth() / 1920.0f, (float)resolution->GetHeight() / 1080.0f },
         false,
         false,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         resolution);
     entity = m_pOptionScene->AddEntity("1444p");
@@ -102,7 +117,7 @@ void MainMenuHandler::createOptionScene()
         { (float)res1440p->GetWidth() / 1920.0f, (float)res1440p->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         res1440p);
     guic->GetQuadManager()->SetOnClicked(&on2560x1440);
@@ -113,7 +128,7 @@ void MainMenuHandler::createOptionScene()
         { (float)res1080p->GetWidth() / 1920.0f, (float)res1080p->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         res1080p);
     guic->GetQuadManager()->SetOnClicked(&on1920x1080);
@@ -124,7 +139,7 @@ void MainMenuHandler::createOptionScene()
         { (float)res720p->GetWidth() / 1920.0f, (float)res720p->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         res720p);
     guic->GetQuadManager()->SetOnClicked(&on1280x720);
@@ -139,10 +154,10 @@ void MainMenuHandler::createOptionScene()
             { (float)res720p->GetWidth() / 1920.0f, (float)res720p->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     case 1080:
         guic->GetQuadManager()->CreateQuad("activeResolution",
@@ -150,21 +165,21 @@ void MainMenuHandler::createOptionScene()
             { (float)res1080p->GetWidth() / 1920.0f, (float)res1080p->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     case 1440:
-        guic->GetQuadManager()->CreateQuad("1444p",
+        guic->GetQuadManager()->CreateQuad("activeResolution",
             { 0.35f, 0.15f },
             { (float)res1440p->GetWidth() / 1920.0f, (float)res1440p->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     }
 
@@ -176,7 +191,7 @@ void MainMenuHandler::createOptionScene()
         { (float)fullscreen->GetWidth() / 1920.0f, (float)fullscreen->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         fullscreen);
     guic->GetQuadManager()->SetOnClicked(&onFullscreen);
@@ -188,7 +203,7 @@ void MainMenuHandler::createOptionScene()
         { (float)windowed->GetWidth() / 1920.0f, (float)windowed->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         windowed);
     guic->GetQuadManager()->SetOnClicked(&onWindowed);
@@ -203,10 +218,10 @@ void MainMenuHandler::createOptionScene()
             { (float)fullscreen->GetWidth() / 1920.0f, (float)fullscreen->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     case 0:
         guic->GetQuadManager()->CreateQuad("activeWindowmode",
@@ -214,10 +229,10 @@ void MainMenuHandler::createOptionScene()
             { (float)windowed->GetWidth() / 1920.0f, (float)windowed->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     }
 
@@ -229,7 +244,7 @@ void MainMenuHandler::createOptionScene()
         { (float)shadowQuality->GetWidth() / 1920.0f, (float)shadowQuality->GetHeight() / 1080.0f },
         false,
         false,
-        0,
+        2,
         { 1.0,1.0,1.0,1.0 },
         shadowQuality);
 
@@ -240,7 +255,7 @@ void MainMenuHandler::createOptionScene()
         { (float)lowShadowQuality->GetWidth() / 1920.0f, (float)lowShadowQuality->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         lowShadowQuality);
     guic->GetQuadManager()->SetOnClicked(&onLowShadowQuality);
@@ -251,7 +266,7 @@ void MainMenuHandler::createOptionScene()
         { (float)medShadowQuality->GetWidth() / 1920.0f, (float)medShadowQuality->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         medShadowQuality);
     guic->GetQuadManager()->SetOnClicked(&onMedShadowQuality);
@@ -262,7 +277,7 @@ void MainMenuHandler::createOptionScene()
         { (float)highShadowQuality->GetWidth() / 1920.0f, (float)highShadowQuality->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         highShadowQuality);
     guic->GetQuadManager()->SetOnClicked(&onHighShadowQuality);
@@ -277,10 +292,10 @@ void MainMenuHandler::createOptionScene()
             { (float)lowShadowQuality->GetWidth() / 1920.0f, (float)lowShadowQuality->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0,1.0,1.0,1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     case 1:
         guic->GetQuadManager()->CreateQuad("activeShadowQuality",
@@ -288,10 +303,10 @@ void MainMenuHandler::createOptionScene()
             { (float)medShadowQuality->GetWidth() / 1920.0f, (float)medShadowQuality->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     case 2:
         guic->GetQuadManager()->CreateQuad("activeShadowQuality",
@@ -299,10 +314,10 @@ void MainMenuHandler::createOptionScene()
             { (float)highShadowQuality->GetWidth() / 1920.0f, (float)highShadowQuality->GetHeight() / 1080.0f },
             false,
             false,
-            0,
+            1,
             { 1.0, 1.0, 1.0, 1.0 },
             nullptr,
-            { 0.0f, 1.0f, 0.0f });
+            { 0.30f, 0.20f, 0.25f });
         break;
     }
     /*-------------Volume--------------*/
@@ -313,7 +328,7 @@ void MainMenuHandler::createOptionScene()
         { (float)volume->GetWidth() / 1920.0f, (float)volume->GetHeight() / 1080.0f },
         false,
         false,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         volume);
 
@@ -324,7 +339,7 @@ void MainMenuHandler::createOptionScene()
         { (float)plus->GetWidth() / 1920.0f, (float)plus->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         plus);
     guic->GetQuadManager()->SetOnClicked(&onVolumePlus);
@@ -336,7 +351,7 @@ void MainMenuHandler::createOptionScene()
         { (float)minus->GetWidth() / 1920.0f, (float)minus->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         minus);
     guic->GetQuadManager()->SetOnClicked(&onVolumeMinus);
@@ -363,7 +378,7 @@ void MainMenuHandler::createOptionScene()
         "money",
         { 0.7f, 0.65f }, { 0.1f, 0.1f },
         false, false,
-        1,
+        2,
         { 1.0, 1.0, 1.0, 0.0 },
         nullptr
     );
@@ -375,7 +390,7 @@ void MainMenuHandler::createOptionScene()
 		{ (float)music->GetWidth() / 1920.0f / 1.8f, (float)music->GetHeight() / 1080.0f / 1.8f},
 		false,
 		false,
-		1,
+		2,
 		{ 1.0,1.0,1.0,1.0 },
 		music);
 
@@ -386,7 +401,7 @@ void MainMenuHandler::createOptionScene()
 		{ (float)emptyBox->GetWidth() / 1920.0f / 3.0f, (float)emptyBox->GetHeight() / 1080.0f / 3.0f },
 		true,
 		true,
-		1,
+		2,
 		{ 1.0,1.0,1.0,1.0 },
 		emptyBox);
 	guic->GetQuadManager()->SetOnClicked(&onBox);
@@ -404,7 +419,7 @@ void MainMenuHandler::createOptionScene()
 		{ (float)emptyBox->GetWidth() / 1920.0f / 3.0f, (float)emptyBox->GetHeight() / 1080.0f / 3.0f },
 		false,
 		false,
-		1,
+		2,
 		blended,
 		cross);
 
@@ -416,7 +431,7 @@ void MainMenuHandler::createOptionScene()
         { (float)mouseSensitivity->GetWidth() / 1920.0f, (float)mouseSensitivity->GetHeight() / 1080.0f },
         false,
         false,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         mouseSensitivity);
 
@@ -427,7 +442,7 @@ void MainMenuHandler::createOptionScene()
         { (float)plus->GetWidth() / 1920.0f, (float)plus->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         plus);
     guic->GetQuadManager()->SetOnClicked(&onMouseSensitivityPlus);
@@ -439,7 +454,7 @@ void MainMenuHandler::createOptionScene()
         { (float)minus->GetWidth() / 1920.0f, (float)minus->GetHeight() / 1080.0f },
         true,
         true,
-        1,
+        2,
         { 1.0,1.0,1.0,1.0 },
         minus);
     guic->GetQuadManager()->SetOnClicked(&onMouseSensitivityMinus);
@@ -481,7 +496,7 @@ void MainMenuHandler::createOptionScene()
         { (float)restart->GetWidth() / 1920.0f, (float)restart->GetHeight() / 1080.0f },
         false,
         false,
-        0,
+        2,
         { 1.0,1.0,1.0,1.0 },
         restart);
 
@@ -493,7 +508,7 @@ void MainMenuHandler::createOptionScene()
         { (float)exitTex->GetWidth() / 1920.0f, (float)exitTex->GetHeight() / 1080.0f },
         true,
         true,
-        0,
+        2,
         { 1.0,1.0,1.0,1.0 },
         exitTex);
     guic->GetQuadManager()->SetOnClicked(&onOptionBack);
@@ -524,6 +539,8 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     Texture* startTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Start.png");
     Texture* optionsTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Options.png");
     Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Exit.png");
+	Texture* background = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Background.png");
+	Texture* title = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/title.png");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Player/AnimatedPlayer.fbx");
 
     AudioBuffer* menuSound = al->LoadAudio(L"../Vendor/Resources/Audio/Menu.wav", L"MenuMusic");
@@ -548,62 +565,88 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     t->SetRotationY(PI);
     t->SetRotationZ(0.0);
     tc->SetTransformOriginalState();
-
-
+    
+    
     double rad = playerDim.z / 2.0;
     double cylHeight = playerDim.y - (rad * 2.0);
     component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
     cc->SetGravity(0.0);
 
-    // Skybox
-    entity = scene->AddEntity("skybox");
-    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
-    sbc->SetTexture(blackCubeMap);
+	// Background
+	entity = scene->AddEntity("background");
+	float2 quadPos = { 0.0f, 0.0f };
+	float2 quadScale = { 1.0f, 1.0f };
+	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+	component::GUI2DComponent* gui = entity->AddComponent<component::GUI2DComponent>();
+	gui->GetQuadManager()->CreateQuad(
+		"background",
+		quadPos, quadScale,
+		false, false,
+		0,
+		notBlended,
+		background);
 
-    // Since the target platform uses 1920 : 1080 ratio we use this same ratio for our texture sizes.
+	// Title
+	entity = scene->AddEntity("Title");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("title",
+		{ 0.08f, 0.05f },
+		{ (float)title->GetWidth() / 1920.0f / 1.15f, (float)title->GetHeight() / 1080.0f / 1.2f},
+		false,
+		false,
+		1,
+		{ 1.0,1.0,1.0,1.0 },
+		title);
 
-    entity = scene->AddEntity("StartOption");
-    guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("StartOption", { 0.1f, 0.1f }, { startTex->GetWidth() / 1920.0f, startTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, startTex);
-    guic->GetQuadManager()->SetOnClicked(&onStart);
+	// Skybox
+	entity = scene->AddEntity("skybox");
+	component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+	TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
+	sbc->SetTexture(blackCubeMap);
 
-    entity = scene->AddEntity("OptionsOption");
-    guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("OptionsOption", { 0.1f, 0.25f }, { optionsTex->GetWidth() / 1920.0f, optionsTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, optionsTex);
-    guic->GetQuadManager()->SetOnClicked(&onOptions);
+	// Since the target platform uses 1920 : 1080 ratio we use this same ratio for our texture sizes.
 
-    entity = scene->AddEntity("ExitOption");
-    guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.4f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 0, { 1.0,1.0,1.0,1.0 }, exitTex);
-    guic->GetQuadManager()->SetOnClicked(&onExit);
+	entity = scene->AddEntity("StartOption");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("StartOption", { 0.1f, 0.35f }, { startTex->GetWidth() / 1920.0f, startTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, startTex);
+	guic->GetQuadManager()->SetOnClicked(&onStart);
 
-    std::vector<Model*> enemyModels;
-    enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj"));
-    enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/AnimatedDemon.fbx"));
-    for (int i = 0; i < 20; ++i)
-    {
-        entity = scene->AddEntity("menuEnemy" + std::to_string(i));
-        component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
-        component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
-        int enemyModel = rand.Rand(0, enemyModels.size());
-        mc->SetModel(enemyModels.at(enemyModel));
-        mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-        double3 enemyDim = mc->GetModelDim();
-        Transform* t = tc->GetTransform();
-        t->SetPosition(rand.Randf(0.0, 20.0) - 10.0f, 0.0, rand.Randf(0.0, 20.0));
-        t->SetScale(2.0 / enemyDim.y);
-        t->SetRotationX(0.0);
-        t->SetRotationY(PI);
-        t->SetRotationZ(0.0);
-        tc->SetTransformOriginalState();
+	entity = scene->AddEntity("OptionsOption");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("OptionsOption", { 0.1f, 0.5f }, { optionsTex->GetWidth() / 1920.0f, optionsTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, optionsTex);
+	guic->GetQuadManager()->SetOnClicked(&onOptions);
 
+	entity = scene->AddEntity("ExitOption");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.65f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, exitTex);
+	guic->GetQuadManager()->SetOnClicked(&onExit);
 
-        double rad = enemyDim.z / 2.0;
-        double cylHeight = enemyDim.y - (rad * 2.0);
-        component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
-        cc->SetGravity(0.0);
-    }
+	//std::vector<Model*> enemyModels;
+	//enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj"));
+	//enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/AnimatedDemon.fbx"));
+    //for (int i = 0; i < 20; ++i)
+    //{
+    //    entity = scene->AddEntity("menuEnemy" + std::to_string(i));
+    //    component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
+    //    component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
+    //    int enemyModel = rand.Rand(0, enemyModels.size());
+    //    mc->SetModel(enemyModels.at(enemyModel));
+    //    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
+    //    double3 enemyDim = mc->GetModelDim();
+    //    Transform* t = tc->GetTransform();
+    //    t->SetPosition(rand.Randf(0.0, 20.0) - 10.0f, 0.0, rand.Randf(0.0, 20.0));
+    //    t->SetScale(2.0 / enemyDim.y);
+    //    t->SetRotationX(0.0);
+    //    t->SetRotationY(PI);
+    //    t->SetRotationZ(0.0);
+    //    tc->SetTransformOriginalState();
+	//
+	//
+    //    double rad = enemyDim.z / 2.0;
+    //    double cylHeight = enemyDim.y - (rad * 2.0);
+    //    component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
+    //    cc->SetGravity(0.0);
+    //}
     /* ----------------- Light ------------------- */
 
     entity = scene->AddEntity("SpotLight");
@@ -680,7 +723,7 @@ void on2560x1440(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void on1920x1080(const std::string& name)
@@ -700,7 +743,7 @@ void on1920x1080(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void on1280x720(const std::string& name)
@@ -720,7 +763,7 @@ void on1280x720(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void onFullscreen(const std::string& name)
@@ -736,7 +779,7 @@ void onFullscreen(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void onWindowed(const std::string& name)
@@ -752,7 +795,7 @@ void onWindowed(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void onLowShadowQuality(const std::string& name)
@@ -768,7 +811,7 @@ void onLowShadowQuality(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void onMedShadowQuality(const std::string& name)
@@ -784,7 +827,7 @@ void onMedShadowQuality(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void onHighShadowQuality(const std::string& name)
@@ -800,7 +843,7 @@ void onHighShadowQuality(const std::string& name)
         false,
         false,
         { 1.0, 1.0, 1.0, 1.0 },
-        { 0.0f, 1.0f, 0.0f });
+        { 0.30f, 0.20f, 0.25f });
 }
 
 void onVolumePlus(const std::string& name)
@@ -808,7 +851,7 @@ void onVolumePlus(const std::string& name)
     if (std::stof(Option::GetInstance().GetVariable("f_volume")) < 10)
     {
         std::ostringstream str;
-        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_volume")) + 0.1f;
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_volume")) + 0.1f;
         Option::GetInstance().SetVariable("f_volume", str.str());
 
         Option::GetInstance().WriteFile();
@@ -820,7 +863,7 @@ void onVolumeMinus(const std::string& name)
     if (std::stof(Option::GetInstance().GetVariable("f_volume")) > 0)
     {
         std::ostringstream str;
-        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_volume")) - 0.1f;
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_volume")) - 0.1f;
         Option::GetInstance().SetVariable("f_volume", str.str());
 
         Option::GetInstance().WriteFile();
@@ -857,12 +900,12 @@ void onMouseSensitivityPlus(const std::string& name)
         std::ostringstream str;
 
         // X
-        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) + 0.1f;
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) + 0.1f;
         Option::GetInstance().SetVariable("f_sensitivityX", str.str());
 
         // Y
         str.str("");
-        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityY")) + 0.1f;
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_sensitivityY")) + 0.1f;
         Option::GetInstance().SetVariable("f_sensitivityY", str.str());
 
         Option::GetInstance().WriteFile();
@@ -876,12 +919,12 @@ void onMouseSensitivityMinus(const std::string& name)
         std::ostringstream str;
 
         // X
-        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) - 0.1f;
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_sensitivityX")) - 0.1f;
         Option::GetInstance().SetVariable("f_sensitivityX", str.str());
 
         // Y
         str.str("");
-        str << std::setprecision(2) << std::stof(Option::GetInstance().GetVariable("f_sensitivityY")) - 0.1f;
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_sensitivityY")) - 0.1f;
         Option::GetInstance().SetVariable("f_sensitivityY", str.str());
 
         Option::GetInstance().WriteFile();
@@ -891,19 +934,19 @@ void onMouseSensitivityMinus(const std::string& name)
 
 void MainMenuUpdateScene(SceneManager* sm, double dt)
 {
-    static float rotValue = 0.0f;
-
-    Transform* trans = sm->GetScene("MainMenuScene")->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform();
-    trans->SetRotationY(rotValue);
-    trans->SetPosition({ 0.0f, std::sin(rotValue), 10.0f });
-
-    for (int i = 0; i < 20; ++i)
-    {
-        trans = sm->GetScene("MainMenuScene")->GetEntity("menuEnemy" + std::to_string(i))->GetComponent<component::TransformComponent>()->GetTransform();
-        trans->SetRotationY(rotValue + i);
-        float3 pos = trans->GetPositionFloat3();
-        trans->SetPosition({ pos.x, std::sin(rotValue + i), pos.z });
-    }
-
-    rotValue += dt;
+    //static float rotValue = 0.0f;
+	//
+    //Transform* trans = sm->GetScene("MainMenuScene")->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform();
+    //trans->SetRotationY(rotValue);
+    //trans->SetPosition({ 0.0f, std::sin(rotValue), 10.0f });
+	//
+    //for (int i = 0; i < 20; ++i)
+    //{
+    //    trans = sm->GetScene("MainMenuScene")->GetEntity("menuEnemy" + std::to_string(i))->GetComponent<component::TransformComponent>()->GetTransform();
+    //    trans->SetRotationY(rotValue + i);
+    //    float3 pos = trans->GetPositionFloat3();
+    //    trans->SetPosition({ pos.x, std::sin(rotValue + i), pos.z });
+    //}
+	//
+    //rotValue += dt;
 }

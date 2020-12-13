@@ -308,7 +308,7 @@ Scene* LeosTestScene(SceneManager* sm)
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
-    ac->Initialize();
+    ac->initialize();
     tc->GetTransform()->SetScale(0.1f);
     tc->GetTransform()->SetPosition(-10.0, 20.0, 10.0);
 
@@ -700,7 +700,6 @@ Scene* FloppipTestScene(SceneManager* sm)
     component::CollisionComponent* bcc = nullptr;
     component::ParticleEmitterComponent* pe = nullptr;
 
-
     Entity* entity = nullptr;
 
     AssetLoader* al = AssetLoader::Get();
@@ -708,8 +707,8 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Get the models needed
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
-    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
-    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Female/female4armor.obj");
+    Model* lightModel = al->LoadModel(L"../Vendor/Resources/Models/MedievalBraizer/medievalBraizer.obj");
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/CubePBR/cube.obj");
     Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* pressfModel = al->LoadModel(L"../Vendor/Resources/Models/Pressf/pressf.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
@@ -743,9 +742,9 @@ Scene* FloppipTestScene(SceneManager* sm)
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
 
-    mc->SetModel(sphereModel);
+    mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(1.0f);
+    tc->GetTransform()->SetScale(1);
     tc->GetTransform()->SetPosition(0, 1, -30);
 
     // Create particleEffect
@@ -779,9 +778,11 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     // Create the component
     pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+    /* ---------------------- Player ---------------------- */
 
     Player::GetInstance().SetPlayer(entity);
     /* ---------------------- Player ---------------------- */
+
 
     /* ---------------------- Skybox ---------------------- */
     entity = scene->AddEntity("skybox");
@@ -791,13 +792,13 @@ Scene* FloppipTestScene(SceneManager* sm)
 
     /* ---------------------- Floor ---------------------- */
     entity = scene->AddEntity("floor");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
+    
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 35.0, 0.0, 35.0);
 
-    mc = entity->GetComponent<component::ModelComponent>();
+    mc = entity->AddComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
@@ -805,12 +806,98 @@ Scene* FloppipTestScene(SceneManager* sm)
     /* ---------------------- Floor ---------------------- */
 
 
+    /* ---------------------- Point light ---------------------- */
+    entity = scene->AddEntity("braizer");
+
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetModel(lightModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(4.0, 4.0, 4.0);
+    tc->GetTransform()->SetPosition(0.0f, 2.0f, 0.0f);
+
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::FLICKER);
+    plc->SetColor({ 0.0, 1.0, 0.0 });
+    plc->SetIntensity(10);
+    plc->SetAttenuation({ 1.0, 0.22, 0.20 });
+    float flickerRate = 0.2;
+    plc->SetFlickerRate(flickerRate);
+
+    // Create brazier particleEffect
+    settings = {};
+    settings.maxParticleCount = 11;
+    settings.spawnInterval = 0.1;
+    settings.startValues.position = { 0, 2.0, 0 };
+    settings.startValues.acceleration = { 0.0, -3.0, 0.0 };
+    settings.startValues.lifetime = 0.5;
+    settings.isLooping = true;
+
+    // Need to fix EngineRand.rand() for negative values
+
+    settings.randPosition = { -1, 1, 0, 0, -1, 1 };
+    settings.randVelocity = { -1, 1, 5, 9, -1, 1 };
+    settings.randSize = { 0.7, 1.3 };
+    settings.randRotation = { 0, 2 * PI };
+    settings.randRotationSpeed = { 0, 3 };
+
+    particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
+    settings.texture = particleTexture;
+
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+
+    /* ---------------------- Point light ---------------------- */
+
+    /* ---------------------- Point light 2 ---------------------- */
+    entity = scene->AddEntity("braizer2");
+
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetModel(lightModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(4.0, 4.0, 4.0);
+    tc->GetTransform()->SetPosition(10.0f, 2.0f, 0.0f);
+
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::FLICKER);
+    plc->SetColor({ 0.0, 0.4, 1.0 });
+    plc->SetIntensity(10);
+    plc->SetAttenuation({ 1.0, 0.22, 0.20 });
+    plc->SetFlickerRate(flickerRate);
+
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+
+    /* ---------------------- Point light 2---------------------- */
+
+    /* ---------------------- SpotLight ---------------------- */
+    entity = scene->AddEntity("sl");
+
+    mc = entity->AddComponent<component::ModelComponent>();
+    mc->SetModel(lightModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+
+    tc = entity->AddComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(4.0, 4.0, 4.0);
+    tc->GetTransform()->SetPosition(10.0f, 15.0f, 0.0f);
+
+    auto slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::FLICKER);
+    slc->SetColor({ 1.0, 0.0, 0.0 });
+    slc->SetIntensity(50);
+    slc->SetAttenuation({ 1.0, 0.22, 0.20 });
+    slc->SetFlickerRate(flickerRate);
+    slc->SetDirection({ -1.0f, -1.000000001f, -1.0f });
+
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+
+    /* ---------------------- SpotLight ---------------------- */
+
     /* ---------------------- The Sun ---------------------- */
     entity = scene->AddEntity("sun");
     component::DirectionalLightComponent* dlc;
     dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::CAST_SHADOW);
-    
-    dlc->SetColor({ 2.0f, 2.0f, 2.0f });
+
+    dlc->SetColor({ 1.0f, 1.0f, 1.0f });
+    dlc->SetIntensity(3);
 
     dlc->SetDirection({ -1.0f, -1.0f, -1.0f });
     /* ---------------------- The Sun ---------------------- */
@@ -1169,7 +1256,7 @@ Scene* WilliamsTestScene(SceneManager* sm)
 
     mc->SetModel(aniTest);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
-    ac->Initialize();
+    ac->initialize();
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 10.0f);
     tc->GetTransform()->SetScale(0.1f);
 

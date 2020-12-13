@@ -607,15 +607,17 @@ void Renderer::InitModelComponent(component::ModelComponent* mc)
 
 void Renderer::InitAnimationComponent(component::AnimationComponent* component)
 {
+	component->initialize(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+
+	component->createCBMatrices(m_pDevice5, m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+
 	// Submit the matrices to be uploaded everyframe
 	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
 
-	const ConstantBuffer* cb = component->m_pAnimatedModel->GetConstantBuffer();
-
-	const void* data = component->m_pAnimatedModel->GetUploadMatrices()->data();
+	const void* data = static_cast<const void*>(component->m_UploadMatrices.data());
 	std::tuple<Resource*, Resource*, const void*> matrices(
-		cb->GetUploadResource(),
-		cb->GetDefaultResource(),
+		component->m_pCB->GetUploadResource(),
+		component->m_pCB->GetDefaultResource(),
 		data);
 
 	cpft->Submit(&matrices);
@@ -924,8 +926,10 @@ void Renderer::UnInitAnimationComponent(component::AnimationComponent* component
 {
 	// Submit the matrices to be uploaded every frame
 	CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-	const ConstantBuffer* cb = component->m_pAnimatedModel->GetConstantBuffer();
+	const ConstantBuffer* cb = component->m_pCB;
 	cpft->ClearSpecific(cb->GetUploadResource());
+
+	component->deleteCBMatrices();
 }
 
 void Renderer::UnInitDirectionalLightComponent(component::DirectionalLightComponent* component)
@@ -1191,11 +1195,11 @@ void Renderer::submitModelToGPU(Model* model)
 		Mesh* mesh = model->GetMeshAt(i);
 
 		// Submit more data if the model is animated
-		AnimatedModel* am = nullptr;
-		am = dynamic_cast<AnimatedModel*>(model);
-		if (am!=nullptr)
+		AnimatedModel* animatedModel = nullptr;
+		animatedModel = dynamic_cast<AnimatedModel*>(model);
+		if (animatedModel!=nullptr)
 		{
-			AnimatedMesh* am = static_cast<AnimatedMesh*>(mesh);
+			AnimatedMesh* animatedMesh = static_cast<AnimatedMesh*>(mesh);
 
 			CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
 
@@ -1203,14 +1207,14 @@ void Renderer::submitModelToGPU(Model* model)
 			// while the other resource will contain the modified vertex data. But as the initial state, both resources
 			// will contain the same data.
 			std::tuple<Resource*, Resource*, const void*> defaultResourceOrigVertices(
-				am->GetUploadResourceOrigVertices(),
-				am->GetDefaultResourceOrigVertices(),
+				animatedMesh->GetUploadResourceOrigVertices(),
+				animatedMesh->GetDefaultResourceOrigVertices(),
 				mesh->m_Vertices.data());
 
 			std::tuple<Resource*, Resource*, const void*> defaultResourceVertexWeights(
-				am->GetUploadResourceVertexWeights(),
-				am->GetDefaultResourceVertexWeights(),
-				am->GetVertexWeights()->data());
+				animatedMesh->GetUploadResourceVertexWeights(),
+				animatedMesh->GetDefaultResourceVertexWeights(),
+				animatedMesh->GetVertexWeights()->data());
 
 			codt->Submit(&defaultResourceOrigVertices);
 			codt->Submit(&defaultResourceVertexWeights);
@@ -1720,7 +1724,7 @@ void Renderer::initRenderTasks()
 	gpsdForwardRenderVector.push_back(&gpsdForwardRender);
 	gpsdForwardRenderVector.push_back(&gpsdForwardRenderStencilTest);
 
-	RenderTask* forwardRenderTask = new FowardRenderTask(
+	RenderTask* forwardRenderTask = new ForwardRenderTask(
 		m_pDevice5,
 		m_pRootSignature,
 		L"ForwardVertex.hlsl", L"ForwardPixel.hlsl",

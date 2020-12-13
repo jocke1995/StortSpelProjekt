@@ -91,7 +91,7 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
-		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::FLICKER);
 		//ac = ent->AddComponent<component::AccelerationComponent>(98.2);	// no drop
 
 		// get the position of parent entity
@@ -135,6 +135,8 @@ void component::RangeEnemyComponent::Attack(float3 direction)
 
 		// Light color
 		plc->SetColor({ 3.0f, 0.0f, 0.0f });
+		plc->SetFlickerRate(3);
+		plc->SetFlickerAmplitude(0.18);
 
 		ent->Update(0);	// Init, so that the light doesn't spawn in origo first frame;
 		tc->RenderUpdate(0);

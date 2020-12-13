@@ -104,6 +104,8 @@ void component::RangeComponent::Attack()
 {
 	if (m_TimeAccumulator >= m_AttackInterval)
 	{
+		m_pParent->GetComponent<component::AnimationComponent>()->PlayAnimation("Attack_Swing_Left", false);
+
 		Entity* ent = m_pScene->AddEntity("RangeAttack" + std::to_string(++m_NrOfProjectiles));
 		component::ModelComponent* mc = nullptr;
 		component::TransformComponent* tc = nullptr;
@@ -117,7 +119,9 @@ void component::RangeComponent::Attack()
 		tc = ent->AddComponent<component::TransformComponent>();
 		pc = ent->AddComponent<component::ProjectileComponent>(m_Damage);
 		uc = ent->AddComponent<component::UpgradeComponent>();
-		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+		plc = ent->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION | FLAG_LIGHT::FLICKER);
+		plc->SetFlickerRate(3);
+		plc->SetFlickerAmplitude(0.16);
 		
 		//tlc = ent->AddComponent<component::TemporaryLifeComponent>(duration);
 
