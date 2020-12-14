@@ -34,6 +34,24 @@ Texture::~Texture()
 	}
 }
 
+void Texture::DeleteTextureOnRam()
+{
+	if (m_pImageData != nullptr)
+	{
+		delete[] m_pImageData;
+		m_pImageData = nullptr;
+	}
+
+
+	if (m_pUploadResource != nullptr)
+	{
+		delete m_pUploadResource;
+		m_pUploadResource = nullptr;
+	}
+
+	m_SubresourceData.clear();
+}
+
 const std::wstring& Texture::GetPath() const
 {
 	return m_FilePath;

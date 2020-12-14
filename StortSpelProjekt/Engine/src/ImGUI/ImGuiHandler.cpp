@@ -56,7 +56,7 @@ void ImGuiHandler::UpdateFrame()
         //PagefileUsage is the:
             //The Commit Charge value in bytes for this process.
             //Commit Charge is the total amount of memory that the memory manager has committed for a running process.
-        float memoryUsage = float(pmc.PagefileUsage / 1024.0 / 1024.0); //MiB
+        float memoryUsage = float(pmc.WorkingSetSize / 1024.0 / 1024.0); //MiB
         ImGui::Text("RAM usage: %.02f MiB", memoryUsage);
     }
 

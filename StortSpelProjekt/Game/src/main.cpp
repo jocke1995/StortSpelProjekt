@@ -57,7 +57,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AudioEngine* const audioEngine = engine.GetAudioEngine();
     ParticleSystem* const particleSystem = engine.GetParticleSystem();
 
-
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
@@ -95,6 +94,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     while (!window->ExitWindow())
     {
+        if (window->WasSpacePressed() == true)
+        {
+            Log::Print("Tim: %llu MiB \n", allocated / (1024 * 1024));
+        }
         /* ------ Update ------ */
         timer->Update();
 
