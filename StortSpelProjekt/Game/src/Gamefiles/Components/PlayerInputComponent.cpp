@@ -197,7 +197,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 			float angle = std::atan2(m_pTransform->GetInvDir() * camDir.x, m_pTransform->GetInvDir() * camDir.z);
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
 		}
-		else if ((std::abs(vel.x) > EPSILON || std::abs(vel.y) > EPSILON) && m_CameraRotating)
+		else if ((std::abs(vel.x) > EPSILON || std::abs(vel.y) > EPSILON))
 		{
 			float angle = std::atan2(m_pTransform->GetInvDir() * vel.x, m_pTransform->GetInvDir() * vel.z);
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
@@ -237,7 +237,7 @@ void component::PlayerInputComponent::RenderUpdate(double dt)
 		float3 forward = right.cross(up);
 		forward.normalize();
 
-		if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON)
+		if (std::abs(move.x) > EPSILON || std::abs(move.z) > EPSILON && m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 		{
 			double angle = std::atan2(m_pTransform->GetInvDir() * move.x, m_pTransform->GetInvDir() * move.z);
 			m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
@@ -272,7 +272,10 @@ void component::PlayerInputComponent::SetSlow(float slow)
 
 void component::PlayerInputComponent::SetAngleToTurnTo(int angle)
 {
-	m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
+	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
+	{
+		m_pCC->SetRotation({ 0.0, 1.0, 0.0 }, angle);
+	}
 }
 
 void component::PlayerInputComponent::SetAttacking(bool melee)
@@ -406,10 +409,11 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 		(static_cast<double>(evnt->key == SCAN_CODES::Q) - static_cast<double>(evnt->key == SCAN_CODES::E)) * pressed,
 		(static_cast<double>(evnt->key == SCAN_CODES::W) - static_cast<double>(evnt->key == SCAN_CODES::S)) * pressed,
 	};
+	moveCam.normalize();
 
 	// Check if the player is in the air. If not, allow movement
 	double dist = m_pCC->CastRay({ 0.0, -1.0, 0.0 }, m_pCC->GetDistanceToBottom() + m_Elevation * 0.75);
-	if (dist != -1 && !m_Dashing)
+	if (dist != -1 && !m_Dashing && m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
 	{
 		double moveRight = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::D)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::A)));
 		double moveForward = (static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::W)) - static_cast<double>(Input::GetInstance().GetKeyState(SCAN_CODES::S)));
@@ -547,7 +551,23 @@ void component::PlayerInputComponent::move(MovementInput* evnt)
 
 	moveCam *= m_pTransform->GetVelocity() / 5.0;
 	// If the camera uses the players position, update the player's velocity. Otherwise update the camera's movement.
-	(m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION) ? m_pCC->SetVelVector(vel.x, vel.y, vel.z) : m_pCamera->UpdateMovement(moveCam.x, moveCam.y, moveCam.z);
+	if (m_CameraFlags & CAMERA_FLAGS::USE_PLAYER_POSITION)
+	{
+		m_pCC->SetVelVector(vel.x, vel.y, vel.z);
+	}
+	else
+	{
+		m_pCamera->UpdateMovement(moveCam.x, moveCam.y, moveCam.z);
+		if (	!Input::GetInstance().GetKeyState(SCAN_CODES::W)
+			&&	!Input::GetInstance().GetKeyState(SCAN_CODES::A)
+			&&	!Input::GetInstance().GetKeyState(SCAN_CODES::S)
+			&&	!Input::GetInstance().GetKeyState(SCAN_CODES::D)
+			&&	!Input::GetInstance().GetKeyState(SCAN_CODES::E)
+			&&	!Input::GetInstance().GetKeyState(SCAN_CODES::Q))
+		{
+			m_pCamera->SetMovement(0.0f, 0.0f, 0.0f);
+		}
+	}
 
 	// If we press a key, make the player turn towards the direction she is moving
 	if (evnt->key != SCAN_CODES::SPACE)
