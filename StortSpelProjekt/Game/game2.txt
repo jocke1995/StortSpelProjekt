@@ -1,7 +1,0 @@
-Level	Upgrades	Time
-1	UpgradeHealthRegen;UpgradeHealthBoost;UpgradeRangeDamage;	60
-2	UpgradeRangeAtkSpeed;UpgradeRangeVelocity;UpgradeHealthBoost;	70
-3	UpgradeExplosiveAttack;UpgradeRangeDamage;	49
-4	UpgradeHealthRegen;	64
-5		24
-Total Time:	371	Levels Lasted:	5
