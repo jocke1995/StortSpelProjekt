@@ -508,13 +508,13 @@ void Renderer::Execute()
 		m_pThreadPool->AddTask(renderTask);
 	}
 
-	//if (DEVELOPERMODE_DEVINTERFACE == true)
-	//{
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
 		renderTask = m_RenderTasks[RENDER_TASK_TYPE::IMGUI];
 		renderTask->SetBackBufferIndex(backBufferIndex);
 		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 		m_pThreadPool->AddTask(renderTask);
-	//}
+	}
 	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
 
 	// Wait for the threads which records the commandlists to complete
@@ -2488,13 +2488,13 @@ void Renderer::initRenderTasks()
 		m_DirectCommandLists[i].push_back(textTask->GetCommandInterface()->GetCommandList(i));
 	}
 
-	//if (DEVELOPERMODE_DEVINTERFACE == true)
-	//{
+	if (DEVELOPERMODE_DEVINTERFACE == true)
+	{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
 			m_DirectCommandLists[i].push_back(imGuiRenderTask->GetCommandInterface()->GetCommandList(i));
 		}
-	//}
+	}
 }
 
 void Renderer::setRenderTasksRenderComponents()

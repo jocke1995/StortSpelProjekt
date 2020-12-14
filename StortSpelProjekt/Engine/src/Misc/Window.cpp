@@ -110,23 +110,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			if (key == SCAN_CODES::TAB && Input::GetInstance().GetKeyState(SCAN_CODES::TAB))
 			{
-				if (!DEVELOPERMODE_GAMEINTERFACE && !IsGuiHidden())
+				if (DEVELOPERMODE_GAMEINTERFACE && !IsGuiHidden())
 				{
 					// Hide
 					HideGui(true);
 				}
-				else if (!DEVELOPERMODE_GAMEINTERFACE)
+				else if (DEVELOPERMODE_GAMEINTERFACE)
 				{
 					// Show
 					HideGui(false);
 				}
 
-				if (!DEVELOPERMODE_DEVINTERFACE && !IsImguiHidden())
+				if (DEVELOPERMODE_DEVINTERFACE && !IsImguiHidden())
 				{
 					// Hide
 					HideImgui(true);
 				}
-				else if (!DEVELOPERMODE_DEVINTERFACE)
+				else if (DEVELOPERMODE_DEVINTERFACE)
 				{
 					// Show
 					HideImgui(false);
