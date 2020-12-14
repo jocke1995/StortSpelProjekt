@@ -80,8 +80,8 @@ void component::EnemyComponent::OnUnInitScene()
             35,         // Max particles
             0.000001f,  // spawnInterval
             false,      // IsLooping
-            {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, -5.0f, 0.0f}, {1, 1, 1, 1}, 0.2, 0.0f, 0.0f, g_timeToLive}, // start ParticleAttributes
-            {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, -5.0f, 0.0f}, {1, 1, 1, 0}, 0.2, 0.0f, 0.0f, g_timeToLive}, // end ParticleAttributes
+            {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, -5.0f, 0.0f}, {1, 1, 1, 1}, 0.7, 0.0f, 0.0f, g_timeToLive}, // start ParticleAttributes
+            {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, -5.0f, 0.0f}, {1, 1, 1, 0}, 0.0, 0.0f, 0.0f, g_timeToLive}, // end ParticleAttributes
             {-1, 1, -1, 1, -1, 1},          // RandPosition
             {-20, 20, -20, 20, -20, 20},    // RandVelocity
             {0, 0.6 },                  // RandSize
