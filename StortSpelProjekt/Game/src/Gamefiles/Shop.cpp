@@ -536,11 +536,13 @@ void Shop::randomizeInventory()
 		m_InvSize = m_AllAvailableUpgrades.size() - maxLevelUpgrades;
 	}
 
+	// Set the seed for randomization of inventory
+	static unsigned long seed = time(NULL);
+	m_Rand.SetSeed(seed++);
+
 	// Fill our inventory
 	for (int i = 0; i < m_InvSize; i++)
 	{
-		// Set the seed for randomization of inventory
-		m_Rand.SetSeed(time(NULL));
 		// While loop is neccessary to avoid duplicate upgrades in inventory.
 		do
 		{
