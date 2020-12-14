@@ -37,7 +37,7 @@ UpgradeExplosiveAttack::~UpgradeExplosiveAttack()
 void UpgradeExplosiveAttack::IncreaseLevel()
 {
 	m_Level++;
-	m_Radius = 10 + (5 * (m_Level));
+	m_Radius = 10 + (4 * (m_Level));
 	// We don't want the explosve damage given to enemies around the target to be more damage than the target itself.
 	// Therfor the use of max(explosiveDamage, 100).
 	m_PercentageDamage = 0.5 + (0.05 * (m_Level + 1));

@@ -1,0 +1,6 @@
+Level	Upgrades	Time
+1	UpgradeMeleeLifeSteal;UpgradePoisonAttack;	1
+2		1073741824
+3	UpgradePoisonAttack;	4
+4		168
+Total Time:	188	Levels Lasted:	4

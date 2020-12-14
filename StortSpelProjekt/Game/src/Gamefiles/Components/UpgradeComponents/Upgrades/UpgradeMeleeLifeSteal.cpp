@@ -60,5 +60,5 @@ void UpgradeMeleeLifeSteal::ApplyBoughtUpgrade()
 
 std::string UpgradeMeleeLifeSteal::GetDescription(unsigned int level)
 {
-	return "Melee Lifesteal: Converts " + std::to_string(static_cast<int>((0.05f + 0.05f * level) * 100)) + "\% of melee damage done into own health.";
+	return "Melee Lifesteal: Converts " + std::to_string(static_cast<int>((0.20f + 0.05f * (level - 1)) * 100)) + "\% of melee damage done into own health.";
 }

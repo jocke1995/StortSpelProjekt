@@ -12,7 +12,7 @@ UpgradeRangeDamage::UpgradeRangeDamage(Entity* parentEntity) : Upgrade(parentEnt
 	m_Price = 150;
 	m_StartingPrice = m_Price;
 
-	m_DamageChange = 25;
+	m_DamageChange = 20;
 
 	m_ImageName = "RangeUpgrade.png";
 }

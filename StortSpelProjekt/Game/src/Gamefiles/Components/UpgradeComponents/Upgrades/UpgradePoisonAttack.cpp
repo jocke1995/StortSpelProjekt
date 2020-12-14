@@ -21,7 +21,7 @@ UpgradePoisonAttack::UpgradePoisonAttack(Entity* parent)
 	m_ImageName = "PoisonAttack.png";
 
 	m_Damage = 0.04;
-	m_NrOfTicks = 9;
+	m_NrOfTicks = 10;
 	m_TickDuration = 0.5;
 	m_Slow = 0.1;
 }
@@ -33,9 +33,10 @@ UpgradePoisonAttack::~UpgradePoisonAttack()
 void UpgradePoisonAttack::IncreaseLevel()
 {
 	m_Level++;
-	m_NrOfTicks = 9 + m_Level;
+	m_NrOfTicks = 10 + m_Level;
 	m_Damage = 0.04 + (float)(0.005 * m_Level);
-	m_Slow = 0.10 + (float)m_Level / 10.0f;
+	// Slow gets a max of 50% so enemies aren't snails.
+	m_Slow = min(0.10 + (float)m_Level / 10.0f, .5);
 	m_Price = m_StartingPrice * (m_Level + 1);
 
 }
@@ -66,12 +67,12 @@ std::string UpgradePoisonAttack::GetDescription(unsigned int level)
 	std::string str = "Poison Attack: Causes your projectile to apply a poison. Deals ";
 	std::ostringstream damage;
 	damage.precision(1);
-	damage << std::fixed << (((0.04 + 0.005 * level - 1 )* (9 + level))*100);
+	damage << std::fixed << (((0.04 + 0.005 * (level - 1) )* (10 + level - 1))*100);
 	str += damage.str();
 	str += "% of range damage over ";
 	std::ostringstream duration;
 	duration.precision(1);
-	duration << std::fixed << (float)(9 + level) * m_TickDuration;
+	duration << std::fixed << (float)(10 + level - 1) * m_TickDuration;
 	str += duration.str();
 	str += " seconds and slows the enemy by ";
 	std::ostringstream slow;
