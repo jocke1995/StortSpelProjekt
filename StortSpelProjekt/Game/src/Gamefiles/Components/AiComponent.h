@@ -95,6 +95,7 @@ namespace component
 		float m_TargetCircleTimer;
 		float m_SlowingAttack;
 		float m_RandMovementTimer;
+		float m_RadiusIncreasePerSecond;
 
 		float3 m_StartPos;
 		float3 m_GoalPos;
