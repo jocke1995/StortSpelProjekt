@@ -539,8 +539,6 @@ void Shop::randomizeInventory()
 	// Fill our inventory
 	for (int i = 0; i < m_InvSize; i++)
 	{
-		// Set the seed for randomization of inventory
-		m_Rand.SetSeed(time(NULL));
 		// While loop is neccessary to avoid duplicate upgrades in inventory.
 		do
 		{

@@ -140,7 +140,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             Input::GetInstance().ReadControllerInput(timer->GetDeltaTime());
 
             /* ------ ImGui ------*/
-            if (DEVELOPERMODE_DEVINTERFACE == true)
+            if (!IsImguiHidden())
             {
                 ImGuiHandler::GetInstance().NewFrame();
                 ImGuiHandler::GetInstance().UpdateFrame();

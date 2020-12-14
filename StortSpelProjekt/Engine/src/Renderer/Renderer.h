@@ -149,6 +149,7 @@ private:
 	friend class ParticleSystem;
 	friend class ParticleEffect;
 	friend class ImGuiHandler;
+
 	Renderer();
 
 	// For control of safe release of DirectX resources
