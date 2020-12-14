@@ -372,7 +372,7 @@ ModelPath Models/CastleCeiling/castleceiling.obj
 ModelScaling 99.0, 50.0, 99.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 86.5, 46.5, 150.0
-ModelDrawFlag 1, 1
+ModelDrawFlag 1, 0
 ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
@@ -385,7 +385,7 @@ ModelPath Models/CastleCeiling/castleceiling.obj
 ModelScaling 99.0, 50.0, 99.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 173.0, 46.5, 0.0
-ModelDrawFlag 1, 1
+ModelDrawFlag 1, 0
 ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
@@ -398,7 +398,7 @@ ModelPath Models/CastleCeiling/castleceiling.obj
 ModelScaling 99.0, 50.0, 99.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition 86.5, 46.5, -150.0
-ModelDrawFlag 1, 1
+ModelDrawFlag 1, 0
 ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
@@ -411,7 +411,7 @@ ModelPath Models/CastleCeiling/castleceiling.obj
 ModelScaling 99.0, 50.0, 99.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -86.5, 46.5, -150.0
-ModelDrawFlag 1, 1
+ModelDrawFlag 1, 0
 ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
@@ -424,7 +424,7 @@ ModelPath Models/CastleCeiling/castleceiling.obj
 ModelScaling 99.0, 50.0, 99.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -173.0, 46.5, 0.0
-ModelDrawFlag 1, 1
+ModelDrawFlag 1, 0
 ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
@@ -437,7 +437,7 @@ ModelPath Models/CastleCeiling/castleceiling.obj
 ModelScaling 99.0, 50.0, 99.0
 ModelRotation 0.0, 0.0, 0.0
 ModelPosition -86.5, 46.5, 150.0
-ModelDrawFlag 1, 1
+ModelDrawFlag 1, 0
 ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
