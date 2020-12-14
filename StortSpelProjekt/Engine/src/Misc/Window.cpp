@@ -108,6 +108,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 
+			if (key == SCAN_CODES::TAB && Input::GetInstance().GetKeyState(SCAN_CODES::TAB))
+			{
+				if (DEVELOPERMODE_GAMEINTERFACE && !IsGuiHidden())
+				{
+					// Hide
+					HideGui(true);
+				}
+				else if (DEVELOPERMODE_GAMEINTERFACE)
+				{
+					// Show
+					HideGui(false);
+				}
+
+				if (DEVELOPERMODE_DEVINTERFACE && !IsImguiHidden())
+				{
+					// Hide
+					HideImgui(true);
+				}
+				else if (DEVELOPERMODE_DEVINTERFACE)
+				{
+					// Show
+					HideImgui(false);
+				}
+			}
+
 			Input::GetInstance().SetKeyState(key, !(inputData.Flags % 2));
 		}
 		else if (raw->header.dwType == RIM_TYPEMOUSE)
@@ -340,4 +365,24 @@ void Window::closeWindow(ShutDown* evnt)
 void Window::setShowCursor(CursorShow* evnt)
 {
 	ShowCursor(evnt->m_Show);
+}
+
+bool IsImguiHidden()
+{
+	return g_HideImgui;
+}
+
+bool IsGuiHidden()
+{
+	return g_HideGui;
+}
+
+void HideImgui(bool hide)
+{
+	g_HideImgui = hide;
+}
+
+void HideGui(bool hide)
+{
+	g_HideGui = hide;
 }

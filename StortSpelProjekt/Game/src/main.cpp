@@ -139,7 +139,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             PauseGUI::GetInstance().Update(timer->GetDeltaTime(), sceneManager->GetActiveScene());
 
             /* ------ ImGui ------*/
-            if (DEVELOPERMODE_DEVINTERFACE == true)
+            if (!IsImguiHidden())
             {
                 ImGuiHandler::GetInstance().NewFrame();
                 ImGuiHandler::GetInstance().UpdateFrame();
