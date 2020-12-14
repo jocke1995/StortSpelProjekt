@@ -5,6 +5,7 @@
 #include "../Events/EventBus.h"
 #include "../../Game/src/Gamefiles/Player.h"
 #include "../ECS/Entity.h"
+#include "../../Game/src/Gamefiles/EnemyFactory.h"
 
 ImGuiHandler& ImGuiHandler::GetInstance()
 {
@@ -56,7 +57,7 @@ void ImGuiHandler::UpdateFrame()
         //PagefileUsage is the:
             //The Commit Charge value in bytes for this process.
             //Commit Charge is the total amount of memory that the memory manager has committed for a running process.
-        float memoryUsage = float(pmc.PagefileUsage / 1024.0 / 1024.0); //MiB
+        float memoryUsage = float(pmc.WorkingSetSize / 1024.0 / 1024.0); //MiB
         ImGui::Text("RAM usage: %.02f MiB", memoryUsage);
     }
 
@@ -66,6 +67,35 @@ void ImGuiHandler::UpdateFrame()
     ImGui::Text("Adapter: %S", desc.Description);
 
 #pragma endregion debugInfo
+    ImGui::End();
+
+    // Initiate the debug info window
+    ImGui::Begin("Enemy info");
+    // This is where debug info should be added
+#pragma region enemyInfo
+    ImGui::Text("Difficulty Scaler: %.1f", EnemyFactory::GetInstance().GetDifficultyScaler());
+    ImGui::Text("Zombie:");
+    EnemyComps* zombie = EnemyFactory::GetInstance().GetDefineEnemy("enemyZombie");
+    if (zombie != nullptr)
+    {
+        ImGui::Text("\tHealth: %d", zombie->hp);
+        ImGui::Text("\tDamage: %.1f", zombie->meleeAttackDmg);
+    }
+    ImGui::Text("Spider:");
+    EnemyComps* spider = EnemyFactory::GetInstance().GetDefineEnemy("enemySpider");
+    if (spider != nullptr)
+    {
+        ImGui::Text("\tHealth: %d", spider->hp);
+        ImGui::Text("\tDamage: %.1f", spider->meleeAttackDmg);
+    }
+    ImGui::Text("Demon:");
+    EnemyComps* demon = EnemyFactory::GetInstance().GetDefineEnemy("enemyDemon");
+    if (demon != nullptr)
+    {
+        ImGui::Text("\tHealth: %d", demon->hp);
+        ImGui::Text("\tDamage: %.1f", demon->rangeAttackDmg);
+    }
+#pragma endregion enemyInfo
     ImGui::End();
 
     DrawConsole("Console");

@@ -429,8 +429,9 @@ ParticleStartPosition 0.0, 4.0, 0.0
 ParticleSpawnInterval 0.025
 ParticleStartLifetime 0.5
 ParticleRandPosition -7.5, 7.5, 0, 1, -7.5, 7.5
-ParticleRandVelocity -1,1,2,4,-1,1
+ParticleRandVelocity -1,1,4,6,-1,1
 ParticleRandSize 1.0, 1.5
+ParticleEndColor 0, 0, 0, 0
 ParticleRandRotationSpeed 0, 3
 ParticlePlayOnInit 1
 Submit ParticleEffect

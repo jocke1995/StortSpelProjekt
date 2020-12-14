@@ -151,7 +151,7 @@ private:
 	friend class ParticleSystem;
 	friend class ParticleEffect;
 	friend class ImGuiHandler;
-
+	friend class ShadowInfo;
 	Renderer();
 
 	// For control of safe release of DirectX resources
@@ -249,6 +249,9 @@ private:
 	HANDLE m_EventHandle = nullptr;
 	ID3D12Fence1* m_pFenceFrame = nullptr;
 	UINT64 m_FenceFrameValue = 0;
+
+	// Textures to remove from RAM after they've been uploaded to the GPU.
+	std::vector<Texture*> m_TexturesToRemove;
 
 	void setRenderTasksPrimaryCamera();
 	bool createDevice();

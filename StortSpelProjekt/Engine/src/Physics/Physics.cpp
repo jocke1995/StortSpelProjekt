@@ -88,7 +88,7 @@ void Physics::AddCollisionEntity(Entity *ent)
 	else
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, 
-			"Trying to add an object \"%s\" without collision flag to m_CollisionEntities in \"Physics::AddCollisionEntity\"", 
+			"Trying to add an object \"%s\" without collision flag to m_CollisionEntities in \"Physics::AddCollisionEntity\" \n", 
 			ent->GetName().c_str());
 	}
 }
