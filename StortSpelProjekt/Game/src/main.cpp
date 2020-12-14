@@ -16,6 +16,7 @@
 #include "GameOverHandler.h"
 #include "PauseGUI.h"
 #include "GameTracker.h"
+#include "EnemyStatDefine.h"
 
 #include "Misc/Edge.h"
 
@@ -331,23 +332,23 @@ Scene* GameScene(SceneManager* sm)
     // melee
     EnemyComps zombie = {};
     zombie.model = enemyZombieModel;
-    zombie.hp = 70;
-    zombie.hpBase = 70;
+    zombie.hp = ZOMBIE_BASE_HEALTH;
+    zombie.hpBase = ZOMBIE_BASE_HEALTH;
     zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     zombie.aiFlags = 0;
-    zombie.meleeAttackDmg = 30.0f;
-    zombie.meleeAttackDmgBase = 30.0f;
-    zombie.attackInterval = 0.5f;
-    zombie.attackSpeed = 1.0f;
-    zombie.movementSpeed = 45.0f;
+    zombie.meleeAttackDmg = ZOMBIE_BASE_DAMAGE;
+    zombie.meleeAttackDmgBase = ZOMBIE_BASE_DAMAGE;
+    zombie.attackInterval = ZOMBIE_BASE_ATTACK_INTERVAL;
+    zombie.attackSpeed = ZOMBIE_BASE_ATTACK_SPEED;
+    zombie.movementSpeed = ZOMBIE_BASE_SPEED;
     zombie.rot = { 0.0, 0.0, 0.0 };
     zombie.targetName = "player";
     zombie.scale = 0.014;
-    zombie.detectionRad = 150.0f;
-    zombie.attackingDist = 1.5f;
+    zombie.detectionRad = ZOMBIE_BASE_DETECTION;
+    zombie.attackingDist = ZOMBIE_BASE_ATTACK_RANGE;
     zombie.invertDirection = true;
     zombie.mass = 150.0f;
-    zombie.slowAttack = 0.5f;
+    zombie.slowAttack = ZOMBIE_SLOW_ATTACK;
     zombie.onGruntSounds.emplace_back(L"ZombieGnarl1");
     zombie.onGruntSounds.emplace_back(L"ZombieGnarl2");
     zombie.onGruntSounds.emplace_back(L"ZombieGnarl3");
@@ -365,20 +366,20 @@ Scene* GameScene(SceneManager* sm)
     // quick melee
     EnemyComps spider = {};
     spider.model = enemySpiderModel;
-    spider.hp = 35;
-    spider.hpBase = 35;
+    spider.hp = SPIDER_BASE_HEALTH;
+    spider.hpBase = SPIDER_BASE_HEALTH;
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
-    spider.meleeAttackDmg = 15.0f;
-    spider.meleeAttackDmgBase = 15.0f;
-    spider.attackInterval = 0.70f;
-    spider.attackSpeed = 0.05f;
-    spider.movementSpeed = 90.0f;
+    spider.meleeAttackDmg = SPIDER_BASE_DAMAGE;
+    spider.meleeAttackDmgBase = SPIDER_BASE_DAMAGE;
+    spider.attackInterval = SPIDER_BASE_ATTACK_INTERVAL;
+    spider.attackSpeed = SPIDER_BASE_ATTACK_SPEED;
+    spider.movementSpeed = SPIDER_BASE_SPEED;
     spider.rot = { 0.0, 0.0, 0.0 };
     spider.targetName = "player";
     spider.scale = 0.013;
-    spider.detectionRad = 500.0f;
-    spider.attackingDist = 1.5f;
+    spider.detectionRad = SPIDER_BASE_DETECTION;
+    spider.attackingDist = SPIDER_BASE_ATTACK_RANGE;
     spider.invertDirection = true;
     spider.mass = 100.0f;
     spider.walkSounds.emplace_back(L"SpiderCrawl");
@@ -389,20 +390,20 @@ Scene* GameScene(SceneManager* sm)
     // ranged
     EnemyComps rangedDemon = {};
     rangedDemon.model = enemyDemonModel;
-    rangedDemon.hp = 120;
-    rangedDemon.hpBase = 120;
+    rangedDemon.hp = DEMON_BASE_HEALTH;
+    rangedDemon.hpBase = DEMON_BASE_HEALTH;
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
-    rangedDemon.attackInterval = 0.5f;
-    rangedDemon.attackSpeed = 1.5f;
-    rangedDemon.movementSpeed = 30.0f;
+    rangedDemon.attackInterval = DEMON_BASE_ATTACK_INTERVAL;
+    rangedDemon.attackSpeed = DEMON_BASE_ATTACK_SPEED;
+    rangedDemon.movementSpeed = DEMON_BASE_SPEED;
     rangedDemon.targetName = "player";
     rangedDemon.scale = 0.08f;
     rangedDemon.isRanged = true;
-    rangedDemon.detectionRad = 150.0f;
-    rangedDemon.attackingDist = 100.0f;
-    rangedDemon.rangeAttackDmg = 70;
-    rangedDemon.rangeAttackDmgBase = 70;
+    rangedDemon.detectionRad = DEMON_BASE_DETECTION;
+    rangedDemon.attackingDist = DEMON_BASE_ATTACK_RANGE;
+    rangedDemon.rangeAttackDmg = DEMON_BASE_DAMAGE;
+    rangedDemon.rangeAttackDmgBase = DEMON_BASE_DAMAGE;
     rangedDemon.rangeVelocity = 100.0f;
     rangedDemon.projectileModel = sphereModel;
     rangedDemon.invertDirection = true;
