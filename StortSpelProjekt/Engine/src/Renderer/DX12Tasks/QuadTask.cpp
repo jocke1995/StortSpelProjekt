@@ -17,7 +17,7 @@
 #include "../../Renderer/QuadManager.h"
 
 // tempHideGUI
-#include "../../Renderer/Renderer.h"
+#include "../Misc/Window.h"
 
 QuadTask::QuadTask(ID3D12Device5* device,
 	RootSignature* rootSignature,
@@ -77,8 +77,7 @@ void QuadTask::Execute()
 	commandList->RSSetViewports(1, swapChainRenderTarget->GetRenderView()->GetViewPort());
 	commandList->RSSetScissorRects(1, swapChainRenderTarget->GetRenderView()->GetScissorRect());
 
-	// tempHideGUI
-	if (!Renderer::GetInstance().IsGUIHidden())
+	if (!IsGuiHidden())
 	{
 		draw(commandList);
 	}

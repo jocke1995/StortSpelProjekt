@@ -17,6 +17,8 @@
 #include "../ImGUI/imgui_impl_win32.h"
 #include "../ImGUI/imgui_impl_dx12.h"
 
+#include "../Misc/Window.h"
+
 ImGuiRenderTask::ImGuiRenderTask(
 	ID3D12Device5* device,
 	RootSignature* rootSignature,
@@ -60,8 +62,11 @@ void ImGuiRenderTask::Execute()
 
 	commandList->OMSetRenderTargets(1, &cdh, true, nullptr);
 
-	ImGui::Render();
-	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+	if (!IsImguiHidden())
+	{
+		ImGui::Render();
+		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+	}
 
 	// Change state on front/backbuffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(

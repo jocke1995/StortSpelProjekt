@@ -293,7 +293,7 @@ void Renderer::Update(double dt)
 void Renderer::RenderUpdate(double dt)
 {
 	/* ------ ImGui ------*/
-	if (DEVELOPERMODE_DEVINTERFACE == true)
+	if (!IsImguiHidden())
 	{
 		ImGuiHandler::GetInstance().NewFrame();
 	}
@@ -318,7 +318,7 @@ void Renderer::RenderUpdate(double dt)
 	updateMousePicker();
 
 	/* ------ ImGui ------*/
-	if (DEVELOPERMODE_DEVINTERFACE == true)
+	if (!IsImguiHidden())
 	{
 		ImGuiHandler::GetInstance().UpdateFrame();
 	}
@@ -508,13 +508,13 @@ void Renderer::Execute()
 		m_pThreadPool->AddTask(renderTask);
 	}
 
-	if (DEVELOPERMODE_DEVINTERFACE == true)
-	{
+	//if (DEVELOPERMODE_DEVINTERFACE == true)
+	//{
 		renderTask = m_RenderTasks[RENDER_TASK_TYPE::IMGUI];
 		renderTask->SetBackBufferIndex(backBufferIndex);
 		renderTask->SetCommandInterfaceIndex(commandInterfaceIndex);
 		m_pThreadPool->AddTask(renderTask);
-	}
+	//}
 	/* ----------------------------- DEVELOPERMODE CommandLists ----------------------------- */
 
 	// Wait for the threads which records the commandlists to complete
@@ -1165,12 +1165,6 @@ void Renderer::OnResetScene()
 	m_TextComponents.clear();
 }
 
-// tempHideGUI
-bool Renderer::IsGUIHidden()
-{
-	return m_HideGUI;
-}
-
 void Renderer::submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
 {
 	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
@@ -1291,11 +1285,6 @@ Scene* const Renderer::GetActiveScene() const
 Window* const Renderer::GetWindow() const
 {
 	return m_pWindow;
-}
-
-void Renderer::hideGUI(bool hide)
-{
-	m_HideGUI = hide;
 }
 
 void Renderer::setRenderTasksPrimaryCamera()
@@ -2499,13 +2488,13 @@ void Renderer::initRenderTasks()
 		m_DirectCommandLists[i].push_back(textTask->GetCommandInterface()->GetCommandList(i));
 	}
 
-	if (DEVELOPERMODE_DEVINTERFACE == true)
-	{
+	//if (DEVELOPERMODE_DEVINTERFACE == true)
+	//{
 		for (int i = 0; i < NUM_SWAP_BUFFERS; i++)
 		{
 			m_DirectCommandLists[i].push_back(imGuiRenderTask->GetCommandInterface()->GetCommandList(i));
 		}
-	}
+	//}
 }
 
 void Renderer::setRenderTasksRenderComponents()
