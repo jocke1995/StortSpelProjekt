@@ -16,6 +16,7 @@
 #include "GameOverHandler.h"
 #include "PauseGUI.h"
 #include "GameTracker.h"
+#include "EnemyStatDefine.h"
 
 #include "Misc/Edge.h"
 
@@ -57,7 +58,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AudioEngine* const audioEngine = engine.GetAudioEngine();
     ParticleSystem* const particleSystem = engine.GetParticleSystem();
 
-
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
@@ -91,8 +91,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
-    
-
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
@@ -105,7 +103,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             timer->StartTimer();
             timer->Update();
         }
-
         
         if (gameNetwork.IsConnected())
         {
@@ -139,7 +136,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             PauseGUI::GetInstance().Update(timer->GetDeltaTime(), sceneManager->GetActiveScene());
 
             /* ------ ImGui ------*/
-            if (DEVELOPERMODE_DEVINTERFACE == true)
+            if (!IsImguiHidden())
             {
                 ImGuiHandler::GetInstance().NewFrame();
                 ImGuiHandler::GetInstance().UpdateFrame();
@@ -267,7 +264,7 @@ Scene* GameScene(SceneManager* sm)
     component::HealthComponent* hc = nullptr;
     component::UpgradeComponent* uc = nullptr;
     component::GUI2DComponent* gui = nullptr;
-    component::ParticleEmitterComponent* pec = nullptr;
+    component::ParticleEmitterComponent* pe = nullptr;
 #pragma endregion
 
 #pragma region entities
@@ -335,23 +332,23 @@ Scene* GameScene(SceneManager* sm)
     // melee
     EnemyComps zombie = {};
     zombie.model = enemyZombieModel;
-    zombie.hp = 70;
-    zombie.hpBase = 70;
+    zombie.hp = ZOMBIE_BASE_HEALTH;
+    zombie.hpBase = ZOMBIE_BASE_HEALTH;
     zombie.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     zombie.aiFlags = 0;
-    zombie.meleeAttackDmg = 30.0f;
-    zombie.meleeAttackDmgBase = 30.0f;
-    zombie.attackInterval = 0.5f;
-    zombie.attackSpeed = 1.0f;
-    zombie.movementSpeed = 45.0f;
+    zombie.meleeAttackDmg = ZOMBIE_BASE_DAMAGE;
+    zombie.meleeAttackDmgBase = ZOMBIE_BASE_DAMAGE;
+    zombie.attackInterval = ZOMBIE_BASE_ATTACK_INTERVAL;
+    zombie.attackSpeed = ZOMBIE_BASE_ATTACK_SPEED;
+    zombie.movementSpeed = ZOMBIE_BASE_SPEED;
     zombie.rot = { 0.0, 0.0, 0.0 };
     zombie.targetName = "player";
     zombie.scale = 0.014;
-    zombie.detectionRad = 150.0f;
-    zombie.attackingDist = 1.5f;
+    zombie.detectionRad = ZOMBIE_BASE_DETECTION;
+    zombie.attackingDist = ZOMBIE_BASE_ATTACK_RANGE;
     zombie.invertDirection = true;
     zombie.mass = 150.0f;
-    zombie.slowAttack = 0.5f;
+    zombie.slowAttack = ZOMBIE_SLOW_ATTACK;
     zombie.onGruntSounds.emplace_back(L"ZombieGnarl1");
     zombie.onGruntSounds.emplace_back(L"ZombieGnarl2");
     zombie.onGruntSounds.emplace_back(L"ZombieGnarl3");
@@ -369,20 +366,20 @@ Scene* GameScene(SceneManager* sm)
     // quick melee
     EnemyComps spider = {};
     spider.model = enemySpiderModel;
-    spider.hp = 35;
-    spider.hpBase = 35;
+    spider.hp = SPIDER_BASE_HEALTH;
+    spider.hpBase = SPIDER_BASE_HEALTH;
     spider.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     spider.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
-    spider.meleeAttackDmg = 15.0f;
-    spider.meleeAttackDmgBase = 15.0f;
-    spider.attackInterval = 0.70f;
-    spider.attackSpeed = 0.05f;
-    spider.movementSpeed = 90.0f;
+    spider.meleeAttackDmg = SPIDER_BASE_DAMAGE;
+    spider.meleeAttackDmgBase = SPIDER_BASE_DAMAGE;
+    spider.attackInterval = SPIDER_BASE_ATTACK_INTERVAL;
+    spider.attackSpeed = SPIDER_BASE_ATTACK_SPEED;
+    spider.movementSpeed = SPIDER_BASE_SPEED;
     spider.rot = { 0.0, 0.0, 0.0 };
     spider.targetName = "player";
     spider.scale = 0.013;
-    spider.detectionRad = 500.0f;
-    spider.attackingDist = 1.5f;
+    spider.detectionRad = SPIDER_BASE_DETECTION;
+    spider.attackingDist = SPIDER_BASE_ATTACK_RANGE;
     spider.invertDirection = true;
     spider.mass = 100.0f;
     spider.walkSounds.emplace_back(L"SpiderCrawl");
@@ -393,20 +390,20 @@ Scene* GameScene(SceneManager* sm)
     // ranged
     EnemyComps rangedDemon = {};
     rangedDemon.model = enemyDemonModel;
-    rangedDemon.hp = 120;
-    rangedDemon.hpBase = 120;
+    rangedDemon.hp = DEMON_BASE_HEALTH;
+    rangedDemon.hpBase = DEMON_BASE_HEALTH;
     rangedDemon.compFlags = F_COMP_FLAGS::OBB | F_COMP_FLAGS::CAPSULE_COLLISION;
     rangedDemon.aiFlags = F_AI_FLAGS::RUSH_PLAYER;
-    rangedDemon.attackInterval = 0.5f;
-    rangedDemon.attackSpeed = 1.5f;
-    rangedDemon.movementSpeed = 30.0f;
+    rangedDemon.attackInterval = DEMON_BASE_ATTACK_INTERVAL;
+    rangedDemon.attackSpeed = DEMON_BASE_ATTACK_SPEED;
+    rangedDemon.movementSpeed = DEMON_BASE_SPEED;
     rangedDemon.targetName = "player";
     rangedDemon.scale = 0.08f;
     rangedDemon.isRanged = true;
-    rangedDemon.detectionRad = 150.0f;
-    rangedDemon.attackingDist = 100.0f;
-    rangedDemon.rangeAttackDmg = 70;
-    rangedDemon.rangeAttackDmgBase = 70;
+    rangedDemon.detectionRad = DEMON_BASE_DETECTION;
+    rangedDemon.attackingDist = DEMON_BASE_ATTACK_RANGE;
+    rangedDemon.rangeAttackDmg = DEMON_BASE_DAMAGE;
+    rangedDemon.rangeAttackDmgBase = DEMON_BASE_DAMAGE;
     rangedDemon.rangeVelocity = 100.0f;
     rangedDemon.projectileModel = sphereModel;
     rangedDemon.invertDirection = true;
@@ -432,23 +429,37 @@ Scene* GameScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "ShopScene");
 
-    // Create test particleEffect
+    // Create particleEffect
     ParticleEffectSettings settings = {};
-    settings.maxParticleCount = 100;
-    settings.startValues.lifetime = 0.8;
-    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
-    settings.startValues.acceleration = { 0, 0, 0 };
-
-    // Need to fix EngineRand.rand() for negative values
-
-    settings.randPosition = { -6, 6, 0, 15, -6, 6 };
-    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
-    settings.randSize = { 0.3, 0.9 };
-    settings.randRotationSpeed = { 0, 1 };
-
+    // Important settings
     Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
     settings.texture = particleTexture;
-    pec = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+    settings.maxParticleCount = 100;
+    settings.spawnInterval = 0.02;
+    settings.isLooping = true;
+
+    // Start values
+    settings.startValues.position = { 0, 0, 0 };
+    settings.startValues.velocity = { 0, 0, 0 };
+    settings.startValues.acceleration = { 0, 0, 0 };
+    settings.startValues.color = { 1, 1, 1, 1 };
+    settings.startValues.lifetime = 1.65;
+    settings.startValues.size = 1.5;
+
+    // End values
+    settings.endValues.size = 0.5;
+    settings.endValues.color = { 1, 0.9, 1, 0.4 };
+
+    // Randomize values
+    settings.randPosition = { -6, 6, 0, 17, -6, 6 };
+    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
+    settings.randSize = { 0, 0.5 };
+    settings.randRotation = { 0, 2 * PI };
+    settings.randRotationSpeed = { 0, 1 };
+
+    // Create the component
+    pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+    
 
 
     mc->SetModel(teleportModel);
@@ -775,23 +786,36 @@ Scene* ShopScene(SceneManager* sm)
     bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION);
     teleC = entity->AddComponent<component::TeleportComponent>(scene->GetEntity(playerName), "GameScene");
 
-    // Create test particleEffect
+    // Create particleEffect
     ParticleEffectSettings settings = {};
-    settings.maxParticleCount = 100;
-    settings.startValues.lifetime = 0.8;
-    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
-    settings.startValues.acceleration = { 0, 0, 0 };
-
-    // Need to fix EngineRand.rand() for negative values
-
-    settings.randPosition = { -6, 6, 0, 15, -6, 6};
-    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
-    settings.randSize = { 0.3, 0.9 };
-    settings.randRotationSpeed = { 0, 1 };
-
+    // Important settings
     Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
     settings.texture = particleTexture;
-    pec = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+    settings.maxParticleCount = 100;
+    settings.spawnInterval = 0.02;
+    settings.isLooping = true;
+
+    // Start values
+    settings.startValues.position = { 0, 0, 0 };
+    settings.startValues.velocity = { 0, 0, 0 };
+    settings.startValues.acceleration = { 0, 0, 0 };
+    settings.startValues.color = { 1, 1, 1, 1 };
+    settings.startValues.lifetime = 1.65;
+    settings.startValues.size = 1.5;
+
+    // End values
+    settings.endValues.size = 0.5;
+    settings.endValues.color = { 1, 0.9, 1, 0.4 };
+
+    // Randomize values
+    settings.randPosition = { -6, 6, 0, 17, -6, 6 };
+    settings.randVelocity = { -2, 2, 0, 2, -2, 2 };
+    settings.randSize = { 0, 0.5 };
+    settings.randRotation = { 0, 2 * PI };
+    settings.randRotationSpeed = { 0, 1 };
+
+    // Create the component
+    entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
     
     mc->SetModel(teleportModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
@@ -1044,18 +1068,22 @@ void ParticleInit()
 {
     ParticleEffectSettings settings = {};
     settings.maxParticleCount = 100;
-    settings.startValues.lifetime = 1.5;
-    settings.spawnInterval = 0.001;
+    settings.startValues.lifetime = 3;
+    settings.startValues.size = 2;
+    settings.spawnInterval = 0.0001;
     settings.startValues.acceleration = { 0, 0, 0 };
     settings.isLooping = false;
 
-    // Need to fix EngineRand.rand() for negative values
-    RandomParameter3 randParam1 = { -10, 10, -10, 10, -10, 10 };
+    RandomParameter3 randParam1 = { -40, 40, -40, 40, -40, 40 };
 
     settings.randPosition = { -1, 1, -1, 1, -1, 1 };
     settings.randVelocity = randParam1;
-    settings.randSize = { 0.2f, 0.6f };
+    settings.randSize = { -0.6, 0 };
     settings.randRotationSpeed = { 0, 3 };
+
+    settings.endValues.size = -4;
+    settings.endValues.color.a = 1;
+
 
     settings.texture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/portal_particle_blue.png"));
     Entity* particleEntity = SceneManager::GetInstance().GetActiveScene()->AddEntity("teleportationParticle");

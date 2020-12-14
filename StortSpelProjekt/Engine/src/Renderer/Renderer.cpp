@@ -293,7 +293,7 @@ void Renderer::Update(double dt)
 void Renderer::RenderUpdate(double dt)
 {
 	/* ------ ImGui ------*/
-	if (DEVELOPERMODE_DEVINTERFACE == true)
+	if (!IsImguiHidden())
 	{
 		ImGuiHandler::GetInstance().NewFrame();
 	}
@@ -318,7 +318,7 @@ void Renderer::RenderUpdate(double dt)
 	updateMousePicker();
 
 	/* ------ ImGui ------*/
-	if (DEVELOPERMODE_DEVINTERFACE == true)
+	if (!IsImguiHidden())
 	{
 		ImGuiHandler::GetInstance().UpdateFrame();
 	}
@@ -527,15 +527,22 @@ void Renderer::Execute()
 	/* --------------------------------------------------------------- */
 
 	// Wait if the CPU is to far ahead of the gpu
-	m_FenceFrameValue++;
 
 	m_CommandQueues[COMMAND_INTERFACE_TYPE::DIRECT_TYPE]->Signal(m_pFenceFrame, m_FenceFrameValue);
 	waitForFrame(0);
+	m_FenceFrameValue++;
 
 	/*------------------- Post draw stuff -------------------*/
 	// Clear copy on demand
 	m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]->Clear();
 
+
+	// Clear textures from CPU
+	for (Texture* texture : m_TexturesToRemove)
+	{
+		texture->DeleteTextureOnRam();
+	}
+	m_TexturesToRemove.clear();
 	/*------------------- Present -------------------*/
 	HRESULT hr = dx12SwapChain->Present(0, 0);
 	
@@ -1253,6 +1260,9 @@ void Renderer::submitTextureToCodt(Texture* texture)
 	codt->SubmitTexture(texture);
 
 	AssetLoader::Get()->m_LoadedTextures.at(texture->GetPath()).first = true;
+
+	// Remove the texture on RAM afterwards...
+	m_TexturesToRemove.push_back(texture);
 }
 
 void Renderer::submitToCpft(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)

@@ -221,7 +221,6 @@ ShadowInfo* ViewPool::createShadowInfo(LIGHT_TYPE lightType, SHADOW_RESOLUTION s
 		break;
 	}
 
-
 	ShadowInfo* shadowInfo = new ShadowInfo(
 		depthTextureWidth,
 		depthTextureHeight,

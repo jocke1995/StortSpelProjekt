@@ -26,6 +26,7 @@ ParticleEffect::ParticleEffect(Entity* parent, ParticleEffectSettings* settings)
 {
 	m_pEntity = parent;
 	m_Settings = *settings;
+
 	m_pTexture = settings->texture;
 
 	if (m_pTexture == nullptr)
@@ -36,6 +37,10 @@ ParticleEffect::ParticleEffect(Entity* parent, ParticleEffectSettings* settings)
 
 		Log::PrintSeverity(Log::Severity::WARNING, "ParticleEffect::Texture was nullptr\n");
 	}
+
+	// Setup interpolation values for byLifetime
+	m_SizeChangePerFrame = (m_Settings.startValues.size - m_Settings.endValues.size) / m_Settings.startValues.lifetime;
+	m_ColorChangePerFrame = (m_Settings.startValues.color - m_Settings.endValues.color) / m_Settings.startValues.lifetime;
 
 	init();
 }
@@ -72,7 +77,7 @@ void ParticleEffect::Update(double dt)
 		// Only update if alive
 		if (particle.IsAlive())
 		{
-			particle.Update(dt);
+			particle.Update(dt, m_SizeChangePerFrame, m_ColorChangePerFrame);
 		}
 	}
 }
@@ -172,12 +177,13 @@ void ParticleEffect::initParticle(Particle& particle)
 	// Set start values
 	particle.initValues(&m_Settings.startValues);
 
-	randomizePosition(particle);
-	randomizeVelocity(particle);
-	randomizeSize(particle);
-	randomizeRotation(particle);
-	randomizeRotationSpeed(particle);
-	randomizeLifetime(particle);
+	// Add the random parameters
+	particle.m_Attributes.position += randomizeParameter(m_Settings.randPosition);
+	particle.m_Attributes.velocity += randomizeParameter(m_Settings.randVelocity);
+	particle.m_Attributes.size += randomizeParameter(m_Settings.randSize);
+	particle.m_Attributes.rotation += randomizeParameter(m_Settings.randRotation);
+	particle.m_Attributes.rotationSpeed += randomizeParameter(m_Settings.randRotationSpeed);
+	particle.m_Attributes.lifetime += randomizeParameter(m_Settings.randLifetime);
 
 	// Add Entity transform position to start position.
 	component::TransformComponent* tc = m_pEntity->GetComponent<component::TransformComponent>();
@@ -188,93 +194,59 @@ void ParticleEffect::initParticle(Particle& particle)
 	}
 }
 
-void ParticleEffect::randomizePosition(Particle& particle)
+float3 ParticleEffect::randomizeParameter(RandomParameter3& param)
 {
-	RandomParameter3 randParams = m_Settings.randPosition;
-	
-	if (!(randParams.x.intervalLower == 0 && randParams.x.intervalUpper == 0))
+	float3 randFloat = { 0,0,0 };
+	if (!(param.x.intervalLower == 0 && param.x.intervalUpper == 0))
 	{
-		float x = randomizeFloat(randParams.x.intervalLower, randParams.x.intervalUpper);
-		particle.m_Attributes.position.x += x;
+		randFloat.x = randomizeFloat(param.x.intervalLower, param.x.intervalUpper);
 	}
 
-	if (!(randParams.y.intervalLower == 0 && randParams.y.intervalUpper == 0))
+	if (!(param.y.intervalLower == 0 && param.y.intervalUpper == 0))
 	{
-		float y = randomizeFloat(randParams.y.intervalLower, randParams.y.intervalUpper);
-		particle.m_Attributes.position.y += y;
+		randFloat.y = randomizeFloat(param.y.intervalLower, param.y.intervalUpper);
 	}
 
-	if (randParams.z.intervalLower != 0 && randParams.z.intervalUpper != 0)
+	if (param.z.intervalLower != 0 && param.z.intervalUpper != 0)
 	{
-		float z = randomizeFloat(randParams.z.intervalLower, randParams.z.intervalUpper);
-		particle.m_Attributes.position.z += z;
+		randFloat.z = randomizeFloat(param.z.intervalLower, param.z.intervalUpper);
 	}
+
+	return randFloat;
 }
 
-void ParticleEffect::randomizeVelocity(Particle& particle)
+float ParticleEffect::randomizeParameter(RandomParameter& param)
 {
-	RandomParameter3 randParams = m_Settings.randVelocity;
-
-	if (!(randParams.x.intervalLower == 0 && randParams.x.intervalUpper == 0))
+	float randFloat = 0;
+	if (!(param.intervalLower == 0 && param.intervalUpper == 0))
 	{
-		float x = randomizeFloat(randParams.x.intervalLower, randParams.x.intervalUpper);
-		particle.m_Attributes.velocity.x += x;
+		randFloat = randomizeFloat(param.intervalLower, param.intervalUpper);
 	}
 
-	if (!(randParams.y.intervalLower == 0 && randParams.y.intervalUpper == 0))
-	{
-		float y = randomizeFloat(randParams.y.intervalLower, randParams.y.intervalUpper);
-		particle.m_Attributes.velocity.y += y;
-	}
-
-	if (!(randParams.z.intervalLower == 0 && randParams.z.intervalUpper == 0))
-	{
-		float z = randomizeFloat(randParams.z.intervalLower, randParams.z.intervalUpper);
-		particle.m_Attributes.velocity.z += z;
-	}
+	return randFloat;
 }
 
-void ParticleEffect::randomizeSize(Particle& particle)
+float ParticleEffect::randomizeFloat(float lower, float upper) const
 {
-	RandomParameter randParam = m_Settings.randSize;
-
-	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
+	// rand.Randf can't handle same numbers
+	if (lower == upper)
 	{
-		float size = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
-		particle.m_Attributes.size += size;
+		return lower;
 	}
+	const float increaseRandomness = 100;
+	float r = rand.Randf(floor(lower * increaseRandomness), ceil(upper * increaseRandomness)) / increaseRandomness;
+	return r;
 }
 
-void ParticleEffect::randomizeRotation(Particle& particle)
+void ParticleEffect::clampFloat(float* floatToClamp, float upper, float lower) const
 {
-	RandomParameter randParam = m_Settings.randRotation;
-
-	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
+	if (*floatToClamp > upper)
 	{
-		float rot = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
-		particle.m_Attributes.rotation += rot;
+		*floatToClamp = 1;
 	}
-}
-
-void ParticleEffect::randomizeRotationSpeed(Particle& particle)
-{
-	RandomParameter randParam = m_Settings.randRotationSpeed;
-	
-	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
+	else if (*floatToClamp < lower)
 	{
-		float rotSpeed = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
-		particle.m_Attributes.rotationSpeed += rotSpeed;
-	}
-}
-
-void ParticleEffect::randomizeLifetime(Particle& particle)
-{
-	RandomParameter randParam = m_Settings.randLifetime;
-	
-	if (!(randParam.intervalLower == 0 && randParam.intervalUpper == 0))
-	{
-		float lifetime = randomizeFloat(randParam.intervalLower, randParam.intervalUpper);
-		particle.m_Attributes.lifetime += lifetime;
+		*floatToClamp = 0;
 	}
 }
 
@@ -292,7 +264,17 @@ void ParticleEffect::updateResourceData(float3 cameraPos)
 		}
 #endif // PARTICLESYSTEM_RENDER_DEAD_PARTICLES
 
-		tempData = { p.m_Attributes.position.x, p.m_Attributes.position.y, p.m_Attributes.position.z, p.m_Attributes.size, p.m_Attributes.rotation };
+		// Don't know if this should be here, but do not render sizes that are < 0, normal will just be flipped if rendered.
+		if (p.m_Attributes.size < 0)
+		{
+			p.m_Attributes.size = 0;
+		}
+
+		tempData = {
+			p.m_Attributes.position.x, p.m_Attributes.position.y, p.m_Attributes.position.z, p.m_Attributes.size,
+			p.m_Attributes.color.r, p.m_Attributes.color.g, p.m_Attributes.color.b, p.m_Attributes.color.a,
+			p.m_Attributes.rotation
+		};
 		
 		m_ParticlesData[index++] = tempData;
 	}
@@ -306,16 +288,4 @@ void ParticleEffect::updateResourceData(float3 cameraPos)
 
 		return distFromCamI > distFromCamJ;
 	});
-}
-
-float ParticleEffect::randomizeFloat(float lower, float upper) const
-{
-	// rand.Randf can't handle same numbers
-	if (lower == upper)
-	{
-		return lower;
-	}
-	const float increaseRandomness = 100;
-	float r = rand.Randf(floor(lower* increaseRandomness), ceil(upper* increaseRandomness))/ increaseRandomness;
-	return r;
 }

@@ -308,7 +308,6 @@ Scene* LeosTestScene(SceneManager* sm)
 
     mc->SetModel(playerModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
-    ac->initialize();
     tc->GetTransform()->SetScale(0.1f);
     tc->GetTransform()->SetPosition(-10.0, 20.0, 10.0);
 
@@ -736,6 +735,8 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
     ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    auto avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    auto alc = entity->AddComponent<component::Audio3DListenerComponent>();
     ic->SetMovementSpeed(50);
     cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
     ic->Init();
@@ -745,32 +746,41 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc->GetTransform()->SetScale(1);
     tc->GetTransform()->SetPosition(0, 1, -30);
 
-    Player::GetInstance().SetPlayer(entity);
-
-    // Create test particleEffect
+    // Create particleEffect
     ParticleEffectSettings settings = {};
-    settings = {};
-    settings.maxParticleCount = 1;
-    settings.startValues.lifetime = 0.2;
-    settings.spawnInterval = 0.0001;
-    settings.startValues.acceleration = { 0, 0, 0 };
+    // Important settings
+    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/shrapnel_particle.png"));
+    settings.texture = particleTexture;
+    settings.maxParticleCount = 50;
+    settings.spawnInterval = 0.001;
     settings.isLooping = true;
 
-    // Need to fix EngineRand.rand() for negative values
+    float m_Radius = 20;
 
-    settings.randPosition = { 0, 0, 0, 0, 0, 0 };
-    settings.randVelocity = { 0, 0, 0, 0, 0, 0 };
-    settings.randSize = { 3.5, 3.5 };
+    // Start values
+    settings.startValues.position = { 0, 3.0, 0 };
+    settings.endValues.acceleration = { 0, 0, 0 };
+    settings.startValues.lifetime = 1.0;
+    settings.startValues.size = 0.4f * m_Radius / 10.0f;
+
+    // End values
+    settings.endValues.size = 0;
+    settings.endValues.color.a = 1;
+
+    // Randomize values
+    settings.randPosition = { 0,0,0,0,0,0 };
+    settings.randVelocity = { -m_Radius, m_Radius, -m_Radius, m_Radius, -m_Radius, m_Radius };
+    settings.randSize = { -0.2f * m_Radius / 10.0f, 0 };
     settings.randRotation = { 0, 2 * PI };
-    settings.randRotationSpeed = { 0.2, 0.2 };
+    settings.randRotationSpeed = { -PI/2, PI/2 };
 
-    Texture2DGUI* particleTexture;
-    particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/projParticle.png"));
-    settings.texture = particleTexture;
 
+    // Create the component
     pe = entity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
     /* ---------------------- Player ---------------------- */
 
+    Player::GetInstance().SetPlayer(entity);
+    /* ---------------------- Player ---------------------- */
 
 
     /* ---------------------- Skybox ---------------------- */
@@ -791,6 +801,7 @@ Scene* FloppipTestScene(SceneManager* sm)
     tc = entity->AddComponent<component::TransformComponent>();
     tc->GetTransform()->SetScale(35, 1, 35);
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+
     /* ---------------------- Floor ---------------------- */
 
 
@@ -1244,7 +1255,6 @@ Scene* WilliamsTestScene(SceneManager* sm)
 
     mc->SetModel(aniTest);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW | FLAG_DRAW::NO_DEPTH);
-    ac->initialize();
     tc->GetTransform()->SetPosition(0.0f, 5.0f, 10.0f);
     tc->GetTransform()->SetScale(0.1f);
 

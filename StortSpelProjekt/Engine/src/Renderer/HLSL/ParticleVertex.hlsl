@@ -4,6 +4,7 @@ struct VS_OUT
 {
 	float4 pos      : SV_Position;
 	float2 uv       : UV;
+	uint iID		: ID;
 };
 
 struct vertex
@@ -25,6 +26,7 @@ ConstantBuffer<CB_PER_FRAME_STRUCT>  cbPerFrame  : register(b4, space3);
 VS_OUT VS_main(uint vID : SV_VertexID, uint iID : SV_InstanceID)
 {
 	VS_OUT output = (VS_OUT)0;
+	output.iID = iID;
 
 	float halfSize = (particleData[iID].size)/2;
 

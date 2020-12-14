@@ -60,7 +60,7 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 	}
 
 	m_KeyState[key] = pressed;
-	if (key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::LEFT_SHIFT || key == SCAN_CODES::RIGHT_SHIFT || key == SCAN_CODES::SPACE)
+	if (key == SCAN_CODES::W || key == SCAN_CODES::A || key == SCAN_CODES::S || key == SCAN_CODES::D || key == SCAN_CODES::Q || key == SCAN_CODES::E || key == SCAN_CODES::LEFT_SHIFT || key == SCAN_CODES::RIGHT_SHIFT || key == SCAN_CODES::SPACE)
 	{
 		// Disable movement when in Shop2D-GUI state
 		if (Player::GetInstance().GetShop()->IsShop2DGUIDisplaying() == false)
@@ -97,6 +97,10 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			EventBus::GetInstance().Publish(&PauseGame(m_IsPaused));
 			ShowCursor(m_IsPaused);
 		}
+	}
+	else if (DEVELOPERMODE_FREECAM && key == SCAN_CODES::LEFT_CTRL && justPressed && !m_IsPaused)
+	{
+		EventBus::GetInstance().Publish(&ModifierInput(key, pressed));
 	}
 }
 

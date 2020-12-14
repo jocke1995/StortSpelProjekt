@@ -64,18 +64,25 @@ void UpgradeExplosiveAttack::OnRangedHit(Entity* target, Entity* projectile)
 
 	ParticleEffectSettings settings = {};
 	settings.maxParticleCount = 50;
-	settings.startValues.lifetime = 1.0;
 	settings.spawnInterval = 0.001;
-	settings.startValues.acceleration = { 0, 0, 0 };
-	settings.isLooping = false;
+	settings.isLooping = true;
 
-	// Need to fix EngineRand.rand() for negative values
-	RandomParameter3 randParam1 = { -m_Radius, m_Radius, -m_Radius, m_Radius, -m_Radius, m_Radius };
+	// Start values
+	settings.startValues.position = { 0, 0.0, 0 };
+	settings.startValues.acceleration = { 0, -3.0, 0 };
+	settings.startValues.lifetime = 1.0;
+	settings.startValues.size = 0.4f * m_Radius / 10.0f;
 
-	settings.randPosition = { -1, 1, -1, 1, -1, 1 };
-	settings.randVelocity = randParam1;
-	settings.randSize = { 0.4f * m_Radius / 10.0f, 0.8f * m_Radius / 10.0f };
-	settings.randRotationSpeed = { 0, 3 };
+	// End values
+	settings.endValues.size = 0;
+	settings.endValues.color.a = 1;
+
+	// Randomize values
+	settings.randPosition = { 0,0,0,0,0,0 };
+	settings.randVelocity = { -m_Radius, m_Radius, -m_Radius, m_Radius, -m_Radius, m_Radius };
+	settings.randSize = { -0.2f * m_Radius / 10.0f, 0 };
+	settings.randRotation = { 0, 2 * PI };
+	settings.randRotationSpeed = { -PI / 2, PI / 2 };
 
 	settings.texture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/shrapnel_particle.png"));
 	Entity* particleEntity = SceneManager::GetInstance().GetActiveScene()->AddEntity("explosionParticle" + std::to_string(m_ParticleCounter++));

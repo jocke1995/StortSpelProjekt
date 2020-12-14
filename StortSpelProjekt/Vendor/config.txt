@@ -1,4 +1,4 @@
-f_volume 0.6
+f_volume 1.0
 f_backgroundVolume 0.2
 f_updateRate 30
 f_networkUpdateRate 15
@@ -12,7 +12,7 @@ i_network 1
 s_ip wiko97.ddns.net
 i_port 55555
 f_playerElevation 1
-f_sensitivityX 1
-f_sensitivityY 1
+f_sensitivityX 1.0
+f_sensitivityY 1.0
 i_music 1
 i_trackGame 1

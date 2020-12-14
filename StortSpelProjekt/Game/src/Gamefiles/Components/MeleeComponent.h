@@ -62,6 +62,8 @@ namespace component
 		float m_MeleeXRange;
 		float m_XScale;
 		float m_ZScale;
+		float m_XBaseScale;
+		float m_ZBaseScale;
 		bool m_Attacking;
 		bool m_Cooldown;
 		bool m_AudioPlay;
