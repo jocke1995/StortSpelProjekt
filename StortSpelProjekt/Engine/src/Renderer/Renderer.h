@@ -136,6 +136,8 @@ public:
 	void UnInitParticleEmitterComponent(component::ParticleEmitterComponent* component);
 	void UnInitProgressBarComponent(component::ProgressBarComponent* component);
 
+	void SetBrightness(float value);
+
 	void OnResetScene();
 
 private:

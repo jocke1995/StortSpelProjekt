@@ -465,10 +465,10 @@ Scene* GameScene(SceneManager* sm)
 #pragma region GUI
 #pragma region health background
 	std::string textToRender = "";
-	float2 textPos = { 0.473f, 0.965f };
+	float2 textPos = { 0.483f, 0.977f };
 	float2 textPadding = { 0.8f, 0.0f };
 	float4 textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-	float2 textScale = { 0.3f, 0.3f };
+	float2 textScale = { 0.25f, 0.25f };
 	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	entity = scene->AddEntity("healthBackground");
@@ -482,7 +482,7 @@ Scene* GameScene(SceneManager* sm)
 	gui->GetTextManager()->SetText(std::to_string(hc->GetHealth()), "currentHealth");
 	gui->GetTextManager()->SetBlend(textBlend, "currentHealth");
 
-	textPos = { 0.499f, 0.965f };
+	textPos = { 0.504f, 0.977f };
 	gui->GetTextManager()->AddText("slash");
 	gui->GetTextManager()->SetColor(textColor, "slash");
 	gui->GetTextManager()->SetPadding(textPadding, "slash");
@@ -491,7 +491,7 @@ Scene* GameScene(SceneManager* sm)
 	gui->GetTextManager()->SetText("/", "slash");
 	gui->GetTextManager()->SetBlend(textBlend, "slash");
 
-	textPos = { 0.503f, 0.965f };
+	textPos = { 0.508f, 0.977f };
 	gui->GetTextManager()->AddText("maxHealth");
 	gui->GetTextManager()->SetColor(textColor, "maxHealth");
 	gui->GetTextManager()->SetPadding(textPadding, "maxHealth");
@@ -500,8 +500,8 @@ Scene* GameScene(SceneManager* sm)
 	gui->GetTextManager()->SetText(std::to_string(hc->GetMaxHealth()), "maxHealth");
 	gui->GetTextManager()->SetBlend(textBlend, "maxHealth");
 
-	float2 quadPos = { 0.3f, 0.85f };
-	float2 quadScale = { 0.4f, 0.15f };
+	float2 quadPos = { 0.34f, 0.88f };
+	float2 quadScale = { 0.333f, 0.125f };
 	float4 blended = { 1.0, 1.0, 1.0, 0.99 };
 	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
 	gui->GetQuadManager()->CreateQuad(
@@ -516,8 +516,8 @@ Scene* GameScene(SceneManager* sm)
 #pragma region health holder
 	entity = scene->AddEntity("healthHolder");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	quadPos = { 0.35f, 0.85f };
-	quadScale = { 0.3f, 0.115f };
+	quadPos = { 0.383f, 0.88f };
+	quadScale = { 0.25f, 0.095f };
 	gui->GetQuadManager()->CreateQuad(
 		"healthHolder",
 		quadPos, quadScale,
@@ -530,8 +530,8 @@ Scene* GameScene(SceneManager* sm)
 #pragma region health bar
 	entity = scene->AddEntity("healthbar");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	quadPos = { 0.365f, 0.892f };
-	quadScale = { 0.275f, 0.055f };
+	quadPos = { 0.394f, 0.9145f };
+	quadScale = { 0.229f, 0.046f };
 	gui->GetQuadManager()->CreateQuad(
 		"healthbar",
 		quadPos, quadScale,
@@ -545,8 +545,8 @@ Scene* GameScene(SceneManager* sm)
 #pragma region health guardians
 	entity = scene->AddEntity("healthGuardians");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	quadPos = { 0.32f, 0.86f };
-	quadScale = { 0.3625f, 0.14f };
+	quadPos = { 0.3565f, 0.8834f };
+	quadScale = { 0.3033f, 0.12f };
 	gui->GetQuadManager()->CreateQuad(
 		"healthGuardians",
 		quadPos, quadScale,
@@ -704,6 +704,7 @@ Scene* ShopScene(SceneManager* sm)
 	Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
 	Texture* healthHolderTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthHolder.png");
     Texture* currencyIcon = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/currency.png");
+	Texture* crosshairTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Crosshair.png");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
@@ -806,10 +807,10 @@ Scene* ShopScene(SceneManager* sm)
 	/* ------------------------- GUI --------------------------- */
 	/* ----------------- healthBackground ---------------------- */
 	std::string textToRender = "";
-	float2 textPos = { 0.473f, 0.965f };
+	float2 textPos = { 0.483f, 0.977f };
 	float2 textPadding = { 0.8f, 0.0f };
 	float4 textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-	float2 textScale = { 0.3f, 0.3f };
+	float2 textScale = { 0.25f, 0.25f };
 	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	entity = scene->AddEntity("healthBackground");
@@ -823,7 +824,7 @@ Scene* ShopScene(SceneManager* sm)
 	gui->GetTextManager()->SetText(std::to_string(hc->GetHealth()), "currentHealth");
 	gui->GetTextManager()->SetBlend(textBlend, "currentHealth");
 
-	textPos = { 0.499f, 0.965f };
+	textPos = { 0.504f, 0.977f };
 	gui->GetTextManager()->AddText("slash");
 	gui->GetTextManager()->SetColor(textColor, "slash");
 	gui->GetTextManager()->SetPadding(textPadding, "slash");
@@ -832,7 +833,7 @@ Scene* ShopScene(SceneManager* sm)
 	gui->GetTextManager()->SetText("/", "slash");
 	gui->GetTextManager()->SetBlend(textBlend, "slash");
 
-	textPos = { 0.503f, 0.965f };
+	textPos = { 0.508f, 0.977f };
 	gui->GetTextManager()->AddText("maxHealth");
 	gui->GetTextManager()->SetColor(textColor, "maxHealth");
 	gui->GetTextManager()->SetPadding(textPadding, "maxHealth");
@@ -841,8 +842,8 @@ Scene* ShopScene(SceneManager* sm)
 	gui->GetTextManager()->SetText(std::to_string(hc->GetMaxHealth()), "maxHealth");
 	gui->GetTextManager()->SetBlend(textBlend, "maxHealth");
 
-	float2 quadPos = { 0.3f, 0.85f };
-	float2 quadScale = { 0.4f, 0.15f };
+	float2 quadPos = { 0.34f, 0.88f };
+	float2 quadScale = { 0.333f, 0.125f };
 	float4 blended = { 1.0, 1.0, 1.0, 0.99 };
 	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
 	gui->GetQuadManager()->CreateQuad(
@@ -857,8 +858,8 @@ Scene* ShopScene(SceneManager* sm)
 	/* ------------------------- healthHolder --------------------------- */
 	entity = scene->AddEntity("healthHolder");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	quadPos = { 0.35f, 0.85f };
-	quadScale = { 0.3f, 0.115f };
+	quadPos = { 0.383f, 0.88f };
+	quadScale = { 0.25f, 0.095f };
 	gui->GetQuadManager()->CreateQuad(
 		"healthHolder",
 		quadPos, quadScale,
@@ -871,8 +872,8 @@ Scene* ShopScene(SceneManager* sm)
 	/* ------------------------- healthbar --------------------------- */
 	entity = scene->AddEntity("healthbar");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	quadPos = { 0.365f, 0.892f };
-	quadScale = { 0.275f, 0.055f };
+	quadPos = { 0.394f, 0.9145f };
+	quadScale = { 0.229f, 0.046f };
 	gui->GetQuadManager()->CreateQuad(
 		"healthbar",
 		quadPos, quadScale,
@@ -886,8 +887,8 @@ Scene* ShopScene(SceneManager* sm)
 	/* ------------------------- healthGuardians --------------------------- */
 	entity = scene->AddEntity("healthGuardians");
 	gui = entity->AddComponent<component::GUI2DComponent>();
-	quadPos = { 0.32f, 0.86f };
-	quadScale = { 0.3625f, 0.14f };
+	quadPos = { 0.3565f, 0.8834f };
+	quadScale = { 0.3033f, 0.12f };
 	gui->GetQuadManager()->CreateQuad(
 		"healthGuardians",
 		quadPos, quadScale,
@@ -895,6 +896,21 @@ Scene* ShopScene(SceneManager* sm)
 		3,
 		blended,
 		healthGuardiansTexture);
+	/* ---------------------------------------------------------- */
+
+	/* ------------------------- crosshair --------------------------- */
+	blended = { 1.0, 1.0, 1.0, 0.7 };
+	entity = scene->AddEntity("crosshair");
+	gui = entity->AddComponent<component::GUI2DComponent>();
+	quadPos = { 0.497f, 0.495f };
+	quadScale = { 0.006f, 0.01f };
+	gui->GetQuadManager()->CreateQuad(
+		"crosshair",
+		quadPos, quadScale,
+		false, false,
+		0,
+		blended,
+		crosshairTexture);
 	/* ---------------------------------------------------------- */
 
     /* ---------------------- Poster ---------------------- */
@@ -1026,6 +1042,9 @@ void GameInitScene(Scene* scene)
 	}
 
     AssetLoader::Get()->RemoveWalls();
+
+	// Set brightness
+	Renderer::GetInstance().SetBrightness(std::stof(Option::GetInstance().GetVariable("f_brightness")));
 }
 
 void ShopInitScene(Scene* scene)

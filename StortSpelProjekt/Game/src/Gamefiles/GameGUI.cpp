@@ -63,6 +63,9 @@ void GameGUI::Update(double dt, Scene* scene)
 	{
 		Entity* entity = nullptr;
 
+		entity = scene->GetEntity("brightness");
+		entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(Option::GetInstance().GetVariable("f_brightness"), "brightness");
+
 		entity = scene->GetEntity("volume");
 		entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(Option::GetInstance().GetVariable("f_volume"), "volume");
 

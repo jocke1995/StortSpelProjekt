@@ -58,6 +58,8 @@ struct CB_PER_FRAME_STRUCT
 	float3 camForward;
 	float pad3;
 
+	// brightness
+	float brightness;
 
 	// deltaTime ..
 	// etc ..
