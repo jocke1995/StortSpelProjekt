@@ -13,7 +13,6 @@
 #include "../ECS/Components/Audio2DVoiceComponent.h"
 
 #include "UpgradeComponents/UpgradeComponent.h"
-#include "UpgradeComponents/Upgrades/UpgradeRangeTest.h"
 #include "../Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
 #include "../Memory/PoolAllocator.h"
 

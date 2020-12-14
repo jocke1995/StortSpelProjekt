@@ -9,7 +9,7 @@ UpgradeRangeDamage::UpgradeRangeDamage(Entity* parentEntity) : Upgrade(parentEnt
 	// set the type of the upgrade
 	SetType(F_UpgradeType::PLAYER);
 	// set the price of the upgrade
-	m_Price = 100;
+	m_Price = 150;
 	m_StartingPrice = m_Price;
 
 	m_DamageChange = 25;
@@ -32,7 +32,7 @@ void UpgradeRangeDamage::IncreaseLevel()
 	// increase level
 	m_Level++;
 
-	m_Price = m_StartingPrice + m_StartingPrice * ((float)m_Level / 2.0f);
+	m_Price = m_StartingPrice * (m_Level + 1);
 	// now apply the new stat
 }
 
