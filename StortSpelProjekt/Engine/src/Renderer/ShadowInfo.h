@@ -8,6 +8,7 @@ class DescriptorHeap;
 class Resource;
 
 #include "Core.h"
+#include <psapi.h>
 
 class ShadowInfo
 {

@@ -5,6 +5,7 @@
 #include "Components/EnemyComponent.h"
 #include "Misc/EngineRand.h"
 #include "Physics/CollisionCategories/EnemyCollisionCategory.h"
+#include "EnemyStatDefine.h"
 
 EnemyFactory& EnemyFactory::GetInstance()
 {
@@ -15,19 +16,20 @@ EnemyFactory& EnemyFactory::GetInstance()
 EnemyFactory::EnemyFactory()
 {
 	m_Level = 0;
-	m_MaxEnemies = 30;
-	m_LevelMaxEnemies = 20;
+	m_MaxEnemies = MAX_ENEMIES;
+	m_LevelMaxEnemies = BASE_KILL_TOTAL;
 	m_EnemiesKilled = 0;
 	m_TotalEnemiesKilled = 0;
 	m_EnemiesToSpawn = 0;
-	m_SurvivalLevelTimer = 30;
+	m_SurvivalLevelTimer = BASE_SURVIVAL_LEVEL;
 	m_LevelTimer = 0;
 	m_TimeRound = false;
 	m_EnemySlotsLeft = m_LevelMaxEnemies;
 	m_SpawnCooldown = 1;
 	m_MinimumDistanceToPlayer = 10;
 	m_SpawnTimer = 0.0f;
-	m_RandGen.SetSeed(time(NULL));
+	m_pRandGen = new EngineRand;
+	m_pRandGen->SetSeed(time(NULL));
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::levelDone);
@@ -46,6 +48,7 @@ EnemyFactory::~EnemyFactory()
 		}
 	}
 	m_EnemyComps.clear();
+	delete m_pRandGen;
 }
 
 void EnemyFactory::SetScene(Scene* scene)
@@ -193,7 +196,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	unsigned int size = comps->onHitSounds.size();
 	if (size > 1)
 	{
-		ae->AddVoice(comps->onHitSounds[m_RandGen.Rand(0, size)], L"OnHit");
+		ae->AddVoice(comps->onHitSounds[m_pRandGen->Rand(0, size)], L"OnHit");
 	}
 	else if (size == 1)
 	{
@@ -203,7 +206,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	size = comps->onGruntSounds.size();
 	if (size > 1)
 	{
-		ae->AddVoice(comps->onGruntSounds[m_RandGen.Rand(0, size)], L"OnGrunt");
+		ae->AddVoice(comps->onGruntSounds[m_pRandGen->Rand(0, size)], L"OnGrunt");
 	}
 	else if (size == 1)
 	{
@@ -213,7 +216,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	size = comps->onAttackSounds.size();
 	if (size > 1)
 	{
-		ae->AddVoice(comps->onAttackSounds[m_RandGen.Rand(0, size)], L"OnAttack");
+		ae->AddVoice(comps->onAttackSounds[m_pRandGen->Rand(0, size)], L"OnAttack");
 	}
 	else if (size == 1)
 	{
@@ -223,7 +226,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	size = comps->walkSounds.size();
 	if (size > 1)
 	{
-		ae->AddVoice(comps->walkSounds[m_RandGen.Rand(0, size)], L"Walk");
+		ae->AddVoice(comps->walkSounds[m_pRandGen->Rand(0, size)], L"Walk");
 	}
 	else if (size == 1)
 	{
@@ -291,7 +294,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 		bbc->AddCollisionCategory<EnemyCollisionCategory>();
 	}
 
-	ec->SetRandSeed(m_RandGen.Rand() % 1000);
+	ec->SetRandSeed(m_pRandGen->Rand() % 1000);
 
 	m_pScene->InitDynamicEntity(ent);
 	return ent;
@@ -334,7 +337,7 @@ Entity* EnemyFactory::SpawnEnemy(std::string entityName, unsigned int spawnPoint
 
 Entity* EnemyFactory::SpawnEnemy(std::string entityName)
 {
-	return SpawnEnemy(entityName, m_RandGen.Rand(0,m_SpawnPoints.size()));
+	return SpawnEnemy(entityName, m_pRandGen->Rand(0,m_SpawnPoints.size()));
 }
 
 EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, EnemyComps* comps)
@@ -360,6 +363,21 @@ EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, EnemyComps*
 
 
 	return enemy;
+}
+
+EnemyComps* EnemyFactory::GetDefineEnemy(std::string enemyName)
+{
+	if (m_EnemyComps.find(enemyName) == m_EnemyComps.end())
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "Tried to acess a unexisted enemy comp " + enemyName);
+		return nullptr;
+	}
+	return m_EnemyComps.at(enemyName);
+}
+
+float EnemyFactory::GetDifficultyScaler()
+{
+	return m_DifficultyScaler;
 }
 
 void EnemyFactory::SetEnemyTypeMaxHealth(const std::string& enemyName, int hp)
@@ -430,6 +448,10 @@ void EnemyFactory::Update(double dt)
 		{
 			m_LevelTimer -= 1.0;
 			m_LevelTime++;
+			if (m_Enemies.size() > 0) //Only increase difficulty if there are enemies in the map
+			{
+				m_DifficultyScaler += DIFFICULTY_PER_SECOND; //Increases difficulty over time
+			}
 		}
 	}
 }
@@ -464,7 +486,7 @@ void EnemyFactory::timeRound(double dt)
 			if (m_SpawnCooldown <= m_SpawnTimer)
 			{
 				m_SpawnTimer = 0.0;
-				m_EnemiesToSpawn = 3 + m_Level / 3.0f;
+				m_EnemiesToSpawn = BASE_ENEMIES_PER_WAVE + ENEMIES_PER_WAVE_SCALE;
 			}
 		}
 	}
@@ -481,8 +503,8 @@ void EnemyFactory::timeRound(double dt)
 			}
 		}
 
-		unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
-		int spawnNumber = m_RandGen.Rand(1, 100);
+		unsigned int point = m_pRandGen->Rand(0, eligblePoints.size());
+		int spawnNumber = m_pRandGen->Rand(1, 100);
 		int spawnChance = 0;
 		bool spawnDefault = true;
 		for (auto enemy : m_EnemyComps)
@@ -516,7 +538,7 @@ void EnemyFactory::killRound(double dt)
 		if (m_SpawnCooldown <= m_SpawnTimer)
 		{
 			m_SpawnTimer = 0.0;
-			m_EnemiesToSpawn = 3 + m_Level / 3.0f;
+			m_EnemiesToSpawn = BASE_ENEMIES_PER_WAVE + ENEMIES_PER_WAVE_SCALE;
 
 			if (m_EnemiesToSpawn > m_EnemySlotsLeft)
 			{
@@ -537,8 +559,8 @@ void EnemyFactory::killRound(double dt)
 			}
 		}
 
-		unsigned int point = m_RandGen.Rand(0, eligblePoints.size());
-		int spawnNumber = m_RandGen.Rand(1, 100);
+		unsigned int point = m_pRandGen->Rand(0, eligblePoints.size());
+		int spawnNumber = m_pRandGen->Rand(1, 100);
 		int spawnChance = 0;
 		bool spawnDefault = true;
 		for (auto enemy : m_EnemyComps)
@@ -637,11 +659,16 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	m_EnemiesKilled = 0;
 	m_LevelTime = 0;
 
+	if (m_Level > 0) //This should not be run on the first round
+	{
+		m_DifficultyScaler += DIFFICULTY_PER_LEVEL;
+	}
+
 	//First round is level 0 at this point and we want a time round every third level
 	if (m_Level % 3 == 2)
 	{
 		m_TimeRound = true;
-		m_SurvivalLevelTimer = 30 + 5 * m_Level;
+		m_SurvivalLevelTimer = BASE_SURVIVAL_LEVEL + SURVIVAL_TIME_PER_LEVEL;
 		m_LevelTimer = 0.0;
 
 		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
@@ -663,7 +690,7 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	{
 		m_TimeRound = false;
 		//Scaling difficulty
-		m_LevelMaxEnemies = 20 + 2 * m_Level;
+		m_LevelMaxEnemies = BASE_KILL_TOTAL + KILL_TOTAL_SCALE;
 		m_EnemySlotsLeft = m_LevelMaxEnemies;
 
 		Entity* enemyGui = m_pScene->GetEntity("enemyGui");
@@ -682,21 +709,24 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 		}
 	}
 
+
+	//DIFFICULTY SCALING
+	//The difficulty scalar increases by 1 per second and an additional m_Level * 10 per level. So the divider when increasing stats is roughly how many seconds until they get +1
 	// melee
 	if (m_EnemyComps["enemyZombie"] != nullptr)
 	{
-		m_EnemyComps["enemyZombie"]->hp = m_EnemyComps["enemyZombie"]->hpBase + 15 * m_Level;
-		m_EnemyComps["enemyZombie"]->meleeAttackDmg = m_EnemyComps["enemyZombie"]->meleeAttackDmgBase + 5 * m_Level;
+		m_EnemyComps["enemyZombie"]->hp = m_EnemyComps["enemyZombie"]->hpBase + m_DifficultyScaler * ZOMBIE_SCALE_HEALTH;
+		m_EnemyComps["enemyZombie"]->meleeAttackDmg = m_EnemyComps["enemyZombie"]->meleeAttackDmgBase + m_DifficultyScaler * ZOMBIE_SCALE_DAMAGE;
 	}
 
 	// meelee quick
 	if (m_EnemyComps["enemySpider"] != nullptr)
 	{
-		m_EnemyComps["enemySpider"]->hp = m_EnemyComps["enemySpider"]->hpBase + 5 * m_Level;
-		m_EnemyComps["enemySpider"]->meleeAttackDmg = m_EnemyComps["enemySpider"]->meleeAttackDmgBase + 2 * m_Level;
+		m_EnemyComps["enemySpider"]->hp = m_EnemyComps["enemySpider"]->hpBase + m_DifficultyScaler * SPIDER_SCALE_HEALTH;
+		m_EnemyComps["enemySpider"]->meleeAttackDmg = m_EnemyComps["enemySpider"]->meleeAttackDmgBase + m_DifficultyScaler * SPIDER_SCALE_DAMAGE;
 		if (m_Level > 0)
 		{
-			if (m_EnemyComps["enemySpider"]->spawnChance < 20)
+			if (m_EnemyComps["enemySpider"]->spawnChance < 30)
 			{
 				m_EnemyComps["enemySpider"]->spawnChance += 10;
 			}
@@ -706,11 +736,11 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 	// ranged
 	if (m_EnemyComps["enemyDemon"] != nullptr)
 	{
-		m_EnemyComps["enemyDemon"]->hp = m_EnemyComps["enemyDemon"]->hpBase + 10 * m_Level;
-		m_EnemyComps["enemyDemon"]->rangeAttackDmg = m_EnemyComps["enemyDemon"]->rangeAttackDmgBase + 5 * m_Level;
+		m_EnemyComps["enemyDemon"]->hp = m_EnemyComps["enemyDemon"]->hpBase + m_DifficultyScaler * DEMON_SCALE_HEALTH;
+		m_EnemyComps["enemyDemon"]->rangeAttackDmg = m_EnemyComps["enemyDemon"]->rangeAttackDmgBase + m_DifficultyScaler * DEMON_SCALE_DAMAGE;
 		if (m_Level > 0)
 		{
-			if (m_EnemyComps["enemyDemon"]->spawnChance < 40)
+			if (m_EnemyComps["enemyDemon"]->spawnChance < 30)
 			{
 				m_EnemyComps["enemyDemon"]->spawnChance += 5;
 			}
@@ -723,6 +753,7 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 void EnemyFactory::onResetGame(ResetGame* evnt)
 {
 	m_Level = 0;
+	m_DifficultyScaler = 0;
 	m_TotalEnemiesKilled = 0;
 	m_EnemyComps["enemyDemon"]->spawnChance = 0;
 	m_EnemyComps["enemyZombie"]->spawnChance = 0;
