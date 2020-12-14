@@ -17,11 +17,13 @@ UpgradeMeleeLifeSteal::UpgradeMeleeLifeSteal(Entity* parent) : Upgrade(parent)
 	// set the price of this upgrade
 	m_Price = 300;
 	m_StartingPrice = m_Price;
+	// This is max level because at lvl 17 lifesteal is 100% of meleeDamage.
+	m_MaxLevel = 17;
 
 	// percentage of damage done to steal as life
-	m_PercentageGain = 0.10;
+	m_PercentageGain = 0.20;
 
-	m_ImageName = "MeleeDamage.png";
+	m_ImageName = "MeleeDamageHealthRegen.png";
 }
 
 UpgradeMeleeLifeSteal::~UpgradeMeleeLifeSteal()
@@ -31,8 +33,11 @@ UpgradeMeleeLifeSteal::~UpgradeMeleeLifeSteal()
 void UpgradeMeleeLifeSteal::IncreaseLevel()
 {
 	m_Level++;
-	m_PercentageGain = 0.05f + 0.05f * m_Level; // Starts at 10% and increases by 5% per level
-	m_Price += (m_Level + 1) * 200; // m_Level starts at 0 so we increase it by 1.
+	m_PercentageGain = 0.20f + 0.05f * m_Level; // Starts at 20% and increases by 5% per level
+	// m_Level starts at 0 so we increase it by 1.
+	// Pricing:  300 -> 500 -> 700 -> 900 -> 1100 -> 1300 -> 1500 -> 1700 -> 1900 -> 2100 -> 2300 -> 2500 -> 2700 -> 2900 -> 3100 -> 3300 -> 3500
+	// Lifesteal 20% -> 25% -> 30% -> 35% -> 40%  -> 45%  -> 50%  -> 55%  -> 60%  -> 65%  -> 70%  -> 75%  -> 80%  -> 85%  -> 90%  -> 95%  -> 100%
+	m_Price = m_StartingPrice + (200 * m_Level); 
 }
 
 void UpgradeMeleeLifeSteal::OnMeleeHit(Entity* target)

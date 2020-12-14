@@ -16,6 +16,7 @@ UpgradePoisonAttack::UpgradePoisonAttack(Entity* parent)
 	// set the price of this upgrade
 	m_Price = 120;
 	m_StartingPrice = m_Price;
+	m_MaxLevel = 8;
 
 	m_ImageName = "PoisonAttack.png";
 
@@ -33,7 +34,7 @@ void UpgradePoisonAttack::IncreaseLevel()
 {
 	m_Level++;
 	m_NrOfTicks = 9 + m_Level;
-	m_Damage = (float)(0.04 * m_Level);
+	m_Damage = 0.04 + (float)(0.005 * m_Level);
 	m_Slow = 0.10 + (float)m_Level / 10.0f;
 	m_Price = m_StartingPrice * (m_Level + 1);
 
@@ -65,7 +66,7 @@ std::string UpgradePoisonAttack::GetDescription(unsigned int level)
 	std::string str = "Poison Attack: Causes your projectile to apply a poison. Deals ";
 	std::ostringstream damage;
 	damage.precision(1);
-	damage << std::fixed << ((0.04 * level * (9 + level))*100);
+	damage << std::fixed << (((0.04 + 0.005 * level - 1 )* (9 + level))*100);
 	str += damage.str();
 	str += "% of range damage over ";
 	std::ostringstream duration;

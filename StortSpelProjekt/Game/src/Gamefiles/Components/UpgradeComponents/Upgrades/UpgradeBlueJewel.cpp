@@ -38,7 +38,7 @@ void UpgradeBlueJewel::IncreaseLevel()
 	// increase the boost
 	m_DamageReduction = pow(m_StartDamageReduction, m_Level);
 	// increase the price of the upgrade
-	m_Price += m_StartingPrice;
+	m_Price = m_StartingPrice * m_Level;
 }
 
 std::string UpgradeBlueJewel::GetDescription(unsigned int level)
