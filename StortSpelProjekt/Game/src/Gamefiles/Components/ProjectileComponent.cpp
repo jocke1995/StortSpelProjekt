@@ -105,26 +105,23 @@ void component::ProjectileComponent::createProjectileParticleEffectAt(Entity* ta
 {
 	float duration = 0.2;
 
+
 	// Create test particleEffect
 	ParticleEffectSettings settings = {};
-	settings.maxParticleCount = 1;
-	settings.startValues.lifetime = duration;
-	settings.spawnInterval = 0.00000001;
-	settings.startValues.acceleration = { 0, 0, 0 };
-	settings.startValues.size = 2.2;
-	settings.isLooping = false;
-
-	// Need to fix EngineRand.rand() for negative values
-
-	settings.randPosition = { 0, 0, 0, 0, 0, 0 };
-	settings.randVelocity = { 0, 0, 0, 0, 0, 0 };
-	settings.randSize = { 0, 0 };
-	settings.randRotation = { 0, 2*PI };
-	settings.randRotationSpeed = { 0.0, 0.2 };
-
 	AssetLoader* al = AssetLoader::Get();
 	Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/projParticle.png"));
 	settings.texture = particleTexture;
+	settings.maxParticleCount = 1;
+	settings.startValues.lifetime = duration;
+	settings.spawnInterval = 0.00000001;
+	settings.startValues.size = 1.2;
+	settings.isLooping = false;
+
+	settings.endValues.size = 3.1;
+	settings.endValues.color.a = 0.5;
+
+	settings.randRotation = { 0, 2 * PI };
+	settings.randRotationSpeed = { -0.1, 0.1 };
 
 	SceneManager& sm = SceneManager::GetInstance();
 	

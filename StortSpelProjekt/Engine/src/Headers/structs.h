@@ -120,6 +120,7 @@ struct PARTICLE_DATA
 {
 	float3 position;
 	float size;
+	float4 color;
 
 	float rotation;
 };
