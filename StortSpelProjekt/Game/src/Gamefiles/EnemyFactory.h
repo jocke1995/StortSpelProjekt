@@ -3,8 +3,6 @@
 
 #include "EngineMath.h"
 #include "Core.h"
-#include "Misc/EngineRand.h"
-#include "Misc/EngineRand.h"
 #include <map>
 #include <vector>
 
@@ -12,6 +10,7 @@ class Scene;
 class Component;
 class Model;
 class Entity;
+class EngineRand;
 struct SceneChange;
 struct Death;
 struct LevelDone;
@@ -19,6 +18,18 @@ struct RoundStart;
 struct ResetGame;
 
 static int s_EnemyId = 0;
+
+//How many enemies can exist at any one point
+#define MAX_ENEMIES 50
+//How many enemies spawn per wave
+#define BASE_ENEMIES_PER_WAVE 4
+#define ENEMIES_PER_WAVE_SCALE m_Level / 3.0f
+//How many enemies need to be killed
+#define BASE_KILL_TOTAL 20
+#define KILL_TOTAL_SCALE m_Level * 3
+//How long survival rounds last
+#define BASE_SURVIVAL_LEVEL 40
+#define SURVIVAL_TIME_PER_LEVEL m_Level * 5
 
 enum F_COMP_FLAGS
 {
@@ -108,6 +119,10 @@ public:
 	Entity* SpawnEnemy(std::string entityName);
 	// Defines an enemy without adding it to the scene.
 	EnemyComps* DefineEnemy(const std::string& entityName, EnemyComps* comps);
+	// Get a enemy comp. Return nullptr if invalid
+	EnemyComps* GetDefineEnemy(std::string enemyName);
+
+	float GetDifficultyScaler();
 
 	// Sets the max health of all enemies of a specific type
 	void SetEnemyTypeMaxHealth(const std::string& enemyName, int hp);
@@ -138,7 +153,7 @@ private:
 	std::map<std::string, EnemyComps*> m_EnemyComps;
 	std::vector<Entity*> m_Enemies;
 	std::vector<float3> m_SpawnPoints;
-	EngineRand m_RandGen;
+	EngineRand* m_RandGen;
 
 	int m_MaxEnemies;
 	int m_LevelTime; //Duration for how long the level has lasted
@@ -150,6 +165,7 @@ private:
 	int m_EnemySlotsLeft;
 	int m_EnemiesKilled;
 	int m_TotalEnemiesKilled;
+	float m_DifficultyScaler;
 	unsigned int m_Level;
 	float m_SpawnCooldown;
 	float m_SpawnTimer;

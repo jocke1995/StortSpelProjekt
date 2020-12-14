@@ -1,0 +1,3 @@
+Level	Upgrades	Time
+1		5
+Total Time:	5	Levels Lasted:	1
