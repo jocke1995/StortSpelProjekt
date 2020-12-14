@@ -153,7 +153,7 @@ private:
 	std::map<std::string, EnemyComps*> m_EnemyComps;
 	std::vector<Entity*> m_Enemies;
 	std::vector<float3> m_SpawnPoints;
-	EngineRand* m_RandGen;
+	EngineRand* m_pRandGen;
 
 	int m_MaxEnemies;
 	int m_LevelTime; //Duration for how long the level has lasted

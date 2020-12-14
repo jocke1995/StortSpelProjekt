@@ -28,8 +28,8 @@ EnemyFactory::EnemyFactory()
 	m_SpawnCooldown = 1;
 	m_MinimumDistanceToPlayer = 10;
 	m_SpawnTimer = 0.0f;
-	m_RandGen = new EngineRand;
-	m_RandGen->SetSeed(time(NULL));
+	m_pRandGen = new EngineRand;
+	m_pRandGen->SetSeed(time(NULL));
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::onSceneSwitch);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::enemyDeath);
 	EventBus::GetInstance().Subscribe(this, &EnemyFactory::levelDone);
@@ -48,7 +48,7 @@ EnemyFactory::~EnemyFactory()
 		}
 	}
 	m_EnemyComps.clear();
-	delete m_RandGen;
+	delete m_pRandGen;
 }
 
 void EnemyFactory::SetScene(Scene* scene)
@@ -196,7 +196,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	unsigned int size = comps->onHitSounds.size();
 	if (size > 1)
 	{
-		ae->AddVoice(comps->onHitSounds[m_RandGen->Rand(0, size)], L"OnHit");
+		ae->AddVoice(comps->onHitSounds[m_pRandGen->Rand(0, size)], L"OnHit");
 	}
 	else if (size == 1)
 	{
@@ -206,7 +206,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	size = comps->onGruntSounds.size();
 	if (size > 1)
 	{
-		ae->AddVoice(comps->onGruntSounds[m_RandGen->Rand(0, size)], L"OnGrunt");
+		ae->AddVoice(comps->onGruntSounds[m_pRandGen->Rand(0, size)], L"OnGrunt");
 	}
 	else if (size == 1)
 	{
@@ -216,7 +216,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	size = comps->onAttackSounds.size();
 	if (size > 1)
 	{
-		ae->AddVoice(comps->onAttackSounds[m_RandGen->Rand(0, size)], L"OnAttack");
+		ae->AddVoice(comps->onAttackSounds[m_pRandGen->Rand(0, size)], L"OnAttack");
 	}
 	else if (size == 1)
 	{
@@ -226,7 +226,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 	size = comps->walkSounds.size();
 	if (size > 1)
 	{
-		ae->AddVoice(comps->walkSounds[m_RandGen->Rand(0, size)], L"Walk");
+		ae->AddVoice(comps->walkSounds[m_pRandGen->Rand(0, size)], L"Walk");
 	}
 	else if (size == 1)
 	{
@@ -294,7 +294,7 @@ Entity* EnemyFactory::Add(const std::string& entityName, EnemyComps* comps)
 		bbc->AddCollisionCategory<EnemyCollisionCategory>();
 	}
 
-	ec->SetRandSeed(m_RandGen->Rand() % 1000);
+	ec->SetRandSeed(m_pRandGen->Rand() % 1000);
 
 	m_pScene->InitDynamicEntity(ent);
 	return ent;
@@ -337,7 +337,7 @@ Entity* EnemyFactory::SpawnEnemy(std::string entityName, unsigned int spawnPoint
 
 Entity* EnemyFactory::SpawnEnemy(std::string entityName)
 {
-	return SpawnEnemy(entityName, m_RandGen->Rand(0,m_SpawnPoints.size()));
+	return SpawnEnemy(entityName, m_pRandGen->Rand(0,m_SpawnPoints.size()));
 }
 
 EnemyComps* EnemyFactory::DefineEnemy(const std::string& entityName, EnemyComps* comps)
@@ -503,8 +503,8 @@ void EnemyFactory::timeRound(double dt)
 			}
 		}
 
-		unsigned int point = m_RandGen->Rand(0, eligblePoints.size());
-		int spawnNumber = m_RandGen->Rand(1, 100);
+		unsigned int point = m_pRandGen->Rand(0, eligblePoints.size());
+		int spawnNumber = m_pRandGen->Rand(1, 100);
 		int spawnChance = 0;
 		bool spawnDefault = true;
 		for (auto enemy : m_EnemyComps)
@@ -559,8 +559,8 @@ void EnemyFactory::killRound(double dt)
 			}
 		}
 
-		unsigned int point = m_RandGen->Rand(0, eligblePoints.size());
-		int spawnNumber = m_RandGen->Rand(1, 100);
+		unsigned int point = m_pRandGen->Rand(0, eligblePoints.size());
+		int spawnNumber = m_pRandGen->Rand(1, 100);
 		int spawnChance = 0;
 		bool spawnDefault = true;
 		for (auto enemy : m_EnemyComps)
@@ -753,6 +753,7 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 void EnemyFactory::onResetGame(ResetGame* evnt)
 {
 	m_Level = 0;
+	m_DifficultyScaler = 0;
 	m_TotalEnemiesKilled = 0;
 	m_EnemyComps["enemyDemon"]->spawnChance = 0;
 	m_EnemyComps["enemyZombie"]->spawnChance = 0;
