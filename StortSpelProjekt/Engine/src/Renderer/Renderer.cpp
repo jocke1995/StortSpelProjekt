@@ -293,7 +293,7 @@ void Renderer::Update(double dt)
 void Renderer::RenderUpdate(double dt)
 {
 	/* ------ ImGui ------*/
-	if (DEVELOPERMODE_DEVINTERFACE == true)
+	if (!IsImguiHidden())
 	{
 		ImGuiHandler::GetInstance().NewFrame();
 	}
@@ -318,7 +318,7 @@ void Renderer::RenderUpdate(double dt)
 	updateMousePicker();
 
 	/* ------ ImGui ------*/
-	if (DEVELOPERMODE_DEVINTERFACE == true)
+	if (!IsImguiHidden())
 	{
 		ImGuiHandler::GetInstance().UpdateFrame();
 	}

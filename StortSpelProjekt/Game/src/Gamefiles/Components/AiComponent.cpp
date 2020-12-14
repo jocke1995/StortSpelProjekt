@@ -35,6 +35,7 @@ component::AiComponent::AiComponent(Entity* parent, Entity* target, unsigned int
 	m_TargetCircleTimer = 0.0f;
 	m_RandMovementTimer = 0.0f;
 	m_SlowingAttack = 0.0f;
+	m_RadiusIncreasePerSecond = 10.0f;
 
 	m_StartPos = m_pParent->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
 	m_GoalPos = target->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
@@ -110,6 +111,7 @@ void component::AiComponent::Update(double dt)
 		m_KnockBackTimer += dt;
 		m_TargetCircleTimer += dt;
 		m_RandMovementTimer += dt;
+		m_DetectionRadius += m_RadiusIncreasePerSecond * dt;
 		pathFinding();
 
 		m_IntervalTimeAccumulator += static_cast<float>(dt);

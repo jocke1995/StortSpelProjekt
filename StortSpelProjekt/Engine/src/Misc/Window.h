@@ -2,10 +2,13 @@
 #define WINDOW_H
 #include <Windows.h>
 #include <string>
+#include <map>
 
 // Temp
 static bool spacePressed = false;
 static bool tabPressed = false;
+static bool g_HideImgui = false;
+static bool g_HideGui = false;
 
 struct ShutDown;
 struct CursorShow;
@@ -57,5 +60,11 @@ private:
 	void closeWindow(ShutDown* evnt);
 	void setShowCursor(CursorShow* evnt);
 };
+
+bool IsImguiHidden();
+bool IsGuiHidden();
+
+void HideImgui(bool hide);
+void HideGui(bool hide);
 
 #endif

@@ -16,6 +16,9 @@
 
 #include "../../ECS/Components/GUI2DComponent.h"
 
+// tempHideGUI
+#include "../Misc/Window.h"
+
 TextTask::TextTask(ID3D12Device5* device, 
 	RootSignature* rootSignature, 
 	const std::wstring& VSName, const std::wstring& PSName,
@@ -74,9 +77,12 @@ void TextTask::Execute()
 	commandList->RSSetViewports(1, swapChainRenderTarget->GetRenderView()->GetViewPort());
 	commandList->RSSetScissorRects(1, swapChainRenderTarget->GetRenderView()->GetScissorRect());
 
-	for (int i = 0; i < m_TextComponents.size(); i++)
+	if (!IsGuiHidden())
 	{
-		draw(commandList, m_TextComponents.at(i));
+		for (int i = 0; i < m_TextComponents.size(); i++)
+		{
+			draw(commandList, m_TextComponents.at(i));
+		}
 	}
 
 	// Change state on front/backbuffer
