@@ -937,21 +937,8 @@ void onMouseSensitivityMinus(const std::string& name)
 
 void MainMenuUpdateScene(SceneManager* sm, double dt)
 {
-    //static float rotValue = 0.0f;
-	//
-    //Transform* trans = sm->GetScene("MainMenuScene")->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform();
-    //trans->SetRotationY(rotValue);
-    //trans->SetPosition({ 0.0f, std::sin(rotValue), 10.0f });
-	//
-    //for (int i = 0; i < 20; ++i)
-    //{
-    //    trans = sm->GetScene("MainMenuScene")->GetEntity("menuEnemy" + std::to_string(i))->GetComponent<component::TransformComponent>()->GetTransform();
-    //    trans->SetRotationY(rotValue + i);
-    //    float3 pos = trans->GetPositionFloat3();
-    //    trans->SetPosition({ pos.x, std::sin(rotValue + i), pos.z });
-    //}
-	//
-    //rotValue += dt;
+    Input::GetInstance().RegisterControllers();
+    MenuUpdateScene(sm, dt);
 }
 
 void MenuUpdateScene(SceneManager* sm, double dt)
