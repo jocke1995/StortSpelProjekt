@@ -90,14 +90,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
-    
-
     while (!window->ExitWindow())
     {
-        if (window->WasSpacePressed() == true)
-        {
-            Log::Print("Tim: %llu MiB \n", allocated / (1024 * 1024));
-        }
         /* ------ Update ------ */
         timer->Update();
 
@@ -108,7 +102,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             timer->StartTimer();
             timer->Update();
         }
-
         
         if (gameNetwork.IsConnected())
         {
