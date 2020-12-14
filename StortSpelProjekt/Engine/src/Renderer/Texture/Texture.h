@@ -15,6 +15,8 @@ public:
 	Texture(const std::wstring& filePath);
 	virtual ~Texture();
 
+	void DeleteTextureOnRam();
+
 	virtual bool Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap) = 0;
 
 	const std::wstring& GetPath() const;

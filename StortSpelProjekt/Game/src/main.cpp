@@ -57,7 +57,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     AudioEngine* const audioEngine = engine.GetAudioEngine();
     ParticleSystem* const particleSystem = engine.GetParticleSystem();
 
-
     /*------ AssetLoader to load models / textures ------*/
     AssetLoader* al = AssetLoader::Get();
 
@@ -91,8 +90,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     double logicTimer = 0;
     int count = 0;
 
-    
-
     while (!window->ExitWindow())
     {
         /* ------ Update ------ */
@@ -105,7 +102,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             timer->StartTimer();
             timer->Update();
         }
-
         
         if (gameNetwork.IsConnected())
         {

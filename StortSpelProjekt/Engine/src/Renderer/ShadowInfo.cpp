@@ -7,6 +7,8 @@
 #include "DescriptorHeap.h"
 #include "GPUMemory/Resource.h"
 
+#include "../Renderer/Renderer.h"
+
 ShadowInfo::ShadowInfo(
 	unsigned int textureWidth, unsigned int textureHeight,
 	unsigned int shadowInfoId,
@@ -24,7 +26,6 @@ ShadowInfo::ShadowInfo(
 	createSRV(device, dh_SRV);
 
 	m_pRenderView = new RenderView(textureWidth, textureHeight);
-
 }
 
 bool ShadowInfo::operator==(const ShadowInfo& other)
@@ -92,6 +93,18 @@ void ShadowInfo::createResource(ID3D12Device5* device, unsigned int width, unsig
 	clearValue.DepthStencil.Depth = 1.0f;
 	clearValue.DepthStencil.Stencil = 0;
 
+	// Ram usage
+	//Renderer& r = Renderer::GetInstance();
+	//PROCESS_MEMORY_COUNTERS pmc{};
+	//if (GetProcessMemoryInfo(r.m_ProcessHandle, &pmc, sizeof(pmc)))
+	//{
+	//	//PagefileUsage is the:
+	//		//The Commit Charge value in bytes for this process.
+	//		//Commit Charge is the total amount of memory that the memory manager has committed for a running process.
+	//	float memoryUsage = float(pmc.WorkingSetSize / 1024.0 / 1024.0); //MiB
+	//	Log::Print("Ram before creating shadowMapResource %f\n", memoryUsage);
+	//}
+
 	std::wstring resourceName = L"ShadowMap" + std::to_wstring(m_Id) + L"_DEFAULT_RESOURCE";
 	m_pResource = new Resource(
 		device,
@@ -99,6 +112,17 @@ void ShadowInfo::createResource(ID3D12Device5* device, unsigned int width, unsig
 		&clearValue,
 		resourceName,
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+	//pmc = {};
+	//if (GetProcessMemoryInfo(r.m_ProcessHandle, &pmc, sizeof(pmc)))
+	//{
+	//	//PagefileUsage is the:
+	//		//The Commit Charge value in bytes for this process.
+	//		//Commit Charge is the total amount of memory that the memory manager has committed for a running process.
+	//	float memoryUsage = float(pmc.WorkingSetSize / 1024.0 / 1024.0); //MiB
+	//	Log::Print("Ram after creating shadowMapResource %f\n", memoryUsage);
+	//	Log::Print("-------------------------------------------------- \n");
+	//}
 }
 
 void ShadowInfo::createDSV(ID3D12Device5* device, DescriptorHeap* dh_DSV)
