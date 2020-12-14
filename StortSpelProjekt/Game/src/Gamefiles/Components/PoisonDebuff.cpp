@@ -16,13 +16,18 @@ component::PoisonDebuff::PoisonDebuff(Entity* parent, int damagePerTick, int tic
 	settings.startValues.lifetime = 0.5;
 	settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
 	settings.startValues.acceleration = { 0, -2, 0 };
+	settings.endValues.acceleration = { 0, -2, 0 };
+	settings.startValues.size = 0.4;
+	settings.endValues.size = 0;
+	settings.startValues.color.a = 1;
+	settings.endValues.color.a = 0;
 
 	// Need to fix EngineRand.rand() for negative values
 	RandomParameter3 randParam1 = { -2, 2, 1, 4, -2, 2 };
 
 	settings.randPosition = { -1, 1, -1, 1, -1, 1 };
 	settings.randVelocity = randParam1;
-	settings.randSize = { 0.2, 1 };
+	settings.randSize = { 0, 0.8 };
 	settings.randRotationSpeed = { 0, 3 };
 
 	Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/poison_particle.png"));

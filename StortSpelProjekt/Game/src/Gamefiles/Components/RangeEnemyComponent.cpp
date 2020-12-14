@@ -156,12 +156,15 @@ void component::RangeEnemyComponent::createParticleEffect(Entity* entity, float3
 	settings.startValues.lifetime = 0.09;
 	settings.spawnInterval = 0.007;
 	settings.startValues.acceleration = { 0, 0, 0 };
+	settings.startValues.size = 3;
 
 	settings.isLooping = true;
 
+	settings.endValues.color.a = 0;
+	settings.endValues.size = 3;
+
 	settings.randPosition = { -0.5, 0.5, -0.5, 0.5, -0.5, 0.5 };
 	settings.randVelocity = { -5, 5, -5, 5, -5, 5 };
-	settings.randSize = { 2.0f, 2.0f };
 	settings.randRotation = { 0, 2 * PI };
 	settings.randRotationSpeed = { 0.2f, 0.2f };
 	settings.texture = m_pParticleTexture;

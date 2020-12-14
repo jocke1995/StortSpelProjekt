@@ -80,14 +80,16 @@ void component::EnemyComponent::OnUnInitScene()
             35,         // Max particles
             0.000001f,  // spawnInterval
             false,      // IsLooping
-            {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, -5.0f, 0.0f}, 1.0f, 0.0f, 0.0f, g_timeToLive}, // ParticleAttributes
+            {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, -5.0f, 0.0f}, {1, 1, 1, 1}, 0.7, 0.0f, 0.0f, g_timeToLive}, // start ParticleAttributes
+            {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, -5.0f, 0.0f}, {1, 1, 1, 0}, 0.0, 0.0f, 0.0f, g_timeToLive}, // end ParticleAttributes
             {-1, 1, -1, 1, -1, 1},          // RandPosition
             {-20, 20, -20, 20, -20, 20},    // RandVelocity
-            {0.2f, 0.8f },                  // RandSize
-            {0.0f, 0.0f},                   // RandRotation
+            {0, 0.6 },                  // RandSize
+            {0.0f, 2*PI},                   // RandRotation
             {0.0f, 3.0f},                   // RandRotationSpeed
             {0.0f, 0.0f}                    // RandLifetime
         };
+
 
         vec.push_back(particleEffectSettings);
 
