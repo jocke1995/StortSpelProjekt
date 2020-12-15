@@ -306,22 +306,9 @@ void TextManager::deleteTextData(std::string name)
 		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
 		codt->UnSubmitText(m_TextMap[name]);
 
-		// This is an ugly solution, however, it is noticable faster than waiting for the
-		// GPU every time we want to delete a text, while also emptying the buffer so that
-		// we don't need to worry about the memory getting full
-		if (m_TrashBuffer.size() == 50)
-		{
-			renderer->waitForGPU();
+		renderer->waitForGPU();
 
-			for (int i = 0; i < m_TrashBuffer.size(); i++)
-			{
-				delete m_TrashBuffer.at(i);
-			}
-			Log::Print("Deleting Trash buffer in TextManager\n");
-			m_TrashBuffer.clear();
-		}
-
-		m_TrashBuffer.push_back(m_TextMap[name]);
+		delete m_TextMap[name];
 		m_TextMap.erase(name);
 	}
 }
