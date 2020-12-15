@@ -476,7 +476,7 @@ Scene* GameScene(SceneManager* sm)
 #pragma region GUI
 #pragma region health background
 	std::string textToRender = "";
-	float2 textPos = { 0.483f, 0.977f };
+	float2 textPos = { 0.483f, 0.973f };
 	float2 textPadding = { 0.8f, 0.0f };
 	float4 textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float2 textScale = { 0.25f, 0.25f };
@@ -493,7 +493,7 @@ Scene* GameScene(SceneManager* sm)
 	gui->GetTextManager()->SetText(std::to_string(hc->GetHealth()), "currentHealth");
 	gui->GetTextManager()->SetBlend(textBlend, "currentHealth");
 
-	textPos = { 0.504f, 0.977f };
+	textPos = { 0.504f, 0.973f };
 	gui->GetTextManager()->AddText("slash");
 	gui->GetTextManager()->SetColor(textColor, "slash");
 	gui->GetTextManager()->SetPadding(textPadding, "slash");
@@ -502,7 +502,7 @@ Scene* GameScene(SceneManager* sm)
 	gui->GetTextManager()->SetText("/", "slash");
 	gui->GetTextManager()->SetBlend(textBlend, "slash");
 
-	textPos = { 0.508f, 0.977f };
+	textPos = { 0.508f, 0.973f };
 	gui->GetTextManager()->AddText("maxHealth");
 	gui->GetTextManager()->SetColor(textColor, "maxHealth");
 	gui->GetTextManager()->SetPadding(textPadding, "maxHealth");
@@ -511,7 +511,7 @@ Scene* GameScene(SceneManager* sm)
 	gui->GetTextManager()->SetText(std::to_string(hc->GetMaxHealth()), "maxHealth");
 	gui->GetTextManager()->SetBlend(textBlend, "maxHealth");
 
-	float2 quadPos = { 0.34f, 0.88f };
+	float2 quadPos = { 0.34f, 0.875f };
 	float2 quadScale = { 0.333f, 0.125f };
 	float4 blended = { 1.0, 1.0, 1.0, 0.99 };
 	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
@@ -831,7 +831,7 @@ Scene* ShopScene(SceneManager* sm)
 	/* ------------------------- GUI --------------------------- */
 	/* ----------------- healthBackground ---------------------- */
 	std::string textToRender = "";
-	float2 textPos = { 0.483f, 0.977f };
+	float2 textPos = { 0.483f, 0.973f };
 	float2 textPadding = { 0.8f, 0.0f };
 	float4 textColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float2 textScale = { 0.25f, 0.25f };
@@ -848,7 +848,7 @@ Scene* ShopScene(SceneManager* sm)
 	gui->GetTextManager()->SetText(std::to_string(hc->GetHealth()), "currentHealth");
 	gui->GetTextManager()->SetBlend(textBlend, "currentHealth");
 
-	textPos = { 0.504f, 0.977f };
+	textPos = { 0.504f, 0.973f };
 	gui->GetTextManager()->AddText("slash");
 	gui->GetTextManager()->SetColor(textColor, "slash");
 	gui->GetTextManager()->SetPadding(textPadding, "slash");
@@ -857,7 +857,7 @@ Scene* ShopScene(SceneManager* sm)
 	gui->GetTextManager()->SetText("/", "slash");
 	gui->GetTextManager()->SetBlend(textBlend, "slash");
 
-	textPos = { 0.508f, 0.977f };
+	textPos = { 0.508f, 0.973f };
 	gui->GetTextManager()->AddText("maxHealth");
 	gui->GetTextManager()->SetColor(textColor, "maxHealth");
 	gui->GetTextManager()->SetPadding(textPadding, "maxHealth");
@@ -866,7 +866,7 @@ Scene* ShopScene(SceneManager* sm)
 	gui->GetTextManager()->SetText(std::to_string(hc->GetMaxHealth()), "maxHealth");
 	gui->GetTextManager()->SetBlend(textBlend, "maxHealth");
 
-	float2 quadPos = { 0.34f, 0.88f };
+	float2 quadPos = { 0.34f, 0.875f };
 	float2 quadScale = { 0.333f, 0.125f };
 	float4 blended = { 1.0, 1.0, 1.0, 0.99 };
 	float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
