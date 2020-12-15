@@ -173,7 +173,7 @@ void GameGUI::reset(Scene* scene)
 		float3 color = { 0.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
 		healthbar->GetQuadManager()->UpdateQuad(
 			healthbar->GetQuadManager()->GetPos(),
-			size,
+			{ 0.229f, 0.046f },
 			false, false,
 			healthbar->GetQuadManager()->GetAmountOfBlend(),
 			color);
