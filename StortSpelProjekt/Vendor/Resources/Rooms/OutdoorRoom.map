@@ -367,7 +367,7 @@ ModelLightFlag 3,0
 ModelLightDirection 0.0, -0.75, 1.0
 ModelLightLeft -88.0
 ModelLightRight 88.0
-ModelLightTop 105.0
+ModelLightTop 150.0
 ModelLightBottom -36.0
 ModelLightFar 1000.0
 ModelLightNear -1000.0
