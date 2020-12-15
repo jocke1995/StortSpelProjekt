@@ -86,7 +86,7 @@ private:
 	bool m_Markable = false;
 	bool m_ActiveTexture = false;
 	bool m_QuadIsHidden = false;
-	std::vector<Mesh*> m_TrashBuffer = {};
+
 	// Needs to take in the name of the button.
 	void (*m_pOnClicked)(const std::string &);
 	

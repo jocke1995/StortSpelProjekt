@@ -33,11 +33,6 @@ TextManager::~TextManager()
 		}
 	}
 	m_TextMap.clear();
-
-	for (int i = 0; i < m_TrashBuffer.size(); i++)
-	{
-		delete m_TrashBuffer.at(i);
-	}
 }
 
 std::map<std::string, TextData>* const TextManager::GetTextDataMap()

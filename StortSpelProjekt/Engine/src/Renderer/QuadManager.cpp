@@ -43,11 +43,6 @@ QuadManager::~QuadManager()
 	{
 		delete m_pSlotInfo;
 	}
-
-	for (int i = 0; i < m_TrashBuffer.size(); i++)
-	{
-		delete m_TrashBuffer.at(i);
-	}
 }
 
 bool QuadManager::operator==(const QuadManager& other) const
