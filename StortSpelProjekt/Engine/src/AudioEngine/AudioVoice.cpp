@@ -65,6 +65,10 @@ void AudioVoice::Play()
         {
             Log::Print("Error playing audio\n");
         }
+        else
+        {
+            m_Playing = true;
+        }
     }
 }
 
@@ -76,6 +80,10 @@ void AudioVoice::Stop()
         if (FAILED(m_pSourceVoice->Stop(0)))
         {
             Log::Print("Error stopping audio\n");
+        }
+        else
+        {
+            m_Playing = false;
         }
         // reset the buffer so the sound starts from the beginning at next playback
         m_pSourceVoice->FlushSourceBuffers();
@@ -102,6 +110,10 @@ void AudioVoice::Resume()
         {
             Log::PrintSeverity(Log::Severity::WARNING,"Error playing audio\n");
         }
+        else
+        {
+            m_Playing = true;
+        }
     }
 }
 
@@ -114,5 +126,14 @@ void AudioVoice::Pause()
         {
             Log::PrintSeverity(Log::Severity::WARNING, "Error stopping audio\n");
         }
+        else
+        {
+            m_Playing = false;
+        }
     }
+}
+
+bool AudioVoice::IsPlaying()
+{
+    return m_Playing;
 }
