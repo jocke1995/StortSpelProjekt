@@ -21,6 +21,8 @@ UpgradeExplosiveAttack::UpgradeExplosiveAttack(Entity* parent)
 	// set the price of this upgrade
 	m_Price = 300;
 	m_StartingPrice = m_Price;
+	// We don't want the explosve damage given to enemies around the target to be more damage than the target itself.
+	// So max level at lvl 10.
 	m_MaxLevel = 10;
 
 	// percentage of damage done to steal as life
@@ -37,10 +39,8 @@ UpgradeExplosiveAttack::~UpgradeExplosiveAttack()
 void UpgradeExplosiveAttack::IncreaseLevel()
 {
 	m_Level++;
-	m_Radius = 10 + (4 * (m_Level));
-	// We don't want the explosve damage given to enemies around the target to be more damage than the target itself.
-	// Therfor the use of max(explosiveDamage, 100).
-	m_PercentageDamage = 0.5 + (0.05 * (m_Level + 1));
+	m_Radius = 10 + (4 * (m_Level - 1));
+	m_PercentageDamage = 0.5 + (0.05 * m_Level);
 	m_Price = m_StartingPrice * (m_Level + 1);
 }
 
@@ -100,5 +100,5 @@ void UpgradeExplosiveAttack::ApplyBoughtUpgrade()
 
 std::string UpgradeExplosiveAttack::GetDescription(unsigned int level)
 {
-	return "Explosive Projectile: Projectile cause pieces of shrapnel to explode out from enemies causing " + std::to_string(static_cast<int>((0.4 + (0.1 * level))*100)) + "\% projectile damage over " + std::to_string(5 * level) + " units radius";
+	return "Explosive Projectile: Projectile cause pieces of shrapnel to explode out from enemies causing " + std::to_string(static_cast<int>((0.4 + (0.1 * level))*100)) + "\% projectile damage over " + std::to_string(10 + (4 * (m_Level - 1))) + " units radius";
 }
