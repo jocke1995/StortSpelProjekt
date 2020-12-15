@@ -114,22 +114,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				{
 					// Hide
 					HideGui(true);
+					ShowCursor(false);
 				}
 				else if (DEVELOPERMODE_GAMEINTERFACE)
 				{
 					// Show
 					HideGui(false);
+					ShowCursor(true);
 				}
 
 				if (DEVELOPERMODE_DEVINTERFACE && !IsImguiHidden())
 				{
 					// Hide
 					HideImgui(true);
+					ShowCursor(false);
 				}
 				else if (DEVELOPERMODE_DEVINTERFACE)
 				{
 					// Show
 					HideImgui(false);
+					ShowCursor(true);
 				}
 			}
 

@@ -61,8 +61,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = leoScene;
     //Scene* timScene = TimScene(sceneManager);
     //Scene* activeScene = timScene;
-    //Scene* jockeScene = JockesTestScene(sceneManager);
-    //Scene* activeScene = jockeScene;
+    Scene* jockeScene = JockesTestScene(sceneManager);
+    Scene* activeScene = jockeScene;
     //Scene* fredrikScene = FredriksTestScene(sceneManager);
     //Scene* activeScene = fredrikScene;
     //Scene* williamScene = WilliamsTestScene(sceneManager);
@@ -73,8 +73,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     //Scene* activeScene = antonScene;
     //Scene* andresScene = AndresTestScene(sceneManager);
     //Scene* activeScene = andresScene;
-    Scene* filipScene = FloppipTestScene(sceneManager);
-    Scene* activeScene = filipScene;
+    //Scene* filipScene = FloppipTestScene(sceneManager);
+    //Scene* activeScene = filipScene;
 
     // Set scene
     sceneManager->SetScene(activeScene);
@@ -95,6 +95,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     while (!window->ExitWindow())
     {
+        ShowCursor(false);
+
+        if (window->WasSpacePressed() == true)
+        {
+            Entity* ent = sceneManager->GetScene("jockesScene")->GetEntity("player");
+            component::TransformComponent* tc = ent->GetComponent<component::TransformComponent>();
+            float3 pos = tc->GetTransform()->GetPositionFloat3();
+            Log::Print("x: %f\ny: %f\nz: %f\n\n", pos.x, pos.y, pos.z);
+        }
         /* ------ Update ------ */
         timer->Update();
         logicTimer += timer->GetDeltaTime();
@@ -516,50 +525,107 @@ Scene* JockesTestScene(SceneManager* sm)
     // Create Scene
     Scene* scene = sm->CreateScene("jockesScene");
 
-    component::CameraComponent* cc = nullptr;
-    component::ModelComponent* mc = nullptr;
-    component::TransformComponent* tc = nullptr;
-    component::InputComponent* ic = nullptr;
+    component::Audio2DVoiceComponent* avc = nullptr;
+    component::Audio3DListenerComponent* alc = nullptr;
     component::BoundingBoxComponent* bbc = nullptr;
-    component::PointLightComponent* plc = nullptr;
+    component::CameraComponent* cc = nullptr;
     component::DirectionalLightComponent* dlc = nullptr;
+    component::ModelComponent* mc = nullptr;
+    component::AnimationComponent* ac = nullptr;
+    component::PointLightComponent* plc = nullptr;
     component::SpotLightComponent* slc = nullptr;
-    component::CollisionComponent* bcc = nullptr;
-    component::ProgressBarComponent* pbc = nullptr;
+    component::TransformComponent* tc = nullptr;
+    component::PlayerInputComponent* pic = nullptr;
+    component::GUI2DComponent* txc = nullptr;
+    component::TeleportComponent* teleC = nullptr;
+    component::CollisionComponent* ccc = nullptr;
+    component::SphereCollisionComponent* scc = nullptr;
+    component::MeleeComponent* melc = nullptr;
+    component::RangeComponent* ranc = nullptr;
+    component::CurrencyComponent* currc = nullptr;
+    component::HealthComponent* hc = nullptr;
+    component::UpgradeComponent* uc = nullptr;
+    component::GUI2DComponent* gui = nullptr;
     component::ParticleEmitterComponent* pe = nullptr;
     
     AssetLoader* al = AssetLoader::Get();
 
+    al->LoadMap(scene, "../Vendor/Resources/Rooms\\OutdoorRoom.map");
+
     // Get the models needed
+    Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Player/AnimatedPlayer.fbx");
     Model* floorModel = al->LoadModel(L"../Vendor/Resources/Models/FloorPBR/floor.obj");
-    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
     Model* cubeModel = al->LoadModel(L"../Vendor/Resources/Models/Cube/crate.obj");
-    Model* shopModel = al->LoadModel(L"../Vendor/Resources/Models/Shop/shop.obj");
     Model* posterModel = al->LoadModel(L"../Vendor/Resources/Models/Poster/Poster.obj");
+    Model* sphereModel = al->LoadModel(L"../Vendor/Resources/Models/SpherePBR/ball.obj");
+
+    Texture* crosshairTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Crosshair.png");
 
     TextureCubeMap* skyboxCubemap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/skymap.dds");
 
-    scene->CreateNavMesh("Quads");
-    NavMesh* nav = scene->GetNavMesh();
-    nav->AddNavQuad({ 0.0f, 0.0f, 0.0f }, { 10.0f, 10.0f });
-    nav->CreateQuadGrid();
-    /* ---------------------- Player ---------------------- */
-    Entity* entity = (scene->AddEntity("player"));
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    ic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
-    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
-    bcc = entity->AddComponent<component::SphereCollisionComponent>(1, 1.5, 0.0);
-    scene->SetPrimaryCamera(cc->GetCamera());
-    ic->Init();
+    // Stuff to pick
+    Model* enemyZombieModel = al->LoadModel(L"../Vendor/Resources/Models/Zombie/AnimatedZombie.fbx");
+    Model* enemySpiderModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Spider/AnimatedSpider.fbx");
+    Model* enemyDemonModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/AnimatedDemon.fbx");
 
-    mc->SetModel(sphereModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(1.0f);
-    tc->GetTransform()->SetPosition(0, 1, -30);
+#pragma region player
+    // entity
+    std::string playerName = "player";
+    Entity* entity = scene->AddEntity(playerName);
+
+    // components
+    mc = entity->AddComponent<component::ModelComponent>();
+    ac = entity->AddComponent<component::AnimationComponent>();
+    tc = entity->AddComponent<component::TransformComponent>(true);
+    pic = entity->AddComponent<component::PlayerInputComponent>(CAMERA_FLAGS::USE_PLAYER_POSITION);
+    cc = entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    avc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    alc = entity->AddComponent<component::Audio3DListenerComponent>();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::COLLISION | F_OBBFlags::T_POSE);
+    // range damage should be at least 10 for ranged life steal upgrade to work
+    ranc = entity->AddComponent<component::RangeComponent>(sm, scene, sphereModel, 0.4, 50, 200);
+    currc = entity->AddComponent<component::CurrencyComponent>();
+    hc = entity->AddComponent<component::HealthComponent>(500);
+    uc = entity->AddComponent<component::UpgradeComponent>();
 
     Player::GetInstance().SetPlayer(entity);
-    /* ---------------------- Player ---------------------- */
+
+    tc->GetTransform()->SetScale(0.05f);
+    tc->GetTransform()->SetPosition(0.0f, 1.0f, 0.0f);
+    tc->SetTransformOriginalState();
+
+    melc = entity->AddComponent<component::MeleeComponent>();   // moved this down to set scale first
+
+    mc->SetModel(playerModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_ANIMATED | FLAG_DRAW::GIVE_SHADOW);
+
+    double3 playerDim = mc->GetModelDim();
+
+    double rad = playerDim.z / 2.0;
+    double cylHeight = playerDim.y - (rad * 2.0);
+    ccc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
+
+    melc->SetDamage(50);
+    melc->SetAttackInterval(1.0);
+    ranc->SetAttackInterval(1.0);
+    pic->Init();
+    pic->SetJumpTime(0.17);
+    pic->SetJumpHeight(6.0);
+    pic->SetMovementSpeed(75.0);
+
+    avc->AddVoice(L"PlayerHit1");
+    avc->AddVoice(L"PlayerDash");
+    avc->AddVoice(L"PlayerJump");
+    avc->AddVoice(L"PlayerWalk");
+
+    bbc->Init();
+    Physics::GetInstance().AddCollisionEntity(entity);
+
+    plc = entity->AddComponent<component::PointLightComponent>(FLAG_LIGHT::USE_TRANSFORM_POSITION);
+    plc->SetColor({ 40.0f, 4.8f, 12.0f });
+    plc->SetAttenuation({ 10.0f, 2.2f, 2.00f });
+
+#pragma endregion
 
     /* ---------------------- Skybox ---------------------- */
     entity = scene->AddEntity("skybox");
@@ -571,7 +637,7 @@ Scene* JockesTestScene(SceneManager* sm)
     entity = scene->AddEntity("floor");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
+    component::CubeCollisionComponent* bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
 
     mc = entity->GetComponent<component::ModelComponent>();
     mc->SetModel(floorModel);
@@ -581,106 +647,88 @@ Scene* JockesTestScene(SceneManager* sm)
     tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
     /* ---------------------- Floor ---------------------- */
 
-    /* ---------------------- Poster ---------------------- */
-    entity = scene->AddEntity("poster");
+    float2 quadPos = { 0.3f, 0.85f };
+    float2 quadScale = { 0.4f, 0.15f };
+    float4 blended = { 1.0, 1.0, 1.0, 0.99 };
+    float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+
+    blended = { 1.0, 1.0, 1.0, 0.7 };
+    entity = scene->AddEntity("crosshair");
+    gui = entity->AddComponent<component::GUI2DComponent>();
+    quadPos = { 0.497f, 0.495f };
+    quadScale = { 0.006f, 0.01f };
+    gui->GetQuadManager()->CreateQuad(
+        "crosshair",
+        quadPos, quadScale,
+        false, false,
+        3,
+        blended,
+        crosshairTexture);
+
+    /* ---------------------- dirLight ---------------------- */
+   //entity = scene->AddEntity("dirLight");
+   //dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
+   //dlc->SetColor({ 0.8f, 0.8f, 0.8f });
+   //dlc->SetDirection({ -2.0f, -1.0f, -1.0f });
+   //dlc->SetCameraTop(30.0f);
+   //dlc->SetCameraBot(-30.0f);
+   //dlc->SetCameraLeft(-70.0f);
+   //dlc->SetCameraRight(70.0f);
+    /* ---------------------- dirLight ---------------------- */
+
+    /* Things to pick */
+    // 1
+    entity = scene->AddEntity("Zombie");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
+    
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(enemyZombieModel);
+    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(0.02, 0.02, 0.02);
+    tc->GetTransform()->SetPosition(65.67f, 7.0f, 0.69f);
+    tc->GetTransform()->SetRotationY(PI/2);
+
+    bbc->Init();
+
+    // 2
+    entity = scene->AddEntity("Spider");
+    mc = entity->AddComponent<component::ModelComponent>();
+    tc = entity->AddComponent<component::TransformComponent>();
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
     bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
 
     mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(posterModel);
+    mc->SetModel(enemySpiderModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
     tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(2, 1, 2);
-    tc->GetTransform()->SetRotationZ(-PI / 2);
-    tc->GetTransform()->SetPosition(28.5f, 2.0f, 34.0f);
-    /* ---------------------- Poster ---------------------- */
+    tc->GetTransform()->SetScale(0.05, 0.05, 0.05);
+    tc->GetTransform()->SetPosition(32.247f, 5.0f, 55.349f);
+    tc->GetTransform()->SetRotationY(PI / 8);
 
-    /* ---------------------- Shop ---------------------- */
-    entity = scene->AddEntity("shop");
-    mc = entity->AddComponent<component::ModelComponent>();
-    mc->SetModel(shopModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
+    bbc->Init();
 
-    tc = entity->AddComponent<component::TransformComponent>();
-    tc->GetTransform()->SetPosition(30.0f, 0.0f, 30.0f);
-    tc->GetTransform()->SetRotationY(PI + PI / 4);
-
-    double3 shopDim = mc->GetModelDim();
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(10000000.0, shopDim.x / 2.0f, shopDim.y / 2.0f, shopDim.z / 2.0f, 1000.0, 0.0, false);
-    /* ---------------------- Shop ---------------------- */
-
-    /* ---------------------- SpotLightDynamic ---------------------- */
-    entity = scene->AddEntity("pointLightDynamic");
+    // 3
+    entity = scene->AddEntity("Demon");
     mc = entity->AddComponent<component::ModelComponent>();
     tc = entity->AddComponent<component::TransformComponent>();
-    slc = entity->AddComponent<component::SpotLightComponent>(FLAG_LIGHT::CAST_SHADOW | FLAG_LIGHT::STATIC);
-    
-    float3 pos = { 5.0f, 20.0f, 5.0f };
-    mc->SetModel(sphereModel);
+    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
+    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
+
+    mc = entity->GetComponent<component::ModelComponent>();
+    mc->SetModel(enemyDemonModel);
     mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc->GetTransform()->SetScale(0.3f);
-    tc->GetTransform()->SetPosition(pos.x, pos.y, pos.z);
-    
-    slc->SetColor({ 5.0f, 0.0f, 0.0f });
-    slc->SetAttenuation({ 1.0, 0.09f, 0.032f });
-    slc->SetPosition(pos);
-    slc->SetDirection({ 1.0f, -1.0f, 1.0f });
-    slc->SetOuterCutOff(50.0f);
-    /* ---------------------- SpotLightDynamic ---------------------- */
+    tc = entity->GetComponent<component::TransformComponent>();
+    tc->GetTransform()->SetScale(0.2, 0.2, 0.2);
+    tc->GetTransform()->SetPosition(-28.629, 17.0f, -59.687f);
+    tc->GetTransform()->SetRotationY((PI / 4) + PI - 0.1f);
 
-    /* ---------------------- dirLight ---------------------- */
-    entity = scene->AddEntity("dirLight");
-    dlc = entity->AddComponent<component::DirectionalLightComponent>(FLAG_LIGHT::STATIC | FLAG_LIGHT::CAST_SHADOW);
-    dlc->SetColor({ 0.8f, 0.8f, 0.8f });
-    dlc->SetDirection({ -2.0f, -1.0f, -1.0f });
-    dlc->SetCameraTop(30.0f);
-    dlc->SetCameraBot(-30.0f);
-    dlc->SetCameraLeft(-70.0f);
-    dlc->SetCameraRight(70.0f);
-    /* ---------------------- dirLight ---------------------- */
+    bbc->Init();
+    /* Things to pick */
 
-    /* ---------------------- Particle ---------------------- */
-    entity = scene->AddEntity("particleEffect");
-    std::vector<ParticleEffectSettings> vec;
-
-    // Create test particleEffect
-    ParticleEffectSettings settings = {};
-    settings.maxParticleCount = 50;
-    settings.startValues.lifetime = 1.0;
-    settings.spawnInterval = settings.startValues.lifetime / settings.maxParticleCount;
-    settings.isLooping = false;
-    settings.startValues.acceleration = { 0, -5, 0 };
-
-    // Need to fix EngineRand.rand() for negative values
-    RandomParameter3 randParam1 = { -2, 2, -2, 2, -2, 2 };
-    randParam1.x = { -20, 20 };
-    randParam1.y = { 1, 20 };
-    randParam1.z = { -20, 20 };
-
-    settings.randPosition = { 0, 1, 0, 1, 0, 1 };
-    settings.randVelocity = randParam1;
-    settings.randSize = { 0.2, 2 };
-    settings.randRotationSpeed = { 0, 3 };
-
-    Texture2DGUI* particleTexture = static_cast<Texture2DGUI*>(al->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/fire_particle0.png"));
-    settings.texture = particleTexture;
-
-    vec.push_back(settings);
-
-    pe = entity->AddComponent<component::ParticleEmitterComponent>(&vec, true);
-    entity->AddComponent<component::TransformComponent>();
-    //particleEntity->AddComponent<component::TemporaryLifeComponent>(1.0);
-    /* ---------------------- Particle ---------------------- */
-
-    entity = scene->AddEntity("progressBarTest1");
-    float3 startPosition = { 0.0f, 10.0f, 0.0f };
-    pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 2.0f, 1.0f);
-
-
-    entity = scene->AddEntity("progressBarTest2");
-    startPosition = { 10.0f, 10.0f, 0.0f };
-    pbc = entity->AddComponent<component::ProgressBarComponent>(startPosition, 5.0f, 1.0f);
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&JockeUpdateScene);
     return scene;
@@ -1821,25 +1869,6 @@ void JockeUpdateScene(SceneManager* sm, double dt)
     //plc->SetColor({ col, col, 0.0f });
     //
     //intensity += 0.005f;
-
-    Entity* ent = nullptr;
-
-    // Update first progressBar
-    ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest1");
-    component::ProgressBarComponent* pbc = ent->GetComponent<component::ProgressBarComponent>();
-
-    static float counter1 = 0.0f;
-    pbc->SetProgressBarPercent(1.0 - abs(sin(counter1)));
-    counter1 += 0.0008f;
-
-    // Update second progressBar
-    ent = sm->GetScene("jockesScene")->GetEntity("progressBarTest2");
-    pbc = ent->GetComponent<component::ProgressBarComponent>();
-
-    static float counter2 = 0.0f;
-    pbc->SetProgressBarPercent(1.0 - abs(sin(counter2)));
-    counter2 += 0.005f;
-
 }
 
 void FredriksUpdateScene(SceneManager* sm, double dt)

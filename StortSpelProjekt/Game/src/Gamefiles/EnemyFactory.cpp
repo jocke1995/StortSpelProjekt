@@ -369,7 +369,7 @@ EnemyComps* EnemyFactory::GetDefineEnemy(std::string enemyName)
 {
 	if (m_EnemyComps.find(enemyName) == m_EnemyComps.end())
 	{
-		Log::PrintSeverity(Log::Severity::CRITICAL, "Tried to acess a unexisted enemy comp " + enemyName);
+		//Log::PrintSeverity(Log::Severity::CRITICAL, "Tried to acess a unexisted enemy comp " + enemyName);
 		return nullptr;
 	}
 	return m_EnemyComps.at(enemyName);
