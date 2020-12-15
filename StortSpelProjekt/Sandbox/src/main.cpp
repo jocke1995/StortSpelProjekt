@@ -628,9 +628,9 @@ Scene* JockesTestScene(SceneManager* sm)
 #pragma endregion
 
     /* ---------------------- Skybox ---------------------- */
-    entity = scene->AddEntity("skybox");
-    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
-    sbc->SetTexture(skyboxCubemap);
+    //entity = scene->AddEntity("skybox");
+    //component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    //sbc->SetTexture(skyboxCubemap);
     /* ---------------------- Skybox ---------------------- */
 
     /* ---------------------- Floor ---------------------- */
@@ -675,59 +675,6 @@ Scene* JockesTestScene(SceneManager* sm)
    //dlc->SetCameraLeft(-70.0f);
    //dlc->SetCameraRight(70.0f);
     /* ---------------------- dirLight ---------------------- */
-
-    /* Things to pick */
-    // 1
-    entity = scene->AddEntity("Zombie");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
-    
-    mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(enemyZombieModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(0.02, 0.02, 0.02);
-    tc->GetTransform()->SetPosition(65.67f, 7.0f, 0.69f);
-    tc->GetTransform()->SetRotationY(PI/2);
-
-    bbc->Init();
-
-    // 2
-    entity = scene->AddEntity("Spider");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
-
-    mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(enemySpiderModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(0.05, 0.05, 0.05);
-    tc->GetTransform()->SetPosition(32.247f, 5.0f, 55.349f);
-    tc->GetTransform()->SetRotationY(PI / 8);
-
-    bbc->Init();
-
-    // 3
-    entity = scene->AddEntity("Demon");
-    mc = entity->AddComponent<component::ModelComponent>();
-    tc = entity->AddComponent<component::TransformComponent>();
-    bbc = entity->AddComponent<component::BoundingBoxComponent>(F_OBBFlags::PICKING);
-    bcc = entity->AddComponent<component::CubeCollisionComponent>(0.0, 1.0, 0.0, 1.0);
-
-    mc = entity->GetComponent<component::ModelComponent>();
-    mc->SetModel(enemyDemonModel);
-    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE | FLAG_DRAW::GIVE_SHADOW);
-    tc = entity->GetComponent<component::TransformComponent>();
-    tc->GetTransform()->SetScale(0.2, 0.2, 0.2);
-    tc->GetTransform()->SetPosition(-28.629, 17.0f, -59.687f);
-    tc->GetTransform()->SetRotationY((PI / 4) + PI - 0.1f);
-
-    bbc->Init();
-    /* Things to pick */
 
     /* ---------------------- Update Function ---------------------- */
     scene->SetUpdateScene(&JockeUpdateScene);

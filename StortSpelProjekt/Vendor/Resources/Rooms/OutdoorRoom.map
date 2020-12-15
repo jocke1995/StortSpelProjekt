@@ -365,10 +365,10 @@ ModelLightIntensity 1.0
 ModelLightFlag 1,1
 ModelLightFlag 3,0
 ModelLightDirection 0.0, -0.75, 1.0
-ModelLightLeft -174.0
-ModelLightRight 174.0
-ModelLightTop 99.0
-ModelLightBottom -49.0
+ModelLightLeft -88.0
+ModelLightRight 88.0
+ModelLightTop 105.0
+ModelLightBottom -36.0
 ModelLightFar 1000.0
 ModelLightNear -1000.0
 Submit DirectionalLight
