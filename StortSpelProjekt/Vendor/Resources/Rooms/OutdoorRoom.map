@@ -161,7 +161,7 @@ Name Brazier1
 ModelPath Models/MedievalBraizer/medievalBraizer.obj
 ModelScaling 4.0, 4.0, 4.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition 20.0, 2.0, 23.0
+ModelPosition 20.0, 6.2, 23.0
 ModelRestitution 0.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
@@ -196,7 +196,7 @@ Name Brazier2
 ModelPath Models/MedievalBraizer/medievalBraizer.obj
 ModelScaling 4.0, 4.0, 4.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition -20.0, 2.0, -23.0
+ModelPosition -20.0, 6.2, -23.0
 ModelRestitution 0.0
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
@@ -243,9 +243,9 @@ Submit Model
 // TREE ----------------------------------------------
 Name DirtBase
 ModelPath Models/Tree/DirtBase/dirtBase.obj
-ModelScaling 10.0, 1.0, 10.0
+ModelScaling 10.0, 4.0, 10.0
 ModelRotation 0.0, 0.0, 0.0
-ModelPosition 0.0, -0.1, 0.0
+ModelPosition 0.0, 1.1, 0.0
 ModelRestitution 0.5
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
