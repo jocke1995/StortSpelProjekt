@@ -20,6 +20,8 @@ StortSpelProjekt/Game/imgui.ini
 
 *.ini
 
+StortSpelProjekt/Game/game*.txt
+
 StortSpelProjekt/Vendor/Resources/Models/Female/
 
 StortSpelProjekt/Vendor/Resources/Models/PlayerHuman/

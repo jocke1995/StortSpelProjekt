@@ -63,6 +63,9 @@ void GameGUI::Update(double dt, Scene* scene)
 	{
 		Entity* entity = nullptr;
 
+		entity = scene->GetEntity("brightness");
+		entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(Option::GetInstance().GetVariable("f_brightness"), "brightness");
+
 		entity = scene->GetEntity("volume");
 		entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(Option::GetInstance().GetVariable("f_volume"), "volume");
 
@@ -170,7 +173,7 @@ void GameGUI::reset(Scene* scene)
 		float3 color = { 0.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
 		healthbar->GetQuadManager()->UpdateQuad(
 			healthbar->GetQuadManager()->GetPos(),
-			size,
+			{ 0.229f, 0.046f },
 			false, false,
 			healthbar->GetQuadManager()->GetAmountOfBlend(),
 			color);

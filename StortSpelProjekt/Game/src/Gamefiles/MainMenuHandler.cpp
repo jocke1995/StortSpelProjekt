@@ -14,6 +14,8 @@
 #include <sstream>
 
 void onMainMenuSceneInit(Scene* scene);
+void onBrightnessPlus(const std::string& name);
+void onBrightnessMinus(const std::string& name);
 void onStart(const std::string& name);
 void onExit(const std::string& name);
 void onOptions(const std::string& name);
@@ -67,6 +69,7 @@ void MainMenuHandler::createOptionScene()
 	Texture* emptyBox = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/emptybox.png");
 	Texture* cross = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/cross.png");
     Texture* background = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Background.png");
+	Texture* brightness = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Brightness.png");
 
 	Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
 
@@ -99,6 +102,60 @@ void MainMenuHandler::createOptionScene()
     component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
     TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
     sbc->SetTexture(blackCubeMap);
+
+	/*------------Brightness------------*/
+	entity = m_pOptionScene->AddEntity("BrightnessText");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("BrightnessText",
+		{ 0.05f, 0.05f },
+		{ (float)resolution->GetWidth() / 1920.0f, (float)resolution->GetHeight() / 1080.0f },
+		false,
+		false,
+		2,
+		{ 1.0,1.0,1.0,1.0 },
+		brightness);
+
+	entity = m_pOptionScene->AddEntity("BrightnessPlus");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("BrightnessPlus",
+		{ 0.06f, 0.23f },
+		{ (float)plus->GetWidth() / 1920.0f, (float)plus->GetHeight() / 1080.0f },
+		true,
+		true,
+		2,
+		{ 1.0,1.0,1.0,1.0 },
+		plus);
+	guic->GetQuadManager()->SetOnClicked(&onBrightnessPlus);
+
+	entity = m_pOptionScene->AddEntity("BrightnessMinus");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("BrightnessMinus",
+		{ 0.15f, 0.23f },
+		{ (float)minus->GetWidth() / 1920.0f, (float)minus->GetHeight() / 1080.0f },
+		true,
+		true,
+		2,
+		{ 1.0,1.0,1.0,1.0 },
+		minus);
+	guic->GetQuadManager()->SetOnClicked(&onBrightnessMinus);
+
+	std::string textToRender = Option::GetInstance().GetVariable("f_brightness");
+	float2 textPos = { 0.10f, 0.16f };
+	float2 textPadding = { 0.5f, 0.0f };
+	float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float2 textScale = { 1.0f, 1.0f };
+	float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	entity = m_pOptionScene->AddEntity("brightness");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetTextManager()->SetFont(font);
+	guic->GetTextManager()->AddText("brightness");
+	guic->GetTextManager()->SetColor(textColor, "brightness");
+	guic->GetTextManager()->SetPadding(textPadding, "brightness");
+	guic->GetTextManager()->SetPos(textPos, "brightness");
+	guic->GetTextManager()->SetScale(textScale, "brightness");
+	guic->GetTextManager()->SetText(textToRender, "brightness");
+	guic->GetTextManager()->SetBlend(textBlend, "brightness");
 
     /*------------Resolution------------*/
     entity = m_pOptionScene->AddEntity("resolution");
@@ -357,12 +414,12 @@ void MainMenuHandler::createOptionScene()
         minus);
     guic->GetQuadManager()->SetOnClicked(&onVolumeMinus);
 
-    std::string textToRender = Option::GetInstance().GetVariable("f_volume");
-    float2 textPos = { 0.7f, 0.52f };
-    float2 textPadding = { 0.5f, 0.0f };
-    float4 textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-    float2 textScale = { 1.0f, 1.0f };
-    float4 textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
+    textToRender = Option::GetInstance().GetVariable("f_volume");
+    textPos = { 0.7f, 0.52f };
+    textPadding = { 0.5f, 0.0f };
+    textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    textScale = { 1.0f, 1.0f };
+    textBlend = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     entity = m_pOptionScene->AddEntity("volume");
     guic = entity->AddComponent<component::GUI2DComponent>();
@@ -374,15 +431,6 @@ void MainMenuHandler::createOptionScene()
     guic->GetTextManager()->SetScale(textScale, "volume");
     guic->GetTextManager()->SetText(textToRender, "volume");
     guic->GetTextManager()->SetBlend(textBlend, "volume");
-
-    guic->GetQuadManager()->CreateQuad(
-        "money",
-        { 0.7f, 0.65f }, { 0.1f, 0.1f },
-        false, false,
-        2,
-        { 1.0, 1.0, 1.0, 0.0 },
-        nullptr
-    );
 
 	entity = m_pOptionScene->AddEntity("musicText");
 	guic = entity->AddComponent<component::GUI2DComponent>();
@@ -477,17 +525,6 @@ void MainMenuHandler::createOptionScene()
     guic->GetTextManager()->SetScale(textScale, "MouseSensitivity");
     guic->GetTextManager()->SetText(textToRender, "MouseSensitivity");
     guic->GetTextManager()->SetBlend(textBlend, "MouseSensitivity");
-
-    //guic->GetQuadManager()->CreateQuad(
-    //    "money",
-    //    { 0.7f, 0.65f }, { 0.1f, 0.1f },
-    //    false, false,
-    //    1,
-    //    { 1.0, 1.0, 1.0, 0.0 },
-    //    nullptr
-    //);
-
-
 
     /*-------------Back--------------*/
     entity = m_pOptionScene->AddEntity("restartWarning");
@@ -680,6 +717,30 @@ Scene* MainMenuHandler::GetScene()
 void onMainMenuSceneInit(Scene* scene)
 {
     scene->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>()->Play(L"MenuMusic");
+}
+
+void onBrightnessPlus(const std::string& name)
+{
+	if (std::stof(Option::GetInstance().GetVariable("f_brightness")) < 5.0f)
+	{
+		std::ostringstream str;
+		str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_brightness")) + 0.1f;
+		Option::GetInstance().SetVariable("f_brightness", str.str());
+
+		Option::GetInstance().WriteFile();
+	}
+}
+
+void onBrightnessMinus(const std::string& name)
+{
+	if (std::stof(Option::GetInstance().GetVariable("f_brightness")) > 0.0f)
+	{
+		std::ostringstream str;
+		str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_brightness")) - 0.1f;
+		Option::GetInstance().SetVariable("f_brightness", str.str());
+
+		Option::GetInstance().WriteFile();
+	}
 }
 
 Scene* MainMenuHandler::GetOptionScene()

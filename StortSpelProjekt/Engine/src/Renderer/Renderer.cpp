@@ -249,6 +249,9 @@ void Renderer::InitD3D12(Window *window, HINSTANCE hInstance, ThreadPool* thread
 
 	m_pCbPerFrameData = new CB_PER_FRAME_STRUCT();
 
+	// Set default brightness
+	m_pCbPerFrameData->brightness = 1.0f;
+
 	// Setup ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -1155,6 +1158,11 @@ void Renderer::UnInitProgressBarComponent(component::ProgressBarComponent* compo
 	{
 		clearSpecificCpft(component->m_ConstantBuffers[i]->GetUploadResource());
 	}
+}
+
+void Renderer::SetBrightness(float value)
+{
+	m_pCbPerFrameData->brightness = value;
 }
 
 void Renderer::OnResetScene()

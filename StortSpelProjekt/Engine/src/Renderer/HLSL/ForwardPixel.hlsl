@@ -112,5 +112,7 @@ PS_OUTPUT PS_main(VS_OUT input)
 	{
 		output.brightColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	}
+
+	output.sceneColor.rgb *= cbPerFrame.brightness;
 	return output;
 }

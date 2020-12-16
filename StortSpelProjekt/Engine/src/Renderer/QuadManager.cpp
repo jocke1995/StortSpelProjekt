@@ -43,11 +43,6 @@ QuadManager::~QuadManager()
 	{
 		delete m_pSlotInfo;
 	}
-
-	for (int i = 0; i < m_TrashBuffer.size(); i++)
-	{
-		delete m_TrashBuffer.at(i);
-	}
 }
 
 bool QuadManager::operator==(const QuadManager& other) const
@@ -337,22 +332,9 @@ void QuadManager::deleteQuadData()
 		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
 		codt->UnSubmitMesh(m_pQuad);
 
-		// This is an ugly solution, however, it is noticable faster than waiting for the
-		// GPU every time we want to delete a quad, while also emptying the buffer so that
-		// we don't need to worry about the memory getting full
-		if (m_TrashBuffer.size() == 50)
-		{
-			renderer->waitForGPU();
+		renderer->waitForGPU();
 
-			for (int i = 0; i < m_TrashBuffer.size(); i++)
-			{
-				delete m_TrashBuffer.at(i);
-			}
-			Log::Print("Deleting Trash buffer in QuadManager\n");
-			m_TrashBuffer.clear();
-		}
-
-		m_TrashBuffer.push_back(m_pQuad);
+		delete m_pQuad;
 		m_pQuad = nullptr;
 
 		delete m_pSlotInfo;
