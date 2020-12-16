@@ -84,16 +84,6 @@ void UpgradeExplosiveAttack::OnRangedHit(Entity* target, Entity* projectile)
 	settings.randRotation = { 0, 2 * PI };
 	settings.randRotationSpeed = { -PI / 2, PI / 2 };
 
-	//settings.texture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/shrapnel_particle.png"));
-
-	//Entity* particleEntity = SceneManager::GetInstance().GetActiveScene()->AddEntity("shrapnelParticle" + std::to_string(m_ParticleCounter));
-	//component::TransformComponent* transform = particleEntity->AddComponent<component::TransformComponent>();
-	//float3 position = projectile->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
-	//transform->GetTransform()->SetPosition(position.x, position.y, position.z);
-	//particleEntity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
-	//particleEntity->GetComponent<component::ParticleEmitterComponent>()->OnInitScene();
-	//particleEntity->AddComponent<component::TemporaryLifeComponent>(1.0);
-	//
 	settings.texture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/Explosion.png"));
 
 
