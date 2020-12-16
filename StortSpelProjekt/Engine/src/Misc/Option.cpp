@@ -12,14 +12,13 @@ void Option::ReadFile()
 {
 	std::ifstream file;
 
-	file.open("../Vendor/config.txt");
+	file.open("../Vendor/config.cfg");
 	if(!file.is_open()) 
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Attempted to open non-existing config file");
+		Log::PrintSeverity(Log::Severity::WARNING, "Attempted to open non-existing config file\n");
 	}
 	else
 	{
-
 		m_Variables.clear();
 		int i = 0;
 		while (!file.eof())
@@ -31,7 +30,9 @@ void Option::ReadFile()
 			std::getline(file, tempValue, '\n');
 
 			if (tempName != "")
+			{
 				m_Variables.push_back(std::pair(tempName, tempValue));
+			}
 		}
 	}
 }
@@ -40,10 +41,10 @@ void Option::WriteFile()
 {
 	std::ofstream file;
 
-	file.open("../Vendor/config.txt");
+	file.open("../Vendor/config.cfg");
 	if (!file.is_open()) 
 	{
-		Log::PrintSeverity(Log::Severity::WARNING, "Attempted to open non-existing config file; Creating a new one");
+		Log::PrintSeverity(Log::Severity::WARNING, "Attempted to open non-existing config file; Creating a new one\n");
 	}
 
 	for (int i = 0; i < m_Variables.size(); i++) 
