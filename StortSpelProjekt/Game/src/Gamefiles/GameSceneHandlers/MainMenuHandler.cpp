@@ -635,21 +635,21 @@ void MainMenuHandler::createCreditsScene()
     name = "ournames_0";
     y += 0.1;
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Andrés Diaz", name);
+    guic->GetTextManager()->SetText("Andrï¿½s Diaz", name);
     guic->GetTextManager()->SetPos({ 0.25, y }, name);
 
     // ournames_1
     name = "ournames_1";
     y += 0.1;
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Anton Åsbrink", name);
+    guic->GetTextManager()->SetText("Anton ï¿½sbrink", name);
     guic->GetTextManager()->SetPos({ 0.25, y }, name);
 
     // ournames_2
     name = "ournames_2";
     y += 0.1;
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Björn Johansson", name);
+    guic->GetTextManager()->SetText("Bjï¿½rn Johansson", name);
     guic->GetTextManager()->SetPos({ 0.25, y }, name);
 
     // ournames_3
@@ -677,14 +677,14 @@ void MainMenuHandler::createCreditsScene()
     name = "ournames_6";
     y += 0.1;
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Joakim Sjöberg", name);
+    guic->GetTextManager()->SetText("Joakim Sjï¿½berg", name);
     guic->GetTextManager()->SetPos({ 0.25, y }, name);
 
     // ournames_7
     name = "ournames_7";
     y += 0.1;
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Leo Wikström", name);
+    guic->GetTextManager()->SetText("Leo Wikstrï¿½m", name);
     guic->GetTextManager()->SetPos({ 0.25, y }, name);
 
     // ournames_8

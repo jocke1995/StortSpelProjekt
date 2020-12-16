@@ -1,6 +1,5 @@
 #ifndef MAINMENUHANDLER_H
 #define MAINMENUHANDLER_H
-#include <string.h>
 
 class Scene;
 class SceneManager;
