@@ -11,7 +11,7 @@ UpgradeRangeVelocity::UpgradeRangeVelocity(Entity* parent)
 	// set upgrade type/types!
 	SetType(F_UpgradeType::PLAYER);		//The range velocity is set on a rangecomponent which gones on the player, not the projectile entity
 	// set the price of this upgrade 
-	m_Price = 50;
+	m_Price = 100;
 	m_StartingPrice = m_Price;
 
 	// this upgrade will have a max level
@@ -33,7 +33,7 @@ void UpgradeRangeVelocity::IncreaseLevel()
 		// double the velocity of the shots
 		float newVelocity = oldVelocity + 30;
 		m_pParentEntity->GetComponent<component::RangeComponent>()->SetVelocity(newVelocity);
-		m_Price = m_StartingPrice * m_Level;
+		m_Price = m_StartingPrice * (m_Level + 1);
 	}
 }
 

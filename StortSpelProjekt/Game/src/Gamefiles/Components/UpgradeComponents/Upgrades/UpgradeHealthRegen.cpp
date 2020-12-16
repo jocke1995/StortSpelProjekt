@@ -11,7 +11,7 @@ UpgradeHealthRegen::UpgradeHealthRegen(Entity* parentEntity) : Upgrade(parentEnt
 	// set the type of the upgrade
 	SetType(F_UpgradeType::PLAYER);
 	// set the price of the upgrade
-	m_Price = 100;
+	m_Price = 150;
 	m_StartingPrice = m_Price;
 
 	//Variable to count to cou
@@ -41,8 +41,10 @@ void UpgradeHealthRegen::IncreaseLevel()
 {
 	m_Level++;
 
-	// increase the price of the upgrade
-	m_Price = m_StartingPrice * (m_Level + 1);
+	// Increase the price of the upgrade
+	// Should increase as follows 150 -> 250 -> 500 -> 750 -> 1000 ->1250 and so on.
+	// At lvl 5 it then costs 1000 and gives 10hp/s.
+	m_Price = 250 * m_Level;
 }
 
 std::string UpgradeHealthRegen::GetDescription(unsigned int level)

@@ -4,7 +4,6 @@
 #include "Components/UpgradeComponents/UpgradeComponent.h"
 // Include all uppgrades under here:
 #include "Components/UpgradeComponents/Upgrades/UpgradeMeleeDamage.h"
-#include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeRangeVelocity.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeMeleeLifeSteal.h"
 #include "Components/UpgradeComponents/Upgrades/UpgradeHealthBoost.h"

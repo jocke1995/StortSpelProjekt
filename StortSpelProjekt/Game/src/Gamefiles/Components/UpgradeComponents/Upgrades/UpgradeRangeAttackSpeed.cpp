@@ -47,7 +47,9 @@ void UpgradeRangeAttackSpeed::ApplyBoughtUpgrade()
 void UpgradeRangeAttackSpeed::IncreaseLevel()
 {
 	m_Level++;
-	m_Price = m_StartingPrice * pow(2, m_Level);
+	// The pricing should work as 100 -> 150 -> 300 -> 450 -> 600 -> 750.
+	// So lvl 5 would cost 750 and give 50% boost to attack speed.
+	m_Price = 150 * m_Level;
 }
 
 std::string UpgradeRangeAttackSpeed::GetDescription(unsigned int level)
