@@ -21,6 +21,7 @@
 #include "Components/Collision/SphereCollisionComponent.h"
 #include "Components/Collision/CubeCollisionComponent.h"
 #include "Components/Collision/CapsuleCollisionComponent.h"
+#include "Components/Collision/CylinderCollisionComponent.h"
 #include "Components/Collision/HeightmapCollisionComponent.h"
 
 #include "../../Game/src/Gamefiles/Components/GameComponents.h"
