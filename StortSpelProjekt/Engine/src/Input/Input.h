@@ -132,6 +132,13 @@ enum class MOUSE_BUTTON
 	WHEEL = 0x400,
 };
 
+enum class CONTROLLER_TYPE
+{
+	NONE,
+	XBOX,
+	DUALSHOCK
+};
+
 struct ResetGame;
 
 class Input {
@@ -205,6 +212,7 @@ private:
 	std::vector<RawGameController> m_RawGameControllers;
 	concurrency::critical_section m_ControllerLock{};
 
+	CONTROLLER_TYPE m_pControllerType;
 	RawGameController* m_pMainController;
 	int m_ControllerButtonCount;
 	int m_ControllerAxisCount;
