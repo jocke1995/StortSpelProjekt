@@ -134,6 +134,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         else
         {
             PauseGUI::GetInstance().Update(timer->GetDeltaTime(), sceneManager->GetActiveScene());
+            Input::GetInstance().ReadControllerInput(timer->GetDeltaTime());
 
             /* ------ ImGui ------*/
             if (!IsImguiHidden())
@@ -1123,6 +1124,7 @@ void GameUpdateScene(SceneManager* sm, double dt)
     }
 
     auto entities = Physics::GetInstance().GetCollisionEntities();
+    Input::GetInstance().ReadControllerInput(dt);
 }
 
 void ShopUpdateScene(SceneManager* sm, double dt)
@@ -1137,6 +1139,7 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     pos.y = sinf(rotValue) + 7;
     trans->SetPosition(pos.x, pos.y, pos.z);
 
+    Input::GetInstance().ReadControllerInput(dt);
     // Kod-påkod-påkod-påkod-påkod-lösning
     // Detta ska egentligen stå i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
     // spelare i alla scener så kan vi ej nå den aktiva spelaren i den scenen därifrån.
