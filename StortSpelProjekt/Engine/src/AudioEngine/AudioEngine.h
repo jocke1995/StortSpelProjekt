@@ -16,6 +16,7 @@ public:
 	XAUDIO2_VOICE_DETAILS* GetDeviceDetails();
 	void SetListenerPtr(X3DAUDIO_LISTENER* listener);
 	X3DAUDIO_LISTENER* GetListener();
+	void ChangeMasterVolume(float vol);
 
 private:
 	AudioEngine();

@@ -1,3 +1,4 @@
+f_masterVolume 1.0
 f_volume 1.0
 f_backgroundVolume 0.2
 f_updateRate 30
