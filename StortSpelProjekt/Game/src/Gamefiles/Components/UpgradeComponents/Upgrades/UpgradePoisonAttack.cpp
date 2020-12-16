@@ -34,10 +34,8 @@ void UpgradePoisonAttack::IncreaseLevel()
 {
 	m_Level++;
 	m_NrOfTicks = 9 + m_Level;
-	// -1 because the first level should start at 0.04
 	m_Damage = 0.04 + (float)(0.005 * (m_Level - 1));
 	// Slow of 50% at maxlvlso enemies aren't snails.
-	// -1 because the first level should start at 0.10.
 	m_Slow = 0.10 + (0.05 * (m_Level - 1));
 	m_Price = m_StartingPrice * (m_Level + 1);
 

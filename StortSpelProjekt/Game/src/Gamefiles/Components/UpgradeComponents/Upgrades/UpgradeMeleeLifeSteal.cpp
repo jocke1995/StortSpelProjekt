@@ -4,10 +4,10 @@
 #include "UpgradeMeleeLifeSteal.h"
 #include "Components/MeleeComponent.h"
 
-// Gives 20% lifesteal to melee attacks. Subsequent levels will add 5% more lifesteal. 
-// This procentage is based on the melee damage you do so 50 meleeDamage will give 10hp in lifesteal.
+// Gives 10% lifesteal to melee attacks. Subsequent levels will add 5% more lifesteal. 
+// This procentage is based on the melee damage you do so 50 meleeDamage will give 5hp in lifesteal.
 // Price scaling should be 300 -> 500 -> 700 -> 900 -> 1100 -> 1300 -> 1500 -> 1700 -> 1900 -> 2100 -> 2300 -> 2500 -> 2700 -> 2900 -> 3100 -> 3300 -> 3500 etc.
-// Lifesteal at these lvls 20% -> 25% -> 30% -> 35% -> 40%  -> 45%  -> 50%  -> 55%  -> 60%  -> 65%  -> 70%  -> 75%  -> 80%  -> 85%  -> 90%  -> 95%  -> 100%  etc.
+// Lifesteal at these lvls 10% -> 15% -> 20% -> 25% -> 30%  -> 35%  -> 40%  -> 45%  -> 50%  -> 55%  -> 60%  -> 65%  -> 70%  -> 75%  -> 80%  -> 85%  -> 90%  -> 95%  -> 100%  etc.
 UpgradeMeleeLifeSteal::UpgradeMeleeLifeSteal(Entity* parent) : Upgrade(parent)
 {
 	// name the upgrade!

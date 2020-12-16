@@ -33,7 +33,6 @@ void UpgradeMeleeDamage::IncreaseLevel()
 	m_Level++;
 
 	m_Price = m_StartingPrice * (m_Level + 1);
-	// now apply the new stat
 }
 
 void UpgradeMeleeDamage::ApplyBoughtUpgrade()
