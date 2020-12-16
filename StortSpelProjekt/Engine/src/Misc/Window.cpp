@@ -170,6 +170,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			GetWindowRect(hWnd, &win);
 			ClipCursor(&win);
 		}
+		else if (raw->header.dwType == RIM_TYPEHID)
+		{
+			auto inputData = raw->data.hid;
+		}
 
 		delete[] lpb;
 
