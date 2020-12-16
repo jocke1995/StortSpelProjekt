@@ -509,10 +509,10 @@ ModelRotation 0.0, 0.0, 0.0
 ModelPosition 50.0, 4.0, 0.0
 ModelDrawFlag 1, 1
 ModelMass 100.0
-ModelFriction 10.0
+ModelFriction 100.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionCapsule 0.2, 0.4, 0.2
+Submit CollisionCylinder 0.2, 0.4, 0.2
 
 Name Vase2
 ModelPath Models/Vase/vase.obj
@@ -521,10 +521,10 @@ ModelRotation 0.0, 0.0, 0.0
 ModelPosition -10.0, 4.0, 55.0
 ModelDrawFlag 1, 1
 ModelMass 100.0
-ModelFriction 10.0
+ModelFriction 100.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionCapsule 0.2, 0.4, 0.2
+Submit CollisionCylinder 0.2, 0.4, 0.2
 
 Name Vase3
 ModelPath Models/Vase/vase.obj
@@ -533,10 +533,10 @@ ModelRotation 0.0, 0.0, 0.0
 ModelPosition 30.0, 4.0, 30.0
 ModelDrawFlag 1, 1
 ModelMass 100.0
-ModelFriction 10.0
+ModelFriction 100.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionCapsule 0.2, 0.4, 0.2
+Submit CollisionCylinder 0.2, 0.4, 0.2
 
 Name Vase4
 ModelPath Models/Vase/vase.obj
@@ -545,10 +545,10 @@ ModelRotation 0.0, 0.0, 0.0
 ModelPosition -50.0, 4.0, 0.0
 ModelDrawFlag 1, 1
 ModelMass 100.0
-ModelFriction 10.0
+ModelFriction 100.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionCapsule 0.2, 0.4, 0.2
+Submit CollisionCylinder 0.2, 0.4, 0.2
 
 Name Vase5
 ModelPath Models/Vase/vase.obj
@@ -557,10 +557,10 @@ ModelRotation 0.0, 0.0, 0.0
 ModelPosition 10.0, 4.0, -55.0
 ModelDrawFlag 1, 1
 ModelMass 100.0
-ModelFriction 10.0
+ModelFriction 100.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionCapsule 0.2, 0.4, 0.2
+Submit CollisionCylinder 0.2, 0.4, 0.2
 
 Name Vase6
 ModelPath Models/Vase/vase.obj
@@ -569,10 +569,10 @@ ModelRotation 0.0, 0.0, 0.0
 ModelPosition -30.0, 4.0, -30.0
 ModelDrawFlag 1, 1
 ModelMass 100.0
-ModelFriction 10.0
+ModelFriction 100.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionCapsule 0.2, 0.4, 0.2
+Submit CollisionCylinder 0.2, 0.4, 0.2
 
 // NAVMESH ---------------------------------------------
 
