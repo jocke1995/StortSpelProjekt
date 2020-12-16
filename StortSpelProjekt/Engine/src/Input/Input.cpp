@@ -63,12 +63,12 @@ void Input::RegisterControllers()
 		m_ControllerButtonCount = m_pMainController->ButtonCount();
 		m_ControllerAxisCount = m_pMainController->AxisCount();
 		m_ControllerSwitchCount = m_pMainController->SwitchCount();
-
-		if (m_pMainController->HardwareProductId() == 1476 && m_pMainController->HardwareVendorId() == 1356)	// Dualshock controller
+		Log::Print("%d, %d\n", m_pMainController->HardwareVendorId(), m_pMainController->HardwareProductId());
+		if (m_pMainController->HardwareVendorId() == 1356)	// Dualshock controller
 		{
 			m_pControllerType = CONTROLLER_TYPE::DUALSHOCK;
 		}
-		else if (m_pMainController->HardwareProductId() == 654 && m_pMainController->HardwareVendorId() == 1118)	// XBOX controller
+		else if (m_pMainController->HardwareVendorId() == 1118)	// XBOX controller
 		{
 			m_pControllerType = CONTROLLER_TYPE::XBOX;
 		}
