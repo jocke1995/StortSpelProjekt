@@ -36,6 +36,7 @@ void onMouseSensitivityPlus(const std::string& name);
 void onMouseSensitivityMinus(const std::string& name);
 void MainMenuUpdateScene(SceneManager* sm, double dt);
 void CreditsUpdateScene(SceneManager* sm, double dt);
+void ResetCreditsScene(SceneManager* sm);
 
 MainMenuHandler::MainMenuHandler()
 {
@@ -608,7 +609,7 @@ void MainMenuHandler::createCreditsScene()
     entity = m_pCreditsScene->AddEntity("ScrollingText");
     guic = entity->AddComponent<component::GUI2DComponent>();
 
-    float y = 0;
+    float y = 1;
     std::string name = "";
 
     // Hell Loop
@@ -966,6 +967,7 @@ void onExit(const std::string& name)
 
 void onCredits(const std::string& name)
 {
+    ResetCreditsScene(&SceneManager::GetInstance());
     EventBus::GetInstance().Publish(&SceneChange("CreditsScene"));
 }
 
@@ -1224,6 +1226,7 @@ void MainMenuUpdateScene(SceneManager* sm, double dt)
     //rotValue += dt;
 }
 
+static float2 totalScroll = { 0.0f, 0.0f };
 void CreditsUpdateScene(SceneManager* sm, double dt)
 {
     Scene* creditsScene = sm->GetActiveScene();
@@ -1231,10 +1234,12 @@ void CreditsUpdateScene(SceneManager* sm, double dt)
     Entity* text = creditsScene->GetEntity("ScrollingText");
     component::GUI2DComponent* comp = text->GetComponent<component::GUI2DComponent>();
 
-    const float2 scrollSpeed = { 0, 0.05 };
+    const float2 scrollSpeed = { 0, -0.2 }; // 0.05
 
     auto map = comp->GetTextManager()->GetTextDataMap();
 
+    totalScroll.x += scrollSpeed.x * dt;
+    totalScroll.y += scrollSpeed.y * dt;
 
     auto it = map->begin();
     while (it != map->end())
@@ -1247,4 +1252,28 @@ void CreditsUpdateScene(SceneManager* sm, double dt)
 
         it++;
     }
+}
+
+void ResetCreditsScene(SceneManager* sm)
+{
+    Scene* creditsScene = sm->GetScene("CreditsScene");
+
+    Entity* text = creditsScene->GetEntity("ScrollingText");
+    component::GUI2DComponent* comp = text->GetComponent<component::GUI2DComponent>();
+
+    auto map = comp->GetTextManager()->GetTextDataMap();
+
+    auto it = map->begin();
+    while (it != map->end())
+    {
+        std::string name = (*it).first;
+
+        float2 oldPos = comp->GetTextManager()->GetTextData(name)->pos;
+        float2 frameChange = { -totalScroll.x, -totalScroll.y };
+        comp->GetTextManager()->SetPos(oldPos + frameChange, name);
+
+        it++;
+    }
+
+    totalScroll = { 0, 0 };
 }
