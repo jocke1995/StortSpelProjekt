@@ -18,6 +18,7 @@ void onBrightnessPlus(const std::string& name);
 void onBrightnessMinus(const std::string& name);
 void onStart(const std::string& name);
 void onExit(const std::string& name);
+void onCredits(const std::string& name);
 void onOptions(const std::string& name);
 void onOptionBack(const std::string& name);
 void on2560x1440(const std::string& name);
@@ -34,6 +35,7 @@ void onBox(const std::string& name);
 void onMouseSensitivityPlus(const std::string& name);
 void onMouseSensitivityMinus(const std::string& name);
 void MainMenuUpdateScene(SceneManager* sm, double dt);
+void CreditsUpdateScene(SceneManager* sm, double dt);
 
 MainMenuHandler::MainMenuHandler()
 {
@@ -551,6 +553,203 @@ void MainMenuHandler::createOptionScene()
     guic->GetQuadManager()->SetOnClicked(&onOptionBack);
 }
 
+void MainMenuHandler::createCreditsScene()
+{
+    AssetLoader* al = AssetLoader::Get();
+
+    m_pCreditsScene = m_pSceneManager->CreateScene("CreditsScene");
+    m_pCreditsScene->SetUpdateScene(&CreditsUpdateScene);
+
+    component::GUI2DComponent* guic = nullptr;
+    component::Audio2DVoiceComponent* vc = nullptr;
+
+    Texture* background = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Background.png");
+    Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Back.png");
+
+    Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
+
+    AudioBuffer* menuSound = al->LoadAudio(L"../Vendor/Resources/Audio/Menu.wav", L"MenuMusic");
+    menuSound->SetAudioLoop(0);
+
+    // Player (Need a camera)
+    Entity* entity = m_pCreditsScene->AddEntity("player");
+    entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    // Add a voice to the player to play some music.
+    vc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    vc->AddVoice(L"MenuMusic");
+
+    // Background
+    entity = m_pCreditsScene->AddEntity("CreditsBackground");
+    float2 quadPos = { 0.0f, 0.0f };
+    float2 quadScale = { 1.0f, 1.0f };
+    float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad(
+        "CreditsBackground",
+        quadPos, quadScale,
+        false, false,
+        0,
+        notBlended,
+        background);
+
+    // Skybox
+    entity = m_pCreditsScene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
+    sbc->SetTexture(blackCubeMap);
+
+
+    // Entities -----------------------------------------------------
+
+    /////////////////////////////////////////////
+    // Scrolling Text
+    /////////////////////////////////////////////
+
+    entity = m_pCreditsScene->AddEntity("ScrollingText");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+
+    float y = 0;
+    std::string name = "";
+
+    // Hell Loop
+    name = "hellloop";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Hell Loop", name);
+    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+
+    // project
+    name = "project";
+    y += 0.1;
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("This game is a school project made during 2020-09-01 to 2020-12-18", name);
+    guic->GetTextManager()->SetPos({ 0.25, y }, name);
+
+    // ournames
+    name = "ournames";
+    y += 0.1;
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Developers", name);
+    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+
+    // ournames_0
+    name = "ournames_0";
+    y += 0.1;
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Andrés Diaz", name);
+    guic->GetTextManager()->SetPos({ 0.25, y }, name);
+
+    // ournames_1
+    name = "ournames_1";
+    y += 0.1;
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Anton Åsbrink", name);
+    guic->GetTextManager()->SetPos({ 0.25, y }, name);
+
+    // ournames_2
+    name = "ournames_2";
+    y += 0.1;
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Björn Johansson", name);
+    guic->GetTextManager()->SetPos({ 0.25, y }, name);
+
+    // ournames_3
+    name = "ournames_3";
+    y += 0.1;
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Filip Zachrisson", name);
+    guic->GetTextManager()->SetPos({ 0.25, y }, name);
+
+    // ournames_4
+    name = "ournames_4";
+    y += 0.1;
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Fredrik Lind", name);
+    guic->GetTextManager()->SetPos({ 0.25, y }, name);
+
+    // ournames_5
+    name = "ournames_5";
+    y += 0.1;
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Jacob Andersson", name);
+    guic->GetTextManager()->SetPos({ 0.25, y }, name);
+
+    // ournames_6
+    name = "ournames_6";
+    y += 0.1;
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Joakim Sjöberg", name);
+    guic->GetTextManager()->SetPos({ 0.25, y }, name);
+
+    // ournames_7
+    name = "ournames_7";
+    y += 0.1;
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Leo Wikström", name);
+    guic->GetTextManager()->SetPos({ 0.25, y }, name);
+
+    // ournames_8
+    name = "ournames_8";
+    y += 0.1;
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Tim Johansson", name);
+    guic->GetTextManager()->SetPos({ 0.25, y }, name);
+
+    // ournames_9
+    name = "ournames_9";
+    y += 0.1;
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("William OR", name);
+    guic->GetTextManager()->SetPos({ 0.25, y }, name);
+
+    // school
+    y += 0.1;
+    name = "school";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("School Name: BTH", name);
+    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+
+    // Features
+    y += 0.1;
+    name = "2";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("AWSDa", name);
+    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+
+
+
+    // specialthanks
+    y += 0.1;
+    name = "specialthanks";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Special Thanks", name);
+    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+
+    // Third Party
+    y += 0.1;
+    name = "thirdparty";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Third Party", name);
+    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+
+    /////////////////////////////////////////////
+    // Exit
+    /////////////////////////////////////////////
+
+    entity = m_pCreditsScene->AddEntity("Back");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("Back",
+        { 0.05f, 0.8f },
+        { (float)exitTex->GetWidth() / 1920.0f, (float)exitTex->GetHeight() / 1080.0f },
+        true,
+        true,
+        2,
+        { 1.0,1.0,1.0,1.0 },
+        exitTex);
+    guic->GetQuadManager()->SetOnClicked(&onOptionBack); // back to same scene as Options Back
+
+    // --------------------------------------------------------------
+}
+
 MainMenuHandler& MainMenuHandler::GetInstance()
 {
     static MainMenuHandler instance;
@@ -559,6 +758,7 @@ MainMenuHandler& MainMenuHandler::GetInstance()
 
 MainMenuHandler::~MainMenuHandler()
 {
+
 }
 
 Scene* MainMenuHandler::CreateScene(SceneManager* sm)
@@ -576,6 +776,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     Texture* startTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Start.png");
     Texture* optionsTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Options.png");
     Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Exit.png");
+    Texture* creditsTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Credits.png");
 	Texture* background = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Background.png");
 	Texture* title = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/title.png");
     Model* playerModel = al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Player/AnimatedPlayer.fbx");
@@ -653,10 +854,15 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
 	guic->GetQuadManager()->CreateQuad("OptionsOption", { 0.1f, 0.5f }, { optionsTex->GetWidth() / 1920.0f, optionsTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, optionsTex);
 	guic->GetQuadManager()->SetOnClicked(&onOptions);
 
-	entity = scene->AddEntity("ExitOption");
-	guic = entity->AddComponent<component::GUI2DComponent>();
-	guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.65f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, exitTex);
-	guic->GetQuadManager()->SetOnClicked(&onExit);
+    entity = scene->AddEntity("ExitOption");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.65f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, exitTex);
+    guic->GetQuadManager()->SetOnClicked(&onExit);
+
+    entity = scene->AddEntity("CreditsOption");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("CreditsOption", { 0.1f, 0.8f }, { creditsTex->GetWidth() / 1920.0f, creditsTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, creditsTex);
+    guic->GetQuadManager()->SetOnClicked(&onCredits);
 
 	//std::vector<Model*> enemyModels;
 	//enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj"));
@@ -699,6 +905,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     m_pScene = scene;
 
     createOptionScene();
+    createCreditsScene();
 
 
     scene->SetUpdateScene(&MainMenuUpdateScene);
@@ -755,6 +962,11 @@ void onStart(const std::string& name)
 void onExit(const std::string& name)
 {
     EventBus::GetInstance().Publish(&ShutDown());
+}
+
+void onCredits(const std::string& name)
+{
+    EventBus::GetInstance().Publish(&SceneChange("CreditsScene"));
 }
 
 void onOptions(const std::string& name)
@@ -996,11 +1208,11 @@ void onMouseSensitivityMinus(const std::string& name)
 void MainMenuUpdateScene(SceneManager* sm, double dt)
 {
     //static float rotValue = 0.0f;
-	//
+    //
     //Transform* trans = sm->GetScene("MainMenuScene")->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform();
     //trans->SetRotationY(rotValue);
     //trans->SetPosition({ 0.0f, std::sin(rotValue), 10.0f });
-	//
+    //
     //for (int i = 0; i < 20; ++i)
     //{
     //    trans = sm->GetScene("MainMenuScene")->GetEntity("menuEnemy" + std::to_string(i))->GetComponent<component::TransformComponent>()->GetTransform();
@@ -1008,6 +1220,31 @@ void MainMenuUpdateScene(SceneManager* sm, double dt)
     //    float3 pos = trans->GetPositionFloat3();
     //    trans->SetPosition({ pos.x, std::sin(rotValue + i), pos.z });
     //}
-	//
+    //
     //rotValue += dt;
+}
+
+void CreditsUpdateScene(SceneManager* sm, double dt)
+{
+    Scene* creditsScene = sm->GetActiveScene();
+
+    Entity* text = creditsScene->GetEntity("ScrollingText");
+    component::GUI2DComponent* comp = text->GetComponent<component::GUI2DComponent>();
+
+    const float2 scrollSpeed = { 0, 0.05 };
+
+    auto map = comp->GetTextManager()->GetTextDataMap();
+
+
+    auto it = map->begin();
+    while (it != map->end())
+    {
+        std::string name = (*it).first;
+
+        float2 oldPos = comp->GetTextManager()->GetTextData(name)->pos;
+        float2 frameChange = { scrollSpeed.x * dt, scrollSpeed.y * dt };
+        comp->GetTextManager()->SetPos(oldPos + frameChange, name);
+
+        it++;
+    }
 }
