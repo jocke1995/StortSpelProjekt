@@ -34,21 +34,6 @@ std::string Entity::GetName() const
 	return m_Name;
 }
 
-unsigned int Entity::GetRefCount() const
-{
-	return m_ReferenceCount;
-}
-
-void Entity::IncrementRefCount()
-{
-	m_ReferenceCount++;
-}
-
-void Entity::DecrementRefCount()
-{
-	m_ReferenceCount--;
-}
-
 void Entity::Update(double dt)
 {
 	for (Component* component : m_Components)
@@ -69,13 +54,34 @@ void Entity::OnInitScene()
 {
 	// for each component in entity: call their implementation of InitScene(),
 	// which calls their specific init function (render, audio, game, physics etc)
+
 	for (int i = 0; i < m_Components.size(); i++)
 	{
 		m_Components.at(i)->OnInitScene();
 	}
 }
 
+void Entity::OnUnInitScene()
+{
+	// for each component in entity: call their implementation of InitScene(),
+	// which calls their specific init function (render, audio, game, physics etc)
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		m_Components.at(i)->OnUnInitScene();
+	}
+}
+
 std::vector<Component*>* Entity::GetAllComponents()
 {
 	return &m_Components;
+}
+
+void Entity::SetEntityState(bool dynamic)
+{
+	m_Dynamic = dynamic;
+}
+
+bool Entity::IsEntityDynamic() const
+{
+	return m_Dynamic;
 }

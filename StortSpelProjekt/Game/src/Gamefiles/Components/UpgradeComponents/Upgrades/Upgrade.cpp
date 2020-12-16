@@ -5,6 +5,7 @@
 Upgrade::Upgrade(Entity* parentEntity)
 {
 	m_pParentEntity = parentEntity;
+	m_ImageName = "default.png";
 }
 
 Upgrade::~Upgrade()
@@ -26,9 +27,24 @@ std::string Upgrade::GetName() const
 	return m_Name;
 }
 
+void Upgrade::SetImage(std::string* imageName)
+{ 
+	m_ImageName = *imageName;
+}
+
+std::string Upgrade::GetImage() const
+{
+	return m_ImageName;
+}
+
 int Upgrade::GetLevel() const
 {
 	return m_Level;
+}
+
+int Upgrade::GetMaxLevel() const
+{
+	return m_MaxLevel;
 }
 
 void Upgrade::SetType(unsigned int type)
@@ -51,9 +67,9 @@ int Upgrade::GetID()
 	return m_ID;
 }
 
-std::string Upgrade::GetDescription()
+std::string Upgrade::GetDescription(unsigned int level)
 {
-	return m_Description;
+	return "THIS UPGRADE IS MISSING A DESCRIPTION";
 }
 
 int Upgrade::GetPrice()
@@ -69,20 +85,34 @@ void Upgrade::RenderUpdate(double dt)
 {
 }
 
+void Upgrade::SetLevel(unsigned int lvl)
+{
+	m_Level = lvl;
+	if (lvl == 0)
+	{
+		m_Price = m_StartingPrice;
+	}
+}
+
 
 void Upgrade::IncreaseLevel()
 {
 }
 
-void Upgrade::OnHit()
+void Upgrade::IncreaseLevelOnly()
+{
+	m_Level++;
+}
+
+void Upgrade::OnHit(Entity* target)
 {
 }
 
-void Upgrade::OnRangedHit()
+void Upgrade::OnRangedHit(Entity* target, Entity* projectile)
 {
 }
 
-void Upgrade::OnMeleeHit()
+void Upgrade::OnMeleeHit(Entity* target)
 {
 }
 
@@ -107,5 +137,9 @@ void Upgrade::RangedModifier()
 }
 
 void Upgrade::ApplyStat()
+{
+}
+
+void Upgrade::ApplyBoughtUpgrade()
 {
 }

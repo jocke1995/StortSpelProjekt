@@ -19,8 +19,7 @@ ConstantBuffer<PointLight> pointLight[]		: register(b0, space1);
 ConstantBuffer<SpotLight> spotLight[]		: register(b0, space2);
 
 ConstantBuffer<CB_PER_OBJECT_STRUCT> cbPerObject : register(b1, space3);
-ConstantBuffer<CB_PER_FRAME_STRUCT>  cbPerFrame  : register(b3, space3);
-
+ConstantBuffer<CB_PER_FRAME_STRUCT>  cbPerFrame  : register(b4, space3);
 
 PS_OUTPUT PS_main(VS_OUT input)
 {
@@ -93,13 +92,13 @@ PS_OUTPUT PS_main(VS_OUT input)
 			baseReflectivity);
 	}
 	
-	float3 ambient = float3(0.004f, 0.004f, 0.004f) * albedo;
+	float3 ambient = float3(0.003f, 0.003f, 0.006f) * albedo;
 	finalColor += ambient;
 
 	// Since hdr will lower the intensity of our emissive textures, our quick solution in this game is to
 	// just use plain colors as emissive textures (255, 0, 255) or (0, 255, 0) etc. So basicly we cannot
 	// use emissive textures like this(200, 50, 0). The intesity is increased so that a red emissive texture actually stays red after HDR.
-	finalColor += (emissive.rgb * 1000);
+	finalColor += (emissive.rgb * 2);
 
 	PS_OUTPUT output;
 	output.sceneColor = float4(finalColor.rgb, 1.0f);
@@ -113,5 +112,7 @@ PS_OUTPUT PS_main(VS_OUT input)
 	{
 		output.brightColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	}
+
+	output.sceneColor.rgb *= cbPerFrame.brightness;
 	return output;
 }

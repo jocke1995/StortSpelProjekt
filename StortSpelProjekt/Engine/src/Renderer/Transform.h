@@ -8,7 +8,7 @@
 class Transform
 {
 public:
-	Transform();
+	Transform(bool invertDirection = false);
 	virtual ~Transform();
 
 	void SetPosition(float x, float y, float z);
@@ -25,8 +25,6 @@ public:
 
 	// Moves the object in the direction of the current movement, but at the set speed. (Moves the object a maximum distance of the current speed * dt)
 	void NormalizedMove(float dt);
-	// Moves the object in the direction of the current movement, but at the set speed. (Moves the object a maximum distance of the current speed * dt)
-	void NormalizedMoveRender(float dt);
 	
 	void SetRotationX(float radians);
 	void SetRotationY(float radians);
@@ -36,8 +34,10 @@ public:
 	void SetScale(float x, float y, float z);
 	void IncreaseScaleByPercent(float scale);
 
+	void UpdateLogicWorldMatrix();
 	void UpdateWorldMatrix();
 
+	DirectX::XMMATRIX* GetLogicWorldMatrix();
 	DirectX::XMMATRIX* GetWorldMatrix();
 	DirectX::XMMATRIX* GetWorldMatrixTransposed();
 
@@ -87,6 +87,8 @@ public:
 	float GetVelocity() const;
 	void SetVelocity(float vel);
 
+	int GetInvDir();
+
 	// Sets the movement. Also sets the velocity to the length of the given vector.
 	void SetActualMovement(float x, float y, float z);
 	// Sets the movement. Also sets the velocity to the length of the given vector.
@@ -95,10 +97,12 @@ public:
 	void UpdateActualMovement(float x, float y, float z);
 
 private:
+	DirectX::XMMATRIX m_LogicWorldMat;
 	DirectX::XMMATRIX m_WorldMat;
 	DirectX::XMMATRIX m_WorldMatTransposed;
 
 	DirectX::XMFLOAT3 m_Position;
+	DirectX::XMFLOAT3 m_OldPosition;
 	DirectX::XMFLOAT3 m_RenderPosition;
 	DirectX::XMFLOAT3 m_Movement;
 	DirectX::XMFLOAT3 m_Scale;
@@ -109,6 +113,11 @@ private:
 	DirectX::XMMATRIX m_RotationMat;
 
 	float m_Velocity;
+
+	double m_TimeBetweenFrame;
+	double m_UpdateRate;
+
+	int m_InvDir;
 };
 
 #endif

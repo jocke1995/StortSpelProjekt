@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ModelComponent.h"
 
+#include "../Renderer/AnimatedModel.h"
 #include "../Renderer/Model.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/Renderer.h"
@@ -30,12 +31,16 @@ namespace component
 
 	void ModelComponent::Update(double dt)
 	{
-		m_pModel->Update(dt);
 	}
 
 	void ModelComponent::OnInitScene()
 	{
-		Renderer::GetInstance().InitModelComponent(GetParent());
+		Renderer::GetInstance().InitModelComponent(this);
+	}
+
+	void ModelComponent::OnUnInitScene()
+	{
+		Renderer::GetInstance().UnInitModelComponent(this);
 	}
 
 	Mesh* ModelComponent::GetMeshAt(unsigned int index) const
@@ -73,5 +78,9 @@ namespace component
 	double3 ModelComponent::GetModelDim() const
 	{
 		return m_pModel->GetModelDim();
+	}
+	Model* ModelComponent::GetModel() const
+	{
+		return m_pModel;
 	}
 }

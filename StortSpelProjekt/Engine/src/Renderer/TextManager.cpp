@@ -10,6 +10,9 @@
 #include "../Misc/GUI2DElements/Text.h"
 #include "../Misc/GUI2DElements/Font.h"
 
+#include "../Renderer/DX12Tasks/DX12Task.h"
+#include "../Renderer/DX12Tasks/CopyOnDemandTask.h"
+
 TextManager::TextManager()
 {
 	// Default text
@@ -47,7 +50,8 @@ void TextManager::AddText(std::string name)
 	// Look if a font is chosen, otherwise, set the default font
 	if (m_pFont == nullptr)
 	{
-		m_pFont = AssetLoader::Get()->LoadFontFromFile(L"Arial.fnt");
+		Log::PrintSeverity(Log::Severity::WARNING, "Font not set! Choosing default font...\n", name.c_str());
+		m_pFont = AssetLoader::Get()->LoadFontFromFile(L"MedievalSharp.fnt");
 	}
 
 	// Default text
@@ -59,46 +63,8 @@ void TextManager::AddText(std::string name)
 		Log::PrintSeverity(Log::Severity::WARNING, "It already exists a text with the name '%s'! Overwriting text data...\n", name.c_str());
 	}
 
-	m_TextDataMap[name] = textData;
-}
-
-void TextManager::UploadTextData(std::string name)
-{
-	Renderer* renderer = &Renderer::GetInstance();
-
-	int numOfCharacters = GetNumOfCharacters(name);
-	auto textData = GetTextData(name);
-
-	Text* text = new Text(
-		renderer->m_pDevice5,
-		renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
-		numOfCharacters,
-		m_pFont->GetTexture());
-	text->SetTextData(textData, m_pFont);
-
-	// Look if the text exists
-	bool exists = false;
-	auto it = m_TextDataMap.find(name);
-	if (it != m_TextDataMap.end())
-	{
-		exists = true;
-	}
-
-	if (exists == true)
-	{
-		// Replacing an existing text in the map
-		replaceText(text, name);
-	}
-	else
-	{
-		// Adding a new text to the map
-		submitText(text, name);
-	}
-
-	// Uploading the text data to the gpu
-	renderer->submitTextToGPU(text, this);
-
-	renderer->executeCopyOnDemand();
+	m_TextDataMap.insert({ name, textData });
+	uploadTextData(name);
 }
 
 void TextManager::SetFont(Font* font)
@@ -114,6 +80,7 @@ void TextManager::SetText(std::string text, std::string name)
 	{
 		m_TextDataMap[name].text = to_wstring(text);
 		exists = true;
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -130,6 +97,7 @@ void TextManager::SetPos(float2 textPos, std::string name)
 	{
 		m_TextDataMap[name].pos = textPos;
 		exists = true;
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -146,7 +114,7 @@ void TextManager::SetScale(float2 scale, std::string name)
 	{
 		// Scale with the size of the window
 		Renderer* renderer = &Renderer::GetInstance();
-		HWND* hwnd = const_cast<HWND*>(renderer->m_pWindow->GetHwnd());
+		HWND* hwnd = const_cast<HWND*>(renderer->GetWindow()->GetHwnd());
 		RECT rect;
 
 		float win_x = 0, win_y = 0;
@@ -165,6 +133,7 @@ void TextManager::SetScale(float2 scale, std::string name)
 		m_TextDataMap[name].scale.y = (scale.y * scale_y * aspect);
 
 		exists = true;
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -181,6 +150,7 @@ void TextManager::SetPadding(float2 padding, std::string name)
 	{
 		m_TextDataMap[name].padding = padding;
 		exists = true;
+		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -197,12 +167,40 @@ void TextManager::SetColor(float4 color, std::string name)
 	{
 		m_TextDataMap[name].color = color;
 		exists = true;
+		uploadTextData(name);
 	}
 
 	if (exists == false)
 	{
 		Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set color.\n", name.c_str());
 	}
+}
+
+void TextManager::SetBlend(float4 blend, std::string name)
+{
+	bool exists = false;
+	auto it = m_TextDataMap.find(name);
+	if (it != m_TextDataMap.end())
+	{
+		m_TextDataMap[name].blendFactor = blend;
+		exists = true;
+		uploadTextData(name);
+	}
+
+	if (exists == false)
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "The text '%s', does not exist! Could not set blend.\n", name.c_str());
+	}
+}
+
+void TextManager::HideText(bool hide)
+{
+	m_TextIsHidden = hide;
+}
+
+const bool TextManager::IsTextHidden() const
+{
+	return m_TextIsHidden;
 }
 
 Font* TextManager::GetFont() const
@@ -243,16 +241,69 @@ void TextManager::submitText(Text* text, std::string name)
 void TextManager::replaceText(Text* text, std::string name)
 {
 	bool found = false;
-	auto it = m_TextDataMap.find(name);
-	if (it != m_TextDataMap.end())
+	auto it = m_TextMap.find(name);
+	if (it != m_TextMap.end())
 	{
-		delete m_TextMap[name];
-		m_TextMap[name] = text;
+		deleteTextData(name);
+		m_TextMap.insert({ name, text });
 		found = true;
 	}
 
 	if (found == false)
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "Could not find any text called '%s' to replace!\n", name);
+	}
+}
+
+void TextManager::uploadTextData(std::string name)
+{
+	Renderer* renderer = &Renderer::GetInstance();
+
+	auto textData = GetTextData(name);
+
+	Text* text = new Text(
+		renderer->m_pDevice5,
+		renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
+		m_pFont->GetTexture(),
+		textData,
+		m_pFont);
+
+	// Look if the text exists
+	bool exists = false;
+	auto it = m_TextMap.find(name);
+	if (it != m_TextMap.end())
+	{
+		exists = true;
+	}
+
+	if (exists == true)
+	{
+		// Replacing an existing text in the map
+		replaceText(text, name);
+	}
+	else
+	{
+		// Adding a new text to the map
+		submitText(text, name);
+	}
+
+	// Uploading the text data to the gpu
+	renderer->submitTextToGPU(text, this);
+}
+
+void TextManager::deleteTextData(std::string name)
+{
+	if (m_TextMap[name] != nullptr)
+	{
+		Renderer* renderer = &Renderer::GetInstance();
+
+		CopyTask* task = renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
+		codt->UnSubmitText(m_TextMap[name]);
+
+		renderer->waitForGPU();
+
+		delete m_TextMap[name];
+		m_TextMap.erase(name);
 	}
 }

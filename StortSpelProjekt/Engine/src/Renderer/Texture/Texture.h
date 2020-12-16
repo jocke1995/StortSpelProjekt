@@ -15,6 +15,8 @@ public:
 	Texture(const std::wstring& filePath);
 	virtual ~Texture();
 
+	void DeleteTextureOnRam();
+
 	virtual bool Init(ID3D12Device5* device, DescriptorHeap* descriptorHeap) = 0;
 
 	const std::wstring& GetPath() const;
@@ -41,9 +43,6 @@ protected:
 	D3D12_RESOURCE_DESC m_ResourceDescription = {};
 	Resource* m_pDefaultResource = nullptr;
 	Resource* m_pUploadResource = nullptr;
-
-	// Temp until scene is properly loaded when a change of scene happens
-	bool m_HasBeenUploadedToDefault = false;
 };
 
 #endif

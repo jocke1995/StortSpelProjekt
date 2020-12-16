@@ -6,6 +6,10 @@
 #include "../CommandInterface.h"
 
 #include "../Texture/TextureCubeMap.h"
+
+#include "../../ECS/Components/GUI2DComponent.h"
+#include "../Renderer/Mesh.h"
+
 CopyOnDemandTask::CopyOnDemandTask(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType, unsigned int FLAG_THREAD)
 	:CopyTask(device, interfaceType, FLAG_THREAD)
 {
@@ -27,6 +31,56 @@ void CopyOnDemandTask::SubmitTexture(Texture* texture)
 	m_Textures.push_back(texture);
 }
 
+void CopyOnDemandTask::UnSubmitMesh(Mesh* mesh)
+{
+	// Erase uploaded data
+	Resource* uploadResourceVertices = mesh->m_pUploadResourceVertices;
+	Resource* uploadResourceIndices = mesh->m_pDefaultResourceIndices;
+	auto it = m_UploadDefaultData.begin();
+
+	// Remove vertexThings
+	while (it != m_UploadDefaultData.end())
+	{
+		if (std::get<0>(*it) == uploadResourceVertices)
+		{
+			it = m_UploadDefaultData.erase(it);
+			break;
+		}
+		it++;
+	}
+
+	// Remove indexThings
+	it = m_UploadDefaultData.begin();
+	while (it != m_UploadDefaultData.end())
+	{
+		if (std::get<1>(*it) == uploadResourceIndices)
+		{
+			it = m_UploadDefaultData.erase(it);
+			break;
+		}
+		it++;
+	}
+}
+
+void CopyOnDemandTask::UnSubmitText(Text* text)
+{
+	// Erase uploaded data
+	Resource* uploadResource = text->m_pUploadResourceVertices;
+	auto it = m_UploadDefaultData.begin();
+	while (it != m_UploadDefaultData.end())
+	{
+		if (std::get<0>(*it) == uploadResource)
+		{
+			it = m_UploadDefaultData.erase(it);
+			break;
+		}
+		else
+		{
+			++it;
+		}
+	}
+}
+
 void CopyOnDemandTask::Execute()
 {
 	ID3D12CommandAllocator* commandAllocator = m_pCommandInterface->GetCommandAllocator(m_CommandInterfaceIndex);
@@ -35,13 +89,22 @@ void CopyOnDemandTask::Execute()
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
 	// record the "small" data, such as constantbuffers..
+	volatile int counter = 0;
 	for (auto& tuple : m_UploadDefaultData)
 	{
-		copyResource(
-			commandList,
-			std::get<0>(tuple),		// UploadHeap
-			std::get<1>(tuple),		// DefaultHeap
-			std::get<2>(tuple));	// Data
+		if (std::get<2>(tuple) != nullptr)
+		{
+			copyResource(
+				commandList,
+				std::get<0>(tuple),		// UploadHeap
+				std::get<1>(tuple),		// DefaultHeap
+				std::get<2>(tuple));	// Data
+		}
+		else
+		{
+			Log::Print("Tried to copy nullptr\n");
+		}
+		counter++;
 	}
 
 	// record texturedata

@@ -3,6 +3,9 @@
 
 #include "CopyTask.h"
 class Texture;
+class TextData;
+class Text;
+class Mesh;
 
 class CopyOnDemandTask : public CopyTask
 {
@@ -11,6 +14,9 @@ public:
 	virtual ~CopyOnDemandTask();
 
 	void SubmitTexture(Texture* texture);
+
+	void UnSubmitMesh(Mesh* mesh);
+	void UnSubmitText(Text* text);
 
 	// Removal
 	void Clear();

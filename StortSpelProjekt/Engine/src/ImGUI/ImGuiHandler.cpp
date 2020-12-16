@@ -1,6 +1,11 @@
 #include "ImGuiHandler.h"
 #include "../Misc/Option.h"
+#include "../Misc/Window.h"
+#include "../Renderer/Renderer.h"
 #include "../Events/EventBus.h"
+#include "../../Game/src/Gamefiles/Player.h"
+#include "../ECS/Entity.h"
+#include "../../Game/src/Gamefiles/EnemyFactory.h"
 
 ImGuiHandler& ImGuiHandler::GetInstance()
 {
@@ -19,9 +24,13 @@ void ImGuiHandler::NewFrame()
 
 void ImGuiHandler::UpdateFrame()
 {
+    Renderer& r = Renderer::GetInstance();
+    const Window* window = r.GetWindow();
+    
+
     // Set the size and position of the debug info window and set it to start not collapsed. m_NumberOfDebuggingLines is set in constructor
-    ImGui::SetNextWindowSize(ImVec2(std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str()) / 2, ImGui::GetTextLineHeightWithSpacing() * (2 + m_NumberOfDebuggingLines)));
-    ImGui::SetNextWindowPos(ImVec2(std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str()) / 2, 0));
+    ImGui::SetNextWindowSize(ImVec2(window->GetScreenWidth() / 2, ImGui::GetTextLineHeightWithSpacing() * (2 + m_NumberOfDebuggingLines)));
+    ImGui::SetNextWindowPos(ImVec2(window->GetScreenWidth() / 2, 0));
     ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
     // Initiate the debug info window
@@ -33,7 +42,60 @@ void ImGuiHandler::UpdateFrame()
     {
         ImGui::Text("Bounding boxes are turned %s", m_BoolMap["boundingBoxToggle"] ? "on" : "off");
     }
+    // Vram usage
+    DXGI_QUERY_VIDEO_MEMORY_INFO info;
+    if (SUCCEEDED(r.m_pAdapter4->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info)))
+    {
+        float memoryUsage = float(info.CurrentUsage / 1024.0 / 1024.0); //MiB
+        ImGui::Text("VRAM usage: %.02f MiB", memoryUsage);
+    };
+
+    // Ram usage
+    PROCESS_MEMORY_COUNTERS pmc{};
+    if (GetProcessMemoryInfo(r.m_ProcessHandle, &pmc, sizeof(pmc)))
+    {
+        //PagefileUsage is the:
+            //The Commit Charge value in bytes for this process.
+            //Commit Charge is the total amount of memory that the memory manager has committed for a running process.
+        float memoryUsage = float(pmc.WorkingSetSize / 1024.0 / 1024.0); //MiB
+        ImGui::Text("RAM usage: %.02f MiB", memoryUsage);
+    }
+
+    // Adapter
+    DXGI_ADAPTER_DESC3 desc = {};
+    r.m_pAdapter4->GetDesc3(&desc);
+    ImGui::Text("Adapter: %S", desc.Description);
+
 #pragma endregion debugInfo
+    ImGui::End();
+
+    // Initiate the debug info window
+    ImGui::Begin("Enemy info");
+    // This is where debug info should be added
+#pragma region enemyInfo
+    ImGui::Text("Difficulty Scaler: %.1f", EnemyFactory::GetInstance().GetDifficultyScaler());
+    ImGui::Text("Zombie:");
+    EnemyComps* zombie = EnemyFactory::GetInstance().GetDefineEnemy("enemyZombie");
+    if (zombie != nullptr)
+    {
+        ImGui::Text("\tHealth: %d", zombie->hp);
+        ImGui::Text("\tDamage: %.1f", zombie->meleeAttackDmg);
+    }
+    ImGui::Text("Spider:");
+    EnemyComps* spider = EnemyFactory::GetInstance().GetDefineEnemy("enemySpider");
+    if (spider != nullptr)
+    {
+        ImGui::Text("\tHealth: %d", spider->hp);
+        ImGui::Text("\tDamage: %.1f", spider->meleeAttackDmg);
+    }
+    ImGui::Text("Demon:");
+    EnemyComps* demon = EnemyFactory::GetInstance().GetDefineEnemy("enemyDemon");
+    if (demon != nullptr)
+    {
+        ImGui::Text("\tHealth: %d", demon->hp);
+        ImGui::Text("\tDamage: %.1f", demon->rangeAttackDmg);
+    }
+#pragma endregion enemyInfo
     ImGui::End();
 
     DrawConsole("Console");
@@ -113,8 +175,10 @@ void ImGuiHandler::AddLog(const char* fmt, ...) IM_FMTARGS(2)
 
 void ImGuiHandler::DrawConsole(const char* title)
 {
+	const Window* window = Renderer::GetInstance().GetWindow();
+
     // Set the size and position of the console window and set it to start collapsed
-    ImGui::SetNextWindowSize(ImVec2(std::atoi(Option::GetInstance().GetVariable("i_windowWidth").c_str()) / 2, std::atoi(Option::GetInstance().GetVariable("i_windowHeight").c_str())));
+    ImGui::SetNextWindowSize(ImVec2(window->GetScreenWidth() / 2, window->GetScreenHeight()));
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowCollapsed(true, ImGuiCond_Appearing);
     if (!ImGui::Begin(title))
@@ -364,6 +428,35 @@ void ImGuiHandler::ExecCommand(const char* command_line)
     {
         EventBus::GetInstance().Publish(&Disconnect());
     }
+    else if (Stricmp(command.c_str(), "HARVEST") == 0)
+    {
+        int currency = std::stoi(arguments.at(0));
+        if (currency != -1)
+        {
+            Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->ChangeBalance(currency);
+        }
+        else
+        {
+            Player::GetInstance().GetPlayer()->GetComponent<component::CurrencyComponent>()->ChangeBalance(500);
+        }
+    }
+    else if (Stricmp(command.c_str(), "GODMODE") == 0)
+    {
+        Player::GetInstance().GetPlayer()->GetComponent<component::MeleeComponent>()->SetDamage(10000);
+        Player::GetInstance().GetPlayer()->GetComponent<component::MeleeComponent>()->SetAttackInterval(0.01);
+        Player::GetInstance().GetPlayer()->GetComponent<component::RangeComponent>()->SetDamage(10000);
+        Player::GetInstance().GetPlayer()->GetComponent<component::RangeComponent>()->SetAttackInterval(0.01);
+        Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetMaxHealth(1000000);
+        Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetHealth(1000000);
+    }
+    else if (Stricmp(command.c_str(), "KILLPLAYER") == 0)
+    {
+        Player::GetInstance().GetPlayer()->GetComponent<component::HealthComponent>()->SetHealth(0);
+    }
+    else if (Stricmp(command.c_str(), "SKIPLEVEL") == 0)
+    {  
+        EventBus::GetInstance().Publish(&LevelDone());
+    }
     else
     {
         AddLog("Unknown command: '%s'\n", command.c_str());
@@ -505,7 +598,7 @@ int ImGuiHandler::TextEditCallback(ImGuiInputTextCallbackData* data)
 
 ImGuiHandler::ImGuiHandler()
 {
-    m_NumberOfDebuggingLines = 1;
+    m_NumberOfDebuggingLines = 4;
     if (DEVELOPERMODE_DRAWBOUNDINGBOX == true)
     {
         ++m_NumberOfDebuggingLines;
@@ -520,6 +613,10 @@ ImGuiHandler::ImGuiHandler()
     m_Commands.push_back("HISTORY");
     m_Commands.push_back("CLEAR");
     m_Commands.push_back("RESET");
+    m_Commands.push_back("HARVEST");
+    m_Commands.push_back("GODMODE");
+    m_Commands.push_back("KILLPLAYER");
+    m_Commands.push_back("SKIPLEVEL");
     if (std::atoi(Option::GetInstance().GetVariable("i_network").c_str()) == 1)
     {
         m_Commands.push_back("CONNECT");

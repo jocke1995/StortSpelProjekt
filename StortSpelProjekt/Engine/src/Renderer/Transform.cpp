@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "Transform.h"
+#include "../Misc/Option.h"
 
-Transform::Transform()
+Transform::Transform(bool invertDirection)
 {
 	m_Position = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+	m_OldPosition = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 	m_RenderPosition = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 	m_RotationMat = DirectX::XMMatrixIdentity();
 	m_Scale = DirectX::XMFLOAT3(1.0, 1.0, 1.0);
@@ -15,6 +17,11 @@ Transform::Transform()
 	m_RotYMat = DirectX::XMMatrixIdentity();
 	m_RotZMat = DirectX::XMMatrixIdentity();
 	m_Velocity = BASE_VEL;
+
+	m_InvDir = static_cast<int>(invertDirection) * -2 + 1;
+
+	m_TimeBetweenFrame = 0;
+	m_UpdateRate = 1.0 / std::stof(Option::GetInstance().GetVariable("f_updateRate"));
 }
 
 Transform::~Transform()
@@ -24,12 +31,14 @@ Transform::~Transform()
 void Transform::SetPosition(float x, float y, float z)
 {
 	m_Position = DirectX::XMFLOAT3(x, y, z);
+	m_OldPosition = DirectX::XMFLOAT3(x, y, z);
 	m_RenderPosition = DirectX::XMFLOAT3(x, y, z);
 }
 
 void Transform::SetPosition(DirectX::XMFLOAT3 pos)
 {
 	m_Position = pos;
+	m_OldPosition = pos;
 	m_RenderPosition = pos;
 }
 
@@ -54,15 +63,17 @@ void Transform::Move(float dt)
 	float moveY = m_Position.y + (m_Movement.y * m_Velocity * dt);
 	float moveZ = m_Position.z + (m_Movement.z * m_Velocity * dt);
 
+	m_OldPosition = m_Position;
 	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
-	m_RenderPosition = m_Position;
+	m_TimeBetweenFrame = 0;
 }
 
 void Transform::MoveRender(float dt)
 {
-	float moveX = m_RenderPosition.x + (m_Movement.x * m_Velocity * dt);
-	float moveY = m_RenderPosition.y + (m_Movement.y * m_Velocity * dt);
-	float moveZ = m_RenderPosition.z + (m_Movement.z * m_Velocity * dt);
+	m_TimeBetweenFrame += dt * m_UpdateRate;
+	float moveX = (1 - m_TimeBetweenFrame) * m_OldPosition.x + m_TimeBetweenFrame * m_Position.x;
+	float moveY = (1 - m_TimeBetweenFrame) * m_OldPosition.y + m_TimeBetweenFrame * m_Position.y;
+	float moveZ = (1 - m_TimeBetweenFrame) * m_OldPosition.z + m_TimeBetweenFrame * m_Position.z;
 
 	m_RenderPosition = DirectX::XMFLOAT3(moveX, moveY, moveZ);
 }
@@ -78,22 +89,9 @@ void Transform::NormalizedMove(float dt)
 	float moveY = m_Position.y + (normalizedMovement.y * m_Velocity * dt);
 	float moveZ = m_Position.z + (normalizedMovement.z * m_Velocity * dt);
 
+	m_OldPosition = m_Position;
 	m_Position = DirectX::XMFLOAT3(moveX, moveY, moveZ);
-	m_RenderPosition = m_Position;
-}
-
-void Transform::NormalizedMoveRender(float dt)
-{
-	DirectX::XMFLOAT3 normalizedMovement;
-	// Normalize movement
-	DirectX::XMVECTOR movementVector = DirectX::XMLoadFloat3(&m_Movement);
-	movementVector = DirectX::XMVector3Normalize(movementVector);
-	DirectX::XMStoreFloat3(&normalizedMovement, movementVector);
-	float moveX = m_RenderPosition.x + (normalizedMovement.x * m_Velocity * dt);
-	float moveY = m_RenderPosition.y + (normalizedMovement.y * m_Velocity * dt);
-	float moveZ = m_RenderPosition.z + (normalizedMovement.z * m_Velocity * dt);
-
-	m_RenderPosition = DirectX::XMFLOAT3(moveX, moveY, moveZ);
+	m_TimeBetweenFrame = 0;
 }
 
 void Transform::SetRotationX(float radians)
@@ -131,6 +129,15 @@ void Transform::IncreaseScaleByPercent(float scale)
 	m_Scale.z += m_Scale.z * scale;
 }
 
+void Transform::UpdateLogicWorldMatrix()
+{
+	DirectX::XMMATRIX posMat = DirectX::XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+	DirectX::XMMATRIX sclMat = DirectX::XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
+	DirectX::XMMATRIX rotMat = m_RotationMat;
+
+	m_LogicWorldMat = sclMat * rotMat * posMat;
+}
+
 void Transform::UpdateWorldMatrix()
 {
 	DirectX::XMMATRIX posMat = DirectX::XMMatrixTranslation(m_RenderPosition.x, m_RenderPosition.y, m_RenderPosition.z);
@@ -141,6 +148,11 @@ void Transform::UpdateWorldMatrix()
 
 	// Update transposed world matrix
 	m_WorldMatTransposed = DirectX::XMMatrixTranspose(m_WorldMat);
+}
+
+DirectX::XMMATRIX* Transform::GetLogicWorldMatrix()
+{
+	return &m_LogicWorldMat;
 }
 
 DirectX::XMMATRIX* Transform::GetWorldMatrix()
@@ -207,7 +219,7 @@ DirectX::XMFLOAT3 Transform::GetForwardXMFLOAT3() const
 	DirectX::XMFLOAT3 forward;
 	DirectX::XMStoreFloat3(&forward, m_RotationMat.r[2]);
 
-	return forward;
+	return DirectX::XMFLOAT3(m_InvDir * forward.x, m_InvDir * forward.y, m_InvDir * forward.z);
 }
 
 float3 Transform::GetForwardFloat3() const
@@ -215,7 +227,7 @@ float3 Transform::GetForwardFloat3() const
 	DirectX::XMFLOAT3 forward;
 	DirectX::XMStoreFloat3(&forward, m_RotationMat.r[2]);
 
-	return { forward.x, forward.y, forward.z };
+	return { m_InvDir * forward.x, m_InvDir * forward.y, m_InvDir * forward.z };
 }
 
 DirectX::XMFLOAT3 Transform::GetRightXMFLOAT3() const
@@ -223,14 +235,14 @@ DirectX::XMFLOAT3 Transform::GetRightXMFLOAT3() const
 	DirectX::XMFLOAT3 right;
 	DirectX::XMStoreFloat3(&right, m_RotationMat.r[0]);
 
-	return right;
+	return DirectX::XMFLOAT3(m_InvDir * right.x, m_InvDir * right.y, m_InvDir * right.z);
 }
 float3 Transform::GetRightFloat3() const
 {
 	DirectX::XMFLOAT3 right;
 	DirectX::XMStoreFloat3(&right, m_RotationMat.r[0]);
 
-	return { right.x, right.y, right.z };
+	return { m_InvDir * right.x, m_InvDir * right.y, m_InvDir * right.z };
 }
 DirectX::XMFLOAT3 Transform::GetUpXMFLOAT3() const
 {
@@ -255,6 +267,11 @@ float Transform::GetVelocity() const
 void Transform::SetVelocity(float vel)
 {
 	m_Velocity = vel;
+}
+
+int Transform::GetInvDir()
+{
+	return m_InvDir;
 }
 
 void Transform::SetActualMovement(float x, float y, float z)

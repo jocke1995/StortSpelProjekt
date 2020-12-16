@@ -9,29 +9,33 @@ component::UpgradeComponent::UpgradeComponent(Entity* parent)
 
 component::UpgradeComponent::~UpgradeComponent()
 {
-	for (auto upgrades : m_AppliedUpgrades)
+	for (auto u : m_AppliedUpgrades)
 	{
-		delete upgrades.second;
+		delete u.second;
 	}
 }
 
 void component::UpgradeComponent::Update(double dt)
 {
+	for (auto& upgrade : m_AppliedUpgrades)
+	{
+		upgrade.second->Update(dt);
+	}
 }
 
 void component::UpgradeComponent::RenderUpdate(double dt)
 {
+	for (auto& upgrade : m_AppliedUpgrades)
+	{
+		upgrade.second->RenderUpdate(dt);
+	}
 }
 
 void component::UpgradeComponent::OnInitScene()
 {
 }
 
-void component::UpgradeComponent::OnLoadScene()
-{
-}
-
-void component::UpgradeComponent::OnUnloadScene()
+void component::UpgradeComponent::OnUnInitScene()
 {
 }
 
@@ -47,6 +51,7 @@ void component::UpgradeComponent::AddUpgrade(Upgrade* upgrade)
 	}
 
 	m_AppliedUpgrades.emplace(std::make_pair(upgrade->GetName(), upgrade));
+	upgrade->ApplyBoughtUpgrade();
 }
 
 void component::UpgradeComponent::RemoveUpgrade(Upgrade* upgrade)
@@ -56,6 +61,15 @@ void component::UpgradeComponent::RemoveUpgrade(Upgrade* upgrade)
 	{
 		m_AppliedUpgrades.erase(it);
 	}
+}
+
+void component::UpgradeComponent::RemoveAllUpgrades()
+{
+	for (auto upgrade : m_AppliedUpgrades)
+	{
+		delete upgrade.second;
+	}
+	m_AppliedUpgrades.clear();
 }
 
 bool component::UpgradeComponent::HasUpgrade(std::string name)
@@ -81,27 +95,27 @@ Upgrade* component::UpgradeComponent::GetUpgradeByName(std::string name)
 	return m_AppliedUpgrades[name];
 }
 
-void component::UpgradeComponent::OnHit()
+void component::UpgradeComponent::OnHit(Entity* target)
 {
 	for (auto& upgrade : m_AppliedUpgrades)
 	{
-		upgrade.second->OnHit();
+		upgrade.second->OnHit(target);
 	}
 }
 
-void component::UpgradeComponent::OnRangedHit()
+void component::UpgradeComponent::OnRangedHit(Entity* target, Entity* projectile)
 {
 	for (auto upgrade : m_AppliedUpgrades)
 	{
-		upgrade.second->OnRangedHit();
+		upgrade.second->OnRangedHit(target, projectile);
 	}
 }
 
-void component::UpgradeComponent::OnMeleeHit()
+void component::UpgradeComponent::OnMeleeHit(Entity* target)
 {
 	for (auto upgrade : m_AppliedUpgrades)
 	{
-		upgrade.second->OnMeleeHit();
+		upgrade.second->OnMeleeHit(target);
 	}
 }
 

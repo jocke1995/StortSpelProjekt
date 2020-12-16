@@ -20,7 +20,7 @@ SwapChain::SwapChain(
 		m_WindowMode = static_cast<int>(WINDOW_MODE::FULLSCREEN);
 	}
 
-	IDXGIFactory4* factory = nullptr;
+	IDXGIFactory6* factory = nullptr;
 	HRESULT hr = CreateDXGIFactory(IID_PPV_ARGS(&factory));
 
 	if (hr != S_OK)
@@ -36,7 +36,7 @@ SwapChain::SwapChain(
 	int m_ScreenHeight = mi.rcMonitor.bottom - mi.rcMonitor.top;
 
 	// If the chosen resolution is higher than the screen resolution, set the resolution to the screen resolution
-	if (m_ScreenWidth < width || m_ScreenHeight < height)
+	if (m_ScreenWidth <= width || m_ScreenHeight <= height)
 	{
 		m_CurrentModeDescription.Width = m_ScreenWidth - 1;
 		m_CurrentModeDescription.Height = m_ScreenHeight;
@@ -67,6 +67,7 @@ SwapChain::SwapChain(
 	m_RefreshRate.Denominator = 1;
 	m_CurrentModeDescription.RefreshRate = m_RefreshRate;
 
+
 	IDXGISwapChain1* swapChain1 = nullptr;
 	hr = factory->CreateSwapChainForHwnd(
 		commandQueue,
@@ -88,8 +89,6 @@ SwapChain::SwapChain(
 		Log::PrintSeverity(Log::Severity::CRITICAL, "Failed to create Swapchain\n");
 	}
 
-	SAFE_RELEASE(&factory);
-	
 	if (m_WindowMode == static_cast<int>(WINDOW_MODE::FULLSCREEN))
 	{
 		// Finally, activate fullscreen state
@@ -99,6 +98,11 @@ SwapChain::SwapChain(
 	}
 
 	createSwapBuffers(device, m_CurrentModeDescription.Width, m_CurrentModeDescription.Height, descriptorHeap_RTV, descriptorHeap_CBV_UAV_SRV);
+
+	// Disable Alt+Enter, needs to be done after creating swapchain
+	hr = factory->MakeWindowAssociation(*hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
+
+	SAFE_RELEASE(&factory);
 }
 
 SwapChain::~SwapChain()

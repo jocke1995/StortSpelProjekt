@@ -3,6 +3,9 @@
 
 #include "../ECS/Components/Component.h"
 
+class Entity;
+struct Death;
+
 namespace component
 {
 	class CurrencyComponent : public Component
@@ -12,18 +15,19 @@ namespace component
 		~CurrencyComponent();
 
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 
 		// set the total amount of currency available
 		void SetBalance(int newBalance);
 		// Used when adding or subtracting currency.
 		// E.g. buying or getting currency as reward
+		void ChangeBalance(Death* evnt);
 		void ChangeBalance(int change);
 		int GetBalace() const;
 	private:
 		int m_Balance;
+		bool m_ComponentActive;
 	};
 }
 

@@ -6,10 +6,9 @@
 #include "DescriptorHeap.h"
 #include "Texture/Texture.h"
 
-Mesh::Mesh(ID3D12Device5* device, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, DescriptorHeap* descriptorHeap_SRV, const std::wstring& path)
+Mesh::Mesh(std::vector<Vertex>* vertices, std::vector<unsigned int>* indices, const std::wstring& path)
 {
 	m_Path = path;
-
 	m_Vertices = *vertices;
 	m_Indices = *indices;
 }
@@ -52,9 +51,12 @@ Mesh::~Mesh()
 
 void Mesh::Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_heap)
 {
+	std::string modelPathName = to_string(m_Path);
+	modelPathName = modelPathName.substr(modelPathName.find_last_of("/\\") + 1);
+
 	// create vertices resource
-	m_pUploadResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"Vertex_UPLOAD_RESOURCE");
-	m_pDefaultResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"Vertex_DEFAULT_RESOURCE");
+	m_pUploadResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::UPLOAD, L"VERTEX_UPLOAD_RESOURCE_" + to_wstring(modelPathName));
+	m_pDefaultResourceVertices = new Resource(m_pDevice5, GetSizeOfVertices(), RESOURCE_TYPE::DEFAULT, L"VERTEX_DEFAULT_RESOURCE_" + to_wstring(modelPathName));
 
 	// Create SRV
 	D3D12_SHADER_RESOURCE_VIEW_DESC dsrv = {};
@@ -73,8 +75,8 @@ void Mesh::Init(ID3D12Device5* m_pDevice5, DescriptorHeap* CBV_UAV_SRV_heap)
 		m_pDefaultResourceVertices);
 
 	// Set indices resource
-	m_pUploadResourceIndices = new Resource(m_pDevice5, GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"Index_UPLOAD_RESOURCE");
-	m_pDefaultResourceIndices = new Resource(m_pDevice5, GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"Index_DEFAULT_RESOURCE");
+	m_pUploadResourceIndices = new Resource(m_pDevice5, GetSizeOfIndices(), RESOURCE_TYPE::UPLOAD, L"INDEX_UPLOAD_RESOURCE_" + to_wstring(modelPathName));
+	m_pDefaultResourceIndices = new Resource(m_pDevice5, GetSizeOfIndices(), RESOURCE_TYPE::DEFAULT, L"INDEX_DEFAULT_RESOURCE_" + to_wstring(modelPathName));
 
 	// Set indexBufferView
 	m_pIndexBufferView = new D3D12_INDEX_BUFFER_VIEW();
@@ -132,4 +134,9 @@ const D3D12_INDEX_BUFFER_VIEW* Mesh::GetIndexBufferView() const
 const std::wstring& Mesh::GetPath() const
 {
 	return m_Path;
+}
+
+ShaderResourceView* const Mesh::GetSRV() const
+{
+	return m_pSRV;
 }

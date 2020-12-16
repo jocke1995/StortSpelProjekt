@@ -12,7 +12,6 @@ Physics::Physics() : m_CollisionUpdateInterval(0.01)
 	m_pBroadphase = new btDbvtBroadphase();
 	m_pSolver = new btSequentialImpulseConstraintSolver();
 	m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher,m_pBroadphase,m_pSolver, m_pCollisionConfig);
-	m_pWorld->setGravity({ 0.0, -98.2, 0.0 });
 
 	m_TimeSinceLastColCheck = 0;
 }
@@ -27,7 +26,7 @@ Physics::~Physics()
 {
 }
 
-void Physics::DestroyPhysics()
+void Physics::deletePhysics()
 {
 	for (int i = 0; i < m_CollisionComponents.size(); i++)
 	{
@@ -71,13 +70,38 @@ void Physics::AddCollisionEntity(Entity *ent)
 {
 	if (ent->GetComponent<component::BoundingBoxComponent>()->GetFlagOBB() & F_OBBFlags::COLLISION)
 	{
-		m_CollisionEntities.push_back(ent);
+		// TODO: Ugly solution to a bug
+		bool entityAlreadyExists = false;
+		for (auto& entity : m_CollisionEntities)
+		{
+			if (entity == ent)
+			{
+				entityAlreadyExists = true;
+			}
+		}
+
+		if (!entityAlreadyExists)
+		{
+			m_CollisionEntities.push_back(ent);
+		}
 	}
 	else
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, 
-			"Trying to add an object \"%s\" without collision flag to m_CollisionEntities in \"Physics::AddCollisionEntity\"", 
+			"Trying to add an object \"%s\" without collision flag to m_CollisionEntities in \"Physics::AddCollisionEntity\" \n", 
 			ent->GetName().c_str());
+	}
+}
+
+void Physics::RemoveCollisionEntity(Entity* ent)
+{
+	for (int i = 0; i < m_CollisionEntities.size(); i++)
+	{
+		if (m_CollisionEntities[i] == ent)
+		{
+			m_CollisionEntities.erase(m_CollisionEntities.begin() + i);
+			break;
+		}
 	}
 }
 
@@ -99,9 +123,20 @@ void Physics::RemoveCollisionComponent(component::CollisionComponent* comp)
 	m_pWorld->removeRigidBody(comp->GetBody());
 }
 
+void Physics::SetCollisionEntities(const std::vector<Entity*>* collisionEntities)
+{
+	m_CollisionEntities = *collisionEntities;
+}
+
+const std::vector<Entity*>* Physics::GetCollisionEntities() const
+{
+	return &m_CollisionEntities;
+}
+
 void Physics::OnResetScene()
 {
 	removeAllCollisionComponents();
+	removeAllCollisionEntities();
 }
 
 const btDynamicsWorld* Physics::GetWorld()
@@ -121,8 +156,14 @@ void Physics::removeAllCollisionComponents()
 	m_CollisionComponents.clear();
 }
 
+void Physics::removeAllCollisionEntities()
+{
+	m_CollisionEntities.clear();
+}
+
 void Physics::collisionChecks(double dt)
 {
+	std::set<unsigned int> toRemove;
 	m_TimeSinceLastColCheck += dt;
 
 	if (m_TimeSinceLastColCheck > m_CollisionUpdateInterval)
@@ -130,21 +171,54 @@ void Physics::collisionChecks(double dt)
 		// if there is 0 or only 1 object in our vector then we don't have to check collision
 		if (m_CollisionEntities.size() > 1)
 		{
+			component::BoundingBoxComponent* first;
+			component::BoundingBoxComponent* second;
 			for (int i = 0; i < m_CollisionEntities.size(); i++)
 			{
-				for (int j = i + 1; j < m_CollisionEntities.size(); j++)
+				first = m_CollisionEntities.at(i)->GetComponent<component::BoundingBoxComponent>();
+				if (!first)
 				{
-					if (CheckOBBCollision(
-						m_CollisionEntities.at(i)->GetComponent<component::BoundingBoxComponent>()->GetOBB(),
-						m_CollisionEntities.at(j)->GetComponent<component::BoundingBoxComponent>()->GetOBB()))
+					toRemove.insert(i);
+					break;
+				}
+				else
+				{
+					for (int j = i + 1; j < m_CollisionEntities.size(); j++)
 					{
-						EventBus::GetInstance().Publish(&Collision(m_CollisionEntities.at(i), m_CollisionEntities.at(j)));
+						second = m_CollisionEntities.at(j)->GetComponent<component::BoundingBoxComponent>();
+						if (!second)
+						{
+							toRemove.insert(j);
+						}
+						else
+						{
+							if (std::isnan(first->GetOBB()->Center.x) && std::isnan(second->GetOBB()->Center.x))
+							{
+								Log::Print("One of the collision entities has nan values\n");
+							}
+							else
+							{
+								if (CheckOBBCollision(
+									first->GetOBB(),
+									second->GetOBB()))
+								{
+									first->Collide(*second);
+									//EventBus::GetInstance().Publish(&Collision(m_CollisionEntities.at(i), m_CollisionEntities.at(j)));
+								}
+							}
+						}
 					}
 				}
 			}
 		}
 		m_TimeSinceLastColCheck = 0;
 		m_pWorld->stepSimulation(dt);
+	}
+
+	std::set<unsigned int>::iterator it = toRemove.end();
+	for (int i = 0; i < toRemove.size(); i++)
+	{
+		m_CollisionEntities.erase(m_CollisionEntities.begin() + *(--it));
 	}
 }
 

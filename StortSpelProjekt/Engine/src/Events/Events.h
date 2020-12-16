@@ -80,12 +80,75 @@ struct Death : public Event
 	Entity* ent;
 };
 
+struct LevelDone : public Event
+{
+	LevelDone() {};
+};
+
+struct RemoveMe : public Event
+{
+	RemoveMe(Entity* ent) : ent(ent) {};
+	Entity* ent;
+};
+
 struct WindowChange : public Event
 {
 	WindowChange() {};
 };
 
-struct UForUpgrade : public Event
+struct PauseGame : public Event
 {
-	UForUpgrade() {};
+	PauseGame(bool isPaused) : isPaused{ isPaused } {};
+	bool isPaused;
+};
+
+struct ButtonPressed : public Event
+{
+	ButtonPressed(std::string name) : name{ name } {};
+	std::string name;
+};
+
+struct SceneChange : public Event
+{
+	SceneChange(std::string newSceneName)
+		:m_NewSceneName(newSceneName)
+	{};
+
+	std::string m_NewSceneName;
+};
+
+struct ShutDown : public Event
+{
+	ShutDown() {};
+};
+
+struct CursorShow : public Event
+{
+	CursorShow(bool show)
+		:m_Show(show) 
+	{};
+
+	bool m_Show;
+};
+
+struct RoundStart : public Event
+{
+	RoundStart() {};
+};
+
+struct ResetGame : public Event
+{
+	ResetGame() {};
+};
+
+struct shopGUIStateChange : public Event
+{
+	shopGUIStateChange()
+	{};
+};
+
+struct UpgradeBought : public Event
+{
+	UpgradeBought(std::string name) : name{ name } {};
+	std::string name;
 };

@@ -72,23 +72,24 @@ BoundingBoxData* BoundingBoxPool::CreateBoundingBoxData(
 	return m_BoundingBoxesData[uniquePath];
 }
 
-Mesh* BoundingBoxPool::CreateBoundingBoxMesh(std::wstring uniquePath)
+std::pair<Mesh*, bool> BoundingBoxPool::CreateBoundingBoxMesh(std::wstring uniquePath)
 {
 	// If it already exists.. return it
 	if (BoundingBoxMeshExists(uniquePath) == true)
 	{
-		return m_BoundingBoxesMesh.at(uniquePath);
+		// if this happens, do not submit data to CODT
+		return std::make_pair(m_BoundingBoxesMesh.at(uniquePath), false);
 	}
 
 	// else create it and return it if the data exists
 	if (BoundingBoxDataExists(uniquePath) == true)
 	{
 		BoundingBoxData* bbd = m_BoundingBoxesData[uniquePath];
-		m_BoundingBoxesMesh[uniquePath] = new Mesh(m_pDevice, &bbd->boundingBoxVertices, &bbd->boundingBoxIndices, m_pDescriptorHeap_CBV_UAV_SRV, uniquePath);
+		m_BoundingBoxesMesh[uniquePath] = new Mesh(&bbd->boundingBoxVertices, &bbd->boundingBoxIndices, uniquePath);
 		m_BoundingBoxesMesh[uniquePath]->Init(m_pDevice, m_pDescriptorHeap_CBV_UAV_SRV);
-		return m_BoundingBoxesMesh[uniquePath];
+		return std::make_pair(m_BoundingBoxesMesh.at(uniquePath), true);
 	}
 
 	// else return nullptr
-	return nullptr;
+	return std::make_pair(nullptr, false);
 }

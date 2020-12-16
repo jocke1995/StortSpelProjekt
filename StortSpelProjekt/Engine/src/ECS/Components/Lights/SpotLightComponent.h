@@ -14,8 +14,7 @@ namespace component
 
 		void Update(double dt);
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 		void SetCutOff(float degrees);
 		void SetAttenuation(float3 attenuation);
@@ -31,7 +30,7 @@ namespace component
 		void* GetLightData() const;
 	
 	protected:
-		void UpdateLightColor();
+		void UpdateLightColorIntensity();
 
 	private:
 		SpotLight* m_pSpotLight = nullptr;

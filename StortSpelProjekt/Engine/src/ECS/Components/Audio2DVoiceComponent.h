@@ -5,6 +5,7 @@
 #include <Windows.h>
 
 class AudioVoice;
+struct PauseGame;
 
 // Component used for playing 2D/background sounds
 namespace component
@@ -16,6 +17,7 @@ namespace component
 		virtual ~Audio2DVoiceComponent();
 		void Update(double dt);
 		void OnInitScene();
+		void OnUnInitScene();
 
 		// Clones an audiobuffer to create a voice to the component
 		void AddVoice(const std::wstring& name);
@@ -28,6 +30,9 @@ namespace component
 
 	private:
 		std::map<std::wstring, AudioVoice> m_Voices;
+		std::map<std::wstring, bool> m_WasPlaying;
+
+		void pauseToggleAudio(PauseGame* evnt);
 	};
 }
 

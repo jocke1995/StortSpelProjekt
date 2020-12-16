@@ -20,14 +20,12 @@ namespace component
 		// inherited pure virtual functions
 		//SceneInit
 		void OnInitScene();
-		// Called on LoadScene for each component
-		void OnLoadScene();
-		// Called on UnloadScene for each component
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 		// setters and getters for private member variables
 		void AddUpgrade(Upgrade* upgrade);
 		void RemoveUpgrade(Upgrade* upgrade);
+		void RemoveAllUpgrades();
 		bool HasUpgrade(std::string name);
 		std::map<std::string, Upgrade*> GetUpgradeMap();
 		Upgrade* GetUpgradeByName(std::string name);
@@ -38,11 +36,11 @@ namespace component
 		// Add more as needed.
 
 		// upgrades that are triggered on hit (ex: explosive, poison)
-		void OnHit();
+		void OnHit(Entity* target);
 		// specific for ranged hits
-		void OnRangedHit();
+		void OnRangedHit(Entity* target, Entity* projectile);
 		// specific for melee hits
-		void OnMeleeHit();
+		void OnMeleeHit(Entity* target);
 		// upgrades that are triggered when taking damage
 		void OnDamage();
 		// upgrades that are applied immediately, for example apply stat when bought in shop

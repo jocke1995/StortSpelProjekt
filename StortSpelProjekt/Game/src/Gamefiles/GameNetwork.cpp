@@ -19,9 +19,9 @@ void GameNetwork::Update(double dt)
     while (m_Network.ListenPacket());
 }
 
-void GameNetwork::SetScenes(std::vector<Scene*>* activeScenes)
+void GameNetwork::SetScene(Scene* activeScene)
 {
-    m_pActiveScenes = activeScenes;
+    m_pActiveScene = activeScene;
 }
 
 void GameNetwork::SetEnemies(std::vector<Entity*>* enemyVector)
@@ -47,7 +47,7 @@ void GameNetwork::disconnect(Disconnect* evnt)
 
 void GameNetwork::connectToServer(ConnectToServer* evnt)
 {
-    m_Network.SetPlayerEntityPointer((*m_pActiveScenes).at(0)->GetEntity("player"), 0);
+    m_Network.SetPlayerEntityPointer(m_pActiveScene->GetEntity("player"), 0);
     m_Network.ConnectToIP(evnt->ip, std::atoi(Option::GetInstance().GetVariable("i_port").c_str()));
 }
 
@@ -55,12 +55,10 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
 {
     Log::Print("New player connected with ID " + std::to_string(evnt->playerId) + "\n");
     
-    std::vector<Scene*>* activeScenes = m_pSceneManager->GetActiveScenes();
+    Scene* activeScene = m_pSceneManager->GetActiveScene();
 
-
-    Scene* scene0 = (*activeScenes).at(0);
     Entity* entity = nullptr;
-    if (!scene0->EntityExists("player" + std::to_string(evnt->playerId)))
+    if (!activeScene->EntityExists("player" + std::to_string(evnt->playerId)))
     {
         entity = new Entity("player" + std::to_string(evnt->playerId));
         component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
@@ -74,11 +72,11 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
         tc->GetTransform()->SetScale(1.0f);
         tc->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 
-        m_pSceneManager->AddEntity(entity, scene0);
+        activeScene->InitDynamicEntity(entity);
     }
     else
     {
-        entity = scene0->GetEntity("player" + std::to_string(evnt->playerId));
+        entity = activeScene->GetEntity("player" + std::to_string(evnt->playerId));
     }
 
     m_Network.SetPlayerEntityPointer(entity, evnt->playerId);
@@ -87,5 +85,5 @@ void GameNetwork::addNewPlayerEntity(PlayerConnection* evnt)
         m_pEnemies->at(i)->GetComponent<component::AiComponent>()->AddTarget(entity);
     }
 
-    m_pSceneManager->SetScenes(m_pSceneManager->GetActiveScenes()->size(), &activeScenes->at(0));
+    m_pSceneManager->SetScene(activeScene);
 }

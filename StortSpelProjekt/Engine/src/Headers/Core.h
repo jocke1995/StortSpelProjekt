@@ -2,9 +2,11 @@
 #define VECTORFLOATS_H
 
 #include <string>
-// For wstring convertion
 #include <locale>
 #include <codecvt>
+#include <vector>
+#include <Windows.h>
+
 static std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> strconverter;
 inline std::string to_string(std::wstring wstr)
 {
@@ -68,6 +70,7 @@ enum class TEXTURE2D_TYPE
 	METALLIC,
 	NORMAL,
 	EMISSIVE,
+	OPACITY,
 	NUM_TYPES
 };
 
@@ -118,18 +121,20 @@ enum class CAMERA_TYPE
 #define BIT(x) (1 << x)
 #define MAXNUMBER 10000000.0f
 #define DEVELOPERMODE_DRAWBOUNDINGBOX true
+#define DEVELOPERMODE_GAMEINTERFACE true
 #define DEVELOPERMODE_DEVINTERFACE true
-#define DEVELOPERMODE_NETWORKLOG true
+#define DEVELOPERMODE_NETWORKLOG false
+#define DEVELOPERMODE_FREECAM true
 
 enum FLAG_DRAW
 {
 	NO_DEPTH = BIT(1),
 	DRAW_OPAQUE = BIT(2),
-	DRAW_TRANSPARENT = BIT(3),
-	GIVE_SHADOW = BIT(4),
-	NUM_FLAG_DRAWS = 4,
-	// animation = BIT(4),
-	// etc..
+	DRAW_ANIMATED = BIT(3),
+	DRAW_TRANSPARENT_CONSTANT = BIT(4),
+	DRAW_TRANSPARENT_TEXTURE = BIT(5),
+	GIVE_SHADOW = BIT(6),
+	NUM_FLAG_DRAWS = 6,
 };
 
 enum FLAG_THREAD
@@ -137,6 +142,7 @@ enum FLAG_THREAD
 	RENDER = BIT(1),
 	NETWORK = BIT(2),
 	HEIGHTMAPLOAD = BIT(3),
+	A_STAR = BIT(4),
 	// CopyTextures,
 	// PrepareNextScene ..
 	// etc

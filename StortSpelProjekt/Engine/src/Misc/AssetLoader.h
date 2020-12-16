@@ -12,9 +12,15 @@ class Mesh;
 class Shader;
 class Texture;
 class TextureCubeMap;
+class Texture2DGUI;
 class Material;
 class Window;
 class Scene;
+class ParticleEffect;
+class Edge;
+
+struct ID3D12Device5;
+struct Vertex;
 struct Font;
 struct aiNode;
 struct aiScene;
@@ -22,6 +28,10 @@ struct aiMesh;
 struct aiMaterial;
 struct aiNodeAnim;
 struct aiBone;
+struct ParticleEffectSettings;
+
+class AnimatedModel;
+class AnimatedMesh;
 struct Animation;
 struct VertexWeight;
 struct BoneInfo;
@@ -42,6 +52,7 @@ public:
     // Textures ------------
     Texture* LoadTexture2D(const std::wstring& path);
     TextureCubeMap* LoadTextureCubeMap(const std::wstring& path);
+    Material* LoadMaterialFromMTL(const std::wstring& path);
 
     // Load Audio
     AudioBuffer* LoadAudio(const std::wstring& path, const std::wstring& name);
@@ -53,8 +64,16 @@ public:
 	std::wstring GetFontPath() const;
 
     // Scene
-    void LoadMap(Scene* scene, const char* path);
-
+    void LoadMap(Scene* scene, const char* path, std::vector<float3>* spawnPoints = nullptr, unsigned int id = 0, float3 offset = { 0.0, 0.0, 0.0 }, bool entitiesDynamic = false);
+    /// <summary>
+    /// Generates a map of connected rooms.
+    /// </summary>
+    /// <param name="scene"> The scene in which to create the map</param>
+    /// <param name="folderPath"> The path to the folder with the map files describing the rooms</param>
+    /// <param name="mapSize"> The size of the map in number of rooms. Odd numbers will give the best results</param>
+    /// <param name="roomDimensions"> The dimensions of the individual rooms</param>
+    void GenerateMap(Scene* scene, const char* folderPath, std::vector<float3>* spawnPoints = nullptr, float2 mapSize = { 3.0f, 3.0f }, float2 roomDimensions = { 173.0f, 200.0f }, bool entitiesDynamic = false);
+    void LoadAllMaps(Scene* scene, const char* folderPath);
 
     // IsLoadedFunctions
     bool IsModelLoadedOnGpu(const std::wstring& name) const;
@@ -64,11 +83,15 @@ public:
     bool IsTextureLoadedOnGpu(const std::wstring& name) const;
     bool IsTextureLoadedOnGpu(const Texture* texture) const;
 
+    std::vector<Edge*>& GetEdges();
+    void RemoveWalls();
+
 private:
     // PipelineState loads all shaders
     friend class PipelineState;
     // Renderer needs access to m_LoadedModels & m_LoadedTextures so it can check if they are uploaded to GPU.
     friend class Renderer;
+	friend class QuadManager;
 
     // Constructor currently called from m_pRenderer to set dx12 specific objects
     AssetLoader(ID3D12Device5* device = nullptr, DescriptorHeap* descriptorHeap_CBV_UAV_SRV = nullptr, const Window* window = nullptr);
@@ -97,34 +120,50 @@ private:
     std::map<std::wstring, std::pair<bool, Font*>> m_LoadedFonts;
     std::map<std::wstring, AudioBuffer> m_LoadedAudios;
 
+    std::vector<Edge*> m_Edges;
+    std::vector<int> m_EdgesToRemove;
+    std::map<std::string, int> m_RoomsAdded;
+    unsigned int m_NrOfNavTris;
+
     // Audio
     // add map for audio (path, AudioObject)
 
     /* --------------- Functions --------------- */
-    void processNode(aiNode* node,
+    void processModel(const aiScene* assimpScene,
+        std::vector<Mesh*>* meshes,
+        std::vector<Material*>* materials,
+        const std::wstring& filePath);
+
+    Mesh* processMesh(aiMesh* assimpMesh,
         const aiScene* assimpScene,
         std::vector<Mesh*>* meshes,
         std::vector<Material*>* materials,
         const std::wstring& filePath);
 
-    Mesh* processMesh(aiMesh* mesh,
+    SkeletonNode* processAnimatedModel(std::map<std::string, BoneInfo>* boneCounter,
+        aiNode* assimpNode,
+        const aiScene* assimpScene, 
+        std::vector<Mesh*>* meshes,
+        std::vector<Material*>* materials,
+        const std::wstring& filePath);
+
+    Mesh* processAnimatedMesh(std::map<std::string, BoneInfo>* boneCounter,
+        const aiMesh* assimpMesh,
         const aiScene* assimpScene,
         std::vector<Mesh*>* meshes,
         std::vector<Material*>* materials,
         const std::wstring& filePath);
 
+    void processMeshData(const aiScene* assimpScene, const aiMesh* assimpMesh, std::vector<Vertex>* vertices, std::vector<unsigned int>* indices);
+    Material* processMaterial(std::wstring path, const aiScene* assimpScene, const aiMesh* assimpMesh);
     Material* loadMaterial(aiMaterial* mat, const std::wstring& folderPath);
-    Material* loadMaterialFromMTL(const std::wstring& path);
-
+    
     Texture* processTexture(aiMaterial* mat, TEXTURE2D_TYPE texture_type, const std::wstring& filePathWithoutTexture);
     
-    SkeletonNode* processSkeleton(std::map<std::string, BoneInfo> boneCounter, aiNode* assimpNode, const aiScene* assimpScene, std::map<unsigned int, VertexWeight>* perVertexBoneData);
-    void processBones(std::map<std::string, BoneInfo> boneCounter, const aiMesh* assimpMesh, std::map<unsigned int, VertexWeight>* perVertexBoneData);
-    void initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo> boneCounter, Animation* animation);
-
+    void initializeSkeleton(SkeletonNode* node, std::map<std::string, BoneInfo>* boneCounter);
     void processAnimations(const aiScene* assimpScene, std::vector<Animation*>* animations);
 
-    DirectX::XMFLOAT4X4 aiMatrix4x4ToXMFloat4x4(aiMatrix4x4* aiMatrix);
+    DirectX::XMFLOAT4X4 aiMatrix4x4ToTransposedXMFloat4x4(aiMatrix4x4* aiMatrix);
     
     Shader* loadShader(const std::wstring& fileName, ShaderType type);
 	Font* loadFont(LPCWSTR filename, int windowWidth, int windowHeight);

@@ -40,4 +40,141 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 
+=========================== ZapSpalt Sound Effects ==========================================
+“Additional selected sound effects from https://www.zapsplat.com“
+
+You can use our sound effects in any non-commercial, commercial and broadcast production, including but not limited to….
+
+Films, television and radio programmes
+Commercials
+Radio and Podcasts
+Games and apps
+Within software
+YouTube videos
+Blogs and websites
+School projects
+Presentations, conferences, exhibitions etc
+Theatrical performances and live shows
+Musical compositions and performances
+
+Sound effects must be embedded or synchronized with your production and not be the primary value of your project (in a sound effect app for example). 
+You are allowed to edit the sound effects to fit your project and mix them with other sounds to form new sounds. 
+However you must not redistribute the sound effects outside of your production (see below for more details). 
+If your intended use for our sounds isn’t listed above and you are unsure, please contact us
+
+Copyright
+Our sound effects and music are licensed to you, not sold on a non-exclusive basis in accordance with the terms of this agreement. 
+No intellectual property rights are transferred to you. 
+Therefore our sound effects and music can be used royalty free in your projects, but we or our contributors retain all copyrights.
 =============================================================================================
+
+=========================== Freesound Sound Effects =========================================
+
+This Game uses these sounds from freesound:
+Femalegrunt by user: SkyRaeVoicing ( https://freesound.org/people/SkyRaeVoicing/sounds/368843/ )
+LEAD UP TO A FIGHT MUSIC LOOP by user: mrrap4food ( https://freesound.org/people/mrrap4food/sounds/493918/ )
+
+=============================================================================================
+
+=========================== Medieval Sharp Font =============================================
+Copyright (c) 2011, wmk69 (wmk69@o2.pl),
+with Reserved Font Name MedievalSharp.
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+
+
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+
+
+=========================== Goblin model named "Gawblin" =========================================
+This model has been created by the user "Batuhan13" available at Sketchfab.com (https://sketchfab.com/3d-models/goblin-warrior-852c928a166e471a8dc8e592ff25a21a).
+We have changed the model format to wavefront (.obj) and therefore edited the resulting material file so that it includes necessary textures. The textures format has been altered as well to a DDS format.
+Finally, all files (except the mtl file) has been encrypted in this project. Users will not be able to use the model if they do not decrypt the assets.
+The model is used under the creative commons Attribution 4.0 (as described here https://creativecommons.org/licenses/by/4.0/).
+==================================================================================================

@@ -14,8 +14,7 @@ namespace component
 
 		void Update(double dt);
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 		// Set functions which modifies the shadowCamera
 		void SetCameraDistance(float distance);
@@ -30,7 +29,7 @@ namespace component
 		void* GetLightData() const;
 	
 	protected:
-		void UpdateLightColor();
+		void UpdateLightColorIntensity();
 
 	private:
 		float m_Distance = 30.0f;

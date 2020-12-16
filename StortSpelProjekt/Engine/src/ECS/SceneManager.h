@@ -10,35 +10,66 @@ class Entity;
 class Renderer;
 class AudioEngine;
 
+// Event
+struct Death;
+struct RemoveMe;
+struct SceneChange;
+
 class SceneManager 
 {
 public:
-	SceneManager();
+	static SceneManager& GetInstance();
 	~SceneManager();
-
+	
 	// Update
 	void Update(double dt);
 	void RenderUpdate(double dt);
 
 	// Scene
 	Scene* CreateScene(std::string sceneName);
-	void SetScenes(unsigned int numScenes, Scene** scene);
-	std::vector<Scene*>* GetActiveScenes();
+	void SetScene(Scene* scene);
+	Scene* GetActiveScene();
 	Scene* GetScene(std::string sceneName) const;
+	bool ChangeScene();
+
 	void ResetScene();
+
+	// Special scenes
+	void SetGameOverScene(Scene* scene);
 
 	// Entity
 	void RemoveEntity(Entity* entity, Scene* scene);
-	void AddEntity(Entity* entity, Scene* scene);
+
+	void RemoveEntities();
 
 private:
-	std::map<std::string, Scene*> m_Scenes;
-	std::vector<Scene*> m_ActiveScenes;
-	std::set<Scene*> m_LoadedScenes;
+	friend class Engine;
+	SceneManager();
+	void deleteSceneManager();
 
-	std::unordered_map<Entity*, bool> m_IsEntityInited;
+	std::map<std::string, Scene*> m_Scenes;
+	Scene* m_pActiveScene = nullptr;
+	Scene* m_pDefaultScene = nullptr;
+
+	struct EntityScene
+	{
+		Entity* ent;
+		Scene* scene;
+	};
+	std::vector<EntityScene> m_ToRemove;
+
+	Scene* m_pGameOverScene = nullptr;
 
 	bool sceneExists(std::string sceneName) const;
+
+	// Entity events
+	bool m_ChangeSceneNextFrameToDeathScene = false;
+
+	void onEntityRemove(RemoveMe* evnt);
+
+	std::string m_SceneToChangeTo = "";
+	bool m_ChangeSceneNextFrame = false;
+	void changeSceneNextFrame(SceneChange* sceneChangeEvent);
 };
 
 #endif

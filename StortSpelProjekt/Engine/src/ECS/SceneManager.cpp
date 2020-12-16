@@ -5,6 +5,7 @@
 
 #include "../Renderer/Renderer.h"
 #include "../Physics/Physics.h"
+#include "../Events/EventBus.h"
 
 // Renderer
 #include "../Renderer/CommandInterface.h"
@@ -33,35 +34,43 @@
 
 SceneManager::SceneManager()
 {
-	m_ActiveScenes.reserve(2);
+	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityRemove);
+	EventBus::GetInstance().Subscribe(this, &SceneManager::changeSceneNextFrame);
+}
+
+SceneManager& SceneManager::GetInstance()
+{
+	static SceneManager instance;
+	return instance;
 }
 
 SceneManager::~SceneManager()
 {
+}
+
+void SceneManager::deleteSceneManager()
+{
+	EventBus::GetInstance().Unsubscribe(this, &SceneManager::onEntityRemove);
+	EventBus::GetInstance().Unsubscribe(this, &SceneManager::changeSceneNextFrame);
+
 	for (auto pair : m_Scenes)
 	{
 		delete pair.second;
 	}
 
-    m_Scenes.clear();
+	m_Scenes.clear();
 }
 
 void SceneManager::Update(double dt)
 {
-	// Update scenes
-	for (auto scene : m_ActiveScenes)
-	{
-		scene->Update(dt);
-	}
+	// Update scene
+	m_pActiveScene->Update(this, dt);
 }
 
 void SceneManager::RenderUpdate(double dt)
 {
 	// Update scenes (Render)
-	for (auto scene : m_ActiveScenes)
-	{
-		scene->RenderUpdate(dt);
-	}
+	m_pActiveScene->RenderUpdate(this, dt);
 
 	// Renderer updates some stuff
 	Renderer::GetInstance().RenderUpdate(dt);
@@ -80,9 +89,9 @@ Scene* SceneManager::CreateScene(std::string sceneName)
     return m_Scenes[sceneName];
 }
 
-std::vector<Scene*>* SceneManager::GetActiveScenes()
+Scene* SceneManager::GetActiveScene()
 {
-	return &m_ActiveScenes;
+	return m_pActiveScene;
 }
 
 Scene* SceneManager::GetScene(std::string sceneName) const
@@ -96,74 +105,134 @@ Scene* SceneManager::GetScene(std::string sceneName) const
     return nullptr;
 }
 
+bool SceneManager::ChangeScene()
+{
+	bool changedScene = false;
+
+	if (m_ChangeSceneNextFrame)
+	{
+		// Reset old scene
+		std::map<std::string, Entity*> entities = *m_pActiveScene->GetEntities();
+		for (auto pair : entities)
+		{
+			for (Component* comp : *pair.second->GetAllComponents())
+			{
+				comp->Reset();
+			}
+		}
+
+		Scene* scene = m_Scenes[m_SceneToChangeTo];
+
+		// Reset new Scene
+		entities = *scene->GetEntities();
+		for (auto pair : entities)
+		{
+			for (Component* comp : *pair.second->GetAllComponents())
+			{
+				comp->Reset();
+			}
+		}
+
+		// Change the player back to its original position
+		SetScene(scene);
+		if (scene->GetName() == "MainMenuScene" || scene->GetName() == "OptionScene")
+		{
+			component::Audio2DVoiceComponent* vc = scene->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>();
+			vc->Play(L"MenuMusic");
+		}
+
+		m_ChangeSceneNextFrame = false;
+
+		changedScene = true;
+	}
+
+	return changedScene;
+}
+
 void SceneManager::RemoveEntity(Entity* entity, Scene* scene)
 {
-	// Remove all bindings to used components
-	// RenderComponent
-	Renderer::GetInstance().removeComponents(entity);
+	entity->OnUnInitScene();
 
 	// Remove from the scene
 	scene->RemoveEntity(entity->GetName());
 }
 
-void SceneManager::AddEntity(Entity* entity, Scene* scene)
+void SceneManager::RemoveEntities()
 {
-	// Add it to the scene
-	scene->AddEntityFromOther(entity);
-
-	// Only init once per scene (in case a entity is in both scenes)
-	if (m_IsEntityInited.count(entity) == 0)
+	unsigned int removeSize = m_ToRemove.size() - 1;
+	for (int i = removeSize; i >= 0; --i)
 	{
-		entity->OnInitScene();
-		m_IsEntityInited[entity] = true;
+		RemoveEntity(m_ToRemove[i].ent, m_ToRemove[i].scene);
+	}
+	m_ToRemove.clear();
+}
+
+void SceneManager::SetGameOverScene(Scene* scene)
+{
+	if (scene != nullptr)
+	{
+		m_pGameOverScene = scene;
+	}
+	else
+	{
+		Log::PrintSeverity(Log::Severity::CRITICAL, "SetGameOverScene:: scene was nullptr");
 	}
 }
 
-void SceneManager::SetScenes(unsigned int numScenes, Scene** scenes)
+void SceneManager::SetScene(Scene* scene)
 {
+	if (scene == m_pActiveScene)
+	{
+		Log::PrintSeverity(Log::Severity::WARNING, "SetScene on same scene %s\n", scene->GetName().c_str());
+		return;
+	}
+
 	ResetScene();
 
-	// Set the active scenes
-	m_ActiveScenes.clear();
-	
-	for (unsigned int i = 0; i < numScenes; i++)
+	if (m_pActiveScene != nullptr)
 	{
-		// init the active scenes
-		std::map<std::string, Entity*> entities = *(scenes[i]->GetEntities());
-		for (auto const& [entityName, entity] : entities)
+		std::map<std::string, Entity*> oldEntities = *m_pActiveScene->GetEntities();
+
+		for (auto const& [entityName, entity] : oldEntities)
 		{
-			// Only init once per scene (in case a entity is in both scenes)
-			if (m_IsEntityInited.count(entity) == 0)
+			entity->OnUnInitScene();
+		}
+
+		for (auto pair : oldEntities)
+		{
+			Entity* ent = pair.second;
+			if (ent->IsEntityDynamic() == true)
 			{
-				entity->OnInitScene();
-				m_IsEntityInited[entity] = true;
+				m_pActiveScene->RemoveEntity(ent->GetName());
 			}
 		}
-
-		m_ActiveScenes.push_back(scenes[i]);
 	}
+	
+	// init the active scenes
+	std::map<std::string, Entity*> entities = *scene->GetEntities();
+	for (auto const& [entityName, entity] : entities)
+	{
+		entity->SetEntityState(false);
+		entity->OnInitScene();
+	}
+
+	m_pActiveScene = scene;
+
+	Physics::GetInstance().SetCollisionEntities(scene->GetCollisionEntities());
 
 	Renderer* renderer = &Renderer::GetInstance();
-	renderer->prepareScenes(&m_ActiveScenes);
+	renderer->prepareScene(m_pActiveScene);
 
-	for (Scene* scene : m_ActiveScenes)
+	if (m_pActiveScene->GetMainCamera() == nullptr)
 	{
-		if (scene->GetMainCamera() == nullptr)
-		{
-			scene->SetPrimaryCamera(renderer->m_pScenePrimaryCamera);
-		}
+		m_pActiveScene->SetPrimaryCamera(renderer->m_pScenePrimaryCamera);
 	}
-
-	renderer->executeCopyOnDemand();
-	return;
+	scene->OnInit();
 }
 
 void SceneManager::ResetScene()
 {
 	Renderer::GetInstance().waitForGPU();
-
-	// Reset isEntityInited
-	m_IsEntityInited.clear();
 
 	/* ------------------------- GPU -------------------------*/
 	
@@ -194,4 +263,29 @@ bool SceneManager::sceneExists(std::string sceneName) const
     }
 
     return false;
+}
+
+void SceneManager::onEntityRemove(RemoveMe* evnt)
+{
+	// TODO: Ugly solution to a bug
+	bool entityIsAlreadyInTheVectorm_ToRemoveAndWillThereforeBeRemovedSoWeDoNotNeedToPushIt = false;
+	for (auto& entity : m_ToRemove)
+	{
+		if (entity.ent == evnt->ent)
+		{
+			entityIsAlreadyInTheVectorm_ToRemoveAndWillThereforeBeRemovedSoWeDoNotNeedToPushIt = true;
+			break;
+		}
+	}
+
+	if (!entityIsAlreadyInTheVectorm_ToRemoveAndWillThereforeBeRemovedSoWeDoNotNeedToPushIt)
+	{
+		m_ToRemove.push_back({ evnt->ent, m_pActiveScene });
+	}
+}
+
+void SceneManager::changeSceneNextFrame(SceneChange* sceneChangeEvent)
+{
+	m_SceneToChangeTo = sceneChangeEvent->m_NewSceneName;
+	m_ChangeSceneNextFrame = true;
 }

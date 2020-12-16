@@ -16,6 +16,9 @@
 
 #include "../../ECS/Components/GUI2DComponent.h"
 
+// tempHideGUI
+#include "../Misc/Window.h"
+
 TextTask::TextTask(ID3D12Device5* device, 
 	RootSignature* rootSignature, 
 	const std::wstring& VSName, const std::wstring& PSName,
@@ -74,10 +77,12 @@ void TextTask::Execute()
 	commandList->RSSetViewports(1, swapChainRenderTarget->GetRenderView()->GetViewPort());
 	commandList->RSSetScissorRects(1, swapChainRenderTarget->GetRenderView()->GetScissorRect());
 
-	for (int i = 0; i < m_TextComponents.size(); i++)
+	if (!IsGuiHidden())
 	{
-		component::GUI2DComponent* tc = m_TextComponents.at(i);
-		draw(commandList, tc);
+		for (int i = 0; i < m_TextComponents.size(); i++)
+		{
+			draw(commandList, m_TextComponents.at(i));
+		}
 	}
 
 	// Change state on front/backbuffer
@@ -96,13 +101,21 @@ void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::GUI2DCom
 	{
 		Text* text = textMap.second;
 
-		// Create a CB_PER_OBJECT struct
+		// Create a CB_PER_OBJECT_STRUCT struct
 		SlotInfo* info = text->GetSlotInfo();
-		DirectX::XMMATRIX idMatrix = DirectX::XMMatrixIdentity();
-		CB_PER_OBJECT_STRUCT perObject = { idMatrix, idMatrix, *info };
+		float4 amountOfBlend = text->GetAmountOfBlend();
+		amountOfBlend.w *= !tc->GetTextManager()->IsTextHidden();
+		DirectX::XMMATRIX world = DirectX::XMMatrixSet(
+			amountOfBlend.x,	amountOfBlend.y,	amountOfBlend.z,	amountOfBlend.w,
+			0.0f,				0.0f,				0.0f,				0.0f,
+			0.0f,				0.0f,				0.0f,				0.0f,
+			0.0f,				0.0f,				0.0f,				0.0f);
+		DirectX::XMMATRIX id = DirectX::XMMatrixIdentity();
+
+		CB_PER_OBJECT_STRUCT perObject = { world, id, *info };
 		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 
-		// we are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
+		// We are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
 		nrOfCharacters = text->GetNrOfCharacters();
 		commandList->DrawInstanced(4, nrOfCharacters, 0, 0);
 	}

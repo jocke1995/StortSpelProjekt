@@ -40,19 +40,18 @@ namespace component
 			m_pPointLight->position.y = position.y;
 			m_pPointLight->position.z = position.z;
 		}
+
+		flicker(dt);
 	}
 
 	void PointLightComponent::OnInitScene()
 	{
-		Renderer::GetInstance().InitPointLightComponent(GetParent());
+		Renderer::GetInstance().InitPointLightComponent(this);
 	}
 
-	void PointLightComponent::OnLoadScene()
+	void PointLightComponent::OnUnInitScene()
 	{
-	}
-
-	void PointLightComponent::OnUnloadScene()
-	{
+		Renderer::GetInstance().UnInitPointLightComponent(this);
 	}
 
 	void PointLightComponent::SetPosition(float3 position)
@@ -72,8 +71,9 @@ namespace component
 		return m_pPointLight;
 	}
 
-	void PointLightComponent::UpdateLightColor()
+	void PointLightComponent::UpdateLightColorIntensity()
 	{
 		m_pPointLight->baseLight.color = m_pBaseLight->color;
+		m_pPointLight->baseLight.intensity = m_pBaseLight->intensity;
 	}
 }

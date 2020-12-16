@@ -41,13 +41,22 @@ void CopyPerFrameTask::Execute()
 
 	m_pCommandInterface->Reset(m_CommandInterfaceIndex);
 
+	volatile int counter = 0;
 	for (auto& tuple : m_UploadDefaultData)
 	{
-		copyResource(
-			commandList,
-			std::get<0>(tuple),		// UploadHeap
-			std::get<1>(tuple),		// DefaultHeap
-			std::get<2>(tuple));	// Data
+		if (std::get<2>(tuple) != nullptr)
+		{
+			copyResource(
+				commandList,
+				std::get<0>(tuple),		// UploadHeap
+				std::get<1>(tuple),		// DefaultHeap
+				std::get<2>(tuple));	// Data
+		}
+		else
+		{
+			Log::Print("Tried to copy nullptr\n");
+		}
+		counter++;
 	}
 
 	commandList->Close();

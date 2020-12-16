@@ -11,6 +11,9 @@ namespace component
 	GUI2DComponent::GUI2DComponent(Entity* parent)
 		:Component(parent)
 	{
+		Renderer::GetInstance().UnInitGUI2DComponent(this);
+		m_QuadMan.HideQuad(true);
+		m_TextMan.HideText(true);
 	}
 
 	GUI2DComponent::~GUI2DComponent()
@@ -19,20 +22,40 @@ namespace component
 
 	TextManager* GUI2DComponent::GetTextManager()
 	{
-		return &m_pTextMan;
+		return &m_TextMan;
 	}
 
 	QuadManager* GUI2DComponent::GetQuadManager()
 	{
-		return &m_pQuadMan;
+		return &m_QuadMan;
 	}
 
 	void GUI2DComponent::Update(double dt)
 	{
+		if (m_QuadMan.IsMarkable() && !m_QuadMan.IsQuadHidden())
+		{
+			if (m_QuadMan.IsMarked())
+			{
+				m_QuadMan.SetActiveTexture(1);
+			}
+			else
+			{
+				m_QuadMan.SetActiveTexture(0);
+			}
+		}
 	}
 
 	void GUI2DComponent::OnInitScene()
 	{
-		Renderer::GetInstance().InitGUI2DComponent(GetParent());
+		Renderer::GetInstance().InitGUI2DComponent(this);
+		m_QuadMan.HideQuad(false);
+		m_TextMan.HideText(false);
+	}
+
+	void GUI2DComponent::OnUnInitScene()
+	{
+		Renderer::GetInstance().UnInitGUI2DComponent(this);
+		m_QuadMan.HideQuad(true);
+		m_TextMan.HideText(true);
 	}
 }

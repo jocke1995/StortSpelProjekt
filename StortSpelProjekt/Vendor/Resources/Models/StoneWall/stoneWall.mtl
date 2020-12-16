@@ -1,0 +1,7 @@
+# Material Count: 1
+
+newmtl stoneWallMat
+
+map_Kd Stone_Wall_014_basecolor.DDS
+map_Ks Stone_Wall_014_roughness.DDS
+map_Kn Stone_Wall_014_normal.DDS

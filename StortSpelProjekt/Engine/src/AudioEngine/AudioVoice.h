@@ -35,8 +35,21 @@ public:
 	/// Stops playing audio.
 	/// </summary>
 	void Stop();
+
+	/// <summary>
+	/// Resumes playing paused audio.
+	/// </summary>
+	void Resume();
+	/// <summary>
+	/// Pauses audio.
+	/// </summary>
+	void Pause();
+
+	bool IsPlaying();
+	
 private:
 	bool m_Initialized = true;
+	bool m_Playing = false;
 	IXAudio2SourceVoice* m_pSourceVoice = nullptr;
 	XAUDIO2_BUFFER* m_pBuffer = nullptr;
 	WAVEFORMATEXTENSIBLE* m_pWfxFormat = nullptr;

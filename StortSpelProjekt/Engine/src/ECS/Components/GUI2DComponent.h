@@ -19,12 +19,13 @@ namespace component
 
 		void Update(double dt);
 		void OnInitScene();
+		void OnUnInitScene();
 
 	private:
 		friend class Renderer;
 
-		TextManager m_pTextMan;
-		QuadManager m_pQuadMan;
+		TextManager m_TextMan;
+		QuadManager m_QuadMan;
 	};
 }
 #endif

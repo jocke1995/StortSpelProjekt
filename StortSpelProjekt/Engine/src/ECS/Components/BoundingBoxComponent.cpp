@@ -15,7 +15,7 @@
 #include "../Renderer/Mesh.h"
 #include "../Renderer/GPUMemory/ShaderResourceView.h"
 #include "../Renderer/Renderer.h"
-
+#include "../Physics/CollisionCategory.h"
 
 
 namespace component
@@ -24,6 +24,7 @@ namespace component
 		:Component(parent)
 	{
 		m_FlagOBB = flagOBB;
+		m_pCategory = new CollisionCategory(parent);
 	}
 
 	BoundingBoxComponent::~BoundingBoxComponent()
@@ -32,6 +33,8 @@ namespace component
 		{
 			delete slotinfo;
 		}
+
+		delete m_pCategory;
 	}
 
 	void BoundingBoxComponent::Init()
@@ -41,7 +44,14 @@ namespace component
 
 	void BoundingBoxComponent::OnInitScene()
 	{
-		Renderer::GetInstance().InitBoundingBoxComponent(GetParent());
+		Renderer::GetInstance().InitBoundingBoxComponent(this);
+		Physics::GetInstance().AddCollisionEntity(m_pParent);
+	}
+
+	void BoundingBoxComponent::OnUnInitScene()
+	{
+		Renderer::GetInstance().UnInitBoundingBoxComponent(this);
+		Physics::GetInstance().RemoveCollisionEntity(m_pParent);
 	}
 
 
@@ -59,7 +69,7 @@ namespace component
 				obb.Orientation = m_OriginalBoundingBox.Orientation;
 
 				// then do all the transformations on this temoporary OBB so we don't change the original state
-				obb.Transform(obb, *m_Transforms[i]->GetWorldMatrix());
+				obb.Transform(obb, *m_Transforms[i]->GetLogicWorldMatrix());
 
 				// now save the transformations to the OBB that is used in collision detection
 				m_OrientedBoundingBox.Center = obb.Center;
@@ -137,9 +147,19 @@ namespace component
 		return &m_OriginalBoundingBox;
 	}
 
+	void BoundingBoxComponent::SetModifier(float3 modifier)
+	{
+		m_Modifier = modifier;
+	}
+
 	bool& BoundingBoxComponent::IsPickedThisFrame()
 	{
 		return m_pParent->GetComponent<ModelComponent>()->m_IsPickedThisFrame;
+	}
+
+	void BoundingBoxComponent::Collide(const BoundingBoxComponent& other)
+	{
+		m_pCategory->Collide(other.m_pCategory);
 	}
 
 	bool BoundingBoxComponent::createOrientedBoundingBox()
@@ -180,9 +200,22 @@ namespace component
 			float3 absHalfLenghtOfRect = { (abs(minVertex.x) + abs(maxVertex.x)) / 2 ,
 											(abs(minVertex.y) + abs(maxVertex.y)) / 2 ,
 											(abs(minVertex.z) + abs(maxVertex.z)) / 2 };
-			m_OrientedBoundingBox.Extents.x = absHalfLenghtOfRect.x;
+
+			if (m_FlagOBB & F_OBBFlags::T_POSE)
+			{
+				m_OrientedBoundingBox.Extents.x = absHalfLenghtOfRect.z;
+			}
+			else
+			{
+				m_OrientedBoundingBox.Extents.x = absHalfLenghtOfRect.x;
+			}
 			m_OrientedBoundingBox.Extents.y = absHalfLenghtOfRect.y;
 			m_OrientedBoundingBox.Extents.z = absHalfLenghtOfRect.z;
+
+			// Modifiers are there to change the size of the box
+			m_OrientedBoundingBox.Extents.x /= m_Modifier.x;
+			m_OrientedBoundingBox.Extents.y /= m_Modifier.y;
+			m_OrientedBoundingBox.Extents.z /= m_Modifier.z;
 
 			// Set the position of the OBB
 			m_OrientedBoundingBox.Center.x = maxVertex.x - absHalfLenghtOfRect.x;
@@ -251,7 +284,6 @@ namespace component
 			}
 
 			m_Bbds.push_back(bbp->CreateBoundingBoxData(boundingBoxVerticesLocal, boundingBoxIndicesLocal, m_Identifier.back()));
-
 
 			return true;
 		}

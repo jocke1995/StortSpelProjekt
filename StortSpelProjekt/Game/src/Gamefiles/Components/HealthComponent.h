@@ -6,17 +6,17 @@
 
 struct Death;
 class Entity;
+class Texture;
 namespace component
 {
 	class HealthComponent : public Component
 	{
 	public:
-		HealthComponent(Entity* parent, int hp);
+		HealthComponent(Entity* parent, int hp, float removalTime = 5);
 		~HealthComponent();
-
+		void Update(double dt);
 		void OnInitScene();
-		void OnLoadScene();
-		void OnUnloadScene();
+		void OnUnInitScene();
 
 
 		// will publish a death event if hp reaches 0 or bellow
@@ -26,18 +26,33 @@ namespace component
 		// will publish a death event if hp reaches 0 or bellow
 		void ChangeHealth(int hpChange);
 
-		int GetHealth();
+		void TakeDamage(int damage);
+
+		void ChangeFlatDamageReduction(int flatDamageReduction);
+		void ChangeMultiplicativeDamageReduction(float multiplicativeDamageReduction);
+
+		int GetHealth() const;
+
+		int GetMaxHealth() const;
+		void SetMaxHealth(int newHealth);
+		void ChangeMaxHealth(int hpChange);
+
+		void Reset();
 
 	private:
+		int m_FlatDamageReduction;
+		float m_MultiplicativeDamageReduction;
 		int m_Health;
+		int m_MaxHealth;
 		bool m_Dead = false;
-		// temporary function that decreases health by 1 everytime collision happens
-		// void decreaseHealth(Collision* event);
+		float m_DeathDuration = 0.0f;
+		float m_RemovalTimer;
 
-		// temporary function that prints when death event is published
-		// and m_parent was the entity that died
-		void printDeath(Death* event);
-
+		Texture* m_100;
+		Texture* m_80;
+		Texture* m_60;
+		Texture* m_40;
+		Texture* m_20;
 	};
 
 

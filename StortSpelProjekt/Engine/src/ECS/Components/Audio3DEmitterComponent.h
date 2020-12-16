@@ -10,6 +10,8 @@
 class AudioVoice;
 class Transform;
 
+struct PauseGame;
+
 // struct that holds all data needed for separate sounds
 struct EmitterData
 {
@@ -29,12 +31,15 @@ namespace component
 		virtual ~Audio3DEmitterComponent();
 		void Update(double dt);
 		void OnInitScene();
+		void OnUnInitScene();
 
 		// update position and orientation of the emitter
 		void UpdateEmitter(const std::wstring& name);
 
 		// Clones an audiobuffer to create a voice to the component
 		void AddVoice(const std::wstring& name);
+
+		void AddVoice(const std::wstring& globalName, const std::wstring& localName);
 
 		// Playback options of audio
 		// Play audio
@@ -45,6 +50,9 @@ namespace component
 	private:
 		std::map<std::wstring, EmitterData> m_VoiceEmitterData;
 		Transform* m_pTransform = nullptr;
+
+		std::map<std::wstring, bool> m_WasPlaying;
+		void pauseToggleAudio(PauseGame* evnt);
 	};
 }
 

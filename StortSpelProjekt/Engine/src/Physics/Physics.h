@@ -25,8 +25,6 @@ class Physics
 public:
 	static Physics& GetInstance();
 	~Physics();
-	// Needs to be called before any collisioncomponents are destroyed (before scenemanager kills them...)
-	void DestroyPhysics();
 
 	void Update(double dt);
 	// returns true if there is an intersection between the OBBs
@@ -35,16 +33,23 @@ public:
 
 	// Add an entity with collision enabled to the collision entities vector
 	void AddCollisionEntity(Entity* ent);
+	void RemoveCollisionEntity(Entity* ent);
 
 	void AddCollisionComponent(component::CollisionComponent* comp);
 	void RemoveCollisionComponent(component::CollisionComponent* comp);
 	
+	void SetCollisionEntities(const std::vector<Entity*>* collisionEntities);
+	const std::vector<Entity*>* GetCollisionEntities() const;
 
 	void OnResetScene();
 
 	const btDynamicsWorld* GetWorld();
 private:
+	friend class Engine;
 	Physics();
+	// Needs to be called before any collisioncomponents are destroyed (before scenemanager kills them...)
+	void deletePhysics();
+
 	double m_TimeSinceLastColCheck;
 	// How often the collisions are checked
 	const double m_CollisionUpdateInterval;
@@ -60,6 +65,7 @@ private:
 	btConstraintSolver* m_pSolver;
 
 	void removeAllCollisionComponents();
+	void removeAllCollisionEntities();
 
 	// Checks collision for all entities in the collison entities vector
 	// publishes an event if a collision has happened

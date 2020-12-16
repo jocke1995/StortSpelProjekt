@@ -53,23 +53,22 @@ namespace component
         {
             m_pCamera->Update(dt);
             m_pSpotLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
-        }  
+        }
+
+        flicker(dt);
     }
 
     void SpotLightComponent::OnInitScene()
     {
         this->Update(0);
 
-        Renderer::GetInstance().InitSpotLightComponent(GetParent());
+        Renderer::GetInstance().InitSpotLightComponent(this);
     }
 
-    void SpotLightComponent::OnLoadScene()
+    void SpotLightComponent::OnUnInitScene()
     {
+        Renderer::GetInstance().UnInitSpotLightComponent(this);
     }
-
-	void SpotLightComponent::OnUnloadScene()
-	{
-	}
 
     void SpotLightComponent::SetCutOff(float degrees)
     {
@@ -194,8 +193,9 @@ namespace component
         }
     }
 
-    void SpotLightComponent::UpdateLightColor()
+    void SpotLightComponent::UpdateLightColorIntensity()
     {
         m_pSpotLight->baseLight.color = m_pBaseLight->color;
+        m_pSpotLight->baseLight.intensity = m_pBaseLight->intensity;
     }
 }

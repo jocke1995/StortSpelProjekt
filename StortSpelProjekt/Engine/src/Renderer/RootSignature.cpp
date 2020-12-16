@@ -56,11 +56,16 @@ void RootSignature::createRootSignatureStructure()
 	dtCBV.pDescriptorRanges = dtRangesCBV;
 
 	// DescriptorTable for SRV's (bindless)
-	D3D12_DESCRIPTOR_RANGE dtRangesSRV[1]{};
+	D3D12_DESCRIPTOR_RANGE dtRangesSRV[2]{};
 	dtRangesSRV[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	dtRangesSRV[0].NumDescriptors = -1; // Bindless
+	dtRangesSRV[0].NumDescriptors = -1;		// Bindless
 	dtRangesSRV[0].BaseShaderRegister = 0;	// t0
 	dtRangesSRV[0].RegisterSpace = 0;
+
+	dtRangesSRV[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	dtRangesSRV[1].NumDescriptors = -1;		// Bindless
+	dtRangesSRV[1].BaseShaderRegister = 0;	// t0
+	dtRangesSRV[1].RegisterSpace = 1;		// space1
 
 	D3D12_ROOT_DESCRIPTOR_TABLE dtSRV = {};
 	dtSRV.NumDescriptorRanges = ARRAYSIZE(dtRangesSRV);
@@ -91,6 +96,16 @@ void RootSignature::createRootSignatureStructure()
 	rootParam[RS::dtUAV].DescriptorTable = dtUAV;
 	rootParam[RS::dtUAV].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
+	rootParam[RS::SRV0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+	rootParam[RS::SRV0].Descriptor.ShaderRegister = 3;
+	rootParam[RS::SRV0].Descriptor.RegisterSpace = 3;
+	rootParam[RS::SRV0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	rootParam[RS::UAV0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_UAV;
+	rootParam[RS::UAV0].Descriptor.ShaderRegister = 4;
+	rootParam[RS::UAV0].Descriptor.RegisterSpace = 3;
+	rootParam[RS::UAV0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
 	rootParam[RS::CB_PER_OBJECT_CONSTANTS].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	rootParam[RS::CB_PER_OBJECT_CONSTANTS].Constants.ShaderRegister = 1; // b1
 	rootParam[RS::CB_PER_OBJECT_CONSTANTS].Constants.RegisterSpace = 3; // space3
@@ -99,26 +114,31 @@ void RootSignature::createRootSignatureStructure()
 
 	rootParam[RS::CB_INDICES_CONSTANTS].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	rootParam[RS::CB_INDICES_CONSTANTS].Constants.ShaderRegister = 2; // b2
-	rootParam[RS::CB_INDICES_CONSTANTS].Constants.RegisterSpace = 4; // space4
+	rootParam[RS::CB_INDICES_CONSTANTS].Constants.RegisterSpace = 3; // space3
 	rootParam[RS::CB_INDICES_CONSTANTS].Constants.Num32BitValues = sizeof(DescriptorHeapIndices) / sizeof(UINT);
 	rootParam[RS::CB_INDICES_CONSTANTS].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	rootParam[RS::CB_PER_OBJECT_CBV].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParam[RS::CB_PER_OBJECT_CBV].Constants.ShaderRegister = 2; // b2
+	rootParam[RS::CB_PER_OBJECT_CBV].Constants.ShaderRegister = 3; // b3
 	rootParam[RS::CB_PER_OBJECT_CBV].Constants.RegisterSpace = 3; // space3
 	rootParam[RS::CB_PER_OBJECT_CBV].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	rootParam[RS::CB_PER_FRAME].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParam[RS::CB_PER_FRAME].Constants.ShaderRegister = 3; // b3
+	rootParam[RS::CB_PER_FRAME].Constants.ShaderRegister = 4; // b4
 	rootParam[RS::CB_PER_FRAME].Constants.RegisterSpace = 3; // space3
 	rootParam[RS::CB_PER_FRAME].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	rootParam[RS::CB_PER_SCENE].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParam[RS::CB_PER_SCENE].Descriptor.ShaderRegister = 4;	// b4
+	rootParam[RS::CB_PER_SCENE].Descriptor.ShaderRegister = 5;	// b5
 	rootParam[RS::CB_PER_SCENE].Descriptor.RegisterSpace = 3;	// space3
 	rootParam[RS::CB_PER_SCENE].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	const unsigned int numStaticSamplers = 6;
+	rootParam[RS::CBV0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParam[RS::CBV0].Descriptor.ShaderRegister = 6;	// b6
+	rootParam[RS::CBV0].Descriptor.RegisterSpace = 3;	// space3
+	rootParam[RS::CBV0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	const unsigned int numStaticSamplers = 7;
 	D3D12_ROOT_SIGNATURE_DESC rsDesc;
 	rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
 	rsDesc.NumParameters = ARRAYSIZE(rootParam);
@@ -165,6 +185,18 @@ void RootSignature::createRootSignatureStructure()
 	ssd[5].MinLOD = 0;
 	ssd[5].MaxLOD = D3D12_FLOAT32_MAX;
 	ssd[5].MipLODBias = 0.0f;
+
+
+	ssd[6].ShaderRegister = 6;
+	ssd[6].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	ssd[6].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	ssd[6].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	ssd[6].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	ssd[6].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	ssd[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	ssd[6].MinLOD = 0;
+	ssd[6].MaxLOD = D3D12_FLOAT32_MAX;
+	ssd[6].MipLODBias = 0.0f;
 
 	rsDesc.pStaticSamplers = ssd;
 

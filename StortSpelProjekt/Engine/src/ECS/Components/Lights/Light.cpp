@@ -2,6 +2,7 @@
 #include "Light.h"
 
 #include "../../Entity.h"
+#include "../../Engine/src/Misc/EngineRand.h"
 
 #include "../../../Renderer/Camera/OrthographicCamera.h"
 #include "../../../Renderer/Camera/PerspectiveCamera.h"
@@ -14,8 +15,15 @@ Light::Light(CAMERA_TYPE camType, unsigned int lightFlags)
 
 	m_pBaseLight = new BaseLight();
 	m_pBaseLight->color= { 1.0f, 1.0f, 1.0f };
+	m_pBaseLight->intensity = 1.0f;
+	m_UnflickeredIntensity = m_pBaseLight->intensity;
 	m_pBaseLight->castShadow = false;
 	m_CameraType = camType;
+
+
+	// Give each light a different time offset
+	static EngineRand er = EngineRand(5);
+	m_FlickerTimer = er.Randf(1, 20000) / 20000;
 }
 
 Light::~Light()
@@ -33,8 +41,25 @@ bool Light::operator==(const Light& other)
 void Light::SetColor(float3 color)
 {
 	m_pBaseLight->color = color;
+	m_pBaseLight->color.normalize();
+	UpdateLightColorIntensity();
+}
 
-	UpdateLightColor();
+void Light::SetIntensity(float intensity)
+{
+	m_pBaseLight->intensity = intensity;
+	m_UnflickeredIntensity = intensity;
+	UpdateLightColorIntensity();
+}
+
+void Light::SetFlickerRate(float rate)
+{
+	m_FlickerRate = rate;
+}
+
+void Light::SetFlickerAmplitude(float amplitude)
+{
+	m_FlickerAmplitude = amplitude;
 }
 
 unsigned int Light::GetLightFlags() const
@@ -81,4 +106,21 @@ void Light::CreatePerspectiveCamera(
 		aspectRatio,
 		nearZ,
 		farZ);
+}
+
+void Light::flicker(double dt)
+{
+	if (m_LightFlags & FLAG_LIGHT::FLICKER)
+	{
+		m_FlickerTimer += dt * 2 * PI * m_FlickerRate;
+		float intensity = m_UnflickeredIntensity * flickerIntensityFunction(m_FlickerTimer);
+		if (intensity < 0)
+		{
+			intensity = 0;
+		}
+
+		// Set intensity without setting unflickeredintensity
+		m_pBaseLight->intensity = intensity;
+		UpdateLightColorIntensity();
+	}
 }

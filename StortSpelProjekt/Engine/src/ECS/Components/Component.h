@@ -16,6 +16,9 @@ public:
 	virtual void RenderUpdate(double dt);
 	//SceneInit
 	virtual void OnInitScene() = 0;
+	virtual void OnUnInitScene() = 0;
+
+	virtual void Reset();
 
 	Entity* const GetParent() const;
 

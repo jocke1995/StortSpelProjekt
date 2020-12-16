@@ -1,0 +1,8 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl woodenBarrelMat
+
+map_Kd Barrel_Lowpoly_DefaultMaterial_AlbedoTransparency.DDS
+map_Ks Barrel_Lowpoly_DefaultMaterial_MetallicSmoothness.DDS
+map_Kn Barrel_Lowpoly_DefaultMaterial_Normal.DDS

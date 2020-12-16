@@ -2,24 +2,40 @@
 #include "EngineMath.h"
 #include "ECS/Entity.h"
 #include "Components/UpgradeComponents/UpgradeComponent.h"
-#include "Components/UpgradeComponents/Upgrades/UpgradeRangeTest.h"
-#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeTest.h"
+// Include all uppgrades under here:
+#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeDamage.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeRangeVelocity.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeLifeSteal.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeHealthBoost.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeBlueJewel.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeRangeBounce.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradePoisonAttack.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeKnockBack.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeHealthRegen.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeRangeDamage.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeAttackSpeed.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeRangeAttackSpeed.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeExplosiveAttack.h"
+#include "Components/UpgradeComponents/Upgrades/UpgradeMeleeRadius.h"
 
 UpgradeManager::UpgradeManager(Entity* parentEntity)
 {
 	m_pParentEntity = parentEntity;
 	// After parent entity is set we fill in our map of upgrades.
 	fillUpgradeMap();
+
+	// Fill in the names of all upgrades in m_AppliedUpgradeLevel and set their level to level 1
+	for (auto u : m_AllAvailableUpgrades)
+	{
+		m_AppliedUpgradeLevel[u.first] = 0;
+	}
 }
 
 UpgradeManager::~UpgradeManager()
 {
 	for (std::pair<std::string, Upgrade*> u : m_AllAvailableUpgrades)
 	{
-		if (std::strcmp(u.second->GetName().c_str(), "") != 0)
-		{
-			delete u.second;
-		}
+		delete u.second;
 	}
 }
 
@@ -38,14 +54,15 @@ void UpgradeManager::ApplyUpgrade(std::string name)
 		// If so also add it to player entitys UpgradeComponent.
 		if (checkIfPlayerEntityUpgrade(name))
 		{
-			m_pParentEntity->GetComponent<component::UpgradeComponent>()->AddUpgrade(m_AllAvailableUpgrades[name]);
+
+			m_pParentEntity->GetComponent<component::UpgradeComponent>()->AddUpgrade(newUpgrade(name, m_pParentEntity));
 		}
 	}
 	else
 	{
 		// If it is not a Range Upgrade then it goes on the player entity.
 		// So add it to player entitys UpgradeComponent.
-		m_pParentEntity->GetComponent<component::UpgradeComponent>()->AddUpgrade(m_AllAvailableUpgrades[name]);
+		m_pParentEntity->GetComponent<component::UpgradeComponent>()->AddUpgrade(newUpgrade(name, m_pParentEntity));
 	}
 }
 
@@ -56,11 +73,12 @@ void UpgradeManager::ApplyRangeUpgrades(Entity* ent)
 	for (auto upgradeName : m_AllAppliedProjectileUpgrades)
 	{
 		// get NEW RangeUpgrade for the projectile entity
-		rangeUpgrade = newRangeUpgrade(upgradeName, ent);
+		rangeUpgrade = newUpgrade(upgradeName, ent);
 		// Check if the upgrade has increased in level. 
-		// If so increase level of the new upgrade so it matches the one in m_AllAvailableUpgrades
+		// If so increase level of the new upgrade so it matches the one in m_AppliedUpgradeLevel
 		// i = 1, because upgrades start at level 1.
-		for (int i = 1; i < m_AllAvailableUpgrades[upgradeName]->GetLevel(); i++)
+		int upgradeLevel = m_AppliedUpgradeLevel[upgradeName];
+		for (int i = 0; i < upgradeLevel; i++)
 		{
 			rangeUpgrade->IncreaseLevel();
 		}
@@ -98,25 +116,130 @@ std::map<std::string, Upgrade*> UpgradeManager::GetAllAvailableUpgrades()
 	return m_AllAvailableUpgrades;
 }
 
+void UpgradeManager::IncreaseLevel(std::string name)
+{
+	m_AppliedUpgradeLevel[name]++;
+	m_AllAvailableUpgrades[name]->IncreaseLevel();
+}
+
+std::map<std::string, int> UpgradeManager::GetAppliedUpgradesLevel()
+{
+	return m_AppliedUpgradeLevel;
+}
+
+void UpgradeManager::RemoveAllUpgrades()
+{
+	m_AllAppliedProjectileUpgrades.clear();
+	m_AppliedUpgradeEnums.clear();
+	m_AppliedUpgradeLevel.clear();
+}
+
+std::map<std::string, int> UpgradeManager::GetAppliedUpgradeEnums()
+{
+	return m_AppliedUpgradeEnums;
+}
+
 void UpgradeManager::fillUpgradeMap()
 {
 	Upgrade* upgrade;
 
-	// Adding RangeTest Upgrade
-	upgrade = new UpgradeRangeTest(m_pParentEntity);
+	// Adding RangeVelocity Upgrade - The range velocity is set on rangecomponent which goes on the player
+	upgrade = new UpgradeRangeVelocity(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_VELOCITY);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
-	// Also, since it is of type RANGE, add its' Enum to the enum map.
-	m_RangeUpgradeEnums[upgrade->GetName()] = UPGRADE_RANGE_TEST;
-	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	upgrade->SetID(UPGRADE_RANGE_TEST);
 
-	// Adding MeleeTest Upgrade
-	upgrade = new UpgradeMeleeTest(m_pParentEntity);
+	// Adding Melee lifesteal Upgrade
+	upgrade = new UpgradeMeleeLifeSteal(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_MELEE_LIFESTEAL);
 	// add the upgrade to the list of all upgrades
 	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding MeleeDamage Upgrade
+	upgrade = new UpgradeMeleeDamage(m_pParentEntity);
 	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
-	upgrade->SetID(UPGRADE_MELEE_TEST);
+	upgrade->SetID(UPGRADE_MELEE_DAMAGE);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding HealthBoost Upgrade
+	upgrade = new UpgradeHealthBoost(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_HEALTH_BOOST);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding BlueJewel Upgrade
+	upgrade = new UpgradeBlueJewel(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_BLUE_JEWEL);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding RangeBounce Upgrade
+	upgrade = new UpgradeRangeBounce(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_BOUNCE);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding HealthRegen Upgrade
+	upgrade = new UpgradeHealthRegen(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_HEALTH_REGEN);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding PoisonAttack Upgrade
+	upgrade = new UpgradePoisonAttack(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_POISON_ATTACK);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding KnockBack Upgrade
+	upgrade = new UpgradeKnockBack(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_KNOCKBACK);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding Range Damage Upgrade
+	upgrade = new UpgradeRangeDamage(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_DAMAGE);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding MeleeAttackSpeed Upgrade
+	upgrade = new UpgradeMeleeAttackSpeed(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_MELEE_ATTACKSPEED);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding Explosive Attack Upgrade
+	upgrade = new UpgradeExplosiveAttack(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_EXPLOSIVE_ATTACK);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding Range Attack Speed Upgrade
+	upgrade = new UpgradeRangeAttackSpeed(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_RANGE_ATTACKSPEED);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
+
+	// Adding Melee Attack Radius Upgrade
+	upgrade = new UpgradeMeleeRadius(m_pParentEntity);
+	// Set upgrade ID to the appropriate enum in E_UpgradeIDs
+	upgrade->SetID(UPGRADE_MELEE_RADIUS);
+	// add the upgrade to the list of all upgrades
+	m_AllAvailableUpgrades[upgrade->GetName()] = upgrade;
 }
 
 bool UpgradeManager::checkIfRangeUpgrade(std::string name)
@@ -145,16 +268,56 @@ bool UpgradeManager::checkIfPlayerEntityUpgrade(std::string name)
 	}
 }
 
-Upgrade* UpgradeManager::newRangeUpgrade(std::string name, Entity* ent)
+Upgrade* UpgradeManager::newUpgrade(std::string name, Entity* ent)
 {
 	// Using the enum that is mapped to name,
-	// return the correct NEW range upgrade with parentEntity ent
-	switch (m_RangeUpgradeEnums[name])
+	// return the correct NEW upgrade with parentEntity ent
+	switch (m_AppliedUpgradeEnums[name])
 	{
-	case UPGRADE_RANGE_TEST:
-		return new UpgradeRangeTest(ent);
+	case UPGRADE_MELEE_DAMAGE:
+		return new UpgradeMeleeDamage(ent);
+		break;
+	case UPGRADE_HEALTH_BOOST:
+		return new UpgradeHealthBoost(ent);
+		break;
+	case UPGRADE_RANGE_VELOCITY:
+		return new UpgradeRangeVelocity(ent);
+		break;
+	case UPGRADE_MELEE_LIFESTEAL:
+		return new UpgradeMeleeLifeSteal(ent);
+		break;
+	case UPGRADE_BLUE_JEWEL:
+		return new UpgradeBlueJewel(ent);
+		break;
+	case UPGRADE_RANGE_BOUNCE:
+		return new UpgradeRangeBounce(ent);
+		break;
+	case UPGRADE_POISON_ATTACK:
+		return new UpgradePoisonAttack(ent);
+		break;
+	case UPGRADE_KNOCKBACK:
+		return new UpgradeKnockBack(ent);
+		break;
+	case UPGRADE_HEALTH_REGEN:
+		return new UpgradeHealthRegen(ent);
+		break;
+	case UPGRADE_RANGE_DAMAGE:
+		return new UpgradeRangeDamage(ent);
+		break;
+	case UPGRADE_MELEE_ATTACKSPEED:
+		return new UpgradeMeleeAttackSpeed(ent);
+		break;
+	case UPGRADE_RANGE_ATTACKSPEED:
+		return new UpgradeRangeAttackSpeed(ent);
+		break;
+	case UPGRADE_EXPLOSIVE_ATTACK:
+		return new UpgradeExplosiveAttack(ent);
+		break;
+	case UPGRADE_MELEE_RADIUS:
+		return new UpgradeMeleeRadius(ent);
 		break;
 	default:
 		break;
 	}
 }
+

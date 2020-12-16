@@ -3,6 +3,7 @@
 #include "../AudioEngine/AudioVoice.h"
 #include "../Misc/AssetLoader.h"
 #include "../Misc/Option.h"
+#include "../Events/EventBus.h"
 
 component::Audio2DVoiceComponent::Audio2DVoiceComponent(Entity* parent): Component(parent)
 {
@@ -25,7 +26,16 @@ void component::Audio2DVoiceComponent::Update(double dt)
 
 void component::Audio2DVoiceComponent::OnInitScene()
 {
+	EventBus::GetInstance().Subscribe(this, &Audio2DVoiceComponent::pauseToggleAudio);
+}
 
+void component::Audio2DVoiceComponent::OnUnInitScene()
+{
+	EventBus::GetInstance().Unsubscribe(this, &Audio2DVoiceComponent::pauseToggleAudio);
+	for (auto audio : m_Voices)
+	{
+		audio.second.Stop();
+	}
 }
 
 void component::Audio2DVoiceComponent::AddVoice(const std::wstring& name)
@@ -72,4 +82,32 @@ void component::Audio2DVoiceComponent::Stop(const std::wstring& name)
 #else
 	m_Voices[name].Stop();
 #endif
+}
+
+void component::Audio2DVoiceComponent::pauseToggleAudio(PauseGame* evnt)
+{
+	if (evnt->isPaused)
+	{
+		for (auto voice : m_Voices)
+		{
+			XAUDIO2_VOICE_STATE voiceState;
+			voice.second.GetSourceVoice()->GetState(&voiceState);
+			if (voiceState.BuffersQueued > 0 && voiceState.SamplesPlayed > 0 && voice.second.IsPlaying())
+			{
+				m_WasPlaying[voice.first] = true;
+				voice.second.Pause();
+			}
+		}
+	}
+	else
+	{
+		for (auto voice : m_Voices)
+		{
+			if (m_WasPlaying[voice.first])
+			{
+				voice.second.Resume();
+				m_WasPlaying[voice.first] = false;
+			}
+		}
+	}
 }

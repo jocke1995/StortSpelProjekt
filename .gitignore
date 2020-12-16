@@ -19,3 +19,13 @@ StortSpelProjekt/Sandbox/imgui.ini
 StortSpelProjekt/Game/imgui.ini
 
 *.ini
+
+StortSpelProjekt/Game/game*.txt
+
+StortSpelProjekt/Vendor/Resources/Models/Female/
+
+StortSpelProjekt/Vendor/Resources/Models/PlayerHuman/
+
+StortSpelProjekt/Vendor/Resources/Models/IgnoredModels/
+
+StortSpelProjekt/Vendor/Resources/Audio/IgnoredAudio/

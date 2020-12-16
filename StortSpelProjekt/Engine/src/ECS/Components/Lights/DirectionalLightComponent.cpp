@@ -23,7 +23,6 @@ namespace component
 		delete m_pDirectionalLight;
 	}
 
-
 	void DirectionalLightComponent::Update(double dt)
 	{
 		if (m_pCamera != nullptr)
@@ -31,21 +30,19 @@ namespace component
 			m_pCamera->Update(dt);
 			m_pDirectionalLight->viewProj = *m_pCamera->GetViewProjectionTranposed();
 		}
+
+		flicker(dt);
 	}
 
 	void DirectionalLightComponent::OnInitScene()
 	{
 		this->Update(0);
-
-		Renderer::GetInstance().InitDirectionalLightComponent(GetParent());
+		Renderer::GetInstance().InitDirectionalLightComponent(this);
 	}
 
-	void DirectionalLightComponent::OnLoadScene()
+	void DirectionalLightComponent::OnUnInitScene()
 	{
-	}
-
-	void DirectionalLightComponent::OnUnloadScene()
-	{
+		Renderer::GetInstance().UnInitDirectionalLightComponent(this);
 	}
 
 	void DirectionalLightComponent::SetCameraDistance(float distance)
@@ -105,9 +102,10 @@ namespace component
 		return m_pDirectionalLight;
 	}
 
-	void DirectionalLightComponent::UpdateLightColor()
+	void DirectionalLightComponent::UpdateLightColorIntensity()
 	{
 		m_pDirectionalLight->baseLight.color = m_pBaseLight->color;
+		m_pDirectionalLight->baseLight.intensity = m_pBaseLight->intensity;
 	}
 
 	void DirectionalLightComponent::initFlagUsages()

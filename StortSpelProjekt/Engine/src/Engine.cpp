@@ -15,10 +15,9 @@ Engine::~Engine()
 	delete m_pWindow;
 	delete m_pTimer;
 
-	Physics::GetInstance().DestroyPhysics();
-	delete m_pSceneManager;
-
-	m_pRenderer->DeleteDxResources();
+	Physics::GetInstance().deletePhysics();
+	m_pSceneManager->deleteSceneManager();
+	m_pRenderer->deleteRenderer();
 }
 
 void Engine::Init(HINSTANCE hInstance, int nCmdShow)
@@ -56,10 +55,12 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	m_pAudioEngine = &AudioEngine::GetInstance();
 
 	// ECS
-	m_pSceneManager = new SceneManager();
+	m_pSceneManager = &SceneManager::GetInstance();
 
 	// Physics
 	m_pPhysics = &Physics::GetInstance();
+
+	m_pParticleSystem = &ParticleSystem::GetInstance();
 
 	Input::GetInstance().RegisterDevices(m_pWindow->GetHwnd());
 }
@@ -92,6 +93,11 @@ Physics* const Engine::GetPhysics() const
 AudioEngine* const Engine::GetAudioEngine() const
 {
 	return m_pAudioEngine;
+}
+
+ParticleSystem* const Engine::GetParticleSystem() const
+{
+	return m_pParticleSystem;
 }
 
 Renderer* const Engine::GetRenderer() const

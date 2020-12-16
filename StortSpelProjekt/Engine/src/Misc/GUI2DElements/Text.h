@@ -31,28 +31,29 @@ struct TextData
 	float2 scale = { 0.0f, 0.0f };
 	float2 padding = { 0.0f, 0.0f };
 	float4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
+	float4 blendFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
 };
 
 class Text
 {
 public:
-	Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, int numOfCharacters, Texture* texture);
+	Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, Texture* texture, TextData* textData, Font* font);
 	~Text();
 
 	SlotInfo* const GetSlotInfo() const;
-	TextData* const GetTextData(int pos);
+	TextData* const GetTextData();
 	Font* const GetFont() const;
 	const int GetNrOfCharacters() const;
-
-	void SetTextData(TextData* textData, Font* font);
+	const float4 GetAmountOfBlend() const;
 
 private:
 	friend class Renderer;
 	friend class SceneManager;
+	friend class CopyOnDemandTask;
 
 	Font* m_pFont = nullptr;
 
-	int m_NrOfVertices = 0;
+	int m_NrOfCharacters = 0;
 	int m_SizeOfVertices = 0;
 
 	// this will store our font information
@@ -67,6 +68,7 @@ private:
 	SlotInfo* m_pSlotInfo = nullptr;
 
 	void initVertexData();
+	void initMeshData(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, Texture* texture);
 };
 
 #endif

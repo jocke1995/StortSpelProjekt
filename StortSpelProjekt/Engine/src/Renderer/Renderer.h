@@ -64,36 +64,45 @@ struct ID3D12CommandQueue;
 struct ID3D12CommandList;
 struct ID3D12Fence1;
 struct ID3D12Device5;
+struct IDXGIAdapter4;
 
 // ECS
 class Entity;
 namespace component
 {
 	class ModelComponent;
+	class AnimationComponent;
 	class TransformComponent;
+	class CameraComponent;
 	class BoundingBoxComponent;
 	class GUI2DComponent;
 	class SkyboxComponent;
+	class DirectionalLightComponent;
+	class PointLightComponent;
+	class SpotLightComponent;
+	class ParticleEmitterComponent;
+	class ProgressBarComponent;
 }
 
 // Events
 struct WindowChange;
+struct WindowSettingChange;
 
 class Renderer
 {
 public:
 	static Renderer& GetInstance();
 	virtual ~Renderer();
-	// For control of safe release of DirectX resources
-	void DeleteDxResources();
 
 	// PickedEntity
 	Entity* const GetPickedEntity() const;
 	// Scene
 	Scene* const GetActiveScene() const;
 
+	Window* const GetWindow() const;
+
 	// Call once
-	void InitD3D12(const Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
+	void InitD3D12(Window* window, HINSTANCE hInstance, ThreadPool* threadPool);
 
 	// Call on logic update *This should be moved to a more relevant logic class
 	void Update(double dt);
@@ -103,14 +112,31 @@ public:
 	void Execute();
 
 	// Render inits, these functions are called by respective components through SetScene to prepare for drawing
-	void InitSkyboxComponent(Entity* entity);
-	void InitModelComponent(Entity* entity);
-	void InitDirectionalLightComponent(Entity* entity);
-	void InitPointLightComponent(Entity* entity);
-	void InitSpotLightComponent(Entity* entity);
-	void InitCameraComponent(Entity* entity);
-	void InitBoundingBoxComponent(Entity* entity);
-	void InitGUI2DComponent(Entity* entity);
+	void InitSkyboxComponent(component::SkyboxComponent* component);
+	void InitModelComponent(component::ModelComponent* component);
+	void InitAnimationComponent(component::AnimationComponent* component);
+	void InitDirectionalLightComponent(component::DirectionalLightComponent* component);
+	void InitPointLightComponent(component::PointLightComponent* component);
+	void InitSpotLightComponent(component::SpotLightComponent* component);
+	void InitCameraComponent(component::CameraComponent* component);
+	void InitBoundingBoxComponent(component::BoundingBoxComponent* component);
+	void InitGUI2DComponent(component::GUI2DComponent* component);
+	void InitParticleEmitterComponent(component::ParticleEmitterComponent* component);
+	void InitProgressBarComponent(component::ProgressBarComponent* component);
+
+	void UnInitSkyboxComponent(component::SkyboxComponent* component);
+	void UnInitModelComponent(component::ModelComponent* component);
+	void UnInitAnimationComponent(component::AnimationComponent* component);
+	void UnInitDirectionalLightComponent(component::DirectionalLightComponent* component);
+	void UnInitPointLightComponent(component::PointLightComponent* component);
+	void UnInitSpotLightComponent(component::SpotLightComponent* component);
+	void UnInitCameraComponent(component::CameraComponent* component);
+	void UnInitBoundingBoxComponent(component::BoundingBoxComponent* component);
+	void UnInitGUI2DComponent(component::GUI2DComponent* component);
+	void UnInitParticleEmitterComponent(component::ParticleEmitterComponent* component);
+	void UnInitProgressBarComponent(component::ProgressBarComponent* component);
+
+	void SetBrightness(float value);
 
 	void OnResetScene();
 
@@ -118,16 +144,30 @@ private:
 	friend class Engine;
 	friend class component::SkyboxComponent;
 	friend class component::GUI2DComponent;
+	friend class component::ParticleEmitterComponent;
 	friend class SceneManager;
 	friend class TextManager;
 	friend class QuadManager;
+	friend class ParticleSystem;
+	friend class ParticleEffect;
+	friend class ImGuiHandler;
+	friend class ShadowInfo;
 	Renderer();
+
+	// For control of safe release of DirectX resources
+	void deleteRenderer();
 
 	// SubmitToCodt functions
 	void submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
-	void submitModelToCodt(Model* model);
+	void submitModelToGPU(Model* model);
 	void submitMeshToCodt(Mesh* mesh);
 	void submitTextureToCodt(Texture* texture);
+
+	//SubmitToCpft functions
+	void submitToCpft(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data);
+	void clearSpecificCpft(Resource* upload);
+
+	DescriptorHeap* getCBVSRVUAVdHeap() const;
 
 	ThreadPool* m_pThreadPool = nullptr;
 
@@ -137,10 +177,14 @@ private:
 	unsigned int m_FrameCounter = 0;
 
 	// Window
-	const Window* m_pWindow;
+	Window* m_pWindow;
 
 	// Device
 	ID3D12Device5* m_pDevice5 = nullptr;
+
+	// Adapters used for getting VRAM and RAM
+	IDXGIAdapter4* m_pAdapter4 = nullptr;
+	HANDLE m_ProcessHandle = nullptr;
 
 	// CommandQueues
 	std::map<COMMAND_INTERFACE_TYPE, ID3D12CommandQueue*> m_CommandQueues;
@@ -172,11 +216,15 @@ private:
 	//OutliningRenderTask* m_pOutliningRenderTask = nullptr;	
 
 	Mesh* m_pFullScreenQuad = nullptr;
+	Mesh* m_pQuadMesh = nullptr;
 
 	// Group of components that's needed for rendering:
 	std::map<FLAG_DRAW, std::vector<std::pair<component::ModelComponent*, component::TransformComponent*>>> m_RenderComponents;
 	std::vector<component::BoundingBoxComponent*> m_BoundingBoxesToBePicked;
 	std::vector<component::GUI2DComponent*> m_TextComponents;
+	std::vector<component::GUI2DComponent*> m_QuadComponents;
+	std::vector<component::ProgressBarComponent*> m_ProgressBarComponents;
+
 	component::SkyboxComponent* m_pSkyboxComponent = nullptr;
 
 	ViewPool* m_pViewPool = nullptr;
@@ -193,8 +241,6 @@ private:
 
 	// Commandlists holders
 	std::vector<ID3D12CommandList*> m_DirectCommandLists[NUM_SWAP_BUFFERS];
-	std::vector<ID3D12CommandList*> m_ComputeCommandLists[NUM_SWAP_BUFFERS];
-	ID3D12CommandList* m_CopyOnDemandCmdList[NUM_SWAP_BUFFERS];
 	
 	// DescriptorHeaps
 	std::map<DESCRIPTOR_HEAP_TYPE, DescriptorHeap*> m_DescriptorHeaps = {};
@@ -203,6 +249,9 @@ private:
 	HANDLE m_EventHandle = nullptr;
 	ID3D12Fence1* m_pFenceFrame = nullptr;
 	UINT64 m_FenceFrameValue = 0;
+
+	// Textures to remove from RAM after they've been uploaded to the GPU.
+	std::vector<Texture*> m_TexturesToRemove;
 
 	void setRenderTasksPrimaryCamera();
 	bool createDevice();
@@ -219,25 +268,21 @@ private:
 	void waitForFrame(unsigned int framesToBeAhead = NUM_SWAP_BUFFERS - 1);
 	void waitForGPU();
 
-	
-
+	// bad design but its ok since we have focus on getting the game to work
+	void setRenderTasksGUI2DComponents();
+	void setProgressBarComponents();
 
 	// WaitForFrame but with the copyqueue only. Is used when executing per scene data on SetScene
-	void waitForCopyOnDemand();
-	void executeCopyOnDemand();
-
-	// Manage components
-	void removeComponents(Entity* entity);
+	//void waitForCopyOnDemand();
+	//void executeCopyOnDemand();
 
 	// Setup the whole scene
-	void prepareScenes(std::vector<Scene*>* scenes);
-	// Setup what should be drawn in the scene
-	void prepareRenderComponents(std::vector<Scene*>* scenes);
+	void prepareScene(Scene* activeScene);
 
-	// Setup Per-scene data and send to GPU
-	void SubmitUploadPerSceneData();
-	// Submit per-frame data to the copyQueue that updates each frame
-	void SubmitUploadPerFrameData();
+	// Submit cbPerSceneData to the copyQueue that updates once
+	void submitUploadPerSceneData();
+	// Submit cbPerFrameData to the copyQueue that updates each frame
+	void submitUploadPerFrameData();
 
 	void toggleFullscreen(WindowChange* evnt);
 
