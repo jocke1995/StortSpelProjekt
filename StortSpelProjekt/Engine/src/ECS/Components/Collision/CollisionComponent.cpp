@@ -100,7 +100,7 @@ void component::CollisionComponent::OnInitScene()
 
 	m_pBody->setGravity({ 0.0, m_Gravity, 0.0 });
 
-	m_pBody->setAngularFactor({ 1.0*m_CanFall, 1.0, 1.0* m_CanFall });
+	m_pBody->setAngularFactor({ 1.0*m_CanFall, 1.0*m_CanFall, 1.0* m_CanFall });
 	m_pBody->setUserIndex(m_UserID);
 }
 
