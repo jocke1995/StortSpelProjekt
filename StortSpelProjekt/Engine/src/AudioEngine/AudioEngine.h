@@ -4,6 +4,9 @@
 #include <x3daudio.h>
 #pragma comment(lib, "xaudio2")
 
+#define VOLUME3D 1.0
+#define VOLUME2D 0.2
+
 class AudioEngine
 {
 public:
