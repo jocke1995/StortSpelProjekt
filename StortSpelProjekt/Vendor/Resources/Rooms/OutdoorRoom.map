@@ -113,7 +113,7 @@ ModelMass 100.0
 ModelFriction 10.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionCapsule 0.2, 0.8, 0.2
+Submit CollisionCylinder 0.4, 0.6, 0.4
 
 Name Barrel2
 ModelPath Models/WoodenBarrel/woodenBarrel.obj
@@ -126,7 +126,7 @@ ModelMass 100.0
 ModelFriction 10.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionCapsule 0.2, 0.8, 0.2
+Submit CollisionCylinder 0.4, 0.6, 0.4
 
 Name Barrel3
 ModelPath Models/WoodenBarrel/woodenBarrel.obj
@@ -139,7 +139,7 @@ ModelMass 100.0
 ModelFriction 10.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionCapsule 0.2, 0.8, 0.2
+Submit CollisionCylinder 0.4, 0.6, 0.4
 
 // ANVIL --------------------------------------------
 Name Anvil
@@ -259,7 +259,7 @@ ModelPosition 0.0, -2.0, 0.0
 ModelRestitution 0.5
 ModelDrawFlag 1, 1
 ModelDrawFlag 5, 1
-ShrinkBoundingBox 20.0, 1.0, 15.0
+ShrinkBoundingBox 8.0, 1.0, 8.0
 Submit Model
 Submit CollisionCapsule 0.4, 10.0, 0.4
 

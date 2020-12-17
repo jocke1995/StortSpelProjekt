@@ -7,12 +7,6 @@ component::CylinderCollisionComponent::CylinderCollisionComponent(Entity* parent
 	m_pShape = new btCylinderShape({radius,height,radius});
 }
 
-component::CylinderCollisionComponent::CylinderCollisionComponent(Entity* parent, double mass, double width, double height, double depth, double friction, double restitution, bool canFall) :
-CollisionComponent(parent, mass, friction, restitution, canFall)
-{
-	m_pShape = new btCylinderShape({ width,height,depth });
-}
-
 component::CylinderCollisionComponent::~CylinderCollisionComponent()
 {
 	delete m_pShape;

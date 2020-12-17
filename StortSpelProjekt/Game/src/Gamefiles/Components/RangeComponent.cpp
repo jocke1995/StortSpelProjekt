@@ -220,7 +220,7 @@ void component::RangeComponent::Attack()
 
 		component::CollisionComponent* cc = nullptr;
 		double3 projectileDim = mc->GetModelDim();
-		cc = ent->AddComponent<component::SphereCollisionComponent>(500.0f, projectileDim.z / 2.0f, 1.0f, m_ProjectileRestitution, false);
+		cc = ent->AddComponent<component::SphereCollisionComponent>(10.0f, projectileDim.z / 2.0f, 1.0f, m_ProjectileRestitution, false);
 		cc->SetGravity(0.0f);
 
 		// Light color
