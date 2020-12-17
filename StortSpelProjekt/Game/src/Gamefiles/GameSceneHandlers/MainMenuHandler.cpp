@@ -610,7 +610,7 @@ void MainMenuHandler::createCreditsScene()
     guic = entity->AddComponent<component::GUI2DComponent>();
 
     float x_leftmost = 0.20;
-    float x_author = 0.55;
+    float x_author = 0.61;
 
     float y = 1;
     float y_big = 0.3;
@@ -923,7 +923,7 @@ void MainMenuHandler::createCreditsScene()
 
 
 
-
+    /*
     // trailer
     y += y_big;
     name = "trailer";
@@ -939,7 +939,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->SetText(ournames[1], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
     guic->GetTextManager()->SetScale({ size_small, size_small }, name);
-
+    */
 
 
 
@@ -1028,7 +1028,7 @@ Zombie:                cypler @Sketchfab
 */
 
     // thirdparty_models
-    y += y_big;
+    y += y_after_big;
     name = "thirdparty_models";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Models", name);
@@ -1562,8 +1562,9 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     guic->GetQuadManager()->SetOnClicked(&onExit);
 
     entity = scene->AddEntity("CreditsOption");
+    const float size_credits = 1.3;
     guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("CreditsOption", { 0.1f, 0.8f }, { creditsTex->GetWidth() / 1920.0f, creditsTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, creditsTex);
+    guic->GetQuadManager()->CreateQuad("CreditsOption", { 0.54f, 0.52f }, { creditsTex->GetWidth()* size_credits / 1920.0f, creditsTex->GetHeight()* size_credits / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, creditsTex);
     guic->GetQuadManager()->SetOnClicked(&onCredits);
 
 	//std::vector<Model*> enemyModels;
@@ -1931,14 +1932,22 @@ static float totalScrollY = 0;
 
 void CreditsUpdateScene(SceneManager* sm, double dt)
 {
+    const float scrollSpeed = -0.2; // -0.2
+    float frameYChange = scrollSpeed * dt;
+    totalScrollY += frameYChange;
+
+    const float resetYOn = -8;
+    Log::Print("%f\n", totalScrollY);
+    if (totalScrollY < resetYOn)
+    {
+        ResetCreditsScene(sm);
+        return;
+    }
+
     Scene* creditsScene = sm->GetActiveScene();
 
     Entity* text = creditsScene->GetEntity("ScrollingText");
     component::GUI2DComponent* comp = text->GetComponent<component::GUI2DComponent>();
-
-    const float scrollSpeed = -0.2; // -0.2
-    float frameYChange = scrollSpeed * dt;
-    totalScrollY += frameYChange;
 
     auto map = comp->GetTextManager()->GetTextDataMap();
     auto it = map->begin();
