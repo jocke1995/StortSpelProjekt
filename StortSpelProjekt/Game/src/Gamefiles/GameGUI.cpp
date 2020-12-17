@@ -67,7 +67,7 @@ void GameGUI::Update(double dt, Scene* scene)
 		entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(Option::GetInstance().GetVariable("f_brightness"), "brightness");
 
 		entity = scene->GetEntity("volume");
-		entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(Option::GetInstance().GetVariable("f_volume"), "volume");
+		entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(Option::GetInstance().GetVariable("f_masterVolume"), "volume");
 
 		entity = scene->GetEntity("MouseSensitivity");
 		entity->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText(Option::GetInstance().GetVariable("f_sensitivityX"), "MouseSensitivity");
