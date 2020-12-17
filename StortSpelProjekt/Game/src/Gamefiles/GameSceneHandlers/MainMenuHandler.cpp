@@ -609,10 +609,12 @@ void MainMenuHandler::createCreditsScene()
     entity = m_pCreditsScene->AddEntity("ScrollingText");
     guic = entity->AddComponent<component::GUI2DComponent>();
 
-    float x_leftmost = 0.25;
+    float x_leftmost = 0.20;
+    float x_author = 0.55;
 
     float y = 1;
     float y_big = 0.3;
+    float y_after_big = 0.1;
     float y_small = 0.06;
 
     float size_big = 1.15;
@@ -634,6 +636,8 @@ void MainMenuHandler::createCreditsScene()
     ournames[8] = "Tim Johansson";
     ournames[9] = "William Osberg Resin";
 
+    std::string boughtPackName = "";
+
 
 
     // Hell Loop
@@ -653,24 +657,24 @@ void MainMenuHandler::createCreditsScene()
     y += y_big;
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("This game is a school project made during 2020-09-01 to 2020-12-18", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetPos({ 0.18, y }, name);
 
 
 
 
 
 
-    // ournames
-    name = "ournames";
+    // Programmers
+    name = "programmers";
     y += y_big;
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Developers", name);
+    guic->GetTextManager()->SetText("Programmers", name);
     guic->GetTextManager()->SetPos({ 0.5, y }, name);
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // ournames_0
     name = "ournames_0";
-    y += y_small;
+    y += y_after_big;
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText( ournames[0], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
@@ -740,6 +744,28 @@ void MainMenuHandler::createCreditsScene()
 
 
 
+
+    // rendering
+    y += y_big;
+    name = "rendering";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Rendering Programmers", name);
+    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+    guic->GetTextManager()->SetScale({ size_big, size_big }, name);
+
+    // rendering_0
+    y += y_small;
+    name = "rendering_0";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText(ournames[3], name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    // rendering_1
+    y += y_small;
+    name = "rendering_1";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText(ournames[6], name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
 
 
 
@@ -830,7 +856,7 @@ void MainMenuHandler::createCreditsScene()
     y += y_small;
     name = "art_0";
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText(ournames[0], name);
+    guic->GetTextManager()->SetText(ournames[1], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
 
 
@@ -930,6 +956,33 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->SetPos({ 0.5, y }, name);
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
+
+/*
+
+Sorted
+
+Anvil:                 seenoise @Sketchfab
+Brazier:               persnetto @Sketchfab
+Chandelier:            Kevin.Popescu @Sketchfab
+Demon:                 Infinity PBR
+Outdoor floor:         ErenKatsukagi @Twitter
+Palisade:              adam127 @Sketchfab
+Pebble texture:        ErenKatsukagi @Twitter
+Player:                Infinity PBR
+Shop goblin:           Batuhan13 @Sketchfab
+Skulls:                Abimael Gonzalez @Sketchfab
+Spider:                Infinity PBR
+Statue:                Arodin @Sketchfab
+Stone walls:           ErenKatsukagi @Twitter
+Sword in pile:         LowSeb @Sketchfab
+Tomb:                  persnetto @Sketchfab
+Torch:                 Kigha @Sketchfab
+Tree:                  v124entkl @Sketchfab
+Wooden barrel:         BatuhanOZER @Turbosquid
+Zombie:                cypler @Sketchfab
+
+*/
+
     // thirdparty_models
     y += y_small;
     name = "thirdparty_models";
@@ -938,132 +991,235 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->SetPos({ 0.5, y }, name);
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
+    y += y_small;
+    name = "thirdparty_models_0";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Anvil:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_0§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("seenoise @Sketchfab", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_01";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Brazier:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_01§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("persnetto @Sketchfab", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_1";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Chandelier:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_1§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Kevin.Popescu @Sketchfab", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_11";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Demon:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_11§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Infinity PBR", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_2";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Outdoor floor:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_2§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("ErenKatsukagi @Twitter", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_3";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Palisade:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_3§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("adam127 @Sketchfab", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_4";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Pebble texture:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_4§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("ErenKatsukagi @Twitter", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_5";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Player:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_5§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Infinity PBR", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_6";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Shop goblin:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_6§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Batuhan13 @Sketchfab", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_7";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Skulls:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_7§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Abimael Gonzalez @Sketchfab", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_71";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Spider:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_71§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Infinity PBR", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_8";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Statue:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_8§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Arodin @Sketchfab", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_9";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Stone walls:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_9§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("ErenKatsukagi @Twitter", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_10";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Sword in pile:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_10§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("LowSeb @Sketchfab", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_11";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Tomb:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_11§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("persnetto @Sketchfab", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_111";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Torch:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_111§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Kigha @Sketchfab", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_12";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Tree:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_12§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("v124entkl @Sketchfab", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_13";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Wooden barrel:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_13§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("BatuhanOZER @Turbosquid", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_models_14";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Zombie:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_models_14§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("cypler @Sketchfab", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+
+
+
+
+
 /*
 
 Sorted
 
-Anvil
-Chandelier
-OutdoorFloor
-Palisade
-Pebble Texture
-Pillar
-Shop Goblin
-Skulls
-Statue
-Stonewalls
-Swordpile
-Tomb
-Tree
-Wooden barrel
-Zombie
+Ingame ambient sound:  phlair @freesound
+Ingame music:          mrrap4food @freesound
+Melee attack:          Zapsplat
+Player sounds:         SkyRaeVoicing @freesound
+Range attack:          Zapsplat
+Shop music:            Darkash28 @freesound
+Spider attack:         Infinity PBR
+Spider crawl:          dasrealized @freesound
+Zombie Sounds:         Infinity PBR
 
 */
-
-    // thirdparty_models_0
-    y += y_small;
-    name = "thirdparty_models_0";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Anvil", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_1
-    y += y_small;
-    name = "thirdparty_models_1";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Chandelier", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_2
-    y += y_small;
-    name = "thirdparty_models_2";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Outdoor floor", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_3
-    y += y_small;
-    name = "thirdparty_models_3";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Palisade", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_4
-    y += y_small;
-    name = "thirdparty_models_4";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Pebble texture", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_5
-    y += y_small;
-    name = "thirdparty_models_5";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Pillar", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_6
-    y += y_small;
-    name = "thirdparty_models_6";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Shop goblin", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_7
-    y += y_small;
-    name = "thirdparty_models_7";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Skulls", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_8
-    y += y_small;
-    name = "thirdparty_models_8";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Statue", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_9
-    y += y_small;
-    name = "thirdparty_models_9";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Stone walls", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_10
-    y += y_small;
-    name = "thirdparty_models_10";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Sword pile", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_11
-    y += y_small;
-    name = "thirdparty_models_11";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Tomb", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_12
-    y += y_small;
-    name = "thirdparty_models_12";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Tree", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_13
-    y += y_small;
-    name = "thirdparty_models_13";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Wooden barrel", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-
-    // thirdparty_models_14
-    y += y_small;
-    name = "thirdparty_models_14";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Zombie", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
 
     // thirdparty_sounds
     y += y_small;
@@ -1072,53 +1228,105 @@ Zombie
     guic->GetTextManager()->SetText("Sounds", name);
     guic->GetTextManager()->SetPos({ 0.5, y }, name);
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
-    
-/*
 
-Sorted
-
-Ingame music
-Melee attack
-Player grunt
-Range attack
-Spider crawl
-
-*/
-
-    // thirdparty_sounds_0
     y += y_small;
     name = "thirdparty_sounds_0";
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Ingame music", name);
+    guic->GetTextManager()->SetText("Ingame ambient sound: ", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
 
-    // thirdparty_sounds_1
+    name = "thirdparty_sounds_0§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("phlair @freesound", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_sounds_01";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Ingame music:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_sounds_01§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("mrrap4food @freesound", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
     y += y_small;
     name = "thirdparty_sounds_1";
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Melee attack", name);
+    guic->GetTextManager()->SetText("Melee attack:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
 
-    // thirdparty_sounds_2
+    name = "thirdparty_sounds_1§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Zapsplat", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
     y += y_small;
     name = "thirdparty_sounds_2";
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Player grunt", name);
+    guic->GetTextManager()->SetText("Player sounds:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
 
-    // thirdparty_sounds_3
+    name = "thirdparty_sounds_2§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("SkyRaeVoicing @freesound", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
     y += y_small;
     name = "thirdparty_sounds_3";
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Range attack", name);
+    guic->GetTextManager()->SetText("Range attack:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
 
-    // thirdparty_sounds_4
+    name = "thirdparty_sounds_3§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Zapsplat", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_sounds_31";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Shop music:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_sounds_31§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Darkash28 @freesound", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
     y += y_small;
     name = "thirdparty_sounds_4";
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Spider crawl", name);
+    guic->GetTextManager()->SetText("Spider attack:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_sounds_4§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Infinity PBR", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_sounds_5";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Spider crawl:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_sounds_5§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("dasrealized @freesound", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
+
+    y += y_small;
+    name = "thirdparty_sounds_6";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Zombie Sounds:", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+
+    name = "thirdparty_sounds_6§";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Infinity PBR", name);
+    guic->GetTextManager()->SetPos({ x_author, y }, name);
 
 
 
@@ -1619,7 +1827,8 @@ void MainMenuUpdateScene(SceneManager* sm, double dt)
     //rotValue += dt;
 }
 
-static float2 totalScroll = { 0.0f, 0.0f };
+static float totalScrollY = 0;
+
 void CreditsUpdateScene(SceneManager* sm, double dt)
 {
     Scene* creditsScene = sm->GetActiveScene();
@@ -1627,21 +1836,19 @@ void CreditsUpdateScene(SceneManager* sm, double dt)
     Entity* text = creditsScene->GetEntity("ScrollingText");
     component::GUI2DComponent* comp = text->GetComponent<component::GUI2DComponent>();
 
-    const float2 scrollSpeed = { 0, -0.5 }; // -0.2
+    const float scrollSpeed = -0.2; // -0.2
+    float frameYChange = scrollSpeed * dt;
+    totalScrollY += frameYChange;
 
     auto map = comp->GetTextManager()->GetTextDataMap();
-
-    totalScroll.x += scrollSpeed.x * dt;
-    totalScroll.y += scrollSpeed.y * dt;
-
     auto it = map->begin();
     while (it != map->end())
     {
         std::string name = (*it).first;
 
         float2 oldPos = comp->GetTextManager()->GetTextData(name)->pos;
-        float2 frameChange = { scrollSpeed.x * dt, scrollSpeed.y * dt };
-        comp->GetTextManager()->SetPos(oldPos + frameChange, name);
+
+        comp->GetTextManager()->SetPos({ oldPos.x, oldPos.y + frameYChange }, name);
 
         it++;
     }
@@ -1654,19 +1861,20 @@ void ResetCreditsScene(SceneManager* sm)
     Entity* text = creditsScene->GetEntity("ScrollingText");
     component::GUI2DComponent* comp = text->GetComponent<component::GUI2DComponent>();
 
-    auto map = comp->GetTextManager()->GetTextDataMap();
+    float frameYChange = -totalScrollY;
 
+    auto map = comp->GetTextManager()->GetTextDataMap();
     auto it = map->begin();
     while (it != map->end())
     {
         std::string name = (*it).first;
 
         float2 oldPos = comp->GetTextManager()->GetTextData(name)->pos;
-        float2 frameChange = { -totalScroll.x, -totalScroll.y };
-        comp->GetTextManager()->SetPos(oldPos + frameChange, name);
+        
+        comp->GetTextManager()->SetPos({ oldPos.x, oldPos.y + frameYChange }, name);
 
         it++;
     }
 
-    totalScroll = { 0, 0 };
+    totalScrollY = 0;
 }
