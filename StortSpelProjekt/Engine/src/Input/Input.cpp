@@ -616,18 +616,21 @@ void Input::ReadControllerInput(double dt)
 
 		if (useMouse)
 		{
-			move.x = (axisArray.at(1) - 0.5);
-			move.y = -(axisArray.at(0) - 0.5);
-
-			if (std::abs(move.x) > 0.2f || std::abs(move.y) > 0.2f)
+			if (axisArray.at(0) > EPSILON || axisArray.at(1) > EPSILON)
 			{
-				POINT cursorPos;
-				GetCursorPos(&cursorPos);
+				move.x = (axisArray.at(1) - 0.5);
+				move.y = -(axisArray.at(0) - 0.5);
 
-				cursorPos.x += move.x * 1000.0 * dt;
-				cursorPos.y += move.y * 1000.0 * dt;
+				if (std::abs(move.x) > 0.2f || std::abs(move.y) > 0.2f)
+				{
+					POINT cursorPos;
+					GetCursorPos(&cursorPos);
 
-				SetCursorPos(cursorPos.x, cursorPos.y);
+					cursorPos.x += move.x * 1000.0 * dt;
+					cursorPos.y += move.y * 1000.0 * dt;
+
+					SetCursorPos(cursorPos.x, cursorPos.y);
+				}
 			}
 		}
 	}
