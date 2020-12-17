@@ -932,25 +932,6 @@ void MainMenuHandler::createCreditsScene()
 
 
 
-    /*
-    // trailer
-    y += y_big;
-    name = "trailer";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Trailer", name);
-    guic->GetTextManager()->SetPos({ 0.5, y }, name);
-    guic->GetTextManager()->SetScale({ size_big, size_big }, name);
-
-    // trailer_0
-    y += y_after_big;
-    name = "trailer_0";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText(ournames[1], name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
-    */
-
-
 
 
 
