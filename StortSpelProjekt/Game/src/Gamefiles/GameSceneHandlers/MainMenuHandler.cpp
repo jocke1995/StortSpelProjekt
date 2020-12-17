@@ -618,7 +618,8 @@ void MainMenuHandler::createCreditsScene()
     float y_small = 0.06;
 
     float size_big = 1.15;
-    float size_small = 1;
+    float size_medium = 0.8;
+    float size_small = 0.5;
 
     std::string name = "";
 
@@ -658,6 +659,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("This game is a school project made during 2020-09-01 to 2020-12-18", name);
     guic->GetTextManager()->SetPos({ 0.18, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
 
 
@@ -678,6 +680,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText( ournames[0], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // ournames_1
     name = "ournames_1";
@@ -685,6 +688,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[1], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // ournames_2
     name = "ournames_2";
@@ -692,6 +696,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[2], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // ournames_3
     name = "ournames_3";
@@ -699,6 +704,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[3], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // ournames_4
     name = "ournames_4";
@@ -706,6 +712,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[4], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // ournames_5
     name = "ournames_5";
@@ -713,6 +720,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[5], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // ournames_6
     name = "ournames_6";
@@ -720,6 +728,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[6], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // ournames_7
     name = "ournames_7";
@@ -727,6 +736,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[7], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // ournames_8
     name = "ournames_8";
@@ -734,6 +744,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[8], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // ournames_9
     name = "ournames_9";
@@ -741,6 +752,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[9], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
 
 
@@ -754,11 +766,12 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // rendering_0
-    y += y_small;
+    y += y_after_big;
     name = "rendering_0";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[3], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // rendering_1
     y += y_small;
@@ -766,6 +779,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[6], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
 
 
@@ -778,11 +792,12 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // gamedesign_0
-    y += y_small;
+    y += y_after_big;
     name = "gamedesign_0";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[1], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // gamedesign_1
     y += y_small;
@@ -790,6 +805,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[2], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // gamedesign_2
     y += y_small;
@@ -797,6 +813,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[4], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // gamedesign_3
     y += y_small;
@@ -804,6 +821,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[9], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
 
 
@@ -819,11 +837,12 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // audio_0
-    y += y_small;
+    y += y_after_big;
     name = "audio_0";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[0], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // audio_1
     y += y_small;
@@ -831,6 +850,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[5], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // audio_2
     y += y_small;
@@ -838,6 +858,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[8], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
 
 
@@ -853,11 +874,28 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // art_0
-    y += y_small;
+    y += y_after_big;
     name = "art_0";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[1], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
+
+    // art_1
+    y += y_small;
+    name = "art_1";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText(ournames[3], name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
+
+    // art_2
+    y += y_small;
+    name = "art_2";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText(ournames[4], name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
 
 
@@ -874,11 +912,12 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // leveldesign_0
-    y += y_small;
+    y += y_after_big;
     name = "leveldesign_0";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[4], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
 
 
@@ -894,11 +933,12 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // trailer_0
-    y += y_small;
+    y += y_after_big;
     name = "trailer_0";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[1], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
 
 
@@ -914,11 +954,12 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // specialthanks_0
-    y += y_small;
+    y += y_after_big;
     name = "specialthanks_0";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Hans Tap", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // specialthanks_1
     y += y_small;
@@ -926,6 +967,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Stefan Petersson", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // specialthanks_2
     y += y_small;
@@ -933,6 +975,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Erik Wadstein", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     // specialthanks_3
     y += y_small;
@@ -940,6 +983,7 @@ void MainMenuHandler::createCreditsScene()
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Blekinges Tekniska Högskola", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
 
 
@@ -984,221 +1028,259 @@ Zombie:                cypler @Sketchfab
 */
 
     // thirdparty_models
-    y += y_small;
+    y += y_big;
     name = "thirdparty_models";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Models", name);
     guic->GetTextManager()->SetPos({ 0.5, y }, name);
-    guic->GetTextManager()->SetScale({ size_big, size_big }, name);
+    guic->GetTextManager()->SetScale({ size_medium, size_medium }, name);
 
-    y += y_small;
+    y += y_after_big;
     name = "thirdparty_models_0";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Anvil:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_0§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("seenoise @Sketchfab", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_01";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Brazier:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_01§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("persnetto @Sketchfab", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_1";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Chandelier:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_1§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Kevin.Popescu @Sketchfab", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
-    name = "thirdparty_models_11";
+    name = "thirdparty_models_1100";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Demon:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
-    name = "thirdparty_models_11§";
+    name = "thirdparty_models_1100§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Infinity PBR", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_2";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Outdoor floor:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_2§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("ErenKatsukagi @Twitter", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_3";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Palisade:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_3§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("adam127 @Sketchfab", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_4";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Pebble texture:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_4§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("ErenKatsukagi @Twitter", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_5";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Player:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_5§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Infinity PBR", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_6";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Shop goblin:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_6§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Batuhan13 @Sketchfab", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_7";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Skulls:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_7§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Abimael Gonzalez @Sketchfab", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_71";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Spider:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_71§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Infinity PBR", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_8";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Statue:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_8§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Arodin @Sketchfab", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_9";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Stone walls:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_9§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("ErenKatsukagi @Twitter", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_10";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Sword in pile:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_10§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("LowSeb @Sketchfab", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_11";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Tomb:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_11§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("persnetto @Sketchfab", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_111";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Torch:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_111§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Kigha @Sketchfab", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_12";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Tree:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_12§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("v124entkl @Sketchfab", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_13";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Wooden barrel:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_13§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("BatuhanOZER @Turbosquid", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_models_14";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Zombie:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_models_14§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("cypler @Sketchfab", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
 
 
@@ -1222,111 +1304,129 @@ Zombie Sounds:         Infinity PBR
 */
 
     // thirdparty_sounds
-    y += y_small;
+    y += y_big;
     name = "thirdparty_sounds";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Sounds", name);
     guic->GetTextManager()->SetPos({ 0.5, y }, name);
-    guic->GetTextManager()->SetScale({ size_big, size_big }, name);
+    guic->GetTextManager()->SetScale({ size_medium, size_medium }, name);
 
-    y += y_small;
+    y += y_after_big;
     name = "thirdparty_sounds_0";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Ingame ambient sound: ", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_sounds_0§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("phlair @freesound", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_sounds_01";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Ingame music:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_sounds_01§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("mrrap4food @freesound", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_sounds_1";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Melee attack:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_sounds_1§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Zapsplat", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_sounds_2";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Player sounds:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_sounds_2§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("SkyRaeVoicing @freesound", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_sounds_3";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Range attack:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_sounds_3§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Zapsplat", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_sounds_31";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Shop music:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_sounds_31§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Darkash28 @freesound", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_sounds_4";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Spider attack:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_sounds_4§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Infinity PBR", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_sounds_5";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Spider crawl:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_sounds_5§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("dasrealized @freesound", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     y += y_small;
     name = "thirdparty_sounds_6";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Zombie Sounds:", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
     name = "thirdparty_sounds_6§";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Infinity PBR", name);
     guic->GetTextManager()->SetPos({ x_author, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
 
 
