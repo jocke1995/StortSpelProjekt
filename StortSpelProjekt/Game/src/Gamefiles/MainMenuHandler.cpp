@@ -942,6 +942,15 @@ void onBox(const std::string& name)
 	Option::GetInstance().SetVariable("i_music", std::to_string(!active));
 	Option::GetInstance().WriteFile();
 
+    if (std::atof(Option::GetInstance().GetVariable("i_music").c_str()))
+    {
+        SceneManager::GetInstance().GetActiveScene()->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>()->Play(L"MenuMusic");
+    }
+    else
+    {
+        SceneManager::GetInstance().GetActiveScene()->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>()->Stop(L"MenuMusic");
+    }
+    
 	float4 blended = { 1.0, 1.0, 1.0, 1.0 };
 	if (active)
 	{
