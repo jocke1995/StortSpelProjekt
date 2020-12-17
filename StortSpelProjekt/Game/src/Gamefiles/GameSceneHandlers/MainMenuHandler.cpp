@@ -602,6 +602,7 @@ void MainMenuHandler::createCreditsScene()
 
 
 
+
     /////////////////////////////////////////////
     // Scrolling Text
     /////////////////////////////////////////////
@@ -645,7 +646,7 @@ void MainMenuHandler::createCreditsScene()
     name = "hellloop";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Hell Loop", name);
-    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+    guic->GetTextManager()->SetPos({ 0.415, y }, name);
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
 
@@ -657,7 +658,7 @@ void MainMenuHandler::createCreditsScene()
     name = "project";
     y += y_big;
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("This game is a school project made during 2020-09-01 to 2020-12-18", name);
+    guic->GetTextManager()->SetText("This game is a university project made during 2020-09-01 to 2020-12-18", name);
     guic->GetTextManager()->SetPos({ 0.18, y }, name);
     guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
@@ -671,7 +672,7 @@ void MainMenuHandler::createCreditsScene()
     y += y_big;
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Programmers", name);
-    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+    guic->GetTextManager()->SetPos({ 0.36, y }, name);
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // ournames_0
@@ -762,7 +763,7 @@ void MainMenuHandler::createCreditsScene()
     name = "rendering";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Rendering Programmers", name);
-    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+    guic->GetTextManager()->SetPos({ 0.25, y }, name);
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // rendering_0
@@ -777,6 +778,14 @@ void MainMenuHandler::createCreditsScene()
     y += y_small;
     name = "rendering_1";
     guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText(ournames[4], name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
+
+    // rendering_2
+    y += y_small;
+    name = "rendering_2";
+    guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText(ournames[6], name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
     guic->GetTextManager()->SetScale({ size_small, size_small }, name);
@@ -788,7 +797,7 @@ void MainMenuHandler::createCreditsScene()
     name = "gamedesign";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Game Design", name);
-    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+    guic->GetTextManager()->SetPos({ 0.37, y }, name);
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // gamedesign_0
@@ -833,7 +842,7 @@ void MainMenuHandler::createCreditsScene()
     name = "audio";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Audio", name);
-    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+    guic->GetTextManager()->SetPos({ 0.445, y }, name);
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // audio_0
@@ -870,7 +879,7 @@ void MainMenuHandler::createCreditsScene()
     name = "art";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Art", name);
-    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+    guic->GetTextManager()->SetPos({ 0.47, y }, name);
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // art_0
@@ -908,7 +917,7 @@ void MainMenuHandler::createCreditsScene()
     name = "leveldesign";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Level Design", name);
-    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+    guic->GetTextManager()->SetPos({ 0.38, y }, name);
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
     // leveldesign_0
@@ -950,12 +959,20 @@ void MainMenuHandler::createCreditsScene()
     name = "specialthanks";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Special Thanks", name);
-    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+    guic->GetTextManager()->SetPos({ 0.36, y }, name);
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
-    // specialthanks_0
+    // specialthanks_2
     y += y_after_big;
     name = "specialthanks_0";
+    guic->GetTextManager()->AddText(name);
+    guic->GetTextManager()->SetText("Erik Wadstein", name);
+    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
+    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
+
+    // specialthanks_0
+    y += y_small;
+    name = "specialthanks_1";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Hans Tap", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
@@ -963,17 +980,9 @@ void MainMenuHandler::createCreditsScene()
 
     // specialthanks_1
     y += y_small;
-    name = "specialthanks_1";
-    guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Stefan Petersson", name);
-    guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
-    guic->GetTextManager()->SetScale({ size_small, size_small }, name);
-
-    // specialthanks_2
-    y += y_small;
     name = "specialthanks_2";
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Erik Wadstein", name);
+    guic->GetTextManager()->SetText("Stefan Petersson", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
     guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
@@ -981,7 +990,7 @@ void MainMenuHandler::createCreditsScene()
     y += y_small;
     name = "specialthanks_3";
     guic->GetTextManager()->AddText(name);
-    guic->GetTextManager()->SetText("Blekinges Tekniska Högskola", name);
+    guic->GetTextManager()->SetText("Blekinge Institute of Technology", name);
     guic->GetTextManager()->SetPos({ x_leftmost, y }, name);
     guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
@@ -997,7 +1006,7 @@ void MainMenuHandler::createCreditsScene()
     name = "thirdparty";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Third Party", name);
-    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+    guic->GetTextManager()->SetPos({ 0.385, y }, name);
     guic->GetTextManager()->SetScale({ size_big, size_big }, name);
 
 
@@ -1032,7 +1041,7 @@ Zombie:                cypler @Sketchfab
     name = "thirdparty_models";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Models", name);
-    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+    guic->GetTextManager()->SetPos({ 0.45, y }, name);
     guic->GetTextManager()->SetScale({ size_medium, size_medium }, name);
 
     y += y_after_big;
@@ -1308,7 +1317,7 @@ Zombie Sounds:         Infinity PBR
     name = "thirdparty_sounds";
     guic->GetTextManager()->AddText(name);
     guic->GetTextManager()->SetText("Sounds", name);
-    guic->GetTextManager()->SetPos({ 0.5, y }, name);
+    guic->GetTextManager()->SetPos({ 0.45, y }, name);
     guic->GetTextManager()->SetScale({ size_medium, size_medium }, name);
 
     y += y_after_big;
@@ -1937,7 +1946,6 @@ void CreditsUpdateScene(SceneManager* sm, double dt)
     totalScrollY += frameYChange;
 
     const float resetYOn = -8;
-    Log::Print("%f\n", totalScrollY);
     if (totalScrollY < resetYOn)
     {
         ResetCreditsScene(sm);
