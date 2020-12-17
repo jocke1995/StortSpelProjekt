@@ -418,9 +418,9 @@ void Input::ReadControllerInput(double dt)
 		}
 
 		// Axis 2 is horizontal movement of right joystick. Axis 5 is vertical movement of right joystick
-		float3 move = { 15 * (axisArray.at(2) - 0.5), 7.5 * (axisArray.at(5) - 0.5), 0.0f };
+		float3 move = { 30 * (axisArray.at(2) - 0.5), 15 * (axisArray.at(5) - 0.5), 0.0f };
 
-		if (std::abs(move.x) > 0.9f || std::abs(move.y) > 0.9f)
+		if (std::abs(move.x) > 1.8f || std::abs(move.y) > 1.8f)
 		{
 			EventBus::GetInstance().Publish(&MouseMovement(move.x, move.y));
 		}
@@ -607,9 +607,9 @@ void Input::ReadControllerInput(double dt)
 		}
 
 		// Axis 2 is horizontal movement of right joystick. Axis 5 is vertical movement of right joystick
-		float3 move = { 15 * (axisArray.at(3) - 0.5), -7.5 * (axisArray.at(2) - 0.5), 0.0f };
+		float3 move = { 30 * (axisArray.at(3) - 0.5), -15 * (axisArray.at(2) - 0.5), 0.0f };
 
-		if (std::abs(move.x) > 1.5f || std::abs(move.y) > 1.5f)
+		if (std::abs(move.x) > 3.0f || std::abs(move.y) > 3.0f)
 		{
 			EventBus::GetInstance().Publish(&MouseMovement(move.x, move.y));
 		}
