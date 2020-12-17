@@ -92,6 +92,11 @@ void UpgradeExplosiveAttack::OnRangedHit(Entity* target, Entity* projectile)
 	particleEntity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 	particleEntity->GetComponent<component::ParticleEmitterComponent>()->OnInitScene();
 	particleEntity->AddComponent<component::TemporaryLifeComponent>(1.0);
+	component::Audio3DEmitterComponent* aec = particleEntity->AddComponent<component::Audio3DEmitterComponent>();
+	aec->AddVoice(L"ExplosionSound");
+	aec->OnInitScene();
+	aec->UpdateEmitter(L"ExplosionSound");
+	aec->Play(L"ExplosionSound");
 }
 
 void UpgradeExplosiveAttack::ApplyBoughtUpgrade()
