@@ -44,26 +44,29 @@ void Input::RegisterDevices(const HWND* hWnd)
 
 void Input::RegisterControllers()
 {
-	if (RawGameController::RawGameControllers().Size() > 0 && m_RawGameControllers.size() < 1)
+	if (RawGameController::RawGameControllers().Size() > 0)
 	{
-		for (auto const& rawGameController : RawGameController::RawGameControllers())
+		if (m_RawGameControllers.size() < 1)
 		{
-			// Test whether the raw game controller is already in m_RawGameControllers; if it isn't, add it.
-			concurrency::critical_section::scoped_lock lock{ m_ControllerLock };
-			auto it{ std::find(begin(m_RawGameControllers), end(m_RawGameControllers), rawGameController) };
-
-			if (it == end(m_RawGameControllers))
+			for (auto const& rawGameController : RawGameController::RawGameControllers())
 			{
-				// This code assumes that you're interested in all raw game controllers.
-				m_RawGameControllers.push_back(rawGameController);
-			}
-		}
+				// Test whether the raw game controller is already in m_RawGameControllers; if it isn't, add it.
+				concurrency::critical_section::scoped_lock lock{ m_ControllerLock };
+				auto it{ std::find(begin(m_RawGameControllers), end(m_RawGameControllers), rawGameController) };
 
-		m_pMainController = &m_RawGameControllers.at(0);
-		m_ControllerButtonCount = m_pMainController->ButtonCount();
-		m_ControllerAxisCount = m_pMainController->AxisCount();
-		m_ControllerSwitchCount = m_pMainController->SwitchCount();
-		Log::Print("%d, %d\n", m_pMainController->HardwareVendorId(), m_pMainController->HardwareProductId());
+				if (it == end(m_RawGameControllers))
+				{
+					// This code assumes that you're interested in all raw game controllers.
+					m_RawGameControllers.push_back(rawGameController);
+				}
+			}
+
+			m_pMainController = &m_RawGameControllers.at(0);
+			m_ControllerButtonCount = m_pMainController->ButtonCount();
+			m_ControllerAxisCount = m_pMainController->AxisCount();
+			m_ControllerSwitchCount = m_pMainController->SwitchCount();
+			Log::Print("%d, %d\n", m_pMainController->HardwareVendorId(), m_pMainController->HardwareProductId());
+		}
 		if (m_pMainController->HardwareVendorId() == 1356)	// Dualshock controller
 		{
 			m_pControllerType = CONTROLLER_TYPE::DUALSHOCK;
@@ -154,6 +157,10 @@ void Input::SetMouseButtonState(MOUSE_BUTTON button, bool pressed)
 	switch (pressed) {
 	case true:
 		EventBus::GetInstance().Publish(&MouseClick(button, pressed));
+		if (SceneManager::GetInstance().GetActiveScene()->GetName() == "MainMenuScene")
+		{
+			m_pControllerType = CONTROLLER_TYPE::NONE;
+		}
 		break;
 	case false:
 		EventBus::GetInstance().Publish(&MouseRelease(button, pressed));
