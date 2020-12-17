@@ -499,7 +499,7 @@ ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
 Submit Model
-Submit CollisionCube 3.0, 4.0, 3.5
+Submit CollisionCube 2.8, 4.0, 3.3
 
 // Vases
 Name Vase1

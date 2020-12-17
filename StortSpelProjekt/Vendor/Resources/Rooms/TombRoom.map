@@ -501,6 +501,7 @@ ModelDrawFlag 5, 1
 ModelMass 0.0
 ModelFriction 1.0
 ModelRestitution 0.0
+ShrinkBoundingBox 1.4, 1.0, 1.4
 Submit Model
 Submit CollisionCube 0.4, 0.4, 0.7
 
