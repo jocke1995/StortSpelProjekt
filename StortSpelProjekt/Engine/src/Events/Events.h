@@ -19,8 +19,8 @@ struct MovementInput : public Event
 
 struct MouseMovement : public Event
 {
-	MouseMovement(int x, int y) : x{ x }, y{ y } {};
-	int x, y;
+	MouseMovement(float x, float y) : x{ x }, y{ y } {};
+	float x, y;
 };
 
 struct MouseClick : public Event

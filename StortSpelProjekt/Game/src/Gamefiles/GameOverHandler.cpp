@@ -14,6 +14,8 @@ void onGameOverSceneInit(Scene*);
 void onMainMenu(const std::string& name);
 // Declared in "MainMenuHandler.cpp".
 void onExit(const std::string& name);
+void MenuUpdateScene(SceneManager* sm, double dt);
+
 GameOverHandler& GameOverHandler::GetInstance()
 {
     static GameOverHandler instance;
@@ -109,6 +111,7 @@ Scene* GameOverHandler::CreateScene(SceneManager* sm)
 #pragma endregion
 
     scene->SetOnInit(&onGameOverSceneInit);
+    scene->SetUpdateScene(&MenuUpdateScene);
 
     m_pSceneManager = sm;
     m_pScene = scene;

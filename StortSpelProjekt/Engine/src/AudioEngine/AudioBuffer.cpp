@@ -180,8 +180,6 @@ void AudioBuffer::OpenFile(IXAudio2* pXAudio2, const std::wstring& path)
     m_pSourceVoice->FlushSourceBuffers();
     m_pSourceVoice->SubmitSourceBuffer(&m_Buffer);
 
-    m_pSourceVoice->SetVolume(std::atof(Option::GetInstance().GetVariable("f_volume").c_str()));
-
     CloseHandle(hFile);
 
     remove("DecryptedWav.wav");

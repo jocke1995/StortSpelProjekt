@@ -1,4 +1,5 @@
 #include "AudioEngine.h"
+#include "../Misc/Option.h"
 
 AudioEngine::AudioEngine()
 {
@@ -24,6 +25,8 @@ AudioEngine::AudioEngine()
 	// debug info
 	//m_AudioDebugInfo.TraceMask = XAUDIO2_LOG_ERRORS;
 	m_pXAudio2->SetDebugConfiguration(&m_AudioDebugInfo);
+
+	m_pMasterVoice->SetVolume(std::atof(Option::GetInstance().GetVariable("f_masterVolume").c_str()));;
 }
 
 AudioEngine& AudioEngine::GetInstance()
@@ -66,4 +69,9 @@ void AudioEngine::SetListenerPtr(X3DAUDIO_LISTENER* listener)
 X3DAUDIO_LISTENER* AudioEngine::GetListener()
 {
 	return m_pListener;
+}
+
+void AudioEngine::ChangeMasterVolume(float vol)
+{
+	m_pMasterVoice->SetVolume(vol);
 }

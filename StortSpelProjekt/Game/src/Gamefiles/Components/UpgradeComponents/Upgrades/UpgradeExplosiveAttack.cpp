@@ -63,13 +63,13 @@ void UpgradeExplosiveAttack::OnRangedHit(Entity* target, Entity* projectile)
 	}
 
 	ParticleEffectSettings settings = {};
-	settings.maxParticleCount = 50;
+	settings.maxParticleCount = 200;
 	settings.spawnInterval = 0.001;
 	settings.isLooping = true;
 
 	// Start values
-	settings.startValues.position = { 0, 0.0, 0 };
-	settings.startValues.acceleration = { 0, -3.0, 0 };
+	settings.startValues.position = { 0, 0, 0 };
+	settings.startValues.acceleration = { 0, 0, 0 };
 	settings.startValues.lifetime = 1.0;
 	settings.startValues.size = 0.4f * m_Radius / 10.0f;
 
@@ -79,15 +79,25 @@ void UpgradeExplosiveAttack::OnRangedHit(Entity* target, Entity* projectile)
 
 	// Randomize values
 	settings.randPosition = { 0,0,0,0,0,0 };
-	settings.randVelocity = { -m_Radius, m_Radius, -m_Radius, m_Radius, -m_Radius, m_Radius };
+	settings.randVelocity = { -m_Radius/sqrtf(3), m_Radius/sqrtf(3), -m_Radius / sqrtf(3), m_Radius / sqrtf(3), -m_Radius / sqrtf(3), m_Radius / sqrtf(3) };
 	settings.randSize = { -0.2f * m_Radius / 10.0f, 0 };
 	settings.randRotation = { 0, 2 * PI };
 	settings.randRotationSpeed = { -PI / 2, PI / 2 };
 
-	settings.texture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/shrapnel_particle.png"));
-	Entity* particleEntity = SceneManager::GetInstance().GetActiveScene()->AddEntity("explosionParticle" + std::to_string(m_ParticleCounter++));
+	settings.texture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/Explosion.png"));
+
+
+	Entity*  particleEntity = SceneManager::GetInstance().GetActiveScene()->AddEntity("explosionParticle" + std::to_string(m_ParticleCounter++));
 	component::TransformComponent* transform = particleEntity->AddComponent<component::TransformComponent>();
 	float3 position = projectile->GetComponent<component::TransformComponent>()->GetTransform()->GetPositionFloat3();
+	transform->GetTransform()->SetPosition(position.x, position.y, position.z);
+	particleEntity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
+	particleEntity->GetComponent<component::ParticleEmitterComponent>()->OnInitScene();
+	particleEntity->AddComponent<component::TemporaryLifeComponent>(1.0);
+
+	settings.texture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/player_magic.png"));
+	particleEntity = SceneManager::GetInstance().GetActiveScene()->AddEntity("explosionMagicParticle" + std::to_string(m_ParticleCounter++));
+	transform = particleEntity->AddComponent<component::TransformComponent>();
 	transform->GetTransform()->SetPosition(position.x, position.y, position.z);
 	particleEntity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 	particleEntity->GetComponent<component::ParticleEmitterComponent>()->OnInitScene();

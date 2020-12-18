@@ -46,8 +46,8 @@ void component::Audio2DVoiceComponent::AddVoice(const std::wstring& name)
 		if (clonedVoice.GetSourceVoice() != nullptr)
 		{
 			m_Voices.insert(std::make_pair(name, AssetLoader::Get()->GetAudio(name)->CloneVoice()));
-			// Lower the volume of background sound, so 3d sound can be heard in test scene.
-			m_Voices[name].GetSourceVoice()->SetVolume(std::atof(Option::GetInstance().GetVariable("f_backgroundVolume").c_str()));
+			// Lower the volume of background sounds, so it doesn't drown out 3d sounds
+			m_Voices[name].GetSourceVoice()->SetVolume(VOLUME2D);
 		}
 	}
 }
