@@ -569,8 +569,8 @@ void MainMenuHandler::createHowToPlayScene()
 
     Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Back.png");
     Texture* mouse = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/mouseArrow.png");
-    Texture* buttons = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/buttonsArrow2.png");
-    Texture* controller = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/Controller2.png");
+    Texture* buttons = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/buttonsArrow.png");
+    Texture* controller = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/Controller.png");
     Texture* controlls = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/Controlls.png");
     Texture* background = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Background.png");
 
