@@ -16,6 +16,8 @@ namespace component
 		virtual ~EnemyComponent();
 
 		void Update(double dt);
+		void RenderUpdate(double dt);
+
 		void OnInitScene();
 		void OnUnInitScene();
 		void SetRandSeed(unsigned long seed);
