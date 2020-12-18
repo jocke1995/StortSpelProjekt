@@ -94,6 +94,11 @@ void UpgradeExplosiveAttack::OnRangedHit(Entity* target, Entity* projectile)
 	particleEntity->AddComponent<component::ParticleEmitterComponent>(&settings, true);
 	particleEntity->GetComponent<component::ParticleEmitterComponent>()->OnInitScene();
 	particleEntity->AddComponent<component::TemporaryLifeComponent>(1.0);
+	component::Audio3DEmitterComponent* aec = particleEntity->AddComponent<component::Audio3DEmitterComponent>();
+	aec->AddVoice(L"ExplosionSound");
+	aec->OnInitScene();
+	aec->UpdateEmitter(L"ExplosionSound");
+	aec->Play(L"ExplosionSound");
 
 	settings.texture = static_cast<Texture2DGUI*>(AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/Particles/player_magic.png"));
 	particleEntity = SceneManager::GetInstance().GetActiveScene()->AddEntity("explosionMagicParticle" + std::to_string(m_ParticleCounter++));
