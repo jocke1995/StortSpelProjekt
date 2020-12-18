@@ -571,7 +571,7 @@ void MainMenuHandler::createHowToPlayScene()
     Texture* mouse = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/mouseArrow.png");
     Texture* buttons = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/buttonsArrow.png");
     Texture* controller = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/Controller.png");
-    Texture* controlls = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/Controlls.png");
+    Texture* controls = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/Controls.png");
     Texture* background = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Background.png");
 
     Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
@@ -643,17 +643,17 @@ void MainMenuHandler::createHowToPlayScene()
         { 1.0,1.0,1.0,1.0 },
         controller);
 
-    entity = m_pHowToPlayScene->AddEntity("Controlls");
+    entity = m_pHowToPlayScene->AddEntity("Controls");
     guic = entity->AddComponent<component::GUI2DComponent>();
     guic->GetQuadManager()->CreateQuad(
-        "Controlls",
+        "Controls",
         { 0.35f, 0.15f },
-        { (float)((float)controlls->GetWidth() / 1920.0f) / 1.f, (float)((float)controlls->GetHeight() / 1080.0f) / 1.f },
+        { (float)((float)controls->GetWidth() / 1920.0f) / 1.f, (float)((float)controls->GetHeight() / 1080.0f) / 1.f },
         false,
         false,
         2,
         { 1.0,1.0,1.0,1.0 },
-        controlls);    
+        controls);    
 
     /*-------------Back--------------*/
    

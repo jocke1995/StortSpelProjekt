@@ -145,10 +145,7 @@ void Input::SetKeyState(SCAN_CODES key, bool pressed)
 			ShowCursor(m_IsPaused);
 		}
 	}
-	else if (DEVELOPERMODE_FREECAM && key == SCAN_CODES::LEFT_CTRL && justPressed && !m_IsPaused)
-	{
-		EventBus::GetInstance().Publish(&ModifierInput(key, pressed));
-	}
+
 }
 
 void Input::SetMouseButtonState(MOUSE_BUTTON button, bool pressed)
