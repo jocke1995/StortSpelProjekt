@@ -570,8 +570,6 @@ void MainMenuHandler::createHowToPlayScene()
     Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Back.png");
     Texture* mouse = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/mouseArrow.png");
     Texture* buttons = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/buttonsArrow2.png");
-    Texture* mouseAndKeyboard = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/MouseAndKeyboard.png");
-    Texture* controllerText = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/Controller.png");
     Texture* controller = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/Controller2.png");
     Texture* controlls = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/Controlls.png");
     Texture* background = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Background.png");
@@ -608,20 +606,6 @@ void MainMenuHandler::createHowToPlayScene()
     TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
     sbc->SetTexture(blackCubeMap);
 
-    /*------------Brightness------------*/
-
-    //entity = m_pHowToPlayScene->AddEntity("Butttons");
-    //quadPos = { 0.0f, 0.0f };
-    //quadScale = { 1.0f, 1.0f };
-    //notBlended = { 1.0, 1.0, 1.0, 1.0 };
-    //guic = entity->AddComponent<component::GUI2DComponent>();
-    //guic->GetQuadManager()->CreateQuad(
-    //    "Buttons",
-    //    quadPos, quadScale,
-    //    false, false,
-    //    0,
-    //    notBlended,
-    //    buttons);
 
     entity = m_pHowToPlayScene->AddEntity("Buttons");
     guic = entity->AddComponent<component::GUI2DComponent>();
@@ -669,44 +653,7 @@ void MainMenuHandler::createHowToPlayScene()
         false,
         2,
         { 1.0,1.0,1.0,1.0 },
-        controlls);
-
-    //entity = m_pHowToPlayScene->AddEntity("ControllerText");
-    //guic = entity->AddComponent<component::GUI2DComponent>();
-    //guic->GetQuadManager()->CreateQuad(
-    //    "ControllerText",
-    //    { 0.65f, 0.25f },
-    //    { (float)((float)controllerText->GetWidth() / 1920.0f) / 1.f, (float)((float)controllerText->GetHeight() / 1080.0f) / 1.f },
-    //    false,
-    //    false,
-    //    2,
-    //    { 1.0,1.0,1.0,1.0 },
-    //    controllerText); 
-
-    //entity = m_pHowToPlayScene->AddEntity("MouseAndKeyboard");
-    //guic = entity->AddComponent<component::GUI2DComponent>();
-    //guic->GetQuadManager()->CreateQuad(
-    //    "MouseAndKeyboard",
-    //    { 0.15f, 0.25f },
-    //    { (float)((float)mouseAndKeyboard->GetWidth() / 1920.0f) / 1.f, (float)((float)mouseAndKeyboard->GetHeight() / 1080.0f) / 1.f },
-    //    false,
-    //    false,
-    //    2,
-    //    { 1.0,1.0,1.0,1.0 },
-    //    mouseAndKeyboard);
-
-    /*------------Resolution------------*/
-    
-    /*-------------Window Mode-------------------*/
-   
-
-    /*-------------Shadow Quality--------------*/
-   
-    /*-------------Volume--------------*/
-    
-
-    /*-------------Mouse Sensitivity--------------*/
-    
+        controlls);    
 
     /*-------------Back--------------*/
    
