@@ -22,6 +22,10 @@ private:
 	Scene* m_pOptionScene = nullptr;
 	bool m_RestartSetting;
 
+	// HowToPlay Menu
+	void createHowToPlayScene();
+	Scene* m_pHowToPlayScene = nullptr;
+
 
 	Scene* m_pScene = nullptr;
 	SceneManager* m_pSceneManager = nullptr;

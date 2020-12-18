@@ -138,7 +138,7 @@ bool SceneManager::ChangeScene()
 
 		// Change the player back to its original position
 		SetScene(scene);
-		if (scene->GetName() == "MainMenuScene" || scene->GetName() == "OptionScene")
+		if (scene->GetName() == "MainMenuScene" || scene->GetName() == "OptionScene" || scene->GetName() == "HowToPlayScene")
 		{
 			component::Audio2DVoiceComponent* vc = scene->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>();
 			if (std::atof(Option::GetInstance().GetVariable("i_music").c_str()))
