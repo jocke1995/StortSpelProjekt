@@ -183,7 +183,7 @@ void Input::ReadControllerInput(double dt)
 	if (m_RawGameControllers.size() > 0)
 	{
 		Scene* scene = SceneManager::GetInstance().GetActiveScene();
-		bool useMouse = m_IsPaused || scene->GetName() == "MainMenuScene" || scene->GetName() == "gameOverScene" || scene->GetName() == "OptionScene" || (scene->GetName() == "ShopScene" && Player::GetInstance().GetShop()->IsShop2DGUIDisplaying());
+		bool useMouse = m_IsPaused || scene->GetName() == "MainMenuScene" || scene->GetName() == "gameOverScene" || scene->GetName() == "OptionScene" || scene->GetName() == "HowToPlayScene" || (scene->GetName() == "ShopScene" && Player::GetInstance().GetShop()->IsShop2DGUIDisplaying());
 		std::array<bool, 20> buttonsArray;
 		std::array<double, 10> axisArray;
 		std::array<GameControllerSwitchPosition, 5> switchesArray;

@@ -935,16 +935,6 @@ void onHowToPlayBack(const std::string& name)
     EventBus::GetInstance().Publish(&SceneChange("MainMenuScene"));
 }
 
-void onControlls(const std::string& name)
-{
-
-}
-
-void onControllsBack(const std::string& name)
-{
-    //EventBus::GetInstance().Publish(&SceneChange("HowToPlayScene"));
-}
-
 void on2560x1440(const std::string& name)
 {
     Option::GetInstance().SetVariable("i_resolutionWidth", "2560");
