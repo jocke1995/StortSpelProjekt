@@ -28,8 +28,6 @@ namespace component
 			// Set default textures
 			m_Textures[i] = text;
 		}
-
-		
 	}
 
 	bool ProgressBarComponent::operator==(const ProgressBarComponent& other)

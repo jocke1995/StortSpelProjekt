@@ -231,6 +231,7 @@ Scene* GameScene(SceneManager* sm)
 	AudioBuffer* music = al->LoadAudio(L"../Vendor/Resources/Audio/backgroundMusic.wav", L"Music");
 	music->SetAudioLoop(0);
 
+	AudioBuffer* explosionSound = al->LoadAudio(L"../Vendor/Resources/Audio/Explosion.wav", L"ExplosionSound");
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
 	Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");

@@ -41,10 +41,6 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow)
 	{
 		numThreads = 1;
 	}
-	else if (numThreads > m_ThreadLimit) // Limiting the number of threads to the threadLimit
-	{
-		numThreads = m_ThreadLimit;
-	}
 	m_pThreadPool = &ThreadPool::GetInstance(numThreads);
 
 	// Sub-engines
