@@ -1,5 +1,4 @@
-f_volume 1.0
-f_backgroundVolume 0.2
+f_masterVolume 1.0
 f_updateRate 30
 f_networkUpdateRate 15
 i_resolutionWidth 1920

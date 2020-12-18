@@ -414,7 +414,7 @@ void MainMenuHandler::createOptionScene()
         minus);
     guic->GetQuadManager()->SetOnClicked(&onVolumeMinus);
 
-    textToRender = Option::GetInstance().GetVariable("f_volume");
+    textToRender = Option::GetInstance().GetVariable("f_masterVolume");
     textPos = { 0.7f, 0.52f };
     textPadding = { 0.5f, 0.0f };
     textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -716,7 +716,10 @@ Scene* MainMenuHandler::GetScene()
 
 void onMainMenuSceneInit(Scene* scene)
 {
-    scene->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>()->Play(L"MenuMusic");
+    if (std::atof(Option::GetInstance().GetVariable("i_music").c_str()))
+    {
+        scene->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>()->Play(L"MenuMusic");
+    }
 }
 
 void onBrightnessPlus(const std::string& name)
@@ -912,25 +915,27 @@ void onHighShadowQuality(const std::string& name)
 
 void onVolumePlus(const std::string& name)
 {
-    if (std::stof(Option::GetInstance().GetVariable("f_volume")) < 10)
+    if (std::stof(Option::GetInstance().GetVariable("f_masterVolume")) < 10)
     {
         std::ostringstream str;
-        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_volume")) + 0.1f;
-        Option::GetInstance().SetVariable("f_volume", str.str());
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_masterVolume")) + 0.1f;
+        Option::GetInstance().SetVariable("f_masterVolume", str.str());
 
         Option::GetInstance().WriteFile();
+        AudioEngine::GetInstance().ChangeMasterVolume(std::stof(str.str()));
     }
 }
 
 void onVolumeMinus(const std::string& name)
 {
-    if (std::stof(Option::GetInstance().GetVariable("f_volume")) > 0)
+    if (std::stof(Option::GetInstance().GetVariable("f_masterVolume")) > 0)
     {
         std::ostringstream str;
-        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_volume")) - 0.1f;
-        Option::GetInstance().SetVariable("f_volume", str.str());
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_masterVolume")) - 0.1f;
+        Option::GetInstance().SetVariable("f_masterVolume", str.str());
 
         Option::GetInstance().WriteFile();
+        AudioEngine::GetInstance().ChangeMasterVolume(std::stof(str.str()));
     }
 }
 
@@ -940,6 +945,15 @@ void onBox(const std::string& name)
 	Option::GetInstance().SetVariable("i_music", std::to_string(!active));
 	Option::GetInstance().WriteFile();
 
+    if (std::atof(Option::GetInstance().GetVariable("i_music").c_str()))
+    {
+        SceneManager::GetInstance().GetActiveScene()->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>()->Play(L"MenuMusic");
+    }
+    else
+    {
+        SceneManager::GetInstance().GetActiveScene()->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>()->Stop(L"MenuMusic");
+    }
+    
 	float4 blended = { 1.0, 1.0, 1.0, 1.0 };
 	if (active)
 	{

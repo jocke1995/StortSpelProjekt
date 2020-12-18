@@ -105,6 +105,7 @@ void component::Audio3DEmitterComponent::AddVoice(const std::wstring& name)
 			emitterData.DSPSettings.DstChannelCount = AudioEngine::GetInstance().GetDeviceDetails()->InputChannels;
 			int coefficients = emitterData.DSPSettings.SrcChannelCount * emitterData.DSPSettings.DstChannelCount;
 			emitterData.DSPSettings.pMatrixCoefficients = new FLOAT32[coefficients];
+			emitterData.voice.GetSourceVoice()->SetVolume(VOLUME3D);
 
 			// put emitterData struct in the map with key
 			m_VoiceEmitterData.emplace(std::make_pair(name, emitterData));
@@ -137,6 +138,7 @@ void component::Audio3DEmitterComponent::AddVoice(const std::wstring& globalName
 			emitterData.DSPSettings.DstChannelCount = AudioEngine::GetInstance().GetDeviceDetails()->InputChannels;
 			int coefficients = emitterData.DSPSettings.SrcChannelCount * emitterData.DSPSettings.DstChannelCount;
 			emitterData.DSPSettings.pMatrixCoefficients = new FLOAT32[coefficients];
+			emitterData.voice.GetSourceVoice()->SetVolume(VOLUME3D);
 
 			// put emitterData struct in the map with key
 			m_VoiceEmitterData.emplace(std::make_pair(localName, emitterData));
