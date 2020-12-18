@@ -120,11 +120,11 @@ enum class CAMERA_TYPE
 #define NUM_SWAP_BUFFERS 2
 #define BIT(x) (1 << x)
 #define MAXNUMBER 10000000.0f
-#define DEVELOPERMODE_DRAWBOUNDINGBOX true
-#define DEVELOPERMODE_GAMEINTERFACE true
-#define DEVELOPERMODE_DEVINTERFACE true
+#define DEVELOPERMODE_DRAWBOUNDINGBOX false
+#define DEVELOPERMODE_GAMEINTERFACE false
+#define DEVELOPERMODE_DEVINTERFACE false
 #define DEVELOPERMODE_NETWORKLOG false
-#define DEVELOPERMODE_FREECAM true
+#define DEVELOPERMODE_FREECAM false
 
 enum FLAG_DRAW
 {
@@ -162,7 +162,7 @@ namespace Log
 	template <typename... Args>
 	inline void PrintSeverity(const Severity type, const std::string string, const Args&... args)
 	{
-		std::vector<char> inputBuffer;
+		/*std::vector<char> inputBuffer;
 		inputBuffer.resize(256);
 		char typeBuffer[32] = {};
 
@@ -185,35 +185,35 @@ namespace Log
 
 		std::string finalBuffer = std::string(typeBuffer) + inputBuffer.data();
 
-		OutputDebugStringA(finalBuffer.c_str());
+		OutputDebugStringA(finalBuffer.c_str());*/
 	}
 
 	template <typename... Args>
 	inline void Print(const std::string string, const Args&... args)
 	{
-		std::vector<char> inputBuffer;
-		inputBuffer.resize(256);
+		//std::vector<char> inputBuffer;
+		//inputBuffer.resize(256);
 
-		sprintf(inputBuffer.data(), string.c_str(), args...);
+		//sprintf(inputBuffer.data(), string.c_str(), args...);
 
-		OutputDebugStringA(inputBuffer.data());
+		//OutputDebugStringA(inputBuffer.data());
 	}
 
 	template <typename... Args>
 	inline void PrintToFile(const std::string string, const Args&...args)
 	{
-		std::FILE* file = std::fopen("ERROR.txt", "a");
-		if (file)
-		{
-			fprintf(file, string.c_str(), args...);
-			std::fclose(file);
-		}
+		//std::FILE* file = std::fopen("ERROR.txt", "a");
+		//if (file)
+		//{
+		//	fprintf(file, string.c_str(), args...);
+		//	std::fclose(file);
+		//}
 	}
 
 	template <typename... Args>
 	inline void PrintSeverityToFile(const Severity type, const std::string string, const Args&...args)
 	{
-		std::FILE* file = std::fopen("ERROR.txt", "a");
+		/*std::FILE* file = std::fopen("ERROR.txt", "a");
 		if (file)
 		{
 			switch (type)
@@ -233,14 +233,14 @@ namespace Log
 
 			fprintf(file, string.c_str(), args...);
 			std::fclose(file);
-		}
+		}*/
 	}
 
 	inline void ResetFile()
 	{
-		std::FILE* file = std::fopen("ERROR.txt", "w");
+		//std::FILE* file = std::fopen("ERROR.txt", "w");
 
-		std::fclose(file);
+		//std::fclose(file);
 	}
 }
 

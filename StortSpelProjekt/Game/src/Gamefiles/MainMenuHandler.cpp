@@ -782,7 +782,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
 
     entity = scene->AddEntity("HowToPlayOption");
     guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("HowToPlayOption", { 0.1f, 0.65f }, { howToPlayTex->GetWidth() / 1920.0f, howToPlayTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, howToPlayTex);
+    guic->GetQuadManager()->CreateQuad("HowToPlayOption", { 0.1f, 0.64f }, { howToPlayTex->GetWidth() / 1920.0f, howToPlayTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, howToPlayTex);
     guic->GetQuadManager()->SetOnClicked(&onHowToPlay);
 	
     /* ----------------- Light ------------------- */
