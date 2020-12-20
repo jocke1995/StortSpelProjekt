@@ -109,7 +109,7 @@ void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::GUI2DCom
 	{
 		Text* text = textMap.second;
 
-		// Test to multiply in render (Later do it in compute)
+		// Set Constant Buffer View
 		D3D12_GPU_VIRTUAL_ADDRESS gpuVA = text->m_pCB->GetDefaultResource()->GetID3D12Resource1()->GetGPUVirtualAddress();
 		commandList->SetGraphicsRootConstantBufferView(RS::CBV0, gpuVA);
 

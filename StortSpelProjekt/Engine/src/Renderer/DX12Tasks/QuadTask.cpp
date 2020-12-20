@@ -12,6 +12,8 @@
 
 #include "../GPUMemory/RenderTargetView.h"
 #include "../GPUMemory/Resource.h"
+#include "../GPUMemory/ConstantBufferView.h"
+#include "../GPUMemory/ConstantBuffer.h"
 
 #include "../../ECS/Components/GUI2DComponent.h"
 #include "../../Renderer/QuadManager.h"
@@ -77,6 +79,7 @@ void QuadTask::Execute()
 	commandList->RSSetViewports(1, swapChainRenderTarget->GetRenderView()->GetViewPort());
 	commandList->RSSetScissorRects(1, swapChainRenderTarget->GetRenderView()->GetScissorRect());
 
+	// Devmode
 	if (!IsGuiHidden())
 	{
 		draw(commandList);
@@ -95,30 +98,27 @@ void QuadTask::draw(ID3D12GraphicsCommandList5* commandList)
 {
 	for (int i = 0; i < m_QuadComponents.size(); i++)
 	{
-		QuadManager* qm = m_QuadComponents.at(i)->GetQuadManager();
+		// Hidden?
+		//if (!m_QuadComponents.at(i)->GetQuadManager()->IsQuadHidden())
+		//{
+			QuadManager* qm = m_QuadComponents.at(i)->GetQuadManager();
 
-		// Create a CB_PER_OBJECT_STRUCT struct
-		size_t num_Indices = qm->GetQuad()->GetNumIndices();
-		const SlotInfo* info = qm->GetSlotInfo();
+			// Set Constant Buffer View
+			D3D12_GPU_VIRTUAL_ADDRESS gpuVA = qm->m_pCB->GetDefaultResource()->GetID3D12Resource1()->GetGPUVirtualAddress();
+			commandList->SetGraphicsRootConstantBufferView(RS::CBV0, gpuVA);
 
-		float4 amountOfBlend = qm->GetAmountOfBlend();
-		amountOfBlend.w *= !m_QuadComponents.at(i)->GetQuadManager()->IsQuadHidden();
+			// Create a CB_PER_OBJECT_STRUCT struct
+			size_t num_Indices = qm->GetQuad()->GetNumIndices();
+			const SlotInfo* info = qm->GetSlotInfo();
 
-		float4 textureInfo = float4{ 0.0 };
-		textureInfo.x = qm->HasTexture();
-		textureInfo.y = qm->GetActiveTexture();
+			DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
+			DirectX::XMMATRIX id = DirectX::XMMatrixIdentity();
 
-		DirectX::XMMATRIX world = DirectX::XMMatrixSet(
-			amountOfBlend.x,	amountOfBlend.y,	amountOfBlend.z,	amountOfBlend.w,
-			textureInfo.x,		textureInfo.y,		0.0f,				0.0f,
-			0.0f,				0.0f,				0.0f,				0.0f,
-			0.0f,				0.0f,				0.0f,				0.0f);
-		DirectX::XMMATRIX id = DirectX::XMMatrixIdentity();
-		
-		CB_PER_OBJECT_STRUCT perObject = { world, id, *info };
+			CB_PER_OBJECT_STRUCT perObject = { world, id, *info };
 
-		commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
-		commandList->IASetIndexBuffer(qm->GetQuad()->GetIndexBufferView());	
-		commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
+			commandList->IASetIndexBuffer(qm->GetQuad()->GetIndexBufferView());
+			commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
+		//}
 	}
 }

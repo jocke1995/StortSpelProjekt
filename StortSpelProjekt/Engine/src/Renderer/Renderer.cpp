@@ -852,11 +852,15 @@ void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 	
 	if (mesh != nullptr)
 	{
+		//component->GetQuadManager()->unsubmitQuad();
 		component->GetQuadManager()->uploadQuadData();
+		component->GetQuadManager()->submitCBQuadDataToCodt();
 	
 		// Finally store the quad in m_pRenderer so it will be drawn
 		m_QuadComponents.push_back(component);
 	}
+
+	setRenderTasksGUI2DComponents();
 }
 
 void Renderer::InitParticleEmitterComponent(component::ParticleEmitterComponent* component)
@@ -1117,9 +1121,14 @@ void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 		component::GUI2DComponent* comp = m_QuadComponents.at(i);
 		if (comp == component)
 		{
-			waitForGPU();
-			m_QuadComponents.erase(m_QuadComponents.begin() + i);
-			break;
+			//comp->GetQuadManager()->unsubmitQuad();
+			//
+			//CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+			//const ConstantBuffer* cb = comp->GetQuadManager()->m_pCB;
+			//cpft->ClearSpecific(cb->GetUploadResource());
+			//
+			//m_QuadComponents.erase(m_QuadComponents.begin() + i);
+			//break;
 		}
 	}
 
@@ -1190,7 +1199,6 @@ void Renderer::OnResetScene()
 	m_pScenePrimaryCamera = nullptr;
 	static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
 	m_BoundingBoxesToBePicked.clear();
-	m_QuadComponents.clear();
 }
 
 void Renderer::submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)

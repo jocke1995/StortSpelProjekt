@@ -5,6 +5,8 @@
 #include "../Renderer/DescriptorHeap.h"
 #include "../Renderer/GPUMemory/Resource.h"
 #include "../Renderer/GPUMemory/ShaderResourceView.h"
+#include "../Renderer/GPUMemory/ConstantBuffer.h"
+#include "../Renderer/DescriptorHeap.h"
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Renderer.h"
 
@@ -25,6 +27,14 @@ QuadManager::QuadManager()
 	m_Id = s_Id;
 	s_Id++;
 	m_pOnClicked = &SendButtonEvent;
+	m_CBData.blendFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	m_CBData.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	m_CBData.pos = { 0.0f, 0.0f };
+	m_CBData.scale = { 0.0f, 0.0f };
+	m_CBData.textureInfo = { 0.0f, 0.0f };
+
+	Renderer* renderer = &Renderer::GetInstance();
+	createCB(renderer->m_pDevice5, renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
 }
 
 QuadManager::~QuadManager()
@@ -75,45 +85,38 @@ void QuadManager::CreateQuad(
 	m_Clickable = clickable;
 	m_Markable = markable;
 	m_Depth = depthLevel;
-	m_AmountOfBlend = blend;
-	m_Scale = size;
-	m_Pos = pos;
 
-	float x = (m_Pos.x * 2.0f) - 1.0f;
-	float y = ((1.0f - m_Pos.y) * 2.0f) - 1.0f;
-	size.x = ((m_Pos.x + m_Scale.x) * 2.0f) - 1.0f;
-	size.y = ((1.0f - (m_Pos.y + m_Scale.y)) * 2.0f) - 1.0f;
+	m_CBData.blendFactor = blend;
+	m_CBData.color = float4{ color.x, color.y, color.z, 1.0f };
+	m_CBData.pos.x = (pos.x * 2.0f) - 1.0f;
+	m_CBData.pos.y = ((1.0f - pos.y) * 2.0f) - 1.0f;
+	m_CBData.scale.x = ((pos.x + size.x) * 2.0f) - 1.0f;
+	m_CBData.scale.y = ((1.0f - (pos.y + size.y)) * 2.0f) - 1.0f;
+	m_CBData.textureInfo.x = HasTexture();
 
 	std::vector<Vertex> m_Vertices = {};
 
-	DirectX::XMFLOAT3 normal = DirectX::XMFLOAT3{ 1.0, 1.0, 0.0 };
-
+	// Default Quadmesh data
 	Vertex vertex = {};
-	vertex.pos = DirectX::XMFLOAT3{ x, y, 0.0f };
-	m_Positions["upper_left"] = float2{ vertex.pos.x, vertex.pos.y };
-	vertex.uv = DirectX::XMFLOAT2{ 0.0, 0.0 };
-	vertex.normal = normal;
-
-	// Using the tangent as the color
-	vertex.tangent = DirectX::XMFLOAT3(color.x, color.y, color.z);
+	vertex.pos = DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f };
+	vertex.uv = DirectX::XMFLOAT2{ 0.0f, 0.0f };
+	vertex.normal = DirectX::XMFLOAT3{ 1.0f, 1.0f, 0.0f };
+	vertex.tangent = DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f };	
 	m_Vertices.push_back(vertex);
 
-	vertex.pos = DirectX::XMFLOAT3{ x, size.y, 0.0f };
-	m_Positions["lower_left"] = float2{ vertex.pos.x, vertex.pos.y };
+	vertex.pos = DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f };
 	vertex.uv = DirectX::XMFLOAT2{ 0.0, 1.0 };
 	m_Vertices.push_back(vertex);
 
-	vertex.pos = DirectX::XMFLOAT3{ size.x, y, 0.0f };
-	m_Positions["upper_right"] = float2{ vertex.pos.x, vertex.pos.y };
+	vertex.pos = DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f };
 	vertex.uv = DirectX::XMFLOAT2{ 1.0, 0.0 };
 	m_Vertices.push_back(vertex);
 
-	vertex.pos = DirectX::XMFLOAT3{ size.x, size.y, 0.0f };
-	m_Positions["lower_right"] = float2{ vertex.pos.x, vertex.pos.y };
+	vertex.pos = DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f };
 	vertex.uv = DirectX::XMFLOAT2{ 1.0, 1.0 };
 	m_Vertices.push_back(vertex);
 
-	std::vector<unsigned int> indices = { 0, 2, 1, 2, 1, 3 };
+	std::vector<unsigned int> indices = { 0, 1, 2, 3, 2, 1 };
 
 	Renderer* renderer = &Renderer::GetInstance();
 
@@ -159,20 +162,25 @@ void QuadManager::CreateQuad(
 	}
 
 	uploadQuadData();
+	submitCBQuadDataToCodt();
 }
 
 void QuadManager::UpdateQuad(float2 pos, float2 size, bool clickable, bool markable, float4 blend, float3 color)
 {
-	// Delete the old quad
 	if (m_pQuad == nullptr)
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "The quad does not exist... Could not update quad!\n");
 		return;
 	}
-	else
-	{
-		deleteQuadData();
-	}
+
+	m_CBData.blendFactor = blend;
+	m_CBData.color = float4{ color.x, color.y, color.z, 1.0f };
+	m_CBData.pos.x = (pos.x * 2.0f) - 1.0f;
+	m_CBData.pos.y = ((1.0f - pos.y) * 2.0f) - 1.0f;
+	m_CBData.scale.x = ((pos.x + size.x) * 2.0f) - 1.0f;
+	m_CBData.scale.y = ((1.0f - (pos.y + size.y)) * 2.0f) - 1.0f;
+	m_CBData.textureInfo.x = HasTexture();
+	submitCBQuadDataToCodt();
 
 	// If we no longer want the quad to be clickable, unsubscribe it from the eventbus
 	if (m_Clickable == true && clickable == false)
@@ -180,7 +188,8 @@ void QuadManager::UpdateQuad(float2 pos, float2 size, bool clickable, bool marka
 		EventBus::GetInstance().Unsubscribe(this, &QuadManager::pressed);
 	}
 
-	CreateQuad(m_Name, pos, size, clickable, markable, m_Depth, blend, nullptr, color);
+	m_Clickable = clickable;
+	m_Markable = markable;
 }
 
 const bool QuadManager::HasTexture() const
@@ -202,10 +211,15 @@ const bool QuadManager::IsMarked() const
 	Renderer* renderer = &Renderer::GetInstance();
 	renderer->GetWindow()->MouseInClipspace(&x, &y);
 
-	if ((x >= m_Positions.at("upper_left").x && y <= m_Positions.at("upper_left").y)
-		&& (x >= m_Positions.at("lower_left").x && y >= m_Positions.at("lower_left").y)
-		&& (x <= m_Positions.at("upper_right").x && y <= m_Positions.at("upper_right").y)
-		&& (x <= m_Positions.at("lower_right").x && y >= m_Positions.at("lower_right").y))
+	float2 upper_left = { m_CBData.pos.x, m_CBData.pos.y };
+	float2 upper_right = { m_CBData.scale.x, m_CBData.pos.y };
+	float2 lower_left = { m_CBData.pos.x, m_CBData.scale.y };
+	float2 lower_right = { m_CBData.scale.x, m_CBData.scale.y };
+
+	if ((x >= upper_left.x && y <= upper_left.y)
+		&& (x >= lower_left.x && y >= lower_left.y)
+		&& (x <= upper_right.x && y <= upper_right.y)
+		&& (x <= lower_right.x && y >= lower_right.y))
 	{
 		marked = true;
 	}
@@ -252,7 +266,7 @@ SlotInfo* const QuadManager::GetSlotInfo() const
 
 const float4 QuadManager::GetAmountOfBlend() const
 {
-	return m_AmountOfBlend;
+	return m_CBData.blendFactor;
 }
 
 const int QuadManager::GetId() const
@@ -267,22 +281,18 @@ int QuadManager::GetDepth() const
 
 float2 QuadManager::GetScale() const
 {
-	return m_Scale;
+	return m_CBData.scale;
 }
 
 float2 QuadManager::GetPos() const
 {
-	return m_Pos;
-}
-
-const bool QuadManager::GetActiveTexture() const
-{
-	return m_ActiveTexture;
+	return float2{ m_CBData.pos.x, m_CBData.pos.y };
 }
 
 void QuadManager::SetActiveTexture(const bool texture)
 {
-	m_ActiveTexture = texture;
+	m_CBData.textureInfo.y = texture;
+	submitCBQuadDataToCodt();
 }
 
 void QuadManager::HideQuad(bool hide)
@@ -322,22 +332,33 @@ void QuadManager::uploadQuadData()
 	}
 }
 
-void QuadManager::deleteQuadData()
+void QuadManager::createCB(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV)
 {
-	if (m_pQuad != nullptr)
+	// Create ConstantBuffer
+	int sizeOfGUIData = sizeof(CB_PER_GUI_STRUCT);
+
+	if (m_pCB != nullptr)
 	{
-		Renderer* renderer = &Renderer::GetInstance();
-
-		CopyTask* task = renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
-		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
-		codt->UnSubmitMesh(m_pQuad);
-
-		renderer->waitForGPU();
-
-		delete m_pQuad;
-		m_pQuad = nullptr;
-
-		delete m_pSlotInfo;
-		m_pSlotInfo = nullptr;
+		delete m_pCB;
+		m_pCB = nullptr;
 	}
+
+	m_pCB = new ConstantBuffer(device, sizeOfGUIData, L"CB_QUADDATA_RESOURCE", descriptorHeap_CBV);
+}
+
+void QuadManager::submitCBQuadDataToCodt()
+{
+	// Submit to GPU
+	const void* data = static_cast<const void*>(&m_CBData);
+
+	Resource* uploadR = m_pCB->GetUploadResource();
+	Resource* defaultR = m_pCB->GetDefaultResource();
+	Renderer::GetInstance().submitToCodt(&std::make_tuple(uploadR, defaultR, data));
+}
+
+void QuadManager::unsubmitQuad()
+{
+	CopyTask* task = Renderer::GetInstance().m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
+	codt->UnSubmitMesh(m_pQuad);
 }

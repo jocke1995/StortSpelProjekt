@@ -47,7 +47,7 @@ struct ANIMATION_MATRICES_STRUCT
 struct CB_PER_GUI_STRUCT
 {
 	float2 scale;
-	float2 pad;
+	float2 textureInfo;
 	float4 pos;
 	float4 color;
 	float4 blendFactor;

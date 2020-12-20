@@ -29,6 +29,7 @@ Text::Text(ID3D12Device5* device, DescriptorHeap* descriptorHeap_SRV, Texture* t
 		m_CBVec.at(i).color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		m_CBVec.at(i).pos = { 0.0f, 0.0f };
 		m_CBVec.at(i).scale = { 1.0f, 1.0f };
+		m_CBVec.at(i).textureInfo = { 0.0f, 0.0f };
 	}
 
 	updateVertexData();
