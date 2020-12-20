@@ -639,7 +639,7 @@ void MainMenuHandler::createCreditsScene()
 
     std::string boughtPackName = "";
 
-
+	guic->GetTextManager()->SetFont(font);
 
     // Hell Loop
     name = "hellloop";
@@ -1937,7 +1937,6 @@ void CreditsUpdateScene(SceneManager* sm, double dt)
     totalScrollY += frameYChange;
 
     const float resetYOn = -8;
-    Log::Print("%f\n", totalScrollY);
     if (totalScrollY < resetYOn)
     {
         ResetCreditsScene(sm);
@@ -1950,12 +1949,12 @@ void CreditsUpdateScene(SceneManager* sm, double dt)
     component::GUI2DComponent* comp = text->GetComponent<component::GUI2DComponent>();
 
     auto map = comp->GetTextManager()->GetTextDataMap();
-    auto it = map->begin();
-    while (it != map->end())
+    auto it = map.begin();
+    while (it != map.end())
     {
         std::string name = (*it).first;
 
-        float2 oldPos = comp->GetTextManager()->GetTextData(name)->pos;
+		float2 oldPos = comp->GetTextManager()->GetText(name)->GetPos();
 
         comp->GetTextManager()->SetPos({ oldPos.x, oldPos.y + frameYChange }, name);
 
@@ -1973,12 +1972,12 @@ void ResetCreditsScene(SceneManager* sm)
     float frameYChange = -totalScrollY;
 
     auto map = comp->GetTextManager()->GetTextDataMap();
-    auto it = map->begin();
-    while (it != map->end())
+    auto it = map.begin();
+    while (it != map.end())
     {
         std::string name = (*it).first;
 
-        float2 oldPos = comp->GetTextManager()->GetTextData(name)->pos;
+        float2 oldPos = comp->GetTextManager()->GetText(name)->GetPos();
         
         comp->GetTextManager()->SetPos({ oldPos.x, oldPos.y + frameYChange }, name);
 

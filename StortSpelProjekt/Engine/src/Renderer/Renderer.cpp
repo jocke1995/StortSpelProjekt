@@ -829,24 +829,31 @@ void Renderer::InitBoundingBoxComponent(component::BoundingBoxComponent* compone
 
 void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 {
-	auto* textDataMap = component->GetTextManager()->GetTextDataMap();
-	auto* quad = component->GetQuadManager()->GetQuad();
+	std::map<std::string, TextData> textDataMap = component->GetTextManager()->GetTextDataMap();
+	Mesh* mesh = component->GetQuadManager()->GetQuad();
 
-	if (textDataMap != nullptr)
+	if (textDataMap.size() != 0)
 	{
-		for (auto textData : *textDataMap)
+		for (auto textData : textDataMap)
 		{
-			component->GetTextManager()->uploadTextData(textData.first);
+			std::string name = textData.first;
+			component->GetTextManager()->unsubmitText(name);
+			component->GetTextManager()->GetText(name)->updateVertexData();
+			component->GetTextManager()->GetText(name)->initMeshData(
+				m_pDevice5,
+				m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
+				component->GetTextManager()->GetFont()->GetTexture());
+			submitTextToGPU(component->GetTextManager()->GetText(name), component->GetTextManager());
 		}
-
+	
 		// Finally store the text in m_pRenderer so it will be drawn
 		m_TextComponents.push_back(component);
 	}
-
-	if (quad != nullptr)
+	
+	if (mesh != nullptr)
 	{
 		component->GetQuadManager()->uploadQuadData();
-
+	
 		// Finally store the quad in m_pRenderer so it will be drawn
 		m_QuadComponents.push_back(component);
 	}
@@ -1089,7 +1096,14 @@ void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 		component::GUI2DComponent* comp = m_TextComponents.at(i);
 		if (comp == component)
 		{
-			waitForGPU();
+			for (auto &text : *(comp->GetTextManager()->GetTextMap()))
+			{
+				comp->GetTextManager()->unsubmitText(text.first);
+
+				CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+				const ConstantBuffer* cb = text.second->m_pCB;
+				cpft->ClearSpecific(cb->GetUploadResource());
+			}
 			m_TextComponents.erase(m_TextComponents.begin() + i);
 			break;
 		}
@@ -1177,7 +1191,6 @@ void Renderer::OnResetScene()
 	static_cast<WireframeRenderTask*>(m_RenderTasks[RENDER_TASK_TYPE::WIREFRAME])->Clear();
 	m_BoundingBoxesToBePicked.clear();
 	m_QuadComponents.clear();
-	m_TextComponents.clear();
 }
 
 void Renderer::submitToCodt(std::tuple<Resource*, Resource*, const void*>* Upload_Default_Data)
@@ -2699,6 +2712,32 @@ void Renderer::submitUploadPerFrameData()
 	}
 }
 
+void Renderer::submitTextToGPU(Text* text, TextManager* tm)
+{
+	// Submit to GPU
+	const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
+
+	// Vertices
+	Resource* uploadR = text->m_pUploadResourceVertices;
+	Resource* defaultR = text->m_pDefaultResourceVertices;
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(Renderer::GetInstance().m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
+
+	codt->Submit(&std::make_tuple(uploadR, defaultR, data));
+
+	AssetLoader* al = AssetLoader::Get();
+	const bool isTextureOnGpu = al->IsFontTextureLoadedOnGPU(text->GetFont());
+
+	if (isTextureOnGpu == false)
+	{
+		std::wstring fontPath = al->GetFontPath();
+		std::wstring path = fontPath + text->GetFont()->GetName() + L".fnt";
+
+		// Texture (only one per component)
+		codt->SubmitTexture(tm->GetFontTexture());
+		al->m_LoadedFonts[path].first = true;
+	}
+}
+
 void Renderer::toggleFullscreen(WindowChange* evnt)
 {
 	m_FenceFrameValue++;
@@ -2780,30 +2819,4 @@ void Renderer::toggleFullscreen(WindowChange* evnt)
 SwapChain* Renderer::getSwapChain() const
 {
 	return m_pSwapChain;
-}
-
-void Renderer::submitTextToGPU(Text* text, TextManager* tm)
-{
-	// Submit to GPU
-	const void* data = static_cast<const void*>(text->m_TextVertexVec.data());
-
-	// Vertices
-	Resource* uploadR = text->m_pUploadResourceVertices;
-	Resource* defaultR = text->m_pDefaultResourceVertices;
-	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND]);
-
-	codt->Submit(&std::make_tuple(uploadR, defaultR, data));
-
-	AssetLoader* al = AssetLoader::Get();
-	bool isTextureOnGpu = al->IsFontTextureLoadedOnGPU(text->GetFont());
-
-	if (isTextureOnGpu == false)
-	{
-		std::wstring fontPath = al->GetFontPath();
-		std::wstring path = fontPath + text->GetFont()->GetName() + L".fnt";
-
-		// Texture (only one per component)
-		codt->SubmitTexture(tm->GetFontTexture());
-		al->m_LoadedFonts[path].first = true;
-	}
 }

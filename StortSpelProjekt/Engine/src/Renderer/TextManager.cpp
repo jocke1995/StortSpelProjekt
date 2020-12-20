@@ -4,6 +4,7 @@
 #include "../Renderer/Renderer.h"
 #include "../Renderer/Texture/Texture.h"
 #include "../Renderer/DescriptorHeap.h"
+#include "../Renderer/GPUMemory/ConstantBuffer.h"
 
 #include "../Misc/Window.h"
 #include "../Misc/AssetLoader.h"
@@ -16,10 +17,7 @@
 TextManager::TextManager()
 {
 	// Default text
-	m_DefaultTextData.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	m_DefaultTextData.padding = { 0.5f, 0.0f };
-	m_DefaultTextData.pos = { 0.5f, 0.5f };
-	m_DefaultTextData.scale = { 1.0f, 1.0f };
 	m_DefaultTextData.text = L"DEFAULT_TEXT";
 }
 
@@ -35,9 +33,9 @@ TextManager::~TextManager()
 	m_TextMap.clear();
 }
 
-std::map<std::string, TextData>* const TextManager::GetTextDataMap()
+const std::map<std::string, TextData>& TextManager::GetTextDataMap() const
 {
-	return &m_TextDataMap;
+	return m_TextDataMap;
 }
 
 TextData* TextManager::GetTextData(std::string name)
@@ -54,21 +52,31 @@ void TextManager::AddText(std::string name)
 		m_pFont = AssetLoader::Get()->LoadFontFromFile(L"MedievalSharp.fnt");
 	}
 
-	// Default text
-	TextData textData = m_DefaultTextData;
-
 	auto it = m_TextDataMap.find(name);
 	if (it != m_TextDataMap.end())
 	{
 		Log::PrintSeverity(Log::Severity::WARNING, "It already exists a text with the name '%s'! Overwriting text data...\n", name.c_str());
 	}
 
-	m_TextDataMap.insert({ name, textData });
-	uploadTextData(name);
+	m_TextDataMap.insert({ name, m_DefaultTextData });
+
+	// Adding a new text to the map
+	createText(name);
+
+	// Create and Upload constantBuffer data
+	Renderer* renderer = &Renderer::GetInstance();
+	m_TextMap[name]->createCB(renderer->m_pDevice5, renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV]);
+	submitCBTextDataToCodt(name);
 }
 
 void TextManager::SetFont(Font* font)
 {
+	if (m_pFont != nullptr)
+	{
+		delete m_pFont;
+		m_pFont = nullptr;
+	}
+
 	m_pFont = font;
 }
 
@@ -80,7 +88,8 @@ void TextManager::SetText(std::string text, std::string name)
 	{
 		m_TextDataMap[name].text = to_wstring(text);
 		exists = true;
-		uploadTextData(name);
+		replaceText(name);
+		Renderer::GetInstance().submitTextToGPU(m_TextMap[name], this);
 	}
 
 	if (exists == false)
@@ -95,9 +104,9 @@ void TextManager::SetPos(float2 textPos, std::string name)
 	auto it = m_TextDataMap.find(name);
 	if (it != m_TextDataMap.end())
 	{
-		m_TextDataMap[name].pos = textPos;
+		m_TextMap[name]->updateCBbuffer("pos", { textPos.x, textPos.y, 0.0f, 0.0f });
+		submitCBTextDataToCodt(name);
 		exists = true;
-		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -129,11 +138,13 @@ void TextManager::SetScale(float2 scale, std::string name)
 		scale_y = win_y / 1000;
 		float aspect = scale_x / scale_y;
 
-		m_TextDataMap[name].scale.x = (scale.x * scale_x);
-		m_TextDataMap[name].scale.y = (scale.y * scale_y * aspect);
+		float2 CBscale;
+		CBscale.x = (scale.x * scale_x);
+		CBscale.y = (scale.y * scale_y * aspect);
 
+		m_TextMap[name]->updateCBbuffer("scale", { CBscale.x, CBscale.y, 0.0f, 0.0f });
+		submitCBTextDataToCodt(name);
 		exists = true;
-		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -150,7 +161,6 @@ void TextManager::SetPadding(float2 padding, std::string name)
 	{
 		m_TextDataMap[name].padding = padding;
 		exists = true;
-		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -165,9 +175,9 @@ void TextManager::SetColor(float4 color, std::string name)
 	auto it = m_TextDataMap.find(name);
 	if (it != m_TextDataMap.end())
 	{
-		m_TextDataMap[name].color = color;
+		m_TextMap[name]->updateCBbuffer("color", color);
+		submitCBTextDataToCodt(name);
 		exists = true;
-		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -182,9 +192,9 @@ void TextManager::SetBlend(float4 blend, std::string name)
 	auto it = m_TextDataMap.find(name);
 	if (it != m_TextDataMap.end())
 	{
-		m_TextDataMap[name].blendFactor = blend;
+		m_TextMap[name]->updateCBbuffer("blendFactor", blend);
+		submitCBTextDataToCodt(name);
 		exists = true;
-		uploadTextData(name);
 	}
 
 	if (exists == false)
@@ -233,19 +243,41 @@ const int TextManager::GetNumOfCharacters(std::string name) const
 	return m_TextDataMap.at(name).text.size();
 }
 
-void TextManager::submitText(Text* text, std::string name)
+void TextManager::createText(std::string name)
 {
+	Renderer* renderer = &Renderer::GetInstance();
+	TextData* textData = GetTextData(name);
+	Text* text = new Text(
+		renderer->m_pDevice5,
+		renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
+		m_pFont->GetTexture(),
+		textData,
+		m_pFont);
+
 	m_TextMap.insert({ name, text });
 }
 
-void TextManager::replaceText(Text* text, std::string name)
+void TextManager::replaceText(std::string name)
 {
+	Renderer* renderer = &Renderer::GetInstance();
+
 	bool found = false;
 	auto it = m_TextMap.find(name);
 	if (it != m_TextMap.end())
 	{
-		deleteTextData(name);
-		m_TextMap.insert({ name, text });
+		Text* text = m_TextMap[name];
+
+		// Set new data
+		text->SetTextDataMap(&m_TextDataMap[name]);
+		text->updateVertexData();
+		text->updateCBbuffer();
+		submitCBTextDataToCodt(name);
+
+		// Remove old mesh data
+		unsubmitText(name);
+
+		// Init new mesh data
+		text->initMeshData(renderer->m_pDevice5, renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV], m_pFont->GetTexture());
 		found = true;
 	}
 
@@ -255,55 +287,26 @@ void TextManager::replaceText(Text* text, std::string name)
 	}
 }
 
-void TextManager::uploadTextData(std::string name)
+void TextManager::submitCBTextDataToCodt(std::string name)
 {
-	Renderer* renderer = &Renderer::GetInstance();
-
-	auto textData = GetTextData(name);
-
-	Text* text = new Text(
-		renderer->m_pDevice5,
-		renderer->m_DescriptorHeaps[DESCRIPTOR_HEAP_TYPE::CBV_UAV_SRV],
-		m_pFont->GetTexture(),
-		textData,
-		m_pFont);
-
-	// Look if the text exists
-	bool exists = false;
-	auto it = m_TextMap.find(name);
-	if (it != m_TextMap.end())
+	if (m_TextMap[name]->m_pCB == nullptr)
 	{
-		exists = true;
+		return;
 	}
 
-	if (exists == true)
-	{
-		// Replacing an existing text in the map
-		replaceText(text, name);
-	}
-	else
-	{
-		// Adding a new text to the map
-		submitText(text, name);
-	}
+	m_TextMap[name]->updateCBbuffer("hidden");
 
-	// Uploading the text data to the gpu
-	renderer->submitTextToGPU(text, this);
+	// Submit to GPU
+	const void* data = static_cast<const void*>(m_TextMap[name]->m_CBVec.data());
+
+	Resource* uploadR = m_TextMap[name]->m_pCB->GetUploadResource();
+	Resource* defaultR = m_TextMap[name]->m_pCB->GetDefaultResource();
+	Renderer::GetInstance().submitToCodt(&std::make_tuple(uploadR, defaultR, data));
 }
 
-void TextManager::deleteTextData(std::string name)
-{
-	if (m_TextMap[name] != nullptr)
-	{
-		Renderer* renderer = &Renderer::GetInstance();
-
-		CopyTask* task = renderer->m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
-		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
-		codt->UnSubmitText(m_TextMap[name]);
-
-		renderer->waitForGPU();
-
-		delete m_TextMap[name];
-		m_TextMap.erase(name);
-	}
+void TextManager::unsubmitText(std::string name)
+{	  
+	CopyTask* task = Renderer::GetInstance().m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
+	codt->UnSubmitText(m_TextMap[name]);
 }

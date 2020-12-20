@@ -284,11 +284,11 @@ private:
 	// Submit cbPerFrameData to the copyQueue that updates each frame
 	void submitUploadPerFrameData();
 
+	void submitTextToGPU(Text* text, TextManager* tm);
+
 	void toggleFullscreen(WindowChange* evnt);
 
 	SwapChain* getSwapChain() const;
-
-	void submitTextToGPU(Text* text, TextManager* tm);
 };
 
 #endif

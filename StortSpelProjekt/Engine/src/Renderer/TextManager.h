@@ -16,7 +16,7 @@ public:
 	TextManager();
 	~TextManager();
 
-	std::map<std::string, TextData>* const GetTextDataMap();
+	const std::map<std::string, TextData>& TextManager::GetTextDataMap() const;
 	TextData* GetTextData(std::string name);
 
 	void AddText(std::string name);
@@ -38,7 +38,7 @@ public:
 	std::map<std::string, Text*>* GetTextMap();
 	const int GetNumOfTexts() const;
 	const int GetNumOfCharacters(std::string name) const;
-	void uploadTextData(std::string name);
+
 private:
 	friend class Renderer;
 
@@ -48,9 +48,9 @@ private:
 	TextData m_DefaultTextData;
 	bool m_TextIsHidden = false;
 
-	void submitText(Text* text, std::string name);
-	void replaceText(Text* text, std::string name);
-
-	void deleteTextData(std::string name);
+	void createText(std::string name);
+	void replaceText(std::string name);
+	void submitCBTextDataToCodt(std::string name);
+	void unsubmitText(std::string name);
 };
 #endif
