@@ -1394,10 +1394,6 @@ Zombie:                cypler @Sketchfab
     guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
 
-
-
-
-
 /*
 
 Sorted
@@ -1540,10 +1536,6 @@ Zombie Sounds:         Infinity PBR
     guic->GetTextManager()->SetScale({ size_small, size_small }, name);
 
 
-
-
-
-
     /////////////////////////////////////////////
     // Exit
     /////////////////////////////////////////////
@@ -1672,10 +1664,6 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
 	guic = entity->AddComponent<component::GUI2DComponent>();
 	guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.8f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, exitTex);
 	guic->GetQuadManager()->SetOnClicked(&onExit);
-    entity = scene->AddEntity("ExitOption");
-    guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.65f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, exitTex);
-    guic->GetQuadManager()->SetOnClicked(&onExit);
 
     entity = scene->AddEntity("HowToPlayOption");
     guic = entity->AddComponent<component::GUI2DComponent>();
@@ -1688,32 +1676,6 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     guic->GetQuadManager()->CreateQuad("CreditsOption", { 0.54f, 0.52f }, { creditsTex->GetWidth()* size_credits / 1920.0f, creditsTex->GetHeight()* size_credits / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, creditsTex);
     guic->GetQuadManager()->SetOnClicked(&onCredits);
 
-	//std::vector<Model*> enemyModels;
-	//enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/Zombie/zombie.obj"));
-	//enemyModels.push_back(al->LoadModel(L"../Vendor/Resources/Models/IgnoredModels/Demon/AnimatedDemon.fbx"));
-    //for (int i = 0; i < 20; ++i)
-    //{
-    //    entity = scene->AddEntity("menuEnemy" + std::to_string(i));
-    //    component::ModelComponent* mc = entity->AddComponent<component::ModelComponent>();
-    //    component::TransformComponent* tc = entity->AddComponent<component::TransformComponent>();
-    //    int enemyModel = rand.Rand(0, enemyModels.size());
-    //    mc->SetModel(enemyModels.at(enemyModel));
-    //    mc->SetDrawFlag(FLAG_DRAW::DRAW_OPAQUE);
-    //    double3 enemyDim = mc->GetModelDim();
-    //    Transform* t = tc->GetTransform();
-    //    t->SetPosition(rand.Randf(0.0, 20.0) - 10.0f, 0.0, rand.Randf(0.0, 20.0));
-    //    t->SetScale(2.0 / enemyDim.y);
-    //    t->SetRotationX(0.0);
-    //    t->SetRotationY(PI);
-    //    t->SetRotationZ(0.0);
-    //    tc->SetTransformOriginalState();
-	//
-	//
-    //    double rad = enemyDim.z / 2.0;
-    //    double cylHeight = enemyDim.y - (rad * 2.0);
-    //    component::CollisionComponent* cc = entity->AddComponent<component::CapsuleCollisionComponent>(200.0, rad, cylHeight, 0.0, 0.0, false);
-    //    cc->SetGravity(0.0);
-    //}
     /* ----------------- Light ------------------- */
 
     entity = scene->AddEntity("SpotLight");
@@ -1731,7 +1693,6 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     createOptionScene();
     createHowToPlayScene();
     createCreditsScene();
-
 
     scene->SetUpdateScene(&MainMenuUpdateScene);
 
