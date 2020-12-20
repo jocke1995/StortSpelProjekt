@@ -1057,13 +1057,14 @@ void AssetLoader::LoadMap(Scene* scene, const char* path, std::vector<float3>* s
 				}
 				else if (strcmp(toSubmit.c_str(), "CollisionCylinder") == 0)
 				{
+
 					fscanf(file, "%f,%f", &shapeInfo.x, &shapeInfo.y);
 					if (shapeInfo == float3({ 0.0, 0.0, 0.0 }))
 					{
 						shapeInfo.x = entity->GetComponent<component::ModelComponent>()->GetModelDim().z / 2.0;
 						shapeInfo.y = entity->GetComponent<component::ModelComponent>()->GetModelDim().y;
 					}
-					cc = entity->AddComponent<component::CapsuleCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, friction, restitution);
+					cc = entity->AddComponent<component::CylinderCollisionComponent>(mass, shapeInfo.x, shapeInfo.y, friction, restitution);
 					cc->SetGravity(gravity);
 					cc->SetUserID(1);
 					shapeInfo = { 0.0f, 0.0f, 0.0f };

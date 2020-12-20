@@ -580,7 +580,7 @@ void component::PlayerInputComponent::rotate(MouseMovement* evnt)
 {
 	// Rotate camera
 	// Mouse movement
-	int x = evnt->x, y = evnt->y;
+	float x = evnt->x, y = evnt->y;
 
 	// Determine how much to rotate in radians
 	float sensitivityX = stof(Option::GetInstance().GetVariable("f_sensitivityX"));

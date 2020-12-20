@@ -87,8 +87,6 @@ private:
 	Physics* m_pPhysics = nullptr;
 	AudioEngine* m_pAudioEngine = nullptr;
 	ParticleSystem* m_pParticleSystem = nullptr;
-
-	int m_ThreadLimit = 4;
 };
 
 #endif

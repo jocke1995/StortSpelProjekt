@@ -30,6 +30,7 @@ project "Engine"
         "d3dcompiler",
         "dxguid",
         "assimp-vc142-mt",
+        "RuntimeObject",
     }
 
     postbuildcommands

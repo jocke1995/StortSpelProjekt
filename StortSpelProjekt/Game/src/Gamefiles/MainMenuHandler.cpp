@@ -21,6 +21,10 @@ void onExit(const std::string& name);
 void onCredits(const std::string& name);
 void onOptions(const std::string& name);
 void onOptionBack(const std::string& name);
+void onHowToPlay(const std::string& name);
+void onHowToPlayBack(const std::string& name);
+void onControlls(const std::string& name);
+void onControllsBack(const std::string& name);
 void on2560x1440(const std::string& name);
 void on1920x1080(const std::string& name);
 void on1280x720(const std::string& name);
@@ -37,6 +41,7 @@ void onMouseSensitivityMinus(const std::string& name);
 void MainMenuUpdateScene(SceneManager* sm, double dt);
 void CreditsUpdateScene(SceneManager* sm, double dt);
 void ResetCreditsScene(SceneManager* sm);
+void MenuUpdateScene(SceneManager* sm, double dt);
 
 MainMenuHandler::MainMenuHandler()
 {
@@ -416,7 +421,7 @@ void MainMenuHandler::createOptionScene()
         minus);
     guic->GetQuadManager()->SetOnClicked(&onVolumeMinus);
 
-    textToRender = Option::GetInstance().GetVariable("f_volume");
+    textToRender = Option::GetInstance().GetVariable("f_masterVolume");
     textPos = { 0.7f, 0.52f };
     textPadding = { 0.5f, 0.0f };
     textColor = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -552,6 +557,122 @@ void MainMenuHandler::createOptionScene()
         { 1.0,1.0,1.0,1.0 },
         exitTex);
     guic->GetQuadManager()->SetOnClicked(&onOptionBack);
+
+    m_pOptionScene->SetUpdateScene(&MenuUpdateScene);
+}
+
+void MainMenuHandler::createHowToPlayScene()
+{
+    AssetLoader* al = AssetLoader::Get();
+
+    m_pHowToPlayScene = m_pSceneManager->CreateScene("HowToPlayScene");
+
+    component::GUI2DComponent* guic = nullptr;
+    component::Audio2DVoiceComponent* vc = nullptr;
+
+    Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Back.png");
+    Texture* mouse = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/mouseArrow.png");
+    Texture* buttons = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/buttonsArrow.png");
+    Texture* controller = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/Controller.png");
+    Texture* controls = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/Controls.png");
+    Texture* background = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Background.png");
+
+    Font* font = al->LoadFontFromFile(L"MedievalSharp.fnt");
+
+    AudioBuffer* menuSound = al->LoadAudio(L"../Vendor/Resources/Audio/Menu.wav", L"MenuMusic");
+    menuSound->SetAudioLoop(0);
+
+    // Player (Need a camera)
+    Entity* entity = m_pHowToPlayScene->AddEntity("player");
+    entity->AddComponent<component::CameraComponent>(CAMERA_TYPE::PERSPECTIVE, true);
+    // Add a voice to the player to play some music.
+    vc = entity->AddComponent<component::Audio2DVoiceComponent>();
+    vc->AddVoice(L"MenuMusic");
+
+    // Background
+    entity = m_pHowToPlayScene->AddEntity("OptionsBackground");
+    float2 quadPos = { 0.0f, 0.0f };
+    float2 quadScale = { 1.0f, 1.0f };
+    float4 notBlended = { 1.0, 1.0, 1.0, 1.0 };
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad(
+        "OptionsBackground",
+        quadPos, quadScale,
+        false, false,
+        0,
+        notBlended,
+        background);
+
+    // Skybox
+    entity = m_pHowToPlayScene->AddEntity("skybox");
+    component::SkyboxComponent* sbc = entity->AddComponent<component::SkyboxComponent>();
+    TextureCubeMap* blackCubeMap = al->LoadTextureCubeMap(L"../Vendor/Resources/Textures/CubeMaps/black.dds");
+    sbc->SetTexture(blackCubeMap);
+
+
+    entity = m_pHowToPlayScene->AddEntity("Buttons");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad(
+        "Buttons",
+        { 0.15f, 0.5f },
+        { (float)((float)buttons->GetWidth() / 1920.0f ) / 1.5f, (float)((float)buttons->GetHeight() / 1080.0f ) / 1.5f},
+        false,
+        false,
+        2,
+        { 1.0,1.0,1.0,1.0 },
+        buttons);
+
+    entity = m_pHowToPlayScene->AddEntity("Mouse");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad(
+        "Mouse",
+        { 0.3f, 0.53f },
+        { (float)((float)buttons->GetWidth() / 1920.0f) / 2.2f, (float)((float)buttons->GetHeight() / 1080.0f) / 2.2f },
+        false,
+        false,
+        2,
+        { 1.0,1.0,1.0,1.0 },
+        mouse);
+
+    entity = m_pHowToPlayScene->AddEntity("Controller");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad(
+        "Controller",
+        { 0.6f, 0.5f },
+        { (float)((float)controller->GetWidth() / 1920.0f) / 1.f, (float)((float)controller->GetHeight() / 1080.0f) / 1.f },
+        false,
+        false,
+        2,
+        { 1.0,1.0,1.0,1.0 },
+        controller);
+
+    entity = m_pHowToPlayScene->AddEntity("Controls");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad(
+        "Controls",
+        { 0.35f, 0.15f },
+        { (float)((float)controls->GetWidth() / 1920.0f) / 1.f, (float)((float)controls->GetHeight() / 1080.0f) / 1.f },
+        false,
+        false,
+        2,
+        { 1.0,1.0,1.0,1.0 },
+        controls);    
+
+    /*-------------Back--------------*/
+   
+    entity = m_pHowToPlayScene->AddEntity("Back");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("Back",
+        { 0.05f, 0.8f },
+        { (float)exitTex->GetWidth() / 1920.0f, (float)exitTex->GetHeight() / 1080.0f },
+        true,
+        true,
+        2,
+        { 1.0,1.0,1.0,1.0 },
+        exitTex);
+    guic->GetQuadManager()->SetOnClicked(&onHowToPlayBack);
+
+    m_pHowToPlayScene->SetUpdateScene(&MenuUpdateScene);
 }
 
 void MainMenuHandler::createCreditsScene()
@@ -1467,6 +1588,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
 
     Texture* startTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Start.png");
     Texture* optionsTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Options.png");
+    Texture* howToPlayTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HowToPlay/HowToPlay.png");
     Texture* exitTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Exit.png");
     Texture* creditsTex = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Credits.png");
 	Texture* background = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Background.png");
@@ -1546,11 +1668,20 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
 	guic->GetQuadManager()->CreateQuad("OptionsOption", { 0.1f, 0.5f }, { optionsTex->GetWidth() / 1920.0f, optionsTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, optionsTex);
 	guic->GetQuadManager()->SetOnClicked(&onOptions);
 
+	entity = scene->AddEntity("ExitOption");
+	guic = entity->AddComponent<component::GUI2DComponent>();
+	guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.8f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, exitTex);
+	guic->GetQuadManager()->SetOnClicked(&onExit);
     entity = scene->AddEntity("ExitOption");
     guic = entity->AddComponent<component::GUI2DComponent>();
     guic->GetQuadManager()->CreateQuad("ExitOption", { 0.1f, 0.65f }, { exitTex->GetWidth() / 1920.0f, exitTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, exitTex);
     guic->GetQuadManager()->SetOnClicked(&onExit);
 
+    entity = scene->AddEntity("HowToPlayOption");
+    guic = entity->AddComponent<component::GUI2DComponent>();
+    guic->GetQuadManager()->CreateQuad("HowToPlayOption", { 0.1f, 0.64f }, { howToPlayTex->GetWidth() / 1920.0f, howToPlayTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, howToPlayTex);
+    guic->GetQuadManager()->SetOnClicked(&onHowToPlay);
+	
     entity = scene->AddEntity("CreditsOption");
     const float size_credits = 1.3;
     guic = entity->AddComponent<component::GUI2DComponent>();
@@ -1598,6 +1729,7 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     m_pScene = scene;
 
     createOptionScene();
+    createHowToPlayScene();
     createCreditsScene();
 
 
@@ -1613,7 +1745,10 @@ Scene* MainMenuHandler::GetScene()
 
 void onMainMenuSceneInit(Scene* scene)
 {
-    scene->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>()->Play(L"MenuMusic");
+    if (std::atof(Option::GetInstance().GetVariable("i_music").c_str()))
+    {
+        scene->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>()->Play(L"MenuMusic");
+    }
 }
 
 void onBrightnessPlus(const std::string& name)
@@ -1669,6 +1804,16 @@ void onOptions(const std::string& name)
 }
 
 void onOptionBack(const std::string& name)
+{
+    EventBus::GetInstance().Publish(&SceneChange("MainMenuScene"));
+}
+
+void onHowToPlay(const std::string& name)
+{
+    EventBus::GetInstance().Publish(&SceneChange("HowToPlayScene"));
+}
+
+void onHowToPlayBack(const std::string& name)
 {
     EventBus::GetInstance().Publish(&SceneChange("MainMenuScene"));
 }
@@ -1815,25 +1960,27 @@ void onHighShadowQuality(const std::string& name)
 
 void onVolumePlus(const std::string& name)
 {
-    if (std::stof(Option::GetInstance().GetVariable("f_volume")) < 10)
+    if (std::stof(Option::GetInstance().GetVariable("f_masterVolume")) < 10)
     {
         std::ostringstream str;
-        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_volume")) + 0.1f;
-        Option::GetInstance().SetVariable("f_volume", str.str());
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_masterVolume")) + 0.1f;
+        Option::GetInstance().SetVariable("f_masterVolume", str.str());
 
         Option::GetInstance().WriteFile();
+        AudioEngine::GetInstance().ChangeMasterVolume(std::stof(str.str()));
     }
 }
 
 void onVolumeMinus(const std::string& name)
 {
-    if (std::stof(Option::GetInstance().GetVariable("f_volume")) > 0)
+    if (std::stof(Option::GetInstance().GetVariable("f_masterVolume")) > 0)
     {
         std::ostringstream str;
-        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_volume")) - 0.1f;
-        Option::GetInstance().SetVariable("f_volume", str.str());
+        str << std::fixed << std::setprecision(1) << std::stof(Option::GetInstance().GetVariable("f_masterVolume")) - 0.1f;
+        Option::GetInstance().SetVariable("f_masterVolume", str.str());
 
         Option::GetInstance().WriteFile();
+        AudioEngine::GetInstance().ChangeMasterVolume(std::stof(str.str()));
     }
 }
 
@@ -1843,6 +1990,15 @@ void onBox(const std::string& name)
 	Option::GetInstance().SetVariable("i_music", std::to_string(!active));
 	Option::GetInstance().WriteFile();
 
+    if (std::atof(Option::GetInstance().GetVariable("i_music").c_str()))
+    {
+        SceneManager::GetInstance().GetActiveScene()->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>()->Play(L"MenuMusic");
+    }
+    else
+    {
+        SceneManager::GetInstance().GetActiveScene()->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>()->Stop(L"MenuMusic");
+    }
+    
 	float4 blended = { 1.0, 1.0, 1.0, 1.0 };
 	if (active)
 	{
@@ -1901,22 +2057,15 @@ void onMouseSensitivityMinus(const std::string& name)
 
 void MainMenuUpdateScene(SceneManager* sm, double dt)
 {
-    //static float rotValue = 0.0f;
-    //
-    //Transform* trans = sm->GetScene("MainMenuScene")->GetEntity("player")->GetComponent<component::TransformComponent>()->GetTransform();
-    //trans->SetRotationY(rotValue);
-    //trans->SetPosition({ 0.0f, std::sin(rotValue), 10.0f });
-    //
-    //for (int i = 0; i < 20; ++i)
-    //{
-    //    trans = sm->GetScene("MainMenuScene")->GetEntity("menuEnemy" + std::to_string(i))->GetComponent<component::TransformComponent>()->GetTransform();
-    //    trans->SetRotationY(rotValue + i);
-    //    float3 pos = trans->GetPositionFloat3();
-    //    trans->SetPosition({ pos.x, std::sin(rotValue + i), pos.z });
-    //}
-    //
-    //rotValue += dt;
+    Input::GetInstance().RegisterControllers();
+    MenuUpdateScene(sm, dt);
 }
+
+void MenuUpdateScene(SceneManager* sm, double dt)
+{
+    Input::GetInstance().ReadControllerInput(dt);
+}
+
 
 static float totalScrollY = 0;
 

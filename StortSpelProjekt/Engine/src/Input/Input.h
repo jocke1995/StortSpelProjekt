@@ -5,6 +5,12 @@
 #include <utility>
 #include <Windows.h>
 #include <chrono>
+#include <concrt.h>
+#include <winrt/Windows.Gaming.Input.h>
+#include <winrt/Windows.Foundation.Collections.h>
+
+using namespace winrt;
+using namespace winrt::Windows::Gaming::Input;
 
 enum class SCAN_CODES
 {
@@ -126,6 +132,13 @@ enum class MOUSE_BUTTON
 	WHEEL = 0x400,
 };
 
+enum class CONTROLLER_TYPE
+{
+	NONE,
+	XBOX,
+	DUALSHOCK
+};
+
 struct ResetGame;
 
 class Input {
@@ -141,6 +154,10 @@ public:
 	/// </summary>
 	/// <param name="hWnd">: The handle of the input window</param>
 	void RegisterDevices(const HWND* hWnd);
+	/// <summary>
+	/// Register the controllers to be used.
+	/// </summary>
+	void RegisterControllers();
 
 	/// <summary>
 	/// Sets the state of a keyboard key, either pressed or not pressed.
@@ -180,6 +197,8 @@ public:
 
 	bool IsPaused();
 
+	void ReadControllerInput(double dt);
+
 private:
 	Input();
 	void onReset(ResetGame* evnt);
@@ -189,6 +208,15 @@ private:
 	std::unordered_map<SCAN_CODES, std::chrono::system_clock::time_point> m_KeyTimer;
 
 	bool m_IsPaused;
+	
+	std::vector<RawGameController> m_RawGameControllers;
+	concurrency::critical_section m_ControllerLock{};
+
+	CONTROLLER_TYPE m_pControllerType;
+	RawGameController* m_pMainController;
+	int m_ControllerButtonCount;
+	int m_ControllerAxisCount;
+	int m_ControllerSwitchCount;
 };
 
 #endif // !INPUT_H

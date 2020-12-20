@@ -4,6 +4,9 @@
 #include <x3daudio.h>
 #pragma comment(lib, "xaudio2")
 
+#define VOLUME3D 1.0
+#define VOLUME2D 0.2
+
 class AudioEngine
 {
 public:
@@ -16,6 +19,7 @@ public:
 	XAUDIO2_VOICE_DETAILS* GetDeviceDetails();
 	void SetListenerPtr(X3DAUDIO_LISTENER* listener);
 	X3DAUDIO_LISTENER* GetListener();
+	void ChangeMasterVolume(float vol);
 
 private:
 	AudioEngine();

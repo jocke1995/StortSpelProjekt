@@ -32,6 +32,9 @@
 #include "../ECS/Components/Lights/SpotLightComponent.h"
 #include "../ECS/Entity.h"
 
+// Options
+#include "../Misc/Option.h"
+
 SceneManager::SceneManager()
 {
 	EventBus::GetInstance().Subscribe(this, &SceneManager::onEntityRemove);
@@ -135,10 +138,14 @@ bool SceneManager::ChangeScene()
 
 		// Change the player back to its original position
 		SetScene(scene);
+		if (scene->GetName() == "MainMenuScene" || scene->GetName() == "OptionScene" || scene->GetName() == "HowToPlayScene")
 		if (scene->GetName() == "MainMenuScene" || scene->GetName() == "OptionScene" || scene->GetName() == "CreditsScene")
 		{
 			component::Audio2DVoiceComponent* vc = scene->GetEntity("player")->GetComponent<component::Audio2DVoiceComponent>();
-			vc->Play(L"MenuMusic");
+			if (std::atof(Option::GetInstance().GetVariable("i_music").c_str()))
+			{
+				vc->Play(L"MenuMusic");
+			}
 		}
 
 		m_ChangeSceneNextFrame = false;

@@ -133,6 +133,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         else
         {
             PauseGUI::GetInstance().Update(timer->GetDeltaTime(), sceneManager->GetActiveScene());
+            Input::GetInstance().ReadControllerInput(timer->GetDeltaTime());
 
             /* ------ ImGui ------*/
             if (!IsImguiHidden())
@@ -229,6 +230,7 @@ Scene* GameScene(SceneManager* sm)
 	AudioBuffer* music = al->LoadAudio(L"../Vendor/Resources/Audio/backgroundMusic.wav", L"Music");
 	music->SetAudioLoop(0);
 
+	AudioBuffer* explosionSound = al->LoadAudio(L"../Vendor/Resources/Audio/Explosion.wav", L"ExplosionSound");
 	Texture* healthBackgroundTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthBackground.png");
 	Texture* healthbarTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Healthbar.png");
 	Texture* healthGuardiansTexture = al->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/HealthGuardians.png");
@@ -1122,6 +1124,7 @@ void GameUpdateScene(SceneManager* sm, double dt)
     }
 
     auto entities = Physics::GetInstance().GetCollisionEntities();
+    Input::GetInstance().ReadControllerInput(dt);
 }
 
 void ShopUpdateScene(SceneManager* sm, double dt)
@@ -1136,6 +1139,7 @@ void ShopUpdateScene(SceneManager* sm, double dt)
     pos.y = sinf(rotValue) + 7;
     trans->SetPosition(pos.x, pos.y, pos.z);
 
+    Input::GetInstance().ReadControllerInput(dt);
     // Kod-påkod-påkod-påkod-påkod-lösning
     // Detta ska egentligen stå i "OnShopGUIStateChange" i Shop, men eftersom att vi inte har samma
     // spelare i alla scener så kan vi ej nå den aktiva spelaren i den scenen därifrån.
