@@ -625,12 +625,8 @@ void EnemyFactory::levelDone(LevelDone* evnt)
 	{
 		if (m_TimeRound)
 		{
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
-				{ 0.015f, 0.021f },
-				{ 0.15f, 0.08f },
-				false, false,
-				{ 1.0, 1.0, 1.0, 1.0 }
-			);
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetPos({ 0.015f, 0.021f });
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetSize({ 0.15f, 0.08f });
 		}
 		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetText("Level Completed!\n   Find the portal", "enemyGui");
 		enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetScale({ 0.25f, 0.27f }, "enemyGui");
@@ -678,12 +674,9 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.075f, 0.044f }, "enemyGui");
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetScale({ 0.5f, 0.5f }, "enemyGui");
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetBlend({ 1.0f, 1.0f, 1.0f, 0.8f }, "enemyGui");
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
-				{ 0.015f, 0.021f },
-				{ 0.20f, 0.08f },
-				false, false,
-				{ 1.0, 1.0, 1.0, 1.0 }
-			);
+
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetPos({ 0.015f, 0.021f });
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetSize({ 0.20f, 0.08f });
 		}
 	}
 	else //Normal kill round
@@ -700,12 +693,9 @@ void EnemyFactory::onRoundStart(RoundStart* evnt)
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetPos({ 0.074f, 0.044f }, "enemyGui");
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetScale({ 0.5f, 0.5f }, "enemyGui");
 			enemyGui->GetComponent<component::GUI2DComponent>()->GetTextManager()->SetBlend({ 1.0f, 1.0f, 1.0f, 0.8f }, "enemyGui");
-			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
-				{ 0.015f, 0.021f },
-				{ 0.15f, 0.08f },
-				false, false,
-				{ 1.0, 1.0, 1.0, 1.0 }
-			);
+
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetPos({ 0.015f, 0.021f });
+			enemyGui->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetSize({ 0.15f, 0.08f });
 		}
 	}
 

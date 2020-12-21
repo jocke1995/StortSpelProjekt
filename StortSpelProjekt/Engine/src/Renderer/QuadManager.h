@@ -35,11 +35,14 @@ public:
 		float4 blend = float4{ 1.0, 1.0, 1.0, 1.0 },
 		Texture* texture = nullptr,
 		float3 color = float3{ 1.0, 1.0, 1.0 });
-	void UpdateQuad(
-		float2 pos, float2 size,
-		bool clickable, bool markable,
-		float4 blend = float4{ 1.0, 1.0, 1.0, 1.0 },
-		float3 color = float3{ 1.0, 1.0, 1.0 });
+
+	void SetPos(float2 pos);
+	void SetSize(float2 size);
+	void SetClickable(bool clickable);
+	void SetMarkable(bool markable);
+	void SetBlend(float4 blend);
+	void SetColor(float3 color);
+	void SetDepthLevel(int depthLevel);
 
 	const bool HasTexture() const;
 	const bool IsMarked() const;

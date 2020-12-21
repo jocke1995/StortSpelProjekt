@@ -852,9 +852,9 @@ void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 	
 	if (mesh != nullptr)
 	{
-		//component->GetQuadManager()->unsubmitQuad();
-		//component->GetQuadManager()->uploadQuadData();
-		//component->GetQuadManager()->submitCBQuadDataToCodt();
+		component->GetQuadManager()->unsubmitQuad();
+		component->GetQuadManager()->uploadQuadData();
+		component->GetQuadManager()->submitCBQuadDataToCodt();
 	
 		// Finally store the quad in m_pRenderer so it will be drawn
 		m_QuadComponents.push_back(component);

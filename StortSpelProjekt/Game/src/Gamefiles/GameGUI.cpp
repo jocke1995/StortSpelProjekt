@@ -140,12 +140,10 @@ void GameGUI::updateHealth(Scene* scene)
 					color = { 255.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f };
 				}
 
-				healthbar->GetQuadManager()->UpdateQuad(
-					healthbar->GetQuadManager()->GetPos(),
-					size,
-					false, false,
-					healthbar->GetQuadManager()->GetAmountOfBlend(),
-					color);
+				healthbar->GetQuadManager()->SetPos(healthbar->GetQuadManager()->GetPos());
+				healthbar->GetQuadManager()->SetSize(size);
+				healthbar->GetQuadManager()->SetBlend(healthbar->GetQuadManager()->GetAmountOfBlend());
+				healthbar->GetQuadManager()->SetColor(color);
 
 				// Always keep oldHealthLength at 100% of the original length
 				m_OldHealthLength = size.x + (m_OldHealthLength - m_OldHealthLength * percentage);
@@ -171,12 +169,11 @@ void GameGUI::reset(Scene* scene)
 		float2 size = healthbar->GetQuadManager()->GetScale();
 		size.x = m_OldHealthLength;
 		float3 color = { 0.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f };
-		healthbar->GetQuadManager()->UpdateQuad(
-			healthbar->GetQuadManager()->GetPos(),
-			{ 0.229f, 0.046f },
-			false, false,
-			healthbar->GetQuadManager()->GetAmountOfBlend(),
-			color);
+
+		healthbar->GetQuadManager()->SetPos(healthbar->GetQuadManager()->GetPos());
+		healthbar->GetQuadManager()->SetSize({ 0.229f, 0.046f });
+		healthbar->GetQuadManager()->SetBlend(healthbar->GetQuadManager()->GetAmountOfBlend());
+		healthbar->GetQuadManager()->SetColor(color);
 	}
 
 	m_OldHealth = 0;

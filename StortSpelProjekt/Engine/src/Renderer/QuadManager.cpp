@@ -53,6 +53,11 @@ QuadManager::~QuadManager()
 	{
 		delete m_pSlotInfo;
 	}
+
+	if (m_pCB != nullptr)
+	{
+		delete m_pCB;
+	}
 }
 
 bool QuadManager::operator==(const QuadManager& other) const
@@ -167,35 +172,107 @@ void QuadManager::CreateQuad(
 	submitCBQuadDataToCodt();
 }
 
-void QuadManager::UpdateQuad(float2 pos, float2 size, bool clickable, bool markable, float4 blend, float3 color)
+void QuadManager::SetPos(float2 pos)
 {
-	if (m_pQuad == nullptr)
-	{
-		Log::PrintSeverity(Log::Severity::WARNING, "The quad does not exist... Could not update quad!\n");
-		return;
-	}
-
-	m_BaseScale = size;
 	m_BasePos = pos;
 
-	m_CBData.blendFactor = blend;
-	m_CBData.color = float4{ color.x, color.y, color.z, 1.0f };
 	m_CBData.pos.x = (m_BasePos.x * 2.0f) - 1.0f;
 	m_CBData.pos.y = ((1.0f - m_BasePos.y) * 2.0f) - 1.0f;
 	m_CBData.scale.x = ((m_BasePos.x + m_BaseScale.x) * 2.0f) - 1.0f;
 	m_CBData.scale.y = ((1.0f - (m_BasePos.y + m_BaseScale.y)) * 2.0f) - 1.0f;
-	m_CBData.textureInfo.x = HasTexture();
 
+	submitCBQuadDataToCodt();
+}
+
+void QuadManager::SetSize(float2 size)
+{
+	m_BaseScale = size;
+
+	m_CBData.pos.x = (m_BasePos.x * 2.0f) - 1.0f;
+	m_CBData.pos.y = ((1.0f - m_BasePos.y) * 2.0f) - 1.0f;
+	m_CBData.scale.x = ((m_BasePos.x + m_BaseScale.x) * 2.0f) - 1.0f;
+	m_CBData.scale.y = ((1.0f - (m_BasePos.y + m_BaseScale.y)) * 2.0f) - 1.0f;
+
+	submitCBQuadDataToCodt();
+}
+
+void QuadManager::SetClickable(bool clickable)
+{
 	// If we no longer want the quad to be clickable, unsubscribe it from the eventbus
 	if (m_Clickable == true && clickable == false)
 	{
 		EventBus::GetInstance().Unsubscribe(this, &QuadManager::pressed);
 	}
+	// If it was not clickable, subscribe
+	else if (m_Clickable == false && clickable == true)
+	{
+		EventBus::GetInstance().Subscribe(this, &QuadManager::pressed);
+	}
 
 	m_Clickable = clickable;
+}
+
+void QuadManager::SetMarkable(bool markable)
+{
+	if (m_Markable == false && markable == true)
+	{
+		// The quad should have a "marked" texture if it is markable and has a texture
+		if (m_pQuadTexture != nullptr)
+		{
+			AssetLoader* al = AssetLoader::Get();
+			std::wstring markedTexture = m_pQuadTexture->GetPath();
+
+			std::wstring ending = L".png";
+			for (int i = 0; i < ending.size(); i++)
+			{
+				markedTexture.pop_back();
+			}
+
+			markedTexture += L"_m" + ending;
+
+			if (m_pQuadTextureMarked != nullptr)
+			{
+				delete m_pQuadTextureMarked;
+				m_pQuadTextureMarked = nullptr;
+			}
+			m_pQuadTextureMarked = al->LoadTexture2D(markedTexture);
+
+			m_pSlotInfo->textureEmissive = m_pQuadTextureMarked->GetDescriptorHeapIndex();
+		}
+		else
+		{
+			Log::PrintSeverity(Log::Severity::WARNING, "The quad '%s' does not have a texture... Could not make it markable.\n", m_Name.c_str());
+		}
+	}
+	else if (m_Markable == true && markable == false)
+	{
+		delete m_pQuadTexture;
+		m_pQuadTexture = nullptr;
+
+		delete m_pQuadTextureMarked;
+		m_pQuadTextureMarked = nullptr;
+	}
+
 	m_Markable = markable;
+}
+
+void QuadManager::SetBlend(float4 blend)
+{
+	m_CBData.blendFactor = blend;
 
 	submitCBQuadDataToCodt();
+}
+
+void QuadManager::SetColor(float3 color)
+{
+	m_CBData.color = float4{ color.x, color.y, color.z, 1.0f };
+
+	submitCBQuadDataToCodt();
+}
+
+void QuadManager::SetDepthLevel(int depthLevel)
+{
+	m_Depth = depthLevel;
 }
 
 const bool QuadManager::HasTexture() const

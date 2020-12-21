@@ -1671,9 +1671,8 @@ Scene* MainMenuHandler::CreateScene(SceneManager* sm)
     guic->GetQuadManager()->SetOnClicked(&onHowToPlay);
 	
     entity = scene->AddEntity("CreditsOption");
-    const float size_credits = 1.3;
     guic = entity->AddComponent<component::GUI2DComponent>();
-    guic->GetQuadManager()->CreateQuad("CreditsOption", { 0.54f, 0.52f }, { creditsTex->GetWidth()* size_credits / 1920.0f, creditsTex->GetHeight()* size_credits / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, creditsTex);
+    guic->GetQuadManager()->CreateQuad("CreditsOption", { 0.67f, 0.802f }, { creditsTex->GetWidth() / 1920.0f, creditsTex->GetHeight() / 1080.0f }, true, true, 2, { 1.0,1.0,1.0,1.0 }, creditsTex);
     guic->GetQuadManager()->SetOnClicked(&onCredits);
 
     /* ----------------- Light ------------------- */
@@ -1790,13 +1789,11 @@ void on2560x1440(const std::string& name)
     Option::GetInstance().WriteFile();
 
     Texture* high = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/2560x1440.png");
-    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeResolution")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
-        { 0.35f, 0.15f },
-        { (float)high->GetWidth() / 1920.0f, (float)high->GetHeight() / 1080.0f },
-        false,
-        false,
-        { 1.0, 1.0, 1.0, 1.0 },
-        { 0.30f, 0.20f, 0.25f });
+
+	Entity* entity = MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeResolution");
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetPos({ 0.35f, 0.15f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetSize({ (float)high->GetWidth() / 1920.0f, (float)high->GetHeight() / 1080.0f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetColor({ 0.30f, 0.20f, 0.25f });
 }
 
 void on1920x1080(const std::string& name)
@@ -1810,13 +1807,11 @@ void on1920x1080(const std::string& name)
     Option::GetInstance().WriteFile();
 
     Texture* med = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/1920x1080.png");
-    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeResolution")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
-        { 0.35f, 0.25f },
-        { (float)med->GetWidth() / 1920.0f, (float)med->GetHeight() / 1080.0f },
-        false,
-        false,
-        { 1.0, 1.0, 1.0, 1.0 },
-        { 0.30f, 0.20f, 0.25f });
+
+	Entity* entity = MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeResolution"); 
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetPos({ 0.35f, 0.25f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetSize({ (float)med->GetWidth() / 1920.0f, (float)med->GetHeight() / 1080.0f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetColor({ 0.30f, 0.20f, 0.25f });
 }
 
 void on1280x720(const std::string& name)
@@ -1830,13 +1825,11 @@ void on1280x720(const std::string& name)
     Option::GetInstance().WriteFile();
 
     Texture* low = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/1280x720.png");
-    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeResolution")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
-        { 0.35f, 0.35f },
-        { (float)low->GetWidth() / 1920.0f, (float)low->GetHeight() / 1080.0f },
-        false,
-        false,
-        { 1.0, 1.0, 1.0, 1.0 },
-        { 0.30f, 0.20f, 0.25f });
+
+	Entity* entity = MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeResolution");
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetPos({ 0.35f, 0.35f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetSize({ (float)low->GetWidth() / 1920.0f, (float)low->GetHeight() / 1080.0f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetColor({ 0.30f, 0.20f, 0.25f });
 }
 
 void onFullscreen(const std::string& name)
@@ -1846,13 +1839,11 @@ void onFullscreen(const std::string& name)
     Option::GetInstance().WriteFile();
 
     Texture* fullscreen = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Fullscreen.png");
-    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeWindowmode")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
-        { 0.60f, 0.15f },
-        { (float)fullscreen->GetWidth() / 1920.0f, (float)fullscreen->GetHeight() / 1080.0f },
-        false,
-        false,
-        { 1.0, 1.0, 1.0, 1.0 },
-        { 0.30f, 0.20f, 0.25f });
+
+	Entity* entity = MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeWindowmode");
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetPos({ 0.60f, 0.15f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetSize({ (float)fullscreen->GetWidth() / 1920.0f, (float)fullscreen->GetHeight() / 1080.0f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetColor({ 0.30f, 0.20f, 0.25f });
 }
 
 void onWindowed(const std::string& name)
@@ -1862,13 +1853,11 @@ void onWindowed(const std::string& name)
     Option::GetInstance().WriteFile();
 
     Texture* window = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Windowed.png");
-    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeWindowmode")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
-        { 0.60f, 0.25f },
-        { (float)window->GetWidth() / 1920.0f, (float)window->GetHeight() / 1080.0f },
-        false,
-        false,
-        { 1.0, 1.0, 1.0, 1.0 },
-        { 0.30f, 0.20f, 0.25f });
+
+	Entity* entity = MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeWindowmode");
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetPos({ 0.60f, 0.25f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetSize({ (float)window->GetWidth() / 1920.0f, (float)window->GetHeight() / 1080.0f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetColor({ 0.30f, 0.20f, 0.25f });
 }
 
 void onLowShadowQuality(const std::string& name)
@@ -1878,13 +1867,11 @@ void onLowShadowQuality(const std::string& name)
     Option::GetInstance().WriteFile();
 
     Texture* low = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Low.png");
-    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeShadowQuality")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
-        { 0.35f, 0.60f },
-        { (float)low->GetWidth() / 1920.0f, (float)low->GetHeight() / 1080.0f },
-        false,
-        false,
-        { 1.0, 1.0, 1.0, 1.0 },
-        { 0.30f, 0.20f, 0.25f });
+
+	Entity* entity = MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeShadowQuality");
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetPos({ 0.35f, 0.60f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetSize({ (float)low->GetWidth() / 1920.0f, (float)low->GetHeight() / 1080.0f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetColor({ 0.30f, 0.20f, 0.25f });
 }
 
 void onMedShadowQuality(const std::string& name)
@@ -1894,13 +1881,11 @@ void onMedShadowQuality(const std::string& name)
     Option::GetInstance().WriteFile();
 
     Texture* med = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/Med.png");
-    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeShadowQuality")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
-        { 0.35f, 0.70f },
-        { (float)med->GetWidth() / 1920.0f, (float)med->GetHeight() / 1080.0f },
-        false,
-        false,
-        { 1.0, 1.0, 1.0, 1.0 },
-        { 0.30f, 0.20f, 0.25f });
+
+	Entity* entity = MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeShadowQuality");
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetPos({ 0.35f, 0.70f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetSize({ (float)med->GetWidth() / 1920.0f, (float)med->GetHeight() / 1080.0f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetColor({ 0.30f, 0.20f, 0.25f });
 }
 
 void onHighShadowQuality(const std::string& name)
@@ -1910,13 +1895,11 @@ void onHighShadowQuality(const std::string& name)
     Option::GetInstance().WriteFile();
 
     Texture* high = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/High.png");
-    MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeShadowQuality")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad(
-        { 0.35f, 0.80f },
-        { (float)high->GetWidth() / 1920.0f, (float)high->GetHeight() / 1080.0f },
-        false,
-        false,
-        { 1.0, 1.0, 1.0, 1.0 },
-        { 0.30f, 0.20f, 0.25f });
+
+	Entity* entity = MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("activeShadowQuality");
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetPos({ 0.35f, 0.80f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetSize({ (float)high->GetWidth() / 1920.0f, (float)high->GetHeight() / 1080.0f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetColor({ 0.30f, 0.20f, 0.25f });
 }
 
 void onVolumePlus(const std::string& name)
@@ -1967,14 +1950,11 @@ void onBox(const std::string& name)
 	}
 
 	Texture* emptyBox = AssetLoader::Get()->LoadTexture2D(L"../Vendor/Resources/Textures/2DGUI/emptybox.png");
-	MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("check")->GetComponent<component::GUI2DComponent>()->GetQuadManager()->UpdateQuad
-	(
-		{ 0.88f, 0.53f },
-		{ (float)emptyBox->GetWidth() / 1920.0f / 3.0f, (float)emptyBox->GetHeight() / 1080.0f / 3.0f },
-		false,
-		false,
-		blended
-	);
+
+	Entity* entity = MainMenuHandler::GetInstance().GetOptionScene()->GetEntity("check");
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetPos({ 0.88f, 0.53f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetSize({ (float)emptyBox->GetWidth() / 1920.0f / 3.0f, (float)emptyBox->GetHeight() / 1080.0f / 3.0f });
+	entity->GetComponent<component::GUI2DComponent>()->GetQuadManager()->SetBlend(blended);
 }
 
 void onMouseSensitivityPlus(const std::string& name)
