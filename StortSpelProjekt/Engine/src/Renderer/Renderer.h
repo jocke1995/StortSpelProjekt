@@ -152,6 +152,7 @@ private:
 	friend class ParticleEffect;
 	friend class ImGuiHandler;
 	friend class ShadowInfo;
+	friend class Text;
 	Renderer();
 
 	// For control of safe release of DirectX resources

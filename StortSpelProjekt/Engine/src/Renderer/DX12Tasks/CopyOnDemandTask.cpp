@@ -8,6 +8,8 @@
 #include "../Texture/TextureCubeMap.h"
 
 #include "../../ECS/Components/GUI2DComponent.h"
+
+#include "../Renderer/GPUMemory/ConstantBuffer.h"
 #include "../Renderer/Mesh.h"
 
 CopyOnDemandTask::CopyOnDemandTask(ID3D12Device5* device, COMMAND_INTERFACE_TYPE interfaceType, unsigned int FLAG_THREAD)
@@ -66,6 +68,25 @@ void CopyOnDemandTask::UnSubmitText(Text* text)
 {
 	// Erase uploaded data
 	Resource* uploadResource = text->m_pUploadResourceVertices;
+	auto it = m_UploadDefaultData.begin();
+	while (it != m_UploadDefaultData.end())
+	{
+		if (std::get<0>(*it) == uploadResource)
+		{
+			it = m_UploadDefaultData.erase(it);
+			break;
+		}
+		else
+		{
+			++it;
+		}
+	}
+}
+
+void CopyOnDemandTask::UnSubmitCB(ConstantBuffer* cb)
+{
+	// Erase uploaded data
+	Resource* uploadResource = cb->GetUploadResource();
 	auto it = m_UploadDefaultData.begin();
 	while (it != m_UploadDefaultData.end())
 	{

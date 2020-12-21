@@ -56,6 +56,11 @@ QuadManager::~QuadManager()
 
 	if (m_pCB != nullptr)
 	{
+		// In case of removal in the middle of a frame
+		CopyTask* task = Renderer::GetInstance().m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+		CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
+		codt->UnSubmitCB(m_pCB);
+
 		delete m_pCB;
 	}
 }

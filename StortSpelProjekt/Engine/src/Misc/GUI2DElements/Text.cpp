@@ -8,6 +8,7 @@
 #include "../Renderer/DescriptorHeap.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/GPUMemory/ConstantBuffer.h"
+#include "../Renderer/DX12Tasks/CopyOnDemandTask.h"
 #include "Font.h"
 #include "../Headers/structs.h"
 
@@ -43,6 +44,11 @@ Text::~Text()
 	delete m_pDefaultResourceVertices;
 
 	delete m_pSRV;
+
+	// In case of removal in the middle of a frame
+	CopyTask* task = Renderer::GetInstance().m_CopyTasks[COPY_TASK_TYPE::COPY_ON_DEMAND];
+	CopyOnDemandTask* codt = static_cast<CopyOnDemandTask*>(task);
+	codt->UnSubmitCB(m_pCB);
 
 	delete m_pCB;
 }
