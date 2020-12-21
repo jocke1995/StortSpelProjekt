@@ -27,6 +27,4 @@ float4 PS_main(VS_OUT input) : SV_TARGET0
 	{
 		return float4(input.color * textures[cbPerObject.info.textureEmissive].Sample(point_Wrap, input.texCoord)) * cbGUIData.blendFactor;
 	}
-
-	//return float4(1.0f, 1.0f, 1.0f, 1.0f);
 }

@@ -116,7 +116,7 @@ void QuadManager::CreateQuad(
 	vertex.uv = DirectX::XMFLOAT2{ 1.0, 1.0 };
 	m_Vertices.push_back(vertex);
 
-	std::vector<unsigned int> indices = { 0, 1, 2, 3, 2, 1 };
+	std::vector<unsigned int> indices = { 0, 2, 1, 2, 1, 3 };
 
 	Renderer* renderer = &Renderer::GetInstance();
 
@@ -175,12 +175,11 @@ void QuadManager::UpdateQuad(float2 pos, float2 size, bool clickable, bool marka
 
 	m_CBData.blendFactor = blend;
 	m_CBData.color = float4{ color.x, color.y, color.z, 1.0f };
-	m_CBData.pos.x = (pos.x * 2.0f) - 1.0f;
-	m_CBData.pos.y = ((1.0f - pos.y) * 2.0f) - 1.0f;
-	m_CBData.scale.x = ((pos.x + size.x) * 2.0f) - 1.0f;
-	m_CBData.scale.y = ((1.0f - (pos.y + size.y)) * 2.0f) - 1.0f;
+	m_CBData.pos.x += pos.x;
+	m_CBData.pos.y += pos.y;
+	m_CBData.scale.x += size.x;
+	m_CBData.scale.y += size.y;
 	m_CBData.textureInfo.x = HasTexture();
-	submitCBQuadDataToCodt();
 
 	// If we no longer want the quad to be clickable, unsubscribe it from the eventbus
 	if (m_Clickable == true && clickable == false)
@@ -190,6 +189,8 @@ void QuadManager::UpdateQuad(float2 pos, float2 size, bool clickable, bool marka
 
 	m_Clickable = clickable;
 	m_Markable = markable;
+
+	submitCBQuadDataToCodt();
 }
 
 const bool QuadManager::HasTexture() const

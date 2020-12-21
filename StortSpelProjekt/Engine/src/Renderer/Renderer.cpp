@@ -853,14 +853,12 @@ void Renderer::InitGUI2DComponent(component::GUI2DComponent* component)
 	if (mesh != nullptr)
 	{
 		//component->GetQuadManager()->unsubmitQuad();
-		component->GetQuadManager()->uploadQuadData();
-		component->GetQuadManager()->submitCBQuadDataToCodt();
+		//component->GetQuadManager()->uploadQuadData();
+		//component->GetQuadManager()->submitCBQuadDataToCodt();
 	
 		// Finally store the quad in m_pRenderer so it will be drawn
 		m_QuadComponents.push_back(component);
 	}
-
-	setRenderTasksGUI2DComponents();
 }
 
 void Renderer::InitParticleEmitterComponent(component::ParticleEmitterComponent* component)
@@ -1121,14 +1119,14 @@ void Renderer::UnInitGUI2DComponent(component::GUI2DComponent* component)
 		component::GUI2DComponent* comp = m_QuadComponents.at(i);
 		if (comp == component)
 		{
-			//comp->GetQuadManager()->unsubmitQuad();
-			//
-			//CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
-			//const ConstantBuffer* cb = comp->GetQuadManager()->m_pCB;
-			//cpft->ClearSpecific(cb->GetUploadResource());
-			//
-			//m_QuadComponents.erase(m_QuadComponents.begin() + i);
-			//break;
+			comp->GetQuadManager()->unsubmitQuad();
+			
+			CopyPerFrameTask* cpft = static_cast<CopyPerFrameTask*>(m_CopyTasks[COPY_TASK_TYPE::COPY_PER_FRAME]);
+			const ConstantBuffer* cb = comp->GetQuadManager()->m_pCB;
+			cpft->ClearSpecific(cb->GetUploadResource());
+			
+			m_QuadComponents.erase(m_QuadComponents.begin() + i);
+			break;
 		}
 	}
 

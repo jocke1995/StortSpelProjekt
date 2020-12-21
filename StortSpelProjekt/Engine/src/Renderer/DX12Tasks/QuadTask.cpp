@@ -99,8 +99,8 @@ void QuadTask::draw(ID3D12GraphicsCommandList5* commandList)
 	for (int i = 0; i < m_QuadComponents.size(); i++)
 	{
 		// Hidden?
-		//if (!m_QuadComponents.at(i)->GetQuadManager()->IsQuadHidden())
-		//{
+		if (!m_QuadComponents.at(i)->GetQuadManager()->IsQuadHidden())
+		{
 			QuadManager* qm = m_QuadComponents.at(i)->GetQuadManager();
 
 			// Set Constant Buffer View
@@ -119,6 +119,6 @@ void QuadTask::draw(ID3D12GraphicsCommandList5* commandList)
 			commandList->SetGraphicsRoot32BitConstants(RS::CB_PER_OBJECT_CONSTANTS, sizeof(CB_PER_OBJECT_STRUCT) / sizeof(UINT), &perObject, 0);
 			commandList->IASetIndexBuffer(qm->GetQuad()->GetIndexBufferView());
 			commandList->DrawIndexedInstanced(num_Indices, 1, 0, 0, 0);
-		//}
+		}
 	}
 }
