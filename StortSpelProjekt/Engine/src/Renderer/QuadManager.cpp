@@ -85,13 +85,15 @@ void QuadManager::CreateQuad(
 	m_Clickable = clickable;
 	m_Markable = markable;
 	m_Depth = depthLevel;
+	m_BaseScale = size;
+	m_BasePos = pos;
 
 	m_CBData.blendFactor = blend;
 	m_CBData.color = float4{ color.x, color.y, color.z, 1.0f };
-	m_CBData.pos.x = (pos.x * 2.0f) - 1.0f;
-	m_CBData.pos.y = ((1.0f - pos.y) * 2.0f) - 1.0f;
-	m_CBData.scale.x = ((pos.x + size.x) * 2.0f) - 1.0f;
-	m_CBData.scale.y = ((1.0f - (pos.y + size.y)) * 2.0f) - 1.0f;
+	m_CBData.pos.x = (m_BasePos.x * 2.0f) - 1.0f;
+	m_CBData.pos.y = ((1.0f - m_BasePos.y) * 2.0f) - 1.0f;
+	m_CBData.scale.x = ((m_BasePos.x + m_BaseScale.x) * 2.0f) - 1.0f;
+	m_CBData.scale.y = ((1.0f - (m_BasePos.y + m_BaseScale.y)) * 2.0f) - 1.0f;
 	m_CBData.textureInfo.x = HasTexture();
 
 	std::vector<Vertex> m_Vertices = {};
@@ -173,12 +175,15 @@ void QuadManager::UpdateQuad(float2 pos, float2 size, bool clickable, bool marka
 		return;
 	}
 
+	m_BaseScale = size;
+	m_BasePos = pos;
+
 	m_CBData.blendFactor = blend;
 	m_CBData.color = float4{ color.x, color.y, color.z, 1.0f };
-	m_CBData.pos.x += pos.x;
-	m_CBData.pos.y += pos.y;
-	m_CBData.scale.x += size.x;
-	m_CBData.scale.y += size.y;
+	m_CBData.pos.x = (m_BasePos.x * 2.0f) - 1.0f;
+	m_CBData.pos.y = ((1.0f - m_BasePos.y) * 2.0f) - 1.0f;
+	m_CBData.scale.x = ((m_BasePos.x + m_BaseScale.x) * 2.0f) - 1.0f;
+	m_CBData.scale.y = ((1.0f - (m_BasePos.y + m_BaseScale.y)) * 2.0f) - 1.0f;
 	m_CBData.textureInfo.x = HasTexture();
 
 	// If we no longer want the quad to be clickable, unsubscribe it from the eventbus
@@ -282,12 +287,12 @@ int QuadManager::GetDepth() const
 
 float2 QuadManager::GetScale() const
 {
-	return m_CBData.scale;
+	return m_BaseScale;
 }
 
 float2 QuadManager::GetPos() const
 {
-	return float2{ m_CBData.pos.x, m_CBData.pos.y };
+	return m_BasePos;
 }
 
 void QuadManager::SetActiveTexture(const bool texture)

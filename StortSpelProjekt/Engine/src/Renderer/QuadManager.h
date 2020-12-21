@@ -72,6 +72,8 @@ private:
 
 	int m_Id = 0;
 	int m_Depth = 0;
+	float2 m_BaseScale = { 1.0f, 1.0f };
+	float2 m_BasePos = { 0.0f, 0.0f };
 	std::string m_Name = "";
 
 	CB_PER_GUI_STRUCT m_CBData = {};
