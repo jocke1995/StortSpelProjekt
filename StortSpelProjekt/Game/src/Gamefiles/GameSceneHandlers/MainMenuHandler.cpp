@@ -1998,12 +1998,13 @@ void onMouseSensitivityMinus(const std::string& name)
 
 void MainMenuUpdateScene(SceneManager* sm, double dt)
 {
-    Input::GetInstance().RegisterControllers();
+    //Input::GetInstance().RegisterControllers();
     MenuUpdateScene(sm, dt);
 }
 
 void MenuUpdateScene(SceneManager* sm, double dt)
 {
+	Input::GetInstance().RegisterControllers();
     Input::GetInstance().ReadControllerInput(dt);
 }
 
@@ -2012,6 +2013,9 @@ static float totalScrollY = 0;
 
 void CreditsUpdateScene(SceneManager* sm, double dt)
 {
+	Input::GetInstance().RegisterControllers();
+	Input::GetInstance().ReadControllerInput(dt);
+
     const float scrollSpeed = -0.2; // -0.2
     float frameYChange = scrollSpeed * dt;
     totalScrollY += frameYChange;
