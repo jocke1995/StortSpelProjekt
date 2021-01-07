@@ -10,6 +10,10 @@
 #define MAX_BONES_PER_VERTEX 10
 #define MAX_ANIMATION_MATRICES 100
 
+// the maximum number of characters you can render during a frame. This is just used to make sure
+// there is enough memory allocated for the text vertex buffer each frame
+#define MAX_NUM_CHARACTERS 1024
+
 // This struct can be used to send specific indices as a root constant to the GPU.
 // Example usage is when the indices for pp-effects are sent to gpu.
 struct DescriptorHeapIndices
@@ -38,6 +42,20 @@ struct SlotInfo
 struct ANIMATION_MATRICES_STRUCT
 {
 	float4x4 matrices[MAX_ANIMATION_MATRICES];
+};
+
+struct CB_PER_GUI_STRUCT
+{
+	float2 scale;
+	float2 textureInfo;
+	float4 pos;
+	float4 color;
+	float4 blendFactor;
+};
+
+struct CB_PER_TEXT_STRUCT
+{
+	CB_PER_GUI_STRUCT cbs[MAX_NUM_CHARACTERS];
 };
 
 struct CB_PER_OBJECT_STRUCT

@@ -152,6 +152,7 @@ private:
 	friend class ParticleEffect;
 	friend class ImGuiHandler;
 	friend class ShadowInfo;
+	friend class Text;
 	Renderer();
 
 	// For control of safe release of DirectX resources
@@ -284,11 +285,11 @@ private:
 	// Submit cbPerFrameData to the copyQueue that updates each frame
 	void submitUploadPerFrameData();
 
+	void submitTextToGPU(Text* text, TextManager* tm);
+
 	void toggleFullscreen(WindowChange* evnt);
 
 	SwapChain* getSwapChain() const;
-
-	void submitTextToGPU(Text* text, TextManager* tm);
 };
 
 #endif

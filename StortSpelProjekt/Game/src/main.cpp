@@ -6,21 +6,20 @@
 #include "Physics/CollisionCategories/PlayerProjectileCollisionCategory.h"
 #include "../ECS/Components/TemporaryLifeComponent.h"
 
+#include "Misc/Edge.h"
+#include "Misc/Cryptor.h"
+
 // Game includes
 #include "Player.h"
 #include "UpgradeManager.h"
 #include "Shop.h"
 #include "Components/CurrencyComponent.h"
 #include "Components/UpgradeComponents/UpgradeComponent.h"
-#include "MainMenuHandler.h"
-#include "GameOverHandler.h"
+#include "GameSceneHandlers/MainMenuHandler.h"
+#include "GameSceneHandlers/GameOverHandler.h"
 #include "PauseGUI.h"
 #include "GameTracker.h"
 #include "EnemyStatDefine.h"
-
-#include "Misc/Edge.h"
-
-#include "Misc/Cryptor.h"
 
 Scene* LoadScene(SceneManager* sm);
 Scene* GameScene(SceneManager* sm);

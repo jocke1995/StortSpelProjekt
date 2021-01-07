@@ -10,11 +10,14 @@
 #include "../TextManager.h"
 
 #include "../GPUMemory/RenderTargetView.h"
+#include "../GPUMemory/ConstantBufferView.h"
+#include "../GPUMemory/ConstantBuffer.h"
 #include "../GPUMemory/Resource.h"
 
 #include "../Misc/GUI2DElements/Text.h"
 
 #include "../../ECS/Components/GUI2DComponent.h"
+
 
 // tempHideGUI
 #include "../Misc/Window.h"
@@ -77,11 +80,16 @@ void TextTask::Execute()
 	commandList->RSSetViewports(1, swapChainRenderTarget->GetRenderView()->GetViewPort());
 	commandList->RSSetScissorRects(1, swapChainRenderTarget->GetRenderView()->GetScissorRect());
 
+	// Devmode
 	if (!IsGuiHidden())
 	{
 		for (int i = 0; i < m_TextComponents.size(); i++)
 		{
-			draw(commandList, m_TextComponents.at(i));
+			// Is the text hidden?
+			if (!m_TextComponents.at(i)->GetTextManager()->IsTextHidden())
+			{
+				draw(commandList, m_TextComponents.at(i));
+			}
 		}
 	}
 
@@ -101,15 +109,13 @@ void TextTask::draw(ID3D12GraphicsCommandList5* commandList, component::GUI2DCom
 	{
 		Text* text = textMap.second;
 
+		// Set Constant Buffer View
+		D3D12_GPU_VIRTUAL_ADDRESS gpuVA = text->m_pCB->GetDefaultResource()->GetID3D12Resource1()->GetGPUVirtualAddress();
+		commandList->SetGraphicsRootConstantBufferView(RS::CBV0, gpuVA);
+
 		// Create a CB_PER_OBJECT_STRUCT struct
 		SlotInfo* info = text->GetSlotInfo();
-		float4 amountOfBlend = text->GetAmountOfBlend();
-		amountOfBlend.w *= !tc->GetTextManager()->IsTextHidden();
-		DirectX::XMMATRIX world = DirectX::XMMatrixSet(
-			amountOfBlend.x,	amountOfBlend.y,	amountOfBlend.z,	amountOfBlend.w,
-			0.0f,				0.0f,				0.0f,				0.0f,
-			0.0f,				0.0f,				0.0f,				0.0f,
-			0.0f,				0.0f,				0.0f,				0.0f);
+		DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
 		DirectX::XMMATRIX id = DirectX::XMMatrixIdentity();
 
 		CB_PER_OBJECT_STRUCT perObject = { world, id, *info };

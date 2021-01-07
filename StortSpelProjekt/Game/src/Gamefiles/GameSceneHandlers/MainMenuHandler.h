@@ -1,6 +1,5 @@
 #ifndef MAINMENUHANDLER_H
 #define MAINMENUHANDLER_H
-#include <string.h>
 
 class Scene;
 class SceneManager;
@@ -19,7 +18,9 @@ private:
 
 	//OPTION MENU
 	void createOptionScene();
+	void createCreditsScene();
 	Scene* m_pOptionScene = nullptr;
+	Scene* m_pCreditsScene = nullptr;
 	bool m_RestartSetting;
 
 	// HowToPlay Menu

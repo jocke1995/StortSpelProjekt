@@ -83,7 +83,7 @@ Scene* GameOverHandler::CreateScene(SceneManager* sm)
 	guiComp->GetTextManager()->SetFont(font);
     guiComp->GetTextManager()->AddText("killedEnemies");
     guiComp->GetTextManager()->SetScale({ 0.6, 0.6 }, "killedEnemies");
-    guiComp->GetTextManager()->SetPos({ 0.405, 0.46 }, "killedEnemies");
+	guiComp->GetTextManager()->SetPos({ 0.405, 0.46 }, "killedEnemies");
     guiComp->GetTextManager()->SetText("Enemies Killed: ", "killedEnemies");
 
     // KilledEnemies

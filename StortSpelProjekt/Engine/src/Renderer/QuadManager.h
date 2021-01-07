@@ -10,6 +10,8 @@ class Resource;
 class ShaderResourceView;
 class EventBus;
 class Renderer;
+class ConstantBuffer;
+class DescriptorHeap;
 
 struct Vertex;
 struct MouseClick;
@@ -33,11 +35,14 @@ public:
 		float4 blend = float4{ 1.0, 1.0, 1.0, 1.0 },
 		Texture* texture = nullptr,
 		float3 color = float3{ 1.0, 1.0, 1.0 });
-	void UpdateQuad(
-		float2 pos, float2 size,
-		bool clickable, bool markable,
-		float4 blend = float4{ 1.0, 1.0, 1.0, 1.0 },
-		float3 color = float3{ 1.0, 1.0, 1.0 });
+
+	void SetPos(float2 pos);
+	void SetSize(float2 size);
+	void SetClickable(bool clickable);
+	void SetMarkable(bool markable);
+	void SetBlend(float4 blend);
+	void SetColor(float3 color);
+	void SetDepthLevel(int depthLevel);
 
 	const bool HasTexture() const;
 	const bool IsMarked() const;
@@ -56,9 +61,6 @@ public:
 	float2 GetPos() const;
 
 	// 0 (false) for the normal texture and 1 (true) for the marked texture
-	const bool GetActiveTexture() const;
-
-	// 0 (false) for the normal texture and 1 (true) for the marked texture
 	void SetActiveTexture(const bool texture);
 
 	void HideQuad(bool hide);
@@ -69,16 +71,17 @@ public:
 private:
 	friend class AssetLoader;
 	friend class Renderer;
+	friend class QuadTask;
 
 	int m_Id = 0;
 	int m_Depth = 0;
+	float2 m_BaseScale = { 1.0f, 1.0f };
+	float2 m_BasePos = { 0.0f, 0.0f };
 	std::string m_Name = "";
-	float4 m_AmountOfBlend = { 1.0, 1.0, 1.0, 1.0 };
-	float2 m_Scale = { 0.1, 0.1 };
-	float2 m_Pos = { 0.0, 0.0 };
 
-	std::map<std::string, float2> m_Positions = {};
+	CB_PER_GUI_STRUCT m_CBData = {};
 	Mesh* m_pQuad = nullptr;
+	ConstantBuffer* m_pCB = nullptr;
 	SlotInfo* m_pSlotInfo = nullptr;
 	Texture* m_pQuadTexture = nullptr;
 	Texture* m_pQuadTextureMarked = nullptr;
@@ -92,6 +95,8 @@ private:
 	
 	void pressed(MouseClick* evnt);
 	void uploadQuadData();
-	void deleteQuadData();
+	void createCB(ID3D12Device5* device, DescriptorHeap* descriptorHeap_CBV);
+	void submitCBQuadDataToCodt();
+	void unsubmitQuad();
 };
 #endif

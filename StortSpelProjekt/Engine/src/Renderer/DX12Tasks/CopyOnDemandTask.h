@@ -6,6 +6,7 @@ class Texture;
 class TextData;
 class Text;
 class Mesh;
+class ConstantBuffer;
 
 class CopyOnDemandTask : public CopyTask
 {
@@ -17,6 +18,7 @@ public:
 
 	void UnSubmitMesh(Mesh* mesh);
 	void UnSubmitText(Text* text);
+	void UnSubmitCB(ConstantBuffer* cb);
 
 	// Removal
 	void Clear();
