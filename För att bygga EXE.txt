@@ -1,0 +1,24 @@
+**Nödvändiga förutsättningar**
+För att köra programmet krävs i första hand att användarens dator använder operativsystemet Windows 10 (valfri version).
+
+I utvecklingen för detta projekt har gruppen använt Visual Studio 2019, vi rekommenderar därmed att användaren har dettta installerat.
+
+Slutligen har gruppen använt sig av premake (version 5) för att generera en VS solution till koden, ett antagende görs att användaren 
+har premake .exe filen inlagd bland miljövariablerna på sin dator för att enkelt utföra genereringen. En guide för hur man kan sätta 
+upp premake kan läsas i README.md som finnes i rotmappen till repot.
+
+
+**Skapa en Visual studio solution**
+Om premake har installerats på datorn genereras en solution enkelt genom att köra batch filen "build.bat". Denne fil kör endast 
+premake kommandot "vs2019" och genererar en solution och alla dess tillhörande filer till Visual Studio 2019.
+
+**Bygg exe filen**
+Solutionen är uppbyggd i två projekt, ett motorprojekt som länkas som ett statiskt bibliotek till ett spelprojekt. Visual studio bör 
+automatiskt vara inställt så att spelprojektet kräver att motorprojektet är genererat. Spelprojektet bör även automatiskt vara inställt 
+som startprojektet, användaren kan därmed be Visual studio att bygga och köra programmet utan vidare bekymmer, se bara till att du 
+bygger mot "Release" och inte "Debug".
+
+**Kör EXE utan Visual studios debugger**
+Om du vill köra EXE filen utan visual studios debugger behöver du, efter att ha genererat exe filen, manuellt flytta denne tillsammans med dess 
+tillhörande DLL:er. Filerna finner di i (relativt till repots rotmapp) "StortSpelProjekt/bin/Release/Game" och de ska flyttas till 
+"StortSpelprojekt/Game". Därifrån kan du köra EXE filen utan större problem.

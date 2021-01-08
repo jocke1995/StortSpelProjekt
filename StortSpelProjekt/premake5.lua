@@ -35,9 +35,7 @@ project "Engine"
 
     postbuildcommands
     {
-        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Game"),
-        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Sandbox"),
-        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Server")
+        ("{COPY} ../dll ../bin/%{cfg.buildcfg}/Game")
     }
     defines{"_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE"}
         filter "configurations:Debug"
@@ -92,51 +90,3 @@ project "Game"
     filter "configurations:Release"
         defines { "NDEBUG" }
         optimize "On"
-
-project "Sandbox"
-    location "Sandbox"
-    kind "WindowedApp"
-    language "C++"
-    targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
-    objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
-    staticruntime "On"
-    files { "%{prj.location}/src/**.cpp", "%{prj.location}/src/**.h", "%{prj.location}/src/**.hlsl", "%{prj.location}/../Game/src/Gamefiles/**.cpp", "%{prj.location}/../Game/src/Gamefiles/**.h" }
-    vpaths {["Gamefiles"] = {"*.cpp", "*.h"}}
-
-    filter { "files:**.hlsl" }
-        flags "ExcludeFromBuild"
-    
-    filter "configurations:*"
-        cppdialect "C++17"
-    
-    includedirs {"Vendor/Include/", "Engine/src/", "Engine/src/Headers/", "Game/src/Gamefiles/" }
-    libdirs { "Vendor/Lib/**" }
-    links {
-        "Engine"
-    }
-    
-    filter "configurations:Debug"
-        defines { "_DEBUG" }
-        symbols "On"
-    
-    filter "configurations:Release"
-        defines { "NDEBUG" }
-        optimize "On"
-
-
---project "Server"
---    location "Server"
---    kind "ConsoleApp"
---    targetdir "bin/%{cfg.buildcfg}/%{prj.name}"
---    objdir "bin-int/%{cfg.buildcfg}/%{prj.name}"
---    staticruntime "On"
---    files {"%{prj.location}/src/**.cpp", "%{prj.location}/src/**.h"}
---    includedirs {"Vendor/Include/", "Engine/src/", "Engine/src/Headers/"}
---    links {"Engine"}
---    filter "configurations:Debug"
---        defines {"_DEBUG", "_CONSOLE" }
---        symbols "On"
---
---    filter "configurations:Release"
---        defines { "NDEBUG", "_CONSOLE" }
---        optimize "On"
