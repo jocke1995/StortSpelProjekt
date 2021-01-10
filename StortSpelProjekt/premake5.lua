@@ -1,5 +1,6 @@
 workspace "StortSpelProjekt"
-    architecture "x64"
+    system "Windows"
+    architecture "x86_64"
     configurations { "Debug", "Release" }
     startproject "Game"
     systemversion "latest"
